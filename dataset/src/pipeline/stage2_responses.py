@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from datetime import datetime
 import json
 import time
@@ -7,6 +8,7 @@ import hashlib
 import mimetypes
 import os
 import re
+from threading import Lock
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -996,7 +998,6 @@ def run_stage2(
 
     writer = JsonlWriter(responses_path)
     assets_dir = responses_path.parent / "assets"
-    url_cache: dict[str, Path] = {}
 
     dataset_root = _detect_dataset_root(responses_path.parent)
     icon_context = _load_local_icon_context(dataset_root, logger)
@@ -1015,12 +1016,53 @@ def run_stage2(
     real_asset_retry_enabled = _real_asset_retry_enabled()
     real_asset_retry_max_attempts = _real_asset_retry_max_attempts()
     real_asset_retry_min_valid_rate = _real_asset_retry_min_valid_rate()
+    stage2_asset_workers_raw = os.environ.get("STAGE2_ASSET_WORKERS", "8").strip()
+    try:
+        stage2_asset_workers = int(stage2_asset_workers_raw)
+    except Exception:
+        stage2_asset_workers = 8
+    stage2_asset_workers = max(1, stage2_asset_workers)
     if real_asset_retry_enabled:
         logger.info(
             "Stage2 real-asset retry enabled attempts=%s min_valid_rate=%.2f",
             real_asset_retry_max_attempts,
             real_asset_retry_min_valid_rate,
         )
+    if stage2_asset_workers > 1:
+        logger.info("Stage2 async asset processing enabled workers=%s", stage2_asset_workers)
+
+    cache_lock = Lock()
+    asset_futures: set[Future] = set()
+    asset_executor: ThreadPoolExecutor | None = (
+        ThreadPoolExecutor(
+            max_workers=stage2_asset_workers,
+            thread_name_prefix="stage2-assets",
+        )
+        if stage2_asset_workers > 1
+        else None
+    )
+
+    def _cache_get(prompt_hash: str):
+        with cache_lock:
+            return cache.get(prompt_hash)
+
+    def _cache_set(prompt_hash: str, text: str, raw) -> None:
+        with cache_lock:
+            cache.set(prompt_hash, text, raw)
+
+    def _collect_asset_futures(block: bool = False) -> None:
+        if not asset_futures:
+            return
+        if block:
+            done, _ = wait(asset_futures)
+        else:
+            done = {future for future in asset_futures if future.done()}
+        for future in done:
+            asset_futures.discard(future)
+            try:
+                future.result()
+            except Exception as exc:
+                logger.error("Stage2 async asset processing failed: %s", exc)
 
     query_states: list[dict] = []
     for query in iter_jsonl(queries_path):
@@ -1102,7 +1144,7 @@ def run_stage2(
         }
 
     def _generate_single_entry(entry: dict):
-        cached = cache.get(entry["prompt_hash"])
+        cached = _cache_get(entry["prompt_hash"])
         if cached:
             return (
                 cached.text.strip(),
@@ -1167,7 +1209,7 @@ def run_stage2(
         if result is None or result.error:
             return None
 
-        cache.set(entry["prompt_hash"], result.text, result.raw)
+        _cache_set(entry["prompt_hash"], result.text, result.raw)
         return (
             result.text.strip(),
             result.latency_ms,
@@ -1181,6 +1223,315 @@ def run_stage2(
         state = entry["state"]
         state["n_idx"] += 1
         state["remaining"] -= 1
+
+    def _finalize_and_write_response(payload: dict) -> None:
+        response_id = payload["response_id"]
+        query_id = payload["query_id"]
+        n_idx = int(payload["n_idx"])
+        query_text = payload["query_text"]
+        intent_value = payload["intent_value"]
+        tags_list = payload["tags_list"]
+        prompt = payload["prompt"]
+        temperature = float(payload["temperature"])
+        selected_text = payload["selected_text"]
+        selected_prompt = payload["selected_prompt"]
+        selected_latency_ms = payload["selected_latency_ms"]
+        selected_input_tokens = payload["selected_input_tokens"]
+        selected_output_tokens = payload["selected_output_tokens"]
+        selected_provider = payload["selected_provider"]
+        selected_model = payload["selected_model"]
+
+        max_asset_attempts = (
+            real_asset_retry_max_attempts if real_asset_retry_enabled else 1
+        )
+        asset_retry_attempts = 1
+        assets: list[dict] = []
+        declared_assets_count = 0
+        valid_asset_rate = 1.0
+        asset_quality_ok = True
+        asset_quality_reason = "ok"
+        # Keep URL caching local to this task; sharing the old cache across
+        # asset threads would serialize downloads or require coarse locking.
+        local_url_cache: dict[str, Path] = {}
+
+        for asset_attempt in range(1, max_asset_attempts + 1):
+            selected_text = _apply_icon_catalog_postprocess(
+                selected_text,
+                query_text,
+                intent_value,
+                tags_list,
+                icon_context,
+            )
+            selected_text = _sanitize_response_media(selected_text)
+            selected_text = enrich_response_with_commons_media(
+                selected_text,
+                query_text,
+                intent_value,
+                tags_list,
+            )
+            assets, _, declared_assets_count = _download_assets(
+                selected_text,
+                response_id,
+                assets_dir,
+                logger,
+                local_url_cache,
+                local_icon_url_map=local_icon_url_map,
+            )
+            valid_asset_rate = (
+                float(len(assets) / declared_assets_count)
+                if declared_assets_count > 0
+                else 1.0
+            )
+            asset_quality_ok, asset_quality_reason = _asset_quality_check(
+                selected_text,
+                intent_value,
+                tags_list,
+                declared_assets_count,
+                len(assets),
+                real_asset_retry_min_valid_rate,
+                icons_only_mode=icons_only_mode,
+            )
+
+            if not real_asset_retry_enabled or asset_quality_ok:
+                break
+
+            if asset_attempt >= max_asset_attempts:
+                logger.warning(
+                    "Stage2 asset retry exhausted response_id=%s reason=%s",
+                    response_id,
+                    asset_quality_reason,
+                )
+                break
+
+            retry_prompt = _build_real_asset_retry_prompt(
+                prompt,
+                asset_quality_reason,
+                intent_value,
+                tags_list,
+            )
+            retry_prompt = (
+                f"{retry_prompt}\n\n"
+                f"Retry attempt: {asset_attempt + 1}\n"
+                "Previous draft (for correction):\n"
+                f"{selected_text[:6000]}"
+            )
+            retry_hash = hash_text(f"{adapter.spec.name}:{retry_prompt}")
+            cached_retry = _cache_get(retry_hash)
+            if cached_retry:
+                retry_text = cached_retry.text.strip()
+                retry_latency_ms = 0.0
+                retry_input_tokens = 0
+                retry_output_tokens = 0
+                retry_provider = adapter.spec.provider
+                retry_model = adapter.spec.model
+            else:
+
+                def _retry_call():
+                    rate_limiter.acquire()
+                    return adapter.generate(
+                        prompt=retry_prompt,
+                        system=None,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        seed=seed + n_idx + asset_attempt,
+                        json_mode=False,
+                    )
+
+                retry_result = None
+                for retry_attempt in range(1, max_attempts + 1):
+                    try:
+                        retry_result = with_retry(_retry_call, max_attempts=1)
+                    except Exception as exc:
+                        if isinstance(exc, LLMRateLimitError):
+                            logger.error(
+                                "Stage2 rate limit info: limits=%s headers=%s",
+                                exc.limits or "unset",
+                                exc.headers or "none",
+                            )
+                            raise
+                        if retry_attempt < max_attempts:
+                            logger.warning(
+                                "Stage2 retry transient exception query_id=%s attempt=%s/%s err=%s",
+                                query_id,
+                                retry_attempt,
+                                max_attempts,
+                                exc,
+                            )
+                            _sleep_backoff(retry_attempt)
+                            continue
+                        retry_result = None
+                        break
+                    if retry_result and not retry_result.error:
+                        break
+                    if (
+                        retry_result
+                        and retry_result.error
+                        and _is_transient_error(retry_result.error)
+                        and retry_attempt < max_attempts
+                    ):
+                        logger.warning(
+                            "Stage2 retry transient error query_id=%s attempt=%s/%s err=%s",
+                            query_id,
+                            retry_attempt,
+                            max_attempts,
+                            retry_result.error,
+                        )
+                        _sleep_backoff(retry_attempt)
+                        continue
+                    retry_result = None
+                    break
+
+                if retry_result is None or retry_result.error:
+                    logger.warning(
+                        "Stage2 asset retry generation failed response_id=%s reason=%s",
+                        response_id,
+                        asset_quality_reason,
+                    )
+                    break
+
+                retry_text = retry_result.text.strip()
+                retry_latency_ms = retry_result.latency_ms
+                retry_input_tokens = retry_result.input_tokens
+                retry_output_tokens = retry_result.output_tokens
+                retry_provider = retry_result.provider
+                retry_model = retry_result.model
+                _cache_set(retry_hash, retry_result.text, retry_result.raw)
+
+            if not retry_text:
+                break
+
+            selected_text = _sanitize_response_media(retry_text)
+            selected_prompt = retry_prompt
+            selected_latency_ms = retry_latency_ms
+            selected_input_tokens = retry_input_tokens
+            selected_output_tokens = retry_output_tokens
+            selected_provider = retry_provider
+            selected_model = retry_model
+            asset_retry_attempts = asset_attempt + 1
+
+        selected_text = _sanitize_response_media(selected_text)
+        selected_text = enrich_response_with_commons_media(
+            selected_text,
+            query_text,
+            intent_value,
+            tags_list,
+        )
+        selected_text = _strip_unresolved_media_images(selected_text, assets)
+        final_asset_entries = _extract_asset_entries(selected_text)
+        final_asset_urls = {entry["url"] for entry in final_asset_entries}
+        if final_asset_urls:
+            assets = [
+                asset for asset in assets
+                if str(asset.get("url") or "").strip() in final_asset_urls
+            ]
+        else:
+            assets = []
+        declared_assets_count = len(final_asset_entries)
+        valid_asset_rate = (
+            float(len(assets) / declared_assets_count)
+            if declared_assets_count > 0
+            else 1.0
+        )
+        asset_quality_ok, asset_quality_reason = _asset_quality_check(
+            selected_text,
+            intent_value,
+            tags_list,
+            declared_assets_count,
+            len(assets),
+            real_asset_retry_min_valid_rate,
+            icons_only_mode=icons_only_mode,
+        )
+
+        record = {
+            "response_id": response_id,
+            "query_id": query_id,
+            "n_idx": n_idx,
+            "response_text": selected_text,
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "assets": assets,
+            "asset_stats": {
+                "declared_asset_urls": declared_assets_count,
+                "downloaded_assets": len(assets),
+                "asset_url_valid_rate": valid_asset_rate,
+                "real_asset_retry_enabled": real_asset_retry_enabled,
+                "real_asset_retry_attempts": asset_retry_attempts,
+                "asset_quality_ok": asset_quality_ok,
+                "asset_quality_reason": asset_quality_reason,
+                "icon_catalog_enabled": bool(icon_context),
+                "icons_only_mode": icons_only_mode,
+                "async_asset_processing": bool(asset_executor),
+                "asset_workers": stage2_asset_workers,
+            },
+            "gen": {
+                "provider": selected_provider,
+                "model": selected_model,
+                "latency_ms": selected_latency_ms,
+                "input_tokens": selected_input_tokens,
+                "output_tokens": selected_output_tokens,
+                "cost_usd": None,
+                "retry_prompt_used": selected_prompt != prompt,
+            },
+        }
+        writer.append(record)
+        logger.info(
+            "Stage2 created response_id=%s assets=%s/%s",
+            response_id,
+            len(assets),
+            declared_assets_count,
+        )
+
+    def _safe_finalize_and_write_response(payload: dict) -> None:
+        try:
+            _finalize_and_write_response(payload)
+            return
+        except Exception as exc:
+            logger.error(
+                "Stage2 asset processing failed response_id=%s err=%s; writing response without assets",
+                payload.get("response_id"),
+                exc,
+            )
+
+        selected_text = _sanitize_response_media(str(payload.get("selected_text") or ""))
+        record = {
+            "response_id": payload["response_id"],
+            "query_id": payload["query_id"],
+            "n_idx": int(payload["n_idx"]),
+            "response_text": selected_text,
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "assets": [],
+            "asset_stats": {
+                "declared_asset_urls": len(_extract_asset_entries(selected_text)),
+                "downloaded_assets": 0,
+                "asset_url_valid_rate": 0.0,
+                "real_asset_retry_enabled": real_asset_retry_enabled,
+                "real_asset_retry_attempts": 0,
+                "asset_quality_ok": False,
+                "asset_quality_reason": "asset_processing_error",
+                "icon_catalog_enabled": bool(icon_context),
+                "icons_only_mode": icons_only_mode,
+                "async_asset_processing": bool(asset_executor),
+                "asset_workers": stage2_asset_workers,
+            },
+            "gen": {
+                "provider": payload["selected_provider"],
+                "model": payload["selected_model"],
+                "latency_ms": payload["selected_latency_ms"],
+                "input_tokens": payload["selected_input_tokens"],
+                "output_tokens": payload["selected_output_tokens"],
+                "cost_usd": None,
+                "retry_prompt_used": payload["selected_prompt"] != payload["prompt"],
+            },
+        }
+        writer.append(record)
+        logger.info("Stage2 created response_id=%s assets=0/error", payload["response_id"])
+
+    def _schedule_response_finalization(payload: dict) -> None:
+        if asset_executor is None:
+            _safe_finalize_and_write_response(payload)
+            return
+        future = asset_executor.submit(_safe_finalize_and_write_response, payload)
+        asset_futures.add(future)
+        _collect_asset_futures(block=False)
 
     def _consume_generated(
         entry: dict,
@@ -1240,204 +1591,6 @@ def run_stage2(
             selected_provider = provider
             selected_model = model
 
-            max_asset_attempts = (
-                real_asset_retry_max_attempts if real_asset_retry_enabled else 1
-            )
-            asset_retry_attempts = 1
-            assets: list[dict] = []
-            declared_assets_count = 0
-            valid_asset_rate = 1.0
-            asset_quality_ok = True
-            asset_quality_reason = "ok"
-
-            for asset_attempt in range(1, max_asset_attempts + 1):
-                selected_text = _apply_icon_catalog_postprocess(
-                    selected_text,
-                    query_text,
-                    intent_value,
-                    tags_list,
-                    icon_context,
-                )
-                selected_text = _sanitize_response_media(selected_text)
-                selected_text = enrich_response_with_commons_media(
-                    selected_text,
-                    query_text,
-                    intent_value,
-                    tags_list,
-                )
-                assets, _, declared_assets_count = _download_assets(
-                    selected_text,
-                    response_id,
-                    assets_dir,
-                    logger,
-                    url_cache,
-                    local_icon_url_map=local_icon_url_map,
-                )
-                valid_asset_rate = (
-                    float(len(assets) / declared_assets_count)
-                    if declared_assets_count > 0
-                    else 1.0
-                )
-                asset_quality_ok, asset_quality_reason = _asset_quality_check(
-                    selected_text,
-                    intent_value,
-                    tags_list,
-                    declared_assets_count,
-                    len(assets),
-                    real_asset_retry_min_valid_rate,
-                    icons_only_mode=icons_only_mode,
-                )
-
-                if not real_asset_retry_enabled or asset_quality_ok:
-                    break
-
-                if asset_attempt >= max_asset_attempts:
-                    logger.warning(
-                        "Stage2 asset retry exhausted response_id=%s reason=%s",
-                        response_id,
-                        asset_quality_reason,
-                    )
-                    break
-
-                retry_prompt = _build_real_asset_retry_prompt(
-                    prompt,
-                    asset_quality_reason,
-                    intent_value,
-                    tags_list,
-                )
-                retry_prompt = (
-                    f"{retry_prompt}\n\n"
-                    f"Retry attempt: {asset_attempt + 1}\n"
-                    "Previous draft (for correction):\n"
-                    f"{selected_text[:6000]}"
-                )
-                retry_hash = hash_text(f"{adapter.spec.name}:{retry_prompt}")
-                cached_retry = cache.get(retry_hash)
-                if cached_retry:
-                    retry_text = cached_retry.text.strip()
-                    retry_latency_ms = 0.0
-                    retry_input_tokens = 0
-                    retry_output_tokens = 0
-                    retry_provider = adapter.spec.provider
-                    retry_model = adapter.spec.model
-                else:
-
-                    def _retry_call():
-                        rate_limiter.acquire()
-                        return adapter.generate(
-                            prompt=retry_prompt,
-                            system=None,
-                            temperature=temperature,
-                            max_tokens=max_tokens,
-                            seed=seed + int(state["n_idx"]) + asset_attempt,
-                            json_mode=False,
-                        )
-
-                    retry_result = None
-                    for retry_attempt in range(1, max_attempts + 1):
-                        try:
-                            retry_result = with_retry(_retry_call, max_attempts=1)
-                        except Exception as exc:
-                            if isinstance(exc, LLMRateLimitError):
-                                logger.error(
-                                    "Stage2 rate limit info: limits=%s headers=%s",
-                                    exc.limits or "unset",
-                                    exc.headers or "none",
-                                )
-                                raise
-                            if retry_attempt < max_attempts:
-                                logger.warning(
-                                    "Stage2 retry transient exception query_id=%s attempt=%s/%s err=%s",
-                                    query_id,
-                                    retry_attempt,
-                                    max_attempts,
-                                    exc,
-                                )
-                                _sleep_backoff(retry_attempt)
-                                continue
-                            retry_result = None
-                            break
-                        if retry_result and not retry_result.error:
-                            break
-                        if (
-                            retry_result
-                            and retry_result.error
-                            and _is_transient_error(retry_result.error)
-                            and retry_attempt < max_attempts
-                        ):
-                            logger.warning(
-                                "Stage2 retry transient error query_id=%s attempt=%s/%s err=%s",
-                                query_id,
-                                retry_attempt,
-                                max_attempts,
-                                retry_result.error,
-                            )
-                            _sleep_backoff(retry_attempt)
-                            continue
-                        retry_result = None
-                        break
-
-                    if retry_result is None or retry_result.error:
-                        logger.warning(
-                            "Stage2 asset retry generation failed response_id=%s reason=%s",
-                            response_id,
-                            asset_quality_reason,
-                        )
-                        break
-
-                    retry_text = retry_result.text.strip()
-                    retry_latency_ms = retry_result.latency_ms
-                    retry_input_tokens = retry_result.input_tokens
-                    retry_output_tokens = retry_result.output_tokens
-                    retry_provider = retry_result.provider
-                    retry_model = retry_result.model
-                    cache.set(retry_hash, retry_result.text, retry_result.raw)
-
-                if not retry_text:
-                    break
-
-                selected_text = retry_text
-                selected_text = _sanitize_response_media(selected_text)
-                selected_prompt = retry_prompt
-                selected_latency_ms = retry_latency_ms
-                selected_input_tokens = retry_input_tokens
-                selected_output_tokens = retry_output_tokens
-                selected_provider = retry_provider
-                selected_model = retry_model
-                asset_retry_attempts = asset_attempt + 1
-
-            selected_text = _sanitize_response_media(selected_text)
-            selected_text = enrich_response_with_commons_media(
-                selected_text,
-                query_text,
-                intent_value,
-                tags_list,
-            )
-            selected_text = _strip_unresolved_media_images(selected_text, assets)
-            final_asset_entries = _extract_asset_entries(selected_text)
-            final_asset_urls = {entry["url"] for entry in final_asset_entries}
-            if final_asset_urls:
-                assets = [
-                    asset for asset in assets
-                    if str(asset.get("url") or "").strip() in final_asset_urls
-                ]
-            else:
-                assets = []
-            declared_assets_count = len(final_asset_entries)
-            valid_asset_rate = (
-                float(len(assets) / declared_assets_count)
-                if declared_assets_count > 0
-                else 1.0
-            )
-            asset_quality_ok, asset_quality_reason = _asset_quality_check(
-                selected_text,
-                intent_value,
-                tags_list,
-                declared_assets_count,
-                len(assets),
-                real_asset_retry_min_valid_rate,
-                icons_only_mode=icons_only_mode,
-            )
             norm_hash = hash_text(normalize_text(selected_text))
             if norm_hash in existing_hashes:
                 logger.info("Stage2 duplicate response query_id=%s", query_id)
@@ -1446,38 +1599,27 @@ def run_stage2(
                 response_id = _make_response_id(query_id, state["n_idx"])
                 continue
 
-            record = {
+            payload = {
                 "response_id": response_id,
                 "query_id": query_id,
                 "n_idx": state["n_idx"],
-                "response_text": selected_text,
-                "created_at": datetime.utcnow().isoformat() + "Z",
-                "assets": assets,
-                "asset_stats": {
-                    "declared_asset_urls": declared_assets_count,
-                    "downloaded_assets": len(assets),
-                    "asset_url_valid_rate": valid_asset_rate,
-                    "real_asset_retry_enabled": real_asset_retry_enabled,
-                    "real_asset_retry_attempts": asset_retry_attempts,
-                    "asset_quality_ok": asset_quality_ok,
-                    "asset_quality_reason": asset_quality_reason,
-                    "icon_catalog_enabled": bool(icon_context),
-                    "icons_only_mode": icons_only_mode,
-                },
-                "gen": {
-                    "provider": selected_provider,
-                    "model": selected_model,
-                    "latency_ms": selected_latency_ms,
-                    "input_tokens": selected_input_tokens,
-                    "output_tokens": selected_output_tokens,
-                    "cost_usd": None,
-                    "retry_prompt_used": selected_prompt != prompt,
-                },
+                "query_text": query_text,
+                "intent_value": intent_value,
+                "tags_list": tags_list,
+                "prompt": prompt,
+                "temperature": temperature,
+                "selected_text": selected_text,
+                "selected_prompt": selected_prompt,
+                "selected_latency_ms": selected_latency_ms,
+                "selected_input_tokens": selected_input_tokens,
+                "selected_output_tokens": selected_output_tokens,
+                "selected_provider": selected_provider,
+                "selected_model": selected_model,
             }
-            writer.append(record)
+            _schedule_response_finalization(payload)
             existing_ids.add(response_id)
             existing_hashes.add(norm_hash)
-            logger.info("Stage2 created response_id=%s", response_id)
+            logger.info("Stage2 scheduled response_id=%s for asset processing", response_id)
             state["n_idx"] += 1
             state["remaining"] -= 1
             total_created += 1
@@ -1491,137 +1633,143 @@ def run_stage2(
             state["remaining"] -= 1
         return False
 
-    while True:
-        if max_total is not None and total_created >= max_total:
-            logger.info("Stage2 reached max_total=%s", max_total)
-            return
-
-        pending_states = [state for state in query_states if state["remaining"] > 0]
-        if not pending_states:
-            return
-
-        if not use_gemini_query_batch:
-            entry = _prepare_entry(pending_states[0])
-            if entry is None:
-                continue
-            generated = _generate_single_entry(entry)
-            if generated is None:
-                _consume_failure(entry)
-                continue
-            if _consume_generated(entry, *generated):
+    try:
+        while True:
+            if max_total is not None and total_created >= max_total:
+                logger.info("Stage2 reached max_total=%s", max_total)
                 return
-            continue
 
-        ordered_states = pending_states
-        if group_by_intent and pending_states:
-            base_intent = str(pending_states[0].get("intent_value") or "")
-            same_intent = [s for s in pending_states if str(s.get("intent_value") or "") == base_intent]
-            other_intent = [s for s in pending_states if str(s.get("intent_value") or "") != base_intent]
-            ordered_states = same_intent + other_intent
+            pending_states = [state for state in query_states if state["remaining"] > 0]
+            if not pending_states:
+                return
 
-        entries: list[dict] = []
-        base_temperature: float | None = None
-        for state in ordered_states:
-            entry = _prepare_entry(state)
-            if entry is None:
+            if not use_gemini_query_batch:
+                entry = _prepare_entry(pending_states[0])
+                if entry is None:
+                    continue
+                generated = _generate_single_entry(entry)
+                if generated is None:
+                    _consume_failure(entry)
+                    continue
+                if _consume_generated(entry, *generated):
+                    return
                 continue
-            if base_temperature is None:
-                base_temperature = entry["temperature"]
-            if entries and entry["temperature"] != base_temperature:
+
+            ordered_states = pending_states
+            if group_by_intent and pending_states:
+                base_intent = str(pending_states[0].get("intent_value") or "")
+                same_intent = [s for s in pending_states if str(s.get("intent_value") or "") == base_intent]
+                other_intent = [s for s in pending_states if str(s.get("intent_value") or "") != base_intent]
+                ordered_states = same_intent + other_intent
+
+            entries: list[dict] = []
+            base_temperature: float | None = None
+            for state in ordered_states:
+                entry = _prepare_entry(state)
+                if entry is None:
+                    continue
+                if base_temperature is None:
+                    base_temperature = entry["temperature"]
+                if entries and entry["temperature"] != base_temperature:
+                    continue
+                entries.append(entry)
+                if len(entries) >= query_batch_size:
+                    break
+
+            if not entries:
                 continue
-            entries.append(entry)
-            if len(entries) >= query_batch_size:
-                break
 
-        if not entries:
-            continue
-
-        cached_payloads: dict[int, tuple[str, float, int, int, str, str]] = {}
-        uncached_entries: list[dict] = []
-        for entry in entries:
-            cached = cache.get(entry["prompt_hash"])
-            if cached:
-                cached_payloads[id(entry)] = (
-                    cached.text.strip(),
-                    0.0,
-                    0,
-                    0,
-                    adapter.spec.provider,
-                    adapter.spec.model,
-                )
-            else:
-                uncached_entries.append(entry)
-
-        generated_payloads: dict[int, tuple[str, float, int, int, str, str] | None] = {}
-        generated_payloads.update(cached_payloads)
-
-        if uncached_entries:
-            prompts = [entry["prompt"] for entry in uncached_entries]
-            seeds = [entry["seed_value"] for entry in uncached_entries]
-            json_mode = adapter.spec.supports_json_mode and any(
-                int(entry["batch"]) > 1 for entry in uncached_entries
-            )
-            batch_results = None
-
-            def _call_batch():
-                rate_limiter.acquire()
-                return adapter.generate_batch(
-                    prompts=prompts,
-                    system=None,
-                    temperature=float(uncached_entries[0]["temperature"]),
-                    max_tokens=max_tokens,
-                    seeds=seeds,
-                    json_mode=json_mode,
-                    batch_name=f"stage2_{int(time.time())}",
-                )
-
-            try:
-                batch_results = with_retry(_call_batch, max_attempts=max_attempts)
-            except Exception as exc:
-                if isinstance(exc, LLMRateLimitError):
-                    logger.error(
-                        "Stage2 rate limit info: limits=%s headers=%s",
-                        exc.limits or "unset",
-                        exc.headers or "none",
+            cached_payloads: dict[int, tuple[str, float, int, int, str, str]] = {}
+            uncached_entries: list[dict] = []
+            for entry in entries:
+                cached = _cache_get(entry["prompt_hash"])
+                if cached:
+                    cached_payloads[id(entry)] = (
+                        cached.text.strip(),
+                        0.0,
+                        0,
+                        0,
+                        adapter.spec.provider,
+                        adapter.spec.model,
                     )
-                    raise
-                logger.warning("Stage2 batch failed; falling back to per-query calls: %s", exc)
+                else:
+                    uncached_entries.append(entry)
+
+            generated_payloads: dict[int, tuple[str, float, int, int, str, str] | None] = {}
+            generated_payloads.update(cached_payloads)
+
+            if uncached_entries:
+                prompts = [entry["prompt"] for entry in uncached_entries]
+                seeds = [entry["seed_value"] for entry in uncached_entries]
+                json_mode = adapter.spec.supports_json_mode and any(
+                    int(entry["batch"]) > 1 for entry in uncached_entries
+                )
                 batch_results = None
 
-            if batch_results is not None and len(batch_results) == len(uncached_entries):
-                for entry, result in zip(uncached_entries, batch_results):
-                    if result.error:
-                        logger.warning(
-                            "Stage2 batch item error query_id=%s err=%s",
-                            entry["query_id"],
-                            result.error,
-                        )
-                        generated_payloads[id(entry)] = None
-                        continue
-                    cache.set(entry["prompt_hash"], result.text, result.raw)
-                    generated_payloads[id(entry)] = (
-                        result.text.strip(),
-                        result.latency_ms,
-                        result.input_tokens,
-                        result.output_tokens,
-                        result.provider,
-                        result.model,
+                def _call_batch():
+                    rate_limiter.acquire()
+                    return adapter.generate_batch(
+                        prompts=prompts,
+                        system=None,
+                        temperature=float(uncached_entries[0]["temperature"]),
+                        max_tokens=max_tokens,
+                        seeds=seeds,
+                        json_mode=json_mode,
+                        batch_name=f"stage2_{int(time.time())}",
                     )
-            else:
+
+                try:
+                    batch_results = with_retry(_call_batch, max_attempts=max_attempts)
+                except Exception as exc:
+                    if isinstance(exc, LLMRateLimitError):
+                        logger.error(
+                            "Stage2 rate limit info: limits=%s headers=%s",
+                            exc.limits or "unset",
+                            exc.headers or "none",
+                        )
+                        raise
+                    logger.warning("Stage2 batch failed; falling back to per-query calls: %s", exc)
+                    batch_results = None
+
+                if batch_results is not None and len(batch_results) == len(uncached_entries):
+                    for entry, result in zip(uncached_entries, batch_results):
+                        if result.error:
+                            logger.warning(
+                                "Stage2 batch item error query_id=%s err=%s",
+                                entry["query_id"],
+                                result.error,
+                            )
+                            generated_payloads[id(entry)] = None
+                            continue
+                        _cache_set(entry["prompt_hash"], result.text, result.raw)
+                        generated_payloads[id(entry)] = (
+                            result.text.strip(),
+                            result.latency_ms,
+                            result.input_tokens,
+                            result.output_tokens,
+                            result.provider,
+                            result.model,
+                        )
+                else:
+                    for entry in uncached_entries:
+                        generated_payloads[id(entry)] = None
+
                 for entry in uncached_entries:
-                    generated_payloads[id(entry)] = None
+                    if generated_payloads.get(id(entry)) is not None:
+                        continue
+                    if not batch_fallback_per_query:
+                        continue
+                    generated_payloads[id(entry)] = _generate_single_entry(entry)
 
-            for entry in uncached_entries:
-                if generated_payloads.get(id(entry)) is not None:
+            for entry in entries:
+                payload = generated_payloads.get(id(entry))
+                if payload is None:
+                    _consume_failure(entry)
                     continue
-                if not batch_fallback_per_query:
-                    continue
-                generated_payloads[id(entry)] = _generate_single_entry(entry)
+                if _consume_generated(entry, *payload):
+                    return
 
-        for entry in entries:
-            payload = generated_payloads.get(id(entry))
-            if payload is None:
-                _consume_failure(entry)
-                continue
-            if _consume_generated(entry, *payload):
-                return
+    finally:
+        _collect_asset_futures(block=True)
+        if asset_executor is not None:
+            asset_executor.shutdown(wait=True)
