@@ -649,15 +649,27 @@ def run_stage3(
                 aggregate_weights or {},
             )
             aggregates["media_score"] = compute_media_score(aggregates)
+            aggregates["aggregated_scope"] = "all_generated_samples"
+            aggregates["aggregated_sample_count"] = len(rows)
+            aggregates["updated_at"] = datetime.utcnow().isoformat() + "Z"
             tmp_path = aggregates_path.with_name(
                 f".{aggregates_path.name}.{os.getpid()}.{time.time_ns()}.tmp"
             )
             tmp_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
             tmp_path.replace(aggregates_path)
             if reason:
-                logger.debug("Stage3 aggregates stored at %s (%s)", aggregates_path, reason)
+                logger.debug(
+                    "Stage3 aggregates stored at %s (%s) aggregated_sample_count=%s",
+                    aggregates_path,
+                    reason,
+                    len(rows),
+                )
             else:
-                logger.info("Stage3 aggregates stored at %s", aggregates_path)
+                logger.info(
+                    "Stage3 aggregates stored at %s aggregated_sample_count=%s",
+                    aggregates_path,
+                    len(rows),
+                )
         except Exception as exc:  # best-effort
             logger.warning("Stage3 aggregates failed: %s", exc)
 
