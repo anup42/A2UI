@@ -4,7 +4,7 @@ set -euo pipefail
 # Run this on the offline GPU machine after copying qwen_vllm_offline_bundle.
 
 BUNDLE_DIR="${1:-${BUNDLE_DIR:-${PWD}/qwen_vllm_offline_bundle}}"
-ENV_DIR="${ENV_DIR:-${PWD}/qwen_vllm_env}"
+ENV_DIR="${ENV_DIR:-${PWD}/qwen36_vllm_env}"
 PYTHON_BIN="${PYTHON_BIN:-python3.11}"
 REQ_FILE="${BUNDLE_DIR}/requirements-qwen-vllm.txt"
 WHEELHOUSE="${BUNDLE_DIR}/wheelhouse"
@@ -38,7 +38,7 @@ source "${ENV_DIR}/bin/activate"
 python -m pip install --upgrade pip setuptools wheel --no-index --find-links "${WHEELHOUSE}" || true
 python -m pip install --no-index --find-links "${WHEELHOUSE}" -r "${REQ_FILE}"
 
-cat > "${ENV_DIR}/activate_qwen_vllm.sh" <<EOF
+cat > "${ENV_DIR}/activate_qwen36_vllm.sh" <<EOF
 #!/usr/bin/env bash
 source "${ENV_DIR}/bin/activate"
 export HF_HUB_OFFLINE=1
@@ -50,7 +50,8 @@ export LOCAL_VLLM_ENABLE_THINKING=1
 export VLLM_REASONING_PARSER=qwen3
 export QWEN_MODEL_PATH="${QWEN_MODEL_PATH}"
 EOF
-chmod +x "${ENV_DIR}/activate_qwen_vllm.sh"
+chmod +x "${ENV_DIR}/activate_qwen36_vllm.sh"
+cp "${ENV_DIR}/activate_qwen36_vllm.sh" "${ENV_DIR}/activate_qwen_vllm.sh"
 
 python - <<'PY'
 import importlib.metadata as md
@@ -74,4 +75,4 @@ except Exception as exc:
 PY
 
 echo "Offline env ready: ${ENV_DIR}"
-echo "Activate with: source ${ENV_DIR}/activate_qwen_vllm.sh"
+echo "Activate with: source ${ENV_DIR}/activate_qwen36_vllm.sh"

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import sys
 import time
 import subprocess
@@ -286,6 +287,20 @@ def _wait_for_endpoint(endpoint: str, timeout_s: float = 120.0) -> bool:
     return False
 
 
+def _vllm_serve_supports_flag(flag: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["vllm", "serve", "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=45,
+        )
+    except Exception:
+        return False
+    return flag in ((result.stdout or "") + (result.stderr or ""))
+
+
 def _configure_local_model_path(spec: ModelSpec, args, logger) -> None:
     if spec.provider.lower() != "local":
         return
@@ -352,17 +367,21 @@ def _maybe_start_vllm(spec: ModelSpec, args, logger):
             "Missing local model path. Use --vllm_model_path or set QWEN_MODEL_PATH / DEEPSEEK_MODEL_PATH."
         )
 
-    script = ROOT / "scripts" / "serve_qwen_vllm.py"
-    if not script.exists():
-        raise SystemExit(f"Missing vLLM server script: {script}")
+    if not shutil.which("vllm"):
+        raise SystemExit(
+            "vLLM executable not found. Run dataset/scripts/setup_qwen36_vllm_python_env.sh "
+            "or activate an environment containing the correct vLLM build."
+        )
+    env = os.environ.copy()
+    if args.vllm_cuda_visible_devices:
+        env["CUDA_VISIBLE_DEVICES"] = args.vllm_cuda_visible_devices
     cmd = [
-        sys.executable,
-        str(script),
-        "--model-path",
+        "vllm",
+        "serve",
         model_path,
         "--served-model-name",
         spec.model,
-        "--gpus",
+        "--tensor-parallel-size",
         str(args.vllm_gpus),
         "--host",
         args.vllm_host,
@@ -375,26 +394,29 @@ def _maybe_start_vllm(spec: ModelSpec, args, logger):
     ]
     if args.vllm_max_model_len:
         cmd += ["--max-model-len", str(args.vllm_max_model_len)]
-    if args.vllm_swap_space:
+    if args.vllm_swap_space and _vllm_serve_supports_flag("--swap-space"):
         cmd += ["--swap-space", str(args.vllm_swap_space)]
     if args.vllm_trust_remote_code:
         cmd.append("--trust-remote-code")
-    if args.vllm_cuda_visible_devices:
-        cmd += ["--cuda-visible-devices", args.vllm_cuda_visible_devices]
     if "qwen" in model_lower and os.environ.get("LOCAL_VLLM_ENABLE_THINKING", "1").strip().lower() not in {
         "0",
         "false",
         "no",
         "off",
     }:
-        cmd += [
-            "--enable-reasoning",
-            "--reasoning-parser",
-            os.environ.get("VLLM_REASONING_PARSER", "qwen3"),
-        ]
+        if _vllm_serve_supports_flag("--enable-reasoning"):
+            cmd.append("--enable-reasoning")
+        if _vllm_serve_supports_flag("--reasoning-parser"):
+            cmd += ["--reasoning-parser", os.environ.get("VLLM_REASONING_PARSER", "qwen3")]
+        else:
+            logger.warning(
+                "vLLM does not expose --reasoning-parser; install a Qwen3.6-capable vLLM build."
+            )
+    if _vllm_serve_supports_flag("--generation-config"):
+        cmd += ["--generation-config", os.environ.get("VLLM_GENERATION_CONFIG", "auto")]
 
     logger.info("Starting vLLM server: %s", " ".join(cmd))
-    proc = subprocess.Popen(cmd)
+    proc = subprocess.Popen(cmd, env=env)
     if not _wait_for_endpoint(endpoint, timeout_s=args.vllm_start_timeout):
         proc.terminate()
         raise RuntimeError(f"vLLM failed to start within {args.vllm_start_timeout}s")

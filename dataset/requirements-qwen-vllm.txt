@@ -1,7 +1,7 @@
 # Offline vLLM runtime for dataset Stage 1/2/3 local Qwen generation.
 # Build/download this wheelhouse on the same OS, CPU architecture, Python minor
 # version, and CUDA/PyTorch target as the offline GPU machine.
-vllm>=0.8.5
+vllm>=0.17.0
 torch
 transformers>=4.45,<5
 accelerate>=0.34.0

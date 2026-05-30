@@ -27,7 +27,7 @@ RATE_LIMIT_QPS="${RATE_LIMIT_QPS:-0.2}"
 STAGE3_BATCH_SIZE="${STAGE3_BATCH_SIZE:-1}"
 VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_READY_TIMEOUT="${VLLM_READY_TIMEOUT:-900}"
-QWEN_ENV_ACTIVATE="${QWEN_ENV_ACTIVATE:-${REPO_ROOT}/qwen_vllm_env/activate_qwen_vllm.sh}"
+QWEN_ENV_ACTIVATE="${QWEN_ENV_ACTIVATE:-${REPO_ROOT}/qwen36_vllm_env/activate_qwen36_vllm.sh}"
 
 mkdir -p "dataset/data/runs/${RUN_ID}"
 
@@ -52,7 +52,7 @@ vllm_ready() {
 }
 
 echo "Starting vLLM for ${RUN_ID}"
-bash dataset/scripts/run_qwen36_vllm_server.sh > "dataset/data/runs/${RUN_ID}/vllm_server.log" 2>&1 &
+bash dataset/scripts/run_qwen36_vllm_python.sh > "dataset/data/runs/${RUN_ID}/vllm_server.log" 2>&1 &
 VLLM_PID="$!"
 trap 'kill "${VLLM_PID}" 2>/dev/null || true' EXIT
 

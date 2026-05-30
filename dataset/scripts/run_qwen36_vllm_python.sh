@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Start Qwen3.6 35B A3B through vLLM from a normal Python virtualenv.
-# The local model can be supplied directly with QWEN_MODEL_PATH, or resolved
-# from MODEL_ROOT/QWEN_MODEL_ROOT. A common layout is:
-#   MODEL_ROOT=/path/to/models
-#   /path/to/models/Qwen/Qwen3.6-35B-A3B/config.json
+# Start Qwen3.6 35B A3B through vLLM directly from a Python virtualenv.
+# No A2UI model-config compatibility wrapper is used. Use
+# setup_qwen36_vllm_python_env.sh to install a vLLM version that supports
+# Qwen3.6 natively.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
-ENV_DIR="${ENV_DIR:-${REPO_ROOT}/qwen_vllm_env}"
-if [[ -f "${ENV_DIR}/bin/activate" && -z "${VIRTUAL_ENV:-}" ]]; then
-  # shellcheck disable=SC1091
+ENV_DIR="${ENV_DIR:-${REPO_ROOT}/qwen36_vllm_env}"
+if [[ -f "${ENV_DIR}/activate_qwen36_vllm.sh" && -z "${VIRTUAL_ENV:-}" ]]; then
+  # shellcheck source=/dev/null
+  source "${ENV_DIR}/activate_qwen36_vllm.sh"
+elif [[ -f "${ENV_DIR}/bin/activate" && -z "${VIRTUAL_ENV:-}" ]]; then
+  # shellcheck source=/dev/null
   source "${ENV_DIR}/bin/activate"
 fi
 
@@ -27,25 +29,23 @@ VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_DTYPE="${VLLM_DTYPE:-bfloat16}"
 VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-8192}"
 VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
-VLLM_SWAP_SPACE="${VLLM_SWAP_SPACE:-8}"
 VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
-VLLM_QUANTIZATION_MODE="${VLLM_QUANTIZATION_MODE:-none}"
+VLLM_MAX_NUM_BATCHED_TOKENS="${VLLM_MAX_NUM_BATCHED_TOKENS:-8192}"
 VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
 VLLM_CPU_OFFLOAD_GB="${VLLM_CPU_OFFLOAD_GB:-}"
-VLLM_ARCHITECTURE_OVERRIDE="${VLLM_ARCHITECTURE_OVERRIDE:-auto}"
+VLLM_SWAP_SPACE="${VLLM_SWAP_SPACE:-}"
 VLLM_GENERATION_CONFIG="${VLLM_GENERATION_CONFIG:-auto}"
 VLLM_REASONING_PARSER="${VLLM_REASONING_PARSER:-qwen3}"
 QWEN36_ENABLE_REASONING="${QWEN36_ENABLE_REASONING:-1}"
-VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-0}"
-export VLLM_USE_FLASHINFER_SAMPLER
-VLLM_HAS_FLASHINFER_CUBIN="${VLLM_HAS_FLASHINFER_CUBIN:-0}"
-export VLLM_HAS_FLASHINFER_CUBIN
-FLASHINFER_DISABLE_VERSION_CHECK="${FLASHINFER_DISABLE_VERSION_CHECK:-1}"
-export FLASHINFER_DISABLE_VERSION_CHECK
-FLASHINFER_DISABLE_VERSION__CHECK="${FLASHINFER_DISABLE_VERSION__CHECK:-1}"
-export FLASHINFER_DISABLE_VERSION__CHECK
 VLLM_DISABLE_CUSTOM_ALL_REDUCE="${VLLM_DISABLE_CUSTOM_ALL_REDUCE:-auto}"
-export VLLM_DISABLE_CUSTOM_ALL_REDUCE
+VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
+
+export FLASHINFER_DISABLE_VERSION_CHECK="${FLASHINFER_DISABLE_VERSION_CHECK:-1}"
+export FLASHINFER_DISABLE_VERSION__CHECK="${FLASHINFER_DISABLE_VERSION__CHECK:-1}"
+export LOCAL_ALLOW_HTTP_ENDPOINT="${LOCAL_ALLOW_HTTP_ENDPOINT:-1}"
+export LOCAL_STRICT_OFFLINE="${LOCAL_STRICT_OFFLINE:-0}"
+export LOCAL_VLLM_STRIP_THINKING="${LOCAL_VLLM_STRIP_THINKING:-1}"
+export LOCAL_VLLM_USE_HF_GENERATION_CONFIG="${LOCAL_VLLM_USE_HF_GENERATION_CONFIG:-1}"
 
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
@@ -151,55 +151,80 @@ PY
   A2UI_VLLM_GPUS="${A2UI_VLLM_GPUS:-1}"
 }
 
+vllm_supports_flag() {
+  local flag="$1"
+  vllm serve --help 2>&1 | grep -q -- "${flag}"
+}
+
 TARGET_MODEL_PATH="$(resolve_target_model || true)"
 if [[ -z "${TARGET_MODEL_PATH}" ]]; then
   echo "Qwen3.6 target model not found." >&2
   echo "Set MODEL_ROOT/QWEN_MODEL_ROOT to the parent folder containing Qwen/Qwen3.6-35B-A3B, or set QWEN_MODEL_PATH directly." >&2
-  echo "Accepted examples under the root: Qwen/Qwen3.6-35B-A3B, Qwen--Qwen3.6-35B-A3B, Qwen3.6-35B-A3B." >&2
+  exit 1
+fi
+
+if ! command -v vllm >/dev/null 2>&1; then
+  echo "vLLM executable not found. Run: bash dataset/scripts/setup_qwen36_vllm_python_env.sh" >&2
   exit 1
 fi
 
 detect_gpu_layout
 
-SERVER_ARGS=(
-  --model-path "${TARGET_MODEL_PATH}"
+cmd=(
+  vllm serve "${TARGET_MODEL_PATH}"
   --served-model-name "${QWEN_MODEL_ID}"
-  --gpus "${A2UI_VLLM_GPUS}"
   --host "${VLLM_HOST}"
   --port "${VLLM_PORT}"
+  --tensor-parallel-size "${A2UI_VLLM_GPUS}"
   --dtype "${VLLM_DTYPE}"
   --gpu-memory-utilization "${VLLM_GPU_MEMORY_UTILIZATION}"
   --max-model-len "${VLLM_MAX_MODEL_LEN}"
   --trust-remote-code
-  --cuda-visible-devices "${CUDA_VISIBLE_DEVICES:-}"
-  --architecture-override "${VLLM_ARCHITECTURE_OVERRIDE}"
-  --quantization-mode "${VLLM_QUANTIZATION_MODE}"
-  --generation-config "${VLLM_GENERATION_CONFIG}"
 )
 
-if python "${REPO_ROOT}/dataset/scripts/serve_qwen_vllm.py" --help 2>&1 | grep -q -- "--swap-space"; then
-  SERVER_ARGS+=(--swap-space "${VLLM_SWAP_SPACE}")
-else
-  echo "Warning: serve_qwen_vllm.py does not expose --swap-space; skipping VLLM_SWAP_SPACE=${VLLM_SWAP_SPACE}."
+if [[ -n "${VLLM_MAX_NUM_SEQS}" ]] && vllm_supports_flag "--max-num-seqs"; then
+  cmd+=(--max-num-seqs "${VLLM_MAX_NUM_SEQS}")
 fi
-
+if [[ -n "${VLLM_MAX_NUM_BATCHED_TOKENS}" ]] && vllm_supports_flag "--max-num-batched-tokens"; then
+  cmd+=(--max-num-batched-tokens "${VLLM_MAX_NUM_BATCHED_TOKENS}")
+fi
+if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]] && vllm_supports_flag "--kv-cache-dtype"; then
+  cmd+=(--kv-cache-dtype "${VLLM_KV_CACHE_DTYPE}")
+fi
+if [[ -n "${VLLM_CPU_OFFLOAD_GB}" ]] && vllm_supports_flag "--cpu-offload-gb"; then
+  cmd+=(--cpu-offload-gb "${VLLM_CPU_OFFLOAD_GB}")
+fi
+if [[ -n "${VLLM_SWAP_SPACE}" ]] && vllm_supports_flag "--swap-space"; then
+  cmd+=(--swap-space "${VLLM_SWAP_SPACE}")
+fi
+if [[ -n "${VLLM_GENERATION_CONFIG}" && "${VLLM_GENERATION_CONFIG}" != "none" ]] && vllm_supports_flag "--generation-config"; then
+  cmd+=(--generation-config "${VLLM_GENERATION_CONFIG}")
+fi
 if is_truthy "${QWEN36_ENABLE_REASONING}"; then
-  SERVER_ARGS+=(--enable-reasoning --reasoning-parser "${VLLM_REASONING_PARSER}")
+  if vllm_supports_flag "--enable-reasoning"; then
+    cmd+=(--enable-reasoning)
+  fi
+  if vllm_supports_flag "--reasoning-parser"; then
+    cmd+=(--reasoning-parser "${VLLM_REASONING_PARSER}")
+  else
+    echo "Warning: this vLLM does not expose --reasoning-parser; install vllm>=0.17.0." >&2
+  fi
+fi
+if [[ "${VLLM_DISABLE_CUSTOM_ALL_REDUCE}" != "0" && "${VLLM_DISABLE_CUSTOM_ALL_REDUCE}" != "false" ]]; then
+  if [[ "${VLLM_DISABLE_CUSTOM_ALL_REDUCE}" = "1" || "${VLLM_DISABLE_CUSTOM_ALL_REDUCE}" = "true" || ( "${VLLM_DISABLE_CUSTOM_ALL_REDUCE}" = "auto" && "${A2UI_VLLM_GPUS}" -gt 2 ) ]]; then
+    if vllm_supports_flag "--disable-custom-all-reduce"; then
+      cmd+=(--disable-custom-all-reduce)
+    fi
+  fi
 fi
 
-if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]]; then
-  SERVER_ARGS+=(--kv-cache-dtype "${VLLM_KV_CACHE_DTYPE}")
+if [[ -n "${VLLM_EXTRA_ARGS}" ]]; then
+  # shellcheck disable=SC2206
+  extra=( ${VLLM_EXTRA_ARGS} )
+  cmd+=("${extra[@]}")
 fi
 
-if [[ -n "${VLLM_CPU_OFFLOAD_GB}" ]]; then
-  SERVER_ARGS+=(--cpu-offload-gb "${VLLM_CPU_OFFLOAD_GB}")
-fi
-
-if [[ -n "${VLLM_MAX_NUM_SEQS}" ]]; then
-  SERVER_ARGS+=(--max-num-seqs "${VLLM_MAX_NUM_SEQS}")
-fi
-
-echo "Starting Qwen3.6 vLLM from Python env"
+echo "Starting Qwen3.6 vLLM directly"
 echo "  model: ${TARGET_MODEL_PATH}"
 echo "  served model: ${QWEN_MODEL_ID}"
 echo "  CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-unset}"
@@ -207,13 +232,15 @@ echo "  tensor_parallel_size=${A2UI_VLLM_GPUS}"
 echo "  max_model_len=${VLLM_MAX_MODEL_LEN}"
 echo "  generation_config=${VLLM_GENERATION_CONFIG}"
 echo "  reasoning=${QWEN36_ENABLE_REASONING} parser=${VLLM_REASONING_PARSER}"
-echo "  VLLM_USE_FLASHINFER_SAMPLER=${VLLM_USE_FLASHINFER_SAMPLER}"
-echo "  VLLM_HAS_FLASHINFER_CUBIN=${VLLM_HAS_FLASHINFER_CUBIN}"
-echo "  FLASHINFER_DISABLE_VERSION_CHECK=${FLASHINFER_DISABLE_VERSION_CHECK}"
-echo "  FLASHINFER_DISABLE_VERSION__CHECK=${FLASHINFER_DISABLE_VERSION__CHECK}"
-echo "  VLLM_DISABLE_CUSTOM_ALL_REDUCE=${VLLM_DISABLE_CUSTOM_ALL_REDUCE}"
-printf 'Command: python %q' "${REPO_ROOT}/dataset/scripts/serve_qwen_vllm.py"
-printf ' %q' "${SERVER_ARGS[@]}"
+python - <<'PY'
+try:
+    import importlib.metadata as md
+    print("  vllm_version=" + md.version("vllm"))
+except Exception:
+    pass
+PY
+printf 'Command:'
+printf ' %q' "${cmd[@]}"
 printf '\n'
 
-exec python "${REPO_ROOT}/dataset/scripts/serve_qwen_vllm.py" "${SERVER_ARGS[@]}"
+exec "${cmd[@]}"

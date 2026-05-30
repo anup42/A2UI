@@ -14,7 +14,7 @@ MODEL_NAME="${MODEL_NAME:-qwen36_35b_a3b_vllm_reasoning}"
 RATE_LIMIT_QPS="${RATE_LIMIT_QPS:-0.2}"
 VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_READY_TIMEOUT="${VLLM_READY_TIMEOUT:-900}"
-QWEN_ENV_ACTIVATE="${QWEN_ENV_ACTIVATE:-${REPO_ROOT}/qwen_vllm_env/activate_qwen_vllm.sh}"
+QWEN_ENV_ACTIVATE="${QWEN_ENV_ACTIVATE:-${REPO_ROOT}/qwen36_vllm_env/activate_qwen36_vllm.sh}"
 
 if [[ -f "${QWEN_ENV_ACTIVATE}" ]]; then
   # shellcheck source=/dev/null
@@ -41,7 +41,7 @@ if vllm_ready; then
   echo "vLLM already running on port ${VLLM_PORT}"
 else
   echo "Starting vLLM on port ${VLLM_PORT}"
-  bash dataset/scripts/run_qwen36_vllm_server.sh > "${RUN_DIR}/vllm_server.log" 2>&1 &
+  bash dataset/scripts/run_qwen36_vllm_python.sh > "${RUN_DIR}/vllm_server.log" 2>&1 &
   VLLM_PID="$!"
   trap 'if [[ -n "${VLLM_PID}" ]]; then kill "${VLLM_PID}" 2>/dev/null || true; fi' EXIT
 
