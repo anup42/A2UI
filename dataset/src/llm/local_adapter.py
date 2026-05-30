@@ -342,6 +342,27 @@ class LocalAdapter(BaseLLMAdapter):
             except Exception:
                 pass
 
+        thinking_enabled = self._is_truthy(os.environ.get("LOCAL_VLLM_ENABLE_THINKING"))
+        send_template_kwargs_raw = os.environ.get("LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS")
+        if send_template_kwargs_raw is None:
+            # Qwen commonly relies on per-request chat-template kwargs. Gemma vLLM
+            # builds often reject this field unless they expose the matching flags.
+            send_template_kwargs = "qwen" in (self.spec.model or "").lower()
+        else:
+            send_template_kwargs = self._is_truthy(send_template_kwargs_raw)
+
+        if (
+            thinking_enabled
+            and not send_template_kwargs
+            and "gemma" in (self.spec.model or "").lower()
+        ):
+            marker = "<|think|>"
+            if system:
+                if not system.lstrip().startswith(marker):
+                    system = f"{marker}\n{system}"
+            else:
+                system = marker
+
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
@@ -380,7 +401,7 @@ class LocalAdapter(BaseLLMAdapter):
             body["seed"] = seed
         if json_mode:
             body["response_format"] = {"type": "json_object"}
-        if self._is_truthy(os.environ.get("LOCAL_VLLM_ENABLE_THINKING")):
+        if thinking_enabled and send_template_kwargs:
             body["chat_template_kwargs"] = {"enable_thinking": True}
 
         data = json.dumps(body).encode("utf-8")
@@ -406,6 +427,13 @@ class LocalAdapter(BaseLLMAdapter):
                 raw = resp.read().decode("utf-8")
         except Exception as exc:
             message = str(exc)
+            if hasattr(exc, "read"):
+                try:
+                    body_text = exc.read().decode("utf-8", errors="replace")  # type: ignore[attr-defined]
+                    if body_text:
+                        message = f"{message}: {body_text[:2000]}"
+                except Exception:
+                    pass
             lower_msg = message.lower()
             if "cudacachingallocator.cpp" in lower_msg and "invalid argument" in lower_msg:
                 message = (

@@ -373,12 +373,12 @@ if is_truthy "${GEMMA4_ENABLE_REASONING}" && [[ "${GEMMA4_REASONING_FLAGS_MODE}"
     cmd+=(--reasoning-parser gemma4)
   else
     echo "Warning: this vLLM build does not expose Gemma4 server reasoning parser flags." >&2
-    echo "Continuing with request-side thinking via LOCAL_VLLM_ENABLE_THINKING=1; client will strip thinking before JSON parsing." >&2
+    echo "Continuing with prompt-side Gemma thinking marker; client will strip thinking before JSON parsing." >&2
   fi
   if is_truthy "${GEMMA4_ENABLE_DEFAULT_THINKING}" && [[ "${VLLM_HAS_DEFAULT_CHAT_TEMPLATE_KWARGS}" = "1" ]]; then
     cmd+=(--default-chat-template-kwargs '{"enable_thinking": true}')
   elif is_truthy "${GEMMA4_ENABLE_DEFAULT_THINKING}"; then
-    echo "Warning: this vLLM build does not expose --default-chat-template-kwargs; relying on per-request chat_template_kwargs." >&2
+    echo "Warning: this vLLM build does not expose --default-chat-template-kwargs; per-request chat_template_kwargs stay disabled unless LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS=1." >&2
   fi
   if [[ "${GEMMA4_REASONING_FLAGS_MODE}" = "full" ]]; then
     if grep -q -- "--enable-auto-tool-choice" <<<"${HELP_TEXT}" && grep -q -- "--tool-call-parser" <<<"${HELP_TEXT}"; then
