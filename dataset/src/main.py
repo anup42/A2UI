@@ -463,6 +463,12 @@ def main() -> None:
         help="Override Stage 3 max_genui_total without editing run.yaml",
     )
     parser.add_argument(
+        "--k_queries_per_intent",
+        type=int,
+        default=None,
+        help="Override Stage 1 k_queries_per_intent without editing run.yaml",
+    )
+    parser.add_argument(
         "--local_model_path",
         type=str,
         default=None,
@@ -537,6 +543,8 @@ def main() -> None:
         run_cfg["max_responses_total"] = int(args.max_responses_total)
     if args.max_genui_total is not None:
         run_cfg["max_genui_total"] = int(args.max_genui_total)
+    if args.k_queries_per_intent is not None:
+        run_cfg["k_queries_per_intent"] = int(args.k_queries_per_intent)
     _apply_env_int_override(run_cfg, "query_max_tokens", "A2UI_QUERY_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")

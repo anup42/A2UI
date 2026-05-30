@@ -25,7 +25,16 @@ RENDER_WORKERS="${RENDER_WORKERS:-1}"
 MAX_QUERIES_TOTAL="${MAX_QUERIES_TOTAL:-}"
 MAX_RESPONSES_TOTAL="${MAX_RESPONSES_TOTAL:-}"
 MAX_GENUI_TOTAL="${MAX_GENUI_TOTAL:-}"
+MAX_GENERATION_TOTAL="${MAX_GENERATION_TOTAL:-}"
+GENERATION_CYCLE_SIZE="${GENERATION_CYCLE_SIZE:-${MAX_GENERATION_CYCLE_SIZE:-500}}"
+K_QUERIES_PER_INTENT="${K_QUERIES_PER_INTENT:-}"
 STAGE="${STAGE:-all}"
+
+if [[ -n "${MAX_GENERATION_TOTAL}" ]]; then
+  MAX_QUERIES_TOTAL="${MAX_GENERATION_TOTAL}"
+  MAX_RESPONSES_TOTAL="${MAX_GENERATION_TOTAL}"
+  MAX_GENUI_TOTAL="${MAX_GENERATION_TOTAL}"
+fi
 
 export LOCAL_ALLOW_HTTP_ENDPOINT="${LOCAL_ALLOW_HTTP_ENDPOINT:-1}"
 export LOCAL_STRICT_OFFLINE="${LOCAL_STRICT_OFFLINE:-0}"
@@ -108,7 +117,7 @@ PY
 }
 
 case "${STAGE}" in
-  1|2|3|all)
+  1|2|3|all|cyclic)
     ensure_vllm_served_model
     ;;
 esac
@@ -116,15 +125,38 @@ esac
 run_stage() {
   local stage="$1"
   shift
+  local max_queries="${MAX_QUERIES_TOTAL}"
+  local max_responses="${MAX_RESPONSES_TOTAL}"
+  local max_genui="${MAX_GENUI_TOTAL}"
+  if [[ -v A2UI_STAGE_MAX_QUERIES_TOTAL ]]; then
+    max_queries="${A2UI_STAGE_MAX_QUERIES_TOTAL}"
+  fi
+  if [[ -v A2UI_STAGE_MAX_RESPONSES_TOTAL ]]; then
+    max_responses="${A2UI_STAGE_MAX_RESPONSES_TOTAL}"
+  fi
+  if [[ -v A2UI_STAGE_MAX_GENUI_TOTAL ]]; then
+    max_genui="${A2UI_STAGE_MAX_GENUI_TOTAL}"
+  fi
   local max_args=()
-  if [[ -n "${MAX_QUERIES_TOTAL}" ]]; then
-    max_args+=(--max_queries_total "${MAX_QUERIES_TOTAL}")
+  if [[ -n "${max_queries}" ]]; then
+    max_args+=(--max_queries_total "${max_queries}")
   fi
-  if [[ -n "${MAX_RESPONSES_TOTAL}" ]]; then
-    max_args+=(--max_responses_total "${MAX_RESPONSES_TOTAL}")
+  if [[ -n "${max_responses}" ]]; then
+    max_args+=(--max_responses_total "${max_responses}")
   fi
-  if [[ -n "${MAX_GENUI_TOTAL}" ]]; then
-    max_args+=(--max_genui_total "${MAX_GENUI_TOTAL}")
+  if [[ -n "${max_genui}" ]]; then
+    max_args+=(--max_genui_total "${max_genui}")
+  fi
+  local k_queries="${K_QUERIES_PER_INTENT}"
+  if [[ "${stage}" = "1" && -z "${k_queries}" && -n "${max_queries}" ]]; then
+    local intents
+    intents="$(intent_count)"
+    if (( intents > 0 )); then
+      k_queries=$(( (max_queries + intents - 1) / intents ))
+    fi
+  fi
+  if [[ -n "${k_queries}" ]]; then
+    max_args+=(--k_queries_per_intent "${k_queries}")
   fi
   echo "Running Stage ${stage} with ${MODEL_NAME}, run_id=${RUN_ID}, reasoning=${GEMMA4_ENABLE_REASONING}"
   python dataset/src/main.py \
@@ -135,6 +167,183 @@ run_stage() {
     "${max_args[@]}" \
     "$@"
 }
+
+resolve_run_file() {
+  local file_name="$1"
+  python - "${RUN_ID}" "${file_name}" <<'PY'
+from pathlib import Path
+import sys
+
+repo = Path.cwd()
+sys.path.insert(0, str(repo / "dataset" / "src"))
+from pipeline.storage import get_run_paths  # noqa: E402
+from utils.config import load_yaml  # noqa: E402
+
+run_id = sys.argv[1]
+file_name = sys.argv[2]
+root = repo / "dataset"
+cfg = load_yaml(root / "configs" / "run.yaml").get("run", {})
+output_dir = Path(cfg.get("output_dir", "data/runs"))
+if not output_dir.is_absolute():
+    output_dir = root / output_dir
+paths = get_run_paths(output_dir, run_id, cfg.get("artifact_dir", "artifacts"))
+print(paths.run_dir / file_name)
+PY
+}
+
+jsonl_count() {
+  local path="$1"
+  python - "${path}" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+if not path.exists():
+    print(0)
+    raise SystemExit(0)
+count = 0
+with path.open("r", encoding="utf-8", errors="replace") as handle:
+    for line in handle:
+        if line.strip():
+            count += 1
+print(count)
+PY
+}
+
+intent_count() {
+  python - <<'PY'
+from pathlib import Path
+import sys
+
+repo = Path.cwd()
+sys.path.insert(0, str(repo / "dataset" / "src"))
+from utils.config import load_yaml  # noqa: E402
+
+root = repo / "dataset"
+cfg = load_yaml(root / "configs" / "run.yaml").get("run", {})
+intents_file = root / cfg.get("intents_file", "intents.info")
+count = 0
+for line in intents_file.read_text(encoding="utf-8").splitlines():
+    if line.strip():
+        count += 1
+print(count)
+PY
+}
+
+run_limited_stage() {
+  local stage="$1"
+  local max_queries="$2"
+  local max_responses="$3"
+  local max_genui="$4"
+  shift 4
+  A2UI_STAGE_MAX_QUERIES_TOTAL="${max_queries}" \
+  A2UI_STAGE_MAX_RESPONSES_TOTAL="${max_responses}" \
+  A2UI_STAGE_MAX_GENUI_TOTAL="${max_genui}" \
+    run_stage "${stage}" "$@"
+}
+
+ensure_stage_count() {
+  local stage="$1"
+  local path="$2"
+  local target="$3"
+  shift 3
+  local current before after delta
+  current="$(jsonl_count "${path}")"
+  while (( current < target )); do
+    before="${current}"
+    delta=$(( target - current ))
+    case "${stage}" in
+      1)
+        run_limited_stage 1 "${delta}" "" "" "$@"
+        ;;
+      2)
+        run_limited_stage 2 "" "${delta}" "" "$@"
+        ;;
+      3)
+        run_limited_stage 3 "" "" "${delta}" --genui_batch_size "${STAGE3_BATCH_SIZE}" "$@"
+        ;;
+      *)
+        echo "Internal error: unsupported cyclic stage ${stage}" >&2
+        exit 1
+        ;;
+    esac
+    after="$(jsonl_count "${path}")"
+    echo "Cyclic Stage ${stage} progress ${after}/${target} created=$(( after - before ))"
+    if (( after <= before )); then
+      echo "Cyclic Stage ${stage} made no progress toward target=${target}; current=${after}" >&2
+      exit 1
+    fi
+    current="${after}"
+  done
+}
+
+run_cyclic_generation() {
+  if [[ -z "${MAX_GENERATION_TOTAL}" ]]; then
+    echo "MAX_GENERATION_TOTAL is required for cyclic generation." >&2
+    exit 1
+  fi
+  if ! [[ "${MAX_GENERATION_TOTAL}" =~ ^[0-9]+$ ]] || (( MAX_GENERATION_TOTAL <= 0 )); then
+    echo "MAX_GENERATION_TOTAL must be a positive integer; got '${MAX_GENERATION_TOTAL}'." >&2
+    exit 1
+  fi
+  if ! [[ "${GENERATION_CYCLE_SIZE}" =~ ^[0-9]+$ ]] || (( GENERATION_CYCLE_SIZE <= 0 )); then
+    echo "GENERATION_CYCLE_SIZE must be a positive integer; got '${GENERATION_CYCLE_SIZE}'." >&2
+    exit 1
+  fi
+
+  local queries_path responses_path genui_path intents k_per_intent
+  queries_path="$(resolve_run_file "queries.jsonl")"
+  responses_path="$(resolve_run_file "responses.jsonl")"
+  genui_path="$(resolve_run_file "genui.jsonl")"
+  intents="$(intent_count)"
+  if (( intents <= 0 )); then
+    echo "No intents found; cannot compute k_queries_per_intent." >&2
+    exit 1
+  fi
+  k_per_intent=$(( (MAX_GENERATION_TOTAL + intents - 1) / intents ))
+  if [[ -n "${K_QUERIES_PER_INTENT}" ]]; then
+    if ! [[ "${K_QUERIES_PER_INTENT}" =~ ^[0-9]+$ ]] || (( K_QUERIES_PER_INTENT <= 0 )); then
+      echo "K_QUERIES_PER_INTENT must be a positive integer; got '${K_QUERIES_PER_INTENT}'." >&2
+      exit 1
+    fi
+    if (( K_QUERIES_PER_INTENT > k_per_intent )); then
+      k_per_intent="${K_QUERIES_PER_INTENT}"
+    fi
+  fi
+  export K_QUERIES_PER_INTENT="${k_per_intent}"
+
+  echo "Cyclic generation enabled: run_id=${RUN_ID} total=${MAX_GENERATION_TOTAL} cycle_size=${GENERATION_CYCLE_SIZE} k_queries_per_intent=${K_QUERIES_PER_INTENT}"
+  local cycle=0
+  while true; do
+    local q r g floor target
+    q="$(jsonl_count "${queries_path}")"
+    r="$(jsonl_count "${responses_path}")"
+    g="$(jsonl_count "${genui_path}")"
+    if (( q >= MAX_GENERATION_TOTAL && r >= MAX_GENERATION_TOTAL && g >= MAX_GENERATION_TOTAL )); then
+      echo "Cyclic generation complete: queries=${q} responses=${r} genui=${g}"
+      break
+    fi
+
+    floor="${q}"
+    if (( r < floor )); then floor="${r}"; fi
+    if (( g < floor )); then floor="${g}"; fi
+    target=$(( floor + GENERATION_CYCLE_SIZE ))
+    if (( target > MAX_GENERATION_TOTAL )); then
+      target="${MAX_GENERATION_TOTAL}"
+    fi
+    cycle=$(( cycle + 1 ))
+    echo "Cyclic generation cycle=${cycle} target=${target} current queries=${q} responses=${r} genui=${g}"
+
+    ensure_stage_count 1 "${queries_path}" "${target}"
+    ensure_stage_count 2 "${responses_path}" "${target}"
+    ensure_stage_count 3 "${genui_path}" "${target}"
+  done
+}
+
+if [[ -n "${MAX_GENERATION_TOTAL}" && ( "${STAGE}" = "all" || "${STAGE}" = "cyclic" ) ]]; then
+  run_cyclic_generation
+  exit 0
+fi
 
 case "${STAGE}" in
   1)
@@ -159,8 +368,11 @@ case "${STAGE}" in
     run_stage 4 --render_workers "${RENDER_WORKERS}"
     run_stage 5
     ;;
+  cyclic)
+    run_cyclic_generation
+    ;;
   *)
-    echo "Unknown STAGE=${STAGE}; use 1, 2, 3, 4, 5, or all" >&2
+    echo "Unknown STAGE=${STAGE}; use 1, 2, 3, 4, 5, all, or cyclic" >&2
     exit 1
     ;;
 esac
