@@ -37,6 +37,9 @@ QWEN36_TEXT_CONFIG_COMPAT_OVERRIDES = {
     # cadence key. Qwen3.6 uses the newer Qwen3.5 text config shape and may not
     # expose this attribute after AutoConfig materialization.
     "decoder_sparse_step": 1,
+    # Older vLLM Qwen3 MoE also reads this legacy router-normalization flag.
+    # Hugging Face Qwen3MoE defaults this to False.
+    "norm_topk_prob": False,
     "rope_parameters": QWEN36_TEXT_ROPE_PARAMETERS,
     "rope_scaling": QWEN36_TEXT_ROPE_PARAMETERS,
 }
@@ -130,6 +133,7 @@ def _model_path_with_config_overlay(model_path: str, overrides: dict) -> str:
         "text_config keys "
         f"{sorted(original_text_config.keys())} -> {sorted(text_config.keys())}; "
         f"decoder_sparse_step={text_config.get('decoder_sparse_step')}; "
+        f"norm_topk_prob={text_config.get('norm_topk_prob')}; "
         f"rope_scaling={text_config.get('rope_scaling')}; "
         f"path={overlay}",
         flush=True,
@@ -166,21 +170,24 @@ try:
         Qwen3_5MoeTextConfig,
     )
 
-    if not hasattr(Qwen3_5MoeTextConfig, "decoder_sparse_step"):
-        def _a2ui_get_decoder_sparse_step(self):
-            return self.__dict__.get("decoder_sparse_step", 1)
+    def _a2ui_add_config_property(name, default):
+        if hasattr(Qwen3_5MoeTextConfig, name):
+            return
 
-        def _a2ui_set_decoder_sparse_step(self, value):
-            self.__dict__["decoder_sparse_step"] = value
+        def _a2ui_get(self, _name=name, _default=default):
+            return self.__dict__.get(_name, _default)
 
-        Qwen3_5MoeTextConfig.decoder_sparse_step = property(
-            _a2ui_get_decoder_sparse_step,
-            _a2ui_set_decoder_sparse_step,
-        )
+        def _a2ui_set(self, value, _name=name):
+            self.__dict__[_name] = value
+
+        setattr(Qwen3_5MoeTextConfig, name, property(_a2ui_get, _a2ui_set))
         print(
-            "A2UI vLLM shim: added Qwen3_5MoeTextConfig.decoder_sparse_step",
+            f"A2UI vLLM shim: added Qwen3_5MoeTextConfig.{name} default={default}",
             flush=True,
         )
+
+    _a2ui_add_config_property("decoder_sparse_step", 1)
+    _a2ui_add_config_property("norm_topk_prob", False)
 except Exception as exc:
     print(f"A2UI vLLM shim: Qwen3.5/3.6 config patch not installed: {exc}", flush=True)
 
