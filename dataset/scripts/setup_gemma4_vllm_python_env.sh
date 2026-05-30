@@ -115,16 +115,35 @@ PY
     "${toolkit}/targets/x86_64-linux/lib64"
 
   local path
+  local canonical_cuda_root=""
+  if [[ -x "${py_lib_dir}/nvidia/cu13/bin/nvcc" ]]; then
+    canonical_cuda_root="${py_lib_dir}/nvidia/cu13"
+  elif [[ -x "${py_lib_dir}/nvidia/cuda_nvcc/bin/nvcc" ]]; then
+    canonical_cuda_root="${py_lib_dir}/nvidia/cuda_nvcc"
+  else
+    canonical_cuda_root="$(find "${py_lib_dir}/nvidia" -path '*/bin/nvcc' -type f 2>/dev/null | head -1 | sed 's#/bin/nvcc$##' || true)"
+  fi
+
+  if [[ -n "${canonical_cuda_root}" ]]; then
+    link_dir_children "${canonical_cuda_root}/bin" "${toolkit}/bin"
+    link_dir_children "${canonical_cuda_root}/include" "${toolkit}/include"
+    link_dir_children "${canonical_cuda_root}/include" "${toolkit}/targets/x86_64-linux/include"
+    link_dir_children "${canonical_cuda_root}/lib" "${toolkit}/lib64"
+    link_dir_children "${canonical_cuda_root}/lib" "${toolkit}/targets/x86_64-linux/lib"
+    link_dir_children "${canonical_cuda_root}/lib" "${toolkit}/targets/x86_64-linux/lib64"
+    link_dir_children "${canonical_cuda_root}/nvvm" "${toolkit}/nvvm"
+  fi
+
   while IFS= read -r path; do
+    [[ -n "${canonical_cuda_root}" && "${path}" == "${canonical_cuda_root}/bin" ]] && continue
     link_dir_children "${path}" "${toolkit}/bin"
   done < <(find "${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
 
+  # Do not merge every nvidia/*/include into the CUDA toolkit includes. Mixing
+  # headers from cuda-nvcc 13.3 with older cuda-runtime 13.0 triggers PyTorch's
+  # "FindCUDA says 13.3 but headers say 13.0" build failure.
   while IFS= read -r path; do
-    link_dir_children "${path}" "${toolkit}/include"
-    link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/include"
-  done < <(find "${py_lib_dir}/nvidia" -type d -name include 2>/dev/null | sort || true)
-
-  while IFS= read -r path; do
+    [[ -n "${canonical_cuda_root}" && "${path}" == "${canonical_cuda_root}/lib" ]] && continue
     link_dir_children "${path}" "${toolkit}/lib64"
     link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/lib"
     link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/lib64"
@@ -133,6 +152,7 @@ PY
   # nvcc resolves helper binaries like cicc relative to ../nvvm, so PATH alone is
   # not enough. Mirror the package's nvvm tree into the combined toolkit root.
   while IFS= read -r path; do
+    [[ -n "${canonical_cuda_root}" && "${path}" == "${canonical_cuda_root}/nvvm" ]] && continue
     link_dir_children "${path}" "${toolkit}/nvvm"
   done < <(find "${py_lib_dir}/nvidia" -type d -name nvvm 2>/dev/null | sort || true)
 
