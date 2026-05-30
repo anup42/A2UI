@@ -80,6 +80,36 @@ class LocalAdapter(BaseLLMAdapter):
         except Exception:
             return default
 
+    @classmethod
+    def _context_retry_max_tokens(cls, message: str, requested_max_tokens: int) -> int | None:
+        lowered = message.lower()
+        if "maximum context length" not in lowered or "output tokens" not in lowered:
+            return None
+        context_match = re.search(r"maximum context length is\s+(\d+)", message, re.IGNORECASE)
+        prompt_match = re.search(r"prompt contains at least\s+(\d+)\s+input tokens", message, re.IGNORECASE)
+        if not context_match or not prompt_match:
+            return None
+        context_tokens = int(context_match.group(1))
+        prompt_tokens = int(prompt_match.group(1))
+        safety = cls._env_int("LOCAL_VLLM_CONTEXT_SAFETY_TOKENS", 32) or 0
+        adjusted = context_tokens - prompt_tokens - max(0, safety)
+        min_retry = cls._env_int("LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS", 256) or 1
+        if adjusted < min_retry or adjusted >= requested_max_tokens:
+            return None
+        return max(1, adjusted)
+
+    @staticmethod
+    def _exception_message(exc: Exception) -> str:
+        message = str(exc)
+        if hasattr(exc, "read"):
+            try:
+                body_text = exc.read().decode("utf-8", errors="replace")  # type: ignore[attr-defined]
+                if body_text:
+                    message = f"{message}: {body_text[:2000]}"
+            except Exception:
+                pass
+        return message
+
     def _strict_offline_mode(self) -> bool:
         raw = os.environ.get("LOCAL_STRICT_OFFLINE")
         if raw is not None and raw.strip():
@@ -404,13 +434,6 @@ class LocalAdapter(BaseLLMAdapter):
         if thinking_enabled and send_template_kwargs:
             body["chat_template_kwargs"] = {"enable_thinking": True}
 
-        data = json.dumps(body).encode("utf-8")
-        req = urllib.request.Request(
-            endpoint,
-            data=data,
-            headers={"Content-Type": "application/json"},
-        )
-
         timeout_s = 60.0
         timeout_raw = (os.environ.get("LOCAL_VLLM_TIMEOUT_SECONDS") or "").strip()
         if timeout_raw:
@@ -421,36 +444,61 @@ class LocalAdapter(BaseLLMAdapter):
         elif self._model_is_large_reasoning_family():
             timeout_s = 600.0
 
+        def post_once(request_body: dict[str, object]) -> str:
+            data = json.dumps(request_body).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=data,
+                headers={"Content-Type": "application/json"},
+            )
+            with urlopen(req, timeout=timeout_s) as resp:
+                return resp.read().decode("utf-8")
+
         start = time.time()
         try:
-            with urlopen(req, timeout=timeout_s) as resp:
-                raw = resp.read().decode("utf-8")
+            raw = post_once(body)
         except Exception as exc:
-            message = str(exc)
-            if hasattr(exc, "read"):
+            message = self._exception_message(exc)
+            retry_succeeded = False
+            retry_max_tokens = self._context_retry_max_tokens(message, int(body["max_tokens"]))
+            if retry_max_tokens is not None:
+                body["max_tokens"] = retry_max_tokens
                 try:
-                    body_text = exc.read().decode("utf-8", errors="replace")  # type: ignore[attr-defined]
-                    if body_text:
-                        message = f"{message}: {body_text[:2000]}"
-                except Exception:
-                    pass
-            lower_msg = message.lower()
-            if "cudacachingallocator.cpp" in lower_msg and "invalid argument" in lower_msg:
-                message = (
-                    f"{message}. Hint: your CUDA allocator config is incompatible with this stack. "
-                    "Unset PYTORCH_CUDA_ALLOC_CONF (and LOCAL_CUDA_ALLOC_CONF), restart, and retry."
+                    raw = post_once(body)
+                except Exception as retry_exc:
+                    message = self._exception_message(retry_exc)
+                else:
+                    raw_payload = json.loads(raw)
+                    raw_payload.setdefault("a2ui_retry", {})["reduced_max_tokens"] = retry_max_tokens
+                    raw = json.dumps(raw_payload)
+                    retry_max_tokens = None
+                    retry_succeeded = True
+            if not retry_succeeded:
+                if retry_max_tokens is not None:
+                    message = f"{message}. Retried with max_tokens={retry_max_tokens} but request still failed."
+                lower_msg = message.lower()
+                if "cudacachingallocator.cpp" in lower_msg and "invalid argument" in lower_msg:
+                    message = (
+                        f"{message}. Hint: your CUDA allocator config is incompatible with this stack. "
+                        "Unset PYTORCH_CUDA_ALLOC_CONF (and LOCAL_CUDA_ALLOC_CONF), restart, and retry."
+                    )
+                if "maximum context length" in lower_msg:
+                    message = (
+                        f"{message}. Hint: lower LOCAL_STAGE3_PROMPT_MAX_TOKENS, "
+                        "A2UI_GENUI_PROMPT_MAX_TOKENS, or LOCAL_VLLM_MAX_OUTPUT_TOKENS, "
+                        "or increase VLLM_MAX_MODEL_LEN if the model/server supports it."
+                    )
+                return LLMResult(
+                    text="",
+                    raw=None,
+                    latency_ms=(time.time() - start) * 1000,
+                    input_tokens=0,
+                    output_tokens=0,
+                    cost_usd=None,
+                    model=self.spec.model,
+                    provider=self.spec.provider,
+                    error=message,
                 )
-            return LLMResult(
-                text="",
-                raw=None,
-                latency_ms=(time.time() - start) * 1000,
-                input_tokens=0,
-                output_tokens=0,
-                cost_usd=None,
-                model=self.spec.model,
-                provider=self.spec.provider,
-                error=message,
-            )
 
         elapsed = (time.time() - start) * 1000
         payload = json.loads(raw)
