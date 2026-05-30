@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Run dataset Stage 1/2/3 against a running Gemma4 31B vLLM
+# Run dataset Stage 1/2/3/4/5 against a running Gemma4 31B vLLM
 # OpenAI-compatible endpoint.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,6 +20,7 @@ fi
 RUN_ID="${RUN_ID:-dataset_gemma4_31b_vllm_v0}"
 RATE_LIMIT_QPS="${RATE_LIMIT_QPS:-0.2}"
 STAGE3_BATCH_SIZE="${STAGE3_BATCH_SIZE:-1}"
+RENDER_WORKERS="${RENDER_WORKERS:-1}"
 MAX_QUERIES_TOTAL="${MAX_QUERIES_TOTAL:-}"
 MAX_RESPONSES_TOTAL="${MAX_RESPONSES_TOTAL:-}"
 MAX_GENUI_TOTAL="${MAX_GENUI_TOTAL:-}"
@@ -74,13 +75,21 @@ case "${STAGE}" in
   3)
     run_stage 3 --genui_batch_size "${STAGE3_BATCH_SIZE}"
     ;;
+  4)
+    run_stage 4 --render_workers "${RENDER_WORKERS}"
+    ;;
+  5)
+    run_stage 5
+    ;;
   all)
     run_stage 1
     run_stage 2
     run_stage 3 --genui_batch_size "${STAGE3_BATCH_SIZE}"
+    run_stage 4 --render_workers "${RENDER_WORKERS}"
+    run_stage 5
     ;;
   *)
-    echo "Unknown STAGE=${STAGE}; use 1, 2, 3, or all" >&2
+    echo "Unknown STAGE=${STAGE}; use 1, 2, 3, 4, 5, or all" >&2
     exit 1
     ;;
 esac
