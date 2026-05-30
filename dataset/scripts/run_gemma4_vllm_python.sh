@@ -47,8 +47,8 @@ GEMMA4_REASONING_FLAGS_MODE="${GEMMA4_REASONING_FLAGS_MODE:-parser}" # parser|fu
 GEMMA4_REASONING_CHAT_TEMPLATE="${GEMMA4_REASONING_CHAT_TEMPLATE:-}"
 GEMMA4_ENABLE_DEFAULT_THINKING="${GEMMA4_ENABLE_DEFAULT_THINKING:-0}"
 
-GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-off}" # draft|off
-GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
+GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-mtp}" # mtp|draft|off
+GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-1}"
 GEMMA4_REQUIRE_SPECULATIVE="${GEMMA4_REQUIRE_SPECULATIVE:-0}"
 
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
@@ -293,6 +293,20 @@ if [[ -z "${TARGET_MODEL_PATH}" ]]; then
   exit 1
 fi
 
+GEMMA4_SPECULATIVE_MODE_LOWER="${GEMMA4_SPECULATIVE_MODE,,}"
+case "${GEMMA4_SPECULATIVE_MODE_LOWER}" in
+  ""|off|none|false|0|mtp|draft) ;;
+  *)
+    echo "Unsupported GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}. Use mtp, draft, or off." >&2
+    exit 1
+    ;;
+esac
+if [[ "${GEMMA4_SPECULATIVE_MODE_LOWER}" =~ ^(off|none|false|0)$ || -z "${GEMMA4_SPECULATIVE_MODE_LOWER}" ]]; then
+  GEMMA4_SPECULATIVE_MODE="off"
+else
+  GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE_LOWER}"
+fi
+
 ASSISTANT_MODEL_PATH="$(resolve_assistant_model || true)"
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" && -z "${ASSISTANT_MODEL_PATH}" ]]; then
   echo "Gemma4 assistant model not found, but GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}." >&2
@@ -318,10 +332,8 @@ if [[ "${VLLM_USE_FLASHINFER_SAMPLER}" != "0" ]] && ! command -v ninja >/dev/nul
 fi
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
   echo "This vLLM install does not expose --speculative-config." >&2
-  if is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then
-    echo "Install a newer vLLM nightly/source build or set GEMMA4_REQUIRE_SPECULATIVE=0 GEMMA4_SPECULATIVE_MODE=off." >&2
-    exit 1
-  fi
+  echo "MTP speculative decoding requires --speculative-config. Install the Gemma4-compatible vLLM build or set GEMMA4_SPECULATIVE_MODE=off." >&2
+  exit 1
 fi
 VLLM_HAS_REASONING_PARSER=0
 if grep -q -- "--reasoning-parser" <<<"${HELP_TEXT}"; then
@@ -355,13 +367,17 @@ if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]]; then
 fi
 
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
-  spec_json="$(python - "${ASSISTANT_MODEL_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
+  spec_json="$(python - "${GEMMA4_SPECULATIVE_MODE}" "${ASSISTANT_MODEL_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
 import json
 import sys
-print(json.dumps({
-    "model": sys.argv[1],
-    "num_speculative_tokens": int(sys.argv[2]),
-}))
+mode = sys.argv[1].lower()
+payload = {
+    "model": sys.argv[2],
+    "num_speculative_tokens": int(sys.argv[3]),
+}
+if mode == "mtp":
+    payload["method"] = "mtp"
+print(json.dumps(payload))
 PY
 )"
   cmd+=(--speculative-config "${spec_json}")

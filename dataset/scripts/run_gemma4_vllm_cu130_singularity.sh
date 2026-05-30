@@ -11,8 +11,8 @@ export VLLM_SIF="${VLLM_SIF:-${HOME}/containers/a2ui-vllm-cu130-source_gemma4_sp
 export VLLM_MAX_MODEL_LEN="${VLLM_MAX_MODEL_LEN:-8192}"
 export VLLM_GPU_MEMORY_UTILIZATION="${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 export VLLM_DTYPE="${VLLM_DTYPE:-bfloat16}"
-export GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-draft}"
-export GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
+export GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-mtp}"
+export GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-1}"
 
 if [[ -z "${CUDA_VISIBLE_DEVICES:-}" ]] && command -v nvidia-smi >/dev/null 2>&1; then
   CUDA_VISIBLE_DEVICES="$(nvidia-smi --query-gpu=index --format=csv,noheader,nounits | paste -sd, -)"
