@@ -472,8 +472,7 @@ class LocalAdapter(BaseLLMAdapter):
                 except Exception:
                     max_new_tokens_cap = 0
             elif self._model_is_large_reasoning_family():
-                # Safe default for large local models on V100-class GPUs.
-                max_new_tokens_cap = 1024
+                max_new_tokens_cap = 8192
             if max_new_tokens_cap > 0:
                 max_tokens = min(int(max_tokens), max_new_tokens_cap)
 
