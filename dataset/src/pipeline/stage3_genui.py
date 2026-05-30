@@ -994,6 +994,8 @@ def run_stage3(
     )
     if batch_size <= 0:
         batch_size = 100
+    stage25_batch_size = max(1, int(os.getenv("A2UI_STAGE25_BATCH_SIZE", "500")))
+    logger.info("Stage2.5 domain routing batch size: %s", stage25_batch_size)
     stop = False
 
     def _build_prompt_for(
@@ -1615,37 +1617,25 @@ def run_stage3(
                 result.error,
             )
 
-    try:
-        for response in iter_jsonl(responses_path):
-            if stop:
-                break
-            response_id = response.get("response_id")
-            query_id = response.get("query_id")
-            response_text = response.get("response_text")
-            assets = response.get("assets") if isinstance(response, dict) else None
-            assets_list = assets if isinstance(assets, list) else []
-            n_idx = int(response.get("n_idx", 1))
-            if not response_id or not query_id or not response_text:
-                continue
+    def _missing_candidate_indices(query_id: str, n_idx: int) -> list[int]:
+        return [
+            c_idx
+            for c_idx in range(1, candidates_per_response + 1)
+            if _make_ui_id(query_id, n_idx, c_idx) not in existing_ids
+        ]
 
-            response_needs_generation = any(
-                _make_ui_id(query_id, n_idx, c_idx) not in existing_ids
-                for c_idx in range(1, candidates_per_response + 1)
-            )
-            if not response_needs_generation:
-                continue
-            if max_total is not None and total_created + len(pending) >= max_total:
-                stop = True
-                break
-
-            intent_info = intent_lookup.get(query_id, {})
-            tags_value = intent_info.get("tags")
-            tags_list = tags_value if isinstance(tags_value, list) else []
+    def _classify_stage25_window(window: list[dict[str, Any]]) -> None:
+        missing_count = 0
+        for ctx in window:
+            response_id = ctx["response_id"]
             domain_record = domain_records_by_response_id.get(response_id)
             if not domain_record:
+                intent_info = ctx["intent_info"]
+                tags_value = intent_info.get("tags")
+                tags_list = tags_value if isinstance(tags_value, list) else []
                 domain_record = _classify_stage25_domain(
                     response_id=response_id,
-                    response_text=response_text,
+                    response_text=ctx["response_text"],
                     intent=intent_info.get("intent"),
                     tags=tags_list,
                     query_text=intent_info.get("query_text") or "",
@@ -1658,6 +1648,7 @@ def run_stage3(
                 )
                 domains_writer.append(domain_record)
                 domain_records_by_response_id[response_id] = domain_record
+                missing_count += 1
                 logger.info(
                     "Stage2.5 domain response_id=%s primary=%s secondary=%s confidence=%.2f",
                     response_id,
@@ -1665,6 +1656,26 @@ def run_stage3(
                     domain_record.get("secondary_domains"),
                     float(domain_record.get("confidence") or 0.0),
                 )
+            ctx["domain_record"] = domain_record
+        logger.info(
+            "Stage2.5 window ready responses=%s newly_classified=%s stage3_slots=%s",
+            len(window),
+            missing_count,
+            sum(len(ctx["candidate_indices"]) for ctx in window),
+        )
+
+    def _enqueue_stage3_window(window: list[dict[str, Any]]) -> None:
+        nonlocal stop
+        for ctx in window:
+            if stop:
+                break
+            response_id = ctx["response_id"]
+            query_id = ctx["query_id"]
+            response_text = ctx["response_text"]
+            assets_list = ctx["assets_list"]
+            n_idx = ctx["n_idx"]
+            intent_info = ctx["intent_info"]
+            domain_record = ctx["domain_record"]
 
             if not assets_list:
                 auto_assets = _auto_download_response_assets(
@@ -1675,13 +1686,14 @@ def run_stage3(
                 )
                 if auto_assets:
                     assets_list = auto_assets
+                    ctx["assets_list"] = assets_list
                     logger.info(
                         "Stage3 auto-downloaded assets response_id=%s count=%s",
                         response_id,
                         len(auto_assets),
                     )
 
-            for c_idx in range(1, candidates_per_response + 1):
+            for c_idx in ctx["candidate_indices"]:
                 if stop:
                     break
                 if max_total is not None:
@@ -1751,6 +1763,63 @@ def run_stage3(
                 if len(pending) >= batch_size:
                     _flush_pending()
 
+    def _flush_stage25_stage3_window(window: list[dict[str, Any]]) -> None:
+        if not window:
+            return
+        _classify_stage25_window(window)
+        _enqueue_stage3_window(window)
+        _flush_pending()
+
+    try:
+        stage25_window: list[dict[str, Any]] = []
+        stage25_window_slots = 0
+        for response in iter_jsonl(responses_path):
+            if stop:
+                break
+            response_id = response.get("response_id")
+            query_id = response.get("query_id")
+            response_text = response.get("response_text")
+            assets = response.get("assets") if isinstance(response, dict) else None
+            assets_list = assets if isinstance(assets, list) else []
+            n_idx = int(response.get("n_idx", 1))
+            if not response_id or not query_id or not response_text:
+                continue
+
+            candidate_indices = _missing_candidate_indices(query_id, n_idx)
+            if not candidate_indices:
+                continue
+
+            if max_total is not None:
+                remaining = max_total - (total_created + len(pending) + stage25_window_slots)
+                if remaining <= 0:
+                    stop = True
+                    break
+                if len(candidate_indices) > remaining:
+                    candidate_indices = candidate_indices[:remaining]
+
+            if not candidate_indices:
+                continue
+
+            intent_info = intent_lookup.get(query_id, {})
+            stage25_window.append(
+                {
+                    "response_id": response_id,
+                    "query_id": query_id,
+                    "response_text": response_text,
+                    "assets_list": assets_list,
+                    "n_idx": n_idx,
+                    "intent_info": intent_info,
+                    "candidate_indices": candidate_indices,
+                }
+            )
+            stage25_window_slots += len(candidate_indices)
+
+            if stage25_window_slots >= stage25_batch_size:
+                _flush_stage25_stage3_window(stage25_window)
+                stage25_window = []
+                stage25_window_slots = 0
+
+        _flush_stage25_stage3_window(stage25_window)
         _flush_pending()
         if total_failed > 0:
             logger.warning("Stage3 completed with generation failures=%s created=%s", total_failed, total_created)
