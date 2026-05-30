@@ -129,6 +129,133 @@ def _to_render_asset_path(path: str) -> str:
     return normalized
 
 
+DOMAIN_SET = {
+    "weather",
+    "flight",
+    "booking_place",
+    "restaurant",
+    "travel_itinerary",
+    "schedule_planning",
+    "comparison",
+    "formula_calculation",
+    "chart_data",
+    "recipe",
+    "email_message",
+    "code_console",
+    "status_support",
+    "playlist",
+    "product_marketing",
+    "education_concept",
+    "generic",
+    "open_domain",
+}
+
+DOMAIN_MODULE_LIMIT = 3
+
+DOMAIN_MODULE_ALIASES = {
+    "restaurant": ["booking_place", "restaurant"],
+    "travel_itinerary": ["travel_itinerary", "schedule_planning"],
+}
+
+
+def _sanitize_domain(value: Any, default: str = "generic") -> str:
+    domain = str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    return domain if domain in DOMAIN_SET else default
+
+
+def _sanitize_string_list(value: Any, limit: int = 6) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    out: list[str] = []
+    for item in value:
+        text = str(item or "").strip()
+        if text:
+            out.append(text[:200])
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _fallback_domain_record(response_id: str, error: str | None = None) -> dict[str, Any]:
+    record: dict[str, Any] = {
+        "response_id": response_id,
+        "primary_domain": "generic",
+        "secondary_domains": [],
+        "confidence": 0.0,
+        "evidence": [],
+        "required_components": ["Text", "Table"],
+        "presentation_hints": {
+            "tableDomain": "generic",
+            "preferredPresentation": "table",
+        },
+        "classification_model": None,
+        "classification_provider": None,
+    }
+    if error:
+        record["error"] = error[:1000]
+    return record
+
+
+def _normalize_domain_record(
+    response_id: str,
+    raw: Any,
+    provider: str | None = None,
+    model: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(raw, dict):
+        return _fallback_domain_record(response_id, "domain classifier returned non-object JSON")
+
+    primary = _sanitize_domain(raw.get("primary_domain"))
+    secondary: list[str] = []
+    for item in raw.get("secondary_domains") or []:
+        domain = _sanitize_domain(item, default="")
+        if domain and domain != primary and domain not in secondary:
+            secondary.append(domain)
+        if len(secondary) >= 2:
+            break
+    try:
+        confidence = float(raw.get("confidence", 0.0))
+    except Exception:
+        confidence = 0.0
+    confidence = max(0.0, min(1.0, confidence))
+
+    hints = raw.get("presentation_hints") if isinstance(raw.get("presentation_hints"), dict) else {}
+    record = {
+        "response_id": response_id,
+        "primary_domain": primary,
+        "secondary_domains": secondary,
+        "confidence": confidence,
+        "evidence": _sanitize_string_list(raw.get("evidence"), limit=6),
+        "required_components": _sanitize_string_list(raw.get("required_components"), limit=8),
+        "presentation_hints": {
+            "tableDomain": str(hints.get("tableDomain") or hints.get("table_domain") or primary),
+            "preferredPresentation": str(
+                hints.get("preferredPresentation")
+                or hints.get("preferred_presentation")
+                or "cards"
+            ),
+        },
+        "classification_model": model,
+        "classification_provider": provider,
+    }
+    if raw.get("error"):
+        record["error"] = str(raw.get("error"))[:1000]
+    return record
+
+
+def _selected_stage3_domains(record: dict[str, Any] | None) -> list[str]:
+    if not record:
+        return ["generic"]
+    domains = [_sanitize_domain(record.get("primary_domain"))]
+    for item in record.get("secondary_domains") or []:
+        domain = _sanitize_domain(item, default="")
+        if domain and domain not in domains:
+            domains.append(domain)
+        if len(domains) >= DOMAIN_MODULE_LIMIT:
+            break
+    return domains or ["generic"]
+
+
 def _extract_declared_asset_entries(response_text: str) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     if not response_text:
@@ -502,6 +629,54 @@ def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logge
         after,
     )
     return compact
+
+
+def _prompt_modules_dir(prompt_path: Path) -> Path:
+    return prompt_path.parent / "stage3_modules"
+
+
+def _read_prompt_module(prompt_path: Path, module_name: str) -> str:
+    module_path = _prompt_modules_dir(prompt_path) / f"{module_name}.md"
+    if not module_path.exists():
+        return ""
+    return module_path.read_text(encoding="utf-8").strip()
+
+
+def _load_stage3_prompt_template(prompt_path: Path, logger) -> str:
+    template = load_prompt(prompt_path)
+    static_modules = {
+        "core_contract": _read_prompt_module(prompt_path, "core_contract"),
+        "table_rules": _read_prompt_module(prompt_path, "table_rules"),
+        "media_url_rules": _read_prompt_module(prompt_path, "media_url_rules"),
+    }
+    for placeholder, content in static_modules.items():
+        token = "{" + placeholder + "}"
+        if token in template:
+            template = template.replace(token, content)
+            logger.info("Stage3 prompt module loaded: %s words=%s", placeholder, count_tokens(content))
+    return template
+
+
+def _load_domain_prompt_modules(prompt_path: Path, domain_record: dict[str, Any] | None) -> tuple[str, list[str]]:
+    selected: list[str] = []
+    chunks: list[str] = []
+    for domain in _selected_stage3_domains(domain_record):
+        for module_name in DOMAIN_MODULE_ALIASES.get(domain, [domain]):
+            if module_name in selected:
+                continue
+            content = _read_prompt_module(prompt_path, module_name)
+            if not content:
+                continue
+            selected.append(module_name)
+            chunks.append(content)
+    if not chunks:
+        content = _read_prompt_module(prompt_path, "generic")
+        if content:
+            selected.append("generic")
+            chunks.append(content)
+    return "\n\n".join(chunks).strip(), selected
+
+
 def _extract_prompt_version(template: str, prompt_path: Path) -> str:
     """Extract prompt version from first Markdown heading; fallback to filename stem."""
     try:
@@ -526,6 +701,10 @@ def _prepare_prompt_context(
         or os.getenv("GEMINI_STAGE3_PROMPT_MODE")
         or "system_prefix"
     ).strip().lower()
+    if "{domain_modules}" in template:
+        logger.info("Stage3 prompt mode=inline because prompt uses per-record domain modules.")
+        return None, template
+
     if provider not in {"gemini", "azure_openai", "openai"} or mode in {"inline", "legacy", "off", "0", "false"}:
         return None, template
 
@@ -555,6 +734,116 @@ def _prepare_prompt_context(
     return system_prompt, user_template
 
 
+def _load_domain_classifier_prompt(prompt_path: Path) -> str:
+    classifier_path = prompt_path.parent / "stage25_domain_classifier.md"
+    if classifier_path.exists():
+        return classifier_path.read_text(encoding="utf-8")
+    return (
+        "# stage25_domain_classifier_v1\n\n"
+        "Classify the response into one primary UI domain and up to two secondary domains.\n"
+        "Return ONLY one JSON object with keys: primary_domain, secondary_domains, confidence, "
+        "evidence, required_components, presentation_hints.\n"
+        f"Allowed domains: {', '.join(sorted(DOMAIN_SET))}.\n\n"
+        "Query: {query_text}\nIntent: {intent}\nTags: {tags}\n\nResponse:\n{response_text}"
+    )
+
+
+def _build_domain_classifier_prompt(
+    template: str,
+    response_text: str,
+    intent: str | None,
+    tags: list[str] | None,
+    query_text: str | None,
+) -> str:
+    return render_prompt(
+        template,
+        response_text=response_text,
+        intent=intent or "",
+        tags=", ".join(tags or []),
+        query_text=query_text or "",
+        allowed_domains=", ".join(sorted(DOMAIN_SET)),
+    )
+
+
+def _classify_stage25_domain(
+    response_id: str,
+    response_text: str,
+    intent: str | None,
+    tags: list[str] | None,
+    query_text: str | None,
+    classifier_template: str,
+    adapter: BaseLLMAdapter,
+    rate_limiter: RateLimiter,
+    cache: PromptCache,
+    max_attempts: int,
+    logger,
+) -> dict[str, Any]:
+    if os.getenv("A2UI_STAGE25_DOMAIN_ROUTING", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return _fallback_domain_record(response_id, "stage2.5 domain routing disabled")
+
+    prompt = _build_domain_classifier_prompt(
+        classifier_template,
+        response_text=response_text,
+        intent=intent,
+        tags=tags,
+        query_text=query_text,
+    )
+    prompt_hash = hash_text(f"stage2.5_domain:{adapter.spec.name}:{prompt}")
+    cached = cache.get(prompt_hash)
+    raw_text = cached.text if cached else ""
+    raw_payload = cached.raw if cached else None
+    latency_ms = 0.0
+    input_tokens = 0
+    output_tokens = 0
+    if not cached:
+        def _call():
+            rate_limiter.acquire()
+            return adapter.generate(
+                prompt=prompt,
+                system=None,
+                temperature=_env_float("A2UI_STAGE25_TEMPERATURE", 0.0),
+                max_tokens=int(os.getenv("A2UI_STAGE25_MAX_TOKENS", "1024")),
+                seed=0,
+                json_mode=True if adapter.spec.supports_json_mode else False,
+            )
+
+        try:
+            result = with_retry(_call, max_attempts=max_attempts)
+            raw_text = result.text
+            raw_payload = result.raw
+            latency_ms = result.latency_ms
+            input_tokens = result.input_tokens
+            output_tokens = result.output_tokens
+            if result.error:
+                return _fallback_domain_record(response_id, result.error)
+            cache.set(prompt_hash, raw_text, raw_payload)
+        except Exception as exc:
+            logger.warning("Stage2.5 domain classification failed response_id=%s err=%s", response_id, exc)
+            return _fallback_domain_record(response_id, str(exc))
+
+    try:
+        parsed = extract_json(raw_text)
+    except Exception as exc:
+        logger.warning(
+            "Stage2.5 domain parse failed response_id=%s err=%s raw=%s",
+            response_id,
+            exc,
+            (raw_text or "")[:400],
+        )
+        return _fallback_domain_record(response_id, f"parse failed: {exc}")
+
+    record = _normalize_domain_record(
+        response_id,
+        parsed,
+        provider=adapter.spec.provider,
+        model=adapter.spec.model,
+    )
+    record["latency_ms"] = latency_ms
+    record["input_tokens"] = input_tokens
+    record["output_tokens"] = output_tokens
+    return record
+
+
 def run_stage3(
     queries_path: Path | None,
     responses_path: Path,
@@ -577,9 +866,14 @@ def run_stage3(
     aggregates_path: Path | None = None,
     aggregate_weights: dict[str, float] | None = None,
 ) -> None:
-    prompt_template = _maybe_compact_prompt_template(load_prompt(prompt_path), adapter, logger)
+    prompt_template = _maybe_compact_prompt_template(
+        _load_stage3_prompt_template(prompt_path, logger),
+        adapter,
+        logger,
+    )
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
+    classifier_template = _load_domain_classifier_prompt(prompt_path)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     flat_spec_mode = _is_flat_spec_schema(schema)
     logger.info("Stage3 schema mode: %s", "flat_spec" if flat_spec_mode else "legacy_messages")
@@ -608,6 +902,14 @@ def run_stage3(
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
     writer = JsonlWriter(genui_path)
+    domains_path = responses_path.parent / "domains.jsonl"
+    domains_writer = JsonlWriter(domains_path)
+    domain_records_by_response_id: dict[str, dict[str, Any]] = {}
+    for row in iter_jsonl(domains_path):
+        response_id = row.get("response_id")
+        if isinstance(response_id, str) and response_id:
+            domain_records_by_response_id[response_id] = row
+    logger.info("Stage2.5 domain records loaded: %s from %s", len(domain_records_by_response_id), domains_path)
     response_text_by_id: dict[str, str] = {}
     auto_assets_dir = responses_path.parent / "assets"
     if responses_path.exists():
@@ -694,8 +996,14 @@ def run_stage3(
         batch_size = 100
     stop = False
 
-    def _build_prompt_for(response_id: str, response_text: str, assets_list: list[dict]) -> str:
+    def _build_prompt_for(
+        response_id: str,
+        response_text: str,
+        assets_list: list[dict],
+        domain_record: dict[str, Any] | None,
+    ) -> str:
         asset_context = _build_asset_context(assets_list)
+        domain_modules, _selected_modules = _load_domain_prompt_modules(prompt_path, domain_record)
         if assets_list:
             asset_policy = (
                 "Asset URL policy for this request:\n"
@@ -716,16 +1024,28 @@ def run_stage3(
         if asset_context:
             prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
 
-        prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
+        prompt = render_prompt(
+            user_prompt_template,
+            response_text=prompt_response_text,
+            domain_modules=domain_modules,
+        )
         if prompt_max_tokens:
             system_tokens = count_tokens(system_prompt) if system_prompt else 0
             prompt_tokens = count_tokens(prompt) + system_tokens
             if prompt_tokens > prompt_max_tokens:
                 # First attempt: drop asset context to save tokens.
-                prompt = render_prompt(user_prompt_template, response_text=response_with_policy)
+                prompt = render_prompt(
+                    user_prompt_template,
+                    response_text=response_with_policy,
+                    domain_modules=domain_modules,
+                )
                 prompt_tokens = count_tokens(prompt) + system_tokens
             if prompt_tokens > prompt_max_tokens:
-                base_prompt = render_prompt(user_prompt_template, response_text="")
+                base_prompt = render_prompt(
+                    user_prompt_template,
+                    response_text="",
+                    domain_modules=domain_modules,
+                )
                 base_tokens = count_tokens(base_prompt) + system_tokens
                 budget = max(200, prompt_max_tokens - base_tokens)
                 trimmed_text, truncated = _truncate_tokens(response_text, budget)
@@ -739,6 +1059,7 @@ def run_stage3(
                 prompt = render_prompt(
                     user_prompt_template,
                     response_text=f"{trimmed_text}\n\n{asset_policy}",
+                    domain_modules=domain_modules,
                 )
         return prompt
 
@@ -1307,6 +1628,44 @@ def run_stage3(
             if not response_id or not query_id or not response_text:
                 continue
 
+            response_needs_generation = any(
+                _make_ui_id(query_id, n_idx, c_idx) not in existing_ids
+                for c_idx in range(1, candidates_per_response + 1)
+            )
+            if not response_needs_generation:
+                continue
+            if max_total is not None and total_created + len(pending) >= max_total:
+                stop = True
+                break
+
+            intent_info = intent_lookup.get(query_id, {})
+            tags_value = intent_info.get("tags")
+            tags_list = tags_value if isinstance(tags_value, list) else []
+            domain_record = domain_records_by_response_id.get(response_id)
+            if not domain_record:
+                domain_record = _classify_stage25_domain(
+                    response_id=response_id,
+                    response_text=response_text,
+                    intent=intent_info.get("intent"),
+                    tags=tags_list,
+                    query_text=intent_info.get("query_text") or "",
+                    classifier_template=classifier_template,
+                    adapter=adapter,
+                    rate_limiter=rate_limiter,
+                    cache=cache,
+                    max_attempts=max_attempts,
+                    logger=logger,
+                )
+                domains_writer.append(domain_record)
+                domain_records_by_response_id[response_id] = domain_record
+                logger.info(
+                    "Stage2.5 domain response_id=%s primary=%s secondary=%s confidence=%.2f",
+                    response_id,
+                    domain_record.get("primary_domain"),
+                    domain_record.get("secondary_domains"),
+                    float(domain_record.get("confidence") or 0.0),
+                )
+
             if not assets_list:
                 auto_assets = _auto_download_response_assets(
                     response_id=response_id,
@@ -1338,11 +1697,16 @@ def run_stage3(
                 if ui_id in existing_ids:
                     continue
 
-                prompt = _build_prompt_for(response_id, response_text, assets_list)
+                prompt = _build_prompt_for(
+                    response_id,
+                    response_text,
+                    assets_list,
+                    domain_record=domain_record,
+                )
+                _domain_modules_text, selected_modules = _load_domain_prompt_modules(prompt_path, domain_record)
                 prompt_hash = hash_text(
                     f"{adapter.spec.name}:{system_prompt or ''}\n---\n{prompt}"
                 )
-                intent_info = intent_lookup.get(query_id, {})
                 task = {
                     "ui_id": ui_id,
                     "response_id": response_id,
@@ -1352,6 +1716,8 @@ def run_stage3(
                     "intent": intent_info.get("intent"),
                     "tags": intent_info.get("tags"),
                     "query_text": intent_info.get("query_text") or "",
+                    "domain_record": domain_record,
+                    "prompt_modules": selected_modules,
                     "prompt": prompt,
                     "prompt_hash": prompt_hash,
                     "seed": seed + c_idx,

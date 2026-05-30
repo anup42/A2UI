@@ -1,0 +1,12 @@
+## Compact table rules
+- When source content has comparative, tabular, option-list, ranking, itinerary, recipe ingredient, status, formula, or numeric breakdown data, emit compact Table elements. Do not expand row/cell trees.
+- Preferred Table: rows in state, props.statePath points to them, props.columns preserves display order and all source columns. Inline props.rows is allowed only when simpler.
+- Include metadata when useful: domain, preferredPresentation, primaryColumn, highlightColumns, numericColumns, entityMedia, title, subtitle, mood, genre, sourceFormat, sourceText.
+- Allowed Table domain values: weather, flight, booking, playlist, schedule, status, formula, comparison, generic.
+- Defaults: weather/flight/booking/playlist/schedule/status use cards; formula uses table for variables/breakdowns plus Formula; comparison uses cards for entity rows and table for feature matrices; generic uses table.
+- Feature matrices use first column Feature or Metric, domain comparison, preferredPresentation table. Entity comparisons use Item/Product/Option/Model as primary column and preferredPresentation cards.
+- Preserve every table value exactly, including units, symbols, currencies, negative signs, percentages, dates, and column ordering.
+- Do not include both sourceText and full row data unless rows cannot preserve the source. Prefer rows.
+- Do not create separate portrait/landscape IR. Android adapts compact Table into cards, horizontal tables, sticky headers, timelines, playlist surfaces, KPI cards, or fact panels.
+- If table parsing is partial, keep a best-effort compact Table. Do not degrade to prose-only output.
+- Put action URLs in matching table rows using url, actionUrl, bookingUrl, sourceUrl plus actionLabel/buttonLabel/ctaLabel. Never render raw URLs as body text.
