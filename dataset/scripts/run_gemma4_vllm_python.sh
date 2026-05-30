@@ -319,9 +319,17 @@ if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-co
     exit 1
   fi
 fi
-if is_truthy "${GEMMA4_ENABLE_REASONING}" && ! grep -q -- "--reasoning-parser" <<<"${HELP_TEXT}"; then
-  echo "This vLLM install does not expose --reasoning-parser, so Gemma4 reasoning cannot be enabled." >&2
-  exit 1
+VLLM_HAS_REASONING_PARSER=0
+if grep -q -- "--reasoning-parser" <<<"${HELP_TEXT}"; then
+  VLLM_HAS_REASONING_PARSER=1
+fi
+VLLM_HAS_ENABLE_REASONING=0
+if grep -q -- "--enable-reasoning" <<<"${HELP_TEXT}"; then
+  VLLM_HAS_ENABLE_REASONING=1
+fi
+VLLM_HAS_DEFAULT_CHAT_TEMPLATE_KWARGS=0
+if grep -q -- "--default-chat-template-kwargs" <<<"${HELP_TEXT}"; then
+  VLLM_HAS_DEFAULT_CHAT_TEMPLATE_KWARGS=1
 fi
 
 cmd=(
@@ -356,15 +364,24 @@ PY
 fi
 
 if is_truthy "${GEMMA4_ENABLE_REASONING}" && [[ "${GEMMA4_REASONING_FLAGS_MODE}" != "off" ]]; then
-  if grep -q -- "--enable-reasoning" <<<"${HELP_TEXT}"; then
+  if [[ "${VLLM_HAS_ENABLE_REASONING}" = "1" && "${VLLM_HAS_REASONING_PARSER}" = "1" ]]; then
     cmd+=(--enable-reasoning)
+    cmd+=(--reasoning-parser gemma4)
+  else
+    echo "Warning: this vLLM build does not expose Gemma4 server reasoning parser flags." >&2
+    echo "Continuing with request-side thinking via LOCAL_VLLM_ENABLE_THINKING=1; client will strip thinking before JSON parsing." >&2
   fi
-  cmd+=(--reasoning-parser gemma4)
-  if is_truthy "${GEMMA4_ENABLE_DEFAULT_THINKING}"; then
+  if is_truthy "${GEMMA4_ENABLE_DEFAULT_THINKING}" && [[ "${VLLM_HAS_DEFAULT_CHAT_TEMPLATE_KWARGS}" = "1" ]]; then
     cmd+=(--default-chat-template-kwargs '{"enable_thinking": true}')
+  elif is_truthy "${GEMMA4_ENABLE_DEFAULT_THINKING}"; then
+    echo "Warning: this vLLM build does not expose --default-chat-template-kwargs; relying on per-request chat_template_kwargs." >&2
   fi
   if [[ "${GEMMA4_REASONING_FLAGS_MODE}" = "full" ]]; then
-    cmd+=(--enable-auto-tool-choice --tool-call-parser gemma4)
+    if grep -q -- "--enable-auto-tool-choice" <<<"${HELP_TEXT}" && grep -q -- "--tool-call-parser" <<<"${HELP_TEXT}"; then
+      cmd+=(--enable-auto-tool-choice --tool-call-parser gemma4)
+    else
+      echo "Warning: full Gemma4 tool parser flags are not available in this vLLM build." >&2
+    fi
     if [[ -n "${GEMMA4_REASONING_CHAT_TEMPLATE}" ]]; then
       cmd+=(--chat-template "${GEMMA4_REASONING_CHAT_TEMPLATE}")
     else
