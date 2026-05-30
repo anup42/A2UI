@@ -34,6 +34,8 @@ FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
 FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
 CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
 CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
+CUDA_CRT_PACKAGE="${CUDA_CRT_PACKAGE:-nvidia-cuda-crt==13.0.88}"
+CUDA_CCCL_PACKAGE="${CUDA_CCCL_PACKAGE:-nvidia-cuda-cccl==13.0.85}"
 A2UI_PREFER_PYTHON_CUDA="${A2UI_PREFER_PYTHON_CUDA:-1}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
@@ -219,6 +221,11 @@ configure_cuda_build_env() {
     echo "Rerun setup with A2UI_CLEAN_VLLM_STACK=1 so ${CUDA_NVCC_PACKAGE} is installed and mirrored into the venv CUDA toolkit." >&2
     exit 1
   fi
+  if [[ ! -f "${CUDA_HOME}/include/crt/host_config.h" ]]; then
+    echo "CUDA_HOME is missing CUDA CRT headers: ${CUDA_HOME}/include/crt/host_config.h" >&2
+    echo "Rerun setup with A2UI_CLEAN_VLLM_STACK=1 so ${CUDA_CRT_PACKAGE} is installed and mirrored into the venv CUDA toolkit." >&2
+    exit 1
+  fi
   local nvcc_code=""
   local header_code=""
   local nvcc_major=""
@@ -237,6 +244,8 @@ configure_cuda_build_env() {
     echo "For torch ${TORCH_VERSION}+${A2UI_TORCH_BACKEND}, rerun setup with A2UI_CLEAN_VLLM_STACK=1 and the default CUDA 13.0 packages:" >&2
     echo "  ${CUDA_RUNTIME_PACKAGE}" >&2
     echo "  ${CUDA_NVCC_PACKAGE}" >&2
+    echo "  ${CUDA_CRT_PACKAGE}" >&2
+    echo "  ${CUDA_CCCL_PACKAGE}" >&2
     exit 1
   fi
 
@@ -547,10 +556,16 @@ if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
       flashinfer-jit-cache \
       nvidia-cuda-runtime \
       nvidia-cuda-nvcc \
+      nvidia-cuda-crt \
+      nvidia-cuda-cccl \
       nvidia-cuda-runtime-cu12 \
       nvidia-cuda-nvcc-cu12 \
+      nvidia-cuda-crt-cu12 \
+      nvidia-cuda-cccl-cu12 \
       nvidia-cuda-runtime-cu13 \
       nvidia-cuda-nvcc-cu13 \
+      nvidia-cuda-crt-cu13 \
+      nvidia-cuda-cccl-cu13 \
       || true
     python - <<'PY'
 import pathlib
@@ -583,8 +598,10 @@ PY
   python -m uv pip install \
     "${CUDA_RUNTIME_PACKAGE}" \
     "${CUDA_NVCC_PACKAGE}" \
+    "${CUDA_CRT_PACKAGE}" \
+    "${CUDA_CCCL_PACKAGE}" \
     "${UV_INSECURE_ARGS[@]}" || {
-      echo "Warning: could not install CUDA runtime/NVCC wheels (${CUDA_RUNTIME_PACKAGE}, ${CUDA_NVCC_PACKAGE}). If vLLM or FlashInfer JIT fails, install matching CUDA runtime/NVCC packages manually." >&2
+      echo "Warning: could not install CUDA runtime/NVCC/CRT/CCCL wheels (${CUDA_RUNTIME_PACKAGE}, ${CUDA_NVCC_PACKAGE}, ${CUDA_CRT_PACKAGE}, ${CUDA_CCCL_PACKAGE}). If vLLM or FlashInfer JIT fails, install matching CUDA packages manually." >&2
     }
   build_python_cuda_toolkit
   export_nvidia_python_libs
