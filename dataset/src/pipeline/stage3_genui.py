@@ -661,6 +661,14 @@ def run_stage3(
         except Exception as exc:  # best-effort
             logger.warning("Stage3 aggregates failed: %s", exc)
 
+    def _compute_sample_overall_score(record: dict[str, Any]) -> float | None:
+        try:
+            sample_aggregate = aggregate_metrics([record])
+            return compute_overall_score(sample_aggregate, aggregate_weights or {})
+        except Exception as exc:  # best-effort logging metric
+            logger.debug("Stage3 sample score failed ui_id=%s: %s", record.get("ui_id"), exc)
+            return None
+
     total_created = 0
     total_failed = 0
     pending: list[dict[str, Any]] = []
@@ -1065,9 +1073,18 @@ def run_stage3(
             },
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
+        sample_overall_score = _compute_sample_overall_score(record)
         writer.append(record)
         existing_ids.add(ui_id)
-        logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
+        if sample_overall_score is None:
+            logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
+        else:
+            logger.info(
+                "Stage3 created ui_id=%s schema_ok=%s overall_score=%.2f",
+                ui_id,
+                schema_valid_strict,
+                sample_overall_score,
+            )
         total_created += 1
         _write_aggregates(reason=f"after_ui={ui_id}")
 
