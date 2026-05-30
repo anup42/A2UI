@@ -29,6 +29,8 @@ MAX_GENERATION_TOTAL="${MAX_GENERATION_TOTAL:-}"
 GENERATION_CYCLE_SIZE="${GENERATION_CYCLE_SIZE:-${MAX_GENERATION_CYCLE_SIZE:-500}}"
 K_QUERIES_PER_INTENT="${K_QUERIES_PER_INTENT:-}"
 STAGE="${STAGE:-all}"
+LOCAL_VLLM_WAIT_TIMEOUT_SECONDS="${LOCAL_VLLM_WAIT_TIMEOUT_SECONDS:-1800}"
+LOCAL_VLLM_WAIT_INTERVAL_SECONDS="${LOCAL_VLLM_WAIT_INTERVAL_SECONDS:-10}"
 
 if [[ -n "${MAX_GENERATION_TOTAL}" ]]; then
   MAX_QUERIES_TOTAL="${MAX_GENERATION_TOTAL}"
@@ -83,8 +85,11 @@ ensure_vllm_served_model() {
 
   local expected="${LOCAL_VLLM_SERVED_MODEL:-${GEMMA4_MODEL_ID}}"
   local models_url="${LOCAL_VLLM_MODELS_URL:-http://127.0.0.1:8000/v1/models}"
-  local served
-  served="$(python - "${models_url}" "${expected}" <<'PY'
+  local served rc start now elapsed
+  start="$(date +%s)"
+  while true; do
+    set +e
+    served="$(python - "${models_url}" "${expected}" <<'PY'
 import json
 import sys
 import urllib.request
@@ -121,7 +126,25 @@ print(
 )
 raise SystemExit(3)
 PY
-)" || return $?
+)"
+    rc=$?
+    set -e
+    if [[ "${rc}" = "0" ]]; then
+      break
+    fi
+    if [[ "${rc}" != "2" ]]; then
+      return "${rc}"
+    fi
+    now="$(date +%s)"
+    elapsed=$(( now - start ))
+    if (( elapsed >= LOCAL_VLLM_WAIT_TIMEOUT_SECONDS )); then
+      echo "Timed out waiting for local vLLM server at ${models_url} after ${elapsed}s." >&2
+      echo "Start the server with dataset/scripts/run_gemma4_vllm_python.sh or increase LOCAL_VLLM_WAIT_TIMEOUT_SECONDS." >&2
+      return 2
+    fi
+    echo "Waiting for local vLLM server at ${models_url} (${elapsed}s/${LOCAL_VLLM_WAIT_TIMEOUT_SECONDS}s)..." >&2
+    sleep "${LOCAL_VLLM_WAIT_INTERVAL_SECONDS}"
+  done
 
   export LOCAL_VLLM_SERVED_MODEL="${served}"
   echo "Using local vLLM served model: ${LOCAL_VLLM_SERVED_MODEL}"
