@@ -48,7 +48,6 @@ export A2UI_RESPONSE_MAX_TOKENS="${A2UI_RESPONSE_MAX_TOKENS:-8192}"
 export A2UI_GENUI_MAX_TOKENS="${A2UI_GENUI_MAX_TOKENS:-8192}"
 export A2UI_GENUI_PROMPT_MAX_TOKENS="${A2UI_GENUI_PROMPT_MAX_TOKENS:-8192}"
 export A2UI_STAGE3_PROMPT_FILE="${A2UI_STAGE3_PROMPT_FILE:-prompts/genui_gen_mobile_flatspec_ondevice_v3.md}"
-export A2UI_STAGE25_BATCH_SIZE="${A2UI_STAGE25_BATCH_SIZE:-${GENERATION_CYCLE_SIZE}}"
 export A2UI_QUERY_TEMPERATURE="${A2UI_QUERY_TEMPERATURE:-1.0}"
 export A2UI_RESPONSE_TEMPERATURES="${A2UI_RESPONSE_TEMPERATURES:-1.0}"
 export A2UI_GENUI_TEMPERATURE="${A2UI_GENUI_TEMPERATURE:-0.7}"
@@ -171,9 +170,6 @@ run_stage() {
   fi
   echo "Running Stage ${stage} with ${MODEL_NAME}, run_id=${RUN_ID}, reasoning=${GEMMA4_ENABLE_REASONING}"
   echo "Sampling: query_temp=${A2UI_QUERY_TEMPERATURE} response_temps=${A2UI_RESPONSE_TEMPERATURES} genui_temp=${A2UI_GENUI_TEMPERATURE} top_p=${LOCAL_VLLM_TOP_P} top_k=${LOCAL_VLLM_TOP_K} repetition_penalty=${LOCAL_VLLM_REPETITION_PENALTY}"
-  if [[ "${stage}" = "3" ]]; then
-    echo "Stage 2.5 domain batch size=${A2UI_STAGE25_BATCH_SIZE}"
-  fi
   python dataset/src/main.py \
     --stage "${stage}" \
     --model "${MODEL_NAME}" \
@@ -306,10 +302,9 @@ run_cyclic_generation() {
     exit 1
   fi
 
-  local queries_path responses_path domains_path genui_path intents k_per_intent
+  local queries_path responses_path genui_path intents k_per_intent
   queries_path="$(resolve_run_file "queries.jsonl")"
   responses_path="$(resolve_run_file "responses.jsonl")"
-  domains_path="$(resolve_run_file "domains.jsonl")"
   genui_path="$(resolve_run_file "genui.jsonl")"
   intents="$(intent_count)"
   if (( intents <= 0 )); then
@@ -331,13 +326,12 @@ run_cyclic_generation() {
   echo "Cyclic generation enabled: run_id=${RUN_ID} total=${MAX_GENERATION_TOTAL} cycle_size=${GENERATION_CYCLE_SIZE} k_queries_per_intent=${K_QUERIES_PER_INTENT}"
   local cycle=0
   while true; do
-    local q r d g floor target
+    local q r g floor target
     q="$(jsonl_count "${queries_path}")"
     r="$(jsonl_count "${responses_path}")"
-    d="$(jsonl_count "${domains_path}")"
     g="$(jsonl_count "${genui_path}")"
     if (( q >= MAX_GENERATION_TOTAL && r >= MAX_GENERATION_TOTAL && g >= MAX_GENERATION_TOTAL )); then
-      echo "Cyclic generation complete: queries=${q} responses=${r} domains=${d} genui=${g}"
+      echo "Cyclic generation complete: queries=${q} responses=${r} genui=${g}"
       break
     fi
 
@@ -349,7 +343,7 @@ run_cyclic_generation() {
       target="${MAX_GENERATION_TOTAL}"
     fi
     cycle=$(( cycle + 1 ))
-    echo "Cyclic generation cycle=${cycle} target=${target} current queries=${q} responses=${r} domains=${d} genui=${g}"
+    echo "Cyclic generation cycle=${cycle} target=${target} current queries=${q} responses=${r} genui=${g}"
 
     ensure_stage_count 1 "${queries_path}" "${target}"
     ensure_stage_count 2 "${responses_path}" "${target}"
