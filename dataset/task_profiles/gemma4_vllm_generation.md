@@ -40,18 +40,26 @@ bash dataset/scripts/setup_gemma4_vllm_python_env.sh
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 ```
 
-The setup script defaults to the same Gemma4-special vLLM source ref used by
-the Gemma4 speculative vLLM build script:
+The setup script defaults to a prebuilt nightly vLLM wheel and does not require
+speculative decoding. This avoids local vLLM/CUDA source builds on the target
+machine:
+
+```bash
+export A2UI_VLLM_INSTALL_MODE=nightly
+export A2UI_REQUIRE_SPECULATIVE=0
+export GEMMA4_SPECULATIVE_MODE=off
+```
+
+Only use source mode if you specifically need the Gemma4-special speculative
+vLLM ref:
 
 ```text
 9b4e83934d895b5f6e488411cd46c8d0915115a1
 ```
 
-It builds from source with `--no-build-isolation`, matching the Docker build
-approach used for Gemma4 speculative decoding.
-
 ```bash
 export A2UI_VLLM_INSTALL_MODE=source
+export A2UI_REQUIRE_SPECULATIVE=1
 export VLLM_SOURCE_REF=9b4e83934d895b5f6e488411cd46c8d0915115a1
 export PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu130
 export A2UI_TORCH_BACKEND=cu130
@@ -127,15 +135,14 @@ PyTorch/vLLM stack away from CUDA 13.0/cu130.
 
 ## Start vLLM
 
-Non-reasoning mode with speculative decoding:
+Non-reasoning mode without speculative decoding:
 
 ```bash
 source gemma4_vllm_env/activate_gemma4_vllm.sh
 
 export GEMMA4_MODEL_ROOT=/path/to/parent/folder
 export GEMMA4_ENABLE_REASONING=0
-export GEMMA4_SPECULATIVE_MODE=draft
-export GEMMA4_SPECULATIVE_TOKENS=4
+export GEMMA4_SPECULATIVE_MODE=off
 export VLLM_MAX_MODEL_LEN=8192
 export VLLM_MAX_NUM_BATCHED_TOKENS=8192
 export VLLM_GPU_MEMORY_UTILIZATION=0.90
@@ -165,10 +172,12 @@ export LOCAL_VLLM_STRIP_THINKING=1
 bash dataset/scripts/run_gemma4_vllm_python.sh
 ```
 
-To disable speculative decoding:
+To enable speculative decoding after base serving works:
 
 ```bash
-export GEMMA4_SPECULATIVE_MODE=off
+export GEMMA4_SPECULATIVE_MODE=draft
+export GEMMA4_REQUIRE_SPECULATIVE=1
+export GEMMA4_SPECULATIVE_TOKENS=4
 ```
 
 The vLLM Gemma4 recipe uses the assistant checkpoint with
@@ -206,7 +215,7 @@ export GEMMA4_MODEL_ROOT=/path/to/parent/folder
 export RUN_ID=dataset_gemma4_31b_vllm_50
 export TARGET_COUNT=50
 export GEMMA4_ENABLE_REASONING=0
-export GEMMA4_SPECULATIVE_MODE=draft
+export GEMMA4_SPECULATIVE_MODE=off
 
 bash dataset/scripts/run_gemma4_stage123_50_python.sh
 ```
