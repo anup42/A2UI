@@ -169,7 +169,8 @@ configure_cuda_build_env() {
   export CUDA_CUDART_LIBRARY="${cudart}"
   export LIBRARY_PATH="${CUDA_HOME}/lib64:${CUDA_HOME}/targets/x86_64-linux/lib:${LIBRARY_PATH:-}"
   export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${CUDA_HOME}/targets/x86_64-linux/lib:${LD_LIBRARY_PATH:-}"
-  export CMAKE_ARGS="${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
+  export CMAKE_ARGS="${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
+  export SKBUILD_CMAKE_ARGS="${SKBUILD_CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
   echo "Using CUDA_CUDART_LIBRARY=${CUDA_CUDART_LIBRARY}"
 }
 export_nvidia_python_libs() {
@@ -256,6 +257,9 @@ PY
     export CUDA_PATH="${A2UI_CUDA_TOOLKIT_DIR}"
     export CUDACXX="${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
     export CMAKE_CUDA_COMPILER="${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+    export PATH="${A2UI_CUDA_TOOLKIT_DIR}/bin:${PATH}"
+    export LD_LIBRARY_PATH="${A2UI_CUDA_TOOLKIT_DIR}/lib64:${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib:${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib64:${LD_LIBRARY_PATH:-}"
+    export LIBRARY_PATH="${A2UI_CUDA_TOOLKIT_DIR}/lib64:${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib:${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib64:${LIBRARY_PATH:-}"
   elif [[ "${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "${python_cuda_home}" && -x "${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="${python_cuda_home}"
     export CUDA_PATH="${python_cuda_home}"
@@ -283,6 +287,13 @@ PY
   if [[ -n "${CUDA_HOME:-}" ]]; then
     export CUDAToolkit_ROOT="${CUDA_HOME}"
     export CUDA_TOOLKIT_ROOT_DIR="${CUDA_HOME}"
+    local cudart
+    cudart="$(find "${CUDA_HOME}" \( -type f -o -type l \) 2>/dev/null | grep -E '/libcudart\.so($|\.)' | head -1 || true)"
+    if [[ -n "${cudart}" ]]; then
+      export CUDA_CUDART_LIBRARY="${cudart}"
+      export CMAKE_ARGS="${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
+      export SKBUILD_CMAKE_ARGS="${SKBUILD_CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
+    fi
   fi
 }
 
@@ -656,6 +667,9 @@ PY
     export CUDA_PATH="\${A2UI_CUDA_TOOLKIT_DIR}"
     export CUDACXX="\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
     export CMAKE_CUDA_COMPILER="\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+    export PATH="\${A2UI_CUDA_TOOLKIT_DIR}/bin:\${PATH}"
+    export LD_LIBRARY_PATH="\${A2UI_CUDA_TOOLKIT_DIR}/lib64:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib64:\${LD_LIBRARY_PATH:-}"
+    export LIBRARY_PATH="\${A2UI_CUDA_TOOLKIT_DIR}/lib64:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib64:\${LIBRARY_PATH:-}"
   elif [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -n "\${python_cuda_home}" && -x "\${python_cuda_home}/bin/nvcc" ]]; then
     export CUDA_HOME="\${python_cuda_home}"
     export CUDA_PATH="\${python_cuda_home}"
@@ -683,6 +697,13 @@ PY
   if [[ -n "\${CUDA_HOME:-}" ]]; then
     export CUDAToolkit_ROOT="\${CUDA_HOME}"
     export CUDA_TOOLKIT_ROOT_DIR="\${CUDA_HOME}"
+    local cudart
+    cudart="\$(find "\${CUDA_HOME}" \( -type f -o -type l \) 2>/dev/null | grep -E '/libcudart\.so($|\.)' | head -1 || true)"
+    if [[ -n "\${cudart}" ]]; then
+      export CUDA_CUDART_LIBRARY="\${cudart}"
+      export CMAKE_ARGS="\${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=\${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=\${CUDA_HOME} -DCUDA_CUDART_LIBRARY=\${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=\${cudart} -DCMAKE_CUDA_COMPILER=\${CUDA_HOME}/bin/nvcc"
+      export SKBUILD_CMAKE_ARGS="\${SKBUILD_CMAKE_ARGS:-} -DCUDAToolkit_ROOT=\${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=\${CUDA_HOME} -DCUDA_CUDART_LIBRARY=\${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=\${cudart} -DCMAKE_CUDA_COMPILER=\${CUDA_HOME}/bin/nvcc"
+    fi
   fi
 }
 _a2ui_export_nvidia_python_libs
@@ -694,6 +715,51 @@ export TRANSFORMERS_OFFLINE=1
 export HF_DATASETS_OFFLINE=1
 EOF
 chmod +x "${ENV_DIR}/activate_gemma4_vllm.sh"
+
+# Many manual debug sessions source only the venv's standard bin/activate.
+# Patch it as well so CUDA discovery works without remembering the wrapper.
+ACTIVATE_FILE="${ENV_DIR}/bin/activate"
+if [[ -f "${ACTIVATE_FILE}" ]]; then
+  python - "${ACTIVATE_FILE}" <<'PY'
+import pathlib
+import re
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text()
+text = re.sub(
+    r"\n?# >>> A2UI Gemma4 CUDA env >>>.*?# <<< A2UI Gemma4 CUDA env <<<\n?",
+    "\n",
+    text,
+    flags=re.S,
+)
+path.write_text(text.rstrip() + "\n")
+PY
+  cat >> "${ACTIVATE_FILE}" <<EOF
+# >>> A2UI Gemma4 CUDA env >>>
+export A2UI_CUDA_TOOLKIT_DIR="\${A2UI_CUDA_TOOLKIT_DIR:-${A2UI_CUDA_TOOLKIT_DIR}}"
+export A2UI_PREFER_PYTHON_CUDA="\${A2UI_PREFER_PYTHON_CUDA:-1}"
+if [[ "\${A2UI_PREFER_PYTHON_CUDA}" = "1" && -x "\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc" ]]; then
+  export CUDA_HOME="\${A2UI_CUDA_TOOLKIT_DIR}"
+  export CUDA_PATH="\${A2UI_CUDA_TOOLKIT_DIR}"
+  export CUDACXX="\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+  export CMAKE_CUDA_COMPILER="\${A2UI_CUDA_TOOLKIT_DIR}/bin/nvcc"
+  export CUDAToolkit_ROOT="\${A2UI_CUDA_TOOLKIT_DIR}"
+  export CUDA_TOOLKIT_ROOT_DIR="\${A2UI_CUDA_TOOLKIT_DIR}"
+  export PATH="\${A2UI_CUDA_TOOLKIT_DIR}/bin:\${PATH}"
+  export LD_LIBRARY_PATH="\${A2UI_CUDA_TOOLKIT_DIR}/lib64:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib64:\${LD_LIBRARY_PATH:-}"
+  export LIBRARY_PATH="\${A2UI_CUDA_TOOLKIT_DIR}/lib64:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib:\${A2UI_CUDA_TOOLKIT_DIR}/targets/x86_64-linux/lib64:\${LIBRARY_PATH:-}"
+  _a2ui_cudart="\$(find "\${A2UI_CUDA_TOOLKIT_DIR}" \( -type f -o -type l \) 2>/dev/null | grep -E '/libcudart\\.so($|\\.)' | head -1 || true)"
+  if [[ -n "\${_a2ui_cudart}" ]]; then
+    export CUDA_CUDART_LIBRARY="\${_a2ui_cudart}"
+    export CMAKE_ARGS="\${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=\${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=\${CUDA_HOME} -DCUDA_CUDART_LIBRARY=\${_a2ui_cudart} -DCUDA_CUDART_LIBRARY_RELEASE=\${_a2ui_cudart} -DCMAKE_CUDA_COMPILER=\${CUDA_HOME}/bin/nvcc"
+    export SKBUILD_CMAKE_ARGS="\${SKBUILD_CMAKE_ARGS:-} -DCUDAToolkit_ROOT=\${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=\${CUDA_HOME} -DCUDA_CUDART_LIBRARY=\${_a2ui_cudart} -DCUDA_CUDART_LIBRARY_RELEASE=\${_a2ui_cudart} -DCMAKE_CUDA_COMPILER=\${CUDA_HOME}/bin/nvcc"
+  fi
+  unset _a2ui_cudart
+fi
+# <<< A2UI Gemma4 CUDA env <<<
+EOF
+fi
 
 python - <<'PY'
 import importlib
