@@ -765,25 +765,6 @@ def _build_domain_classifier_prompt(
     )
 
 
-def _extract_stage25_domain_json(raw_text: str) -> Any:
-    """Stage 2.5 outputs are small JSON objects, but local models may append text."""
-    try:
-        return extract_json(raw_text)
-    except Exception as first_error:
-        decoder = json.JSONDecoder()
-        cleaned = (raw_text or "").strip()
-        for idx, char in enumerate(cleaned):
-            if char != "{":
-                continue
-            try:
-                candidate, _end = decoder.raw_decode(cleaned, idx)
-            except Exception:
-                continue
-            if isinstance(candidate, dict):
-                return candidate
-        raise ValueError(f"{first_error}; no standalone JSON object found") from first_error
-
-
 def _classify_stage25_domain(
     response_id: str,
     response_text: str,
@@ -841,7 +822,7 @@ def _classify_stage25_domain(
             return _fallback_domain_record(response_id, str(exc))
 
     try:
-        parsed = _extract_stage25_domain_json(raw_text)
+        parsed = extract_json(raw_text)
     except Exception as exc:
         logger.warning(
             "Stage2.5 domain parse failed response_id=%s err=%s raw=%s",
