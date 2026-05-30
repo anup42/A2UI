@@ -573,11 +573,18 @@ def main() -> None:
         os.environ.get("A2UI_STAGE3_PROMPT_FILE") or run_cfg.get("stage3_prompt_file"),
         "prompts/genui_gen.md",
     )
+    stage1_prompt_path = _resolve_cfg_path(
+        root,
+        os.environ.get("A2UI_STAGE1_PROMPT_FILE") or run_cfg.get("stage1_prompt_file"),
+        "prompts/query_gen.md",
+    )
     stage3_schema_path = _resolve_cfg_path(
         root,
         run_cfg.get("stage3_schema_file"),
         "schema/genui.schema.json",
     )
+    if not stage1_prompt_path.exists():
+        raise SystemExit(f"Missing Stage1 prompt file: {stage1_prompt_path}")
     if not stage3_prompt_path.exists():
         raise SystemExit(f"Missing Stage3 prompt file: {stage3_prompt_path}")
     if not stage3_schema_path.exists():
@@ -663,7 +670,7 @@ def main() -> None:
             )
             run_stage1(
                 intents_file=root / run_cfg.get("intents_file", "intents.info"),
-                prompt_path=prompts_dir / "query_gen.md",
+                prompt_path=stage1_prompt_path,
                 adapter=adapter,
                 run_dir=run_paths.run_dir,
                 queries_path=base_queries_path,
@@ -840,7 +847,7 @@ def main() -> None:
         if args.stage == 1:
             run_stage1(
                 intents_file=root / run_cfg.get("intents_file", "intents.info"),
-                prompt_path=prompts_dir / "query_gen.md",
+                prompt_path=stage1_prompt_path,
                 adapter=adapter,
                 run_dir=run_paths.run_dir,
                 queries_path=run_paths.queries_path,
