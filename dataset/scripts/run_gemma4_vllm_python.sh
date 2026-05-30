@@ -50,7 +50,6 @@ GEMMA4_ENABLE_DEFAULT_THINKING="${GEMMA4_ENABLE_DEFAULT_THINKING:-0}"
 GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-mtp}" # mtp|draft|off
 GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-1}"
 GEMMA4_REQUIRE_SPECULATIVE="${GEMMA4_REQUIRE_SPECULATIVE:-0}"
-GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK="${GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK:-1}"
 
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
@@ -335,6 +334,10 @@ VLLM_HAS_SPECULATIVE_CONFIG=0
 if grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
   VLLM_HAS_SPECULATIVE_CONFIG=1
 fi
+VLLM_HAS_SPLIT_SPECULATIVE_CONFIG=0
+if grep -q -- "--spec-method" <<<"${HELP_TEXT}" && grep -q -- "--spec-model" <<<"${HELP_TEXT}" && grep -q -- "--spec-tokens" <<<"${HELP_TEXT}"; then
+  VLLM_HAS_SPLIT_SPECULATIVE_CONFIG=1
+fi
 VLLM_HAS_LEGACY_SPECULATIVE=0
 if grep -q -- "--speculative-model" <<<"${HELP_TEXT}" && grep -q -- "--num-speculative-tokens" <<<"${HELP_TEXT}"; then
   VLLM_HAS_LEGACY_SPECULATIVE=1
@@ -343,13 +346,14 @@ GEMMA4_SPECULATIVE_ARG_STYLE="off"
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
   if [[ "${VLLM_HAS_SPECULATIVE_CONFIG}" = "1" ]]; then
     GEMMA4_SPECULATIVE_ARG_STYLE="config"
-  elif [[ "${VLLM_HAS_LEGACY_SPECULATIVE}" = "1" ]] && is_truthy "${GEMMA4_ALLOW_LEGACY_SPECULATIVE_FALLBACK}"; then
-    GEMMA4_SPECULATIVE_ARG_STYLE="legacy"
-    echo "Warning: this vLLM install does not expose --speculative-config." >&2
-    echo "Using legacy --speculative-model/--num-speculative-tokens with token-1 fallback; this is not true Gemma4 MTP." >&2
+  elif [[ "${GEMMA4_SPECULATIVE_MODE}" = "mtp" && "${VLLM_HAS_SPLIT_SPECULATIVE_CONFIG}" = "1" ]]; then
+    GEMMA4_SPECULATIVE_ARG_STYLE="split"
+  elif [[ "${GEMMA4_SPECULATIVE_MODE}" = "draft" && "${VLLM_HAS_LEGACY_SPECULATIVE}" = "1" ]]; then
+    GEMMA4_SPECULATIVE_ARG_STYLE="legacy_draft"
   else
-    echo "This vLLM install does not expose --speculative-config." >&2
-    echo "True Gemma4 MTP requires --speculative-config. Install the Gemma4-compatible vLLM build or set GEMMA4_SPECULATIVE_MODE=off." >&2
+    echo "This vLLM install does not expose Gemma4 MTP speculative flags." >&2
+    echo "Expected either --speculative-config or --spec-method/--spec-model/--spec-tokens." >&2
+    echo "Do not use legacy --speculative-model for Gemma4 MTP; install a vLLM build with Gemma4 MTP support or set GEMMA4_SPECULATIVE_MODE=off." >&2
     exit 1
   fi
 fi
@@ -399,7 +403,11 @@ print(json.dumps(payload))
 PY
 )"
   cmd+=(--speculative-config "${spec_json}")
-elif [[ "${GEMMA4_SPECULATIVE_ARG_STYLE}" = "legacy" ]]; then
+elif [[ "${GEMMA4_SPECULATIVE_ARG_STYLE}" = "split" ]]; then
+  cmd+=(--spec-method gemma4_mtp)
+  cmd+=(--spec-model "${ASSISTANT_MODEL_PATH}")
+  cmd+=(--spec-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
+elif [[ "${GEMMA4_SPECULATIVE_ARG_STYLE}" = "legacy_draft" ]]; then
   cmd+=(--speculative-model "${ASSISTANT_MODEL_PATH}")
   cmd+=(--num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
 fi
