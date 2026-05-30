@@ -601,6 +601,7 @@ def main() -> None:
     if args.k_queries_per_intent is not None:
         run_cfg["k_queries_per_intent"] = int(args.k_queries_per_intent)
     _apply_env_int_override(run_cfg, "query_max_tokens", "A2UI_QUERY_MAX_TOKENS")
+    _apply_env_int_override(run_cfg, "stage1_intent_cycle_size", "A2UI_STAGE1_INTENT_CYCLE_SIZE")
     _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_prompt_max_tokens", "A2UI_GENUI_PROMPT_MAX_TOKENS")
@@ -687,6 +688,7 @@ def main() -> None:
                 max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
                 fill_missing_with_fallback=bool(run_cfg.get("stage1_fill_missing_with_fallback", True)),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
+                intent_cycle_size=int(run_cfg.get("stage1_intent_cycle_size", 0)),
             )
 
         subset_size = int(benchmark_cfg.get("fixed_subset_size", 50))
@@ -864,6 +866,7 @@ def main() -> None:
                 max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
                 fill_missing_with_fallback=bool(run_cfg.get("stage1_fill_missing_with_fallback", True)),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
+                intent_cycle_size=int(run_cfg.get("stage1_intent_cycle_size", 0)),
             )
             return
 

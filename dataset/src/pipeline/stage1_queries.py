@@ -76,6 +76,7 @@ def run_stage1(
     max_failures_per_intent: int = 3,
     fill_missing_with_fallback: bool = True,
     max_attempts: int = 3,
+    intent_cycle_size: int = 0,
 ) -> None:
     intents = _load_intents(intents_file)
     prompt_template = load_prompt(prompt_path)
@@ -98,8 +99,10 @@ def run_stage1(
     total_created = 0
     if intent_batch_size <= 0:
         intent_batch_size = 1
+    if intent_cycle_size < 0:
+        intent_cycle_size = 0
     use_gemini_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
-    if use_gemini_batch and intent_batch_size > 1:
+    if use_gemini_batch and intent_batch_size > 1 and intent_cycle_size <= 0:
         failures_by_intent = {intent: 0 for intent in intents}
         stopped_intents: set[str] = set()
         stop_all = False
@@ -386,6 +389,257 @@ def run_stage1(
                 if stop_all:
                     return
         return
+
+    if intent_cycle_size > 0:
+        failures_by_intent = {intent: 0 for intent in intents}
+        stopped_intents: set[str] = set()
+
+        def _append_cyclic_record(
+            intent: str,
+            query_text: str,
+            difficulty: str,
+            tags: list,
+            source: str,
+            provider: str,
+            model: str,
+            seed_value: int,
+        ) -> bool:
+            nonlocal next_idx, total_created
+            if max_total is not None and total_created >= max_total:
+                return False
+            norm_hash = hash_text(normalize_text(query_text))
+            if norm_hash in existing_hashes:
+                return False
+            query_id = stable_id("q", next_idx)
+            next_idx += 1
+            writer.append(
+                {
+                    "query_id": query_id,
+                    "intent": intent,
+                    "query_text": query_text,
+                    "difficulty": difficulty,
+                    "tags": tags,
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "source": source,
+                    "gen": {
+                        "llm_provider": provider,
+                        "model": model,
+                        "prompt_version": "query_gen_v1",
+                        "temperature": temperature,
+                        "seed": seed_value,
+                    },
+                }
+            )
+            existing_hashes.add(norm_hash)
+            existing_counts[intent] += 1
+            total_created += 1
+            return True
+
+        def _fill_cyclic_fallback(
+            intent: str,
+            target: int,
+            provider: str,
+            model: str,
+            seed_value: int,
+        ) -> None:
+            logger.error(
+                "Stage1 fallback intent=%s after %s failures target=%s",
+                intent,
+                failures_by_intent[intent],
+                target,
+            )
+            while existing_counts[intent] < target:
+                if max_total is not None and total_created >= max_total:
+                    return
+                suffix = existing_counts[intent] + 1
+                fallback_text = f"{intent} request {suffix}"
+                created = _append_cyclic_record(
+                    intent,
+                    fallback_text,
+                    "easy",
+                    [intent.lower().replace(" ", "_")],
+                    "fallback",
+                    provider,
+                    model,
+                    seed_value,
+                )
+                if not created:
+                    existing_counts[intent] += 1
+
+        def _handle_cyclic_failure(
+            intent: str,
+            target: int,
+            provider: str,
+            model: str,
+            seed_value: int,
+        ) -> None:
+            failures_by_intent[intent] += 1
+            if failures_by_intent[intent] < max_failures_per_intent:
+                return
+            if fill_missing_with_fallback:
+                _fill_cyclic_fallback(intent, target, provider, model, seed_value)
+            else:
+                logger.error(
+                    "Stage1 stopping intent=%s after %s failures",
+                    intent,
+                    failures_by_intent[intent],
+                )
+                stopped_intents.add(intent)
+
+        def _process_cyclic_intent(intent: str, target: int) -> bool:
+            before_count = existing_counts[intent]
+            while existing_counts[intent] < target:
+                if max_total is not None and total_created >= max_total:
+                    return existing_counts[intent] > before_count
+
+                remaining = target - existing_counts[intent]
+                k = min(batch_size, remaining, intent_cycle_size)
+                prompt = render_prompt(prompt_template, intent=intent, k=k)
+                seed_value = seed + existing_counts[intent] + failures_by_intent[intent]
+                prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}:seed={seed_value}")
+
+                cached = cache.get(prompt_hash)
+                if cached:
+                    raw_text = cached.text
+                    result_provider = adapter.spec.provider
+                    result_model = adapter.spec.model
+                else:
+                    def _call():
+                        rate_limiter.acquire()
+                        return adapter.generate(
+                            prompt=prompt,
+                            system=None,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            seed=seed_value,
+                            json_mode=True if adapter.spec.supports_json_mode else False,
+                        )
+
+                    try:
+                        result = with_retry(_call, max_attempts=max_attempts)
+                    except Exception as exc:
+                        if isinstance(exc, LLMRateLimitError):
+                            logger.error(
+                                "Stage1 rate limit info: limits=%s headers=%s",
+                                exc.limits or "unset",
+                                exc.headers or "none",
+                            )
+                        logger.error("Stage1 error intent=%s: %s", intent, exc)
+                        _handle_cyclic_failure(
+                            intent,
+                            target,
+                            adapter.spec.provider,
+                            adapter.spec.model,
+                            seed_value,
+                        )
+                        break
+                    if result.error:
+                        logger.error("Stage1 error intent=%s: %s", intent, result.error)
+                        _handle_cyclic_failure(intent, target, result.provider, result.model, seed_value)
+                        break
+                    raw_text = result.text
+                    result_provider = result.provider
+                    result_model = result.model
+                    cache.set(prompt_hash, raw_text, result.raw)
+
+                try:
+                    payload = extract_json(raw_text)
+                except Exception as exc:
+                    logger.error("Stage1 parse error intent=%s: %s", intent, exc)
+                    payload = _extract_objects_fallback(raw_text)
+                    if payload:
+                        logger.info(
+                            "Stage1 recovered %s objects from fallback parse intent=%s",
+                            len(payload),
+                            intent,
+                        )
+                    else:
+                        _handle_cyclic_failure(
+                            intent,
+                            target,
+                            result_provider,
+                            result_model,
+                            seed_value,
+                        )
+                        break
+
+                if not isinstance(payload, list) or not payload:
+                    logger.error("Stage1 unexpected or empty payload intent=%s", intent)
+                    _handle_cyclic_failure(intent, target, result_provider, result_model, seed_value)
+                    break
+
+                created = 0
+                for item in payload:
+                    if not isinstance(item, dict):
+                        continue
+                    query_text = str(item.get("query_text", "")).strip()
+                    if not query_text:
+                        continue
+                    if _append_cyclic_record(
+                        intent,
+                        query_text,
+                        item.get("difficulty", "medium"),
+                        item.get("tags", []),
+                        "generated",
+                        result_provider,
+                        result_model,
+                        seed_value,
+                    ):
+                        created += 1
+                    if existing_counts[intent] >= target:
+                        break
+                    if max_total is not None and total_created >= max_total:
+                        break
+
+                if created == 0:
+                    logger.warning(
+                        "Stage1 no new queries intent=%s failures=%s/%s",
+                        intent,
+                        failures_by_intent[intent] + 1,
+                        max_failures_per_intent,
+                    )
+                    _handle_cyclic_failure(intent, target, result_provider, result_model, seed_value)
+                    break
+
+                logger.info(
+                    "Stage1 cyclic intent=%s created=%d total=%d target=%d",
+                    intent,
+                    created,
+                    existing_counts[intent],
+                    target,
+                )
+
+                if fill_missing_with_fallback and existing_counts[intent] < target:
+                    _fill_cyclic_fallback(intent, target, result_provider, result_model, seed_value)
+
+            return existing_counts[intent] > before_count
+
+        logger.info("Stage1 intent cycling enabled max_per_intent=%s", intent_cycle_size)
+        while True:
+            if max_total is not None and total_created >= max_total:
+                logger.info("Stage1 reached max_total=%s", max_total)
+                return
+            active_intents = [
+                intent
+                for intent in intents
+                if intent not in stopped_intents and existing_counts[intent] < k_per_intent
+            ]
+            if not active_intents:
+                return
+            active_intents.sort(key=lambda intent: (existing_counts[intent], intents.index(intent)))
+            progressed = False
+            for intent in active_intents:
+                if max_total is not None and total_created >= max_total:
+                    logger.info("Stage1 reached max_total=%s", max_total)
+                    return
+                if intent in stopped_intents or existing_counts[intent] >= k_per_intent:
+                    continue
+                target = min(k_per_intent, existing_counts[intent] + intent_cycle_size)
+                if _process_cyclic_intent(intent, target):
+                    progressed = True
+            if not progressed:
+                logger.error("Stage1 intent cycling made no progress; stopping.")
+                return
 
     for intent in intents:
         target = k_per_intent

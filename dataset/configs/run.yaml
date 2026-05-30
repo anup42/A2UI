@@ -15,6 +15,7 @@
   seed: 42
   batch_size_queries: 1
   stage1_intent_batch_size: 32
+  stage1_intent_cycle_size: 0
   response_temperatures:
   - 0.7
   response_max_tokens: 4096
