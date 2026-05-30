@@ -343,9 +343,19 @@ class LocalAdapter(BaseLLMAdapter):
             headers={"Content-Type": "application/json"},
         )
 
+        timeout_s = 60.0
+        timeout_raw = (os.environ.get("LOCAL_VLLM_TIMEOUT_SECONDS") or "").strip()
+        if timeout_raw:
+            try:
+                timeout_s = max(1.0, float(timeout_raw))
+            except Exception:
+                timeout_s = 60.0
+        elif self._model_is_large_reasoning_family():
+            timeout_s = 600.0
+
         start = time.time()
         try:
-            with urlopen(req, timeout=60) as resp:
+            with urlopen(req, timeout=timeout_s) as resp:
                 raw = resp.read().decode("utf-8")
         except Exception as exc:
             message = str(exc)
