@@ -1086,7 +1086,6 @@ def run_stage3(
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
         sample_overall_score = _compute_sample_overall_score(record)
-        record["sample_overall_score"] = sample_overall_score
         record["metrics"]["overall_score"] = sample_overall_score
         writer.append(record)
         existing_ids.add(ui_id)
