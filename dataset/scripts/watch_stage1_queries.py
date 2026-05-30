@@ -53,6 +53,20 @@ def write_progress(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def env_float(name: str, default: float) -> float:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    return float(raw)
+
+
+def env_int(name: str, default: int) -> int:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    return int(raw)
+
+
 def rate_limit_sleep_seconds(exc: LLMRateLimitError, default: float = 90.0) -> float:
     headers = exc.headers or {}
     values: list[float] = []
@@ -106,6 +120,8 @@ def main() -> None:
     intent_count = count_intents(intents_file)
     if intent_count <= 0:
         raise SystemExit(f"No intents found in {intents_file}")
+    query_temperature = env_float("A2UI_QUERY_TEMPERATURE", 0.7)
+    query_max_tokens = env_int("A2UI_QUERY_MAX_TOKENS", int(run_cfg.get("query_max_tokens", 2048)))
     stage1_intent_batch_size = min(intent_count, int(run_cfg.get("stage1_intent_batch_size", intent_count)))
     manifest = build_run_manifest(
         root=DATASET_ROOT,
@@ -162,8 +178,8 @@ def main() -> None:
                 batch_size=stage1_batch_size,
                 intent_batch_size=stage1_intent_batch_size,
                 seed=int(run_cfg.get("seed", 42)),
-                temperature=0.7,
-                max_tokens=int(run_cfg.get("query_max_tokens", 2048)),
+                temperature=query_temperature,
+                max_tokens=query_max_tokens,
                 rate_limiter=rate_limiter,
                 cache=cache,
                 logger=logger,

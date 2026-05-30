@@ -81,6 +81,21 @@ def write_progress(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def env_int(name: str, default: int) -> int:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    return int(raw)
+
+
+def env_float_list(name: str, fallback: list[float]) -> list[float]:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return fallback
+    values = [float(item.strip()) for item in raw.split(",") if item.strip()]
+    return values or fallback
+
+
 def rate_limit_sleep_seconds(exc: LLMRateLimitError, worker_index: int, default: float = 90.0) -> float:
     headers = exc.headers or {}
     values: list[float] = []
@@ -132,6 +147,13 @@ def main() -> None:
     cache = PromptCache(run_paths.run_dir / f".prompt_cache_stage2_worker_{args.worker_index}.jsonl")
     shard_queries_path = run_paths.run_dir / f".stage2_worker_{args.worker_index}_queries.jsonl"
     progress_path = run_paths.run_dir / f"progress_stage2_worker_{args.worker_index}.json"
+    response_temperature_env = (
+        "A2UI_RESPONSE_TEMPERATURES"
+        if (os.environ.get("A2UI_RESPONSE_TEMPERATURES") or "").strip()
+        else "A2UI_RESPONSE_TEMPERATURE"
+    )
+    response_temperatures = env_float_list(response_temperature_env, [0.7])
+    response_max_tokens = env_int("A2UI_RESPONSE_MAX_TOKENS", int(run_cfg.get("response_max_tokens", 4096)))
     logger.info(
         "Stage2 worker started run_id=%s worker=%s/%s target=%s",
         args.run_id,
@@ -184,8 +206,8 @@ def main() -> None:
                 query_batch_size=int(run_cfg.get("query_batch_size", 1)),
                 group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
                 batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
-                temperatures=[0.7],
-                max_tokens=int(run_cfg.get("response_max_tokens", 4096)),
+                temperatures=response_temperatures,
+                max_tokens=response_max_tokens,
                 seed=int(run_cfg.get("seed", 42)) + args.worker_index,
                 rate_limiter=rate_limiter,
                 cache=cache,

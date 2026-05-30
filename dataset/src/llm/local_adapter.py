@@ -48,11 +48,37 @@ class LocalAdapter(BaseLLMAdapter):
     @staticmethod
     def _strip_thinking_text(text: str) -> str:
         cleaned = re.sub(r"(?is)<think>.*?</think>", "", text or "")
+        cleaned = re.sub(
+            r"(?is)<\|think\|>.*?(?=<\|end_think\|>|<\|end\|>|\{|\[|$)",
+            "",
+            cleaned,
+        )
+        cleaned = re.sub(r"(?is)<\|end_think\|>|<\|think\|>", "", cleaned)
         cleaned = re.sub(r"(?is)<\|channel\|>\s*(analysis|thought|thinking)\b.*?(?=<\|channel\|>|<\|message\|>|$)", "", cleaned)
         cleaned = re.sub(r"(?is)<\|start\|>\s*(analysis|thought|thinking)\b.*?(?=<\|end\|>|<\|start\|>|$)", "", cleaned)
         cleaned = re.sub(r"(?is)^\s*(analysis|thought|thinking)\s*:\s*.*?(?=\n\s*(final|assistant)\s*:|$)", "", cleaned)
         cleaned = re.sub(r"(?is)^\s*final\s*:\s*", "", cleaned.strip())
         return cleaned.strip()
+
+    @staticmethod
+    def _env_float(name: str, default: float | None = None) -> float | None:
+        raw = (os.environ.get(name) or "").strip()
+        if not raw:
+            return default
+        try:
+            return float(raw)
+        except Exception:
+            return default
+
+    @staticmethod
+    def _env_int(name: str, default: int | None = None) -> int | None:
+        raw = (os.environ.get(name) or "").strip()
+        if not raw:
+            return default
+        try:
+            return int(raw)
+        except Exception:
+            return default
 
     def _strict_offline_mode(self) -> bool:
         raw = os.environ.get("LOCAL_STRICT_OFFLINE")
@@ -329,6 +355,20 @@ class LocalAdapter(BaseLLMAdapter):
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        default_top_p = 0.95 if "gemma" in (self.spec.model or "").lower() else None
+        default_top_k = 64 if "gemma" in (self.spec.model or "").lower() else None
+        top_p = self._env_float("LOCAL_VLLM_TOP_P", default_top_p)
+        top_k = self._env_int("LOCAL_VLLM_TOP_K", default_top_k)
+        repetition_penalty = self._env_float(
+            "LOCAL_VLLM_REPETITION_PENALTY",
+            1.0 if "gemma" in (self.spec.model or "").lower() else None,
+        )
+        if top_p is not None:
+            body["top_p"] = top_p
+        if top_k is not None:
+            body["top_k"] = top_k
+        if repetition_penalty is not None:
+            body["repetition_penalty"] = repetition_penalty
         if seed is not None:
             body["seed"] = seed
         if json_mode:
@@ -489,7 +529,20 @@ class LocalAdapter(BaseLLMAdapter):
                 gen_kwargs["use_cache"] = False
             if do_sample:
                 gen_kwargs["temperature"] = max(float(temperature), 1e-5)
-                gen_kwargs["top_p"] = 0.95
+                default_top_p = 0.95 if "gemma" in (self.spec.model or "").lower() else 0.95
+                default_top_k = 64 if "gemma" in (self.spec.model or "").lower() else None
+                top_p = self._env_float("LOCAL_VLLM_TOP_P", default_top_p)
+                top_k = self._env_int("LOCAL_VLLM_TOP_K", default_top_k)
+                repetition_penalty = self._env_float(
+                    "LOCAL_VLLM_REPETITION_PENALTY",
+                    1.0 if "gemma" in (self.spec.model or "").lower() else None,
+                )
+                if top_p is not None:
+                    gen_kwargs["top_p"] = top_p
+                if top_k is not None:
+                    gen_kwargs["top_k"] = top_k
+                if repetition_penalty is not None:
+                    gen_kwargs["repetition_penalty"] = repetition_penalty
             if self._tokenizer.pad_token_id is not None:
                 gen_kwargs["pad_token_id"] = self._tokenizer.pad_token_id
             elif self._tokenizer.eos_token_id is not None:

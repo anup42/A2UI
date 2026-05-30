@@ -164,6 +164,32 @@ def _ensure_list(value):
     return [value]
 
 
+def _env_float(name: str, default: float) -> float:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except Exception:
+        raise SystemExit(f"{name} must be a float, got: {raw!r}")
+
+
+def _env_float_list(name: str, fallback) -> list[float]:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return [float(item) for item in _ensure_list(fallback)]
+    values: list[float] = []
+    for item in raw.split(","):
+        token = item.strip()
+        if not token:
+            continue
+        try:
+            values.append(float(token))
+        except Exception:
+            raise SystemExit(f"{name} must be a comma-separated float list, got: {raw!r}")
+    return values or [float(item) for item in _ensure_list(fallback)]
+
+
 def _resolve_cfg_path(root: Path, configured: str | None, fallback: str) -> Path:
     raw = (configured or fallback).strip()
     path = Path(raw)
@@ -549,6 +575,16 @@ def main() -> None:
     _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_prompt_max_tokens", "A2UI_GENUI_PROMPT_MAX_TOKENS")
+    query_temperature = _env_float("A2UI_QUERY_TEMPERATURE", 0.7)
+    response_temperature_env = (
+        "A2UI_RESPONSE_TEMPERATURES"
+        if (os.environ.get("A2UI_RESPONSE_TEMPERATURES") or "").strip()
+        else "A2UI_RESPONSE_TEMPERATURE"
+    )
+    response_temperatures = _env_float_list(
+        response_temperature_env,
+        _ensure_list(run_cfg.get("response_temperatures", [0.7])),
+    )
 
     genui_batch_size = run_cfg.get("genui_batch_size", 100)
     if args.genui_batch_size is not None:
@@ -613,7 +649,7 @@ def main() -> None:
                 batch_size=int(run_cfg.get("batch_size_queries", 10)),
                 intent_batch_size=int(run_cfg.get("stage1_intent_batch_size", 1)),
                 seed=int(run_cfg.get("seed", 42)),
-                temperature=0.7,
+                temperature=query_temperature,
                 max_tokens=int(run_cfg.get("query_max_tokens", 8192)),
                 rate_limiter=rate_limiter,
                 cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
@@ -667,7 +703,7 @@ def main() -> None:
                 query_batch_size=int(run_cfg.get("query_batch_size", 1)),
                 group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
                 batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
-                temperatures=_ensure_list(run_cfg.get("response_temperatures", [0.7])),
+                temperatures=response_temperatures,
                 max_tokens=int(run_cfg.get("response_max_tokens", 8192)),
                 seed=int(benchmark_cfg.get("fixed_seed", 123)),
                 rate_limiter=rate_limiter,
@@ -686,7 +722,8 @@ def main() -> None:
                 artifacts_dir=model_paths.artifacts_dir,
                 candidates_per_response=int(run_cfg.get("genui_candidates_per_response", 1)),
                 max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
-                max_tokens=int(run_cfg.get("genui_max_tokens", 1024)),
+                max_tokens=int(run_cfg.get("genui_max_tokens", 8192)),
+                prompt_max_tokens=int(run_cfg.get("genui_prompt_max_tokens", 60000)),
                 batch_size=genui_batch_size,
                 seed=int(benchmark_cfg.get("fixed_seed", 123)),
                 rate_limiter=rate_limiter,
@@ -789,8 +826,8 @@ def main() -> None:
                 batch_size=int(run_cfg.get("batch_size_queries", 10)),
                 intent_batch_size=int(run_cfg.get("stage1_intent_batch_size", 1)),
                 seed=int(run_cfg.get("seed", 42)),
-                temperature=0.7,
-                max_tokens=int(run_cfg.get("query_max_tokens", 512)),
+                temperature=query_temperature,
+                max_tokens=int(run_cfg.get("query_max_tokens", 8192)),
                 rate_limiter=rate_limiter,
                 cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
                 logger=logger,
@@ -813,8 +850,8 @@ def main() -> None:
                 query_batch_size=int(run_cfg.get("query_batch_size", 1)),
                 group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
                 batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
-                temperatures=_ensure_list(run_cfg.get("response_temperatures", [0.7])),
-                max_tokens=int(run_cfg.get("response_max_tokens", 512)),
+                temperatures=response_temperatures,
+                max_tokens=int(run_cfg.get("response_max_tokens", 8192)),
                 seed=int(run_cfg.get("seed", 42)),
                 rate_limiter=rate_limiter,
                 cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),

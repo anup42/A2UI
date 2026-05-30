@@ -99,6 +99,16 @@ def _is_flat_spec_schema(schema: dict[str, Any]) -> bool:
     return "root" in properties and "elements" in properties
 
 
+def _env_float(name: str, default: float) -> float:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except Exception:
+        return default
+
+
 def _make_ui_id(query_id: str, n_idx: int, candidate_idx: int) -> str:
     suffix = query_id.replace("q_", "")
     if candidate_idx == 1:
@@ -573,6 +583,15 @@ def run_stage3(
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     flat_spec_mode = _is_flat_spec_schema(schema)
     logger.info("Stage3 schema mode: %s", "flat_spec" if flat_spec_mode else "legacy_messages")
+    generation_temperature = _env_float("A2UI_GENUI_TEMPERATURE", 0.2)
+    repair_temperature = _env_float("A2UI_GENUI_REPAIR_TEMPERATURE", 0.2)
+    final_regen_temperature = _env_float("A2UI_GENUI_FINAL_REGEN_TEMPERATURE", 0.1)
+    logger.info(
+        "Stage3 temperatures generation=%.3f repair=%.3f final_regen=%.3f",
+        generation_temperature,
+        repair_temperature,
+        final_regen_temperature,
+    )
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
     intent_lookup: dict[str, dict[str, Any]] = {}
@@ -782,7 +801,7 @@ def run_stage3(
                 return adapter.generate(
                     prompt=repaired_text,
                     system=system_prompt,
-                    temperature=0.2,
+                    temperature=repair_temperature,
                     max_tokens=max_tokens,
                     seed=seed + 100 + repair_attempts,
                     json_mode=True if adapter.spec.supports_json_mode else False,
@@ -869,7 +888,7 @@ def run_stage3(
                 return adapter.generate(
                     prompt=regeneration_prompt,
                     system=system_prompt,
-                    temperature=0.1,
+                    temperature=final_regen_temperature,
                     max_tokens=max(max_tokens, 8192),
                     seed=seed + 900 + regen_attempt,
                     json_mode=True if adapter.spec.supports_json_mode else False,
@@ -1088,7 +1107,7 @@ def run_stage3(
             return adapter.generate(
                 prompt=task["prompt"],
                 system=system_prompt,
-                temperature=0.2,
+                temperature=generation_temperature,
                 max_tokens=max_tokens,
                 seed=task["seed"],
                 json_mode=True if adapter.spec.supports_json_mode else False,
@@ -1145,7 +1164,7 @@ def run_stage3(
                 return adapter.generate_batch(
                     prompts=prompts,
                     system=system_prompt,
-                    temperature=0.2,
+                    temperature=generation_temperature,
                     max_tokens=max_tokens,
                     seeds=seeds,
                     json_mode=True if adapter.spec.supports_json_mode else False,
