@@ -463,7 +463,7 @@ def _normalize_flat_spec_text_content(genui_json: Any) -> Any:
 def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logger) -> str:
     provider = (adapter.spec.provider or "").lower()
     model = (adapter.spec.model or "").lower()
-    compact_enabled = os.getenv("GENUI_COMPACT_PROMPT_FOR_GEMMA", "1").strip().lower()
+    compact_enabled = os.getenv("GENUI_COMPACT_PROMPT_FOR_GEMMA", "0").strip().lower()
     if compact_enabled in {"0", "false", "no", "off"}:
         return template
     if provider != "gemini" or not model.startswith("gemma-"):
