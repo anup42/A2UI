@@ -89,6 +89,12 @@ link_dir_children() {
   shopt -u nullglob dotglob
 }
 
+cuda_header_version_code() {
+  local include_dir="$1"
+  [[ -f "${include_dir}/cuda.h" ]] || return 1
+  grep -E '^[[:space:]]*#define[[:space:]]+CUDA_VERSION[[:space:]]+[0-9]+' "${include_dir}/cuda.h" | awk '{print $3}' | head -1
+}
+
 build_python_cuda_toolkit() {
   if [[ -z "${VIRTUAL_ENV:-}" ]]; then
     return 0
@@ -124,7 +130,9 @@ PY
     canonical_cuda_root="$(find "${py_lib_dir}/nvidia" -path '*/bin/nvcc' -type f 2>/dev/null | head -1 | sed 's#/bin/nvcc$##' || true)"
   fi
 
+  local canonical_cuda_version=""
   if [[ -n "${canonical_cuda_root}" ]]; then
+    canonical_cuda_version="$(cuda_header_version_code "${canonical_cuda_root}/include" || true)"
     link_dir_children "${canonical_cuda_root}/bin" "${toolkit}/bin"
     link_dir_children "${canonical_cuda_root}/include" "${toolkit}/include"
     link_dir_children "${canonical_cuda_root}/include" "${toolkit}/targets/x86_64-linux/include"
@@ -139,9 +147,23 @@ PY
     link_dir_children "${path}" "${toolkit}/bin"
   done < <(find "${py_lib_dir}/nvidia" -type d -name bin 2>/dev/null | sort || true)
 
-  # Do not merge every nvidia/*/include into the CUDA toolkit includes. Mixing
-  # headers from cuda-nvcc 13.3 with older cuda-runtime 13.0 triggers PyTorch's
-  # "FindCUDA says 13.3 but headers say 13.0" build failure.
+  # Merge only CUDA-version-matching include dirs. This keeps dependent headers
+  # like crt/host_config.h while preventing CUDA 13.3/13.0 header mixing.
+  local include_version
+  local include_has_cuda_h
+  while IFS= read -r path; do
+    [[ -n "${canonical_cuda_root}" && "${path}" == "${canonical_cuda_root}/include" ]] && continue
+    include_has_cuda_h=0
+    [[ -f "${path}/cuda.h" ]] && include_has_cuda_h=1
+    include_version="$(cuda_header_version_code "${path}" || true)"
+    if [[ "${include_has_cuda_h}" = "1" && -n "${canonical_cuda_version}" && "${include_version}" != "${canonical_cuda_version}" ]]; then
+      echo "Skipping CUDA include dir with mismatched CUDA_VERSION=${include_version:-unknown}: ${path}" >&2
+      continue
+    fi
+    link_dir_children "${path}" "${toolkit}/include"
+    link_dir_children "${path}" "${toolkit}/targets/x86_64-linux/include"
+  done < <(find "${py_lib_dir}/nvidia" -type d -name include 2>/dev/null | sort || true)
+
   while IFS= read -r path; do
     [[ -n "${canonical_cuda_root}" && "${path}" == "${canonical_cuda_root}/lib" ]] && continue
     link_dir_children "${path}" "${toolkit}/lib64"
