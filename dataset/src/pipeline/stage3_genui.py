@@ -99,6 +99,161 @@ def _is_flat_spec_schema(schema: dict[str, Any]) -> bool:
     return "root" in properties and "elements" in properties
 
 
+_MEDIA_ONLY_HEADINGS = {
+    "images",
+    "icons",
+    "assets",
+    "files",
+    "gallery",
+    "visual guide",
+    "key feature icons",
+    "trip imagery",
+    "weather icons",
+    "related icons",
+}
+
+
+def _meaningful_response_heading_count(response_text: str) -> int:
+    count = 0
+    for raw_line in (response_text or "").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if "|" in line:
+            continue
+        if re.match(r"^[-*]\s+", line):
+            continue
+        line = re.sub(r"^#{1,6}\s+", "", line).strip()
+        line = line[:-1].strip() if line.endswith(":") else line
+        if not line:
+            continue
+        normalized = re.sub(r"\s+", " ", line).lower()
+        if normalized in _MEDIA_ONLY_HEADINGS:
+            continue
+        if raw_line.lstrip().startswith("#"):
+            count += 1
+            continue
+        if 3 <= len(line) <= 90 and not re.search(r"[.!?]$", line):
+            words = re.findall(r"[A-Za-z0-9]+", line)
+            if 1 <= len(words) <= 10:
+                titleish = sum(1 for word in words if word[:1].isupper() or word.isdigit())
+                if titleish >= max(1, len(words) // 2):
+                    count += 1
+    return count
+
+
+def _source_table_cell_count(response_text: str) -> int:
+    cells = 0
+    for raw_line in (response_text or "").splitlines():
+        line = raw_line.strip()
+        if "|" not in line:
+            continue
+        parts = [part.strip() for part in line.strip("|").split("|")]
+        meaningful = [part for part in parts if part and not re.fullmatch(r"[-:\s]+", part)]
+        if len(meaningful) >= 2:
+            cells += len(meaningful)
+    return cells
+
+
+def _json_pointer_get(root: Any, pointer: str) -> Any:
+    if not isinstance(pointer, str) or not pointer.startswith("/"):
+        return None
+    current = root
+    for raw_part in pointer.strip("/").split("/"):
+        part = raw_part.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict):
+            current = current.get(part)
+        elif isinstance(current, list) and part.isdigit():
+            index = int(part)
+            current = current[index] if 0 <= index < len(current) else None
+        else:
+            return None
+    return current
+
+
+def _generated_table_cell_count(genui_json: dict[str, Any]) -> int:
+    elements = genui_json.get("elements")
+    if not isinstance(elements, dict):
+        return 0
+    state = genui_json.get("state") if isinstance(genui_json.get("state"), dict) else {}
+    total = 0
+    for element in elements.values():
+        if not isinstance(element, dict) or str(element.get("type", "")).lower() != "table":
+            continue
+        props = element.get("props") if isinstance(element.get("props"), dict) else {}
+        columns = props.get("columns") if isinstance(props.get("columns"), list) else []
+        rows = props.get("rows")
+        if not isinstance(rows, list):
+            rows = _json_pointer_get(state, props.get("statePath")) if isinstance(props.get("statePath"), str) else []
+        if not isinstance(rows, list):
+            continue
+        if columns:
+            total += len(rows) * len(columns)
+        else:
+            total += sum(len(row) for row in rows if isinstance(row, dict))
+    return total
+
+
+def _stage3_quality_warnings(
+    response_text: str,
+    genui_json: Any,
+    metrics: dict[str, Any],
+) -> list[str]:
+    if not isinstance(genui_json, dict):
+        return []
+    elements = genui_json.get("elements")
+    if not isinstance(elements, dict):
+        return []
+
+    response_words = len(re.findall(r"[A-Za-z0-9]+", response_text or ""))
+    element_count = len(elements)
+    table_count = 0
+    text_count = 0
+    generated_heading_count = 0
+    for element in elements.values():
+        if not isinstance(element, dict):
+            continue
+        element_type = str(element.get("type", "")).lower()
+        if element_type == "table":
+            table_count += 1
+        elif element_type == "text":
+            text_count += 1
+            props = element.get("props") if isinstance(element.get("props"), dict) else {}
+            variant = str(props.get("variant", "")).lower()
+            if variant in {"h2", "h3"}:
+                generated_heading_count += 1
+
+    warnings: list[str] = []
+    if response_words >= 180 and element_count < 16:
+        warnings.append(f"low_component_count: words={response_words} elements={element_count}")
+    if response_words >= 120 and table_count >= 1 and element_count <= 12 and text_count <= 5:
+        warnings.append(
+            f"sparse_ir: words={response_words} elements={element_count} tables={table_count} text={text_count}"
+        )
+
+    source_heading_count = _meaningful_response_heading_count(response_text)
+    if source_heading_count >= 3 and generated_heading_count < max(2, source_heading_count // 2):
+        warnings.append(
+            "low_heading_preservation: "
+            f"source_headings={source_heading_count} generated_h2_h3={generated_heading_count}"
+        )
+
+    source_cells = _source_table_cell_count(response_text)
+    generated_cells = _generated_table_cell_count(genui_json)
+    if source_cells >= 8 and generated_cells < int(source_cells * 0.8):
+        warnings.append(
+            f"table_cell_loss_risk: source_cells={source_cells} generated_table_cells={generated_cells}"
+        )
+
+    if float(metrics.get("section_heading_coverage", 1.0) or 0.0) < 0.25 and source_heading_count >= 2:
+        warnings.append(
+            "low_section_heading_coverage_metric: "
+            f"value={float(metrics.get('section_heading_coverage', 0.0) or 0.0):.3f}"
+        )
+
+    return warnings
+
+
 def _env_float(name: str, default: float) -> float:
     raw = (os.environ.get(name) or "").strip()
     if not raw:
@@ -1049,6 +1204,13 @@ def run_stage3(
         intent_metrics = compute_intent_metrics(intent_value, tags_value, response_text, metrics)
         intent_bucket = intent_metrics.pop("intent_bucket", "unknown")
         metrics.update(intent_metrics)
+        quality_warnings = (
+            _stage3_quality_warnings(response_text, genui_json, metrics)
+            if flat_spec_mode
+            else []
+        )
+        if quality_warnings:
+            logger.info("Stage3 quality warnings ui_id=%s: %s", ui_id, quality_warnings)
 
         short_errors = [e[:300] + ("..." if len(e) > 300 else "") for e in errors]
         record = {
@@ -1069,6 +1231,7 @@ def run_stage3(
                 "toon_roundtrip_ok": toon_ok,
                 "converted_from_legacy": converted_from_legacy,
                 "errors": short_errors,
+                "warnings": quality_warnings,
                 "repair_attempts": repair_attempts,
                 "repair_needed": repair_needed,
             },
