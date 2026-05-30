@@ -43,6 +43,9 @@ find_nss_wrapper_lib() {
   fi
   local candidate
   for candidate in \
+    "${A2UI_NSS_WRAPPER_PREFIX:-${HOME}/.local/a2ui-nss-wrapper}"/lib*/libnss_wrapper.so \
+    "${HOME}/.local/lib"/libnss_wrapper.so \
+    "${HOME}/lib"/libnss_wrapper.so \
     /usr/lib64/libnss_wrapper.so \
     /usr/lib/x86_64-linux-gnu/libnss_wrapper.so \
     /usr/lib/libnss_wrapper.so \
