@@ -160,13 +160,18 @@ SERVER_ARGS=(
   --dtype "${VLLM_DTYPE}"
   --gpu-memory-utilization "${VLLM_GPU_MEMORY_UTILIZATION}"
   --max-model-len "${VLLM_MAX_MODEL_LEN}"
-  --swap-space "${VLLM_SWAP_SPACE}"
   --trust-remote-code
   --cuda-visible-devices "${CUDA_VISIBLE_DEVICES:-}"
   --architecture-override "${VLLM_ARCHITECTURE_OVERRIDE}"
   --quantization-mode "${VLLM_QUANTIZATION_MODE}"
   --generation-config "${VLLM_GENERATION_CONFIG}"
 )
+
+if python "${REPO_ROOT}/dataset/scripts/serve_qwen_vllm.py" --help 2>&1 | grep -q -- "--swap-space"; then
+  SERVER_ARGS+=(--swap-space "${VLLM_SWAP_SPACE}")
+else
+  echo "Warning: serve_qwen_vllm.py does not expose --swap-space; skipping VLLM_SWAP_SPACE=${VLLM_SWAP_SPACE}."
+fi
 
 if is_truthy "${QWEN36_ENABLE_REASONING}"; then
   SERVER_ARGS+=(--enable-reasoning --reasoning-parser "${VLLM_REASONING_PARSER}")
