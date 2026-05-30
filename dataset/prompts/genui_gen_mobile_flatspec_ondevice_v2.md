@@ -13,6 +13,13 @@ Response:
 - Preserve response headings as `Text` with `variant: h2|h3`, except detached media-only headings such as Images, Icons, Gallery, Visual Guide, Related Icons.
 - Do not emit raw markdown control tokens in text: no `#`, `**bold**`, table pipes for table rows, fenced markers, or literal dynamic strings like `{$item.title}`.
 
+## Information preservation hard rules
+- Preserve all meaningful non-media section headings. Drop only detached media-only headings such as Images, Icons, Gallery, Visual Guide, and Related Icons.
+- Do not over-summarize. Keep the important sections, recommendation, caveats, source-backed facts, and actionable next steps from the response.
+- Preserve exact table values: copy numbers, labels, units, dates, currency, symbols, row order, and column meaning without rewriting or rounding.
+- Compact `Table` is allowed and preferred, but table state must preserve every source row and every cell value. Do not replace a table with vague summary text.
+- Include sources/actions as `Button` elements with `openUrl`, or as row-level `url`/`actionUrl`/`bookingUrl` plus `actionLabel` so Android can render buttons near related content.
+
 ## Output contract
 Top-level shape: `{"root":"<id>","state":{...},"elements":{...}}`.
 - `root` must exist in `elements`.
