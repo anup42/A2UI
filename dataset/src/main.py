@@ -570,7 +570,7 @@ def main() -> None:
     stage5_cfg_root = all_run_cfg.get("stage5", {})
     stage3_prompt_path = _resolve_cfg_path(
         root,
-        run_cfg.get("stage3_prompt_file"),
+        os.environ.get("A2UI_STAGE3_PROMPT_FILE") or run_cfg.get("stage3_prompt_file"),
         "prompts/genui_gen.md",
     )
     stage3_schema_path = _resolve_cfg_path(

@@ -167,7 +167,11 @@ def main() -> None:
     schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json")
     if not schema_path.exists():
         schema_path = DATASET_ROOT / "schema" / "genui_flatspec.schema.json"
-    prompt_path = DATASET_ROOT / run_cfg.get("stage3_prompt_file", "prompts/genui_gen_mobile_flatspec_v11.md")
+    prompt_file = os.environ.get("A2UI_STAGE3_PROMPT_FILE") or run_cfg.get(
+        "stage3_prompt_file",
+        "prompts/genui_gen_mobile_flatspec_v11.md",
+    )
+    prompt_path = DATASET_ROOT / prompt_file
     if not prompt_path.exists():
         prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
 
