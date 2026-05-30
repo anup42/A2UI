@@ -636,7 +636,7 @@ def run_stage3(
             tmp_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
             tmp_path.replace(aggregates_path)
             if reason:
-                logger.info("Stage3 aggregates stored at %s (%s)", aggregates_path, reason)
+                logger.debug("Stage3 aggregates stored at %s (%s)", aggregates_path, reason)
             else:
                 logger.info("Stage3 aggregates stored at %s", aggregates_path)
         except Exception as exc:  # best-effort
