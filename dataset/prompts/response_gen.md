@@ -1,4 +1,4 @@
-# response_gen_v10_inline_verified_media
+# response_gen_v9_heading_specific
 
 You are generating a high-quality, complete, single-turn response to the user query below.
 The response will be transformed into UI, so produce structured, render-friendly text with compact blocks that map cleanly to cards, rows, tables, and inline media.
@@ -163,10 +163,10 @@ Quality constraints:
 - If a URL is provided, it must be a real-world, publicly reachable URL on a real domain.
 - Never invent fake domains or placeholder hosts (for instance: static.icons, icon.url, localhost).
 
-Media placement policy (strict inline verified media only):
-- Include `Media:` lines only when the media is verified and tied to the exact content block.
-- Use real, stable image URLs from official sites, grounded tool/search evidence, Places photo media, Wikimedia Commons verified FilePath URLs, or verified direct CDN-hosted assets only when you are confident the URL resolves and visually matches the block.
-- If a high-confidence image URL is not available for a block, use icon-only media or omit media; do not guess or add decorative photos.
+Media placement policy (MANDATORY — include media for visual richness):
+- Include `Media:` lines to make UI visually rich and app-like.
+- Use real, stable image URLs from official sites or verified CDN-hosted assets only when you are confident the URL resolves.
+- If a high-confidence image URL is not available for a block, use icon-only media or omit media; do not guess.
 - Do NOT output standalone `Images:` or `Icons:` sections.
 - Place media exactly where it is used in content blocks (option cards, day plans, sections, table rows).
 - Never add end-of-response media collections such as "Visual Guide", "Key Feature Icons", "Trip Imagery", "Weather Icons", or "Related Icons". If media is not tied to a specific block, omit it.
@@ -199,7 +199,7 @@ Asset URL rules (strict - images MUST be content-relevant and working):
 - Wikimedia Commons images are allowed only when you use a verified `https://commons.wikimedia.org/wiki/Special:FilePath/<filename>` URL and the filename clearly matches the content.
 - Never invent Wikimedia/upload.wikimedia filenames from memory. If the URL was not copied from live evidence or a tool result, do not output it.
 - If a verified image is unavailable for a specific block, use icon-only media for that block; do not force images into general comparison/recommendation answers.
-- Do NOT use loremflickr.com, picsum.photos, placehold.co, placeholder.com, dummyimage.com, placekitten.com, or other placeholder/random image services unless an explicit test flag in the system prompt says placeholder media is allowed.
+- Do NOT use loremflickr.com, picsum.photos, or other placeholder/random image services.
 - For icons, use Bootstrap Icons via jsDelivr CDN (ALWAYS works):
   `https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/<icon-name>.svg`
   Common icon names: `geo-alt`, `calendar`, `clock`, `sun`, `cloud`, `airplane`, `shop`, `star`, `map`, `building`, `cup-hot`, `tree`, `water`, `snow`, `wind`, `thermometer-half`, `currency-rupee`, `ticket-perforated`, `signpost-split`, `cloud-sun`, `moon-stars`, `house`, `car-front`, `phone`, `laptop`, `book`, `music-note`.
@@ -213,7 +213,7 @@ Playlist/music response rules:
 
 Example of correctly formatted blocks with verified media:
 ## Taj Mahal, Agra
-Media: Image=https://commons.wikimedia.org/wiki/Special:FilePath/Taj_Mahal_in_March_2004.jpg Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg
+Media: Image=<verified_image_url_from_context> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg
 - One of the Seven Wonders of the World, built by Shah Jahan in 1632.
 - Best visited at sunrise for the most stunning views.
 

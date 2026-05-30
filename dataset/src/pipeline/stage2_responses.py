@@ -241,10 +241,6 @@ def _standalone_icon_section_enabled() -> bool:
     return _is_truthy(os.environ.get("STAGE2_APPEND_STANDALONE_ICON_SECTION"))
 
 
-def _placeholder_media_allowed() -> bool:
-    return _is_truthy(os.environ.get("STAGE2_ALLOW_PLACEHOLDER_MEDIA"))
-
-
 def _detect_dataset_root(start: Path) -> Path:
     current = start.resolve()
     for candidate in [current, *current.parents]:
@@ -254,10 +250,7 @@ def _detect_dataset_root(start: Path) -> Path:
 
 
 def _normalize_section_header(value: str) -> str:
-    stripped = value.strip()
-    stripped = re.sub(r"^\s{0,3}#{1,6}\s+", "", stripped)
-    stripped = stripped.strip("*_` ")
-    return stripped.lower().rstrip(":")
+    return value.strip().lower().rstrip(":")
 
 
 def _looks_like_known_heading(value: str) -> bool:
@@ -286,19 +279,6 @@ def _looks_like_known_heading(value: str) -> bool:
     return bool(re.match(r"^option\s+\d+\b", header))
 
 
-def _looks_like_section_boundary(value: str) -> bool:
-    stripped = value.strip()
-    if _looks_like_known_heading(stripped):
-        return True
-    if re.match(r"^\s{0,3}#{1,6}\s+\S", stripped):
-        return True
-    if stripped.startswith(("- ", "* ", "• ")):
-        return False
-    if _URL_RE.search(stripped):
-        return False
-    return bool(stripped and len(stripped) <= 100 and not stripped.endswith((".", ",", ";")))
-
-
 def _strip_detached_media_sections(text: str) -> str:
     lines = text.splitlines()
     cleaned: list[str] = []
@@ -314,7 +294,7 @@ def _strip_detached_media_sections(text: str) -> str:
                 if not look:
                     i += 1
                     break
-                if _looks_like_section_boundary(look):
+                if _looks_like_known_heading(look):
                     break
                 i += 1
             continue
@@ -563,32 +543,12 @@ def _is_random_placeholder_url(url: str) -> bool:
 def _strip_random_placeholder_media(text: str) -> str:
     if not text:
         return text
-    if _placeholder_media_allowed():
-        return text
 
     media_asset_re = re.compile(r"\s*(Image|Icon)=(https?://[^\s]+)", flags=re.IGNORECASE)
-    standalone_placeholder_re = re.compile(r"https?://[^\s)>\]}\"']+", flags=re.IGNORECASE)
     cleaned: list[str] = []
     for raw_line in text.splitlines():
         line = raw_line.rstrip()
         if not line.strip().lower().startswith("media:"):
-            urls = standalone_placeholder_re.findall(line)
-            if (
-                urls
-                and all(_is_random_placeholder_url(_clean_url(url)) for url in urls)
-                and (
-                    line.strip().startswith(("-", "*", "•"))
-                    or re.match(r"^\s*[^:]{1,80}:\s*https?://", line)
-                )
-            ):
-                continue
-            if any(_is_random_placeholder_url(_clean_url(url)) for url in urls):
-                line = standalone_placeholder_re.sub(
-                    lambda match: "" if _is_random_placeholder_url(_clean_url(match.group(0))) else match.group(0),
-                    line,
-                ).rstrip()
-                if not line.strip():
-                    continue
             cleaned.append(line)
             continue
 
@@ -811,14 +771,13 @@ def _asset_quality_check(
     has_icon = any(item.get("kind") == "icon" for item in entries)
     visual = _is_visual_intent(intent, tags)
     random_hosts = []
-    if not _placeholder_media_allowed():
-        for item in entries:
-            url = str(item.get("url") or "")
-            host = urllib.parse.urlparse(url).netloc.lower()
-            if any(host == blocked or host.endswith(f".{blocked}") for blocked in _RANDOM_PLACEHOLDER_ASSET_HOSTS):
-                random_hosts.append(host)
-        if random_hosts:
-            return False, f"random/placeholder media hosts are not allowed: {', '.join(sorted(set(random_hosts)))}"
+    for item in entries:
+        url = str(item.get("url") or "")
+        host = urllib.parse.urlparse(url).netloc.lower()
+        if any(host == blocked or host.endswith(f".{blocked}") for blocked in _RANDOM_PLACEHOLDER_ASSET_HOSTS):
+            random_hosts.append(host)
+    if random_hosts:
+        return False, f"random/placeholder media hosts are not allowed: {', '.join(sorted(set(random_hosts)))}"
 
     if visual and declared_assets_count == 0:
         return False, "visual intent requires inline Media or Icons entries but none were declared"
