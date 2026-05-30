@@ -740,8 +740,8 @@ export VLLM_MAX_MODEL_LEN="\${VLLM_MAX_MODEL_LEN:-8192}"
 export VLLM_GPU_MEMORY_UTILIZATION="\${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 export VLLM_MAX_NUM_BATCHED_TOKENS="\${VLLM_MAX_NUM_BATCHED_TOKENS:-8192}"
 export GEMMA4_ENABLE_REASONING="\${GEMMA4_ENABLE_REASONING:-0}"
-export GEMMA4_SPECULATIVE_MODE="\${GEMMA4_SPECULATIVE_MODE:-mtp}"
-export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-1}"
+export GEMMA4_SPECULATIVE_MODE="\${GEMMA4_SPECULATIVE_MODE:-off}"
+export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-4}"
 export VLLM_USE_FLASHINFER_SAMPLER="\${VLLM_USE_FLASHINFER_SAMPLER:-1}"
 export VLLM_HAS_FLASHINFER_CUBIN="\${VLLM_HAS_FLASHINFER_CUBIN:-1}"
 export FLASHINFER_DISABLE_VERSION_CHECK="\${FLASHINFER_DISABLE_VERSION_CHECK:-1}"
@@ -946,7 +946,7 @@ PY
     echo "Set A2UI_REQUIRE_SPECULATIVE=0 only if you intentionally want to run without speculative decoding." >&2
     exit 1
   fi
-  echo "Continuing because A2UI_REQUIRE_SPECULATIVE=0; set GEMMA4_SPECULATIVE_MODE=off if this vLLM build cannot use MTP speculative decoding." >&2
+  echo "Continuing because A2UI_REQUIRE_SPECULATIVE=0 and GEMMA4_SPECULATIVE_MODE defaults to off." >&2
 fi
 if ! grep -q -- "--reasoning-parser" <<<"${HELP_TEXT}"; then
   echo "Warning: this vLLM install did not expose --reasoning-parser; Gemma4 reasoning parser may not work." >&2

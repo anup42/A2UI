@@ -8,7 +8,6 @@ set -euo pipefail
 GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
 GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH:-}"
 GEMMA4_DRAFT_MODEL_PATH="${GEMMA4_DRAFT_MODEL_PATH:-${GEMMA4_SPECULATIVE_MODEL_PATH:-}}"
-GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
 VLLM_HOST="${VLLM_HOST:-0.0.0.0}"
 VLLM_PORT="${VLLM_PORT:-8000}"
 VLLM_DTYPE="${VLLM_DTYPE:-bfloat16}"
@@ -21,8 +20,8 @@ VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-}"
 GEMMA4_ENABLE_REASONING="${GEMMA4_ENABLE_REASONING:-0}"
 GEMMA4_ENABLE_SERVER_REASONING_FLAGS="${GEMMA4_ENABLE_SERVER_REASONING_FLAGS:-0}"
 GEMMA4_REASONING_PARSER="${GEMMA4_REASONING_PARSER:-}"
-GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-mtp}"
-GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-1}"
+GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-draft}"
+GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
 GEMMA4_SPECULATIVE_DRAFT_TP="${GEMMA4_SPECULATIVE_DRAFT_TP:-}"
 
 is_truthy() {
@@ -129,30 +128,6 @@ case "${GEMMA4_SPECULATIVE_MODE,,}" in
   ""|off|none|false|0)
     echo "Gemma4 speculative decoding: disabled"
     ;;
-  mtp)
-    GEMMA4_ASSISTANT_MODEL_PATH="$(resolve_model_path "${GEMMA4_ASSISTANT_MODEL_PATH}" \
-      "/home/k_anup/Storage_gpu/models/gemma-4-31b-it-assistant" \
-      "/home/k_anup/Storage_gpu/models/gemma4-31b-assistant" \
-      "/home/k_anup/models/gemma-4-31b-it-assistant" \
-      "/models/gemma4_draft" \
-      "${HOME}/models/gemma-4-31b-it-assistant")" || {
-        echo "MTP speculative decoding requested, but Gemma4 assistant model was not found." >&2
-        echo "Set GEMMA4_ASSISTANT_MODEL_PATH, or run with GEMMA4_SPECULATIVE_MODE=off." >&2
-        exit 1
-      }
-    spec_json="$(python - "${GEMMA4_ASSISTANT_MODEL_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
-import json
-import sys
-print(json.dumps({
-    "method": "mtp",
-    "model": sys.argv[1],
-    "num_speculative_tokens": int(sys.argv[2]),
-}))
-PY
-)"
-    VLLM_CMD_ARGS+=(--speculative-config "${spec_json}")
-    echo "Gemma4 speculative decoding: mtp=${GEMMA4_ASSISTANT_MODEL_PATH}, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
-    ;;
   draft)
     GEMMA4_DRAFT_MODEL_PATH="$(resolve_model_path "${GEMMA4_DRAFT_MODEL_PATH}" \
       "/home/k_anup/Storage_gpu/models/gemma-4-31b-it-assistant" \
@@ -179,7 +154,7 @@ PY
     echo "Gemma4 speculative decoding: ngram, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
     ;;
   *)
-    echo "Unsupported GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}. Use mtp, draft, ngram, or off." >&2
+    echo "Unsupported GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}. Use draft, ngram, or off." >&2
     exit 1
     ;;
 esac

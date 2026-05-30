@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Start Gemma4 31B through a Singularity-hosted vLLM OpenAI-compatible server.
-# Supports normal generation, thinking/reasoning prompts, and Gemma4 assistant
-# MTP speculative decoding when GEMMA4_SPECULATIVE_MODE=mtp.
+# Supports normal generation, thinking/reasoning prompts, and draft-model
+# speculative decoding when GEMMA4_SPECULATIVE_MODE=draft.
 
 GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
 GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH:-}"
@@ -23,11 +23,10 @@ GEMMA4_ENABLE_REASONING="${GEMMA4_ENABLE_REASONING:-0}"
 GEMMA4_ENABLE_SERVER_REASONING_FLAGS="${GEMMA4_ENABLE_SERVER_REASONING_FLAGS:-0}"
 GEMMA4_REASONING_PARSER="${GEMMA4_REASONING_PARSER:-}"
 
-GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-mtp}"
+GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-draft}"
 GEMMA4_SPECULATIVE_MODEL_PATH="${GEMMA4_SPECULATIVE_MODEL_PATH:-${GEMMA4_DRAFT_MODEL_PATH:-}}"
-GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
 GEMMA4_SPECULATIVE_CONTAINER_PATH="${GEMMA4_SPECULATIVE_CONTAINER_PATH:-/models/gemma4_draft}"
-GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-1}"
+GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
 GEMMA4_SPECULATIVE_DRAFT_TP="${GEMMA4_SPECULATIVE_DRAFT_TP:-}"
 
 is_truthy() {
@@ -215,31 +214,6 @@ case "${GEMMA4_SPECULATIVE_MODE,,}" in
   ""|off|none|false|0)
     echo "Gemma4 speculative decoding: disabled"
     ;;
-  mtp)
-    GEMMA4_ASSISTANT_MODEL_PATH="$(resolve_model_path "${GEMMA4_ASSISTANT_MODEL_PATH}" \
-      "${HOME}/dataset_generation/models/gemma-4-31b-it-assistant" \
-      "${HOME}/dataset_generation/models/gemma4-31b-assistant" \
-      "${HOME}/models/gemma-4-31b-it-assistant" \
-      "${HOME}/models/gemma4-31b-assistant" \
-      "${HOME}/models/google--gemma-4-31b-it-assistant")" || {
-        echo "MTP speculative decoding requested, but Gemma4 assistant model was not found." >&2
-        echo "Set GEMMA4_ASSISTANT_MODEL_PATH, or run with GEMMA4_SPECULATIVE_MODE=off." >&2
-        exit 1
-      }
-    RUNTIME_ARGS+=(--bind "${GEMMA4_ASSISTANT_MODEL_PATH}:${GEMMA4_SPECULATIVE_CONTAINER_PATH}:ro")
-    spec_json="$(python - "${GEMMA4_SPECULATIVE_CONTAINER_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
-import json
-import sys
-print(json.dumps({
-    "method": "mtp",
-    "model": sys.argv[1],
-    "num_speculative_tokens": int(sys.argv[2]),
-}))
-PY
-)"
-    VLLM_CMD_ARGS+=(--speculative-config "${spec_json}")
-    echo "Gemma4 speculative decoding: mtp=${GEMMA4_ASSISTANT_MODEL_PATH}, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
-    ;;
   draft)
     GEMMA4_SPECULATIVE_MODEL_PATH="$(resolve_model_path "${GEMMA4_SPECULATIVE_MODEL_PATH}" \
       "${HOME}/dataset_generation/models/gemma4-2b" \
@@ -264,7 +238,7 @@ PY
     echo "Gemma4 speculative decoding: ngram, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
     ;;
   *)
-    echo "Unsupported GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}. Use mtp, draft, ngram, or off." >&2
+    echo "Unsupported GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}. Use draft, ngram, or off." >&2
     exit 1
     ;;
 esac

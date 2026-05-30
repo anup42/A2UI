@@ -14,7 +14,6 @@ ENV_DIR="${ENV_DIR:-${REPO_ROOT}/gemma4_vllm_env}"
 VLLM_SIF="${VLLM_SIF:-${HOME}/containers/a2ui-vllm-cu128-source_gemma4_speculative.sif}"
 GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH:-${HOME}/dataset_generation/models/gemma4-31b}"
 GEMMA4_DRAFT_MODEL_PATH="${GEMMA4_DRAFT_MODEL_PATH:-}"
-GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH:-}"
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
 A2UI_CHECK_CONTAINER="${A2UI_CHECK_CONTAINER:-1}"
@@ -74,15 +73,14 @@ source "${ENV_DIR}/bin/activate"
 export VLLM_SIF="${VLLM_SIF}"
 export GEMMA4_MODEL_PATH="${GEMMA4_MODEL_PATH}"
 export GEMMA4_DRAFT_MODEL_PATH="${GEMMA4_DRAFT_MODEL_PATH}"
-export GEMMA4_ASSISTANT_MODEL_PATH="${GEMMA4_ASSISTANT_MODEL_PATH}"
 export GEMMA4_MODEL_ID="\${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
 export CUDA_VISIBLE_DEVICES="\${CUDA_VISIBLE_DEVICES:-0,1,2,3}"
 export A2UI_VLLM_GPUS="\${A2UI_VLLM_GPUS:-4}"
 export VLLM_MAX_MODEL_LEN="\${VLLM_MAX_MODEL_LEN:-8192}"
 export VLLM_GPU_MEMORY_UTILIZATION="\${VLLM_GPU_MEMORY_UTILIZATION:-0.90}"
 export GEMMA4_ENABLE_REASONING="\${GEMMA4_ENABLE_REASONING:-0}"
-export GEMMA4_SPECULATIVE_MODE="\${GEMMA4_SPECULATIVE_MODE:-mtp}"
-export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-1}"
+export GEMMA4_SPECULATIVE_MODE="\${GEMMA4_SPECULATIVE_MODE:-draft}"
+export GEMMA4_SPECULATIVE_TOKENS="\${GEMMA4_SPECULATIVE_TOKENS:-4}"
 export FLASHINFER_DISABLE_VERSION_CHECK="\${FLASHINFER_DISABLE_VERSION_CHECK:-1}"
 export FLASHINFER_DISABLE_VERSION__CHECK="\${FLASHINFER_DISABLE_VERSION__CHECK:-1}"
 export LOCAL_ALLOW_HTTP_ENDPOINT=1
@@ -97,8 +95,11 @@ chmod +x "${ENV_DIR}/activate_gemma4_vllm.sh"
 if [[ "${A2UI_CHECK_CONTAINER}" = "1" && -f "${VLLM_SIF}" ]]; then
   echo "Checking vLLM speculative flags inside ${VLLM_SIF}"
   HELP_TEXT="$(singularity exec --nv "${VLLM_SIF}" vllm serve --help 2>&1 || true)"
-  if ! grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
-    echo "Warning: vLLM help did not expose --speculative-config. MTP speculative decoding may not be available in this image." >&2
+  if ! grep -q -- "--speculative-model" <<<"${HELP_TEXT}"; then
+    echo "Warning: vLLM help did not expose --speculative-model. Speculative decoding may not be available in this image." >&2
+  fi
+  if ! grep -q -- "--num-speculative-tokens" <<<"${HELP_TEXT}"; then
+    echo "Warning: vLLM help did not expose --num-speculative-tokens. Speculative decoding may not be available in this image." >&2
   fi
 fi
 
