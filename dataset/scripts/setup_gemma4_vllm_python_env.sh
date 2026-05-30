@@ -32,8 +32,8 @@ VLLM_SOURCE_REF="${VLLM_SOURCE_REF:-9b4e83934d895b5f6e488411cd46c8d0915115a1}"
 VLLM_SOURCE_DIR="${VLLM_SOURCE_DIR:-${ENV_DIR}/src/vllm-gemma4-speculative}"
 FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
 FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
-CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
-CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
+CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.3.29}"
+CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.3.33}"
 A2UI_PREFER_PYTHON_CUDA="${A2UI_PREFER_PYTHON_CUDA:-1}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
@@ -172,6 +172,11 @@ configure_cuda_build_env() {
     echo "Rerun setup after installing ${CUDA_RUNTIME_PACKAGE}, or set A2UI_CUDA_TOOLKIT_DIR to a complete CUDA toolkit." >&2
     exit 1
   fi
+  if [[ ! -x "${CUDA_HOME}/bin/ptxas" ]]; then
+    echo "CUDA_HOME has nvcc but no matching ptxas assembler: ${CUDA_HOME}/bin/ptxas" >&2
+    echo "Rerun setup with A2UI_CLEAN_VLLM_STACK=1 so ${CUDA_NVCC_PACKAGE} is installed and mirrored into the venv CUDA toolkit." >&2
+    exit 1
+  fi
 
   export CUDA_CUDART_LIBRARY="${cudart}"
   export LIBRARY_PATH="${CUDA_HOME}/lib64:${CUDA_HOME}/targets/x86_64-linux/lib:${LIBRARY_PATH:-}"
@@ -179,6 +184,7 @@ configure_cuda_build_env() {
   export CMAKE_ARGS="${CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
   export SKBUILD_CMAKE_ARGS="${SKBUILD_CMAKE_ARGS:-} -DCUDAToolkit_ROOT=${CUDA_HOME} -DCUDA_TOOLKIT_ROOT_DIR=${CUDA_HOME} -DCUDA_CUDART_LIBRARY=${cudart} -DCUDA_CUDART_LIBRARY_RELEASE=${cudart} -DCMAKE_CUDA_COMPILER=${CUDA_HOME}/bin/nvcc"
   echo "Using CUDA_CUDART_LIBRARY=${CUDA_CUDART_LIBRARY}"
+  "${CUDA_HOME}/bin/ptxas" --version | head -5 || true
 }
 export_nvidia_python_libs() {
   if [[ -z "${VIRTUAL_ENV:-}" ]]; then
