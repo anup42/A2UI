@@ -314,6 +314,20 @@ ensure_stage_count() {
   done
 }
 
+next_cycle_target() {
+  local completed_floor="$1"
+  local target
+  if (( completed_floor >= MAX_GENERATION_TOTAL )); then
+    echo "${MAX_GENERATION_TOTAL}"
+    return 0
+  fi
+  target=$(( ((completed_floor / GENERATION_CYCLE_SIZE) + 1) * GENERATION_CYCLE_SIZE ))
+  if (( target > MAX_GENERATION_TOTAL )); then
+    target="${MAX_GENERATION_TOTAL}"
+  fi
+  echo "${target}"
+}
+
 run_cyclic_generation() {
   if [[ -z "${MAX_GENERATION_TOTAL}" ]]; then
     echo "MAX_GENERATION_TOTAL is required for cyclic generation." >&2
@@ -364,12 +378,9 @@ run_cyclic_generation() {
     floor="${q}"
     if (( r < floor )); then floor="${r}"; fi
     if (( g < floor )); then floor="${g}"; fi
-    target=$(( floor + GENERATION_CYCLE_SIZE ))
-    if (( target > MAX_GENERATION_TOTAL )); then
-      target="${MAX_GENERATION_TOTAL}"
-    fi
+    target="$(next_cycle_target "${floor}")"
     cycle=$(( cycle + 1 ))
-    echo "Cyclic generation cycle=${cycle} target=${target} current queries=${q} responses=${r} genui=${g}"
+    echo "Cyclic generation cycle=${cycle} target=${target} completed_floor=${floor} current queries=${q} responses=${r} genui=${g}"
 
     ensure_stage_count 1 "${queries_path}" "${target}"
     ensure_stage_count 2 "${responses_path}" "${target}"
