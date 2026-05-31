@@ -130,6 +130,27 @@ class FlatSpecContractTests(unittest.TestCase):
         self.assertIn("/form/valid", result.spec["elements"]["root"]["watch"])
         self.assertEqual(result.spec["elements"]["list"]["repeat"]["statePath"], "/rows")
 
+    def test_email_preview_is_supported_and_canonicalized(self) -> None:
+        spec = {
+            "root": "email",
+            "state": {},
+            "elements": {
+                "email": {
+                    "type": "email_preview",
+                    "props": {
+                        "subject": "Follow-up on launch plan",
+                        "to": "founder@example.com",
+                        "body": ["Hi team,", "Here is the next step."],
+                        "signature": "Anup",
+                    },
+                    "children": [],
+                }
+            },
+        }
+        result = coerce_and_validate(spec)
+        self.assertTrue(result.is_valid, msg=result.error)
+        self.assertEqual(result.spec["elements"]["email"]["type"], "EmailPreview")
+
 
 if __name__ == "__main__":
     unittest.main()

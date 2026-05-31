@@ -15,7 +15,7 @@ Response:
 - Use separate `Card`/section structures for major response sections. A medium or long response should not become only a title, one short context paragraph, and one table.
 - Medium responses usually need 20-45 elements and multiple sections. Short responses may use fewer; long structured responses may use more. Keep IR compact but not sparse.
 - Keep compact `Table` for repeated row data, but surround important tables with title/context/source/action sections when those exist in the response.
-- Never use unsupported component types. `Chart` and `EmailPreview` are currently not supported by this flat-spec contract. For chart/data visualization requests, preserve the numeric/chart data as compact `Table` rows with clear headings and context. For email/message drafts, build the preview using supported `Card`, `Stack`, `Text`, `Divider`, and `Button` elements.
+- Never use unsupported component types. `Chart` is currently not supported by this flat-spec contract; preserve chart/data visualization content as compact `Table` rows with clear headings and context. `EmailPreview` is supported and should be used for email/message drafts when the response contains subject, recipient/context, body, and signature structure.
 
 ## Output contract
 - Return ONLY one JSON object. No prose, no markdown, no comments.
@@ -208,7 +208,7 @@ Allowed dynamic value expressions in props:
 - Build structured app-like UI, not one giant text block.
 - Use headings and sections for medium/long responses.
 - Keep title, media, body, and CTA together inside each card.
-- If the response contains an email/message draft with `Subject:` plus greeting/signature, render it as a supported email-style `Card`: subject/title at top, metadata rows for recipient/context when present, body paragraphs as `Text`, signature as `Text`, and optional `Divider`. Do not use unsupported `EmailPreview`.
+- If the response contains an email/message draft with `Subject:` plus greeting/signature, the actual draft MUST be one `EmailPreview` element. Do not expand it into multiple generic Text/Card elements.
 - Use `Stack` for flex layout and positioning intent (direction, align, justify, gap, spacing, size).
 - Use only flex-style positioning props; absolute positioning is unsupported.
 - Convert links/CTAs to `Button` with `openUrl`.
@@ -220,7 +220,7 @@ Allowed dynamic value expressions in props:
 - For incident/system-health/status-page responses, keep affected services as one compact `Table` with `domain: "status"`, `preferredPresentation: "cards"`, and columns such as `component`, `status`, and `notes`/`impact`; Android renders this as an incident dashboard, so do not create decorative image galleries.
 - If a technical-support checklist/table is present, preserve it as a `Table`; do not expand each diagnostic step into duplicated Card/Text element trees.
 - If a technical-support response uses Markdown headings like `Step 1`, `Step 2`, etc. instead of a pipe table, convert those step sections into one compact `Table` backed by `state.diagnosticSteps`.
-- For email/message-writing responses, use a compact email-style `Card` for the actual draft using supported components only. Preserve `subject`, greeting, body paragraphs, key metadata, and signature as structured `Text`; put action/source buttons near the draft context. Do not render email drafts as oversized generic Text paragraphs or detached Quick Actions cards.
+- For email/message-writing responses, use one compact `EmailPreview` element for the actual draft. Put `subject`, `to`, `from`, `date`, `role`, `company`, `body` paragraph array, and `signature` lines in props. Do not render email drafts as oversized generic Text paragraphs or detached Quick Actions cards.
 - For product-description or marketing-copy responses, render a compact product landing screen: hero Card with inline Icon, 1-2 short body Text elements, feature/benefit cards, and only real URL-backed CTAs. Do not create standalone image galleries or use placeholder/random-host images.
 - For programming/tutorial/debugging responses, separate source code from runtime output: use compact `CodeBlock` elements for functions/snippets and `ConsoleLog` elements for command lines, REPL transcripts, stack traces, and expected output. Do not render code or logs as oversized heading Text, and do not duplicate the same snippet as prose.
 - Preserve all numbers, dates, times, units, and currency exactly.
@@ -245,6 +245,7 @@ Content:
 - `Formula` props: `latex` or `text` (required), optional `title`, `subtitle`, `result`, `display`. Use LaTeX-style notation for fractions, exponents, roots, and variables, for example `M = P \\frac{i(1+i)^n}{(1+i)^n - 1}`. Renderer formats fractions/exponents; do not use images for formulas.
 - `CodeBlock` props: `code` (required), optional `language` (`python|javascript|kotlin|bash|text`) and `title`. Use for source code only; do not put expected output inside the same CodeBlock unless it is part of the source comment.
 - `ConsoleLog` props: `code` (required), optional `language: "console"` and `title`. Use for terminal commands, REPL transcripts, stack traces, and expected output.
+- `EmailPreview` props: `title`, `subtitle`, `subject`, `to`, `from`, `date`, `role`, `company`, `body` (string or paragraph array), `signature` (string or line array), optional `context`/`metadata`. Use for professional emails, drafts, messages, cover letters, and similar communication templates.
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
