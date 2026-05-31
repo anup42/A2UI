@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import time
 import urllib.request
 from pathlib import Path
@@ -109,6 +110,27 @@ class LocalAdapter(BaseLLMAdapter):
             except Exception:
                 pass
         return message
+
+    @staticmethod
+    def _is_transient_vllm_server_error(message: str) -> bool:
+        if not message:
+            return False
+        lowered = message.lower()
+        transient_markers = (
+            "connection refused",
+            "connection reset",
+            "connection aborted",
+            "remote end closed connection",
+            "remote disconnected",
+            "temporarily unavailable",
+            "service unavailable",
+            "http error 500",
+            "500 internal server error",
+            "enginedeaderror",
+            "enginecore encountered",
+            "asyncllm output_handler failed",
+        )
+        return any(marker in lowered for marker in transient_markers)
 
     def _strict_offline_mode(self) -> bool:
         raw = os.environ.get("LOCAL_STRICT_OFFLINE")
@@ -454,9 +476,46 @@ class LocalAdapter(BaseLLMAdapter):
             with urlopen(req, timeout=timeout_s) as resp:
                 return resp.read().decode("utf-8")
 
+        def post_with_server_retries(request_body: dict[str, object]) -> str:
+            retry_enabled = self._is_truthy(
+                os.environ.get("LOCAL_VLLM_RETRY_CONNECTION_ERRORS", "1")
+            )
+            if not retry_enabled:
+                return post_once(request_body)
+
+            interval_s = self._env_float("LOCAL_VLLM_RETRY_INTERVAL_SECONDS", 10.0) or 10.0
+            max_wait_s = self._env_float("LOCAL_VLLM_RETRY_MAX_SECONDS", 0.0) or 0.0
+            interval_s = max(1.0, interval_s)
+            first_failure_at: float | None = None
+            attempt = 0
+
+            while True:
+                try:
+                    return post_once(request_body)
+                except Exception as exc:
+                    message = self._exception_message(exc)
+                    if not self._is_transient_vllm_server_error(message):
+                        raise
+                    now = time.time()
+                    if first_failure_at is None:
+                        first_failure_at = now
+                    elapsed_s = now - first_failure_at
+                    if max_wait_s > 0 and elapsed_s >= max_wait_s:
+                        raise
+                    attempt += 1
+                    if attempt == 1 or attempt % 6 == 0:
+                        print(
+                            "Local vLLM server unavailable for current request; "
+                            f"retrying same sample in {interval_s:.0f}s "
+                            f"(attempt={attempt}, elapsed={elapsed_s:.0f}s): {message[:500]}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                    time.sleep(interval_s)
+
         start = time.time()
         try:
-            raw = post_once(body)
+            raw = post_with_server_retries(body)
         except Exception as exc:
             message = self._exception_message(exc)
             retry_succeeded = False
@@ -464,7 +523,7 @@ class LocalAdapter(BaseLLMAdapter):
             if retry_max_tokens is not None:
                 body["max_tokens"] = retry_max_tokens
                 try:
-                    raw = post_once(body)
+                    raw = post_with_server_retries(body)
                 except Exception as retry_exc:
                     message = self._exception_message(retry_exc)
                 else:
