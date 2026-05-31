@@ -394,5 +394,8 @@
   "latency_ms_avg": 10761.338816482184,
   "latency_ms_p95": 20438.587427139282,
   "media_score": 44.27903262605521,
-  "overall_score": 74.9916986871907
+  "overall_score": 74.9916986871907,
+  "aggregated_scope": "all_generated_samples",
+  "aggregated_sample_count": 4870,
+  "updated_at": "2026-05-31T09:18:24.141589Z"
 }
