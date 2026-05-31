@@ -32,6 +32,11 @@ VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
 VLLM_MAX_NUM_BATCHED_TOKENS="${VLLM_MAX_NUM_BATCHED_TOKENS:-8192}"
 VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
 VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
+VLLM_CLEAN_STALE_PROCESSES="${VLLM_CLEAN_STALE_PROCESSES:-1}"
+VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS="${VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS:-10}"
+VLLM_RESTART_ON_CRASH="${VLLM_RESTART_ON_CRASH:-1}"
+VLLM_MAX_RESTARTS="${VLLM_MAX_RESTARTS:-3}"
+VLLM_RESTART_BACKOFF_SECONDS="${VLLM_RESTART_BACKOFF_SECONDS:-15}"
 VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-1}"
 export VLLM_USE_FLASHINFER_SAMPLER
 VLLM_HAS_FLASHINFER_CUBIN="${VLLM_HAS_FLASHINFER_CUBIN:-1}"
@@ -285,6 +290,103 @@ PY
   A2UI_VLLM_GPUS="${A2UI_VLLM_GPUS:-1}"
 }
 
+current_user() {
+  printf '%s\n' "${USER:-$(id -un 2>/dev/null || true)}"
+}
+
+pid_owner() {
+  ps -o user= -p "$1" 2>/dev/null | awk '{print $1}'
+}
+
+pid_alive() {
+  kill -0 "$1" 2>/dev/null
+}
+
+user_pids_matching() {
+  local pattern="$1"
+  local user_name
+  user_name="$(current_user)"
+  ps -u "${user_name}" -o pid=,comm=,args= 2>/dev/null \
+    | awk -v pat="${pattern}" -v self="$$" '$0 ~ pat && $1 != self {print $1}' \
+    | sort -u
+}
+
+port_listener_pids() {
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -ti "TCP:${VLLM_PORT}" -sTCP:LISTEN 2>/dev/null | sort -u || true
+  elif command -v fuser >/dev/null 2>&1; then
+    fuser -n tcp "${VLLM_PORT}" 2>/dev/null | tr ' ' '\n' | awk 'NF' | sort -u || true
+  fi
+}
+
+terminate_pids() {
+  local reason="$1"
+  shift || true
+  local -a selected=()
+  local pid owner user_name
+  user_name="$(current_user)"
+  for pid in "$@"; do
+    [[ -n "${pid:-}" && "${pid}" =~ ^[0-9]+$ ]] || continue
+    [[ "${pid}" != "$$" ]] || continue
+    pid_alive "${pid}" || continue
+    owner="$(pid_owner "${pid}")"
+    [[ -z "${owner}" || "${owner}" = "${user_name}" ]] || continue
+    selected+=("${pid}")
+  done
+  if (( ${#selected[@]} == 0 )); then
+    return 0
+  fi
+  mapfile -t selected < <(printf '%s\n' "${selected[@]}" | sort -nu)
+  echo "${reason}: ${selected[*]}"
+  kill -TERM "${selected[@]}" 2>/dev/null || true
+
+  local waited=0
+  while (( waited < VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS )); do
+    local -a still_alive=()
+    for pid in "${selected[@]}"; do
+      if pid_alive "${pid}"; then
+        still_alive+=("${pid}")
+      fi
+    done
+    if (( ${#still_alive[@]} == 0 )); then
+      return 0
+    fi
+    sleep 1
+    waited=$(( waited + 1 ))
+  done
+
+  local -a remaining=()
+  for pid in "${selected[@]}"; do
+    if pid_alive "${pid}"; then
+      remaining+=("${pid}")
+    fi
+  done
+  if (( ${#remaining[@]} > 0 )); then
+    echo "Force killing remaining vLLM processes: ${remaining[*]}"
+    kill -KILL "${remaining[@]}" 2>/dev/null || true
+  fi
+}
+
+cleanup_stale_vllm_processes() {
+  if ! is_truthy "${VLLM_CLEAN_STALE_PROCESSES}"; then
+    return 0
+  fi
+
+  local -a pids=()
+  local pid
+  while IFS= read -r pid; do
+    [[ -n "${pid}" ]] && pids+=("${pid}")
+  done < <(user_pids_matching 'VLLM::Worker_TP|vllm[[:space:]]+serve|vllm\.entrypoints\.openai')
+  while IFS= read -r pid; do
+    [[ -n "${pid}" ]] && pids+=("${pid}")
+  done < <(port_listener_pids)
+
+  if (( ${#pids[@]} == 0 )); then
+    return 0
+  fi
+  terminate_pids "Cleaning stale vLLM processes before start/restart" "${pids[@]}"
+}
+
 TARGET_MODEL_PATH="$(resolve_target_model || true)"
 if [[ -z "${TARGET_MODEL_PATH}" ]]; then
   echo "Gemma4 target model not found." >&2
@@ -414,8 +516,82 @@ echo "  VLLM_HAS_FLASHINFER_CUBIN=${VLLM_HAS_FLASHINFER_CUBIN}"
 echo "  FLASHINFER_DISABLE_VERSION_CHECK=${FLASHINFER_DISABLE_VERSION_CHECK}"
 echo "  FLASHINFER_DISABLE_VERSION__CHECK=${FLASHINFER_DISABLE_VERSION__CHECK}"
 echo "  CUDA_HOME=${CUDA_HOME:-}"
+echo "  clean_stale_processes=${VLLM_CLEAN_STALE_PROCESSES}"
+echo "  restart_on_crash=${VLLM_RESTART_ON_CRASH} max_restarts=${VLLM_MAX_RESTARTS}"
 printf 'Command:'
 printf ' %q' "${cmd[@]}"
 printf '\n'
 
-exec "${cmd[@]}"
+cleanup_stale_vllm_processes
+
+VLLM_ACTIVE_PID=""
+
+terminate_active_vllm() {
+  local pid="${VLLM_ACTIVE_PID:-}"
+  if [[ -z "${pid}" || ! "${pid}" =~ ^[0-9]+$ ]]; then
+    cleanup_stale_vllm_processes
+    return 0
+  fi
+  echo "Stopping active vLLM process group for pid=${pid}"
+  kill -TERM "-${pid}" 2>/dev/null || kill -TERM "${pid}" 2>/dev/null || true
+  sleep 5
+  if pid_alive "${pid}"; then
+    kill -KILL "-${pid}" 2>/dev/null || kill -KILL "${pid}" 2>/dev/null || true
+  fi
+  cleanup_stale_vllm_processes
+}
+
+on_shutdown_signal() {
+  echo "Received shutdown signal; cleaning vLLM workers."
+  terminate_active_vllm
+  exit 130
+}
+trap on_shutdown_signal INT TERM
+
+run_vllm_once() {
+  if command -v setsid >/dev/null 2>&1; then
+    setsid "${cmd[@]}" &
+  else
+    "${cmd[@]}" &
+  fi
+  VLLM_ACTIVE_PID="$!"
+  echo "vLLM child pid=${VLLM_ACTIVE_PID}"
+  set +e
+  wait "${VLLM_ACTIVE_PID}"
+  local rc=$?
+  set -e
+  VLLM_ACTIVE_PID=""
+  return "${rc}"
+}
+
+restart_count=0
+while true; do
+  start_ts="$(date +%s)"
+  if run_vllm_once; then
+    rc=0
+  else
+    rc=$?
+  fi
+  end_ts="$(date +%s)"
+  runtime=$(( end_ts - start_ts ))
+
+  cleanup_stale_vllm_processes
+
+  if [[ "${rc}" = "0" ]]; then
+    echo "vLLM exited normally."
+    exit 0
+  fi
+  if ! is_truthy "${VLLM_RESTART_ON_CRASH}"; then
+    echo "vLLM exited with rc=${rc}; restart disabled."
+    exit "${rc}"
+  fi
+  if (( restart_count >= VLLM_MAX_RESTARTS )); then
+    echo "vLLM exited with rc=${rc}; reached max restarts (${VLLM_MAX_RESTARTS})."
+    exit "${rc}"
+  fi
+
+  restart_count=$(( restart_count + 1 ))
+  sleep_s=$(( VLLM_RESTART_BACKOFF_SECONDS * restart_count ))
+  echo "vLLM exited with rc=${rc} after ${runtime}s; cleaned stale workers. Restart ${restart_count}/${VLLM_MAX_RESTARTS} in ${sleep_s}s."
+  sleep "${sleep_s}"
+done
