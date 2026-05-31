@@ -35,7 +35,8 @@ VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
 VLLM_CLEAN_STALE_PROCESSES="${VLLM_CLEAN_STALE_PROCESSES:-1}"
 VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS="${VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS:-10}"
 VLLM_RESTART_ON_CRASH="${VLLM_RESTART_ON_CRASH:-1}"
-VLLM_MAX_RESTARTS="${VLLM_MAX_RESTARTS:-3}"
+# 0 means unlimited restarts. Set a positive integer to cap crash recovery.
+VLLM_MAX_RESTARTS="${VLLM_MAX_RESTARTS:-0}"
 VLLM_RESTART_BACKOFF_SECONDS="${VLLM_RESTART_BACKOFF_SECONDS:-15}"
 VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-1}"
 export VLLM_USE_FLASHINFER_SAMPLER
@@ -517,7 +518,11 @@ echo "  FLASHINFER_DISABLE_VERSION_CHECK=${FLASHINFER_DISABLE_VERSION_CHECK}"
 echo "  FLASHINFER_DISABLE_VERSION__CHECK=${FLASHINFER_DISABLE_VERSION__CHECK}"
 echo "  CUDA_HOME=${CUDA_HOME:-}"
 echo "  clean_stale_processes=${VLLM_CLEAN_STALE_PROCESSES}"
-echo "  restart_on_crash=${VLLM_RESTART_ON_CRASH} max_restarts=${VLLM_MAX_RESTARTS}"
+if (( VLLM_MAX_RESTARTS > 0 )); then
+  echo "  restart_on_crash=${VLLM_RESTART_ON_CRASH} max_restarts=${VLLM_MAX_RESTARTS}"
+else
+  echo "  restart_on_crash=${VLLM_RESTART_ON_CRASH} max_restarts=unlimited"
+fi
 printf 'Command:'
 printf ' %q' "${cmd[@]}"
 printf '\n'
@@ -585,13 +590,17 @@ while true; do
     echo "vLLM exited with rc=${rc}; restart disabled."
     exit "${rc}"
   fi
-  if (( restart_count >= VLLM_MAX_RESTARTS )); then
+  if (( VLLM_MAX_RESTARTS > 0 && restart_count >= VLLM_MAX_RESTARTS )); then
     echo "vLLM exited with rc=${rc}; reached max restarts (${VLLM_MAX_RESTARTS})."
     exit "${rc}"
   fi
 
   restart_count=$(( restart_count + 1 ))
   sleep_s=$(( VLLM_RESTART_BACKOFF_SECONDS * restart_count ))
-  echo "vLLM exited with rc=${rc} after ${runtime}s; cleaned stale workers. Restart ${restart_count}/${VLLM_MAX_RESTARTS} in ${sleep_s}s."
+  if (( VLLM_MAX_RESTARTS > 0 )); then
+    echo "vLLM exited with rc=${rc} after ${runtime}s; cleaned stale workers. Restart ${restart_count}/${VLLM_MAX_RESTARTS} in ${sleep_s}s."
+  else
+    echo "vLLM exited with rc=${rc} after ${runtime}s; cleaned stale workers. Restart ${restart_count}/unlimited in ${sleep_s}s."
+  fi
   sleep "${sleep_s}"
 done
