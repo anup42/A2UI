@@ -423,6 +423,17 @@ def _auto_download_response_assets(
 def _build_asset_context(assets: list[dict]) -> str:
     if not assets:
         return ""
+
+    def _asset_kind(path: str, url: str) -> str:
+        ext = Path((path or url).split("?", 1)[0]).suffix.lower()
+        if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
+            return "image"
+        if ext == ".svg" or "bootstrap-icons" in url.lower() or "/icons/" in url.lower():
+            return "icon"
+        if ext in {".pdf", ".zip"}:
+            return "document"
+        return "asset"
+
     lines: list[str] = []
     for item in assets:
         if not isinstance(item, dict):
@@ -434,13 +445,18 @@ def _build_asset_context(assets: list[dict]) -> str:
         local_path = _to_render_asset_path(path)
         if not local_path:
             continue
+        kind = _asset_kind(local_path, url)
         if url:
-            lines.append(f"- {url} -> {local_path}")
+            lines.append(f"- [{kind}] {url} -> {local_path}")
         else:
-            lines.append(f"- {local_path}")
+            lines.append(f"- [{kind}] {local_path}")
     if not lines:
         return ""
-    return "Assets (local copies of any URLs in the response; use ONLY these local paths):\n" + "\n".join(lines)
+    return (
+        "Assets (local copies of URLs in the response; use ONLY local paths on the right side; "
+        "[image] paths are for Image, [icon] paths are for Icon):\n"
+        + "\n".join(lines)
+    )
 
 
 def _apply_asset_replacements(text: str, assets: list[dict]) -> str:
