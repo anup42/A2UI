@@ -38,6 +38,8 @@ VLLM_RESTART_ON_CRASH="${VLLM_RESTART_ON_CRASH:-1}"
 # 0 means unlimited restarts. Set a positive integer to cap crash recovery.
 VLLM_MAX_RESTARTS="${VLLM_MAX_RESTARTS:-0}"
 VLLM_RESTART_BACKOFF_SECONDS="${VLLM_RESTART_BACKOFF_SECONDS:-15}"
+VLLM_RUN_LOG="${VLLM_RUN_LOG:-/tmp/a2ui_gemma4_vllm_server.log}"
+VLLM_RESTART_ON_ENGINE_CRASH_SIGNATURE="${VLLM_RESTART_ON_ENGINE_CRASH_SIGNATURE:-1}"
 VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-1}"
 export VLLM_USE_FLASHINFER_SAMPLER
 VLLM_HAS_FLASHINFER_CUBIN="${VLLM_HAS_FLASHINFER_CUBIN:-1}"
@@ -377,7 +379,7 @@ cleanup_stale_vllm_processes() {
   local pid
   while IFS= read -r pid; do
     [[ -n "${pid}" ]] && pids+=("${pid}")
-  done < <(user_pids_matching 'VLLM::Worker_TP|vllm[[:space:]]+serve|vllm\.entrypoints\.openai')
+  done < <(user_pids_matching 'VLLM.*Worker_TP|EngineCore|vllm[[:space:]]+serve|vllm\.entrypoints\.openai|multiproc_executor')
   while IFS= read -r pid; do
     [[ -n "${pid}" ]] && pids+=("${pid}")
   done < <(port_listener_pids)
@@ -518,6 +520,8 @@ echo "  FLASHINFER_DISABLE_VERSION_CHECK=${FLASHINFER_DISABLE_VERSION_CHECK}"
 echo "  FLASHINFER_DISABLE_VERSION__CHECK=${FLASHINFER_DISABLE_VERSION__CHECK}"
 echo "  CUDA_HOME=${CUDA_HOME:-}"
 echo "  clean_stale_processes=${VLLM_CLEAN_STALE_PROCESSES}"
+echo "  run_log=${VLLM_RUN_LOG}"
+echo "  restart_on_engine_crash_signature=${VLLM_RESTART_ON_ENGINE_CRASH_SIGNATURE}"
 if (( VLLM_MAX_RESTARTS > 0 )); then
   echo "  restart_on_crash=${VLLM_RESTART_ON_CRASH} max_restarts=${VLLM_MAX_RESTARTS}"
 else
@@ -530,6 +534,7 @@ printf '\n'
 cleanup_stale_vllm_processes
 
 VLLM_ACTIVE_PID=""
+VLLM_LAST_RUN_LOG_START_LINE=0
 
 terminate_active_vllm() {
   local pid="${VLLM_ACTIVE_PID:-}"
@@ -554,10 +559,23 @@ on_shutdown_signal() {
 trap on_shutdown_signal INT TERM
 
 run_vllm_once() {
-  if command -v setsid >/dev/null 2>&1; then
-    setsid "${cmd[@]}" &
+  mkdir -p "$(dirname "${VLLM_RUN_LOG}")"
+  if [[ -f "${VLLM_RUN_LOG}" ]]; then
+    VLLM_LAST_RUN_LOG_START_LINE="$(wc -l <"${VLLM_RUN_LOG}" 2>/dev/null || printf '0')"
   else
-    "${cmd[@]}" &
+    VLLM_LAST_RUN_LOG_START_LINE=0
+  fi
+  {
+    printf '\n===== A2UI vLLM start %s =====\n' "$(date -Is)"
+    printf 'Command:'
+    printf ' %q' "${cmd[@]}"
+    printf '\n'
+  } >>"${VLLM_RUN_LOG}" 2>/dev/null || true
+
+  if command -v setsid >/dev/null 2>&1; then
+    setsid "${cmd[@]}" > >(tee -a "${VLLM_RUN_LOG}") 2> >(tee -a "${VLLM_RUN_LOG}" >&2) &
+  else
+    "${cmd[@]}" > >(tee -a "${VLLM_RUN_LOG}") 2> >(tee -a "${VLLM_RUN_LOG}" >&2) &
   fi
   VLLM_ACTIVE_PID="$!"
   echo "vLLM child pid=${VLLM_ACTIVE_PID}"
@@ -566,7 +584,16 @@ run_vllm_once() {
   local rc=$?
   set -e
   VLLM_ACTIVE_PID=""
+  printf '===== A2UI vLLM exit %s rc=%s =====\n' "$(date -Is)" "${rc}" >>"${VLLM_RUN_LOG}" 2>/dev/null || true
   return "${rc}"
+}
+
+vllm_log_has_engine_crash_signature() {
+  is_truthy "${VLLM_RESTART_ON_ENGINE_CRASH_SIGNATURE}" || return 1
+  [[ -f "${VLLM_RUN_LOG}" ]] || return 1
+  local start_line="${VLLM_LAST_RUN_LOG_START_LINE:-0}"
+  tail -n +"$(( start_line + 1 ))" "${VLLM_RUN_LOG}" 2>/dev/null | grep -Eiq \
+    'EngineDeadError|AsyncLLM output handler failed|RuntimeError: Executor failed|EngineCore encountered an issue|engine core encountered an issue|Executor failed|DeadError|Worker.*died|Traceback \(most recent call last\)'
 }
 
 restart_count=0
@@ -581,6 +608,11 @@ while true; do
   runtime=$(( end_ts - start_ts ))
 
   cleanup_stale_vllm_processes
+
+  if [[ "${rc}" = "0" ]] && vllm_log_has_engine_crash_signature; then
+    echo "vLLM exited with rc=0 but engine crash signature was found in ${VLLM_RUN_LOG}; treating as crash for restart."
+    rc=100
+  fi
 
   if [[ "${rc}" = "0" ]]; then
     echo "vLLM exited normally."
