@@ -76,8 +76,8 @@ ENV PATH="/opt/venv/bin:${PATH}"
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers
 ENV A2UI_REQUIRE_SPECULATIVE=${A2UI_REQUIRE_SPECULATIVE}
 ENV A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}
-ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com objects.githubusercontent.com release-assets.githubusercontent.com huggingface.co cdn-lfs.huggingface.co"
-ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com,raw.githubusercontent.com,objects.githubusercontent.com,release-assets.githubusercontent.com,huggingface.co,cdn-lfs.huggingface.co"
+ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org wheels.vllm.ai github.com codeload.github.com raw.githubusercontent.com objects.githubusercontent.com release-assets.githubusercontent.com huggingface.co cdn-lfs.huggingface.co"
+ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,wheels.vllm.ai,github.com,codeload.github.com,raw.githubusercontent.com,objects.githubusercontent.com,release-assets.githubusercontent.com,huggingface.co,cdn-lfs.huggingface.co"
 
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       printf 'Acquire::https::Verify-Peer "false";\nAcquire::https::Verify-Host "false";\n' > /etc/apt/apt.conf.d/99-a2ui-insecure-ssl; \
@@ -197,7 +197,11 @@ RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
         python -m uv pip install -U --reinstall vllm --pre \
           --extra-index-url "${VLLM_NIGHTLY_INDEX}" \
           --extra-index-url "${PYTORCH_INDEX_URL}" \
-          --index-strategy unsafe-best-match ;; \
+          --index-strategy unsafe-best-match \
+          --allow-insecure-host wheels.vllm.ai \
+          --allow-insecure-host download.pytorch.org \
+          --allow-insecure-host pypi.org \
+          --allow-insecure-host files.pythonhosted.org ;; \
       release) \
         python -m uv pip install -U --reinstall "vllm==${VLLM_VERSION}" \
           --extra-index-url "${PYTORCH_INDEX_URL}" \
