@@ -20,9 +20,10 @@ VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-}"
 GEMMA4_ENABLE_REASONING="${GEMMA4_ENABLE_REASONING:-0}"
 GEMMA4_ENABLE_SERVER_REASONING_FLAGS="${GEMMA4_ENABLE_SERVER_REASONING_FLAGS:-0}"
 GEMMA4_REASONING_PARSER="${GEMMA4_REASONING_PARSER:-}"
-GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-draft}"
+GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-off}"
 GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
 GEMMA4_SPECULATIVE_DRAFT_TP="${GEMMA4_SPECULATIVE_DRAFT_TP:-}"
+GEMMA4_REQUIRE_SPECULATIVE="${GEMMA4_REQUIRE_SPECULATIVE:-0}"
 
 is_truthy() {
   case "${1,,}" in
@@ -112,6 +113,31 @@ if [[ -n "${VLLM_MAX_NUM_SEQS}" ]]; then
   VLLM_CMD_ARGS+=(--max-num-seqs "${VLLM_MAX_NUM_SEQS}")
 fi
 
+HELP_TEXT="$(vllm serve --help 2>&1 || true)"
+VLLM_HAS_SPECULATIVE_CONFIG=0
+if grep -q -- "--speculative-config" <<<"${HELP_TEXT}"; then
+  VLLM_HAS_SPECULATIVE_CONFIG=1
+fi
+VLLM_HAS_LEGACY_SPECULATIVE_MODEL=0
+if grep -q -- "--speculative-model" <<<"${HELP_TEXT}"; then
+  VLLM_HAS_LEGACY_SPECULATIVE_MODEL=1
+fi
+
+if [[ "${GEMMA4_SPECULATIVE_MODE,,}" != "off" \
+    && "${GEMMA4_SPECULATIVE_MODE,,}" != "none" \
+    && "${GEMMA4_SPECULATIVE_MODE,,}" != "false" \
+    && "${GEMMA4_SPECULATIVE_MODE}" != "0" \
+    && "${VLLM_HAS_SPECULATIVE_CONFIG}" != "1" \
+    && "${VLLM_HAS_LEGACY_SPECULATIVE_MODEL}" != "1" ]]; then
+  echo "This vLLM install does not expose speculative decoding flags." >&2
+  if is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then
+    echo "Install a vLLM build with --speculative-config support or run with GEMMA4_REQUIRE_SPECULATIVE=0 GEMMA4_SPECULATIVE_MODE=off." >&2
+    exit 1
+  fi
+  echo "Continuing with GEMMA4_SPECULATIVE_MODE=off because GEMMA4_REQUIRE_SPECULATIVE=0." >&2
+  GEMMA4_SPECULATIVE_MODE=off
+fi
+
 if is_truthy "${GEMMA4_ENABLE_REASONING}"; then
   echo "Gemma4 reasoning mode: enabled"
   if is_truthy "${GEMMA4_ENABLE_SERVER_REASONING_FLAGS}"; then
@@ -142,16 +168,43 @@ case "${GEMMA4_SPECULATIVE_MODE,,}" in
         echo "Set GEMMA4_DRAFT_MODEL_PATH, or run with GEMMA4_SPECULATIVE_MODE=off." >&2
         exit 1
       }
-    VLLM_CMD_ARGS+=(--speculative-model "${GEMMA4_DRAFT_MODEL_PATH}")
-    VLLM_CMD_ARGS+=(--num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
-    if [[ -n "${GEMMA4_SPECULATIVE_DRAFT_TP}" ]]; then
-      VLLM_CMD_ARGS+=(--speculative-draft-tensor-parallel-size "${GEMMA4_SPECULATIVE_DRAFT_TP}")
+    if [[ "${VLLM_HAS_SPECULATIVE_CONFIG}" = "1" ]]; then
+      spec_json="$(python - "${GEMMA4_DRAFT_MODEL_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
+import json
+import sys
+print(json.dumps({
+    "model": sys.argv[1],
+    "num_speculative_tokens": int(sys.argv[2]),
+}, separators=(",", ":")))
+PY
+)"
+      VLLM_CMD_ARGS+=(--speculative-config "${spec_json}")
+      if [[ -n "${GEMMA4_SPECULATIVE_DRAFT_TP}" ]]; then
+        echo "Warning: GEMMA4_SPECULATIVE_DRAFT_TP is ignored with --speculative-config." >&2
+      fi
+    elif [[ "${VLLM_HAS_LEGACY_SPECULATIVE_MODEL}" = "1" ]]; then
+      VLLM_CMD_ARGS+=(--speculative-model "${GEMMA4_DRAFT_MODEL_PATH}")
+      VLLM_CMD_ARGS+=(--num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
+      if [[ -n "${GEMMA4_SPECULATIVE_DRAFT_TP}" ]]; then
+        VLLM_CMD_ARGS+=(--speculative-draft-tensor-parallel-size "${GEMMA4_SPECULATIVE_DRAFT_TP}")
+      fi
+    else
+      echo "Speculative draft mode requested, but this vLLM install does not expose speculative flags." >&2
+      exit 1
     fi
     echo "Gemma4 speculative decoding: draft=${GEMMA4_DRAFT_MODEL_PATH}, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
     ;;
   ngram)
-    VLLM_CMD_ARGS+=(--speculative-model ngram --num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
-    echo "Gemma4 speculative decoding: ngram, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
+    if [[ "${VLLM_HAS_LEGACY_SPECULATIVE_MODEL}" = "1" ]]; then
+      VLLM_CMD_ARGS+=(--speculative-model ngram --num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
+      echo "Gemma4 speculative decoding: ngram, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
+    else
+      echo "ngram speculative mode needs legacy --speculative-model support, which this vLLM install does not expose." >&2
+      if is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then
+        exit 1
+      fi
+      echo "Continuing without speculative decoding." >&2
+    fi
     ;;
   *)
     echo "Unsupported GEMMA4_SPECULATIVE_MODE=${GEMMA4_SPECULATIVE_MODE}. Use draft, ngram, or off." >&2

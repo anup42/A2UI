@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build a CUDA 13.0 vLLM image for Gemma4 speculative decoding on RTX Ada GPUs.
+# Build a CUDA 13.0 vLLM image for Gemma4 vLLM serving on RTX Ada GPUs.
 # Build this on an internet machine with Docker, copy the generated .tar to the
 # GPU/Slurm machine, then convert it to a .sif with
 # build_vllm_cu130_gemma4_speculative_sif.sh.
@@ -11,6 +11,9 @@ IMAGE_TAG="${IMAGE_TAG:-gemma4_speculative_ada}"
 # Pin to the Gemma4-special vLLM ref used by the existing Gemma4 speculative
 # setup. Override only after validating Gemma4 + speculative flags.
 VLLM_REF="${VLLM_REF:-9b4e83934d895b5f6e488411cd46c8d0915115a1}"
+VLLM_VERSION="${VLLM_VERSION:-0.22.0}"
+VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu130}"
+A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-nightly}" # nightly|source|release
 CUDA_BASE_IMAGE="${CUDA_BASE_IMAGE:-nvidia/cuda:13.0.0-cudnn-devel-ubuntu24.04}"
 PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu130}"
 TORCH_VERSION="${TORCH_VERSION:-2.11.0}"
@@ -26,6 +29,7 @@ OUT_DIR="${OUT_DIR:-${PWD}/vllm_cu130_artifacts}"
 TAR_NAME="${TAR_NAME:-${IMAGE_NAME}_${IMAGE_TAG}.tar}"
 BUILD_LOG_NAME="${BUILD_LOG_NAME:-${IMAGE_NAME}_${IMAGE_TAG}_docker_build.log}"
 A2UI_BYPASS_SSL="${A2UI_BYPASS_SSL:-1}"
+A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-0}"
 DOCKER_BUILDKIT="${DOCKER_BUILDKIT:-1}"
 BUILDKIT_PROGRESS="${BUILDKIT_PROGRESS:-plain}"
 export DOCKER_BUILDKIT
@@ -44,11 +48,15 @@ FROM ${CUDA_BASE_IMAGE}
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG VLLM_REF=main
+ARG VLLM_VERSION=0.22.0
+ARG VLLM_NIGHTLY_INDEX=https://wheels.vllm.ai/nightly/cu130
+ARG A2UI_VLLM_INSTALL_MODE=nightly
 ARG PYTORCH_INDEX_URL=https://download.pytorch.org/whl/cu130
 ARG TORCH_VERSION=2.11.0
 ARG TORCHVISION_VERSION=0.26.0
 ARG TORCHAUDIO_VERSION=2.11.0
 ARG A2UI_BYPASS_SSL=1
+ARG A2UI_REQUIRE_SPECULATIVE=0
 ARG MAX_JOBS=12
 ARG NVCC_THREADS=4
 ARG TORCH_CUDA_ARCH_LIST=8.9+PTX
@@ -66,6 +74,8 @@ ENV CMAKE_ARGS="-DCMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES}"
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers
+ENV A2UI_REQUIRE_SPECULATIVE=${A2UI_REQUIRE_SPECULATIVE}
+ENV A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}
 ENV PIP_TRUSTED_HOST="pypi.org files.pythonhosted.org download.pytorch.org github.com codeload.github.com raw.githubusercontent.com objects.githubusercontent.com release-assets.githubusercontent.com huggingface.co cdn-lfs.huggingface.co"
 ENV UV_INSECURE_HOST="pypi.org,files.pythonhosted.org,download.pytorch.org,github.com,codeload.github.com,raw.githubusercontent.com,objects.githubusercontent.com,release-assets.githubusercontent.com,huggingface.co,cdn-lfs.huggingface.co"
 
@@ -174,13 +184,6 @@ RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       "torchaudio==${TORCHAUDIO_VERSION}"
 
 WORKDIR /opt
-RUN git clone https://github.com/vllm-project/vllm.git /opt/vllm \
-    && cd /opt/vllm \
-    && git checkout "${VLLM_REF}" \
-    && git submodule update --init --recursive
-
-WORKDIR /opt/vllm
-
 RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       export UV_INSECURE_HOST="${UV_INSECURE_HOST}"; \
       export PIP_TRUSTED_HOST="${PIP_TRUSTED_HOST}"; \
@@ -189,7 +192,26 @@ RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
       export REQUESTS_CA_BUNDLE=""; \
       export SSL_CERT_FILE=""; \
     fi; \
-    python -m uv pip install --no-build-isolation -e .
+    case "${A2UI_VLLM_INSTALL_MODE}" in \
+      nightly) \
+        python -m uv pip install -U --reinstall vllm --pre \
+          --extra-index-url "${VLLM_NIGHTLY_INDEX}" \
+          --extra-index-url "${PYTORCH_INDEX_URL}" \
+          --index-strategy unsafe-best-match ;; \
+      release) \
+        python -m uv pip install -U --reinstall "vllm==${VLLM_VERSION}" \
+          --extra-index-url "${PYTORCH_INDEX_URL}" \
+          --index-strategy unsafe-best-match ;; \
+      source) \
+        git clone https://github.com/vllm-project/vllm.git /opt/vllm \
+          && cd /opt/vllm \
+          && git checkout "${VLLM_REF}" \
+          && git submodule update --init --recursive \
+          && python -m uv pip install --no-build-isolation -e . ;; \
+      *) \
+        echo "Unsupported A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}; use nightly, source, or release." >&2; \
+        exit 1 ;; \
+    esac
 
 # Dataset Stage 1-5 dependencies:
 # - Stage 1/2/3: prompt generation, asset fetch, JSON/schema metrics.
@@ -247,6 +269,7 @@ RUN if [ "${A2UI_BYPASS_SSL}" = "1" ]; then \
     python -m playwright install chromium
 
 RUN python - <<'PY'
+import os
 import subprocess
 import sys
 import torch
@@ -270,6 +293,7 @@ import bitsandbytes
 print("python", sys.version.split()[0])
 print("torch", torch.__version__, "torch_cuda", torch.version.cuda)
 print("vllm", getattr(vllm, "__version__", "unknown"))
+print("vllm_install_mode", os.environ.get("A2UI_VLLM_INSTALL_MODE", "unknown"))
 print("jupyterlab", getattr(jupyterlab, "__version__", "unknown"))
 print("bitsandbytes", getattr(bitsandbytes, "__version__", "unknown"))
 assert str(torch.version.cuda).startswith("13.0"), torch.version.cuda
@@ -280,8 +304,15 @@ help_text = subprocess.run(
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT,
 ).stdout
-if "--speculative-model" not in help_text and "--speculative-config" not in help_text:
-    raise SystemExit("vLLM build does not expose speculative decoding flags")
+has_speculative_config = "--speculative-config" in help_text
+has_legacy_speculative_model = "--speculative-model" in help_text
+print("vllm_has_speculative_config", has_speculative_config)
+print("vllm_has_legacy_speculative_model", has_legacy_speculative_model)
+if not has_speculative_config and not has_legacy_speculative_model:
+    message = "vLLM build does not expose speculative decoding flags"
+    if os.environ.get("A2UI_REQUIRE_SPECULATIVE", "0").lower() in {"1", "true", "yes", "y", "on"}:
+        raise SystemExit(message)
+    print("WARNING:", message, "- continuing because A2UI_REQUIRE_SPECULATIVE=0")
 print("a2ui stage1-5 deps ok")
 PY
 
@@ -296,24 +327,31 @@ MANIFEST_PATH="${OUT_DIR}/${IMAGE_NAME}_${IMAGE_TAG}_manifest.json"
 echo "Building ${IMAGE_REF}"
 echo "Target host: CUDA 13.0, driver 580.159.03, RTX Ada 49140MiB"
 echo "CUDA base: ${CUDA_BASE_IMAGE}"
+echo "vLLM install mode: ${A2UI_VLLM_INSTALL_MODE}"
 echo "vLLM ref: ${VLLM_REF}"
+echo "vLLM nightly index: ${VLLM_NIGHTLY_INDEX}"
 echo "PyTorch index: ${PYTORCH_INDEX_URL}"
 echo "MAX_JOBS: ${MAX_JOBS}"
 echo "NVCC_THREADS: ${NVCC_THREADS}"
 echo "TORCH_CUDA_ARCH_LIST: ${TORCH_CUDA_ARCH_LIST}"
 echo "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}"
 echo "Bypass SSL: ${A2UI_BYPASS_SSL}"
+echo "Require speculative: ${A2UI_REQUIRE_SPECULATIVE}"
 echo "Docker progress: ${BUILDKIT_PROGRESS}"
 echo "Build log: ${BUILD_LOG_PATH}"
 
 docker build --progress="${BUILDKIT_PROGRESS}" \
   --build-arg "CUDA_BASE_IMAGE=${CUDA_BASE_IMAGE}" \
+  --build-arg "A2UI_VLLM_INSTALL_MODE=${A2UI_VLLM_INSTALL_MODE}" \
   --build-arg "VLLM_REF=${VLLM_REF}" \
+  --build-arg "VLLM_VERSION=${VLLM_VERSION}" \
+  --build-arg "VLLM_NIGHTLY_INDEX=${VLLM_NIGHTLY_INDEX}" \
   --build-arg "PYTORCH_INDEX_URL=${PYTORCH_INDEX_URL}" \
   --build-arg "TORCH_VERSION=${TORCH_VERSION}" \
   --build-arg "TORCHVISION_VERSION=${TORCHVISION_VERSION}" \
   --build-arg "TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION}" \
   --build-arg "A2UI_BYPASS_SSL=${A2UI_BYPASS_SSL}" \
+  --build-arg "A2UI_REQUIRE_SPECULATIVE=${A2UI_REQUIRE_SPECULATIVE}" \
   --build-arg "MAX_JOBS=${MAX_JOBS}" \
   --build-arg "NVCC_THREADS=${NVCC_THREADS}" \
   --build-arg "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}" \
@@ -335,7 +373,10 @@ cat > "${MANIFEST_PATH}" <<EOF
     "gpu_memory_mib": 49140
   },
   "cuda_base_image": "${CUDA_BASE_IMAGE}",
+  "vllm_install_mode": "${A2UI_VLLM_INSTALL_MODE}",
   "vllm_ref": "${VLLM_REF}",
+  "vllm_version": "${VLLM_VERSION}",
+  "vllm_nightly_index": "${VLLM_NIGHTLY_INDEX}",
   "pytorch_index_url": "${PYTORCH_INDEX_URL}",
   "torch_version": "${TORCH_VERSION}",
   "torchvision_version": "${TORCHVISION_VERSION}",
@@ -349,6 +390,7 @@ cat > "${MANIFEST_PATH}" <<EOF
   "jupyterlab": true,
   "bitsandbytes": true,
   "gemma4_speculative_decoding_ref": true,
+  "a2ui_require_speculative": "${A2UI_REQUIRE_SPECULATIVE}",
   "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
