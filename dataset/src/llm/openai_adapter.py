@@ -22,6 +22,12 @@ def _extract_rate_headers(headers) -> dict:
     return extracted
 
 
+def _is_falsey(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() in {"0", "false", "no", "n", "off"}
+
+
 class OpenAIAdapter(BaseLLMAdapter):
     def generate(
         self,
@@ -72,11 +78,14 @@ class OpenAIAdapter(BaseLLMAdapter):
         # Falls back to standard env vars (HTTPS_PROXY/SSL_CERT_FILE) if unset.
         proxy_url = (os.getenv("OPENAI_PROXY") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or "").strip()
         cert_path = (os.getenv("OPENAI_CA_CERT") or os.getenv("SSL_CERT_FILE") or "").strip()
+        disable_ssl_verify = not _is_falsey(os.getenv("A2UI_DISABLE_SSL_VERIFY", "1"))
 
         transport_kwargs: dict[str, object] = {}
         if proxy_url:
             transport_kwargs["proxy"] = proxy_url
-        if cert_path:
+        if disable_ssl_verify:
+            transport_kwargs["verify"] = False
+        elif cert_path:
             transport_kwargs["verify"] = cert_path
 
         if transport_kwargs:

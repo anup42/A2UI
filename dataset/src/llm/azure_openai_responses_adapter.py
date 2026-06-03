@@ -8,6 +8,7 @@ import urllib.request
 from typing import Optional
 
 from .base import BaseLLMAdapter, LLMRateLimitError, LLMResult
+from .http_transport import urlopen
 
 
 class AzureOpenAIResponsesAdapter(BaseLLMAdapter):
@@ -56,7 +57,7 @@ class AzureOpenAIResponsesAdapter(BaseLLMAdapter):
 
         start = time.time()
         try:
-            with urllib.request.urlopen(request, timeout=180) as response:
+            with urlopen(request, timeout=180) as response:
                 raw_text = response.read().decode("utf-8", errors="replace")
         except urllib.error.HTTPError as exc:
             raw_text = ""

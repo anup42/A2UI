@@ -13,6 +13,12 @@ def _is_truthy(value: str | None) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def _is_falsey(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() in {"0", "false", "no", "n", "off"}
+
+
 @lru_cache(maxsize=8)
 def _ssl_context_cached(
     disable_verify: bool,
@@ -40,7 +46,10 @@ def _ssl_context_cached(
 
 
 def _current_ssl_context() -> ssl.SSLContext | None:
-    disable_verify = _is_truthy(os.getenv("A2UI_DISABLE_SSL_VERIFY"))
+    # Dataset generation often runs on managed GPU hosts with incomplete CA
+    # bundles. Default to bypassing TLS verification; set
+    # A2UI_DISABLE_SSL_VERIFY=0 to restore verified HTTPS.
+    disable_verify = not _is_falsey(os.getenv("A2UI_DISABLE_SSL_VERIFY", "1"))
     relax_x509_strict = _is_truthy(os.getenv("A2UI_RELAX_X509_STRICT"))
     ssl_cert_file = (os.getenv("SSL_CERT_FILE") or "").strip()
     return _ssl_context_cached(disable_verify, relax_x509_strict, ssl_cert_file)
@@ -51,4 +60,3 @@ def urlopen(request: Any, timeout: float | int):
     if ctx is None:
         return urllib.request.urlopen(request, timeout=timeout)
     return urllib.request.urlopen(request, timeout=timeout, context=ctx)
-

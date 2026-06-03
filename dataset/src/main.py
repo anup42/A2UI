@@ -26,6 +26,7 @@ from pipeline.stage5_direct_html import run_stage5
 from pipeline.storage import JsonlWriter, get_run_paths, iter_jsonl
 from llm.base import ModelSpec
 from llm.factory import build_adapter, load_model_specs
+from llm.http_transport import urlopen
 from utils.config import load_yaml
 from utils.logging import setup_logger
 from utils.rate_limit import RateLimiter
@@ -272,7 +273,7 @@ def _endpoint_ready(endpoint: str, timeout_s: float = 2.0) -> bool:
     if check_url.endswith("/v1/chat/completions"):
         check_url = check_url.replace("/v1/chat/completions", "/v1/models")
     try:
-        with urllib.request.urlopen(check_url, timeout=timeout_s) as resp:
+        with urlopen(check_url, timeout=timeout_s) as resp:
             return resp.status == 200
     except Exception:
         return False

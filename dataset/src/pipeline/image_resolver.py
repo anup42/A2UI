@@ -7,6 +7,8 @@ import urllib.request
 from functools import lru_cache
 from typing import Any
 
+from llm.http_transport import urlopen
+
 
 MAX_IMAGES_TO_VALIDATE = 6
 MAX_TABLE_ROW_IMAGES = 4
@@ -333,7 +335,7 @@ def search_commons_image_url(search_query: str) -> str | None:
     )
     try:
         req = urllib.request.Request(api_url, headers={"User-Agent": USER_AGENT})
-        with urllib.request.urlopen(req, timeout=8) as resp:
+        with urlopen(req, timeout=8) as resp:
             raw = resp.read(2 * 1024 * 1024).decode("utf-8", errors="replace")
     except Exception:
         return None
@@ -369,7 +371,7 @@ def is_reachable_image_url(raw_url: str) -> bool:
                 "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
             },
         )
-        with urllib.request.urlopen(req, timeout=4) as resp:
+        with urlopen(req, timeout=4) as resp:
             content_type = str(resp.headers.get("Content-Type") or "").lower()
             return 200 <= int(resp.status) <= 399 and (not content_type or content_type.startswith("image/"))
     except Exception:

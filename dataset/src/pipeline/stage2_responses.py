@@ -18,6 +18,7 @@ from pipeline.image_resolver import enrich_response_with_commons_media
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.cache import PromptCache
 from llm.base import BaseLLMAdapter, LLMRateLimitError
+from llm.http_transport import urlopen
 from utils.hashing import normalize_text, hash_text
 from utils.rate_limit import RateLimiter
 from utils.retry import with_retry
@@ -869,7 +870,7 @@ def _download_asset_url(
                 "Accept-Language": "en-US,en;q=0.9",
             },
         )
-        with urllib.request.urlopen(request, timeout=30) as resp:
+        with urlopen(request, timeout=30) as resp:
             content_type = resp.headers.get("Content-Type")
             data = resp.read(max_bytes + 1)
 

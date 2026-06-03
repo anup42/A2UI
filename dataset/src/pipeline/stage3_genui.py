@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
 from pipeline.cache import PromptCache
 from pipeline.common import extract_json, load_prompt, render_prompt
@@ -37,6 +37,7 @@ from pipeline.metrics import (
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.toon_convert import encode_toon, roundtrip_ok
 from llm.base import BaseLLMAdapter, LLMRateLimitError
+from llm.http_transport import urlopen
 from utils.hashing import hash_text
 from utils.rate_limit import RateLimiter
 from utils.retry import with_retry
