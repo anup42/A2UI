@@ -220,6 +220,38 @@ assert str(torch.version.cuda).startswith("12.8"), torch.version.cuda
 print("a2ui stage deps ok")
 PY
 
+RUN python - <<'PY'
+import subprocess
+import sys
+
+proc = subprocess.run(
+    ["vllm", "serve", "--help"],
+    text=True,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
+help_text = proc.stdout
+has_speculative_config = "--speculative-config" in help_text
+has_flat_spec_flags = "--spec-model" in help_text and "--spec-tokens" in help_text
+has_legacy_spec_flags = "--speculative-model" in help_text and "--num-speculative-tokens" in help_text
+has_reasoning_parser = "--reasoning-parser" in help_text
+print("vllm_has_speculative_config", has_speculative_config)
+print("vllm_has_flat_spec_flags", has_flat_spec_flags)
+print("vllm_has_legacy_spec_flags", has_legacy_spec_flags)
+print("vllm_has_reasoning_parser", has_reasoning_parser)
+if not (has_speculative_config or has_flat_spec_flags or has_legacy_spec_flags):
+    print("ERROR: vLLM build does not expose speculative decoding flags.", file=sys.stderr)
+    print("Speculative-related help lines:", file=sys.stderr)
+    for line in help_text.splitlines():
+        lowered = line.lower()
+        if any(token in lowered for token in ("spec", "draft", "mtp", "eagle", "medusa")):
+            print(line, file=sys.stderr)
+    raise SystemExit(2)
+if not has_reasoning_parser:
+    print("WARNING: vLLM build does not expose --reasoning-parser.", file=sys.stderr)
+print("vllm speculative/reasoning flag validation ok")
+PY
+
 CMD ["bash"]
 DOCKERFILE
 
