@@ -297,6 +297,20 @@ if command -v getent >/dev/null 2>&1 && ! getent passwd "${HOST_UID}" >/dev/null
   fi
 fi
 
+echo "Probing vLLM version inside ${VLLM_SIF}"
+VLLM_VERSION_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" python - <<'PY' 2>&1 || true
+import inspect
+try:
+    import vllm
+except Exception as exc:
+    print(f"vllm import failed: {exc!r}")
+else:
+    print("vllm version:", getattr(vllm, "__version__", "unknown"))
+    print("vllm path:", inspect.getfile(vllm))
+PY
+)"
+printf '%s\n' "${VLLM_VERSION_TEXT}"
+
 echo "Probing vLLM flags inside ${VLLM_SIF}"
 HELP_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" vllm serve --help 2>&1 || true)"
 if ! grep -q -- "--host" <<<"${HELP_TEXT}"; then
