@@ -325,8 +325,29 @@ if ! grep -q -- "--host" <<<"${HELP_TEXT}"; then
   printf '%s\n' "${HELP_TEXT}" | head -80 >&2
 fi
 
-has_help_flag() {
-  grep -q -- "$1" <<<"${HELP_TEXT}"
+echo "Probing vLLM parser-derived capabilities inside ${VLLM_SIF}"
+PARSER_HELP_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" bash -lc 'python - <<'"'"'PY'"'"'
+import argparse
+
+try:
+    from vllm.engine.arg_utils import AsyncEngineArgs
+except Exception as exc:
+    print(f"could not import AsyncEngineArgs: {exc!r}")
+else:
+    parser = argparse.ArgumentParser()
+    AsyncEngineArgs.add_cli_args(parser)
+    print(parser.format_help())
+PY
+' 2>&1 || true)"
+if ! grep -Eq -- "--speculative-config|--reasoning-parser" <<<"${PARSER_HELP_TEXT}"; then
+  echo "Warning: could not verify parser-derived vLLM args. First parser probe lines:" >&2
+  printf '%s\n' "${PARSER_HELP_TEXT}" | head -80 >&2
+fi
+
+CAPABILITY_TEXT="${HELP_TEXT}"$'\n'"${PARSER_HELP_TEXT}"
+
+has_vllm_flag() {
+  grep -q -- "$1" <<<"${CAPABILITY_TEXT}"
 }
 
 VLLM_CMD_ARGS=(
@@ -379,18 +400,18 @@ if [[ -n "${VLLM_CPU_OFFLOAD_GB}" ]]; then
 fi
 
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
-  if has_help_flag "--speculative-config"; then
+  if has_vllm_flag "--speculative-config"; then
     SPEC_JSON="{\"method\":\"${GEMMA4_SPECULATIVE_METHOD}\",\"model\":\"${GEMMA4_ASSISTANT_CONTAINER_PATH}\",\"num_speculative_tokens\":${GEMMA4_SPECULATIVE_TOKENS}}"
     VLLM_CMD_ARGS+=(--speculative-config "${SPEC_JSON}")
-  elif has_help_flag "--spec-model" && has_help_flag "--spec-tokens"; then
+  elif has_vllm_flag "--spec-model" && has_vllm_flag "--spec-tokens"; then
     # Newer vLLM versions expose these as flattened VllmConfig args instead
     # of the older --speculative-model spelling.
-    if has_help_flag "--spec-method"; then
+    if has_vllm_flag "--spec-method"; then
       VLLM_CMD_ARGS+=(--spec-method "${GEMMA4_SPECULATIVE_METHOD}")
     fi
     VLLM_CMD_ARGS+=(--spec-model "${GEMMA4_ASSISTANT_CONTAINER_PATH}")
     VLLM_CMD_ARGS+=(--spec-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
-  elif has_help_flag "--speculative-model" && has_help_flag "--num-speculative-tokens"; then
+  elif has_vllm_flag "--speculative-model" && has_vllm_flag "--num-speculative-tokens"; then
     VLLM_CMD_ARGS+=(--speculative-model "${GEMMA4_ASSISTANT_CONTAINER_PATH}")
     VLLM_CMD_ARGS+=(--num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
   elif is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then
@@ -398,7 +419,7 @@ if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
     echo "Checked: --speculative-config, --spec-model/--spec-tokens, --speculative-model/--num-speculative-tokens." >&2
     echo "Use the Gemma4 speculative vLLM source image, or set GEMMA4_REQUIRE_SPECULATIVE=0 GEMMA4_SPECULATIVE_MODE=off." >&2
     echo "Speculative-related help lines from the container:" >&2
-    grep -Ei 'spec|draft|mtp|eagle|medusa' <<<"${HELP_TEXT}" | head -120 >&2 || true
+    grep -Ei 'spec|draft|mtp|eagle|medusa' <<<"${CAPABILITY_TEXT}" | head -160 >&2 || true
     exit 1
   else
     echo "Warning: vLLM speculative flags are unavailable; continuing without speculative decoding." >&2
@@ -406,9 +427,9 @@ if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
 fi
 
 if is_truthy "${GEMMA4_ENABLE_REASONING}"; then
-  if has_help_flag "--enable-reasoning" && has_help_flag "--reasoning-parser"; then
+  if has_vllm_flag "--enable-reasoning" && has_vllm_flag "--reasoning-parser"; then
     VLLM_CMD_ARGS+=(--enable-reasoning --reasoning-parser "${GEMMA4_REASONING_PARSER}")
-  elif has_help_flag "--reasoning-parser"; then
+  elif has_vllm_flag "--reasoning-parser"; then
     # Current vLLM exposes reasoning parsing through StructuredOutputsConfig
     # without a separate --enable-reasoning switch.
     VLLM_CMD_ARGS+=(--reasoning-parser "${GEMMA4_REASONING_PARSER}")
@@ -418,7 +439,7 @@ if is_truthy "${GEMMA4_ENABLE_REASONING}"; then
   fi
 
   if is_truthy "${GEMMA4_ENABLE_DEFAULT_THINKING}"; then
-    if has_help_flag "--default-chat-template-kwargs"; then
+    if has_vllm_flag "--default-chat-template-kwargs"; then
       VLLM_CMD_ARGS+=(--default-chat-template-kwargs '{"enable_thinking": true}')
     else
       echo "Warning: --default-chat-template-kwargs unavailable; default thinking flag was not applied." >&2
