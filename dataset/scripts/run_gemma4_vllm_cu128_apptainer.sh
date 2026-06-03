@@ -297,8 +297,15 @@ if command -v getent >/dev/null 2>&1 && ! getent passwd "${HOST_UID}" >/dev/null
   fi
 fi
 
+echo "Resolving vLLM binary inside ${VLLM_SIF}"
+VLLM_BIN_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" bash -lc 'command -v vllm || true' 2>&1 || true)"
+VLLM_BIN_IN_CONTAINER="$(printf '%s\n' "${VLLM_BIN_TEXT}" | awk 'NF && $1 !~ /^(INFO|WARNING|ERROR|FATAL):/ {print $1; exit}')"
+VLLM_BIN_IN_CONTAINER="${VLLM_BIN_IN_CONTAINER:-vllm}"
+echo "vLLM binary: ${VLLM_BIN_IN_CONTAINER}"
+VLLM_BIN_QUOTED="$(printf '%q' "${VLLM_BIN_IN_CONTAINER}")"
+
 echo "Probing vLLM version inside ${VLLM_SIF}"
-VLLM_VERSION_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" python - <<'PY' 2>&1 || true
+VLLM_VERSION_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" bash -lc 'python - <<'"'"'PY'"'"'
 import inspect
 try:
     import vllm
@@ -308,11 +315,11 @@ else:
     print("vllm version:", getattr(vllm, "__version__", "unknown"))
     print("vllm path:", inspect.getfile(vllm))
 PY
-)"
+' 2>&1 || true)"
 printf '%s\n' "${VLLM_VERSION_TEXT}"
 
 echo "Probing vLLM flags inside ${VLLM_SIF}"
-HELP_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" vllm serve --help 2>&1 || true)"
+HELP_TEXT="$("${RUNTIME}" "${RUNTIME_ARGS[@]}" "${VLLM_SIF}" bash -lc "${VLLM_BIN_QUOTED} serve --help" 2>&1 || true)"
 if ! grep -q -- "--host" <<<"${HELP_TEXT}"; then
   echo "Warning: could not verify vLLM serve help. First probe lines:" >&2
   printf '%s\n' "${HELP_TEXT}" | head -80 >&2
@@ -323,7 +330,7 @@ has_help_flag() {
 }
 
 VLLM_CMD_ARGS=(
-  vllm serve "${VLLM_CONTAINER_MODEL_PATH}"
+  "${VLLM_BIN_IN_CONTAINER}" serve "${VLLM_CONTAINER_MODEL_PATH}"
   --served-model-name "${GEMMA4_MODEL_ID}"
   --host "${VLLM_HOST}"
   --port "${VLLM_PORT}"
