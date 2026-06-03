@@ -696,6 +696,7 @@ PY
     "httpx>=0.27" \
     "truststore>=0.10" \
     "tqdm>=4.66" \
+    "jupyterlab>=4.2" \
     "ninja>=1.11" \
     "cmake>=3.28" \
     "${UV_INSECURE_ARGS[@]}"
