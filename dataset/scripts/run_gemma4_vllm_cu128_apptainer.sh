@@ -41,6 +41,7 @@ GEMMA4_REASONING_PARSER="${GEMMA4_REASONING_PARSER:-gemma4}"
 GEMMA4_ENABLE_DEFAULT_THINKING="${GEMMA4_ENABLE_DEFAULT_THINKING:-0}"
 GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-draft}" # draft|off
 GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
+GEMMA4_SPECULATIVE_METHOD="${GEMMA4_SPECULATIVE_METHOD:-draft_model}"
 GEMMA4_REQUIRE_SPECULATIVE="${GEMMA4_REQUIRE_SPECULATIVE:-1}"
 
 VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-1}"
@@ -360,12 +361,23 @@ if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
   if has_help_flag "--speculative-config"; then
     SPEC_JSON="{\"model\":\"${GEMMA4_ASSISTANT_CONTAINER_PATH}\",\"num_speculative_tokens\":${GEMMA4_SPECULATIVE_TOKENS}}"
     VLLM_CMD_ARGS+=(--speculative-config "${SPEC_JSON}")
+  elif has_help_flag "--spec-model" && has_help_flag "--spec-tokens"; then
+    # Newer vLLM versions expose these as flattened VllmConfig args instead
+    # of the older --speculative-model spelling.
+    if has_help_flag "--spec-method"; then
+      VLLM_CMD_ARGS+=(--spec-method "${GEMMA4_SPECULATIVE_METHOD}")
+    fi
+    VLLM_CMD_ARGS+=(--spec-model "${GEMMA4_ASSISTANT_CONTAINER_PATH}")
+    VLLM_CMD_ARGS+=(--spec-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
   elif has_help_flag "--speculative-model" && has_help_flag "--num-speculative-tokens"; then
     VLLM_CMD_ARGS+=(--speculative-model "${GEMMA4_ASSISTANT_CONTAINER_PATH}")
     VLLM_CMD_ARGS+=(--num-speculative-tokens "${GEMMA4_SPECULATIVE_TOKENS}")
   elif is_truthy "${GEMMA4_REQUIRE_SPECULATIVE}"; then
-    echo "This vLLM install exposes neither --speculative-config nor --speculative-model." >&2
+    echo "This vLLM install exposes no supported speculative decoding server flags." >&2
+    echo "Checked: --speculative-config, --spec-model/--spec-tokens, --speculative-model/--num-speculative-tokens." >&2
     echo "Use the Gemma4 speculative vLLM source image, or set GEMMA4_REQUIRE_SPECULATIVE=0 GEMMA4_SPECULATIVE_MODE=off." >&2
+    echo "Speculative-related help lines from the container:" >&2
+    grep -Ei 'spec|draft|mtp|eagle|medusa' <<<"${HELP_TEXT}" | head -120 >&2 || true
     exit 1
   else
     echo "Warning: vLLM speculative flags are unavailable; continuing without speculative decoding." >&2
@@ -375,6 +387,10 @@ fi
 if is_truthy "${GEMMA4_ENABLE_REASONING}"; then
   if has_help_flag "--enable-reasoning" && has_help_flag "--reasoning-parser"; then
     VLLM_CMD_ARGS+=(--enable-reasoning --reasoning-parser "${GEMMA4_REASONING_PARSER}")
+  elif has_help_flag "--reasoning-parser"; then
+    # Current vLLM exposes reasoning parsing through StructuredOutputsConfig
+    # without a separate --enable-reasoning switch.
+    VLLM_CMD_ARGS+=(--reasoning-parser "${GEMMA4_REASONING_PARSER}")
   else
     echo "Warning: this vLLM build does not expose --enable-reasoning/--reasoning-parser." >&2
     echo "Server will start without reasoning parser flags. Use prompt-side <|think|> handling in the client if needed." >&2
@@ -410,7 +426,7 @@ echo "Quantization mode: ${VLLM_QUANTIZATION_MODE}"
 echo "KV cache dtype: ${VLLM_KV_CACHE_DTYPE:-auto}"
 echo "CPU offload GiB/GPU: ${VLLM_CPU_OFFLOAD_GB:-0}"
 echo "Reasoning requested: ${GEMMA4_ENABLE_REASONING}"
-echo "Speculative mode: ${GEMMA4_SPECULATIVE_MODE}, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
+echo "Speculative mode: ${GEMMA4_SPECULATIVE_MODE}, method=${GEMMA4_SPECULATIVE_METHOD}, tokens=${GEMMA4_SPECULATIVE_TOKENS}"
 echo "FLASHINFER_DISABLE_VERSION_CHECK=${FLASHINFER_DISABLE_VERSION_CHECK}"
 echo "FLASHINFER_DISABLE_VERSION__CHECK=${FLASHINFER_DISABLE_VERSION__CHECK}"
 echo "vLLM command: ${VLLM_CMD_ARGS[*]}"
