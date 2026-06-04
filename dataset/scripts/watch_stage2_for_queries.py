@@ -154,12 +154,22 @@ def main() -> None:
     )
     response_temperatures = env_float_list(response_temperature_env, [0.7])
     response_max_tokens = env_int("A2UI_RESPONSE_MAX_TOKENS", int(run_cfg.get("response_max_tokens", 4096)))
+    stage2_query_batch_size = env_int(
+        "STAGE2_BATCH_SIZE",
+        env_int("A2UI_STAGE2_BATCH_SIZE", int(run_cfg.get("query_batch_size", 1))),
+    )
+    stage2_response_batch_size = env_int(
+        "STAGE2_RESPONSE_BATCH_SIZE",
+        env_int("A2UI_STAGE2_RESPONSE_BATCH_SIZE", int(run_cfg.get("response_batch_size", 1))),
+    )
     logger.info(
-        "Stage2 worker started run_id=%s worker=%s/%s target=%s",
+        "Stage2 worker started run_id=%s worker=%s/%s target=%s query_batch_size=%s response_batch_size=%s",
         args.run_id,
         args.worker_index,
         args.worker_count,
         args.target,
+        stage2_query_batch_size,
+        stage2_response_batch_size,
     )
 
     while True:
@@ -202,8 +212,8 @@ def main() -> None:
                 adapter=adapter,
                 responses_path=run_paths.responses_path,
                 n_per_query=1,
-                batch_size=int(run_cfg.get("response_batch_size", 1)),
-                query_batch_size=int(run_cfg.get("query_batch_size", 1)),
+                batch_size=stage2_response_batch_size,
+                query_batch_size=stage2_query_batch_size,
                 group_by_intent=bool(run_cfg.get("response_group_by_intent", False)),
                 batch_fallback_per_query=bool(run_cfg.get("response_batch_fallback_per_query", True)),
                 temperatures=response_temperatures,

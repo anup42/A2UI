@@ -476,6 +476,24 @@ def main() -> None:
     parser.add_argument("--print_limits", action="store_true", help="Print configured model limits")
     parser.add_argument("--list_models", action="store_true", help="List models for a provider")
     parser.add_argument(
+        "--stage1_batch_size",
+        type=int,
+        default=None,
+        help="Override Stage 1 query batch size per intent (batch_size_queries in run.yaml)",
+    )
+    parser.add_argument(
+        "--stage2_batch_size",
+        type=int,
+        default=None,
+        help="Override Stage 2 query batch size, i.e. query records grouped per batch call",
+    )
+    parser.add_argument(
+        "--stage2_response_batch_size",
+        type=int,
+        default=None,
+        help="Override Stage 2 response_batch_size, i.e. responses requested per query prompt",
+    )
+    parser.add_argument(
         "--genui_batch_size",
         type=int,
         default=None,
@@ -603,9 +621,23 @@ def main() -> None:
         run_cfg["k_queries_per_intent"] = int(args.k_queries_per_intent)
     _apply_env_int_override(run_cfg, "query_max_tokens", "A2UI_QUERY_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "stage1_intent_cycle_size", "A2UI_STAGE1_INTENT_CYCLE_SIZE")
+    _apply_env_int_override(run_cfg, "batch_size_queries", "A2UI_STAGE1_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "batch_size_queries", "STAGE1_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "query_batch_size", "A2UI_STAGE2_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "query_batch_size", "STAGE2_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "response_batch_size", "A2UI_STAGE2_RESPONSE_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "response_batch_size", "STAGE2_RESPONSE_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "genui_batch_size", "A2UI_STAGE3_BATCH_SIZE")
+    _apply_env_int_override(run_cfg, "genui_batch_size", "STAGE3_BATCH_SIZE")
     _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_prompt_max_tokens", "A2UI_GENUI_PROMPT_MAX_TOKENS")
+    if args.stage1_batch_size is not None:
+        run_cfg["batch_size_queries"] = int(args.stage1_batch_size)
+    if args.stage2_batch_size is not None:
+        run_cfg["query_batch_size"] = int(args.stage2_batch_size)
+    if args.stage2_response_batch_size is not None:
+        run_cfg["response_batch_size"] = int(args.stage2_response_batch_size)
     query_temperature = _env_float("A2UI_QUERY_TEMPERATURE", 0.7)
     response_temperature_env = (
         "A2UI_RESPONSE_TEMPERATURES"

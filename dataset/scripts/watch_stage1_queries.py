@@ -123,6 +123,10 @@ def main() -> None:
     query_temperature = env_float("A2UI_QUERY_TEMPERATURE", 0.7)
     query_max_tokens = env_int("A2UI_QUERY_MAX_TOKENS", int(run_cfg.get("query_max_tokens", 2048)))
     stage1_intent_batch_size = min(intent_count, int(run_cfg.get("stage1_intent_batch_size", intent_count)))
+    stage1_per_intent_batch_size = env_int(
+        "STAGE1_BATCH_SIZE",
+        env_int("A2UI_STAGE1_BATCH_SIZE", int(args.stage1_per_intent_batch_size)),
+    )
     manifest = build_run_manifest(
         root=DATASET_ROOT,
         run_id=args.run_id,
@@ -139,6 +143,7 @@ def main() -> None:
         "target": args.target,
         "pass_size": args.pass_size,
         "model": args.model,
+        "stage1_batch_size": stage1_per_intent_batch_size,
         "started_at": datetime.utcnow().isoformat() + "Z",
     }
     write_run_manifest(run_paths.manifest_path, manifest)
@@ -152,7 +157,7 @@ def main() -> None:
         stage1_batch_size = max(
             1,
             min(
-                int(args.stage1_per_intent_batch_size),
+                stage1_per_intent_batch_size,
                 math.ceil((source_target - before) / max(1, stage1_intent_batch_size)),
             ),
         )

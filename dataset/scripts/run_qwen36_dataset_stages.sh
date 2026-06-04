@@ -23,7 +23,10 @@ RUN_ID="${RUN_ID:-dataset_qwen36_vllm_v0}"
 QWEN_MODEL_ID="${QWEN_MODEL_ID:-Qwen/Qwen3.6-35B-A3B}"
 MODEL_ROOT="${MODEL_ROOT:-${LOCAL_MODEL_ROOT:-${A2UI_MODEL_ROOT:-${QWEN_MODEL_ROOT:-}}}}"
 RATE_LIMIT_QPS="${RATE_LIMIT_QPS:-0.2}"
-STAGE3_BATCH_SIZE="${STAGE3_BATCH_SIZE:-1}"
+STAGE1_BATCH_SIZE="${STAGE1_BATCH_SIZE:-${A2UI_STAGE1_BATCH_SIZE:-}}"
+STAGE2_BATCH_SIZE="${STAGE2_BATCH_SIZE:-${A2UI_STAGE2_BATCH_SIZE:-}}"
+STAGE2_RESPONSE_BATCH_SIZE="${STAGE2_RESPONSE_BATCH_SIZE:-${A2UI_STAGE2_RESPONSE_BATCH_SIZE:-}}"
+STAGE3_BATCH_SIZE="${STAGE3_BATCH_SIZE:-${A2UI_STAGE3_BATCH_SIZE:-1}}"
 RENDER_WORKERS="${RENDER_WORKERS:-1}"
 MAX_QUERIES_TOTAL="${MAX_QUERIES_TOTAL:-}"
 MAX_RESPONSES_TOTAL="${MAX_RESPONSES_TOTAL:-}"
@@ -167,14 +170,37 @@ run_stage() {
   if [[ -n "${k_queries}" ]]; then
     max_args+=(--k_queries_per_intent "${k_queries}")
   fi
+  local batch_args=()
+  case "${stage}" in
+    1)
+      if [[ -n "${STAGE1_BATCH_SIZE}" ]]; then
+        batch_args+=(--stage1_batch_size "${STAGE1_BATCH_SIZE}")
+      fi
+      ;;
+    2)
+      if [[ -n "${STAGE2_BATCH_SIZE}" ]]; then
+        batch_args+=(--stage2_batch_size "${STAGE2_BATCH_SIZE}")
+      fi
+      if [[ -n "${STAGE2_RESPONSE_BATCH_SIZE}" ]]; then
+        batch_args+=(--stage2_response_batch_size "${STAGE2_RESPONSE_BATCH_SIZE}")
+      fi
+      ;;
+    3)
+      if [[ -n "${STAGE3_BATCH_SIZE}" ]]; then
+        batch_args+=(--genui_batch_size "${STAGE3_BATCH_SIZE}")
+      fi
+      ;;
+  esac
   echo "Running Stage ${stage} with ${MODEL_NAME}, run_id=${RUN_ID}, reasoning=${QWEN36_ENABLE_REASONING}"
   echo "HF generation config: LOCAL_VLLM_USE_HF_GENERATION_CONFIG=${LOCAL_VLLM_USE_HF_GENERATION_CONFIG} VLLM_GENERATION_CONFIG=${VLLM_GENERATION_CONFIG}"
+  echo "Batch overrides: stage1=${STAGE1_BATCH_SIZE:-config} stage2=${STAGE2_BATCH_SIZE:-config} stage2_response=${STAGE2_RESPONSE_BATCH_SIZE:-config} stage3=${STAGE3_BATCH_SIZE:-config}"
   python dataset/src/main.py \
     --stage "${stage}" \
     --model "${MODEL_NAME}" \
     --run_id "${RUN_ID}" \
     --rate_limit_qps "${RATE_LIMIT_QPS}" \
     "${max_args[@]}" \
+    "${batch_args[@]}" \
     "$@"
 }
 
@@ -269,7 +295,7 @@ ensure_stage_count() {
         run_limited_stage 2 "" "$(( target - current ))" "" "$@"
         ;;
       3)
-        run_limited_stage 3 "" "" "$(( target - current ))" --genui_batch_size "${STAGE3_BATCH_SIZE}" "$@"
+        run_limited_stage 3 "" "" "$(( target - current ))" "$@"
         ;;
       *)
         echo "Internal error: unsupported cyclic stage ${stage}" >&2
@@ -362,7 +388,7 @@ case "${STAGE}" in
     run_stage 2
     ;;
   3)
-    run_stage 3 --genui_batch_size "${STAGE3_BATCH_SIZE}"
+    run_stage 3
     ;;
   4)
     run_stage 4 --render_workers "${RENDER_WORKERS}"
@@ -373,7 +399,7 @@ case "${STAGE}" in
   all)
     run_stage 1
     run_stage 2
-    run_stage 3 --genui_batch_size "${STAGE3_BATCH_SIZE}"
+    run_stage 3
     run_stage 4 --render_workers "${RENDER_WORKERS}"
     run_stage 5
     ;;

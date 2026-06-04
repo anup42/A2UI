@@ -90,6 +90,13 @@ def write_progress(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def env_int(name: str, default: int) -> int:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    return int(raw)
+
+
 def rate_limit_sleep_seconds(exc: LLMRateLimitError, worker_index: int, default: float = 90.0) -> float:
     headers = exc.headers or {}
     values: list[float] = []
@@ -174,15 +181,20 @@ def main() -> None:
     prompt_path = DATASET_ROOT / prompt_file
     if not prompt_path.exists():
         prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
+    stage3_batch_size = env_int(
+        "STAGE3_BATCH_SIZE",
+        env_int("A2UI_STAGE3_BATCH_SIZE", int(run_cfg.get("genui_batch_size", 1))),
+    )
 
     logger.info(
-        "Stage3 response watcher started run_id=%s target=%s pass_size=%s model=%s worker=%s/%s",
+        "Stage3 response watcher started run_id=%s target=%s pass_size=%s model=%s worker=%s/%s batch_size=%s",
         args.run_id,
         args.target,
         args.pass_size,
         args.model,
         args.worker_index,
         args.worker_count,
+        stage3_batch_size,
     )
     idle_count = 0
     last_counts: dict[str, int] | None = None
@@ -227,7 +239,7 @@ def main() -> None:
                     max_repair_attempts=int(run_cfg.get("max_repair_attempts", 1)),
                     max_tokens=int(run_cfg.get("genui_max_tokens", 8192)),
                     prompt_max_tokens=int(run_cfg.get("genui_prompt_max_tokens", 60000)),
-                    batch_size=int(run_cfg.get("genui_batch_size", 1)),
+                    batch_size=stage3_batch_size,
                     seed=int(run_cfg.get("seed", 42)),
                     rate_limiter=rate_limiter,
                     cache=cache,
