@@ -30,6 +30,7 @@ from pipeline.metrics import count_characters  # noqa: E402
 
 ASSET_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".bmp", ".tif", ".tiff", ".pdf"}
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".bmp", ".tif", ".tiff"}
+BOOTSTRAP_ICON_CATALOG = ROOT / "assets" / "icon_catalog" / "bootstrap-icons" / "icons"
 STOP_TOKENS = {
     "the",
     "and",
@@ -187,6 +188,58 @@ def _copy_local_fallback(
     }
 
 
+def _bootstrap_icon_name_from_url(url: str) -> str | None:
+    parsed = urllib.parse.urlparse(url)
+    host = parsed.netloc.lower()
+    if host != "cdn.jsdelivr.net":
+        return None
+    parts = [item for item in parsed.path.split("/") if item]
+    if len(parts) < 4:
+        return None
+    if parts[0] != "npm" or not parts[1].startswith("bootstrap-icons@") or parts[2] != "icons":
+        return None
+    name = Path(parts[-1]).name
+    if not name.endswith(".svg"):
+        return None
+    return name
+
+
+def _build_local_icon_catalog() -> dict[str, Path]:
+    if not BOOTSTRAP_ICON_CATALOG.exists():
+        return {}
+    return {
+        path.name: path
+        for path in BOOTSTRAP_ICON_CATALOG.glob("*.svg")
+        if path.is_file()
+    }
+
+
+def _copy_local_icon_catalog_asset(
+    url: str,
+    assets_dir: Path,
+    local_icon_catalog: dict[str, Path],
+) -> dict[str, Any] | None:
+    icon_name = _bootstrap_icon_name_from_url(url)
+    if not icon_name:
+        return None
+    source = local_icon_catalog.get(icon_name)
+    if not source or not source.exists():
+        return None
+    url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
+    dest = assets_dir / f"{url_hash}_{_safe_name(source.stem)}.svg"
+    if not dest.exists():
+        dest.write_bytes(source.read_bytes())
+    data = dest.read_bytes()
+    return {
+        "url": url,
+        "path": str(dest.relative_to(assets_dir.parent)),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+        "source_path": str(source),
+        "source": "local_bootstrap_icon_catalog",
+    }
+
+
 def _extract_wikimedia_filename(url: str) -> str | None:
     parsed = urllib.parse.urlparse(url)
     host = parsed.netloc.lower()
@@ -287,6 +340,7 @@ def _download_one(
     max_bytes: int,
     timeout: int,
     local_index: list[tuple[Path, set[str]]],
+    local_icon_catalog: dict[str, Path],
 ) -> tuple[str, dict[str, Any] | None, str | None]:
     url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
     existing = sorted(assets_dir.glob(f"{url_hash}_*"))
@@ -303,6 +357,10 @@ def _download_one(
             },
             None,
         )
+
+    local_icon = _copy_local_icon_catalog_asset(url, assets_dir, local_icon_catalog)
+    if local_icon:
+        return url, local_icon, None
 
     candidates = [url]
     wikimedia_alt = _wikimedia_search_url(url, timeout)
@@ -453,9 +511,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Backfill downloaded media assets for an existing dataset run.")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--scope", choices=["genui", "all"], default="genui")
+    parser.add_argument("--kind", choices=["all", "image", "icon", "asset"], default="all")
     parser.add_argument("--workers", type=int, default=24)
     parser.add_argument("--timeout", type=int, default=20)
     parser.add_argument("--max-bytes", type=int, default=8 * 1024 * 1024)
+    parser.add_argument(
+        "--no-local-icon-catalog",
+        action="store_true",
+        help="Do not use dataset/assets/icon_catalog/bootstrap-icons as a fallback for Bootstrap CDN icon URLs.",
+    )
+    parser.add_argument(
+        "--drop-unresolved",
+        action="store_true",
+        help="Remove unresolved asset metadata instead of preserving it for a future retry.",
+    )
     args = parser.parse_args()
 
     run_dir = ROOT / "data" / "runs" / args.run_id
@@ -464,6 +533,7 @@ def main() -> None:
     assets_dir = run_dir / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
     local_index = _build_local_asset_index(run_dir)
+    local_icon_catalog = {} if args.no_local_icon_catalog else _build_local_icon_catalog()
 
     responses = _read_jsonl(responses_path)
     genui_rows = _read_jsonl(genui_path) if genui_path.exists() else []
@@ -478,6 +548,8 @@ def main() -> None:
         if selected_ids is not None and response_id not in selected_ids:
             continue
         entries = _extract_asset_entries(str(row.get("response_text") or ""))
+        if args.kind != "all":
+            entries = [entry for entry in entries if entry.get("kind") == args.kind]
         if entries:
             entries_by_response[response_id] = entries
             all_urls.update(str(item["url"]) for item in entries if item.get("url"))
@@ -485,8 +557,8 @@ def main() -> None:
     urls = sorted(all_urls)
     print(
         f"Backfilling assets run={args.run_id} scope={args.scope} "
-        f"responses={len(entries_by_response)} unique_urls={len(urls)} "
-        f"local_fallback_assets={len(local_index)}"
+        f"kind={args.kind} responses={len(entries_by_response)} unique_urls={len(urls)} "
+        f"local_fallback_assets={len(local_index)} local_icons={len(local_icon_catalog)}"
     )
 
     downloaded: dict[str, dict[str, Any]] = {}
@@ -494,7 +566,15 @@ def main() -> None:
     start = time.time()
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
         futures = {
-            pool.submit(_download_one, url, assets_dir, args.max_bytes, args.timeout, local_index): url
+            pool.submit(
+                _download_one,
+                url,
+                assets_dir,
+                args.max_bytes,
+                args.timeout,
+                local_index,
+                local_icon_catalog,
+            ): url
             for url in urls
         }
         for idx, future in enumerate(concurrent.futures.as_completed(futures), start=1):
@@ -522,22 +602,67 @@ def main() -> None:
             continue
         assets: list[dict[str, Any]] = []
         seen: set[str] = set()
+        selected_urls = {str(entry.get("url") or "") for entry in entries if entry.get("url")}
+        for existing in row.get("assets") or []:
+            if not isinstance(existing, dict):
+                continue
+            existing_url = str(existing.get("url") or "")
+            if not existing_url or existing_url in selected_urls or existing_url in seen:
+                continue
+            seen.add(existing_url)
+            assets.append(existing)
+
+        unresolved_assets: list[dict[str, Any]] = []
         for entry in entries:
             url = str(entry.get("url") or "")
             asset = downloaded.get(url)
-            if not asset or url in seen:
+            if url in seen:
+                continue
+            if not asset:
+                if not args.drop_unresolved:
+                    kind = str(entry.get("kind") or "asset")
+                    unresolved_assets.append(
+                        {
+                            "url": url,
+                            "kind": kind,
+                            "status": "unresolved",
+                            "path": None,
+                            "error": failures.get(url),
+                            "placeholder": (
+                                "genuicraft:placeholder-image"
+                                if kind == "image"
+                                else "genuicraft:placeholder-icon"
+                                if kind == "icon"
+                                else "genuicraft:placeholder-asset"
+                            ),
+                        }
+                    )
                 continue
             seen.add(url)
             assets.append(asset)
         response_assets_by_id[response_id] = assets
 
         row["assets"] = assets
+        existing_unresolved = [
+            item
+            for item in row.get("unresolved_assets") or []
+            if isinstance(item, dict) and str(item.get("url") or "") not in selected_urls
+        ]
+        row["unresolved_assets"] = existing_unresolved + unresolved_assets
         stats = dict(row.get("asset_stats") or {})
-        stats["declared_asset_urls"] = len(entries)
-        stats["downloaded_assets"] = len(assets)
-        stats["asset_url_valid_rate"] = (len(assets) / len(entries)) if entries else 1.0
-        stats["asset_quality_ok"] = len(entries) == len(assets)
-        stats["asset_quality_reason"] = "ok" if len(entries) == len(assets) else "some asset URLs failed to download"
+        if args.kind == "all":
+            stats["declared_asset_urls"] = len(entries)
+            stats["downloaded_assets"] = len(assets)
+            stats["unresolved_assets"] = len(row["unresolved_assets"])
+            stats["asset_url_valid_rate"] = (len(assets) / len(entries)) if entries else 1.0
+            stats["asset_quality_ok"] = len(unresolved_assets) == 0
+            stats["asset_quality_reason"] = "ok" if len(unresolved_assets) == 0 else "some asset URLs failed to download"
+        else:
+            stats[f"{args.kind}_backfill_declared_urls"] = len(entries)
+            stats[f"{args.kind}_backfill_downloaded_assets"] = len(
+                [entry for entry in entries if downloaded.get(str(entry.get("url") or ""))]
+            )
+            stats[f"{args.kind}_backfill_unresolved_assets"] = len(unresolved_assets)
         row["asset_stats"] = stats
         updated_responses += 1
 
@@ -594,12 +719,15 @@ def main() -> None:
     report = {
         "run_id": args.run_id,
         "scope": args.scope,
+        "kind": args.kind,
         "responses_with_asset_entries": len(entries_by_response),
         "unique_urls": len(urls),
         "downloaded_unique_urls": len(downloaded),
         "failed_unique_urls": len(failures),
         "updated_responses": updated_responses,
         "updated_genui_rows": updated_genui,
+        "local_icon_catalog_used": not args.no_local_icon_catalog,
+        "local_icon_catalog_entries": len(local_icon_catalog),
         **asset_file_stats,
         "failures_sample": [
             {"url": url, "error": failures[url]}

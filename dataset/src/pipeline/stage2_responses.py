@@ -242,6 +242,13 @@ def _standalone_icon_section_enabled() -> bool:
     return _is_truthy(os.environ.get("STAGE2_APPEND_STANDALONE_ICON_SECTION"))
 
 
+def _keep_unresolved_media_enabled() -> bool:
+    raw = os.environ.get("STAGE2_KEEP_UNRESOLVED_MEDIA")
+    if raw is None:
+        return True
+    return _is_truthy(raw)
+
+
 def _detect_dataset_root(start: Path) -> Path:
     current = start.resolve()
     for candidate in [current, *current.parents]:
@@ -738,6 +745,41 @@ def _extract_asset_entries(text: str) -> list[dict[str, str]]:
 
 def _extract_asset_urls(text: str) -> list[str]:
     return [item["url"] for item in _extract_asset_entries(text)]
+
+
+def _build_unresolved_asset_records(
+    entries: list[dict[str, str]],
+    assets: list[dict],
+) -> list[dict[str, str | None]]:
+    downloaded_urls = {
+        str(item.get("url") or "").strip()
+        for item in assets
+        if isinstance(item, dict) and str(item.get("url") or "").strip()
+    }
+    unresolved: list[dict[str, str | None]] = []
+    seen: set[str] = set()
+    for entry in entries:
+        url = str(entry.get("url") or "").strip()
+        if not url or url in downloaded_urls or url in seen:
+            continue
+        seen.add(url)
+        kind = str(entry.get("kind") or "asset")
+        if kind == "image":
+            placeholder = "genuicraft:placeholder-image"
+        elif kind == "icon":
+            placeholder = "genuicraft:placeholder-icon"
+        else:
+            placeholder = "genuicraft:placeholder-asset"
+        unresolved.append(
+            {
+                "url": url,
+                "kind": kind,
+                "status": "unresolved",
+                "path": None,
+                "placeholder": placeholder,
+            }
+        )
+    return unresolved
 
 
 def _normalize_intent_key(value: str | None) -> str:
@@ -1417,7 +1459,9 @@ def run_stage2(
             intent_value,
             tags_list,
         )
-        selected_text = _strip_unresolved_media_images(selected_text, assets)
+        keep_unresolved_media = _keep_unresolved_media_enabled()
+        if not keep_unresolved_media:
+            selected_text = _strip_unresolved_media_images(selected_text, assets)
         final_asset_entries = _extract_asset_entries(selected_text)
         final_asset_urls = {entry["url"] for entry in final_asset_entries}
         if final_asset_urls:
@@ -1427,6 +1471,7 @@ def run_stage2(
             ]
         else:
             assets = []
+        unresolved_assets = _build_unresolved_asset_records(final_asset_entries, assets)
         declared_assets_count = len(final_asset_entries)
         valid_asset_rate = (
             float(len(assets) / declared_assets_count)
@@ -1450,14 +1495,17 @@ def run_stage2(
             "response_text": selected_text,
             "created_at": datetime.utcnow().isoformat() + "Z",
             "assets": assets,
+            "unresolved_assets": unresolved_assets,
             "asset_stats": {
                 "declared_asset_urls": declared_assets_count,
                 "downloaded_assets": len(assets),
+                "unresolved_assets": len(unresolved_assets),
                 "asset_url_valid_rate": valid_asset_rate,
                 "real_asset_retry_enabled": real_asset_retry_enabled,
                 "real_asset_retry_attempts": asset_retry_attempts,
                 "asset_quality_ok": asset_quality_ok,
                 "asset_quality_reason": asset_quality_reason,
+                "keep_unresolved_media": keep_unresolved_media,
                 "icon_catalog_enabled": bool(icon_context),
                 "icons_only_mode": icons_only_mode,
                 "async_asset_processing": bool(asset_executor),
@@ -1493,6 +1541,8 @@ def run_stage2(
             )
 
         selected_text = _sanitize_response_media(str(payload.get("selected_text") or ""))
+        final_asset_entries = _extract_asset_entries(selected_text)
+        unresolved_assets = _build_unresolved_asset_records(final_asset_entries, [])
         record = {
             "response_id": payload["response_id"],
             "query_id": payload["query_id"],
@@ -1500,14 +1550,17 @@ def run_stage2(
             "response_text": selected_text,
             "created_at": datetime.utcnow().isoformat() + "Z",
             "assets": [],
+            "unresolved_assets": unresolved_assets,
             "asset_stats": {
-                "declared_asset_urls": len(_extract_asset_entries(selected_text)),
+                "declared_asset_urls": len(final_asset_entries),
                 "downloaded_assets": 0,
+                "unresolved_assets": len(unresolved_assets),
                 "asset_url_valid_rate": 0.0,
                 "real_asset_retry_enabled": real_asset_retry_enabled,
                 "real_asset_retry_attempts": 0,
                 "asset_quality_ok": False,
                 "asset_quality_reason": "asset_processing_error",
+                "keep_unresolved_media": _keep_unresolved_media_enabled(),
                 "icon_catalog_enabled": bool(icon_context),
                 "icons_only_mode": icons_only_mode,
                 "async_asset_processing": bool(asset_executor),
