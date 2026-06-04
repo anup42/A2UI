@@ -204,8 +204,18 @@ def _is_truthy(value: str | None) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def _is_falsey(value: str | None) -> bool:
+    if value is None:
+        return False
+    return value.strip().lower() in {"0", "false", "no", "n", "off"}
+
+
+def _internet_enabled() -> bool:
+    return not _is_falsey(os.environ.get("INTERNET"))
+
+
 def _offline_mode_enabled() -> bool:
-    return _is_truthy(os.environ.get("DATASET_OFFLINE_MODE"))
+    return _is_truthy(os.environ.get("DATASET_OFFLINE_MODE")) or not _internet_enabled()
 
 
 def _real_asset_retry_enabled() -> bool:
@@ -808,6 +818,7 @@ def _asset_quality_check(
     downloaded_assets_count: int,
     min_valid_rate: float,
     icons_only_mode: bool = False,
+    allow_unresolved_media: bool = False,
 ) -> tuple[bool, str]:
     entries = _extract_asset_entries(response_text)
     has_image = any(item.get("kind") == "image" for item in entries)
@@ -829,13 +840,15 @@ def _asset_quality_check(
     if visual and not has_icon:
         return False, "visual intent response is missing icon URLs in Icons section"
 
-    if declared_assets_count > 0:
+    if declared_assets_count > 0 and not allow_unresolved_media:
         valid_rate = downloaded_assets_count / declared_assets_count
         if valid_rate < min_valid_rate:
             return (
                 False,
                 f"asset URL download rate too low ({downloaded_assets_count}/{declared_assets_count}, {valid_rate:.2f})",
             )
+    if declared_assets_count > 0 and allow_unresolved_media and downloaded_assets_count < declared_assets_count:
+        return True, "asset download skipped; unresolved media preserved for later backfill"
 
     return True, "ok"
 
@@ -967,13 +980,18 @@ def _download_assets(
 ) -> tuple[list[dict], dict[str, str], int]:
     assets: list[dict] = []
     rewrites: dict[str, str] = {}
-    if _offline_mode_enabled():
-        return assets, rewrites, 0
 
     entries = _extract_asset_entries(response_text)
     declared_count = len(entries)
     if not entries:
         return assets, rewrites, 0
+    if _offline_mode_enabled():
+        logger.info(
+            "Stage2 asset download skipped response_id=%s declared=%s reason=INTERNET=0/offline",
+            response_id,
+            declared_count,
+        )
+        return assets, rewrites, declared_count
 
     assets_dir.mkdir(parents=True, exist_ok=True)
     for idx, entry in enumerate(entries, start=1):
@@ -1306,12 +1324,13 @@ def run_stage2(
                 icon_context,
             )
             selected_text = _sanitize_response_media(selected_text)
-            selected_text = enrich_response_with_commons_media(
-                selected_text,
-                query_text,
-                intent_value,
-                tags_list,
-            )
+            if _internet_enabled():
+                selected_text = enrich_response_with_commons_media(
+                    selected_text,
+                    query_text,
+                    intent_value,
+                    tags_list,
+                )
             assets, _, declared_assets_count = _download_assets(
                 selected_text,
                 response_id,
@@ -1333,6 +1352,7 @@ def run_stage2(
                 len(assets),
                 real_asset_retry_min_valid_rate,
                 icons_only_mode=icons_only_mode,
+                allow_unresolved_media=_offline_mode_enabled() and _keep_unresolved_media_enabled(),
             )
 
             if not real_asset_retry_enabled or asset_quality_ok:
@@ -1453,12 +1473,13 @@ def run_stage2(
             asset_retry_attempts = asset_attempt + 1
 
         selected_text = _sanitize_response_media(selected_text)
-        selected_text = enrich_response_with_commons_media(
-            selected_text,
-            query_text,
-            intent_value,
-            tags_list,
-        )
+        if _internet_enabled():
+            selected_text = enrich_response_with_commons_media(
+                selected_text,
+                query_text,
+                intent_value,
+                tags_list,
+            )
         keep_unresolved_media = _keep_unresolved_media_enabled()
         if not keep_unresolved_media:
             selected_text = _strip_unresolved_media_images(selected_text, assets)
@@ -1486,6 +1507,7 @@ def run_stage2(
             len(assets),
             real_asset_retry_min_valid_rate,
             icons_only_mode=icons_only_mode,
+            allow_unresolved_media=_offline_mode_enabled() and keep_unresolved_media,
         )
 
         record = {
@@ -1506,6 +1528,8 @@ def run_stage2(
                 "asset_quality_ok": asset_quality_ok,
                 "asset_quality_reason": asset_quality_reason,
                 "keep_unresolved_media": keep_unresolved_media,
+                "internet_enabled": _internet_enabled(),
+                "offline_mode": _offline_mode_enabled(),
                 "icon_catalog_enabled": bool(icon_context),
                 "icons_only_mode": icons_only_mode,
                 "async_asset_processing": bool(asset_executor),
@@ -1561,6 +1585,8 @@ def run_stage2(
                 "asset_quality_ok": False,
                 "asset_quality_reason": "asset_processing_error",
                 "keep_unresolved_media": _keep_unresolved_media_enabled(),
+                "internet_enabled": _internet_enabled(),
+                "offline_mode": _offline_mode_enabled(),
                 "icon_catalog_enabled": bool(icon_context),
                 "icons_only_mode": icons_only_mode,
                 "async_asset_processing": bool(asset_executor),
@@ -1632,12 +1658,13 @@ def run_stage2(
                 icon_context,
             )
             selected_text = _sanitize_response_media(selected_text)
-            selected_text = enrich_response_with_commons_media(
-                selected_text,
-                query_text,
-                intent_value,
-                tags_list,
-            )
+            if _internet_enabled():
+                selected_text = enrich_response_with_commons_media(
+                    selected_text,
+                    query_text,
+                    intent_value,
+                    tags_list,
+                )
             selected_prompt = prompt
             selected_latency_ms = latency_ms
             selected_input_tokens = input_tokens
