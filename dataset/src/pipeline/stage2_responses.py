@@ -218,6 +218,13 @@ def _offline_mode_enabled() -> bool:
     return _is_truthy(os.environ.get("DATASET_OFFLINE_MODE")) or not _internet_enabled()
 
 
+def _commons_enrichment_enabled() -> bool:
+    raw = os.environ.get("STAGE2_COMMONS_ENRICHMENT_ENABLED")
+    if raw is None:
+        return True
+    return _is_truthy(raw)
+
+
 def _real_asset_retry_enabled() -> bool:
     return _is_truthy(os.environ.get("STAGE2_REAL_ASSET_RETRY_ENABLED"))
 
@@ -1324,7 +1331,7 @@ def run_stage2(
                 icon_context,
             )
             selected_text = _sanitize_response_media(selected_text)
-            if _internet_enabled():
+            if _commons_enrichment_enabled():
                 selected_text = enrich_response_with_commons_media(
                     selected_text,
                     query_text,
@@ -1473,7 +1480,7 @@ def run_stage2(
             asset_retry_attempts = asset_attempt + 1
 
         selected_text = _sanitize_response_media(selected_text)
-        if _internet_enabled():
+        if _commons_enrichment_enabled():
             selected_text = enrich_response_with_commons_media(
                 selected_text,
                 query_text,
@@ -1530,6 +1537,7 @@ def run_stage2(
                 "keep_unresolved_media": keep_unresolved_media,
                 "internet_enabled": _internet_enabled(),
                 "offline_mode": _offline_mode_enabled(),
+                "commons_enrichment_enabled": _commons_enrichment_enabled(),
                 "icon_catalog_enabled": bool(icon_context),
                 "icons_only_mode": icons_only_mode,
                 "async_asset_processing": bool(asset_executor),
@@ -1587,6 +1595,7 @@ def run_stage2(
                 "keep_unresolved_media": _keep_unresolved_media_enabled(),
                 "internet_enabled": _internet_enabled(),
                 "offline_mode": _offline_mode_enabled(),
+                "commons_enrichment_enabled": _commons_enrichment_enabled(),
                 "icon_catalog_enabled": bool(icon_context),
                 "icons_only_mode": icons_only_mode,
                 "async_asset_processing": bool(asset_executor),
@@ -1658,7 +1667,7 @@ def run_stage2(
                 icon_context,
             )
             selected_text = _sanitize_response_media(selected_text)
-            if _internet_enabled():
+            if _commons_enrichment_enabled():
                 selected_text = enrich_response_with_commons_media(
                     selected_text,
                     query_text,
