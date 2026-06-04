@@ -204,12 +204,6 @@ def _is_truthy(value: str | None) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-def _is_falsey(value: str | None) -> bool:
-    if value is None:
-        return False
-    return value.strip().lower() in {"0", "false", "no", "n", "off"}
-
-
 def _offline_mode_enabled() -> bool:
     return _is_truthy(os.environ.get("DATASET_OFFLINE_MODE"))
 
@@ -237,7 +231,7 @@ def _real_asset_retry_min_valid_rate() -> float:
 
 
 def _use_local_icon_catalog_enabled() -> bool:
-    return not _is_falsey(os.environ.get("STAGE2_USE_LOCAL_ICON_CATALOG", "1"))
+    return _is_truthy(os.environ.get("STAGE2_USE_LOCAL_ICON_CATALOG"))
 
 
 def _icons_only_mode_enabled() -> bool:
@@ -450,41 +444,6 @@ def _load_local_icon_context(dataset_root: Path, logger) -> dict[str, object] | 
         "min_icons": max(1, min_icons),
         "max_icons": max(1, max_icons),
     }
-
-
-def _bootstrap_icon_id_from_url(url: str) -> str | None:
-    try:
-        parsed = urllib.parse.urlparse(url)
-    except Exception:
-        return None
-    host = parsed.netloc.lower()
-    path = urllib.parse.unquote(parsed.path or "").strip("/")
-    if "bootstrap-icons" not in host and "bootstrap-icons" not in path:
-        return None
-    parts = [part for part in path.split("/") if part]
-    if not parts:
-        return None
-    filename = parts[-1]
-    if not filename.lower().endswith(".svg"):
-        return None
-    icon_id = Path(filename).stem.strip()
-    return icon_id or None
-
-
-def _local_icon_path_for_url(url: str, local_icon_url_map: dict[str, Path] | None) -> Path | None:
-    if not local_icon_url_map:
-        return None
-    exact = local_icon_url_map.get(url)
-    if exact:
-        return exact
-    icon_id = _bootstrap_icon_id_from_url(url)
-    if not icon_id:
-        return None
-    suffix = f"/icons/{icon_id}.svg"
-    for source_url, local_path in local_icon_url_map.items():
-        if source_url.endswith(suffix):
-            return local_path
-    return None
 
 
 def _build_icon_rows(
@@ -897,7 +856,7 @@ def _download_asset_url(
     data: bytes
     local_icon_path = None
     if local_icon_url_map:
-        local_icon_path = _local_icon_path_for_url(url, local_icon_url_map)
+        local_icon_path = local_icon_url_map.get(url)
     if local_icon_path and local_icon_path.exists():
         data = local_icon_path.read_bytes()
         guessed_type, _ = mimetypes.guess_type(local_icon_path.name)
