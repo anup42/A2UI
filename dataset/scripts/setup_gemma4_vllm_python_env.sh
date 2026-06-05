@@ -19,6 +19,7 @@ GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
 GEMMA4_ASSISTANT_MODEL_ID="${GEMMA4_ASSISTANT_MODEL_ID:-google/gemma-4-31b-it-assistant}"
 
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
+A2UI_DISABLE_PROXY="${A2UI_DISABLE_PROXY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
 A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-0}"
 A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-nightly}" # source|release|nightly|skip
@@ -76,6 +77,11 @@ apply_ssl_bypass() {
     export GIT_SSL_NO_VERIFY=1
     export HF_HUB_DISABLE_SSL_VERIFICATION=1
     git config --global http.sslVerify false >/dev/null 2>&1 || true
+  fi
+  if [[ "${A2UI_DISABLE_PROXY}" = "1" ]]; then
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy
+    export no_proxy="127.0.0.1,localhost,::1${no_proxy:+,${no_proxy}}"
+    export NO_PROXY="127.0.0.1,localhost,::1${NO_PROXY:+,${NO_PROXY}}"
   fi
 }
 
