@@ -77,11 +77,6 @@ internal object NativeWeatherUiRenderer {
         val secondary: String?
     )
 
-    private data class WeatherSurfaceStyle(
-        val gradient: List<Color>,
-        val border: Color
-    )
-
     private data class WeatherHeroPalette(
         val gradient: List<Color>,
         val content: Color,
@@ -111,7 +106,6 @@ internal object NativeWeatherUiRenderer {
         val todayDate = sanitizeDisplayText(todayRow.date.orEmpty()).ifBlank { null }
         val todayLabel = if (isTodayWeatherRow(todayRow)) "Today" else sanitizeDisplayText(todayRow.period)
         val darkMode = isSystemInDarkTheme()
-        val weatherSurfaceStyle = weatherForecastSurfaceStyle(darkMode)
         val chartPoints = remember(orderedRows) {
             buildWeatherChartPoints(
                 rows = orderedRows,
@@ -120,96 +114,75 @@ internal object NativeWeatherUiRenderer {
             )
         }
 
-        Card(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(GenUiTokens.RadiusXl))
-                    .background(Brush.linearGradient(weatherSurfaceStyle.gradient))
-                    .border(
-                        GenUiTokens.BorderMd,
-                        weatherSurfaceStyle.border,
-                        RoundedCornerShape(GenUiTokens.RadiusXl)
-                    )
-            ) {
-                Column(
+            WeatherHeroSummaryCard(
+                row = todayRow,
+                label = todayLabel,
+                date = todayDate,
+                temperature = todayTemperature,
+                condition = todayCondition,
+                sanitizeDisplayText = sanitizeDisplayText,
+                weatherConditionIcon = weatherConditionIcon
+            )
+
+            if (chartPoints.size >= 3) {
+                WeatherTrendChart(
+                    points = chartPoints,
+                    dark = darkMode,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                        .height(132.dp)
+                )
+            } else if (chartPoints.size >= 2) {
+                WeatherTrendChart(
+                    points = chartPoints,
+                    dark = darkMode,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(124.dp)
+                )
+            } else if (orderedRows.size >= 2) {
+                WeatherConditionTimeline(
+                    rows = orderedRows,
+                    sanitizeDisplayText = sanitizeDisplayText,
+                    weatherConditionIcon = weatherConditionIcon,
+                    modifier = Modifier.fillMaxWidth(),
+                    dark = darkMode
+                )
+            }
+
+            if (laterRows.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    WeatherHeroSummaryCard(
-                        row = todayRow,
-                        label = todayLabel,
-                        date = todayDate,
-                        temperature = todayTemperature,
-                        condition = todayCondition,
-                        sanitizeDisplayText = sanitizeDisplayText,
-                        weatherConditionIcon = weatherConditionIcon
+                    MarkdownText(
+                        text = "Day-by-day details",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
                     )
-
-                    if (chartPoints.size >= 3) {
-                        WeatherTrendChart(
-                            points = chartPoints,
-                            dark = darkMode,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(132.dp)
-                        )
-                    } else if (chartPoints.size >= 2) {
-                        WeatherTrendChart(
-                            points = chartPoints,
-                            dark = darkMode,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(124.dp)
-                        )
-                    } else if (orderedRows.size >= 2) {
-                        WeatherConditionTimeline(
-                            rows = orderedRows,
-                            sanitizeDisplayText = sanitizeDisplayText,
-                            weatherConditionIcon = weatherConditionIcon,
-                            modifier = Modifier.fillMaxWidth(),
-                            dark = darkMode
-                        )
-                    }
-
-                    if (laterRows.isNotEmpty()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            MarkdownText(
-                                text = "Day-by-day details",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
-                            )
-                            MarkdownText(
-                                text = "${orderedRows.size} days",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.End
-                            )
-                        }
-                    }
-
-                    laterRows.forEach { row ->
-                        WeatherDayDetailCard(
-                            row = row,
-                            temperature = weatherTemperatureText(row),
-                            sanitizeDisplayText = sanitizeDisplayText,
-                            weatherConditionIcon = weatherConditionIcon,
-                            dark = darkMode
-                        )
-                    }
+                    MarkdownText(
+                        text = "${orderedRows.size} days",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.End
+                    )
                 }
+            }
+
+            laterRows.forEach { row ->
+                WeatherDayDetailCard(
+                    row = row,
+                    temperature = weatherTemperatureText(row),
+                    sanitizeDisplayText = sanitizeDisplayText,
+                    weatherConditionIcon = weatherConditionIcon,
+                    dark = darkMode
+                )
             }
         }
     }
@@ -1195,29 +1168,6 @@ internal object NativeWeatherUiRenderer {
                 compactWeatherChartLabel(sanitizeDisplayText(row.period)),
                 sanitizeDisplayText(row.condition.orEmpty())
             ).filter { it.isNotBlank() }.joinToString(": ")
-        }
-    }
-
-    @Composable
-    private fun weatherForecastSurfaceStyle(dark: Boolean): WeatherSurfaceStyle {
-        return if (dark) {
-            WeatherSurfaceStyle(
-                gradient = listOf(
-                    Color(0xFF0B1220),
-                    Color(0xFF0F1C2E),
-                    Color(0xFF102A2A)
-                ),
-                border = Color(0xFF38BDF8).copy(alpha = 0.22f)
-            )
-        } else {
-            WeatherSurfaceStyle(
-                gradient = listOf(
-                    Color(0xFFF0FBFF),
-                    Color(0xFFFAFEFF),
-                    Color(0xFFF2FFF8)
-                ),
-                border = Color(0xFF0EA5E9).copy(alpha = 0.18f)
-            )
         }
     }
 
