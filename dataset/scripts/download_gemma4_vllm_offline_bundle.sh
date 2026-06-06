@@ -282,12 +282,21 @@ download_wheels \
   "httpx>=0.27" \
   "tqdm>=4.66"
 
+download_wheels \
+  "matplotlib==${MATPLOTLIB_VERSION}" \
+  "contourpy>=1.0.1" \
+  "cycler>=0.10" \
+  "fonttools>=4.22.0" \
+  "kiwisolver>=1.3.1" \
+  "pyparsing>=3" \
+  "python-dateutil>=2.7" \
+  "six>=1.5"
+
 "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
   "${PIP_TARGET_ARGS[@]}" \
   "${PIP_INDEX_ARGS[@]}" \
   --dest "${PYTHON_WHEELHOUSE}" \
   --no-deps \
-  "matplotlib==${MATPLOTLIB_VERSION}" \
   "jupyterlab==${JUPYTERLAB_VERSION}" \
   "bitsandbytes==${BITSANDBYTES_VERSION}" \
   "truststore==${TRUSTSTORE_VERSION}"
@@ -306,6 +315,12 @@ required = {
     "setuptools": "setuptools",
     "jinja2": "jinja2",
     "MarkupSafe": "markupsafe",
+    "contourpy": "contourpy",
+    "cycler": "cycler",
+    "fonttools": "fonttools",
+    "kiwisolver": "kiwisolver",
+    "pyparsing": "pyparsing",
+    "python-dateutil": "python-dateutil",
 }
 missing = [
     name
