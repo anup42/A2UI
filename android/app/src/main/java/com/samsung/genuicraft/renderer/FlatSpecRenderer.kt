@@ -1762,6 +1762,9 @@ private fun flatDirectSourceCue(
     if (flatSourceCueText(childId) || flatSourceCueFromSelf(childId, element.props)) {
         return true
     }
+    if (element.type.equals("table", ignoreCase = true) && flatTablePropsLookLikeSourceLinks(element.props, state)) {
+        return true
+    }
     if (!element.type.equals("text", ignoreCase = true)) {
         return false
     }
@@ -1914,6 +1917,135 @@ private fun parseFlatSourceLinksFromListItems(value: Any?): List<ParsedButton> {
     }.distinctBy { flatCanonicalSourceUrl(it.url) }
 }
 
+private fun flatTablePropsLookLikeSourceLinks(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>
+): Boolean {
+    val forceSourceContext = flatSourceCueFromSelf("table", props)
+    val rows = resolveDirectTableRows(props, state)
+    val columns = resolveDirectTableColumns(props, rows)
+    val headers = columns.map { it.label }
+    return (forceSourceContext || flatHeadersLookLikeSourceTable(headers)) &&
+        collectFlatSourceLinksFromTableProps(props, state, forceSourceContext = forceSourceContext).isNotEmpty()
+}
+
+private fun flatHeadersLookLikeSourceTable(headers: List<String>): Boolean {
+    return headers.any { header ->
+        val normalized = normalizeTableHeaderForMatch(header)
+        normalized in setOf("source", "sources", "reference", "references", "citation", "citations") ||
+            normalized.contains("source") ||
+            normalized.contains("reference") ||
+            normalized.contains("citation")
+    }
+}
+
+private fun collectFlatSourceLinksFromRows(
+    headers: List<String>,
+    rows: List<List<String>>,
+    rawRows: List<Any?> = emptyList(),
+    forceSourceContext: Boolean = false
+): List<ParsedButton> {
+    if (headers.isEmpty() || rows.isEmpty()) return emptyList()
+    if (!forceSourceContext && !flatHeadersLookLikeSourceTable(headers)) return emptyList()
+    val urlIndexes = headers.indices.filter { index -> isUrlColumnLabel(headers[index]) }
+    val labelIndexes = headers.indices.filter { index ->
+        val normalized = normalizeTableHeaderForMatch(headers[index])
+        index !in urlIndexes &&
+            !isActionLabelColumn(headers[index]) &&
+            (
+                normalized.contains("source") ||
+                    normalized.contains("reference") ||
+                    normalized.contains("citation") ||
+                    normalized.contains("provider") ||
+                    normalized.contains("name") ||
+                    normalized.contains("title") ||
+                    normalized.contains("label")
+                )
+    }
+    return rows.mapIndexedNotNull { index, row ->
+        val rawRow = rawRows.getOrNull(index)
+        val url = urlIndexes
+            .firstNotNullOfOrNull { urlIndex -> toFlatExternalUrl(row.getOrNull(urlIndex)) }
+            ?: flatSourceUrlFromRawTableRow(rawRow)
+            ?: row.firstNotNullOfOrNull { value -> toFlatExternalUrl(value) }
+        if (url == null) {
+            null
+        } else {
+            val label = labelIndexes
+                .firstNotNullOfOrNull { labelIndex -> flatTableSourceLabelCandidate(row.getOrNull(labelIndex)) }
+                ?: row.indices
+                    .filterNot { it in urlIndexes || isActionLabelColumn(headers.getOrNull(it).orEmpty()) }
+                    .firstNotNullOfOrNull { rowIndex -> flatTableSourceLabelCandidate(row.getOrNull(rowIndex)) }
+                ?: flatSourceLabelFromUrl(url)
+            ParsedButton(label = label, url = url)
+        }
+    }.distinctBy { flatCanonicalSourceUrl(it.url) }
+}
+
+private fun collectFlatSourceLinksFromTableProps(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>,
+    forceSourceContext: Boolean = false
+): List<ParsedButton> {
+    val rawRows = resolveDirectTableRows(props, state)
+    val columns = resolveDirectTableColumns(props, rawRows)
+    if (columns.isEmpty() || rawRows.isEmpty()) return emptyList()
+    val rows = rawRows.map { row -> resolveDirectTableRow(row, columns, state) }
+    return collectFlatSourceLinksFromRows(
+        headers = columns.map { it.label },
+        rows = rows,
+        rawRows = rawRows,
+        forceSourceContext = forceSourceContext
+    )
+}
+
+private fun flatSourceUrlFromRawTableRow(rawRow: Any?): String? {
+    val map = toStringKeyMap(rawRow)
+    if (!map.isNullOrEmpty()) {
+        val keyCandidates = listOf(
+            "url",
+            "href",
+            "link",
+            "source",
+            "sourceUrl",
+            "source_url",
+            "actionUrl",
+            "action_url",
+            "targetUrl",
+            "target_url"
+        )
+        keyCandidates.firstNotNullOfOrNull { key ->
+            map[key]?.toString()?.let(::toFlatExternalUrl)
+        }?.let { return it }
+        map.values.firstNotNullOfOrNull { value ->
+            when (value) {
+                is String -> toFlatExternalUrl(value)
+                is Map<*, *> -> flatSourceUrlFromRawTableRow(value)
+                else -> null
+            }
+        }?.let { return it }
+    }
+    val list = rawRow as? List<*> ?: return null
+    return list.firstNotNullOfOrNull { value ->
+        when (value) {
+            is String -> toFlatExternalUrl(value)
+            is Map<*, *> -> flatSourceUrlFromRawTableRow(value)
+            else -> null
+        }
+    }
+}
+
+private fun flatTableSourceLabelCandidate(value: String?): String? {
+    val trimmed = NativeTextFormatter.sanitizeDisplayText(value.orEmpty()).trim()
+    if (trimmed.isBlank()) return null
+    if (NativeTextFormatter.containsUrlLikeToken(trimmed)) return null
+    val normalized = normalizeTableHeaderForMatch(trimmed)
+    if (normalized in setOf("open", "view", "visit", "read", "go", "source", "sources", "link", "links")) {
+        return null
+    }
+    return trimmed
+}
+
 private fun collectFlatSourceLinks(
     elementIds: List<String>,
     elements: Map<String, FlatElement>,
@@ -1964,6 +2096,13 @@ private fun collectFlatSourceLinks(
                         url = url
                     )
                 }
+            }
+            "table" -> {
+                links += collectFlatSourceLinksFromTableProps(
+                    props = resolvedProps,
+                    state = state,
+                    forceSourceContext = true
+                )
             }
             "list" -> {
                 links += parseFlatSourceLinksFromListItems(resolvedProps["items"])
@@ -3535,6 +3674,17 @@ private fun RenderTableLayout(
         repeatedRowScopes = repeatedRowScopes,
         repeatScope = repeatScope
     )
+    val sourceLinks = collectFlatSourceLinksFromRows(tableModel.headers, tableRows)
+    if (sourceLinks.isNotEmpty()) {
+        RenderFlatSourceSection(
+            section = FlatSourceSection(title = "Sources", links = sourceLinks),
+            onOpenUrl = onOpenUrl,
+            modifier = tableModifier,
+            wrapInCard = true,
+            showTitle = true
+        )
+        return
+    }
     val weatherRows = NativeWeatherSemantics.buildWeatherRows(tableModel.headers, tableRows)
     if (!weatherRows.isNullOrEmpty()) {
         NativeWeatherUiRenderer.RenderWeatherRows(
@@ -9312,6 +9462,17 @@ private fun RenderDirectTable(
     val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    val sourceLinks = collectFlatSourceLinksFromTableProps(props, state)
+    if (sourceLinks.isNotEmpty()) {
+        RenderFlatSourceSection(
+            section = FlatSourceSection(title = "Sources", links = sourceLinks),
+            onOpenUrl = onOpenUrl,
+            modifier = tableModifier,
+            wrapInCard = true,
+            showTitle = true
+        )
+        return
+    }
     val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
     if (!weatherRows.isNullOrEmpty()) {
         NativeWeatherUiRenderer.RenderWeatherRows(
