@@ -694,31 +694,40 @@ pip_install --upgrade \
   jinja2
 
 if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
-  pip_install "uv>=0.5.0"
+  if [[ "${#PIP_OFFLINE_ARGS[@]}" -gt 0 ]]; then
+    echo "Offline wheelhouse mode: skipping uv install and using pip fallback for uv-style install commands."
+  else
+    pip_install "uv>=0.5.0"
+  fi
 
   if [[ "${A2UI_CLEAN_VLLM_STACK}" = "1" && "${A2UI_VLLM_INSTALL_MODE}" != "skip" ]]; then
-    python -m uv pip uninstall -y \
-      vllm \
-      torch \
-      torchvision \
-      torchaudio \
-      xformers \
-      flashinfer-python \
-      flashinfer-cubin \
-      flashinfer-jit-cache \
-      nvidia-cuda-runtime \
-      nvidia-cuda-nvcc \
-      nvidia-cuda-crt \
-      nvidia-cuda-cccl \
-      nvidia-cuda-runtime-cu12 \
-      nvidia-cuda-nvcc-cu12 \
-      nvidia-cuda-crt-cu12 \
-      nvidia-cuda-cccl-cu12 \
-      nvidia-cuda-runtime-cu13 \
-      nvidia-cuda-nvcc-cu13 \
-      nvidia-cuda-crt-cu13 \
-      nvidia-cuda-cccl-cu13 \
-      || true
+    uninstall_args=(
+      vllm
+      torch
+      torchvision
+      torchaudio
+      xformers
+      flashinfer-python
+      flashinfer-cubin
+      flashinfer-jit-cache
+      nvidia-cuda-runtime
+      nvidia-cuda-nvcc
+      nvidia-cuda-crt
+      nvidia-cuda-cccl
+      nvidia-cuda-runtime-cu12
+      nvidia-cuda-nvcc-cu12
+      nvidia-cuda-crt-cu12
+      nvidia-cuda-cccl-cu12
+      nvidia-cuda-runtime-cu13
+      nvidia-cuda-nvcc-cu13
+      nvidia-cuda-crt-cu13
+      nvidia-cuda-cccl-cu13
+    )
+    if [[ "${#PIP_OFFLINE_ARGS[@]}" -gt 0 ]]; then
+      python -m pip uninstall -y "${uninstall_args[@]}" || true
+    else
+      python -m uv pip uninstall -y "${uninstall_args[@]}" || true
+    fi
     python - <<'PY'
 import pathlib
 import shutil
