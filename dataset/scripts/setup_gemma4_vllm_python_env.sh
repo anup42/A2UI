@@ -641,6 +641,9 @@ pip_install_offline_from_uv_args() {
       continue
     fi
     case "${arg}" in
+      --reinstall)
+        filtered+=(--force-reinstall)
+        ;;
       --torch-backend=*|--index-strategy=*|--extra-index-url=*|--index-url=*)
         continue
         ;;
