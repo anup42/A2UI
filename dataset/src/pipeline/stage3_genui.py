@@ -1311,6 +1311,26 @@ def run_stage3(
             encoding="utf-8",
         )
 
+    def _is_transient_local_generation_error(err: str | None) -> bool:
+        if adapter.spec.provider != "local" or not err:
+            return False
+        lowered = str(err).lower()
+        transient_markers = (
+            "connection refused",
+            "connection reset",
+            "connection aborted",
+            "remote end closed connection",
+            "remote disconnected",
+            "temporarily unavailable",
+            "service unavailable",
+            "http error 500",
+            "500 internal server error",
+            "enginedeaderror",
+            "enginecore encountered",
+            "asyncllm output_handler failed",
+        )
+        return any(marker in lowered for marker in transient_markers)
+
     def _generate_single_result(task: dict[str, Any]):
         def _call():
             rate_limiter.acquire()
@@ -1323,17 +1343,52 @@ def run_stage3(
                 json_mode=True if adapter.spec.supports_json_mode else False,
             )
 
-        try:
-            result = with_retry(_call, max_attempts=max_attempts)
-        except Exception as exc:
-            if isinstance(exc, LLMRateLimitError):
-                logger.error(
-                    "Stage3 rate limit info: limits=%s headers=%s",
-                    exc.limits or "unset",
-                    exc.headers or "none",
+        retry_result_errors = os.environ.get("LOCAL_VLLM_RETRY_RESULT_ERRORS", "1").strip().lower()
+        retry_result_errors_enabled = retry_result_errors not in {"0", "false", "no", "off"}
+        retry_interval_s = float(os.environ.get("LOCAL_VLLM_RETRY_INTERVAL_SECONDS", "10") or "10")
+        retry_max_s = float(os.environ.get("LOCAL_VLLM_RETRY_MAX_SECONDS", "0") or "0")
+        retry_interval_s = max(1.0, retry_interval_s)
+        first_failure_at: float | None = None
+        transient_attempt = 0
+
+        while True:
+            try:
+                result = with_retry(_call, max_attempts=max_attempts)
+            except Exception as exc:
+                if isinstance(exc, LLMRateLimitError):
+                    logger.error(
+                        "Stage3 rate limit info: limits=%s headers=%s",
+                        exc.limits or "unset",
+                        exc.headers or "none",
+                    )
+                raise
+
+            if not (
+                retry_result_errors_enabled
+                and result.error
+                and _is_transient_local_generation_error(result.error)
+            ):
+                return result
+
+            now = time.time()
+            if first_failure_at is None:
+                first_failure_at = now
+            elapsed_s = now - first_failure_at
+            if retry_max_s > 0 and elapsed_s >= retry_max_s:
+                return result
+
+            transient_attempt += 1
+            if transient_attempt == 1 or transient_attempt % 6 == 0:
+                logger.warning(
+                    "Stage3 local vLLM transient error response_id=%s; retrying same sample in %.0fs "
+                    "(attempt=%s elapsed=%.0fs): %s",
+                    task.get("response_id"),
+                    retry_interval_s,
+                    transient_attempt,
+                    elapsed_s,
+                    str(result.error)[:500],
                 )
-            raise
-        return result
+            time.sleep(retry_interval_s)
 
     def _generate_single(task: dict[str, Any]) -> None:
         try:
