@@ -67,6 +67,47 @@ download_wheels() {
   python -m pip download "${PIP_SSL_ARGS[@]}" --dest "${WHEELHOUSE}" "$@"
 }
 
+wheelhouse_has_package() {
+  local normalized="$1"
+  python - "${WHEELHOUSE}" "${normalized}" <<'PY'
+import sys
+from pathlib import Path
+
+wheelhouse = Path(sys.argv[1])
+normalized = sys.argv[2].lower().replace("_", "-")
+for path in wheelhouse.glob("*.whl"):
+    name = path.name.lower().replace("_", "-")
+    if name.startswith(f"{normalized}-"):
+        print(path)
+        sys.exit(0)
+sys.exit(1)
+PY
+}
+
+download_required_binary_wheel() {
+  local normalized="$1"
+  shift
+  if wheelhouse_has_package "${normalized}" >/dev/null; then
+    echo "Required wheel already present for ${normalized}: $(wheelhouse_has_package "${normalized}")"
+    return 0
+  fi
+  local spec
+  for spec in "$@"; do
+    echo "Downloading required binary wheel: ${spec}"
+    python -m pip download "${PIP_SSL_ARGS[@]}" \
+      --dest "${WHEELHOUSE}" \
+      --only-binary=:all: \
+      --no-deps \
+      "${spec}" || true
+    if wheelhouse_has_package "${normalized}" >/dev/null; then
+      echo "Downloaded required wheel for ${normalized}: $(wheelhouse_has_package "${normalized}")"
+      return 0
+    fi
+  done
+  echo "Missing required binary wheel after retries: ${normalized}" >&2
+  return 1
+}
+
 python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip wheel setuptools
 
 download_wheels \
@@ -79,6 +120,8 @@ download_wheels \
   jinja2 \
   "MarkupSafe>=2.0" \
   "uv>=0.5.0"
+
+download_required_binary_wheel "markupsafe" "MarkupSafe>=2.0" "markupsafe>=2.0"
 
 download_wheels \
   --extra-index-url "${PYTORCH_INDEX_URL}" \
@@ -174,6 +217,9 @@ missing = [
 ]
 if missing:
     print(f"Missing required offline wheels: {', '.join(missing)}", file=sys.stderr)
+    print("Available wheels:", file=sys.stderr)
+    for wheel in sorted(wheel_names):
+        print(f"  {wheel}", file=sys.stderr)
     sys.exit(1)
 PY
 
