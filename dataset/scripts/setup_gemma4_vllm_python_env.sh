@@ -21,6 +21,7 @@ GEMMA4_ASSISTANT_MODEL_ID="${GEMMA4_ASSISTANT_MODEL_ID:-google/gemma-4-31b-it-as
 A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DISABLE_PROXY="${A2UI_DISABLE_PROXY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
+A2UI_OFFLINE_WHEELHOUSE="${A2UI_OFFLINE_WHEELHOUSE:-${GEMMA4_OFFLINE_WHEELHOUSE:-}}"
 A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-0}"
 A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-nightly}" # source|release|nightly|skip
 A2UI_CLEAN_VLLM_STACK="${A2UI_CLEAN_VLLM_STACK:-1}"
@@ -86,6 +87,15 @@ apply_ssl_bypass() {
 }
 
 apply_ssl_bypass
+
+if [[ -n "${A2UI_OFFLINE_WHEELHOUSE}" ]]; then
+  A2UI_OFFLINE_WHEELHOUSE="$(cd "${A2UI_OFFLINE_WHEELHOUSE}" && pwd)"
+  if [[ ! -d "${A2UI_OFFLINE_WHEELHOUSE}" ]]; then
+    echo "A2UI_OFFLINE_WHEELHOUSE does not exist: ${A2UI_OFFLINE_WHEELHOUSE}" >&2
+    exit 1
+  fi
+  echo "Using offline wheelhouse: ${A2UI_OFFLINE_WHEELHOUSE}"
+fi
 
 link_dir_children() {
   local src_dir="$1"
@@ -526,7 +536,11 @@ export_nvidia_python_libs
 
 PIP_TRUSTED_ARGS=()
 PIP_PROXY_ARGS=()
+PIP_OFFLINE_ARGS=()
 UV_INSECURE_ARGS=()
+if [[ -n "${A2UI_OFFLINE_WHEELHOUSE}" ]]; then
+  PIP_OFFLINE_ARGS+=(--no-index --find-links "${A2UI_OFFLINE_WHEELHOUSE}")
+fi
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
   mkdir -p "${ENV_DIR}/pip_conf"
   cat > "${ENV_DIR}/pip_conf/pip.conf" <<'EOF'
@@ -587,6 +601,10 @@ if [[ "${A2UI_DISABLE_PROXY}" = "1" ]]; then
 fi
 
 pip_install() {
+  if [[ "${#PIP_OFFLINE_ARGS[@]}" -gt 0 ]]; then
+    python -m pip install "${PIP_OFFLINE_ARGS[@]}" "$@"
+    return $?
+  fi
   python -m pip install "${PIP_TRUSTED_ARGS[@]}" "${PIP_PROXY_ARGS[@]}" "$@" && return 0
   local rc=$?
   if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" || "${A2UI_DISABLE_PROXY}" = "1" ]]; then
@@ -597,7 +615,36 @@ pip_install() {
   return "${rc}"
 }
 
+pip_install_offline_from_uv_args() {
+  local filtered=()
+  local skip_next=0
+  local arg
+  for arg in "$@"; do
+    if [[ "${skip_next}" = "1" ]]; then
+      skip_next=0
+      continue
+    fi
+    case "${arg}" in
+      --torch-backend=*|--index-strategy=*|--extra-index-url=*|--index-url=*)
+        continue
+        ;;
+      --torch-backend|--index-strategy|--extra-index-url|--index-url)
+        skip_next=1
+        continue
+        ;;
+      *)
+        filtered+=("${arg}")
+        ;;
+    esac
+  done
+  python -m pip install "${PIP_OFFLINE_ARGS[@]}" "${filtered[@]}"
+}
+
 uv_pip_install() {
+  if [[ "${#PIP_OFFLINE_ARGS[@]}" -gt 0 ]]; then
+    pip_install_offline_from_uv_args "$@"
+    return $?
+  fi
   python -m uv pip install "${UV_INSECURE_ARGS[@]}" "$@" && return 0
   local rc=$?
   if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" || "${A2UI_DISABLE_PROXY}" = "1" ]]; then
