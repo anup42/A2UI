@@ -87,9 +87,7 @@ internal object NativeWeatherUiRenderer {
         val content: Color,
         val mutedContent: Color,
         val tileContainer: Color,
-        val tileBorder: Color,
-        val iconContainer: Color,
-        val iconBorder: Color
+        val tileBorder: Color
     )
 
     @OptIn(ExperimentalLayoutApi::class)
@@ -294,18 +292,10 @@ internal object NativeWeatherUiRenderer {
                             }
                         }
                         Box(
-                            modifier = Modifier
-                                .size(92.dp)
-                                .clip(RoundedCornerShape(28.dp))
-                                .background(heroPalette.iconContainer)
-                                .border(
-                                    GenUiTokens.BorderMd,
-                                    heroPalette.iconBorder,
-                                    RoundedCornerShape(28.dp)
-                                ),
+                            modifier = Modifier.size(92.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            weatherConditionIcon(row.condition, 64.dp)
+                            weatherConditionIcon(row.condition, 72.dp)
                         }
                     }
 
@@ -1313,9 +1303,7 @@ internal object NativeWeatherUiRenderer {
             content = content,
             mutedContent = mutedContent,
             tileContainer = if (dark) Color.White.copy(alpha = 0.13f) else Color.White.copy(alpha = 0.68f),
-            tileBorder = if (dark) Color.White.copy(alpha = 0.18f) else Color(0xFF38BDF8).copy(alpha = 0.28f),
-            iconContainer = if (dark) Color.White.copy(alpha = 0.14f) else Color.White.copy(alpha = 0.62f),
-            iconBorder = if (dark) Color.White.copy(alpha = 0.22f) else Color(0xFF38BDF8).copy(alpha = 0.30f)
+            tileBorder = if (dark) Color.White.copy(alpha = 0.18f) else Color(0xFF38BDF8).copy(alpha = 0.28f)
         )
     }
 
