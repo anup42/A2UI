@@ -271,6 +271,35 @@ internal data class TableEntityMedia(
     val alt: String
 )
 
+private fun useScrollableNativeTableRendering(): Boolean = true
+
+private fun nativeTableShouldScroll(
+    compactScreen: Boolean,
+    screenWidthDp: Int,
+    headers: List<String>,
+    rows: List<List<String>>
+): Boolean {
+    return compactScreen ||
+        headers.size >= 3 ||
+        shouldUseHorizontalTableScroll(
+            compactScreen = compactScreen,
+            screenWidthDp = screenWidthDp,
+            headers = headers,
+            rows = rows
+        )
+}
+
+private fun nativeTableStickyFirstColumn(headers: List<String>, horizontalScrollEnabled: Boolean): Boolean =
+    horizontalScrollEnabled && headers.size >= 4
+
+private fun directColumnsFromHeaders(headers: List<String>): List<FlatDirectTableColumn> =
+    headers.mapIndexed { index, header ->
+        FlatDirectTableColumn(
+            key = normalizeTableColumnKey(header, "col_${index + 1}"),
+            label = header
+        )
+    }
+
 private data class GeneratedRestaurantVisual(
     val title: String
 )
@@ -3512,6 +3541,25 @@ private fun RenderTableLayout(
         headers = tableModel.headers,
         rows = tableRows
     )
+
+    if (useScrollableNativeTableRendering() && tableRows.isNotEmpty()) {
+        val horizontalScrollEnabled = nativeTableShouldScroll(
+            compactScreen = compactScreen,
+            screenWidthDp = screenWidthDp,
+            headers = tableModel.headers,
+            rows = tableRows
+        )
+        val columns = directColumnsFromHeaders(tableModel.headers)
+        RenderAdaptiveTableGrid(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier,
+            horizontalScrollEnabled = horizontalScrollEnabled,
+            stickyFirstColumn = nativeTableStickyFirstColumn(tableModel.headers, horizontalScrollEnabled),
+            numericColumns = numericColumnIndexes(columns, tableRows, emptySet())
+        )
+        return
+    }
 
     if (tableModel.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
         RenderProcessStateTable(
@@ -8957,16 +9005,22 @@ private fun RenderAdaptiveTableGrid(
     numericColumns: Set<Int>
 ) {
     if (headers.isEmpty() || rows.isEmpty()) return
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
     val columnMinWidthsDp = estimateTableColumnMinWidthsDp(
         headers = headers,
         rows = rows,
         baseMinDp = if (horizontalScrollEnabled) 120 else 96
     )
-    val minTableWidth = estimateTableMinWidthDp(
+    val estimatedMinTableWidth = estimateTableMinWidthDp(
         headers = headers,
         rows = rows,
         baseMinDp = if (horizontalScrollEnabled) 120 else 96
-    ).dp
+    )
+    val minTableWidth = if (horizontalScrollEnabled) {
+        estimatedMinTableWidth.coerceAtLeast((screenWidthDp + 18).coerceAtLeast(520))
+    } else {
+        estimatedMinTableWidth
+    }.dp
     val tableColor = MaterialTheme.colorScheme.surfaceContainerLow
     val scrollState = rememberScrollState()
     Column(
@@ -9056,7 +9110,7 @@ private fun RenderAdaptiveTableGrid(
 @Composable
 private fun HorizontalTableScrollHint() {
     Text(
-        text = "Swipe horizontally to view all columns",
+        text = "Scroll horizontally",
         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(horizontal = 8.dp)
@@ -9238,6 +9292,24 @@ private fun RenderDirectTable(
     val compactPortrait = screenWidthDp < 600 && !isLandscape
     val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
+    val tableModifier = applyStackModifier(modifier, props, "vertical")
+    if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
+        val horizontalScrollEnabled = nativeTableShouldScroll(
+            compactScreen = compactPortrait,
+            screenWidthDp = screenWidthDp,
+            headers = headers,
+            rows = table.rows
+        )
+        RenderAdaptiveTableGrid(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            horizontalScrollEnabled = horizontalScrollEnabled,
+            stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
+            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
+        )
+        return
+    }
     val cardsRequested =
         table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
@@ -9327,7 +9399,6 @@ private fun RenderDirectTable(
         }
     }
 
-    val tableModifier = applyStackModifier(modifier, props, "vertical")
     if (isFormulaVariablesTable(table)) {
         RenderFormulaVariablesTable(
             headers = headers,
