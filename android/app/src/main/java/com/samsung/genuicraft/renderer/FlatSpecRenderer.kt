@@ -10401,13 +10401,15 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
     val containerColor = if (isConsole) Color(0xFF0B1020) else Color(0xFF111827)
     val headerColor = if (isConsole) Color(0xFF67E8F9) else Color(0xFFA7F3D0)
     val bodyColor = Color(0xFFE5E7EB)
+    val clipboard = LocalClipboardManager.current
+    val copyText = codeBlock.code.trim()
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = containerColor,
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 6.dp)
-            .semantics(mergeDescendants = true) {
+            .semantics {
                 contentDescription = buildString {
                     append(if (isConsole) "Console log" else "Code block")
                     label.takeIf { it.isNotBlank() }?.let { language ->
@@ -10422,13 +10424,39 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
             }
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-            if (label.isNotBlank()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = label.uppercase(),
                     style = MaterialTheme.typography.labelSmall,
                     color = headerColor,
-                    modifier = Modifier.padding(bottom = 6.dp)
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
+                if (copyText.isNotBlank()) {
+                    Text(
+                        text = "Copy",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color.White,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Color.White.copy(alpha = 0.14f))
+                            .clickable {
+                                clipboard.setText(AnnotatedString(copyText))
+                            }
+                            .semantics {
+                                role = Role.Button
+                                contentDescription = if (isConsole) "Copy shell output" else "Copy code"
+                            }
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                    )
+                }
             }
             val codeTextModifier = if (isConsole) {
                 Modifier.fillMaxWidth()

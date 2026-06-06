@@ -1,0 +1,62 @@
+﻿{
+    "manifest_version":  1,
+    "generated_at":  "2026-05-03T18:03:17Z",
+    "run_id":  "golden50_g25pro_20260309_204033_stitch_compare_20260606_shellcopy_r5",
+    "stage":  3,
+    "repo":  {
+                 "release_version":  "0.1.0",
+                 "components":  {
+                                    "pipeline":  "0.1.0",
+                                    "renderer":  "0.1.0",
+                                    "visualizer":  "0.1.0",
+                                    "schema":  "0.9.0",
+                                    "prompts":  "0.1.0",
+                                    "metrics":  "0.1.0"
+                                },
+                 "compatibility":  {
+                                       "genui_schema":  "v0.9",
+                                       "min_manifest_version":  1
+                                   },
+                 "git_commit":  "b72a533303913d8a62fa9f3206ca6fe3486fa08f",
+                 "git_branch":  "new_ir_changes_20260331",
+                 "git_dirty":  true
+             },
+    "model":  {
+                  "name":  "gemini_2_5_pro",
+                  "provider":  "gemini",
+                  "model":  "gemini-2.5-pro"
+              },
+    "config":  {
+                   "files":  {
+                                 "configs\\run.yaml":  "ed7adf4aad5c246d3555ae4507e66d7cd3d6dfe0170f41aae9ec8618e993937a",
+                                 "configs\\models.yaml":  "8c57c3d671fc43b956c90b1c60ac8695680bc89db52d385e2cb323a22e21e133"
+                             },
+                   "combined_sha256":  "5f8368dc82e6047afa9216311bfa1d39911c19f356c94fbb21fe795f70f59b62"
+               },
+    "paths":  {
+                  "run_dir":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
+                  "queries_path":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\queries.jsonl",
+                  "responses_path":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\responses.jsonl",
+                  "genui_path":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\genui.jsonl",
+                  "metrics_path":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\metrics.jsonl",
+                  "aggregates_path":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\aggregates.json",
+                  "artifacts_dir":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\artifacts",
+                  "manifest_path":  "data\\runs\\golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4\\run_manifest.json"
+              },
+    "command":  {
+                    "argv":  [
+                                 "src\\main.py",
+                                 "--stage",
+                                 "3",
+                                 "--model",
+                                 "gemini_2_5_pro",
+                                 "--run_id",
+                                 "golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
+                                 "--genui_batch_size",
+                                 "1",
+                                 "--rate_limit_qps",
+                                 "0.5"
+                             ],
+                    "cwd":  "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+                }
+}

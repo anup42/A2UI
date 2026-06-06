@@ -1,0 +1,51 @@
+ui_id,source,r1_bytes,r3_bytes,r1_gaps,r3_gaps,reason
+u_000001_01,r1,6114,6778,,,kept r1 gaps 0 vs 0; r3 not materially smaller; r3 chunking lower
+u_000002_01,r1,4116,3882,,,kept r1 gaps 0 vs 0; r3 not materially smaller
+u_000003_01,r1,7476,5984,,,kept r1 gaps 0 vs 0; r3 media/icon lower
+u_000004_01,r1,3108,4032,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 not materially smaller
+u_000005_01,r3,4416,3923,,,smaller 4416->3923
+u_000006_01,r1,7957,5483,,,kept r1 gaps 0 vs 0; r3 media/icon lower
+u_000007_01,r1,5610,3203,,,kept r1 gaps 0 vs 0; r3 chunking lower; r3 media/icon lower
+u_000008_01,r1,11361,7265,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 media/icon lower
+u_000009_01,r1,5949,3845,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 table coverage lower; r3 media/icon lower
+u_000010_01,r1,4741,4831,,,kept r1 gaps 0 vs 0; r3 not materially smaller
+u_000011_01,r1,1999,1983,weak_table_coverage;dense_text_layout,weak_table_coverage;dense_text_layout,kept r1 gaps 2 vs 2; r3 not materially smaller
+u_000012_01,r3,6550,5802,weak_table_coverage,weak_table_coverage,smaller 6550->5802
+u_000013_01,r1,10588,7575,,weak_table_coverage,kept r1 gaps 0 vs 1; r3 table coverage lower; r3 chunking lower; r3 media/icon lower
+u_000014_01,r3,11988,9051,weak_table_coverage,weak_table_coverage,smaller 11988->9051
+u_000015_01,r1,9168,4539,,weak_table_coverage;missing_media_signal,kept r1 gaps 0 vs 2; r3 table coverage lower; r3 chunking lower; r3 media/icon lower
+u_000016_01,r1,6062,4312,,weak_table_coverage,kept r1 gaps 0 vs 1; r3 chunking lower
+u_000017_01,r1,6604,5461,,,kept r1 gaps 0 vs 0; r3 chunking lower; r3 media/icon lower
+u_000018_01,r1,6505,8170,missing_media_signal,weak_table_coverage,kept r1 gaps 1 vs 1; r3 not materially smaller; r3 table coverage lower
+u_000019_01,r1,6832,5995,weak_table_coverage,,kept r1 gaps 1 vs 0; r3 chunking lower
+u_000020_01,r1,6673,6633,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 not materially smaller
+u_000021_01,r3,9007,7556,,,smaller 9007->7556
+u_000022_01,r3,8290,6473,,,smaller 8290->6473
+u_000023_01,r1,6588,5012,,missing_media_signal,kept r1 gaps 0 vs 1; r3 media/icon lower
+u_000024_01,r1,7084,5243,,,kept r1 gaps 0 vs 0; r3 chunking lower
+u_000025_01,r3,3973,3480,dense_text_layout,dense_text_layout,smaller 3973->3480
+u_000026_01,r1,6451,4203,,,kept r1 gaps 0 vs 0; r3 table coverage lower; r3 chunking lower
+u_000027_01,r1,5001,4524,,,kept r1 gaps 0 vs 0; r3 chunking lower
+u_000028_01,r1,5298,5617,,,kept r1 gaps 0 vs 0; r3 not materially smaller
+u_000029_01,r1,8179,5368,,,kept r1 gaps 0 vs 0; r3 media/icon lower
+u_000030_01,r1,7351,7116,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 not materially smaller; r3 chunking lower
+u_000031_01,r1,5046,3389,,weak_table_coverage;missing_media_signal,kept r1 gaps 0 vs 2; r3 media/icon lower
+u_000032_01,r1,5664,4303,,,kept r1 gaps 0 vs 0; r3 chunking lower
+u_000033_01,r1,8101,5331,,,kept r1 gaps 0 vs 0; r3 media/icon lower
+u_000034_01,r1,8815,10964,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 not materially smaller; r3 chunking lower
+u_000035_01,r3,4160,3780,dense_text_layout,dense_text_layout,smaller 4160->3780
+u_000036_01,r1,8104,9909,,,kept r1 gaps 0 vs 0; r3 not materially smaller; r3 table coverage lower
+u_000037_01,r1,11128,5185,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 chunking lower
+u_000038_01,r3,6371,5797,,,smaller 6371->5797
+u_000039_01,r1,6962,7111,missing_media_signal,missing_media_signal,kept r1 gaps 1 vs 1; r3 not materially smaller
+u_000040_01,r1,9757,7475,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 table coverage lower; r3 chunking lower
+u_000041_01,r1,6551,5674,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 media/icon lower
+u_000042_01,r1,5994,5285,,,kept r1 gaps 0 vs 0; r3 chunking lower
+u_000043_01,r1,6928,4720,weak_table_coverage,weak_table_coverage,kept r1 gaps 1 vs 1; r3 chunking lower; r3 media/icon lower
+u_000044_01,r3,5412,4014,,,smaller 5412->4014
+u_000045_01,r3,3971,3248,,,smaller 3971->3248
+u_000046_01,r1,4197,2771,weak_table_coverage,weak_table_coverage;dense_text_layout,kept r1 gaps 1 vs 2; r3 chunking lower; r3 media/icon lower
+u_000047_01,r1,5275,5094,,,kept r1 gaps 0 vs 0; r3 not materially smaller
+u_000048_01,r1,4226,3741,,,kept r1 gaps 0 vs 0; r3 chunking lower
+u_000049_01,r1,3374,3444,,,kept r1 gaps 0 vs 0; r3 not materially smaller
+u_000050_01,r3,5005,4335,,,smaller 5005->4335
