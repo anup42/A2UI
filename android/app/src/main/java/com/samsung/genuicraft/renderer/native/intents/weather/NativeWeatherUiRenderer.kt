@@ -366,13 +366,6 @@ internal object NativeWeatherUiRenderer {
         } else {
             MaterialTheme.colorScheme.outline.copy(alpha = 0.14f)
         }
-        val iconContainer = if (dark) {
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-        } else {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.78f)
-        }
-        val iconBorder = MaterialTheme.colorScheme.primary.copy(alpha = if (dark) 0.28f else 0.20f)
-
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -404,17 +397,10 @@ internal object NativeWeatherUiRenderer {
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
-                            .clip(RoundedCornerShape(17.dp))
-                            .background(iconContainer)
-                            .border(
-                                GenUiTokens.BorderMd,
-                                iconBorder,
-                                RoundedCornerShape(17.dp)
-                            ),
+                            .size(44.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        weatherConditionIcon(row.condition, 30.dp)
+                        weatherConditionIcon(row.condition, 34.dp)
                     }
                     Column(
                         modifier = Modifier.weight(1f),
@@ -993,7 +979,6 @@ internal object NativeWeatherUiRenderer {
         val titleColor = if (dark) Color.White.copy(alpha = 0.92f) else MaterialTheme.colorScheme.onSurface
         val labelColor = if (dark) Color.White else MaterialTheme.colorScheme.onSurface
         val secondaryTextColor = if (dark) Color.White.copy(alpha = 0.72f) else MaterialTheme.colorScheme.onSurfaceVariant
-        val iconBackground = if (dark) Color.White.copy(alpha = 0.18f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
         val lineColor = if (dark) Color.White.copy(alpha = 0.25f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.20f)
         Column(
             modifier = modifier
@@ -1043,14 +1028,7 @@ internal object NativeWeatherUiRenderer {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                    .background(iconBackground)
-                                    .padding(5.dp)
-                            ) {
-                                weatherConditionIcon(row.condition, 22.dp)
-                            }
+                            weatherConditionIcon(row.condition, 26.dp)
                             MarkdownText(
                                 text = compactWeatherChartLabel(periodText),
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
