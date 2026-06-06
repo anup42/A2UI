@@ -244,6 +244,7 @@ internal data class FlatTableModel(
     val isFlight: Boolean,
     val domain: String,
     val preferredPresentation: String,
+    val title: String?,
     val shape: FlatTableShape,
     val cardMappingStatus: String,
     val renderMode: FlatTableRenderMode
@@ -3154,6 +3155,7 @@ internal fun extractFlatTableModel(
             isFlight = isFlight,
             domain = domain,
             preferredPresentation = preferredPresentation,
+            title = containerProps["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() },
             shape = FlatTableShape.GENERIC_GRID,
             cardMappingStatus = "not_applicable",
             renderMode = FlatTableRenderMode.TABLE
@@ -3198,6 +3200,7 @@ internal fun extractFlatTableModel(
         isFlight = isFlight,
         domain = domain,
         preferredPresentation = preferredPresentation,
+        title = containerProps["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() },
         shape = shape,
         cardMappingStatus = cardMappingStatus,
         renderMode = renderMode
@@ -3718,6 +3721,7 @@ private fun RenderTableLayout(
         RenderKeyValueTablePanel(
             headers = tableModel.headers,
             rows = tableRows,
+            title = tableModel.title,
             modifier = tableModifier
         )
         return
@@ -7094,9 +7098,11 @@ private fun RenderCalculationBreakdownTable(
 private fun RenderKeyValueTablePanel(
     headers: List<String>,
     rows: List<List<String>>,
+    title: String? = null,
     modifier: Modifier = Modifier
 ) {
     if (rows.isEmpty()) return
+    val panelTitle = title?.trim()?.takeIf { it.isNotBlank() }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -7113,6 +7119,16 @@ private fun RenderKeyValueTablePanel(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            if (panelTitle != null) {
+                Text(
+                    text = parseBoldMarkdown(panelTitle),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp, vertical = 2.dp)
+                        .semantics { heading() }
+                )
+            }
             rows.forEachIndexed { index, row ->
                 val label = row.getOrNull(0).orEmpty().trim().ifBlank { tableHeaderLabel(headers, 0) }
                 val value = row.getOrNull(1).orEmpty().trim()
@@ -9495,6 +9511,7 @@ private fun RenderDirectTable(
         RenderKeyValueTablePanel(
             headers = headers,
             rows = table.rows,
+            title = props["title"]?.toString(),
             modifier = tableModifier
         )
         return
@@ -9640,6 +9657,7 @@ private fun RenderDirectTable(
         AdaptiveTablePresentation.KEY_VALUE_PANEL -> RenderKeyValueTablePanel(
             headers = headers,
             rows = table.rows,
+            title = props["title"]?.toString(),
             modifier = tableModifier
         )
         AdaptiveTablePresentation.TIMELINE_CARDS -> RenderTimelineTableCards(
