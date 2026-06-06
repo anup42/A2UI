@@ -427,6 +427,8 @@ if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]] && ! grep -q -- "--speculative-co
     echo "Install a newer vLLM nightly/source build or set GEMMA4_REQUIRE_SPECULATIVE=0 GEMMA4_SPECULATIVE_MODE=off." >&2
     exit 1
   fi
+  echo "Disabling speculative decoding for this launch because GEMMA4_REQUIRE_SPECULATIVE=0." >&2
+  GEMMA4_SPECULATIVE_MODE="off"
 fi
 VLLM_HAS_REASONING_PARSER=0
 if grep -q -- "--reasoning-parser" <<<"${HELP_TEXT}"; then
