@@ -28,6 +28,10 @@ CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
 CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
 CUDA_CRT_PACKAGE="${CUDA_CRT_PACKAGE:-nvidia-cuda-crt==13.0.88}"
 CUDA_CCCL_PACKAGE="${CUDA_CCCL_PACKAGE:-nvidia-cuda-cccl==13.0.85}"
+GEMMA4_OFFLINE_TARGET_PLATFORM="${GEMMA4_OFFLINE_TARGET_PLATFORM:-manylinux2014_x86_64}"
+GEMMA4_OFFLINE_TARGET_PYTHON_VERSION="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:-311}"
+GEMMA4_OFFLINE_TARGET_IMPLEMENTATION="${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION:-cp}"
+GEMMA4_OFFLINE_TARGET_ABI="${GEMMA4_OFFLINE_TARGET_ABI:-cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}}"
 
 mkdir -p "${WHEELHOUSE}"
 
@@ -108,6 +112,32 @@ download_required_binary_wheel() {
   return 1
 }
 
+download_required_target_binary_wheel() {
+  local normalized="$1"
+  shift
+  rm -f "${WHEELHOUSE}/${normalized}"-*.whl "${WHEELHOUSE}/${normalized//-/_}"-*.whl
+  local spec
+  for spec in "$@"; do
+    echo "Downloading required target wheel: ${spec}"
+    echo "  platform=${GEMMA4_OFFLINE_TARGET_PLATFORM} python=${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION} abi=${GEMMA4_OFFLINE_TARGET_ABI}"
+    python -m pip download "${PIP_SSL_ARGS[@]}" \
+      --dest "${WHEELHOUSE}" \
+      --only-binary=:all: \
+      --no-deps \
+      --platform "${GEMMA4_OFFLINE_TARGET_PLATFORM}" \
+      --python-version "${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}" \
+      --implementation "${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION}" \
+      --abi "${GEMMA4_OFFLINE_TARGET_ABI}" \
+      "${spec}" || true
+    if wheelhouse_has_package "${normalized}" >/dev/null; then
+      echo "Downloaded target wheel for ${normalized}: $(wheelhouse_has_package "${normalized}")"
+      return 0
+    fi
+  done
+  echo "Missing required target wheel after retries: ${normalized}" >&2
+  return 1
+}
+
 python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip wheel setuptools
 
 download_wheels \
@@ -121,7 +151,7 @@ download_wheels \
   "MarkupSafe>=2.0" \
   "uv>=0.5.0"
 
-download_required_binary_wheel "markupsafe" "MarkupSafe>=2.0" "markupsafe>=2.0"
+download_required_target_binary_wheel "markupsafe" "MarkupSafe>=2.0" "markupsafe>=2.0"
 
 download_wheels \
   --extra-index-url "${PYTORCH_INDEX_URL}" \
@@ -196,7 +226,9 @@ download_wheels \
   "bitsandbytes>=0.45"
 
 export BUNDLE_DIR WHEELHOUSE
+export GEMMA4_OFFLINE_TARGET_PLATFORM GEMMA4_OFFLINE_TARGET_PYTHON_VERSION GEMMA4_OFFLINE_TARGET_ABI
 python - <<'PY'
+import os
 import sys
 from pathlib import Path
 
@@ -215,6 +247,25 @@ missing = [
     for name, normalized in required.items()
     if not any(wheel.startswith(f"{normalized}-") for wheel in wheel_names)
 ]
+target_python = os.environ["GEMMA4_OFFLINE_TARGET_PYTHON_VERSION"]
+target_abi = os.environ["GEMMA4_OFFLINE_TARGET_ABI"].lower()
+target_platform = os.environ["GEMMA4_OFFLINE_TARGET_PLATFORM"].lower().replace("_", "-")
+markupsafe_wheels = [wheel for wheel in wheel_names if wheel.startswith("markupsafe-")]
+compatible_markupsafe = [
+    wheel
+    for wheel in markupsafe_wheels
+    if (
+        f"-cp{target_python}-" in wheel
+        and f"-{target_abi}-" in wheel
+        and target_platform in wheel
+    )
+]
+if markupsafe_wheels and not compatible_markupsafe:
+    print("Found MarkupSafe wheels, but none match target Python/platform:", file=sys.stderr)
+    print(f"  target python=cp{target_python} abi={target_abi} platform={target_platform}", file=sys.stderr)
+    for wheel in markupsafe_wheels:
+        print(f"  incompatible: {wheel}", file=sys.stderr)
+    missing.append("MarkupSafe-compatible-target-wheel")
 if missing:
     print(f"Missing required offline wheels: {', '.join(missing)}", file=sys.stderr)
     print("Available wheels:", file=sys.stderr)
