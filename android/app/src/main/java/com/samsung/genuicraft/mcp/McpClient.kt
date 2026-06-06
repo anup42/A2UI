@@ -90,6 +90,8 @@ object McpClient {
         val explicitEnd = normalizeIsoDate(entities["end_date"])
         val (startDate, endDate) = normalizeDateRange(explicitStart, explicitEnd, singleDate)
         val forecastDays = parseIntInRange(entities["days"], min = 1, max = 16)
+            ?: extractWeatherForecastDays(queryText)
+        val effectiveForecastDays = forecastDays ?: 7
         val temperatureUnit = normalizeTemperatureUnit(entities["temperature_unit"])
         val windSpeedUnit = normalizeWindSpeedUnit(entities["wind_speed_unit"])
         val precipitationUnit = normalizePrecipitationUnit(entities["precipitation_unit"])
@@ -101,7 +103,7 @@ object McpClient {
                 "language" to language,
                 "start_date" to startDate,
                 "end_date" to endDate,
-                "days" to (forecastDays ?: 7).toString(),
+                "days" to effectiveForecastDays.toString(),
                 "temperature_unit" to temperatureUnit,
                 "wind_speed_unit" to windSpeedUnit,
                 "precipitation_unit" to precipitationUnit
@@ -143,7 +145,7 @@ object McpClient {
             params += "start_date=$startDate"
             params += "end_date=$endDate"
         } else {
-            params += "forecast_days=${forecastDays ?: 7}"
+            params += "forecast_days=$effectiveForecastDays"
         }
         if (!temperatureUnit.isNullOrBlank()) {
             params += "temperature_unit=$temperatureUnit"
@@ -172,7 +174,7 @@ object McpClient {
             add("hourly_units", weatherJson.getAsJsonObject("hourly_units"))
             addProperty("requested_start_date", startDate ?: "")
             addProperty("requested_end_date", endDate ?: "")
-            addProperty("requested_forecast_days", forecastDays ?: 7)
+            addProperty("requested_forecast_days", effectiveForecastDays)
             addProperty("requested_temperature_unit", temperatureUnit ?: "")
             addProperty("requested_wind_speed_unit", windSpeedUnit ?: "")
             addProperty("requested_precipitation_unit", precipitationUnit ?: "")
@@ -1028,6 +1030,31 @@ object McpClient {
         return value.coerceIn(min, max)
     }
 
+    private fun extractWeatherForecastDays(queryText: String): Int? {
+        val query = queryText.lowercase(Locale.US)
+        val explicit = listOf(
+            Regex("""\bnext\s+(\d{1,2})\s+(?:days?|periods?)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(?:for|over|across)\s+(?:the\s+)?(?:next\s+)?(\d{1,2})\s+(?:days?|periods?)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(\d{1,2})\s*[- ]?day\s+(?:weather|forecast|outlook)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(\d{1,2})\s*[- ]?weeks?\s+(?:weather|forecast|outlook)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(?:weather|forecast|outlook)\s+(?:for|over)\s+(\d{1,2})\s+days?\b""", RegexOption.IGNORE_CASE)
+        ).firstNotNullOfOrNull { regex ->
+            regex.find(query)?.groupValues?.drop(1)?.firstNotNullOfOrNull { value ->
+                value.toIntOrNull()?.let { parsed ->
+                    if (regex.pattern.contains("weeks?")) parsed * 7 else parsed
+                }
+            }
+        }
+        if (explicit != null) {
+            return explicit.coerceIn(1, 16)
+        }
+        return when {
+            Regex("""\b(?:next\s+)?two\s*[- ]?weeks?\b""", RegexOption.IGNORE_CASE).containsMatchIn(query) -> 14
+            Regex("""\b(?:this|next)\s+week\b""", RegexOption.IGNORE_CASE).containsMatchIn(query) -> 7
+            else -> null
+        }
+    }
+
     private fun normalizeCurrencyCode(raw: String?, fallback: String): String {
         val token = raw
             ?.trim()
@@ -1240,9 +1267,21 @@ object McpClient {
     }
 
     private fun extractLocationFallback(query: String): String? {
-        val match = Regex("(?:in|for|at|near|around)\\s+([A-Z][a-zA-Z\\s,]+)", RegexOption.IGNORE_CASE)
-            .find(query)
-        return match?.groupValues?.get(1)?.trim()?.takeIf { it.length in 2..60 }
+        val normalized = decodeQueryToken(query).replace(Regex("""\s+"""), " ").trim()
+        val patterns = listOf(
+            Regex("""\b(?:in|at|near|around)\s+(.+?)(?:\s+(?:for|over|across)\s+(?:the\s+)?(?:next\s+)?\d{1,2}\s+(?:days?|periods?)|\s+next\s+\d{1,2}\s+(?:days?|periods?)|\s+(?:today|tomorrow|this week|next week|now)\b|$)""", RegexOption.IGNORE_CASE),
+            Regex("""\bfor\s+(.+?)(?:\s+(?:for|over|across)\s+(?:the\s+)?(?:next\s+)?\d{1,2}\s+(?:days?|periods?)|\s+next\s+\d{1,2}\s+(?:days?|periods?)|\s+(?:today|tomorrow|this week|next week|now)\b|$)""", RegexOption.IGNORE_CASE)
+        )
+        return patterns
+            .asSequence()
+            .mapNotNull { pattern -> pattern.find(normalized)?.groupValues?.getOrNull(1) }
+            .map { value ->
+                value
+                    .replace(Regex("""\b(?:weather|forecast|temperature|climate)\b""", RegexOption.IGNORE_CASE), "")
+                    .replace(Regex("""\b(?:next|for|over|across)\b.*$""", RegexOption.IGNORE_CASE), "")
+                    .trim(' ', ',', '.', ':', ';', '-')
+            }
+            .firstOrNull { it.length in 2..60 }
     }
 
     private fun extractFlightRouteFallback(query: String): Pair<String, String>? {

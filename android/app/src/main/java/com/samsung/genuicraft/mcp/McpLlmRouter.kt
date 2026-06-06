@@ -571,6 +571,10 @@ object McpLlmRouter {
         val lower = decodeQueryToken(query).lowercase(Locale.US)
         val entities = linkedMapOf<String, String>()
         when (domain) {
+            McpSettings.Domain.WEATHER -> {
+                extractWeatherForecastDays(lower)?.let { entities["days"] = it.toString() }
+            }
+
             McpSettings.Domain.FLIGHTS -> {
                 val route = Regex("""\bfrom\s+(.+?)\s+to\s+(.+?)(?:\s+\b(on|for|in|at)\b|$)""", RegexOption.IGNORE_CASE)
                     .find(lower)
@@ -689,6 +693,30 @@ object McpLlmRouter {
             ?.let { entities["country"] = it }
 
         return entities
+    }
+
+    private fun extractWeatherForecastDays(query: String): Int? {
+        val explicit = listOf(
+            Regex("""\bnext\s+(\d{1,2})\s+(?:days?|periods?)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(?:for|over|across)\s+(?:the\s+)?(?:next\s+)?(\d{1,2})\s+(?:days?|periods?)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(\d{1,2})\s*[- ]?day\s+(?:weather|forecast|outlook)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(\d{1,2})\s*[- ]?weeks?\s+(?:weather|forecast|outlook)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(weather|forecast|outlook)\s+(?:for|over)\s+(\d{1,2})\s+days?\b""", RegexOption.IGNORE_CASE)
+        ).firstNotNullOfOrNull { regex ->
+            regex.find(query)?.groupValues?.drop(1)?.firstNotNullOfOrNull { value ->
+                value.toIntOrNull()?.let { parsed ->
+                    if (regex.pattern.contains("weeks?")) parsed * 7 else parsed
+                }
+            }
+        }
+        if (explicit != null) {
+            return explicit.coerceIn(1, 16)
+        }
+        return when {
+            Regex("""\b(?:next\s+)?two\s*[- ]?weeks?\b""", RegexOption.IGNORE_CASE).containsMatchIn(query) -> 14
+            Regex("""\b(?:this|next)\s+week\b""", RegexOption.IGNORE_CASE).containsMatchIn(query) -> 7
+            else -> null
+        }
     }
 
     private fun normalizeAirportLikeValue(raw: String): String {

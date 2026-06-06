@@ -276,7 +276,11 @@ Rules:
         sb.appendLine("| Day | Date | Condition | Temp | High | Low | Feels Like | Rain Chance | Rain | Wind | Gusts | Humidity | UV | Best Window | Morning | Afternoon | Evening | Night | What to wear |")
         sb.appendLine("|-----|------|-----------|------|------|-----|------------|-------------|------|------|-------|----------|----|-------------|---------|-----------|---------|-------|--------------|")
 
-        val rowCount = listOfNotNull(dates?.size(), maxTemps?.size(), minTemps?.size()).minOrNull()?.coerceAtMost(7) ?: 0
+        val requestedForecastDays = data.safeInt("requested_forecast_days")?.coerceIn(1, 16) ?: 16
+        val rowCount = listOfNotNull(dates?.size(), maxTemps?.size(), minTemps?.size())
+            .minOrNull()
+            ?.coerceAtMost(requestedForecastDays)
+            ?: 0
         for (i in 0 until rowCount) {
             val date = dates?.get(i)?.safeString().orEmpty()
             val label = if (i == 0) "Today" else weatherDayLabel(date)

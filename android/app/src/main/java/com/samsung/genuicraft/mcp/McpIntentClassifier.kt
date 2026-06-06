@@ -117,14 +117,18 @@ object McpIntentClassifier {
         when (domain) {
             McpSettings.Domain.WEATHER -> {
                 // Try to extract city name: "weather in <city>"
-                val cityMatch = Regex("(?:weather|forecast|temperature|climate)\\s+(?:in|for|at|of)\\s+(.+?)(?:\\s+(?:today|tomorrow|this week|next week|now))?$", RegexOption.IGNORE_CASE)
+                val cityMatch = Regex("(?:weather|forecast|temperature|climate)\\s+(?:in|for|at|of)\\s+(.+?)(?:\\s+(?:for|over|across)\\s+(?:the\\s+)?(?:next\\s+)?\\d{1,2}\\s+days?|\\s+next\\s+\\d{1,2}\\s+days?|\\s+(?:today|tomorrow|this week|next week|now))?$", RegexOption.IGNORE_CASE)
                     .find(query)
                 if (cityMatch != null) {
                     entities["location"] = cityMatch.groupValues[1].trim()
                 }
+                extractWeatherForecastDays(query)?.let { entities["days"] = it.toString() }
                 val dateMatch = Regex("""\b(?:on|for)\s+([a-z0-9 ,/-]+)$""", RegexOption.IGNORE_CASE).find(query)
-                if (dateMatch != null) {
-                    entities["date"] = dateMatch.groupValues[1].trim()
+                if (dateMatch != null && "days" !in entities) {
+                    val dateValue = dateMatch.groupValues[1].trim()
+                    if (!dateValue.contains("day", ignoreCase = true) && !dateValue.contains("week", ignoreCase = true)) {
+                        entities["date"] = dateValue
+                    }
                 }
             }
             McpSettings.Domain.FLIGHTS -> {
@@ -201,5 +205,26 @@ object McpIntentClassifier {
         }
 
         return entities
+    }
+
+    private fun extractWeatherForecastDays(query: String): Int? {
+        val explicit = listOf(
+            Regex("""\bnext\s+(\d{1,2})\s+(?:days?|periods?)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(?:for|over|across)\s+(?:the\s+)?(?:next\s+)?(\d{1,2})\s+(?:days?|periods?)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(\d{1,2})\s*[- ]?day\s+(?:weather|forecast|outlook)\b""", RegexOption.IGNORE_CASE),
+            Regex("""\b(\d{1,2})\s*[- ]?weeks?\s+(?:weather|forecast|outlook)\b""", RegexOption.IGNORE_CASE)
+        ).firstNotNullOfOrNull { regex ->
+            regex.find(query)?.groupValues?.getOrNull(1)?.toIntOrNull()?.let { parsed ->
+                if (regex.pattern.contains("weeks?")) parsed * 7 else parsed
+            }
+        }
+        if (explicit != null) {
+            return explicit.coerceIn(1, 16)
+        }
+        return when {
+            Regex("""\b(?:next\s+)?two\s*[- ]?weeks?\b""", RegexOption.IGNORE_CASE).containsMatchIn(query) -> 14
+            Regex("""\b(?:this|next)\s+week\b""", RegexOption.IGNORE_CASE).containsMatchIn(query) -> 7
+            else -> null
+        }
     }
 }

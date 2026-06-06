@@ -861,7 +861,7 @@ internal object NativeWeatherUiRenderer {
         modifier: Modifier = Modifier,
         dark: Boolean = true
     ) {
-        val safePoints = remember(points) { points.take(7) }
+        val safePoints = remember(points) { points.take(16) }
         val minValue = remember(safePoints) {
             safePoints.flatMap { point -> listOfNotNull(point.value, point.lowValue) }.minOrNull() ?: 0f
         }

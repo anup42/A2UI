@@ -16,10 +16,12 @@ Rules:
    - `origin` and `destination` should be city or airport/IATA-like values.
    - `type` can be `round_trip`, `one_way`, or `multi_city` when clear.
    - `travel_class` can be `economy`, `premium_economy`, `business`, or `first`.
-6. For news:
+6. For weather:
+   - If the query says "next 15 days", "for 10 days", "2-week forecast", or similar, set `days` to the requested count (max 16).
+7. For news:
    - `topic` and `location` can both be present.
    - If query is location-only news, `topic` may be null.
-7. Include only allowed keys with values where possible.
+8. Include only allowed keys with values where possible.
 
 Return valid JSON only:
 {

@@ -37,6 +37,7 @@ Instructions:
 1. Read the query carefully.
 2. Pick `mcp_domain`.
 3. Fill best-effort `entities` from the query.
+   - For weather duration phrases like "next 15 days", "for 10 days", or "2-week forecast", set `entities.days` to the requested count (max 16).
 4. If `mcp_domain=none`, return full rich answer in `full_response`.
 5. If `mcp_domain!=none`, return short contextual `intro` and keep `full_response` null.
 

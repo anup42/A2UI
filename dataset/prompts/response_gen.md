@@ -67,7 +67,7 @@ Structured Details rules (critical):
   - Start with a topic-specific weather heading.
   - Include one current-conditions block before any forecast table.
   - The current-conditions block should stay compact and app-like: title, inline media, 1-3 short supporting lines, then the forecast/table below.
-  - Include exactly one compact forecast table for the next 3-7 periods/days when forecast data is available.
+  - Include exactly one compact forecast table. If the user asks for a specific duration such as "next 15 days", include that many periods/days, up to 16. If no duration is requested, use the next 3-7 periods/days when forecast data is available.
   - Never make the main answer a "Forecast fields needed", "Weather fields needed", requirements, or data-schema checklist.
   - If exact live weather data is unavailable in the current model call, say that in one short line and still provide a best-available forecast-style table with conservative wording. Keep the table renderable, using columns such as `Day`, `Condition`, `Temp`, `Rain Chance`, `Wind`, `Humidity`, `UV`, and `What to wear`.
   - For rain or wind queries, the forecast table must include `Rain Chance` and `Wind` columns, even if values are approximate or qualitative.
