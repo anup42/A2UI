@@ -148,7 +148,7 @@
       backdrop-filter: blur(12px);
     }
 
-    .weather-mark svg {
+    .weather-mark img {
       width: 64px;
       height: 64px;
     }
@@ -234,7 +234,7 @@
       border: 1px solid rgba(14, 165, 233, .22);
     }
 
-    .mini-icon svg { width: 30px; height: 30px; }
+    .mini-icon img { width: 30px; height: 30px; }
 
     .day-title b {
       display: block;
@@ -377,7 +377,7 @@
       background: rgba(15,159,110,.16);
     }
 
-    .advice-icon svg { width: 20px; height: 20px; }
+    .advice-icon img { width: 20px; height: 20px; }
 
     .advice b {
       display: block;
@@ -431,7 +431,7 @@
       .temp { font-size: 58px; }
       .hero-main { grid-template-columns: minmax(0, 1fr) 76px; }
       .weather-mark { height: 76px; border-radius: 24px; }
-      .weather-mark svg { width: 54px; height: 54px; }
+      .weather-mark img { width: 54px; height: 54px; }
       .day-head { grid-template-columns: 40px minmax(0, 1fr); }
       .range { grid-column: 2; text-align: left; }
       .day-metrics { grid-template-columns: 1fr 1fr; }
@@ -458,11 +458,7 @@
             <p class="summary">Cloudy, humid, and likely to see showers or thunderstorms later.</p>
           </div>
           <div class="weather-mark" aria-hidden="true">
-            <svg viewBox="0 0 96 96" fill="none">
-              <circle cx="31" cy="32" r="17" fill="#FFD166"/>
-              <path d="M20 58c0-10 8-18 18-18 6 0 11 3 14 7 3-2 7-4 12-4 11 0 20 9 20 20s-9 20-20 20H27c-10 0-18-8-18-18 0-6 3-11 7-15 1-1 2-2 4-2z" fill="white" opacity=".94"/>
-              <path d="M49 74c-2 8-4 13-6 17M65 74c-2 8-4 13-6 17M80 72c-2 7-4 12-6 16" stroke="#D7F0FF" stroke-width="5" stroke-linecap="round"/>
-            </svg>
+            <img src="weather_assets/hero-showers.svg" alt="">
           </div>
         </div>
         <div class="hero-metrics">
@@ -481,7 +477,7 @@
         <article class="day-card">
           <div class="day-head">
             <div class="mini-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none"><circle cx="17" cy="17" r="9" fill="#FFD166"/><path d="M11 30c0-6 5-11 11-11 4 0 7 2 9 5 2-1 4-2 7-2 6 0 11 5 11 11s-5 11-11 11H16c-6 0-11-5-11-11 0-4 2-7 5-9" fill="#fff"/><path d="M23 40l-3 7M34 40l-3 7" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/></svg>
+              <img src="weather_assets/day-showers.svg" alt="">
             </div>
             <div class="day-title">
               <b>Saturday</b>
@@ -506,7 +502,7 @@
           </div>
           <div class="advice">
             <div class="advice-icon" aria-hidden="true">
-              <svg viewBox="0 0 32 32" fill="none"><path d="M16 5l8 4v5c0 6-3 11-8 14-5-3-8-8-8-14V9l8-4z" fill="#10B981"/><path d="M11 16l4 4 7-8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <img src="weather_assets/advice-shield-check.svg" alt="">
             </div>
             <div><b>What to wear</b><p>Light cotton, quick-dry shoes or sandals, and a compact umbrella. Avoid heavy denim.</p></div>
           </div>
@@ -520,7 +516,7 @@
         <article class="day-card">
           <div class="day-head">
             <div class="mini-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none"><path d="M9 27c0-7 6-13 13-13 5 0 9 3 11 7 2-1 4-2 7-2 7 0 13 6 13 13s-6 13-13 13H17c-7 0-13-6-13-13 0-3 1-6 3-8" fill="#fff"/><path d="M18 39l-3 7M29 39l-3 7M40 39l-3 7" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/></svg>
+              <img src="weather_assets/rain.svg" alt="">
             </div>
             <div class="day-title">
               <b>Sunday</b>
@@ -545,7 +541,7 @@
           </div>
           <div class="advice">
             <div class="advice-icon" aria-hidden="true">
-              <svg viewBox="0 0 32 32" fill="none"><path d="M7 9h18l-3 20H10L7 9z" fill="#10B981"/><path d="M10 9c1-4 4-6 6-6s5 2 6 6" stroke="white" stroke-width="2.4" stroke-linecap="round"/></svg>
+              <img src="weather_assets/advice-bag.svg" alt="">
             </div>
             <div><b>What to wear</b><p>Short sleeves with light trousers. Keep a thin rain jacket for evening travel.</p></div>
           </div>
@@ -554,7 +550,7 @@
         <article class="day-card">
           <div class="day-head">
             <div class="mini-icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="18" r="11" fill="#FFD166"/><path d="M12 31c0-6 5-11 11-11 4 0 7 2 9 5 2-1 4-2 7-2 6 0 11 5 11 11s-5 11-11 11H17c-6 0-11-5-11-11 0-3 2-6 4-8" fill="#fff"/></svg>
+              <img src="weather_assets/partly-cloudy.svg" alt="">
             </div>
             <div class="day-title">
               <b>Monday</b>
@@ -569,7 +565,7 @@
           </div>
           <div class="advice">
             <div class="advice-icon" aria-hidden="true">
-              <svg viewBox="0 0 32 32" fill="none"><path d="M6 12l10-6 10 6-4 5v12H10V17l-4-5z" fill="#10B981"/><path d="M12 12c2 2 6 2 8 0" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <img src="weather_assets/advice-shirt.svg" alt="">
             </div>
             <div><b>What to wear</b><p>Cotton top, jeans or chinos, comfortable sneakers, and a compact umbrella.</p></div>
           </div>

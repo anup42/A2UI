@@ -1,0 +1,5 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <title>Partly cloudy</title>
+  <circle cx="18" cy="18" r="11" fill="#FFD166"/>
+  <path d="M12 31c0-6 5-11 11-11 4 0 7 2 9 5 2-1 4-2 7-2 6 0 11 5 11 11s-5 11-11 11H17c-6 0-11-5-11-11 0-3 2-6 4-8" fill="#fff"/>
+</svg>

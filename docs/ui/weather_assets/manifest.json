@@ -1,0 +1,23 @@
+﻿{
+  "name": "weather_day_cards_assets",
+  "description": "Reusable weather SVG assets matching docs/ui/weather_day_cards.html visual style.",
+  "version": "1.0.0",
+  "assets": [
+    { "id": "hero-showers", "file": "hero-showers.svg", "role": "hero", "tags": ["cloud", "showers", "rain"] },
+    { "id": "day-showers", "file": "day-showers.svg", "role": "condition", "tags": ["day", "cloud", "rain"] },
+    { "id": "rain", "file": "rain.svg", "role": "condition", "tags": ["rain", "showers"] },
+    { "id": "partly-cloudy", "file": "partly-cloudy.svg", "role": "condition", "tags": ["sun", "cloud"] },
+    { "id": "sunny", "file": "sunny.svg", "role": "condition", "tags": ["sun", "clear"] },
+    { "id": "cloudy", "file": "cloudy.svg", "role": "condition", "tags": ["cloud", "overcast"] },
+    { "id": "thunderstorm", "file": "thunderstorm.svg", "role": "condition", "tags": ["storm", "thunder"] },
+    { "id": "fog", "file": "fog.svg", "role": "condition", "tags": ["fog", "mist"] },
+    { "id": "wind", "file": "wind.svg", "role": "metric", "tags": ["wind", "gust"] },
+    { "id": "umbrella", "file": "umbrella.svg", "role": "advice", "tags": ["rain", "carry"] },
+    { "id": "humidity", "file": "humidity.svg", "role": "metric", "tags": ["humidity"] },
+    { "id": "uv-index", "file": "uv-index.svg", "role": "metric", "tags": ["uv", "sun"] },
+    { "id": "temperature", "file": "temperature.svg", "role": "metric", "tags": ["temperature", "high", "low"] },
+    { "id": "advice-shield-check", "file": "advice-shield-check.svg", "role": "advice", "tags": ["safe", "recommendation"] },
+    { "id": "advice-bag", "file": "advice-bag.svg", "role": "advice", "tags": ["bag", "essentials"] },
+    { "id": "advice-shirt", "file": "advice-shirt.svg", "role": "advice", "tags": ["clothing", "wear"] }
+  ]
+}

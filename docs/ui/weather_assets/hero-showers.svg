@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <title>Cloudy showers</title>
+  <circle cx="31" cy="32" r="17" fill="#FFD166"/>
+  <path d="M20 58c0-10 8-18 18-18 6 0 11 3 14 7 3-2 7-4 12-4 11 0 20 9 20 20s-9 20-20 20H27c-10 0-18-8-18-18 0-6 3-11 7-15 1-1 2-2 4-2z" fill="white" opacity=".94"/>
+  <path d="M49 74c-2 8-4 13-6 17M65 74c-2 8-4 13-6 17M80 72c-2 7-4 12-6 16" stroke="#D7F0FF" stroke-width="5" stroke-linecap="round"/>
+</svg>

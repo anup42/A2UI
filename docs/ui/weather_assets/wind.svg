@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <title>Wind</title>
+  <path d="M6 17h23c4 0 6-2 6-5s-2-5-5-5c-2 0-4 1-5 3" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M6 26h33c4 0 7 3 7 7s-3 7-7 7c-3 0-5-1-6-4" stroke="#2563EB" stroke-width="4" stroke-linecap="round"/>
+  <path d="M6 35h17" stroke="#14B8A6" stroke-width="4" stroke-linecap="round"/>
+</svg>

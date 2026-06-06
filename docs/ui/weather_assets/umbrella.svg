@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <title>Umbrella</title>
+  <path d="M7 25c2-10 10-17 22-17s20 7 22 17H7z" fill="#38BDF8"/>
+  <path d="M29 25v15c0 4 3 7 7 7s7-3 7-7" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M7 25c5-4 9-4 14 0 5-4 9-4 14 0 5-4 10-4 16 0" stroke="#E0F2FE" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,5 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <title>Temperature</title>
+  <path d="M20 28V9a8 8 0 0 1 16 0v19a13 13 0 1 1-16 0z" fill="#F97316"/>
+  <path d="M28 10v23" stroke="#FFE7D1" stroke-width="4" stroke-linecap="round"/>
+</svg>
