@@ -158,15 +158,20 @@ import sys
 from pathlib import Path
 
 wheelhouse = Path(__import__("os").environ["WHEELHOUSE"])
+wheel_names = [path.name.lower().replace("_", "-") for path in wheelhouse.glob("*.whl")]
 required = {
-    "pip": "pip-*.whl",
-    "wheel": "wheel-*.whl",
-    "setuptools": "setuptools-*.whl",
-    "jinja2": "jinja2-*.whl",
-    "MarkupSafe": "MarkupSafe-*.whl",
-    "uv": "uv-*.whl",
+    "pip": "pip",
+    "wheel": "wheel",
+    "setuptools": "setuptools",
+    "jinja2": "jinja2",
+    "MarkupSafe": "markupsafe",
+    "uv": "uv",
 }
-missing = [name for name, pattern in required.items() if not list(wheelhouse.glob(pattern))]
+missing = [
+    name
+    for name, normalized in required.items()
+    if not any(wheel.startswith(f"{normalized}-") for wheel in wheel_names)
+]
 if missing:
     print(f"Missing required offline wheels: {', '.join(missing)}", file=sys.stderr)
     sys.exit(1)
