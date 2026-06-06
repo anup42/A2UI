@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
@@ -10440,10 +10441,10 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
                     modifier = Modifier.weight(1f)
                 )
                 if (copyText.isNotBlank()) {
-                    Text(
-                        text = "Copy",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color.White,
+                    Icon(
+                        imageVector = Icons.Filled.ContentCopy,
+                        contentDescription = if (isConsole) "Copy shell output" else "Copy code",
+                        tint = Color.White,
                         modifier = Modifier
                             .clip(RoundedCornerShape(999.dp))
                             .background(Color.White.copy(alpha = 0.14f))
@@ -10452,9 +10453,9 @@ private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Mod
                             }
                             .semantics {
                                 role = Role.Button
-                                contentDescription = if (isConsole) "Copy shell output" else "Copy code"
                             }
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                            .padding(6.dp)
+                            .size(16.dp)
                     )
                 }
             }
