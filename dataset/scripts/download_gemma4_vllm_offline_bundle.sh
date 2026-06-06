@@ -292,12 +292,13 @@ download_wheels \
   "python-dateutil>=2.7" \
   "six>=1.5"
 
+download_wheels "jupyterlab==${JUPYTERLAB_VERSION}"
+
 "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
   "${PIP_TARGET_ARGS[@]}" \
   "${PIP_INDEX_ARGS[@]}" \
   --dest "${PYTHON_WHEELHOUSE}" \
   --no-deps \
-  "jupyterlab==${JUPYTERLAB_VERSION}" \
   "bitsandbytes==${BITSANDBYTES_VERSION}" \
   "truststore==${TRUSTSTORE_VERSION}"
 
@@ -321,6 +322,14 @@ required = {
     "kiwisolver": "kiwisolver",
     "pyparsing": "pyparsing",
     "python-dateutil": "python-dateutil",
+    "async-lru": "async-lru",
+    "jupyterlab": "jupyterlab",
+    "jupyter-server": "jupyter-server",
+    "jupyterlab-server": "jupyterlab-server",
+    "notebook-shim": "notebook-shim",
+    "ipykernel": "ipykernel",
+    "tornado": "tornado",
+    "traitlets": "traitlets",
 }
 missing = [
     name
