@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,6 +77,21 @@ internal object NativeWeatherUiRenderer {
         val secondary: String?
     )
 
+    private data class WeatherSurfaceStyle(
+        val gradient: List<Color>,
+        val border: Color
+    )
+
+    private data class WeatherHeroPalette(
+        val gradient: List<Color>,
+        val content: Color,
+        val mutedContent: Color,
+        val tileContainer: Color,
+        val tileBorder: Color,
+        val iconContainer: Color,
+        val iconBorder: Color
+    )
+
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun RenderWeatherRows(
@@ -96,6 +112,8 @@ internal object NativeWeatherUiRenderer {
         val todayCondition = sanitizeDisplayText(todayRow.condition.orEmpty())
         val todayDate = sanitizeDisplayText(todayRow.date.orEmpty()).ifBlank { null }
         val todayLabel = if (isTodayWeatherRow(todayRow)) "Today" else sanitizeDisplayText(todayRow.period)
+        val darkMode = isSystemInDarkTheme()
+        val weatherSurfaceStyle = weatherForecastSurfaceStyle(darkMode)
         val chartPoints = remember(orderedRows) {
             buildWeatherChartPoints(
                 rows = orderedRows,
@@ -114,18 +132,10 @@ internal object NativeWeatherUiRenderer {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(GenUiTokens.RadiusXl))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                Color(0xFFEFF9FF),
-                                Color(0xFFFFFAF0),
-                                Color(0xFFF7F4FF)
-                            )
-                        )
-                    )
+                    .background(Brush.linearGradient(weatherSurfaceStyle.gradient))
                     .border(
                         GenUiTokens.BorderMd,
-                        Color.White.copy(alpha = 0.72f),
+                        weatherSurfaceStyle.border,
                         RoundedCornerShape(GenUiTokens.RadiusXl)
                     )
             ) {
@@ -148,7 +158,7 @@ internal object NativeWeatherUiRenderer {
                     if (chartPoints.size >= 3) {
                         WeatherTrendChart(
                             points = chartPoints,
-                            dark = false,
+                            dark = darkMode,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(132.dp)
@@ -156,7 +166,7 @@ internal object NativeWeatherUiRenderer {
                     } else if (chartPoints.size >= 2) {
                         WeatherTrendChart(
                             points = chartPoints,
-                            dark = false,
+                            dark = darkMode,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(124.dp)
@@ -167,7 +177,7 @@ internal object NativeWeatherUiRenderer {
                             sanitizeDisplayText = sanitizeDisplayText,
                             weatherConditionIcon = weatherConditionIcon,
                             modifier = Modifier.fillMaxWidth(),
-                            dark = false
+                            dark = darkMode
                         )
                     }
 
@@ -197,7 +207,8 @@ internal object NativeWeatherUiRenderer {
                             row = row,
                             temperature = weatherTemperatureText(row),
                             sanitizeDisplayText = sanitizeDisplayText,
-                            weatherConditionIcon = weatherConditionIcon
+                            weatherConditionIcon = weatherConditionIcon,
+                            dark = darkMode
                         )
                     }
                 }
@@ -217,7 +228,7 @@ internal object NativeWeatherUiRenderer {
         weatherConditionIcon: @Composable (String?, Dp) -> Unit
     ) {
         val heroShape = RoundedCornerShape(GenUiTokens.RadiusXl)
-        val heroColors = remember(row.condition) { weatherHeroGradientColors(row.condition) }
+        val heroPalette = weatherHeroPalette(row.condition)
         val heroMetrics = remember(row, temperature) { buildHeroWeatherMetrics(row, temperature) }
         Card(
             modifier = Modifier
@@ -240,7 +251,7 @@ internal object NativeWeatherUiRenderer {
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(heroShape)
-                    .background(Brush.linearGradient(heroColors))
+                    .background(Brush.linearGradient(heroPalette.gradient))
                     .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 Column(
@@ -259,7 +270,7 @@ internal object NativeWeatherUiRenderer {
                             MarkdownText(
                                 text = listOfNotNull(label, date).filter { it.isNotBlank() }.joinToString(", "),
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = Color.White.copy(alpha = 0.76f),
+                                color = heroPalette.mutedContent,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -267,7 +278,7 @@ internal object NativeWeatherUiRenderer {
                                 MarkdownText(
                                     text = sanitizeDisplayText(temperature),
                                     style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-                                    color = Color.White,
+                                    color = heroPalette.content,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -276,7 +287,7 @@ internal object NativeWeatherUiRenderer {
                                 MarkdownText(
                                     text = condition,
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = Color.White.copy(alpha = 0.90f),
+                                    color = heroPalette.content.copy(alpha = 0.90f),
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -286,10 +297,10 @@ internal object NativeWeatherUiRenderer {
                             modifier = Modifier
                                 .size(92.dp)
                                 .clip(RoundedCornerShape(28.dp))
-                                .background(Color.White.copy(alpha = 0.18f))
+                                .background(heroPalette.iconContainer)
                                 .border(
                                     GenUiTokens.BorderMd,
-                                    Color.White.copy(alpha = 0.24f),
+                                    heroPalette.iconBorder,
                                     RoundedCornerShape(28.dp)
                                 ),
                             contentAlignment = Alignment.Center
@@ -307,6 +318,7 @@ internal object NativeWeatherUiRenderer {
                                 WeatherHeroMetricTile(
                                     label = sanitizeDisplayText(metricLabel),
                                     value = sanitizeDisplayText(metricValue),
+                                    palette = heroPalette,
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -321,6 +333,7 @@ internal object NativeWeatherUiRenderer {
     private fun WeatherHeroMetricTile(
         label: String,
         value: String,
+        palette: WeatherHeroPalette,
         modifier: Modifier = Modifier
     ) {
         if (label.isBlank() || value.isBlank()) {
@@ -329,10 +342,10 @@ internal object NativeWeatherUiRenderer {
         Column(
             modifier = modifier
                 .clip(RoundedCornerShape(17.dp))
-                .background(Color.White.copy(alpha = 0.16f))
+                .background(palette.tileContainer)
                 .border(
                     GenUiTokens.BorderMd,
-                    Color.White.copy(alpha = 0.20f),
+                    palette.tileBorder,
                     RoundedCornerShape(17.dp)
                 )
                 .padding(horizontal = 10.dp, vertical = 9.dp),
@@ -341,14 +354,14 @@ internal object NativeWeatherUiRenderer {
             MarkdownText(
                 text = label,
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                color = Color.White.copy(alpha = 0.72f),
+                color = palette.mutedContent,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             MarkdownText(
                 text = value,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
+                color = palette.content,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -361,7 +374,8 @@ internal object NativeWeatherUiRenderer {
         row: WeatherRow,
         temperature: String,
         sanitizeDisplayText: (String) -> String,
-        weatherConditionIcon: @Composable (String?, Dp) -> Unit
+        weatherConditionIcon: @Composable (String?, Dp) -> Unit,
+        dark: Boolean
     ) {
         val periodText = sanitizeDisplayText(row.period)
         val dateText = sanitizeDisplayText(row.date.orEmpty()).ifBlank { null }
@@ -375,6 +389,22 @@ internal object NativeWeatherUiRenderer {
                 .take(3)
         }
         val range = remember(temperature) { splitWeatherTemperatureRange(temperature) }
+        val cardContainer = if (dark) {
+            MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f)
+        } else {
+            MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+        }
+        val cardBorder = if (dark) {
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)
+        } else {
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.14f)
+        }
+        val iconContainer = if (dark) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        } else {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.78f)
+        }
+        val iconBorder = MaterialTheme.colorScheme.primary.copy(alpha = if (dark) 0.28f else 0.20f)
 
         Card(
             modifier = Modifier
@@ -388,10 +418,10 @@ internal object NativeWeatherUiRenderer {
                         metrics = row.metrics,
                         sanitizeDisplayText = sanitizeDisplayText
                     )
-                },
+            },
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.82f)),
-            border = BorderStroke(GenUiTokens.BorderMd, Color.White.copy(alpha = 0.86f)),
+            colors = CardDefaults.cardColors(containerColor = cardContainer),
+            border = BorderStroke(GenUiTokens.BorderMd, cardBorder),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
         ) {
             Column(
@@ -409,17 +439,10 @@ internal object NativeWeatherUiRenderer {
                         modifier = Modifier
                             .size(44.dp)
                             .clip(RoundedCornerShape(17.dp))
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
-                                        Color(0xFF0EA5E9).copy(alpha = 0.10f)
-                                    )
-                                )
-                            )
+                            .background(iconContainer)
                             .border(
                                 GenUiTokens.BorderMd,
-                                Color(0xFF0EA5E9).copy(alpha = 0.22f),
+                                iconBorder,
                                 RoundedCornerShape(17.dp)
                             ),
                         contentAlignment = Alignment.Center
@@ -490,6 +513,7 @@ internal object NativeWeatherUiRenderer {
                             WeatherDayMetricTile(
                                 label = sanitizeDisplayText(label),
                                 value = sanitizeDisplayText(value),
+                                dark = dark,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -500,13 +524,15 @@ internal object NativeWeatherUiRenderer {
                     WeatherRainRiskStrip(
                         label = sanitizeDisplayText(label),
                         value = sanitizeDisplayText(value),
-                        percent = rainPercent
+                        percent = rainPercent,
+                        dark = dark
                     )
                 }
 
                 advice?.let { (_, value) ->
                     WeatherAdvicePanel(
-                        advice = sanitizeDisplayText(value)
+                        advice = sanitizeDisplayText(value),
+                        dark = dark
                     )
                 }
             }
@@ -517,6 +543,7 @@ internal object NativeWeatherUiRenderer {
     private fun WeatherDayMetricTile(
         label: String,
         value: String,
+        dark: Boolean,
         modifier: Modifier = Modifier
     ) {
         if (label.isBlank() || value.isBlank()) {
@@ -525,10 +552,16 @@ internal object NativeWeatherUiRenderer {
         Column(
             modifier = modifier
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White.copy(alpha = 0.58f))
+                .background(
+                    if (dark) {
+                        MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.74f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.90f)
+                    }
+                )
                 .border(
                     GenUiTokens.BorderMd,
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.12f),
+                    MaterialTheme.colorScheme.outline.copy(alpha = if (dark) 0.22f else 0.12f),
                     RoundedCornerShape(16.dp)
                 )
                 .padding(horizontal = 10.dp, vertical = 9.dp),
@@ -555,7 +588,8 @@ internal object NativeWeatherUiRenderer {
     private fun WeatherRainRiskStrip(
         label: String,
         value: String,
-        percent: Float?
+        percent: Float?,
+        dark: Boolean
     ) {
         if (label.isBlank() || value.isBlank()) {
             return
@@ -564,17 +598,10 @@ internal object NativeWeatherUiRenderer {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            Color(0xFF0EA5E9).copy(alpha = 0.10f),
-                            Color(0xFF2563EB).copy(alpha = 0.06f)
-                        )
-                    )
-                )
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (dark) 0.18f else 0.34f))
                 .border(
                     GenUiTokens.BorderMd,
-                    Color(0xFF0EA5E9).copy(alpha = 0.14f),
+                    MaterialTheme.colorScheme.primary.copy(alpha = if (dark) 0.22f else 0.16f),
                     RoundedCornerShape(18.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 11.dp),
@@ -588,14 +615,14 @@ internal object NativeWeatherUiRenderer {
                 MarkdownText(
                     text = if (isRainLikeLabel(label)) "Rain risk" else label,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color(0xFF145C95),
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 MarkdownText(
                     text = value,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color(0xFF145C95),
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -626,19 +653,21 @@ internal object NativeWeatherUiRenderer {
 
     @Composable
     private fun WeatherAdvicePanel(
-        advice: String
+        advice: String,
+        dark: Boolean
     ) {
         if (advice.isBlank()) {
             return
         }
+        val accent = if (dark) Color(0xFF86EFAC) else Color(0xFF047857)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
-                .background(Color(0xFF0F9F6E).copy(alpha = 0.09f))
+                .background(accent.copy(alpha = if (dark) 0.12f else 0.09f))
                 .border(
                     GenUiTokens.BorderMd,
-                    Color(0xFF0F9F6E).copy(alpha = 0.14f),
+                    accent.copy(alpha = if (dark) 0.22f else 0.14f),
                     RoundedCornerShape(18.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 12.dp),
@@ -649,13 +678,13 @@ internal object NativeWeatherUiRenderer {
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF0F9F6E).copy(alpha = 0.16f)),
+                    .background(accent.copy(alpha = if (dark) 0.18f else 0.16f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.CheckCircle,
                     contentDescription = "Advice",
-                    tint = Color(0xFF047857),
+                    tint = accent,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -666,7 +695,7 @@ internal object NativeWeatherUiRenderer {
                 MarkdownText(
                     text = "What to wear",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = Color(0xFF047857),
+                    color = accent,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1092,45 +1121,113 @@ internal object NativeWeatherUiRenderer {
         }
     }
 
-    private fun weatherHeroGradientColors(condition: String?): List<Color> {
+    @Composable
+    private fun weatherForecastSurfaceStyle(dark: Boolean): WeatherSurfaceStyle {
+        val scheme = MaterialTheme.colorScheme
+        return if (dark) {
+            WeatherSurfaceStyle(
+                gradient = listOf(
+                    scheme.surfaceContainerLow,
+                    scheme.surface,
+                    scheme.surfaceContainer
+                ),
+                border = scheme.outline.copy(alpha = 0.24f)
+            )
+        } else {
+            WeatherSurfaceStyle(
+                gradient = listOf(
+                    scheme.primaryContainer.copy(alpha = 0.40f),
+                    scheme.surface,
+                    scheme.tertiaryContainer.copy(alpha = 0.32f)
+                ),
+                border = scheme.outline.copy(alpha = 0.14f)
+            )
+        }
+    }
+
+    @Composable
+    private fun weatherHeroPalette(condition: String?): WeatherHeroPalette {
+        val scheme = MaterialTheme.colorScheme
+        val dark = isSystemInDarkTheme()
         val key = condition.orEmpty().lowercase()
-        return when {
+        val gradient = when {
+            dark && (key.contains("thunder") || key.contains("storm")) -> listOf(
+                scheme.surfaceContainerHighest,
+                scheme.primary,
+                scheme.surfaceContainerLow
+            )
+
+            dark && (key.contains("rain") || key.contains("shower") || key.contains("drizzle")) -> listOf(
+                scheme.surfaceContainerHigh,
+                scheme.primary,
+                scheme.surface
+            )
+
+            dark && (key.contains("cloud") || key.contains("overcast") || key.contains("fog") || key.contains("mist")) -> listOf(
+                scheme.surfaceContainerHighest,
+                scheme.secondary,
+                scheme.surface
+            )
+
+            dark && (key.contains("sun") || key.contains("clear") || key.contains("hot")) -> listOf(
+                scheme.surfaceContainerHigh,
+                scheme.tertiary,
+                scheme.surface
+            )
+
+            dark -> listOf(
+                scheme.surfaceContainerHigh,
+                scheme.primary,
+                scheme.surface
+            )
+
             key.contains("thunder") || key.contains("storm") -> listOf(
-                Color(0xFF2563EB),
-                Color(0xFF4F46E5),
-                Color(0xFF172554)
+                scheme.primaryContainer,
+                scheme.secondaryContainer,
+                scheme.surface
             )
 
             key.contains("rain") || key.contains("shower") || key.contains("drizzle") -> listOf(
-                Color(0xFF0EA5E9),
-                Color(0xFF2563EB),
-                Color(0xFF334155)
+                scheme.primaryContainer,
+                scheme.secondaryContainer,
+                scheme.surfaceContainerLow
             )
 
             key.contains("cloud") || key.contains("overcast") || key.contains("fog") || key.contains("mist") -> listOf(
-                Color(0xFF38BDF8),
-                Color(0xFF64748B),
-                Color(0xFF1E293B)
+                scheme.surfaceContainerHighest,
+                scheme.secondaryContainer,
+                scheme.surface
             )
 
             key.contains("sun") || key.contains("clear") || key.contains("hot") -> listOf(
-                Color(0xFF38BDF8),
-                Color(0xFFF59E0B),
-                Color(0xFFEA580C)
+                scheme.tertiaryContainer,
+                scheme.primaryContainer,
+                scheme.surface
             )
 
             key.contains("snow") || key.contains("ice") || key.contains("cold") -> listOf(
-                Color(0xFF7DD3FC),
-                Color(0xFF60A5FA),
-                Color(0xFF1E3A8A)
+                scheme.primaryContainer,
+                scheme.surfaceContainerLow,
+                scheme.surface
             )
 
             else -> listOf(
-                Color(0xFF0EA5E9),
-                Color(0xFF3B82F6),
-                Color(0xFF1E40AF)
+                scheme.primaryContainer,
+                scheme.secondaryContainer,
+                scheme.surface
             )
         }
+        val content = if (dark) Color.White else scheme.onSurface
+        val mutedContent = content.copy(alpha = if (dark) 0.78f else 0.74f)
+        return WeatherHeroPalette(
+            gradient = gradient,
+            content = content,
+            mutedContent = mutedContent,
+            tileContainer = if (dark) Color.White.copy(alpha = 0.13f) else scheme.surface.copy(alpha = 0.56f),
+            tileBorder = if (dark) Color.White.copy(alpha = 0.18f) else scheme.outline.copy(alpha = 0.16f),
+            iconContainer = if (dark) Color.White.copy(alpha = 0.14f) else scheme.surface.copy(alpha = 0.48f),
+            iconBorder = if (dark) Color.White.copy(alpha = 0.22f) else scheme.outline.copy(alpha = 0.18f)
+        )
     }
 
     private fun weatherRowAccessibilityLabel(
