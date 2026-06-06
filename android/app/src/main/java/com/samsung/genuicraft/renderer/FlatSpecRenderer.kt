@@ -3858,6 +3858,24 @@ private fun RenderTableLayout(
         )
         return
     }
+    val currentWeatherRows = NativeWeatherSemantics.buildCurrentWeatherRowsFromKeyValueTable(tableModel.headers, tableRows)
+    if (!currentWeatherRows.isNullOrEmpty()) {
+        NativeWeatherUiRenderer.RenderWeatherRows(
+            rows = currentWeatherRows,
+            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
+            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
+            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
+            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
+            weatherConditionIcon = { condition, size ->
+                NativeWeatherUiRenderer.WeatherConditionIcon(
+                    condition = condition,
+                    size = size,
+                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
+                )
+            }
+        )
+        return
+    }
     val cardsRequested =
         tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
@@ -9645,6 +9663,24 @@ private fun RenderDirectTable(
     if (!weatherRows.isNullOrEmpty()) {
         NativeWeatherUiRenderer.RenderWeatherRows(
             rows = weatherRows,
+            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
+            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
+            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
+            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
+            weatherConditionIcon = { condition, size ->
+                NativeWeatherUiRenderer.WeatherConditionIcon(
+                    condition = condition,
+                    size = size,
+                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
+                )
+            }
+        )
+        return
+    }
+    val currentWeatherRows = NativeWeatherSemantics.buildCurrentWeatherRowsFromKeyValueTable(headers, table.rows)
+    if (!currentWeatherRows.isNullOrEmpty()) {
+        NativeWeatherUiRenderer.RenderWeatherRows(
+            rows = currentWeatherRows,
             sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
             weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
             orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,

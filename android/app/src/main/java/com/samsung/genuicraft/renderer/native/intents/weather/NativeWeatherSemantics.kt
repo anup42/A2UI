@@ -55,6 +55,89 @@ internal object NativeWeatherSemantics {
         return rows
     }
 
+    fun buildCurrentWeatherRowsFromKeyValueTable(
+        header: List<String>,
+        body: List<List<String>>
+    ): List<WeatherRow>? {
+        if (body.size < 3) {
+            return null
+        }
+        val pairs = body.mapNotNull { row ->
+            val label = row.getOrNull(0)?.trim().orEmpty()
+            val value = row.getOrNull(1)?.trim().orEmpty()
+            if (label.isBlank() || value.isBlank() || isPlaceholderTableCellValue(value)) {
+                null
+            } else {
+                label to value
+            }
+        }
+        if (pairs.size < 3) {
+            return null
+        }
+
+        val normalizedLabels = pairs.map { (label, _) -> normalizeWeatherText(label) }
+        val weatherLabelSignals = normalizedLabels.count(::isCurrentWeatherMetricLabel)
+        if (weatherLabelSignals < 3) {
+            return null
+        }
+
+        fun firstValueFor(vararg keys: String): String? {
+            return pairs.firstOrNull { (label, _) ->
+                val normalized = normalizeWeatherText(label)
+                keys.any { key -> normalized == key || normalized.contains(key) }
+            }?.second?.trim()?.takeIf { it.isNotBlank() }
+        }
+
+        val condition = firstValueFor("current condition", "condition", "weather", "forecast", "summary")
+        val temperature = firstValueFor("current temperature", "temperature", "temp")
+        val high = firstValueFor("high", "max")
+        val low = firstValueFor("low", "min")
+        val hasStrongWeatherValue =
+            !temperature.isNullOrBlank() ||
+                !high.isNullOrBlank() ||
+                !low.isNullOrBlank() ||
+                isWeatherConditionLabel(condition)
+        if (!hasStrongWeatherValue) {
+            return null
+        }
+
+        val consumedKeys = setOf(
+            "current condition",
+            "condition",
+            "weather",
+            "forecast",
+            "summary",
+            "current temperature",
+            "temperature",
+            "temp",
+            "high",
+            "max",
+            "low",
+            "min"
+        )
+        val metrics = pairs.mapNotNull { (label, value) ->
+            val normalized = normalizeWeatherText(label)
+            val consumed = consumedKeys.any { key -> normalized == key || normalized.contains(key) }
+            if (consumed || value.isBlank()) {
+                null
+            } else {
+                normalizeWeatherMetricLabel(label) to value
+            }
+        }
+
+        return listOf(
+            WeatherRow(
+                period = firstValueFor("day", "date", "period").takeIf { !it.isNullOrBlank() } ?: "Today",
+                date = null,
+                condition = condition,
+                high = high,
+                low = low,
+                temp = temperature,
+                metrics = metrics
+            )
+        )
+    }
+
     fun detectWeatherColumns(header: List<String>): WeatherTableColumns? {
         val normalized = header.map { normalizeWeatherHeader(it) }
         val strictWeatherSignal = normalized.count { token ->
@@ -907,6 +990,43 @@ internal object NativeWeatherSemantics {
                 "windy"
             )
         ) || normalized.contains("partly cloudy")
+    }
+
+    private fun isCurrentWeatherMetricLabel(label: String): Boolean {
+        val normalized = normalizeWeatherText(label)
+        return normalized.contains("condition") ||
+            normalized.contains("weather") ||
+            normalized.contains("temperature") ||
+            normalized.contains("temp") ||
+            normalized.contains("high") ||
+            normalized.contains("low") ||
+            normalized.contains("feel") ||
+            normalized.contains("rain") ||
+            normalized.contains("precip") ||
+            normalized.contains("wind") ||
+            normalized.contains("gust") ||
+            normalized.contains("humidity") ||
+            normalized.contains("uv") ||
+            normalized.contains("best window") ||
+            normalized.contains("visibility") ||
+            normalized.contains("pressure")
+    }
+
+    private fun normalizeWeatherMetricLabel(label: String): String {
+        val clean = label.trim().replace(Regex("\\s+"), " ")
+        if (clean.isBlank()) {
+            return clean
+        }
+        if (clean.any { it.isLowerCase() }) {
+            return clean
+        }
+        return clean.lowercase(Locale.US)
+            .split(' ')
+            .joinToString(" ") { token ->
+                token.replaceFirstChar { char ->
+                    if (char.isLowerCase()) char.titlecase(Locale.US) else char.toString()
+                }
+            }
     }
 
     private fun containsAnyWholeWord(text: String, words: Set<String>): Boolean {
