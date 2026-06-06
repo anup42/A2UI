@@ -2621,6 +2621,7 @@ internal fun isCalculationBreakdownHeaderSet(headers: List<String>): Boolean {
 
 private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val weatherSignals = headers.count(::isWeatherHeaderLabel)
+    val weatherPeriodSignals = headers.count(::isWeatherPeriodHeaderLabel)
     val flightSignals = headers.count(::isFlightHeaderLabel)
     val strongFlightSignals = headers.count(::isStrongFlightHeaderLabel)
     val bookingEntitySignals = headers.count(::isBookingEntityHeaderLabel)
@@ -2633,6 +2634,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
         isPlaylistTableHeaderSet(headers) -> "playlist"
         isFormulaVariableHeaderSet(headers) || isCalculationBreakdownHeaderSet(headers) -> "formula"
         weatherSignals >= 2 -> "weather"
+        weatherSignals >= 1 && weatherPeriodSignals >= 1 -> "weather"
         strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
         bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
         scheduleSignals >= 2 && statusSignals >= 1 -> "status"
@@ -3531,6 +3533,24 @@ private fun RenderTableLayout(
         repeatedRowScopes = repeatedRowScopes,
         repeatScope = repeatScope
     )
+    val weatherRows = NativeWeatherSemantics.buildWeatherRows(tableModel.headers, tableRows)
+    if (!weatherRows.isNullOrEmpty()) {
+        NativeWeatherUiRenderer.RenderWeatherRows(
+            rows = weatherRows,
+            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
+            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
+            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
+            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
+            weatherConditionIcon = { condition, size ->
+                NativeWeatherUiRenderer.WeatherConditionIcon(
+                    condition = condition,
+                    size = size,
+                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
+                )
+            }
+        )
+        return
+    }
     val cardsRequested =
         tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
@@ -3588,26 +3608,6 @@ private fun RenderTableLayout(
         return
     }
 
-    if (tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
-        val weatherRows = NativeWeatherSemantics.buildWeatherRows(tableModel.headers, tableRows)
-        if (!weatherRows.isNullOrEmpty()) {
-            NativeWeatherUiRenderer.RenderWeatherRows(
-                rows = weatherRows,
-                sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
-                weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
-                orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
-                isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
-                weatherConditionIcon = { condition, size ->
-                    NativeWeatherUiRenderer.WeatherConditionIcon(
-                        condition = condition,
-                        size = size,
-                        sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                    )
-                }
-            )
-            return
-        }
-    }
     if (looksLikeClimateComparisonTable(tableModel.headers, tableRows, tableModel.domain)) {
         RenderClimateComparisonCards(
             headers = tableModel.headers,
@@ -4901,6 +4901,11 @@ private fun tableAccessibilitySummary(
             append(". Additional columns are available")
         }
     }
+}
+
+private fun isWeatherPeriodHeaderLabel(label: String): Boolean {
+    val token = normalizeTableHeaderForMatch(label)
+    return token in setOf("day", "date", "time", "hour", "period")
 }
 
 private fun tableRowAccessibilitySummary(
@@ -9281,6 +9286,24 @@ private fun RenderDirectTable(
     val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
+    val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
+    if (!weatherRows.isNullOrEmpty()) {
+        NativeWeatherUiRenderer.RenderWeatherRows(
+            rows = weatherRows,
+            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
+            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
+            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
+            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
+            weatherConditionIcon = { condition, size ->
+                NativeWeatherUiRenderer.WeatherConditionIcon(
+                    condition = condition,
+                    size = size,
+                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
+                )
+            }
+        )
+        return
+    }
     if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
@@ -9331,26 +9354,6 @@ private fun RenderDirectTable(
         return
     }
 
-    if (compactPortrait && table.renderMode == FlatTableRenderMode.WEATHER_CARDS) {
-        val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
-        if (!weatherRows.isNullOrEmpty()) {
-            NativeWeatherUiRenderer.RenderWeatherRows(
-                rows = weatherRows,
-                sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
-                weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
-                orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
-                isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
-                weatherConditionIcon = { condition, size ->
-                    NativeWeatherUiRenderer.WeatherConditionIcon(
-                        condition = condition,
-                        size = size,
-                        sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                    )
-                }
-            )
-            return
-        }
-    }
     if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
         RenderRankedFlightComparisonCards(
             headers = headers,

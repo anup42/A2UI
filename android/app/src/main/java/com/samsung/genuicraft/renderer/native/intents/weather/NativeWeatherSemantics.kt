@@ -90,13 +90,13 @@ internal object NativeWeatherSemantics {
                 token.contains("wind") ||
                 token.contains("uv")
         }
-        if (weatherSignal < 2) {
-            return null
-        }
-
         val period = findHeaderIndex(normalized, listOf("day", "time", "hour", "period", "date")) ?: return null
         val date = findHeaderIndex(normalized, listOf("date"), exclude = setOf(period))
         val condition = findHeaderIndex(normalized, listOf("condition", "forecast", "weather", "summary"), exclude = setOf(period))
+        val hasForecastOnlyShape = condition != null && strictWeatherSignal >= 1
+        if (weatherSignal < 2 && !hasForecastOnlyShape) {
+            return null
+        }
         val temp = findHeaderIndex(
             normalized,
             listOf("temperature", "temp", "high low", "high low c", "high low f"),
@@ -110,7 +110,7 @@ internal object NativeWeatherSemantics {
         val uv = findHeaderIndex(normalized, listOf("uv"), exclude = setOf(period))
 
         val contentSignals = listOf(condition, temp, high, low, precip, wind, humidity, uv).count { it != null }
-        if (contentSignals < 2) {
+        if (contentSignals < 2 && !hasForecastOnlyShape) {
             return null
         }
 

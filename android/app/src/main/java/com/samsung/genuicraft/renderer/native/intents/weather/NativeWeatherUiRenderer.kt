@@ -1,14 +1,18 @@
 package com.samsung.genuicraft.renderer.native.intents.weather
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,8 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -48,8 +57,17 @@ import com.samsung.genuicraft.genUiCardContainerColor
 import com.samsung.genuicraft.genUiTableContainerColor
 import com.samsung.genuicraft.renderer.native.WeatherCurrentDetails
 import com.samsung.genuicraft.renderer.native.WeatherRow
+import kotlin.math.max
 
 internal object NativeWeatherUiRenderer {
+    private val TEMPERATURE_NUMBER_REGEX = Regex("""-?\d{1,3}(?:\.\d+)?""")
+
+    private data class WeatherChartPoint(
+        val label: String,
+        val value: Float,
+        val displayValue: String
+    )
+
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun RenderWeatherRows(
@@ -70,18 +88,25 @@ internal object NativeWeatherUiRenderer {
         val todayCondition = sanitizeDisplayText(todayRow.condition.orEmpty())
         val todayDate = sanitizeDisplayText(todayRow.date.orEmpty()).ifBlank { null }
         val todayLabel = if (isTodayWeatherRow(todayRow)) "Today" else sanitizeDisplayText(todayRow.period)
+        val chartPoints = remember(orderedRows) {
+            buildWeatherChartPoints(
+                rows = orderedRows,
+                sanitizeDisplayText = sanitizeDisplayText,
+                weatherTemperatureText = weatherTemperatureText
+            )
+        }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
-            colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
+            colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
             elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Card(
                     modifier = Modifier
@@ -96,91 +121,133 @@ internal object NativeWeatherUiRenderer {
                                 sanitizeDisplayText = sanitizeDisplayText
                             )
                         },
-                    shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                    colors = genUiCardColors(GenUiCardTone.Primary),
+                    shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
                 ) {
-                    Column(
+                    val heroShape = RoundedCornerShape(GenUiTokens.RadiusXl)
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .clip(heroShape)
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.96f),
+                                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.86f),
+                                        Color(0xFF1E293B)
+                                    )
+                                )
+                            )
+                            .padding(horizontal = 18.dp, vertical = 18.dp)
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Row(
-                                modifier = Modifier.weight(1f),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(14.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                weatherConditionIcon(todayRow.condition, 32.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                        .background(Color.White.copy(alpha = 0.16f))
+                                        .padding(10.dp)
+                                ) {
+                                    weatherConditionIcon(todayRow.condition, 56.dp)
+                                }
                                 Column(
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(3.dp)
                                 ) {
                                     MarkdownText(
                                         text = todayLabel,
                                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = Color.White
                                     )
                                     todayDate?.let { dateValue ->
                                         MarkdownText(
                                             text = dateValue,
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = Color.White.copy(alpha = 0.78f)
                                         )
+                                    }
+                                    if (todayCondition.isNotBlank()) {
+                                        MarkdownText(
+                                            text = todayCondition,
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                            color = Color.White.copy(alpha = 0.92f),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+
+                                if (todayTemperature.isNotBlank()) {
+                                    MarkdownText(
+                                        text = sanitizeDisplayText(todayTemperature),
+                                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                                        color = Color.White,
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+                            }
+
+                            if (todayRow.metrics.isNotEmpty()) {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    todayRow.metrics.take(4).forEach { (label, value) ->
+                                        val chipLabel = sanitizeDisplayText(label)
+                                        val chipValue = sanitizeDisplayText(value)
+                                        if (chipLabel.isNotBlank() && chipValue.isNotBlank()) {
+                                            MarkdownText(
+                                                text = "$chipLabel $chipValue",
+                                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                color = Color.White.copy(alpha = 0.92f),
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                                    .background(Color.White.copy(alpha = 0.14f))
+                                                    .border(
+                                                        GenUiTokens.BorderMd,
+                                                        Color.White.copy(alpha = 0.20f),
+                                                        RoundedCornerShape(GenUiTokens.RadiusPill)
+                                                    )
+                                                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
 
-                            if (todayTemperature.isNotBlank()) {
-                                MarkdownText(
-                                    text = sanitizeDisplayText(todayTemperature),
-                                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    textAlign = TextAlign.End
+                            if (chartPoints.size >= 2) {
+                                WeatherTrendChart(
+                                    points = chartPoints,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(112.dp)
+                                )
+                            } else if (orderedRows.size >= 2) {
+                                WeatherConditionTimeline(
+                                    rows = orderedRows,
+                                    sanitizeDisplayText = sanitizeDisplayText,
+                                    weatherConditionIcon = weatherConditionIcon,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         }
-
-                        if (todayCondition.isNotBlank()) {
-                            MarkdownText(
-                                text = todayCondition,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        if (todayRow.metrics.isNotEmpty()) {
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                todayRow.metrics.forEach { (label, value) ->
-                                    val chipLabel = sanitizeDisplayText(label)
-                                    val chipValue = sanitizeDisplayText(value)
-                                    if (chipLabel.isNotBlank() && chipValue.isNotBlank()) {
-                                        MarkdownText(
-                                            text = "$chipLabel $chipValue",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                                .background(genUiCardContainerColor(GenUiCardTone.Neutral))
-                                                .border(
-                                                    GenUiTokens.BorderMd,
-                                                    genUiCardBorderColor(),
-                                                    RoundedCornerShape(GenUiTokens.RadiusPill)
-                                                )
-                                                .padding(horizontal = 8.dp, vertical = 5.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
                     }
+                }
+
+                if (laterRows.isNotEmpty()) {
+                    MarkdownText(
+                        text = "Forecast by day",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
 
                 laterRows.forEach { row ->
@@ -203,42 +270,45 @@ internal object NativeWeatherUiRenderer {
                             },
                         shape = RoundedCornerShape(GenUiTokens.RadiusLg),
                         colors = genUiCardColors(GenUiCardTone.Neutral),
+                        border = BorderStroke(GenUiTokens.BorderSm, genUiCardBorderColor()),
                         elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalAlignment = Alignment.Top
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.Top
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                                        .padding(8.dp)
                                 ) {
-                                    weatherConditionIcon(row.condition, 26.dp)
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                                    ) {
+                                    weatherConditionIcon(row.condition, 28.dp)
+                                }
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    MarkdownText(
+                                        text = periodText,
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    dateText?.let { dateValue ->
                                         MarkdownText(
-                                            text = periodText,
-                                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            text = dateValue,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
-                                        dateText?.let { dateValue ->
-                                            MarkdownText(
-                                                text = dateValue,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
                                     }
                                 }
                                 if (temperature.isNotBlank()) {
@@ -261,8 +331,8 @@ internal object NativeWeatherUiRenderer {
 
                             if (row.metrics.isNotEmpty()) {
                                 FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                                    verticalArrangement = Arrangement.spacedBy(7.dp)
                                 ) {
                                     row.metrics.forEach { (label, value) ->
                                         val chipLabel = sanitizeDisplayText(label)
@@ -280,7 +350,7 @@ internal object NativeWeatherUiRenderer {
                                                         genUiCardBorderColor(),
                                                         RoundedCornerShape(GenUiTokens.RadiusPill)
                                                     )
-                                                    .padding(horizontal = 8.dp, vertical = 5.dp)
+                                                    .padding(horizontal = 9.dp, vertical = 5.dp)
                                             )
                                         }
                                     }
@@ -290,6 +360,271 @@ internal object NativeWeatherUiRenderer {
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun WeatherTrendChart(
+        points: List<WeatherChartPoint>,
+        modifier: Modifier = Modifier
+    ) {
+        val safePoints = remember(points) { points.take(7) }
+        val minValue = remember(safePoints) { safePoints.minOfOrNull { it.value } ?: 0f }
+        val maxValue = remember(safePoints) { safePoints.maxOfOrNull { it.value } ?: minValue }
+        Column(
+            modifier = modifier
+                .clip(RoundedCornerShape(GenUiTokens.RadiusLg))
+                .background(Color.White.copy(alpha = 0.13f))
+                .border(
+                    GenUiTokens.BorderMd,
+                    Color.White.copy(alpha = 0.16f),
+                    RoundedCornerShape(GenUiTokens.RadiusLg)
+                )
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MarkdownText(
+                    text = "Temperature trend",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = Color.White.copy(alpha = 0.92f)
+                )
+                safePoints.firstOrNull()?.displayValue?.takeIf { it.isNotBlank() }?.let { value ->
+                    MarkdownText(
+                        text = value,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White
+                    )
+                }
+            }
+
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .semantics {
+                        contentDescription = weatherTrendAccessibilityLabel(safePoints)
+                    }
+            ) {
+                if (safePoints.size < 2) return@Canvas
+                val top = 8f
+                val bottom = size.height - 8f
+                val range = max(1f, maxValue - minValue)
+                fun x(index: Int): Float = if (safePoints.size == 1) {
+                    size.width / 2f
+                } else {
+                    (size.width / (safePoints.size - 1)) * index
+                }
+                fun y(value: Float): Float = bottom - ((value - minValue) / range) * (bottom - top)
+
+                val gridColor = Color.White.copy(alpha = 0.18f)
+                drawLine(gridColor, Offset(0f, bottom), Offset(size.width, bottom), strokeWidth = 1.4f)
+                drawLine(gridColor, Offset(0f, top), Offset(size.width, top), strokeWidth = 1.0f)
+
+                val path = Path().apply {
+                    safePoints.forEachIndexed { index, point ->
+                        val px = x(index)
+                        val py = y(point.value)
+                        if (index == 0) moveTo(px, py) else lineTo(px, py)
+                    }
+                }
+                drawPath(
+                    path = path,
+                    color = Color.White,
+                    style = Stroke(width = 5f, cap = StrokeCap.Round)
+                )
+                safePoints.forEachIndexed { index, point ->
+                    drawCircle(
+                        color = Color.White,
+                        radius = 6f,
+                        center = Offset(x(index), y(point.value))
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                safePoints.forEach { point ->
+                    MarkdownText(
+                        text = point.label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.72f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun WeatherConditionTimeline(
+        rows: List<WeatherRow>,
+        sanitizeDisplayText: (String) -> String,
+        weatherConditionIcon: @Composable (String?, Dp) -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        val visibleRows = remember(rows) { rows.take(5) }
+        Column(
+            modifier = modifier
+                .clip(RoundedCornerShape(GenUiTokens.RadiusLg))
+                .background(Color.White.copy(alpha = 0.13f))
+                .border(
+                    GenUiTokens.BorderMd,
+                    Color.White.copy(alpha = 0.16f),
+                    RoundedCornerShape(GenUiTokens.RadiusLg)
+                )
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            MarkdownText(
+                text = "Outlook trend",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = Color.White.copy(alpha = 0.92f)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+                    .semantics {
+                        contentDescription = weatherTimelineAccessibilityLabel(visibleRows, sanitizeDisplayText)
+                    }
+            ) {
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    val y = size.height * 0.28f
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.25f),
+                        start = Offset(12f, y),
+                        end = Offset(size.width - 12f, y),
+                        strokeWidth = 3f,
+                        cap = StrokeCap.Round
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    visibleRows.forEach { row ->
+                        val periodText = sanitizeDisplayText(row.period)
+                        val conditionText = sanitizeDisplayText(row.condition.orEmpty())
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                                    .background(Color.White.copy(alpha = 0.18f))
+                                    .padding(5.dp)
+                            ) {
+                                weatherConditionIcon(row.condition, 22.dp)
+                            }
+                            MarkdownText(
+                                text = compactWeatherChartLabel(periodText),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = Color.White,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if (conditionText.isNotBlank()) {
+                                MarkdownText(
+                                    text = conditionText,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun buildWeatherChartPoints(
+        rows: List<WeatherRow>,
+        sanitizeDisplayText: (String) -> String,
+        weatherTemperatureText: (WeatherRow) -> String
+    ): List<WeatherChartPoint> {
+        return rows.mapNotNull { row ->
+            val display = sanitizeDisplayText(weatherTemperatureText(row)).ifBlank {
+                sanitizeDisplayText(row.high.orEmpty()).ifBlank { sanitizeDisplayText(row.temp.orEmpty()) }
+            }
+            val value = extractWeatherChartValue(row, display) ?: return@mapNotNull null
+            WeatherChartPoint(
+                label = compactWeatherChartLabel(sanitizeDisplayText(row.period)),
+                value = value,
+                displayValue = display
+            )
+        }
+    }
+
+    private fun extractWeatherChartValue(
+        row: WeatherRow,
+        display: String
+    ): Float? {
+        val preferredSources = listOf(row.high, row.temp, display, row.low)
+        preferredSources.forEach { source ->
+            val values = extractTemperatureNumbers(source.orEmpty())
+            if (values.isNotEmpty()) {
+                return values.maxOrNull()
+            }
+        }
+        return null
+    }
+
+    private fun extractTemperatureNumbers(value: String): List<Float> {
+        if (value.isBlank()) return emptyList()
+        return TEMPERATURE_NUMBER_REGEX.findAll(value)
+            .mapNotNull { match -> match.value.toFloatOrNull() }
+            .toList()
+    }
+
+    private fun compactWeatherChartLabel(period: String): String {
+        val clean = period.trim()
+        if (clean.isBlank()) return ""
+        val normalized = clean.lowercase()
+        if (normalized == "today" || normalized == "tonight") return clean
+        Regex("""(?i)\b(day\s*\d+|mon|tue|wed|thu|fri|sat|sun)\b""")
+            .find(clean)
+            ?.value
+            ?.let { return it.replaceFirstChar { char -> char.uppercaseChar() } }
+        return clean.split(Regex("""\s+""")).take(2).joinToString(" ").take(10)
+    }
+
+    private fun weatherTrendAccessibilityLabel(points: List<WeatherChartPoint>): String {
+        if (points.isEmpty()) return "Weather temperature trend"
+        return points.joinToString(
+            prefix = "Weather temperature trend. ",
+            separator = ". "
+        ) { point ->
+            listOf(point.label, point.displayValue).filter { it.isNotBlank() }.joinToString(": ")
+        }
+    }
+
+    private fun weatherTimelineAccessibilityLabel(
+        rows: List<WeatherRow>,
+        sanitizeDisplayText: (String) -> String
+    ): String {
+        if (rows.isEmpty()) return "Weather outlook trend"
+        return rows.joinToString(
+            prefix = "Weather outlook trend. ",
+            separator = ". "
+        ) { row ->
+            listOf(
+                compactWeatherChartLabel(sanitizeDisplayText(row.period)),
+                sanitizeDisplayText(row.condition.orEmpty())
+            ).filter { it.isNotBlank() }.joinToString(": ")
         }
     }
 
