@@ -663,7 +663,7 @@ if [[ "${#PIP_OFFLINE_ARGS[@]}" -gt 0 ]]; then
     echo "Available MarkupSafe wheels:" >&2
     find "${A2UI_OFFLINE_WHEELHOUSE}" -maxdepth 1 -type f -iname 'markupsafe-*.whl' -print >&2 || true
     echo "Rebuild the bundle with matching target settings, for example:" >&2
-    echo "  GEMMA4_OFFLINE_TARGET_PYTHON_VERSION=311 GEMMA4_OFFLINE_TARGET_ABI=cp311 GEMMA4_OFFLINE_TARGET_PLATFORM=manylinux2014_x86_64 bash dataset/scripts/download_gemma4_vllm_offline_bundle.sh" >&2
+    echo "  GEMMA4_OFFLINE_TARGET_PYTHON_VERSION=311 GEMMA4_OFFLINE_TARGET_ABI=cp311 GEMMA4_OFFLINE_TARGET_PLATFORM=manylinux_2_28_x86_64 bash dataset/scripts/download_gemma4_vllm_offline_bundle.sh" >&2
     exit 1
   fi
 fi
