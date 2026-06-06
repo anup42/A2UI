@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import json
+import math
 import os
 import time
 import re
@@ -261,6 +262,16 @@ def _env_float(name: str, default: float) -> float:
         return default
     try:
         return float(raw)
+    except Exception:
+        return default
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
     except Exception:
         return default
 
@@ -766,6 +777,99 @@ def run_stage3(
     )
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 
+    prompt_token_multiplier = max(
+        1.0,
+        _env_float(
+            "STAGE3_PROMPT_TOKEN_MULTIPLIER",
+            _env_float("A2UI_STAGE3_PROMPT_TOKEN_MULTIPLIER", 1.65),
+        ),
+    )
+
+    def _estimated_prompt_tokens(text: str) -> int:
+        return int(math.ceil(count_tokens(text) * prompt_token_multiplier))
+
+    def _resolve_context_limited_prompt_max() -> int | None:
+        configured_prompt_max = int(prompt_max_tokens) if prompt_max_tokens else None
+        if adapter.spec.provider != "local":
+            return configured_prompt_max
+
+        context_tokens = _env_int(
+            "VLLM_MAX_MODEL_LEN",
+            _env_int("LOCAL_VLLM_MAX_MODEL_LEN", _env_int("A2UI_VLLM_MAX_MODEL_LEN", 0)),
+        )
+        if context_tokens <= 0:
+            return configured_prompt_max
+
+        requested_output_tokens = int(max_tokens)
+        local_output_cap = _env_int("LOCAL_VLLM_MAX_OUTPUT_TOKENS", 0)
+        if local_output_cap > 0:
+            requested_output_tokens = min(requested_output_tokens, local_output_cap)
+        context_safety_tokens = max(
+            0,
+            _env_int(
+                "STAGE3_CONTEXT_SAFETY_TOKENS",
+                _env_int("A2UI_STAGE3_CONTEXT_SAFETY_TOKENS", 512),
+            ),
+        )
+        context_prompt_budget = context_tokens - requested_output_tokens - context_safety_tokens
+        if context_prompt_budget <= 0:
+            logger.warning(
+                "Stage3 local context budget is non-positive context=%s output=%s safety=%s; "
+                "using configured prompt cap=%s",
+                context_tokens,
+                requested_output_tokens,
+                context_safety_tokens,
+                configured_prompt_max,
+            )
+            return configured_prompt_max
+
+        respect_config_cap = os.environ.get(
+            "STAGE3_RESPECT_CONFIG_PROMPT_MAX",
+            os.environ.get("A2UI_STAGE3_RESPECT_CONFIG_PROMPT_MAX", "0"),
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        effective = (
+            min(configured_prompt_max, context_prompt_budget)
+            if configured_prompt_max is not None and respect_config_cap
+            else context_prompt_budget
+        )
+        logger.info(
+            "Stage3 local prompt budget context=%s output=%s safety=%s multiplier=%.2f "
+            "configured=%s respect_config=%s effective=%s",
+            context_tokens,
+            requested_output_tokens,
+            context_safety_tokens,
+            prompt_token_multiplier,
+            configured_prompt_max,
+            respect_config_cap,
+            effective,
+        )
+        return effective
+
+    effective_prompt_max_tokens = _resolve_context_limited_prompt_max()
+
+    def _clip_prompt_to_effective_budget(prompt_text: str, response_id: str, label: str) -> str:
+        if not effective_prompt_max_tokens:
+            return prompt_text
+        system_tokens_est = _estimated_prompt_tokens(system_prompt) if system_prompt else 0
+        estimated_tokens = _estimated_prompt_tokens(prompt_text) + system_tokens_est
+        if estimated_tokens <= effective_prompt_max_tokens:
+            return prompt_text
+        word_budget = max(
+            200,
+            int((effective_prompt_max_tokens - system_tokens_est) / prompt_token_multiplier),
+        )
+        clipped, truncated = _truncate_tokens(prompt_text, word_budget)
+        if truncated:
+            logger.warning(
+                "Stage3 %s prompt clipped response_id=%s estimated_tokens=%s effective_budget=%s word_budget=%s",
+                label,
+                response_id,
+                estimated_tokens,
+                effective_prompt_max_tokens,
+                word_budget,
+            )
+        return clipped
+
     intent_lookup: dict[str, dict[str, Any]] = {}
     if queries_path and queries_path.exists():
         for row in iter_jsonl(queries_path):
@@ -891,29 +995,35 @@ def run_stage3(
             prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
 
         prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
-        if prompt_max_tokens:
+        if effective_prompt_max_tokens:
             system_tokens = count_tokens(system_prompt) if system_prompt else 0
-            prompt_tokens = count_tokens(prompt) + system_tokens
-            if prompt_tokens > prompt_max_tokens:
+            system_tokens_est = int(math.ceil(system_tokens * prompt_token_multiplier))
+            prompt_tokens = _estimated_prompt_tokens(prompt) + system_tokens_est
+            if prompt_tokens > effective_prompt_max_tokens:
                 # First attempt: drop asset context to save tokens.
                 prompt = render_prompt(user_prompt_template, response_text=response_with_policy)
-                prompt_tokens = count_tokens(prompt) + system_tokens
-            if prompt_tokens > prompt_max_tokens:
+                prompt_tokens = _estimated_prompt_tokens(prompt) + system_tokens_est
+            if prompt_tokens > effective_prompt_max_tokens:
                 base_prompt = render_prompt(user_prompt_template, response_text="")
-                base_tokens = count_tokens(base_prompt) + system_tokens
-                budget = max(200, prompt_max_tokens - base_tokens)
+                base_tokens = _estimated_prompt_tokens(base_prompt) + system_tokens_est
+                budget = max(
+                    200,
+                    int((effective_prompt_max_tokens - base_tokens) / prompt_token_multiplier),
+                )
                 trimmed_text, truncated = _truncate_tokens(response_text, budget)
                 if truncated:
                     logger.warning(
-                        "Stage3 prompt truncated response_id=%s tokens=%s budget=%s",
+                        "Stage3 prompt truncated response_id=%s estimated_tokens=%s effective_budget=%s response_word_budget=%s",
                         response_id,
-                        count_tokens(response_text),
+                        prompt_tokens,
+                        effective_prompt_max_tokens,
                         budget,
                     )
                 prompt = render_prompt(
                     user_prompt_template,
                     response_text=f"{trimmed_text}\n\n{asset_policy}",
                 )
+            prompt = _clip_prompt_to_effective_budget(prompt, response_id, "initial")
         return prompt
 
     def _process_generated(
@@ -989,6 +1099,11 @@ def run_stage3(
                     "Return ONLY the corrected JSON."
                 )
                 repaired_text = f"{repair_prompt}\n\nOriginal:\n{raw_text}"
+            repaired_text = _clip_prompt_to_effective_budget(
+                repaired_text,
+                str(response_id),
+                "repair",
+            )
 
             def _repair_call():
                 rate_limiter.acquire()
@@ -1066,8 +1181,7 @@ def run_stage3(
         ):
             regen_attempt += 1
             repair_needed = True
-            regeneration_prompt = (
-                f"{prompt}\n\n"
+            regen_instructions = (
                 "Previous output was invalid or incomplete.\n"
                 "Regenerate the full flat-spec JSON from the source response.\n"
                 "Return ONLY one valid JSON object with root/state/elements.\n"
@@ -1075,6 +1189,12 @@ def run_stage3(
                 "heading Text elements (h2/h3), content elements, and at least one Button or Table. "
                 "A two-element fallback (Column + Text) is not acceptable.\n"
                 "Keep JSON compact and avoid literal markdown markers in text fields."
+            )
+            regeneration_prompt = f"{regen_instructions}\n\nSource prompt:\n{prompt}"
+            regeneration_prompt = _clip_prompt_to_effective_budget(
+                regeneration_prompt,
+                str(response_id),
+                "final_regen",
             )
 
             def _regen_call():
