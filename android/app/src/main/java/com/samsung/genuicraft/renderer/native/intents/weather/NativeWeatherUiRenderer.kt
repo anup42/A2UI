@@ -1233,7 +1233,6 @@ internal object NativeWeatherUiRenderer {
 
     @Composable
     private fun weatherHeroPalette(condition: String?): WeatherHeroPalette {
-        val scheme = MaterialTheme.colorScheme
         val dark = isSystemInDarkTheme()
         val key = condition.orEmpty().lowercase()
         val gradient = when {
@@ -1268,51 +1267,55 @@ internal object NativeWeatherUiRenderer {
             )
 
             key.contains("thunder") || key.contains("storm") -> listOf(
-                Color(0xFF1E1B4B),
-                Color(0xFF2563EB),
-                Color(0xFF0F766E)
+                Color(0xFFE0E7FF),
+                Color(0xFFE0F2FE),
+                Color(0xFFD1FAE5)
             )
 
             key.contains("rain") || key.contains("shower") || key.contains("drizzle") -> listOf(
-                Color(0xFF0EA5E9),
-                Color(0xFF2563EB),
-                Color(0xFF0F766E)
+                Color(0xFFE0F2FE),
+                Color(0xFFDBEAFE),
+                Color(0xFFD1FAE5)
             )
 
             key.contains("cloud") || key.contains("overcast") || key.contains("fog") || key.contains("mist") -> listOf(
-                Color(0xFF64748B),
-                Color(0xFF0EA5E9),
-                Color(0xFF115E59)
+                Color(0xFFE2E8F0),
+                Color(0xFFE0F2FE),
+                Color(0xFFEFF6FF)
             )
 
             key.contains("sun") || key.contains("clear") || key.contains("hot") -> listOf(
-                Color(0xFFF59E0B),
-                Color(0xFF0EA5E9),
-                Color(0xFF2563EB)
+                Color(0xFFFEF3C7),
+                Color(0xFFE0F2FE),
+                Color(0xFFDBEAFE)
             )
 
             key.contains("snow") || key.contains("ice") || key.contains("cold") -> listOf(
-                Color(0xFF38BDF8),
-                Color(0xFF2563EB),
-                Color(0xFF0F766E)
+                Color(0xFFE0F2FE),
+                Color(0xFFF8FAFC),
+                Color(0xFFDBEAFE)
             )
 
             else -> listOf(
-                Color(0xFF0EA5E9),
-                Color(0xFF2563EB),
-                Color(0xFF0F766E)
+                Color(0xFFE0F2FE),
+                Color(0xFFDBEAFE),
+                Color(0xFFD1FAE5)
             )
         }
-        val content = Color.White
-        val mutedContent = Color.White.copy(alpha = if (dark) 0.78f else 0.82f)
+        val content = if (dark) Color.White else Color(0xFF0F172A)
+        val mutedContent = if (dark) {
+            Color.White.copy(alpha = 0.78f)
+        } else {
+            Color(0xFF334155).copy(alpha = 0.86f)
+        }
         return WeatherHeroPalette(
             gradient = gradient,
             content = content,
             mutedContent = mutedContent,
-            tileContainer = Color.White.copy(alpha = if (dark) 0.13f else 0.18f),
-            tileBorder = Color.White.copy(alpha = if (dark) 0.18f else 0.24f),
-            iconContainer = Color.White.copy(alpha = if (dark) 0.14f else 0.20f),
-            iconBorder = Color.White.copy(alpha = if (dark) 0.22f else 0.28f)
+            tileContainer = if (dark) Color.White.copy(alpha = 0.13f) else Color.White.copy(alpha = 0.68f),
+            tileBorder = if (dark) Color.White.copy(alpha = 0.18f) else Color(0xFF38BDF8).copy(alpha = 0.28f),
+            iconContainer = if (dark) Color.White.copy(alpha = 0.14f) else Color.White.copy(alpha = 0.62f),
+            iconBorder = if (dark) Color.White.copy(alpha = 0.22f) else Color(0xFF38BDF8).copy(alpha = 0.30f)
         )
     }
 
