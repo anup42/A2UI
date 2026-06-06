@@ -79,7 +79,7 @@ apply_ssl_bypass() {
     git config --global http.sslVerify false >/dev/null 2>&1 || true
   fi
   if [[ "${A2UI_DISABLE_PROXY}" = "1" ]]; then
-    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy PIP_PROXY UV_HTTP_PROXY UV_HTTPS_PROXY
     export no_proxy="127.0.0.1,localhost,::1${no_proxy:+,${no_proxy}}"
     export NO_PROXY="127.0.0.1,localhost,::1${NO_PROXY:+,${NO_PROXY}}"
   fi
@@ -525,6 +525,7 @@ apply_ssl_bypass
 export_nvidia_python_libs
 
 PIP_TRUSTED_ARGS=()
+PIP_PROXY_ARGS=()
 UV_INSECURE_ARGS=()
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
   mkdir -p "${ENV_DIR}/pip_conf"
@@ -538,6 +539,12 @@ trusted-host =
     github.com
     codeload.github.com
     raw.githubusercontent.com
+    pypi.python.org
+    objects.githubusercontent.com
+    release-assets.githubusercontent.com
+    huggingface.co
+    cdn-lfs.huggingface.co
+    download-r2.pytorch.org
     flashinfer.ai
 disable-pip-version-check = true
 EOF
@@ -550,6 +557,12 @@ EOF
     --trusted-host github.com
     --trusted-host codeload.github.com
     --trusted-host raw.githubusercontent.com
+    --trusted-host pypi.python.org
+    --trusted-host objects.githubusercontent.com
+    --trusted-host release-assets.githubusercontent.com
+    --trusted-host huggingface.co
+    --trusted-host cdn-lfs.huggingface.co
+    --trusted-host download-r2.pytorch.org
     --trusted-host flashinfer.ai
   )
   UV_INSECURE_ARGS+=(--allow-insecure-host pypi.org)
@@ -559,10 +572,43 @@ EOF
   UV_INSECURE_ARGS+=(--allow-insecure-host github.com)
   UV_INSECURE_ARGS+=(--allow-insecure-host codeload.github.com)
   UV_INSECURE_ARGS+=(--allow-insecure-host raw.githubusercontent.com)
+  UV_INSECURE_ARGS+=(--allow-insecure-host pypi.python.org)
+  UV_INSECURE_ARGS+=(--allow-insecure-host objects.githubusercontent.com)
+  UV_INSECURE_ARGS+=(--allow-insecure-host release-assets.githubusercontent.com)
+  UV_INSECURE_ARGS+=(--allow-insecure-host huggingface.co)
+  UV_INSECURE_ARGS+=(--allow-insecure-host cdn-lfs.huggingface.co)
+  UV_INSECURE_ARGS+=(--allow-insecure-host download-r2.pytorch.org)
   UV_INSECURE_ARGS+=(--allow-insecure-host flashinfer.ai)
 fi
+if [[ "${A2UI_DISABLE_PROXY}" = "1" ]]; then
+  # Override stale proxy entries from user/global pip config. Those commonly
+  # surface as SSL WRONG_VERSION_NUMBER on pypi.org even with trusted-host.
+  PIP_PROXY_ARGS+=(--proxy "")
+fi
 
-python -m pip install "${PIP_TRUSTED_ARGS[@]}" --upgrade \
+pip_install() {
+  python -m pip install "${PIP_TRUSTED_ARGS[@]}" "${PIP_PROXY_ARGS[@]}" "$@" && return 0
+  local rc=$?
+  if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" || "${A2UI_DISABLE_PROXY}" = "1" ]]; then
+    echo "pip install failed; retrying once with proxy env cleared and pip config disabled." >&2
+    apply_ssl_bypass
+    PIP_CONFIG_FILE=/dev/null python -m pip install "${PIP_TRUSTED_ARGS[@]}" "${PIP_PROXY_ARGS[@]}" "$@" && return 0
+  fi
+  return "${rc}"
+}
+
+uv_pip_install() {
+  python -m uv pip install "${UV_INSECURE_ARGS[@]}" "$@" && return 0
+  local rc=$?
+  if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" || "${A2UI_DISABLE_PROXY}" = "1" ]]; then
+    echo "uv pip install failed; retrying once with proxy env cleared and pip config disabled." >&2
+    apply_ssl_bypass
+    PIP_CONFIG_FILE=/dev/null python -m uv pip install "${UV_INSECURE_ARGS[@]}" "$@" && return 0
+  fi
+  return "${rc}"
+}
+
+pip_install --upgrade \
   pip \
   wheel \
   "setuptools>=77.0.3,<81.0.0" \
@@ -572,7 +618,7 @@ python -m pip install "${PIP_TRUSTED_ARGS[@]}" --upgrade \
   jinja2
 
 if [[ "${A2UI_SKIP_PIP_INSTALL}" != "1" ]]; then
-  python -m pip install "${PIP_TRUSTED_ARGS[@]}" "uv>=0.5.0"
+  pip_install "uv>=0.5.0"
 
   if [[ "${A2UI_CLEAN_VLLM_STACK}" = "1" && "${A2UI_VLLM_INSTALL_MODE}" != "skip" ]]; then
     python -m uv pip uninstall -y \
@@ -614,7 +660,7 @@ for root in site.getsitepackages():
 PY
   fi
 
-  python -m uv pip install -U --reinstall \
+  uv_pip_install -U --reinstall \
     --torch-backend="${A2UI_TORCH_BACKEND}" \
     --extra-index-url "${PYTORCH_INDEX_URL}" \
     --index-strategy unsafe-best-match \
@@ -622,15 +668,13 @@ PY
     "torchvision==${TORCHVISION_VERSION}" \
     "torchaudio==${TORCHAUDIO_VERSION}" \
     "ninja>=1.11" \
-    "cmake>=3.28" \
-    "${UV_INSECURE_ARGS[@]}"
+    "cmake>=3.28"
 
-  python -m uv pip install \
+  uv_pip_install \
     "${CUDA_RUNTIME_PACKAGE}" \
     "${CUDA_NVCC_PACKAGE}" \
     "${CUDA_CRT_PACKAGE}" \
-    "${CUDA_CCCL_PACKAGE}" \
-    "${UV_INSECURE_ARGS[@]}" || {
+    "${CUDA_CCCL_PACKAGE}" || {
       echo "Warning: could not install CUDA runtime/NVCC/CRT/CCCL wheels (${CUDA_RUNTIME_PACKAGE}, ${CUDA_NVCC_PACKAGE}, ${CUDA_CRT_PACKAGE}, ${CUDA_CCCL_PACKAGE}). If vLLM or FlashInfer JIT fails, install matching CUDA packages manually." >&2
     }
   build_python_cuda_toolkit
@@ -638,25 +682,22 @@ PY
 
   case "${A2UI_VLLM_INSTALL_MODE}" in
     release)
-      python -m uv pip install -U --reinstall "vllm==${VLLM_VERSION}" \
+      uv_pip_install -U --reinstall "vllm==${VLLM_VERSION}" \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
-        --index-strategy unsafe-best-match \
-        "${UV_INSECURE_ARGS[@]}"
+        --index-strategy unsafe-best-match
       ;;
     nightly)
-      python -m uv pip install -U --reinstall vllm --pre \
+      uv_pip_install -U --reinstall vllm --pre \
         --extra-index-url "${VLLM_NIGHTLY_INDEX}" \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
-        --index-strategy unsafe-best-match \
-        "${UV_INSECURE_ARGS[@]}"
+        --index-strategy unsafe-best-match
       ;;
     source)
-      python -m uv pip install -U --reinstall \
+      uv_pip_install -U --reinstall \
         --torch-backend="${A2UI_TORCH_BACKEND}" \
         --extra-index-url "${PYTORCH_INDEX_URL}" \
         --index-strategy unsafe-best-match \
-        "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" "torchaudio==${TORCHAUDIO_VERSION}" \
-        "${UV_INSECURE_ARGS[@]}"
+        "torch==${TORCH_VERSION}" "torchvision==${TORCHVISION_VERSION}" "torchaudio==${TORCHAUDIO_VERSION}"
       mkdir -p "$(dirname "${VLLM_SOURCE_DIR}")"
       if [[ ! -d "${VLLM_SOURCE_DIR}/.git" ]]; then
         git clone https://github.com/vllm-project/vllm.git "${VLLM_SOURCE_DIR}"
@@ -665,11 +706,10 @@ PY
       git -C "${VLLM_SOURCE_DIR}" checkout "${VLLM_SOURCE_REF}"
       git -C "${VLLM_SOURCE_DIR}" submodule update --init --recursive
       require_nvcc_for_source_build
-      python -m uv pip install \
+      uv_pip_install \
         --torch-backend="${A2UI_TORCH_BACKEND}" \
         --no-build-isolation \
-        -e "${VLLM_SOURCE_DIR}" \
-        "${UV_INSECURE_ARGS[@]}"
+        -e "${VLLM_SOURCE_DIR}"
       ;;
     skip)
       echo "Skipping vLLM install because A2UI_VLLM_INSTALL_MODE=skip"
@@ -680,17 +720,16 @@ PY
       ;;
   esac
 
-  python -m uv pip install -U \
+  uv_pip_install -U \
     "flashinfer-python" \
-    "flashinfer-cubin" \
-    "${UV_INSECURE_ARGS[@]}" || {
+    "flashinfer-cubin" || {
       echo "Warning: could not install flashinfer-python/flashinfer-cubin from PyPI." >&2
     }
-  python -m pip install "${PIP_TRUSTED_ARGS[@]}" --index-url "${FLASHINFER_INDEX_URL}" -U "flashinfer-jit-cache" || {
+  pip_install --index-url "${FLASHINFER_INDEX_URL}" -U "flashinfer-jit-cache" || {
     echo "Warning: could not install flashinfer-jit-cache from ${FLASHINFER_INDEX_URL}. FlashInfer may JIT compile kernels on first use." >&2
   }
 
-  python -m uv pip install \
+  uv_pip_install \
     "pyyaml>=6.0.2" \
     "requests>=2.32.0" \
     "numpy>=1.26" \
@@ -704,8 +743,7 @@ PY
     "tqdm>=4.66" \
     "jupyterlab>=4.2" \
     "ninja>=1.11" \
-    "cmake>=3.28" \
-    "${UV_INSECURE_ARGS[@]}"
+    "cmake>=3.28"
 fi
 
 export_nvidia_python_libs
@@ -768,6 +806,9 @@ export PYTHONHTTPSVERIFY=0
 export GIT_SSL_NO_VERIFY=1
 export HF_HUB_DISABLE_SSL_VERIFICATION=1
 export PIP_CONFIG_FILE="${ENV_DIR}/pip_conf/pip.conf"
+unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy PIP_PROXY UV_HTTP_PROXY UV_HTTPS_PROXY
+export no_proxy="127.0.0.1,localhost,::1\${no_proxy:+,\${no_proxy}}"
+export NO_PROXY="127.0.0.1,localhost,::1\${NO_PROXY:+,\${NO_PROXY}}"
 _a2ui_export_nvidia_python_libs() {
   local py_lib_dir
   py_lib_dir="\$(python - <<'PY' 2>/dev/null || true
