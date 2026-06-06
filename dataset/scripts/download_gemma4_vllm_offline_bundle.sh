@@ -28,8 +28,12 @@ CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
 CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
 CUDA_CRT_PACKAGE="${CUDA_CRT_PACKAGE:-nvidia-cuda-crt==13.0.88}"
 CUDA_CCCL_PACKAGE="${CUDA_CCCL_PACKAGE:-nvidia-cuda-cccl==13.0.85}"
+MATPLOTLIB_VERSION="${MATPLOTLIB_VERSION:-3.10.9}"
+JUPYTERLAB_VERSION="${JUPYTERLAB_VERSION:-4.5.8}"
+BITSANDBYTES_VERSION="${BITSANDBYTES_VERSION:-0.49.2}"
+TRUSTSTORE_VERSION="${TRUSTSTORE_VERSION:-0.10.4}"
 GEMMA4_OFFLINE_TARGET_PLATFORM="${GEMMA4_OFFLINE_TARGET_PLATFORM:-manylinux_2_28_x86_64}"
-GEMMA4_OFFLINE_TARGET_PLATFORMS="${GEMMA4_OFFLINE_TARGET_PLATFORMS:-${GEMMA4_OFFLINE_TARGET_PLATFORM},manylinux2014_x86_64}"
+GEMMA4_OFFLINE_TARGET_PLATFORMS="${GEMMA4_OFFLINE_TARGET_PLATFORMS:-${GEMMA4_OFFLINE_TARGET_PLATFORM},manylinux_2_24_x86_64,manylinux2014_x86_64}"
 GEMMA4_OFFLINE_TARGET_PYTHON_VERSION="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:-311}"
 GEMMA4_OFFLINE_TARGET_IMPLEMENTATION="${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION:-cp}"
 GEMMA4_OFFLINE_TARGET_ABI="${GEMMA4_OFFLINE_TARGET_ABI:-cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}}"
@@ -41,11 +45,41 @@ if [[ "${GEMMA4_OFFLINE_CLEAN_WHEELHOUSE}" = "1" ]]; then
   rm -f "${WHEELHOUSE}"/*.whl
 fi
 
-if [[ ! -d "${DOWNLOAD_VENV}" ]]; then
-  "${PYTHON_BIN}" -m venv "${DOWNLOAD_VENV}"
+if [[ "${A2UI_DOWNLOAD_USE_SYSTEM_PYTHON:-0}" = "1" ]]; then
+  echo "Using system Python for downloads: ${PYTHON_BIN}"
+elif [[ ! -d "${DOWNLOAD_VENV}" ]]; then
+  if ! "${PYTHON_BIN}" -m venv "${DOWNLOAD_VENV}"; then
+    echo "Could not create download venv with ${PYTHON_BIN}; falling back to system Python if pip is available." >&2
+    if ! "${PYTHON_BIN}" -m pip --version >/dev/null 2>&1; then
+      echo "Selected Python has no venv and no pip: ${PYTHON_BIN}" >&2
+      echo "Install python3-venv/python3-pip, set PYTHON_BIN to a Python with pip, or set A2UI_DOWNLOAD_USE_SYSTEM_PYTHON=1 with a pip-capable Python." >&2
+      exit 1
+    fi
+    A2UI_DOWNLOAD_USE_SYSTEM_PYTHON=1
+  fi
 fi
-# shellcheck disable=SC1091
-source "${DOWNLOAD_VENV}/bin/activate"
+if [[ "${A2UI_DOWNLOAD_USE_SYSTEM_PYTHON:-0}" != "1" ]]; then
+  if [[ -f "${DOWNLOAD_VENV}/bin/activate" ]]; then
+    # shellcheck disable=SC1091
+    source "${DOWNLOAD_VENV}/bin/activate"
+  elif [[ -f "${DOWNLOAD_VENV}/Scripts/activate" ]]; then
+    # shellcheck disable=SC1091
+    source "${DOWNLOAD_VENV}/Scripts/activate"
+  else
+    echo "Download venv was created but no activation script was found: ${DOWNLOAD_VENV}" >&2
+    exit 1
+  fi
+fi
+DOWNLOAD_PYTHON="python"
+if [[ "${A2UI_DOWNLOAD_USE_SYSTEM_PYTHON:-0}" = "1" ]]; then
+  DOWNLOAD_PYTHON="${PYTHON_BIN}"
+fi
+PYTHON_BUNDLE_DIR="${BUNDLE_DIR}"
+PYTHON_WHEELHOUSE="${WHEELHOUSE}"
+if [[ "${DOWNLOAD_PYTHON}" == *.exe ]] && command -v wslpath >/dev/null 2>&1; then
+  PYTHON_BUNDLE_DIR="$(wslpath -w "${BUNDLE_DIR}")"
+  PYTHON_WHEELHOUSE="$(wslpath -w "${WHEELHOUSE}")"
+fi
 
 PIP_SSL_ARGS=()
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
@@ -86,12 +120,12 @@ for target_platform in "${GEMMA4_OFFLINE_TARGET_PLATFORM_LIST[@]}"; do
 done
 
 download_wheels() {
-  python -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${WHEELHOUSE}" "$@"
+  "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" "$@"
 }
 
 wheelhouse_has_package() {
   local normalized="$1"
-  python - "${WHEELHOUSE}" "${normalized}" <<'PY'
+  "${DOWNLOAD_PYTHON}" - "${PYTHON_WHEELHOUSE}" "${normalized}" <<'PY'
 import sys
 from pathlib import Path
 
@@ -116,9 +150,9 @@ download_required_binary_wheel() {
   local spec
   for spec in "$@"; do
     echo "Downloading required binary wheel: ${spec}"
-    python -m pip download "${PIP_SSL_ARGS[@]}" \
+    "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
       "${PIP_TARGET_ARGS[@]}" \
-      --dest "${WHEELHOUSE}" \
+      --dest "${PYTHON_WHEELHOUSE}" \
       --no-deps \
       "${spec}" || true
     if wheelhouse_has_package "${normalized}" >/dev/null; then
@@ -138,9 +172,9 @@ download_required_target_binary_wheel() {
   for spec in "$@"; do
     echo "Downloading required target wheel: ${spec}"
     echo "  platforms=${GEMMA4_OFFLINE_TARGET_PLATFORMS} python=${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION} abi=${GEMMA4_OFFLINE_TARGET_ABI}"
-    python -m pip download "${PIP_SSL_ARGS[@]}" \
+    "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
       "${PIP_TARGET_ARGS[@]}" \
-      --dest "${WHEELHOUSE}" \
+      --dest "${PYTHON_WHEELHOUSE}" \
       --no-deps \
       "${spec}" || true
     if wheelhouse_has_package "${normalized}" >/dev/null; then
@@ -152,7 +186,7 @@ download_required_target_binary_wheel() {
   return 1
 }
 
-python -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip wheel setuptools
+"${DOWNLOAD_PYTHON}" -m pip install "${PIP_SSL_ARGS[@]}" --upgrade pip wheel setuptools
 
 download_wheels \
   pip \
@@ -214,9 +248,9 @@ download_wheels "flashinfer-python" "flashinfer-cubin" || {
   echo "Warning: could not download flashinfer-python/flashinfer-cubin from PyPI." >&2
 }
 
-python -m pip download "${PIP_SSL_ARGS[@]}" \
+"${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
   "${PIP_TARGET_ARGS[@]}" \
-  --dest "${WHEELHOUSE}" \
+  --dest "${PYTHON_WHEELHOUSE}" \
   --index-url "${FLASHINFER_INDEX_URL}" \
   "flashinfer-jit-cache" || {
     echo "Warning: could not download flashinfer-jit-cache from ${FLASHINFER_INDEX_URL}." >&2
@@ -227,7 +261,6 @@ download_wheels \
   "requests>=2.32.0" \
   "numpy>=1.26" \
   "pillow>=10.0" \
-  "matplotlib>=3.8" \
   "jsonschema>=4.23" \
   "referencing>=0.35" \
   "jsonschema-specifications>=2023.12.1" \
@@ -235,21 +268,25 @@ download_wheels \
   "rpds-py>=0.20" \
   "openai>=1.60" \
   "httpx>=0.27" \
-  "truststore>=0.10" \
-  "tqdm>=4.66" \
-  "jupyterlab>=4.2" \
-  "bitsandbytes>=0.45"
+  "tqdm>=4.66"
 
-export BUNDLE_DIR WHEELHOUSE
-export GEMMA4_OFFLINE_TARGET_PLATFORM GEMMA4_OFFLINE_TARGET_PLATFORMS GEMMA4_OFFLINE_TARGET_PYTHON_VERSION GEMMA4_OFFLINE_TARGET_ABI
-python - <<'PY'
+"${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
+  "${PIP_TARGET_ARGS[@]}" \
+  --dest "${PYTHON_WHEELHOUSE}" \
+  --no-deps \
+  "matplotlib==${MATPLOTLIB_VERSION}" \
+  "jupyterlab==${JUPYTERLAB_VERSION}" \
+  "bitsandbytes==${BITSANDBYTES_VERSION}" \
+  "truststore==${TRUSTSTORE_VERSION}"
+
+"${DOWNLOAD_PYTHON}" - "${PYTHON_WHEELHOUSE}" "${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}" "${GEMMA4_OFFLINE_TARGET_ABI}" "${GEMMA4_OFFLINE_TARGET_PLATFORMS}" <<'PY'
 import os
 import re
 import sys
 from pathlib import Path
 
-wheelhouse = Path(__import__("os").environ["WHEELHOUSE"])
-wheel_names = [path.name.lower().replace("_", "-") for path in wheelhouse.glob("*.whl")]
+wheelhouse = Path(sys.argv[1])
+wheel_names = [path.name.lower() for path in wheelhouse.glob("*.whl")]
 required = {
     "pip": "pip",
     "wheel": "wheel",
@@ -261,13 +298,13 @@ required = {
 missing = [
     name
     for name, normalized in required.items()
-    if not any(wheel.startswith(f"{normalized}-") for wheel in wheel_names)
+    if not any(wheel.replace("_", "-").startswith(f"{normalized}-") for wheel in wheel_names)
 ]
-target_python = os.environ["GEMMA4_OFFLINE_TARGET_PYTHON_VERSION"]
-target_abi = os.environ["GEMMA4_OFFLINE_TARGET_ABI"].lower()
+target_python = sys.argv[2]
+target_abi = sys.argv[3].lower()
 target_platforms = [
-    platform.strip().lower().replace("_", "-")
-    for platform in os.environ["GEMMA4_OFFLINE_TARGET_PLATFORMS"].replace(",", " ").split()
+    platform.strip().lower()
+    for platform in sys.argv[4].replace(",", " ").split()
     if platform.strip()
 ]
 markupsafe_wheels = [wheel for wheel in wheel_names if wheel.startswith("markupsafe-")]
@@ -345,21 +382,22 @@ Copy this whole folder to the offline GPU machine, then run from the A2UI repo:
 The target machine should use the same Python minor version and compatible Linux/CUDA stack.
 EOF
 
-python - <<'PY'
+"${DOWNLOAD_PYTHON}" - "${PYTHON_BUNDLE_DIR}" "${PYTHON_WHEELHOUSE}" "${GEMMA4_OFFLINE_TARGET_PLATFORM}" "${GEMMA4_OFFLINE_TARGET_PLATFORMS}" "${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}" "${GEMMA4_OFFLINE_TARGET_ABI}" <<'PY'
 import json
 import os
+import sys
 from pathlib import Path
 
-bundle = Path(os.environ.get("BUNDLE_DIR", "gemma4_vllm_offline_bundle")).resolve()
-wheelhouse = bundle / "wheelhouse"
+bundle = Path(sys.argv[1]).resolve()
+wheelhouse = Path(sys.argv[2]).resolve()
 manifest = {
     "bundle": str(bundle),
     "wheelhouse": str(wheelhouse),
     "wheel_count": len(list(wheelhouse.glob("*"))),
-    "target_platform": os.environ.get("GEMMA4_OFFLINE_TARGET_PLATFORM"),
-    "target_platforms": os.environ.get("GEMMA4_OFFLINE_TARGET_PLATFORMS"),
-    "target_python": f"cp{os.environ.get('GEMMA4_OFFLINE_TARGET_PYTHON_VERSION', '')}",
-    "target_abi": os.environ.get("GEMMA4_OFFLINE_TARGET_ABI"),
+    "target_platform": sys.argv[3],
+    "target_platforms": sys.argv[4],
+    "target_python": f"cp{sys.argv[5]}",
+    "target_abi": sys.argv[6],
 }
 (bundle / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 print(json.dumps(manifest, indent=2))
