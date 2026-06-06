@@ -41,8 +41,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -347,6 +347,9 @@ internal object NativeWeatherUiRenderer {
         val rainMetric = remember(row.metrics) { findRainMetric(row.metrics) }
         val daypartMetrics = remember(row.metrics) { findWeatherDaypartMetrics(row.metrics) }
         val rainPercent = remember(rainMetric) { rainMetric?.second?.let(::extractPercentValue) }
+        val visibleRainMetric = remember(rainMetric, rainPercent) {
+            rainMetric?.takeUnless { rainPercent != null && rainPercent < 20f }
+        }
         val metricTiles = remember(row.metrics, advice, rainMetric, daypartMetrics) {
             val daypartKeys = daypartMetrics.map { metric -> weatherMetricKey(metric.first) }.toSet()
             row.metrics
@@ -473,12 +476,12 @@ internal object NativeWeatherUiRenderer {
                     }
                 }
 
-                if (rainMetric != null || daypartMetrics.isNotEmpty()) {
-                    val (label, value) = rainMetric ?: ("Hourly outlook" to "")
+                if (visibleRainMetric != null || daypartMetrics.isNotEmpty()) {
+                    val (label, value) = visibleRainMetric ?: ("Hourly outlook" to "")
                     WeatherRainRiskStrip(
                         label = sanitizeDisplayText(label),
                         value = sanitizeDisplayText(value),
-                        percent = rainPercent,
+                        percent = rainPercent?.takeIf { visibleRainMetric != null },
                         dark = dark,
                         dayparts = daypartMetrics.map { (partLabel, partValue) ->
                             sanitizeDisplayText(partLabel) to sanitizeDisplayText(partValue)
@@ -551,7 +554,8 @@ internal object NativeWeatherUiRenderer {
         dayparts: List<Pair<String, String>> = emptyList()
     ) {
         val safeDayparts = dayparts.filter { (_, partValue) -> partValue.isNotBlank() }
-        if (label.isBlank() || (value.isBlank() && safeDayparts.isEmpty())) {
+        val showRainRisk = label.isNotBlank() && value.isNotBlank()
+        if (!showRainRisk && safeDayparts.isEmpty()) {
             return
         }
         Column(
@@ -567,19 +571,19 @@ internal object NativeWeatherUiRenderer {
                 .padding(horizontal = 12.dp, vertical = 11.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                MarkdownText(
-                    text = if (isRainLikeLabel(label)) "Rain risk" else label,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = weatherRainAccent(dark),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (value.isNotBlank()) {
+            if (showRainRisk) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MarkdownText(
+                        text = if (isRainLikeLabel(label)) "Rain risk" else label,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = weatherRainAccent(dark),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     MarkdownText(
                         text = value,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
@@ -589,7 +593,7 @@ internal object NativeWeatherUiRenderer {
                     )
                 }
             }
-            percent?.let { safePercent ->
+            percent?.takeIf { showRainRisk }?.let { safePercent ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
