@@ -11,6 +11,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import java.nio.charset.Charset
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 internal object NativeTextFormatter {
@@ -23,6 +26,11 @@ internal object NativeTextFormatter {
     private val URL_REGEX = Regex(
         """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
     )
+    private val ISO_DATE_TIME_REGEX =
+        Regex("""\d{4}-\d{2}-\d{2}(?:[T\s]\d{2}:\d{2}(?::\d{2})?(?:\.\d{1,9})?(?:Z|[+-]\d{2}:?\d{2})?)?""")
+    private val ISO_TIME_PREFIX_REGEX = Regex("""[T\s](\d{2}):(\d{2})""")
+    private val READABLE_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d", Locale.US)
+    private val READABLE_TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a", Locale.US)
 
     fun containsMarkdownInlineFormatting(text: String): Boolean {
         return text.contains("**") ||
@@ -225,6 +233,7 @@ internal object NativeTextFormatter {
         if (!preserveMarkdown) {
             cleaned = cleaned.replace("**", "")
         }
+        cleaned = formatReadableIsoDateTimes(cleaned)
         cleaned = cleaned.replace(Regex("[ \\t]{2,}"), " ")
         cleaned = cleaned.replace(Regex(" *([,.;:])"), "$1")
         cleaned = cleaned.replace(Regex("\\n{3,}"), "\n\n")
@@ -302,6 +311,53 @@ internal object NativeTextFormatter {
     }
 
     fun containsUrlLikeToken(value: String): Boolean = URL_REGEX.containsMatchIn(value)
+
+    private fun formatReadableIsoDateTimes(text: String): String {
+        if (!ISO_DATE_TIME_REGEX.containsMatchIn(text)) {
+            return text
+        }
+        val urlRanges = URL_REGEX.findAll(text).map { match -> match.range }.toList()
+        return ISO_DATE_TIME_REGEX.replace(text) { match ->
+            if (!shouldFormatIsoDateMatch(text, match.range, urlRanges)) {
+                return@replace match.value
+            }
+            val date = runCatching { LocalDate.parse(match.value.take(10)) }.getOrNull()
+                ?: return@replace match.value
+            val dateText = date.format(READABLE_DATE_FORMATTER)
+            val timeMatch = ISO_TIME_PREFIX_REGEX.find(match.value)
+            if (timeMatch == null) {
+                dateText
+            } else {
+                val hour = timeMatch.groupValues[1].toIntOrNull()
+                val minute = timeMatch.groupValues[2].toIntOrNull()
+                val timeText = if (hour != null && minute != null) {
+                    runCatching { LocalTime.of(hour, minute).format(READABLE_TIME_FORMATTER) }.getOrNull()
+                } else {
+                    null
+                }
+                if (timeText == null) dateText else "$dateText, $timeText"
+            }
+        }
+    }
+
+    private fun shouldFormatIsoDateMatch(
+        text: String,
+        range: IntRange,
+        urlRanges: List<IntRange>
+    ): Boolean {
+        if (urlRanges.any { urlRange -> range.first <= urlRange.last && range.last >= urlRange.first }) {
+            return false
+        }
+        val previous = text.getOrNull(range.first - 1)
+        val next = text.getOrNull(range.last + 1)
+        if (previous != null && (previous.isLetterOrDigit() || previous == '_' || previous == '/' || previous == '\\' || previous == '.')) {
+            return false
+        }
+        if (next != null && (next.isLetterOrDigit() || next == '_' || next == '/' || next == '\\')) {
+            return false
+        }
+        return true
+    }
 
     private fun findBalancedMarkerEnd(text: String, start: Int, marker: String): Int {
         var search = start + marker.length

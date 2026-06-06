@@ -5,6 +5,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.renderer.native.NativePayloadParser
+import com.samsung.genuicraft.renderer.native.NativeTextFormatter
 import java.io.File
 import java.nio.charset.Charset
 import java.util.Locale
@@ -1321,7 +1322,12 @@ object GenUiHtmlRenderer {
     }
 
     private fun formatInlineText(rawText: String, sourceDir: File?): String {
-        val escaped = escapeHtml(normalizeMojibakeText(rawText))
+        val escaped = escapeHtml(
+            NativeTextFormatter.sanitizeDisplayText(
+                normalizeMojibakeText(rawText),
+                preserveMarkdown = true
+            )
+        )
         val withLeadingLabels = emphasizeLeadingLabels(escaped)
         val withBold = BOLD_REGEX.replace(withLeadingLabels) { match ->
             "<strong>${match.groupValues[1]}</strong>"
@@ -1990,10 +1996,7 @@ object GenUiHtmlRenderer {
     }
 
     private fun sanitizeDisplayText(value: String): String {
-        return value
-            .replace("\u00A0", " ")
-            .replace(Regex("""\s+"""), " ")
-            .trim()
+        return NativeTextFormatter.sanitizeDisplayText(value.replace("\u00A0", " "))
     }
 
     private fun mojibakeScore(value: String): Int {
