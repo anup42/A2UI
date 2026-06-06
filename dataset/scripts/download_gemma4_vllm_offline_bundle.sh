@@ -77,6 +77,7 @@ download_wheels \
   "setuptools-scm>=8.0" \
   "packaging>=24.2" \
   jinja2 \
+  "MarkupSafe>=2.0" \
   "uv>=0.5.0"
 
 download_wheels \
@@ -152,6 +153,25 @@ download_wheels \
   "bitsandbytes>=0.45"
 
 export BUNDLE_DIR WHEELHOUSE
+python - <<'PY'
+import sys
+from pathlib import Path
+
+wheelhouse = Path(__import__("os").environ["WHEELHOUSE"])
+required = {
+    "pip": "pip-*.whl",
+    "wheel": "wheel-*.whl",
+    "setuptools": "setuptools-*.whl",
+    "jinja2": "jinja2-*.whl",
+    "MarkupSafe": "MarkupSafe-*.whl",
+    "uv": "uv-*.whl",
+}
+missing = [name for name, pattern in required.items() if not list(wheelhouse.glob(pattern))]
+if missing:
+    print(f"Missing required offline wheels: {', '.join(missing)}", file=sys.stderr)
+    sys.exit(1)
+PY
+
 cat > "${BUNDLE_DIR}/README.txt" <<EOF
 Gemma4 vLLM offline bundle
 
