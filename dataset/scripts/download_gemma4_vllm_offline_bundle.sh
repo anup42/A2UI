@@ -32,8 +32,13 @@ GEMMA4_OFFLINE_TARGET_PLATFORM="${GEMMA4_OFFLINE_TARGET_PLATFORM:-manylinux2014_
 GEMMA4_OFFLINE_TARGET_PYTHON_VERSION="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:-311}"
 GEMMA4_OFFLINE_TARGET_IMPLEMENTATION="${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION:-cp}"
 GEMMA4_OFFLINE_TARGET_ABI="${GEMMA4_OFFLINE_TARGET_ABI:-cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}}"
+GEMMA4_OFFLINE_CLEAN_WHEELHOUSE="${GEMMA4_OFFLINE_CLEAN_WHEELHOUSE:-1}"
 
 mkdir -p "${WHEELHOUSE}"
+if [[ "${GEMMA4_OFFLINE_CLEAN_WHEELHOUSE}" = "1" ]]; then
+  echo "Cleaning existing wheelhouse to avoid stale wheels for the wrong Python ABI..."
+  rm -f "${WHEELHOUSE}"/*.whl
+fi
 
 if [[ ! -d "${DOWNLOAD_VENV}" ]]; then
   "${PYTHON_BIN}" -m venv "${DOWNLOAD_VENV}"
@@ -66,9 +71,16 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
     --trusted-host flashinfer.ai
   )
 fi
+PIP_TARGET_ARGS=(
+  --only-binary=:all:
+  --platform "${GEMMA4_OFFLINE_TARGET_PLATFORM}"
+  --python-version "${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}"
+  --implementation "${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION}"
+  --abi "${GEMMA4_OFFLINE_TARGET_ABI}"
+)
 
 download_wheels() {
-  python -m pip download "${PIP_SSL_ARGS[@]}" --dest "${WHEELHOUSE}" "$@"
+  python -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${WHEELHOUSE}" "$@"
 }
 
 wheelhouse_has_package() {
@@ -99,8 +111,8 @@ download_required_binary_wheel() {
   for spec in "$@"; do
     echo "Downloading required binary wheel: ${spec}"
     python -m pip download "${PIP_SSL_ARGS[@]}" \
+      "${PIP_TARGET_ARGS[@]}" \
       --dest "${WHEELHOUSE}" \
-      --only-binary=:all: \
       --no-deps \
       "${spec}" || true
     if wheelhouse_has_package "${normalized}" >/dev/null; then
@@ -121,13 +133,9 @@ download_required_target_binary_wheel() {
     echo "Downloading required target wheel: ${spec}"
     echo "  platform=${GEMMA4_OFFLINE_TARGET_PLATFORM} python=${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION} abi=${GEMMA4_OFFLINE_TARGET_ABI}"
     python -m pip download "${PIP_SSL_ARGS[@]}" \
+      "${PIP_TARGET_ARGS[@]}" \
       --dest "${WHEELHOUSE}" \
-      --only-binary=:all: \
       --no-deps \
-      --platform "${GEMMA4_OFFLINE_TARGET_PLATFORM}" \
-      --python-version "${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}" \
-      --implementation "${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION}" \
-      --abi "${GEMMA4_OFFLINE_TARGET_ABI}" \
       "${spec}" || true
     if wheelhouse_has_package "${normalized}" >/dev/null; then
       echo "Downloaded target wheel for ${normalized}: $(wheelhouse_has_package "${normalized}")"
@@ -201,6 +209,7 @@ download_wheels "flashinfer-python" "flashinfer-cubin" || {
 }
 
 python -m pip download "${PIP_SSL_ARGS[@]}" \
+  "${PIP_TARGET_ARGS[@]}" \
   --dest "${WHEELHOUSE}" \
   --index-url "${FLASHINFER_INDEX_URL}" \
   "flashinfer-jit-cache" || {
@@ -229,6 +238,7 @@ export BUNDLE_DIR WHEELHOUSE
 export GEMMA4_OFFLINE_TARGET_PLATFORM GEMMA4_OFFLINE_TARGET_PYTHON_VERSION GEMMA4_OFFLINE_TARGET_ABI
 python - <<'PY'
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -266,6 +276,40 @@ if markupsafe_wheels and not compatible_markupsafe:
     for wheel in markupsafe_wheels:
         print(f"  incompatible: {wheel}", file=sys.stderr)
     missing.append("MarkupSafe-compatible-target-wheel")
+
+target_major = int(target_python[0])
+target_minor = int(target_python[1:])
+incompatible_python_wheels = []
+for wheel in wheel_names:
+    if not wheel.endswith(".whl"):
+        continue
+    parts = wheel[:-4].rsplit("-", 3)
+    if len(parts) != 4:
+        continue
+    python_tag, abi_tag, _platform_tag = parts[1:]
+    python_tags = python_tag.split(".")
+    abi_tags = set(abi_tag.split("."))
+
+    def is_python_compatible(tag: str) -> bool:
+        if tag.startswith("py3"):
+            return True
+        if tag == f"cp{target_python}":
+            return True
+        match = re.fullmatch(r"cp(\d)(\d+)", tag)
+        if match and "abi3" in abi_tags:
+            major = int(match.group(1))
+            minor = int(match.group(2))
+            return major == target_major and minor <= target_minor
+        return False
+
+    if not any(is_python_compatible(tag) for tag in python_tags):
+        incompatible_python_wheels.append(wheel)
+
+if incompatible_python_wheels:
+    print(f"Found wheels incompatible with target Python cp{target_python}:", file=sys.stderr)
+    for wheel in sorted(incompatible_python_wheels):
+        print(f"  incompatible: {wheel}", file=sys.stderr)
+    missing.append("target-python-compatible-wheels")
 if missing:
     print(f"Missing required offline wheels: {', '.join(missing)}", file=sys.stderr)
     print("Available wheels:", file=sys.stderr)
@@ -279,6 +323,11 @@ Gemma4 vLLM offline bundle
 
 Wheelhouse:
   ${WHEELHOUSE}
+
+Target:
+  platform=${GEMMA4_OFFLINE_TARGET_PLATFORM}
+  python=cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}
+  abi=${GEMMA4_OFFLINE_TARGET_ABI}
 
 Copy this whole folder to the offline GPU machine, then run from the A2UI repo:
   bash dataset/scripts/install_gemma4_vllm_offline_env.sh /path/to/gemma4_vllm_offline_bundle
@@ -297,6 +346,9 @@ manifest = {
     "bundle": str(bundle),
     "wheelhouse": str(wheelhouse),
     "wheel_count": len(list(wheelhouse.glob("*"))),
+    "target_platform": os.environ.get("GEMMA4_OFFLINE_TARGET_PLATFORM"),
+    "target_python": f"cp{os.environ.get('GEMMA4_OFFLINE_TARGET_PYTHON_VERSION', '')}",
+    "target_abi": os.environ.get("GEMMA4_OFFLINE_TARGET_ABI"),
 }
 (bundle / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 print(json.dumps(manifest, indent=2))
