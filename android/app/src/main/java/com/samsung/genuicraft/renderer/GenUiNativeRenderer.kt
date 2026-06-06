@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.Button
@@ -546,29 +547,33 @@ object GenUiNativeRenderer {
     ) {
         // Phase 2+: flat spec format — use new renderer
         if (surface.flatSpec != null) {
-            FlatSpecContent(
-                spec = surface.flatSpec,
-                resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
-                collapseRootHorizontalPadding = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            SelectionContainer {
+                FlatSpecContent(
+                    spec = surface.flatSpec,
+                    resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
+                    collapseRootHorizontalPadding = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             return
         }
 
         // Legacy format
         if (!useOuterCard) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                RenderComponent(
-                    id = surface.rootId,
-                    index = surface.components,
-                    sourceDir = sourceDir,
-                    onOpenExternalUrl = onOpenExternalUrl,
-                    onRuntimeAction = onRuntimeAction,
-                    activePath = emptySet()
-                )
+            SelectionContainer {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    RenderComponent(
+                        id = surface.rootId,
+                        index = surface.components,
+                        sourceDir = sourceDir,
+                        onOpenExternalUrl = onOpenExternalUrl,
+                        onRuntimeAction = onRuntimeAction,
+                        activePath = emptySet()
+                    )
+                }
             }
             return
         }
@@ -586,14 +591,16 @@ object GenUiNativeRenderer {
                     .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                RenderComponent(
-                    id = surface.rootId,
-                    index = surface.components,
-                    sourceDir = sourceDir,
-                    onOpenExternalUrl = onOpenExternalUrl,
-                    onRuntimeAction = onRuntimeAction,
-                    activePath = emptySet()
-                )
+                SelectionContainer {
+                    RenderComponent(
+                        id = surface.rootId,
+                        index = surface.components,
+                        sourceDir = sourceDir,
+                        onOpenExternalUrl = onOpenExternalUrl,
+                        onRuntimeAction = onRuntimeAction,
+                        activePath = emptySet()
+                    )
+                }
             }
         }
     }
