@@ -1,5 +1,7 @@
 package com.samsung.genuicraft.renderer.native.intents.weather
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -42,8 +44,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -60,6 +65,7 @@ import com.samsung.genuicraft.genUiCardContainerColor
 import com.samsung.genuicraft.genUiTableContainerColor
 import com.samsung.genuicraft.renderer.native.WeatherCurrentDetails
 import com.samsung.genuicraft.renderer.native.WeatherRow
+import java.time.LocalTime
 import kotlin.math.max
 
 internal object NativeWeatherUiRenderer {
@@ -681,7 +687,8 @@ internal object NativeWeatherUiRenderer {
                 WeatherConditionIcon(
                     condition = value,
                     size = 15.dp,
-                    sanitizeDisplayText = ::sanitizeDisplayText
+                    sanitizeDisplayText = ::sanitizeDisplayText,
+                    timeContext = label
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 MarkdownText(
@@ -1403,8 +1410,29 @@ internal object NativeWeatherUiRenderer {
     fun WeatherConditionIcon(
         condition: String?,
         size: Dp,
-        sanitizeDisplayText: (String) -> String
+        sanitizeDisplayText: (String) -> String,
+        timeContext: String? = null
     ) {
+        val context = LocalContext.current
+        val assetPath = remember(condition, timeContext) {
+            weatherConditionAssetPath(condition, timeContext)
+        }
+        val painter = remember(context, assetPath) {
+            runCatching {
+                context.assets.open(assetPath).use { input ->
+                    BitmapFactory.decodeStream(input)?.asImageBitmap()?.let(::BitmapPainter)
+                }
+            }.getOrNull()
+        }
+        if (painter != null) {
+            Image(
+                painter = painter,
+                contentDescription = sanitizeDisplayText(condition.orEmpty()).ifBlank { "Weather condition" },
+                modifier = Modifier.size(size)
+            )
+            return
+        }
+
         val (icon, tint) = weatherConditionIconSpec(condition)
         Icon(
             imageVector = icon,
@@ -1488,6 +1516,89 @@ internal object NativeWeatherUiRenderer {
                 Icons.Filled.WbSunny to Color(0xFFFFB300)
 
             else -> Icons.Filled.Cloud to MaterialTheme.colorScheme.primary
+        }
+    }
+
+    private fun weatherConditionAssetPath(condition: String?, timeContext: String?): String {
+        val variant = if (useNightWeatherAsset(condition, timeContext)) "night" else "day"
+        return "weather_icons/$variant/${weatherConditionAssetName(condition)}.webp"
+    }
+
+    private fun useNightWeatherAsset(condition: String?, timeContext: String?): Boolean {
+        val contextText = listOfNotNull(condition, timeContext).joinToString(" ")
+        if (NativeWeatherSemantics.isNightWeatherContext(contextText)) {
+            return true
+        }
+        val normalized = NativeWeatherSemantics.normalizeWeatherText(timeContext.orEmpty())
+        if (normalized.contains("evening") || normalized.contains("night") || normalized.contains("overnight")) {
+            return true
+        }
+        if (timeContext.isNullOrBlank()) {
+            val hour = LocalTime.now().hour
+            return hour < 6 || hour >= 18
+        }
+        return false
+    }
+
+    private fun weatherConditionAssetName(condition: String?): String {
+        val normalized = NativeWeatherSemantics.normalizeWeatherText(condition.orEmpty())
+        return when {
+            normalized.contains("hurricane") || normalized.contains("cyclone") || normalized.contains("typhoon") ->
+                "hurricane"
+            normalized.contains("sand") || normalized.contains("dust") ->
+                "sand_storm"
+            normalized.contains("hail") ->
+                "hail"
+            normalized.contains("ice") || normalized.contains("freez") ->
+                "ice"
+            normalized.contains("sleet") ->
+                "rain_and_sleet"
+            (normalized.contains("rain") || normalized.contains("shower")) &&
+                (normalized.contains("snow") || normalized.contains("flurr")) ->
+                "rain_and_snow"
+            normalized.contains("heavy") && normalized.contains("snow") ->
+                "heavy_snow"
+            normalized.contains("light") && normalized.contains("snow") ->
+                "light_snow"
+            normalized.contains("flurr") && (normalized.contains("partly") || normalized.contains("sun")) ->
+                "partly_sunny_with_flurries"
+            normalized.contains("snow") || normalized.contains("blizzard") ->
+                "snow"
+            (normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning")) &&
+                (normalized.contains("rain") || normalized.contains("shower")) ->
+                "rain_and_thunder"
+            (normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning")) &&
+                (normalized.contains("partly") || normalized.contains("sun") || normalized.contains("cloud")) ->
+                "partly_sunny_with_thunder"
+            normalized.contains("thunder") || normalized.contains("storm") || normalized.contains("lightning") ->
+                "thunderstorm"
+            normalized.contains("heavy") && normalized.contains("rain") ->
+                "heavy_rain"
+            normalized.contains("shower") && (normalized.contains("partly") || normalized.contains("sun")) ->
+                "partly_sunny_with_shower"
+            normalized.contains("shower") ->
+                "shower"
+            normalized.contains("rain") || normalized.contains("drizzle") || normalized.contains("precip") ->
+                "rain"
+            normalized.contains("fog") || normalized.contains("mist") || normalized.contains("haze") ->
+                "fog"
+            normalized.contains("wind") || normalized.contains("breeze") ->
+                "wind"
+            normalized.contains("hot") || normalized.contains("heat") ->
+                "hot"
+            normalized.contains("cold") || normalized.contains("chill") ->
+                "cold"
+            normalized.contains("mostly") && normalized.contains("sun") ->
+                "mostly_sunny"
+            normalized.contains("mostly") && normalized.contains("cloud") ->
+                "mostly_cloudy"
+            normalized.contains("partly") || normalized.contains("partial") ->
+                "partly_cloud"
+            normalized.contains("cloud") || normalized.contains("overcast") ->
+                "cloudy"
+            normalized.contains("clear") || normalized.contains("sun") || normalized.contains("fair") ->
+                "sunny"
+            else -> "cloudy"
         }
     }
 
