@@ -123,6 +123,10 @@ download_wheels() {
   "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" "$@"
 }
 
+download_wheels_no_deps() {
+  "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" --no-deps "$@"
+}
+
 wheelhouse_has_package() {
   local normalized="$1"
   "${DOWNLOAD_PYTHON}" - "${PYTHON_WHEELHOUSE}" "${normalized}" <<'PY'
@@ -203,10 +207,13 @@ download_required_target_binary_wheel "markupsafe" "MarkupSafe>=2.0" "markupsafe
 download_wheels \
   --extra-index-url "${PYTORCH_INDEX_URL}" \
   "torch==${TORCH_VERSION}" \
-  "torchvision==${TORCHVISION_VERSION}" \
-  "torchaudio==${TORCHAUDIO_VERSION}" \
   "ninja>=1.11" \
   "cmake>=3.28"
+
+download_wheels_no_deps \
+  --extra-index-url "${PYTORCH_INDEX_URL}" \
+  "torchvision==${TORCHVISION_VERSION}" \
+  "torchaudio==${TORCHAUDIO_VERSION}"
 
 download_wheels \
   "${CUDA_RUNTIME_PACKAGE}" \
