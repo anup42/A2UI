@@ -39,6 +39,32 @@ class NativeWeatherSemanticsTest {
     }
 
     @Test
+    fun buildWeatherRows_preservesRainChanceAndClothingAdvice() {
+        val header = listOf("Day", "Forecast", "Temp", "Rain Chance", "Clothing Advice")
+        val body = listOf(
+            listOf(
+                "Saturday",
+                "Cloudy with showers",
+                "26\u00B0C / 21\u00B0C",
+                "75%",
+                "Light cotton, quick-dry shoes, and compact umbrella."
+            )
+        )
+
+        val rows = NativeWeatherSemantics.buildWeatherRows(header, body)
+
+        assertNotNull(rows)
+        val row = rows!!.single()
+        assertEquals("Cloudy with showers", row.condition)
+        assertEquals("26\u00B0C / 21\u00B0C", normalizeDegreeArtifacts(row.temp))
+        assertEquals("75%", row.metrics.first { it.first == "Rain Chance" }.second)
+        assertEquals(
+            "Light cotton, quick-dry shoes, and compact umbrella.",
+            row.metrics.first { it.first == "What to wear" }.second
+        )
+    }
+
+    @Test
     fun buildCurrentWeatherDetails_handlesPlaceholderIconAndBulletMetrics() {
         val details = NativeWeatherSemantics.buildCurrentWeatherDetails(
             title = "Current Weather in Bengaluru",

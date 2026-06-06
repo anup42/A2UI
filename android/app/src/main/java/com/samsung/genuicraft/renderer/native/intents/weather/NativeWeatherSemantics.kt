@@ -33,12 +33,7 @@ internal object NativeWeatherSemantics {
                 return@mapNotNull null
             }
 
-            val metrics = buildList {
-                normalizeWeatherCell(readCell(row, columns.precip))?.let { add("Precip" to it) }
-                normalizeWeatherCell(readCell(row, columns.wind))?.let { add("Wind" to it) }
-                normalizeWeatherCell(readCell(row, columns.humidity))?.let { add("Humidity" to it) }
-                normalizeWeatherCell(readCell(row, columns.uv))?.let { add("UV" to it) }
-            }
+            val metrics = buildWeatherRowMetrics(header, row, columns)
 
             WeatherRow(
                 period = period,
@@ -126,6 +121,86 @@ internal object NativeWeatherSemantics {
             humidity = humidity,
             uv = uv
         )
+    }
+
+    private fun buildWeatherRowMetrics(
+        header: List<String>,
+        row: List<String>,
+        columns: WeatherTableColumns
+    ): List<Pair<String, String>> {
+        val consumed = setOfNotNull(
+            columns.period,
+            columns.date,
+            columns.condition,
+            columns.high,
+            columns.low,
+            columns.temp
+        )
+        val explicitMetricIndexes = listOfNotNull(
+            columns.precip,
+            columns.wind,
+            columns.humidity,
+            columns.uv
+        )
+        val metrics = linkedMapOf<Int, Pair<String, String>>()
+
+        explicitMetricIndexes.forEach { index ->
+            normalizeWeatherCell(readCell(row, index))?.let { value ->
+                metrics[index] = displayWeatherMetricLabel(header.getOrNull(index), index) to value
+            }
+        }
+
+        header.indices
+            .filterNot { index -> index in consumed || index in metrics.keys }
+            .forEach { index ->
+                val value = normalizeWeatherCell(readCell(row, index)) ?: return@forEach
+                val label = displayWeatherMetricLabel(header.getOrNull(index), index)
+                if (label.isNotBlank() && isUsefulWeatherExtraMetric(label, value)) {
+                    metrics[index] = label to value
+                }
+            }
+
+        return metrics.values.toList()
+    }
+
+    private fun displayWeatherMetricLabel(rawLabel: String?, index: Int): String {
+        val clean = rawLabel
+            ?.replace(Regex("""[_\-]+"""), " ")
+            ?.replace(Regex("""\s+"""), " ")
+            ?.trim()
+            .orEmpty()
+        if (clean.isBlank()) {
+            return "Detail ${index + 1}"
+        }
+        val normalized = normalizeWeatherHeader(clean)
+        return when {
+            normalized.contains("precip") -> "Precip"
+            normalized.contains("rain") && normalized.contains("chance") -> "Rain Chance"
+            normalized == "rain" -> "Rain"
+            normalized.contains("humidity") -> "Humidity"
+            normalized.contains("wind") -> "Wind"
+            normalized.contains("uv") -> "UV"
+            normalized.contains("cloth") || normalized.contains("wear") || normalized.contains("outfit") -> "What to wear"
+            normalized.contains("advice") || normalized.contains("recommend") -> "Advice"
+            normalized.contains("best") && normalized.contains("window") -> "Best window"
+            else -> clean.split(' ').joinToString(" ") { token ->
+                token.replaceFirstChar { char ->
+                    if (char.isLowerCase()) char.titlecase(Locale.US) else char.toString()
+                }
+            }
+        }
+    }
+
+    private fun isUsefulWeatherExtraMetric(label: String, value: String): Boolean {
+        val normalizedLabel = normalizeWeatherHeader(label)
+        val normalizedValue = value.trim()
+        if (normalizedValue.isBlank() || isPlaceholderTableCellValue(normalizedValue)) {
+            return false
+        }
+        if (normalizedLabel in setOf("source", "sources", "url", "link", "image", "icon")) {
+            return false
+        }
+        return true
     }
 
     fun weatherTemperatureText(row: WeatherRow): String {
