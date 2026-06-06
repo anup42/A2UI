@@ -611,16 +611,17 @@ internal object NativeWeatherUiRenderer {
                 }
             }
             if (safeDayparts.isNotEmpty()) {
-                FlowRow(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalAlignment = Alignment.Top
                 ) {
                     safeDayparts.forEach { (partLabel, partValue) ->
                         WeatherDaypartChip(
                             label = partLabel,
                             value = partValue,
-                            dark = dark
+                            dark = dark,
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
@@ -632,13 +633,15 @@ internal object NativeWeatherUiRenderer {
     private fun WeatherDaypartChip(
         label: String,
         value: String,
-        dark: Boolean
+        dark: Boolean,
+        modifier: Modifier = Modifier
     ) {
         if (label.isBlank() || value.isBlank()) {
             return
         }
         Column(
-            modifier = Modifier
+            modifier = modifier
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (dark) {
@@ -653,21 +656,26 @@ internal object NativeWeatherUiRenderer {
                     RoundedCornerShape(14.dp)
                 )
                 .padding(horizontal = 9.dp, vertical = 7.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             MarkdownText(
                 text = label,
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
             MarkdownText(
                 text = value,
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
