@@ -6,11 +6,21 @@ data class SampleDataset(
     val description: String,
     val assetFileName: String,
     val sourceLabel: String,
-    val expectedRecords: Int
+    val expectedRecords: Int,
+    val forceWebRendering: Boolean = false
 )
 
 object SampleDatasets {
     val all: List<SampleDataset> = listOf(
+        SampleDataset(
+            id = "golden50_g25pro_20260309_204033_stitch_compare_20260606_shellcopy_r5_html",
+            title = "Golden 50 R5 HTML Mobile Previews",
+            description = "Response-derived mobile HTML previews with enriched local images/icons, separate from the native IR renderer.",
+            assetFileName = "golden50_g25pro_20260309_204033_stitch_compare_20260606_shellcopy_r5_html_index.jsonl",
+            sourceLabel = "golden50_g25pro_20260309_204033_stitch_compare_20260606_shellcopy_r5_html",
+            expectedRecords = 50,
+            forceWebRendering = true
+        ),
         SampleDataset(
             id = "golden50_g25pro_20260309_204033_stitch_compare_20260606_shellcopy_r5",
             title = "Golden 50 Stitch Hybrid R5",

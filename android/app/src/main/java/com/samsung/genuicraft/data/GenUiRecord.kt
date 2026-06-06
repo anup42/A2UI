@@ -10,6 +10,7 @@ data class GenUiRecord(
     val uiId: String?,
     val summary: String?,
     val queryId: String?,
-    val responseId: String?
+    val responseId: String?,
+    val htmlAssetPath: String? = null
 )
 

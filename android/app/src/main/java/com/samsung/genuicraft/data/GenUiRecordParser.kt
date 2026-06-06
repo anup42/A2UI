@@ -50,6 +50,7 @@ object GenUiRecordParser {
         val summary = obj?.extractSummary()
         val queryId = obj?.getString("query_id")
         val responseId = obj?.getString("response_id")
+        val htmlAssetPath = obj?.getString("html_asset") ?: obj?.getString("htmlAsset")
 
         return GenUiRecord(
             title = headerTitle ?: uiId ?: "Item $index",
@@ -59,7 +60,8 @@ object GenUiRecordParser {
             uiId = uiId,
             summary = summary,
             queryId = queryId,
-            responseId = responseId
+            responseId = responseId,
+            htmlAssetPath = htmlAssetPath
         )
     }
 

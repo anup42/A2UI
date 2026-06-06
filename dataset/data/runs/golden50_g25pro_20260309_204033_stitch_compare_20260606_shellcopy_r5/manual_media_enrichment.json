@@ -1,0 +1,485 @@
+{
+  "changed_count": 60,
+  "changes": [
+    {
+      "response_id": "r_000001_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/colosseum",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Colosseum-Rome-May-2009.jpg/1280px-Colosseum-Rome-May-2009.jpg",
+      "path": "assets\\r_000001_01_1_colosseum.jpg",
+      "title": "File:Colosseum-Rome-May-2009.jpg"
+    },
+    {
+      "response_id": "r_000001_01",
+      "action": "replace",
+      "old_url": "https://picsum.photos/seed/roman_forum/1200/800.jpg",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/IT3_01_02_Entrance_Forum_Romanum-Rome_Ruins_small.jpg/1280px-IT3_01_02_Entrance_Forum_Romanum-Rome_Ruins_small.jpg",
+      "path": "assets\\r_000001_01_2_800.jpg",
+      "title": "File:IT3 01 02 Entrance Forum Romanum-Rome Ruins small.jpg"
+    },
+    {
+      "response_id": "r_000001_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/pantheon,oculus",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Dome_of_Pantheon_%28Rome%29.jpg/1280px-Dome_of_Pantheon_%28Rome%29.jpg",
+      "path": "assets\\r_000001_01_3_pantheon_oculus.jpg",
+      "title": "File:Dome of Pantheon (Rome).jpg"
+    },
+    {
+      "response_id": "r_000001_01",
+      "action": "replace",
+      "old_url": "https://picsum.photos/seed/r_000001_01_verified1/1200/800.jpg",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Angel_with_fish_in_the_fountain_of_Neptune_in_Piazza_Navona_in_Rome.jpg/1280px-Angel_with_fish_in_the_fountain_of_Neptune_in_Piazza_Navona_in_Rome.jpg",
+      "path": "assets\\r_000001_01_9_800.jpg",
+      "title": "File:Angel with fish in the fountain of Neptune in Piazza Navona in Rome.jpg"
+    },
+    {
+      "response_id": "r_000001_01",
+      "action": "replace",
+      "old_url": "https://picsum.photos/seed/r_000001_01_verified2/1200/800.jpg",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Amanita_lividopallescens%2C_Villa_Borghese_Gardens%2C_Rome.jpg/1280px-Amanita_lividopallescens%2C_Villa_Borghese_Gardens%2C_Rome.jpg",
+      "path": "assets\\r_000001_01_10_800.jpg",
+      "title": "File:Amanita lividopallescens, Villa Borghese Gardens, Rome.jpg"
+    },
+    {
+      "response_id": "r_000002_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/coffeeshop,interior",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/2019_02_Awesome_Coffee_Shop_in_Korat.jpg/1280px-2019_02_Awesome_Coffee_Shop_in_Korat.jpg",
+      "path": "assets\\r_000002_01_1_coffeeshop_interior.jpg",
+      "title": "File:2019 02 Awesome Coffee Shop in Korat.jpg"
+    },
+    {
+      "response_id": "r_000002_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/icedcoffee",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/A_young_man_holding_a_glass_of_iced_coffee_at_home_at_sundown._Happy_hour_non-alcoholic_beverage.jpg/1280px-A_young_man_holding_a_glass_of_iced_coffee_at_home_at_sundown._Happy_hour_non-alcoholic_beverage.jpg",
+      "path": "assets\\r_000002_01_3_icedcoffee.jpg",
+      "title": "File:A young man holding a glass of iced coffee at home at sundown. Happy hour non-alcoholic beverage.jpg"
+    },
+    {
+      "response_id": "r_000002_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/cappuccino",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/A_cup_of_cappuccino_at_Indooroopilly_Shopping_Centre.JPG/1280px-A_cup_of_cappuccino_at_Indooroopilly_Shopping_Centre.JPG",
+      "path": "assets\\r_000002_01_5_cappuccino.jpg",
+      "title": "File:A cup of cappuccino at Indooroopilly Shopping Centre.JPG"
+    },
+    {
+      "response_id": "r_000003_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/spirit-island-board-game",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Chess_game_Staunton_No._6.jpg/1280px-Chess_game_Staunton_No._6.jpg",
+      "path": "assets\\r_000003_01_2_spirit-island-board-game.jpg",
+      "title": "File:Chess game Staunton No. 6.jpg"
+    },
+    {
+      "response_id": "r_000004_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/music-note-list.svg",
+      "path": "assets\\r_000004_01_playlist.svg",
+      "title": "Playlist"
+    },
+    {
+      "response_id": "r_000008_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/airplane.svg",
+      "path": "assets\\r_000008_01_flight.svg",
+      "title": "Flight"
+    },
+    {
+      "response_id": "r_000009_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Cloudflare_and_EY_Office_Complex_%E2%80%93_Modern_Architecture_in_Alc%C3%A2ntara%2C_Lisbon_%2854708346011%29.jpg/1280px-Cloudflare_and_EY_Office_Complex_%E2%80%93_Modern_Architecture_in_Alc%C3%A2ntara%2C_Lisbon_%2854708346011%29.jpg",
+      "path": "assets\\r_000009_01_lisbon_skyline.jpg",
+      "title": "File:Cloudflare and EY Office Complex – Modern Architecture in Alcântara, Lisbon (54708346011).jpg"
+    },
+    {
+      "response_id": "r_000009_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Drawing%2C_St._Peter%27s_Basilica_Seen_from_the_North_against_the_Hills_and_Skyline_of_Rome%2C_January_1869_%28CH_18195387%29.jpg/1280px-Drawing%2C_St._Peter%27s_Basilica_Seen_from_the_North_against_the_Hills_and_Skyline_of_Rome%2C_January_1869_%28CH_18195387%29.jpg",
+      "path": "assets\\r_000009_01_rome_skyline.jpg",
+      "title": "File:Drawing, St. Peter's Basilica Seen from the North against the Hills and Skyline of Rome, January 1869 (CH 18195387).jpg"
+    },
+    {
+      "response_id": "r_000009_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/sun.svg",
+      "path": "assets\\r_000009_01_sunshine.svg",
+      "title": "Sunshine"
+    },
+    {
+      "response_id": "r_000010_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/melbourne,rain",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Former_Russell_Street_Police_Headquarters_%28Deco_Tower%29_at_night_in_rain%2C_Melbourne.jpg/1280px-Former_Russell_Street_Police_Headquarters_%28Deco_Tower%29_at_night_in_rain%2C_Melbourne.jpg",
+      "path": "assets\\r_000010_01_3_melbourne_rain.jpg",
+      "title": "File:Former Russell Street Police Headquarters (Deco Tower) at night in rain, Melbourne.jpg"
+    },
+    {
+      "response_id": "r_000011_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bar-chart-line.svg",
+      "path": "assets\\r_000011_01_revenue_chart.svg",
+      "title": "Revenue Chart"
+    },
+    {
+      "response_id": "r_000011_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/table.svg",
+      "path": "assets\\r_000011_01_spreadsheet.svg",
+      "title": "Spreadsheet"
+    },
+    {
+      "response_id": "r_000012_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/charts",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Illustration_from_the_book_Sappelen_by_Mark_Ramen%3B_Dashboard.jpg/1280px-Illustration_from_the_book_Sappelen_by_Mark_Ramen%3B_Dashboard.jpg",
+      "path": "assets\\r_000012_01_2_charts.jpg",
+      "title": "File:Illustration from the book Sappelen by Mark Ramen; Dashboard.jpg"
+    },
+    {
+      "response_id": "r_000013_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cour_Carr%C3%A9e%2C_Louvre_Museum%2C_2_April_2009.jpg/1280px-Cour_Carr%C3%A9e%2C_Louvre_Museum%2C_2_April_2009.jpg",
+      "path": "assets\\r_000013_01_louvre_museum.jpg",
+      "title": "File:Cour Carrée, Louvre Museum, 2 April 2009.jpg"
+    },
+    {
+      "response_id": "r_000014_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Handmade_Pillar_Candles_01.jpeg/1280px-Handmade_Pillar_Candles_01.jpeg",
+      "path": "assets\\r_000014_01_handmade_candles.jpg",
+      "title": "File:Handmade Pillar Candles 01.jpeg"
+    },
+    {
+      "response_id": "r_000016_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar-week.svg",
+      "path": "assets\\r_000016_01_availability_calendar.svg",
+      "title": "Availability Calendar"
+    },
+    {
+      "response_id": "r_000018_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Granville_Island_Market_-_Shepherds_pie.jpg/1280px-Granville_Island_Market_-_Shepherds_pie.jpg",
+      "path": "assets\\r_000018_01_shepherds_pie.jpg",
+      "title": "File:Granville Island Market - Shepherds pie.jpg"
+    },
+    {
+      "response_id": "r_000019_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Liverpool_Street_station%2C_London%2C_England-26Feb2011.jpg/1280px-Liverpool_Street_station%2C_London%2C_England-26Feb2011.jpg",
+      "path": "assets\\r_000019_01_liverpool_street_station.jpg",
+      "title": "File:Liverpool Street station, London, England-26Feb2011.jpg"
+    },
+    {
+      "response_id": "r_000019_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg",
+      "path": "assets\\r_000019_01_hotel.svg",
+      "title": "Hotel"
+    },
+    {
+      "response_id": "r_000020_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/A_view_of_Gion_corner_in_Geisha_district%2C_Kyoto%2C_Japan.jpg/1280px-A_view_of_Gion_corner_in_Geisha_district%2C_Kyoto%2C_Japan.jpg",
+      "path": "assets\\r_000020_01_gion_kyoto.jpg",
+      "title": "File:A view of Gion corner in Geisha district, Kyoto, Japan.jpg"
+    },
+    {
+      "response_id": "r_000021_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/router.svg",
+      "path": "assets\\r_000021_01_network.svg",
+      "title": "Network"
+    },
+    {
+      "response_id": "r_000022_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bug.svg",
+      "path": "assets\\r_000022_01_crash_debugging.svg",
+      "title": "Crash Debugging"
+    },
+    {
+      "response_id": "r_000023_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/envelope-paper.svg",
+      "path": "assets\\r_000023_01_email_draft.svg",
+      "title": "Email Draft"
+    },
+    {
+      "response_id": "r_000024_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Fitbit_Alta_HR_landscape.jpg/1280px-Fitbit_Alta_HR_landscape.jpg",
+      "path": "assets\\r_000024_01_wearable_band.jpg",
+      "title": "File:Fitbit Alta HR landscape.jpg"
+    },
+    {
+      "response_id": "r_000025_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/conference",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Brain_Bar_2023_audience_1.jpg/1280px-Brain_Bar_2023_audience_1.jpg",
+      "path": "assets\\r_000025_01_1_conference.jpg",
+      "title": "File:Brain Bar 2023 audience 1.jpg"
+    },
+    {
+      "response_id": "r_000025_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/business",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fiammetta_Diani_keynote_%2820892645654%29.jpg/1280px-Fiammetta_Diani_keynote_%2820892645654%29.jpg",
+      "path": "assets\\r_000025_01_3_business.jpg",
+      "title": "File:Fiammetta Diani keynote (20892645654).jpg"
+    },
+    {
+      "response_id": "r_000026_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/music,festival,crowd",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Crowd_Outlaw_Music_Festival_Tour_BankNH_Pavilion_108_Kimball_Road_Gilford_NH_August_2025_01.jpg/1280px-Crowd_Outlaw_Music_Festival_Tour_BankNH_Pavilion_108_Kimball_Road_Gilford_NH_August_2025_01.jpg",
+      "path": "assets\\r_000026_01_2_music_festival_crowd.jpg",
+      "title": "File:Crowd Outlaw Music Festival Tour BankNH Pavilion 108 Kimball Road Gilford NH August 2025 01.jpg"
+    },
+    {
+      "response_id": "r_000027_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/bar-chart.svg",
+      "path": "assets\\r_000027_01_survey_chart.svg",
+      "title": "Survey Chart"
+    },
+    {
+      "response_id": "r_000028_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/chemistry,diagram",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/7/79/The_laboratory_of_the_Manufacturing_Chemist_A._G._Hanckwitz_Wellcome_L0012718.jpg",
+      "path": "assets\\r_000028_01_2_chemistry_diagram.jpg",
+      "title": "File:The laboratory of the Manufacturing Chemist A. G. Hanckwitz Wellcome L0012718.jpg"
+    },
+    {
+      "response_id": "r_000029_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Apple_iPhone_13_Pro_and_13_Pro_Max.jpg/1280px-Apple_iPhone_13_Pro_and_13_Pro_Max.jpg",
+      "path": "assets\\r_000029_01_iphone_13_pro.jpg",
+      "title": "File:Apple iPhone 13 Pro and 13 Pro Max.jpg"
+    },
+    {
+      "response_id": "r_000030_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/magnifying_glass,stock_market",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Market_data_on_display_at_Taiwan_Stock_Exchange_20210208.jpg/1280px-Market_data_on_display_at_Taiwan_Stock_Exchange_20210208.jpg",
+      "path": "assets\\r_000030_01_1_magnifying_glass_stock_market.jpg",
+      "title": "File:Market data on display at Taiwan Stock Exchange 20210208.jpg"
+    },
+    {
+      "response_id": "r_000031_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calculator.svg",
+      "path": "assets\\r_000031_01_mortgage_calculator.svg",
+      "title": "Mortgage Calculator"
+    },
+    {
+      "response_id": "r_000032_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/ganttchart",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/GanttPRO_Gantt_Chart_Software.png/1280px-GanttPRO_Gantt_Chart_Software.png",
+      "path": "assets\\r_000032_01_1_ganttchart.jpg",
+      "title": "File:GanttPRO Gantt Chart Software.png"
+    },
+    {
+      "response_id": "r_000032_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/construction,foundation",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Construction_foundation.jpg/1280px-Construction_foundation.jpg",
+      "path": "assets\\r_000032_01_2_construction_foundation.jpg",
+      "title": "File:Construction foundation.jpg"
+    },
+    {
+      "response_id": "r_000033_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/C-47_AIRPLANE_DEPARTURE_WITH_EDWARDS_AIR_FORCE_BASE_CALIFORNIA_PILOTS_AND_HANGAR_CREW_-_NARA_-_17442055.jpg/1280px-C-47_AIRPLANE_DEPARTURE_WITH_EDWARDS_AIR_FORCE_BASE_CALIFORNIA_PILOTS_AND_HANGAR_CREW_-_NARA_-_17442055.jpg",
+      "path": "assets\\r_000033_01_flight_departure.jpg",
+      "title": "File:C-47 AIRPLANE DEPARTURE WITH EDWARDS AIR FORCE BASE CALIFORNIA PILOTS AND HANGAR CREW - NARA - 17442055.jpg"
+    },
+    {
+      "response_id": "r_000034_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Four_ladies_wearing_a_yukata_in_front_of_the_North_Gate_of_Kiyomizu-dera_temple_Kyoto_Japan.jpg/1280px-Four_ladies_wearing_a_yukata_in_front_of_the_North_Gate_of_Kiyomizu-dera_temple_Kyoto_Japan.jpg",
+      "path": "assets\\r_000034_01_kiyomizu_dera_temple.jpg",
+      "title": "File:Four ladies wearing a yukata in front of the North Gate of Kiyomizu-dera temple Kyoto Japan.jpg"
+    },
+    {
+      "response_id": "r_000035_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/eiffel-tower,paris",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Eiffel_Tower_and_Pont_Alexandre_III_at_night.jpg/1280px-Eiffel_Tower_and_Pont_Alexandre_III_at_night.jpg",
+      "path": "assets\\r_000013_01_1_eiffel-tower_paris.jpg",
+      "title": "File:Eiffel Tower and Pont Alexandre III at night.jpg"
+    },
+    {
+      "response_id": "r_000035_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/louvre,museum",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cour_Carr%C3%A9e%2C_Louvre_Museum%2C_2_April_2009.jpg/1280px-Cour_Carr%C3%A9e%2C_Louvre_Museum%2C_2_April_2009.jpg",
+      "path": "assets\\r_000035_01_2_louvre_museum.jpg",
+      "title": "File:Cour Carrée, Louvre Museum, 2 April 2009.jpg"
+    },
+    {
+      "response_id": "r_000036_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Big_Sur%2C_Pacific_Coast%2C_California%2C_USA24.jpg/1280px-Big_Sur%2C_Pacific_Coast%2C_California%2C_USA24.jpg",
+      "path": "assets\\r_000036_01_big_sur_coast.jpg",
+      "title": "File:Big Sur, Pacific Coast, California, USA24.jpg"
+    },
+    {
+      "response_id": "r_000036_01",
+      "action": "add",
+      "type": "image",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Half_Dome_with_Eastern_Yosemite_Valley.jpg/1280px-Half_Dome_with_Eastern_Yosemite_Valley.jpg",
+      "path": "assets\\r_000036_01_yosemite_valley.jpg",
+      "title": "File:Half Dome with Eastern Yosemite Valley.jpg"
+    },
+    {
+      "response_id": "r_000037_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/journal-text.svg",
+      "path": "assets\\r_000037_01_study_plan.svg",
+      "title": "Study Plan"
+    },
+    {
+      "response_id": "r_000039_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/terminal.svg",
+      "path": "assets\\r_000039_01_code_console.svg",
+      "title": "Code Console"
+    },
+    {
+      "response_id": "r_000041_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/podcast",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Adobe_Connect_Webinar_%26_Podcast_setting.jpg/1280px-Adobe_Connect_Webinar_%26_Podcast_setting.jpg",
+      "path": "assets\\r_000041_01_1_podcast.jpg",
+      "title": "File:Adobe Connect Webinar & Podcast setting.jpg"
+    },
+    {
+      "response_id": "r_000041_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/science",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Belgrad_-_Museum_of_Science_and_Technology_-_Electron_microscope_ARL.jpg/1280px-Belgrad_-_Museum_of_Science_and_Technology_-_Electron_microscope_ARL.jpg",
+      "path": "assets\\r_000041_01_2_science.jpg",
+      "title": "File:Belgrad - Museum of Science and Technology - Electron microscope ARL.jpg"
+    },
+    {
+      "response_id": "r_000043_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/event,check-in",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/HFCA_1607_Special_Events_And_VIPS_Volume_2_090.jpg_%288115360c78ce4b62a4f935d3996a5f53%29.jpg/1280px-HFCA_1607_Special_Events_And_VIPS_Volume_2_090.jpg_%288115360c78ce4b62a4f935d3996a5f53%29.jpg",
+      "path": "assets\\r_000043_01_1_event_check-in.jpg",
+      "title": "File:HFCA 1607 Special Events And VIPS Volume 2 090.jpg (8115360c78ce4b62a4f935d3996a5f53).jpg"
+    },
+    {
+      "response_id": "r_000043_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/phone,success,check",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Bonn%2C_Hofgarten%2C_Unifest_2023%2C_H%C3%BCtewurf_--_2023_--_7796.jpg/1280px-Bonn%2C_Hofgarten%2C_Unifest_2023%2C_H%C3%BCtewurf_--_2023_--_7796.jpg",
+      "path": "assets\\r_000043_01_3_phone_success_check.jpg",
+      "title": "File:Bonn, Hofgarten, Unifest 2023, Hütewurf -- 2023 -- 7796.jpg"
+    },
+    {
+      "response_id": "r_000044_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/business,card",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bibliotheek_Winschoten_business_card%2C_Winschoten_%282020%29_02.jpg/1280px-Bibliotheek_Winschoten_business_card%2C_Winschoten_%282020%29_02.jpg",
+      "path": "assets\\r_000044_01_3_business_card.jpg",
+      "title": "File:Bibliotheek Winschoten business card, Winschoten (2020) 02.jpg"
+    },
+    {
+      "response_id": "r_000045_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/logistics",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Logistics_Readiness_Flight_keeps_Schriever_prepared%2C_safe_%285680358%29.jpg/1280px-Logistics_Readiness_Flight_keeps_Schriever_prepared%2C_safe_%285680358%29.jpg",
+      "path": "assets\\r_000045_01_1_logistics.jpg",
+      "title": "File:Logistics Readiness Flight keeps Schriever prepared, safe (5680358).jpg"
+    },
+    {
+      "response_id": "r_000045_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/delivery,van",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Rivian_EDV-500.jpg/1280px-Rivian_EDV-500.jpg",
+      "path": "assets\\r_000045_01_3_delivery_van.jpg",
+      "title": "File:Rivian EDV-500.jpg"
+    },
+    {
+      "response_id": "r_000046_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/server",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Cern_datacenter.jpg/1280px-Cern_datacenter.jpg",
+      "path": "assets\\r_000046_01_5_server.jpg",
+      "title": "File:Cern datacenter.jpg"
+    },
+    {
+      "response_id": "r_000046_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/network,alert",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Alert_Wildfire_Camera_Detection_System.jpg/1280px-Alert_Wildfire_Camera_Detection_System.jpg",
+      "path": "assets\\r_000046_01_6_network_alert.jpg",
+      "title": "File:Alert Wildfire Camera Detection System.jpg"
+    },
+    {
+      "response_id": "r_000047_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/graph-up-arrow.svg",
+      "path": "assets\\r_000047_01_stock_alert.svg",
+      "title": "Stock Alert"
+    },
+    {
+      "response_id": "r_000049_01",
+      "action": "add",
+      "type": "icon",
+      "url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/pie-chart.svg",
+      "path": "assets\\r_000049_01_portfolio.svg",
+      "title": "Portfolio"
+    },
+    {
+      "response_id": "r_000050_01",
+      "action": "replace",
+      "old_url": "https://loremflickr.com/1200/800/paris,rain",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Camille_Pissarro_-_Place_du_Thtre_Franais%2C_Paris_Rain_-_18.19_-_Minneapolis_Institute_of_Arts.jpg/1280px-Camille_Pissarro_-_Place_du_Thtre_Franais%2C_Paris_Rain_-_18.19_-_Minneapolis_Institute_of_Arts.jpg",
+      "path": "assets\\r_000050_01_2_paris_rain.jpg",
+      "title": "File:Camille Pissarro - Place du Thtre Franais, Paris Rain - 18.19 - Minneapolis Institute of Arts.jpg"
+    },
+    {
+      "response_id": "r_000050_01",
+      "action": "replace",
+      "old_url": "https://picsum.photos/seed/r_000050_01_verified2/1200/800.jpg",
+      "new_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/New_York_City_skyline_-_DPLA_-_130e5aef050065fde86972824f9bc7dd.jpg/1280px-New_York_City_skyline_-_DPLA_-_130e5aef050065fde86972824f9bc7dd.jpg",
+      "path": "assets\\r_000050_01_11_800.jpg",
+      "title": "File:New York City skyline - DPLA - 130e5aef050065fde86972824f9bc7dd.jpg"
+    }
+  ]
+}

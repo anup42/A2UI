@@ -169,19 +169,24 @@ class RendererHomeActivity : AppCompatActivity() {
                 sourceDir = null,
                 sourceLabel = dataset.sourceLabel
             )
-            openItemList(dataset.sourceLabel, records)
+            val renderModeOverride = if (dataset.forceWebRendering) RenderMode.WEB else null
+            openItemList(dataset.sourceLabel, records, renderModeOverride)
         } catch (exc: Exception) {
             showError(exc)
         }
     }
 
-    private fun openItemList(sourceLabel: String, records: List<GenUiRecord>) {
+    private fun openItemList(
+        sourceLabel: String,
+        records: List<GenUiRecord>,
+        renderModeOverride: RenderMode? = null
+    ) {
         if (records.isEmpty()) {
             showStatus(getString(R.string.error_no_valid_json, sourceLabel), isError = true)
             return
         }
 
-        val renderMode = if (nativeRenderingEnabled) RenderMode.NATIVE else RenderMode.WEB
+        val renderMode = renderModeOverride ?: if (nativeRenderingEnabled) RenderMode.NATIVE else RenderMode.WEB
         RenderSessionStore.update(
             sourceLabel = sourceLabel,
             records = records,

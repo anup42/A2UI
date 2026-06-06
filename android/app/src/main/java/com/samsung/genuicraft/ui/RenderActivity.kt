@@ -88,7 +88,8 @@ class RenderActivity : AppCompatActivity() {
                     record = record,
                     index = index,
                     assetLoader = assetLoader,
-                    onOpenExternalUrl = { openExternalUrl(it) }
+                    onOpenExternalUrl = { openExternalUrl(it) },
+                    onLoadHtmlAsset = { loadHtmlAsset(it) }
                 )
             }
         }
@@ -152,6 +153,9 @@ class RenderActivity : AppCompatActivity() {
         val uri = runCatching { Uri.parse(safeUrl) }.getOrNull() ?: return
         startActivity(Intent(Intent.ACTION_VIEW, uri))
     }
+
+    private fun loadHtmlAsset(assetPath: String): String =
+        assets.open(assetPath).bufferedReader(Charsets.UTF_8).use { it.readText() }
 }
 
 @Composable
@@ -161,7 +165,8 @@ private fun RenderScreen(
     record: GenUiRecord?,
     index: Int,
     assetLoader: WebViewAssetLoader,
-    onOpenExternalUrl: (String) -> Unit
+    onOpenExternalUrl: (String) -> Unit,
+    onLoadHtmlAsset: (String) -> String
 ) {
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
@@ -232,12 +237,26 @@ private fun RenderScreen(
                             modeLabel = modeLabel
                         )
 
-                        val webResult = remember(record.rawJson, record.sourceDir) {
-                            GenUiHtmlRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
+                        val baseHtml = remember(record.rawJson, record.sourceDir, record.htmlAssetPath) {
+                            val htmlAssetPath = record.htmlAssetPath
+                            if (!htmlAssetPath.isNullOrBlank()) {
+                                runCatching { onLoadHtmlAsset(htmlAssetPath) }
+                                    .getOrElse { exc ->
+                                        renderHtmlAssetError(
+                                            path = htmlAssetPath,
+                                            message = exc.message ?: exc.javaClass.simpleName
+                                        )
+                                    }
+                            } else {
+                                GenUiHtmlRenderer.render(
+                                    rawInput = record.rawJson,
+                                    sourceDir = record.sourceDir
+                                ).html
+                            }
                         }
                         val colorScheme = MaterialTheme.colorScheme
                         val themedHtml = remember(
-                            webResult.html,
+                            baseHtml,
                             colorScheme.background,
                             colorScheme.surface,
                             colorScheme.surfaceContainerLowest,
@@ -266,7 +285,7 @@ private fun RenderScreen(
                             deviceConfig.widthClass,
                             deviceConfig.heightClass
                         ) {
-                            applyDynamicHtmlPalette(webResult.html, colorScheme, deviceConfig)
+                            applyDynamicHtmlPalette(baseHtml, colorScheme, deviceConfig)
                         }
 
                         WebRenderPane(
@@ -521,6 +540,40 @@ private fun applyDynamicHtmlPalette(
     } else {
         html + overrideStyle
     }
+}
+
+private fun renderHtmlAssetError(path: String, message: String): String {
+    val safePath = path
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    val safeMessage = message
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    return """
+        <!doctype html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            body { margin: 0; padding: 18px; font-family: sans-serif; color: #f8fafc; background: transparent; }
+            .card { border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 16px; background: rgba(15,23,42,.78); }
+            h1 { font-size: 20px; margin: 0 0 10px; }
+            p { color: #cbd5e1; line-height: 1.5; }
+            code { color: #93c5fd; }
+          </style>
+        </head>
+        <body>
+          <section class="card">
+            <h1>HTML preview unavailable</h1>
+            <p>Could not load <code>$safePath</code>.</p>
+            <p>$safeMessage</p>
+          </section>
+        </body>
+        </html>
+    """.trimIndent()
 }
 
 private fun Color.toCssHex(): String {
