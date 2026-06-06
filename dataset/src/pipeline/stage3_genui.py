@@ -857,13 +857,15 @@ def run_stage3(
     total_failed = 0
     pending: list[dict[str, Any]] = []
     use_parallel = adapter.spec.provider == "gemini" and gemini_parallel_workers > 1
-    use_batch = (
-        adapter.spec.provider == "gemini"
-        and hasattr(adapter, "generate_batch")
-        and not use_parallel
-    )
+    use_batch = hasattr(adapter, "generate_batch") and not use_parallel
     if batch_size <= 0:
         batch_size = 100
+    if use_batch:
+        logger.info(
+            "Stage3 batch generation enabled provider=%s batch_size=%s",
+            adapter.spec.provider,
+            batch_size,
+        )
     stop = False
 
     def _build_prompt_for(response_id: str, response_text: str, assets_list: list[dict]) -> str:

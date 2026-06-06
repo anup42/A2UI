@@ -6,6 +6,7 @@ import re
 import sys
 import time
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 from typing import Optional
@@ -602,6 +603,109 @@ class LocalAdapter(BaseLLMAdapter):
             provider=self.spec.provider,
             error=None,
         )
+
+    def generate_batch(
+        self,
+        prompts: list[str],
+        system: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        seeds: Optional[list[int]],
+        json_mode: bool = False,
+        batch_name: Optional[str] = None,
+    ) -> list[LLMResult]:
+        if not prompts:
+            return []
+
+        endpoint = (self.spec.endpoint or "").strip()
+        if not self._is_http_endpoint(endpoint):
+            return [
+                self.generate(
+                    prompt=prompt,
+                    system=system,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    seed=seeds[idx] if seeds and idx < len(seeds) else None,
+                    json_mode=json_mode,
+                )
+                for idx, prompt in enumerate(prompts)
+            ]
+
+        default_parallelism = min(len(prompts), 4)
+        parallelism = self._env_int(
+            "LOCAL_VLLM_BATCH_PARALLELISM",
+            self._env_int("LOCAL_VLLM_PARALLEL_REQUESTS", default_parallelism),
+        )
+        parallelism = max(1, min(len(prompts), int(parallelism or default_parallelism)))
+
+        if parallelism <= 1:
+            return [
+                self.generate(
+                    prompt=prompt,
+                    system=system,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    seed=seeds[idx] if seeds and idx < len(seeds) else None,
+                    json_mode=json_mode,
+                )
+                for idx, prompt in enumerate(prompts)
+            ]
+
+        results: list[LLMResult | None] = [None] * len(prompts)
+        start = time.time()
+
+        def _generate_one(idx: int, prompt: str) -> tuple[int, LLMResult]:
+            return idx, self.generate(
+                prompt=prompt,
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seed=seeds[idx] if seeds and idx < len(seeds) else None,
+                json_mode=json_mode,
+            )
+
+        with ThreadPoolExecutor(
+            max_workers=parallelism,
+            thread_name_prefix=f"local-vllm-batch-{batch_name or 'request'}",
+        ) as executor:
+            future_to_idx = {
+                executor.submit(_generate_one, idx, prompt): idx
+                for idx, prompt in enumerate(prompts)
+            }
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    result_idx, result = future.result()
+                    results[result_idx] = result
+                except Exception as exc:
+                    results[idx] = LLMResult(
+                        text="",
+                        raw=None,
+                        latency_ms=(time.time() - start) * 1000,
+                        input_tokens=0,
+                        output_tokens=0,
+                        cost_usd=None,
+                        model=self.spec.model,
+                        provider=self.spec.provider,
+                        error=str(exc),
+                    )
+
+        return [
+            result
+            if result is not None
+            else LLMResult(
+                text="",
+                raw=None,
+                latency_ms=(time.time() - start) * 1000,
+                input_tokens=0,
+                output_tokens=0,
+                cost_usd=None,
+                model=self.spec.model,
+                provider=self.spec.provider,
+                error="local batch worker did not return a result",
+            )
+            for result in results
+        ]
 
     def _local_prompt(self, prompt: str, system: Optional[str], json_mode: bool) -> str:
         if json_mode:

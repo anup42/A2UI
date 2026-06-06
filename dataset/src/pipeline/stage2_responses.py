@@ -1154,14 +1154,11 @@ def run_stage2(
     if query_batch_size <= 0:
         query_batch_size = 1
 
-    use_gemini_query_batch = (
-        adapter.spec.provider == "gemini"
-        and hasattr(adapter, "generate_batch")
-        and query_batch_size > 1
-    )
-    if use_gemini_query_batch:
+    use_query_batch = hasattr(adapter, "generate_batch") and query_batch_size > 1
+    if use_query_batch:
         logger.info(
-            "Stage2 Gemini query batching enabled query_batch_size=%s group_by_intent=%s fallback_per_query=%s",
+            "Stage2 query batching enabled provider=%s query_batch_size=%s group_by_intent=%s fallback_per_query=%s",
+            adapter.spec.provider,
             query_batch_size,
             group_by_intent,
             batch_fallback_per_query,
@@ -1733,7 +1730,7 @@ def run_stage2(
             if not pending_states:
                 return
 
-            if not use_gemini_query_batch:
+            if not use_query_batch:
                 entry = _prepare_entry(pending_states[0])
                 if entry is None:
                     continue
