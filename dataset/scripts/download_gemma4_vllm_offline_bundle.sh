@@ -22,6 +22,7 @@ TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.26.0}"
 TORCHAUDIO_VERSION="${TORCHAUDIO_VERSION:-2.11.0}"
 VLLM_NIGHTLY_INDEX="${VLLM_NIGHTLY_INDEX:-https://wheels.vllm.ai/nightly/cu130}"
 PYTORCH_INDEX_URL="${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu130}"
+NVIDIA_INDEX_URL="${NVIDIA_INDEX_URL:-https://pypi.nvidia.com}"
 FLASHINFER_CUDA_TAG="${FLASHINFER_CUDA_TAG:-cu130}"
 FLASHINFER_INDEX_URL="${FLASHINFER_INDEX_URL:-https://flashinfer.ai/whl/${FLASHINFER_CUDA_TAG}}"
 CUDA_RUNTIME_PACKAGE="${CUDA_RUNTIME_PACKAGE:-nvidia-cuda-runtime==13.0.96}"
@@ -33,7 +34,7 @@ JUPYTERLAB_VERSION="${JUPYTERLAB_VERSION:-4.5.8}"
 BITSANDBYTES_VERSION="${BITSANDBYTES_VERSION:-0.49.2}"
 TRUSTSTORE_VERSION="${TRUSTSTORE_VERSION:-0.10.4}"
 GEMMA4_OFFLINE_TARGET_PLATFORM="${GEMMA4_OFFLINE_TARGET_PLATFORM:-manylinux_2_28_x86_64}"
-GEMMA4_OFFLINE_TARGET_PLATFORMS="${GEMMA4_OFFLINE_TARGET_PLATFORMS:-${GEMMA4_OFFLINE_TARGET_PLATFORM},manylinux_2_27_x86_64,manylinux_2_24_x86_64,manylinux_2_18_x86_64,manylinux2014_x86_64}"
+GEMMA4_OFFLINE_TARGET_PLATFORMS="${GEMMA4_OFFLINE_TARGET_PLATFORMS:-${GEMMA4_OFFLINE_TARGET_PLATFORM},manylinux_2_27_x86_64,manylinux_2_25_x86_64,manylinux_2_24_x86_64,manylinux_2_18_x86_64,manylinux_2_17_x86_64,manylinux2014_x86_64,manylinux_2_12_x86_64,manylinux2010_x86_64,manylinux_2_5_x86_64,manylinux1_x86_64}"
 GEMMA4_OFFLINE_TARGET_PYTHON_VERSION="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:-311}"
 GEMMA4_OFFLINE_TARGET_IMPLEMENTATION="${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION:-cp}"
 GEMMA4_OFFLINE_TARGET_ABI="${GEMMA4_OFFLINE_TARGET_ABI:-cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}}"
@@ -119,13 +120,14 @@ for target_platform in "${GEMMA4_OFFLINE_TARGET_PLATFORM_LIST[@]}"; do
     PIP_TARGET_ARGS+=(--platform "${target_platform}")
   fi
 done
+PIP_INDEX_ARGS=(--extra-index-url "${NVIDIA_INDEX_URL}")
 
 download_wheels() {
-  "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" "$@"
+  "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" "${PIP_INDEX_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" "$@"
 }
 
 download_wheels_no_deps() {
-  "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" --no-deps "$@"
+  "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" "${PIP_INDEX_ARGS[@]}" --dest "${PYTHON_WHEELHOUSE}" --no-deps "$@"
 }
 
 wheelhouse_has_package() {
@@ -157,6 +159,7 @@ download_required_binary_wheel() {
     echo "Downloading required binary wheel: ${spec}"
     "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
       "${PIP_TARGET_ARGS[@]}" \
+      "${PIP_INDEX_ARGS[@]}" \
       --dest "${PYTHON_WHEELHOUSE}" \
       --no-deps \
       "${spec}" || true
@@ -179,6 +182,7 @@ download_required_target_binary_wheel() {
     echo "  platforms=${GEMMA4_OFFLINE_TARGET_PLATFORMS} python=${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION} abi=${GEMMA4_OFFLINE_TARGET_ABI}"
     "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
       "${PIP_TARGET_ARGS[@]}" \
+      "${PIP_INDEX_ARGS[@]}" \
       --dest "${PYTHON_WHEELHOUSE}" \
       --no-deps \
       "${spec}" || true
@@ -257,6 +261,7 @@ download_wheels "flashinfer-python" "flashinfer-cubin" || {
 
 "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
   "${PIP_TARGET_ARGS[@]}" \
+  "${PIP_INDEX_ARGS[@]}" \
   --dest "${PYTHON_WHEELHOUSE}" \
   --index-url "${FLASHINFER_INDEX_URL}" \
   "flashinfer-jit-cache" || {
@@ -279,6 +284,7 @@ download_wheels \
 
 "${DOWNLOAD_PYTHON}" -m pip download "${PIP_SSL_ARGS[@]}" \
   "${PIP_TARGET_ARGS[@]}" \
+  "${PIP_INDEX_ARGS[@]}" \
   --dest "${PYTHON_WHEELHOUSE}" \
   --no-deps \
   "matplotlib==${MATPLOTLIB_VERSION}" \
