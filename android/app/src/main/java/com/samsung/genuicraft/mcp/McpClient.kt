@@ -135,8 +135,9 @@ object McpClient {
             "latitude=$lat",
             "longitude=$lon",
             "timezone=auto",
-            "current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index",
-            "daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,sunrise,sunset"
+            "current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,showers,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index",
+            "daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,weather_code,precipitation_probability_max,precipitation_sum,rain_sum,showers_sum,precipitation_hours,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,uv_index_max,sunrise,sunset,daylight_duration,sunshine_duration",
+            "hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index"
         )
         if (!startDate.isNullOrBlank() && !endDate.isNullOrBlank()) {
             params += "start_date=$startDate"
@@ -167,6 +168,8 @@ object McpClient {
             add("current_units", weatherJson.getAsJsonObject("current_units"))
             add("daily", weatherJson.getAsJsonObject("daily"))
             add("daily_units", weatherJson.getAsJsonObject("daily_units"))
+            add("hourly", weatherJson.getAsJsonObject("hourly"))
+            add("hourly_units", weatherJson.getAsJsonObject("hourly_units"))
             addProperty("requested_start_date", startDate ?: "")
             addProperty("requested_end_date", endDate ?: "")
             addProperty("requested_forecast_days", forecastDays ?: 7)

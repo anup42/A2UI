@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +32,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,6 +60,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -1663,16 +1670,84 @@ object GenUiNativeRenderer {
             )
             dedupedLinks.forEach { link ->
                 val resolved = resolveExternalUrl(link.url, sourceDir)
-                OutlinedButton(
-                    onClick = { resolved?.let(onOpenExternalUrl) },
-                    enabled = resolved != null,
-                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                ) {
-                    MarkdownText(
-                        text = link.label,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
+                val label = link.label
+                    .takeIf { it.isNotBlank() }
+                    ?: sourceLabelFromUrl(link.url)
+                val urlHint = sourceUrlDisplay(link.url)
+                val rowShape = RoundedCornerShape(14.dp)
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(rowShape)
+                        .then(
+                            if (resolved != null) {
+                                Modifier.clickable(role = Role.Button) { onOpenExternalUrl(resolved) }
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .semantics(mergeDescendants = true) {
+                            contentDescription = if (resolved != null) {
+                                "Open source $label"
+                            } else {
+                                "Source $label"
+                            }
+                            if (resolved != null) {
+                                role = Role.Button
+                            }
+                        },
+                    shape = rowShape,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f)
                     )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(34.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Filled.Link,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            MarkdownText(
+                                text = label,
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            MarkdownText(
+                                text = urlHint,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }
@@ -3252,6 +3327,31 @@ object GenUiNativeRenderer {
                 append(query)
             }
         }
+    }
+
+    private fun sourceLabelFromUrl(raw: String): String {
+        val uri = runCatching { Uri.parse(raw.trim()) }.getOrNull()
+        return uri?.host
+            ?.removePrefix("www.")
+            ?.takeIf { it.isNotBlank() }
+            ?: raw.trim().take(48).ifBlank { "Source" }
+    }
+
+    private fun sourceUrlDisplay(raw: String): String {
+        val normalized = raw.trim()
+        val uri = runCatching { Uri.parse(normalized) }.getOrNull()
+        val host = uri?.host?.removePrefix("www.").orEmpty()
+        val path = uri?.path.orEmpty()
+            .trim('/')
+            .split('/')
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString("/")
+        return when {
+            host.isNotBlank() && path.isNotBlank() -> "$host/$path"
+            host.isNotBlank() -> host
+            else -> normalized
+        }.take(96)
     }
 
     private fun resolveImageModel(raw: String, sourceDir: File?): String {

@@ -382,10 +382,14 @@ internal object NativeWeatherUiRenderer {
         val conditionText = sanitizeDisplayText(row.condition.orEmpty()).ifBlank { null }
         val advice = remember(row.metrics) { findWeatherAdvice(row.metrics) }
         val rainMetric = remember(row.metrics) { findRainMetric(row.metrics) }
+        val daypartMetrics = remember(row.metrics) { findWeatherDaypartMetrics(row.metrics) }
         val rainPercent = remember(rainMetric) { rainMetric?.second?.let(::extractPercentValue) }
-        val metricTiles = remember(row.metrics, advice) {
+        val metricTiles = remember(row.metrics, advice, rainMetric, daypartMetrics) {
+            val daypartKeys = daypartMetrics.map { metric -> weatherMetricKey(metric.first) }.toSet()
             row.metrics
                 .filterNot { metric -> advice != null && metric.first == advice.first && metric.second == advice.second }
+                .filterNot { metric -> rainMetric != null && metric.first == rainMetric.first && metric.second == rainMetric.second }
+                .filterNot { metric -> weatherMetricKey(metric.first) in daypartKeys }
                 .take(3)
         }
         val range = remember(temperature) { splitWeatherTemperatureRange(temperature) }
@@ -520,12 +524,16 @@ internal object NativeWeatherUiRenderer {
                     }
                 }
 
-                rainMetric?.let { (label, value) ->
+                if (rainMetric != null || daypartMetrics.isNotEmpty()) {
+                    val (label, value) = rainMetric ?: ("Hourly outlook" to "")
                     WeatherRainRiskStrip(
                         label = sanitizeDisplayText(label),
                         value = sanitizeDisplayText(value),
                         percent = rainPercent,
-                        dark = dark
+                        dark = dark,
+                        dayparts = daypartMetrics.map { (partLabel, partValue) ->
+                            sanitizeDisplayText(partLabel) to sanitizeDisplayText(partValue)
+                        }
                     )
                 }
 
@@ -584,24 +592,27 @@ internal object NativeWeatherUiRenderer {
         }
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun WeatherRainRiskStrip(
         label: String,
         value: String,
         percent: Float?,
-        dark: Boolean
+        dark: Boolean,
+        dayparts: List<Pair<String, String>> = emptyList()
     ) {
-        if (label.isBlank() || value.isBlank()) {
+        val safeDayparts = dayparts.filter { (_, partValue) -> partValue.isNotBlank() }
+        if (label.isBlank() || (value.isBlank() && safeDayparts.isEmpty())) {
             return
         }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (dark) 0.18f else 0.34f))
+                .background(weatherRainAccent(dark).copy(alpha = if (dark) 0.16f else 0.10f))
                 .border(
                     GenUiTokens.BorderMd,
-                    MaterialTheme.colorScheme.primary.copy(alpha = if (dark) 0.22f else 0.16f),
+                    weatherRainAccent(dark).copy(alpha = if (dark) 0.30f else 0.20f),
                     RoundedCornerShape(18.dp)
                 )
                 .padding(horizontal = 12.dp, vertical = 11.dp),
@@ -615,17 +626,19 @@ internal object NativeWeatherUiRenderer {
                 MarkdownText(
                     text = if (isRainLikeLabel(label)) "Rain risk" else label,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = weatherRainAccent(dark),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                MarkdownText(
-                    text = value,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                if (value.isNotBlank()) {
+                    MarkdownText(
+                        text = value,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = weatherRainAccent(dark),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             percent?.let { safePercent ->
                 Box(
@@ -642,12 +655,71 @@ internal object NativeWeatherUiRenderer {
                             .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
                             .background(
                                 Brush.linearGradient(
-                                    listOf(Color(0xFF0EA5E9), Color(0xFF2563EB))
+                                    listOf(Color(0xFF0EA5E9), Color(0xFF2563EB), Color(0xFF14B8A6))
                                 )
                             )
                     )
                 }
             }
+            if (safeDayparts.isNotEmpty()) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    safeDayparts.forEach { (partLabel, partValue) ->
+                        WeatherDaypartChip(
+                            label = partLabel,
+                            value = partValue,
+                            dark = dark
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun WeatherDaypartChip(
+        label: String,
+        value: String,
+        dark: Boolean
+    ) {
+        if (label.isBlank() || value.isBlank()) {
+            return
+        }
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(14.dp))
+                .background(
+                    if (dark) {
+                        Color.White.copy(alpha = 0.10f)
+                    } else {
+                        Color.White.copy(alpha = 0.82f)
+                    }
+                )
+                .border(
+                    GenUiTokens.BorderMd,
+                    weatherRainAccent(dark).copy(alpha = if (dark) 0.24f else 0.18f),
+                    RoundedCornerShape(14.dp)
+                )
+                .padding(horizontal = 9.dp, vertical = 7.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            MarkdownText(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            MarkdownText(
+                text = value,
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 
@@ -742,6 +814,14 @@ internal object NativeWeatherUiRenderer {
             value.isNotBlank() && isRainLikeLabel(label)
         }
 
+    private fun findWeatherDaypartMetrics(metrics: List<Pair<String, String>>): List<Pair<String, String>> {
+        val order = listOf("morning", "afternoon", "evening", "night")
+        val byKey = metrics
+            .filter { (label, value) -> value.isNotBlank() && weatherMetricKey(label) in order }
+            .associateBy { (label, _) -> weatherMetricKey(label) }
+        return order.mapNotNull { key -> byKey[key] }
+    }
+
     private fun findFirstMetric(
         metrics: List<Pair<String, String>>,
         vararg labelTokens: String
@@ -766,6 +846,13 @@ internal object NativeWeatherUiRenderer {
             normalized.contains("precip") ||
             normalized.contains("shower")
     }
+
+    private fun weatherMetricKey(label: String): String =
+        NativeWeatherSemantics.normalizeWeatherText(label).trim()
+
+    @Composable
+    private fun weatherRainAccent(dark: Boolean): Color =
+        if (dark) Color(0xFF38BDF8) else Color(0xFF2563EB)
 
     private fun extractPercentValue(value: String): Float? {
         val match = Regex("""(\d{1,3}(?:\.\d+)?)\s*%""").find(value) ?: return null
@@ -1123,24 +1210,23 @@ internal object NativeWeatherUiRenderer {
 
     @Composable
     private fun weatherForecastSurfaceStyle(dark: Boolean): WeatherSurfaceStyle {
-        val scheme = MaterialTheme.colorScheme
         return if (dark) {
             WeatherSurfaceStyle(
                 gradient = listOf(
-                    scheme.surfaceContainerLow,
-                    scheme.surface,
-                    scheme.surfaceContainer
+                    Color(0xFF0B1220),
+                    Color(0xFF0F1C2E),
+                    Color(0xFF102A2A)
                 ),
-                border = scheme.outline.copy(alpha = 0.24f)
+                border = Color(0xFF38BDF8).copy(alpha = 0.22f)
             )
         } else {
             WeatherSurfaceStyle(
                 gradient = listOf(
-                    scheme.primaryContainer.copy(alpha = 0.40f),
-                    scheme.surface,
-                    scheme.tertiaryContainer.copy(alpha = 0.32f)
+                    Color(0xFFF0FBFF),
+                    Color(0xFFFAFEFF),
+                    Color(0xFFF2FFF8)
                 ),
-                border = scheme.outline.copy(alpha = 0.14f)
+                border = Color(0xFF0EA5E9).copy(alpha = 0.18f)
             )
         }
     }
@@ -1152,81 +1238,81 @@ internal object NativeWeatherUiRenderer {
         val key = condition.orEmpty().lowercase()
         val gradient = when {
             dark && (key.contains("thunder") || key.contains("storm")) -> listOf(
-                scheme.surfaceContainerHighest,
-                scheme.primary,
-                scheme.surfaceContainerLow
+                Color(0xFF111827),
+                Color(0xFF1D4ED8),
+                Color(0xFF0F172A)
             )
 
             dark && (key.contains("rain") || key.contains("shower") || key.contains("drizzle")) -> listOf(
-                scheme.surfaceContainerHigh,
-                scheme.primary,
-                scheme.surface
+                Color(0xFF0F172A),
+                Color(0xFF075985),
+                Color(0xFF115E59)
             )
 
             dark && (key.contains("cloud") || key.contains("overcast") || key.contains("fog") || key.contains("mist")) -> listOf(
-                scheme.surfaceContainerHighest,
-                scheme.secondary,
-                scheme.surface
+                Color(0xFF111827),
+                Color(0xFF334155),
+                Color(0xFF0F766E)
             )
 
             dark && (key.contains("sun") || key.contains("clear") || key.contains("hot")) -> listOf(
-                scheme.surfaceContainerHigh,
-                scheme.tertiary,
-                scheme.surface
+                Color(0xFF0F172A),
+                Color(0xFFB45309),
+                Color(0xFF075985)
             )
 
             dark -> listOf(
-                scheme.surfaceContainerHigh,
-                scheme.primary,
-                scheme.surface
+                Color(0xFF0F172A),
+                Color(0xFF0369A1),
+                Color(0xFF0F766E)
             )
 
             key.contains("thunder") || key.contains("storm") -> listOf(
-                scheme.primaryContainer,
-                scheme.secondaryContainer,
-                scheme.surface
+                Color(0xFF1E1B4B),
+                Color(0xFF2563EB),
+                Color(0xFF0F766E)
             )
 
             key.contains("rain") || key.contains("shower") || key.contains("drizzle") -> listOf(
-                scheme.primaryContainer,
-                scheme.secondaryContainer,
-                scheme.surfaceContainerLow
+                Color(0xFF0EA5E9),
+                Color(0xFF2563EB),
+                Color(0xFF0F766E)
             )
 
             key.contains("cloud") || key.contains("overcast") || key.contains("fog") || key.contains("mist") -> listOf(
-                scheme.surfaceContainerHighest,
-                scheme.secondaryContainer,
-                scheme.surface
+                Color(0xFF64748B),
+                Color(0xFF0EA5E9),
+                Color(0xFF115E59)
             )
 
             key.contains("sun") || key.contains("clear") || key.contains("hot") -> listOf(
-                scheme.tertiaryContainer,
-                scheme.primaryContainer,
-                scheme.surface
+                Color(0xFFF59E0B),
+                Color(0xFF0EA5E9),
+                Color(0xFF2563EB)
             )
 
             key.contains("snow") || key.contains("ice") || key.contains("cold") -> listOf(
-                scheme.primaryContainer,
-                scheme.surfaceContainerLow,
-                scheme.surface
+                Color(0xFF38BDF8),
+                Color(0xFF2563EB),
+                Color(0xFF0F766E)
             )
 
             else -> listOf(
-                scheme.primaryContainer,
-                scheme.secondaryContainer,
-                scheme.surface
+                Color(0xFF0EA5E9),
+                Color(0xFF2563EB),
+                Color(0xFF0F766E)
             )
         }
-        val content = if (dark) Color.White else scheme.onSurface
-        val mutedContent = content.copy(alpha = if (dark) 0.78f else 0.74f)
+        val content = Color.White
+        val mutedContent = Color.White.copy(alpha = if (dark) 0.78f else 0.82f)
         return WeatherHeroPalette(
             gradient = gradient,
             content = content,
             mutedContent = mutedContent,
-            tileContainer = if (dark) Color.White.copy(alpha = 0.13f) else scheme.surface.copy(alpha = 0.56f),
-            tileBorder = if (dark) Color.White.copy(alpha = 0.18f) else scheme.outline.copy(alpha = 0.16f),
-            iconContainer = if (dark) Color.White.copy(alpha = 0.14f) else scheme.surface.copy(alpha = 0.48f),
-            iconBorder = if (dark) Color.White.copy(alpha = 0.22f) else scheme.outline.copy(alpha = 0.18f)
+            tileContainer = Color.White.copy(alpha = if (dark) 0.13f else 0.18f),
+            tileBorder = Color.White.copy(alpha = if (dark) 0.18f else 0.24f),
+            iconContainer = Color.White.copy(alpha = if (dark) 0.14f else 0.20f),
+            iconBorder = Color.White.copy(alpha = if (dark) 0.22f else 0.28f)
         )
     }
 

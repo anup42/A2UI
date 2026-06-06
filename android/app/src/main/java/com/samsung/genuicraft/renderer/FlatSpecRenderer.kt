@@ -1410,7 +1410,8 @@ private fun RenderChildren(
     activePath: Set<String>
 ) {
     val visibleChildren = children.filterNot { childId ->
-        isDetachedMediaDumpElement(childId, elements)
+        isDetachedMediaDumpElement(childId, elements) ||
+            isRedundantWeatherLeadInElement(childId, children, elements, state)
     }
     if (visibleChildren.isEmpty()) {
         return
@@ -1642,6 +1643,157 @@ internal fun isDetachedMediaDumpElement(
         val token = heading.trim().lowercase()
         token in detachedHeadingTokens
     }
+}
+
+private fun isRedundantWeatherLeadInElement(
+    elementId: String,
+    siblingIds: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>
+): Boolean {
+    val hasForecastWeatherSibling = siblingIds.any { siblingId ->
+        siblingId != elementId && containsForecastWeatherTableElement(siblingId, elements, state)
+    }
+    if (!hasForecastWeatherSibling) return false
+    val element = elements[elementId] ?: return false
+    if (element.type.equals("table", ignoreCase = true)) {
+        return looksLikeCurrentWeatherMetricsTable(elementId, element.props, state)
+    }
+    return looksLikeCurrentWeatherLeadInElement(elementId, elements)
+}
+
+private fun looksLikeCurrentWeatherMetricsTable(
+    elementId: String,
+    props: Map<String, Any?>,
+    state: Map<String, Any?>
+): Boolean {
+    val table = extractDirectTableModel(props, state, compactScreen = true) ?: return false
+    if (table.shape != FlatTableShape.KEY_VALUE || table.rows.isEmpty()) return false
+    val titleToken = listOfNotNull(
+        elementId,
+        props["title"]?.toString(),
+        props["heading"]?.toString(),
+        props["label"]?.toString(),
+        props["name"]?.toString()
+    ).joinToString(" ").let(NativeWeatherSemantics::normalizeWeatherText)
+    val rowLabelTokens = table.rows
+        .mapNotNull { row -> row.firstOrNull() }
+        .map(NativeWeatherSemantics::normalizeWeatherText)
+    val currentTitle = titleToken.contains("current") &&
+        (titleToken.contains("weather") || titleToken.contains("metric") || titleToken.contains("condition"))
+    val weatherMetricSignals = rowLabelTokens.count { label ->
+        label.contains("temperature") ||
+            label.contains("temp") ||
+            label.contains("high") ||
+            label.contains("low") ||
+            label.contains("feel") ||
+            label.contains("rain") ||
+            label.contains("precip") ||
+            label.contains("wind") ||
+            label.contains("humidity") ||
+            label.contains("uv") ||
+            label.contains("best window")
+    }
+    return currentTitle || weatherMetricSignals >= 3
+}
+
+private fun containsForecastWeatherTableElement(
+    elementId: String,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    visited: MutableSet<String> = mutableSetOf(),
+    depth: Int = 0
+): Boolean {
+    if (depth > 6 || !visited.add(elementId)) return false
+    val element = elements[elementId] ?: return false
+    if (element.type.equals("table", ignoreCase = true) && looksLikeForecastWeatherTable(element.props, state)) {
+        return true
+    }
+    return element.children.any { childId ->
+        containsForecastWeatherTableElement(childId, elements, state, visited, depth + 1)
+    }
+}
+
+private fun looksLikeForecastWeatherTable(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>
+): Boolean {
+    val table = extractDirectTableModel(props, state, compactScreen = true) ?: return false
+    if (table.rows.size < 2) return false
+    if (table.domain == "weather" || table.renderMode == FlatTableRenderMode.WEATHER_CARDS) return true
+    val headers = table.columns.map { column -> column.label }
+    return !NativeWeatherSemantics.buildWeatherRows(headers, table.rows).isNullOrEmpty()
+}
+
+private fun looksLikeCurrentWeatherLeadInElement(
+    elementId: String,
+    elements: Map<String, FlatElement>
+): Boolean {
+    val root = elements[elementId] ?: return false
+    val rootType = root.type.trim().lowercase()
+    if (rootType !in setOf("card", "stack", "column", "row", "list", "text")) return false
+    val textValues = mutableListOf<String>()
+    var hasStructuredTable = false
+    val visited = mutableSetOf<String>()
+
+    fun walk(id: String, depth: Int) {
+        if (depth > 5 || !visited.add(id)) return
+        val element = elements[id] ?: return
+        val type = element.type.trim().lowercase()
+        if (type == "table") {
+            hasStructuredTable = true
+            return
+        }
+        if (type == "text") {
+            val text = FlatExprResolver.resolveString(
+                value = textLikeValue(element.props),
+                state = emptyMap(),
+                repeatScope = null,
+                computedFunctions = emptyMap()
+            ).trim()
+            if (text.isNotBlank()) {
+                textValues += text
+            }
+        }
+        element.children.forEach { childId -> walk(childId, depth + 1) }
+    }
+
+    walk(elementId, 0)
+    if (hasStructuredTable || textValues.isEmpty()) return false
+    val normalizedValues = textValues.map(NativeWeatherSemantics::normalizeWeatherText)
+    if (normalizedValues.any { it in setOf("current metrics", "current weather", "current conditions") }) {
+        return true
+    }
+    val joined = normalizedValues.joinToString(" ")
+    if (joined.contains("forecast") || joined.contains("day by day") || joined.contains("7 day")) {
+        return false
+    }
+    val hasCurrentCue = normalizedValues.any { value ->
+        value == "today" ||
+            value.contains("today") ||
+            value.contains("current") ||
+            value.contains("now")
+    }
+    val metricSignals = listOf(
+        "temperature",
+        "temp",
+        "high",
+        "low",
+        "feel",
+        "rain",
+        "precip",
+        "wind",
+        "humidity",
+        "uv",
+        "best window",
+        "clear sky",
+        "mainly clear",
+        "cloud",
+        "overcast",
+        "drizzle",
+        "storm"
+    ).count { signal -> joined.contains(signal) }
+    return hasCurrentCue && metricSignals >= 2
 }
 
 private fun asFloat(value: Any?): Float? = when (value) {

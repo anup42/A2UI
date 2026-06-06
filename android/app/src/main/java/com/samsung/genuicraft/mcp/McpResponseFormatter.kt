@@ -21,15 +21,15 @@ object McpResponseFormatter {
     )
 
     private val mojibakeFixups = linkedMapOf(
-        "Ã¢â‚¬â€" to "—",
-        "â€”" to "—",
-        "Ã‚Â°C" to "°C",
-        "Ã¢Ëœâ€¦" to "★",
-        "Ã¢Ëœâ€ " to "☆",
-        "Ã¢â€šÂ¹" to "₹",
-        "MonÃ¢â‚¬Â¦6=Sun" to "Mon…6=Sun",
-        "Ã‚Â·" to "·",
-        "Â·" to "·"
+        "ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â" to "â€”",
+        "Ã¢â‚¬â€" to "â€”",
+        "Ãƒâ€šÃ‚Â°C" to "Â°C",
+        "ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦" to "â˜…",
+        "ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â " to "â˜†",
+        "ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹" to "â‚¹",
+        "MonÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦6=Sun" to "Monâ€¦6=Sun",
+        "Ãƒâ€šÃ‚Â·" to "Â·",
+        "Ã‚Â·" to "Â·"
     )
 
     fun normalizeForStage3(text: String): String {
@@ -61,10 +61,13 @@ object McpResponseFormatter {
             )
         }
 
-        // For restaurants and places, use the deterministic Kotlin formatter directly.
-        // This guarantees photos, ratings, reviews, and action buttons are always present
-        // instead of relying on LLM output which may omit them.
-        if (mcpResult.domain == McpSettings.Domain.RESTAURANTS || mcpResult.domain == McpSettings.Domain.PLACES) {
+        // Use deterministic Kotlin formatters for domains where preserving structured rows/media is critical.
+        // This avoids the LLM dropping photos, source links, or weather metrics needed by native templates.
+        if (
+            mcpResult.domain == McpSettings.Domain.WEATHER ||
+            mcpResult.domain == McpSettings.Domain.RESTAURANTS ||
+            mcpResult.domain == McpSettings.Domain.PLACES
+        ) {
             val fallback = buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText)
             return FormatResult(
                 formattedResponse = normalizeForStage3(fallback),
@@ -125,7 +128,7 @@ $dataStr
 ```
 
 Format this real-time data into a complete, polished response following the formatting rules in your system prompt.
-The data above is LIVE and REAL — present it as authoritative current information, not as examples or samples.
+The data above is LIVE and REAL â€” present it as authoritative current information, not as examples or samples.
 Do not add disclaimers about data accuracy. Present the data directly as the answer."""
     }
 
@@ -142,7 +145,7 @@ Rules:
    ### <restaurant/place name>
    Media: Image=<photoUri from data> Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg
    *<cuisine/type tags>*
-   **Rating:** <rating> ★★★★ (<reviewCount> reviews)
+   **Rating:** <rating> â˜…â˜…â˜…â˜… (<reviewCount> reviews)
    **Address:** <address>
    **Review:** "<first review text snippet>"
    Action: [Button: View on Maps] <googleMapsUri>
@@ -153,11 +156,11 @@ Rules:
    - If "reviews" array exists, include the first review text (truncated to 120 chars)
    - If "googleMapsUri" exists, include Action: [Button: View on Maps] <url>
    - If "websiteUri" exists, include Action: [Button: Visit Website] <url>
-   - Show rating as numeric value plus ★ star characters
-   - Do NOT use a table for restaurants/places — use individual card blocks
+   - Show rating as numeric value plus â˜… star characters
+   - Do NOT use a table for restaurants/places â€” use individual card blocks
 6) For hotels, use option cards with rating, price, and book button.
 7) Include a Sources section with real URLs when applicable.
-8) Keep sections concise — prefer cards, tables, and bullets over long paragraphs.
+8) Keep sections concise â€” prefer cards, tables, and bullets over long paragraphs.
 9) For weather: start with current conditions block, then forecast table.
 10) For flights: include Airline | Departure | Arrival | Duration | Stops | Fare table.
 11) For news: include title, source, and publication time for each article.
@@ -222,59 +225,246 @@ Rules:
         val location = data.safeString("location") ?: "Unknown"
         val country = data.safeString("country") ?: ""
         val current = data.getAsJsonObject("current")
+        val currentUnits = data.getAsJsonObject("current_units")
         val daily = data.getAsJsonObject("daily")
-
-        val sb = StringBuilder()
-        sb.appendLine("## Weather in $location${if (country.isNotBlank()) ", $country" else ""}")
-        sb.appendLine()
+        val dailyUnits = data.getAsJsonObject("daily_units")
+        val hourly = data.getAsJsonObject("hourly")
 
         val dates = daily?.getAsJsonArray("time")
         val maxTemps = daily?.getAsJsonArray("temperature_2m_max")
         val minTemps = daily?.getAsJsonArray("temperature_2m_min")
-        val precip = daily?.getAsJsonArray("precipitation_probability_max")
+        val apparentMax = daily?.getAsJsonArray("apparent_temperature_max")
+        val precipProbability = daily?.getAsJsonArray("precipitation_probability_max")
+        val precipSum = daily?.getAsJsonArray("precipitation_sum")
+        val rainSum = daily?.getAsJsonArray("rain_sum")
+        val windSpeedMax = daily?.getAsJsonArray("wind_speed_10m_max")
+        val windGustMax = daily?.getAsJsonArray("wind_gusts_10m_max")
+        val windDirection = daily?.getAsJsonArray("wind_direction_10m_dominant")
+        val uvMax = daily?.getAsJsonArray("uv_index_max")
         val codes = daily?.getAsJsonArray("weather_code")
-        // Unified weather table — triggers NativeWeatherIntentModule for weather-app style rendering
-        sb.appendLine("| Day | Condition | Temp | High | Low | Rain % | Wind | Humidity | UV |")
-        sb.appendLine("|-----|-----------|------|------|-----|--------|------|----------|-----|")
 
-        // Today row: populated from current weather + daily[0]
-        run {
-            val weatherCode = current?.safeInt("weather_code") ?: codes?.get(0)?.safeInt() ?: -1
+        val currentCondition = wmoCodeToCondition(current?.safeInt("weather_code") ?: codes?.get(0)?.safeInt() ?: -1)
+        val currentTemp = formatWeatherValue(current?.safeString("temperature_2m"), currentUnits?.safeString("temperature_2m"))
+        val todayHigh = formatWeatherValue(maxTemps?.get(0)?.safeString(), dailyUnits?.safeString("temperature_2m_max"))
+        val todayLow = formatWeatherValue(minTemps?.get(0)?.safeString(), dailyUnits?.safeString("temperature_2m_min"))
+        val todayRainChance = formatWeatherValue(precipProbability?.get(0)?.safeString(), dailyUnits?.safeString("precipitation_probability_max"))
+        val currentWind = formatWindValue(
+            speed = current?.safeString("wind_speed_10m"),
+            speedUnit = currentUnits?.safeString("wind_speed_10m"),
+            direction = current?.safeString("wind_direction_10m")
+        )
+        val currentHumidity = formatWeatherValue(current?.safeString("relative_humidity_2m"), currentUnits?.safeString("relative_humidity_2m"))
+        val currentUv = formatWeatherValue(current?.safeString("uv_index"), currentUnits?.safeString("uv_index"))
+
+        val sb = StringBuilder()
+        sb.appendLine("## Weather in $location${if (country.isNotBlank()) ", $country" else ""}")
+        sb.appendLine()
+        sb.appendLine(
+            listOf(
+                "**Today:** $currentCondition",
+                currentTemp?.let { "$it now" },
+                todayHigh?.let { "high $it" },
+                todayLow?.let { "low $it" },
+                todayRainChance?.let { "rain $it" },
+                currentWind?.let { "wind $it" },
+                currentHumidity?.let { "humidity $it" },
+                currentUv?.let { "UV $it" }
+            ).filterNotNull().joinToString(", ") + "."
+        )
+        sb.appendLine()
+
+        sb.appendLine("| Day | Date | Condition | Temp | High | Low | Feels Like | Rain Chance | Rain | Wind | Gusts | Humidity | UV | Best Window | Morning | Afternoon | Evening | Night | What to wear |")
+        sb.appendLine("|-----|------|-----------|------|------|-----|------------|-------------|------|------|-------|----------|----|-------------|---------|-----------|---------|-------|--------------|")
+
+        val rowCount = listOfNotNull(dates?.size(), maxTemps?.size(), minTemps?.size()).minOrNull()?.coerceAtMost(7) ?: 0
+        for (i in 0 until rowCount) {
+            val date = dates?.get(i)?.safeString().orEmpty()
+            val label = if (i == 0) "Today" else weatherDayLabel(date)
+            val weatherCode = if (i == 0) current?.safeInt("weather_code") ?: codes?.get(i)?.safeInt() ?: -1 else codes?.get(i)?.safeInt() ?: -1
             val condition = wmoCodeToCondition(weatherCode)
-            val currentTemp = current?.safeString("temperature_2m")?.let { "${it}°C" } ?: "—"
-            val todayHigh = maxTemps?.get(0)?.safeString()?.let { "${it}°C" } ?: "—"
-            val todayLow = minTemps?.get(0)?.safeString()?.let { "${it}°C" } ?: "—"
-            val todayRain = precip?.get(0)?.safeString()?.let { "${it}%" } ?: "—"
-            val wind = current?.safeString("wind_speed_10m")?.let { "${it} km/h" } ?: "—"
-            val humidity = current?.safeString("relative_humidity_2m")?.let { "${it}%" } ?: "—"
-            val uv = current?.safeDouble("uv_index")?.let { "${"%.0f".format(it)}" } ?: "—"
-            sb.appendLine("| Today | $condition | $currentTemp | $todayHigh | $todayLow | $todayRain | $wind | $humidity | $uv |")
-        }
-
-        // Forecast rows (skip today at i=0 since it's already included above)
-        if (dates != null && maxTemps != null && minTemps != null) {
-            val count = minOf(dates.size(), maxTemps.size(), minTemps.size(), 7)
-            for (i in 1 until count) {
-                val date = dates[i].safeString() ?: continue
-                val high = maxTemps[i].safeString()?.let { "${it}°C" } ?: "—"
-                val low = minTemps[i].safeString()?.let { "${it}°C" } ?: "—"
-                val rain = precip?.get(i)?.safeString()?.let { "${it}%" } ?: "—"
-                val dayCode = codes?.get(i)?.safeInt() ?: -1
-                val dayCondition = wmoCodeToCondition(dayCode)
-                val dayLabel = try {
-                    val parsed = java.time.LocalDate.parse(date)
-                    parsed.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
-                } catch (_: Exception) { date }
-                sb.appendLine("| $dayLabel | $dayCondition | — | $high | $low | $rain | — | — | — |")
-            }
+            val hourlySummary = buildHourlyWeatherSummary(date, hourly)
+            val temp = if (i == 0) currentTemp ?: "-" else "-"
+            val high = formatWeatherValue(maxTemps?.get(i)?.safeString(), dailyUnits?.safeString("temperature_2m_max")) ?: "-"
+            val low = formatWeatherValue(minTemps?.get(i)?.safeString(), dailyUnits?.safeString("temperature_2m_min")) ?: "-"
+            val feelsLike = if (i == 0) {
+                formatWeatherValue(current?.safeString("apparent_temperature"), currentUnits?.safeString("apparent_temperature"))
+            } else {
+                formatWeatherValue(apparentMax?.get(i)?.safeString(), dailyUnits?.safeString("apparent_temperature_max"))
+            } ?: "-"
+            val rainChance = formatWeatherValue(precipProbability?.get(i)?.safeString(), dailyUnits?.safeString("precipitation_probability_max")) ?: "-"
+            val rain = formatWeatherValue(rainSum?.get(i)?.safeString(), dailyUnits?.safeString("rain_sum"))
+                ?: formatWeatherValue(precipSum?.get(i)?.safeString(), dailyUnits?.safeString("precipitation_sum"))
+                ?: "-"
+            val wind = if (i == 0) {
+                currentWind
+            } else {
+                formatWindValue(
+                    speed = windSpeedMax?.get(i)?.safeString(),
+                    speedUnit = dailyUnits?.safeString("wind_speed_10m_max"),
+                    direction = windDirection?.get(i)?.safeString()
+                )
+            } ?: "-"
+            val gust = formatWeatherValue(windGustMax?.get(i)?.safeString(), dailyUnits?.safeString("wind_gusts_10m_max")) ?: "-"
+            val humidity = if (i == 0) currentHumidity else hourlySummary.humidity
+            val uv = if (i == 0) currentUv else formatWeatherValue(uvMax?.get(i)?.safeString(), dailyUnits?.safeString("uv_index_max"))
+            sb.appendLine(
+                weatherTableRow(
+                    label,
+                    date,
+                    condition,
+                    temp,
+                    high,
+                    low,
+                    feelsLike,
+                    rainChance,
+                    rain,
+                    wind,
+                    gust,
+                    humidity ?: "-",
+                    uv ?: "-",
+                    hourlySummary.bestWindow,
+                    hourlySummary.morning,
+                    hourlySummary.afternoon,
+                    hourlySummary.evening,
+                    hourlySummary.night,
+                    weatherAdvice(condition, rainChance, high, wind)
+                )
+            )
         }
 
         sb.appendLine()
         sb.appendLine("## Sources")
-        sb.appendLine("- Open-Meteo Weather API: https://open-meteo.com/")
+        sb.appendLine("- Open-Meteo Forecast API: https://open-meteo.com/en/docs")
+        sb.appendLine("- Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api")
 
         return sb.toString()
     }
+
+    private data class HourlyWeatherSummary(
+        val morning: String = "-",
+        val afternoon: String = "-",
+        val evening: String = "-",
+        val night: String = "-",
+        val bestWindow: String = "-",
+        val humidity: String? = null
+    )
+
+    private fun buildHourlyWeatherSummary(date: String, hourly: JsonObject?): HourlyWeatherSummary {
+        if (date.isBlank() || hourly == null) {
+            return HourlyWeatherSummary()
+        }
+        val times = hourly.getAsJsonArray("time") ?: return HourlyWeatherSummary()
+        val codes = hourly.getAsJsonArray("weather_code")
+        val precipitationProbability = hourly.getAsJsonArray("precipitation_probability")
+        val humidityValues = hourly.getAsJsonArray("relative_humidity_2m")
+
+        fun indexesFor(range: IntRange): List<Int> {
+            return (0 until times.size()).filter { index ->
+                val time = times[index].safeString().orEmpty()
+                if (!time.startsWith(date)) return@filter false
+                val hour = time.substringAfter('T', "").take(2).toIntOrNull() ?: return@filter false
+                hour in range
+            }
+        }
+
+        fun conditionFor(range: IntRange): String {
+            val indexes = indexesFor(range)
+            if (indexes.isEmpty()) return "-"
+            val selectedIndex = indexes.maxByOrNull { index ->
+                precipitationProbability?.get(index)?.safeString()?.toDoubleOrNull() ?: -1.0
+            } ?: indexes[indexes.size / 2]
+            return wmoCodeToShortCondition(codes?.get(selectedIndex)?.safeInt() ?: -1)
+        }
+
+        val dayIndexes = indexesFor(6..22)
+        val bestWindow = dayIndexes.minByOrNull { index ->
+            precipitationProbability?.get(index)?.safeString()?.toDoubleOrNull() ?: 101.0
+        }?.let { index ->
+            val hour = times[index].safeString().orEmpty().substringAfter('T', "").take(2).toIntOrNull()
+            when (hour) {
+                in 6..11 -> "Before noon"
+                in 12..16 -> "Afternoon"
+                in 17..20 -> "Evening"
+                in 21..23 -> "Late evening"
+                else -> "Anytime"
+            }
+        } ?: "-"
+
+        val humidity = dayIndexes
+            .mapNotNull { index -> humidityValues?.get(index)?.safeString()?.toDoubleOrNull() }
+            .takeIf { it.isNotEmpty() }
+            ?.average()
+            ?.let { "${"%.0f".format(it)}%" }
+
+        return HourlyWeatherSummary(
+            morning = conditionFor(6..11),
+            afternoon = conditionFor(12..16),
+            evening = conditionFor(17..20),
+            night = conditionFor(21..23),
+            bestWindow = bestWindow,
+            humidity = humidity
+        )
+    }
+
+    private fun weatherTableRow(vararg cells: String): String {
+        return cells.joinToString(prefix = "| ", separator = " | ", postfix = " |") { cell -> cleanWeatherTableCell(cell) }
+    }
+
+    private fun cleanWeatherTableCell(value: String): String =
+        value.ifBlank { "-" }.replace("|", "/").replace(Regex("\\s+"), " ").trim()
+
+    private fun weatherDayLabel(date: String): String {
+        return try {
+            val parsed = java.time.LocalDate.parse(date)
+            parsed.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        } catch (_: Exception) {
+            date
+        }
+    }
+
+    private fun formatWeatherValue(value: String?, unit: String?): String? {
+        val raw = value?.trim()?.takeIf { it.isNotBlank() } ?: return null
+        val normalized = raw.toDoubleOrNull()?.let { numeric ->
+            if (kotlin.math.abs(numeric - numeric.toInt()) < 0.05) numeric.toInt().toString() else "%.1f".format(numeric)
+        } ?: raw
+        val cleanUnit = unit?.trim().orEmpty()
+        if (cleanUnit.isBlank()) return normalized
+        val separator = if (cleanUnit in setOf("°C", "°F", "%")) "" else " "
+        return "$normalized$separator$cleanUnit"
+    }
+
+    private fun formatWindValue(speed: String?, speedUnit: String?, direction: String?): String? {
+        val speedText = formatWeatherValue(speed, speedUnit) ?: return null
+        val directionText = windDirectionLabel(direction)
+        return listOfNotNull(directionText, speedText).joinToString(" ")
+    }
+
+    private fun windDirectionLabel(direction: String?): String? {
+        val degrees = direction?.trim()?.toDoubleOrNull() ?: return null
+        val labels = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+        val index = (((degrees + 22.5) % 360) / 45.0).toInt().coerceIn(0, labels.lastIndex)
+        return labels[index]
+    }
+
+    private fun weatherAdvice(condition: String, rainChance: String, high: String, wind: String): String {
+        val rainPercent = Regex("(\\d{1,3})").find(rainChance)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        val highTemp = Regex("-?\\d{1,3}").find(high)?.value?.toIntOrNull()
+        val windSpeed = Regex("(\\d{1,3})").find(wind)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        val rainy = (rainPercent != null && rainPercent >= 55) ||
+            condition.contains("rain", ignoreCase = true) ||
+            condition.contains("drizzle", ignoreCase = true) ||
+            condition.contains("shower", ignoreCase = true) ||
+            condition.contains("storm", ignoreCase = true)
+        val windy = windSpeed != null && windSpeed >= 25
+        return when {
+            rainy && windy -> "Carry an umbrella or rain jacket; choose quick-dry shoes and avoid loose layers."
+            rainy -> "Carry an umbrella; wear quick-dry footwear and light layers."
+            highTemp != null && highTemp >= 32 -> "Wear breathable cotton, sunglasses, and carry water."
+            windy -> "Use a light wind-resistant layer and secure loose accessories."
+            else -> "Light comfortable clothing should work; carry a small layer if heading out late."
+        }
+    }
+
 
     /** Maps WMO weather interpretation code to a human-readable condition string. */
     private fun wmoCodeToCondition(code: Int): String = when (code) {
@@ -296,6 +486,18 @@ Rules:
         else -> "Unknown"
     }
 
+    private fun wmoCodeToShortCondition(code: Int): String = when (code) {
+        0, 1 -> "Clear"
+        2 -> "Clouds"
+        3 -> "Overcast"
+        45, 48 -> "Fog"
+        51, 53, 55, 56, 57 -> "Drizzle"
+        61, 63, 65, 66, 67 -> "Rain"
+        71, 73, 75, 77, 85, 86 -> "Snow"
+        80, 81, 82 -> "Showers"
+        95, 96, 99 -> "Storm"
+        else -> "-"
+    }
 private fun buildFlightsFallback(data: JsonObject): String {
         val origin = data.safeString("origin") ?: "?"
         val destination = data.safeString("destination") ?: "?"
@@ -315,15 +517,15 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     val currency = "USD"
                     val route = flightObj.getAsJsonArray("flights")
                     val duration = route?.get(0)?.asJsonObject?.safeString("duration") ?: "N/A"
-                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "—"
+                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "â€”"
                     val stops = if (route != null) route.size() - 1 else 0
                     val stopsStr = if (stops <= 0) "Non-stop" else "$stops stop${if (stops > 1) "s" else ""}"
                     val firstLeg = route?.get(0)?.asJsonObject
                     val lastLeg = route?.get(route.size() - 1)?.asJsonObject
                     val depObj = firstLeg?.getAsJsonObject("departure_airport")
                     val arrObj = lastLeg?.getAsJsonObject("arrival_airport")
-                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "—"
-                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "—"
+                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
+                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
                     sb.appendLine("| $airlines | $dep | $arr | $duration mins | $stopsStr | $currency $price |")
             }
         }
@@ -354,7 +556,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
                 val fullStars = ratingRaw.toInt().coerceIn(0, 5)
                 val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "★".repeat(fullStars) + "☆".repeat(emptyStars) else ""
+                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
                 val reviewCount = biz.safeInt("userRatingCount") ?: 0
                 val mapsUri = biz.safeString("googleMapsUri") ?: ""
                 val websiteUri = biz.safeString("websiteUri") ?: ""
@@ -362,10 +564,10 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val photoUri = biz.safeString("photoUri") ?: ""
                 val distanceMeters = biz.safeDouble("distance")
                 val priceLevel = when (biz.safeString("priceLevel")) {
-                    "PRICE_LEVEL_INEXPENSIVE" -> "₹"
-                    "PRICE_LEVEL_MODERATE" -> "₹₹"
-                    "PRICE_LEVEL_EXPENSIVE" -> "₹₹₹"
-                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "₹₹₹₹"
+                    "PRICE_LEVEL_INEXPENSIVE" -> "â‚¹"
+                    "PRICE_LEVEL_MODERATE" -> "â‚¹â‚¹"
+                    "PRICE_LEVEL_EXPENSIVE" -> "â‚¹â‚¹â‚¹"
+                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "â‚¹â‚¹â‚¹â‚¹"
                     else -> ""
                 }
 
@@ -400,7 +602,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val todayHours = openingHours?.getAsJsonArray("weekdayDescriptions")
                     ?.let { arr ->
                         val dayIndex = (java.util.Calendar.getInstance()
-                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Mon…6=Sun
+                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Monâ€¦6=Sun
                         if (dayIndex < arr.size()) arr[dayIndex].asString?.substringAfter(":")?.trim() else null
                     }
 
@@ -430,7 +632,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingLine = buildString {
                     if (ratingRaw > 0) append("$starsDisplay $ratingStr ($reviewCount reviews)")
                     if (priceLevel.isNotBlank()) {
-                        if (isNotEmpty()) append("  ·  ")
+                        if (isNotEmpty()) append("  Â·  ")
                         append(priceLevel)
                     }
                 }
@@ -452,13 +654,13 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val hoursLine = buildString {
                     if (openStatus != null) append(openStatus)
                     if (todayHours != null) {
-                        if (isNotEmpty()) append(" · ")
+                        if (isNotEmpty()) append(" Â· ")
                         append("Today: $todayHours")
                     }
                 }
                 if (hoursLine.isNotBlank()) sb.appendLine(hoursLine)
 
-                // Editorial summary — concise description from Google
+                // Editorial summary â€” concise description from Google
                 if (editorial != null) sb.appendLine("- $editorial")
 
                 // Action buttons
@@ -550,7 +752,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
             val checkInfo = buildString {
                 if (checkIn.isNotBlank()) append("Check-in: $checkIn")
                 if (checkOut.isNotBlank()) {
-                    if (isNotEmpty()) append(" · ")
+                    if (isNotEmpty()) append(" Â· ")
                     append("Check-out: $checkOut")
                 }
             }
@@ -584,7 +786,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
                 val fullStars = ratingRaw.toInt().coerceIn(0, 5)
                 val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "★".repeat(fullStars) + "☆".repeat(emptyStars) else ""
+                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
                 val reviewCount = place.safeInt("userRatingCount") ?: 0
                 val mapsUri = place.safeString("googleMapsUri") ?: ""
                 val websiteUri = place.safeString("websiteUri") ?: ""
@@ -642,7 +844,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val hoursLine = buildString {
                     if (openStatus != null) append(openStatus)
                     if (todayHours != null) {
-                        if (isNotEmpty()) append(" · ")
+                        if (isNotEmpty()) append(" Â· ")
                         append("Today: $todayHours")
                     }
                 }
@@ -702,7 +904,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val sourceAndTime = buildString {
                     append("- **$sourceLabel**")
                     if (publishedAt.isNotBlank()) {
-                        append(" · ")
+                        append(" Â· ")
                         append(publishedAt)
                     }
                 }
