@@ -1959,6 +1959,11 @@ object GenUiNativeRenderer {
         }
 
         val columnCount = rows.maxOf { it.size }.coerceAtLeast(2)
+        if (shouldRenderNativeKeyValueFactPanel(header, body)) {
+            RenderNativeKeyValueFactPanel(header = header, rows = body)
+            return
+        }
+
         val columnWidths = List(columnCount) { NativeTableSemantics.tableBaseCellWidth(columnCount) }
         val dark = isSystemInDarkTheme()
         val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (dark) 0.24f else 0.18f)
@@ -2475,6 +2480,11 @@ object GenUiNativeRenderer {
             .maxOrNull()
             ?.coerceAtLeast(2)
             ?: return
+        if (semanticHeader != null && semanticBody.isNotEmpty() && shouldRenderNativeKeyValueFactPanel(semanticHeader, semanticBody)) {
+            RenderNativeKeyValueFactPanel(header = semanticHeader, rows = semanticBody)
+            return
+        }
+
         val hasExplicitWeights =
             normalizedSpec.header?.any { abs(it.weight - 1f) > 0.01f } == true ||
                 normalizedSpec.rows.any { row -> row.any { abs(it.weight - 1f) > 0.01f } }
@@ -2514,6 +2524,74 @@ object GenUiNativeRenderer {
                     )
                     if (index != normalizedSpec.rows.lastIndex) {
                         HorizontalDivider(color = dividerColor)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun shouldRenderNativeKeyValueFactPanel(header: List<String>, rows: List<List<String>>): Boolean {
+        if (rows.isEmpty()) return false
+        val columnCount = maxOf(header.size, rows.maxOfOrNull { it.size } ?: 0)
+        if (columnCount != 2) return false
+        val firstHeader = header.firstOrNull().orEmpty().trim().lowercase(Locale.US)
+        val secondHeader = header.getOrNull(1).orEmpty().trim().lowercase(Locale.US)
+        if (firstHeader.isBlank() || secondHeader.isBlank()) return false
+        return rows.any { row ->
+            row.getOrNull(0).orEmpty().isNotBlank() || row.getOrNull(1).orEmpty().isNotBlank()
+        }
+    }
+
+    @Composable
+    private fun RenderNativeKeyValueFactPanel(
+        header: List<String>,
+        rows: List<List<String>>
+    ) {
+        val dark = isSystemInDarkTheme()
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+            colors = CardDefaults.cardColors(containerColor = genUiTableContainerColor()),
+            elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                rows.forEach { row ->
+                    val label = NativeTableSemantics
+                        .sanitizeTableCellDisplayValue(row.getOrNull(0).orEmpty())
+                        .ifBlank { header.firstOrNull().orEmpty() }
+                    val value = NativeTableSemantics.sanitizeTableCellDisplayValue(row.getOrNull(1).orEmpty())
+                    if (label.isBlank() && value.isBlank()) return@forEach
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = if (dark) 0.18f else 0.70f),
+                        border = BorderStroke(GenUiTokens.BorderSm, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.34f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            MarkdownText(
+                                text = label.uppercase(Locale.US),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Black),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(0.38f)
+                            )
+                            MarkdownText(
+                                text = value,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = Int.MAX_VALUE,
+                                overflow = TextOverflow.Clip,
+                                modifier = Modifier.weight(0.62f)
+                            )
+                        }
                     }
                 }
             }

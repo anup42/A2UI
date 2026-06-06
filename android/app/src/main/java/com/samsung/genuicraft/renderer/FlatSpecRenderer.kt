@@ -114,6 +114,7 @@ import com.samsung.genuicraft.renderer.native.parser.NativeSourceParsing
 import com.samsung.genuicraft.renderer.native.parser.NativeStructureParsing
 import com.samsung.genuicraft.security.SafeContentPolicy
 import kotlinx.coroutines.launch
+import java.util.Locale
 import kotlin.math.roundToInt
 import java.util.UUID
 import java.net.URI
@@ -2890,6 +2891,7 @@ private fun detectTableShape(
         domain == "comparison" && isComparisonFeatureHeader(firstHeader) -> FlatTableShape.FEATURE_MATRIX
         domain in CARD_FIRST_TABLE_DOMAINS -> FlatTableShape.ENTITY_ROW
         domain == "comparison" && compactFirstColumn -> FlatTableShape.ENTITY_ROW
+        columnCount <= 2 -> FlatTableShape.KEY_VALUE
         isComparisonEntityHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.ENTITY_ROW
         numericLikeColumns >= 2 && columnCount <= 4 -> FlatTableShape.NUMERIC_METRICS
         else -> FlatTableShape.GENERIC_GRID
@@ -3561,6 +3563,15 @@ private fun RenderTableLayout(
         headers = tableModel.headers,
         rows = tableRows
     )
+
+    if (tableModel.shape == FlatTableShape.KEY_VALUE && tableRows.isNotEmpty()) {
+        RenderKeyValueTablePanel(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier
+        )
+        return
+    }
 
     if (useScrollableNativeTableRendering() && tableRows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
@@ -6639,6 +6650,9 @@ private fun selectAdaptiveTablePresentation(
     if (table.shape == FlatTableShape.PLAYLIST) {
         return AdaptiveTablePresentation.PLAYLIST_ROWS
     }
+    if (table.shape == FlatTableShape.KEY_VALUE) {
+        return AdaptiveTablePresentation.KEY_VALUE_PANEL
+    }
     if (!isLandscape && cardsRequested) {
         when (table.shape) {
             FlatTableShape.FEATURE_MATRIX -> return AdaptiveTablePresentation.FEATURE_CARDS
@@ -6939,40 +6953,52 @@ private fun RenderKeyValueTablePanel(
             .semantics {
                 contentDescription = tableAccessibilitySummary(headers, rows)
             },
-        colors = flatSpecCardColors(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(20.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             rows.forEachIndexed { index, row ->
                 val label = row.getOrNull(0).orEmpty().trim().ifBlank { tableHeaderLabel(headers, 0) }
                 val value = row.getOrNull(1).orEmpty().trim()
                 if (label.isBlank() && value.isBlank()) return@forEachIndexed
-                Row(
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 7.dp)
                         .semantics(mergeDescendants = true) {
                             contentDescription = "$label: $value"
                         },
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Top
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = if (isSystemInDarkTheme()) 0.18f else 0.70f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f))
                 ) {
-                    Text(
-                        text = parseBoldMarkdown(label),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(0.42f)
-                    )
-                    Text(
-                        text = parseBoldMarkdown(value),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(0.58f)
-                    )
-                }
-                if (index < rows.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = parseBoldMarkdown(label.uppercase(Locale.US)),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = MaterialTheme.typography.labelSmall.letterSpacing
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(0.38f)
+                        )
+                        Text(
+                            text = parseBoldMarkdown(value),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            overflow = TextOverflow.Clip,
+                            modifier = Modifier.weight(0.62f)
+                        )
+                    }
                 }
             }
         }
@@ -9304,6 +9330,15 @@ private fun RenderDirectTable(
         )
         return
     }
+    if (table.shape == FlatTableShape.KEY_VALUE && table.rows.isNotEmpty()) {
+        RenderKeyValueTablePanel(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier
+        )
+        return
+    }
+
     if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
