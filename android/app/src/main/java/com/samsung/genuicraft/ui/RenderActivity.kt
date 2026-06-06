@@ -105,7 +105,7 @@ class RenderActivity : AppCompatActivity() {
             MotionEvent.ACTION_DOWN -> {
                 swipeStartX = ev.x
                 swipeStartY = ev.y
-                swipeTracking = true
+                swipeTracking = isNavigationEdgeSwipeStart(ev.x)
             }
             MotionEvent.ACTION_CANCEL -> {
                 swipeTracking = false
@@ -125,6 +125,12 @@ class RenderActivity : AppCompatActivity() {
         val lastIndex = session?.records?.lastIndex ?: return requestedIndex
         if (lastIndex < 0) return -1
         return requestedIndex.coerceIn(0, lastIndex)
+    }
+
+    private fun isNavigationEdgeSwipeStart(startX: Float): Boolean {
+        val density = resources.displayMetrics.density
+        val edgeWidthPx = max(36f * density, resources.displayMetrics.widthPixels * 0.075f)
+        return startX <= edgeWidthPx || startX >= resources.displayMetrics.widthPixels - edgeWidthPx
     }
 
     private fun handleHorizontalSwipe(endX: Float, endY: Float) {

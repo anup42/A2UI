@@ -4898,7 +4898,7 @@ private fun tableAccessibilitySummary(
     return buildString {
         append("Table with ${rows.size} $rowLabel and ${headers.size} $columnLabel")
         if (horizontalScroll) {
-            append(". Scroll horizontally to view all columns")
+            append(". Additional columns are available")
         }
     }
 }
@@ -9027,9 +9027,6 @@ private fun RenderAdaptiveTableGrid(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        if (horizontalScrollEnabled) {
-            HorizontalTableScrollHint()
-        }
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -9089,11 +9086,12 @@ private fun RenderAdaptiveTableGrid(
                 if (horizontalScrollEnabled) {
                     Box(
                         modifier = Modifier
-                            .matchParentSize()
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight()
+                            .width(48.dp)
                             .background(
                                 Brush.horizontalGradient(
                                     colors = listOf(
-                                        Color.Transparent,
                                         Color.Transparent,
                                         tableColor.copy(alpha = 0.92f)
                                     )
@@ -9105,16 +9103,6 @@ private fun RenderAdaptiveTableGrid(
             }
         }
     }
-}
-
-@Composable
-private fun HorizontalTableScrollHint() {
-    Text(
-        text = "Scroll horizontally",
-        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    )
 }
 
 @Composable
