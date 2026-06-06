@@ -126,17 +126,16 @@ internal object NativeWeatherUiRenderer {
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
                 ) {
                     val heroShape = RoundedCornerShape(GenUiTokens.RadiusXl)
+                    val heroColors = remember(todayRow.condition) {
+                        weatherHeroGradientColors(todayRow.condition)
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(heroShape)
                             .background(
                                 Brush.linearGradient(
-                                    listOf(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.96f),
-                                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.86f),
-                                        Color(0xFF1E293B)
-                                    )
+                                    heroColors
                                 )
                             )
                             .padding(horizontal = 18.dp, vertical = 18.dp)
@@ -625,6 +624,47 @@ internal object NativeWeatherUiRenderer {
                 compactWeatherChartLabel(sanitizeDisplayText(row.period)),
                 sanitizeDisplayText(row.condition.orEmpty())
             ).filter { it.isNotBlank() }.joinToString(": ")
+        }
+    }
+
+    private fun weatherHeroGradientColors(condition: String?): List<Color> {
+        val key = condition.orEmpty().lowercase()
+        return when {
+            key.contains("thunder") || key.contains("storm") -> listOf(
+                Color(0xFF2563EB),
+                Color(0xFF4F46E5),
+                Color(0xFF172554)
+            )
+
+            key.contains("rain") || key.contains("shower") || key.contains("drizzle") -> listOf(
+                Color(0xFF0EA5E9),
+                Color(0xFF2563EB),
+                Color(0xFF334155)
+            )
+
+            key.contains("cloud") || key.contains("overcast") || key.contains("fog") || key.contains("mist") -> listOf(
+                Color(0xFF38BDF8),
+                Color(0xFF64748B),
+                Color(0xFF1E293B)
+            )
+
+            key.contains("sun") || key.contains("clear") || key.contains("hot") -> listOf(
+                Color(0xFF38BDF8),
+                Color(0xFFF59E0B),
+                Color(0xFFEA580C)
+            )
+
+            key.contains("snow") || key.contains("ice") || key.contains("cold") -> listOf(
+                Color(0xFF7DD3FC),
+                Color(0xFF60A5FA),
+                Color(0xFF1E3A8A)
+            )
+
+            else -> listOf(
+                Color(0xFF0EA5E9),
+                Color(0xFF3B82F6),
+                Color(0xFF1E40AF)
+            )
         }
     }
 
