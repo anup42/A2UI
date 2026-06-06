@@ -22,6 +22,7 @@ A2UI_DISABLE_SSL_VERIFY="${A2UI_DISABLE_SSL_VERIFY:-1}"
 A2UI_DISABLE_PROXY="${A2UI_DISABLE_PROXY:-1}"
 A2UI_SKIP_PIP_INSTALL="${A2UI_SKIP_PIP_INSTALL:-0}"
 A2UI_OFFLINE_WHEELHOUSE="${A2UI_OFFLINE_WHEELHOUSE:-${GEMMA4_OFFLINE_WHEELHOUSE:-}}"
+GEMMA4_OFFLINE_TARGET_PYTHON_VERSION="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:-311}"
 A2UI_REQUIRE_SPECULATIVE="${A2UI_REQUIRE_SPECULATIVE:-0}"
 A2UI_VLLM_INSTALL_MODE="${A2UI_VLLM_INSTALL_MODE:-nightly}" # source|release|nightly|skip
 A2UI_CLEAN_VLLM_STACK="${A2UI_CLEAN_VLLM_STACK:-1}"
@@ -44,7 +45,13 @@ CUDA_CCCL_PACKAGE="${CUDA_CCCL_PACKAGE:-nvidia-cuda-cccl==13.0.85}"
 A2UI_PREFER_PYTHON_CUDA="${A2UI_PREFER_PYTHON_CUDA:-1}"
 
 if [[ -z "${PYTHON_BIN}" ]]; then
-  for candidate in python3.12 python3.11 python3.10 python3; do
+  preferred_python_minor="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:0:1}.${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:1}"
+  if [[ -n "${A2UI_OFFLINE_WHEELHOUSE}" ]]; then
+    python_candidates=("python${preferred_python_minor}" python3 python3.12 python3.11 python3.10)
+  else
+    python_candidates=(python3.12 python3.11 python3.10 python3)
+  fi
+  for candidate in "${python_candidates[@]}"; do
     if command -v "${candidate}" >/dev/null 2>&1; then
       PYTHON_BIN="${candidate}"
       break
@@ -68,6 +75,15 @@ case "${PY_VER}" in
     echo "Set PYTHON_BIN=python3.12 or PYTHON_BIN=python3.11 if install fails." >&2
     ;;
 esac
+if [[ -n "${A2UI_OFFLINE_WHEELHOUSE}" ]]; then
+  expected_py_ver="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:0:1}.${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:1}"
+  if [[ "${PY_VER}" != "${expected_py_ver}" ]]; then
+    echo "Offline wheelhouse targets Python ${expected_py_ver}, but ${PYTHON_BIN} is Python ${PY_VER}." >&2
+    echo "Use PYTHON_BIN=python${expected_py_ver}, or rebuild the offline bundle for this Python version." >&2
+    echo "Python 3.11.14 is compatible with the default cp311 wheelhouse." >&2
+    exit 1
+  fi
+fi
 
 apply_ssl_bypass() {
   if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
