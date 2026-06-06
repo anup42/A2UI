@@ -29,6 +29,7 @@ CUDA_NVCC_PACKAGE="${CUDA_NVCC_PACKAGE:-nvidia-cuda-nvcc==13.0.88}"
 CUDA_CRT_PACKAGE="${CUDA_CRT_PACKAGE:-nvidia-cuda-crt==13.0.88}"
 CUDA_CCCL_PACKAGE="${CUDA_CCCL_PACKAGE:-nvidia-cuda-cccl==13.0.85}"
 GEMMA4_OFFLINE_TARGET_PLATFORM="${GEMMA4_OFFLINE_TARGET_PLATFORM:-manylinux_2_28_x86_64}"
+GEMMA4_OFFLINE_TARGET_PLATFORMS="${GEMMA4_OFFLINE_TARGET_PLATFORMS:-${GEMMA4_OFFLINE_TARGET_PLATFORM},manylinux2014_x86_64}"
 GEMMA4_OFFLINE_TARGET_PYTHON_VERSION="${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION:-311}"
 GEMMA4_OFFLINE_TARGET_IMPLEMENTATION="${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION:-cp}"
 GEMMA4_OFFLINE_TARGET_ABI="${GEMMA4_OFFLINE_TARGET_ABI:-cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}}"
@@ -73,11 +74,16 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
 fi
 PIP_TARGET_ARGS=(
   --only-binary=:all:
-  --platform "${GEMMA4_OFFLINE_TARGET_PLATFORM}"
   --python-version "${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}"
   --implementation "${GEMMA4_OFFLINE_TARGET_IMPLEMENTATION}"
   --abi "${GEMMA4_OFFLINE_TARGET_ABI}"
 )
+IFS=' ,' read -r -a GEMMA4_OFFLINE_TARGET_PLATFORM_LIST <<< "${GEMMA4_OFFLINE_TARGET_PLATFORMS}"
+for target_platform in "${GEMMA4_OFFLINE_TARGET_PLATFORM_LIST[@]}"; do
+  if [[ -n "${target_platform}" ]]; then
+    PIP_TARGET_ARGS+=(--platform "${target_platform}")
+  fi
+done
 
 download_wheels() {
   python -m pip download "${PIP_SSL_ARGS[@]}" "${PIP_TARGET_ARGS[@]}" --dest "${WHEELHOUSE}" "$@"
@@ -131,7 +137,7 @@ download_required_target_binary_wheel() {
   local spec
   for spec in "$@"; do
     echo "Downloading required target wheel: ${spec}"
-    echo "  platform=${GEMMA4_OFFLINE_TARGET_PLATFORM} python=${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION} abi=${GEMMA4_OFFLINE_TARGET_ABI}"
+    echo "  platforms=${GEMMA4_OFFLINE_TARGET_PLATFORMS} python=${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION} abi=${GEMMA4_OFFLINE_TARGET_ABI}"
     python -m pip download "${PIP_SSL_ARGS[@]}" \
       "${PIP_TARGET_ARGS[@]}" \
       --dest "${WHEELHOUSE}" \
@@ -235,7 +241,7 @@ download_wheels \
   "bitsandbytes>=0.45"
 
 export BUNDLE_DIR WHEELHOUSE
-export GEMMA4_OFFLINE_TARGET_PLATFORM GEMMA4_OFFLINE_TARGET_PYTHON_VERSION GEMMA4_OFFLINE_TARGET_ABI
+export GEMMA4_OFFLINE_TARGET_PLATFORM GEMMA4_OFFLINE_TARGET_PLATFORMS GEMMA4_OFFLINE_TARGET_PYTHON_VERSION GEMMA4_OFFLINE_TARGET_ABI
 python - <<'PY'
 import os
 import re
@@ -259,7 +265,11 @@ missing = [
 ]
 target_python = os.environ["GEMMA4_OFFLINE_TARGET_PYTHON_VERSION"]
 target_abi = os.environ["GEMMA4_OFFLINE_TARGET_ABI"].lower()
-target_platform = os.environ["GEMMA4_OFFLINE_TARGET_PLATFORM"].lower().replace("_", "-")
+target_platforms = [
+    platform.strip().lower().replace("_", "-")
+    for platform in os.environ["GEMMA4_OFFLINE_TARGET_PLATFORMS"].replace(",", " ").split()
+    if platform.strip()
+]
 markupsafe_wheels = [wheel for wheel in wheel_names if wheel.startswith("markupsafe-")]
 compatible_markupsafe = [
     wheel
@@ -267,12 +277,12 @@ compatible_markupsafe = [
     if (
         f"-cp{target_python}-" in wheel
         and f"-{target_abi}-" in wheel
-        and target_platform in wheel
+        and any(platform in wheel for platform in target_platforms)
     )
 ]
 if markupsafe_wheels and not compatible_markupsafe:
     print("Found MarkupSafe wheels, but none match target Python/platform:", file=sys.stderr)
-    print(f"  target python=cp{target_python} abi={target_abi} platform={target_platform}", file=sys.stderr)
+    print(f"  target python=cp{target_python} abi={target_abi} platforms={','.join(target_platforms)}", file=sys.stderr)
     for wheel in markupsafe_wheels:
         print(f"  incompatible: {wheel}", file=sys.stderr)
     missing.append("MarkupSafe-compatible-target-wheel")
@@ -325,7 +335,7 @@ Wheelhouse:
   ${WHEELHOUSE}
 
 Target:
-  platform=${GEMMA4_OFFLINE_TARGET_PLATFORM}
+  platforms=${GEMMA4_OFFLINE_TARGET_PLATFORMS}
   python=cp${GEMMA4_OFFLINE_TARGET_PYTHON_VERSION}
   abi=${GEMMA4_OFFLINE_TARGET_ABI}
 
@@ -347,6 +357,7 @@ manifest = {
     "wheelhouse": str(wheelhouse),
     "wheel_count": len(list(wheelhouse.glob("*"))),
     "target_platform": os.environ.get("GEMMA4_OFFLINE_TARGET_PLATFORM"),
+    "target_platforms": os.environ.get("GEMMA4_OFFLINE_TARGET_PLATFORMS"),
     "target_python": f"cp{os.environ.get('GEMMA4_OFFLINE_TARGET_PYTHON_VERSION', '')}",
     "target_abi": os.environ.get("GEMMA4_OFFLINE_TARGET_ABI"),
 }
