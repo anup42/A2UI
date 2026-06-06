@@ -342,7 +342,8 @@ object GenUiNativeRenderer {
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
         modifier: Modifier = Modifier,
-        headerContent: (@Composable () -> Unit)? = null
+        headerContent: (@Composable () -> Unit)? = null,
+        useOuterCard: Boolean? = null
     ) {
         if (result.errorMessage != null) {
             Surface(
@@ -361,6 +362,7 @@ object GenUiNativeRenderer {
         }
 
         val (visibleSurfaces, runtimeMessage, onRuntimeAction) = rememberRuntimeState(result.surfaces)
+        val effectiveUseOuterCard = useOuterCard ?: !InferenceBackendSettings.getRenderWithoutOuterCard(LocalContext.current)
 
         LazyColumn(
             modifier = modifier
@@ -389,7 +391,8 @@ object GenUiNativeRenderer {
                     surface = surface,
                     sourceDir = sourceDir,
                     onOpenExternalUrl = onOpenExternalUrl,
-                    onRuntimeAction = onRuntimeAction
+                    onRuntimeAction = onRuntimeAction,
+                    useOuterCard = effectiveUseOuterCard
                 )
             }
         }
@@ -400,7 +403,8 @@ object GenUiNativeRenderer {
         result: RenderResult,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        useOuterCard: Boolean? = null
     ) {
         if (result.errorMessage != null) {
             Surface(
@@ -419,6 +423,7 @@ object GenUiNativeRenderer {
         }
 
         val (visibleSurfaces, runtimeMessage, onRuntimeAction) = rememberRuntimeState(result.surfaces)
+        val effectiveUseOuterCard = useOuterCard ?: !InferenceBackendSettings.getRenderWithoutOuterCard(LocalContext.current)
 
         Column(
             modifier = modifier
@@ -434,7 +439,8 @@ object GenUiNativeRenderer {
                     surface = surface,
                     sourceDir = sourceDir,
                     onOpenExternalUrl = onOpenExternalUrl,
-                    onRuntimeAction = onRuntimeAction
+                    onRuntimeAction = onRuntimeAction,
+                    useOuterCard = effectiveUseOuterCard
                 )
             }
         }
@@ -535,7 +541,8 @@ object GenUiNativeRenderer {
         surface: SurfaceState,
         sourceDir: File?,
         onOpenExternalUrl: (String) -> Unit,
-        onRuntimeAction: (NativeActionParsing.RuntimeAction) -> Unit
+        onRuntimeAction: (NativeActionParsing.RuntimeAction) -> Unit,
+        useOuterCard: Boolean
     ) {
         // Phase 2+: flat spec format — use new renderer
         if (surface.flatSpec != null) {
@@ -549,6 +556,23 @@ object GenUiNativeRenderer {
         }
 
         // Legacy format
+        if (!useOuterCard) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                RenderComponent(
+                    id = surface.rootId,
+                    index = surface.components,
+                    sourceDir = sourceDir,
+                    onOpenExternalUrl = onOpenExternalUrl,
+                    onRuntimeAction = onRuntimeAction,
+                    activePath = emptySet()
+                )
+            }
+            return
+        }
+
         Card(
             shape = RoundedCornerShape(GenUiTokens.RadiusXl),
             colors = genUiCardColors(GenUiCardTone.Neutral),

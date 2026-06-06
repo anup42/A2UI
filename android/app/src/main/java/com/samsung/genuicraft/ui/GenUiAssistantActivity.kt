@@ -494,6 +494,16 @@ private fun GenUiAssistantScreen(
         DeviceSizeClass.Medium -> 20.dp
         DeviceSizeClass.Expanded -> 26.dp
     }
+    val renderWithoutOuterCard = InferenceBackendSettings.getRenderWithoutOuterCard(context)
+    val contentHorizontalPadding = if (renderWithoutOuterCard) {
+        when (deviceConfig.widthClass) {
+            DeviceSizeClass.Compact -> 8.dp
+            DeviceSizeClass.Medium -> 12.dp
+            DeviceSizeClass.Expanded -> 16.dp
+        }
+    } else {
+        horizontalPadding
+    }
     val imeVisible = WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
     val listBottomPadding = if (imeVisible) 16.dp else 112.dp
     val canSaveToIrDemo = !isRunning &&
@@ -989,7 +999,7 @@ private fun GenUiAssistantScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding)
-                    .padding(horizontal = horizontalPadding, vertical = 10.dp),
+                    .padding(horizontal = contentHorizontalPadding, vertical = 10.dp),
                 contentPadding = PaddingValues(bottom = listBottomPadding),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -1069,7 +1079,8 @@ private fun GenUiAssistantScreen(
                                 result = resolvedRender,
                                 sourceDir = null,
                                 onOpenExternalUrl = onOpenExternalUrl,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                useOuterCard = !renderWithoutOuterCard
                             )
                         }
                     }

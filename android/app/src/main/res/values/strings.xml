@@ -59,6 +59,9 @@
     <string name="settings_model_vertex_catalog_note">Vertex AI mode is active. Using default model list.</string>
     <string name="settings_model_not_used_local">This stage uses a non-Gemini backend. Gemini model selection is not used.</string>
     <string name="settings_refresh_models">Refresh model list</string>
+    <string name="settings_rendering_title">Rendering</string>
+    <string name="settings_render_without_outer_card_title">Full-width generated UI</string>
+    <string name="settings_render_without_outer_card_description">Remove the outer render wrapper card and use smaller side padding so generated UI occupies more width.</string>
 
     <string name="home_title">GenUICraft</string>
     <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in native Compose or WebView mode.</string>

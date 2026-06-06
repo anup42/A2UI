@@ -19,6 +19,7 @@ object InferenceBackendSettings {
     private const val KEY_LOCAL_SERVER_BASE_URL = "local_server_base_url"
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
     private const val KEY_ON_DEVICE_MODEL_PATH = "on_device_model_path"
+    private const val KEY_RENDER_WITHOUT_OUTER_CARD = "render_without_outer_card"
 
     const val DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT =
         "https://genui1.openai.azure.com/openai/responses?api-version=2025-04-01-preview"
@@ -26,6 +27,7 @@ object InferenceBackendSettings {
     const val DEFAULT_LOCAL_SERVER_BASE_URL = "http://10.0.2.2:8000"
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
     const val DEFAULT_ON_DEVICE_MODEL_PATH = ""
+    const val DEFAULT_RENDER_WITHOUT_OUTER_CARD = true
     private const val FALLBACK_VERTEX_PROJECT_ID = "gen-lang-client-0741138863"
     const val DEFAULT_VERTEX_LOCATION = "us-central1"
 
@@ -267,6 +269,18 @@ object InferenceBackendSettings {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_ON_DEVICE_MODEL_PATH, value.trim())
+            .apply()
+    }
+
+    fun getRenderWithoutOuterCard(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_RENDER_WITHOUT_OUTER_CARD, DEFAULT_RENDER_WITHOUT_OUTER_CARD)
+    }
+
+    fun setRenderWithoutOuterCard(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_RENDER_WITHOUT_OUTER_CARD, enabled)
             .apply()
     }
 
