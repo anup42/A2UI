@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile Weather Day Cards</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --line: rgba(23, 32, 51, .11);
+      --card: rgba(255, 255, 255, .76);
+      --soft: rgba(255, 255, 255, .52);
+      --blue: #2563eb;
+      --cyan: #0ea5e9;
+      --green: #0f9f6e;
+      --amber: #e28c00;
+      --shadow: 0 22px 70px rgba(20, 34, 58, .14);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Aptos", "Avenir Next", "Trebuchet MS", sans-serif;
+      background:
+        radial-gradient(circle at 16% 8%, rgba(14, 165, 233, .24), transparent 28rem),
+        radial-gradient(circle at 90% 22%, rgba(255, 184, 64, .22), transparent 30rem),
+        linear-gradient(145deg, #fff9ed 0%, #eef8ff 54%, #fff6fa 100%);
+      padding: 30px 14px 54px;
+    }
+
+    .phone {
+      width: min(430px, 100%);
+      margin: 0 auto;
+      border-radius: 38px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.38));
+      border: 1px solid rgba(23, 32, 51, .09);
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      overflow: hidden;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255,255,255,.82), transparent 14rem),
+        linear-gradient(180deg, rgba(245, 250, 255, .92), rgba(255, 250, 244, .96));
+      min-height: 760px;
+      padding: 18px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Georgia", "Aptos Display", serif;
+      font-size: 34px;
+      line-height: .96;
+      letter-spacing: -.055em;
+    }
+
+    .unit-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, .10);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid rgba(37, 99, 235, .18);
+    }
+
+    .hero {
+      margin-top: 16px;
+      color: white;
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(255,255,255,.40), transparent 9rem),
+        radial-gradient(circle at 86% 18%, rgba(255,210,102,.36), transparent 8rem),
+        linear-gradient(135deg, #1887e5 0%, #0ea5e9 42%, #0f766e 100%);
+      box-shadow: 0 18px 50px rgba(14, 132, 201, .28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -26px;
+      bottom: -38px;
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .14);
+    }
+
+    .hero-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px;
+      gap: 12px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .temp {
+      font-size: 66px;
+      line-height: .9;
+      font-weight: 950;
+      letter-spacing: -.07em;
+      margin: 10px 0 8px;
+    }
+
+    .summary {
+      margin: 0;
+      color: rgba(255,255,255,.88);
+      font-size: 15px;
+      line-height: 1.35;
+      max-width: 250px;
+    }
+
+    .weather-mark {
+      height: 92px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.24);
+      display: grid;
+      place-items: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .weather-mark svg {
+      width: 64px;
+      height: 64px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-chip {
+      padding: 10px;
+      border-radius: 17px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.20);
+    }
+
+    .hero-chip span {
+      display: block;
+      color: rgba(255,255,255,.72);
+      font-size: 11px;
+      font-weight: 780;
+    }
+
+    .hero-chip b {
+      display: block;
+      margin-top: 3px;
+      font-size: 14px;
+      letter-spacing: -.02em;
+    }
+
+    .section-title {
+      margin: 22px 4px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.035em;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .day-list {
+      display: grid;
+      gap: 13px;
+    }
+
+    .day-card {
+      border-radius: var(--radius-xl);
+      padding: 15px;
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, .80);
+      box-shadow: 0 14px 38px rgba(20, 34, 58, .08);
+      backdrop-filter: blur(18px);
+    }
+
+    .day-head {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      gap: 11px;
+      align-items: center;
+    }
+
+    .mini-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(14,165,233,.17), rgba(37,99,235,.12));
+      border: 1px solid rgba(14, 165, 233, .22);
+    }
+
+    .mini-icon svg { width: 30px; height: 30px; }
+
+    .day-title b {
+      display: block;
+      font-size: 16px;
+      letter-spacing: -.02em;
+    }
+
+    .day-title span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .range {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .range b {
+      display: block;
+      font-size: 20px;
+      letter-spacing: -.055em;
+    }
+
+    .range span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .day-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .metric {
+      padding: 9px 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid var(--line);
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .055em;
+    }
+
+    .metric b {
+      display: block;
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    .rain-strip {
+      margin-top: 13px;
+      padding: 12px;
+      border-radius: 18px;
+      background: linear-gradient(90deg, rgba(14,165,233,.10), rgba(37,99,235,.06));
+      border: 1px solid rgba(14,165,233,.14);
+    }
+
+    .rain-top {
+      display: flex;
+      justify-content: space-between;
+      color: #145c95;
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 8px;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(23,32,51,.08);
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+    }
+
+    .hour-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .hour {
+      text-align: center;
+      padding: 8px 4px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(23,32,51,.08);
+    }
+
+    .hour span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .hour b {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+    }
+
+    .advice {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(15,159,110,.09);
+      border: 1px solid rgba(15,159,110,.14);
+    }
+
+    .advice-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(15,159,110,.16);
+    }
+
+    .advice-icon svg { width: 20px; height: 20px; }
+
+    .advice b {
+      display: block;
+      color: #047857;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 3px;
+    }
+
+    .advice p {
+      margin: 0;
+      color: #1f2937;
+      font-size: 14px;
+      line-height: 1.38;
+      font-weight: 680;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(23,32,51,.055);
+      border: 1px solid rgba(23,32,51,.08);
+      color: #344054;
+      font-size: 11px;
+      font-weight: 820;
+    }
+
+    .note-card {
+      margin-top: 14px;
+      padding: 15px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .62);
+      border: 1px solid rgba(23,32,51,.08);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 390px) {
+      body { padding-inline: 8px; }
+      .screen { padding: 14px; }
+      h1 { font-size: 30px; }
+      .temp { font-size: 58px; }
+      .hero-main { grid-template-columns: minmax(0, 1fr) 76px; }
+      .weather-mark { height: 76px; border-radius: 24px; }
+      .weather-mark svg { width: 54px; height: 54px; }
+      .day-head { grid-template-columns: 40px minmax(0, 1fr); }
+      .range { grid-column: 2; text-align: left; }
+      .day-metrics { grid-template-columns: 1fr 1fr; }
+      .hour-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <section class="screen">
+      <div class="topline">
+        <div>
+          <div class="eyebrow">Bengaluru weather</div>
+          <h1>4-day forecast</h1>
+        </div>
+        <div class="unit-pill">Celsius</div>
+      </div>
+
+      <section class="hero" aria-label="Weather summary">
+        <div class="hero-main">
+          <div>
+            <div class="eyebrow" style="color:rgba(255,255,255,.72)">Today, Jun 6</div>
+            <div class="temp">26°</div>
+            <p class="summary">Cloudy, humid, and likely to see showers or thunderstorms later.</p>
+          </div>
+          <div class="weather-mark" aria-hidden="true">
+            <svg viewBox="0 0 96 96" fill="none">
+              <circle cx="31" cy="32" r="17" fill="#FFD166"/>
+              <path d="M20 58c0-10 8-18 18-18 6 0 11 3 14 7 3-2 7-4 12-4 11 0 20 9 20 20s-9 20-20 20H27c-10 0-18-8-18-18 0-6 3-11 7-15 1-1 2-2 4-2z" fill="white" opacity=".94"/>
+              <path d="M49 74c-2 8-4 13-6 17M65 74c-2 8-4 13-6 17M80 72c-2 7-4 12-6 16" stroke="#D7F0FF" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="hero-metrics">
+          <div class="hero-chip"><span>High / Low</span><b>26° / 21°</b></div>
+          <div class="hero-chip"><span>Rain</span><b>High</b></div>
+          <div class="hero-chip"><span>Wind</span><b>SW 11 km/h</b></div>
+        </div>
+      </section>
+
+      <div class="section-title">
+        <h2>Day-by-day details</h2>
+        <span>Cards over tables</span>
+      </div>
+
+      <section class="day-list">
+        <article class="day-card">
+          <div class="day-head">
+            <div class="mini-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><circle cx="17" cy="17" r="9" fill="#FFD166"/><path d="M11 30c0-6 5-11 11-11 4 0 7 2 9 5 2-1 4-2 7-2 6 0 11 5 11 11s-5 11-11 11H16c-6 0-11-5-11-11 0-4 2-7 5-9" fill="#fff"/><path d="M23 40l-3 7M34 40l-3 7" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="day-title">
+              <b>Saturday</b>
+              <span>Cloudy with showers and thunderstorm risk</span>
+            </div>
+            <div class="range"><b>26°</b><span>21° low</span></div>
+          </div>
+          <div class="day-metrics">
+            <div class="metric"><small>Rain chance</small><b>High</b></div>
+            <div class="metric"><small>Humidity</small><b>Humid</b></div>
+            <div class="metric"><small>Best window</small><b>Before noon</b></div>
+          </div>
+          <div class="rain-strip">
+            <div class="rain-top"><span>Rain risk</span><span>75%</span></div>
+            <div class="bar"><i style="width:75%"></i></div>
+            <div class="hour-row">
+              <div class="hour"><span>Morning</span><b>Cloudy</b></div>
+              <div class="hour"><span>Afternoon</span><b>Showers</b></div>
+              <div class="hour"><span>Evening</span><b>Storm risk</b></div>
+              <div class="hour"><span>Night</span><b>Drizzle</b></div>
+            </div>
+          </div>
+          <div class="advice">
+            <div class="advice-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none"><path d="M16 5l8 4v5c0 6-3 11-8 14-5-3-8-8-8-14V9l8-4z" fill="#10B981"/><path d="M11 16l4 4 7-8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div><b>What to wear</b><p>Light cotton, quick-dry shoes or sandals, and a compact umbrella. Avoid heavy denim.</p></div>
+          </div>
+          <div class="tag-row">
+            <span class="tag">Carry umbrella</span>
+            <span class="tag">Quick-dry footwear</span>
+            <span class="tag">Avoid heavy layers</span>
+          </div>
+        </article>
+
+        <article class="day-card">
+          <div class="day-head">
+            <div class="mini-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M9 27c0-7 6-13 13-13 5 0 9 3 11 7 2-1 4-2 7-2 7 0 13 6 13 13s-6 13-13 13H17c-7 0-13-6-13-13 0-3 1-6 3-8" fill="#fff"/><path d="M18 39l-3 7M29 39l-3 7M40 39l-3 7" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="day-title">
+              <b>Sunday</b>
+              <span>Scattered showers with breezy patches</span>
+            </div>
+            <div class="range"><b>27°</b><span>21° low</span></div>
+          </div>
+          <div class="day-metrics">
+            <div class="metric"><small>Rain chance</small><b>Moderate-high</b></div>
+            <div class="metric"><small>Wind</small><b>Breezy</b></div>
+            <div class="metric"><small>Best window</small><b>Late morning</b></div>
+          </div>
+          <div class="rain-strip">
+            <div class="rain-top"><span>Rain risk</span><span>65%</span></div>
+            <div class="bar"><i style="width:65%"></i></div>
+            <div class="hour-row">
+              <div class="hour"><span>Morning</span><b>Cloudy</b></div>
+              <div class="hour"><span>Afternoon</span><b>Shower</b></div>
+              <div class="hour"><span>Evening</span><b>Breezy</b></div>
+              <div class="hour"><span>Night</span><b>Mild</b></div>
+            </div>
+          </div>
+          <div class="advice">
+            <div class="advice-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none"><path d="M7 9h18l-3 20H10L7 9z" fill="#10B981"/><path d="M10 9c1-4 4-6 6-6s5 2 6 6" stroke="white" stroke-width="2.4" stroke-linecap="round"/></svg>
+            </div>
+            <div><b>What to wear</b><p>Short sleeves with light trousers. Keep a thin rain jacket for evening travel.</p></div>
+          </div>
+        </article>
+
+        <article class="day-card">
+          <div class="day-head">
+            <div class="mini-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="18" r="11" fill="#FFD166"/><path d="M12 31c0-6 5-11 11-11 4 0 7 2 9 5 2-1 4-2 7-2 6 0 11 5 11 11s-5 11-11 11H17c-6 0-11-5-11-11 0-3 2-6 4-8" fill="#fff"/></svg>
+            </div>
+            <div class="day-title">
+              <b>Monday</b>
+              <span>Warm with a few showers</span>
+            </div>
+            <div class="range"><b>27°</b><span>21° low</span></div>
+          </div>
+          <div class="day-metrics">
+            <div class="metric"><small>Rain chance</small><b>Moderate</b></div>
+            <div class="metric"><small>Comfort</small><b>Warm</b></div>
+            <div class="metric"><small>Best window</small><b>Morning</b></div>
+          </div>
+          <div class="advice">
+            <div class="advice-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none"><path d="M6 12l10-6 10 6-4 5v12H10V17l-4-5z" fill="#10B981"/><path d="M12 12c2 2 6 2 8 0" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+            </div>
+            <div><b>What to wear</b><p>Cotton top, jeans or chinos, comfortable sneakers, and a compact umbrella.</p></div>
+          </div>
+        </article>
+      </section>
+
+      <div class="note-card">
+        This card layout keeps the IR compact as table rows, but renders each row as a useful weather summary: condition, high/low, rain risk, time-of-day breakdown, and practical clothing advice.
+      </div>
+    </section>
+  </main>
+</body>
+</html>
