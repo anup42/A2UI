@@ -1081,7 +1081,7 @@ def run_stage3(
                     prompt=regeneration_prompt,
                     system=system_prompt,
                     temperature=final_regen_temperature,
-                    max_tokens=max(max_tokens, 8192),
+                    max_tokens=max_tokens,
                     seed=seed + 900 + regen_attempt,
                     json_mode=True if adapter.spec.supports_json_mode else False,
                 )

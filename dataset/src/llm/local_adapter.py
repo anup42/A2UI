@@ -84,10 +84,36 @@ class LocalAdapter(BaseLLMAdapter):
     @classmethod
     def _context_retry_max_tokens(cls, message: str, requested_max_tokens: int) -> int | None:
         lowered = message.lower()
-        if "maximum context length" not in lowered or "output tokens" not in lowered:
+        if "maximum context length" not in lowered:
             return None
-        context_match = re.search(r"maximum context length is\s+(\d+)", message, re.IGNORECASE)
-        prompt_match = re.search(r"prompt contains at least\s+(\d+)\s+input tokens", message, re.IGNORECASE)
+        context_match = re.search(
+            r"maximum context length (?:is|of)\s+(\d+)",
+            message,
+            re.IGNORECASE,
+        )
+        if not context_match:
+            context_match = re.search(
+                r"maximum context length.*?(\d+)\s+tokens",
+                message,
+                re.IGNORECASE,
+            )
+        prompt_match = re.search(
+            r"prompt contains at least\s+(\d+)\s+input tokens",
+            message,
+            re.IGNORECASE,
+        )
+        if not prompt_match:
+            prompt_match = re.search(
+                r"\((\d+)\s+in\s+(?:the\s+)?(?:messages|prompt|input)",
+                message,
+                re.IGNORECASE,
+            )
+        if not prompt_match:
+            prompt_match = re.search(
+                r"(\d+)\s+(?:input|prompt|message)\s+tokens",
+                message,
+                re.IGNORECASE,
+            )
         if not context_match or not prompt_match:
             return None
         context_tokens = int(context_match.group(1))
