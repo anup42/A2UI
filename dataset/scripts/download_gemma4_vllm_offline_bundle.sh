@@ -196,8 +196,7 @@ download_wheels \
   "setuptools-scm>=8.0" \
   "packaging>=24.2" \
   jinja2 \
-  "MarkupSafe>=2.0" \
-  "uv>=0.5.0"
+  "MarkupSafe>=2.0"
 
 download_required_target_binary_wheel "markupsafe" "MarkupSafe>=2.0" "markupsafe>=2.0"
 
@@ -293,7 +292,6 @@ required = {
     "setuptools": "setuptools",
     "jinja2": "jinja2",
     "MarkupSafe": "markupsafe",
-    "uv": "uv",
 }
 missing = [
     name
