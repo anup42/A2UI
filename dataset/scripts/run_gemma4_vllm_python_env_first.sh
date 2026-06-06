@@ -17,12 +17,16 @@ ENV_DIR="${ENV_DIR:-${REPO_ROOT}/gemma4_vllm_env}"
 STRICT_ENV="${A2UI_VLLM_STRICT_ENV:-1}"
 KEEP_PYTHONPATH="${A2UI_KEEP_EXISTING_PYTHONPATH:-0}"
 KEEP_LD_LIBRARY_PATH="${A2UI_KEEP_EXISTING_LD_LIBRARY_PATH:-1}"
+REQUIRE_ENV_MODULES="${A2UI_REQUIRE_ENV_MODULES:-1}"
 
 if [[ ! -f "${ENV_DIR}/bin/activate" ]]; then
   echo "Gemma4 venv activation script not found: ${ENV_DIR}/bin/activate" >&2
   echo "Set ENV_DIR to the correct venv or rerun setup_gemma4_vllm_python_env.sh." >&2
   exit 1
 fi
+ENV_DIR="$(cd "${ENV_DIR}" && pwd)"
+export A2UI_EXPECTED_ENV_DIR="${ENV_DIR}"
+export A2UI_REQUIRE_ENV_MODULES="${REQUIRE_ENV_MODULES}"
 
 if [[ -n "${VIRTUAL_ENV:-}" && "$(cd "${VIRTUAL_ENV}" 2>/dev/null && pwd || true)" != "$(cd "${ENV_DIR}" && pwd)" ]]; then
   echo "Warning: replacing active venv ${VIRTUAL_ENV} with ${ENV_DIR}" >&2
@@ -138,15 +142,30 @@ import os
 import sys
 from pathlib import Path
 
+def is_under(path: str | None, root: Path) -> bool:
+    if not path:
+        return False
+    try:
+        resolved = Path(path).resolve()
+        return os.path.commonpath([str(resolved), str(root)]) == str(root)
+    except Exception:
+        return False
+
+expected_env = Path(os.environ.get("A2UI_EXPECTED_ENV_DIR") or sys.prefix).resolve()
+require_env_modules = os.environ.get("A2UI_REQUIRE_ENV_MODULES", "1") != "0"
+module_origins = {}
 print("A2UI environment-first vLLM launch")
 print(f"  python={sys.executable}")
 print(f"  sys.prefix={sys.prefix}")
+print(f"  expected_env={expected_env}")
 print(f"  PYTHONNOUSERSITE={os.environ.get('PYTHONNOUSERSITE')}")
 print(f"  PYTHONPATH={os.environ.get('PYTHONPATH', '')}")
 print(f"  LD_LIBRARY_PATH={os.environ.get('LD_LIBRARY_PATH', '')}")
 for module in ("torch", "vllm"):
     spec = importlib.util.find_spec(module)
-    print(f"  {module}_origin={spec.origin if spec else 'NOT_FOUND'}")
+    origin = spec.origin if spec else None
+    module_origins[module] = origin
+    print(f"  {module}_origin={origin if origin else 'NOT_FOUND'}")
 try:
     import torch
     print(f"  torch_version={torch.__version__}")
@@ -157,6 +176,18 @@ try:
     print(f"  vllm_version={getattr(vllm, '__version__', 'unknown')}")
 except Exception as exc:
     print(f"  vllm_import_error={type(exc).__name__}: {exc}")
+if require_env_modules:
+    bad = [
+        f"{module} -> {origin or 'NOT_FOUND'}"
+        for module, origin in module_origins.items()
+        if not is_under(origin, expected_env)
+    ]
+    if bad:
+        print("ERROR: Python resolved modules outside the selected ENV_DIR:", file=sys.stderr)
+        for item in bad:
+            print(f"  {item}", file=sys.stderr)
+        print("Set ENV_DIR to the newly created venv, or set A2UI_REQUIRE_ENV_MODULES=0 only for debugging.", file=sys.stderr)
+        sys.exit(2)
 PY
 
 exec "${SCRIPT_DIR}/run_gemma4_vllm_python.sh" "$@"
