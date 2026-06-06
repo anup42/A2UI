@@ -43,17 +43,22 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.runtime.Composable
@@ -82,6 +87,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 
 enum class PipelineStepStatus {
     Pending,
@@ -215,6 +224,15 @@ private fun GenUiAssistantScreen(
         mutableStateListOf<AssistantLogItem>().apply {
             addAll(GenUiAssistantSessionCache.logs)
         }
+    }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val historyItems = remember { mutableStateListOf<GenUiAssistantHistoryItem>() }
+    LaunchedEffect(Unit) {
+        val loaded = withContext(Dispatchers.IO) {
+            GenUiAssistantHistoryStore.load(context.applicationContext)
+        }
+        historyItems.clear()
+        historyItems.addAll(loaded)
     }
     val restoredRenderResult = remember(stage3Json) {
         stage3Json
@@ -418,6 +436,58 @@ private fun GenUiAssistantScreen(
         resetToIdleSteps()
     }
 
+    fun restoreHistoryItem(item: GenUiAssistantHistoryItem) {
+        if (isRunning) return
+        inputText = ""
+        currentQuery = item.query
+        currentStatus = "Loaded from history"
+        errorText = null
+        stage2Text = item.responseText
+        stage3Json = item.genUiJson
+        usedFallback = item.usedFallback
+        warnings = ArrayList(item.warnings.map(::sanitizeUiLogText))
+        stage3InputTokens = item.stage3InputTokens
+        stage3OutputTokens = item.stage3OutputTokens
+        logs.clear()
+        upsertLogCard(
+            title = "Response",
+            content = item.responseText
+        )
+        upsertLogCard(
+            title = "GenUI JSON",
+            content = item.genUiJson,
+            monospace = true
+        )
+        if (item.stage3InputTokens != null || item.stage3OutputTokens != null) {
+            upsertLogCard(
+                title = "IR Tokens",
+                content = buildString {
+                    append("Input: ")
+                    append(item.stage3InputTokens?.toString() ?: "n/a")
+                    append('\n')
+                    append("Output: ")
+                    append(item.stage3OutputTokens?.toString() ?: "n/a")
+                },
+                monospace = true
+            )
+        }
+        val restored = GenUiNativeRenderer.render(rawInput = item.genUiJson, sourceDir = null)
+        renderResult = restored.takeIf { it.errorMessage == null }
+        if (restored.errorMessage != null) {
+            errorText = "History render failed: ${restored.errorMessage}"
+            upsertLogCard(
+                title = "Render error",
+                content = errorText.orEmpty()
+            )
+        }
+        steps.indices.forEach { index ->
+            steps[index] = steps[index].copy(
+                status = if (renderResult != null) PipelineStepStatus.Done else steps[index].status,
+                message = ""
+            )
+        }
+    }
+
     val deviceConfig = rememberDeviceUiConfig()
     val horizontalPadding = when (deviceConfig.widthClass) {
         DeviceSizeClass.Compact -> 14.dp
@@ -495,11 +565,26 @@ private fun GenUiAssistantScreen(
         logs.isEmpty() &&
         errorText == null
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        contentWindowInsets = WindowInsets.safeDrawing,
-        topBar = {
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            GenUiAssistantHistoryDrawer(
+                items = historyItems,
+                selectedQuery = currentQuery,
+                selectedGenUiJson = stage3Json,
+                enabled = !isRunning,
+                onHistorySelected = { item ->
+                    restoreHistoryItem(item)
+                    coroutineScope.launch { drawerState.close() }
+                }
+            )
+        }
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color.Transparent,
+            contentWindowInsets = WindowInsets.safeDrawing,
+            topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
@@ -508,6 +593,19 @@ private fun GenUiAssistantScreen(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch { drawerState.open() }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = stringResource(id = R.string.genui_assistant_history_content_desc),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 },
                 actions = {
                     Row(
@@ -596,7 +694,7 @@ private fun GenUiAssistantScreen(
                 )
             )
         },
-        bottomBar = {
+            bottomBar = {
             val composerAnimatedDots = rememberAnimatedDots(isRunning)
             val composerBaseStatus = resolveCompactStatusText(
                 statusText = currentStatus,
@@ -806,6 +904,24 @@ private fun GenUiAssistantScreen(
                                                     context.applicationContext,
                                                     status = "Rendered output is ready."
                                                 )
+                                                val savedHistory = withContext(Dispatchers.IO) {
+                                                    GenUiAssistantHistoryStore.saveCompleted(
+                                                        context = context.applicationContext,
+                                                        item = GenUiAssistantHistoryItem(
+                                                            id = UUID.randomUUID().toString(),
+                                                            query = query,
+                                                            responseText = result.stage2Response,
+                                                            genUiJson = result.stage3Json,
+                                                            createdAtMs = System.currentTimeMillis(),
+                                                            usedFallback = result.usedFallback,
+                                                            warnings = result.warnings.map(::sanitizeUiLogText),
+                                                            stage3InputTokens = result.stage3InputTokens,
+                                                            stage3OutputTokens = result.stage3OutputTokens
+                                                        )
+                                                    )
+                                                }
+                                                historyItems.clear()
+                                                historyItems.addAll(savedHistory)
                                                 inputText = ""
                                             }
 
@@ -864,7 +980,7 @@ private fun GenUiAssistantScreen(
                 }
             }
         }
-    ) { innerPadding ->
+        ) { innerPadding ->
         GenUiScreenBackground(
             modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
@@ -971,6 +1087,154 @@ private fun GenUiAssistantScreen(
             }
         }
     }
+    }
+}
+
+@Composable
+private fun GenUiAssistantHistoryDrawer(
+    items: List<GenUiAssistantHistoryItem>,
+    selectedQuery: String?,
+    selectedGenUiJson: String?,
+    enabled: Boolean,
+    onHistorySelected: (GenUiAssistantHistoryItem) -> Unit
+) {
+    ModalDrawerSheet(
+        modifier = Modifier.fillMaxWidth(0.88f),
+        drawerContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+        drawerContentColor = MaterialTheme.colorScheme.onSurface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = stringResource(id = R.string.genui_assistant_history_title),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = if (items.isEmpty()) {
+                        stringResource(id = R.string.genui_assistant_history_empty)
+                    } else {
+                        stringResource(id = R.string.genui_assistant_history_count, items.size)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (items.isEmpty()) {
+                DemoFeatureTile(
+                    title = "No previous requests yet",
+                    body = "Completed GenUI Demo runs will appear here so you can reopen earlier results.",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(9.dp),
+                    contentPadding = PaddingValues(bottom = 18.dp)
+                ) {
+                    items(
+                        items = items,
+                        key = { it.id }
+                    ) { historyItem ->
+                        val selected = historyItem.query == selectedQuery &&
+                            historyItem.genUiJson == selectedGenUiJson
+                        GenUiAssistantHistoryItemCard(
+                            item = historyItem,
+                            selected = selected,
+                            enabled = enabled,
+                            onClick = { onHistorySelected(historyItem) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GenUiAssistantHistoryItemCard(
+    item: GenUiAssistantHistoryItem,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    val borderColor = if (selected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.78f)
+    } else {
+        genUiCardBorderColor()
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = enabled, onClick = onClick),
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.62f)
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.86f)
+            }
+        ),
+        border = BorderStroke(GenUiTokens.BorderMd, borderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (selected) GenUiTokens.ElevationMd else GenUiTokens.ElevationSm)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.query,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                if (selected) {
+                    Text(
+                        text = "Open",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            Text(
+                text = formatHistoryTimestamp(item.createdAtMs),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = item.responseText.lineSequence().firstOrNull { it.isNotBlank() }?.trim().orEmpty()
+                    .ifBlank { "Rendered GenUI result" },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private fun formatHistoryTimestamp(createdAtMs: Long): String {
+    if (createdAtMs <= 0L) return ""
+    return runCatching {
+        SimpleDateFormat("MMM d, h:mm a", Locale.getDefault()).format(Date(createdAtMs))
+    }.getOrElse { "" }
 }
 
 @Composable

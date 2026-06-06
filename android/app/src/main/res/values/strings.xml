@@ -98,6 +98,10 @@
     <string name="genui_assistant_clear_content_desc">Clear current scenario</string>
     <string name="genui_assistant_export_content_desc">Export current scenario</string>
     <string name="genui_assistant_save_ir_content_desc">Save current response to IR Demo</string>
+    <string name="genui_assistant_history_content_desc">Open previous requests</string>
+    <string name="genui_assistant_history_title">Previous Requests</string>
+    <string name="genui_assistant_history_empty">No completed requests yet.</string>
+    <string name="genui_assistant_history_count">%1$d saved request(s)</string>
 
     <string name="ir_demo_list_title">IR Demo</string>
     <string name="ir_demo_source">GenUICraft Demo</string>
