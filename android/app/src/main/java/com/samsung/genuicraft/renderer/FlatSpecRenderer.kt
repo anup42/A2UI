@@ -36,11 +36,17 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Directions
+import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -75,6 +81,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -6467,7 +6474,9 @@ private fun renderRestaurantRowsIfPossible(
             }
             val phone = phoneIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
             val phoneDialUrl = SafeContentPolicy.sanitizePhoneDialUrl(phone)
-            val meta = compactRestaurantMeta(rating, reviews, price)
+            val hasReserveAction = actionLabel.contains("reserve", ignoreCase = true) ||
+                actionLabel.contains("book table", ignoreCase = true)
+            val reserveUrl = bookUrl.takeIf { hasReserveAction && !it.isNullOrBlank() }
 
             Card(
                 modifier = Modifier
@@ -6501,27 +6510,12 @@ private fun renderRestaurantRowsIfPossible(
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
-                        if (rating.isNotBlank()) {
-                            Surface(
-                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                color = MaterialTheme.colorScheme.primaryContainer
-                            ) {
-                                Text(
-                                    text = "★ $rating",
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
-                                )
-                            }
-                        }
                     }
-                    if (meta.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(meta),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    RestaurantRatingChips(
+                        rating = rating,
+                        reviews = reviews,
+                        price = price
+                    )
                     if (status.isNotBlank()) {
                         val openLike = status.contains("open", ignoreCase = true) && !status.contains("closed", ignoreCase = true)
                         Surface(
@@ -6579,34 +6573,51 @@ private fun renderRestaurantRowsIfPossible(
                             }
                         }
                     }
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        val primaryActionUrl = bookUrl ?: websiteUrl ?: mapsUrl
-                        if (!primaryActionUrl.isNullOrBlank() && actionLabel.isNotBlank()) {
+                        if (!reserveUrl.isNullOrBlank()) {
                             RestaurantActionPill(
-                                label = actionLabel,
+                                label = "Reserve Table",
+                                icon = Icons.Filled.EventAvailable,
                                 primary = true,
-                                onClick = { onOpenUrl(primaryActionUrl) }
-                            )
-                        }
-                        if (!websiteUrl.isNullOrBlank() && websiteUrl != primaryActionUrl) {
-                            RestaurantActionPill(
-                                label = "Website",
-                                onClick = { onOpenUrl(websiteUrl) }
-                            )
-                        }
-                        if (!mapsUrl.isNullOrBlank() && mapsUrl != primaryActionUrl) {
-                            RestaurantActionPill(
-                                label = "Directions",
-                                onClick = { onOpenUrl(mapsUrl) }
+                                onClick = { onOpenUrl(reserveUrl) }
                             )
                         }
                         if (!phoneDialUrl.isNullOrBlank()) {
                             RestaurantActionPill(
                                 label = "Call",
+                                icon = Icons.Filled.Call,
                                 onClick = { onOpenUrl(phoneDialUrl) }
+                            )
+                        }
+                        if (!mapsUrl.isNullOrBlank()) {
+                            RestaurantActionPill(
+                                label = "Directions",
+                                icon = Icons.Filled.Directions,
+                                onClick = { onOpenUrl(mapsUrl) }
+                            )
+                        }
+                        if (!websiteUrl.isNullOrBlank()) {
+                            RestaurantActionPill(
+                                label = "Website",
+                                icon = Icons.Filled.Language,
+                                onClick = { onOpenUrl(websiteUrl) }
+                            )
+                        }
+                        if (reserveUrl.isNullOrBlank() &&
+                            bookUrl != null &&
+                            bookUrl != websiteUrl &&
+                            bookUrl != mapsUrl &&
+                            actionLabel.isNotBlank()
+                        ) {
+                            RestaurantActionPill(
+                                label = actionLabel,
+                                icon = Icons.Filled.Link,
+                                primary = true,
+                                onClick = { onOpenUrl(bookUrl) }
                             )
                         }
                     }
@@ -6666,16 +6677,86 @@ private fun RestaurantPhotoStrip(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RowScope.RestaurantActionPill(
+private fun RestaurantRatingChips(
+    rating: String,
+    reviews: String,
+    price: String
+) {
+    if (rating.isBlank() && reviews.isBlank() && price.isBlank()) return
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        if (rating.isNotBlank()) {
+            RestaurantMetricChip(
+                label = rating,
+                icon = Icons.Filled.Star,
+                emphasized = true
+            )
+        }
+        if (reviews.isNotBlank()) {
+            RestaurantMetricChip(
+                label = reviews,
+                icon = Icons.Filled.RateReview
+            )
+        }
+        if (price.isNotBlank()) {
+            RestaurantMetricChip(label = price)
+        }
+    }
+}
+
+@Composable
+private fun RestaurantMetricChip(
     label: String,
+    icon: ImageVector? = null,
+    emphasized: Boolean = false
+) {
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = if (emphasized) {
+            Color(0xFFFFC107).copy(alpha = 0.18f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.78f)
+        }
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = if (emphasized) Color(0xFFB26A00) else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Text(
+                text = parseBoldMarkdown(label),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = if (emphasized) Color(0xFF7A4A00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun RestaurantActionPill(
+    label: String,
+    icon: ImageVector,
     enabled: Boolean = true,
     primary: Boolean = false,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
-            .weight(1f)
+            .widthIn(min = 116.dp, max = 176.dp)
             .height(40.dp)
             .then(
                 if (enabled) {
@@ -6691,7 +6772,24 @@ private fun RowScope.RestaurantActionPill(
             else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
         }
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 11.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = when {
+                    primary && enabled -> MaterialTheme.colorScheme.onPrimary
+                    enabled -> MaterialTheme.colorScheme.onSurfaceVariant
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
+                }
+            )
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
