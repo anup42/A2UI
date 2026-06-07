@@ -6812,13 +6812,21 @@ private fun RestaurantMetricChip(
     icon: ImageVector? = null,
     emphasized: Boolean = false
 ) {
+    val darkTheme = isSystemInDarkTheme()
+    val containerColor = when {
+        emphasized && darkTheme -> Color(0xFF4A3300)
+        emphasized -> Color(0xFFFFE5A6)
+        else -> MaterialTheme.colorScheme.secondaryContainer
+    }
+    val contentColor = when {
+        emphasized && darkTheme -> Color(0xFFFFD36A)
+        emphasized -> Color(0xFF4A3000)
+        else -> MaterialTheme.colorScheme.onSecondaryContainer
+    }
     Surface(
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-        color = if (emphasized) {
-            Color(0xFFFFC107).copy(alpha = 0.18f)
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.78f)
-        }
+        color = containerColor,
+        border = BorderStroke(1.dp, contentColor.copy(alpha = if (darkTheme) 0.32f else 0.22f))
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -6830,13 +6838,13 @@ private fun RestaurantMetricChip(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),
-                    tint = if (emphasized) Color(0xFFB26A00) else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = contentColor
                 )
             }
             Text(
                 text = parseBoldMarkdown(label),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = if (emphasized) Color(0xFF7A4A00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = contentColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
