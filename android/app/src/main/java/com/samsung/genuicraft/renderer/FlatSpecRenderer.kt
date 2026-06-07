@@ -6438,15 +6438,29 @@ private fun renderRestaurantRowsIfPossible(
             val rawActionLabel = actionLabelIndex
                 ?.let { row.getOrNull(it).orEmpty().trim() }
                 ?.takeIf { it.isNotBlank() && !isLikelyHttpUrl(it) }
+                ?.let { label ->
+                    if (label.contains("reserve", ignoreCase = true) ||
+                        label.contains("book table", ignoreCase = true)
+                    ) {
+                        "Reserve Table"
+                    } else {
+                        label
+                    }
+                }
             val actionLabel = when {
-                hasReservationSignal &&
-                    rawActionLabel.orEmpty().contains("maps", ignoreCase = true) &&
-                    (!bookUrl.isNullOrBlank() || !mapsUrl.isNullOrBlank()) -> "Book / Details"
+                hasReservationSignal && !bookUrl.isNullOrBlank() ->
+                    rawActionLabel
+                        ?.takeIf { it.contains("reserve", ignoreCase = true) }
+                        ?: "Reserve Table"
+                hasReservationSignal && !mapsUrl.isNullOrBlank() ->
+                    rawActionLabel
+                        ?.takeIf { it.contains("reserve", ignoreCase = true) }
+                        ?: "Reserve Table"
                 !rawActionLabel.isNullOrBlank() -> rawActionLabel
                 else -> when {
-                    !bookUrl.isNullOrBlank() -> "Book / Menu"
+                    !bookUrl.isNullOrBlank() -> "Menu / Details"
                     !websiteUrl.isNullOrBlank() -> "Website"
-                    !mapsUrl.isNullOrBlank() && hasReservationSignal -> "Book / Details"
+                    !mapsUrl.isNullOrBlank() && hasReservationSignal -> "Reserve Table"
                     !mapsUrl.isNullOrBlank() -> "Directions"
                     else -> ""
                 }

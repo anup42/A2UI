@@ -154,6 +154,8 @@ Rules:
    CRITICAL for restaurants/places:
    - If a "photoUri" field exists in the data, ALWAYS include it as Media: Image=<photoUri>
    - If "reviews" array exists, include the first review text (truncated to 120 chars)
+   - If "reservable" is true, include Action: [Button: Reserve Table] using websiteUri first, otherwise googleMapsLinks.placeUri/googleMapsUri.
+   - Do NOT invent a direct reservation URL when the API only provides a Maps place link.
    - If "googleMapsUri" exists, include Action: [Button: View on Maps] <url>
    - If "websiteUri" exists, include Action: [Button: Visit Website] <url>
    - Show rating as numeric value plus â˜… star characters
@@ -571,7 +573,9 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val ratingRaw = biz.safeDouble("rating") ?: 0.0
                 val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else ""
                 val reviewCount = biz.safeInt("userRatingCount") ?: 0
-                val mapsUri = biz.safeString("googleMapsUri") ?: ""
+                val mapsUri = biz.getAsJsonObject("googleMapsLinks")?.safeString("placeUri")
+                    ?: biz.safeString("googleMapsUri")
+                    ?: ""
                 val websiteUri = biz.safeString("websiteUri") ?: ""
                 val phone = biz.safeString("nationalPhoneNumber")
                     ?: biz.safeString("internationalPhoneNumber")
@@ -669,14 +673,10 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     .firstOrNull { it.isNotBlank() }
                     .orEmpty()
                 val reservable = biz.safeBoolean("reservable") == true
-                val bookUrl = when {
-                    websiteUri.isNotBlank() -> websiteUri
-                    mapsUri.isNotBlank() -> mapsUri
-                    else -> ""
-                }
+                val bookUrl = websiteUri.ifBlank { mapsUri }
                 val actionLabel = when {
-                    reservable -> "Book table"
-                    websiteUri.isNotBlank() -> "Menu / Book"
+                    reservable -> "Reserve Table"
+                    websiteUri.isNotBlank() -> "Menu / Details"
                     mapsUri.isNotBlank() -> "Open in Maps"
                     else -> ""
                 }
