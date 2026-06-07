@@ -10169,34 +10169,10 @@ private fun RankedFlightAirlineBadge(
             .components { add(SvgDecoder.Factory()) }
             .build()
     }
-    val logoSurfaceColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.58f)
-    val logoBorderColor = if (safeLogo != null && !logoFailed) {
-        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f)
-    } else {
-        Color.White.copy(alpha = 0.35f)
-    }
-    val badgeBackground = if (safeLogo != null && !logoFailed) {
-        Modifier.background(logoSurfaceColor)
-    } else {
-        Modifier.background(
-            Brush.linearGradient(
-                colors = listOf(
-                    accent,
-                    accent.copy(alpha = if (best) 0.72f else 0.58f)
-                )
-            )
-        )
-    }
     Box(
         modifier = Modifier
             .size(42.dp)
-            .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-            .then(badgeBackground)
-            .border(
-                width = GenUiTokens.BorderSm,
-                color = logoBorderColor,
-                shape = RoundedCornerShape(GenUiTokens.RadiusPill)
-            ),
+            .clip(RoundedCornerShape(GenUiTokens.RadiusPill)),
         contentAlignment = Alignment.Center
     ) {
         if (safeLogo != null && !logoFailed) {
@@ -10218,7 +10194,7 @@ private fun RankedFlightAirlineBadge(
             Text(
                 text = code.take(3),
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black),
-                color = Color.White,
+                color = accent,
                 maxLines = 1,
                 overflow = TextOverflow.Clip
             )
@@ -10265,8 +10241,7 @@ private fun RankedFlightRouteLine(
         Box(
             modifier = Modifier
                 .size(28.dp)
-                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                .background(accent.copy(alpha = 0.12f)),
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -10456,8 +10431,7 @@ private fun RankedFlightRouteHint(
         Box(
             modifier = Modifier
                 .size(24.dp)
-                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                .background(accent.copy(alpha = 0.14f)),
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill)),
             contentAlignment = Alignment.Center
         ) {
             Icon(

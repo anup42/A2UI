@@ -327,22 +327,10 @@ internal object NativeFlightUiRenderer {
                 .components { add(SvgDecoder.Factory()) }
                 .build()
         }
-        val logoSurfaceColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.58f)
-        val logoBorderColor = if (resolvedLogo != null && !logoFailed) {
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f)
-        } else {
-            accent.copy(alpha = 0.42f)
-        }
         Box(
             modifier = Modifier
                 .size(42.dp)
-                .clip(RoundedCornerShape(999.dp))
-                .background(if (resolvedLogo != null && !logoFailed) logoSurfaceColor else accent.copy(alpha = 0.16f))
-                .border(
-                    width = GenUiTokens.BorderMd,
-                    color = logoBorderColor,
-                    shape = RoundedCornerShape(999.dp)
-                ),
+                .clip(RoundedCornerShape(999.dp)),
             contentAlignment = Alignment.Center
         ) {
             if (resolvedLogo != null && !logoFailed) {
