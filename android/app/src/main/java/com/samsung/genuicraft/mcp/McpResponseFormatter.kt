@@ -355,6 +355,9 @@ Rules:
         sb.appendLine("## Sources")
         sb.appendLine("- Open-Meteo Forecast API: https://open-meteo.com/en/docs")
         sb.appendLine("- Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api")
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: Open Forecast Source] https://open-meteo.com/en/docs")
 
         return sb.toString()
     }
@@ -566,6 +569,9 @@ Rules:
         sb.appendLine("## Sources")
         sb.appendLine("- Google Flights via SerpApi: https://serpapi.com/")
         sb.appendLine("- Google Flights: https://www.google.com/travel/flights")
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: Search Google Flights] ${flightSearchUrl(origin, destination, outboundDate)}")
 
         return sb.toString()
     }
@@ -734,6 +740,11 @@ Rules:
         return "https://www.google.com/travel/flights?q=$encoded"
     }
 
+    private fun mapsSearchUrl(query: String): String {
+        val encoded = Uri.encode(query.ifBlank { "Google Maps" })
+        return "https://www.google.com/maps/search/?api=1&query=$encoded"
+    }
+
     private fun buildRestaurantsFallback(data: JsonObject): String {
         val location = data.safeString("location") ?: "your area"
         val provider = data.safeString("provider") ?: "google_places"
@@ -886,6 +897,9 @@ Rules:
         } else {
             sb.appendLine("- Google Places: https://maps.google.com/")
         }
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: View Restaurants on Maps] ${mapsSearchUrl("restaurants in $location")}")
 
         return sb.toString()
     }
@@ -992,8 +1006,16 @@ Rules:
         sb.appendLine("## Sources")
         sb.appendLine("- Google Hotels via SerpApi: https://serpapi.com/")
         sb.appendLine("- Google Hotels: https://www.google.com/travel/hotels")
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: Search Google Hotels] ${googleHotelsSearchUrl(queryText.ifBlank { "hotels in $location" })}")
 
         return sb.toString()
+    }
+
+    private fun googleHotelsSearchUrl(query: String): String {
+        val encoded = URLEncoder.encode(query.ifBlank { "hotels" }, StandardCharsets.UTF_8.name()).replace("+", "%20")
+        return "https://www.google.com/travel/hotels?q=$encoded"
     }
 
     private fun hotelPhotoUrls(hotel: JsonObject): List<String> {
@@ -1114,6 +1136,9 @@ Rules:
         sb.appendLine()
         sb.appendLine("## Sources")
         sb.appendLine("- Google Places: https://maps.google.com/")
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: View Places on Maps] ${mapsSearchUrl("places in $location")}")
 
         return sb.toString()
     }
@@ -1175,6 +1200,9 @@ Rules:
         sb.appendLine()
         sb.appendLine("## Sources")
         sb.appendLine("- NewsData.io: https://newsdata.io/")
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: Open News Source] https://newsdata.io/")
 
         return sb.toString()
     }

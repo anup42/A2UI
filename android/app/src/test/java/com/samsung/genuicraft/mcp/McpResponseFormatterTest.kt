@@ -80,6 +80,8 @@ class McpResponseFormatterTest {
         assertTrue(output.contains("Book / Website"))
         assertTrue(output.contains("https://www.google.com/maps/search/?api=1&query=12.9725,77.718"))
         assertTrue(output.contains("Google Hotels via SerpApi"))
+        assertTrue(output.contains("## Quick Actions"))
+        assertTrue(output.contains("Search Google Hotels"))
         assertTrue(!output.contains("Media: Image="))
     }
 
@@ -166,6 +168,8 @@ class McpResponseFormatterTest {
         assertTrue(output.contains("https://www.gstatic.com/flights/airline_logos/70px/6E.png"))
         assertTrue(output.contains("https://www.google.com/travel/flights"))
         assertTrue(output.contains("View fare"))
+        assertTrue(output.contains("## Quick Actions"))
+        assertTrue(output.contains("Search Google Flights"))
     }
 
 }

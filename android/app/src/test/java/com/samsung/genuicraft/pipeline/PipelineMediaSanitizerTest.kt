@@ -155,4 +155,42 @@ class PipelineMediaSanitizerTest {
         assertEquals(false, result.jsonText.contains("file:///sdcard"))
         assertEquals(false, result.jsonText.contains("javascript:alert"))
     }
+
+    @Test
+    fun ensureResponseLinksInGenUi_appendsMissingSourcesAndQuickActions() {
+        val json = """
+            {
+              "root": "rootStack",
+              "state": {},
+              "elements": {
+                "rootStack": { "type": "Stack", "props": {}, "children": ["title"] },
+                "title": { "type": "Text", "props": { "text": "Weather in Bengaluru" }, "children": [] }
+              }
+            }
+        """.trimIndent()
+        val response = """
+            ## Weather in Bengaluru
+
+            Today: Clear sky.
+
+            ## Sources
+            - Open-Meteo Forecast API: https://open-meteo.com/en/docs
+
+            ## Quick Actions
+            Action: [Button: Open Forecast Source] https://open-meteo.com/en/docs
+        """.trimIndent()
+
+        val result = PipelineMediaSanitizer.ensureResponseLinksInGenUi(
+            jsonText = json,
+            stage2Response = response
+        )
+
+        assertTrue(result.changed)
+        assertEquals(1, result.sourcesAdded)
+        assertEquals(1, result.actionsAdded)
+        assertTrue(result.jsonText.contains("\"text\":\"Sources\""))
+        assertTrue(result.jsonText.contains("\"text\":\"Quick Actions\""))
+        assertTrue(result.jsonText.contains("\"action\":\"openUrl\""))
+        assertTrue(result.jsonText.contains("https://open-meteo.com/en/docs"))
+    }
 }

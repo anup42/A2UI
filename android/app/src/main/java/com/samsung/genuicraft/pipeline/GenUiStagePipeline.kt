@@ -897,6 +897,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = imageRepairResult.jsonText
             warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
         }
+        val linkRepairResult = PipelineMediaSanitizer.ensureResponseLinksInGenUi(
+            jsonText = stage3Json,
+            stage2Response = stage2Response
+        )
+        if (linkRepairResult.changed) {
+            stage3Json = linkRepairResult.jsonText
+            warnings += "Preserved ${linkRepairResult.sourcesAdded} source link(s) and ${linkRepairResult.actionsAdded} quick action(s) from Stage 2."
+        }
         val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
         if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
             markDuration(Stage.STAGE3, stage3StartedAtMs)
@@ -1449,6 +1457,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = imageRepairResult.jsonText
             warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
         }
+        val linkRepairResult = PipelineMediaSanitizer.ensureResponseLinksInGenUi(
+            jsonText = stage3Json,
+            stage2Response = stage2Response
+        )
+        if (linkRepairResult.changed) {
+            stage3Json = linkRepairResult.jsonText
+            warnings += "Preserved ${linkRepairResult.sourcesAdded} source link(s) and ${linkRepairResult.actionsAdded} quick action(s) from Stage 2."
+        }
         val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
         if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
             markDuration(Stage.STAGE3, stage3StartedAtMs)
@@ -1793,6 +1809,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (imageRepairResult.jsonText != stage3Json) {
             stage3Json = imageRepairResult.jsonText
             warnings += "Resolved ${imageRepairResult.resolvedCount} generated image URL(s); replaced ${imageRepairResult.replacedCount} unreachable image URL(s)."
+        }
+        val linkRepairResult = PipelineMediaSanitizer.ensureResponseLinksInGenUi(
+            jsonText = stage3Json,
+            stage2Response = sanitizedResponse
+        )
+        if (linkRepairResult.changed) {
+            stage3Json = linkRepairResult.jsonText
+            warnings += "Preserved ${linkRepairResult.sourcesAdded} source link(s) and ${linkRepairResult.actionsAdded} quick action(s) from Stage 2."
         }
         val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
         if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {

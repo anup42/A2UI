@@ -58,6 +58,14 @@ internal object PipelineMediaSanitizer {
         val fare: String?
     )
 
+    data class ResponseLinkRepairResult(
+        val jsonText: String,
+        val sourcesAdded: Int,
+        val actionsAdded: Int
+    ) {
+        val changed: Boolean get() = sourcesAdded > 0 || actionsAdded > 0
+    }
+
     // -- Flight functions ---------------------------------------------------
 
     fun ensureFlightQuickActions(
@@ -1246,6 +1254,195 @@ internal object PipelineMediaSanitizer {
                 Regex("""(?i)"component"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
                     Regex("""(?i)"url"\s*:\s*"https?://""").containsMatchIn(jsonText)
                 )
+    }
+
+    fun ensureResponseLinksInGenUi(
+        jsonText: String,
+        stage2Response: String
+    ): ResponseLinkRepairResult {
+        val sourceLinks = extractStage2SourceLinks(stage2Response)
+        val actionLinks = extractStage2ActionButtons(stage2Response)
+        if (sourceLinks.isEmpty() && actionLinks.isEmpty()) {
+            return ResponseLinkRepairResult(jsonText, sourcesAdded = 0, actionsAdded = 0)
+        }
+
+        val root = runCatching { JsonParser.parseString(jsonText).asJsonObject }.getOrNull()
+            ?: return ResponseLinkRepairResult(jsonText, sourcesAdded = 0, actionsAdded = 0)
+        val rootId = root.get("root")?.asString?.takeIf { it.isNotBlank() }
+            ?: return ResponseLinkRepairResult(jsonText, sourcesAdded = 0, actionsAdded = 0)
+        val elements = root.getAsJsonObject("elements")
+            ?: return ResponseLinkRepairResult(jsonText, sourcesAdded = 0, actionsAdded = 0)
+        val rootElement = elements.getAsJsonObject(rootId)
+            ?: return ResponseLinkRepairResult(jsonText, sourcesAdded = 0, actionsAdded = 0)
+        val rootChildren = rootElement.getAsJsonArray("children") ?: JsonArray().also {
+            rootElement.add("children", it)
+        }
+
+        var sourcesAdded = 0
+        var actionsAdded = 0
+
+        if (sourceLinks.isNotEmpty() && !genUiHasSourceSection(jsonText)) {
+            val section = appendFlatLinkSection(
+                elements = elements,
+                idPrefix = "mcp_sources",
+                title = "Sources",
+                links = sourceLinks,
+                buttonVariant = "borderless"
+            )
+            rootChildren.add(section)
+            sourcesAdded = sourceLinks.size
+        }
+
+        if (actionLinks.isNotEmpty() && !genUiPreservesActionButtons(jsonText)) {
+            val section = appendFlatLinkSection(
+                elements = elements,
+                idPrefix = "mcp_quick_actions",
+                title = "Quick Actions",
+                links = actionLinks,
+                buttonVariant = "primary"
+            )
+            rootChildren.add(section)
+            actionsAdded = actionLinks.size
+        }
+
+        return if (sourcesAdded > 0 || actionsAdded > 0) {
+            ResponseLinkRepairResult(root.toString(), sourcesAdded, actionsAdded)
+        } else {
+            ResponseLinkRepairResult(jsonText, sourcesAdded = 0, actionsAdded = 0)
+        }
+    }
+
+    private data class LinkSpec(val label: String, val url: String)
+
+    private fun appendFlatLinkSection(
+        elements: JsonObject,
+        idPrefix: String,
+        title: String,
+        links: List<LinkSpec>,
+        buttonVariant: String
+    ): String {
+        val sectionId = uniqueElementId(elements, "${idPrefix}_card")
+        val stackId = uniqueElementId(elements, "${idPrefix}_stack")
+        val titleId = uniqueElementId(elements, "${idPrefix}_title")
+
+        val sectionChildren = JsonArray().apply { add(stackId) }
+        elements.add(sectionId, JsonObject().apply {
+            addProperty("type", "Card")
+            add("props", JsonObject().apply { addProperty("contentPadding", "md") })
+            add("children", sectionChildren)
+        })
+
+        val stackChildren = JsonArray().apply { add(titleId) }
+        elements.add(stackId, JsonObject().apply {
+            addProperty("type", "Stack")
+            add("props", JsonObject().apply {
+                addProperty("direction", "vertical")
+                addProperty("gap", "sm")
+            })
+            add("children", stackChildren)
+        })
+
+        elements.add(titleId, JsonObject().apply {
+            addProperty("type", "Text")
+            add("props", JsonObject().apply {
+                addProperty("text", title)
+                addProperty("variant", "h3")
+            })
+            add("children", JsonArray())
+        })
+
+        links.distinctBy { it.url }.take(4).forEachIndexed { index, link ->
+            val buttonId = uniqueElementId(elements, "${idPrefix}_button_${index + 1}")
+            stackChildren.add(buttonId)
+            elements.add(buttonId, JsonObject().apply {
+                addProperty("type", "Button")
+                add("props", JsonObject().apply {
+                    addProperty("label", link.label.ifBlank { "Open link" })
+                    addProperty("variant", buttonVariant)
+                })
+                add("on", JsonObject().apply {
+                    add("press", JsonObject().apply {
+                        addProperty("action", "openUrl")
+                        add("params", JsonObject().apply { addProperty("url", link.url) })
+                    })
+                })
+                add("children", JsonArray())
+            })
+        }
+
+        return sectionId
+    }
+
+    private fun uniqueElementId(elements: JsonObject, base: String): String {
+        var candidate = base
+        var counter = 2
+        while (elements.has(candidate)) {
+            candidate = "${base}_$counter"
+            counter++
+        }
+        return candidate
+    }
+
+    private fun genUiHasSourceSection(jsonText: String): Boolean {
+        return Regex(
+            """"(?:text|title|label)"\s*:\s*"(?:Data\s+)?Sources?"""",
+            RegexOption.IGNORE_CASE
+        ).containsMatchIn(jsonText)
+    }
+
+    private fun extractStage2SourceLinks(text: String): List<LinkSpec> {
+        val lines = text.replace("\r\n", "\n").lines()
+        val links = mutableListOf<LinkSpec>()
+        var inSources = false
+        lines.forEach { rawLine ->
+            val line = rawLine.trim()
+            if (line.isBlank()) return@forEach
+            val heading = line
+                .replace(Regex("""^#{1,6}\s*"""), "")
+                .trim()
+                .trimEnd(':')
+                .trim()
+            if (heading.equals("Sources", ignoreCase = true) ||
+                heading.equals("Source", ignoreCase = true) ||
+                heading.equals("References", ignoreCase = true)
+            ) {
+                inSources = true
+                return@forEach
+            }
+            if (inSources && line.startsWith("##")) {
+                inSources = false
+            }
+            if (!inSources) return@forEach
+
+            val url = URL_TOKEN_REGEX.find(line)?.value
+                ?.let(::normalizeExternalUrlCandidate)
+                ?: return@forEach
+            val label = line
+                .replace(Regex("""^[-*\u2022]\s*"""), "")
+                .replace(url, "")
+                .trim()
+                .trimEnd(':', '-', '\u2013', '\u2014')
+                .trim()
+                .ifBlank { quickActionLabelForUrl(url, links.size) }
+            links += LinkSpec(label = label, url = url)
+        }
+        return links.distinctBy { it.url }.take(4)
+    }
+
+    private fun extractStage2ActionButtons(text: String): List<LinkSpec> {
+        return Regex(
+            """(?im)^\s*Action:\s*\[Button:\s*(.+?)]\s*(https?://\S+|//\S+|www\.\S+|(?:[a-z0-9-]+\.)+[a-z]{2,24}\S*)\s*$"""
+        ).findAll(text)
+            .mapNotNull { match ->
+                val label = match.groupValues.getOrNull(1)?.trim().orEmpty()
+                val url = match.groupValues.getOrNull(2)
+                    ?.let(::normalizeExternalUrlCandidate)
+                    ?: return@mapNotNull null
+                LinkSpec(label = label.ifBlank { quickActionLabelForUrl(url, 0) }, url = url)
+            }
+            .distinctBy { it.url }
+            .take(4)
+            .toList()
     }
 
     private fun extractFirstInlineImageUrl(text: String): String? {
