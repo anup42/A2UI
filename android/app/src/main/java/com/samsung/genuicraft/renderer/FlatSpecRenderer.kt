@@ -4307,11 +4307,15 @@ private fun resolveDirectTableColumns(
     rows: List<Any?>
 ): List<FlatDirectTableColumn> {
     val explicitColumns = parseDirectTableColumns(props["columns"])
-    if (explicitColumns.isNotEmpty()) return explicitColumns
+    if (explicitColumns.isNotEmpty()) {
+        return augmentRestaurantDirectTableColumns(props, rows, explicitColumns)
+    }
 
     val tablePayload = toStringKeyMap(props["table"])
     val payloadColumns = parseDirectTableColumns(tablePayload?.get("columns"))
-    if (payloadColumns.isNotEmpty()) return payloadColumns
+    if (payloadColumns.isNotEmpty()) {
+        return augmentRestaurantDirectTableColumns(props, rows, payloadColumns)
+    }
 
     val firstMapRow = rows.firstOrNull { row -> toStringKeyMap(row) != null }?.let(::toStringKeyMap)
     if (!firstMapRow.isNullOrEmpty()) {
@@ -4333,6 +4337,101 @@ private fun resolveDirectTableColumns(
         }
     }
     return emptyList()
+}
+
+private val RESTAURANT_ACTION_ROW_COLUMN_ALIASES = listOf(
+    "photoUrl" to "Photo URL",
+    "photoUrls" to "Photo URLs",
+    "photos" to "Photos",
+    "imageUrl" to "Photo URL",
+    "images" to "Photos",
+    "mapsUrl" to "Maps URL",
+    "mapUrl" to "Maps URL",
+    "googleMapsUri" to "Maps URL",
+    "websiteUrl" to "Website URL",
+    "websiteUri" to "Website URL",
+    "bookUrl" to "Book URL",
+    "reserveUrl" to "Reserve URL",
+    "reservationUrl" to "Reserve URL",
+    "actionLabel" to "Action Label",
+    "buttonLabel" to "Action Label",
+    "ctaLabel" to "Action Label",
+    "phone" to "Phone",
+    "telephone" to "Phone",
+    "nationalPhoneNumber" to "Phone",
+    "internationalPhoneNumber" to "Phone"
+)
+
+private fun augmentRestaurantDirectTableColumns(
+    props: Map<String, Any?>,
+    rows: List<Any?>,
+    columns: List<FlatDirectTableColumn>
+): List<FlatDirectTableColumn> {
+    if (columns.isEmpty() || rows.isEmpty()) return columns
+    if (!shouldAugmentRestaurantDirectTableColumns(props, rows, columns)) return columns
+
+    val rowMaps = rows.mapNotNull(::toStringKeyMap)
+    if (rowMaps.isEmpty()) return columns
+
+    val presentTokens = columns
+        .flatMap { column -> listOf(column.key, column.label) }
+        .map(::normalizeTableLookupToken)
+        .filter { it.isNotBlank() }
+        .toMutableSet()
+    val augmented = columns.toMutableList()
+
+    RESTAURANT_ACTION_ROW_COLUMN_ALIASES.forEach { (key, label) ->
+        val keyToken = normalizeTableLookupToken(key)
+        val labelToken = normalizeTableLookupToken(label)
+        if (keyToken in presentTokens || labelToken in presentTokens) return@forEach
+        val hasValue = rowMaps.any { row ->
+            val lookup = buildDirectTableNormalizedRowLookup(row)
+            val value = lookup[keyToken]
+            tableCellDisplayText(value).isNotBlank()
+        }
+        if (hasValue) {
+            augmented += FlatDirectTableColumn(key = key, label = label)
+            presentTokens += keyToken
+            presentTokens += labelToken
+        }
+    }
+    return augmented
+}
+
+private fun shouldAugmentRestaurantDirectTableColumns(
+    props: Map<String, Any?>,
+    rows: List<Any?>,
+    columns: List<FlatDirectTableColumn>
+): Boolean {
+    val explicitDomain = normalizeExplicitTableDomain(props["domain"]?.toString())
+    if (explicitDomain == "restaurants") return true
+
+    val headers = columns.map { column -> column.label }
+    if (inferTableDomainFromHeaders(headers) == "restaurants") return true
+
+    val rowMaps = rows.mapNotNull(::toStringKeyMap)
+    if (rowMaps.isEmpty()) return false
+    val rowTokens = rowMaps
+        .flatMap { row -> row.keys }
+        .map(::normalizeTableLookupToken)
+        .toSet()
+    val hasRestaurantEntity = rowTokens.any {
+        it in setOf("restaurant", "restaurantname", "name", "place", "placename")
+    }
+    val hasRestaurantData = rowTokens.any {
+        it in setOf(
+            "rating", "reviews", "reviewcount", "userratingcount", "address",
+            "formattedaddress", "status", "statushours", "hours", "tags", "amenities"
+        )
+    }
+    val hasRestaurantActionData = rowTokens.any {
+        it in setOf(
+            "phone", "telephone", "nationalphonenumber", "internationalphonenumber",
+            "mapsurl", "mapurl", "googlemapsuri", "websiteurl", "websiteuri",
+            "bookurl", "reserveurl", "reservationurl", "photourl", "photourls", "photos"
+        )
+    }
+    return hasRestaurantEntity && (hasRestaurantData || hasRestaurantActionData)
 }
 
 private fun parseDirectTableColumns(value: Any?): List<FlatDirectTableColumn> {

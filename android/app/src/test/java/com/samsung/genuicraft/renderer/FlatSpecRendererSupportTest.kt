@@ -1276,6 +1276,45 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractDirectTableModel_restoresRestaurantActionColumnsFromRows() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "restaurant", "label" to "Restaurant"),
+                mapOf("key" to "rating", "label" to "Rating"),
+                mapOf("key" to "reviews", "label" to "Reviews"),
+                mapOf("key" to "address", "label" to "Address")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "restaurant" to "The Yard",
+                    "rating" to "4.3",
+                    "reviews" to "1326 reviews",
+                    "address" to "Mahadevpura, Bengaluru",
+                    "phone" to "099801 23543",
+                    "mapsUrl" to "https://maps.google.com/?cid=123",
+                    "websiteUrl" to "https://the-yard.in/"
+                )
+            ),
+            "domain" to "generic",
+            "preferredPresentation" to "cards"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("restaurants", model!!.domain)
+        assertEquals(FlatTableRenderMode.RESTAURANT_CARDS, model.renderMode)
+        assertTrue(model.columns.any { it.key == "phone" && it.label == "Phone" })
+        assertTrue(model.columns.any { it.key == "mapsUrl" && it.label == "Maps URL" })
+        assertTrue(model.columns.any { it.key == "websiteUrl" && it.label == "Website URL" })
+        assertTrue(model.rows.first().contains("099801 23543"))
+    }
+
+    @Test
     fun extractDirectTableModel_supportsRowsCellsShape() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(
