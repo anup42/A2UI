@@ -90,10 +90,19 @@ class GenUiStagePipeline(private val appContext: Context) {
         return PipelinePromptBuilder.loadPromptAsset(appContext.assets, assetPath)
     }
 
-    private fun stage3MaxOutputTokensFor(provider: InferenceBackendSettings.Provider): Int {
+    private fun stage3MaxOutputTokensFor(
+        provider: InferenceBackendSettings.Provider,
+        model: String = ""
+    ): Int {
         return when (provider) {
             InferenceBackendSettings.Provider.LOCAL_SERVER -> LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS
             InferenceBackendSettings.Provider.ON_DEVICE_LITERT -> ON_DEVICE_STAGE3_MAX_OUTPUT_TOKENS
+            InferenceBackendSettings.Provider.GEMINI ->
+                if (model.trim().lowercase().startsWith("gemma-")) {
+                    GEMMA_STAGE3_MAX_OUTPUT_TOKENS
+                } else {
+                    STAGE3_MAX_OUTPUT_TOKENS
+                }
             else -> STAGE3_MAX_OUTPUT_TOKENS
         }
     }
@@ -159,7 +168,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             STAGE2_MAX_OUTPUT_TOKENS
         }
-        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(irProvider)
+        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(irProvider, irModel)
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val responseApiKey = if (responseProvider == InferenceBackendSettings.Provider.GEMINI) {
@@ -1026,7 +1035,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val localModelPath = InferenceBackendSettings.getLocalModelPath(appContext)
         val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
         val isLocalServer = provider == InferenceBackendSettings.Provider.LOCAL_SERVER
-        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(provider)
+        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(provider, irModel)
         val stage3RepairMaxOutputTokens = stage3MaxOutputTokens
 
         val apiKey = if (provider == InferenceBackendSettings.Provider.GEMINI) {
@@ -1657,7 +1666,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val localStage3SystemPromptCacheKey: String? = null
         val localSendStage3SystemPrompt = true
 
-        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(irProvider)
+        val stage3MaxOutputTokens = stage3MaxOutputTokensFor(irProvider, irModel)
         val stage3StructuredOutput = shouldUseStructuredOutput(
             irProvider,
             InferenceBackendSettings.getGeminiApiMode(appContext)
@@ -2488,6 +2497,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val MODEL_GEMINI_2_5_PRO = "gemini-2.5-pro"
         const val STAGE2_MAX_OUTPUT_TOKENS = 4096
         const val STAGE3_MAX_OUTPUT_TOKENS = 8192
+        const val GEMMA_STAGE3_MAX_OUTPUT_TOKENS = 4096
         const val ON_DEVICE_STAGE3_MAX_OUTPUT_TOKENS = 3072
         const val ON_DEVICE_STAGE3_REPAIR_ATTEMPTS = 1
         const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 2048

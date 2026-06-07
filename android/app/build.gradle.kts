@@ -103,10 +103,7 @@ val embeddedGoogleMapsApiKey = resolveSecret(
 val embeddedVertexExpressApiKey = resolveSecret(
     "VERTEX_EXPRESS_API_KEY",
     "GEMINI_VERTEX_EXPRESS_API_KEY"
-).ifBlank {
-    // User-requested fallback to keep Vertex Express key bundled in shared APK builds.
-    "AQ.Ab8RN6K7IA7PtYMBp8p1bn48KHgASiWdvMTlb-bxH2XpmrROlQ"
-}
+)
 val embeddedVertexProjectId = resolveSecret(
     "VERTEX_PROJECT_ID",
     "GOOGLE_CLOUD_PROJECT",

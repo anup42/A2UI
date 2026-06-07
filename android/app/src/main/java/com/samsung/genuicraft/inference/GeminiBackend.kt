@@ -25,7 +25,15 @@ class GeminiBackend(
 ) : InferenceBackend {
 
     override fun generate(request: InferenceBackend.GenerateRequest): InferenceBackend.GenerateResponse {
-        if (cleanVertexExpressApiKey().isBlank()) {
+        if (usesGeminiApiEndpoint() && cleanGeminiApiKey().isBlank()) {
+            return InferenceBackend.GenerateResponse(
+                text = "",
+                rawResponse = null,
+                error = "Gemini API key is missing for ${normalizeModelName(model)}. Add GEMINI_STAGE3_API_KEY, GEMINI_IR_API_KEY, GEMINI_API_KEY_2, or GEMINI_API_KEY in runtime keys.",
+                streamDurationMs = null
+            )
+        }
+        if (!usesGeminiApiEndpoint() && cleanVertexExpressApiKey().isBlank()) {
             return InferenceBackend.GenerateResponse(
                 text = "",
                 rawResponse = null,
@@ -42,7 +50,7 @@ class GeminiBackend(
             readTimeout = 180000
             doOutput = true
             setRequestProperty("Content-Type", "application/json")
-            setRequestProperty("x-goog-api-key", cleanVertexExpressApiKey())
+            setRequestProperty("x-goog-api-key", requestApiKey())
         }
 
         val body = buildRequestPayload(request)
@@ -75,7 +83,7 @@ class GeminiBackend(
                 return InferenceBackend.GenerateResponse(
                     text = "",
                     rawResponse = raw,
-                    error = "HTTP $code: ${short.take(320)}$authHint [mode=vertex_ai_express_api_key endpoint=$endpointLabel model=${normalizeModelName(model)}]",
+                    error = "HTTP $code: ${short.take(320)}$authHint [mode=${endpointModeLabel()} endpoint=$endpointLabel model=${normalizeModelName(model)}]",
                     streamDurationMs = streamRead.streamDurationMs,
                     inputTokens = usage.inputTokens,
                     outputTokens = usage.outputTokens
@@ -117,12 +125,33 @@ class GeminiBackend(
 
     private fun buildGenerateEndpoint(): URL {
         val normalizedModel = normalizeModelName(model)
-        val encodedKey = URLEncoder.encode(cleanVertexExpressApiKey(), StandardCharsets.UTF_8.name())
+        val encodedKey = URLEncoder.encode(requestApiKey(), StandardCharsets.UTF_8.name())
+        if (usesGeminiApiEndpoint()) {
+            return URL("https://generativelanguage.googleapis.com/v1beta/models/$normalizedModel:generateContent?key=$encodedKey")
+        }
         return URL("https://aiplatform.googleapis.com/v1/publishers/google/models/$normalizedModel:generateContent?key=$encodedKey")
+    }
+
+    private fun requestApiKey(): String {
+        return if (usesGeminiApiEndpoint()) cleanGeminiApiKey() else cleanVertexExpressApiKey()
+    }
+
+    private fun cleanGeminiApiKey(): String {
+        return apiKey.trim()
     }
 
     private fun cleanVertexExpressApiKey(): String {
         return vertexExpressApiKey.trim()
+    }
+
+    private fun usesGeminiApiEndpoint(): Boolean {
+        val normalized = normalizeModelName(model).lowercase(Locale.US)
+        return apiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT ||
+            normalized.startsWith("gemma-")
+    }
+
+    private fun endpointModeLabel(): String {
+        return if (usesGeminiApiEndpoint()) "gemini_api_key" else "vertex_ai_express_api_key"
     }
 
     private fun normalizeModelName(rawModel: String): String {
@@ -171,6 +200,11 @@ class GeminiBackend(
             add("generationConfig", JsonObject().apply {
                 addProperty("temperature", request.temperature)
                 addProperty("maxOutputTokens", min(request.maxOutputTokens, 8192))
+                if (usesGeminiApiEndpoint()) {
+                    add("thinkingConfig", JsonObject().apply {
+                        addProperty("includeThoughts", false)
+                    })
+                }
                 if (request.jsonMode) {
                     addProperty("responseMimeType", "application/json")
                     if (request.structuredOutput) {
@@ -285,6 +319,12 @@ class GeminiBackend(
         val builder = StringBuilder()
         for (part in parts) {
             val partObj = runCatching { part.asJsonObject }.getOrNull() ?: continue
+            val isThoughtPart = partObj.get("thought")
+                ?.takeIf { it.isJsonPrimitive }
+                ?.asBoolean == true
+            if (isThoughtPart) {
+                continue
+            }
             val textPart = partObj.get("text")?.takeIf { it.isJsonPrimitive }?.asString
             if (!textPart.isNullOrBlank()) {
                 if (builder.isNotEmpty()) {
