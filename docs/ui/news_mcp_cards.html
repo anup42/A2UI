@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP News UI Cards</title>
+<style>
+  :root {
+    --bg: #eef2ec; --paper: rgba(255,255,255,.78); --paper-strong: rgba(255,255,255,.92);
+    --ink: #152017; --muted: #647066; --line: rgba(36,48,40,.12); --accent: #0b6b4e; --accent-2: #dff56a;
+    --shadow: 0 18px 50px rgba(17,31,22,.16);
+  }
+  @media (prefers-color-scheme: dark) { :root { --bg:#101610; --paper:rgba(27,35,28,.70); --paper-strong:rgba(30,39,32,.90); --ink:#edf4ea; --muted:#a4b2a4; --line:rgba(239,247,237,.14); --accent:#9cf3c8; --accent-2:#e4ff7a; --shadow:0 18px 48px rgba(0,0,0,.42); } }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; background: radial-gradient(circle at 12% 4%, rgba(223,245,106,.38), transparent 32%), radial-gradient(circle at 92% 14%, rgba(11,107,78,.24), transparent 30%), linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg), #000 4%)); color:var(--ink); }
+  .phone { width:min(430px,100vw); min-height:100vh; margin:0 auto; padding:18px 14px 28px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .brand { display:flex; gap:10px; align-items:center; } .brand-mark { width:38px; height:38px; border-radius:14px; display:grid; place-items:center; background:var(--ink); color:var(--accent-2); font-weight:900; box-shadow:var(--shadow); }
+  .brand h1 { font-size:21px; line-height:1.05; margin:0; letter-spacing:-.03em; } .brand small { color:var(--muted); font-weight:650; }
+  .live-pill { border:1px solid var(--line); border-radius:999px; padding:8px 10px; background:var(--paper); color:var(--accent); font-weight:850; font-size:12px; }
+  .hero { overflow:hidden; border-radius:30px; background:linear-gradient(150deg, rgba(11,107,78,.94), rgba(31,72,55,.84) 50%, rgba(18,29,22,.94)); color:white; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.22); }
+  .hero-img { height:205px; background:linear-gradient(135deg,#0b6b4e,#dff56a); position:relative; } .hero-img img { width:100%; height:100%; object-fit:cover; display:block; } .hero-img::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, transparent 35%, rgba(0,0,0,.68)); }
+  .hero-img .category { position:absolute; left:16px; bottom:14px; z-index:1; background:rgba(223,245,106,.9); color:#152017; padding:7px 11px; border-radius:999px; font-size:12px; font-weight:900; }
+  .hero-content { padding:18px; } .source-row { display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.78); font-size:13px; font-weight:750; } .source-row img { width:20px; height:20px; border-radius:6px; background:white; }
+  .hero h2 { font-size:25px; line-height:1.05; letter-spacing:-.05em; margin:12px 0 10px; } .hero p { margin:0; color:rgba(255,255,255,.82); font-size:14px; line-height:1.48; }
+  .hero-actions { display:flex; gap:10px; margin-top:16px; } .btn { text-decoration:none; border:0; border-radius:16px; padding:12px 14px; display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:900; font-size:14px; } .btn.primary { color:#142016; background:var(--accent-2); flex:1; } .btn.ghost { color:white; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.22); }
+  .section-title { margin:22px 4px 10px; display:flex; align-items:end; justify-content:space-between; } .section-title h2 { margin:0; font-size:18px; letter-spacing:-.03em; } .section-title span { color:var(--muted); font-size:12px; font-weight:800; }
+  .rail { display:grid; grid-auto-flow:column; grid-auto-columns:72%; gap:12px; overflow-x:auto; padding:2px 2px 10px; scroll-snap-type:x mandatory; } .rail-card { scroll-snap-align:start; text-decoration:none; color:inherit; background:var(--paper); border:1px solid var(--line); border-radius:22px; padding:10px; backdrop-filter:blur(16px); }
+  .rail-img { height:104px; border-radius:17px; overflow:hidden; background:linear-gradient(135deg,rgba(11,107,78,.24),rgba(223,245,106,.44)); display:grid; place-items:center; color:var(--accent); font-weight:950; } .rail-img img { width:100%; height:100%; object-fit:cover; display:block; } .rail-card strong { display:block; margin-top:10px; line-height:1.16; font-size:14px; } .rail-card span { display:block; color:var(--muted); font-size:12px; margin-top:7px; }
+  .story-list { display:grid; gap:12px; } .story-card { display:grid; grid-template-columns:104px 1fr; gap:12px; border-radius:24px; padding:10px; background:var(--paper-strong); border:1px solid var(--line); box-shadow:0 10px 28px rgba(17,31,22,.08); cursor:pointer; }
+  .story-thumb { border-radius:18px; overflow:hidden; background:linear-gradient(140deg,rgba(11,107,78,.22),rgba(223,245,106,.48)); min-height:112px; display:grid; place-items:center; color:var(--accent); font-weight:950; font-size:13px; } .story-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .story-meta { display:flex; flex-wrap:wrap; align-items:center; gap:7px; color:var(--muted); font-size:11px; font-weight:800; } .source-pill { display:inline-flex; align-items:center; gap:5px; background:color-mix(in srgb,var(--accent) 9%,transparent); border:1px solid color-mix(in srgb,var(--accent) 17%,transparent); color:var(--accent); border-radius:999px; padding:4px 7px; } .source-pill img { width:15px; height:15px; border-radius:4px; }
+  .story-body h3 { margin:8px 0 5px; font-size:15.5px; line-height:1.18; letter-spacing:-.02em; } .story-body p { margin:0; color:var(--muted); font-size:12.5px; line-height:1.38; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; } .story-footer { display:flex; justify-content:space-between; gap:8px; margin-top:10px; color:var(--accent); font-size:11px; font-weight:900; }
+  .sources { margin-top:22px; border-radius:24px; background:var(--paper); border:1px solid var(--line); padding:14px; } .sources h2 { margin:0 0 10px; font-size:16px; } .sources .links { display:flex; flex-wrap:wrap; gap:8px; } .sources a { color:var(--accent); text-decoration:none; border:1px solid color-mix(in srgb,var(--accent) 22%,transparent); background:color-mix(in srgb,var(--accent) 9%,transparent); padding:8px 10px; border-radius:999px; font-size:12px; font-weight:850; }
+</style>
+</head>
+<body>
+  <main class="phone">
+    <header class="topbar"><div class="brand"><div class="brand-mark">N</div><div><h1>News Brief</h1><small>NewsData.io MCP ? India ? technology</small></div></div><div class="live-pill">LIVE</div></header>
+    <section class="hero"><div class="hero-img"><span class="category">Business</span></div><div class="hero-content"><div class="source-row"><img src="https://n.bytvi.com/newsdrum_in.png" alt=""/><span>Newsdrum ? Jun 07, 02:20 PM</span></div><h2>Developments in West Asia, oil prices, FII trading activity key factors for mkt movement: Analysts</h2><p>New Delhi, Jun 7 (PTI) Stock market this week will track simmering tensions in West Asia, its impact on crude oil prices, and trading activity of foreign investors, analysts said. The trading week may begin on a cauti?</p><div class="hero-actions"><a class="btn primary" href="https://www.newsdrum.in/business/developments-in-west-asia-oil-prices-fii-trading-activity-key-factors-for-mkt-movement-analysts-12010689" target="_blank">Read lead story</a><a class="btn ghost" href="https://newsdata.io/" target="_blank">Source</a></div></div></section>
+    <div class="section-title"><h2>Top Developments</h2><span>10 stories</span></div><section class="rail">
+      <a class="rail-card" href="https://www.wionews.com/trending/japanese-researchers-turn-discarded-udon-noodles-into-biodegradable-paper-how-it-works-1780821154114" target="_blank">
+        <div class="rail-img "><img src="https://cdn1.wionews.com/prod/wion/images/2026/20260607/image-1780821547723.jpg?rect=(0,253,3997,2997)" alt="" loading="lazy"/></div>
+        <strong>Japanese researchers turn discarded udon noodles into biodegradable paper: How it works</strong>
+        <span>Wion ? Jun 07, 02:19 PM</span>
+      </a>
+      <a class="rail-card" href="https://www.niftytrader.in/markets/900-million-users-arent-enough-openai-now-wants-chatgpt/" target="_blank">
+        <div class="rail-img "><img src="https://trending.niftytrader.in/wp-content/uploads/2026/06/900-Million-Users-Arent-Enough-%E2%80%94-OpenAI-Now-Wants-ChatGPT-to-Do-Everything.jpeg" alt="" loading="lazy"/></div>
+        <strong>900 Million Users Aren&#x27;t Enough â OpenAI Now Wants ChatGPT to Do Everything</strong>
+        <span>Niftytrader ? Jun 07, 02:17 PM</span>
+      </a>
+      <a class="rail-card" href="https://easternherald.com/2026/06/07/afd-kotre-nord-stream-germany-political-will-spief-2026/" target="_blank">
+        <div class="rail-img "><img src="https://easternherald.com/wp-content/uploads/2026/06/steffen-kotre-afd-spief-2026-nord-stream.jpg" alt="" loading="lazy"/></div>
+        <strong>AfDâs Kotre at SPIEF: Nord Stream Blockage Is Political, Not Technical</strong>
+        <span>The Eastern Herald ? Jun 07, 02:17 PM</span>
+      </a></section>
+    <div class="section-title"><h2>Latest Updates</h2><span>Tap to open</span></div><section class="story-list">
+      <article class="story-card" onclick="window.open('https://www.newsdrum.in/business/developments-in-west-asia-oil-prices-fii-trading-activity-key-factors-for-mkt-movement-analysts-12010689', '_blank')">
+        <div class="story-thumb no-image">
+          <span>NEWS</span>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/newsdrum_in.png" alt=""/>Newsdrum</span>
+            <span>Jun 07, 02:20 PM</span>
+          </div>
+          <h3>Developments in West Asia, oil prices, FII trading activity key factors for mkt movement: Analysts</h3>
+          <p>New Delhi, Jun 7 (PTI) Stock market this week will track simmering tensions in West Asia, its impact on crude oil prices, and trading activity of foreign investors, analysts said. The trading week may begin on a cauti?</p>
+          <div class="story-footer"><span>Business</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://www.wionews.com/trending/japanese-researchers-turn-discarded-udon-noodles-into-biodegradable-paper-how-it-works-1780821154114', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://cdn1.wionews.com/prod/wion/images/2026/20260607/image-1780821547723.jpg?rect=(0,253,3997,2997)" alt="Japanese researchers turn discarded udon noodles into biodegradable paper: How it works" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/wionews.png" alt=""/>Wion</span>
+            <span>Jun 07, 02:19 PM</span>
+          </div>
+          <h3>Japanese researchers turn discarded udon noodles into biodegradable paper: How it works</h3>
+          <p>Researchers in Kagawa are turning discarded udon noodles into biodegradable, water-resistant &quot;paper&quot; using acetic acid bacteria. Led by Professor Naotaka Tanaka, the project reduces food waste by creating local, eco-f?</p>
+          <div class="story-footer"><span>World</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://www.niftytrader.in/markets/900-million-users-arent-enough-openai-now-wants-chatgpt/', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://trending.niftytrader.in/wp-content/uploads/2026/06/900-Million-Users-Arent-Enough-%E2%80%94-OpenAI-Now-Wants-ChatGPT-to-Do-Everything.jpeg" alt="900 Million Users Aren&#x27;t Enough â OpenAI Now Wants ChatGPT to Do Everything" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/niftytrader_in.png" alt=""/>Niftytrader</span>
+            <span>Jun 07, 02:17 PM</span>
+          </div>
+          <h3>900 Million Users Aren&#x27;t Enough â OpenAI Now Wants ChatGPT to Do Everything</h3>
+          <p>OpenAI is reportedly preparing its biggest ChatGPT overhaul yet, transforming it into a superapp with AI agents, coding tools</p>
+          <div class="story-footer"><span>Business</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://easternherald.com/2026/06/07/afd-kotre-nord-stream-germany-political-will-spief-2026/', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://easternherald.com/wp-content/uploads/2026/06/steffen-kotre-afd-spief-2026-nord-stream.jpg" alt="AfDâs Kotre at SPIEF: Nord Stream Blockage Is Political, Not Technical" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/easternherald.png" alt=""/>The Eastern Herald</span>
+            <span>Jun 07, 02:17 PM</span>
+          </div>
+          <h3>AfDâs Kotre at SPIEF: Nord Stream Blockage Is Political, Not Technical</h3>
+          <p>AfD Bundestag energy lawmaker Steffen KotreÌ, speaking at SPIEF 2026, says every technical obstacle to reviving Nord Stream can be overcome â the only thing standing in the way is political will, which he says neit?</p>
+          <div class="story-footer"><span>Business</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://www.ndtv.com/world-news/india-nepal-relations-nepal-seeks-open-heart-talks-with-india-to-resolve-border-dispute-11602669', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://c.ndtvimg.com/2026-06/vbqpjm2c_s-jaishankar-shisir-khanal_625x300_07_June_26.jpeg" alt="Nepal Seeks &quot;Open-Heart&quot; Talks With India To Resolve Border Dispute" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/ndtv.png" alt=""/>Ndtv</span>
+            <span>Jun 07, 02:16 PM</span>
+          </div>
+          <h3>Nepal Seeks &quot;Open-Heart&quot; Talks With India To Resolve Border Dispute</h3>
+          <p>Shishir Khanal kicked off a three-day trip to New Delhi on Friday</p>
+          <div class="story-footer"><span>Politics</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://zeenews.india.com/world/were-children-of-the-same-rivers-nepal-fm-shisir-khanal-eyes-for-strong-ties-with-rising-india-3053543.html', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://english.cdn.zeenews.com/sites/default/files/2026/06/07/1952345-untitled-design-1.jpg?im=Resize=(1200,900)" alt="&#x27;We&#x27;re children of the same rivers&#x27;: Nepal FM Shisir Khanal eyes for strong ties with &#x27;rising&#x27; India" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/zeenews.png" alt=""/>Zee News</span>
+            <span>Jun 07, 02:16 PM</span>
+          </div>
+          <h3>&#x27;We&#x27;re children of the same rivers&#x27;: Nepal FM Shisir Khanal eyes for strong ties with &#x27;rising&#x27; India</h3>
+          <p>Nepal foreign minister stressed that Nepalâs current political leadership is determined to move past traditional geopolitical tensions and instead prioritise progressive development, stronger connectivity, and robus?</p>
+          <div class="story-footer"><span>World</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://udaipurkiran.com/skyworth-unveils-new-27-inch-2k-275hz-gaming-monitor/', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://udaipurkiran.com/wp-content/uploads/2026/06/skyworth-unveils-new-27-inch-2k-275hz-gaming-monitor.webp" alt="Skyworth Unveils New 27-Inch 2K 275Hz Gaming Monitor" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/udaipurkiran.png" alt=""/>Udaipur Kiran</span>
+            <span>Jun 07, 02:14 PM</span>
+          </div>
+          <h3>Skyworth Unveils New 27-Inch 2K 275Hz Gaming Monitor</h3>
+          <p>Mumbai, June 7: Skyworth has launched its latest gaming monitor, the G27Q Pro, in China. This 27-inch monitor features a 1440p display and boasts a high refresh rate, with pre-sales set to begin on June 8 at an introd?</p>
+          <div class="story-footer"><span>Sports</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://www.cnbctv18.com/auto/auto-wrap-this-week-hero-flex-fuel-splendor-hf-deluxe-byd-plug-in-hybrid-suv-audi-nuvolari-ws-l-19920384.htm', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://images.cnbctv18.com/uploads/2026/05/2026-05-11t050847z-1541198070-rc2wwkardrqy-rtrmadp-3-iran-crisis-commodities-column-russell-2026-05-b281196e91452111703724085dd1e423.jpg" alt="Auto Wrap this Week: Hero flex-fuel Splendor+ &amp; HF Deluxe, BYD plug-in hybrid SUV, Audi Nuvolari" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/cnbctv18.jpg" alt=""/>Cnbctv18</span>
+            <span>Jun 07, 02:14 PM</span>
+          </div>
+          <h3>Auto Wrap this Week: Hero flex-fuel Splendor+ &amp; HF Deluxe, BYD plug-in hybrid SUV, Audi Nuvolari</h3>
+          <p>Bajaj, Hero, BYD, Toyota, Audi and Bentley unveil new bikes, SUVs and luxury cars, from flex fuel commuters to a 1001 PS supercar and hybrid Flying Spur.</p>
+          <div class="story-footer"><span>Technology</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://udaipurkiran.com/marlins-edge-rays-4-3-with-sanojas-homer-and-zubers-save/', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://udaipurkiran.com/wp-content/uploads/2026/06/marlins-edge-rays-4-3-with-sanojas-homer-and-zubers-save.webp" alt="Marlins Edge Rays 4-3 with Sanojas Homer and Zubers Save" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/udaipurkiran.png" alt=""/>Udaipur Kiran</span>
+            <span>Jun 07, 02:14 PM</span>
+          </div>
+          <h3>Marlins Edge Rays 4-3 with Sanojas Homer and Zubers Save</h3>
+          <p>Miami, June 7: Javier Sanoja homered and recorded two singles, while Tyler Zuber secured his first career save as the Miami Marlins narrowly defeated the Tampa Bay Rays 4-3 on Saturday. Sanoja initiated the scoring in?</p>
+          <div class="story-footer"><span>Sports</span><span>Read full story ?</span></div>
+        </div>
+      </article>
+      <article class="story-card" onclick="window.open('https://udaipurkiran.com/lg-introduces-affordable-23-8-inch-fhd-144hz-monitor/', '_blank')">
+        <div class="story-thumb ">
+          <img src="https://udaipurkiran.com/wp-content/uploads/2026/06/lg-introduces-affordable-23-8-inch-fhd-144hz-monitor.webp" alt="LG Introduces Affordable 23.8-Inch FHD 144Hz Monitor" loading="lazy"/>
+        </div>
+        <div class="story-body">
+          <div class="story-meta">
+            <span class="source-pill"><img src="https://n.bytvi.com/udaipurkiran.png" alt=""/>Udaipur Kiran</span>
+            <span>Jun 07, 02:14 PM</span>
+          </div>
+          <h3>LG Introduces Affordable 23.8-Inch FHD 144Hz Monitor</h3>
+          <p>Beijing, June 7: LG has launched a new budget-friendly monitor in China, providing a practical option for those looking to enhance their basic desk setup without a hefty investment. The newly unveiled LG 24U411B is pr?</p>
+          <div class="story-footer"><span>Technology</span><span>Read full story ?</span></div>
+        </div>
+      </article></section>
+    <section class="sources"><h2>Sources</h2><div class="links"><a href="https://www.newsdrum.in" target="_blank">Newsdrum</a><a href="https://www.wionews.com" target="_blank">Wion</a><a href="https://www.niftytrader.in" target="_blank">Niftytrader</a><a href="https://www.easternherald.com" target="_blank">The Eastern Herald</a><a href="http://www.ndtv.com" target="_blank">Ndtv</a><a href="https://newsdata.io/" target="_blank">NewsData.io</a></div></section>
+  </main>
+</body>
+</html>
