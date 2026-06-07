@@ -6642,18 +6642,31 @@ private fun renderRestaurantRowsIfPossible(
                     )
                     if (status.isNotBlank()) {
                         val openLike = status.contains("open", ignoreCase = true) && !status.contains("closed", ignoreCase = true)
+                        val darkTheme = isSystemInDarkTheme()
                         Surface(
                             shape = RoundedCornerShape(GenUiTokens.RadiusPill),
                             color = if (openLike) {
-                                Color(0xFF18A767).copy(alpha = 0.14f)
+                                if (darkTheme) Color(0xFF163529) else Color(0xFFEAF7F0)
                             } else {
-                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.74f)
-                            }
+                                MaterialTheme.colorScheme.errorContainer.copy(alpha = if (darkTheme) 0.30f else 0.52f)
+                            },
+                            border = BorderStroke(
+                                1.dp,
+                                if (openLike) {
+                                    Color(0xFF18A767).copy(alpha = if (darkTheme) 0.28f else 0.22f)
+                                } else {
+                                    MaterialTheme.colorScheme.error.copy(alpha = if (darkTheme) 0.26f else 0.18f)
+                                }
+                            )
                         ) {
                             Text(
                                 text = parseBoldMarkdown(status),
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = if (openLike) Color(0xFF0E7C4A) else MaterialTheme.colorScheme.onErrorContainer,
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                color = if (openLike) {
+                                    if (darkTheme) Color(0xFF8DDBB3) else Color(0xFF1C6B45)
+                                } else {
+                                    MaterialTheme.colorScheme.onErrorContainer
+                                },
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                             )
                         }
@@ -6744,15 +6757,19 @@ private fun renderRestaurantRowsIfPossible(
 
 @Composable
 private fun RestaurantTagChip(label: String) {
-    val contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+    val darkTheme = isSystemInDarkTheme()
+    val contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (darkTheme) 0.86f else 0.88f)
     Surface(
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-        color = MaterialTheme.colorScheme.tertiaryContainer,
-        border = BorderStroke(1.dp, contentColor.copy(alpha = if (isSystemInDarkTheme()) 0.30f else 0.20f))
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (darkTheme) 0.26f else 0.38f),
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (darkTheme) 0.28f else 0.36f)
+        )
     ) {
         Text(
             text = parseBoldMarkdown(label),
-            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
             color = contentColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -6849,19 +6866,26 @@ private fun RestaurantMetricChip(
 ) {
     val darkTheme = isSystemInDarkTheme()
     val containerColor = when {
-        emphasized && darkTheme -> Color(0xFF4A3300)
-        emphasized -> Color(0xFFFFE5A6)
-        else -> MaterialTheme.colorScheme.secondaryContainer
+        emphasized && darkTheme -> Color(0xFF3A2B0D)
+        emphasized -> Color(0xFFFFF1CA)
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (darkTheme) 0.24f else 0.34f)
     }
     val contentColor = when {
-        emphasized && darkTheme -> Color(0xFFFFD36A)
-        emphasized -> Color(0xFF4A3000)
-        else -> MaterialTheme.colorScheme.onSecondaryContainer
+        emphasized && darkTheme -> Color(0xFFFFD98A)
+        emphasized -> Color(0xFF5E430F)
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (darkTheme) 0.88f else 0.90f)
     }
     Surface(
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
         color = containerColor,
-        border = BorderStroke(1.dp, contentColor.copy(alpha = if (darkTheme) 0.32f else 0.22f))
+        border = BorderStroke(
+            1.dp,
+            if (emphasized) {
+                contentColor.copy(alpha = if (darkTheme) 0.26f else 0.18f)
+            } else {
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (darkTheme) 0.26f else 0.32f)
+            }
+        )
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -6897,17 +6921,17 @@ private fun RestaurantActionPill(
 ) {
     val containerColor = when {
         primary && enabled -> MaterialTheme.colorScheme.primary
-        enabled -> MaterialTheme.colorScheme.primary.copy(alpha = if (isSystemInDarkTheme()) 0.20f else 0.10f)
-        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
+        enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.26f else 0.38f)
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.30f)
     }
     val contentColor = when {
         primary && enabled -> MaterialTheme.colorScheme.onPrimary
-        enabled -> MaterialTheme.colorScheme.primary
+        enabled -> MaterialTheme.colorScheme.onSurfaceVariant
         else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
     }
     val border = when {
         primary && enabled -> null
-        enabled -> BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.34f))
+        enabled -> BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = if (isSystemInDarkTheme()) 0.34f else 0.42f))
         else -> BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f))
     }
     val shape = RoundedCornerShape(GenUiTokens.RadiusPill)
