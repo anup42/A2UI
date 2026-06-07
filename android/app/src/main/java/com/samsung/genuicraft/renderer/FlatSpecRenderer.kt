@@ -6585,7 +6585,7 @@ private fun renderRestaurantRowsIfPossible(
                     },
                 shape = RoundedCornerShape(20.dp),
                 colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 border = flatSpecCardBorder()
             ) {
                 Column(
