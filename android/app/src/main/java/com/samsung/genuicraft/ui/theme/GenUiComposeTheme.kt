@@ -207,7 +207,9 @@ private val GenUiShapes = Shapes(
 fun genUiBackgroundBrush(): Brush {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
-    val top = scheme.surfaceContainerLowest.copy(alpha = if (dark) 0.20f else 0.24f)
+    val backgroundTransparency = InferenceBackendSettings.getRenderBackgroundTransparency(LocalContext.current)
+    val tintScale = (1f - (backgroundTransparency * 0.72f)).coerceIn(0.62f, 1f)
+    val top = scheme.surfaceContainerLowest.copy(alpha = (if (dark) 0.20f else 0.22f) * tintScale)
     val midPrimary = lerp(
         scheme.surfaceContainerLow,
         scheme.primaryContainer,
@@ -221,8 +223,8 @@ fun genUiBackgroundBrush(): Brush {
     return Brush.verticalGradient(
         colors = listOf(
             top,
-            midPrimary.copy(alpha = if (dark) 0.34f else 0.40f),
-            midAccent.copy(alpha = if (dark) 0.30f else 0.36f),
+            midPrimary.copy(alpha = (if (dark) 0.34f else 0.34f) * tintScale),
+            midAccent.copy(alpha = (if (dark) 0.30f else 0.30f) * tintScale),
             top
         )
     )
@@ -230,8 +232,8 @@ fun genUiBackgroundBrush(): Brush {
 
 @Composable
 fun genUiScreenOverlayColor(): Color {
-    val dark = isSystemInDarkTheme()
-    return MaterialTheme.colorScheme.background.copy(alpha = if (dark) 0.88f else 0.84f)
+    val overlayOpacity = InferenceBackendSettings.getRenderBackgroundOpacity(LocalContext.current)
+    return MaterialTheme.colorScheme.background.copy(alpha = overlayOpacity)
 }
 
 @Composable

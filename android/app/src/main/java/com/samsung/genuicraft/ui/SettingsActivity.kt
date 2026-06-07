@@ -138,6 +138,9 @@ private fun SettingsScreen(
     var renderCardTransparency by remember {
         mutableStateOf(InferenceBackendSettings.getRenderCardTransparency(context))
     }
+    var renderBackgroundTransparency by remember {
+        mutableStateOf(InferenceBackendSettings.getRenderBackgroundTransparency(context))
+    }
 
     var mcpEnabled by remember {
         mutableStateOf(McpSettings.isEnabled(context))
@@ -502,6 +505,58 @@ private fun SettingsScreen(
                                 },
                                 valueRange = InferenceBackendSettings.MIN_RENDER_CARD_TRANSPARENCY..InferenceBackendSettings.MAX_RENDER_CARD_TRANSPARENCY,
                                 steps = 5
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                        colors = genUiCardColors(GenUiCardTone.Neutral),
+                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val transparencyPercent = (renderBackgroundTransparency * 100).roundToInt()
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_render_background_transparency_title),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.settings_render_background_transparency_value,
+                                        transparencyPercent
+                                    ),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Text(
+                                text = stringResource(id = R.string.settings_render_background_transparency_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Slider(
+                                value = renderBackgroundTransparency,
+                                onValueChange = { value ->
+                                    renderBackgroundTransparency = value
+                                    InferenceBackendSettings.setRenderBackgroundTransparency(context, value)
+                                },
+                                valueRange = InferenceBackendSettings.MIN_RENDER_BACKGROUND_TRANSPARENCY..InferenceBackendSettings.MAX_RENDER_BACKGROUND_TRANSPARENCY,
+                                steps = 8
                             )
                         }
                     }
