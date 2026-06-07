@@ -62,6 +62,9 @@
     <string name="settings_rendering_title">Rendering</string>
     <string name="settings_render_without_outer_card_title">Full-width generated UI</string>
     <string name="settings_render_without_outer_card_description">Remove the outer render wrapper card and use smaller side padding so generated UI occupies more width.</string>
+    <string name="settings_render_card_transparency_title">Generated card transparency</string>
+    <string name="settings_render_card_transparency_description">Controls how much the wallpaper/background shows through generated cards, tables, and top bars.</string>
+    <string name="settings_render_card_transparency_value">%1$d%%</string>
 
     <string name="home_title">GenUICraft</string>
     <string name="home_subtitle">Load a GenUI JSON or JSONL file and render each entry in native Compose or WebView mode.</string>

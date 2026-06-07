@@ -107,6 +107,8 @@ import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.samsung.genuicraft.GenUiTokens
+import com.samsung.genuicraft.GenUiCardTone
+import com.samsung.genuicraft.genUiCardContainerColor
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
@@ -5365,7 +5367,7 @@ internal fun compactBulletItems(label: String, value: String): List<String> {
 
 @Composable
 private fun flatSpecCardColors() = CardDefaults.cardColors(
-    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+    containerColor = genUiCardContainerColor(GenUiCardTone.Neutral),
     contentColor = MaterialTheme.colorScheme.onSurface
 )
 
@@ -8246,7 +8248,7 @@ private fun RenderKeyValueTablePanel(
             .semantics {
                 contentDescription = tableAccessibilitySummary(headers, rows)
             },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(20.dp)
     ) {
@@ -8716,7 +8718,7 @@ private fun RenderChart(
                 }
             },
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -8871,7 +8873,7 @@ private fun RenderPercentageMatrixChart(
                 }
             },
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -8881,7 +8883,7 @@ private fun RenderPercentageMatrixChart(
                     Brush.verticalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f),
-                            MaterialTheme.colorScheme.surfaceContainerLow
+                            genUiCardContainerColor(GenUiCardTone.Neutral)
                         )
                     )
                 )
@@ -10383,7 +10385,7 @@ private fun RenderRankedFlightComparisonCards(
                     },
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = if (best) 2.dp else 0.dp),
                 border = BorderStroke(
@@ -11776,7 +11778,7 @@ private fun RenderEmailPreview(props: Map<String, Any?>, modifier: Modifier = Mo
                 fallbackLabel = label,
                 mergeDescendants = false
             ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(24.dp),
         border = flatSpecCardBorder()

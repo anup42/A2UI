@@ -20,6 +20,7 @@ object InferenceBackendSettings {
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
     private const val KEY_ON_DEVICE_MODEL_PATH = "on_device_model_path"
     private const val KEY_RENDER_WITHOUT_OUTER_CARD = "render_without_outer_card"
+    private const val KEY_RENDER_CARD_TRANSPARENCY = "render_card_transparency"
 
     const val DEFAULT_AZURE_OPENAI_RESPONSES_ENDPOINT =
         "https://genui1.openai.azure.com/openai/responses?api-version=2025-04-01-preview"
@@ -28,6 +29,9 @@ object InferenceBackendSettings {
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
     const val DEFAULT_ON_DEVICE_MODEL_PATH = ""
     const val DEFAULT_RENDER_WITHOUT_OUTER_CARD = true
+    const val DEFAULT_RENDER_CARD_TRANSPARENCY = 0.22f
+    const val MIN_RENDER_CARD_TRANSPARENCY = 0.08f
+    const val MAX_RENDER_CARD_TRANSPARENCY = 0.38f
     private const val FALLBACK_VERTEX_PROJECT_ID = "gen-lang-client-0741138863"
     const val DEFAULT_VERTEX_LOCATION = "us-central1"
 
@@ -282,6 +286,26 @@ object InferenceBackendSettings {
             .edit()
             .putBoolean(KEY_RENDER_WITHOUT_OUTER_CARD, enabled)
             .apply()
+    }
+
+    fun getRenderCardTransparency(context: Context): Float {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat(KEY_RENDER_CARD_TRANSPARENCY, DEFAULT_RENDER_CARD_TRANSPARENCY)
+            .coerceIn(MIN_RENDER_CARD_TRANSPARENCY, MAX_RENDER_CARD_TRANSPARENCY)
+    }
+
+    fun setRenderCardTransparency(context: Context, value: Float) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putFloat(
+                KEY_RENDER_CARD_TRANSPARENCY,
+                value.coerceIn(MIN_RENDER_CARD_TRANSPARENCY, MAX_RENDER_CARD_TRANSPARENCY)
+            )
+            .apply()
+    }
+
+    fun getRenderCardOpacity(context: Context): Float {
+        return (1f - getRenderCardTransparency(context)).coerceIn(0.60f, 0.96f)
     }
 
     private fun normalizeBaseUrl(value: String): String {

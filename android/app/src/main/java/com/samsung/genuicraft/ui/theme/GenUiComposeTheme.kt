@@ -19,6 +19,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -237,6 +238,7 @@ fun genUiScreenOverlayColor(): Color {
 fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
+    val userOpacity = InferenceBackendSettings.getRenderCardOpacity(LocalContext.current)
     val tokenColor = when (tone) {
         GenUiCardTone.Neutral -> scheme.surfaceContainerLow
         GenUiCardTone.Primary -> scheme.primaryContainer
@@ -247,13 +249,13 @@ fun genUiCardContainerColor(tone: GenUiCardTone = GenUiCardTone.Neutral): Color 
     val glassBase = lerp(tokenColor, scheme.surfaceContainerHighest, if (dark) 0.26f else 0.42f)
     val blended = lerp(glassBase, scheme.primaryContainer, if (dark) 0.10f else 0.16f)
     val alpha = when (tone) {
-        GenUiCardTone.Neutral -> if (dark) 0.88f else 0.90f
-        GenUiCardTone.Primary -> if (dark) 0.90f else 0.92f
-        GenUiCardTone.Positive -> if (dark) 0.90f else 0.92f
-        GenUiCardTone.Warning -> if (dark) 0.90f else 0.92f
-        GenUiCardTone.Error -> if (dark) 0.90f else 0.92f
+        GenUiCardTone.Neutral -> userOpacity
+        GenUiCardTone.Primary -> userOpacity + 0.02f
+        GenUiCardTone.Positive -> userOpacity + 0.02f
+        GenUiCardTone.Warning -> userOpacity + 0.02f
+        GenUiCardTone.Error -> userOpacity + 0.03f
     }
-    return blended.copy(alpha = alpha)
+    return blended.copy(alpha = alpha.coerceIn(0.60f, 0.96f))
 }
 
 @Composable
@@ -277,13 +279,15 @@ fun genUiMediaFrameBorderColor(): Color {
 fun genUiTableContainerColor(): Color {
     val dark = isSystemInDarkTheme()
     val scheme = MaterialTheme.colorScheme
+    val userOpacity = InferenceBackendSettings.getRenderCardOpacity(LocalContext.current)
     val mixed = lerp(scheme.surfaceContainerLow, scheme.surfaceContainerHighest, if (dark) 0.24f else 0.40f)
-    return mixed.copy(alpha = if (dark) 0.88f else 0.90f)
+    return mixed.copy(alpha = userOpacity.coerceIn(0.60f, 0.96f))
 }
 
 @Composable
 fun genUiTopBarContainerColor(): Color {
-    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.90f)
+    val userOpacity = InferenceBackendSettings.getRenderCardOpacity(LocalContext.current)
+    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = (userOpacity + 0.04f).coerceIn(0.70f, 0.92f))
 }
 
 @Composable

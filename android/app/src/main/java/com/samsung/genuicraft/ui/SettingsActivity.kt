@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Switch
@@ -62,6 +63,7 @@ import com.samsung.genuicraft.inference.OnDeviceModelDownloader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,6 +134,9 @@ private fun SettingsScreen(
     var errorText by remember { mutableStateOf<String?>(null) }
     var renderWithoutOuterCard by remember {
         mutableStateOf(InferenceBackendSettings.getRenderWithoutOuterCard(context))
+    }
+    var renderCardTransparency by remember {
+        mutableStateOf(InferenceBackendSettings.getRenderCardTransparency(context))
     }
 
     var mcpEnabled by remember {
@@ -445,6 +450,58 @@ private fun SettingsScreen(
                                     uncheckedThumbColor = MaterialTheme.colorScheme.outline,
                                     uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                        colors = genUiCardColors(GenUiCardTone.Neutral),
+                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val transparencyPercent = (renderCardTransparency * 100).roundToInt()
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.settings_render_card_transparency_title),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.settings_render_card_transparency_value,
+                                        transparencyPercent
+                                    ),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Text(
+                                text = stringResource(id = R.string.settings_render_card_transparency_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Slider(
+                                value = renderCardTransparency,
+                                onValueChange = { value ->
+                                    renderCardTransparency = value
+                                    InferenceBackendSettings.setRenderCardTransparency(context, value)
+                                },
+                                valueRange = InferenceBackendSettings.MIN_RENDER_CARD_TRANSPARENCY..InferenceBackendSettings.MAX_RENDER_CARD_TRANSPARENCY,
+                                steps = 5
                             )
                         }
                     }
