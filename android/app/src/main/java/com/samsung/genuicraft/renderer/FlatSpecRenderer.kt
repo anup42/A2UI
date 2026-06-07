@@ -6337,7 +6337,25 @@ private fun bookingActionLabelIndex(headers: List<String>): Int? =
 private fun bookingImageIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
-        token in setOf("image", "imageurl", "image url", "photo", "photourl", "photo url", "thumbnail", "media") ||
+        if (token.contains("data") || token.contains("details") || token.contains("source")) {
+            return@firstOrNull false
+        }
+        token in setOf(
+            "image",
+            "images",
+            "imageurl",
+            "image url",
+            "imageurls",
+            "image urls",
+            "photo",
+            "photos",
+            "photourl",
+            "photo url",
+            "photourls",
+            "photo urls",
+            "thumbnail",
+            "media"
+        ) ||
             (token.contains("image") && token.contains("url")) ||
             (token.contains("photo") && token.contains("url"))
     }
@@ -6359,6 +6377,13 @@ private fun bookingMapIndex(headers: List<String>): Int? =
 
 private fun bookingWebsiteIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("website", "official", "site", "homepage"))
+
+private fun bookingPhotosDataIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        (token.contains("photo") || token.contains("image")) &&
+            (token.contains("data") || token.contains("detail") || token.contains("source") || token.contains("gallery"))
+    }
 
 internal fun bookingRowActionLabel(headers: List<String>, row: List<String>): String? {
     val index = bookingActionLabelIndex(headers) ?: return null
@@ -6990,10 +7015,6 @@ private fun renderBookingRowsIfPossible(
         headers = headers,
         keywords = listOf("price", "cost", "fare", "rate", "night", "budget")
     )
-    val linkIndex = findTableColumnIndex(
-        headers = headers,
-        keywords = listOf("url", "link", "book", "booking", "reserve", "website")
-    )
     val actionLabelIndex = bookingActionLabelIndex(headers)
     val imageIndex = bookingImageIndex(headers)
     val ratingIndex = bookingRatingIndex(headers)
@@ -7002,6 +7023,12 @@ private fun renderBookingRowsIfPossible(
     val amenitiesIndex = bookingAmenitiesIndex(headers)
     val mapIndex = bookingMapIndex(headers)
     val websiteIndex = bookingWebsiteIndex(headers)
+    val photosDataIndex = bookingPhotosDataIndex(headers)
+    val linkIndex = findTableColumnIndex(
+        headers = headers,
+        keywords = listOf("book", "booking", "reserve", "action url", "url", "link", "website"),
+        exclude = setOfNotNull(imageIndex, mapIndex, photosDataIndex)
+    )
     val secondaryIndex = findTableColumnIndex(
         headers = headers,
         keywords = listOf("duration", "time", "date", "location", "room", "type", "class", "stops", "status"),
@@ -7033,6 +7060,8 @@ private fun renderBookingRowsIfPossible(
                 ?.let(SafeContentPolicy::sanitizeActionUrl)
             val websiteUrl = websiteIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
                 ?.let(SafeContentPolicy::sanitizeActionUrl)
+            val photosDataUrl = photosDataIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
+                ?.let(SafeContentPolicy::sanitizeActionUrl)
             val actionLabel = bookingRowActionLabel(headers, row) ?: "Open Option"
             val imageUrls = bookingRowImageUrls(headers, row)
             val excludedChipIndexes = setOfNotNull(
@@ -7047,7 +7076,8 @@ private fun renderBookingRowsIfPossible(
                 classIndex,
                 amenitiesIndex,
                 mapIndex,
-                websiteIndex
+                websiteIndex,
+                photosDataIndex
             )
             val chips = buildList {
                 headers.forEachIndexed { index, header ->
@@ -7168,7 +7198,8 @@ private fun renderBookingRowsIfPossible(
                     val actions = listOfNotNull(
                         actionUrl?.let { actionLabel to (Icons.Filled.EventAvailable to it) },
                         mapsUrl?.takeIf { it != actionUrl }?.let { "Directions" to (Icons.Filled.Directions to it) },
-                        websiteUrl?.takeIf { it != actionUrl && it != mapsUrl }?.let { "Website" to (Icons.Filled.Language to it) }
+                        websiteUrl?.takeIf { it != actionUrl && it != mapsUrl }?.let { "Website" to (Icons.Filled.Language to it) },
+                        photosDataUrl?.takeIf { it != actionUrl && it != mapsUrl && it != websiteUrl }?.let { "Photos" to (Icons.Filled.Image to it) }
                     )
                     if (actions.isNotEmpty()) {
                         FlowRow(

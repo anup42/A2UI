@@ -522,6 +522,27 @@ class FlatSpecRendererSupportTest {
                 listOf("Gion Traditional Ryokan", "../assets/gion.jpg", "$245")
             )
         )
+        assertEquals(
+            "https://lh3.googleusercontent.com/hotel1.jpg, https://lh3.googleusercontent.com/hotel2.jpg",
+            bookingRowImageUrl(
+                listOf("Hotel", "Photo URLs", "Booking URL"),
+                listOf(
+                    "Lemon Tree Hotel",
+                    "https://lh3.googleusercontent.com/hotel1.jpg, https://lh3.googleusercontent.com/hotel2.jpg",
+                    "https://example.com/book"
+                )
+            )
+        )
+        assertNull(
+            bookingRowImageUrl(
+                listOf("Hotel", "Photos Data URL", "Booking URL"),
+                listOf(
+                    "Lemon Tree Hotel",
+                    "https://serpapi.com/search.json?engine=google_hotels_photos&property_token=abc",
+                    "https://example.com/book"
+                )
+            )
+        )
         assertNull(
             bookingRowImageUrl(
                 listOf("Hotel", "Price"),

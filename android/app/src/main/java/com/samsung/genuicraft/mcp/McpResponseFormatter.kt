@@ -40,6 +40,12 @@ object McpResponseFormatter {
         mojibakeFixups.forEach { (from, to) ->
             normalized = normalized.replace(from, to)
         }
+        normalized = normalized
+            .replace("Ã‚Â°C", "°C")
+            .replace("Â°C", "°C")
+            .replace("â€”", "—")
+            .replace("Ã‚Â·", "·")
+            .replace("Â·", "·")
         return normalized
     }
 
@@ -66,6 +72,7 @@ object McpResponseFormatter {
         if (
             mcpResult.domain == McpSettings.Domain.WEATHER ||
             mcpResult.domain == McpSettings.Domain.RESTAURANTS ||
+            mcpResult.domain == McpSettings.Domain.HOTELS ||
             mcpResult.domain == McpSettings.Domain.PLACES
         ) {
             val fallback = buildFallbackResponse(mcpResult.domain, mcpResult.data, queryText)
@@ -727,6 +734,12 @@ private fun buildFlightsFallback(data: JsonObject): String {
         return "genuicraft://visual/restaurant?title=$encodedTitle"
     }
 
+    private fun tableCell(raw: String?): String = raw.orEmpty()
+        .replace('\n', ' ')
+        .replace("|", "/")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+
     private fun buildHotelsFallback(data: JsonObject): String {
         val location = data.safeString("location") ?: "your area"
         val queryText = data.safeString("query") ?: ""
@@ -742,6 +755,23 @@ private fun buildFlightsFallback(data: JsonObject): String {
         }
         sb.appendLine("## $heading")
         sb.appendLine()
+        sb.appendLine("These hotels are from Google Hotels data. Photos, ratings, prices, amenities, and action links are attached to each row so the UI can render rich hotel cards.")
+        sb.appendLine()
+
+        val checkInDate = data.safeString("check_in_date") ?: ""
+        val checkOutDate = data.safeString("check_out_date") ?: ""
+        val adults = data.safeString("adults") ?: ""
+        val contextParts = buildList {
+            if (checkInDate.isNotBlank() && checkOutDate.isNotBlank()) add("$checkInDate to $checkOutDate")
+            if (adults.isNotBlank()) add("$adults adults")
+        }
+        if (contextParts.isNotEmpty()) {
+            sb.appendLine(contextParts.joinToString(" - "))
+            sb.appendLine()
+        }
+
+        sb.appendLine("| Hotel | Class | Rating | Reviews | Price / Night | Description | Amenities | Check-in | Check-out | Photo URL | Photo URLs | Booking URL | Action Label | Maps URL | Website URL | Photos Data URL |")
+        sb.appendLine("|---|---|---:|---:|---|---|---|---|---|---|---|---|---|---|---|---|")
 
         for (i in 0 until minOf(properties.size(), 8)) {
             val hotel = properties[i].asJsonObject
@@ -750,30 +780,14 @@ private fun buildFlightsFallback(data: JsonObject): String {
             val ratingRaw = hotel.safeDouble("overall_rating") ?: 0.0
             val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else ""
             val reviewCount = hotel.safeInt("reviews") ?: 0
-            val description = hotel.safeString("description")?.trim()
-            val thumbnail = hotel.safeString("thumbnail")
-                ?: hotel.safeString("image")
-                ?: hotel.safeString("image_url")
-                ?: hotel.safeString("photo")
-                ?: hotel.safeString("photo_url")
-                ?: hotel.getAsJsonArray("images")
-                    ?.firstOrNull()
-                    ?.let { imageEntry ->
-                        if (imageEntry.isJsonObject) {
-                            val imageObj = imageEntry.asJsonObject
-                            imageObj.safeString("thumbnail")
-                                ?: imageObj.safeString("original_image")
-                                ?: imageObj.safeString("url")
-                                ?: imageObj.safeString("image")
-                                ?: imageObj.safeString("photo")
-                        } else {
-                            imageEntry.safeString()
-                        }
-                    }
-                ?: ""
+            val description = hotel.safeString("description")?.trim() ?: ""
+            val photoUrls = hotelPhotoUrls(hotel)
+            val thumbnail = photoUrls.firstOrNull() ?: ""
             val link = hotel.safeString("link") ?: ""
             val checkIn = hotel.safeString("check_in_time") ?: ""
             val checkOut = hotel.safeString("check_out_time") ?: ""
+            val mapsUrl = hotelMapsUrl(hotel)
+            val photosDataUrl = hotel.safeString("serpapi_google_hotels_photos_link") ?: ""
 
             val rateObj = hotel.get("rate_per_night")?.takeIf { !it.isJsonNull }?.asJsonObject
             val price = rateObj?.safeString("lowest") ?: rateObj?.safeString("extracted_lowest") ?: ""
@@ -782,32 +796,49 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 ?.mapNotNull { it.safeString()?.trim()?.takeIf { a -> a.isNotBlank() } }
                 ?.take(5) ?: emptyList()
 
-            sb.appendLine("## ${i + 1}. $name")
-            if (thumbnail.isNotBlank()) sb.appendLine("Media: Image=$thumbnail")
-            if (hotelClass.isNotBlank()) sb.appendLine("**$hotelClass**")
-            if (ratingStr.isNotBlank()) {
-                val reviewPart = if (reviewCount > 0) " ($reviewCount reviews)" else ""
-                sb.appendLine("$ratingStr stars$reviewPart")
-            }
-            if (price.isNotBlank()) sb.appendLine("**Price:** From $price / night")
-            if (!description.isNullOrBlank()) sb.appendLine(description)
-            val checkInfo = buildString {
-                if (checkIn.isNotBlank()) append("Check-in: $checkIn")
-                if (checkOut.isNotBlank()) {
-                    if (isNotEmpty()) append(" Â· ")
-                    append("Check-out: $checkOut")
-                }
-            }
-            if (checkInfo.isNotBlank()) sb.appendLine(checkInfo)
-            if (amenities.isNotEmpty()) sb.appendLine("Tags: ${amenities.joinToString(" | ")}")
-            if (link.isNotBlank()) sb.appendLine("Action: [Button: Book Now] $link")
-            sb.appendLine()
+            sb.appendLine(
+                "| ${tableCell(name)} | ${tableCell(hotelClass)} | ${tableCell(ratingStr)} | " +
+                    "${tableCell(if (reviewCount > 0) "$reviewCount reviews" else "")} | ${tableCell(price)} | " +
+                    "${tableCell(description)} | ${tableCell(amenities.joinToString("; "))} | " +
+                    "${tableCell(checkIn)} | ${tableCell(checkOut)} | ${tableCell(thumbnail)} | " +
+                    "${tableCell(photoUrls.joinToString(", "))} | ${tableCell(link)} | " +
+                    "${tableCell(if (link.isNotBlank()) "Book / Website" else "View Details")} | " +
+                    "${tableCell(mapsUrl)} | ${tableCell(link)} | ${tableCell(photosDataUrl)} |"
+            )
         }
 
+        sb.appendLine()
         sb.appendLine("## Sources")
         sb.appendLine("- Google Hotels via SerpApi: https://serpapi.com/")
+        sb.appendLine("- Google Hotels: https://www.google.com/travel/hotels")
 
         return sb.toString()
+    }
+
+    private fun hotelPhotoUrls(hotel: JsonObject): List<String> {
+        val urls = linkedSetOf<String>()
+        listOf("thumbnail", "image", "image_url", "photo", "photo_url").forEach { key ->
+            hotel.safeString(key)?.trim()?.takeIf { it.isNotBlank() }?.let(urls::add)
+        }
+        hotel.getAsJsonArray("images")?.forEach { imageEntry ->
+            when {
+                imageEntry.isJsonObject -> {
+                    val imageObj = imageEntry.asJsonObject
+                    listOf("thumbnail", "original_image", "url", "image", "photo").forEach { key ->
+                        imageObj.safeString(key)?.trim()?.takeIf { it.isNotBlank() }?.let(urls::add)
+                    }
+                }
+                !imageEntry.isJsonNull -> imageEntry.safeString()?.trim()?.takeIf { it.isNotBlank() }?.let(urls::add)
+            }
+        }
+        return urls.take(5)
+    }
+
+    private fun hotelMapsUrl(hotel: JsonObject): String {
+        val gps = hotel.getAsJsonObject("gps_coordinates") ?: return ""
+        val lat = gps.safeString("latitude") ?: return ""
+        val lng = gps.safeString("longitude") ?: return ""
+        return "https://www.google.com/maps/search/?api=1&query=$lat,$lng"
     }
 
     private fun buildPlacesFallback(data: JsonObject): String {
