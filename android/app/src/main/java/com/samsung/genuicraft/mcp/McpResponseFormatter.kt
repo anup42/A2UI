@@ -583,10 +583,10 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val address = biz.safeString("formattedAddress") ?: ""
                 val photoUris = biz.getAsJsonArray("photoUris")
                     ?.mapNotNull { it.safeString()?.trim()?.takeIf(String::isNotBlank) }
-                    ?.take(3)
+                    ?.take(5)
                     .orEmpty()
                     .ifEmpty { listOfNotNull(biz.safeString("photoUri")?.trim()?.takeIf(String::isNotBlank)) }
-                    .take(3)
+                    .take(5)
                 val distanceMeters = biz.safeDouble("distance")
                 val priceLevel = when (biz.safeString("priceLevel")) {
                     "PRICE_LEVEL_INEXPENSIVE" -> "Inexpensive"

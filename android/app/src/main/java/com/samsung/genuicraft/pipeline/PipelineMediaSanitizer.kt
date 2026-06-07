@@ -1563,11 +1563,16 @@ internal object PipelineMediaSanitizer {
             if (!value.isJsonArray) return@forEach
             value.asJsonArray.forEach { row ->
                 val rowObj = row.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
-                if (rowHasImage(rowObj)) return@forEach
                 val name = firstRowString(rowObj, "restaurant", "name", "place", "title") ?: return@forEach
-                val photoUrl = photosByName[normalizeRestaurantName(name)] ?: return@forEach
-                rowObj.addProperty("photoUrl", photoUrl)
-                changed = true
+                val photoUrls = photosByName[normalizeRestaurantName(name)] ?: return@forEach
+                if (!rowHasImage(rowObj)) {
+                    rowObj.addProperty("photoUrl", photoUrls.first())
+                    changed = true
+                }
+                if (!rowHasPhotoList(rowObj) && photoUrls.size > 1) {
+                    rowObj.addProperty("photoUrls", photoUrls.joinToString(", "))
+                    changed = true
+                }
             }
         }
 
@@ -1577,20 +1582,28 @@ internal object PipelineMediaSanitizer {
             val props = element.getAsJsonObject("props") ?: return@forEach
             if (!isRestaurantTableProps(props)) return@forEach
             val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return@forEach
-            if (columns.any { columnHasKeyOrLabel(it, "photo", "photourl", "photo url", "image") }) return@forEach
-            columns.add(JsonObject().apply {
-                addProperty("key", "photoUrl")
-                addProperty("label", "Photo")
-            })
-            changed = true
+            if (!columns.any { columnHasKeyOrLabel(it, "photo", "photourl", "photo url", "image") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "photoUrl")
+                    addProperty("label", "Photo")
+                })
+                changed = true
+            }
+            if (!columns.any { columnHasKeyOrLabel(it, "photos", "photourls", "photo urls", "images") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "photoUrls")
+                    addProperty("label", "Photos")
+                })
+                changed = true
+            }
         }
 
         return if (changed) spec.toString() else jsonText
     }
 
-    private fun extractRestaurantPhotoUrls(stage2Response: String): Map<String, String> {
+    private fun extractRestaurantPhotoUrls(stage2Response: String): Map<String, List<String>> {
         val lines = stage2Response.lines()
-        val result = linkedMapOf<String, String>()
+        val result = linkedMapOf<String, List<String>>()
         lines.forEachIndexed { index, line ->
             if (!line.trimStart().startsWith("|")) return@forEachIndexed
             if (!line.contains("Restaurant", ignoreCase = true) || !line.contains("Photo", ignoreCase = true)) {
@@ -1598,20 +1611,24 @@ internal object PipelineMediaSanitizer {
             }
             val headers = splitMarkdownTableRow(line)
             val restaurantIndex = headers.indexOfFirst { it.equals("Restaurant", ignoreCase = true) || it.equals("Name", ignoreCase = true) }
-            val photoIndex = headers.indexOfFirst {
-                val normalized = it.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
-                normalized in setOf("photo", "photos", "photourl", "image", "imageurl", "media")
+            val photoIndexes = headers.indices.filter { headerIndex ->
+                val normalized = headers[headerIndex].lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+                normalized in setOf("photo", "photos", "photourl", "photourls", "image", "imageurl", "imageurls", "media")
             }
-            if (restaurantIndex < 0 || photoIndex < 0) return@forEachIndexed
+            val photoIndex = photoIndexes.firstOrNull { headerIndex ->
+                val normalized = headers[headerIndex].lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+                normalized in setOf("photos", "photourls", "imageurls")
+            } ?: photoIndexes.firstOrNull()
+            if (restaurantIndex < 0 || photoIndex == null) return@forEachIndexed
             lines.drop(index + 2)
                 .takeWhile { it.trimStart().startsWith("|") }
                 .forEach { rowLine ->
                     val cells = splitMarkdownTableRow(rowLine)
                     val name = cells.getOrNull(restaurantIndex)?.trim().orEmpty()
                     val rawPhotoCell = cells.getOrNull(photoIndex).orEmpty()
-                    val photoUrl = firstSafeImageUrl(rawPhotoCell)
-                    if (name.isNotBlank() && photoUrl != null) {
-                        result[normalizeRestaurantName(name)] = photoUrl
+                    val photoUrls = safeImageUrls(rawPhotoCell)
+                    if (name.isNotBlank() && photoUrls.isNotEmpty()) {
+                        result[normalizeRestaurantName(name)] = photoUrls
                     }
                 }
         }
@@ -1622,17 +1639,28 @@ internal object PipelineMediaSanitizer {
         line.trim().trim('|').split('|').map { it.trim() }
 
     private fun firstSafeImageUrl(value: String): String? =
+        safeImageUrls(value).firstOrNull()
+
+    private fun safeImageUrls(value: String): List<String> =
         Regex("""https?://[^\s,|]+""")
             .findAll(value)
             .mapNotNull { match ->
                 SafeContentPolicy.sanitizeMediaUrl(match.value, SafeContentPolicy.MediaKind.IMAGE)
             }
-            .firstOrNull()
+            .distinct()
+            .take(5)
+            .toList()
 
     private fun rowHasImage(row: JsonObject): Boolean =
         listOf("photoUrl", "photo", "image", "imageUrl", "thumbnail", "mediaImage").any { key ->
             val value = jsonStringOrNull(row.get(key)) ?: return@any false
             SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE)
+        }
+
+    private fun rowHasPhotoList(row: JsonObject): Boolean =
+        listOf("photoUrls", "photos", "images", "media").any { key ->
+            val value = jsonStringOrNull(row.get(key)) ?: return@any false
+            safeImageUrls(value).isNotEmpty()
         }
 
     private fun firstRowString(row: JsonObject, vararg keys: String): String? {

@@ -416,7 +416,7 @@ object McpClient {
             }
             val photoUris = JsonArray()
             restaurant.getAsJsonArray("photos")
-                ?.take(3)
+                ?.take(5)
                 ?.mapNotNull { photo -> photo.asJsonObject?.get("name")?.asString }
                 ?.forEach { photoName ->
                     photoUris.add("https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey")

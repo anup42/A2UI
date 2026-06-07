@@ -6282,12 +6282,12 @@ private fun restaurantTagsIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("tags", "type", "types", "cuisine", "category"))
 
 private fun restaurantPhotoIndex(headers: List<String>): Int? =
-    findTableColumnIndex(headers, listOf("photo", "photos", "photo uri", "photouri", "image", "images", "media"))
+    findTableColumnIndex(headers, listOf("photo", "photos", "photo uri", "photouri", "photo url", "photourl", "photo urls", "photourls", "image", "images", "image url", "imageurl", "image urls", "imageurls", "media"))
 
 private fun restaurantPhotoIndexes(headers: List<String>): List<Int> =
     headers.indices.filter { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
-        listOf("photo", "photos", "photo uri", "photouri", "image", "images", "media").any(token::contains)
+        listOf("photo", "photos", "photo uri", "photouri", "photo url", "photourl", "photo urls", "photourls", "image", "images", "image url", "imageurl", "image urls", "imageurls", "media").any(token::contains)
     }
 
 private fun restaurantMapsIndex(headers: List<String>): Int? =
@@ -6624,14 +6624,10 @@ private fun RestaurantPhotoStrip(
     onOpenUrl: (String) -> Unit
 ) {
     if (photos.isEmpty()) return
-    val primary = photos.first()
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    if (photos.size == 1) {
         RenderImage(
             props = mapOf(
-                "url" to primary,
+                "url" to photos.first(),
                 "fit" to "cover",
                 "height" to 172,
                 "alt" to "$name photo"
@@ -6639,27 +6635,32 @@ private fun RestaurantPhotoStrip(
             onOpenUrl = onOpenUrl,
             modifier = Modifier.fillMaxWidth()
         )
-        val extraPhotos = photos.drop(1)
-        if (extraPhotos.isNotEmpty()) {
-            Row(
+        return
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .semantics {
+                contentDescription = "Scrollable photos for $name"
+            },
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        photos.take(5).forEachIndexed { index, photo ->
+            RenderImage(
+                props = mapOf(
+                    "url" to photo,
+                    "fit" to "cover",
+                    "width" to if (index == 0) 248 else 214,
+                    "height" to 156,
+                    "alt" to "$name photo ${index + 1}"
+                ),
+                onOpenUrl = onOpenUrl,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                extraPhotos.forEachIndexed { index, photo ->
-                    RenderImage(
-                        props = mapOf(
-                            "url" to photo,
-                            "fit" to "cover",
-                            "width" to 112,
-                            "height" to 74,
-                            "alt" to "$name photo ${index + 2}"
-                        ),
-                        onOpenUrl = onOpenUrl,
-                        modifier = Modifier
-                    )
-                }
+            )
+            if (index == photos.take(5).lastIndex) {
+                Spacer(modifier = Modifier.width(2.dp))
             }
         }
     }
