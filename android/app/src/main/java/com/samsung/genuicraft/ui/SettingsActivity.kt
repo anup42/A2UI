@@ -141,7 +141,7 @@ private fun SettingsScreen(
     val mcpApiKeys = remember {
         val map = androidx.compose.runtime.mutableStateMapOf<McpSettings.Domain, String>()
         McpSettings.Domain.entries.forEach { domain ->
-            map[domain] = McpSettings.getApiKey(context, domain)
+            map[domain] = McpSettings.getUserApiKey(context, domain)
         }
         map
     }
@@ -1010,10 +1010,9 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.primary
                                 )
-                                // Restaurant search reuses the configured Vertex Express key, so it
-                                // does not need a separate MCP key field.
                                 val keyedDomains = listOf(
                                     McpSettings.Domain.FLIGHTS to stringResource(id = R.string.settings_mcp_key_flights),
+                                    McpSettings.Domain.RESTAURANTS to stringResource(id = R.string.settings_mcp_key_restaurants),
                                     McpSettings.Domain.HOTELS to stringResource(id = R.string.settings_mcp_key_hotels),
                                     McpSettings.Domain.PLACES to stringResource(id = R.string.settings_mcp_key_places),
                                     McpSettings.Domain.NEWS to stringResource(id = R.string.settings_mcp_key_news)
@@ -1026,7 +1025,7 @@ private fun SettingsScreen(
                                             McpSettings.setApiKey(context, domain, newVal)
                                         },
                                         label = { Text(label) },
-                                        placeholder = { Text("Paste API key here") },
+                                        placeholder = { Text("Optional custom key") },
                                         singleLine = true,
                                         modifier = Modifier.fillMaxWidth()
                                     )

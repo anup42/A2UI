@@ -75,43 +75,36 @@ object McpSettings {
     }
 
     fun getApiKey(context: Context, domain: Domain): String {
+        val userKey = getUserApiKey(context, domain)
         return when (domain) {
-            Domain.RESTAURANTS, Domain.PLACES -> {
-                val prefKey = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                    .getString(domain.apiKeyPrefKey, "")
-                    .orEmpty()
-                    .trim()
-                val defaultKey = com.samsung.genuicraft.GeminiApiKeyProvider.googleMapsApiKey(context)
-                defaultKey.ifBlank {
-                    prefKey.takeIf { it.startsWith("AIza") }.orEmpty()
-                }
-            }
+            Domain.RESTAURANTS, Domain.PLACES ->
+                userKey.ifBlank { com.samsung.genuicraft.GeminiApiKeyProvider.googleMapsApiKey(context) }
             Domain.NEWS -> {
-                val prefKey = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                    .getString(domain.apiKeyPrefKey, "")
-                    .orEmpty()
-                    .trim()
-                prefKey.ifBlank { com.samsung.genuicraft.BuildConfig.NEWS_API_KEY_DEFAULT }
+                userKey.ifBlank { com.samsung.genuicraft.BuildConfig.NEWS_API_KEY_DEFAULT }
             }
             Domain.HOTELS, Domain.FLIGHTS -> {
-                val prefKey = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                    .getString(domain.apiKeyPrefKey, "")
-                    .orEmpty()
-                    .trim()
-                prefKey.ifBlank { com.samsung.genuicraft.BuildConfig.SERPAPI_KEY_DEFAULT }
+                userKey.ifBlank { com.samsung.genuicraft.BuildConfig.SERPAPI_KEY_DEFAULT }
             }
-            else -> context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(domain.apiKeyPrefKey, "")
-                .orEmpty()
-                .trim()
+            else -> userKey
         }
     }
 
+    fun getUserApiKey(context: Context, domain: Domain): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(domain.apiKeyPrefKey, "")
+            .orEmpty()
+            .trim()
+    }
+
     fun setApiKey(context: Context, domain: Domain, apiKey: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(domain.apiKeyPrefKey, apiKey.trim())
-            .apply()
+        val trimmed = apiKey.trim()
+        val editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
+        if (trimmed.isBlank()) {
+            editor.remove(domain.apiKeyPrefKey)
+        } else {
+            editor.putString(domain.apiKeyPrefKey, trimmed)
+        }
+        editor.apply()
     }
 
     /** Returns true if the domain requires an API key and one is configured. */
