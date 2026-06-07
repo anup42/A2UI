@@ -164,6 +164,7 @@ internal enum class FlatTableRenderMode {
     WEATHER_CARDS,
     FLIGHT_CARDS,
     BOOKING_CARDS,
+    RESTAURANT_CARDS,
     PLAYLIST_CARDS,
     RESPONSIVE_CARD_ROWS
 }
@@ -319,7 +320,8 @@ private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data"
 private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
 private val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
 private val FORMULA_TABLE_DOMAIN_ALIASES = setOf("formula", "calculation", "calculator", "math")
-private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "schedule", "status", "playlist")
+private val RESTAURANT_TABLE_DOMAIN_ALIASES = setOf("restaurant", "restaurants", "place", "places", "dining")
+private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "restaurants", "schedule", "status", "playlist")
 private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison", "formula")
 
 object FlatSpecParser {
@@ -2603,6 +2605,31 @@ private fun isStrongFlightHeaderLabel(label: String): Boolean {
     return keywords.any { keyword -> token.contains(keyword) }
 }
 
+private fun isRestaurantHeaderLabel(label: String): Boolean {
+    if (label.isBlank()) return false
+    val token = normalizeTableHeaderForMatch(label)
+    val keywords = listOf(
+        "restaurant",
+        "place",
+        "name",
+        "rating",
+        "review",
+        "price",
+        "cuisine",
+        "type",
+        "address",
+        "hours",
+        "open",
+        "photo",
+        "image",
+        "maps",
+        "website",
+        "direction",
+        "call"
+    )
+    return keywords.any { keyword -> token.contains(keyword) }
+}
+
 private fun isBookingEntityHeaderLabel(label: String): Boolean {
     if (label.isBlank()) return false
     val token = label.lowercase()
@@ -2846,6 +2873,7 @@ private fun normalizeExplicitTableDomain(value: String?): String? {
     return when {
         token in PLAYLIST_TABLE_DOMAIN_ALIASES -> "playlist"
         token in FORMULA_TABLE_DOMAIN_ALIASES -> "formula"
+        token in RESTAURANT_TABLE_DOMAIN_ALIASES -> "restaurants"
         else -> token
     }
 }
@@ -2917,6 +2945,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val weatherPeriodSignals = headers.count(::isWeatherPeriodHeaderLabel)
     val flightSignals = headers.count(::isFlightHeaderLabel)
     val strongFlightSignals = headers.count(::isStrongFlightHeaderLabel)
+    val restaurantSignals = headers.count(::isRestaurantHeaderLabel)
     val bookingEntitySignals = headers.count(::isBookingEntityHeaderLabel)
     val bookingValueSignals = headers.count(::isBookingValueHeaderLabel)
     val scheduleSignals = headers.count(::isScheduleHeaderLabel)
@@ -2929,6 +2958,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
         weatherSignals >= 2 -> "weather"
         weatherSignals >= 1 && weatherPeriodSignals >= 1 -> "weather"
         strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
+        restaurantSignals >= 2 -> "restaurants"
         bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
         scheduleSignals >= 2 && statusSignals >= 1 -> "status"
         scheduleSignals >= 2 -> "schedule"
@@ -3333,6 +3363,7 @@ internal fun extractFlatTableModel(
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
+        domain == "restaurants" -> FlatTableRenderMode.RESTAURANT_CARDS
         domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         comparisonCardsPreferred -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
@@ -3879,7 +3910,8 @@ private fun RenderTableLayout(
     val cardsRequested =
         tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS
+            tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
+            tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS
     val autoHorizontalScroll = shouldUseHorizontalTableScroll(
         compactScreen = compactScreen,
         screenWidthDp = screenWidthDp,
@@ -3895,6 +3927,19 @@ private fun RenderTableLayout(
             modifier = tableModifier
         )
         return
+    }
+
+    if (tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS) {
+        val rendered = renderRestaurantRowsIfPossible(
+            headers = tableModel.headers,
+            rows = tableRows,
+            onOpenUrl = onOpenUrl,
+            modifier = tableModifier,
+            title = tableModel.title
+        )
+        if (rendered) {
+            return
+        }
     }
 
     if (useScrollableNativeTableRendering() && tableRows.isNotEmpty()) {
@@ -4164,6 +4209,7 @@ internal fun extractDirectTableModel(
         domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
+        domain == "restaurants" -> FlatTableRenderMode.RESTAURANT_CARDS
         domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         compactScreen && shape in setOf(
             FlatTableShape.PLAYLIST,
@@ -6205,6 +6251,332 @@ internal fun bookingRowImageUrl(headers: List<String>, row: List<String>): Strin
         ?.takeIf { it.isNotBlank() }
 }
 
+private fun restaurantTitleIndex(headers: List<String>): Int =
+    findTableColumnIndex(headers, listOf("restaurant", "place", "name", "title")) ?: 0
+
+private fun restaurantRatingIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("rating", "score", "stars"))
+
+private fun restaurantReviewCountIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("review count", "reviews", "user rating count"))
+
+private fun restaurantPriceIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("price", "price level", "cost", "budget"))
+
+private fun restaurantStatusIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("status", "open", "hours", "open now", "opening"))
+
+private fun restaurantAddressIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("address", "location"))
+
+private fun restaurantDescriptionIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("description", "summary", "review", "reason", "why", "notes"))
+
+private fun restaurantTagsIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("tags", "type", "types", "cuisine", "category"))
+
+private fun restaurantPhotoIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("photo", "photos", "photo uri", "photouri", "image", "images", "media"))
+
+private fun restaurantMapsIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("maps", "map", "directions", "google maps", "googlemapsuri", "google maps uri"))
+
+private fun restaurantWebsiteIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("website", "site", "url", "link"))
+
+private fun restaurantPhoneIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("phone", "telephone", "call"))
+
+private fun splitRestaurantTags(raw: String): List<String> =
+    raw.split('|', ',', ';')
+        .mapNotNull { it.trim().takeIf { token -> token.isNotBlank() && !isLikelyHttpUrl(token) } }
+        .distinct()
+        .take(4)
+
+private fun splitRestaurantPhotoUrls(raw: String): List<String> =
+    raw.split('|', '\n', '\t')
+        .flatMap { chunk -> chunk.split(Regex("""\s*,\s*(?=https://|genuicraft://|../|assets/)""")) }
+        .mapNotNull { value ->
+            value.trim()
+                .removePrefix("[")
+                .removeSuffix("]")
+                .trim('"', '\'')
+                .takeIf { it.isNotBlank() }
+        }
+        .filterNot(::isIconLikeMediaUrl)
+        .distinct()
+        .take(3)
+
+private fun compactRestaurantMeta(
+    rating: String,
+    reviewCount: String,
+    price: String
+): String = buildString {
+    if (rating.isNotBlank()) append(rating)
+    if (reviewCount.isNotBlank()) {
+        if (isNotEmpty()) append("  ·  ")
+        append(reviewCount)
+    }
+    if (price.isNotBlank()) {
+        if (isNotEmpty()) append("  ·  ")
+        append(price)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun renderRestaurantRowsIfPossible(
+    headers: List<String>,
+    rows: List<List<String>>,
+    onOpenUrl: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    title: String? = null
+): Boolean {
+    if (rows.isEmpty()) return false
+    val titleIndex = restaurantTitleIndex(headers)
+    val ratingIndex = restaurantRatingIndex(headers)
+    val reviewCountIndex = restaurantReviewCountIndex(headers)
+    val priceIndex = restaurantPriceIndex(headers)
+    val statusIndex = restaurantStatusIndex(headers)
+    val addressIndex = restaurantAddressIndex(headers)
+    val descriptionIndex = restaurantDescriptionIndex(headers)
+    val tagsIndex = restaurantTagsIndex(headers)
+    val photoIndex = restaurantPhotoIndex(headers)
+    val mapsIndex = restaurantMapsIndex(headers)
+    val websiteIndex = restaurantWebsiteIndex(headers)
+    val phoneIndex = restaurantPhoneIndex(headers)
+    val hasRestaurantSignal =
+        headers.any(::isRestaurantHeaderLabel) &&
+            (ratingIndex != null || addressIndex != null || photoIndex != null || mapsIndex != null || websiteIndex != null)
+    if (!hasRestaurantSignal) return false
+
+    val shownRows = rows.filter { row -> row.any { value -> value.trim().isNotBlank() } }
+    if (shownRows.isEmpty()) return false
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "Restaurant results with ${shownRows.size} places"
+            },
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        title?.trim()?.takeIf { it.isNotBlank() }?.let { headingText ->
+            Text(
+                text = parseBoldMarkdown(headingText),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp, vertical = 6.dp)
+                    .semantics { heading() }
+            )
+        }
+        shownRows.forEachIndexed { index, row ->
+            val restaurantName = row.getOrNull(titleIndex).orEmpty().trim().ifBlank { "Restaurant ${index + 1}" }
+            val rating = ratingIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val reviews = reviewCountIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val price = priceIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val status = statusIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val address = addressIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val description = descriptionIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val tags = tagsIndex?.let { splitRestaurantTags(row.getOrNull(it).orEmpty()) }.orEmpty()
+            val photos = photoIndex?.let { splitRestaurantPhotoUrls(row.getOrNull(it).orEmpty()) }.orEmpty()
+                .ifEmpty { listOf("genuicraft://visual/restaurant?title=${Uri.encode(restaurantName)}") }
+            val mapsUrl = mapsIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
+            val websiteUrl = websiteIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
+            val phone = phoneIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val meta = compactRestaurantMeta(rating, reviews, price)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp)
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = tableRowAccessibilitySummary(headers, row)
+                    },
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(restaurantName),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (rating.isNotBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Text(
+                                text = "★ $rating",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+                            )
+                        }
+                    }
+                }
+                if (meta.isNotBlank()) {
+                    Text(
+                        text = parseBoldMarkdown(meta),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                if (status.isNotBlank()) {
+                    val openLike = status.contains("open", ignoreCase = true) && !status.contains("closed", ignoreCase = true)
+                    Text(
+                        text = parseBoldMarkdown(status),
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = if (openLike) Color(0xFF18A767) else MaterialTheme.colorScheme.error
+                    )
+                }
+                if (address.isNotBlank()) {
+                    Text(
+                        text = parseBoldMarkdown(address),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                RestaurantPhotoStrip(
+                    name = restaurantName,
+                    photos = photos,
+                    onOpenUrl = onOpenUrl
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (phone.isNotBlank()) {
+                        RestaurantActionPill(
+                            label = "Call",
+                            enabled = false,
+                            onClick = {}
+                        )
+                    }
+                    if (!websiteUrl.isNullOrBlank()) {
+                        RestaurantActionPill(
+                            label = "Website",
+                            onClick = { onOpenUrl(websiteUrl) }
+                        )
+                    }
+                    if (!mapsUrl.isNullOrBlank()) {
+                        RestaurantActionPill(
+                            label = "Directions",
+                            onClick = { onOpenUrl(mapsUrl) }
+                        )
+                    }
+                }
+                if (description.isNotBlank()) {
+                    Text(
+                        text = parseBoldMarkdown(description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+                    )
+                }
+                if (tags.isNotEmpty()) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        tags.forEach { tag ->
+                            Surface(
+                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
+                            ) {
+                                Text(
+                                    text = parseBoldMarkdown(tag),
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            if (index < shownRows.lastIndex) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+            }
+        }
+    }
+    return true
+}
+
+@Composable
+private fun RestaurantPhotoStrip(
+    name: String,
+    photos: List<String>,
+    onOpenUrl: (String) -> Unit
+) {
+    if (photos.isEmpty()) return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        photos.forEach { photo ->
+            RenderImage(
+                props = mapOf(
+                    "url" to photo,
+                    "fit" to "cover",
+                    "width" to 156,
+                    "height" to 132,
+                    "alt" to "$name photo"
+                ),
+                onOpenUrl = onOpenUrl,
+                modifier = Modifier
+            )
+        }
+    }
+}
+
+@Composable
+private fun RowScope.RestaurantActionPill(
+    label: String,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .weight(1f)
+            .height(38.dp)
+            .then(
+                if (enabled) {
+                    Modifier.clickable(role = Role.Button, onClick = onClick)
+                } else {
+                    Modifier
+                }
+            ),
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (enabled) 0.78f else 0.42f)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = if (enabled) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun renderBookingRowsIfPossible(
@@ -7667,7 +8039,7 @@ internal fun extractPercentageMatrixChartModel(
     domain: String
 ): MultiSeriesChartModel? {
     if (columns.size < 3 || rows.size !in 2..12) return null
-    if (domain in setOf("weather", "flight", "booking", "playlist", "schedule", "status")) return null
+    if (domain in setOf("weather", "flight", "booking", "restaurants", "playlist", "schedule", "status")) return null
 
     val categoryLabel = columns.firstOrNull()?.label?.trim().orEmpty()
     val categoryToken = normalizeTableHeaderForMatch(categoryLabel)
@@ -9705,6 +10077,19 @@ private fun RenderDirectTable(
         return
     }
 
+    if (table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS) {
+        val rendered = renderRestaurantRowsIfPossible(
+            headers = headers,
+            rows = table.rows,
+            onOpenUrl = onOpenUrl,
+            modifier = tableModifier,
+            title = props["title"]?.toString()
+        )
+        if (rendered) {
+            return
+        }
+    }
+
     if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
@@ -9726,6 +10111,7 @@ private fun RenderDirectTable(
         table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
+            table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
             table.renderMode == FlatTableRenderMode.PLAYLIST_CARDS
 
     if (table.renderMode == FlatTableRenderMode.PROCESS_CARDS) {

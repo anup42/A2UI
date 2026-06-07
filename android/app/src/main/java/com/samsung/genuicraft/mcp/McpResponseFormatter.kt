@@ -546,45 +546,58 @@ private fun buildFlightsFallback(data: JsonObject): String {
         val provider = data.safeString("provider") ?: "google_places"
         val results = data.getAsJsonArray("results")
 
+        fun cell(raw: String?): String = raw.orEmpty()
+            .replace('\n', ' ')
+            .replace("|", "/")
+            .trim()
+
         val sb = StringBuilder()
         sb.appendLine("## Top Restaurants in $location")
 
         if (results == null || results.size() == 0) {
             sb.appendLine("No restaurants found in $location.")
         } else {
+            sb.appendLine("These restaurants are from Google Places data. Photos, ratings, addresses, hours, and action links are attached to each row so the UI can show Bixby-style result cards.")
+            sb.appendLine()
+            sb.appendLine("| Restaurant | Rating | Reviews | Price | Status / Hours | Address | Tags | Description | Photos | Maps URL | Website URL | Phone |")
+            sb.appendLine("|---|---:|---:|---|---|---|---|---|---|---|---|---|")
+
             for (i in 0 until minOf(results.size(), 6)) {
                 val biz = results[i].asJsonObject
-
                 val name = biz.getAsJsonObject("displayName")?.safeString("text") ?: "Restaurant"
                 val ratingRaw = biz.safeDouble("rating") ?: 0.0
-                val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else "N/A"
-                val fullStars = ratingRaw.toInt().coerceIn(0, 5)
-                val emptyStars = 5 - fullStars
-                val starsDisplay = if (ratingRaw > 0) "â˜…".repeat(fullStars) + "â˜†".repeat(emptyStars) else ""
+                val ratingStr = if (ratingRaw > 0) "%.1f".format(ratingRaw) else ""
                 val reviewCount = biz.safeInt("userRatingCount") ?: 0
                 val mapsUri = biz.safeString("googleMapsUri") ?: ""
                 val websiteUri = biz.safeString("websiteUri") ?: ""
+                val phone = biz.safeString("nationalPhoneNumber")
+                    ?: biz.safeString("internationalPhoneNumber")
+                    ?: ""
                 val address = biz.safeString("formattedAddress") ?: ""
-                val photoUri = biz.safeString("photoUri") ?: ""
+                val photoUris = biz.getAsJsonArray("photoUris")
+                    ?.mapNotNull { it.safeString()?.trim()?.takeIf(String::isNotBlank) }
+                    ?.take(3)
+                    .orEmpty()
+                    .ifEmpty { listOfNotNull(biz.safeString("photoUri")?.trim()?.takeIf(String::isNotBlank)) }
                 val distanceMeters = biz.safeDouble("distance")
                 val priceLevel = when (biz.safeString("priceLevel")) {
-                    "PRICE_LEVEL_INEXPENSIVE" -> "â‚¹"
-                    "PRICE_LEVEL_MODERATE" -> "â‚¹â‚¹"
-                    "PRICE_LEVEL_EXPENSIVE" -> "â‚¹â‚¹â‚¹"
-                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "â‚¹â‚¹â‚¹â‚¹"
+                    "PRICE_LEVEL_INEXPENSIVE" -> "Inexpensive"
+                    "PRICE_LEVEL_MODERATE" -> "Moderate"
+                    "PRICE_LEVEL_EXPENSIVE" -> "Expensive"
+                    "PRICE_LEVEL_VERY_EXPENSIVE" -> "Very expensive"
                     else -> ""
                 }
 
                 val cuisineList = biz.getAsJsonArray("cuisineTags")
                     ?.mapNotNull { it.safeString()?.trim()?.takeIf { tag -> tag.isNotBlank() } }
                     ?: emptyList()
-
-                // Tags: filter noise types, format as chip-friendly plain labels.
                 val typeList = cuisineList + (biz.getAsJsonArray("types")
                     ?.mapNotNull { it.takeIf { e -> !e.isJsonNull }?.asString }
                     ?.filter { t ->
-                        t !in setOf("restaurant", "food", "point_of_interest",
-                            "establishment", "place_of_worship", "store", "catering", "catering.restaurant")
+                        t !in setOf(
+                            "restaurant", "food", "point_of_interest",
+                            "establishment", "place_of_worship", "store", "catering", "catering.restaurant"
+                        )
                     }
                     ?.map { it.substringAfterLast('.') }
                     ?.map { it.replace("_", " ").replaceFirstChar { c -> c.uppercase() } }
@@ -594,6 +607,12 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val editorial = biz.getAsJsonObject("editorialSummary")
                     ?.safeString("text")?.trim()
                     ?.takeIf { it.isNotBlank() }
+                val reviewSnippet = biz.getAsJsonArray("reviews")
+                    ?.firstOrNull()?.asJsonObject
+                    ?.getAsJsonObject("text")?.get("text")?.asString
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() && it != "null" }
+                    ?.take(140)
 
                 val openingHours = biz.getAsJsonObject("regularOpeningHours")
                 val openNow = openingHours?.get("openNow")?.takeIf { !it.isJsonNull }?.asBoolean
@@ -602,74 +621,35 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     false -> "Closed now"
                     null -> null
                 }
-                // Today's hours (weekdayDescriptions[0] = Monday, adjust by day-of-week)
                 val todayHours = openingHours?.getAsJsonArray("weekdayDescriptions")
                     ?.let { arr ->
                         val dayIndex = (java.util.Calendar.getInstance()
-                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7  // 0=Monâ€¦6=Sun
+                            .get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7
                         if (dayIndex < arr.size()) arr[dayIndex].asString?.substringAfter(":")?.trim() else null
                     }
-
-                // First user review snippet (from same API call)
-                val reviewSnippet = biz.getAsJsonArray("reviews")
-                    ?.firstOrNull()?.asJsonObject
-                    ?.getAsJsonObject("text")?.get("text")?.asString
-                    ?.trim()
-                    ?.takeIf { it.isNotBlank() && it != "null" }
-                    ?.take(140)
-
-                // Card block
-                sb.appendLine()
-                sb.appendLine("## ${i + 1}. $name")
-                if (photoUri.isNotBlank()) {
-                    sb.appendLine("Media: Image=$photoUri Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
-                } else {
-                    sb.appendLine("Media: Image=${restaurantVisualUri(name)} Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
-                }
-
-                // Tags: pipe-separated format so Stage 3 renders as chip row
-                if (uniqueTypeList.isNotEmpty()) {
-                    sb.appendLine("Tags: ${uniqueTypeList.joinToString(" | ")}")
-                }
-
-                // Rating row with price level
-                val ratingLine = buildString {
-                    if (ratingRaw > 0) append("$starsDisplay $ratingStr ($reviewCount reviews)")
-                    if (priceLevel.isNotBlank()) {
-                        if (isNotEmpty()) append("  Â·  ")
-                        append(priceLevel)
-                    }
-                }
-                if (ratingLine.isNotBlank()) sb.appendLine(ratingLine)
-
-                if (address.isNotBlank()) {
-                    sb.appendLine("- Address: $address")
-                }
-                if (distanceMeters != null && distanceMeters > 0) {
-                    val distanceLabel = if (distanceMeters >= 1000) {
+                val distanceLabel = if (distanceMeters != null && distanceMeters > 0) {
+                    if (distanceMeters >= 1000) {
                         "%.1f km away".format(distanceMeters / 1000.0)
                     } else {
                         "${distanceMeters.toInt()} m away"
                     }
-                    sb.appendLine("- Distance: $distanceLabel")
+                } else {
+                    ""
                 }
+                val status = buildList {
+                    openStatus?.takeIf(String::isNotBlank)?.let(::add)
+                    todayHours?.takeIf(String::isNotBlank)?.let { add("Today: $it") }
+                    distanceLabel.takeIf(String::isNotBlank)?.let(::add)
+                }.joinToString(" / ")
+                val description = listOfNotNull(editorial, reviewSnippet)
+                    .firstOrNull { it.isNotBlank() }
+                    .orEmpty()
 
-                // Open status + today's hours
-                val hoursLine = buildString {
-                    if (openStatus != null) append(openStatus)
-                    if (todayHours != null) {
-                        if (isNotEmpty()) append(" Â· ")
-                        append("Today: $todayHours")
-                    }
-                }
-                if (hoursLine.isNotBlank()) sb.appendLine(hoursLine)
-
-                // Editorial summary â€” concise description from Google
-                if (editorial != null) sb.appendLine("- $editorial")
-
-                // Action buttons
-                if (mapsUri.isNotBlank()) sb.appendLine("Action: [Button: View on Map] $mapsUri")
-                if (websiteUri.isNotBlank()) sb.appendLine("Action: [Button: Visit Website] $websiteUri")
+                sb.appendLine(
+                    "| ${cell(name)} | ${cell(ratingStr)} | ${cell(if (reviewCount > 0) "$reviewCount reviews" else "")} | " +
+                        "${cell(priceLevel)} | ${cell(status)} | ${cell(address)} | ${cell(uniqueTypeList.joinToString("; "))} | " +
+                        "${cell(description)} | ${cell(photoUris.joinToString(", "))} | ${cell(mapsUri)} | ${cell(websiteUri)} | ${cell(phone)} |"
+                )
             }
         }
 
@@ -683,7 +663,6 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         return sb.toString()
     }
-
     private fun restaurantVisualUri(name: String): String {
         val encodedTitle = Uri.encode(name.ifBlank { "Restaurant" })
         return "genuicraft://visual/restaurant?title=$encodedTitle"

@@ -114,7 +114,7 @@ Allowed dynamic value expressions in props:
     - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
   - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
   - Include metadata:
-    - `domain`: `weather | flight | booking | playlist | schedule | status | formula | comparison | generic`
+    - `domain`: `weather | flight | booking | restaurants | playlist | schedule | status | formula | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
@@ -141,6 +141,7 @@ Allowed dynamic value expressions in props:
 - Recipe responses should render as title + compact hero/notes card + Tabs for core recipe content. Use tab titles such as `Ingredients`, `Instructions`, and optional `Tips`/`Notes`; keep ingredients as compact `Table` data and instructions as vertical step cards inside the Instructions tab. Do not create detached galleries, and attach images only near the recipe hero or the specific step they support. Step titles must use resolved text, direct `$item` fields, or a valid `$template` such as `Step ${index_1}`; never emit literal `{{$item.title}}`, `{$item.title}`, or `${$item.title}` strings.
 - Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` for each actionable row, set `domain: "booking"` and `preferredPresentation: "cards"`, and do not create a detached final Quick Actions card for that row.
 - Booking/hotel tables may include compact row media with an `image`/`imageUrl`/`photo` column when the image is verified and directly tied to that hotel. Do not put hotel photos in trailing galleries.
+- Restaurant/place result sets MUST stay compact as one `Table` with `domain: "restaurants"` and `preferredPresentation: "cards"`. Use columns such as `restaurant`, `rating`, `reviews`, `price`, `status`, `address`, `tags`, `description`, `photos`, `mapsUrl`, `websiteUrl`, and optional `phone`. Keep Google Places photo media URLs in the matching row, keep map/website URLs as action fields, and do not create separate gallery, image, source, or quick-action cards for restaurants.
 - Travel itinerary responses MUST stay compact as one `Table` with `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "dayDate"`, and day/activity/dining rows in `state`. Use columns such as `dayDate`, `area`, `morningActivity`, `afternoonActivity`, `dinnerSuggestion`, `image`, and `imageAlt` when verified day/place photo media exists. Photos are allowed and encouraged for vacation/itinerary cards when they come from response media, local assets, Places photo media URLs, or direct HTTPS JPEG/PNG/WebP photo URLs. If row-specific photos are missing, omit `image`/`imageAlt` columns entirely; the Android renderer will provide a native generated day visual, so never fill image fields with icon URLs, source/action URLs, random placeholders, or unrelated generic destination images. Attach verified images to the relevant day row; do not expand each day into repeated Card/Text element trees, and do not create top/bottom image galleries or standalone image stacks.
 - Road-trip/navigation itineraries MUST also stay compact as one `Table` with `domain: "schedule"` and `preferredPresentation: "cards"`. Use row fields such as `day`, `route`, `drivingTime`, `scenicStop`, `shortHike`, `overnightStay`, optional `icon`, and optional verified `image`/`imageAlt`. Do not expand each day into repeated card templates and do not create a trailing image gallery.
 - Single-day timed itineraries may use compact columns like `time`, `activity`, and `details`; set `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "time"`, and `highlightColumns: ["activity"]`.
@@ -154,7 +155,7 @@ Allowed dynamic value expressions in props:
   - Exact product/device feature matrices should be table-first and compact: one title/context card, one `Table`, and nearby source/action buttons. Do not create `Images`, `Referenced Icons`, gallery, or loose decorative icon sections from detached media.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
-  - weather/flight/booking/playlist/schedule/status => `preferredPresentation: "cards"`
+  - weather/flight/booking/restaurants/playlist/schedule/status => `preferredPresentation: "cards"`
   - formula => `preferredPresentation: "table"` for variables/breakdowns plus one `Formula` element for the equation
   - comparison => `preferredPresentation: "cards"` for entity rows and `"table"` for feature matrices
   - generic => `preferredPresentation: "table"`
@@ -173,7 +174,7 @@ Allowed dynamic value expressions in props:
 - Use only flex-style positioning props; absolute positioning is unsupported.
 - Convert links/CTAs to `Button` with `openUrl`.
 - Keep `Tags: A | B | C` lines: emit chips via `Text` with `variant: "chip"`.
-- For hotel/restaurant/place result sets, prefer one compact `Table`/repeated card data model; keep action URLs and labels in the matching row so the renderer can place the CTA inside the related card.
+- For hotel result sets, use `domain: "booking"` when the rows are booking-like. For restaurant/place result sets, use `domain: "restaurants"` and one compact `Table`; keep photo/map/website URLs and labels in the matching row so the renderer can place media and CTAs inside the related result.
 - For playlist/music tracklists, keep tracks in one compact `Table` (`domain: "playlist"`) and do not expand each track into separate elements.
 - For technical-support troubleshooting guides, prefer one compact diagnostic `Table` with `domain: "status"`, `preferredPresentation: "cards"`, `primaryColumn: "step"`, and `highlightColumns` for action/expected result. Do not create detached galleries; use inline icons only when helpful.
 - For UI process/state-machine flows such as scanner, check-in, success/error, or approval state transitions, keep states as one compact `Table` with `domain: "status"`, `preferredPresentation: "cards"`, and columns such as `state`, `visuals`, and `feedback`; Android renders this as a native process template, so do not create trailing image/icon cards.
@@ -209,7 +210,7 @@ Content:
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
-  - `domain` optional (`weather|flight|booking|playlist|schedule|status|formula|comparison|generic`)
+  - `domain` optional (`weather|flight|booking|restaurants|playlist|schedule|status|formula|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)

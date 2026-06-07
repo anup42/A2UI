@@ -389,7 +389,7 @@ object McpClient {
             "X-Goog-FieldMask" to "places.displayName,places.formattedAddress,places.priceLevel," +
                 "places.rating,places.userRatingCount,places.types,places.photos,places.reviews," +
                 "places.editorialSummary,places.regularOpeningHours," +
-                "places.websiteUri,places.googleMapsUri"
+                "places.websiteUri,places.googleMapsUri,places.nationalPhoneNumber,places.internationalPhoneNumber"
         )
         val response = httpPostWithHeaders(url, body.toString(), "application/json", headers)
         val json = JsonParser.parseString(response).asJsonObject
@@ -397,13 +397,16 @@ object McpClient {
 
         restaurants.forEach { el ->
             val restaurant = el.asJsonObject
-            val photoName = restaurant.getAsJsonArray("photos")
-                ?.firstOrNull()?.asJsonObject?.get("name")?.asString
-            if (photoName != null) {
-                restaurant.addProperty(
-                    "photoUri",
-                    "https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey"
-                )
+            val photoUris = JsonArray()
+            restaurant.getAsJsonArray("photos")
+                ?.take(3)
+                ?.mapNotNull { photo -> photo.asJsonObject?.get("name")?.asString }
+                ?.forEach { photoName ->
+                    photoUris.add("https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey")
+                }
+            if (photoUris.size() > 0) {
+                restaurant.add("photoUris", photoUris)
+                restaurant.addProperty("photoUri", photoUris.first().asString)
             }
             restaurant.addProperty("provider", "google_places")
         }
@@ -897,20 +900,25 @@ object McpClient {
             "X-Goog-FieldMask" to "places.displayName,places.formattedAddress,places.priceLevel," +
                 "places.rating,places.userRatingCount,places.types,places.photos,places.reviews," +
                 "places.editorialSummary,places.regularOpeningHours," +
-                "places.websiteUri,places.googleMapsUri"
+                "places.websiteUri,places.googleMapsUri,places.nationalPhoneNumber,places.internationalPhoneNumber"
         )
         val response = httpPostWithHeaders(url, body, "application/json", headers)
         val json = JsonParser.parseString(response).asJsonObject
 
-        // Enrich each place with a ready-to-use photoUri from the first photo slot
+        // Enrich each place with ready-to-use Places photo media URLs.
         val places = json.getAsJsonArray("places") ?: JsonArray()
         places.forEach { el ->
             val place = el.asJsonObject
-            val photoName = place.getAsJsonArray("photos")
-                ?.firstOrNull()?.asJsonObject?.get("name")?.asString
-            if (photoName != null) {
-                place.addProperty("photoUri",
-                    "https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey")
+            val photoUris = JsonArray()
+            place.getAsJsonArray("photos")
+                ?.take(3)
+                ?.mapNotNull { photo -> photo.asJsonObject?.get("name")?.asString }
+                ?.forEach { photoName ->
+                    photoUris.add("https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey")
+                }
+            if (photoUris.size() > 0) {
+                place.add("photoUris", photoUris)
+                place.addProperty("photoUri", photoUris.first().asString)
             }
         }
 
