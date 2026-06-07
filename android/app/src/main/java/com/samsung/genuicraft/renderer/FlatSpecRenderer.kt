@@ -8491,8 +8491,13 @@ private fun RenderKeyValueTablePanel(
                             contentDescription = "$label: $value"
                         },
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = if (isSystemInDarkTheme()) 0.18f else 0.70f),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f))
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+                        alpha = if (isSystemInDarkTheme()) 0.20f else 0.38f
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.26f)
+                    )
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
@@ -10164,8 +10169,14 @@ private fun RankedFlightAirlineBadge(
             .components { add(SvgDecoder.Factory()) }
             .build()
     }
+    val logoSurfaceColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.58f)
+    val logoBorderColor = if (safeLogo != null && !logoFailed) {
+        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f)
+    } else {
+        Color.White.copy(alpha = 0.35f)
+    }
     val badgeBackground = if (safeLogo != null && !logoFailed) {
-        Modifier.background(Color.White)
+        Modifier.background(logoSurfaceColor)
     } else {
         Modifier.background(
             Brush.linearGradient(
@@ -10183,11 +10194,7 @@ private fun RankedFlightAirlineBadge(
             .then(badgeBackground)
             .border(
                 width = GenUiTokens.BorderSm,
-                color = if (safeLogo != null && !logoFailed) {
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
-                } else {
-                    Color.White.copy(alpha = 0.35f)
-                },
+                color = logoBorderColor,
                 shape = RoundedCornerShape(GenUiTokens.RadiusPill)
             ),
         contentAlignment = Alignment.Center
@@ -10589,17 +10596,17 @@ private fun RenderRankedFlightComparisonCards(
                 carbon = carbon,
                 bookingStatus = bookingStatus
             )
-            Card(
+            val cardShape = RoundedCornerShape(20.dp)
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .semantics(mergeDescendants = true) {
                         contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
                     },
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = if (best) 2.dp else 0.dp),
+                shape = cardShape,
+                color = genUiCardContainerColor(GenUiCardTone.Neutral),
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
                 border = BorderStroke(
                     width = GenUiTokens.BorderSm,
                     color = if (best) {
