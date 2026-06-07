@@ -105,6 +105,32 @@
       checked_at: "2026-04-18"
       source: "vertex_generatecontent_range_probe"
       note: "model id not found or not accessible for this Vertex project/key"
+  - name: gemma4_31b_vertex
+    provider: gemini
+    model: gemma-4-31b-it
+    supports_json_mode: false
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      max_output_tokens: 8192
+      availability: configured
+      checked_at: "2026-06-07"
+      source: "google_vertex_gemma4_docs"
+      note: "Gemma 4 31B instruction-tuned model via Vertex Express generateContent; access depends on the Vertex Express API key/project."
+  - name: gemma4_31b_vertex_google_alias
+    provider: gemini
+    model: google/gemma-4-31b-it
+    supports_json_mode: false
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      max_output_tokens: 8192
+      availability: configured
+      checked_at: "2026-06-07"
+      source: "google_vertex_gemma4_docs"
+      note: "Alias accepted by config; GeminiAdapter normalizes google/gemma-4-31b-it to gemma-4-31b-it for publishers/google/models endpoints."
   - name: gemini_3_flash
     provider: gemini
     model: gemini-3-flash-preview

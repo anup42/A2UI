@@ -196,6 +196,19 @@ def _generated_table_cell_count(genui_json: dict[str, Any]) -> int:
     return total
 
 
+def _has_substantial_compact_table(genui_json: dict[str, Any]) -> bool:
+    """A compact Table plus title can be valid high-quality IR with few elements."""
+    elements = genui_json.get("elements")
+    if not isinstance(elements, dict):
+        return False
+    if not any(
+        isinstance(element, dict) and str(element.get("type", "")).lower() == "table"
+        for element in elements.values()
+    ):
+        return False
+    return _generated_table_cell_count(genui_json) >= 6
+
+
 def _stage3_quality_warnings(
     response_text: str,
     genui_json: Any,
@@ -649,7 +662,7 @@ def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logge
     compact_enabled = os.getenv("GENUI_COMPACT_PROMPT_FOR_GEMMA", "0").strip().lower()
     if compact_enabled in {"0", "false", "no", "off"}:
         return template
-    if provider != "gemini" or not model.startswith("gemma-"):
+    if provider != "gemini" or not (model.startswith("gemma-") or "/gemma-" in model):
         return template
 
     compact = template
@@ -1261,6 +1274,7 @@ def run_stage3(
             and flat_spec_mode
             and isinstance(genui_json.get("elements"), dict)
             and len(genui_json["elements"]) < 5
+            and not _has_substantial_compact_table(genui_json)
         ):
             errors.append("spec_too_simple: fewer than 5 elements")
             parsed_ok = False

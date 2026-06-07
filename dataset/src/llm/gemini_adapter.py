@@ -78,6 +78,8 @@ class GeminiAdapter(BaseLLMAdapter):
             return model[len("publishers/google/models/") :].strip()
         if model.startswith("models/"):
             return model[len("models/") :].strip()
+        if model.lower().startswith("google/gemma-"):
+            return model.split("/", 1)[1].strip()
         return model
 
     def _endpoint_for_key(self, api_key: str, model_name: str) -> str:
@@ -240,6 +242,26 @@ class GeminiAdapter(BaseLLMAdapter):
             except Exception:
                 return None
         return None
+
+    def _extract_candidate_text(self, candidate: Any) -> str:
+        if not isinstance(candidate, dict):
+            return ""
+        parts = candidate.get("content", {}).get("parts", [])
+        if not isinstance(parts, list):
+            return ""
+        chunks: list[str] = []
+        for part in parts:
+            if not isinstance(part, dict):
+                continue
+            # Gemma 4 returns reasoning as separate parts with thought=true.
+            # Stage 3 must parse only the final answer, otherwise JSON-looking
+            # fragments inside thoughts can trigger deterministic fallback.
+            if part.get("thought") is True:
+                continue
+            text = part.get("text")
+            if isinstance(text, str):
+                chunks.append(text)
+        return "".join(chunks)
 
     def _extract_json_blob(self, text: str) -> Optional[Any]:
         raw = (text or "").strip()
@@ -794,8 +816,7 @@ class GeminiAdapter(BaseLLMAdapter):
         text = ""
         candidates = payload.get("candidates", [])
         if candidates:
-            parts = candidates[0].get("content", {}).get("parts", [])
-            text = "".join(part.get("text", "") for part in parts if isinstance(part, dict))
+            text = self._extract_candidate_text(candidates[0])
         usage = payload.get("usageMetadata", {})
 
         return LLMResult(
