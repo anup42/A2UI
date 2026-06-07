@@ -90,6 +90,10 @@ class McpResponseFormatterTest {
             addProperty("price", 6667)
             addProperty("total_duration", 470)
             addProperty("type", "Round trip")
+            addProperty("booking_token", "booking-token-1")
+            add("carbon_emissions", JsonObject().apply {
+                addProperty("difference_percent", 35)
+            })
             add("layovers", JsonArray().apply {
                 add(JsonObject().apply {
                     addProperty("id", "MAA")
@@ -101,6 +105,7 @@ class McpResponseFormatterTest {
                     addProperty("airline", "IndiGo")
                     addProperty("flight_number", "6E 356")
                     addProperty("duration", 65)
+                    addProperty("airplane", "Airbus A321neo")
                     addProperty("airline_logo", "https://www.gstatic.com/flights/airline_logos/70px/6E.png")
                     add("departure_airport", JsonObject().apply {
                         addProperty("id", "BLR")
@@ -115,6 +120,7 @@ class McpResponseFormatterTest {
                     addProperty("airline", "IndiGo")
                     addProperty("flight_number", "6E 515")
                     addProperty("duration", 150)
+                    addProperty("airplane", "Airbus A320neo")
                     add("departure_airport", JsonObject().apply {
                         addProperty("id", "MAA")
                         addProperty("time", "2026-06-15 12:35")
@@ -148,10 +154,14 @@ class McpResponseFormatterTest {
             queryText = "show flights from blr to lko on 15th june"
         )
 
-        assertTrue(output.contains("| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Airline Logo | Booking URL | Action Label |"))
+        assertTrue(output.contains("| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Legs | Layover | Carbon | Booking | Airline Logo | Booking URL | Action Label |"))
         assertTrue(output.contains("IndiGo - 6E 356 / 6E 515"))
         assertTrue(output.contains("BLR 07:15"))
         assertTrue(output.contains("LKO 15:05"))
+        assertTrue(output.contains("BLR 07:15 -> MAA 08:20 (6E 356, Airbus A321neo); MAA 12:35 -> LKO 15:05 (6E 515, Airbus A320neo)"))
+        assertTrue(output.contains("MAA 4h 15m"))
+        assertTrue(output.contains("+35% CO2 vs typical"))
+        assertTrue(output.contains("Booking token available"))
         assertTrue(output.contains("\u20B96,667 /adult"))
         assertTrue(output.contains("https://www.gstatic.com/flights/airline_logos/70px/6E.png"))
         assertTrue(output.contains("https://www.google.com/travel/flights"))

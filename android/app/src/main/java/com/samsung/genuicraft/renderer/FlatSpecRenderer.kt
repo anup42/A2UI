@@ -9918,36 +9918,283 @@ private fun flightLegRoute(header: String): String {
     return route.takeIf { it.isNotBlank() } ?: header.trim()
 }
 
+private data class RankedFlightEndpoint(
+    val code: String?,
+    val time: String?
+)
+
+private data class RankedFlightLeg(
+    val fromCode: String,
+    val fromTime: String,
+    val toCode: String,
+    val toTime: String,
+    val detail: String?
+)
+
 @Composable
-private fun RankedFlightAirlineBadge(airline: String, rank: String, best: Boolean) {
+private fun RankedFlightAirlineBadge(
+    airline: String,
+    rank: String,
+    best: Boolean,
+    logoUrl: String?
+) {
     val accent = rankedFlightAccentColor(airline)
     val code = NativeFlightSemantics.airlineBadgeCode(airline).ifBlank { rank.removePrefix("#") }
+    val safeLogo = remember(airline, logoUrl) {
+        rankedFlightLogoUrl(airline, logoUrl)
+    }
+    var logoFailed by remember(safeLogo) { mutableStateOf(false) }
+    val context = LocalContext.current
+    val imageLoader = remember(context) {
+        ImageLoader.Builder(context)
+            .components { add(SvgDecoder.Factory()) }
+            .build()
+    }
+    val badgeBackground = if (safeLogo != null && !logoFailed) {
+        Modifier.background(Color.White)
+    } else {
+        Modifier.background(
+            Brush.linearGradient(
+                colors = listOf(
+                    accent,
+                    accent.copy(alpha = if (best) 0.72f else 0.58f)
+                )
+            )
+        )
+    }
     Box(
         modifier = Modifier
             .size(42.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        accent,
-                        accent.copy(alpha = if (best) 0.72f else 0.58f)
-                    )
-                )
-            )
+            .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+            .then(badgeBackground)
             .border(
                 width = GenUiTokens.BorderSm,
-                color = Color.White.copy(alpha = 0.35f),
-                shape = RoundedCornerShape(14.dp)
+                color = if (safeLogo != null && !logoFailed) {
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                } else {
+                    Color.White.copy(alpha = 0.35f)
+                },
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill)
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = code.take(3),
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black),
-            color = Color.White,
-            maxLines = 1,
-            overflow = TextOverflow.Clip
+        if (safeLogo != null && !logoFailed) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(safeLogo)
+                    .crossfade(true)
+                    .allowHardware(false)
+                    .build(),
+                imageLoader = imageLoader,
+                contentDescription = "$airline logo",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(6.dp),
+                onError = { logoFailed = true }
+            )
+        } else {
+            Text(
+                text = code.take(3),
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black),
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Clip
+            )
+        }
+    }
+}
+
+private fun rankedFlightLogoUrl(airline: String, explicitLogoUrl: String?): String? {
+    SafeContentPolicy.sanitizeMediaUrl(explicitLogoUrl, SafeContentPolicy.MediaKind.IMAGE)
+        ?.let { return it }
+    val code = NativeFlightSemantics.airlineBadgeCode(airline).trim()
+    if (code.length !in 2..3 || !code.all { it.isLetterOrDigit() }) {
+        return null
+    }
+    return "https://www.gstatic.com/flights/airline_logos/70px/${code.uppercase(Locale.US)}.png"
+}
+
+@Composable
+private fun RankedFlightRouteLine(
+    departure: RankedFlightEndpoint,
+    arrival: RankedFlightEndpoint,
+    accent: Color
+) {
+    if (departure.code.isNullOrBlank() && departure.time.isNullOrBlank() &&
+        arrival.code.isNullOrBlank() && arrival.time.isNullOrBlank()
+    ) {
+        return
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        RankedFlightEndpointCell(
+            code = departure.code,
+            time = departure.time,
+            align = TextAlign.Start,
+            modifier = Modifier.widthIn(min = 52.dp)
         )
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            color = accent.copy(alpha = 0.38f)
+        )
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+                .background(accent.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.FlightTakeoff,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier.size(15.dp)
+            )
+        }
+        HorizontalDivider(
+            modifier = Modifier.weight(1f),
+            color = accent.copy(alpha = 0.38f)
+        )
+        RankedFlightEndpointCell(
+            code = arrival.code,
+            time = arrival.time,
+            align = TextAlign.End,
+            modifier = Modifier.widthIn(min = 52.dp)
+        )
+    }
+}
+
+@Composable
+private fun RankedFlightEndpointCell(
+    code: String?,
+    time: String?,
+    align: TextAlign,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = if (align == TextAlign.End) Alignment.End else Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(1.dp)
+    ) {
+        code?.takeIf { it.isNotBlank() }?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Black),
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = align,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        time?.takeIf { it.isNotBlank() }?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = align,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun RankedFlightLegRows(
+    legs: List<RankedFlightLeg>,
+    accent: Color
+) {
+    if (legs.isEmpty()) return
+    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+        legs.take(3).forEach { leg ->
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = accent.copy(alpha = if (isSystemInDarkTheme()) 0.18f else 0.08f),
+                border = BorderStroke(GenUiTokens.BorderSm, accent.copy(alpha = 0.16f))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 9.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = leg.fromCode,
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black),
+                            color = accent,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = leg.fromTime,
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = accent.copy(alpha = 0.26f)
+                        )
+                        Text(
+                            text = leg.toTime,
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = leg.toCode,
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black),
+                            color = accent,
+                            maxLines = 1
+                        )
+                    }
+                    leg.detail?.takeIf { it.isNotBlank() }?.let { detail ->
+                        Text(
+                            text = detail,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RankedFlightChipRow(chips: List<String>, accent: Color) {
+    if (chips.isEmpty()) return
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        chips.take(5).forEach { chip ->
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.82f),
+                border = BorderStroke(GenUiTokens.BorderSm, accent.copy(alpha = 0.16f))
+            ) {
+                Text(
+                    text = chip,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 
@@ -10060,8 +10307,16 @@ private fun RenderRankedFlightComparisonCards(
     val airlineIndex = rankedFlightColumnIndex(headers, listOf("airline", "carrier")) ?: 0
     val costIndex = rankedFlightColumnIndex(headers, listOf("cost", "fare", "price", "amount"))
     val durationIndex = rankedFlightColumnIndex(headers, listOf("travel time", "duration", "time"))
-    val layoverIndex = rankedFlightColumnIndex(headers, listOf("layover", "stop", "connection"))
+    val stopsIndex = rankedFlightColumnIndex(headers, listOf("stops", "stop"))
+    val layoverIndex = rankedFlightColumnIndex(headers, listOf("layover", "connection"))
     val reasonIndex = rankedFlightColumnIndex(headers, listOf("justification", "reason", "why", "notes", "detail"))
+    val statusIndex = rankedFlightColumnIndex(headers, listOf("status", "type"))
+    val departureIndex = rankedFlightColumnIndex(headers, listOf("departure", "depart"))
+    val arrivalIndex = rankedFlightColumnIndex(headers, listOf("arrival", "arrive"))
+    val legsIndex = rankedFlightColumnIndex(headers, listOf("legs", "segments", "itinerary"))
+    val carbonIndex = rankedFlightColumnIndex(headers, listOf("carbon", "emission", "co2"))
+    val bookingStatusIndex = rankedFlightColumnIndex(headers, listOf("booking"))
+    val logoIndex = rankedFlightColumnIndex(headers, listOf("airline logo", "logo", "icon", "image"))
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -10075,11 +10330,21 @@ private fun RenderRankedFlightComparisonCards(
                 rawRank = row.getOrNull(rankIndex ?: -1).orEmpty().trim(),
                 fallbackIndex = rowIndex
             )
-            val airline = row.getOrNull(airlineIndex).orEmpty().trim().ifBlank { "Flight option ${rowIndex + 1}" }
+            val airlineRaw = row.getOrNull(airlineIndex).orEmpty().trim().ifBlank { "Flight option ${rowIndex + 1}" }
+            val airline = airlineRaw.substringBefore(" - ").trim().ifBlank { airlineRaw }
+            val flightNumbers = airlineRaw.substringAfter(" - ", missingDelimiterValue = "").trim()
             val cost = row.getOrNull(costIndex ?: -1).orEmpty().trim()
             val duration = row.getOrNull(durationIndex ?: -1).orEmpty().trim()
+            val stops = row.getOrNull(stopsIndex ?: -1).orEmpty().trim()
             val layover = row.getOrNull(layoverIndex ?: -1).orEmpty().trim()
             val reason = row.getOrNull(reasonIndex ?: -1).orEmpty().trim()
+            val status = row.getOrNull(statusIndex ?: -1).orEmpty().trim()
+            val departure = parseRankedFlightEndpoint(row.getOrNull(departureIndex ?: -1).orEmpty())
+            val arrival = parseRankedFlightEndpoint(row.getOrNull(arrivalIndex ?: -1).orEmpty())
+            val legs = parseRankedFlightLegs(row.getOrNull(legsIndex ?: -1).orEmpty())
+            val carbon = row.getOrNull(carbonIndex ?: -1).orEmpty().trim()
+            val bookingStatus = row.getOrNull(bookingStatusIndex ?: -1).orEmpty().trim()
+            val logoUrl = row.getOrNull(logoIndex ?: -1).orEmpty().trim()
             val actionUrlIndex = headers.indices.firstOrNull { index ->
                 isFlightActionUrlColumn(headers[index]) &&
                     SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
@@ -10101,8 +10366,15 @@ private fun RenderRankedFlightComparisonCards(
             val best = rowIndex == 0 || rank == "#1"
             val accent = rankedFlightAccentColor(airline)
             val normalizedDuration = NativeFlightSemantics.normalizeDurationLabel(duration) ?: duration
-            val normalizedStop = NativeFlightSemantics.canonicalizeStopLabel(layover) ?: layover
+            val normalizedStop = NativeFlightSemantics.canonicalizeStopLabel(stops) ?: stops
             val (fareValue, fareMeta) = NativeFlightSemantics.splitFareDisplay(cost)
+            val subtitle = rankedFlightSubtitle(status, flightNumbers, normalizedStop, normalizedDuration, best)
+            val chips = rankedFlightChips(
+                stopLabel = normalizedStop,
+                layover = layover,
+                carbon = carbon,
+                bookingStatus = bookingStatus
+            )
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -10134,7 +10406,12 @@ private fun RenderRankedFlightComparisonCards(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        RankedFlightAirlineBadge(airline = airline, rank = rank, best = best)
+                        RankedFlightAirlineBadge(
+                            airline = airline,
+                            rank = rank,
+                            best = best,
+                            logoUrl = logoUrl
+                        )
                         Column(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(3.dp)
@@ -10151,6 +10428,15 @@ private fun RenderRankedFlightComparisonCards(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RankedFlightBestChip(if (best) "Best value" else rank, accent)
+                            }
+                            if (subtitle.isNotBlank()) {
+                                Text(
+                                    text = subtitle,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                         }
                         if (cost.isNotBlank()) {
@@ -10178,11 +10464,22 @@ private fun RenderRankedFlightComparisonCards(
                         }
                     }
 
-                    RankedFlightRouteHint(
-                        duration = normalizedDuration.takeIf { it.isNotBlank() },
-                        stopLabel = normalizedStop.takeIf { it.isNotBlank() },
-                        accent = accent
-                    )
+                    if (departure.code != null || departure.time != null || arrival.code != null || arrival.time != null) {
+                        RankedFlightRouteLine(
+                            departure = departure,
+                            arrival = arrival,
+                            accent = accent
+                        )
+                    } else {
+                        RankedFlightRouteHint(
+                            duration = normalizedDuration.takeIf { it.isNotBlank() },
+                            stopLabel = normalizedStop.takeIf { it.isNotBlank() },
+                            accent = accent
+                        )
+                    }
+
+                    RankedFlightLegRows(legs = legs, accent = accent)
+                    RankedFlightChipRow(chips = chips, accent = accent)
 
                     if (reason.isNotBlank()) {
                         Surface(
@@ -10230,6 +10527,97 @@ private fun isFlightActionUrlColumn(header: String): Boolean {
         normalized.contains("cta url") ||
         normalized == "url" ||
         normalized == "link"
+}
+
+private fun parseRankedFlightEndpoint(raw: String): RankedFlightEndpoint {
+    val point = NativeFlightSemantics.parseFlightPoint(raw, fallbackCode = null)
+    val code = point.code
+        ?: Regex("""\b([A-Z]{3})\b""")
+            .find(raw.uppercase(Locale.US))
+            ?.groupValues
+            ?.getOrNull(1)
+    val time = point.time ?: NativeFlightSemantics.normalizeFlightTime(raw)
+    return RankedFlightEndpoint(
+        code = code?.takeIf { it.isNotBlank() },
+        time = time?.takeIf { it.isNotBlank() }
+    )
+}
+
+private fun parseRankedFlightLegs(raw: String): List<RankedFlightLeg> {
+    if (raw.isBlank()) return emptyList()
+    val legPattern = Regex(
+        """^\s*([A-Z]{3})\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?(?:\+\d+)?)\s*->\s*([A-Z]{3})\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?(?:\+\d+)?)\s*(?:\((.*)\))?\s*$""",
+        RegexOption.IGNORE_CASE
+    )
+    return raw.split(';')
+        .mapNotNull { segment ->
+            val cleaned = NativeTextFormatter.sanitizeDisplayText(segment).trim()
+            if (cleaned.isBlank()) return@mapNotNull null
+            val match = legPattern.find(cleaned)
+            if (match != null) {
+                RankedFlightLeg(
+                    fromCode = match.groupValues[1].uppercase(Locale.US),
+                    fromTime = match.groupValues[2],
+                    toCode = match.groupValues[3].uppercase(Locale.US),
+                    toTime = match.groupValues[4],
+                    detail = match.groupValues.getOrNull(5)?.takeIf { it.isNotBlank() }
+                )
+            } else {
+                val endpointCodes = Regex("""\b([A-Z]{3})\b""")
+                    .findAll(cleaned.uppercase(Locale.US))
+                    .map { it.groupValues[1] }
+                    .take(2)
+                    .toList()
+                val times = Regex("""\b\d{1,2}:\d{2}(?:\s?[AP]M)?(?:\+\d+)?\b""", RegexOption.IGNORE_CASE)
+                    .findAll(cleaned)
+                    .map { it.value }
+                    .take(2)
+                    .toList()
+                if (endpointCodes.size >= 2 && times.size >= 2) {
+                    RankedFlightLeg(
+                        fromCode = endpointCodes[0],
+                        fromTime = times[0],
+                        toCode = endpointCodes[1],
+                        toTime = times[1],
+                        detail = cleaned.substringAfter(')', missingDelimiterValue = "")
+                            .trim()
+                            .takeIf { it.isNotBlank() }
+                    )
+                } else {
+                    null
+                }
+            }
+        }
+}
+
+private fun rankedFlightSubtitle(
+    status: String,
+    flightNumbers: String,
+    stopLabel: String,
+    duration: String,
+    best: Boolean
+): String {
+    val normalizedStatus = status
+        .replace(" - ", " • ")
+        .ifBlank { if (best) "Best flight" else "" }
+    return listOf(normalizedStatus, flightNumbers, stopLabel, duration)
+        .map { it.trim() }
+        .filter { it.isNotBlank() && !SafeContentPolicy.looksLikeUrl(it) }
+        .distinct()
+        .take(3)
+        .joinToString(" • ")
+}
+
+private fun rankedFlightChips(
+    stopLabel: String,
+    layover: String,
+    carbon: String,
+    bookingStatus: String
+): List<String> {
+    return listOf(stopLabel, layover, carbon, bookingStatus)
+        .map { NativeTextFormatter.sanitizeDisplayText(it).trim() }
+        .filter { it.isNotBlank() && !SafeContentPolicy.looksLikeUrl(it) }
+        .distinct()
 }
 
 @Composable

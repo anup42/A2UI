@@ -548,14 +548,16 @@ Rules:
         } else {
             sb.appendLine("Google Flights returned ${bestFlights.size()} best options and ${otherFlights.size()} other options. Each row keeps airline logos, prices, layovers, and action links for native flight cards.")
             sb.appendLine()
-            sb.appendLine("| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Airline Logo | Booking URL | Action Label |")
-            sb.appendLine("|---|---|---|---|---|---|---|---|---|---|")
+            sb.appendLine("| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Legs | Layover | Carbon | Booking | Airline Logo | Booking URL | Action Label |")
+            sb.appendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
             rows.take(8).forEach { row ->
                 val bookingUrl = flightSearchUrl(origin, destination, outboundDate)
                 sb.appendLine(
                     "| ${tableCell(row.airline)} | ${tableCell(row.departure)} | ${tableCell(row.arrival)} | " +
                         "${tableCell(row.duration)} | ${tableCell(row.stops)} | ${tableCell(formatFlightPrice(row.price, currency))} | " +
-                        "${tableCell(row.status)} | ${tableCell(row.logoUrl)} | ${tableCell(bookingUrl)} | View fare |"
+                        "${tableCell(row.status)} | ${tableCell(row.legs)} | ${tableCell(row.layover)} | " +
+                        "${tableCell(row.carbon)} | ${tableCell(row.bookingStatus)} | ${tableCell(row.logoUrl)} | " +
+                        "${tableCell(bookingUrl)} | View fare |"
                 )
             }
         }
@@ -576,6 +578,10 @@ Rules:
         val stops: String,
         val price: String,
         val status: String,
+        val legs: String,
+        val layover: String,
+        val carbon: String,
+        val bookingStatus: String,
         val logoUrl: String
     )
 
@@ -598,8 +604,7 @@ Rules:
             }
             val layoverStatus = flightLayoverSummary(layovers)
             val status = listOfNotNull(
-                groupLabel.takeIf { it.isNotBlank() },
-                layoverStatus.takeIf { it.isNotBlank() },
+                "$groupLabel flight".takeIf { groupLabel.isNotBlank() },
                 flightObj.safeString("type")?.takeIf { it.isNotBlank() }
             ).joinToString(" - ")
             FlightFormatterRow(
@@ -610,6 +615,10 @@ Rules:
                 stops = stops,
                 price = flightObj.safeString("price") ?: "",
                 status = status,
+                legs = flightLegsSummary(legs),
+                layover = layoverStatus,
+                carbon = flightCarbonSummary(flightObj.getAsJsonObject("carbon_emissions")),
+                bookingStatus = if (!flightObj.safeString("booking_token").isNullOrBlank()) "Booking token available" else "",
                 logoUrl = flightObj.safeString("airline_logo") ?: firstLeg.safeString("airline_logo") ?: ""
             )
         }
@@ -650,7 +659,40 @@ Rules:
             val duration = formatFlightMinutes(layover.safeString("duration") ?: "")
             val overnight = if (layover.safeBoolean("overnight") == true) " overnight" else ""
             listOf(airport, duration).filter { it.isNotBlank() }.joinToString(" ").plus(overnight).trim()
-        }.joinToString("; ").let { if (it.isBlank()) "" else "Layover $it" }
+        }.joinToString("; ")
+    }
+
+    private fun flightLegsSummary(legs: JsonArray): String {
+        return (0 until legs.size()).mapNotNull { index ->
+            val leg = legs[index].takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
+            val departure = leg.getAsJsonObject("departure_airport")
+            val arrival = leg.getAsJsonObject("arrival_airport")
+            val departureText = flightAirportCell(departure)
+            val arrivalText = flightAirportCell(arrival)
+            if (departureText.isBlank() || arrivalText.isBlank()) return@mapNotNull null
+            val details = listOfNotNull(
+                leg.safeString("flight_number")?.takeIf { it.isNotBlank() },
+                leg.safeString("airplane")?.takeIf { it.isNotBlank() }
+            ).joinToString(", ")
+            if (details.isBlank()) {
+                "$departureText -> $arrivalText"
+            } else {
+                "$departureText -> $arrivalText ($details)"
+            }
+        }.joinToString("; ")
+    }
+
+    private fun flightCarbonSummary(carbon: JsonObject?): String {
+        if (carbon == null) return ""
+        val difference = carbon.safeString("difference_percent")?.trim()?.takeIf { it.isNotBlank() } ?: return ""
+        val numeric = difference.toDoubleOrNull()
+        val formatted = if (numeric != null) {
+            val sign = if (numeric > 0) "+" else ""
+            "$sign${if (kotlin.math.abs(numeric - numeric.toInt()) < 0.05) numeric.toInt().toString() else "%.1f".format(numeric)}%"
+        } else {
+            difference
+        }
+        return "$formatted CO2 vs typical"
     }
 
     private fun formatFlightMinutes(raw: String): String {
