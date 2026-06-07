@@ -241,7 +241,8 @@ internal object NativeFlightSemantics {
                 duration = readCell(row, columns.duration),
                 stops = readCell(row, columns.stops),
                 fare = readCell(row, columns.fare),
-                status = readCell(row, columns.status)
+                status = readCell(row, columns.status),
+                logoUrl = readCell(row, columns.logo)?.takeIf(::looksLikeMediaUrl)
             )
         }
         return rows.takeIf { it.isNotEmpty() }
@@ -269,14 +270,19 @@ internal object NativeFlightSemantics {
             return null
         }
 
-        val airline = findHeaderIndex(normalized, listOf("airline", "carrier", "operator", "flight", "route"))
+        val logo = findHeaderIndex(normalized, listOf("logo", "icon", "image", "thumbnail", "airline logo"))
+        val airline = findHeaderIndex(
+            normalized,
+            listOf("airline", "carrier", "operator", "flight", "route"),
+            exclude = setOfNotNull(logo)
+        )
             ?: return null
-        val depart = findHeaderIndex(normalized, listOf("depart", "departure", "takeoff", "from", "origin"), exclude = setOf(airline))
-        val arrive = findHeaderIndex(normalized, listOf("arrive", "arrival", "landing", "to", "destination"), exclude = setOf(airline) + listOfNotNull(depart))
-        val duration = findHeaderIndex(normalized, listOf("duration", "travel time", "elapsed"), exclude = setOf(airline) + listOfNotNull(depart, arrive))
-        val stops = findHeaderIndex(normalized, listOf("stop", "stops", "layover", "connection", "type"), exclude = setOf(airline) + listOfNotNull(depart, arrive, duration))
-        val fare = findHeaderIndex(normalized, listOf("fare", "price", "cost", "amount", "rate"), exclude = setOf(airline) + listOfNotNull(depart, arrive, duration, stops))
-        val status = findHeaderIndex(normalized, listOf("status", "on time", "punctual", "delay"), exclude = setOf(airline) + listOfNotNull(depart, arrive, duration, stops, fare))
+        val depart = findHeaderIndex(normalized, listOf("depart", "departure", "takeoff", "from", "origin"), exclude = setOfNotNull(airline, logo))
+        val arrive = findHeaderIndex(normalized, listOf("arrive", "arrival", "landing", "to", "destination"), exclude = setOfNotNull(airline, logo, depart))
+        val duration = findHeaderIndex(normalized, listOf("duration", "travel time", "elapsed"), exclude = setOfNotNull(airline, logo, depart, arrive))
+        val stops = findHeaderIndex(normalized, listOf("stop", "stops", "layover", "connection", "type"), exclude = setOfNotNull(airline, logo, depart, arrive, duration))
+        val fare = findHeaderIndex(normalized, listOf("fare", "price", "cost", "amount", "rate"), exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops))
+        val status = findHeaderIndex(normalized, listOf("status", "on time", "punctual", "delay"), exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops, fare))
 
         val contentSignals = listOf(depart, arrive, duration, stops, fare, status).count { it != null }
         if (contentSignals < 2) {
@@ -290,7 +296,8 @@ internal object NativeFlightSemantics {
             duration = duration,
             stops = stops,
             fare = fare,
-            status = status
+            status = status,
+            logo = logo
         )
     }
 
@@ -390,6 +397,15 @@ internal object NativeFlightSemantics {
             return null
         }
         return row[index].trim().takeIf { it.isNotEmpty() }
+    }
+
+    private fun looksLikeMediaUrl(value: String): Boolean {
+        val trimmed = value.trim()
+        return trimmed.startsWith("http://", ignoreCase = true) ||
+            trimmed.startsWith("https://", ignoreCase = true) ||
+            trimmed.startsWith("../assets/", ignoreCase = true) ||
+            trimmed.startsWith("assets/", ignoreCase = true) ||
+            trimmed.startsWith("file:", ignoreCase = true)
     }
 
     fun extractAirportCode(headerText: String): String? {

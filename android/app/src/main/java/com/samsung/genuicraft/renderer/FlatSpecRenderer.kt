@@ -6342,6 +6342,24 @@ private fun bookingImageIndex(headers: List<String>): Int? =
             (token.contains("photo") && token.contains("url"))
     }
 
+private fun bookingRatingIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("rating", "score", "stars", "review score"))
+
+private fun bookingReviewCountIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("review count", "reviews", "user rating count"))
+
+private fun bookingClassIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("hotel class", "class", "type", "category", "property type"))
+
+private fun bookingAmenitiesIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("amenities", "facilities", "features", "services", "highlights"))
+
+private fun bookingMapIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("map", "maps", "directions", "location url", "maps url"))
+
+private fun bookingWebsiteIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("website", "official", "site", "homepage"))
+
 internal fun bookingRowActionLabel(headers: List<String>, row: List<String>): String? {
     val index = bookingActionLabelIndex(headers) ?: return null
     return row.getOrNull(index)
@@ -6355,6 +6373,14 @@ internal fun bookingRowImageUrl(headers: List<String>, row: List<String>): Strin
     return row.getOrNull(index)
         ?.trim()
         ?.takeIf { it.isNotBlank() }
+}
+
+private fun bookingRowImageUrls(headers: List<String>, row: List<String>): List<String> {
+    val index = bookingImageIndex(headers) ?: return emptyList()
+    return splitRestaurantPhotoUrls(row.getOrNull(index).orEmpty())
+        .ifEmpty { row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() }?.let(::listOf).orEmpty() }
+        .distinct()
+        .take(4)
 }
 
 private fun restaurantTitleIndex(headers: List<String>): Int =
@@ -6946,10 +6972,16 @@ private fun renderBookingRowsIfPossible(
     )
     val actionLabelIndex = bookingActionLabelIndex(headers)
     val imageIndex = bookingImageIndex(headers)
+    val ratingIndex = bookingRatingIndex(headers)
+    val reviewCountIndex = bookingReviewCountIndex(headers)
+    val classIndex = bookingClassIndex(headers)
+    val amenitiesIndex = bookingAmenitiesIndex(headers)
+    val mapIndex = bookingMapIndex(headers)
+    val websiteIndex = bookingWebsiteIndex(headers)
     val secondaryIndex = findTableColumnIndex(
         headers = headers,
         keywords = listOf("duration", "time", "date", "location", "room", "type", "class", "stops", "status"),
-        exclude = setOf(titleIndex, priceIndex ?: -1)
+        exclude = setOfNotNull(titleIndex, priceIndex, ratingIndex, reviewCountIndex, amenitiesIndex)
     )
     val hasBookingSignal = priceIndex != null || linkIndex != null || headers.any(::isBookingEntityHeaderLabel)
     if (!hasBookingSignal) return false
@@ -6967,20 +6999,42 @@ private fun renderBookingRowsIfPossible(
             val title = row.getOrNull(titleIndex).orEmpty().trim().ifBlank { "Option" }
             val price = priceIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
             val secondary = secondaryIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+            val rating = ratingIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+            val reviews = reviewCountIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+            val hotelClass = classIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+            val amenities = amenitiesIndex?.let { index -> splitRestaurantTags(row.getOrNull(index).orEmpty()) }.orEmpty()
             val actionUrl = linkIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
                 ?.let(SafeContentPolicy::sanitizeActionUrl)
+            val mapsUrl = mapIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
+                ?.let(SafeContentPolicy::sanitizeActionUrl)
+            val websiteUrl = websiteIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
+                ?.let(SafeContentPolicy::sanitizeActionUrl)
             val actionLabel = bookingRowActionLabel(headers, row) ?: "Open Option"
-            val imageUrl = bookingRowImageUrl(headers, row).orEmpty()
+            val imageUrls = bookingRowImageUrls(headers, row)
+            val excludedChipIndexes = setOfNotNull(
+                titleIndex,
+                priceIndex,
+                secondaryIndex,
+                linkIndex,
+                actionLabelIndex,
+                imageIndex,
+                ratingIndex,
+                reviewCountIndex,
+                classIndex,
+                amenitiesIndex,
+                mapIndex,
+                websiteIndex
+            )
             val chips = buildList {
                 headers.forEachIndexed { index, header ->
-                    if (index in setOf(titleIndex, priceIndex, secondaryIndex, linkIndex, actionLabelIndex, imageIndex)) {
+                    if (index in excludedChipIndexes) {
                         return@forEachIndexed
                     }
                     val value = row.getOrNull(index).orEmpty().trim()
-                    if (value.isBlank()) return@forEachIndexed
+                    if (value.isBlank() || isLikelyHttpUrl(value)) return@forEachIndexed
                     add(header.ifBlank { "Detail" } to value)
                 }
-            }.take(4)
+            }.take(5)
 
             Card(
                 modifier = Modifier
@@ -6988,25 +7042,21 @@ private fun renderBookingRowsIfPossible(
                     .semantics {
                         contentDescription = tableRowAccessibilitySummary(headers, row)
                     },
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 border = flatSpecCardBorder()
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (imageUrl.isNotBlank()) {
-                        RenderImage(
-                            props = mapOf(
-                                "url" to imageUrl,
-                                "fit" to "cover",
-                                "aspectRatio" to 1.65f,
-                                "alt" to title
-                            ),
+                    if (imageUrls.isNotEmpty()) {
+                        BookingPhotoStrip(
+                            name = title,
+                            photos = imageUrls,
                             onOpenUrl = onOpenUrl
                         )
                     }
@@ -7021,12 +7071,16 @@ private fun renderBookingRowsIfPossible(
                         ) {
                             Text(
                                 text = parseBoldMarkdown(title),
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            if (secondary.isNotBlank()) {
+                            val subtitle = listOf(hotelClass, secondary)
+                                .filter { it.isNotBlank() }
+                                .distinct()
+                                .joinToString(" • ")
+                            if (subtitle.isNotBlank()) {
                                 Text(
-                                    text = parseBoldMarkdown(secondary),
+                                    text = parseBoldMarkdown(subtitle),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -7046,32 +7100,66 @@ private fun renderBookingRowsIfPossible(
                             }
                         }
                     }
+                    if (rating.isNotBlank() || reviews.isNotBlank()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (rating.isNotBlank()) {
+                                BookingMetricChip(
+                                    label = rating,
+                                    icon = Icons.Filled.Star,
+                                    emphasized = true
+                                )
+                            }
+                            if (reviews.isNotBlank()) {
+                                BookingMetricChip(
+                                    label = reviews,
+                                    icon = Icons.Filled.RateReview
+                                )
+                            }
+                        }
+                    }
+                    if (amenities.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(7.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            amenities.take(6).forEach { amenity ->
+                                BookingDetailChip(amenity)
+                            }
+                        }
+                    }
                     if (chips.isNotEmpty()) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             chips.forEach { (label, value) ->
-                                Surface(
-                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f)
-                                ) {
-                                    Text(
-                                        text = parseBoldMarkdown("${label.trim()}: ${value.trim()}"),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
-                                    )
-                                }
+                                BookingDetailChip("${label.trim()}: ${value.trim()}")
                             }
                         }
                     }
-                    if (!actionUrl.isNullOrBlank()) {
-                        Button(
-                            onClick = { onOpenUrl(actionUrl) },
-                            modifier = Modifier.fillMaxWidth()
+                    val actions = listOfNotNull(
+                        actionUrl?.let { actionLabel to (Icons.Filled.EventAvailable to it) },
+                        mapsUrl?.takeIf { it != actionUrl }?.let { "Directions" to (Icons.Filled.Directions to it) },
+                        websiteUrl?.takeIf { it != actionUrl && it != mapsUrl }?.let { "Website" to (Icons.Filled.Language to it) }
+                    )
+                    if (actions.isNotEmpty()) {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(actionLabel)
+                            actions.forEachIndexed { index, (label, iconAndUrl) ->
+                                RestaurantActionPill(
+                                    label = label,
+                                    icon = iconAndUrl.first,
+                                    primary = index == 0,
+                                    onClick = { onOpenUrl(iconAndUrl.second) }
+                                )
+                            }
                         }
                     }
                 }
@@ -7079,6 +7167,111 @@ private fun renderBookingRowsIfPossible(
         }
     }
     return true
+}
+
+@Composable
+private fun BookingPhotoStrip(
+    name: String,
+    photos: List<String>,
+    onOpenUrl: (String) -> Unit
+) {
+    if (photos.isEmpty()) return
+    if (photos.size == 1) {
+        RenderImage(
+            props = mapOf(
+                "url" to photos.first(),
+                "fit" to "cover",
+                "aspectRatio" to 1.72f,
+                "alt" to "$name photo"
+            ),
+            onOpenUrl = onOpenUrl,
+            modifier = Modifier.fillMaxWidth()
+        )
+        return
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        photos.take(5).forEachIndexed { index, photo ->
+            RenderImage(
+                props = mapOf(
+                    "url" to photo,
+                    "fit" to "cover",
+                    "width" to if (index == 0) 248 else 210,
+                    "height" to 150,
+                    "alt" to "$name photo ${index + 1}"
+                ),
+                onOpenUrl = onOpenUrl,
+                modifier = Modifier
+            )
+        }
+    }
+}
+
+@Composable
+private fun BookingMetricChip(
+    label: String,
+    icon: ImageVector? = null,
+    emphasized: Boolean = false
+) {
+    val containerColor = if (emphasized) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.secondaryContainer
+    }
+    val contentColor = if (emphasized) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    }
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = containerColor,
+        border = BorderStroke(1.dp, contentColor.copy(alpha = if (isSystemInDarkTheme()) 0.30f else 0.18f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = contentColor
+                )
+            }
+            Text(
+                text = parseBoldMarkdown(label),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun BookingDetailChip(label: String) {
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.70f))
+    ) {
+        Text(
+            text = parseBoldMarkdown(label),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp)
+        )
+    }
 }
 
 @Composable
@@ -10437,6 +10630,42 @@ private fun RenderDirectTable(
         }
     }
 
+    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
+        RenderRankedFlightComparisonCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical"),
+            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
+        )
+        return
+    }
+    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeMultiLegFlightTable(headers)) {
+        RenderFlightItineraryTableCards(
+            headers = headers,
+            rows = table.rows,
+            modifier = applyStackModifier(modifier, props, "vertical"),
+            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
+        )
+        return
+    }
+    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
+        val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
+        if (!flightRows.isNullOrEmpty()) {
+            NativeFlightUiRenderer.RenderFlightRows(flightRows)
+            return
+        }
+    }
+    if (table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
+        val rendered = renderBookingRowsIfPossible(
+            headers = headers,
+            rows = table.rows,
+            onOpenUrl = onOpenUrl
+        )
+        if (rendered) {
+            return
+        }
+    }
+
     if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
@@ -10486,42 +10715,6 @@ private fun RenderDirectTable(
             modifier = applyStackModifier(modifier, props, "vertical")
         )
         return
-    }
-
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
-        RenderRankedFlightComparisonCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
-            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
-        )
-        return
-    }
-    if (compactPortrait && table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
-        val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
-        if (!flightRows.isNullOrEmpty()) {
-            NativeFlightUiRenderer.RenderFlightRows(flightRows)
-            return
-        }
-    }
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeMultiLegFlightTable(headers)) {
-        RenderFlightItineraryTableCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
-            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
-        )
-        return
-    }
-    if (table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
-        val rendered = renderBookingRowsIfPossible(
-            headers = headers,
-            rows = table.rows,
-            onOpenUrl = onOpenUrl
-        )
-        if (rendered) {
-            return
-        }
     }
 
     if (isFormulaVariablesTable(table)) {

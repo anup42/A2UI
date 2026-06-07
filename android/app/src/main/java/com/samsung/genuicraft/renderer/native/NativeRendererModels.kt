@@ -64,7 +64,8 @@ internal data class FlightTableColumns(
     val duration: Int?,
     val stops: Int?,
     val fare: Int?,
-    val status: Int?
+    val status: Int?,
+    val logo: Int? = null
 )
 
 internal data class FlightRow(
@@ -76,7 +77,8 @@ internal data class FlightRow(
     val duration: String?,
     val stops: String?,
     val fare: String?,
-    val status: String?
+    val status: String?,
+    val logoUrl: String? = null
 )
 
 internal data class FlightPoint(

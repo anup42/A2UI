@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,16 +23,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import com.samsung.genuicraft.GenUiCardTone
 import com.samsung.genuicraft.GenUiTokens
 import com.samsung.genuicraft.genUiCardBorderColor
@@ -88,15 +98,19 @@ internal object NativeFlightUiRenderer {
                                 statusLabel = statusLabel
                             )
                         },
-                    shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+                    shape = RoundedCornerShape(24.dp),
                     colors = genUiCardColors(GenUiCardTone.Neutral),
                     elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                    border = BorderStroke(
+                        width = GenUiTokens.BorderMd,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
+                    ),
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -108,7 +122,7 @@ internal object NativeFlightUiRenderer {
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                AirlineBadge(airline = airline)
+                                AirlineBadge(airline = airline, logoUrl = row.logoUrl)
                                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     MarkdownText(
                                         text = airline,
@@ -278,28 +292,53 @@ internal object NativeFlightUiRenderer {
     }
 
     @Composable
-    private fun AirlineBadge(airline: String) {
+    private fun AirlineBadge(airline: String, logoUrl: String?) {
         val accent = airlineAccentColor(airline)
         val code = NativeFlightSemantics.airlineBadgeCode(airline)
+        val resolvedLogo = remember(airline, logoUrl) { airlineLogoUrl(airline, logoUrl) }
+        var logoFailed by remember(resolvedLogo) { mutableStateOf(false) }
+        val context = LocalContext.current
+        val imageLoader = remember(context) {
+            ImageLoader.Builder(context)
+                .components { add(SvgDecoder.Factory()) }
+                .build()
+        }
         Box(
             modifier = Modifier
-                .size(34.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(accent.copy(alpha = 0.18f))
+                .size(42.dp)
+                .clip(RoundedCornerShape(999.dp))
+                .background(if (resolvedLogo != null && !logoFailed) Color.White else accent.copy(alpha = 0.16f))
                 .border(
                     width = GenUiTokens.BorderMd,
-                    color = accent.copy(alpha = 0.45f),
-                    shape = RoundedCornerShape(10.dp)
+                    color = accent.copy(alpha = 0.42f),
+                    shape = RoundedCornerShape(999.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Filled.FlightTakeoff,
-                contentDescription = null,
-                tint = accent,
-                modifier = Modifier.size(15.dp)
-            )
-            if (code.isNotBlank()) {
+            if (resolvedLogo != null && !logoFailed) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(resolvedLogo)
+                        .crossfade(true)
+                        .allowHardware(false)
+                        .build(),
+                    imageLoader = imageLoader,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(6.dp),
+                    onError = { logoFailed = true }
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.FlightTakeoff,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            if (code.isNotBlank() && (resolvedLogo == null || logoFailed)) {
                 Text(
                     text = code,
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
@@ -310,6 +349,26 @@ internal object NativeFlightUiRenderer {
                 )
             }
         }
+    }
+
+    private fun airlineLogoUrl(airline: String, explicitLogoUrl: String?): String? {
+        explicitLogoUrl
+            ?.trim()
+            ?.takeIf { looksLikeMediaUrl(it) }
+            ?.let { return it }
+        val code = NativeFlightSemantics.airlineBadgeCode(airline).trim()
+        if (code.length !in 2..3 || !code.all { it.isLetterOrDigit() }) {
+            return null
+        }
+        return "https://www.gstatic.com/flights/airline_logos/70px/${code.uppercase()}.png"
+    }
+
+    private fun looksLikeMediaUrl(value: String): Boolean {
+        return value.startsWith("http://", ignoreCase = true) ||
+            value.startsWith("https://", ignoreCase = true) ||
+            value.startsWith("../assets/", ignoreCase = true) ||
+            value.startsWith("assets/", ignoreCase = true) ||
+            value.startsWith("file:", ignoreCase = true)
     }
 
     @Composable
