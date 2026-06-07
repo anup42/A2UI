@@ -53,12 +53,12 @@ Valid (flat-spec):
 
 ## Stitch-style compact mobile patterns
 - Favor a mobile app screen, not a document: one clear title, 1 compact hero/status/result card, then structured cards or tables.
-- Preserve hierarchy with short headings, chips, metric rows, and compact cards instead of long prose blocks.
+- Preserve hierarchy with short headings, chips, and compact cards instead of long prose blocks. Do not create top KPI/metric summary panels unless the user explicitly asks for a dashboard or analytics summary.
 - For dashboards/calculations/status results, use 1 prominent result card, one `Formula` element for the main equation, and compact `Table` elements for variables and numeric breakdowns. For explicit chart requests, use a compact `Chart` element backed by the same rows, not a placeholder chart image.
 - For non-tabular product/place result lists, use one repeated card pattern when that is smaller than duplicated elements.
 - For flights, bookings, or ranked choices with comparable fields (price, duration, stops, rank, reason), use one compact `Table` instead of repeated card templates; Android renders the cards.
 - For comparison data, emit one compact `Table`; renderer will choose cards or horizontal table based on metadata and columns.
-- Keep IR small: do not duplicate the same fact in summary text and table rows.
+- Keep IR small: do not duplicate the same fact in summary text, KPI cards, and table rows. If a result table/card list already contains the data, do not add a separate metric summary above it.
 
 ## Asset URL policy
 - If no Assets mapping is provided, preserve media URLs exactly as given.
@@ -126,11 +126,11 @@ Allowed dynamic value expressions in props:
 - Do NOT expand compact table payloads into `header_row`, `body_rows`, `row_template`, or per-cell elements.
 - Do NOT include both `sourceText` and full row data unless source text is essential for traceability.
 - Do NOT create separate portrait and landscape IR; emit one compact `Table`. Android adapts the visual:
-  - portrait `<600dp`: entity rows become cards, playlist rows become music rows/cards, key-value rows become fact panels, schedules become timeline cards, metrics become KPI cards
+  - portrait `<600dp`: entity rows become cards, playlist rows become music rows/cards, key-value rows become fact panels, and schedules become timeline cards. Numeric metrics become KPI cards only for explicit dashboard/analytics requests; otherwise keep them inside the related table/card row.
   - landscape/tablet: table-first layout with horizontal scroll and sticky first column when needed; playlist stays a split music-player layout, not a spreadsheet
 - Preserve table values exactly (numbers, units, currency, dates, symbols) and keep column ordering stable.
 - Data visualization/chart outputs should use `Chart` for bar/column charts with `statePath`/`rows`, `columns`, `xKey`, and `yKey`; keep the source data as compact rows and do not use random chart screenshots or decorative chart images. For survey/distribution percentage matrices, keep one compact `Table`; Android auto-renders it as a stacked percentage chart without duplicating the IR data.
-- Weather/climate outputs must include a dedicated metrics table.
+- Weather/climate outputs should keep metrics as columns in the forecast/comparison table. Do not create a dedicated standalone metrics table above the main result.
 - Weather forecasts should stay compact as one `Table` with `domain: "weather"` and `preferredPresentation: "cards"`. Include day/period, condition/forecast, high/low or temperature, precipitation/rain chance, wind, humidity, and UV when available; do not expand forecast rows into Card/Text trees because Android renders the weather hero, trend chart, and day cards.
 - Do not create a separate `Current metrics`, `Current weather`, or key-value weather table above the forecast. Put current/today values in the first weather table row; Android renders those as the hero card.
 - Weather/climate comparison tables should stay compact as one `Table`; use `domain: "comparison"` and `preferredPresentation: "cards"` for city/entity rows so the renderer can map them to weather-style climate cards. Keep temperature, rain/precipitation, sunshine, wind, humidity, and recommendation fields as table columns; do not render detached destination image galleries.

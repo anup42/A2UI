@@ -1422,7 +1422,8 @@ private fun RenderChildren(
 ) {
     val visibleChildren = children.filterNot { childId ->
         isDetachedMediaDumpElement(childId, elements) ||
-            isRedundantWeatherLeadInElement(childId, children, elements, state)
+            isRedundantWeatherLeadInElement(childId, children, elements, state) ||
+            isRedundantTopMetricSummaryElement(childId, children, elements, state)
     }
     if (visibleChildren.isEmpty()) {
         return
@@ -1723,6 +1724,217 @@ private fun containsForecastWeatherTableElement(
     return element.children.any { childId ->
         containsForecastWeatherTableElement(childId, elements, state, visited, depth + 1)
     }
+}
+
+private fun isRedundantTopMetricSummaryElement(
+    elementId: String,
+    siblingIds: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>
+): Boolean {
+    val index = siblingIds.indexOf(elementId)
+    if (index < 0) return false
+    if (looksLikeTopMetricContainerBlock(elementId, elements, state)) {
+        return true
+    }
+    val hasLaterResultTable = siblingIds.drop(index + 1).any { siblingId ->
+        containsResultTableElement(siblingId, elements, state)
+    }
+    if (!hasLaterResultTable) return false
+    val element = elements[elementId] ?: return false
+    if (element.type.equals("text", ignoreCase = true)) {
+        val text = FlatExprResolver.resolveString(
+            value = textLikeValue(element.props),
+            state = emptyMap(),
+            repeatScope = null,
+            computedFunctions = emptyMap()
+        ).trim()
+        return isTopMetricHeadingText(text)
+    }
+    if (element.type.equals("table", ignoreCase = true)) {
+        return looksLikeTopMetricTable(element.props, state)
+    }
+    return looksLikeTopMetricTextBlock(elementId, elements)
+}
+
+private fun looksLikeTopMetricContainerBlock(
+    elementId: String,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>
+): Boolean {
+    val root = elements[elementId] ?: return false
+    val rootType = root.type.trim().lowercase()
+    if (rootType !in setOf("card", "stack", "column", "row", "list")) return false
+    val textValues = mutableListOf<String>()
+    var hasTopMetricTable = false
+    var hasDisqualifyingStructuredContent = false
+    val visited = mutableSetOf<String>()
+
+    fun walk(id: String, depth: Int) {
+        if (depth > 6 || !visited.add(id)) return
+        val element = elements[id] ?: return
+        val type = element.type.trim().lowercase()
+        when (type) {
+            "table" -> {
+                if (looksLikeTopMetricTable(element.props, state)) {
+                    hasTopMetricTable = true
+                } else {
+                    hasDisqualifyingStructuredContent = true
+                }
+                return
+            }
+            "button", "tabs", "image", "emailpreview", "codeblock", "consolelog", "chart", "form" -> {
+                hasDisqualifyingStructuredContent = true
+                return
+            }
+            "text" -> {
+                val text = FlatExprResolver.resolveString(
+                    value = textLikeValue(element.props),
+                    state = emptyMap(),
+                    repeatScope = null,
+                    computedFunctions = emptyMap()
+                ).trim()
+                if (text.isNotBlank()) {
+                    textValues += text
+                }
+            }
+        }
+        element.children.forEach { childId -> walk(childId, depth + 1) }
+    }
+
+    walk(elementId, 0)
+    if (!hasTopMetricTable || hasDisqualifyingStructuredContent) return false
+    if (textValues.size > 18 || textValues.any { it.length > 120 }) return false
+    return textValues.any(::isTopMetricHeadingText) || textValues.count(::isTopMetricLabelText) >= 2
+}
+
+private fun containsResultTableElement(
+    elementId: String,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>,
+    visited: MutableSet<String> = mutableSetOf(),
+    depth: Int = 0
+): Boolean {
+    if (depth > 6 || !visited.add(elementId)) return false
+    val element = elements[elementId] ?: return false
+    if (element.type.equals("table", ignoreCase = true)) {
+        val table = extractDirectTableModel(element.props, state, compactScreen = true)
+        if (table != null && table.rows.isNotEmpty()) return true
+    }
+    return element.children.any { childId ->
+        containsResultTableElement(childId, elements, state, visited, depth + 1)
+    }
+}
+
+private fun looksLikeTopMetricTable(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>
+): Boolean {
+    val table = extractDirectTableModel(props, state, compactScreen = true) ?: return false
+    if (table.shape != FlatTableShape.KEY_VALUE || table.rows.size !in 2..8) return false
+    val labels = table.rows.mapNotNull { row -> row.firstOrNull()?.trim()?.takeIf(String::isNotBlank) }
+    return labels.count(::isTopMetricLabelText) >= 2
+}
+
+private fun looksLikeTopMetricTextBlock(
+    elementId: String,
+    elements: Map<String, FlatElement>
+): Boolean {
+    val root = elements[elementId] ?: return false
+    val rootType = root.type.trim().lowercase()
+    if (rootType !in setOf("card", "stack", "column", "row", "list")) return false
+    val textValues = mutableListOf<String>()
+    var hasDisqualifyingStructuredContent = false
+    val visited = mutableSetOf<String>()
+
+    fun walk(id: String, depth: Int) {
+        if (depth > 6 || !visited.add(id)) return
+        val element = elements[id] ?: return
+        val type = element.type.trim().lowercase()
+        if (type in setOf("table", "button", "tabs", "image", "emailpreview", "codeblock", "consolelog", "chart", "form")) {
+            hasDisqualifyingStructuredContent = true
+            return
+        }
+        if (type == "text") {
+            val text = FlatExprResolver.resolveString(
+                value = textLikeValue(element.props),
+                state = emptyMap(),
+                repeatScope = null,
+                computedFunctions = emptyMap()
+            ).trim()
+            if (text.isNotBlank()) {
+                textValues += text
+            }
+        }
+        element.children.forEach { childId -> walk(childId, depth + 1) }
+    }
+
+    walk(elementId, 0)
+    if (hasDisqualifyingStructuredContent || textValues.size !in 3..16) return false
+    if (textValues.any { it.length > 48 }) return false
+    if (textValues.size <= 4 && textValues.any(::isTopResultCountSummaryText)) {
+        return true
+    }
+    val metricLabelCount = textValues.count(::isTopMetricLabelText)
+    val valueLikeCount = textValues.count(::isShortMetricValueText)
+    return metricLabelCount >= 2 && valueLikeCount >= 2
+}
+
+private fun isTopMetricHeadingText(text: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(text)
+    return normalized in setOf(
+        "metrics",
+        "trip metrics",
+        "key metrics",
+        "summary metrics",
+        "quick metrics",
+        "snapshot metrics",
+        "overview metrics"
+    )
+}
+
+private fun isTopResultCountSummaryText(text: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(text)
+    if (normalized.length > 90) return false
+    return normalized.contains("returned") &&
+        normalized.contains("options") &&
+        (normalized.contains("best") || normalized.contains("other") || normalized.contains("total"))
+}
+
+private fun isTopMetricLabelText(text: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(text)
+    if (normalized.isBlank() || normalized.length > 36) return false
+    val phrases = listOf(
+        "fastest",
+        "lowest",
+        "highest",
+        "average",
+        "total",
+        "options",
+        "non stop",
+        "nonstop",
+        "one stop",
+        "duration",
+        "fare",
+        "price",
+        "count",
+        "listed",
+        "shown",
+        "available",
+        "score",
+        "rating"
+    )
+    return phrases.any { normalized.contains(it) }
+}
+
+private fun isShortMetricValueText(text: String): Boolean {
+    val trimmed = text.trim()
+    if (trimmed.isBlank() || trimmed.length > 32 || SafeContentPolicy.looksLikeUrl(trimmed)) return false
+    return trimmed.any(Char::isDigit) ||
+        trimmed.startsWith("$") ||
+        trimmed.startsWith("₹") ||
+        trimmed.startsWith("€") ||
+        trimmed.startsWith("£")
 }
 
 private fun looksLikeForecastWeatherTable(
