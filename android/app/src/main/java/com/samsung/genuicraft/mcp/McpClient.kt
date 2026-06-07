@@ -24,7 +24,7 @@ import java.util.Locale
  *
  * - Weather: Open-Meteo (free, no key required)
  * - Flights: Tequila Kiwi (API key required)
- * - Restaurants: Gemini with Google Maps grounding via Vertex Express (API key required)
+ * - Restaurants: Google Places (API key required)
  * - Hotels: Serpapi (API key required)
  * - Places: Google Places (API key required)
  * - News: NewsData.io (API key required)
@@ -331,9 +331,117 @@ object McpClient {
         )
     }
 
-    // Restaurants: Gemini with Google Maps grounding via Vertex Express
+    // Restaurants: Google Places API (New)
 
     private fun fetchRestaurants(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
+        if (apiKey.isBlank()) {
+            return McpResult(
+                domain = McpSettings.Domain.RESTAURANTS,
+                success = false,
+                data = null,
+                rawJson = null,
+                error = "Google Maps API key not configured. Set it in Settings > MCP API Keys.",
+                requestDebug = null
+            )
+        }
+
+        val location = entities["location"] ?: extractLocationFallback(queryText) ?: "New York"
+        val language = normalizeLanguageCode(entities["language"], fallback = "en")
+        val country = normalizeCountryCode(entities["country"])
+        val latitude = entities["latitude"]?.toDoubleOrNull()
+        val longitude = entities["longitude"]?.toDoubleOrNull()
+        val requestDebug = buildRequestDebug(
+            domain = "restaurants",
+            endpoint = "google_places/searchText",
+            pairs = listOf(
+                "location" to location,
+                "language" to language,
+                "country" to country,
+                "latitude" to latitude?.toString(),
+                "longitude" to longitude?.toString(),
+                "max_results" to "8"
+            )
+        )
+
+        val url = "https://places.googleapis.com/v1/places:searchText"
+        val body = JsonObject().apply {
+            addProperty("textQuery", buildRestaurantSearchQuery(queryText, location))
+            addProperty("includedType", "restaurant")
+            addProperty("maxResultCount", 8)
+            addProperty("languageCode", language)
+            if (!country.isNullOrBlank()) {
+                addProperty("regionCode", country.uppercase(Locale.US))
+            }
+            if (latitude != null && longitude != null) {
+                add("locationBias", JsonObject().apply {
+                    add("circle", JsonObject().apply {
+                        add("center", JsonObject().apply {
+                            addProperty("latitude", latitude)
+                            addProperty("longitude", longitude)
+                        })
+                        addProperty("radius", 10000.0)
+                    })
+                })
+            }
+        }
+        val headers = mapOf(
+            "X-Goog-Api-Key" to apiKey,
+            "X-Goog-FieldMask" to "places.displayName,places.formattedAddress,places.priceLevel," +
+                "places.rating,places.userRatingCount,places.types,places.photos,places.reviews," +
+                "places.editorialSummary,places.regularOpeningHours," +
+                "places.websiteUri,places.googleMapsUri"
+        )
+        val response = httpPostWithHeaders(url, body.toString(), "application/json", headers)
+        val json = JsonParser.parseString(response).asJsonObject
+        val restaurants = json.getAsJsonArray("places") ?: JsonArray()
+
+        restaurants.forEach { el ->
+            val restaurant = el.asJsonObject
+            val photoName = restaurant.getAsJsonArray("photos")
+                ?.firstOrNull()?.asJsonObject?.get("name")?.asString
+            if (photoName != null) {
+                restaurant.addProperty(
+                    "photoUri",
+                    "https://places.googleapis.com/v1/$photoName/media?maxWidthPx=800&key=$apiKey"
+                )
+            }
+            restaurant.addProperty("provider", "google_places")
+        }
+
+        val result = JsonObject().apply {
+            addProperty("location", location)
+            addProperty("country", country.orEmpty())
+            addProperty("language", language)
+            addProperty("query", queryText)
+            addProperty("provider", "google_places")
+            if (latitude != null) addProperty("latitude", latitude)
+            if (longitude != null) addProperty("longitude", longitude)
+            json.safeString("searchUri")?.let { addProperty("searchUri", it) }
+            add("results", restaurants)
+        }
+
+        return McpResult(
+            domain = McpSettings.Domain.RESTAURANTS,
+            success = true,
+            data = result,
+            rawJson = response,
+            error = null,
+            requestDebug = requestDebug
+        )
+    }
+
+    private fun buildRestaurantSearchQuery(queryText: String, location: String): String {
+        val trimmed = queryText.trim()
+        return when {
+            trimmed.contains("restaurant", ignoreCase = true) ||
+                trimmed.contains("food", ignoreCase = true) ||
+                trimmed.contains("dining", ignoreCase = true) -> trimmed
+            else -> "restaurants in $location"
+        }
+    }
+
+    @Suppress("unused")
+    private fun fetchRestaurantsWithMapsGrounding(entities: Map<String, String>, apiKey: String, queryText: String): McpResult {
         if (apiKey.isBlank()) {
             return McpResult(
                 domain = McpSettings.Domain.RESTAURANTS,

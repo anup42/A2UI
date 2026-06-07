@@ -125,9 +125,9 @@
     <string name="settings_mcp_description">Use real-time API data for supported queries. Stage 2 LLM routes the query and provides context; live data is fetched from the matching source.</string>
     <string name="settings_mcp_enable">Enable MCP</string>
     <string name="settings_mcp_api_keys_title">MCP API Keys</string>
-    <string name="settings_mcp_api_keys_description">API keys for live-data domains. Leave blank to skip that domain. Weather uses Open-Meteo; restaurants use the configured Vertex Express key.</string>
+    <string name="settings_mcp_api_keys_description">API keys for live-data domains. Leave blank to skip that domain. Weather uses Open-Meteo; restaurants and places use Google Places.</string>
     <string name="settings_mcp_key_flights">SerpApi key (Flights)</string>
-    <string name="settings_mcp_key_restaurants">Vertex Express key (Restaurants)</string>
+    <string name="settings_mcp_key_restaurants">Google Maps API key (Restaurants)</string>
     <string name="settings_mcp_key_hotels">SerpApi key (Hotels)</string>
     <string name="settings_mcp_key_places">Google Places API key (Places)</string>
     <string name="settings_mcp_key_news">NewsData.io API key (News)</string>

@@ -50,6 +50,18 @@ object GeminiApiKeyProvider {
         )
     }
 
+    fun googleMapsApiKey(context: Context): String {
+        return firstNonBlank(
+            resolveKey(
+                context,
+                "GOOGLE_MAPS_API_KEY",
+                "GOOGLE_PLACES_API_KEY",
+                "PLACES_API_KEY"
+            ),
+            BuildConfig.GOOGLE_MAPS_API_KEY_DEFAULT
+        )
+    }
+
     fun runtimeVertexOauthAccessToken(context: Context): String {
         return resolveKey(
             context,

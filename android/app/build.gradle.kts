@@ -92,6 +92,14 @@ val embeddedStage3ApiKey = resolveSecret(
 )
 val embeddedNewsApiKey = resolveSecret("NEWS_API_KEY")
 val embeddedSerpApiKey = resolveSecret("SERPAPI_KEY")
+val embeddedGoogleMapsApiKey = resolveSecret(
+    "GOOGLE_MAPS_API_KEY",
+    "GOOGLE_PLACES_API_KEY",
+    "PLACES_API_KEY"
+).ifBlank {
+    // POC default requested for restaurant/place live-data rendering.
+    "AIzaSyBew3zyuEKgDT9ja3FC9dQ-kphqSVT6rIY"
+}
 val embeddedVertexExpressApiKey = resolveSecret(
     "VERTEX_EXPRESS_API_KEY",
     "GEMINI_VERTEX_EXPRESS_API_KEY"
@@ -155,6 +163,11 @@ android {
             "String",
             "SERPAPI_KEY_DEFAULT",
             "\"${escapeForBuildConfig(embeddedSerpApiKey)}\""
+        )
+        buildConfigField(
+            "String",
+            "GOOGLE_MAPS_API_KEY_DEFAULT",
+            "\"${escapeForBuildConfig(embeddedGoogleMapsApiKey)}\""
         )
         buildConfigField(
             "String",
