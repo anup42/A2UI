@@ -6583,11 +6583,10 @@ private fun renderRestaurantRowsIfPossible(
                     .semantics(mergeDescendants = true) {
                         contentDescription = tableRowAccessibilitySummary(headers, row)
                     },
-                shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                shape = RoundedCornerShape(20.dp),
+                colors = flatSpecCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = flatSpecCardBorder()
             ) {
                 Column(
                     modifier = Modifier.padding(12.dp),
@@ -6868,10 +6867,11 @@ private fun RestaurantActionPill(
         enabled -> BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.34f))
         else -> BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f))
     }
+    val shape = RoundedCornerShape(GenUiTokens.RadiusPill)
     Surface(
         modifier = Modifier
-            .widthIn(min = 116.dp, max = 176.dp)
-            .height(40.dp)
+            .then(if (primary) Modifier.widthIn(min = 150.dp) else Modifier)
+            .heightIn(min = 40.dp)
             .then(
                 if (enabled) {
                     Modifier.clickable(role = Role.Button, onClick = onClick)
@@ -6879,14 +6879,14 @@ private fun RestaurantActionPill(
                     Modifier
                 }
             ),
-        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        shape = shape,
         color = containerColor,
         border = border
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 11.dp),
+                .heightIn(min = 40.dp)
+                .padding(horizontal = if (primary) 14.dp else 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
