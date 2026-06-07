@@ -285,9 +285,22 @@ fun genUiTableContainerColor(): Color {
 }
 
 @Composable
-fun genUiTopBarContainerColor(): Color {
+fun genUiChromeContainerColor(): Color {
+    val dark = isSystemInDarkTheme()
+    val scheme = MaterialTheme.colorScheme
     val userOpacity = InferenceBackendSettings.getRenderCardOpacity(LocalContext.current)
-    return MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = (userOpacity + 0.04f).coerceIn(0.70f, 0.92f))
+    val base = lerp(
+        scheme.primaryContainer,
+        scheme.surfaceContainerLow,
+        if (dark) 0.46f else 0.34f
+    )
+    val alpha = (userOpacity - if (dark) 0.16f else 0.18f).coerceIn(0.44f, 0.78f)
+    return base.copy(alpha = alpha)
+}
+
+@Composable
+fun genUiTopBarContainerColor(): Color {
+    return genUiChromeContainerColor()
 }
 
 @Composable

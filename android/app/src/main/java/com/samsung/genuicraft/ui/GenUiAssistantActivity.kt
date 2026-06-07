@@ -621,12 +621,18 @@ private fun GenUiAssistantScreen(
             )
         }
     ) {
+        GenUiScreenBackground(
+            modifier = Modifier.fillMaxSize()
+        ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.Transparent,
             contentWindowInsets = WindowInsets.safeDrawing,
             topBar = {
             CenterAlignedTopAppBar(
+                modifier = Modifier
+                    .background(genUiBackgroundBrush())
+                    .background(genUiChromeContainerColor()),
                 title = {
                     Text(
                         text = stringResource(id = R.string.genui_assistant_title),
@@ -730,7 +736,7 @@ private fun GenUiAssistantScreen(
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = genUiTopBarContainerColor(),
+                    containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
@@ -751,8 +757,7 @@ private fun GenUiAssistantScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(genUiScreenOverlayColor())
-                    .background(genUiBackgroundBrush())
+                    .background(genUiChromeContainerColor())
                     .imePadding()
                     .navigationBarsPadding()
             ) {
@@ -1174,6 +1179,7 @@ private fun GenUiAssistantScreen(
         }
     }
     }
+    }
 }
 
 @Composable
@@ -1328,9 +1334,7 @@ private fun PromptSummaryCard(prompt: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f)
-        ),
+        colors = genUiCardColors(GenUiCardTone.Primary),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.28f))
     ) {
         Column(
