@@ -83,5 +83,80 @@ class McpResponseFormatterTest {
         assertTrue(!output.contains("Media: Image="))
     }
 
+    @Test
+    fun buildDataSection_preservesFlightLogoPriceAndActionFields() {
+        val flight = JsonObject().apply {
+            addProperty("airline_logo", "https://www.gstatic.com/flights/airline_logos/70px/6E.png")
+            addProperty("price", 6667)
+            addProperty("total_duration", 470)
+            addProperty("type", "Round trip")
+            add("layovers", JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("id", "MAA")
+                    addProperty("duration", 255)
+                })
+            })
+            add("flights", JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("airline", "IndiGo")
+                    addProperty("flight_number", "6E 356")
+                    addProperty("duration", 65)
+                    addProperty("airline_logo", "https://www.gstatic.com/flights/airline_logos/70px/6E.png")
+                    add("departure_airport", JsonObject().apply {
+                        addProperty("id", "BLR")
+                        addProperty("time", "2026-06-15 07:15")
+                    })
+                    add("arrival_airport", JsonObject().apply {
+                        addProperty("id", "MAA")
+                        addProperty("time", "2026-06-15 08:20")
+                    })
+                })
+                add(JsonObject().apply {
+                    addProperty("airline", "IndiGo")
+                    addProperty("flight_number", "6E 515")
+                    addProperty("duration", 150)
+                    add("departure_airport", JsonObject().apply {
+                        addProperty("id", "MAA")
+                        addProperty("time", "2026-06-15 12:35")
+                    })
+                    add("arrival_airport", JsonObject().apply {
+                        addProperty("id", "LKO")
+                        addProperty("time", "2026-06-15 15:05")
+                    })
+                })
+            })
+        }
+        val data = JsonObject().apply {
+            addProperty("origin", "BLR")
+            addProperty("destination", "LKO")
+            addProperty("outbound_date", "2026-06-15")
+            addProperty("currency", "INR")
+            addProperty("travel_class", "Economy")
+            addProperty("adults", 1)
+            add("flights", JsonArray().apply { add(flight) })
+            add("other_flights", JsonArray())
+        }
+
+        val output = McpResponseFormatter.buildDataSection(
+            McpClient.McpResult(
+                domain = McpSettings.Domain.FLIGHTS,
+                success = true,
+                data = data,
+                rawJson = null,
+                error = null
+            ),
+            queryText = "show flights from blr to lko on 15th june"
+        )
+
+        assertTrue(output.contains("| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Airline Logo | Booking URL | Action Label |"))
+        assertTrue(output.contains("IndiGo - 6E 356 / 6E 515"))
+        assertTrue(output.contains("BLR 07:15"))
+        assertTrue(output.contains("LKO 15:05"))
+        assertTrue(output.contains("\u20B96,667 /adult"))
+        assertTrue(output.contains("https://www.gstatic.com/flights/airline_logos/70px/6E.png"))
+        assertTrue(output.contains("https://www.google.com/travel/flights"))
+        assertTrue(output.contains("View fare"))
+    }
+
 }
 

@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -49,10 +50,14 @@ import com.samsung.genuicraft.genUiCardColors
 import com.samsung.genuicraft.genUiCardContainerColor
 import com.samsung.genuicraft.renderer.native.FlightRow
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
+import com.samsung.genuicraft.security.SafeContentPolicy
 
 internal object NativeFlightUiRenderer {
     @Composable
-    fun RenderFlightRows(rows: List<FlightRow>) {
+    fun RenderFlightRows(
+        rows: List<FlightRow>,
+        onOpenUrl: (String) -> Unit = {}
+    ) {
         if (rows.isEmpty()) {
             return
         }
@@ -82,6 +87,8 @@ internal object NativeFlightUiRenderer {
                 val centerMeta = stopLabel ?: arrivalStatus?.takeIf { it.length <= 22 }
                 val promoMeta = arrivalStatus?.takeIf { it.length > 22 }
                 val hasTimeRow = departDisplay != null || arriveDisplay != null || duration != null
+                val actionUrl = remember(row.actionUrl) { SafeContentPolicy.sanitizeActionUrl(row.actionUrl) }
+                val actionLabel = sanitize(row.actionLabel.orEmpty()).ifBlank { "View fare" }
 
                 Card(
                     modifier = Modifier
@@ -237,6 +244,23 @@ internal object NativeFlightUiRenderer {
                                     text = meta.joinToString(" | "),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        actionUrl?.let { safeUrl ->
+                            Button(
+                                onClick = { onOpenUrl(safeUrl) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(999.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.FlightTakeoff,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = actionLabel,
+                                    modifier = Modifier.padding(start = 8.dp)
                                 )
                             }
                         }

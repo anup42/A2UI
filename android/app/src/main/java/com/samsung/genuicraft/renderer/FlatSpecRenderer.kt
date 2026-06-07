@@ -4017,7 +4017,7 @@ private fun RenderTableLayout(
         }
         val flightRows = NativeFlightSemantics.buildFlightRows(tableModel.headers, tableRows)
         if (!flightRows.isNullOrEmpty()) {
-            NativeFlightUiRenderer.RenderFlightRows(flightRows)
+            NativeFlightUiRenderer.RenderFlightRows(flightRows, onOpenUrl = onOpenUrl)
             return
         }
     }
@@ -10052,7 +10052,8 @@ private fun RenderRankedFlightComparisonCards(
     headers: List<String>,
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
-    spacing: Dp = 10.dp
+    spacing: Dp = 10.dp,
+    onOpenUrl: (String) -> Unit = {}
 ) {
     if (rows.isEmpty()) return
     val rankIndex = rankedFlightColumnIndex(headers, listOf("rank", "order", "score"))
@@ -10079,6 +10080,24 @@ private fun RenderRankedFlightComparisonCards(
             val duration = row.getOrNull(durationIndex ?: -1).orEmpty().trim()
             val layover = row.getOrNull(layoverIndex ?: -1).orEmpty().trim()
             val reason = row.getOrNull(reasonIndex ?: -1).orEmpty().trim()
+            val actionUrlIndex = headers.indices.firstOrNull { index ->
+                isFlightActionUrlColumn(headers[index]) &&
+                    SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
+            } ?: headers.indices.firstOrNull { index ->
+                isUrlColumnLabel(headers[index]) &&
+                    SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
+            }
+            val actionUrl = actionUrlIndex?.let { index ->
+                SafeContentPolicy.sanitizeActionUrl(row.getOrNull(index).orEmpty().trim())
+            }
+            val actionLabelIndex = headers.indices.firstOrNull { index ->
+                isActionLabelColumn(headers[index]) && index != actionUrlIndex
+            }
+            val actionLabel = row.getOrNull(actionLabelIndex ?: -1)
+                .orEmpty()
+                .trim()
+                .takeIf { it.isNotBlank() && !SafeContentPolicy.looksLikeUrl(it) }
+                ?: "View fare"
             val best = rowIndex == 0 || rank == "#1"
             val accent = rankedFlightAccentColor(airline)
             val normalizedDuration = NativeFlightSemantics.normalizeDurationLabel(duration) ?: duration
@@ -10180,10 +10199,37 @@ private fun RenderRankedFlightComparisonCards(
                             )
                         }
                     }
+                    actionUrl?.let { safeUrl ->
+                        Button(
+                            onClick = { onOpenUrl(safeUrl) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(GenUiTokens.RadiusPill)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.FlightTakeoff,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = actionLabel,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+private fun isFlightActionUrlColumn(header: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(header)
+    return normalized.contains("booking url") ||
+        normalized.contains("book url") ||
+        normalized.contains("action url") ||
+        normalized.contains("cta url") ||
+        normalized == "url" ||
+        normalized == "link"
 }
 
 @Composable
@@ -10690,7 +10736,8 @@ private fun RenderDirectTable(
             headers = headers,
             rows = table.rows,
             modifier = applyStackModifier(modifier, props, "vertical"),
-            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
+            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp,
+            onOpenUrl = onOpenUrl
         )
         return
     }
@@ -10706,7 +10753,7 @@ private fun RenderDirectTable(
     if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
         val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
         if (!flightRows.isNullOrEmpty()) {
-            NativeFlightUiRenderer.RenderFlightRows(flightRows)
+            NativeFlightUiRenderer.RenderFlightRows(flightRows, onOpenUrl = onOpenUrl)
             return
         }
     }

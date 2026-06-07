@@ -242,7 +242,10 @@ internal object NativeFlightSemantics {
                 stops = readCell(row, columns.stops),
                 fare = readCell(row, columns.fare),
                 status = readCell(row, columns.status),
-                logoUrl = readCell(row, columns.logo)?.takeIf(::looksLikeMediaUrl)
+                logoUrl = readCell(row, columns.logo)?.takeIf(::looksLikeMediaUrl),
+                actionUrl = readCell(row, columns.actionUrl)?.takeIf(::looksLikeActionUrl),
+                actionLabel = readCell(row, columns.actionLabel)
+                    ?.takeIf { it.isNotBlank() && !looksLikeActionUrl(it) }
             )
         }
         return rows.takeIf { it.isNotEmpty() }
@@ -282,7 +285,21 @@ internal object NativeFlightSemantics {
         val duration = findHeaderIndex(normalized, listOf("duration", "travel time", "elapsed"), exclude = setOfNotNull(airline, logo, depart, arrive))
         val stops = findHeaderIndex(normalized, listOf("stop", "stops", "layover", "connection", "type"), exclude = setOfNotNull(airline, logo, depart, arrive, duration))
         val fare = findHeaderIndex(normalized, listOf("fare", "price", "cost", "amount", "rate"), exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops))
-        val status = findHeaderIndex(normalized, listOf("status", "on time", "punctual", "delay"), exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops, fare))
+        val actionUrl = findHeaderIndex(
+            normalized,
+            listOf("booking url", "book url", "action url", "cta url", "url", "link", "website"),
+            exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops, fare)
+        )
+        val actionLabel = findHeaderIndex(
+            normalized,
+            listOf("action label", "button label", "cta label", "label"),
+            exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops, fare, actionUrl)
+        )
+        val status = findHeaderIndex(
+            normalized,
+            listOf("status", "on time", "punctual", "delay"),
+            exclude = setOfNotNull(airline, logo, depart, arrive, duration, stops, fare, actionUrl, actionLabel)
+        )
 
         val contentSignals = listOf(depart, arrive, duration, stops, fare, status).count { it != null }
         if (contentSignals < 2) {
@@ -297,7 +314,9 @@ internal object NativeFlightSemantics {
             stops = stops,
             fare = fare,
             status = status,
-            logo = logo
+            logo = logo,
+            actionUrl = actionUrl,
+            actionLabel = actionLabel
         )
     }
 
@@ -342,27 +361,30 @@ internal object NativeFlightSemantics {
         var duration = detected.duration
         var stops = detected.stops
         var fare = detected.fare
+        val logo = detected.logo
+        val actionUrl = detected.actionUrl
+        val actionLabel = detected.actionLabel
 
         val airlineLooksWrong = score(airline, timeScore) >= 0.5f || score(airline, fareScore) >= 0.5f
         if (airlineLooksWrong || score(airline, airlineScore) < 0.4f) {
-            bestIndex(indices, airlineScore, exclude = setOfNotNull(depart, arrive, duration, stops, fare))
+            bestIndex(indices, airlineScore, exclude = setOfNotNull(depart, arrive, duration, stops, fare, logo, actionUrl, actionLabel))
                 ?.let { airline = it }
         }
 
         if (depart == null || score(depart, timeScore) < 0.5f) {
-            depart = bestIndex(indices, timeScore, exclude = setOf(airline))
+            depart = bestIndex(indices, timeScore, exclude = setOfNotNull(airline, logo, actionUrl, actionLabel))
         }
         if (arrive == null || score(arrive, timeScore) < 0.5f || arrive == depart) {
-            arrive = bestIndex(indices, timeScore, exclude = setOfNotNull(airline, depart))
+            arrive = bestIndex(indices, timeScore, exclude = setOfNotNull(airline, depart, logo, actionUrl, actionLabel))
         }
         if (duration == null || score(duration, durationScore) < 0.4f) {
-            duration = bestIndex(indices, durationScore, exclude = setOfNotNull(airline, depart, arrive))
+            duration = bestIndex(indices, durationScore, exclude = setOfNotNull(airline, depart, arrive, logo, actionUrl, actionLabel))
         }
         if (fare == null || score(fare, fareScore) < 0.4f) {
-            fare = bestIndex(indices, fareScore, exclude = setOfNotNull(airline, depart, arrive, duration, stops))
+            fare = bestIndex(indices, fareScore, exclude = setOfNotNull(airline, depart, arrive, duration, stops, logo, actionUrl, actionLabel))
         }
         if (stops == null || score(stops, stopScore) < 0.4f) {
-            stops = bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, duration, fare))
+            stops = bestIndex(indices, stopScore, exclude = setOfNotNull(airline, depart, arrive, duration, fare, logo, actionUrl, actionLabel))
         }
 
         return detected.copy(
@@ -406,6 +428,13 @@ internal object NativeFlightSemantics {
             trimmed.startsWith("../assets/", ignoreCase = true) ||
             trimmed.startsWith("assets/", ignoreCase = true) ||
             trimmed.startsWith("file:", ignoreCase = true)
+    }
+
+    private fun looksLikeActionUrl(value: String): Boolean {
+        val trimmed = value.trim()
+        return trimmed.startsWith("https://", ignoreCase = true) ||
+            trimmed.startsWith("http://", ignoreCase = true) ||
+            trimmed.startsWith("www.", ignoreCase = true)
     }
 
     fun extractAirportCode(headerText: String): String? {

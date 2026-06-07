@@ -245,8 +245,9 @@ object McpClient {
         val adults = parseIntInRange(entities["adults"], min = 1, max = 9) ?: 1
         val children = parseIntInRange(entities["children"], min = 0, max = 6)
         val travelClass = normalizeFlightTravelClass(entities["travel_class"])
-        val currency = normalizeCurrencyCode(entities["currency"], fallback = "USD")
-        val country = normalizeCountryCode(entities["country"]) ?: "us"
+        val routeLocaleDefaults = defaultFlightLocaleForRoute(origin, destination)
+        val currency = normalizeCurrencyCode(entities["currency"], fallback = routeLocaleDefaults.currency)
+        val country = normalizeCountryCode(entities["country"]) ?: routeLocaleDefaults.country
         val language = normalizeLanguageCode(entities["language"], fallback = "en")
         val shouldSendReturnDate = tripType != "2"
         val effectiveReturnDate = if (shouldSendReturnDate) {
@@ -1249,6 +1250,21 @@ object McpClient {
         return if (token.length == 3) token else fallback
     }
 
+    private data class FlightLocaleDefaults(
+        val currency: String,
+        val country: String
+    )
+
+    private fun defaultFlightLocaleForRoute(origin: String, destination: String): FlightLocaleDefaults {
+        return if (origin.uppercase(Locale.US) in INDIA_AIRPORT_CODES &&
+            destination.uppercase(Locale.US) in INDIA_AIRPORT_CODES
+        ) {
+            FlightLocaleDefaults(currency = "INR", country = "in")
+        } else {
+            FlightLocaleDefaults(currency = "USD", country = "us")
+        }
+    }
+
     private fun normalizeLanguageCode(raw: String?, fallback: String = "en"): String {
         val token = raw
             ?.trim()
@@ -1582,5 +1598,11 @@ object McpClient {
         "san francisco" to "SFO",
         "los angeles" to "LAX",
         "seattle" to "SEA"
+    )
+
+    private val INDIA_AIRPORT_CODES = setOf(
+        "AMD", "ATQ", "BBI", "BDQ", "BLR", "BOM", "CCJ", "CCU", "CJB", "COK",
+        "DEL", "GOI", "GOX", "GAU", "HYD", "IDR", "IXB", "IXC", "IXE", "IXR",
+        "JAI", "LKO", "MAA", "NAG", "PAT", "PNQ", "STV", "TRV", "VGA", "VTZ"
     )
 }

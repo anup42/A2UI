@@ -5,6 +5,8 @@ import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.samsung.genuicraft.inference.InferenceBackend
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 /**
  * Takes raw MCP API data and uses the LLM to format it into a Stage 2-compatible
@@ -71,6 +73,7 @@ object McpResponseFormatter {
         // This avoids the LLM dropping photos, source links, or weather metrics needed by native templates.
         if (
             mcpResult.domain == McpSettings.Domain.WEATHER ||
+            mcpResult.domain == McpSettings.Domain.FLIGHTS ||
             mcpResult.domain == McpSettings.Domain.RESTAURANTS ||
             mcpResult.domain == McpSettings.Domain.HOTELS ||
             mcpResult.domain == McpSettings.Domain.PLACES
@@ -514,43 +517,179 @@ Rules:
         95, 96, 99 -> "Storm"
         else -> "-"
     }
-private fun buildFlightsFallback(data: JsonObject): String {
+    private fun buildFlightsFallback(data: JsonObject): String {
         val origin = data.safeString("origin") ?: "?"
         val destination = data.safeString("destination") ?: "?"
-        val flights = data.getAsJsonArray("flights")
+        val outboundDate = data.safeString("outbound_date") ?: ""
+        val returnDate = data.safeString("return_date")?.takeIf { it.isNotBlank() }
+        val currency = data.safeString("currency") ?: "USD"
+        val bestFlights = data.getAsJsonArray("flights") ?: JsonArray()
+        val otherFlights = data.getAsJsonArray("other_flights") ?: JsonArray()
 
         val sb = StringBuilder()
         sb.appendLine("## Flights from $origin to $destination")
+        sb.appendLine()
+        val context = buildList {
+            outboundDate.takeIf { it.isNotBlank() }?.let { add("Depart $it") }
+            returnDate?.let { add("Return $it") }
+            data.safeString("travel_class")?.takeIf { it.isNotBlank() }?.let { add("Class $it") }
+            data.safeString("adults")?.takeIf { it.isNotBlank() }?.let { add("$it adult${if (it == "1") "" else "s"}") }
+        }
+        if (context.isNotEmpty()) {
+            sb.appendLine(context.joinToString(" - "))
+            sb.appendLine()
+        }
 
-        if (flights == null || flights.size() == 0) {
+        val rows = flightRowsForFormatter(bestFlights, groupLabel = "Best") +
+            flightRowsForFormatter(otherFlights, groupLabel = "Other")
+
+        if (rows.isEmpty()) {
             sb.appendLine("No flights found for this route.")
         } else {
-            sb.appendLine("| Airline | Departure | Arrival | Duration | Stops | Fare |")
-            sb.appendLine("|---------|-----------|---------|----------|-------|------|")
-            for (i in 0 until minOf(flights.size(), 8)) {
-                    val flightObj = flights[i].asJsonObject
-                    val price = flightObj.safeString("price") ?: "N/A"
-                    val currency = "USD"
-                    val route = flightObj.getAsJsonArray("flights")
-                    val duration = route?.get(0)?.asJsonObject?.safeString("duration") ?: "N/A"
-                    val airlines = route?.get(0)?.asJsonObject?.safeString("airline") ?: "â€”"
-                    val stops = if (route != null) route.size() - 1 else 0
-                    val stopsStr = if (stops <= 0) "Non-stop" else "$stops stop${if (stops > 1) "s" else ""}"
-                    val firstLeg = route?.get(0)?.asJsonObject
-                    val lastLeg = route?.get(route.size() - 1)?.asJsonObject
-                    val depObj = firstLeg?.getAsJsonObject("departure_airport")
-                    val arrObj = lastLeg?.getAsJsonObject("arrival_airport")
-                    val dep = depObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
-                    val arr = arrObj?.safeString("time")?.substringAfter(" ")?.take(5) ?: "â€”"
-                    sb.appendLine("| $airlines | $dep | $arr | $duration mins | $stopsStr | $currency $price |")
+            sb.appendLine("Google Flights returned ${bestFlights.size()} best options and ${otherFlights.size()} other options. Each row keeps airline logos, prices, layovers, and action links for native flight cards.")
+            sb.appendLine()
+            sb.appendLine("| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Airline Logo | Booking URL | Action Label |")
+            sb.appendLine("|---|---|---|---|---|---|---|---|---|---|")
+            rows.take(8).forEach { row ->
+                val bookingUrl = flightSearchUrl(origin, destination, outboundDate)
+                sb.appendLine(
+                    "| ${tableCell(row.airline)} | ${tableCell(row.departure)} | ${tableCell(row.arrival)} | " +
+                        "${tableCell(row.duration)} | ${tableCell(row.stops)} | ${tableCell(formatFlightPrice(row.price, currency))} | " +
+                        "${tableCell(row.status)} | ${tableCell(row.logoUrl)} | ${tableCell(bookingUrl)} | View fare |"
+                )
             }
         }
 
         sb.appendLine()
         sb.appendLine("## Sources")
-        sb.appendLine("- SerpApi Google Flights Search: https://serpapi.com/")
+        sb.appendLine("- Google Flights via SerpApi: https://serpapi.com/")
+        sb.appendLine("- Google Flights: https://www.google.com/travel/flights")
 
         return sb.toString()
+    }
+
+    private data class FlightFormatterRow(
+        val airline: String,
+        val departure: String,
+        val arrival: String,
+        val duration: String,
+        val stops: String,
+        val price: String,
+        val status: String,
+        val logoUrl: String
+    )
+
+    private fun flightRowsForFormatter(flights: JsonArray, groupLabel: String): List<FlightFormatterRow> {
+        return (0 until flights.size()).mapNotNull { index ->
+            val flightObj = flights[index].takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
+            val legs = flightObj.getAsJsonArray("flights") ?: JsonArray()
+            val firstLeg = legs.firstOrNull()?.takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
+            val lastLeg = legs.lastOrNull()?.takeIf { it.isJsonObject }?.asJsonObject ?: firstLeg
+            val airline = flightAirlineLabel(legs)
+            val departure = flightAirportCell(firstLeg.getAsJsonObject("departure_airport"))
+            val arrival = flightAirportCell(lastLeg.getAsJsonObject("arrival_airport"))
+            val totalDuration = flightObj.safeString("total_duration") ?: firstLeg.safeString("duration") ?: ""
+            val layovers = flightObj.getAsJsonArray("layovers")
+            val stopCount = layovers?.size() ?: (legs.size() - 1).coerceAtLeast(0)
+            val stops = when {
+                stopCount <= 0 -> "Non-stop"
+                stopCount == 1 -> "1 stop"
+                else -> "$stopCount stops"
+            }
+            val layoverStatus = flightLayoverSummary(layovers)
+            val status = listOfNotNull(
+                groupLabel.takeIf { it.isNotBlank() },
+                layoverStatus.takeIf { it.isNotBlank() },
+                flightObj.safeString("type")?.takeIf { it.isNotBlank() }
+            ).joinToString(" - ")
+            FlightFormatterRow(
+                airline = airline,
+                departure = departure,
+                arrival = arrival,
+                duration = formatFlightMinutes(totalDuration),
+                stops = stops,
+                price = flightObj.safeString("price") ?: "",
+                status = status,
+                logoUrl = flightObj.safeString("airline_logo") ?: firstLeg.safeString("airline_logo") ?: ""
+            )
+        }
+    }
+
+    private fun flightAirlineLabel(legs: JsonArray): String {
+        val airlines = linkedSetOf<String>()
+        val flightNumbers = mutableListOf<String>()
+        legs.forEach { legElement ->
+            val leg = legElement.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            leg.safeString("airline")?.trim()?.takeIf { it.isNotBlank() }?.let(airlines::add)
+            leg.safeString("flight_number")?.trim()?.takeIf { it.isNotBlank() }?.let(flightNumbers::add)
+        }
+        val airlineText = airlines.joinToString(" + ").ifBlank { "Flight" }
+        val numbers = flightNumbers.distinct().take(2).joinToString(" / ")
+        return if (numbers.isBlank()) airlineText else "$airlineText - $numbers"
+    }
+
+    private fun flightAirportCell(airport: JsonObject?): String {
+        if (airport == null) return ""
+        val id = airport.safeString("id") ?: ""
+        val time = flightDisplayTime(airport.safeString("time"))
+        return listOf(id, time).filter { it.isNotBlank() }.joinToString(" ")
+    }
+
+    private fun flightDisplayTime(raw: String?): String {
+        val value = raw?.trim().orEmpty()
+        if (value.isBlank()) return ""
+        val timePart = value.substringAfter(' ', value).takeLast(5)
+        return if (Regex("""\d{1,2}:\d{2}""").matches(timePart)) timePart else value
+    }
+
+    private fun flightLayoverSummary(layovers: JsonArray?): String {
+        if (layovers == null || layovers.size() == 0) return ""
+        return (0 until layovers.size()).mapNotNull { index ->
+            val layover = layovers[index].takeIf { it.isJsonObject }?.asJsonObject ?: return@mapNotNull null
+            val airport = layover.safeString("id") ?: layover.safeString("name") ?: ""
+            val duration = formatFlightMinutes(layover.safeString("duration") ?: "")
+            val overnight = if (layover.safeBoolean("overnight") == true) " overnight" else ""
+            listOf(airport, duration).filter { it.isNotBlank() }.joinToString(" ").plus(overnight).trim()
+        }.joinToString("; ").let { if (it.isBlank()) "" else "Layover $it" }
+    }
+
+    private fun formatFlightMinutes(raw: String): String {
+        val minutes = raw.trim().toIntOrNull() ?: return raw
+        val hours = minutes / 60
+        val mins = minutes % 60
+        return when {
+            hours > 0 && mins > 0 -> "${hours}h ${mins}m"
+            hours > 0 -> "${hours}h"
+            else -> "${mins}m"
+        }
+    }
+
+    private fun formatFlightPrice(raw: String, currency: String): String {
+        val trimmed = raw.trim()
+        if (trimmed.isBlank()) return ""
+        if (Regex("""(?i)(?:₹|\$|€|£|inr|usd|eur|gbp|rs\.)""").containsMatchIn(trimmed)) {
+            return trimmed
+        }
+        val numeric = trimmed.toDoubleOrNull()
+        val amount = numeric?.let { value ->
+            if (kotlin.math.abs(value - value.toInt()) < 0.05) "%,d".format(value.toInt()) else "%,.2f".format(value)
+        } ?: trimmed
+        val symbol = when (currency.uppercase(java.util.Locale.US)) {
+            "INR" -> "₹"
+            "USD" -> "\u0024"
+            "EUR" -> "€"
+            "GBP" -> "£"
+            else -> "${currency.uppercase(java.util.Locale.US)} "
+        }
+        return "$symbol$amount /adult"
+    }
+
+    private fun flightSearchUrl(origin: String, destination: String, outboundDate: String): String {
+        val query = listOf("Flights", "from", origin, "to", destination, outboundDate.takeIf { it.isNotBlank() }?.let { "on $it" })
+            .filterNotNull()
+            .joinToString(" ")
+        val encoded = URLEncoder.encode(query, StandardCharsets.UTF_8.name()).replace("+", "%20")
+        return "https://www.google.com/travel/flights?q=$encoded"
     }
 
     private fun buildRestaurantsFallback(data: JsonObject): String {
