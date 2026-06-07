@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP Flights + Hotels Rich Preview</title>
+<style>
+:root {
+  --ink:#172023; --muted:#647074; --bg:#eef3ed; --paper:#fffdf8; --line:#dde4de;
+  --flight:#0d4f78; --flight2:#b9f0ff; --hotel:#7a421e; --hotel2:#ffe2b8;
+  --green:#32765a; --shadow:0 18px 42px rgba(28,42,35,.16); --radius:28px;
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top left,#d9f3df,transparent 30%),linear-gradient(135deg,#f7efe2,#e8f1ee 45%,#eef5ff);font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;color:var(--ink)}
+.page{max-width:1180px;margin:0 auto;padding:28px 18px 48px} .top{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch;margin-bottom:22px} .hero{border-radius:34px;padding:26px;background:linear-gradient(135deg,#102735,#196271 55%,#d8fff2);color:white;box-shadow:var(--shadow);position:relative;overflow:hidden} .hero:after{content:"";position:absolute;right:-80px;top:-60px;width:240px;height:240px;background:rgba(255,255,255,.17);border-radius:50%} .hero h1{font-size:clamp(30px,5vw,58px);line-height:.95;margin:8px 0 14px;letter-spacing:-.06em} .hero p{max-width:680px;color:rgba(255,255,255,.84);font-size:16px;line-height:1.55} .pill{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:8px 12px;border-radius:99px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em} .data-card{background:rgba(255,253,248,.82);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.7);border-radius:30px;padding:20px;box-shadow:var(--shadow)} .data-card h2{margin:0 0 10px;font-size:18px} .data-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px} .metric{background:white;border:1px solid var(--line);border-radius:20px;padding:14px} .metric b{display:block;font-size:26px} .metric span{font-size:12px;color:var(--muted)}
+.section{margin:28px 0 12px;display:flex;justify-content:space-between;align-items:end;gap:16px} .section h2{font-size:28px;margin:0;letter-spacing:-.04em} .section p{margin:5px 0 0;color:var(--muted)} .layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start} .panel{background:rgba(255,253,248,.7);border:1px solid rgba(255,255,255,.8);border-radius:34px;padding:14px;box-shadow:var(--shadow)}
+.flight-card,.hotel-card{background:var(--paper);border:1px solid var(--line);border-radius:26px;margin:0 0 14px;overflow:hidden;box-shadow:0 10px 24px rgba(31,42,36,.08)} .flight-card{padding:16px;background:linear-gradient(180deg,#ffffff,#f7fbff)} .flight-head{display:grid;grid-template-columns:auto auto 1fr auto;gap:12px;align-items:center} .rank{width:34px;height:34px;border-radius:12px;background:#dff6ff;color:#07516f;display:grid;place-items:center;font-weight:900} .air-logo{width:40px;height:40px;border-radius:14px;background:white;object-fit:contain;border:1px solid #dbe8ee;padding:5px} .air-logo.placeholder{display:grid;place-items:center} h3{margin:0;font-size:17px;line-height:1.16} .flight-head p,.hotel-title-row p{margin:3px 0 0;color:var(--muted);font-size:12px} .flight-head strong{font-size:18px;color:#054668;white-space:nowrap} .route-line{display:grid;grid-template-columns:auto auto 1fr auto auto;gap:8px;align-items:center;margin:16px 0 12px;font-weight:800} .route-line i{height:2px;background:linear-gradient(90deg,#0e5b85,#b6edf8);border-radius:99px} .legs{display:grid;gap:8px} .leg{display:grid;grid-template-columns:44px 44px 1fr 44px 44px;gap:6px;align-items:center;background:#eef8fb;border:1px solid #d6ebf1;border-radius:16px;padding:8px;font-size:12px} .leg i{height:1px;background:#8bb9c7} .leg small{grid-column:1/-1;color:var(--muted)} .code{font-weight:900;color:#0f5778} .chips,.amenities,.hotel-facts,.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px} .chips span,.amenities span,.hotel-facts span{background:#eef3ef;border:1px solid #dfe7e1;border-radius:99px;padding:7px 10px;font-size:12px;color:#33433c} .hotel-media{display:flex;gap:8px;overflow-x:auto;padding:8px;background:#201811;scroll-snap-type:x mandatory} .hotel-media img{width:74%;max-width:330px;height:178px;object-fit:cover;border-radius:20px;scroll-snap-align:start;box-shadow:0 10px 28px rgba(0,0,0,.3)} .photo-placeholder{height:160px;width:100%;display:grid;place-items:center;color:#ffe1bc;background:#3a2a1d;border-radius:20px} .hotel-body{padding:16px} .hotel-title-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start} .hotel-title-row strong{background:#fff1dc;color:#7b421e;border:1px solid #ffd4a0;border-radius:14px;padding:8px 10px;white-space:nowrap} .desc{color:#46524c;line-height:1.45;margin:10px 0 0} .review-chip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px} .review-chip b{background:#113f2d;color:white;border-radius:13px;padding:8px 10px} .review-chip span,.review-chip em{font-style:normal;color:var(--muted);font-size:13px} .review-chip em{background:#e9f8e5;color:#226239;border-radius:999px;padding:7px 10px;font-weight:800} .rating-breakdown{margin-top:12px;display:grid;gap:5px} .rating-row{display:grid;grid-template-columns:28px 1fr 50px;gap:8px;align-items:center;font-size:11px;color:var(--muted)} .rating-row b{height:6px;background:linear-gradient(90deg,#2d8155,#b7e07a);border-radius:99px;display:block} .rating-row em{font-style:normal;text-align:right} .actions a{text-decoration:none;background:#17231d;color:white;border-radius:15px;padding:10px 12px;font-weight:800;font-size:13px} .spark{height:130px;background:#0f2a36;border-radius:24px;padding:12px;margin-top:12px;color:white} .spark svg{width:100%;height:82px} .spark polyline{fill:none;stroke:#9ff2ff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round} .spark-label{display:flex;justify-content:space-between;font-size:12px;color:#d7f8ff} .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px} .fields ul{margin:8px 0 0;padding-left:18px;color:#53605a;line-height:1.55} .source{font-size:12px;color:#68736d;margin-top:22px}
+@media (max-width: 820px){.top,.layout,.fields{grid-template-columns:1fr}.page{padding:16px 10px 34px}.hero{border-radius:26px;padding:21px}.panel{border-radius:28px;padding:10px}.section h2{font-size:24px}.hotel-media img{width:84%;height:170px}}
+</style>
+</head>
+<body><main class="page">
+  <section class="top">
+    <div class="hero"><span class="pill">Live MCP data preview</span><h1>Flights and hotels as rich mobile cards</h1><p>Scenario data was fetched through the same MCP-backed providers used by the Android app: Google Flights and Google Hotels via SerpApi. This page shows the richer UI we can render from the returned fields without expanding IR into large per-cell trees.</p></div>
+    <div class="data-card"><h2>Returned data volume</h2><div class="data-grid"><div class="metric"><b>4</b><span>best flight groups</span></div><div class="metric"><b>5</b><span>other flight groups</span></div><div class="metric"><b>20</b><span>hotel properties</span></div><div class="metric"><b>54</b><span>hotel photos in top 6</span></div></div><div class="spark"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="0.0,65.5 3.2,65.5 6.5,65.5 9.7,65.5 12.9,65.5 16.1,65.5 19.4,45.7 22.6,95.0 25.8,45.7 29.0,45.7 32.3,45.7 35.5,26.0 38.7,26.0 41.9,7.5 45.2,7.5 48.4,7.5 51.6,5.0 54.8,5.0 58.1,5.0 61.3,5.5 64.5,5.5 67.7,5.5 71.0,5.5 74.2,5.5 77.4,5.5 80.6,5.5 83.9,5.5 87.1,5.5 90.3,5.5 93.5,5.5 96.8,5.5 100.0,5.5" /></svg><div class="spark-label"><span>?5,549 low</span><span>?6,462 high</span></div></div></div>
+  </section>
+  <section class="section"><div><h2>Flight options: BLR ? LKO</h2><p>June 15, 2026 ? one-way ? prices in INR</p></div></section>
+  <section class="layout"><div class="panel">
+    <article class="flight-card">
+      <div class="flight-head">
+        <div class="rank">1</div>
+        <img class="air-logo" src="https://www.gstatic.com/flights/airline_logos/70px/6E.png" alt="IndiGo logo" />
+        <div><h3>IndiGo</h3><p>Best flight ? 1 stop ? 7h 50m</p></div>
+        <strong>?6,667</strong>
+      </div>
+      <div class="route-line"><b>BLR</b><span>07:15</span><i></i><span>15:05</span><b>LKO</b></div>
+      <div class="legs">
+          <div class="leg">
+            <span class="code">BLR</span><span>07:15</span>
+            <i></i>
+            <span>08:15</span><span class="code">MAA</span>
+            <small>6E 6269 ? Airbus A321neo</small>
+          </div>
+          <div class="leg">
+            <span class="code">MAA</span><span>12:30</span>
+            <i></i>
+            <span>15:05</span><span class="code">LKO</span>
+            <small>6E 515 ? Airbus A320neo</small>
+          </div></div>
+      <div class="chips"><span>1 stop</span><span>255 at MAA</span><span>+35% CO? vs typical</span><span>Booking token available</span></div>
+    </article>
+    <article class="flight-card">
+      <div class="flight-head">
+        <div class="rank">2</div>
+        <img class="air-logo" src="https://www.gstatic.com/flights/airline_logos/70px/6E.png" alt="IndiGo logo" />
+        <div><h3>IndiGo</h3><p>Best flight ? 1 stop ? 4h 15m</p></div>
+        <strong>?7,337</strong>
+      </div>
+      <div class="route-line"><b>BLR</b><span>15:45</span><i></i><span>20:00</span><b>LKO</b></div>
+      <div class="legs">
+          <div class="leg">
+            <span class="code">BLR</span><span>15:45</span>
+            <i></i>
+            <span>18:20</span><span class="code">DXN</span>
+            <small>6E 2279 ? Airbus A320neo</small>
+          </div>
+          <div class="leg">
+            <span class="code">DXN</span><span>18:55</span>
+            <i></i>
+            <span>20:00</span><span class="code">LKO</span>
+            <small>6E 2279 ? Airbus A320neo</small>
+          </div></div>
+      <div class="chips"><span>1 stop</span><span>35 at DXN</span><span>+51% CO? vs typical</span><span>Booking token available</span></div>
+    </article>
+    <article class="flight-card">
+      <div class="flight-head">
+        <div class="rank">3</div>
+        <img class="air-logo" src="https://www.gstatic.com/flights/airline_logos/70px/QP.png" alt="Akasa Air logo" />
+        <div><h3>Akasa Air</h3><p>Best flight ? Non-stop ? 2h 30m</p></div>
+        <strong>?8,368</strong>
+      </div>
+      <div class="route-line"><b>BLR</b><span>06:15</span><i></i><span>08:45</span><b>LKO</b></div>
+      <div class="legs">
+          <div class="leg">
+            <span class="code">BLR</span><span>06:15</span>
+            <i></i>
+            <span>08:45</span><span class="code">LKO</span>
+            <small>QP 1501 ? Boeing 737MAX 8 Passenger</small>
+          </div></div>
+      <div class="chips"><span>Non-stop</span><span>+0% CO? vs typical</span><span>Booking token available</span></div>
+    </article></div><div class="panel">
+    <article class="flight-card">
+      <div class="flight-head">
+        <div class="rank">4</div>
+        <img class="air-logo" src="https://www.gstatic.com/flights/airline_logos/70px/6E.png" alt="IndiGo logo" />
+        <div><h3>IndiGo</h3><p>Best flight ? Non-stop ? 2h 35m</p></div>
+        <strong>?8,445</strong>
+      </div>
+      <div class="route-line"><b>BLR</b><span>19:10</span><i></i><span>21:45</span><b>LKO</b></div>
+      <div class="legs">
+          <div class="leg">
+            <span class="code">BLR</span><span>19:10</span>
+            <i></i>
+            <span>21:45</span><span class="code">LKO</span>
+            <small>6E 903 ? Airbus A321neo</small>
+          </div></div>
+      <div class="chips"><span>Non-stop</span><span>-4% CO? vs typical</span><span>Booking token available</span></div>
+    </article>
+    <article class="flight-card">
+      <div class="flight-head">
+        <div class="rank">5</div>
+        <img class="air-logo" src="https://www.gstatic.com/flights/airline_logos/70px/6E.png" alt="IndiGo logo" />
+        <div><h3>IndiGo</h3><p>Other flight ? 1 stop ? 10h 50m</p></div>
+        <strong>?6,457</strong>
+      </div>
+      <div class="route-line"><b>BLR</b><span>22:30</span><i></i><span>09:20</span><b>LKO</b></div>
+      <div class="legs">
+          <div class="leg">
+            <span class="code">BLR</span><span>22:30</span>
+            <i></i>
+            <span>23:45</span><span class="code">HYD</span>
+            <small>6E 684 ? Airbus A321neo</small>
+          </div>
+          <div class="leg">
+            <span class="code">HYD</span><span>07:15</span>
+            <i></i>
+            <span>09:20</span><span class="code">LKO</span>
+            <small>6E 179 ? Airbus A321neo</small>
+          </div></div>
+      <div class="chips"><span>1 stop</span><span>450 at HYD</span><span>+16% CO? vs typical</span><span>Booking token available</span></div>
+    </article>
+    <article class="flight-card">
+      <div class="flight-head">
+        <div class="rank">6</div>
+        <img class="air-logo" src="https://www.gstatic.com/flights/airline_logos/70px/6E.png" alt="IndiGo logo" />
+        <div><h3>IndiGo</h3><p>Other flight ? Non-stop ? 2h 40m</p></div>
+        <strong>?9,075</strong>
+      </div>
+      <div class="route-line"><b>BLR</b><span>07:10</span><i></i><span>09:50</span><b>LKO</b></div>
+      <div class="legs">
+          <div class="leg">
+            <span class="code">BLR</span><span>07:10</span>
+            <i></i>
+            <span>09:50</span><span class="code">LKO</span>
+            <small>6E 6353 ? Airbus A320neo</small>
+          </div></div>
+      <div class="chips"><span>Non-stop</span><span>+2% CO? vs typical</span><span>Booking token available</span></div>
+    </article></div></section>
+  <section class="section"><div><h2>Hotels near Mahadevpura, Bengaluru</h2><p>June 20-21, 2026 ? 2 adults ? photos scroll horizontally</p></div></section>
+  <section class="layout"><div class="panel">
+    <article class="hotel-card">
+      <div class="hotel-media"><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAHJ7FRMfk1pqyt5ku-VWGcO1ff1QiuSocwCugQ7CS9yMS1FSGZIWXLhnudE8jBWVR8X3UUOiPQm0Q-lWTxQYVTumEGq1WkMcUdGruFmSSK65UsfeLSh2SxJFZWzoaXkcUaxeJdAiQ6lYTka=s287-w287-h192-n-k-no-v1" alt="Earth Hotels photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAHJDf7pngDRMH9KK12rVGykezt699lF4DUjX0AEEFkvts17Cj_pknEKN9gj6LdG4HJSniEIHPf7Maw-iuwyoDM0jN2Z8XbsDi-iODIGvQ4rl_FvgwQHYWOBWxTPkdLzIqPX3t7H=s287-w287-h192-n-k-no-v1" alt="Earth Hotels photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAH-mMYpZNl7z8kIduDACaGOUTDWOui-aL0sGojYOH1eP60f9-VWrjj8H7v8H4Kdo8jipdbbuGQuOMndisR5qPjyrjlmH4S-sUeV5jrAbU0Nat2TLbCtEMMtV81uFYE7bQQAdeuyP6EQ-Ww=s287-w287-h192-n-k-no-v1" alt="Earth Hotels photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAGpTEYUjc2qwEFy-ypu0qOtJx_foLtnKYENXinmb91Vi9kWbULaG3iSQO7Lom1l2mfH6Ev5aYCJJLT4ks-DbszasuOxG7E_B87W3ADxJgEjo3tAbXF_GTK_S_RUZ_ZpCWT2Fi7A=s287-w287-h192-n-k-no-v1" alt="Earth Hotels photo" /></div>
+      <div class="hotel-body">
+        <div class="hotel-title-row"><div><h3>1. Earth Hotels</h3><p>3-star hotel</p></div><strong>₹1,662</strong></div>
+        <p class="desc">Unassuming rooms in a laid-back hotel featuring a restaurant with a rooftop terrace.</p>
+        <div class="review-chip"><b>4.7 ?</b><span>1,558 reviews</span><em>Great Deal</em></div>
+        <div class="amenities"><span>Free breakfast</span><span>Free Wi-Fi</span><span>Free parking</span><span>Air conditioning</span><span>Restaurant</span><span>Room service</span></div>
+        <div class="hotel-facts"><span>Check-in <b>12:00 PM</b></span><span>Check-out <b>11:00 AM</b></span><span>SAP Labs ? 4 min</span><span>Kempegowda International Airport Bengaluru ? 1 hr 6 min</span></div>
+        <div class="rating-breakdown"><div class="rating-row"><span>5?</span><b style="width:100%"></b><em>1,188</em></div><div class="rating-row"><span>4?</span><b style="width:24%"></b><em>288</em></div><div class="rating-row"><span>3?</span><b style="width:4%"></b><em>29</em></div><div class="rating-row"><span>2?</span><b style="width:4%"></b><em>17</em></div><div class="rating-row"><span>1?</span><b style="width:4%"></b><em>36</em></div></div>
+        <div class="actions"><a href="https://earthhotels.bookmystay.io/?utm_source=gmb&amp;utm_campaign=website_buttton">Book / Website</a><a href="https://www.google.com/maps/search/?api=1&query=12.9779208,77.711927">Map</a><a href="https://serpapi.com/search.json?engine=google_hotels_photos&amp;property_token=ChoI1bLzn4-h06-JARoNL2cvMTFzdDY2dnhuehAB">Photos data</a></div>
+      </div>
+    </article>
+    <article class="hotel-card">
+      <div class="hotel-media"><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAF8fKvWyloNolmz-r-IQRCyBgWuGhtIgELRgWSkztLCZldYxw2-1xB_kC0YerlJWVLQF1HRNS7MPorM3iQZTGUM-uQcCuR95-ApJBAYGc8nuxhehA23yf-gIHtFt6D_WBUWKFeS5e5i6Ck3=s287-w287-h192-n-k-no-v1" alt="Lemon Tree Hotel, Whitefield, Bangalore photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAGec5uogO1AgHDHIjvoSeqYDhLJyrLa_r8ZMt-I2pUnnG5eYJZfl2tcUEJ1fPD0JOMMc6zkH-l3leN5YnWgliMoWTsV0rAD8DlVp-uq1AuB9Xmxf1ENN-_7YbVkqXYjE3F09-QPtsAm5MM3=s287-w287-h192-n-k-no-v1" alt="Lemon Tree Hotel, Whitefield, Bangalore photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFOV5RgvRjiOnMI_UJ-ySTRR1L6I4XIFD5bMI6fJTUses1BQ6SQRBpBDTGjWEcbKlHNJ46dGVHDs-uYoqT2d7lo6pMTgYWef4-JjIhF4bFqcv75qHruWdSrAQlggqPZ7OJUoBG8ySWCSVvK=s287-w287-h192-n-k-no-v1" alt="Lemon Tree Hotel, Whitefield, Bangalore photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAG3_zRchhLMTmjMG8Cg4C04FnXzdK3HhBdVhXl4EaJF5zSRGZz6eLn98oE4gjZQg_U_2BGWiGRK2vw0gxwvpaIl6s0UQyd8_NUVousoSYo3QS10MrQtPSxTq1MQvVrFEZZMe2g-v1bRPCJH=s287-w287-h192-n-k-no-v1" alt="Lemon Tree Hotel, Whitefield, Bangalore photo" /></div>
+      <div class="hotel-body">
+        <div class="hotel-title-row"><div><h3>2. Lemon Tree Hotel, Whitefield, Bangalore</h3><p>4-star hotel</p></div><strong>₹4,661</strong></div>
+        <p class="desc">Bright rooms in a polished hotel with a 24-hour cafe &amp; a hip bar, plus an outdoor pool &amp; a gym.</p>
+        <div class="review-chip"><b>4.1 ?</b><span>5,143 reviews</span><em>Great Deal</em></div>
+        <div class="amenities"><span>Free breakfast</span><span>Free Wi-Fi</span><span>Free parking</span><span>Outdoor pool</span><span>Air conditioning</span><span>Fitness center</span></div>
+        <div class="hotel-facts"><span>Check-in <b>2:00 PM</b></span><span>Check-out <b>12:00 PM</b></span><span>I Gate ? 9 min</span><span>Kempegowda International Airport Bengaluru ? 1 hr 10 min</span></div>
+        <div class="rating-breakdown"><div class="rating-row"><span>5?</span><b style="width:100%"></b><em>2,418</em></div><div class="rating-row"><span>4?</span><b style="width:69%"></b><em>1,687</em></div><div class="rating-row"><span>3?</span><b style="width:25%"></b><em>628</em></div><div class="rating-row"><span>2?</span><b style="width:8%"></b><em>204</em></div><div class="rating-row"><span>1?</span><b style="width:8%"></b><em>206</em></div></div>
+        <div class="actions"><a href="https://www.lemontreehotels.com/lemon-tree-hotel/bengaluru/whitefield?utm_source=google&amp;utm_medium=organic&amp;utm_campaign=gmb_listing">Book / Website</a><a href="https://www.google.com/maps/search/?api=1&query=12.972525599999999,77.71805520000001">Map</a><a href="https://serpapi.com/search.json?engine=google_hotels_photos&amp;property_token=ChgIn6Dr3t_V0JSUARoLL2cvMXRjdDc0cXMQAQ">Photos data</a></div>
+      </div>
+    </article>
+    <article class="hotel-card">
+      <div class="hotel-media"><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAGwc9zN-Aip89RqwrJk36FBFeM0LfdA4DmvlKFnaBM5OSwRtUAQlcEtszQkbwO_JnCieAmAejQr8kZTCRRItfc4LYu9OtdgIllaouFSJPV5ToNVlrxjDVbyge_GSjJA14TPQKIx=s287-w287-h192-n-k-no-v1" alt="YN Hotels photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFY6Oh0q2kiESxP_YODgmdDBPnuBTXwBLXyA6CrveyixbhR5guwZ0h0DUjBOhKywK6FphXkIGnwmU-cZ6D_80OoslkgJ3I2RwS-OQdfcn1CqyvTm7r2iEIA4FDUSwXiCND6Kk4=s287-w287-h192-n-k-no-v1" alt="YN Hotels photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAH06KFDjG7-pEJrHO9qZQ0oH0tGX_6x7r2CPw0pUEoc9JMHhlQ-5iV1jQUHeBafTcZ8_lV3y9s1JKXHZctgzSRDJu3DPhH2gmNtVsVLvfvf07RPjPc15A8dYBuYBfz9uxfrnte4=s287-w287-h192-n-k-no-v1" alt="YN Hotels photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFzR4L1L2wF4UQ77zEw4yH3q7_7pa-MK-V104snAK9MhCK155nlepRKF2Ui742slmUlnBC5Wrtp_Yrk0ppCTGEX_KIUSz2Ygmt6Y1TTtC-IV0Aim0jaC9rK1vIbU0zRYKzXMEkh=s287-w287-h192-n-k-no-v1" alt="YN Hotels photo" /></div>
+      <div class="hotel-body">
+        <div class="hotel-title-row"><div><h3>3. YN Hotels</h3><p>3-star hotel</p></div><strong>₹1,887</strong></div>
+        <p class="desc">Simply furnished rooms in a casual property featuring free Wi-Fi &amp; an international restaurant.</p>
+        <div class="review-chip"><b>4.1 ?</b><span>1,322 reviews</span><em>Great Deal</em></div>
+        <div class="amenities"><span>Free breakfast</span><span>Free Wi-Fi</span><span>Parking</span><span>Air conditioning</span><span>Restaurant</span><span>Room service</span></div>
+        <div class="hotel-facts"><span>Check-in <b>12:00 PM</b></span><span>Check-out <b>2:00 PM</b></span><span>KR Pura Market ? 1 min</span><span>Kempegowda International Airport Bengaluru ? 58 min</span></div>
+        <div class="rating-breakdown"><div class="rating-row"><span>5?</span><b style="width:100%"></b><em>727</em></div><div class="rating-row"><span>4?</span><b style="width:42%"></b><em>311</em></div><div class="rating-row"><span>3?</span><b style="width:17%"></b><em>128</em></div><div class="rating-row"><span>2?</span><b style="width:5%"></b><em>43</em></div><div class="rating-row"><span>1?</span><b style="width:15%"></b><em>113</em></div></div>
+        <div class="actions"><a href="http://www.ynhotels.co.in/">Book / Website</a><a href="https://www.google.com/maps/search/?api=1&query=13.0087016,77.6942396">Map</a><a href="https://serpapi.com/search.json?engine=google_hotels_photos&amp;property_token=ChoI0uuGk6jDypHGARoNL2cvMTFnZ3cweGNoNhAB">Photos data</a></div>
+      </div>
+    </article></div><div class="panel">
+    <article class="hotel-card">
+      <div class="hotel-media"><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAF8tiKpfa7-jiwcTmwzPu9Ky0kgxqZ5sGgvZ_G53_m6r8tieT0t-2R5KACeKCW8nFOL16-pIGuPDSx2mdSm81ZtYT0QAiiaCSgsjeVrafv92t0YW0i-c4QSDfKbjid212Ja910=s287-w287-h192-n-k-no-v1" alt="Olive Hotel Mahadevapura by Embassy Group photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAF89SYgD-yfQi3E9PbuBSVqahbbu2tMWM_1cWhP0ffQoA5RUjQPtEFMe0o5lYTbOlMUKwXT-KZeG8T468S-5gdcptnzchj5lBpg0v3l5halcW_RHxzT3Nt3JtMdsSiMQqRN7SkcxGWnrvw=s287-w287-h192-n-k-no-v1" alt="Olive Hotel Mahadevapura by Embassy Group photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAHRYZkLRbmdSySqIz42DsWs_QHdthyRNoRbf5uZQE0yI8DV1tFhC1e4YEHpnh3jiuusNY68IaRr4NX1EX5KDcvJF50ie7uq5rcubrjzUgKgcDB7HPBxR2vALf1mo5zhC2uezBUuNja3lUvl=s287-w287-h192-n-k-no-v1" alt="Olive Hotel Mahadevapura by Embassy Group photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFj9VkBxGCqnTgQGb4GKCTxS8enr-w-nCJWs01GgMDhT6gZdIHYzZEHBPbz7b7piMMy9KQAqYfDaTHpL1uZoZCOEBl8gVtBHEsbyTrbfHtzRr4aKZK8qsXVYqSIYbeOc_zO49a1glKhGIMA=s287-w287-h192-n-k-no-v1" alt="Olive Hotel Mahadevapura by Embassy Group photo" /></div>
+      <div class="hotel-body">
+        <div class="hotel-title-row"><div><h3>4. Olive Hotel Mahadevapura by Embassy Group</h3><p>hotel</p></div><strong>₹3,323</strong></div>
+        <p class="desc"></p>
+        <div class="review-chip"><b>4.7 ?</b><span>172 reviews</span></div>
+        <div class="amenities"><span>Breakfast ($)</span><span>Free Wi-Fi</span><span>Free parking</span><span>Air conditioning</span><span>Room service</span><span>Full-service laundry</span></div>
+        <div class="hotel-facts"><span>Check-in <b>1:00 PM</b></span><span>Check-out <b>11:00 AM</b></span><span>Mahadevapura ? 2 min</span><span>Kempegowda International Airport Bengaluru ? 59 min</span></div>
+        <div class="rating-breakdown"><div class="rating-row"><span>5?</span><b style="width:100%"></b><em>137</em></div><div class="rating-row"><span>4?</span><b style="width:18%"></b><em>26</em></div><div class="rating-row"><span>3?</span><b style="width:4%"></b><em>3</em></div><div class="rating-row"><span>2?</span><b style="width:4%"></b><em>1</em></div><div class="rating-row"><span>1?</span><b style="width:4%"></b><em>5</em></div></div>
+        <div class="actions"><a href="https://oliveliving.com/bangalore/olive-hotel-mahadevapura/">Book / Website</a><a href="https://www.google.com/maps/search/?api=1&query=12.978850999999999,77.6961608">Map</a><a href="https://serpapi.com/search.json?engine=google_hotels_photos&amp;property_token=ChkI28Ps8afJg8QHGg0vZy8xMXdqZ3loMnN4EAE">Photos data</a></div>
+      </div>
+    </article>
+    <article class="hotel-card">
+      <div class="hotel-media"><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFJqHuVsDfJi4inIX7RPiwj8Cxok86gMzevOKzqKHdnr2qYuRBIDt0FpxMgMCjsfdRl--d3yBSAjw2pzoqNEk775vsAIDfHGKAELqIZACbwIMZ8WJW8zHQIfODYuo7xGjZnZKmw676KGGvx=s287-w287-h192-n-k-no-v1" alt="MGM MARK WHITEFIELD photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAGXJ1TsaifDCHKBwcho7S-gF0dN3hSdWuHfPGYoXxKygJY8UncDXbqoIwltJr8TDr29zYpCx0Hq-blr9I0EEQDZs6QsOEqfjRSca_FPHwXK9jfYcjfycXIc-jss-9kwQ9azwba06oCG4V5s=s287-w287-h192-n-k-no-v1" alt="MGM MARK WHITEFIELD photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFGcrMySAtWAP-VUhigTSgJSxt7ztYtZHUEusT2HFGM6TIVoZQWfdNgf7PFua3YSla-3X-M2dyiaHKHEXsXIRWDoFe5bTxmxyPkgrP676Q3Y4zz8gmdjbwW22JHDUHd4jAZ1wejlG-NCtcG=s287-w287-h192-n-k-no-v1" alt="MGM MARK WHITEFIELD photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAGO4JuNfUO1h1mHQYoOvJyXH2TwQ3uU9Tl_7wXZrBZ0Q_6TfTXGVI9WLSEVhTkJ0WDDZVewaI8CrDzGunktTn6RaXy3sfKet7s_I2tvZQmTFj-4E05ZfqA0fMJXa7uamJtCB8igPKws-dKc=s287-w287-h192-n-k-no-v1" alt="MGM MARK WHITEFIELD photo" /></div>
+      <div class="hotel-body">
+        <div class="hotel-title-row"><div><h3>5. MGM MARK WHITEFIELD</h3><p>4-star hotel</p></div><strong>₹2,940</strong></div>
+        <p class="desc">Understated rooms in a relaxed hotel with a restaurant, a lively bar &amp; a gym, plus free breakfast.</p>
+        <div class="review-chip"><b>4.2 ?</b><span>2,253 reviews</span><em>Great Deal</em></div>
+        <div class="amenities"><span>Free breakfast</span><span>Free Wi-Fi</span><span>Free parking</span><span>Air conditioning</span><span>Fitness center</span><span>Bar</span></div>
+        <div class="hotel-facts"><span>Check-in <b>12:00 PM</b></span><span>Check-out <b>11:00 AM</b></span><span>Kempegowda International Airport Bengaluru ? 1 hr 10 min</span><span>Chulha Chauki Da Dhaba | AECS Layout ? </span></div>
+        <div class="rating-breakdown"><div class="rating-row"><span>5?</span><b style="width:100%"></b><em>1,070</em></div><div class="rating-row"><span>4?</span><b style="width:67%"></b><em>720</em></div><div class="rating-row"><span>3?</span><b style="width:29%"></b><em>317</em></div><div class="rating-row"><span>2?</span><b style="width:6%"></b><em>68</em></div><div class="rating-row"><span>1?</span><b style="width:7%"></b><em>78</em></div></div>
+        <div class="actions"><a href="https://www.mgm-hotels.com/mgm-mark-whitefield-bangalore/">Book / Website</a><a href="https://www.google.com/maps/search/?api=1&query=12.9716662,77.717562">Map</a><a href="https://serpapi.com/search.json?engine=google_hotels_photos&amp;property_token=ChgIg_ml6qjBg5jRARoLL2cvMXRoMjZ2NXoQAQ">Photos data</a></div>
+      </div>
+    </article>
+    <article class="hotel-card">
+      <div class="hotel-media"><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAG1PxRXXt4uOhWJOe58h2N92FeF3OlPa-NJ9llrAd040AnfVQNnFmH1R9TUNo7BwKRUoDzdIdeMHe8EO9lKrfUM-NRMJVuX1eWy6Ceejh0xeSgOUA2oHP5qMvLqII7dviUL1r22Acu-0k4s=s287-w287-h192-n-k-no-v1" alt="Regenta Inn Grand - ORR, Mahadevpura photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAFL5pZ_qJwxHD_SOG0QnzE-XK8Y0bPgmsRRieS7PvfgH7Dw-drawgRRATlpTyIRqtJl8eOkoujr31O6CC4w8olJlsp9KXgJKYrqKnsFDMFWIrWgbF3uVAgSeTOvnvYAbtWLZ0dpBpFbVjo5=s287-w287-h192-n-k-no-v1" alt="Regenta Inn Grand - ORR, Mahadevpura photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAHcE6XX1cq0h-J_DFoZ47d3JbjilD5xYeZ43X_sTxkZgKkxlv6hfhrp8LQPMTrYjf1VuBUI7yJmOTnoman931QGd-0OtFocitCDLCEn5rg7rGVrb3eqhmaLsyk9YPb_UWquHFuM_SLFW2I=s287-w287-h192-n-k-no-v1" alt="Regenta Inn Grand - ORR, Mahadevpura photo" /><img src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAHkhv-pe1ai6cbPl0Qe3xpoYCJzyJH9R7icNRg0bN2FgjjezyKGP1IWxTibqdf2feq4TGh1PztlLWrBXwXH0L7jlo3giyA2JLjGRD6HiAW0zvfMq7htouHUE8m9A2jCQQwenO2XJOdcjDtl=s287-w287-h192-n-k-no-v1" alt="Regenta Inn Grand - ORR, Mahadevpura photo" /></div>
+      <div class="hotel-body">
+        <div class="hotel-title-row"><div><h3>6. Regenta Inn Grand - ORR, Mahadevpura</h3><p>hotel</p></div><strong>₹4,175</strong></div>
+        <p class="desc"></p>
+        <div class="review-chip"><b>4.6 ?</b><span>691 reviews</span></div>
+        <div class="amenities"><span>Free breakfast</span><span>Free Wi-Fi</span><span>Free parking</span><span>Air conditioning</span><span>Fitness center</span><span>Restaurant</span></div>
+        <div class="hotel-facts"><span>Check-in <b>2:00 PM</b></span><span>Check-out <b>11:00 AM</b></span><span>Mahadevapura ? 4 min</span><span>Kempegowda International Airport Bengaluru ? 59 min</span></div>
+        <div class="rating-breakdown"><div class="rating-row"><span>5?</span><b style="width:100%"></b><em>520</em></div><div class="rating-row"><span>4?</span><b style="width:24%"></b><em>126</em></div><div class="rating-row"><span>3?</span><b style="width:5%"></b><em>27</em></div><div class="rating-row"><span>2?</span><b style="width:4%"></b><em>7</em></div><div class="rating-row"><span>1?</span><b style="width:4%"></b><em>11</em></div></div>
+        <div class="actions"><a href="http://www.grandcontinenthotels.com/">Book / Website</a><a href="https://www.google.com/maps/search/?api=1&query=12.978523,77.697215">Map</a><a href="https://serpapi.com/search.json?engine=google_hotels_photos&amp;property_token=ChkIv4jJi_qiz95JGg0vZy8xMWp5ZmRmZ2ozEAE">Photos data</a></div>
+      </div>
+    </article></div></section>
+  <section class="section"><div><h2>Useful data fields available</h2><p>These are the fields Android can route into richer native cards.</p></div></section>
+  <section class="fields">
+    <div class="data-card"><h2>Flights</h2><ul><li>Airline name and airline logo</li><li>Departure/arrival airport ids, names, and times for each leg</li><li>Flight number, aircraft, travel class, legroom, extensions</li><li>Total duration, layover airport and duration</li><li>Price, price insights, historical price range</li><li>Carbon emissions vs typical route</li><li>Booking token for detail/booking continuation</li></ul></div>
+    <div class="data-card"><h2>Hotels</h2><ul><li>Name, description, hotel class, price per night, total rate</li><li>Overall rating, review count, star distribution, location rating</li><li>Scrollable property photos and photo detail endpoint</li><li>Amenities, nearby places, check-in and check-out time</li><li>Deals, property token, reviews/photos/detail links</li><li>GPS coordinates and official booking/website link</li></ul></div>
+  </section>
+  <p class="source">Sources: SerpApi Google Flights Search and SerpApi Google Hotels. API keys are not embedded in this HTML. Raw local test payloads were written to .tmp_mcp_flight_hotel/ and are intentionally not committed.</p>
+</main></body></html>
