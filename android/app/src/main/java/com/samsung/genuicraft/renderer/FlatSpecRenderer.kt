@@ -6319,7 +6319,7 @@ private fun restaurantAmenitiesIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("amenities", "features", "services", "highlights"))
 
 private fun restaurantPhoneIndex(headers: List<String>): Int? =
-    findTableColumnIndex(headers, listOf("phone", "telephone", "call"))
+    findTableColumnIndex(headers, listOf("phone", "telephone", "call", "national phone", "international phone"))
 
 private fun splitRestaurantTags(raw: String): List<String> =
     raw.split('|', ',', ';')
@@ -6339,7 +6339,7 @@ private fun splitRestaurantPhotoUrls(raw: String): List<String> =
         }
         .filterNot(::isIconLikeMediaUrl)
         .distinct()
-        .take(3)
+        .take(5)
 
 private fun compactRestaurantMeta(
     rating: String,
@@ -6466,6 +6466,7 @@ private fun renderRestaurantRowsIfPossible(
                 }
             }
             val phone = phoneIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+            val phoneDialUrl = SafeContentPolicy.sanitizePhoneDialUrl(phone)
             val meta = compactRestaurantMeta(rating, reviews, price)
 
             Card(
@@ -6602,11 +6603,10 @@ private fun renderRestaurantRowsIfPossible(
                                 onClick = { onOpenUrl(mapsUrl) }
                             )
                         }
-                        if (phone.isNotBlank() && primaryActionUrl.isNullOrBlank()) {
+                        if (!phoneDialUrl.isNullOrBlank()) {
                             RestaurantActionPill(
                                 label = "Call",
-                                enabled = false,
-                                onClick = {}
+                                onClick = { onOpenUrl(phoneDialUrl) }
                             )
                         }
                     }

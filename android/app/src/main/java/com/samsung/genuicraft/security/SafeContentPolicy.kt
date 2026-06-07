@@ -87,6 +87,9 @@ object SafeContentPolicy {
     fun sanitizeActionUrl(raw: String?): String? {
         val token = sanitizeToken(raw)
         if (isVerifiedUrlPlaceholder(token)) return token
+        if (token.startsWith("tel:", ignoreCase = true)) {
+            return sanitizePhoneDialUrl(token)
+        }
         val normalized = normalizeNetworkUrl(raw, allowBareDomain = true) ?: return null
         val uri = parseUri(normalized) ?: return null
         if (uri.scheme?.lowercase(Locale.US) != "https") return null
@@ -97,6 +100,24 @@ object SafeContentPolicy {
     }
 
     fun isSafeActionUrl(raw: String?): Boolean = sanitizeActionUrl(raw) != null
+
+    fun sanitizePhoneDialUrl(raw: String?): String? {
+        val token = sanitizeToken(raw)
+        if (token.isBlank() || token.any { it == '\r' || it == '\n' || it == '\t' }) return null
+        val phonePart = if (token.startsWith("tel:", ignoreCase = true)) {
+            token.substringAfter(':')
+        } else {
+            token
+        }
+        val compact = phonePart.filter { ch ->
+            ch.isDigit() || ch == '+' || ch == '*' || ch == '#'
+        }
+        val digitCount = compact.count(Char::isDigit)
+        if (digitCount < 3 || compact.length > 32) return null
+        if (compact.count { it == '+' } > 1) return null
+        if (compact.contains('+') && !compact.startsWith("+")) return null
+        return "tel:$compact"
+    }
 
     fun sanitizeMediaUrl(raw: String?, kind: MediaKind): String? {
         val token = sanitizeToken(raw)
@@ -167,6 +188,7 @@ object SafeContentPolicy {
             lower.startsWith("file:") ||
             lower.startsWith("content:") ||
             lower.startsWith("intent:") ||
+            lower.startsWith("tel:") ||
             lower.startsWith("www.") ||
             bareDomainRegex.matches(token)
     }

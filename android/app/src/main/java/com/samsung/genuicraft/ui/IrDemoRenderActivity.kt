@@ -365,7 +365,12 @@ class IrDemoRenderActivity : AppCompatActivity() {
     private fun openExternalUrl(url: String) {
         val safeUrl = SafeContentPolicy.sanitizeActionUrl(url) ?: return
         val uri = runCatching { Uri.parse(safeUrl) }.getOrNull() ?: return
-        startActivity(Intent(Intent.ACTION_VIEW, uri))
+        val action = if (uri.scheme.equals("tel", ignoreCase = true)) {
+            Intent.ACTION_DIAL
+        } else {
+            Intent.ACTION_VIEW
+        }
+        startActivity(Intent(action, uri))
     }
 }
 

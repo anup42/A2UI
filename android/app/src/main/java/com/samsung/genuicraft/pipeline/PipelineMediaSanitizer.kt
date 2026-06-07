@@ -1548,7 +1548,8 @@ internal object PipelineMediaSanitizer {
         stage2Response: String
     ): String {
         val photosByName = extractRestaurantPhotoUrls(stage2Response)
-        if (photosByName.isEmpty()) return jsonText
+        val phonesByName = extractRestaurantPhoneNumbers(stage2Response)
+        if (photosByName.isEmpty() && phonesByName.isEmpty()) return jsonText
 
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
         val payload = normalizeGenUiPayload(parsed)
@@ -1564,13 +1565,21 @@ internal object PipelineMediaSanitizer {
             value.asJsonArray.forEach { row ->
                 val rowObj = row.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
                 val name = firstRowString(rowObj, "restaurant", "name", "place", "title") ?: return@forEach
-                val photoUrls = photosByName[normalizeRestaurantName(name)] ?: return@forEach
-                if (!rowHasImage(rowObj)) {
-                    rowObj.addProperty("photoUrl", photoUrls.first())
-                    changed = true
+                val normalizedName = normalizeRestaurantName(name)
+                val photoUrls = photosByName[normalizedName]
+                if (photoUrls != null) {
+                    if (!rowHasImage(rowObj)) {
+                        rowObj.addProperty("photoUrl", photoUrls.first())
+                        changed = true
+                    }
+                    if (!rowHasPhotoList(rowObj) && photoUrls.size > 1) {
+                        rowObj.addProperty("photoUrls", photoUrls.joinToString(", "))
+                        changed = true
+                    }
                 }
-                if (!rowHasPhotoList(rowObj) && photoUrls.size > 1) {
-                    rowObj.addProperty("photoUrls", photoUrls.joinToString(", "))
+                val phone = phonesByName[normalizedName]
+                if (phone != null && !rowHasPhone(rowObj)) {
+                    rowObj.addProperty("phone", phone)
                     changed = true
                 }
             }
@@ -1593,6 +1602,13 @@ internal object PipelineMediaSanitizer {
                 columns.add(JsonObject().apply {
                     addProperty("key", "photoUrls")
                     addProperty("label", "Photos")
+                })
+                changed = true
+            }
+            if (phonesByName.isNotEmpty() && !columns.any { columnHasKeyOrLabel(it, "phone", "telephone", "call") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "phone")
+                    addProperty("label", "Phone")
                 })
                 changed = true
             }
@@ -1635,6 +1651,35 @@ internal object PipelineMediaSanitizer {
         return result
     }
 
+    private fun extractRestaurantPhoneNumbers(stage2Response: String): Map<String, String> {
+        val lines = stage2Response.lines()
+        val result = linkedMapOf<String, String>()
+        lines.forEachIndexed { index, line ->
+            if (!line.trimStart().startsWith("|")) return@forEachIndexed
+            if (!line.contains("Restaurant", ignoreCase = true) || !line.contains("Phone", ignoreCase = true)) {
+                return@forEachIndexed
+            }
+            val headers = splitMarkdownTableRow(line)
+            val restaurantIndex = headers.indexOfFirst { it.equals("Restaurant", ignoreCase = true) || it.equals("Name", ignoreCase = true) }
+            val phoneIndex = headers.indexOfFirst {
+                val normalized = it.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+                normalized in setOf("phone", "telephone", "call", "nationalphone", "internationalphone")
+            }
+            if (restaurantIndex < 0 || phoneIndex < 0) return@forEachIndexed
+            lines.drop(index + 2)
+                .takeWhile { it.trimStart().startsWith("|") }
+                .forEach { rowLine ->
+                    val cells = splitMarkdownTableRow(rowLine)
+                    val name = cells.getOrNull(restaurantIndex)?.trim().orEmpty()
+                    val rawPhone = cells.getOrNull(phoneIndex)?.trim().orEmpty()
+                    if (name.isNotBlank() && SafeContentPolicy.sanitizePhoneDialUrl(rawPhone) != null) {
+                        result[normalizeRestaurantName(name)] = rawPhone
+                    }
+                }
+        }
+        return result
+    }
+
     private fun splitMarkdownTableRow(line: String): List<String> =
         line.trim().trim('|').split('|').map { it.trim() }
 
@@ -1661,6 +1706,11 @@ internal object PipelineMediaSanitizer {
         listOf("photoUrls", "photos", "images", "media").any { key ->
             val value = jsonStringOrNull(row.get(key)) ?: return@any false
             safeImageUrls(value).isNotEmpty()
+        }
+
+    private fun rowHasPhone(row: JsonObject): Boolean =
+        listOf("phone", "telephone", "call", "nationalPhoneNumber", "internationalPhoneNumber").any { key ->
+            SafeContentPolicy.sanitizePhoneDialUrl(jsonStringOrNull(row.get(key))) != null
         }
 
     private fun firstRowString(row: JsonObject, vararg keys: String): String? {

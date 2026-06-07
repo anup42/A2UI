@@ -1753,7 +1753,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
         if (stage3WithRestaurantPhotos != stage3Json) {
             stage3Json = stage3WithRestaurantPhotos
-            warnings += "Preserved restaurant photos from Google Places rows."
+            warnings += "Preserved restaurant photos/contact data from Google Places rows."
         }
         val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
             jsonText = stage3Json, queryText = normalizedQuery
