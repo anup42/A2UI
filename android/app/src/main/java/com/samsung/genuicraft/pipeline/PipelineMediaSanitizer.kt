@@ -1543,6 +1543,125 @@ internal object PipelineMediaSanitizer {
         return normalized
     }
 
+    fun preserveRestaurantPhotosInGenUi(
+        jsonText: String,
+        stage2Response: String
+    ): String {
+        val photosByName = extractRestaurantPhotoUrls(stage2Response)
+        if (photosByName.isEmpty()) return jsonText
+
+        val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
+        val payload = normalizeGenUiPayload(parsed)
+        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) return jsonText
+
+        val spec = payload.asJsonObject
+        val state = spec.get("state")?.takeIf { it.isJsonObject }?.asJsonObject ?: return jsonText
+        val elements = spec.getAsJsonObject("elements") ?: return jsonText
+        var changed = false
+
+        state.entrySet().forEach { (_, value) ->
+            if (!value.isJsonArray) return@forEach
+            value.asJsonArray.forEach { row ->
+                val rowObj = row.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+                if (rowHasImage(rowObj)) return@forEach
+                val name = firstRowString(rowObj, "restaurant", "name", "place", "title") ?: return@forEach
+                val photoUrl = photosByName[normalizeRestaurantName(name)] ?: return@forEach
+                rowObj.addProperty("photoUrl", photoUrl)
+                changed = true
+            }
+        }
+
+        elements.entrySet().forEach { (_, node) ->
+            val element = node.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            if (!jsonStringOrNull(element.get("type")).equals("Table", ignoreCase = true)) return@forEach
+            val props = element.getAsJsonObject("props") ?: return@forEach
+            if (!isRestaurantTableProps(props)) return@forEach
+            val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return@forEach
+            if (columns.any { columnHasKeyOrLabel(it, "photo", "photourl", "photo url", "image") }) return@forEach
+            columns.add(JsonObject().apply {
+                addProperty("key", "photoUrl")
+                addProperty("label", "Photo")
+            })
+            changed = true
+        }
+
+        return if (changed) spec.toString() else jsonText
+    }
+
+    private fun extractRestaurantPhotoUrls(stage2Response: String): Map<String, String> {
+        val lines = stage2Response.lines()
+        val result = linkedMapOf<String, String>()
+        lines.forEachIndexed { index, line ->
+            if (!line.trimStart().startsWith("|")) return@forEachIndexed
+            if (!line.contains("Restaurant", ignoreCase = true) || !line.contains("Photo", ignoreCase = true)) {
+                return@forEachIndexed
+            }
+            val headers = splitMarkdownTableRow(line)
+            val restaurantIndex = headers.indexOfFirst { it.equals("Restaurant", ignoreCase = true) || it.equals("Name", ignoreCase = true) }
+            val photoIndex = headers.indexOfFirst {
+                val normalized = it.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+                normalized in setOf("photo", "photos", "photourl", "image", "imageurl", "media")
+            }
+            if (restaurantIndex < 0 || photoIndex < 0) return@forEachIndexed
+            lines.drop(index + 2)
+                .takeWhile { it.trimStart().startsWith("|") }
+                .forEach { rowLine ->
+                    val cells = splitMarkdownTableRow(rowLine)
+                    val name = cells.getOrNull(restaurantIndex)?.trim().orEmpty()
+                    val rawPhotoCell = cells.getOrNull(photoIndex).orEmpty()
+                    val photoUrl = firstSafeImageUrl(rawPhotoCell)
+                    if (name.isNotBlank() && photoUrl != null) {
+                        result[normalizeRestaurantName(name)] = photoUrl
+                    }
+                }
+        }
+        return result
+    }
+
+    private fun splitMarkdownTableRow(line: String): List<String> =
+        line.trim().trim('|').split('|').map { it.trim() }
+
+    private fun firstSafeImageUrl(value: String): String? =
+        Regex("""https?://[^\s,|]+""")
+            .findAll(value)
+            .mapNotNull { match ->
+                SafeContentPolicy.sanitizeMediaUrl(match.value, SafeContentPolicy.MediaKind.IMAGE)
+            }
+            .firstOrNull()
+
+    private fun rowHasImage(row: JsonObject): Boolean =
+        listOf("photoUrl", "photo", "image", "imageUrl", "thumbnail", "mediaImage").any { key ->
+            val value = jsonStringOrNull(row.get(key)) ?: return@any false
+            SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE)
+        }
+
+    private fun firstRowString(row: JsonObject, vararg keys: String): String? {
+        keys.forEach { key ->
+            jsonStringOrNull(row.get(key))?.trim()?.takeIf { it.isNotBlank() }?.let { return it }
+        }
+        return null
+    }
+
+    private fun normalizeRestaurantName(value: String): String =
+        value.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+
+    private fun isRestaurantTableProps(props: JsonObject): Boolean {
+        val domain = jsonStringOrNull(props.get("domain")).orEmpty().lowercase(Locale.US)
+        if (domain in setOf("restaurant", "restaurants", "place", "places", "dining")) return true
+        val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return false
+        return columns.any { columnHasKeyOrLabel(it, "restaurant", "name", "place") } &&
+            columns.any { columnHasKeyOrLabel(it, "rating", "reviews", "address", "mapsurl", "maps url") }
+    }
+
+    private fun columnHasKeyOrLabel(column: JsonElement, vararg tokens: String): Boolean {
+        val obj = column.takeIf { it.isJsonObject }?.asJsonObject ?: return false
+        val values = listOfNotNull(jsonStringOrNull(obj.get("key")), jsonStringOrNull(obj.get("label")))
+            .map { it.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "") }
+        return tokens
+            .map { it.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "") }
+            .any { token -> values.any { it == token } }
+    }
+
     data class SafeGenUiResult(
         val jsonText: String,
         val removedMediaCount: Int,

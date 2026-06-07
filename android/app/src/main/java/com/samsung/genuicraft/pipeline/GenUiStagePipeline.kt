@@ -1747,6 +1747,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = stage3WithFlightMediaNormalized
             warnings += "Normalized flight media to airline/travel-safe icons."
         }
+        val stage3WithRestaurantPhotos = PipelineMediaSanitizer.preserveRestaurantPhotosInGenUi(
+            jsonText = stage3Json,
+            stage2Response = sanitizedResponse
+        )
+        if (stage3WithRestaurantPhotos != stage3Json) {
+            stage3Json = stage3WithRestaurantPhotos
+            warnings += "Preserved restaurant photos from Google Places rows."
+        }
         val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
             jsonText = stage3Json, queryText = normalizedQuery
         )

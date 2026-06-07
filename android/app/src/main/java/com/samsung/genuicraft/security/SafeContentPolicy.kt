@@ -16,6 +16,7 @@ object SafeContentPolicy {
     private val bareDomainRegex = Regex(
         """(?i)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#].*)?"""
     )
+    private val urlPlaceholderRegex = Regex("""\{\{u\d+}}""", RegexOption.IGNORE_CASE)
     private val blockedHosts = setOf(
         "example.com",
         "example.org",
@@ -84,6 +85,8 @@ object SafeContentPolicy {
     )
 
     fun sanitizeActionUrl(raw: String?): String? {
+        val token = sanitizeToken(raw)
+        if (isVerifiedUrlPlaceholder(token)) return token
         val normalized = normalizeNetworkUrl(raw, allowBareDomain = true) ?: return null
         val uri = parseUri(normalized) ?: return null
         if (uri.scheme?.lowercase(Locale.US) != "https") return null
@@ -98,6 +101,7 @@ object SafeContentPolicy {
     fun sanitizeMediaUrl(raw: String?, kind: MediaKind): String? {
         val token = sanitizeToken(raw)
         if (token.isBlank() || isPlaceholderToken(token)) return null
+        if (isVerifiedUrlPlaceholder(token)) return token
         if (isLocalAssetUrl(token)) return token
         if (isGeneratedVisualUrl(token)) {
             return token.takeIf { kind == MediaKind.IMAGE || kind == MediaKind.ICON }
@@ -153,6 +157,7 @@ object SafeContentPolicy {
 
     fun looksLikeUrl(raw: String?): Boolean {
         val token = sanitizeToken(raw)
+        if (isVerifiedUrlPlaceholder(token)) return true
         val lower = token.lowercase(Locale.US)
         return lower.startsWith("http://") ||
             lower.startsWith("https://") ||
@@ -245,6 +250,9 @@ object SafeContentPolicy {
             "--"
         ) || lower.contains("placeholder") || lower.contains("<") || lower.contains(">")
     }
+
+    private fun isVerifiedUrlPlaceholder(value: String): Boolean =
+        urlPlaceholderRegex.matches(value)
 
     private fun isAllowedPhotoUrl(host: String, uri: URI): Boolean {
         val path = uri.path.orEmpty().lowercase(Locale.US)

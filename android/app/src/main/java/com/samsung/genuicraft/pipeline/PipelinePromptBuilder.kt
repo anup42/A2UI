@@ -97,10 +97,12 @@ internal object PipelinePromptBuilder {
             "Asset URL policy for this request:\n" +
                 "- No local asset mapping is provided.\n" +
                 "- Preserve media URLs from the response exactly as written.\n" +
+                "- If the response contains compact URL placeholders like {{u1}}, {{u2}}, preserve them exactly in media/action/source fields; they represent verified URLs and will be restored after JSON generation.\n" +
                 "- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png."
         } else {
             "Asset URL policy for this request:\n" +
                 "- Use only local media paths from the provided Assets mapping.\n" +
+                "- If the response contains compact URL placeholders like {{u1}}, {{u2}}, preserve them exactly in action/source fields; they represent verified URLs and will be restored after JSON generation.\n" +
                 "- Do not emit remote media URLs for images/icons.\n" +
                 "- Do not invent local placeholder paths not present in the mapping."
         }

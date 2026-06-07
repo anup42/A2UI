@@ -557,9 +557,9 @@ private fun buildFlightsFallback(data: JsonObject): String {
         if (results == null || results.size() == 0) {
             sb.appendLine("No restaurants found in $location.")
         } else {
-            sb.appendLine("These restaurants are from Google Places data. Photos, ratings, addresses, hours, and action links are attached to each row so the UI can show Bixby-style result cards.")
+            sb.appendLine("These restaurants are from Google Places data. A primary photo URL, ratings, addresses, hours, and action links are attached to each row so the UI can show Bixby-style result cards.")
             sb.appendLine()
-            sb.appendLine("| Restaurant | Rating | Reviews | Price | Status / Hours | Address | Tags | Description | Photos | Maps URL | Website URL | Phone |")
+            sb.appendLine("| Restaurant | Rating | Reviews | Price | Status / Hours | Address | Tags | Description | Photo URL | Maps URL | Website URL | Phone |")
             sb.appendLine("|---|---:|---:|---|---|---|---|---|---|---|---|---|")
 
             for (i in 0 until minOf(results.size(), 6)) {
@@ -576,9 +576,10 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val address = biz.safeString("formattedAddress") ?: ""
                 val photoUris = biz.getAsJsonArray("photoUris")
                     ?.mapNotNull { it.safeString()?.trim()?.takeIf(String::isNotBlank) }
-                    ?.take(3)
+                    ?.take(1)
                     .orEmpty()
                     .ifEmpty { listOfNotNull(biz.safeString("photoUri")?.trim()?.takeIf(String::isNotBlank)) }
+                    .take(1)
                 val distanceMeters = biz.safeDouble("distance")
                 val priceLevel = when (biz.safeString("priceLevel")) {
                     "PRICE_LEVEL_INEXPENSIVE" -> "Inexpensive"
@@ -648,7 +649,7 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 sb.appendLine(
                     "| ${cell(name)} | ${cell(ratingStr)} | ${cell(if (reviewCount > 0) "$reviewCount reviews" else "")} | " +
                         "${cell(priceLevel)} | ${cell(status)} | ${cell(address)} | ${cell(uniqueTypeList.joinToString("; "))} | " +
-                        "${cell(description)} | ${cell(photoUris.joinToString(", "))} | ${cell(mapsUri)} | ${cell(websiteUri)} | ${cell(phone)} |"
+                        "${cell(description)} | ${cell(photoUris.firstOrNull())} | ${cell(mapsUri)} | ${cell(websiteUri)} | ${cell(phone)} |"
                 )
             }
         }
