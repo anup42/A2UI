@@ -6853,6 +6853,21 @@ private fun RestaurantActionPill(
     primary: Boolean = false,
     onClick: () -> Unit
 ) {
+    val containerColor = when {
+        primary && enabled -> MaterialTheme.colorScheme.primary
+        enabled -> MaterialTheme.colorScheme.primary.copy(alpha = if (isSystemInDarkTheme()) 0.20f else 0.10f)
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
+    }
+    val contentColor = when {
+        primary && enabled -> MaterialTheme.colorScheme.onPrimary
+        enabled -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
+    }
+    val border = when {
+        primary && enabled -> null
+        enabled -> BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.34f))
+        else -> BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.38f))
+    }
     Surface(
         modifier = Modifier
             .widthIn(min = 116.dp, max = 176.dp)
@@ -6865,11 +6880,8 @@ private fun RestaurantActionPill(
                 }
             ),
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-        color = when {
-            primary && enabled -> MaterialTheme.colorScheme.primary
-            enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.78f)
-            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
-        }
+        color = containerColor,
+        border = border
     ) {
         Row(
             modifier = Modifier
@@ -6882,21 +6894,13 @@ private fun RestaurantActionPill(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = when {
-                    primary && enabled -> MaterialTheme.colorScheme.onPrimary
-                    enabled -> MaterialTheme.colorScheme.onSurfaceVariant
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
-                }
+                tint = contentColor
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = when {
-                    primary && enabled -> MaterialTheme.colorScheme.onPrimary
-                    enabled -> MaterialTheme.colorScheme.onSurfaceVariant
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
-                },
+                color = contentColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
