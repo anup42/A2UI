@@ -209,6 +209,9 @@ Rules:
     private fun com.google.gson.JsonElement?.safeInt(): Int? =
         this?.takeIf { !it.isJsonNull }?.asInt
 
+    private fun JsonObject.safeBoolean(key: String): Boolean? =
+        get(key)?.takeIf { !it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() }
+
     /** Generates a simple structured response when LLM formatting fails. */
     private fun buildFallbackResponse(domain: McpSettings.Domain, data: JsonObject, queryText: String): String {
         return when (domain) {
@@ -559,8 +562,8 @@ private fun buildFlightsFallback(data: JsonObject): String {
         } else {
             sb.appendLine("These restaurants are from Google Places data. A primary photo URL, ratings, addresses, hours, and action links are attached to each row so the UI can show Bixby-style result cards.")
             sb.appendLine()
-            sb.appendLine("| Restaurant | Rating | Reviews | Price | Status / Hours | Address | Tags | Description | Photo URL | Maps URL | Website URL | Phone |")
-            sb.appendLine("|---|---:|---:|---|---|---|---|---|---|---|---|---|")
+            sb.appendLine("| Restaurant | Rating | Reviews | Price | Status / Hours | Address | Tags | Amenities | Description | Photo URL | Photos | Book URL | Action Label | Maps URL | Website URL | Phone |")
+            sb.appendLine("|---|---:|---:|---|---|---|---|---|---|---|---|---|---|---|---|---|")
 
             for (i in 0 until minOf(results.size(), 6)) {
                 val biz = results[i].asJsonObject
@@ -576,10 +579,10 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val address = biz.safeString("formattedAddress") ?: ""
                 val photoUris = biz.getAsJsonArray("photoUris")
                     ?.mapNotNull { it.safeString()?.trim()?.takeIf(String::isNotBlank) }
-                    ?.take(1)
+                    ?.take(3)
                     .orEmpty()
                     .ifEmpty { listOfNotNull(biz.safeString("photoUri")?.trim()?.takeIf(String::isNotBlank)) }
-                    .take(1)
+                    .take(3)
                 val distanceMeters = biz.safeDouble("distance")
                 val priceLevel = when (biz.safeString("priceLevel")) {
                     "PRICE_LEVEL_INEXPENSIVE" -> "Inexpensive"
@@ -592,7 +595,11 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val cuisineList = biz.getAsJsonArray("cuisineTags")
                     ?.mapNotNull { it.safeString()?.trim()?.takeIf { tag -> tag.isNotBlank() } }
                     ?: emptyList()
-                val typeList = cuisineList + (biz.getAsJsonArray("types")
+                val primaryType = biz.getAsJsonObject("primaryTypeDisplayName")
+                    ?.safeString("text")
+                    ?.trim()
+                    ?.takeIf(String::isNotBlank)
+                val typeList = cuisineList + listOfNotNull(primaryType) + (biz.getAsJsonArray("types")
                     ?.mapNotNull { it.takeIf { e -> !e.isJsonNull }?.asString }
                     ?.filter { t ->
                         t !in setOf(
@@ -608,6 +615,20 @@ private fun buildFlightsFallback(data: JsonObject): String {
                 val editorial = biz.getAsJsonObject("editorialSummary")
                     ?.safeString("text")?.trim()
                     ?.takeIf { it.isNotBlank() }
+                val generativeSummary = biz.getAsJsonObject("generativeSummary")
+                    ?.let { summary ->
+                        summary.getAsJsonObject("overview")?.safeString("text")
+                            ?: summary.safeString("text")
+                    }
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
+                val reviewSummary = biz.getAsJsonObject("reviewSummary")
+                    ?.let { summary ->
+                        summary.getAsJsonObject("text")?.safeString("text")
+                            ?: summary.safeString("text")
+                    }
+                    ?.trim()
+                    ?.takeIf { it.isNotBlank() }
                 val reviewSnippet = biz.getAsJsonArray("reviews")
                     ?.firstOrNull()?.asJsonObject
                     ?.getAsJsonObject("text")?.get("text")?.asString
@@ -615,7 +636,8 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     ?.takeIf { it.isNotBlank() && it != "null" }
                     ?.take(140)
 
-                val openingHours = biz.getAsJsonObject("regularOpeningHours")
+                val openingHours = biz.getAsJsonObject("currentOpeningHours")
+                    ?: biz.getAsJsonObject("regularOpeningHours")
                 val openNow = openingHours?.get("openNow")?.takeIf { !it.isJsonNull }?.asBoolean
                 val openStatus = when (openNow) {
                     true -> "Open now"
@@ -642,14 +664,29 @@ private fun buildFlightsFallback(data: JsonObject): String {
                     todayHours?.takeIf(String::isNotBlank)?.let { add("Today: $it") }
                     distanceLabel.takeIf(String::isNotBlank)?.let(::add)
                 }.joinToString(" / ")
-                val description = listOfNotNull(editorial, reviewSnippet)
+                val amenities = restaurantAmenities(biz).joinToString("; ")
+                val description = listOfNotNull(editorial, generativeSummary, reviewSummary, reviewSnippet)
                     .firstOrNull { it.isNotBlank() }
                     .orEmpty()
+                val reservable = biz.safeBoolean("reservable") == true
+                val bookUrl = when {
+                    websiteUri.isNotBlank() -> websiteUri
+                    mapsUri.isNotBlank() -> mapsUri
+                    else -> ""
+                }
+                val actionLabel = when {
+                    reservable -> "Book table"
+                    websiteUri.isNotBlank() -> "Menu / Book"
+                    mapsUri.isNotBlank() -> "Open in Maps"
+                    else -> ""
+                }
+                val primaryPhoto = photoUris.firstOrNull() ?: restaurantVisualUri(name)
 
                 sb.appendLine(
                     "| ${cell(name)} | ${cell(ratingStr)} | ${cell(if (reviewCount > 0) "$reviewCount reviews" else "")} | " +
                         "${cell(priceLevel)} | ${cell(status)} | ${cell(address)} | ${cell(uniqueTypeList.joinToString("; "))} | " +
-                        "${cell(description)} | ${cell(photoUris.firstOrNull())} | ${cell(mapsUri)} | ${cell(websiteUri)} | ${cell(phone)} |"
+                        "${cell(amenities)} | ${cell(description)} | ${cell(primaryPhoto)} | ${cell(photoUris.joinToString(", "))} | " +
+                        "${cell(bookUrl)} | ${cell(actionLabel)} | ${cell(mapsUri)} | ${cell(websiteUri)} | ${cell(phone)} |"
                 )
             }
         }
@@ -664,6 +701,27 @@ private fun buildFlightsFallback(data: JsonObject): String {
 
         return sb.toString()
     }
+
+    private fun restaurantAmenities(place: JsonObject): List<String> = buildList {
+        fun addIf(key: String, label: String) {
+            if (place.safeBoolean(key) == true) add(label)
+        }
+        addIf("reservable", "Reservations")
+        addIf("dineIn", "Dine-in")
+        addIf("takeout", "Takeout")
+        addIf("delivery", "Delivery")
+        addIf("outdoorSeating", "Outdoor seating")
+        addIf("goodForChildren", "Good for kids")
+        addIf("goodForGroups", "Good for groups")
+        addIf("servesBreakfast", "Breakfast")
+        addIf("servesBrunch", "Brunch")
+        addIf("servesLunch", "Lunch")
+        addIf("servesDinner", "Dinner")
+        addIf("servesVegetarianFood", "Vegetarian options")
+        addIf("servesCoffee", "Coffee")
+        addIf("servesDessert", "Dessert")
+    }.distinct().take(6)
+
     private fun restaurantVisualUri(name: String): String {
         val encodedTitle = Uri.encode(name.ifBlank { "Restaurant" })
         return "genuicraft://visual/restaurant?title=$encodedTitle"

@@ -34,6 +34,14 @@ object McpClient {
     private const val LOG_TAG = "McpClient"
     private const val CONNECT_TIMEOUT = 10_000
     private const val READ_TIMEOUT = 30_000
+    private const val RESTAURANT_DETAIL_FIELD_MASK =
+        "id,name,displayName,formattedAddress,shortFormattedAddress,priceLevel," +
+            "rating,userRatingCount,types,primaryType,primaryTypeDisplayName,photos,reviews,reviewSummary," +
+            "editorialSummary,generativeSummary,regularOpeningHours,currentOpeningHours," +
+            "websiteUri,googleMapsUri,googleMapsLinks,nationalPhoneNumber,internationalPhoneNumber," +
+            "businessStatus,reservable,dineIn,takeout,delivery,servesBreakfast,servesBrunch," +
+            "servesLunch,servesDinner,servesVegetarianFood,servesCoffee,servesDessert," +
+            "goodForChildren,goodForGroups,outdoorSeating,paymentOptions,parkingOptions"
 
     data class McpResult(
         val domain: McpSettings.Domain,
@@ -386,17 +394,26 @@ object McpClient {
         }
         val headers = mapOf(
             "X-Goog-Api-Key" to apiKey,
-            "X-Goog-FieldMask" to "places.displayName,places.formattedAddress,places.priceLevel," +
+            "X-Goog-FieldMask" to "places.id,places.name,places.displayName,places.shortFormattedAddress," +
+                "places.formattedAddress,places.priceLevel," +
                 "places.rating,places.userRatingCount,places.types,places.photos,places.reviews," +
-                "places.editorialSummary,places.regularOpeningHours," +
-                "places.websiteUri,places.googleMapsUri,places.nationalPhoneNumber,places.internationalPhoneNumber"
+                "places.reviewSummary,places.editorialSummary,places.generativeSummary,places.regularOpeningHours," +
+                "places.currentOpeningHours,places.websiteUri,places.googleMapsUri,places.googleMapsLinks," +
+                "places.nationalPhoneNumber,places.internationalPhoneNumber,places.primaryTypeDisplayName," +
+                "places.businessStatus,places.reservable,places.dineIn,places.takeout,places.delivery," +
+                "places.servesBreakfast,places.servesBrunch,places.servesLunch,places.servesDinner," +
+                "places.servesVegetarianFood,places.servesCoffee,places.servesDessert," +
+                "places.goodForChildren,places.goodForGroups,places.outdoorSeating"
         )
         val response = httpPostWithHeaders(url, body.toString(), "application/json", headers)
         val json = JsonParser.parseString(response).asJsonObject
         val restaurants = json.getAsJsonArray("places") ?: JsonArray()
 
-        restaurants.forEach { el ->
+        restaurants.forEachIndexed { index, el ->
             val restaurant = el.asJsonObject
+            if (index < 6) {
+                enrichRestaurantWithPlaceDetails(restaurant, apiKey, language)
+            }
             val photoUris = JsonArray()
             restaurant.getAsJsonArray("photos")
                 ?.take(3)
@@ -431,6 +448,41 @@ object McpClient {
             error = null,
             requestDebug = requestDebug
         )
+    }
+
+    private fun enrichRestaurantWithPlaceDetails(restaurant: JsonObject, apiKey: String, language: String) {
+        val placeResourceName = restaurant.safeString("name")
+            ?.removePrefix("/")
+            ?.takeIf { it.startsWith("places/") }
+            ?: return
+        val encodedLanguage = URLEncoder.encode(language, StandardCharsets.UTF_8.name())
+        val detailUrl = "https://places.googleapis.com/v1/$placeResourceName?languageCode=$encodedLanguage"
+        val headers = mapOf(
+            "X-Goog-Api-Key" to apiKey,
+            "X-Goog-FieldMask" to RESTAURANT_DETAIL_FIELD_MASK
+        )
+        val detailJson = runCatching {
+            JsonParser.parseString(httpGetWithHeaders(detailUrl, headers)).asJsonObject
+        }.onFailure { error ->
+            Log.w(LOG_TAG, "Place Details enrichment skipped for $placeResourceName: ${error.message}")
+        }.getOrNull() ?: return
+
+        val mergeKeys = listOf(
+            "id", "name", "displayName", "formattedAddress", "shortFormattedAddress", "priceLevel",
+            "rating", "userRatingCount", "types", "primaryType", "primaryTypeDisplayName",
+            "photos", "reviews", "reviewSummary", "editorialSummary", "generativeSummary",
+            "regularOpeningHours", "currentOpeningHours", "websiteUri", "googleMapsUri", "googleMapsLinks",
+            "nationalPhoneNumber", "internationalPhoneNumber", "businessStatus", "reservable",
+            "dineIn", "takeout", "delivery", "servesBreakfast", "servesBrunch", "servesLunch",
+            "servesDinner", "servesVegetarianFood", "servesCoffee", "servesDessert",
+            "goodForChildren", "goodForGroups", "outdoorSeating", "paymentOptions", "parkingOptions"
+        )
+        mergeKeys.forEach { key ->
+            detailJson.get(key)
+                ?.takeIf { !it.isJsonNull }
+                ?.let { restaurant.add(key, it.deepCopy()) }
+        }
+        restaurant.addProperty("detailsProvider", "google_place_details")
     }
 
     private fun buildRestaurantSearchQuery(queryText: String, location: String): String {
@@ -1069,6 +1121,17 @@ object McpClient {
         return readResponse(connection)
     }
 
+    private fun httpGetWithHeaders(url: String, headers: Map<String, String>): String {
+        val connection = (URL(url).openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = CONNECT_TIMEOUT
+            readTimeout = READ_TIMEOUT
+            setRequestProperty("Accept", "application/json")
+            headers.forEach { (k, v) -> setRequestProperty(k, v) }
+        }
+        return readResponse(connection)
+    }
+
     private fun httpPostJsonWithStatus(url: String, body: String, headers: Map<String, String>): HttpResult {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
@@ -1112,6 +1175,12 @@ object McpClient {
         return get(key)
             ?.takeIf { !it.isJsonNull }
             ?.let { runCatching { it.asInt }.getOrNull() }
+    }
+
+    private fun JsonObject.safeBoolean(key: String): Boolean? {
+        return get(key)
+            ?.takeIf { !it.isJsonNull }
+            ?.let { runCatching { it.asBoolean }.getOrNull() }
     }
 
     private fun readResponse(connection: HttpURLConnection): String {

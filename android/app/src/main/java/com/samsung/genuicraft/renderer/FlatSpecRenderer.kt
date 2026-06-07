@@ -6270,7 +6270,13 @@ private fun restaurantAddressIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("address", "location"))
 
 private fun restaurantDescriptionIndex(headers: List<String>): Int? =
-    findTableColumnIndex(headers, listOf("description", "summary", "review", "reason", "why", "notes"))
+    findTableColumnIndex(headers, listOf("description", "summary", "reason", "why", "notes", "details", "editorial"))
+        ?: headers.indices.firstOrNull { index ->
+            val token = normalizeTableHeaderForMatch(headers[index])
+            token.contains("review") &&
+                !token.contains("count") &&
+                token !in setOf("review", "reviews", "userratingcount", "user rating count")
+        }
 
 private fun restaurantTagsIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("tags", "type", "types", "cuisine", "category"))
@@ -6278,11 +6284,39 @@ private fun restaurantTagsIndex(headers: List<String>): Int? =
 private fun restaurantPhotoIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("photo", "photos", "photo uri", "photouri", "image", "images", "media"))
 
+private fun restaurantPhotoIndexes(headers: List<String>): List<Int> =
+    headers.indices.filter { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        listOf("photo", "photos", "photo uri", "photouri", "image", "images", "media").any(token::contains)
+    }
+
 private fun restaurantMapsIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("maps", "map", "directions", "google maps", "googlemapsuri", "google maps uri"))
 
 private fun restaurantWebsiteIndex(headers: List<String>): Int? =
-    findTableColumnIndex(headers, listOf("website", "site", "url", "link"))
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token.contains("website") || token == "site" || token.contains("websiteuri") || token.contains("website uri")
+    }
+
+private fun restaurantBookUrlIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        (token.contains("book") || token.contains("reserve") || token.contains("reservation")) &&
+            (token.contains("url") || token.contains("link") || token.contains("uri"))
+    }
+
+private fun restaurantActionLabelIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token in setOf("actionlabel", "action label", "buttonlabel", "button label", "ctalabel", "cta label") ||
+            (token.contains("action") && token.contains("label")) ||
+            (token.contains("button") && token.contains("label")) ||
+            (token.contains("cta") && token.contains("label"))
+    }
+
+private fun restaurantAmenitiesIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("amenities", "features", "services", "highlights"))
 
 private fun restaurantPhoneIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("phone", "telephone", "call"))
@@ -6342,12 +6376,16 @@ private fun renderRestaurantRowsIfPossible(
     val descriptionIndex = restaurantDescriptionIndex(headers)
     val tagsIndex = restaurantTagsIndex(headers)
     val photoIndex = restaurantPhotoIndex(headers)
+    val photoIndexes = restaurantPhotoIndexes(headers)
     val mapsIndex = restaurantMapsIndex(headers)
     val websiteIndex = restaurantWebsiteIndex(headers)
+    val bookUrlIndex = restaurantBookUrlIndex(headers)
+    val actionLabelIndex = restaurantActionLabelIndex(headers)
+    val amenitiesIndex = restaurantAmenitiesIndex(headers)
     val phoneIndex = restaurantPhoneIndex(headers)
     val hasRestaurantSignal =
         headers.any(::isRestaurantHeaderLabel) &&
-            (ratingIndex != null || addressIndex != null || photoIndex != null || mapsIndex != null || websiteIndex != null)
+            (ratingIndex != null || addressIndex != null || photoIndex != null || mapsIndex != null || websiteIndex != null || bookUrlIndex != null)
     if (!hasRestaurantSignal) return false
 
     val shownRows = rows.filter { row -> row.any { value -> value.trim().isNotBlank() } }
@@ -6359,7 +6397,7 @@ private fun renderRestaurantRowsIfPossible(
             .semantics {
                 contentDescription = "Restaurant results with ${shownRows.size} places"
             },
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         title?.trim()?.takeIf { it.isNotBlank() }?.let { headingText ->
             Text(
@@ -6380,132 +6418,185 @@ private fun renderRestaurantRowsIfPossible(
             val status = statusIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
             val address = addressIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
             val description = descriptionIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val tags = tagsIndex?.let { splitRestaurantTags(row.getOrNull(it).orEmpty()) }.orEmpty()
-            val photos = photoIndex?.let { splitRestaurantPhotoUrls(row.getOrNull(it).orEmpty()) }.orEmpty()
+            val amenities = amenitiesIndex?.let { splitRestaurantTags(row.getOrNull(it).orEmpty()) }.orEmpty()
+            val tags = (tagsIndex?.let { splitRestaurantTags(row.getOrNull(it).orEmpty()) }.orEmpty() + amenities)
+                .distinct()
+                .take(7)
+            val photos = photoIndexes
+                .flatMap { splitRestaurantPhotoUrls(row.getOrNull(it).orEmpty()) }
+                .distinct()
+                .take(3)
                 .ifEmpty { listOf("genuicraft://visual/restaurant?title=${Uri.encode(restaurantName)}") }
             val mapsUrl = mapsIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
             val websiteUrl = websiteIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
+            val bookUrl = bookUrlIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
+            val hasReservationSignal = tags.any { tag ->
+                tag.contains("reservation", ignoreCase = true) ||
+                    tag.contains("reserve", ignoreCase = true) ||
+                    tag.contains("book", ignoreCase = true)
+            }
+            val rawActionLabel = actionLabelIndex
+                ?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.takeIf { it.isNotBlank() && !isLikelyHttpUrl(it) }
+            val actionLabel = when {
+                hasReservationSignal &&
+                    rawActionLabel.orEmpty().contains("maps", ignoreCase = true) &&
+                    (!bookUrl.isNullOrBlank() || !mapsUrl.isNullOrBlank()) -> "Book / Details"
+                !rawActionLabel.isNullOrBlank() -> rawActionLabel
+                else -> when {
+                    !bookUrl.isNullOrBlank() -> "Book / Menu"
+                    !websiteUrl.isNullOrBlank() -> "Website"
+                    !mapsUrl.isNullOrBlank() && hasReservationSignal -> "Book / Details"
+                    !mapsUrl.isNullOrBlank() -> "Directions"
+                    else -> ""
+                }
+            }
             val phone = phoneIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
             val meta = compactRestaurantMeta(rating, reviews, price)
 
-            Column(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
                     .semantics(mergeDescendants = true) {
                         contentDescription = tableRowAccessibilitySummary(headers, row)
                     },
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.Top
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text(
-                        text = parseBoldMarkdown(restaurantName),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
+                    RestaurantPhotoStrip(
+                        name = restaurantName,
+                        photos = photos,
+                        onOpenUrl = onOpenUrl
                     )
-                    if (rating.isNotBlank()) {
-                        Surface(
-                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Text(
-                                text = "★ $rating",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
-                            )
-                        }
-                    }
-                }
-                if (meta.isNotBlank()) {
-                    Text(
-                        text = parseBoldMarkdown(meta),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                if (status.isNotBlank()) {
-                    val openLike = status.contains("open", ignoreCase = true) && !status.contains("closed", ignoreCase = true)
-                    Text(
-                        text = parseBoldMarkdown(status),
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = if (openLike) Color(0xFF18A767) else MaterialTheme.colorScheme.error
-                    )
-                }
-                if (address.isNotBlank()) {
-                    Text(
-                        text = parseBoldMarkdown(address),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                RestaurantPhotoStrip(
-                    name = restaurantName,
-                    photos = photos,
-                    onOpenUrl = onOpenUrl
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (phone.isNotBlank()) {
-                        RestaurantActionPill(
-                            label = "Call",
-                            enabled = false,
-                            onClick = {}
-                        )
-                    }
-                    if (!websiteUrl.isNullOrBlank()) {
-                        RestaurantActionPill(
-                            label = "Website",
-                            onClick = { onOpenUrl(websiteUrl) }
-                        )
-                    }
-                    if (!mapsUrl.isNullOrBlank()) {
-                        RestaurantActionPill(
-                            label = "Directions",
-                            onClick = { onOpenUrl(mapsUrl) }
-                        )
-                    }
-                }
-                if (description.isNotBlank()) {
-                    Text(
-                        text = parseBoldMarkdown(description),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
-                    )
-                }
-                if (tags.isNotEmpty()) {
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(7.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.Top
                     ) {
-                        tags.forEach { tag ->
+                        Text(
+                            text = parseBoldMarkdown(restaurantName),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (rating.isNotBlank()) {
                             Surface(
                                 shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)
+                                color = MaterialTheme.colorScheme.primaryContainer
                             ) {
                                 Text(
-                                    text = parseBoldMarkdown(tag),
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    text = "★ $rating",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
                                 )
                             }
                         }
                     }
+                    if (meta.isNotBlank()) {
+                        Text(
+                            text = parseBoldMarkdown(meta),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (status.isNotBlank()) {
+                        val openLike = status.contains("open", ignoreCase = true) && !status.contains("closed", ignoreCase = true)
+                        Surface(
+                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                            color = if (openLike) {
+                                Color(0xFF18A767).copy(alpha = 0.14f)
+                            } else {
+                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.74f)
+                            }
+                        ) {
+                            Text(
+                                text = parseBoldMarkdown(status),
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = if (openLike) Color(0xFF0E7C4A) else MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                    if (description.isNotBlank()) {
+                        Text(
+                            text = parseBoldMarkdown(description),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    if (address.isNotBlank()) {
+                        Text(
+                            text = parseBoldMarkdown(address),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    if (tags.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(7.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            tags.forEach { tag ->
+                                Surface(
+                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.46f)
+                                ) {
+                                    Text(
+                                        text = parseBoldMarkdown(tag),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val primaryActionUrl = bookUrl ?: websiteUrl ?: mapsUrl
+                        if (!primaryActionUrl.isNullOrBlank() && actionLabel.isNotBlank()) {
+                            RestaurantActionPill(
+                                label = actionLabel,
+                                primary = true,
+                                onClick = { onOpenUrl(primaryActionUrl) }
+                            )
+                        }
+                        if (!websiteUrl.isNullOrBlank() && websiteUrl != primaryActionUrl) {
+                            RestaurantActionPill(
+                                label = "Website",
+                                onClick = { onOpenUrl(websiteUrl) }
+                            )
+                        }
+                        if (!mapsUrl.isNullOrBlank() && mapsUrl != primaryActionUrl) {
+                            RestaurantActionPill(
+                                label = "Directions",
+                                onClick = { onOpenUrl(mapsUrl) }
+                            )
+                        }
+                        if (phone.isNotBlank() && primaryActionUrl.isNullOrBlank()) {
+                            RestaurantActionPill(
+                                label = "Call",
+                                enabled = false,
+                                onClick = {}
+                            )
+                        }
+                    }
                 }
-            }
-            if (index < shownRows.lastIndex) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
             }
         }
     }
@@ -6519,24 +6610,43 @@ private fun RestaurantPhotoStrip(
     onOpenUrl: (String) -> Unit
 ) {
     if (photos.isEmpty()) return
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    val primary = photos.first()
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        photos.forEach { photo ->
-            RenderImage(
-                props = mapOf(
-                    "url" to photo,
-                    "fit" to "cover",
-                    "width" to 156,
-                    "height" to 132,
-                    "alt" to "$name photo"
-                ),
-                onOpenUrl = onOpenUrl,
+        RenderImage(
+            props = mapOf(
+                "url" to primary,
+                "fit" to "cover",
+                "height" to 172,
+                "alt" to "$name photo"
+            ),
+            onOpenUrl = onOpenUrl,
+            modifier = Modifier.fillMaxWidth()
+        )
+        val extraPhotos = photos.drop(1)
+        if (extraPhotos.isNotEmpty()) {
+            Row(
                 modifier = Modifier
-            )
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                extraPhotos.forEachIndexed { index, photo ->
+                    RenderImage(
+                        props = mapOf(
+                            "url" to photo,
+                            "fit" to "cover",
+                            "width" to 112,
+                            "height" to 74,
+                            "alt" to "$name photo ${index + 2}"
+                        ),
+                        onOpenUrl = onOpenUrl,
+                        modifier = Modifier
+                    )
+                }
+            }
         }
     }
 }
@@ -6545,12 +6655,13 @@ private fun RestaurantPhotoStrip(
 private fun RowScope.RestaurantActionPill(
     label: String,
     enabled: Boolean = true,
+    primary: Boolean = false,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
             .weight(1f)
-            .height(38.dp)
+            .height(40.dp)
             .then(
                 if (enabled) {
                     Modifier.clickable(role = Role.Button, onClick = onClick)
@@ -6559,16 +6670,20 @@ private fun RowScope.RestaurantActionPill(
                 }
             ),
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (enabled) 0.78f else 0.42f)
+        color = when {
+            primary && enabled -> MaterialTheme.colorScheme.primary
+            enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.78f)
+            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f)
+        }
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = if (enabled) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
+                color = when {
+                    primary && enabled -> MaterialTheme.colorScheme.onPrimary
+                    enabled -> MaterialTheme.colorScheme.onSurfaceVariant
+                    else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
                 },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -6576,7 +6691,6 @@ private fun RowScope.RestaurantActionPill(
         }
     }
 }
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun renderBookingRowsIfPossible(
