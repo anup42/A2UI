@@ -6657,17 +6657,7 @@ private fun renderRestaurantRowsIfPossible(
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             tags.forEach { tag ->
-                                Surface(
-                                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.46f)
-                                ) {
-                                    Text(
-                                        text = parseBoldMarkdown(tag),
-                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
-                                    )
-                                }
+                                RestaurantTagChip(tag)
                             }
                         }
                     }
@@ -6724,6 +6714,25 @@ private fun renderRestaurantRowsIfPossible(
         }
     }
     return true
+}
+
+@Composable
+private fun RestaurantTagChip(label: String) {
+    val contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        border = BorderStroke(1.dp, contentColor.copy(alpha = if (isSystemInDarkTheme()) 0.30f else 0.20f))
+    ) {
+        Text(
+            text = parseBoldMarkdown(label),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = contentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+        )
+    }
 }
 
 @Composable
