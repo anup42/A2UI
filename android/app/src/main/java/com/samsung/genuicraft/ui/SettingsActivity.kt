@@ -1050,6 +1050,7 @@ private fun defaultModelOptions(selectedResponseModel: String, selectedIrModel: 
         "gemini-2.5-pro",
         "gemini-2.5-flash",
         "gemini-2.5-flash-lite",
+        GeminiModelSettings.GEMMA_4_31B_IT_MODEL,
         "gemini-2.0-flash",
         "gemini-2.0-flash-lite",
         "gemini-pro-latest",

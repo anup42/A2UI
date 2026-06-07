@@ -54,7 +54,7 @@ object GeminiModelCatalog {
                     models?.forEach { element ->
                         val obj = runCatching { element.asJsonObject }.getOrNull() ?: return@forEach
                         val name = obj.get("name")?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
-                        if (!name.startsWith("models/gemini")) {
+                        if (!isSupportedGoogleTextModel(name)) {
                             return@forEach
                         }
                         val supports = obj.getAsJsonArray("supportedGenerationMethods")
@@ -94,8 +94,15 @@ object GeminiModelCatalog {
             if (sorted.none { it == GeminiModelSettings.DEFAULT_MODEL }) {
                 sorted.add(0, GeminiModelSettings.DEFAULT_MODEL)
             }
+            if (sorted.none { it == GeminiModelSettings.GEMMA_4_31B_IT_MODEL }) {
+                sorted.add(minOf(3, sorted.size), GeminiModelSettings.GEMMA_4_31B_IT_MODEL)
+            }
             sorted
         }
+    }
+
+    private fun isSupportedGoogleTextModel(name: String): Boolean {
+        return name.startsWith("models/gemini") || name.startsWith("models/gemma")
     }
 
     private fun priorityFor(model: String): Int {
@@ -103,11 +110,12 @@ object GeminiModelCatalog {
             "gemini-2.5-pro" -> 0
             "gemini-2.5-flash" -> 1
             "gemini-2.5-flash-lite" -> 2
-            "gemini-2.0-flash" -> 3
-            "gemini-2.0-flash-lite" -> 4
-            "gemini-pro-latest" -> 5
-            "gemini-flash-latest" -> 6
-            "gemini-flash-lite-latest" -> 7
+            GeminiModelSettings.GEMMA_4_31B_IT_MODEL -> 3
+            "gemini-2.0-flash" -> 4
+            "gemini-2.0-flash-lite" -> 5
+            "gemini-pro-latest" -> 6
+            "gemini-flash-latest" -> 7
+            "gemini-flash-lite-latest" -> 8
             else -> 10
         }
     }

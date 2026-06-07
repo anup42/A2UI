@@ -9,6 +9,7 @@ object GeminiModelSettings {
     private const val KEY_IR_MODEL = "selected_ir_model"
     const val DEFAULT_RESPONSE_MODEL = "gemini-2.5-pro"
     const val DEFAULT_IR_MODEL = "gemini-2.5-flash"
+    const val GEMMA_4_31B_IT_MODEL = "gemma-4-31b-it"
     const val DEFAULT_MODEL = DEFAULT_RESPONSE_MODEL
 
     fun getSelectedModel(context: Context): String {
@@ -71,10 +72,12 @@ object GeminiModelSettings {
 
     fun normalizeModelName(value: String): String {
         val trimmed = value.trim()
-        return if (trimmed.startsWith("models/")) {
-            trimmed.removePrefix("models/").trim()
-        } else {
-            trimmed
+        return when {
+            trimmed.startsWith("publishers/google/models/") ->
+                trimmed.removePrefix("publishers/google/models/").trim()
+            trimmed.startsWith("models/") ->
+                trimmed.removePrefix("models/").trim()
+            else -> trimmed
         }
     }
 }
