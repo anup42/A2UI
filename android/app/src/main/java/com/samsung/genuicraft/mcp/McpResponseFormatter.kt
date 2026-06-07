@@ -1145,14 +1145,32 @@ Rules:
 
     private fun buildNewsFallback(data: JsonObject): String {
         val topic = data.safeString("topic") ?: "Top Headlines"
+        val location = data.safeString("location").orEmpty()
+        val country = data.safeString("country").orEmpty().uppercase()
+        val language = data.safeString("language").orEmpty().uppercase()
         val articles = data.getAsJsonArray("results")
 
         val sb = StringBuilder()
-        sb.appendLine("## $topic")
+        val heading = buildString {
+            append(topic.replaceFirstChar { it.uppercase() })
+            if (location.isNotBlank()) append(" in $location")
+        }
+        sb.appendLine("## $heading")
+        val meta = listOfNotNull(
+            country.takeIf { it.isNotBlank() }?.let { "Country: $it" },
+            language.takeIf { it.isNotBlank() }?.let { "Language: $it" }
+        )
+        if (meta.isNotEmpty()) {
+            sb.appendLine(meta.joinToString(" | "))
+        }
 
         if (articles == null || articles.size() == 0) {
             sb.appendLine("No articles found.")
         } else {
+            sb.appendLine()
+            sb.appendLine("News results table (domain: news, preferredPresentation: cards).")
+            sb.appendLine("| Article | Source | Published | Category | Summary | Image URL | Source Icon | Article URL | Source URL | Action Label |")
+            sb.appendLine("|---|---|---|---|---|---|---|---|---|---|")
             for (i in 0 until minOf(articles.size(), 8)) {
                 val article = articles[i].asJsonObject
                 val title = article.safeString("title") ?: "Article"
@@ -1161,39 +1179,30 @@ Rules:
                     ?: ""
                 val sourceLabel = source.ifBlank { "Unknown source" }
                 val publishedAt = formatNewsPublishedDate(article.safeString("pubDate"))
-                val description = article.safeString("description")?.take(150) ?: ""
+                val description = (article.safeString("description") ?: article.safeString("content"))
+                    ?.replace(Regex("""\s+"""), " ")
+                    ?.take(220)
+                    ?: ""
                 val url = article.safeString("link") ?: ""
                 val imageUrl = article.safeString("image_url")
                     ?.takeIf { it.isNotBlank() }
+                    ?: ""
+                val sourceIcon = article.safeString("source_icon")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: ""
+                val sourceUrl = article.safeString("source_url")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: ""
                 val categories = article.getAsJsonArray("category")
                     ?.mapNotNull { it.takeIf { e -> !e.isJsonNull }?.asString?.takeIf { c -> c.isNotBlank() && c != "top" } }
                     ?.map { it.replaceFirstChar { c -> c.uppercase() } }
                     ?.take(3) ?: emptyList()
-
-                sb.appendLine()
-                sb.appendLine("## ${i + 1}. $title")
-                if (imageUrl != null) {
-                    sb.appendLine("Media: Image=$imageUrl Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/newspaper.svg")
-                } else {
-                    sb.appendLine("Media: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/newspaper.svg")
-                }
-                if (categories.isNotEmpty()) {
-                    sb.appendLine("Tags: ${categories.joinToString(" | ")}")
-                }
-                val sourceAndTime = buildString {
-                    append("- **$sourceLabel**")
-                    if (publishedAt.isNotBlank()) {
-                        append(" Â· ")
-                        append(publishedAt)
-                    }
-                }
-                sb.appendLine(sourceAndTime)
-                if (description.isNotBlank() && description != "null") {
-                    sb.appendLine("- $description")
-                }
-                if (url.isNotBlank() && url != "null") {
-                    sb.appendLine("Action: [Button: Read Article] $url")
-                }
+                sb.appendLine(
+                    "| ${tableCell(title)} | ${tableCell(sourceLabel)} | ${tableCell(publishedAt)} | " +
+                        "${tableCell(categories.joinToString("; "))} | ${tableCell(description)} | " +
+                        "${tableCell(imageUrl)} | ${tableCell(sourceIcon)} | ${tableCell(url)} | " +
+                        "${tableCell(sourceUrl)} | Read Article |"
+                )
             }
         }
 

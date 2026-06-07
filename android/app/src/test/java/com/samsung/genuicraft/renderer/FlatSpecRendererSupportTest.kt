@@ -233,6 +233,43 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun extractDirectTableModel_routesNewsDomainToNewsCards() {
+        val props = mapOf<String, Any?>(
+            "columns" to listOf(
+                mapOf("key" to "article", "label" to "Article"),
+                mapOf("key" to "source", "label" to "Source"),
+                mapOf("key" to "published", "label" to "Published"),
+                mapOf("key" to "summary", "label" to "Summary"),
+                mapOf("key" to "imageUrl", "label" to "Image URL"),
+                mapOf("key" to "articleUrl", "label" to "Article URL")
+            ),
+            "rows" to listOf(
+                mapOf(
+                    "article" to "City update",
+                    "source" to "Example News",
+                    "published" to "08 Jun 2026, 10:30 AM",
+                    "summary" to "Short story summary.",
+                    "imageUrl" to "https://example.com/news.jpg",
+                    "articleUrl" to "https://example.com/story"
+                )
+            ),
+            "domain" to "news",
+            "preferredPresentation" to "cards"
+        )
+
+        val model = extractDirectTableModel(
+            props = props,
+            state = emptyMap(),
+            compactScreen = true
+        )
+
+        assertNotNull(model)
+        assertEquals("news", model!!.domain)
+        assertEquals("cards", model.preferredPresentation)
+        assertEquals(FlatTableRenderMode.NEWS_CARDS, model.renderMode)
+    }
+
+    @Test
     fun extractDirectTableModel_routesComparisonCardsWhenRequested() {
         val props = mapOf<String, Any?>(
             "columns" to listOf(

@@ -21,6 +21,8 @@ Rules:
 7. For news:
    - `topic` and `location` can both be present.
    - If query is location-only news, `topic` may be null.
+   - If a language is requested, set `language` to the requested language name or ISO 639-1 code.
+   - Do not put language words into `location`; for example, "news in Paris in French" means `location=Paris`, `language=French`.
 8. Include only allowed keys with values where possible.
 
 Return valid JSON only:

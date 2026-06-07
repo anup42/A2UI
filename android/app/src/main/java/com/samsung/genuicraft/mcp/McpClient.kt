@@ -1009,10 +1009,10 @@ object McpClient {
 
         val topic = entities["topic"]?.trim().orEmpty()
         val location = entities["location"]?.trim().orEmpty()
+        val language = normalizeNewsLanguageCode(entities["language"], fallback = "en")
         val country = normalizeCountryCode(entities["country"])
-            ?: normalizeCountryFromLocation(location)
+            ?: resolveNewsCountryFromLocation(location, language)
             ?: "in"
-        val language = normalizeLanguageCode(entities["language"], fallback = "en")
         val startDateEntity = normalizeIsoDate(entities["start_date"] ?: entities["date"])
         val endDateEntity = normalizeIsoDate(entities["end_date"])
         val (startDate, endDate) = normalizeDateRange(startDateEntity, endDateEntity)
@@ -1271,8 +1271,15 @@ object McpClient {
             ?.lowercase(Locale.US)
             ?.replace('_', '-')
             .orEmpty()
+        val plain = token.replace(Regex("""[^a-z]"""), "")
+        LANGUAGE_NAME_TO_CODE[plain]?.let { return it }
         val primary = token.substringBefore('-').replace(Regex("""[^a-z]"""), "")
         return if (primary.length == 2) primary else fallback
+    }
+
+    private fun normalizeNewsLanguageCode(raw: String?, fallback: String = "en"): String {
+        val normalized = normalizeLanguageCode(raw, fallback)
+        return normalized.takeIf { it in NEWS_DATA_LANGUAGE_CODES } ?: fallback
     }
 
     private fun normalizeCountryCode(raw: String?): String? {
@@ -1300,6 +1307,26 @@ object McpClient {
             return plain
         }
         return COUNTRY_NAME_TO_CODE[plain]
+    }
+
+    private fun resolveNewsCountryFromLocation(location: String?, language: String): String? {
+        normalizeCountryFromLocation(location)?.let { return it }
+        val query = location?.trim()?.takeIf { it.isNotBlank() } ?: return null
+        val plain = query
+            .lowercase(Locale.US)
+            .replace(Regex("""[^a-z]"""), "")
+        NEWS_LOCATION_COUNTRY_HINTS[plain]?.let { return it }
+
+        return runCatching {
+            val geocodeUrl =
+                "https://geocoding-api.open-meteo.com/v1/search?name=${enc(query)}&count=1&language=${enc(language)}&format=json"
+            val geocodeResponse = httpGet(geocodeUrl)
+            val geocodeJson = JsonParser.parseString(geocodeResponse).asJsonObject
+            val results = geocodeJson.getAsJsonArray("results")
+            val place = results?.takeIf { it.size() > 0 }?.get(0)?.asJsonObject ?: return@runCatching null
+            place.safeString("country_code")?.lowercase(Locale.US)
+                ?: normalizeCountryCode(place.safeString("country"))
+        }.getOrNull()
     }
 
     private fun normalizeTemperatureUnit(raw: String?): String? {
@@ -1552,6 +1579,71 @@ object McpClient {
         "friday" to DayOfWeek.FRIDAY,
         "saturday" to DayOfWeek.SATURDAY,
         "sunday" to DayOfWeek.SUNDAY
+    )
+
+    private val LANGUAGE_NAME_TO_CODE = mapOf(
+        "english" to "en",
+        "hindi" to "hi",
+        "kannada" to "kn",
+        "kanada" to "kn",
+        "tamil" to "ta",
+        "telugu" to "te",
+        "malayalam" to "ml",
+        "marathi" to "mr",
+        "gujarati" to "gu",
+        "bengali" to "bn",
+        "bangla" to "bn",
+        "punjabi" to "pa",
+        "urdu" to "ur",
+        "french" to "fr",
+        "german" to "de",
+        "spanish" to "es",
+        "italian" to "it",
+        "portuguese" to "pt",
+        "japanese" to "ja",
+        "korean" to "ko",
+        "chinese" to "zh",
+        "mandarin" to "zh",
+        "arabic" to "ar",
+        "russian" to "ru",
+        "dutch" to "nl",
+        "swedish" to "sv",
+        "norwegian" to "no",
+        "danish" to "da",
+        "finnish" to "fi",
+        "turkish" to "tr",
+        "thai" to "th",
+        "vietnamese" to "vi",
+        "indonesian" to "id"
+    )
+
+    private val NEWS_DATA_LANGUAGE_CODES = setOf(
+        "af", "ar", "bg", "bn", "ca", "cs", "cy", "da", "de", "el", "en", "es",
+        "et", "fa", "fi", "fr", "gu", "he", "hi", "hr", "hu", "id", "it", "ja",
+        "kn", "ko", "lt", "lv", "mk", "ml", "mr", "ne", "nl", "no", "pa", "pl",
+        "pt", "ro", "ru", "sk", "sl", "so", "sq", "sv", "sw", "ta", "te", "th",
+        "tl", "tr", "uk", "ur", "vi", "zh"
+    )
+
+    private val NEWS_LOCATION_COUNTRY_HINTS = mapOf(
+        "bengaluru" to "in",
+        "bangalore" to "in",
+        "mahadevpura" to "in",
+        "delhi" to "in",
+        "newdelhi" to "in",
+        "mumbai" to "in",
+        "chennai" to "in",
+        "hyderabad" to "in",
+        "kolkata" to "in",
+        "pune" to "in",
+        "london" to "gb",
+        "paris" to "fr",
+        "tokyo" to "jp",
+        "singapore" to "sg",
+        "dubai" to "ae",
+        "newyork" to "us",
+        "sanfrancisco" to "us",
+        "losangeles" to "us"
     )
 
     private val COUNTRY_NAME_TO_CODE = mapOf(

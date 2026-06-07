@@ -172,5 +172,51 @@ class McpResponseFormatterTest {
         assertTrue(output.contains("Search Google Flights"))
     }
 
+    @Test
+    fun buildDataSection_preservesNewsAsCompactTable() {
+        val article = JsonObject().apply {
+            addProperty("title", "Bengaluru civic update")
+            addProperty("source_name", "Example News")
+            addProperty("source_icon", "https://example.com/source.png")
+            addProperty("source_url", "https://example.com")
+            addProperty("pubDate", "2026-06-08 10:30:00")
+            addProperty("description", "A short update about Bengaluru city services.")
+            addProperty("link", "https://example.com/news/story")
+            addProperty("image_url", "https://example.com/news/story.jpg")
+            add("category", JsonArray().apply {
+                add("top")
+                add("local")
+            })
+        }
+        val data = JsonObject().apply {
+            addProperty("topic", "latest news")
+            addProperty("location", "Bengaluru")
+            addProperty("country", "in")
+            addProperty("language", "en")
+            add("results", JsonArray().apply { add(article) })
+            addProperty("totalResults", 1)
+        }
+
+        val output = McpResponseFormatter.buildDataSection(
+            McpClient.McpResult(
+                domain = McpSettings.Domain.NEWS,
+                success = true,
+                data = data,
+                rawJson = null,
+                error = null
+            ),
+            queryText = "latest news in Bengaluru"
+        )
+
+        assertTrue(output.contains("News results table (domain: news, preferredPresentation: cards)."))
+        assertTrue(output.contains("| Article | Source | Published | Category | Summary | Image URL | Source Icon | Article URL | Source URL | Action Label |"))
+        assertTrue(output.contains("Bengaluru civic update"))
+        assertTrue(output.contains("https://example.com/news/story.jpg"))
+        assertTrue(output.contains("https://example.com/source.png"))
+        assertTrue(output.contains("Read Article"))
+        assertTrue(!output.contains("Media: Image="))
+        assertTrue(!output.contains("## 1. Bengaluru civic update"))
+    }
+
 }
 

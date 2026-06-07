@@ -32,12 +32,15 @@ Entity requirements and supported fields:
   Required: none
   Optional: `topic`, `location`, `country`, `language`, `date`, `start_date`, `end_date`
   Note: news can be topic-based, location-based, or both.
+  If the user asks for news in a language, set `language` to the language name or ISO 639-1 code from the query.
 
 Instructions:
 1. Read the query carefully.
 2. Pick `mcp_domain`.
 3. Fill best-effort `entities` from the query.
    - For weather duration phrases like "next 15 days", "for 10 days", or "2-week forecast", set `entities.days` to the requested count (max 16).
+   - For news place queries, keep `location` as the city/place/region text and use `country` only when the query explicitly names a country.
+   - For language requests, set `language` only when the user clearly asks for a language such as English, Hindi, Kannada, French, Japanese, etc.
 4. If `mcp_domain=none`, return full rich answer in `full_response`.
 5. If `mcp_domain!=none`, return short contextual `intro` and keep `full_response` null.
 

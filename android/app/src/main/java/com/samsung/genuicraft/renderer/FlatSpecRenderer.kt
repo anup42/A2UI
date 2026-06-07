@@ -174,6 +174,7 @@ internal enum class FlatTableRenderMode {
     FLIGHT_CARDS,
     BOOKING_CARDS,
     RESTAURANT_CARDS,
+    NEWS_CARDS,
     PLAYLIST_CARDS,
     RESPONSIVE_CARD_ROWS
 }
@@ -330,7 +331,8 @@ private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
 private val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
 private val FORMULA_TABLE_DOMAIN_ALIASES = setOf("formula", "calculation", "calculator", "math")
 private val RESTAURANT_TABLE_DOMAIN_ALIASES = setOf("restaurant", "restaurants", "place", "places", "dining")
-private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "restaurants", "schedule", "status", "playlist")
+private val NEWS_TABLE_DOMAIN_ALIASES = setOf("news", "headline", "headlines", "article", "articles")
+private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "restaurants", "schedule", "status", "playlist", "news")
 private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison", "formula")
 
 object FlatSpecParser {
@@ -3095,6 +3097,7 @@ private fun normalizeExplicitTableDomain(value: String?): String? {
         token in PLAYLIST_TABLE_DOMAIN_ALIASES -> "playlist"
         token in FORMULA_TABLE_DOMAIN_ALIASES -> "formula"
         token in RESTAURANT_TABLE_DOMAIN_ALIASES -> "restaurants"
+        token in NEWS_TABLE_DOMAIN_ALIASES -> "news"
         else -> token
     }
 }
@@ -3161,6 +3164,41 @@ internal fun isCalculationBreakdownHeaderSet(headers: List<String>): Boolean {
     return headers.size == 2 && hasLabel && hasAmount
 }
 
+private fun isNewsTableHeaderSet(headers: List<String>, domain: String = "generic"): Boolean {
+    if (domain == "news") return true
+    val tokens = headers.map(::normalizeTableHeaderForMatch)
+    val hasTitle = tokens.any { token ->
+        token in setOf("article", "headline", "title", "story", "news") ||
+            token.contains("headline") ||
+            token.contains("article")
+    }
+    val hasSource = tokens.any { token ->
+        token == "source" ||
+            token == "publisher" ||
+            token == "publication" ||
+            token == "source name" ||
+            token == "source url"
+    }
+    val hasTime = tokens.any { token ->
+        token.contains("published") ||
+            token.contains("pub date") ||
+            token.contains("time") ||
+            token.contains("date")
+    }
+    val hasArticleUrl = tokens.any { token ->
+        token.contains("article url") ||
+            token == "url" ||
+            token == "link" ||
+            token.contains("read")
+    }
+    val hasNewsMedia = tokens.any { token ->
+        token.contains("image url") ||
+            token.contains("source icon") ||
+            token.contains("thumbnail")
+    }
+    return hasTitle && hasSource && (hasTime || hasArticleUrl || hasNewsMedia)
+}
+
 private fun inferTableDomainFromHeaders(headers: List<String>): String {
     val weatherSignals = headers.count(::isWeatherHeaderLabel)
     val weatherPeriodSignals = headers.count(::isWeatherPeriodHeaderLabel)
@@ -3176,6 +3214,7 @@ private fun inferTableDomainFromHeaders(headers: List<String>): String {
     return when {
         isPlaylistTableHeaderSet(headers) -> "playlist"
         isFormulaVariableHeaderSet(headers) || isCalculationBreakdownHeaderSet(headers) -> "formula"
+        isNewsTableHeaderSet(headers) -> "news"
         weatherSignals >= 2 -> "weather"
         weatherSignals >= 1 && weatherPeriodSignals >= 1 -> "weather"
         strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
@@ -3585,6 +3624,7 @@ internal fun extractFlatTableModel(
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
         domain == "restaurants" -> FlatTableRenderMode.RESTAURANT_CARDS
+        domain == "news" -> FlatTableRenderMode.NEWS_CARDS
         domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         comparisonCardsPreferred -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
         domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
@@ -4132,7 +4172,8 @@ private fun RenderTableLayout(
         tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
             tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS
+            tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
+            tableModel.renderMode == FlatTableRenderMode.NEWS_CARDS
     val autoHorizontalScroll = shouldUseHorizontalTableScroll(
         compactScreen = compactScreen,
         screenWidthDp = screenWidthDp,
@@ -4152,6 +4193,19 @@ private fun RenderTableLayout(
 
     if (tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS) {
         val rendered = renderRestaurantRowsIfPossible(
+            headers = tableModel.headers,
+            rows = tableRows,
+            onOpenUrl = onOpenUrl,
+            modifier = tableModifier,
+            title = tableModel.title
+        )
+        if (rendered) {
+            return
+        }
+    }
+
+    if (tableModel.renderMode == FlatTableRenderMode.NEWS_CARDS) {
+        val rendered = renderNewsRowsIfPossible(
             headers = tableModel.headers,
             rows = tableRows,
             onOpenUrl = onOpenUrl,
@@ -4431,6 +4485,7 @@ internal fun extractDirectTableModel(
         domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
         domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
         domain == "restaurants" -> FlatTableRenderMode.RESTAURANT_CARDS
+        domain == "news" -> FlatTableRenderMode.NEWS_CARDS
         domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
         compactScreen && shape in setOf(
             FlatTableShape.PLAYLIST,
@@ -7213,6 +7268,451 @@ private fun RestaurantActionPill(
         }
     }
 }
+
+private data class NewsArticleCardRow(
+    val title: String,
+    val source: String,
+    val published: String,
+    val category: String,
+    val summary: String,
+    val imageUrl: String,
+    val sourceIcon: String,
+    val articleUrl: String,
+    val sourceUrl: String,
+    val actionLabel: String,
+    val sourceRow: List<String>
+)
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun renderNewsRowsIfPossible(
+    headers: List<String>,
+    rows: List<List<String>>,
+    onOpenUrl: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    title: String? = null
+): Boolean {
+    if (rows.isEmpty() || !isNewsTableHeaderSet(headers, "news")) return false
+    val titleIndex = newsTitleIndex(headers) ?: 0
+    val sourceIndex = newsSourceIndex(headers)
+    val publishedIndex = newsPublishedIndex(headers)
+    val categoryIndex = newsCategoryIndex(headers)
+    val summaryIndex = newsSummaryIndex(headers)
+    val imageIndex = newsImageIndex(headers)
+    val sourceIconIndex = newsSourceIconIndex(headers)
+    val articleUrlIndex = newsArticleUrlIndex(headers)
+    val sourceUrlIndex = newsSourceUrlIndex(headers)
+    val actionLabelIndex = newsActionLabelIndex(headers)
+
+    val articles = rows.mapNotNull { row ->
+        val headline = row.getOrNull(titleIndex).orEmpty().trim()
+        if (headline.isBlank()) return@mapNotNull null
+        NewsArticleCardRow(
+            title = headline,
+            source = sourceIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty(),
+            published = publishedIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty(),
+            category = categoryIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty(),
+            summary = summaryIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty(),
+            imageUrl = imageIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty(),
+            sourceIcon = sourceIconIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty(),
+            articleUrl = articleUrlIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.let(SafeContentPolicy::sanitizeActionUrl)
+                .orEmpty(),
+            sourceUrl = sourceUrlIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.let(SafeContentPolicy::sanitizeActionUrl)
+                .orEmpty(),
+            actionLabel = actionLabelIndex?.let { row.getOrNull(it).orEmpty().trim() }
+                ?.takeIf { it.isNotBlank() && !isLikelyHttpUrl(it) }
+                ?: "Read Article",
+            sourceRow = row
+        )
+    }
+    if (articles.isEmpty()) return false
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "News results with ${articles.size} articles"
+            },
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        title?.trim()?.takeIf { it.isNotBlank() }?.let { headingText ->
+            Text(
+                text = parseBoldMarkdown(headingText),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp, vertical = 4.dp)
+                    .semantics { heading() }
+            )
+        }
+        NewsLeadStoryCard(article = articles.first(), onOpenUrl = onOpenUrl)
+        articles.drop(1).forEach { article ->
+            NewsArticleCard(article = article, onOpenUrl = onOpenUrl)
+        }
+    }
+    return true
+}
+
+@Composable
+private fun NewsLeadStoryCard(
+    article: NewsArticleCardRow,
+    onOpenUrl: (String) -> Unit
+) {
+    val darkTheme = isSystemInDarkTheme()
+    val accent = if (darkTheme) Color(0xFF7DD3FC) else Color(0xFF0F6D9E)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Lead story, ${article.title}"
+            },
+        shape = RoundedCornerShape(24.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = flatSpecCardBorder()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            accent.copy(alpha = if (darkTheme) 0.18f else 0.10f),
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.0f)
+                        )
+                    )
+                )
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            NewsArticleImage(
+                title = article.title,
+                imageUrl = article.imageUrl,
+                aspectRatio = 1.68f,
+                onOpenUrl = onOpenUrl
+            )
+            NewsSourceLine(article = article, prominent = true, onOpenUrl = onOpenUrl)
+            Text(
+                text = parseBoldMarkdown(article.title),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = MaterialTheme.typography.titleLarge.lineHeight,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (article.summary.isNotBlank()) {
+                Text(
+                    text = parseBoldMarkdown(article.summary),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            NewsMetaChips(article)
+            NewsActions(article, onOpenUrl, primaryFullWidth = true)
+        }
+    }
+}
+
+@Composable
+private fun NewsArticleCard(
+    article: NewsArticleCardRow,
+    onOpenUrl: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = tableRowAccessibilitySummary(
+                    headers = listOf("Article", "Source", "Published", "Summary"),
+                    row = listOf(article.title, article.source, article.published, article.summary)
+                )
+            },
+        shape = RoundedCornerShape(20.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = flatSpecCardBorder()
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            NewsArticleImage(
+                title = article.title,
+                imageUrl = article.imageUrl,
+                aspectRatio = 1f,
+                compact = true,
+                onOpenUrl = onOpenUrl
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                NewsSourceLine(article = article, prominent = false, onOpenUrl = onOpenUrl)
+                Text(
+                    text = parseBoldMarkdown(article.title),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (article.summary.isNotBlank()) {
+                    Text(
+                        text = parseBoldMarkdown(article.summary),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                NewsMetaChips(article)
+                NewsActions(article, onOpenUrl, primaryFullWidth = false)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NewsArticleImage(
+    title: String,
+    imageUrl: String,
+    aspectRatio: Float,
+    compact: Boolean = false,
+    onOpenUrl: (String) -> Unit
+) {
+    val modifier = if (compact) Modifier.width(104.dp) else Modifier.fillMaxWidth()
+    val safeImageUrl = SafeContentPolicy.sanitizeMediaUrl(imageUrl, SafeContentPolicy.MediaKind.IMAGE)
+    if (!safeImageUrl.isNullOrBlank()) {
+        RenderImage(
+            props = mapOf(
+                "url" to safeImageUrl,
+                "fit" to "cover",
+                "aspectRatio" to aspectRatio,
+                "alt" to "$title image"
+            ),
+            onOpenUrl = onOpenUrl,
+            modifier = modifier
+        )
+    } else {
+        NewsImagePlaceholder(title = title, modifier = modifier.aspectRatio(aspectRatio))
+    }
+}
+
+@Composable
+private fun NewsImagePlaceholder(title: String, modifier: Modifier = Modifier) {
+    val seed = kotlin.math.abs(title.hashCode().takeIf { it != Int.MIN_VALUE } ?: 0)
+    val palette = listOf(
+        Color(0xFF0F766E) to Color(0xFF38BDF8),
+        Color(0xFF7C3AED) to Color(0xFFF97316),
+        Color(0xFF1D4ED8) to Color(0xFF22C55E),
+        Color(0xFFB45309) to Color(0xFFEF4444)
+    )[seed.rem(4)]
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(Brush.linearGradient(listOf(palette.first, palette.second))),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "NEWS",
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+            color = Color.White,
+            modifier = Modifier.padding(12.dp)
+        )
+    }
+}
+
+@Composable
+private fun NewsSourceLine(
+    article: NewsArticleCardRow,
+    prominent: Boolean,
+    onOpenUrl: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        NewsSourceIcon(
+            source = article.source,
+            sourceIcon = article.sourceIcon,
+            sourceUrl = article.sourceUrl,
+            onOpenUrl = onOpenUrl
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = article.source.ifBlank { "News source" },
+                style = if (prominent) {
+                    MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                } else {
+                    MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                },
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (article.published.isNotBlank()) {
+                Text(
+                    text = article.published,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NewsSourceIcon(
+    source: String,
+    sourceIcon: String,
+    sourceUrl: String,
+    onOpenUrl: (String) -> Unit
+) {
+    val action = sourceUrl.takeIf { it.isNotBlank() }
+    Surface(
+        modifier = Modifier
+            .size(34.dp)
+            .then(
+                if (!action.isNullOrBlank()) {
+                    Modifier.clickable(role = Role.Button) { onOpenUrl(action) }
+                } else {
+                    Modifier
+                }
+            ),
+        shape = RoundedCornerShape(10.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.34f else 0.48f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f))
+    ) {
+        val safeIconUrl = SafeContentPolicy.sanitizeMediaUrl(sourceIcon, SafeContentPolicy.MediaKind.IMAGE)
+        if (!safeIconUrl.isNullOrBlank()) {
+            RenderImage(
+                props = mapOf(
+                    "url" to safeIconUrl,
+                    "fit" to "contain",
+                    "aspectRatio" to 1f,
+                    "alt" to "${source.ifBlank { "News source" }} icon"
+                ),
+                onOpenUrl = onOpenUrl,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Filled.Language,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(17.dp)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun NewsMetaChips(article: NewsArticleCardRow) {
+    val chips = splitRestaurantTags(article.category).ifEmpty {
+        listOfNotNull(article.published.takeIf { it.isNotBlank() })
+    }.take(4)
+    if (chips.isEmpty()) return
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        chips.forEach { label ->
+            RestaurantTagChip(label)
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun NewsActions(
+    article: NewsArticleCardRow,
+    onOpenUrl: (String) -> Unit,
+    primaryFullWidth: Boolean
+) {
+    val articleUrl = article.articleUrl.takeIf { it.isNotBlank() }
+    val sourceUrl = article.sourceUrl.takeIf { it.isNotBlank() && it != articleUrl }
+    if (articleUrl == null && sourceUrl == null) return
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (articleUrl != null) {
+            RestaurantActionPill(
+                label = article.actionLabel.ifBlank { "Read Article" },
+                icon = Icons.AutoMirrored.Filled.OpenInNew,
+                primary = true,
+                onClick = { onOpenUrl(articleUrl) }
+            )
+        }
+        if (sourceUrl != null) {
+            RestaurantActionPill(
+                label = "Source",
+                icon = Icons.Filled.Language,
+                primary = primaryFullWidth && articleUrl == null,
+                onClick = { onOpenUrl(sourceUrl) }
+            )
+        }
+    }
+}
+
+private fun newsTitleIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("article", "headline", "title", "story", "news"))
+
+private fun newsSourceIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("source", "publisher", "publication"), exclude = setOfNotNull(newsSourceUrlIndex(headers), newsSourceIconIndex(headers)))
+
+private fun newsPublishedIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("published", "pub date", "date", "time"))
+
+private fun newsCategoryIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("category", "section", "topic", "tag"))
+
+private fun newsSummaryIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("summary", "description", "snippet", "excerpt", "content"))
+
+private fun newsImageIndex(headers: List<String>): Int? =
+    findTableColumnIndex(headers, listOf("image url", "image", "thumbnail", "photo", "media"))
+
+private fun newsSourceIconIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token.contains("source icon") || token.contains("publisher icon") || token == "icon"
+    }
+
+private fun newsArticleUrlIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        (token.contains("article") && token.contains("url")) ||
+            token == "article link" ||
+            token == "link" ||
+            token == "url" ||
+            token.contains("read url")
+    }
+
+private fun newsSourceUrlIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token.contains("source url") || token.contains("publisher url") || token == "source link"
+    }
+
+private fun newsActionLabelIndex(headers: List<String>): Int? =
+    headers.indices.firstOrNull { index ->
+        val token = normalizeTableHeaderForMatch(headers[index])
+        token.contains("action label") || token.contains("button label") || token.contains("cta label")
+    }
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun renderBookingRowsIfPossible(
@@ -11314,6 +11814,19 @@ private fun RenderDirectTable(
         }
     }
 
+    if (table.renderMode == FlatTableRenderMode.NEWS_CARDS) {
+        val rendered = renderNewsRowsIfPossible(
+            headers = headers,
+            rows = table.rows,
+            onOpenUrl = onOpenUrl,
+            modifier = tableModifier,
+            title = props["title"]?.toString()
+        )
+        if (rendered) {
+            return
+        }
+    }
+
     if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
         RenderRankedFlightComparisonCards(
             headers = headers,
@@ -11373,6 +11886,7 @@ private fun RenderDirectTable(
             table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
             table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
             table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
+            table.renderMode == FlatTableRenderMode.NEWS_CARDS ||
             table.renderMode == FlatTableRenderMode.PLAYLIST_CARDS
 
     if (table.renderMode == FlatTableRenderMode.PROCESS_CARDS) {

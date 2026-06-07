@@ -169,6 +169,42 @@ object McpLlmRouter {
         "japan" to "jp"
     )
 
+    private val LANGUAGE_NAME_TO_CODE = mapOf(
+        "english" to "en",
+        "hindi" to "hi",
+        "kannada" to "kn",
+        "tamil" to "ta",
+        "telugu" to "te",
+        "malayalam" to "ml",
+        "marathi" to "mr",
+        "gujarati" to "gu",
+        "bengali" to "bn",
+        "bangla" to "bn",
+        "punjabi" to "pa",
+        "urdu" to "ur",
+        "french" to "fr",
+        "german" to "de",
+        "spanish" to "es",
+        "italian" to "it",
+        "portuguese" to "pt",
+        "japanese" to "ja",
+        "korean" to "ko",
+        "chinese" to "zh",
+        "arabic" to "ar",
+        "russian" to "ru",
+        "dutch" to "nl",
+        "swedish" to "sv",
+        "norwegian" to "no",
+        "danish" to "da",
+        "finnish" to "fi",
+        "turkish" to "tr",
+        "thai" to "th",
+        "vietnamese" to "vi",
+        "indonesian" to "id"
+    )
+
+    private val LANGUAGE_NAME_PATTERN = LANGUAGE_NAME_TO_CODE.keys.joinToString("|") { Regex.escape(it) }
+
     /**
      * Calls the Stage 2 backend with the MCP routing prompt and parses the result.
      * Runs on the calling thread — must be called from an IO context.
@@ -659,6 +695,9 @@ object McpLlmRouter {
             }
 
             McpSettings.Domain.NEWS -> {
+                val newsText = Regex("""\b(?:in|in\s+the|language)\s+(?:$LANGUAGE_NAME_PATTERN|[a-z]{2})\s*$""", RegexOption.IGNORE_CASE)
+                    .replace(lower, "")
+                    .trim()
                 Regex("""\bnews\s+(?:about|on|for)\s+(.+)""", RegexOption.IGNORE_CASE)
                     .find(lower)
                     ?.groupValues
@@ -667,7 +706,7 @@ object McpLlmRouter {
                     ?.takeIf { it.isNotBlank() }
                     ?.let { entities["topic"] = it }
                 Regex("""\b(?:in|from)\s+([a-z][a-z\s]+)$""", RegexOption.IGNORE_CASE)
-                    .find(lower)
+                    .find(newsText)
                     ?.groupValues
                     ?.getOrNull(1)
                     ?.trim()
@@ -683,10 +722,15 @@ object McpLlmRouter {
             ?.value
             ?.uppercase(Locale.US)
             ?.let { entities["currency"] = it }
-        Regex("""\b(?:english|hindi|french|german|japanese)\b""", RegexOption.IGNORE_CASE)
+        Regex("""\b(?:$LANGUAGE_NAME_PATTERN)\b""", RegexOption.IGNORE_CASE)
             .find(lower)
             ?.value
             ?.let { entities["language"] = it }
+            ?: Regex("""\b(?:language|lang)\s*[:=]?\s*([a-z]{2})\b""", RegexOption.IGNORE_CASE)
+                .find(lower)
+                ?.groupValues
+                ?.getOrNull(1)
+                ?.let { entities["language"] = it }
         Regex("""\b(?:india|usa|united states|uk|united kingdom|canada|australia|japan|singapore|uae)\b""", RegexOption.IGNORE_CASE)
             .find(lower)
             ?.value
@@ -764,13 +808,10 @@ object McpLlmRouter {
         val value = raw?.trim()?.lowercase(Locale.US).orEmpty()
         if (value.isBlank()) return null
         val token = value.substringBefore('-').substringBefore('_')
+        val plain = value.replace(Regex("""[^a-z]"""), "")
+        LANGUAGE_NAME_TO_CODE[plain]?.let { return it }
         return when {
             token.length == 2 -> token
-            token == "english" -> "en"
-            token == "hindi" -> "hi"
-            token == "french" -> "fr"
-            token == "german" -> "de"
-            token == "japanese" -> "ja"
             else -> null
         }
     }

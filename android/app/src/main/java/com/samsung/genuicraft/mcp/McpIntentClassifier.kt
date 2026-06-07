@@ -67,6 +67,15 @@ object McpIntentClassifier {
         McpSettings.Domain.NEWS to NEWS_KEYWORDS
     )
 
+    private val NEWS_LANGUAGE_NAMES = listOf(
+        "english", "hindi", "kannada", "tamil", "telugu", "malayalam", "marathi",
+        "gujarati", "bengali", "bangla", "punjabi", "urdu", "french", "german",
+        "spanish", "italian", "portuguese", "japanese", "korean", "chinese",
+        "arabic", "russian", "dutch", "swedish", "norwegian", "danish", "finnish",
+        "turkish", "thai", "vietnamese", "indonesian"
+    )
+    private val NEWS_LANGUAGE_PATTERN = NEWS_LANGUAGE_NAMES.joinToString("|") { Regex.escape(it) }
+
     /**
      * Classifies the query into an MCP domain.
      * Returns the best-matching domain with confidence, or null if no match.
@@ -191,13 +200,25 @@ object McpIntentClassifier {
                 }
             }
             McpSettings.Domain.NEWS -> {
-                val topicMatch = Regex("(?:news|headlines|latest|breaking)\\s+(?:about|on|for|regarding)\\s+(.+)$", RegexOption.IGNORE_CASE)
+                Regex("""\b(?:$NEWS_LANGUAGE_PATTERN)\b""", RegexOption.IGNORE_CASE)
                     .find(query)
+                    ?.value
+                    ?.let { entities["language"] = it }
+                    ?: Regex("""\b(?:language|lang)\s*[:=]?\s*([a-z]{2})\b""", RegexOption.IGNORE_CASE)
+                        .find(query)
+                        ?.groupValues
+                        ?.getOrNull(1)
+                        ?.let { entities["language"] = it }
+                val newsText = Regex("""\b(?:in|in\s+the|language)\s+(?:$NEWS_LANGUAGE_PATTERN|[a-z]{2})\s*$""", RegexOption.IGNORE_CASE)
+                    .replace(query, "")
+                    .trim()
+                val topicMatch = Regex("(?:news|headlines|latest|breaking)\\s+(?:about|on|for|regarding)\\s+(.+)$", RegexOption.IGNORE_CASE)
+                    .find(newsText)
                 if (topicMatch != null) {
                     entities["topic"] = topicMatch.groupValues[1].trim()
                 }
                 val locationMatch = Regex("""(?:news|headlines|latest|breaking).*\b(?:in|from)\s+([a-z][a-z\s]+)$""", RegexOption.IGNORE_CASE)
-                    .find(query)
+                    .find(newsText)
                 if (locationMatch != null) {
                     entities["location"] = locationMatch.groupValues[1].trim()
                 }

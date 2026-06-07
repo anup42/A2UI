@@ -1,4 +1,4 @@
-# genui_gen_v10_flatspec_hardcut
+﻿# genui_gen_v10_flatspec_hardcut
 
 You are a GenUICraft generator. Convert the response text into a flat-spec JSON object.
 
@@ -114,7 +114,7 @@ Allowed dynamic value expressions in props:
     - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
   - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
   - Include metadata:
-    - `domain`: `weather | flight | booking | restaurants | playlist | schedule | status | formula | comparison | generic`
+    - `domain`: `weather | flight | booking | restaurants | news | playlist | schedule | status | formula | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
@@ -144,6 +144,7 @@ Allowed dynamic value expressions in props:
 - Booking/hotel tables must keep row-level actions inside the same compact `Table`: add `bookingUrl` plus `actionLabel`/`buttonLabel`/`ctaLabel` for each actionable row, and do not create a detached final Quick Actions card for that row. Preserve multiple verified hotel photo URLs in the matching row as `photoUrls` instead of keeping only one.
 - Booking/hotel tables may include compact row media with an `image`/`imageUrl`/`photo`/`photoUrl`/`photoUrls` column when the image is verified and directly tied to that hotel. Do not put hotel photos in trailing galleries.
 - Restaurant/place result sets MUST stay compact as one `Table` with `domain: "restaurants"` and `preferredPresentation: "cards"`. Use columns such as `restaurant`, `rating`, `reviews`, `price`, `status`, `address`, `tags`, `amenities`, `description`, `photoUrl`/`Photo URL`, optional `photos`, `bookUrl`, `actionLabel`, `mapsUrl`, `websiteUrl`, and optional `phone`. Preserve Google Places photo media URLs in the matching row as `photoUrl`/`photos`; keep book/menu/map/website URLs as row action fields, and do not create separate gallery, image, source, or quick-action cards for restaurants.
+- News result sets MUST stay compact as one `Table` with `domain: "news"` and `preferredPresentation: "cards"`. Use columns such as `article`/`title`, `source`, `published`, `category`, `summary`, `imageUrl`/`Image URL`, `sourceIcon`, `articleUrl`, `sourceUrl`, and `actionLabel`. Preserve article image URLs and publisher/source icon URLs in the matching row so Android can render a lead story plus article cards. Keep article/source URLs hidden as row action fields, and do not create detached image galleries, source-only cards, or bottom quick-action blocks for news.
 - Travel itinerary responses MUST stay compact as one `Table` with `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "dayDate"`, and day/activity/dining rows in `state`. Use columns such as `dayDate`, `area`, `morningActivity`, `afternoonActivity`, `dinnerSuggestion`, `image`, and `imageAlt` when verified day/place photo media exists. Photos are allowed and encouraged for vacation/itinerary cards when they come from response media, local assets, Places photo media URLs, or direct HTTPS JPEG/PNG/WebP photo URLs. If row-specific photos are missing, omit `image`/`imageAlt` columns entirely; the Android renderer will provide a native generated day visual, so never fill image fields with icon URLs, source/action URLs, random placeholders, or unrelated generic destination images. Attach verified images to the relevant day row; do not expand each day into repeated Card/Text element trees, and do not create top/bottom image galleries or standalone image stacks.
 - Road-trip/navigation itineraries MUST also stay compact as one `Table` with `domain: "schedule"` and `preferredPresentation: "cards"`. Use row fields such as `day`, `route`, `drivingTime`, `scenicStop`, `shortHike`, `overnightStay`, optional `icon`, and optional verified `image`/`imageAlt`. Do not expand each day into repeated card templates and do not create a trailing image gallery.
 - Single-day timed itineraries may use compact columns like `time`, `activity`, and `details`; set `domain: "schedule"`, `preferredPresentation: "cards"`, `primaryColumn: "time"`, and `highlightColumns: ["activity"]`.
@@ -157,7 +158,7 @@ Allowed dynamic value expressions in props:
   - Exact product/device feature matrices should be table-first and compact: one title/context card, one `Table`, and nearby source/action buttons. Do not create `Images`, `Referenced Icons`, gallery, or loose decorative icon sections from detached media.
   - Entity comparisons should use first column `Item`, `Product`, `Option`, `Model`, or equivalent, `domain: "comparison"`, `preferredPresentation: "cards"`.
 - Defaults:
-  - weather/flight/booking/restaurants/playlist/schedule/status => `preferredPresentation: "cards"`
+  - weather/flight/booking/restaurants/news/playlist/schedule/status => `preferredPresentation: "cards"`
   - formula => `preferredPresentation: "table"` for variables/breakdowns plus one `Formula` element for the equation
   - comparison => `preferredPresentation: "cards"` for entity rows and `"table"` for feature matrices
   - generic => `preferredPresentation: "table"`
@@ -212,7 +213,7 @@ Content:
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
-  - `domain` optional (`weather|flight|booking|restaurants|playlist|schedule|status|formula|comparison|generic`)
+  - `domain` optional (`weather|flight|booking|restaurants|news|playlist|schedule|status|formula|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)
