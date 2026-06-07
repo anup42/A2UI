@@ -16,7 +16,7 @@ object SafeContentPolicy {
     private val bareDomainRegex = Regex(
         """(?i)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#].*)?"""
     )
-    private val urlPlaceholderRegex = Regex("""\{\{u\d+}}""", RegexOption.IGNORE_CASE)
+    private val urlPlaceholderRegex = Regex("""\{\{u\d+\}\}""", RegexOption.IGNORE_CASE)
     private val blockedHosts = setOf(
         "example.com",
         "example.org",
