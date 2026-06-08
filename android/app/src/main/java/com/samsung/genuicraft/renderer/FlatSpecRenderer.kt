@@ -1,4 +1,4 @@
-package com.samsung.genuicraft.renderer
+﻿package com.samsung.genuicraft.renderer
 
 import android.content.Intent
 import android.content.res.Configuration
@@ -5366,6 +5366,15 @@ private fun isItineraryAreaLabel(label: String): Boolean {
         normalized.contains("location")
 }
 
+private fun isItineraryCategoryLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized.contains("type") ||
+        normalized.contains("category") ||
+        normalized.contains("theme") ||
+        normalized.contains("tag") ||
+        normalized.contains("kind")
+}
+
 private fun itineraryColumnIndex(headers: List<String>, predicate: (String) -> Boolean): Int? =
     headers.indices.firstOrNull { index -> predicate(headers[index]) }
 
@@ -5383,6 +5392,35 @@ private fun firstPhotoLikeItineraryImage(headers: List<String>, row: List<String
             else -> null
         }
     }.orEmpty()
+}
+
+private fun allPhotoLikeItineraryImages(headers: List<String>, rows: List<List<String>>): List<String> =
+    rows.flatMap { row ->
+        headers.indices.mapNotNull { index ->
+            val header = headers.getOrNull(index).orEmpty()
+            val value = row.getOrNull(index).orEmpty().trim()
+            when {
+                value.isBlank() -> null
+                isImageColumnLabel(header) && isPhotoLikeMediaUrl(value) -> value
+                normalizeTableHeaderForMatch(header).contains("photo") && isPhotoLikeMediaUrl(value) -> value
+                else -> null
+            }
+        }
+    }.distinct()
+
+private fun selectItineraryHeroImage(
+    headers: List<String>,
+    rows: List<List<String>>,
+    groups: Map<String, List<List<String>>>
+): String {
+    val firstVisibleCardImage = groups.entries
+        .firstOrNull()
+        ?.value
+        ?.firstNotNullOfOrNull { row -> firstPhotoLikeItineraryImage(headers, row).takeIf { it.isNotBlank() } }
+        .orEmpty()
+    return allPhotoLikeItineraryImages(headers, rows)
+        .firstOrNull { image -> image != firstVisibleCardImage }
+        .orEmpty()
 }
 
 private fun itineraryImageAlt(headers: List<String>, row: List<String>, fallback: String): String {
@@ -5466,9 +5504,7 @@ private fun RenderTravelItineraryTable(
     val groups = shownRows
         .mapIndexed { index, row -> itineraryDayToken(headers, row, index) to row }
         .groupBy({ it.first }, { it.second })
-    val heroImage = shownRows.firstNotNullOfOrNull { row ->
-        firstPhotoLikeItineraryImage(headers, row).takeIf { it.isNotBlank() }
-    }.orEmpty()
+    val heroImage = selectItineraryHeroImage(headers, shownRows, groups)
     val heroArea = shownRows.firstNotNullOfOrNull { row ->
         itineraryAreaTitle(headers, row, "").takeIf { it.isNotBlank() }
     }
@@ -5680,6 +5716,50 @@ private fun TravelItineraryDayChipRow(days: List<String>) {
 }
 
 @Composable
+private fun TravelItineraryDayOverview(
+    headers: List<String>,
+    rows: List<List<String>>,
+    day: String,
+    area: String
+) {
+    val stopNames = rows.mapIndexedNotNull { index, row ->
+        itineraryCell(headers, row, ::isItineraryPlaceLabel)
+            .ifBlank { row.getOrNull(1).orEmpty().trim() }
+            .takeIf { it.isNotBlank() }
+            ?.let { "${index + 1}. $it" }
+    }.take(4)
+    if (stopNames.isEmpty()) return
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.52f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f))
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Text(
+                text = parseBoldMarkdown(NativeTextFormatter.sanitizeDisplayText("$day plan")),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = parseBoldMarkdown(
+                    NativeTextFormatter.sanitizeDisplayText(
+                        "Focus: ${area.ifBlank { "curated local stops" }}. ${stopNames.joinToString("  ")}"
+                    )
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
 private fun TravelItineraryNativeDayCard(
     dayIndex: Int,
     day: String,
@@ -5769,6 +5849,12 @@ private fun TravelItineraryNativeDayCard(
                 }
                 TravelItineraryDaySections(headers = headers, row = firstRow, onOpenUrl = onOpenUrl)
             } else {
+                TravelItineraryDayOverview(
+                    headers = headers,
+                    rows = rows,
+                    day = day,
+                    area = area
+                )
                 rows.forEachIndexed { stopIndex, row ->
                     TravelItineraryStopCard(
                         headers = headers,
@@ -5827,6 +5913,13 @@ private fun TravelItineraryStopCard(
         .ifBlank { "Stop ${stopIndex + 1}" }
     val imageUrl = firstPhotoLikeItineraryImage(headers, row)
     val actions = collectItineraryActions(headers, row)
+    val area = itineraryCell(headers, row, ::isItineraryAreaLabel)
+    val fallbackDetail = buildList {
+        area.takeIf { it.isNotBlank() && it != title && it != fallbackDay }?.let(::add)
+        itineraryCell(headers, row, ::isItineraryCategoryLabel)
+            .takeIf { it.isNotBlank() && it != title }
+            ?.let(::add)
+    }.distinct().joinToString(" - ")
     val metricIndexes = headers.indices.filter { index ->
         val label = tableHeaderLabel(headers, index)
         val value = row.getOrNull(index).orEmpty().trim()
@@ -5904,6 +5997,15 @@ private fun TravelItineraryStopCard(
             bodyIndexes.forEach { index ->
                 Text(
                     text = parseBoldMarkdown(row.getOrNull(index).orEmpty()),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (bodyIndexes.isEmpty() && fallbackDetail.isNotBlank()) {
+                Text(
+                    text = parseBoldMarkdown(NativeTextFormatter.sanitizeDisplayText(fallbackDetail)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
@@ -15025,3 +15127,4 @@ private fun RenderAudioPlayer(
         )
     }
 }
+
