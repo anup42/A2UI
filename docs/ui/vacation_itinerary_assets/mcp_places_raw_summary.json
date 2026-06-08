@@ -1,0 +1,390 @@
+{
+  "raw": [
+    {
+      "query": "top tourist attractions in Bengaluru",
+      "status": 200,
+      "text": "{\n  \"places\": [\n    {\n      \"id\": \"ChIJN1ZKKUkWrjsRzxIVM363-LE\",\n      \"types\": [\n        \"tourist_attraction\",\n        \"historical_landmark\",\n        \"historical_place\",\n        \"museum\",\n        \"point_of_interest\",\n        \"establishment\"\n      ],\n      \"nationalPhoneNumber\": \"080 2235 2828\",\n      \"formattedAddress\": \"Bengaluru, Karnataka\",\n      \"rating\": 4.2,\n      \"googleMapsUri\": \"https://maps.google.com/?cid=12824201691588268751&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA\",\n      \"websiteUri\": \"https://karnatakatourism.org/tour-item/bangalore-palace/\",\n      \"regularOpeningHours\": {\n        \"openNow\": false,\n        \"periods\": [\n          {\n            \"open\": {\n              \"day\": 0,\n              \"hour\": 10,\n              \"minute\": 0\n            },\n            \"close\": {\n              \"day\": 0,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 1,\n              \"hour\": 10,\n              \"minute\": 0\n            },\n            \"close\": {\n              \"day\": 1,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 2,\n              \"hour\": 10,\n              \"minute\": 0\n            },\n            \"close\": {\n              \"day\": 2,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 3,\n              \"hour\": 10,\n              \"minute\": 0\n            },\n            \"close\": {\n              \"day\": 3,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 4,\n              \"hour\": 10,\n              \"minute\": 0\n            },\n            \"close\": {\n              \"day\": 4,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 5,\n           "
+    },
+    {
+      "query": "best places to visit in Bengaluru for vacation",
+      "status": 200,
+      "text": "{\n  \"places\": [\n    {\n      \"id\": \"ChIJVx06BOMVrjsR1-a9CQJZpLI\",\n      \"types\": [\n        \"historical_landmark\",\n        \"tourist_attraction\",\n        \"historical_place\",\n        \"point_of_interest\",\n        \"establishment\"\n      ],\n      \"formattedAddress\": \"XH7G+49C, Krishna Rajendra Rd, New Tharagupet, Bengaluru, Karnataka 560002\",\n      \"rating\": 4,\n      \"googleMapsUri\": \"https://maps.google.com/?cid=12872511500219967191&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA\",\n      \"regularOpeningHours\": {\n        \"openNow\": false,\n        \"periods\": [\n          {\n            \"open\": {\n              \"day\": 0,\n              \"hour\": 8,\n              \"minute\": 30\n            },\n            \"close\": {\n              \"day\": 0,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 1,\n              \"hour\": 8,\n              \"minute\": 30\n            },\n            \"close\": {\n              \"day\": 1,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 2,\n              \"hour\": 8,\n              \"minute\": 30\n            },\n            \"close\": {\n              \"day\": 2,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 3,\n              \"hour\": 8,\n              \"minute\": 30\n            },\n            \"close\": {\n              \"day\": 3,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 4,\n              \"hour\": 8,\n              \"minute\": 30\n            },\n            \"close\": {\n              \"day\": 4,\n              \"hour\": 17,\n              \"minute\": 30\n            }\n          },\n          {\n            \"open\": {\n              \"day\": 5,\n              \"hour\": 8,\n              \"minute\": 30\n            },\n            \"close\": {\n             "
+    }
+  ],
+  "places": [
+    {
+      "name": "Lalbagh Botanical Garden",
+      "address": "Mavalli, Bengaluru, Karnataka 560004",
+      "rating": 4.4,
+      "reviews": 175995,
+      "type": "Botanical Garden",
+      "summary": "Botanical garden with an aquarium & glasshouse designed to mimic London's former Crystal Palace.",
+      "maps": "https://maps.google.com/?cid=10236976183492197922&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "https://horticulturedir.karnataka.gov.in/21/lalbagh/en",
+      "phone": "",
+      "photos": [
+        "vacation_itinerary_assets/11_lalbagh-botanical-garden.jpg",
+        "vacation_itinerary_assets/12_lalbagh-botanical-garden.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "ISKCON Bangalore",
+      "address": "Hare Krishna Hill, Chord Rd, 1st R Block, Rajajinagar, Bengaluru, Karnataka 560010",
+      "rating": 4.7,
+      "reviews": 141379,
+      "type": "Hindu Temple",
+      "summary": "Expansive, modern Hare Krishna temple campus, including shrines, food stalls & souvenir shops.",
+      "maps": "https://maps.google.com/?cid=8826969826668229299&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "https://www.iskconbangalore.org/",
+      "phone": "080 2347 1956",
+      "photos": [
+        "vacation_itinerary_assets/21_iskcon-bangalore.jpg",
+        "vacation_itinerary_assets/22_iskcon-bangalore.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Visvesvaraya Industrial & Technological Museum",
+      "address": "5216, Kasturba Rd, near Chinna Swamy Stadium, Ambedkar Veedhi, Bengaluru, Karnataka 5",
+      "rating": 4.6,
+      "reviews": 16744,
+      "type": "Tourist Attraction",
+      "summary": "Family-friendly technology & science museum with exhibits on engines, space, biotechnology & more.",
+      "maps": "https://maps.google.com/?cid=9211338527529957543&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "https://www.vismuseum.gov.in/",
+      "phone": "080 2286 6200",
+      "photos": [
+        "vacation_itinerary_assets/31_visvesvaraya-industrial-technological-museum.jpg",
+        "vacation_itinerary_assets/32_visvesvaraya-industrial-technological-museum.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Shri Someshwara Swamy Temple (ulsoor)",
+      "address": "Sri, Someshwara Temple Rd, Halasuru, Someshwarpura, Bengaluru, Karnataka 560008",
+      "rating": 4.7,
+      "reviews": 12682,
+      "type": "Hindu Temple",
+      "summary": "Built for the god Shiva during the Chola period, this Hindu temple features carvings of deities.",
+      "maps": "https://maps.google.com/?cid=9765932494543294480&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "https://itms.kar.nic.in/hrcehome/index_temple.php?tid=15",
+      "phone": "099456 40246",
+      "photos": [
+        "vacation_itinerary_assets/41_shri-someshwara-swamy-temple-ulsoor.jpg",
+        "vacation_itinerary_assets/42_shri-someshwara-swamy-temple-ulsoor.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Bannerghatta hills",
+      "address": "RH7G+M7G, Bannerghatta Rd, Bannerughatta, Karnataka 560083",
+      "rating": 4.7,
+      "reviews": 1230,
+      "type": "Tourist Attraction",
+      "summary": "A well-rated Bengaluru tourist attraction stop, useful for a balanced city itinerary.",
+      "maps": "https://maps.google.com/?cid=414769005707140633&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "",
+      "phone": "080 2235 2828",
+      "photos": [
+        "vacation_itinerary_assets/51_bannerghatta-hills.jpg",
+        "vacation_itinerary_assets/52_bannerghatta-hills.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Bugle Rock Park",
+      "address": "WHV9+3QM, Bull Temple Rd, Basavanagudi, Bengaluru, Karnataka 560004",
+      "rating": 4.5,
+      "reviews": 25801,
+      "type": "Park",
+      "summary": "Serene park shaded by a tree canopy featuring gardens, waterfalls & fountains, plus three temples.",
+      "maps": "https://maps.google.com/?cid=7718689396119475664&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "",
+      "phone": "",
+      "photos": [
+        "vacation_itinerary_assets/61_bugle-rock-park.jpg",
+        "vacation_itinerary_assets/62_bugle-rock-park.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Sri Chamarajendra Park",
+      "address": "Nunegundlapalli, Ambedkar Veedhi, Bengaluru, Karnataka 560001",
+      "rating": 4.4,
+      "reviews": 142876,
+      "type": "Park",
+      "summary": "Established in 1870, this vibrant city park has walking paths, landscaped gardens & play areas.",
+      "maps": "https://maps.google.com/?cid=14279970654781693880&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "https://bengaluruurban.nic.in/tourist-place/%E0%B2%95%E0%B2%AC%E0%B3%8D%E0%B2%AC%E0%B2%A8%E0%B3%8D-%E0%B2%AA%E0%B2%BE%E0%B2%B0%E0%B3%8D%E0%B2%95%E0%B3%8D/",
+      "phone": "",
+      "photos": [
+        "vacation_itinerary_assets/71_sri-chamarajendra-park.jpg",
+        "vacation_itinerary_assets/72_sri-chamarajendra-park.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Bengaluru Palace",
+      "address": "Bengaluru, Karnataka",
+      "rating": 4.2,
+      "reviews": 99486,
+      "type": "Tourist Attraction",
+      "summary": "Modern royal palace modeled on Windsor Castle offering tours, outdoor concerts & an amusement park.",
+      "maps": "https://maps.google.com/?cid=12824201691588268751&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "https://karnatakatourism.org/tour-item/bangalore-palace/",
+      "phone": "080 2235 2828",
+      "photos": [
+        "vacation_itinerary_assets/81_bengaluru-palace.jpg",
+        "vacation_itinerary_assets/82_bengaluru-palace.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Bengaluru Fort",
+      "address": "XH7G+49C, Krishna Rajendra Rd, New Tharagupet, Bengaluru, Karnataka 560002",
+      "rating": 4,
+      "reviews": 26653,
+      "type": "Historical Landmark",
+      "summary": "Monumental, carved stone gate, one of few surviving elements of the city's 18th-century fort.",
+      "maps": "https://maps.google.com/?cid=12872511500219967191&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "",
+      "phone": "",
+      "photos": [
+        "vacation_itinerary_assets/91_bengaluru-fort.jpg",
+        "vacation_itinerary_assets/92_bengaluru-fort.jpg"
+      ],
+      "stars": "★★★★☆"
+    },
+    {
+      "name": "Snow City Bengaluru",
+      "address": "Fun World Complex, 1st floor, Snow city, Jayamahal Main Rd, opposite TV Tower, J.C.Nagar, Bengaluru, Karnataka 560006",
+      "rating": 4.1,
+      "reviews": 22538,
+      "type": "Amusement Park",
+      "summary": "Ice & snow-themed indoor amusement park featuring frozen slides, rides & other family activities.",
+      "maps": "https://maps.google.com/?cid=13503679609563735643&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "website": "http://www.snowcityblr.com/",
+      "phone": "078295 50000",
+      "photos": [
+        "vacation_itinerary_assets/101_snow-city-bengaluru.jpg",
+        "vacation_itinerary_assets/102_snow-city-bengaluru.jpg"
+      ],
+      "stars": "★★★★☆"
+    }
+  ],
+  "itinerary": [
+    {
+      "day": "Day 1",
+      "theme": "Gardens, heritage and central Bengaluru",
+      "tempo": "Easy start",
+      "dining": "Dinner near Church Street or MG Road after Cubbon Park.",
+      "stops": [
+        {
+          "name": "Lalbagh Botanical Garden",
+          "type": "Botanical Garden",
+          "summary": "Botanical garden with an aquarium & glasshouse designed to mimic London's former Crystal Palace.",
+          "address": "Mavalli, Bengaluru, Karnataka 560004",
+          "rating": 4.4,
+          "reviews": 175995,
+          "maps": "https://maps.google.com/?cid=10236976183492197922&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://horticulturedir.karnataka.gov.in/21/lalbagh/en",
+          "photos": [
+            "vacation_itinerary_assets/11_lalbagh-botanical-garden.jpg",
+            "vacation_itinerary_assets/12_lalbagh-botanical-garden.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "ISKCON Bangalore",
+          "type": "Hindu Temple",
+          "summary": "Expansive, modern Hare Krishna temple campus, including shrines, food stalls & souvenir shops.",
+          "address": "Hare Krishna Hill, Chord Rd, 1st R Block, Rajajinagar, Bengaluru, Karnataka 560010",
+          "rating": 4.7,
+          "reviews": 141379,
+          "maps": "https://maps.google.com/?cid=8826969826668229299&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://www.iskconbangalore.org/",
+          "photos": [
+            "vacation_itinerary_assets/21_iskcon-bangalore.jpg",
+            "vacation_itinerary_assets/22_iskcon-bangalore.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Visvesvaraya Industrial & Technological Museum",
+          "type": "Tourist Attraction",
+          "summary": "Family-friendly technology & science museum with exhibits on engines, space, biotechnology & more.",
+          "address": "5216, Kasturba Rd, near Chinna Swamy Stadium, Ambedkar Veedhi, Bengaluru, Karnataka 5",
+          "rating": 4.6,
+          "reviews": 16744,
+          "maps": "https://maps.google.com/?cid=9211338527529957543&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://www.vismuseum.gov.in/",
+          "photos": [
+            "vacation_itinerary_assets/31_visvesvaraya-industrial-technological-museum.jpg",
+            "vacation_itinerary_assets/32_visvesvaraya-industrial-technological-museum.jpg"
+          ],
+          "stars": "★★★★☆"
+        }
+      ]
+    },
+    {
+      "day": "Day 2",
+      "theme": "Temples, architecture and city views",
+      "tempo": "Culture day",
+      "dining": "Try South Indian meals around Malleshwaram or Basavanagudi.",
+      "stops": [
+        {
+          "name": "ISKCON Bangalore",
+          "type": "Hindu Temple",
+          "summary": "Expansive, modern Hare Krishna temple campus, including shrines, food stalls & souvenir shops.",
+          "address": "Hare Krishna Hill, Chord Rd, 1st R Block, Rajajinagar, Bengaluru, Karnataka 560010",
+          "rating": 4.7,
+          "reviews": 141379,
+          "maps": "https://maps.google.com/?cid=8826969826668229299&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://www.iskconbangalore.org/",
+          "photos": [
+            "vacation_itinerary_assets/21_iskcon-bangalore.jpg",
+            "vacation_itinerary_assets/22_iskcon-bangalore.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Shri Someshwara Swamy Temple (ulsoor)",
+          "type": "Hindu Temple",
+          "summary": "Built for the god Shiva during the Chola period, this Hindu temple features carvings of deities.",
+          "address": "Sri, Someshwara Temple Rd, Halasuru, Someshwarpura, Bengaluru, Karnataka 560008",
+          "rating": 4.7,
+          "reviews": 12682,
+          "maps": "https://maps.google.com/?cid=9765932494543294480&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://itms.kar.nic.in/hrcehome/index_temple.php?tid=15",
+          "photos": [
+            "vacation_itinerary_assets/41_shri-someshwara-swamy-temple-ulsoor.jpg",
+            "vacation_itinerary_assets/42_shri-someshwara-swamy-temple-ulsoor.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Bannerghatta hills",
+          "type": "Tourist Attraction",
+          "summary": "A well-rated Bengaluru tourist attraction stop, useful for a balanced city itinerary.",
+          "address": "RH7G+M7G, Bannerghatta Rd, Bannerughatta, Karnataka 560083",
+          "rating": 4.7,
+          "reviews": 1230,
+          "maps": "https://maps.google.com/?cid=414769005707140633&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "",
+          "photos": [
+            "vacation_itinerary_assets/51_bannerghatta-hills.jpg",
+            "vacation_itinerary_assets/52_bannerghatta-hills.jpg"
+          ],
+          "stars": "★★★★☆"
+        }
+      ]
+    },
+    {
+      "day": "Day 3",
+      "theme": "Museums, shopping and cafe evening",
+      "tempo": "Urban discovery",
+      "dining": "Cafe hopping and dinner around Indiranagar or Lavelle Road.",
+      "stops": [
+        {
+          "name": "Visvesvaraya Industrial & Technological Museum",
+          "type": "Tourist Attraction",
+          "summary": "Family-friendly technology & science museum with exhibits on engines, space, biotechnology & more.",
+          "address": "5216, Kasturba Rd, near Chinna Swamy Stadium, Ambedkar Veedhi, Bengaluru, Karnataka 5",
+          "rating": 4.6,
+          "reviews": 16744,
+          "maps": "https://maps.google.com/?cid=9211338527529957543&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://www.vismuseum.gov.in/",
+          "photos": [
+            "vacation_itinerary_assets/31_visvesvaraya-industrial-technological-museum.jpg",
+            "vacation_itinerary_assets/32_visvesvaraya-industrial-technological-museum.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Bugle Rock Park",
+          "type": "Park",
+          "summary": "Serene park shaded by a tree canopy featuring gardens, waterfalls & fountains, plus three temples.",
+          "address": "WHV9+3QM, Bull Temple Rd, Basavanagudi, Bengaluru, Karnataka 560004",
+          "rating": 4.5,
+          "reviews": 25801,
+          "maps": "https://maps.google.com/?cid=7718689396119475664&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "",
+          "photos": [
+            "vacation_itinerary_assets/61_bugle-rock-park.jpg",
+            "vacation_itinerary_assets/62_bugle-rock-park.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Sri Chamarajendra Park",
+          "type": "Park",
+          "summary": "Established in 1870, this vibrant city park has walking paths, landscaped gardens & play areas.",
+          "address": "Nunegundlapalli, Ambedkar Veedhi, Bengaluru, Karnataka 560001",
+          "rating": 4.4,
+          "reviews": 142876,
+          "maps": "https://maps.google.com/?cid=14279970654781693880&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://bengaluruurban.nic.in/tourist-place/%E0%B2%95%E0%B2%AC%E0%B3%8D%E0%B2%AC%E0%B2%A8%E0%B3%8D-%E0%B2%AA%E0%B2%BE%E0%B2%B0%E0%B3%8D%E0%B2%95%E0%B3%8D/",
+          "photos": [
+            "vacation_itinerary_assets/71_sri-chamarajendra-park.jpg",
+            "vacation_itinerary_assets/72_sri-chamarajendra-park.jpg"
+          ],
+          "stars": "★★★★☆"
+        }
+      ]
+    },
+    {
+      "day": "Day 4",
+      "theme": "Nature edge and relaxed finish",
+      "tempo": "Outdoor day",
+      "dining": "Keep dinner flexible near your stay after the longer outing.",
+      "stops": [
+        {
+          "name": "Bannerghatta hills",
+          "type": "Tourist Attraction",
+          "summary": "A well-rated Bengaluru tourist attraction stop, useful for a balanced city itinerary.",
+          "address": "RH7G+M7G, Bannerghatta Rd, Bannerughatta, Karnataka 560083",
+          "rating": 4.7,
+          "reviews": 1230,
+          "maps": "https://maps.google.com/?cid=414769005707140633&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "",
+          "photos": [
+            "vacation_itinerary_assets/51_bannerghatta-hills.jpg",
+            "vacation_itinerary_assets/52_bannerghatta-hills.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Bengaluru Palace",
+          "type": "Tourist Attraction",
+          "summary": "Modern royal palace modeled on Windsor Castle offering tours, outdoor concerts & an amusement park.",
+          "address": "Bengaluru, Karnataka",
+          "rating": 4.2,
+          "reviews": 99486,
+          "maps": "https://maps.google.com/?cid=12824201691588268751&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://karnatakatourism.org/tour-item/bangalore-palace/",
+          "photos": [
+            "vacation_itinerary_assets/81_bengaluru-palace.jpg",
+            "vacation_itinerary_assets/82_bengaluru-palace.jpg"
+          ],
+          "stars": "★★★★☆"
+        },
+        {
+          "name": "Shri Someshwara Swamy Temple (ulsoor)",
+          "type": "Hindu Temple",
+          "summary": "Built for the god Shiva during the Chola period, this Hindu temple features carvings of deities.",
+          "address": "Sri, Someshwara Temple Rd, Halasuru, Someshwarpura, Bengaluru, Karnataka 560008",
+          "rating": 4.7,
+          "reviews": 12682,
+          "maps": "https://maps.google.com/?cid=9765932494543294480&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+          "website": "https://itms.kar.nic.in/hrcehome/index_temple.php?tid=15",
+          "photos": [
+            "vacation_itinerary_assets/41_shri-someshwara-swamy-temple-ulsoor.jpg",
+            "vacation_itinerary_assets/42_shri-someshwara-swamy-temple-ulsoor.jpg"
+          ],
+          "stars": "★★★★☆"
+        }
+      ]
+    }
+  ]
+}
