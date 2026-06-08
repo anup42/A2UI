@@ -2089,6 +2089,25 @@ internal fun extractMediaUrlToken(
     }
 }
 
+internal fun extractMediaUrlTokens(
+    value: Any?,
+    depth: Int = 0
+): List<String> {
+    if (depth > 5 || value == null) return emptyList()
+    return when (value) {
+        is String -> value
+            .split(Regex("""\s*[,;\n]\s*"""))
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+        is Map<*, *> -> {
+            val map = value.entries.associate { (k, v) -> k.toString() to v }
+            MEDIA_OBJECT_KEYS.flatMap { key -> extractMediaUrlTokens(map[key], depth + 1) }
+        }
+        is List<*> -> value.flatMap { candidate -> extractMediaUrlTokens(candidate, depth + 1) }
+        else -> emptyList()
+    }
+}
+
 internal fun resolveMediaUrlCandidate(
     props: Map<String, Any?>,
     preferredKeys: List<String>
@@ -5414,19 +5433,21 @@ private fun allPhotoLikeItineraryImages(headers: List<String>, rows: List<List<S
         }
     }.distinct()
 
-private fun selectItineraryHeroImage(
+private fun selectItineraryHeroImages(
     headers: List<String>,
     rows: List<List<String>>,
     groups: Map<String, List<List<String>>>
-): String {
+): List<String> {
     val firstVisibleCardImage = groups.entries
         .firstOrNull()
         ?.value
         ?.firstNotNullOfOrNull { row -> firstPhotoLikeItineraryImage(headers, row).takeIf { it.isNotBlank() } }
         .orEmpty()
-    return allPhotoLikeItineraryImages(headers, rows)
-        .firstOrNull { image -> image != firstVisibleCardImage }
-        .orEmpty()
+    val allImages = allPhotoLikeItineraryImages(headers, rows)
+    return (
+        allImages.filter { image -> image != firstVisibleCardImage } +
+            allImages.filter { image -> image == firstVisibleCardImage }
+        ).distinct()
 }
 
 private fun itineraryImageAlt(headers: List<String>, row: List<String>, fallback: String): String {
@@ -5510,10 +5531,12 @@ private fun RenderTravelItineraryTable(
     val groups = shownRows
         .mapIndexed { index, row -> itineraryDayToken(headers, row, index) to row }
         .groupBy({ it.first }, { it.second })
-    val heroImage = selectItineraryHeroImage(headers, shownRows, groups)
+    val itineraryImages = allPhotoLikeItineraryImages(headers, shownRows)
+    val heroImages = selectItineraryHeroImages(headers, shownRows, groups)
     val heroArea = shownRows.firstNotNullOfOrNull { row ->
         itineraryAreaTitle(headers, row, "").takeIf { it.isNotBlank() }
     }
+    PrefetchFlatSpecImages(itineraryImages.take(12))
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -5527,7 +5550,7 @@ private fun RenderTravelItineraryTable(
             subtitle = itineraryHeroSubtitle(groups.size.coerceAtLeast(1), shownRows.size),
             days = groups.size,
             stops = shownRows.size,
-            imageUrl = heroImage,
+            imageUrls = heroImages,
             area = heroArea
         )
         TravelItineraryDayChipRow(groups.keys.toList())
@@ -5550,7 +5573,7 @@ private fun TravelItineraryHero(
     subtitle: String,
     days: Int,
     stops: Int,
-    imageUrl: String,
+    imageUrls: List<String>,
     area: String?
 ) {
     val shape = RoundedCornerShape(28.dp)
@@ -5569,10 +5592,11 @@ private fun TravelItineraryHero(
                 )
             )
     ) {
-        if (imageUrl.isNotBlank()) {
+        if (imageUrls.isNotEmpty()) {
             RenderImage(
                 props = mapOf(
-                    "url" to imageUrl,
+                    "url" to imageUrls.first(),
+                    "fallbackUrls" to imageUrls.drop(1),
                     "fit" to "cover",
                     "height" to 250,
                     "alt" to title
@@ -14406,6 +14430,44 @@ private fun ImageRequest.Builder.applyFlatSpecRemoteImageHeaders(url: String): I
     }
 }
 
+private fun imageLogLabel(url: String): String {
+    val host = parseUrlHost(url).ifBlank { "local/inline image" }
+    return host.take(80)
+}
+
+@Composable
+private fun PrefetchFlatSpecImages(rawUrls: List<String>) {
+    if (rawUrls.isEmpty()) return
+    val resolveAssetUrl = LocalFlatSpecAssetResolver.current
+    val context = LocalContext.current
+    val imageLoader = remember(context) {
+        ImageLoader.Builder(context)
+            .components { add(SvgDecoder.Factory()) }
+            .build()
+    }
+    val urls = remember(rawUrls, resolveAssetUrl) {
+        rawUrls
+            .mapNotNull { raw ->
+                SafeContentPolicy.sanitizeMediaUrl(raw, SafeContentPolicy.MediaKind.IMAGE)
+                    ?.let(resolveAssetUrl)
+                    ?.let(::resolveCoilMediaModel)
+                    ?.takeIf { it.isNotBlank() }
+            }
+            .distinct()
+    }
+    LaunchedEffect(urls) {
+        urls.forEach { url ->
+            imageLoader.enqueue(
+                ImageRequest.Builder(context)
+                    .data(url)
+                    .applyFlatSpecRemoteImageHeaders(url)
+                    .allowHardware(false)
+                    .build()
+            )
+        }
+    }
+}
+
 @Composable
 private fun RenderImage(
     props: Map<String, Any?>,
@@ -14414,15 +14476,24 @@ private fun RenderImage(
 ) {
     val resolveAssetUrl = LocalFlatSpecAssetResolver.current
     val rawUrl = resolveMediaUrlCandidate(props, IMAGE_PROP_KEYS)
-    val safeRawUrl = SafeContentPolicy.sanitizeMediaUrl(rawUrl, SafeContentPolicy.MediaKind.IMAGE) ?: return
-    val resolvedUrl = resolveAssetUrl(safeRawUrl)
-    val url = resolveCoilMediaModel(resolvedUrl)
-    if (url.isBlank()) return
-    val fallbackUrl = deriveImageFallbackUrl(resolvedUrl, props)
-        ?.let { SafeContentPolicy.sanitizeMediaUrl(it, SafeContentPolicy.MediaKind.IMAGE) }
-        ?.let(resolveAssetUrl)
-        ?.let(::resolveCoilMediaModel)
-        .orEmpty()
+    val candidateUrls = buildList {
+        add(rawUrl)
+        addAll(extractMediaUrlTokens(props["fallbackUrl"]))
+        addAll(extractMediaUrlTokens(props["fallbackUrls"]))
+        addAll(extractMediaUrlTokens(props["fallback"]))
+        addAll(extractMediaUrlTokens(props["alternates"]))
+        addAll(extractMediaUrlTokens(props["photoUrls"]))
+        addAll(extractMediaUrlTokens(props["photos"]))
+    }
+        .mapNotNull { candidate ->
+            SafeContentPolicy.sanitizeMediaUrl(candidate, SafeContentPolicy.MediaKind.IMAGE)
+                ?.let(resolveAssetUrl)
+                ?.let(::resolveCoilMediaModel)
+                ?.takeIf { it.isNotBlank() }
+        }
+        .distinct()
+    val url = candidateUrls.firstOrNull() ?: return
+    val resolvedUrl = url
     val contentScale = resolveImageScale(props)
     val context = LocalContext.current
     val imageLoader = remember(context) {
@@ -14461,9 +14532,9 @@ private fun RenderImage(
         )
         return
     }
-    var failed by remember(url) { mutableStateOf(false) }
-    var activeUrl by remember(url) { mutableStateOf(url) }
-    var fallbackAttempted by remember(url) { mutableStateOf(false) }
+    var failed by remember(candidateUrls) { mutableStateOf(false) }
+    var activeIndex by remember(candidateUrls) { mutableIntStateOf(0) }
+    val activeUrl = candidateUrls.getOrElse(activeIndex) { url }
     val imageLabel = accessibilityLabel(props, props["alt"]?.toString() ?: "Image")
     val placeholderBg = MaterialTheme.colorScheme.surfaceContainerHighest
     val iconLikeImage = isIconLikeMediaUrl(resolvedUrl) || isIconLikeMediaUrl(url)
@@ -14495,11 +14566,21 @@ private fun RenderImage(
                 modifier = Modifier.size(42.dp),
                 onSuccess = { failed = false },
                 onError = {
-                    failed = true
-                    Log.w(
-                        FLAT_SPEC_RENDERER_TAG,
-                        "RenderImage received icon-like media URL '$activeUrl'; compact icon load failed."
-                    )
+                    val nextIndex = activeIndex + 1
+                    if (nextIndex < candidateUrls.size) {
+                        activeIndex = nextIndex
+                        failed = false
+                        Log.w(
+                            FLAT_SPEC_RENDERER_TAG,
+                            "RenderImage icon-like media failed for ${imageLogLabel(activeUrl)}; retrying candidate ${nextIndex + 1}/${candidateUrls.size}."
+                        )
+                    } else {
+                        failed = true
+                        Log.w(
+                            FLAT_SPEC_RENDERER_TAG,
+                            "RenderImage received icon-like media URL from ${imageLogLabel(activeUrl)}; compact icon load failed."
+                        )
+                    }
                 }
             )
         } else if (failed) {
@@ -14524,22 +14605,19 @@ private fun RenderImage(
                 onSuccess = { failed = false },
                 onError = {
                     val failedUrl = activeUrl
-                    val shouldTryFallback = !fallbackAttempted &&
-                        fallbackUrl.isNotBlank() &&
-                        !fallbackUrl.equals(failedUrl, ignoreCase = true)
-                    if (shouldTryFallback) {
-                        fallbackAttempted = true
-                        activeUrl = fallbackUrl
+                    val nextIndex = activeIndex + 1
+                    if (nextIndex < candidateUrls.size) {
+                        activeIndex = nextIndex
                         failed = false
                         Log.w(
                             FLAT_SPEC_RENDERER_TAG,
-                            "RenderImage failed for URL '$failedUrl', retrying with fallback '$fallbackUrl'."
+                            "RenderImage failed for ${imageLogLabel(failedUrl)}; retrying candidate ${nextIndex + 1}/${candidateUrls.size}."
                         )
                     } else {
                         failed = true
                         Log.w(
                             FLAT_SPEC_RENDERER_TAG,
-                            "RenderImage failed for URL '$failedUrl'."
+                            "RenderImage failed for ${imageLogLabel(failedUrl)} with ${candidateUrls.size} candidate(s)."
                         )
                     }
                 }
