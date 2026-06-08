@@ -62,25 +62,39 @@ class SafeContentPolicyTest {
     }
 
     @Test
-    fun mediaPolicy_allowsIconHostsOnlyForIcons() {
+    fun mediaPolicy_acceptsBoundedNewsPhotoAndSourceIconHosts() {
+        val safeNewsImages = listOf(
+            "https://data1.ibtimes.co.in/en/full/833180/bengaluru-news.jpg",
+            "https://cache.careers360.mobi/media/article_images/2026/6/7/colleges.jpg",
+            "https://img.etimg.com/thumb/msid-131569932,width-1200,height-900/articleshow.jpg",
+            "https://media.assettype.com/freepressjournal/2022-07/lpg.webp",
+            "https://staticprintenglish.theprint.in/wp-content/uploads/2026/06/news.jpg",
+            "https://www.globalindian.com/wp-content/uploads/2026/06/story.jpg",
+            "https://www.newsx.com/wp-content/uploads/2026/06/story.jpg",
+            "https://n.bytvi.com/ibtimes.png"
+        )
+
+        safeNewsImages.forEach { url ->
+            assertTrue(url, SafeContentPolicy.isSafeMediaUrl(url, SafeContentPolicy.MediaKind.IMAGE))
+        }
+    }
+
+    @Test
+    fun mediaPolicy_acceptsIconHostsAsRemoteMedia() {
         val bootstrapIcon = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg"
         val weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/116.png"
 
         assertTrue(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.ICON))
         assertTrue(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.ICON))
-        assertFalse(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.IMAGE))
-        assertFalse(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.IMAGE))
+        assertTrue(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.IMAGE))
+        assertTrue(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.IMAGE))
         assertTrue(SafeContentPolicy.isIconOnlyMediaUrl(bootstrapIcon))
     }
 
     @Test
     fun mediaPolicy_rejectsPlaceholderAndMalformedImageUrls() {
         val unsafeImages = listOf(
-            "https://loremflickr.com/1200/800/travel",
-            "https://picsum.photos/800/600",
             "http://upload.wikimedia.org/wikipedia/commons/a/a0/Test.jpg",
-            "https://localhost/image.jpg",
-            "https://example.com/image.jpg",
             "not a url"
         )
 

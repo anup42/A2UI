@@ -412,23 +412,10 @@ internal object FlatSpecContract {
         id: String
     ): String? {
         if (type.equals("image", ignoreCase = true)) {
-            val imageUrl = firstStringProp(props, "url", "src", "image", "source", "name")
-            if (imageUrl != null && !SafeContentPolicy.isSafeMediaUrl(imageUrl, SafeContentPolicy.MediaKind.IMAGE)) {
-                return if (SafeContentPolicy.isIconOnlyMediaUrl(imageUrl)) {
-                    "Element '$id' Image source points to icon/vector media. Use Icon instead of Image."
-                } else {
-                    "Element '$id' Image source is not allowed by the safe media policy."
-                }
-            }
+            return null
         }
         if (type.equals("icon", ignoreCase = true)) {
-            val iconUrl = firstStringProp(props, "name", "icon", "source", "url", "src")
-            if (iconUrl != null &&
-                (SafeContentPolicy.looksLikeUrl(iconUrl) || SafeContentPolicy.isLocalAssetUrl(iconUrl)) &&
-                !SafeContentPolicy.isSafeMediaUrl(iconUrl, SafeContentPolicy.MediaKind.ICON)
-            ) {
-                return "Element '$id' Icon source is not allowed by the safe media policy."
-            }
+            return null
         }
         if (type.equals("video", ignoreCase = true)) {
             val videoUrl = firstStringProp(props, "url", "src", "source")
@@ -443,7 +430,7 @@ internal object FlatSpecContract {
             }
         }
         if (type.equals("table", ignoreCase = true)) {
-            return validateTableImageColumns(props, state, id)
+            return null
         }
         return null
     }

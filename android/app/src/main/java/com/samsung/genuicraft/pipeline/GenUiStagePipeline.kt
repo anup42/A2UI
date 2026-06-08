@@ -866,6 +866,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = stage3WithFlightMediaNormalized
             warnings += "Normalized flight media to airline/travel-safe icons."
         }
+        val stage3WithNewsMedia = PipelineMediaSanitizer.preserveNewsMediaInGenUi(
+            jsonText = stage3Json,
+            stage2Response = stage2Response
+        )
+        if (stage3WithNewsMedia != stage3Json) {
+            stage3Json = stage3WithNewsMedia
+            warnings += "Preserved news images/source icons from live-data rows."
+        }
         val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
             jsonText = stage3Json,
             queryText = normalizedQuery
@@ -1426,6 +1434,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage3Json = stage3WithFlightMediaNormalized
             warnings += "Normalized flight media to airline/travel-safe icons."
         }
+        val stage3WithNewsMedia = PipelineMediaSanitizer.preserveNewsMediaInGenUi(
+            jsonText = stage3Json,
+            stage2Response = stage2Response
+        )
+        if (stage3WithNewsMedia != stage3Json) {
+            stage3Json = stage3WithNewsMedia
+            warnings += "Preserved news images/source icons from live-data rows."
+        }
         val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
             jsonText = stage3Json,
             queryText = normalizedQuery
@@ -1779,6 +1795,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (stage3WithRestaurantPhotos != stage3Json) {
             stage3Json = stage3WithRestaurantPhotos
             warnings += "Preserved restaurant photos/contact data from Google Places rows."
+        }
+        val stage3WithNewsMedia = PipelineMediaSanitizer.preserveNewsMediaInGenUi(
+            jsonText = stage3Json,
+            stage2Response = sanitizedResponse
+        )
+        if (stage3WithNewsMedia != stage3Json) {
+            stage3Json = stage3WithNewsMedia
+            warnings += "Preserved news images/source icons from live-data rows."
         }
         val stage3WithStableMediaUrls = PipelineMediaSanitizer.rewriteUnstableMediaHostsInGenUi(
             jsonText = stage3Json, queryText = normalizedQuery

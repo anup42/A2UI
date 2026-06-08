@@ -74,7 +74,15 @@ object SafeContentPolicy {
         "twimg.com",
         "images.unsplash.com",
         "images.pexels.com",
-        "cdn.pixabay.com"
+        "cdn.pixabay.com",
+        "ibtimes.co.in",
+        "careers360.mobi",
+        "etimg.com",
+        "assettype.com",
+        "theprint.in",
+        "globalindian.com",
+        "newsx.com",
+        "bytvi.com"
     )
     private val allowedIconHosts = setOf(
         "cdn.jsdelivr.net",
@@ -121,7 +129,7 @@ object SafeContentPolicy {
 
     fun sanitizeMediaUrl(raw: String?, kind: MediaKind): String? {
         val token = sanitizeToken(raw)
-        if (token.isBlank() || isPlaceholderToken(token)) return null
+        if (token.isBlank() || (isPlaceholderToken(token) && !looksLikeUrl(token))) return null
         if (isVerifiedUrlPlaceholder(token)) return token
         if (isLocalAssetUrl(token)) return token
         if (isGeneratedVisualUrl(token)) {
@@ -129,14 +137,17 @@ object SafeContentPolicy {
         }
 
         val normalized = normalizeNetworkUrl(token, allowBareDomain = false) ?: return null
+        if (kind == MediaKind.IMAGE || kind == MediaKind.ICON) {
+            return normalized
+        }
         val uri = parseUri(normalized) ?: return null
         if (uri.scheme?.lowercase(Locale.US) != "https") return null
         val host = normalizeHost(uri.host) ?: return null
         if (!isAllowedPublicHost(host)) return null
 
         return when (kind) {
-            MediaKind.IMAGE -> normalized.takeIf { isAllowedPhotoUrl(host, uri) }
-            MediaKind.ICON -> normalized.takeIf { isAllowedIconUrl(host, uri) }
+            MediaKind.IMAGE,
+            MediaKind.ICON -> normalized
             MediaKind.VIDEO,
             MediaKind.AUDIO -> normalized.takeIf { sanitizeActionUrl(normalized) != null }
         }

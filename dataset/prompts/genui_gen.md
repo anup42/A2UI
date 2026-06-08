@@ -65,7 +65,7 @@ Valid (flat-spec):
 - Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
 - Action/source URLs for Buttons, `openUrl`, `url`, `bookingUrl`, `actionUrl`, `href`, and `link` fields must be `https://` public-domain URLs only, or compact verified URL placeholders such as `{{u1}}`/`{{u2}}` when the response uses them. Preserve `{{uN}}` placeholders exactly; they will be restored to real URLs after JSON generation.
 - Do not emit `http://`, `javascript:`, `data:`, `file:`, `content:`, `intent:`, localhost, private IP ranges, `.local`, `.test`, `.example`, malformed hosts, placeholder hosts, or fake/test domains.
-- Media URLs must satisfy Android safe media policy: local app assets, generated `genuicraft:` visuals, verified Wikimedia/Commons/Places/direct HTTPS photo URLs for `Image` and table image fields, compact verified URL placeholders such as `{{u1}}` when provided by the response, and Bootstrap/weather icon URLs for `Icon` only.
+- Preserve direct HTTPS media URLs from the response exactly for `Image`, `Icon`, and table media fields. Do not drop unknown public HTTPS image hosts just because they are not in a curated allowlist. Compact verified URL placeholders such as `{{u1}}` must also be preserved exactly.
 
 ## Media preservation rules (compact)
 - Treat standalone media sections as metadata, not content sections. Headings such as `Images:`, `Icons:`, `Visual Guide`, `Key Feature Icons`, `Trip Imagery`, `Weather Icons`, or `Related Icons` MUST NOT become standalone Cards or trailing sections.
@@ -77,7 +77,7 @@ Valid (flat-spec):
 - If the response contains inline `Media: Icon=<url>`, include at least one `Icon` when it helps identify status/category/actions, and use up to four icons for compact labels or section headers. Do not add decorative icons to every row.
 - Do not fabricate an `Image` element from icon-only media.
 - Treat SVG icon URLs (especially `cdn.jsdelivr.net/npm/bootstrap-icons/...`, weather icon URLs, and any `/icons/` URL) as `Icon` media only. Never place them in `Image` elements, `image`/`imageUrl`/`photo` table columns, thumbnails, hero images, or `entityMedia.image`.
-- Do not render placeholder/random-host images such as loremflickr.com or picsum.photos. Prefer no image over a bad or unrelated image.
+- Do not invent placeholder/random images. If the response itself provides a media URL, keep it attached to the matching row/card instead of dropping it.
 - Place hero images at the top of the relevant section or Card.
 - Place icons inline next to headings or labels using a horizontal Stack.
 

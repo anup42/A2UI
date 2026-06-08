@@ -7386,16 +7386,16 @@ private fun NewsLeadStoryCard(
 ) {
     val darkTheme = isSystemInDarkTheme()
     val accent = if (darkTheme) Color(0xFF7DD3FC) else Color(0xFF0F6D9E)
-    Card(
+    val shape = RoundedCornerShape(24.dp)
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(shape)
+            .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+            .border(flatSpecCardBorder(), shape)
             .semantics(mergeDescendants = true) {
                 contentDescription = "Lead story, ${article.title}"
-            },
-        shape = RoundedCornerShape(24.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = flatSpecCardBorder()
+            }
     ) {
         Column(
             modifier = Modifier
@@ -7446,22 +7446,24 @@ private fun NewsArticleCard(
     article: NewsArticleCardRow,
     onOpenUrl: (String) -> Unit
 ) {
-    Card(
+    val shape = RoundedCornerShape(20.dp)
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(shape)
+            .background(genUiCardContainerColor(GenUiCardTone.Neutral))
+            .border(flatSpecCardBorder(), shape)
             .semantics(mergeDescendants = true) {
                 contentDescription = tableRowAccessibilitySummary(
                     headers = listOf("Article", "Source", "Published", "Summary"),
                     row = listOf(article.title, article.source, article.published, article.summary)
                 )
-            },
-        shape = RoundedCornerShape(20.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = flatSpecCardBorder()
+            }
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.Top
         ) {
@@ -7508,21 +7510,42 @@ private fun NewsArticleImage(
     compact: Boolean = false,
     onOpenUrl: (String) -> Unit
 ) {
-    val modifier = if (compact) Modifier.width(104.dp) else Modifier.fillMaxWidth()
+    val baseModifier = if (compact) Modifier.width(104.dp) else Modifier.fillMaxWidth()
+    val imageModifier = baseModifier
+        .aspectRatio(aspectRatio)
+        .clip(RoundedCornerShape(14.dp))
     val safeImageUrl = SafeContentPolicy.sanitizeMediaUrl(imageUrl, SafeContentPolicy.MediaKind.IMAGE)
     if (!safeImageUrl.isNullOrBlank()) {
-        RenderImage(
-            props = mapOf(
-                "url" to safeImageUrl,
-                "fit" to "cover",
-                "aspectRatio" to aspectRatio,
-                "alt" to "$title image"
-            ),
-            onOpenUrl = onOpenUrl,
-            modifier = modifier
-        )
+        val context = LocalContext.current
+        val imageLoader = remember(context) {
+            ImageLoader.Builder(context)
+                .components { add(SvgDecoder.Factory()) }
+                .build()
+        }
+        var failed by remember(safeImageUrl) { mutableStateOf(false) }
+        if (failed) {
+            NewsImagePlaceholder(title = title, modifier = imageModifier)
+        } else {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(safeImageUrl)
+                    .applyFlatSpecRemoteImageHeaders(safeImageUrl)
+                    .crossfade(true)
+                    .allowHardware(false)
+                    .build(),
+                imageLoader = imageLoader,
+                contentDescription = "$title image",
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier,
+                onSuccess = { failed = false },
+                onError = {
+                    failed = true
+                    Log.w(FLAT_SPEC_RENDERER_TAG, "News image failed for URL '$safeImageUrl'.")
+                }
+            )
+        }
     } else {
-        NewsImagePlaceholder(title = title, modifier = modifier.aspectRatio(aspectRatio))
+        NewsImagePlaceholder(title = title, modifier = imageModifier)
     }
 }
 
@@ -7600,9 +7623,11 @@ private fun NewsSourceIcon(
     onOpenUrl: (String) -> Unit
 ) {
     val action = sourceUrl.takeIf { it.isNotBlank() }
-    Surface(
+    val safeIconUrl = SafeContentPolicy.sanitizeMediaUrl(sourceIcon, SafeContentPolicy.MediaKind.IMAGE)
+    Box(
         modifier = Modifier
-            .size(34.dp)
+            .size(30.dp)
+            .clip(RoundedCornerShape(8.dp))
             .then(
                 if (!action.isNullOrBlank()) {
                     Modifier.clickable(role = Role.Button) { onOpenUrl(action) }
@@ -7610,11 +7635,8 @@ private fun NewsSourceIcon(
                     Modifier
                 }
             ),
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.34f else 0.48f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f))
+        contentAlignment = Alignment.Center
     ) {
-        val safeIconUrl = SafeContentPolicy.sanitizeMediaUrl(sourceIcon, SafeContentPolicy.MediaKind.IMAGE)
         if (!safeIconUrl.isNullOrBlank()) {
             RenderImage(
                 props = mapOf(
@@ -7627,14 +7649,12 @@ private fun NewsSourceIcon(
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Filled.Language,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(17.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Filled.Language,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }
@@ -7680,13 +7700,44 @@ private fun NewsActions(
             )
         }
         if (sourceUrl != null) {
-            RestaurantActionPill(
+            NewsTextAction(
                 label = "Source",
                 icon = Icons.Filled.Language,
-                primary = primaryFullWidth && articleUrl == null,
                 onClick = { onOpenUrl(sourceUrl) }
             )
         }
+    }
+}
+
+@Composable
+private fun NewsTextAction(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .heightIn(min = 40.dp)
+            .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 

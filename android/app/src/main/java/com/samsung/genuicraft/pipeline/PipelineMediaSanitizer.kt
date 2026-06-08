@@ -1814,6 +1814,182 @@ internal object PipelineMediaSanitizer {
         return if (changed) spec.toString() else jsonText
     }
 
+    fun preserveNewsMediaInGenUi(
+        jsonText: String,
+        stage2Response: String
+    ): String {
+        val mediaByArticle = extractNewsMediaRows(stage2Response)
+        if (mediaByArticle.isEmpty()) return jsonText
+
+        val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
+        val payload = normalizeGenUiPayload(parsed)
+        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) return jsonText
+
+        val spec = payload.asJsonObject
+        val state = spec.get("state")?.takeIf { it.isJsonObject }?.asJsonObject ?: return jsonText
+        val elements = spec.getAsJsonObject("elements") ?: return jsonText
+        var changed = false
+
+        state.entrySet().forEach { (_, value) ->
+            if (!value.isJsonArray) return@forEach
+            value.asJsonArray.forEach { row ->
+                val rowObj = row.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+                val article = firstRowString(rowObj, "article", "title", "headline", "story", "news") ?: return@forEach
+                val media = mediaByArticle[normalizeNewsArticleTitle(article)] ?: return@forEach
+                if (!rowHasImage(rowObj) && media.imageUrl.isNotBlank()) {
+                    rowObj.addProperty("imageUrl", media.imageUrl)
+                    changed = true
+                }
+                if (!rowHasSourceIcon(rowObj) && media.sourceIcon.isNotBlank()) {
+                    rowObj.addProperty("sourceIcon", media.sourceIcon)
+                    changed = true
+                }
+                if (!rowHasUrlField(rowObj, "articleUrl", "article URL", "url", "link") && media.articleUrl.isNotBlank()) {
+                    rowObj.addProperty("articleUrl", media.articleUrl)
+                    changed = true
+                }
+                if (!rowHasUrlField(rowObj, "sourceUrl", "source URL", "publisherUrl") && media.sourceUrl.isNotBlank()) {
+                    rowObj.addProperty("sourceUrl", media.sourceUrl)
+                    changed = true
+                }
+                if (jsonStringOrNull(rowObj.get("actionLabel")).isNullOrBlank() && media.actionLabel.isNotBlank()) {
+                    rowObj.addProperty("actionLabel", media.actionLabel)
+                    changed = true
+                }
+            }
+        }
+
+        elements.entrySet().forEach { (_, node) ->
+            val element = node.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            if (!jsonStringOrNull(element.get("type")).equals("Table", ignoreCase = true)) return@forEach
+            val props = element.getAsJsonObject("props") ?: return@forEach
+            if (!isNewsTableProps(props)) return@forEach
+            if (!jsonStringOrNull(props.get("domain")).equals("news", ignoreCase = true)) {
+                props.addProperty("domain", "news")
+                changed = true
+            }
+            if (jsonStringOrNull(props.get("preferredPresentation")).isNullOrBlank()) {
+                props.addProperty("preferredPresentation", "cards")
+                changed = true
+            }
+            val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return@forEach
+            if (!columns.any { columnHasKeyOrLabel(it, "image", "imageurl", "image url", "photo", "thumbnail") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "imageUrl")
+                    addProperty("label", "Image URL")
+                })
+                changed = true
+            }
+            if (!columns.any { columnHasKeyOrLabel(it, "sourceicon", "source icon", "publishericon", "publisher icon") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "sourceIcon")
+                    addProperty("label", "Source Icon")
+                })
+                changed = true
+            }
+            if (!columns.any { columnHasKeyOrLabel(it, "articleurl", "article url", "link", "url") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "articleUrl")
+                    addProperty("label", "Article URL")
+                })
+                changed = true
+            }
+            if (!columns.any { columnHasKeyOrLabel(it, "sourceurl", "source url", "publisherurl", "publisher url") }) {
+                columns.add(JsonObject().apply {
+                    addProperty("key", "sourceUrl")
+                    addProperty("label", "Source URL")
+                })
+                changed = true
+            }
+        }
+
+        return if (changed) spec.toString() else jsonText
+    }
+
+    private data class NewsMediaRow(
+        val imageUrl: String,
+        val sourceIcon: String,
+        val articleUrl: String,
+        val sourceUrl: String,
+        val actionLabel: String
+    )
+
+    private fun extractNewsMediaRows(stage2Response: String): Map<String, NewsMediaRow> {
+        val lines = stage2Response.lines()
+        val result = linkedMapOf<String, NewsMediaRow>()
+        lines.forEachIndexed { index, line ->
+            if (!line.trimStart().startsWith("|")) return@forEachIndexed
+            if (!line.contains("Article", ignoreCase = true) && !line.contains("Headline", ignoreCase = true)) {
+                return@forEachIndexed
+            }
+            if (!line.contains("Image", ignoreCase = true) && !line.contains("Source Icon", ignoreCase = true)) {
+                return@forEachIndexed
+            }
+            val headers = splitMarkdownTableRow(line)
+            val articleIndex = headers.indexOfFirst { header ->
+                normalizedKey(header) in setOf("article", "title", "headline", "story", "news")
+            }
+            if (articleIndex < 0) return@forEachIndexed
+            val imageIndex = headers.indexOfFirst { header ->
+                normalizedKey(header) in setOf("image", "imageurl", "photo", "thumbnail", "media")
+            }
+            val sourceIconIndex = headers.indexOfFirst { header ->
+                normalizedKey(header) in setOf("sourceicon", "publishericon", "icon")
+            }
+            val articleUrlIndex = headers.indexOfFirst { header ->
+                normalizedKey(header) in setOf("articleurl", "articlelink", "url", "link", "readurl")
+            }
+            val sourceUrlIndex = headers.indexOfFirst { header ->
+                normalizedKey(header) in setOf("sourceurl", "sourcelink", "publisherurl", "publisherlink")
+            }
+            val actionLabelIndex = headers.indexOfFirst { header ->
+                normalizedKey(header) in setOf("actionlabel", "buttonlabel", "ctalabel", "action")
+            }
+            lines.drop(index + 2)
+                .takeWhile { it.trimStart().startsWith("|") }
+                .forEach { rowLine ->
+                    val cells = splitMarkdownTableRow(rowLine)
+                    val article = cells.getOrNull(articleIndex)?.trim().orEmpty()
+                    if (article.isBlank()) return@forEach
+                    val imageUrl = imageIndex
+                        .takeIf { it >= 0 }
+                        ?.let { cells.getOrNull(it).orEmpty() }
+                        ?.let(::firstSafeImageUrl)
+                        .orEmpty()
+                    val sourceIcon = sourceIconIndex
+                        .takeIf { it >= 0 }
+                        ?.let { cells.getOrNull(it).orEmpty() }
+                        ?.let(::firstSafeImageUrl)
+                        .orEmpty()
+                    val articleUrl = articleUrlIndex
+                        .takeIf { it >= 0 }
+                        ?.let { cells.getOrNull(it).orEmpty().trim() }
+                        ?.let(SafeContentPolicy::sanitizeActionUrl)
+                        .orEmpty()
+                    val sourceUrl = sourceUrlIndex
+                        .takeIf { it >= 0 }
+                        ?.let { cells.getOrNull(it).orEmpty().trim() }
+                        ?.let(SafeContentPolicy::sanitizeActionUrl)
+                        .orEmpty()
+                    val actionLabel = actionLabelIndex
+                        .takeIf { it >= 0 }
+                        ?.let { cells.getOrNull(it).orEmpty().trim() }
+                        ?.takeIf { it.isNotBlank() && !SafeContentPolicy.looksLikeUrl(it) }
+                        .orEmpty()
+                    if (imageUrl.isNotBlank() || sourceIcon.isNotBlank()) {
+                        result[normalizeNewsArticleTitle(article)] = NewsMediaRow(
+                            imageUrl = imageUrl,
+                            sourceIcon = sourceIcon,
+                            articleUrl = articleUrl,
+                            sourceUrl = sourceUrl,
+                            actionLabel = actionLabel
+                        )
+                    }
+                }
+        }
+        return result
+    }
+
     private fun extractRestaurantPhotoUrls(stage2Response: String): Map<String, List<String>> {
         val lines = stage2Response.lines()
         val result = linkedMapOf<String, List<String>>()
@@ -1919,6 +2095,33 @@ internal object PipelineMediaSanitizer {
 
     private fun normalizeRestaurantName(value: String): String =
         value.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+
+    private fun normalizedKey(value: String): String =
+        value.lowercase(Locale.US).replace(Regex("[^a-z0-9]+"), "")
+
+    private fun normalizeNewsArticleTitle(value: String): String =
+        normalizedKey(value).take(96)
+
+    private fun rowHasSourceIcon(row: JsonObject): Boolean =
+        listOf("sourceIcon", "sourceicon", "publisherIcon", "icon", "mediaIcon", "iconUrl").any { key ->
+            val value = jsonStringOrNull(row.get(key)) ?: return@any false
+            SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.ICON) ||
+                SafeContentPolicy.isSafeMediaUrl(value, SafeContentPolicy.MediaKind.IMAGE)
+        }
+
+    private fun rowHasUrlField(row: JsonObject, vararg keys: String): Boolean =
+        keys.any { key ->
+            val value = jsonStringOrNull(row.get(key)) ?: return@any false
+            SafeContentPolicy.sanitizeActionUrl(value) != null
+        }
+
+    private fun isNewsTableProps(props: JsonObject): Boolean {
+        val domain = jsonStringOrNull(props.get("domain")).orEmpty().lowercase(Locale.US)
+        if (domain == "news") return true
+        val columns = props.get("columns")?.takeIf { it.isJsonArray }?.asJsonArray ?: return false
+        return columns.any { columnHasKeyOrLabel(it, "article", "title", "headline", "story", "news") } &&
+            columns.any { columnHasKeyOrLabel(it, "source", "publisher", "publication") }
+    }
 
     private fun isRestaurantTableProps(props: JsonObject): Boolean {
         val domain = jsonStringOrNull(props.get("domain")).orEmpty().lowercase(Locale.US)
