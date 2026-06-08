@@ -179,6 +179,9 @@ internal enum class FlatTableRenderMode {
     RESPONSIVE_CARD_ROWS
 }
 
+internal fun shouldBypassSourceLinkIntercept(renderMode: FlatTableRenderMode): Boolean =
+    renderMode == FlatTableRenderMode.NEWS_CARDS
+
 internal enum class FlatTableShape {
     PLAYLIST,
     ENTITY_ROW,
@@ -4121,7 +4124,11 @@ private fun RenderTableLayout(
         repeatedRowScopes = repeatedRowScopes,
         repeatScope = repeatScope
     )
-    val sourceLinks = collectFlatSourceLinksFromRows(tableModel.headers, tableRows)
+    val sourceLinks = if (shouldBypassSourceLinkIntercept(tableModel.renderMode)) {
+        emptyList()
+    } else {
+        collectFlatSourceLinksFromRows(tableModel.headers, tableRows)
+    }
     if (sourceLinks.isNotEmpty()) {
         RenderFlatSourceSection(
             section = FlatSourceSection(title = "Sources", links = sourceLinks),
@@ -11744,7 +11751,11 @@ private fun RenderDirectTable(
     val table = extractDirectTableModel(props, state, compactPortrait) ?: return
     val headers = table.columns.map { column -> column.label }
     val tableModifier = applyStackModifier(modifier, props, "vertical")
-    val sourceLinks = collectFlatSourceLinksFromTableProps(props, state)
+    val sourceLinks = if (shouldBypassSourceLinkIntercept(table.renderMode)) {
+        emptyList()
+    } else {
+        collectFlatSourceLinksFromTableProps(props, state)
+    }
     if (sourceLinks.isNotEmpty()) {
         RenderFlatSourceSection(
             section = FlatSourceSection(title = "Sources", links = sourceLinks),

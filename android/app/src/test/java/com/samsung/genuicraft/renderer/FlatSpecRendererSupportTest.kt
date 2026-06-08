@@ -267,6 +267,7 @@ class FlatSpecRendererSupportTest {
         assertEquals("news", model!!.domain)
         assertEquals("cards", model.preferredPresentation)
         assertEquals(FlatTableRenderMode.NEWS_CARDS, model.renderMode)
+        assertTrue(shouldBypassSourceLinkIntercept(model.renderMode))
     }
 
     @Test
