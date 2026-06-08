@@ -17,6 +17,109 @@ class McpResponseFormatterTest {
     }
 
     @Test
+    fun buildDataSection_keepsWeatherAsSingleCompactTable() {
+        val data = JsonObject().apply {
+            addProperty("location", "Bengaluru")
+            addProperty("country", "India")
+            addProperty("requested_forecast_days", 2)
+            add("current", JsonObject().apply {
+                addProperty("temperature_2m", "27")
+                addProperty("relative_humidity_2m", "62")
+                addProperty("apparent_temperature", "29")
+                addProperty("weather_code", 1)
+                addProperty("wind_speed_10m", "8")
+                addProperty("wind_direction_10m", "120")
+                addProperty("uv_index", "4")
+            })
+            add("current_units", JsonObject().apply {
+                addProperty("temperature_2m", "C")
+                addProperty("relative_humidity_2m", "%")
+                addProperty("apparent_temperature", "C")
+                addProperty("wind_speed_10m", "km/h")
+                addProperty("uv_index", "")
+            })
+            add("daily", JsonObject().apply {
+                add("time", JsonArray().apply {
+                    add("2026-06-08")
+                    add("2026-06-09")
+                })
+                add("temperature_2m_max", JsonArray().apply {
+                    add("31")
+                    add("30")
+                })
+                add("temperature_2m_min", JsonArray().apply {
+                    add("22")
+                    add("21")
+                })
+                add("apparent_temperature_max", JsonArray().apply {
+                    add("33")
+                    add("32")
+                })
+                add("precipitation_probability_max", JsonArray().apply {
+                    add("10")
+                    add("15")
+                })
+                add("precipitation_sum", JsonArray().apply {
+                    add("0")
+                    add("0.2")
+                })
+                add("rain_sum", JsonArray().apply {
+                    add("0")
+                    add("0.2")
+                })
+                add("wind_speed_10m_max", JsonArray().apply {
+                    add("12")
+                    add("14")
+                })
+                add("wind_gusts_10m_max", JsonArray().apply {
+                    add("18")
+                    add("20")
+                })
+                add("wind_direction_10m_dominant", JsonArray().apply {
+                    add("120")
+                    add("140")
+                })
+                add("uv_index_max", JsonArray().apply {
+                    add("5")
+                    add("4")
+                })
+                add("weather_code", JsonArray().apply {
+                    add(1)
+                    add(2)
+                })
+            })
+            add("daily_units", JsonObject().apply {
+                addProperty("temperature_2m_max", "C")
+                addProperty("temperature_2m_min", "C")
+                addProperty("apparent_temperature_max", "C")
+                addProperty("precipitation_probability_max", "%")
+                addProperty("precipitation_sum", "mm")
+                addProperty("rain_sum", "mm")
+                addProperty("wind_speed_10m_max", "km/h")
+                addProperty("wind_gusts_10m_max", "km/h")
+                addProperty("uv_index_max", "")
+            })
+        }
+
+        val output = McpResponseFormatter.buildDataSection(
+            McpClient.McpResult(
+                domain = McpSettings.Domain.WEATHER,
+                success = true,
+                data = data,
+                rawJson = null,
+                error = null
+            ),
+            queryText = "show weather in Bengaluru"
+        )
+
+        assertTrue(output.contains("Weather forecast table (domain: weather, preferredPresentation: cards)."))
+        assertTrue(output.contains("| Day | Date | Condition | Temp | High | Low | Feels Like | Rain Chance | Rain | Wind | Gusts | Humidity | UV | Best Window | Morning | Afternoon | Evening | Night | What to wear |"))
+        assertTrue(output.contains("| Today | 2026-06-08 |"))
+        assertTrue(!output.contains("**Today:**"))
+        assertTrue(!output.contains("current conditions block"))
+    }
+
+    @Test
     fun buildDataSection_preservesHotelPhotosInCompactTable() {
         val image1 = "https://lh3.googleusercontent.com/gps-cs-s/photo1=s287-w287-h192-n-k-no-v1"
         val image2 = "https://lh3.googleusercontent.com/gps-cs-s/photo2=s287-w287-h192-n-k-no-v1"

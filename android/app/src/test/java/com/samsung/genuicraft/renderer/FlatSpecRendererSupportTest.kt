@@ -1019,6 +1019,75 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
+    fun redundantWeatherLeadIn_suppressesNestedCurrentMetricsCard() {
+        val payload = JsonParser.parseString(
+            """
+            {
+              "root": "main",
+              "state": {
+                "forecast": [
+                  { "day": "Today", "condition": "Clear sky", "high": "32C", "low": "23C", "rain": "10%", "wind": "8 km/h" },
+                  { "day": "Tomorrow", "condition": "Partly cloudy", "high": "31C", "low": "22C", "rain": "15%", "wind": "9 km/h" }
+                ],
+                "currentMetrics": [
+                  { "metric": "Current Temperature", "value": "32C" },
+                  { "metric": "Feels Like", "value": "35C" },
+                  { "metric": "Rain Chance", "value": "10%" },
+                  { "metric": "Wind", "value": "8 km/h" }
+                ]
+              },
+              "elements": {
+                "main": { "type": "Stack", "props": { "direction": "vertical" }, "children": ["title", "currentCard", "forecastTable"] },
+                "title": { "type": "Text", "props": { "text": "Weather in Bengaluru", "variant": "h1" }, "children": [] },
+                "currentCard": { "type": "Card", "props": {}, "children": ["currentTitle", "currentTable"] },
+                "currentTitle": { "type": "Text", "props": { "text": "Current metrics", "variant": "h2" }, "children": [] },
+                "currentTable": {
+                  "type": "Table",
+                  "props": {
+                    "columns": [
+                      { "key": "metric", "label": "Metric" },
+                      { "key": "value", "label": "Value" }
+                    ],
+                    "statePath": "/currentMetrics"
+                  },
+                  "children": []
+                },
+                "forecastTable": {
+                  "type": "Table",
+                  "props": {
+                    "domain": "weather",
+                    "preferredPresentation": "cards",
+                    "columns": [
+                      { "key": "day", "label": "Day" },
+                      { "key": "condition", "label": "Condition" },
+                      { "key": "high", "label": "High" },
+                      { "key": "low", "label": "Low" },
+                      { "key": "rain", "label": "Rain Chance" },
+                      { "key": "wind", "label": "Wind" }
+                    ],
+                    "statePath": "/forecast"
+                  },
+                  "children": []
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        val parsed = FlatSpecParser.parse(payload)!!
+        val siblings = parsed.elements["main"]!!.children
+
+        assertTrue(
+            isRedundantWeatherLeadInElement(
+                elementId = "currentCard",
+                siblingIds = siblings,
+                elements = parsed.elements,
+                state = parsed.state
+            )
+        )
+    }
+
+    @Test
     fun extractFlatTableModel_overridesGenericDomainHintForWeatherSignals() {
         val payload = JsonParser.parseString(
             """

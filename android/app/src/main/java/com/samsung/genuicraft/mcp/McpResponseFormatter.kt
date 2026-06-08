@@ -173,7 +173,7 @@ Rules:
 6) For hotels, use option cards with rating, price, and book button.
 7) Include a Sources section with real URLs when applicable.
 8) Keep sections concise â€” prefer cards, tables, and bullets over long paragraphs.
-9) For weather: start with current conditions block, then forecast table.
+9) For weather: use one forecast table only. Put current/today values in the first row and do not add a separate current conditions block.
 10) For flights: include Airline | Departure | Arrival | Duration | Stops | Fare table.
 11) For news: include title, source, and publication time for each article.
 12) Never use tokens like "EXAMPLE", "SAMPLE", "DEMO" in output."""
@@ -260,9 +260,6 @@ Rules:
 
         val currentCondition = wmoCodeToCondition(current?.safeInt("weather_code") ?: codes?.get(0)?.safeInt() ?: -1)
         val currentTemp = formatWeatherValue(current?.safeString("temperature_2m"), currentUnits?.safeString("temperature_2m"))
-        val todayHigh = formatWeatherValue(maxTemps?.get(0)?.safeString(), dailyUnits?.safeString("temperature_2m_max"))
-        val todayLow = formatWeatherValue(minTemps?.get(0)?.safeString(), dailyUnits?.safeString("temperature_2m_min"))
-        val todayRainChance = formatWeatherValue(precipProbability?.get(0)?.safeString(), dailyUnits?.safeString("precipitation_probability_max"))
         val currentWind = formatWindValue(
             speed = current?.safeString("wind_speed_10m"),
             speedUnit = currentUnits?.safeString("wind_speed_10m"),
@@ -274,18 +271,7 @@ Rules:
         val sb = StringBuilder()
         sb.appendLine("## Weather in $location${if (country.isNotBlank()) ", $country" else ""}")
         sb.appendLine()
-        sb.appendLine(
-            listOf(
-                "**Today:** $currentCondition",
-                currentTemp?.let { "$it now" },
-                todayHigh?.let { "high $it" },
-                todayLow?.let { "low $it" },
-                todayRainChance?.let { "rain $it" },
-                currentWind?.let { "wind $it" },
-                currentHumidity?.let { "humidity $it" },
-                currentUv?.let { "UV $it" }
-            ).filterNotNull().joinToString(", ") + "."
-        )
+        sb.appendLine("Weather forecast table (domain: weather, preferredPresentation: cards).")
         sb.appendLine()
 
         sb.appendLine("| Day | Date | Condition | Temp | High | Low | Feels Like | Rain Chance | Rain | Wind | Gusts | Humidity | UV | Best Window | Morning | Afternoon | Evening | Night | What to wear |")

@@ -1662,30 +1662,17 @@ internal fun isDetachedMediaDumpElement(
     }
 }
 
-private fun isRedundantWeatherLeadInElement(
-    elementId: String,
-    siblingIds: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>
-): Boolean {
-    val hasForecastWeatherSibling = siblingIds.any { siblingId ->
-        siblingId != elementId && containsForecastWeatherTableElement(siblingId, elements, state)
-    }
-    if (!hasForecastWeatherSibling) return false
-    val element = elements[elementId] ?: return false
-    if (element.type.equals("table", ignoreCase = true)) {
-        return looksLikeCurrentWeatherMetricsTable(elementId, element.props, state)
-    }
-    return looksLikeCurrentWeatherLeadInElement(elementId, elements)
-}
-
 private fun looksLikeCurrentWeatherMetricsTable(
     elementId: String,
     props: Map<String, Any?>,
     state: Map<String, Any?>
 ): Boolean {
     val table = extractDirectTableModel(props, state, compactScreen = true) ?: return false
-    if (table.shape != FlatTableShape.KEY_VALUE || table.rows.isEmpty()) return false
+    if (table.rows.isEmpty()) return false
+    val twoColumnMetricTable = table.columns.size == 2 &&
+        table.columns.any { column -> normalizeTableHeaderForMatch(column.label) in setOf("metric", "label", "field", "attribute") } &&
+        table.columns.any { column -> normalizeTableHeaderForMatch(column.label) in setOf("value", "detail", "details") }
+    if (table.shape != FlatTableShape.KEY_VALUE && !twoColumnMetricTable) return false
     val titleToken = listOfNotNull(
         elementId,
         props["title"]?.toString(),
@@ -1953,15 +1940,35 @@ private fun looksLikeForecastWeatherTable(
     return !NativeWeatherSemantics.buildWeatherRows(headers, table.rows).isNullOrEmpty()
 }
 
+internal fun isRedundantWeatherLeadInElement(
+    elementId: String,
+    siblingIds: List<String>,
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>
+): Boolean {
+    val hasForecastWeatherSibling = siblingIds.any { siblingId ->
+        siblingId != elementId && containsForecastWeatherTableElement(siblingId, elements, state)
+    }
+    if (!hasForecastWeatherSibling) return false
+    val element = elements[elementId] ?: return false
+    if (element.type.equals("table", ignoreCase = true)) {
+        return looksLikeCurrentWeatherMetricsTable(elementId, element.props, state)
+    }
+    return looksLikeCurrentWeatherLeadInElement(elementId, elements, state)
+}
+
 private fun looksLikeCurrentWeatherLeadInElement(
     elementId: String,
-    elements: Map<String, FlatElement>
+    elements: Map<String, FlatElement>,
+    state: Map<String, Any?>
 ): Boolean {
     val root = elements[elementId] ?: return false
     val rootType = root.type.trim().lowercase()
     if (rootType !in setOf("card", "stack", "column", "row", "list", "text")) return false
     val textValues = mutableListOf<String>()
     var hasStructuredTable = false
+    var hasCurrentWeatherMetricTable = false
+    var hasForecastWeatherTable = false
     val visited = mutableSetOf<String>()
 
     fun walk(id: String, depth: Int) {
@@ -1970,6 +1977,12 @@ private fun looksLikeCurrentWeatherLeadInElement(
         val type = element.type.trim().lowercase()
         if (type == "table") {
             hasStructuredTable = true
+            if (looksLikeCurrentWeatherMetricsTable(id, element.props, state)) {
+                hasCurrentWeatherMetricTable = true
+            }
+            if (looksLikeForecastWeatherTable(element.props, state)) {
+                hasForecastWeatherTable = true
+            }
             return
         }
         if (type == "text") {
@@ -1987,6 +2000,9 @@ private fun looksLikeCurrentWeatherLeadInElement(
     }
 
     walk(elementId, 0)
+    if (hasCurrentWeatherMetricTable && !hasForecastWeatherTable) {
+        return true
+    }
     if (hasStructuredTable || textValues.isEmpty()) return false
     val normalizedValues = textValues.map(NativeWeatherSemantics::normalizeWeatherText)
     if (normalizedValues.any { it in setOf("current metrics", "current weather", "current conditions") }) {
