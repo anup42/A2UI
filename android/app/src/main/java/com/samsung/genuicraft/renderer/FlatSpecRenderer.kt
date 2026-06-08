@@ -4207,12 +4207,31 @@ private fun RenderTableLayout(
         rows = tableRows
     )
 
+    if (tableModel.shape == FlatTableShape.KEY_VALUE &&
+        looksLikeTravelItinerarySummaryTable(tableModel.headers, tableRows)
+    ) {
+        return
+    }
+
     if (tableModel.shape == FlatTableShape.KEY_VALUE && tableRows.isNotEmpty()) {
         RenderKeyValueTablePanel(
             headers = tableModel.headers,
             rows = tableRows,
             title = tableModel.title,
             modifier = tableModifier
+        )
+        return
+    }
+
+    if (looksLikeTravelItineraryTable(tableModel.headers) ||
+        looksLikePlaceStopItineraryTable(tableModel.headers, tableRows)
+    ) {
+        RenderTravelItineraryTable(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier,
+            title = tableModel.title,
+            onOpenUrl = onOpenUrl
         )
         return
     }
@@ -4241,19 +4260,6 @@ private fun RenderTableLayout(
         if (rendered) {
             return
         }
-    }
-
-    if (looksLikeTravelItineraryTable(tableModel.headers) ||
-        looksLikePlaceStopItineraryTable(tableModel.headers, tableRows)
-    ) {
-        RenderTravelItineraryTable(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier,
-            title = tableModel.title,
-            onOpenUrl = onOpenUrl
-        )
-        return
     }
 
     if (useScrollableNativeTableRendering() && tableRows.isNotEmpty()) {
@@ -9806,6 +9812,49 @@ private fun RenderCalculationBreakdownTable(
     }
 }
 
+private fun looksLikeTravelItinerarySummaryTable(
+    headers: List<String>,
+    rows: List<List<String>>
+): Boolean {
+    if (headers.size > 2 || rows.size !in 2..8) return false
+    val labelTokens = rows
+        .mapNotNull { row -> row.getOrNull(0)?.trim()?.takeIf { it.isNotBlank() } }
+        .map(::normalizeTableHeaderForMatch)
+    if (labelTokens.isEmpty()) return false
+    val summarySignals = labelTokens.count { label ->
+        label in setOf(
+            "trip length",
+            "places listed",
+            "places included",
+            "top rated place",
+            "main focus",
+            "destination",
+            "city",
+            "days",
+            "duration",
+            "style",
+            "itinerary focus",
+            "itinerary style"
+        ) ||
+            label.contains("trip length") ||
+            label.contains("places listed") ||
+            label.contains("places included") ||
+            label.contains("top rated") ||
+            label.contains("main focus") ||
+            label == "city" ||
+            label == "style" ||
+            label.contains("itinerary focus")
+    }
+    val travelSignals = labelTokens.any { label ->
+        label.contains("trip") ||
+            label.contains("itinerary") ||
+            label.contains("places") ||
+            label.contains("destination") ||
+            label.contains("top rated")
+    }
+    return summarySignals >= 2 && travelSignals
+}
+
 @Composable
 private fun RenderKeyValueTablePanel(
     headers: List<String>,
@@ -12656,12 +12705,27 @@ private fun RenderDirectTable(
         )
         return
     }
+    if (table.shape == FlatTableShape.KEY_VALUE && looksLikeTravelItinerarySummaryTable(headers, table.rows)) {
+        return
+    }
+
     if (table.shape == FlatTableShape.KEY_VALUE && table.rows.isNotEmpty()) {
         RenderKeyValueTablePanel(
             headers = headers,
             rows = table.rows,
             title = props["title"]?.toString(),
             modifier = tableModifier
+        )
+        return
+    }
+
+    if (looksLikeTravelItineraryTable(headers) || looksLikePlaceStopItineraryTable(headers, table.rows)) {
+        RenderTravelItineraryTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            title = props["title"]?.toString(),
+            onOpenUrl = onOpenUrl
         )
         return
     }
@@ -12727,17 +12791,6 @@ private fun RenderDirectTable(
         if (rendered) {
             return
         }
-    }
-
-    if (looksLikeTravelItineraryTable(headers) || looksLikePlaceStopItineraryTable(headers, table.rows)) {
-        RenderTravelItineraryTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            title = props["title"]?.toString(),
-            onOpenUrl = onOpenUrl
-        )
-        return
     }
 
     if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {

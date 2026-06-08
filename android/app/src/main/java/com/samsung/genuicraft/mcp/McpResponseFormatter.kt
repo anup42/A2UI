@@ -231,7 +231,7 @@ Rules:
             McpSettings.Domain.FLIGHTS -> buildFlightsFallback(data)
             McpSettings.Domain.RESTAURANTS -> buildRestaurantsFallback(data)
             McpSettings.Domain.HOTELS -> buildHotelsFallback(data)
-            McpSettings.Domain.PLACES -> buildPlacesFallback(data)
+            McpSettings.Domain.PLACES -> buildPlacesFallback(data, queryText)
             McpSettings.Domain.NEWS -> buildNewsFallback(data)
         }
     }
@@ -1030,7 +1030,141 @@ Rules:
         return "https://www.google.com/maps/search/?api=1&query=$lat,$lng"
     }
 
-    private fun buildPlacesFallback(data: JsonObject): String {
+    private fun buildPlacesFallback(data: JsonObject, queryText: String): String {
+        if (looksLikeVacationItineraryQuery(queryText)) {
+            return buildPlacesItineraryFallback(data, queryText)
+        }
+        return buildPlacesAttractionsFallback(data)
+    }
+
+    private fun looksLikeVacationItineraryQuery(queryText: String): Boolean {
+        val normalized = queryText.lowercase()
+        return normalized.contains("itinerary") ||
+            normalized.contains("itenary") ||
+            normalized.contains("vacation") ||
+            normalized.contains("holiday") ||
+            normalized.contains("trip plan") ||
+            normalized.contains("travel plan") ||
+            Regex("""\b\d+\s*(day|days)\b""").containsMatchIn(normalized)
+    }
+
+    private fun requestedItineraryDays(queryText: String, maxAvailableRows: Int): Int {
+        val requested = Regex("""\b(\d{1,2})\s*(?:day|days)\b""", RegexOption.IGNORE_CASE)
+            .find(queryText)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.toIntOrNull()
+        return (requested ?: 4).coerceIn(1, minOf(10, maxOf(1, maxAvailableRows)))
+    }
+
+    private fun markdownTableCell(value: String?): String =
+        value.orEmpty()
+            .replace("\r", " ")
+            .replace("\n", " ")
+            .replace("|", "/")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+
+    private fun placeDisplayName(place: JsonObject): String =
+        place.getAsJsonObject("displayName")?.safeString("text")?.trim()?.takeIf { it.isNotBlank() }
+            ?: "Place"
+
+    private fun placePrimaryType(place: JsonObject): String {
+        return place.safeString("primaryTypeDisplayName")
+            ?: place.getAsJsonObject("primaryTypeDisplayName")?.safeString("text")
+            ?: place.getAsJsonArray("types")
+                ?.mapNotNull { it.takeIf { e -> !e.isJsonNull }?.asString }
+                ?.firstOrNull { type ->
+                    type !in setOf("point_of_interest", "establishment", "store", "food", "restaurant")
+                }
+                ?.replace("_", " ")
+                ?.replaceFirstChar { c -> c.uppercase() }
+            ?: "Attraction"
+    }
+
+    private fun placeBestSummary(place: JsonObject): String {
+        val editorial = place.getAsJsonObject("editorialSummary")
+            ?.safeString("text")
+            ?.trim()
+            ?.takeIf { it.isNotBlank() && it != "null" }
+        if (!editorial.isNullOrBlank()) return editorial.take(180)
+        val reviewSnippet = place.getAsJsonArray("reviews")
+            ?.firstOrNull()
+            ?.asJsonObject
+            ?.getAsJsonObject("text")
+            ?.safeString("text")
+            ?.trim()
+            ?.takeIf { it.isNotBlank() && it != "null" }
+        if (!reviewSnippet.isNullOrBlank()) return reviewSnippet.take(160)
+        return place.safeString("formattedAddress")?.take(140).orEmpty()
+    }
+
+    private fun placeFirstPhotoUri(place: JsonObject): String =
+        place.safeString("photoUri")
+            ?: place.getAsJsonArray("photoUris")?.firstOrNull()?.takeIf { !it.isJsonNull }?.asString
+            ?: ""
+
+    private fun placeThemeForDay(dayIndex: Int): String {
+        return when (dayIndex % 4) {
+            0 -> "Gardens, heritage and central city"
+            1 -> "Temples, architecture and viewpoints"
+            2 -> "Museums, parks and cafe evening"
+            else -> "Nature edge and relaxed finish"
+        }
+    }
+
+    private fun buildPlacesItineraryFallback(data: JsonObject, queryText: String): String {
+        val location = data.safeString("location") ?: "your destination"
+        val results = data.getAsJsonArray("results")
+        val sb = StringBuilder()
+        sb.appendLine("## ${requestedItineraryDays(queryText, results?.size() ?: 4)}-day $location vacation itinerary")
+
+        if (results == null || results.size() == 0) {
+            sb.appendLine("No places found in $location.")
+            return sb.toString()
+        }
+
+        val dayCount = requestedItineraryDays(queryText, results.size())
+        val stopLimit = minOf(results.size(), maxOf(dayCount, minOf(dayCount * 2, 10)))
+        sb.appendLine()
+        sb.appendLine("Vacation itinerary table (domain: schedule, preferredPresentation: cards).")
+        sb.appendLine("Keep this as the only itinerary data table. Do not add a separate metrics, facts, overview, gallery, or image section; Android derives the visual hero and day cards from these rows.")
+        sb.appendLine()
+        sb.appendLine("| Day | Area | Place | Category | Rating | Reviews | Summary | Image URL | Maps URL | Website URL |")
+        sb.appendLine("|---|---|---|---|---|---|---|---|---|---|")
+        for (i in 0 until stopLimit) {
+            val place = results[i].asJsonObject
+            val dayIndex = i % dayCount
+            val day = "Day ${dayIndex + 1}"
+            val area = placeThemeForDay(dayIndex)
+            val ratingRaw = place.safeDouble("rating") ?: 0.0
+            val rating = if (ratingRaw > 0) "%.1f".format(ratingRaw) else ""
+            val reviews = place.safeInt("userRatingCount")?.takeIf { it > 0 }?.let { "$it reviews" }.orEmpty()
+            val row = listOf(
+                day,
+                area,
+                placeDisplayName(place),
+                placePrimaryType(place),
+                rating,
+                reviews,
+                placeBestSummary(place),
+                placeFirstPhotoUri(place),
+                place.safeString("googleMapsUri").orEmpty(),
+                place.safeString("websiteUri").orEmpty()
+            ).joinToString(prefix = "| ", separator = " | ", postfix = " |") { markdownTableCell(it) }
+            sb.appendLine(row)
+        }
+
+        sb.appendLine()
+        sb.appendLine("## Sources")
+        sb.appendLine("- Google Places: https://maps.google.com/")
+        sb.appendLine()
+        sb.appendLine("## Quick Actions")
+        sb.appendLine("Action: [Button: View trip places on Maps] ${mapsSearchUrl("top attractions in $location")}")
+        return sb.toString()
+    }
+
+    private fun buildPlacesAttractionsFallback(data: JsonObject): String {
         val location = data.safeString("location") ?: "your area"
         val results = data.getAsJsonArray("results")
 
