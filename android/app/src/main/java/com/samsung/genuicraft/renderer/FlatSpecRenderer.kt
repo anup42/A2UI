@@ -201,6 +201,7 @@ private enum class AdaptiveTablePresentation {
     PLAYLIST_ROWS,
     FEATURE_CARDS,
     KEY_VALUE_PANEL,
+    ITINERARY_CARDS,
     TIMELINE_CARDS,
     METRIC_CARDS
 }
@@ -333,8 +334,9 @@ private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data"
 private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
 private val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
 private val FORMULA_TABLE_DOMAIN_ALIASES = setOf("formula", "calculation", "calculator", "math")
-private val RESTAURANT_TABLE_DOMAIN_ALIASES = setOf("restaurant", "restaurants", "place", "places", "dining")
+private val RESTAURANT_TABLE_DOMAIN_ALIASES = setOf("restaurant", "restaurants", "dining")
 private val NEWS_TABLE_DOMAIN_ALIASES = setOf("news", "headline", "headlines", "article", "articles")
+private val TRAVEL_TABLE_DOMAIN_ALIASES = setOf("travel", "trip", "vacation", "holiday", "itinerary", "places", "attractions")
 private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "restaurants", "schedule", "status", "playlist", "news")
 private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison", "formula")
 
@@ -3117,6 +3119,7 @@ private fun normalizeExplicitTableDomain(value: String?): String? {
         token in FORMULA_TABLE_DOMAIN_ALIASES -> "formula"
         token in RESTAURANT_TABLE_DOMAIN_ALIASES -> "restaurants"
         token in NEWS_TABLE_DOMAIN_ALIASES -> "news"
+        token in TRAVEL_TABLE_DOMAIN_ALIASES -> "schedule"
         else -> token
     }
 }
@@ -4240,6 +4243,19 @@ private fun RenderTableLayout(
         }
     }
 
+    if (looksLikeTravelItineraryTable(tableModel.headers) ||
+        looksLikePlaceStopItineraryTable(tableModel.headers, tableRows)
+    ) {
+        RenderTravelItineraryTable(
+            headers = tableModel.headers,
+            rows = tableRows,
+            modifier = tableModifier,
+            title = tableModel.title,
+            onOpenUrl = onOpenUrl
+        )
+        return
+    }
+
     if (useScrollableNativeTableRendering() && tableRows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactScreen,
@@ -5281,6 +5297,670 @@ private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
         hasSummaryItineraryShape ||
         (hasDayColumn && hasRoadTripColumn) ||
         (hasDayColumn && (activityColumns >= 2 || hasDiningColumn))
+}
+
+private fun looksLikePlaceStopItineraryTable(headers: List<String>, rows: List<List<String>>): Boolean {
+    if (headers.size < 3 || rows.isEmpty()) return false
+    val normalized = headers.map(::normalizeTableHeaderForMatch)
+    val hasDay = normalized.any { it.contains("day") || it.contains("date") }
+    val hasPlace = normalized.any { header ->
+        header in setOf("place", "stop", "attraction", "site", "destination", "name") ||
+            header.contains("place") ||
+            header.contains("stop") ||
+            header.contains("attraction") ||
+            header.contains("destination")
+    }
+    val hasTravelMeta = normalized.any { header ->
+        header.contains("rating") ||
+            header.contains("review") ||
+            header.contains("address") ||
+            header.contains("maps") ||
+            header.contains("website") ||
+            header.contains("image") ||
+            header.contains("photo")
+    }
+    return hasDay && hasPlace && hasTravelMeta
+}
+
+private fun isItineraryActionUrlLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized.contains("maps") ||
+        normalized.contains("direction") ||
+        normalized.contains("website") ||
+        normalized.contains("booking") ||
+        normalized.contains("reservation") ||
+        normalized.contains("action url") ||
+        normalized == "url" ||
+        normalized == "link" ||
+        normalized.endsWith(" link")
+}
+
+private fun isItineraryMetricLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized.contains("rating") ||
+        normalized.contains("review") ||
+        normalized.contains("price") ||
+        normalized.contains("duration") ||
+        normalized.contains("time") ||
+        normalized.contains("distance") ||
+        normalized.contains("difficulty")
+}
+
+private fun isItineraryPlaceLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized in setOf("place", "stop", "attraction", "site", "destination", "name", "activity") ||
+        normalized.contains("place") ||
+        normalized.contains("stop") ||
+        normalized.contains("attraction") ||
+        normalized.contains("destination")
+}
+
+private fun isItineraryAreaLabel(label: String): Boolean {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return normalized.contains("area") ||
+        normalized.contains("focus") ||
+        normalized == "title" ||
+        normalized.contains("route") ||
+        normalized.contains("district") ||
+        normalized.contains("neighborhood") ||
+        normalized.contains("location")
+}
+
+private fun itineraryColumnIndex(headers: List<String>, predicate: (String) -> Boolean): Int? =
+    headers.indices.firstOrNull { index -> predicate(headers[index]) }
+
+private fun itineraryCell(headers: List<String>, row: List<String>, predicate: (String) -> Boolean): String =
+    itineraryColumnIndex(headers, predicate)?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
+
+private fun firstPhotoLikeItineraryImage(headers: List<String>, row: List<String>): String {
+    return headers.indices.firstNotNullOfOrNull { index ->
+        val header = headers.getOrNull(index).orEmpty()
+        val value = row.getOrNull(index).orEmpty().trim()
+        when {
+            value.isBlank() -> null
+            isImageColumnLabel(header) && isPhotoLikeMediaUrl(value) -> value
+            normalizeTableHeaderForMatch(header).contains("photo") && isPhotoLikeMediaUrl(value) -> value
+            else -> null
+        }
+    }.orEmpty()
+}
+
+private fun itineraryImageAlt(headers: List<String>, row: List<String>, fallback: String): String {
+    return itineraryColumnIndex(headers, ::isImageAltColumnLabel)
+        ?.let { row.getOrNull(it).orEmpty().trim() }
+        ?.takeIf { it.isNotBlank() }
+        ?: fallback
+}
+
+private fun itineraryActionLabel(label: String): String {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return when {
+        normalized.contains("direction") || normalized.contains("maps") || normalized.contains("map") -> "Directions"
+        normalized.contains("website") -> "Website"
+        normalized.contains("booking") || normalized.contains("reservation") -> "Book"
+        else -> "Open"
+    }
+}
+
+private fun itineraryActionIcon(label: String): ImageVector {
+    val normalized = normalizeTableHeaderForMatch(label)
+    return when {
+        normalized.contains("direction") || normalized.contains("maps") || normalized.contains("map") -> Icons.Filled.Directions
+        normalized.contains("website") -> Icons.Filled.Language
+        else -> Icons.AutoMirrored.Filled.OpenInNew
+    }
+}
+
+private fun collectItineraryActions(
+    headers: List<String>,
+    row: List<String>
+): List<Pair<String, Pair<ImageVector, String>>> {
+    return headers.indices.mapNotNull { index ->
+        val header = tableHeaderLabel(headers, index)
+        if (!isItineraryActionUrlLabel(header) && !isUrlColumnLabel(header)) return@mapNotNull null
+        val url = SafeContentPolicy.sanitizeActionUrl(row.getOrNull(index).orEmpty().trim()) ?: return@mapNotNull null
+        itineraryActionLabel(header) to (itineraryActionIcon(header) to url)
+    }.distinctBy { it.second.second }.take(3)
+}
+
+private fun itineraryDayToken(headers: List<String>, row: List<String>, fallbackIndex: Int): String {
+    val explicit = itineraryColumnIndex(headers) { label ->
+        val normalized = normalizeTableHeaderForMatch(label)
+        normalized.contains("day") || normalized.contains("date")
+    }?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
+    return explicit.ifBlank { "Day ${fallbackIndex + 1}" }
+}
+
+private fun itineraryAreaTitle(headers: List<String>, row: List<String>, day: String): String {
+    val area = itineraryCell(headers, row, ::isItineraryAreaLabel)
+    val place = itineraryCell(headers, row, ::isItineraryPlaceLabel)
+    return area.ifBlank { place }.ifBlank { day }
+}
+
+private fun itineraryHeroTitle(title: String?, rows: List<List<String>>): String {
+    return title
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?: rows.firstOrNull()
+            ?.firstOrNull()
+            ?.takeIf { it.isNotBlank() }
+            ?.let { "Vacation itinerary" }
+        ?: "Vacation itinerary"
+}
+
+private fun itineraryHeroSubtitle(dayCount: Int, stopCount: Int): String {
+    return "$dayCount day plan with $stopCount curated stops, place photos, ratings, and quick actions."
+}
+
+@Composable
+private fun RenderTravelItineraryTable(
+    headers: List<String>,
+    rows: List<List<String>>,
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    onOpenUrl: (String) -> Unit
+) {
+    val shownRows = rows.filter { row -> row.any { it.trim().isNotBlank() } }
+    if (shownRows.isEmpty()) return
+    val placeStopMode = looksLikePlaceStopItineraryTable(headers, shownRows)
+    val groups = shownRows
+        .mapIndexed { index, row -> itineraryDayToken(headers, row, index) to row }
+        .groupBy({ it.first }, { it.second })
+    val heroImage = shownRows.firstNotNullOfOrNull { row ->
+        firstPhotoLikeItineraryImage(headers, row).takeIf { it.isNotBlank() }
+    }.orEmpty()
+    val heroArea = shownRows.firstNotNullOfOrNull { row ->
+        itineraryAreaTitle(headers, row, "").takeIf { it.isNotBlank() }
+    }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "Vacation itinerary with ${groups.size} days and ${shownRows.size} entries"
+            },
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        TravelItineraryHero(
+            title = itineraryHeroTitle(title, shownRows),
+            subtitle = itineraryHeroSubtitle(groups.size.coerceAtLeast(1), shownRows.size),
+            days = groups.size,
+            stops = shownRows.size,
+            imageUrl = heroImage,
+            area = heroArea
+        )
+        TravelItineraryDayChipRow(groups.keys.toList())
+        groups.entries.forEachIndexed { index, entry ->
+            TravelItineraryNativeDayCard(
+                dayIndex = index,
+                day = entry.key,
+                headers = headers,
+                rows = entry.value,
+                placeStopMode = placeStopMode,
+                onOpenUrl = onOpenUrl
+            )
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryHero(
+    title: String,
+    subtitle: String,
+    days: Int,
+    stops: Int,
+    imageUrl: String,
+    area: String?
+) {
+    val shape = RoundedCornerShape(28.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .clip(shape)
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        Color(0xFF123B8E),
+                        Color(0xFF1E5BC6),
+                        Color(0xFF0F766E)
+                    )
+                )
+            )
+    ) {
+        if (imageUrl.isNotBlank()) {
+            RenderImage(
+                props = mapOf(
+                    "url" to imageUrl,
+                    "fit" to "cover",
+                    "height" to 250,
+                    "alt" to title
+                ),
+                onOpenUrl = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0xFF071833).copy(alpha = 0.68f),
+                                Color(0xFF071833).copy(alpha = 0.46f),
+                                Color(0xFF071833).copy(alpha = 0.88f)
+                            )
+                        )
+                    )
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.radialGradient(
+                            listOf(Color.White.copy(alpha = 0.26f), Color.Transparent)
+                        )
+                    )
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = Color.White.copy(alpha = 0.17f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.16f))
+            ) {
+                Text(
+                    text = area?.takeIf { it.isNotBlank() } ?: "MCP Places itinerary",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(11.dp)) {
+                Text(
+                    text = parseBoldMarkdown(title),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = parseBoldMarkdown(subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.88f),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(9.dp)
+                ) {
+                    TravelItineraryHeroStat("$days", "days", Modifier.weight(1f))
+                    TravelItineraryHeroStat("$stops", "stops", Modifier.weight(1f))
+                    TravelItineraryHeroStat("Maps", "actions", Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryHeroStat(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        color = Color.White.copy(alpha = 0.16f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.18f))
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black),
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White.copy(alpha = 0.78f),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryDayChipRow(days: List<String>) {
+    if (days.isEmpty()) return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        days.forEachIndexed { index, day ->
+            Surface(
+                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+                color = if (index == 0) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                },
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+            ) {
+                Text(
+                    text = NativeTextFormatter.sanitizeDisplayText(day),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = if (index == 0) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryNativeDayCard(
+    dayIndex: Int,
+    day: String,
+    headers: List<String>,
+    rows: List<List<String>>,
+    placeStopMode: Boolean,
+    onOpenUrl: (String) -> Unit
+) {
+    val firstRow = rows.firstOrNull().orEmpty()
+    val area = itineraryAreaTitle(headers, firstRow, day)
+    val imageUrl = rows.firstNotNullOfOrNull { row ->
+        firstPhotoLikeItineraryImage(headers, row).takeIf { it.isNotBlank() }
+    }.orEmpty()
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = "Day ${dayIndex + 1}: $day, ${rows.size} itinerary entries"
+            },
+        shape = RoundedCornerShape(26.dp),
+        colors = flatSpecCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = flatSpecCardBorder()
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(
+                            Brush.linearGradient(
+                                listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "${dayIndex + 1}",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Text(
+                        text = parseBoldMarkdown(area.ifBlank { day }),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = NativeTextFormatter.sanitizeDisplayText("$day · ${rows.size} ${if (rows.size == 1) "stop" else "stops"}"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            if (!placeStopMode) {
+                if (imageUrl.isNotBlank()) {
+                    RenderImage(
+                        props = mapOf(
+                            "url" to imageUrl,
+                            "fit" to "cover",
+                            "aspectRatio" to 1.78f,
+                            "alt" to itineraryImageAlt(headers, firstRow, area)
+                        ),
+                        onOpenUrl = onOpenUrl,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    RenderGeneratedItineraryDayVisual(
+                        day = day,
+                        area = area,
+                        modifier = Modifier.fillMaxWidth().height(136.dp)
+                    )
+                }
+                TravelItineraryDaySections(headers = headers, row = firstRow, onOpenUrl = onOpenUrl)
+            } else {
+                rows.forEachIndexed { stopIndex, row ->
+                    TravelItineraryStopCard(
+                        headers = headers,
+                        row = row,
+                        stopIndex = stopIndex,
+                        fallbackDay = day,
+                        onOpenUrl = onOpenUrl
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryDaySections(
+    headers: List<String>,
+    row: List<String>,
+    onOpenUrl: (String) -> Unit
+) {
+    val excludedIndexes = headers.indices.filter { index ->
+        val label = tableHeaderLabel(headers, index)
+        val value = row.getOrNull(index).orEmpty().trim()
+        value.isBlank() ||
+            isImageColumnLabel(label) ||
+            isImageAltColumnLabel(label) ||
+            isIconColumnLabel(label) ||
+            isItineraryActionUrlLabel(label) ||
+            isUrlColumnLabel(label) ||
+            normalizeTableHeaderForMatch(label).let { it.contains("day") || it.contains("date") } ||
+            isItineraryAreaLabel(label)
+    }.toSet()
+    headers.indices.filterNot { it in excludedIndexes }.forEach { index ->
+        val value = row.getOrNull(index).orEmpty().trim()
+        if (value.isNotBlank()) {
+            ItinerarySectionBlock(label = tableHeaderLabel(headers, index), value = value)
+        }
+    }
+    val actions = collectItineraryActions(headers, row)
+    if (actions.isNotEmpty()) {
+        TravelItineraryActionRow(actions = actions, onOpenUrl = onOpenUrl)
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TravelItineraryStopCard(
+    headers: List<String>,
+    row: List<String>,
+    stopIndex: Int,
+    fallbackDay: String,
+    onOpenUrl: (String) -> Unit
+) {
+    val title = itineraryCell(headers, row, ::isItineraryPlaceLabel)
+        .ifBlank { itineraryAreaTitle(headers, row, fallbackDay) }
+        .ifBlank { "Stop ${stopIndex + 1}" }
+    val imageUrl = firstPhotoLikeItineraryImage(headers, row)
+    val actions = collectItineraryActions(headers, row)
+    val metricIndexes = headers.indices.filter { index ->
+        val label = tableHeaderLabel(headers, index)
+        val value = row.getOrNull(index).orEmpty().trim()
+        value.isNotBlank() && isItineraryMetricLabel(label) && !isLikelyHttpUrl(value)
+    }.take(3)
+    val bodyIndexes = headers.indices.filter { index ->
+        val label = tableHeaderLabel(headers, index)
+        val value = row.getOrNull(index).orEmpty().trim()
+        val normalized = normalizeTableHeaderForMatch(label)
+        value.isNotBlank() &&
+            !isLikelyHttpUrl(value) &&
+            !isImageColumnLabel(label) &&
+            !isImageAltColumnLabel(label) &&
+            !isIconColumnLabel(label) &&
+            !isItineraryActionUrlLabel(label) &&
+            !isUrlColumnLabel(label) &&
+            !isItineraryMetricLabel(label) &&
+            !isItineraryPlaceLabel(label) &&
+            !isItineraryAreaLabel(label) &&
+            !normalized.contains("day") &&
+            !normalized.contains("date")
+    }.take(2)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.46f))
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        if (imageUrl.isNotBlank()) {
+            RenderImage(
+                props = mapOf(
+                    "url" to imageUrl,
+                    "fit" to "cover",
+                    "width" to 112,
+                    "height" to 118,
+                    "alt" to itineraryImageAlt(headers, row, title)
+                ),
+                onOpenUrl = onOpenUrl,
+                modifier = Modifier
+            )
+        } else {
+            RenderGeneratedItineraryDayVisual(
+                day = "${stopIndex + 1}",
+                area = title,
+                modifier = Modifier.size(112.dp, 118.dp)
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            Text(
+                text = parseBoldMarkdown(title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Black),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (metricIndexes.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    metricIndexes.forEach { index ->
+                        TravelItineraryMetricChip(
+                            label = tableHeaderLabel(headers, index),
+                            value = row.getOrNull(index).orEmpty()
+                        )
+                    }
+                }
+            }
+            bodyIndexes.forEach { index ->
+                Text(
+                    text = parseBoldMarkdown(row.getOrNull(index).orEmpty()),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (actions.isNotEmpty()) {
+                TravelItineraryActionRow(actions = actions, onOpenUrl = onOpenUrl)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TravelItineraryMetricChip(label: String, value: String) {
+    val normalizedLabel = normalizeTableHeaderForMatch(label)
+    val text = when {
+        normalizedLabel.contains("rating") -> NativeTextFormatter.sanitizeDisplayText(value).let { "★ $it" }
+        normalizedLabel.contains("review") -> NativeTextFormatter.sanitizeDisplayText(value)
+        else -> NativeTextFormatter.sanitizeDisplayText("${label.trim()}: ${value.trim()}")
+    }
+    Surface(
+        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+    ) {
+        Text(
+            text = parseBoldMarkdown(text),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TravelItineraryActionRow(
+    actions: List<Pair<String, Pair<ImageVector, String>>>,
+    onOpenUrl: (String) -> Unit
+) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        actions.forEachIndexed { index, (label, iconAndUrl) ->
+            RestaurantActionPill(
+                label = label,
+                icon = iconAndUrl.first,
+                primary = index == 0,
+                onClick = { onOpenUrl(iconAndUrl.second) }
+            )
+        }
+    }
 }
 
 private fun compactItinerarySectionLabel(label: String): String {
@@ -8726,6 +9406,11 @@ private fun selectAdaptiveTablePresentation(
     ) {
         return AdaptiveTablePresentation.CLIMATE_CARDS
     }
+    if (looksLikeTravelItineraryTable(table.columns.map { column -> column.label }) ||
+        looksLikePlaceStopItineraryTable(table.columns.map { column -> column.label }, table.rows)
+    ) {
+        return AdaptiveTablePresentation.ITINERARY_CARDS
+    }
     if (table.shape == FlatTableShape.PLAYLIST) {
         return AdaptiveTablePresentation.PLAYLIST_ROWS
     }
@@ -11942,6 +12627,17 @@ private fun RenderDirectTable(
         }
     }
 
+    if (looksLikeTravelItineraryTable(headers) || looksLikePlaceStopItineraryTable(headers, table.rows)) {
+        RenderTravelItineraryTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            title = props["title"]?.toString(),
+            onOpenUrl = onOpenUrl
+        )
+        return
+    }
+
     if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
         val horizontalScrollEnabled = nativeTableShouldScroll(
             compactScreen = compactPortrait,
@@ -12050,6 +12746,13 @@ private fun RenderDirectTable(
             rows = table.rows,
             title = props["title"]?.toString(),
             modifier = tableModifier
+        )
+        AdaptiveTablePresentation.ITINERARY_CARDS -> RenderTravelItineraryTable(
+            headers = headers,
+            rows = table.rows,
+            modifier = tableModifier,
+            title = props["title"]?.toString(),
+            onOpenUrl = onOpenUrl
         )
         AdaptiveTablePresentation.TIMELINE_CARDS -> RenderTimelineTableCards(
             headers = headers,
