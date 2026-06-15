@@ -47,9 +47,13 @@ die() {
 
 apply_network_flags() {
   if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
-    export CURL_CA_BUNDLE=""
-    export REQUESTS_CA_BUNDLE=""
-    export SSL_CERT_FILE=""
+    # Do not set these to an empty string. uv/build-isolation can interpret an
+    # empty cert path as "use native/system certs" and then fail with
+    # "No CA certificates were loaded from the system". Prefer per-tool
+    # insecure-host flags below and leave cert path discovery unpoisoned.
+    unset CURL_CA_BUNDLE
+    unset REQUESTS_CA_BUNDLE
+    unset SSL_CERT_FILE
     export PYTHONHTTPSVERIFY=0
     export GIT_SSL_NO_VERIFY=1
     export HF_HUB_DISABLE_SSL_VERIFICATION=1
@@ -104,8 +108,19 @@ hash -r
 export PYTHONNOUSERSITE=1
 unset PYTHONHOME
 
-python -m pip install -U pip setuptools wheel
-python -m pip install -U uv
+PIP_INSECURE_ARGS=()
+if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
+  PIP_INSECURE_ARGS+=(--trusted-host pypi.org)
+  PIP_INSECURE_ARGS+=(--trusted-host files.pythonhosted.org)
+  PIP_INSECURE_ARGS+=(--trusted-host wheels.vllm.ai)
+  PIP_INSECURE_ARGS+=(--trusted-host download.pytorch.org)
+  PIP_INSECURE_ARGS+=(--trusted-host flashinfer.ai)
+  PIP_INSECURE_ARGS+=(--trusted-host github.com)
+  PIP_INSECURE_ARGS+=(--trusted-host objects.githubusercontent.com)
+fi
+
+python -m pip install "${PIP_INSECURE_ARGS[@]}" -U pip setuptools wheel
+python -m pip install "${PIP_INSECURE_ARGS[@]}" -U uv
 
 UV_INSECURE_ARGS=()
 if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
@@ -119,7 +134,10 @@ if [[ "${A2UI_DISABLE_SSL_VERIFY}" = "1" ]]; then
 fi
 
 uv_pip_install() {
-  python -m uv pip install "${UV_INSECURE_ARGS[@]}" "$@"
+  # Ignore user/global uv config that may force native/system TLS. In corporate
+  # or minimal Linux images this has caused uv to fail during build isolation
+  # with "No CA certificates were loaded from the system".
+  UV_NO_CONFIG=1 python -m uv pip install "${UV_INSECURE_ARGS[@]}" "$@"
 }
 
 case "${A2UI_VLLM_CHANNEL}" in
