@@ -42,6 +42,26 @@ VLLM_MAX_NUM_BATCHED_TOKENS="${VLLM_MAX_NUM_BATCHED_TOKENS:-8192}"
 GEMMA4_SPECULATIVE_TOKENS="${GEMMA4_SPECULATIVE_TOKENS:-4}"
 VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
 
+# Dataset client sampling defaults. These are request-time settings consumed by
+# dataset/src/llm/local_adapter.py, not vLLM server flags.
+export A2UI_QUERY_TEMPERATURE="${A2UI_QUERY_TEMPERATURE:-1.0}"
+export A2UI_RESPONSE_TEMPERATURES="${A2UI_RESPONSE_TEMPERATURES:-1.0}"
+export A2UI_GENUI_TEMPERATURE="${A2UI_GENUI_TEMPERATURE:-0.7}"
+export A2UI_GENUI_REPAIR_TEMPERATURE="${A2UI_GENUI_REPAIR_TEMPERATURE:-0.2}"
+export A2UI_GENUI_FINAL_REGEN_TEMPERATURE="${A2UI_GENUI_FINAL_REGEN_TEMPERATURE:-0.7}"
+export LOCAL_VLLM_TOP_P="${LOCAL_VLLM_TOP_P:-0.95}"
+export LOCAL_VLLM_TOP_K="${LOCAL_VLLM_TOP_K:-64}"
+export LOCAL_VLLM_REPETITION_PENALTY="${LOCAL_VLLM_REPETITION_PENALTY:-1.0}"
+
+# Optional server-side default generation config for direct curl/manual calls
+# that do not pass temperature/top_p/top_k in the request body.
+VLLM_GENERATION_CONFIG="${VLLM_GENERATION_CONFIG:-a2ui}"
+VLLM_DEFAULT_TEMPERATURE="${VLLM_DEFAULT_TEMPERATURE:-1.0}"
+VLLM_DEFAULT_TOP_P="${VLLM_DEFAULT_TOP_P:-${LOCAL_VLLM_TOP_P}}"
+VLLM_DEFAULT_TOP_K="${VLLM_DEFAULT_TOP_K:-${LOCAL_VLLM_TOP_K}}"
+VLLM_DEFAULT_REPETITION_PENALTY="${VLLM_DEFAULT_REPETITION_PENALTY:-${LOCAL_VLLM_REPETITION_PENALTY}}"
+VLLM_GENERATION_CONFIG_DIR="${VLLM_GENERATION_CONFIG_DIR:-/tmp/a2ui_gemma4_generation_config}"
+
 VLLM_CLEAN_STALE_PROCESSES="${VLLM_CLEAN_STALE_PROCESSES:-1}"
 VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS="${VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS:-10}"
 VLLM_RESTART_ON_CRASH="${VLLM_RESTART_ON_CRASH:-1}"
@@ -59,6 +79,11 @@ is_truthy() {
     1|true|TRUE|yes|YES|y|Y|on|ON) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+vllm_supports_flag() {
+  local flag="$1"
+  vllm serve --help 2>&1 | grep -q -- "${flag}"
 }
 
 resolve_model() {
@@ -208,6 +233,30 @@ fi
 
 detect_gpu_layout
 
+if [[ "${VLLM_GENERATION_CONFIG}" = "a2ui" ]]; then
+  mkdir -p "${VLLM_GENERATION_CONFIG_DIR}"
+  python - "${VLLM_GENERATION_CONFIG_DIR}/generation_config.json" \
+    "${VLLM_DEFAULT_TEMPERATURE}" \
+    "${VLLM_DEFAULT_TOP_P}" \
+    "${VLLM_DEFAULT_TOP_K}" \
+    "${VLLM_DEFAULT_REPETITION_PENALTY}" <<'PY'
+import json
+import sys
+
+path, temperature, top_p, top_k, repetition_penalty = sys.argv[1:6]
+payload = {
+    "do_sample": True,
+    "temperature": float(temperature),
+    "top_p": float(top_p),
+    "top_k": int(top_k),
+    "repetition_penalty": float(repetition_penalty),
+}
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump(payload, handle, indent=2)
+PY
+  VLLM_GENERATION_CONFIG="${VLLM_GENERATION_CONFIG_DIR}"
+fi
+
 cmd=(
   vllm serve "${TARGET_MODEL_PATH}"
   --served-model-name "${GEMMA4_MODEL_ID}"
@@ -226,6 +275,14 @@ cmd=(
   --speculative-config "{\"model\":\"${ASSISTANT_MODEL_PATH}\",\"num_speculative_tokens\":${GEMMA4_SPECULATIVE_TOKENS}}"
 )
 
+if [[ -n "${VLLM_GENERATION_CONFIG}" && "${VLLM_GENERATION_CONFIG}" != "none" ]]; then
+  if vllm_supports_flag "--generation-config"; then
+    cmd+=(--generation-config "${VLLM_GENERATION_CONFIG}")
+  else
+    echo "Warning: this vLLM install does not expose --generation-config; server defaults will use model/vLLM defaults." >&2
+  fi
+fi
+
 if [[ -n "${VLLM_EXTRA_ARGS}" ]]; then
   # shellcheck disable=SC2206
   extra=( ${VLLM_EXTRA_ARGS} )
@@ -242,6 +299,8 @@ echo "  max_model_len=${VLLM_MAX_MODEL_LEN}"
 echo "  gpu_memory_utilization=${VLLM_GPU_MEMORY_UTILIZATION}"
 echo "  max_num_batched_tokens=${VLLM_MAX_NUM_BATCHED_TOKENS}"
 echo "  speculative_tokens=${GEMMA4_SPECULATIVE_TOKENS}"
+echo "  request_sampling: query_temp=${A2UI_QUERY_TEMPERATURE} response_temps=${A2UI_RESPONSE_TEMPERATURES} genui_temp=${A2UI_GENUI_TEMPERATURE} top_p=${LOCAL_VLLM_TOP_P} top_k=${LOCAL_VLLM_TOP_K} repetition_penalty=${LOCAL_VLLM_REPETITION_PENALTY}"
+echo "  server_generation_config=${VLLM_GENERATION_CONFIG}"
 echo "  log: ${VLLM_RUN_LOG}"
 printf '  command:'
 printf ' %q' "${cmd[@]}"
