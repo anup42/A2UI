@@ -151,6 +151,22 @@ port_listener_pids() {
   fi
 }
 
+gpu_vllm_pids() {
+  command -v nvidia-smi >/dev/null 2>&1 || return 0
+  local pid cmdline
+  nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits 2>/dev/null \
+    | tr -d ' ' \
+    | awk 'NF && $0 ~ /^[0-9]+$/ {print $0}' \
+    | sort -u \
+    | while IFS= read -r pid; do
+        [[ -n "${pid}" && "${pid}" != "$$" ]] || continue
+        cmdline="$(ps -o comm=,args= -p "${pid}" 2>/dev/null || true)"
+        if grep -Eq 'VLLM.*Worker_TP|EngineCore|vllm[[:space:]]+serve|vllm\.entrypoints\.openai|multiproc_executor' <<<"${cmdline}"; then
+          printf '%s\n' "${pid}"
+        fi
+      done
+}
+
 terminate_pids() {
   local reason="$1"
   shift || true
@@ -208,6 +224,9 @@ cleanup_stale_vllm_processes() {
   while IFS= read -r pid; do
     [[ -n "${pid}" ]] && pids+=("${pid}")
   done < <(user_pids_matching 'VLLM.*Worker_TP|EngineCore|vllm[[:space:]]+serve|vllm\.entrypoints\.openai|multiproc_executor')
+  while IFS= read -r pid; do
+    [[ -n "${pid}" ]] && pids+=("${pid}")
+  done < <(gpu_vllm_pids)
   while IFS= read -r pid; do
     [[ -n "${pid}" ]] && pids+=("${pid}")
   done < <(port_listener_pids)
