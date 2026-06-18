@@ -4,6 +4,7 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,6 +17,9 @@ from .http_transport import urlopen
 
 
 class LocalAdapter(BaseLLMAdapter):
+    _endpoint_pool_lock = threading.Lock()
+    _endpoint_pool_index = 0
+
     def __init__(self, spec):
         super().__init__(spec)
         self._model_path: Optional[str] = None
@@ -27,6 +31,52 @@ class LocalAdapter(BaseLLMAdapter):
     def _is_http_endpoint(endpoint: str) -> bool:
         lowered = endpoint.lower()
         return lowered.startswith("http://") or lowered.startswith("https://")
+
+    @staticmethod
+    def _normalize_http_endpoint(endpoint: str) -> str:
+        normalized = (endpoint or "").strip()
+        if not normalized:
+            return ""
+        trimmed = normalized.rstrip("/")
+        lowered = trimmed.lower()
+        if lowered.endswith("/v1/chat/completions"):
+            return trimmed
+        if lowered.endswith("/chat/completions"):
+            return trimmed
+        if lowered.endswith("/v1/models"):
+            return f"{trimmed[:-len('/models')]}/chat/completions"
+        if lowered.endswith("/v1"):
+            return f"{trimmed}/chat/completions"
+        if re.match(r"^https?://[^/]+$", trimmed, re.IGNORECASE):
+            return f"{trimmed}/v1/chat/completions"
+        return normalized
+
+    @classmethod
+    def _endpoint_pool(cls, fallback: str) -> list[str]:
+        raw = (os.environ.get("LOCAL_VLLM_ENDPOINTS") or "").strip()
+        endpoints: list[str] = []
+        if raw:
+            for part in re.split(r"[,;\s]+", raw):
+                endpoint = cls._normalize_http_endpoint(part)
+                if endpoint and cls._is_http_endpoint(endpoint) and endpoint not in endpoints:
+                    endpoints.append(endpoint)
+
+        fallback_endpoint = cls._normalize_http_endpoint(fallback)
+        if not endpoints and fallback_endpoint and cls._is_http_endpoint(fallback_endpoint):
+            endpoints.append(fallback_endpoint)
+        return endpoints
+
+    @classmethod
+    def _select_http_endpoint(cls, fallback: str) -> str:
+        endpoints = cls._endpoint_pool(fallback)
+        if not endpoints:
+            return fallback
+        if len(endpoints) == 1:
+            return endpoints[0]
+        with cls._endpoint_pool_lock:
+            endpoint = endpoints[cls._endpoint_pool_index % len(endpoints)]
+            cls._endpoint_pool_index += 1
+        return endpoint
 
     @staticmethod
     def _is_truthy(value: Optional[str]) -> bool:
@@ -399,7 +449,7 @@ class LocalAdapter(BaseLLMAdapter):
         seed: Optional[int],
         json_mode: bool,
     ) -> LLMResult:
-        endpoint = (self.spec.endpoint or "").strip()
+        endpoint = self._select_http_endpoint((self.spec.endpoint or "").strip())
         if not endpoint:
             return LLMResult(
                 text="",
@@ -617,7 +667,7 @@ class LocalAdapter(BaseLLMAdapter):
         if not prompts:
             return []
 
-        endpoint = (self.spec.endpoint or "").strip()
+        endpoint = self._select_http_endpoint((self.spec.endpoint or "").strip())
         if not self._is_http_endpoint(endpoint):
             return [
                 self.generate(

@@ -63,6 +63,10 @@ VLLM_DEFAULT_REPETITION_PENALTY="${VLLM_DEFAULT_REPETITION_PENALTY:-${LOCAL_VLLM
 VLLM_GENERATION_CONFIG_DIR="${VLLM_GENERATION_CONFIG_DIR:-/tmp/a2ui_gemma4_generation_config}"
 
 VLLM_CLEAN_STALE_PROCESSES="${VLLM_CLEAN_STALE_PROCESSES:-1}"
+# all: clean same-user vLLM processes on all GPUs plus the configured port.
+# gpu: clean same-user vLLM processes only on CUDA_VISIBLE_DEVICES plus the configured port.
+# port: clean only the configured port listener.
+VLLM_CLEAN_STALE_SCOPE="${VLLM_CLEAN_STALE_SCOPE:-all}"
 VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS="${VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS:-10}"
 VLLM_RESTART_ON_CRASH="${VLLM_RESTART_ON_CRASH:-1}"
 # 0 means infinite restarts.
@@ -154,7 +158,16 @@ port_listener_pids() {
 gpu_vllm_pids() {
   command -v nvidia-smi >/dev/null 2>&1 || return 0
   local pid cmdline
-  nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits 2>/dev/null \
+  local -a query_cmd=(nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits)
+  if [[ "${VLLM_CLEAN_STALE_SCOPE}" = "gpu" && -n "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+    local gpu
+    for gpu in ${CUDA_VISIBLE_DEVICES//,/ }; do
+      [[ -n "${gpu}" ]] || continue
+      nvidia-smi -i "${gpu}" --query-compute-apps=pid --format=csv,noheader,nounits 2>/dev/null || true
+    done
+  else
+    "${query_cmd[@]}" 2>/dev/null
+  fi \
     | tr -d ' ' \
     | awk 'NF && $0 ~ /^[0-9]+$/ {print $0}' \
     | sort -u \
@@ -219,14 +232,22 @@ cleanup_stale_vllm_processes() {
   if ! is_truthy "${VLLM_CLEAN_STALE_PROCESSES}"; then
     return 0
   fi
+  if [[ ! "${VLLM_CLEAN_STALE_SCOPE}" =~ ^(all|gpu|port)$ ]]; then
+    echo "Unsupported VLLM_CLEAN_STALE_SCOPE=${VLLM_CLEAN_STALE_SCOPE}; use all, gpu, or port." >&2
+    exit 1
+  fi
   local -a pids=()
   local pid
-  while IFS= read -r pid; do
-    [[ -n "${pid}" ]] && pids+=("${pid}")
-  done < <(user_pids_matching 'VLLM.*Worker_TP|EngineCore|vllm[[:space:]]+serve|vllm\.entrypoints\.openai|multiproc_executor')
-  while IFS= read -r pid; do
-    [[ -n "${pid}" ]] && pids+=("${pid}")
-  done < <(gpu_vllm_pids)
+  if [[ "${VLLM_CLEAN_STALE_SCOPE}" = "all" ]]; then
+    while IFS= read -r pid; do
+      [[ -n "${pid}" ]] && pids+=("${pid}")
+    done < <(user_pids_matching 'VLLM.*Worker_TP|EngineCore|vllm[[:space:]]+serve|vllm\.entrypoints\.openai|multiproc_executor')
+  fi
+  if [[ "${VLLM_CLEAN_STALE_SCOPE}" != "port" ]]; then
+    while IFS= read -r pid; do
+      [[ -n "${pid}" ]] && pids+=("${pid}")
+    done < <(gpu_vllm_pids)
+  fi
   while IFS= read -r pid; do
     [[ -n "${pid}" ]] && pids+=("${pid}")
   done < <(port_listener_pids)
