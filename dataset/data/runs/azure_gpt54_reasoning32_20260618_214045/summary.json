@@ -1,0 +1,74 @@
+﻿[
+    {
+        "config":  "gpt54_mini_no_reasoning",
+        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_mini_no_reasoning",
+        "query_count":  32,
+        "response_count":  32,
+        "ir_count":  32,
+        "overall_score":  87.0409,
+        "schema_valid_strict_rate":  1,
+        "content_coverage_avg":  0.9478,
+        "intent_score_avg":  0.8906,
+        "status":  "complete"
+    },
+    {
+        "config":  "gpt54_mini_reasoning_medium",
+        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_mini_reasoning_medium",
+        "query_count":  32,
+        "response_count":  32,
+        "ir_count":  32,
+        "overall_score":  81.8636,
+        "schema_valid_strict_rate":  1,
+        "content_coverage_avg":  0.9674,
+        "intent_score_avg":  0.849,
+        "status":  "complete"
+    },
+    {
+        "config":  "gpt54_no_reasoning",
+        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_no_reasoning",
+        "query_count":  32,
+        "response_count":  32,
+        "ir_count":  32,
+        "overall_score":  95.4057,
+        "schema_valid_strict_rate":  1,
+        "content_coverage_avg":  0.95,
+        "intent_score_avg":  0.7969,
+        "status":  "complete"
+    },
+    {
+        "config":  "gpt54_pro_no_reasoning",
+        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_pro_no_reasoning",
+        "query_count":  32,
+        "response_count":  4,
+        "ir_count":  0,
+        "overall_score":  null,
+        "schema_valid_strict_rate":  null,
+        "content_coverage_avg":  null,
+        "intent_score_avg":  null,
+        "status":  "stage1_or_stage2_partial"
+    },
+    {
+        "config":  "gpt54_pro_reasoning_medium",
+        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_pro_reasoning_medium",
+        "query_count":  32,
+        "response_count":  4,
+        "ir_count":  0,
+        "overall_score":  null,
+        "schema_valid_strict_rate":  null,
+        "content_coverage_avg":  null,
+        "intent_score_avg":  null,
+        "status":  "stage1_or_stage2_partial"
+    },
+    {
+        "config":  "gpt54_reasoning_medium",
+        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_reasoning_medium",
+        "query_count":  32,
+        "response_count":  32,
+        "ir_count":  32,
+        "overall_score":  100,
+        "schema_valid_strict_rate":  1,
+        "content_coverage_avg":  0.9612,
+        "intent_score_avg":  0.8542,
+        "status":  "complete"
+    }
+]

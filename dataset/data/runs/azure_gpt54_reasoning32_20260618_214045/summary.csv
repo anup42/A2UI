@@ -1,0 +1,7 @@
+﻿"config","run_id","query_count","response_count","ir_count","overall_score","schema_valid_strict_rate","content_coverage_avg","intent_score_avg","status"
+"gpt54_mini_no_reasoning","azure_gpt54_reasoning32_20260618_214045/gpt54_mini_no_reasoning","32","32","32","87.0409","1","0.9478","0.8906","complete"
+"gpt54_mini_reasoning_medium","azure_gpt54_reasoning32_20260618_214045/gpt54_mini_reasoning_medium","32","32","32","81.8636","1","0.9674","0.849","complete"
+"gpt54_no_reasoning","azure_gpt54_reasoning32_20260618_214045/gpt54_no_reasoning","32","32","32","95.4057","1","0.95","0.7969","complete"
+"gpt54_pro_no_reasoning","azure_gpt54_reasoning32_20260618_214045/gpt54_pro_no_reasoning","32","4","0",,,,,"stage1_or_stage2_partial"
+"gpt54_pro_reasoning_medium","azure_gpt54_reasoning32_20260618_214045/gpt54_pro_reasoning_medium","32","4","0",,,,,"stage1_or_stage2_partial"
+"gpt54_reasoning_medium","azure_gpt54_reasoning32_20260618_214045/gpt54_reasoning_medium","32","32","32","100","1","0.9612","0.8542","complete"

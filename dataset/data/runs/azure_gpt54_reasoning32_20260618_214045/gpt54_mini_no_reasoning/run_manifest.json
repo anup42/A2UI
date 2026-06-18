@@ -1,0 +1,64 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-06-18T16:17:01Z",
+  "run_id": "azure_gpt54_reasoning32_20260618_214045/gpt54_mini_no_reasoning",
+  "stage": 3,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "1326c2dd32775ce06693a013c36de908aaa63438",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "azure_gpt54_mini_benchmark",
+    "provider": "azure_openai",
+    "model": "gpt-5.4-mini"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "a3733e1e35cb3868773608c78a6e6f8124545e5cb8c57b7523f70cb3b3befd1b",
+      "configs\\models.yaml": "3a952cdb89347bd3e9dcb666c3a98e3d9f4cd2370df06e06dbf723c31172181e"
+    },
+    "combined_sha256": "7b01d8eb0ff952b65ab63123232dd1c4618cc1c9c0cd2cb776586e882b3ba237"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+    "queries_path": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\queries.jsonl",
+    "responses_path": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\responses.jsonl",
+    "genui_path": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\genui.jsonl",
+    "metrics_path": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\aggregates.json",
+    "artifacts_dir": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\artifacts",
+    "manifest_path": "data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "3",
+      "--model",
+      "azure_gpt54_mini_benchmark",
+      "--run_id",
+      "azure_gpt54_reasoning32_20260618_214045/gpt54_mini_no_reasoning",
+      "--max_genui_total",
+      "32",
+      "--genui_batch_size",
+      "8",
+      "--rate_limit_qps",
+      "0.5"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

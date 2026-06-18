@@ -268,6 +268,19 @@ def _apply_env_int_override(run_cfg: dict, key: str, env_key: str) -> None:
         raise SystemExit(f"{env_key} must be an integer, got: {raw!r}")
 
 
+def _apply_env_bool_override(run_cfg: dict, key: str, env_key: str) -> None:
+    raw = (os.environ.get(env_key) or "").strip().lower()
+    if not raw:
+        return
+    if raw in {"1", "true", "yes", "y", "on"}:
+        run_cfg[key] = True
+        return
+    if raw in {"0", "false", "no", "n", "off"}:
+        run_cfg[key] = False
+        return
+    raise SystemExit(f"{env_key} must be boolean, got: {raw!r}")
+
+
 def _endpoint_ready(endpoint: str, timeout_s: float = 2.0) -> bool:
     check_url = endpoint
     if check_url.endswith("/v1/chat/completions"):
@@ -632,6 +645,8 @@ def main() -> None:
     _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_prompt_max_tokens", "A2UI_GENUI_PROMPT_MAX_TOKENS")
+    _apply_env_bool_override(run_cfg, "response_group_by_intent", "A2UI_STAGE2_GROUP_BY_INTENT")
+    _apply_env_bool_override(run_cfg, "response_batch_fallback_per_query", "A2UI_STAGE2_BATCH_FALLBACK_PER_QUERY")
     if args.stage1_batch_size is not None:
         run_cfg["batch_size_queries"] = int(args.stage1_batch_size)
     if args.stage2_batch_size is not None:

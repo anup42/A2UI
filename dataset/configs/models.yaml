@@ -35,6 +35,39 @@
       tpm: null
       rpd: null
       note: "Azure OpenAI Responses API deployment configured by AZURE_OPENAI_* env; prompt-enforced JSON keeps Stage 1 arrays valid"
+  - name: azure_gpt54_mini_benchmark
+    provider: azure_openai
+    model: gpt-5.4-mini
+    supports_json_mode: false
+    endpoint: https://genui001.openai.azure.com/openai/responses?api-version=2025-04-01-preview
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      max_output_tokens: 16384
+      note: "Azure OpenAI Responses API benchmark alias. API key is supplied through AZURE_OPENAI_API_KEY."
+  - name: azure_gpt54_benchmark
+    provider: azure_openai
+    model: gpt-5.4
+    supports_json_mode: false
+    endpoint: https://genui001.openai.azure.com/openai/responses?api-version=2025-04-01-preview
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      max_output_tokens: 16384
+      note: "Azure OpenAI Responses API benchmark alias. API key is supplied through AZURE_OPENAI_API_KEY."
+  - name: azure_gpt54_pro_benchmark
+    provider: azure_openai
+    model: gpt-5.4-pro
+    supports_json_mode: false
+    endpoint: https://anupsrib-0085-resource.cognitiveservices.azure.com/openai/responses?api-version=2025-04-01-preview
+    limits:
+      rpm: null
+      tpm: null
+      rpd: null
+      max_output_tokens: 16384
+      note: "Azure OpenAI Responses API benchmark alias. API key is supplied through AZURE_OPENAI_API_KEY."
   - name: perplexity_gpt5
     provider: perplexity
     model: sonar-pro

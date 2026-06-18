@@ -1,0 +1,49 @@
+﻿{
+    "run_group":  "azure_gpt54_reasoning32_20260618_214045",
+    "created_at":  "2026-06-18T16:10:45.2885832Z",
+    "stage1_prompt":  "prompts/query_gen_gemma_v3_diverse_openings.md",
+    "stage2_prompt":  "prompts/response_gen.md",
+    "stage2_batch_prompt":  "prompts/response_gen_batch.md",
+    "stage3_prompt":  "prompts/genui_gen_gemma_v12_structure_preserve.md",
+    "target_per_stage":  32,
+    "one_query_per_intent":  true,
+    "max_parallel":  3,
+    "configs":  [
+                    {
+                        "name":  "gpt54_mini_no_reasoning",
+                        "model":  "azure_gpt54_mini_benchmark",
+                        "reasoning_effort":  "none",
+                        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_mini_no_reasoning"
+                    },
+                    {
+                        "name":  "gpt54_mini_reasoning_medium",
+                        "model":  "azure_gpt54_mini_benchmark",
+                        "reasoning_effort":  "medium",
+                        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_mini_reasoning_medium"
+                    },
+                    {
+                        "name":  "gpt54_no_reasoning",
+                        "model":  "azure_gpt54_benchmark",
+                        "reasoning_effort":  "none",
+                        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_no_reasoning"
+                    },
+                    {
+                        "name":  "gpt54_reasoning_medium",
+                        "model":  "azure_gpt54_benchmark",
+                        "reasoning_effort":  "medium",
+                        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_reasoning_medium"
+                    },
+                    {
+                        "name":  "gpt54_pro_no_reasoning",
+                        "model":  "azure_gpt54_pro_benchmark",
+                        "reasoning_effort":  "none",
+                        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_pro_no_reasoning"
+                    },
+                    {
+                        "name":  "gpt54_pro_reasoning_medium",
+                        "model":  "azure_gpt54_pro_benchmark",
+                        "reasoning_effort":  "medium",
+                        "run_id":  "azure_gpt54_reasoning32_20260618_214045/gpt54_pro_reasoning_medium"
+                    }
+                ]
+}

@@ -1,0 +1,8 @@
+2026-06-19 02:25:37 INFO dataset: Stage2 async asset processing enabled workers=8
+2026-06-19 02:26:53 ERROR dataset: Stage2 error query_id=q_000003: Azure OpenAI response did not include output text.
+2026-06-19 02:28:02 ERROR dataset: Stage2 error query_id=q_000004: Azure OpenAI response did not include output text.
+2026-06-19 02:29:11 ERROR dataset: Stage2 error query_id=q_000005: Azure OpenAI response did not include output text.
+2026-06-19 02:30:13 ERROR dataset: Stage2 error query_id=q_000006: Azure OpenAI response did not include output text.
+2026-06-19 02:31:28 ERROR dataset: Stage2 error query_id=q_000007: Azure OpenAI response did not include output text.
+2026-06-19 02:32:35 ERROR dataset: Stage2 error query_id=q_000008: Azure OpenAI response did not include output text.
+2026-06-19 02:33:48 ERROR dataset: Stage2 error query_id=q_000009: Azure OpenAI response did not include output text.

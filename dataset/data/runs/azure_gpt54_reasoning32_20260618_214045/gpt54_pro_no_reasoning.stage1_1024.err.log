@@ -1,0 +1,32 @@
+2026-06-19 01:50:35 INFO dataset: Stage1 intent=Recipe created=1 total=1
+2026-06-19 01:50:35 INFO dataset: Stage1 intent=Localization created=1 total=1
+2026-06-19 01:50:35 INFO dataset: Stage1 intent=Technical support created=1 total=1
+2026-06-19 01:50:35 INFO dataset: Stage1 intent=Creating Writing created=1 total=1
+2026-06-19 01:50:35 INFO dataset: Stage1 intent=Event Schedule created=1 total=1
+2026-06-19 01:51:12 ERROR dataset: Stage1 parse error intent=Research Analysis: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 01:51:12 INFO dataset: Stage1 intent=Research Analysis created=1 total=1
+2026-06-19 01:51:12 INFO dataset: Stage1 intent=Comparison created=1 total=1
+2026-06-19 01:52:32 INFO dataset: Stage1 intent=calculation created=1 total=1
+2026-06-19 01:52:32 INFO dataset: Stage1 intent=Travel created=1 total=1
+2026-06-19 01:53:04 ERROR dataset: Stage1 parse error intent=Navigation: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 01:53:34 ERROR dataset: Stage1 parse error intent=Navigation: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 01:53:34 INFO dataset: Stage1 intent=Navigation created=1 total=1
+2026-06-19 01:53:34 INFO dataset: Stage1 intent=Education created=1 total=1
+2026-06-19 01:53:34 INFO dataset: Stage1 intent=Documentation created=1 total=1
+2026-06-19 01:54:26 ERROR dataset: Stage1 parse error intent=media playback: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 01:55:51 ERROR dataset: Stage1 parse error intent=media playback: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 01:56:17 INFO dataset: Stage1 intent=media playback created=1 total=1
+2026-06-19 01:57:03 INFO dataset: Stage1 intent=qr scanner created=1 total=1
+2026-06-19 01:58:03 INFO dataset: Stage1 intent=status check created=1 total=1
+2026-06-19 01:59:39 INFO dataset: Stage1 intent=notification created=1 total=1
+2026-06-19 02:00:45 INFO dataset: Stage1 intent=Finance created=1 total=1
+2026-06-19 02:02:06 INFO dataset: Stage1 intent=Healthcare created=1 total=1
+2026-06-19 02:04:43 INFO dataset: Stage1 intent=Legal created=1 total=1
+2026-06-19 02:05:09 ERROR dataset: Stage1 error intent=Real Estate: Azure OpenAI response did not include output text.
+2026-06-19 02:07:03 ERROR dataset: Stage1 parse error intent=Real Estate: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 02:07:43 INFO dataset: Stage1 intent=Real Estate created=1 total=1
+2026-06-19 02:09:12 INFO dataset: Stage1 intent=Career created=1 total=1
+2026-06-19 02:10:31 ERROR dataset: Stage1 parse error intent=Food and Dining: Unterminated string starting at: line 3 column 19 (char 24)
+2026-06-19 02:11:31 INFO dataset: Stage1 intent=Food and Dining created=1 total=1
+2026-06-19 02:13:01 INFO dataset: Stage1 intent=Home Services created=1 total=1
+2026-06-19 02:14:53 INFO dataset: Stage1 intent=Automotive created=1 total=1
