@@ -26,7 +26,8 @@ $progressPath = Join-Path $runDir "cycle_progress.json"
 
 function Write-Log([string]$Message) {
   $line = "[{0}] {1}" -f (Get-Date -Format o), $Message
-  $line | Tee-Object -FilePath $cycleLog -Append
+  Write-Output $line
+  Add-Content -Path $cycleLog -Value $line -Encoding UTF8
 }
 
 function Count-Jsonl([string]$Path) {
