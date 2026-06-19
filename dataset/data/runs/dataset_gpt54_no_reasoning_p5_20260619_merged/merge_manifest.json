@@ -1,0 +1,46 @@
+{
+  "run_id": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+  "source_run_group": "dataset_gpt54_no_reasoning_p5_20260619",
+  "created_at": "2026-06-19T19:43:01Z",
+  "merge_policy": "renumber query_id/response_id/ui_id globally; copy referenced assets with remapped response-id filename prefixes",
+  "sources": [
+    {
+      "name": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "queries": 1000,
+      "responses": 240,
+      "genui": 231
+    },
+    {
+      "name": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "queries": 1000,
+      "responses": 224,
+      "genui": 224
+    },
+    {
+      "name": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "queries": 1000,
+      "responses": 240,
+      "genui": 230
+    },
+    {
+      "name": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "queries": 1000,
+      "responses": 239,
+      "genui": 231
+    },
+    {
+      "name": "dataset_gpt54_no_reasoning_p5_20260619_part05",
+      "queries": 1000,
+      "responses": 240,
+      "genui": 224
+    }
+  ],
+  "totals": {
+    "queries": 5000,
+    "responses": 1183,
+    "genui": 1140,
+    "assets_copied": 3672,
+    "missing_assets": 0
+  },
+  "missing_assets": []
+}
