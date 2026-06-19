@@ -4,7 +4,9 @@ param(
   [int]$PerShardTarget = 4000,
   [int]$Stage1Chunk = 1000,
   [int]$Stage2Chunk = 1000,
-  [int]$Stage3Chunk = 2000,
+  [int]$Stage3Chunk = 1000,
+  [switch]$InterleaveResponseIr,
+  [int]$ResponseIrChunk = 1,
   [string]$Model = "azure_gpt54_benchmark",
   [string]$BaseStage1Prompt = "prompts/query_gen_gemma_v3_diverse_openings.md",
   [string]$Stage3Prompt = "prompts/genui_gen_gemma_v12_structure_preserve.md"
@@ -66,6 +68,8 @@ Make this shard intentionally different from the other shards:
     [string]$Stage2Chunk,
     "-Stage3Chunk",
     [string]$Stage3Chunk,
+    "-ResponseIrChunk",
+    [string]$ResponseIrChunk,
     "-Model",
     $Model,
     "-Stage1Prompt",
@@ -73,6 +77,9 @@ Make this shard intentionally different from the other shards:
     "-Stage3Prompt",
     $Stage3Prompt
   )
+  if ($InterleaveResponseIr) {
+    $argsList += "-InterleaveResponseIr"
+  }
   $proc = Start-Process -FilePath powershell.exe `
     -ArgumentList $argsList `
     -WindowStyle Hidden `
@@ -106,7 +113,9 @@ $manifest = [ordered]@{
     stage1 = $Stage1Chunk
     stage2 = $Stage2Chunk
     stage3 = $Stage3Chunk
+    response_ir = $ResponseIrChunk
   }
+  mode = if ($InterleaveResponseIr) { "interleave_response_ir" } else { "stage_chunks" }
   base_stage1_prompt = $BaseStage1Prompt
   stage3_prompt = $Stage3Prompt
   runs = $started

@@ -3,7 +3,9 @@ param(
   [int]$Target = 20000,
   [int]$Stage1Chunk = 1000,
   [int]$Stage2Chunk = 1000,
-  [int]$Stage3Chunk = 2000,
+  [int]$Stage3Chunk = 1000,
+  [switch]$InterleaveResponseIr,
+  [int]$ResponseIrChunk = 1,
   [string]$Model = "azure_gpt54_benchmark",
   [string]$Stage1Prompt = "prompts/query_gen_gemma_v3_diverse_openings.md",
   [string]$Stage3Prompt = "prompts/genui_gen_gemma_v12_structure_preserve.md",
@@ -58,7 +60,9 @@ function Write-ProgressJson([int]$Cycle, [int]$Queries, [int]$Responses, [int]$G
       stage1 = $Stage1Chunk
       stage2 = $Stage2Chunk
       stage3 = $Stage3Chunk
+      response_ir = $ResponseIrChunk
     }
+    mode = if ($InterleaveResponseIr) { "interleave_response_ir" } else { "stage_chunks" }
     updated_at = (Get-Date).ToUniversalTime().ToString("o")
   }
   $payload | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 -Path $progressPath
@@ -111,7 +115,7 @@ $intentCount = [Math]::Max(1, (Count-Intents))
 $kPerIntent = [int][Math]::Ceiling($Target / $intentCount) + 2
 
 Write-Log "Cycle generation started run_id=$RunId model=$Model target=$Target intent_count=$intentCount k_per_intent=$kPerIntent"
-Write-Log "Prompts stage1=$Stage1Prompt stage2=prompts/response_gen.md stage3=$Stage3Prompt prompt_cache=disabled reasoning=none"
+Write-Log "Prompts stage1=$Stage1Prompt stage2=prompts/response_gen.md stage3=$Stage3Prompt prompt_cache=disabled reasoning=none mode=$(if ($InterleaveResponseIr) { 'interleave_response_ir' } else { 'stage_chunks' }) response_ir_chunk=$ResponseIrChunk"
 
 $cycle = 0
 while ($true) {
@@ -132,7 +136,12 @@ while ($true) {
   $cycle += 1
   Write-Log "CYCLE $cycle counts before queries=$queries responses=$responses genui=$genui"
 
-  if ($queries -lt $Target) {
+  $canCreateQueries = $queries -lt $Target
+  if ($InterleaveResponseIr -and ($responses -lt $queries -or $genui -lt $responses)) {
+    $canCreateQueries = $false
+    Write-Log "Interleave mode holding Stage1 until catch-up queries=$queries responses=$responses genui=$genui"
+  }
+  if ($canCreateQueries) {
     $create = Next-ChunkCreate -Current $queries -Chunk $Stage1Chunk -Limit $Target
     Invoke-PythonStep "stage1_cycle_$cycle" @(
       "src/main.py", "--stage", "1", "--model", $Model, "--run_id", $RunId,
@@ -145,32 +154,78 @@ while ($true) {
 
   $queries = Count-Jsonl $queriesPath
   $responses = Count-Jsonl $responsesPath
-  if ($responses -lt $Target -and $responses -lt $queries) {
-    $create = Next-ChunkCreate -Current $responses -Chunk $Stage2Chunk -Limit $Target
-    $create = [Math]::Min($create, $queries - $responses)
-    if ($create -gt 0) {
-      Invoke-PythonStep "stage2_cycle_$cycle" @(
+  if ($InterleaveResponseIr) {
+    while ($responses -lt $Target -and $responses -lt $queries) {
+      $beforeResponses = $responses
+      $beforeGenui = Count-Jsonl $genuiPath
+      $createResponses = [Math]::Min([Math]::Max(1, $ResponseIrChunk), $Target - $responses)
+      $createResponses = [Math]::Min($createResponses, $queries - $responses)
+      if ($createResponses -le 0) {
+        break
+      }
+      Invoke-PythonStep "stage2_cycle_${cycle}_from_${beforeResponses}" @(
         "src/main.py", "--stage", "2", "--model", $Model, "--run_id", $RunId,
-        "--max_responses_total", [string]$create,
+        "--max_responses_total", [string]$createResponses,
         "--stage2_batch_size", [string]$Stage2QueryBatchSize,
         "--stage2_response_batch_size", [string]$Stage2ResponseBatchSize,
         "--rate_limit_qps", [string]$RateLimitQps
       )
-    }
-  }
+      $responses = Count-Jsonl $responsesPath
+      if ($responses -le $beforeResponses) {
+        Write-Log "Interleave mode made no Stage2 progress responses=$responses; breaking to avoid spin"
+        break
+      }
 
-  $responses = Count-Jsonl $responsesPath
-  $genui = Count-Jsonl $genuiPath
-  if ($genui -lt $Target -and $genui -lt $responses) {
-    $create = Next-ChunkCreate -Current $genui -Chunk $Stage3Chunk -Limit $Target
-    $create = [Math]::Min($create, $responses - $genui)
-    if ($create -gt 0) {
-      Invoke-PythonStep "stage3_cycle_$cycle" @(
-        "src/main.py", "--stage", "3", "--model", $Model, "--run_id", $RunId,
-        "--max_genui_total", [string]$create,
-        "--genui_batch_size", [string]$Stage3BatchSize,
-        "--rate_limit_qps", [string]$RateLimitQps
-      )
+      $genui = Count-Jsonl $genuiPath
+      while ($genui -lt $Target -and $genui -lt $responses) {
+        $createGenui = [Math]::Min([Math]::Max(1, $ResponseIrChunk), $Target - $genui)
+        $createGenui = [Math]::Min($createGenui, $responses - $genui)
+        if ($createGenui -le 0) {
+          break
+        }
+        Invoke-PythonStep "stage3_cycle_${cycle}_from_${beforeGenui}" @(
+          "src/main.py", "--stage", "3", "--model", $Model, "--run_id", $RunId,
+          "--max_genui_total", [string]$createGenui,
+          "--genui_batch_size", [string]$Stage3BatchSize,
+          "--rate_limit_qps", [string]$RateLimitQps
+        )
+        $newGenui = Count-Jsonl $genuiPath
+        if ($newGenui -le $genui) {
+          Write-Log "Interleave mode made no Stage3 progress genui=$genui responses=$responses; breaking to avoid spin"
+          break
+        }
+        $genui = $newGenui
+        $beforeGenui = $genui
+      }
+    }
+  } else {
+    if ($responses -lt $Target -and $responses -lt $queries) {
+      $create = Next-ChunkCreate -Current $responses -Chunk $Stage2Chunk -Limit $Target
+      $create = [Math]::Min($create, $queries - $responses)
+      if ($create -gt 0) {
+        Invoke-PythonStep "stage2_cycle_$cycle" @(
+          "src/main.py", "--stage", "2", "--model", $Model, "--run_id", $RunId,
+          "--max_responses_total", [string]$create,
+          "--stage2_batch_size", [string]$Stage2QueryBatchSize,
+          "--stage2_response_batch_size", [string]$Stage2ResponseBatchSize,
+          "--rate_limit_qps", [string]$RateLimitQps
+        )
+      }
+    }
+
+    $responses = Count-Jsonl $responsesPath
+    $genui = Count-Jsonl $genuiPath
+    if ($genui -lt $Target -and $genui -lt $responses) {
+      $create = Next-ChunkCreate -Current $genui -Chunk $Stage3Chunk -Limit $Target
+      $create = [Math]::Min($create, $responses - $genui)
+      if ($create -gt 0) {
+        Invoke-PythonStep "stage3_cycle_$cycle" @(
+          "src/main.py", "--stage", "3", "--model", $Model, "--run_id", $RunId,
+          "--max_genui_total", [string]$create,
+          "--genui_batch_size", [string]$Stage3BatchSize,
+          "--rate_limit_qps", [string]$RateLimitQps
+        )
+      }
     }
   }
 
