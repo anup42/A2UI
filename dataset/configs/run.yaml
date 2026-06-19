@@ -27,6 +27,7 @@
   query_max_tokens: 2048
   genui_max_tokens: 8192
   genui_prompt_max_tokens: 60000
+  enable_prompt_cache: false
   cache_dir: data/cache
   artifact_dir: artifacts
   dry_run: false

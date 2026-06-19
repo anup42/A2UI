@@ -61,6 +61,11 @@ def _load_subset(queries_path: Path, size: int) -> list[dict]:
     return subset
 
 
+def _build_prompt_cache(root: Path, run_cfg: dict) -> PromptCache:
+    enabled = bool(run_cfg.get("enable_prompt_cache", False))
+    return PromptCache(root / run_cfg.get("cache_dir", "data/cache"), enabled=enabled)
+
+
 def _compute_aggregates(genui_path: Path, weights: dict) -> dict:
     rows = list(iter_jsonl(genui_path))
     render_rows_by_ui_id = _load_render_rows_by_ui_id(genui_path.parent)
@@ -645,6 +650,7 @@ def main() -> None:
     _apply_env_int_override(run_cfg, "response_max_tokens", "A2UI_RESPONSE_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_max_tokens", "A2UI_GENUI_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "genui_prompt_max_tokens", "A2UI_GENUI_PROMPT_MAX_TOKENS")
+    _apply_env_bool_override(run_cfg, "enable_prompt_cache", "A2UI_ENABLE_PROMPT_CACHE")
     _apply_env_bool_override(run_cfg, "response_group_by_intent", "A2UI_STAGE2_GROUP_BY_INTENT")
     _apply_env_bool_override(run_cfg, "response_batch_fallback_per_query", "A2UI_STAGE2_BATCH_FALLBACK_PER_QUERY")
     if args.stage1_batch_size is not None:
@@ -730,7 +736,7 @@ def main() -> None:
                 temperature=query_temperature,
                 max_tokens=int(run_cfg.get("query_max_tokens", 8192)),
                 rate_limiter=rate_limiter,
-                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                cache=_build_prompt_cache(root, run_cfg),
                 logger=logger,
                 max_total=run_cfg.get("max_queries_total"),
                 max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
@@ -786,7 +792,7 @@ def main() -> None:
                 max_tokens=int(run_cfg.get("response_max_tokens", 8192)),
                 seed=int(benchmark_cfg.get("fixed_seed", 123)),
                 rate_limiter=rate_limiter,
-                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                cache=_build_prompt_cache(root, run_cfg),
                 logger=model_logger,
                 max_total=run_cfg.get("max_responses_total"),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
@@ -806,7 +812,7 @@ def main() -> None:
                 batch_size=genui_batch_size,
                 seed=int(benchmark_cfg.get("fixed_seed", 123)),
                 rate_limiter=rate_limiter,
-                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                cache=_build_prompt_cache(root, run_cfg),
                 logger=model_logger,
                 max_total=run_cfg.get("max_genui_total"),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
@@ -908,7 +914,7 @@ def main() -> None:
                 temperature=query_temperature,
                 max_tokens=int(run_cfg.get("query_max_tokens", 8192)),
                 rate_limiter=rate_limiter,
-                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                cache=_build_prompt_cache(root, run_cfg),
                 logger=logger,
                 max_total=run_cfg.get("max_queries_total"),
                 max_failures_per_intent=int(run_cfg.get("stage1_max_failures_per_intent", 3)),
@@ -934,7 +940,7 @@ def main() -> None:
                 max_tokens=int(run_cfg.get("response_max_tokens", 8192)),
                 seed=int(run_cfg.get("seed", 42)),
                 rate_limiter=rate_limiter,
-                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                cache=_build_prompt_cache(root, run_cfg),
                 logger=logger,
                 max_total=run_cfg.get("max_responses_total"),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
@@ -957,7 +963,7 @@ def main() -> None:
                 batch_size=genui_batch_size,
                 seed=int(run_cfg.get("seed", 42)),
                 rate_limiter=rate_limiter,
-                cache=PromptCache(root / run_cfg.get("cache_dir", "data/cache")),
+                cache=_build_prompt_cache(root, run_cfg),
                 logger=logger,
                 max_total=run_cfg.get("max_genui_total"),
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
