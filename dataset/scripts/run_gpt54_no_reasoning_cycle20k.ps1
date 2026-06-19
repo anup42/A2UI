@@ -64,6 +64,15 @@ function Write-ProgressJson([int]$Cycle, [int]$Queries, [int]$Responses, [int]$G
   $payload | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 -Path $progressPath
 }
 
+function Next-ChunkCreate([int]$Current, [int]$Chunk, [int]$Limit) {
+  if ($Current -ge $Limit) {
+    return 0
+  }
+  $chunkIndex = [Math]::Floor($Current / [Math]::Max(1, $Chunk)) + 1
+  $nextBoundary = [Math]::Min($Limit, [int]($chunkIndex * $Chunk))
+  return [Math]::Max(0, $nextBoundary - $Current)
+}
+
 function Invoke-PythonStep([string]$Label, [string[]]$ArgsList) {
   $stepLog = Join-Path $runDir ("{0}.output.log" -f $Label)
   Write-Log "START $Label output_log=$stepLog args=$($ArgsList -join ' ')"
@@ -124,7 +133,7 @@ while ($true) {
   Write-Log "CYCLE $cycle counts before queries=$queries responses=$responses genui=$genui"
 
   if ($queries -lt $Target) {
-    $create = [Math]::Min($Stage1Chunk, $Target - $queries)
+    $create = Next-ChunkCreate -Current $queries -Chunk $Stage1Chunk -Limit $Target
     Invoke-PythonStep "stage1_cycle_$cycle" @(
       "src/main.py", "--stage", "1", "--model", $Model, "--run_id", $RunId,
       "--k_queries_per_intent", [string]$kPerIntent,
@@ -137,7 +146,7 @@ while ($true) {
   $queries = Count-Jsonl $queriesPath
   $responses = Count-Jsonl $responsesPath
   if ($responses -lt $Target -and $responses -lt $queries) {
-    $create = [Math]::Min($Stage2Chunk, $Target - $responses)
+    $create = Next-ChunkCreate -Current $responses -Chunk $Stage2Chunk -Limit $Target
     $create = [Math]::Min($create, $queries - $responses)
     if ($create -gt 0) {
       Invoke-PythonStep "stage2_cycle_$cycle" @(
@@ -153,7 +162,7 @@ while ($true) {
   $responses = Count-Jsonl $responsesPath
   $genui = Count-Jsonl $genuiPath
   if ($genui -lt $Target -and $genui -lt $responses) {
-    $create = [Math]::Min($Stage3Chunk, $Target - $genui)
+    $create = Next-ChunkCreate -Current $genui -Chunk $Stage3Chunk -Limit $Target
     $create = [Math]::Min($create, $responses - $genui)
     if ($create -gt 0) {
       Invoke-PythonStep "stage3_cycle_$cycle" @(
