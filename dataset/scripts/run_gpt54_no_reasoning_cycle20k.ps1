@@ -64,14 +64,15 @@ function Write-ProgressJson([int]$Cycle, [int]$Queries, [int]$Responses, [int]$G
 }
 
 function Invoke-PythonStep([string]$Label, [string[]]$ArgsList) {
-  Write-Log "START $Label $($ArgsList -join ' ')"
+  $stepLog = Join-Path $runDir ("{0}.output.log" -f $Label)
+  Write-Log "START $Label output_log=$stepLog args=$($ArgsList -join ' ')"
   $quotedArgs = @("python") + ($ArgsList | ForEach-Object {
     '"' + ($_ -replace '"', '\"') + '"'
   })
-  $cmdLine = ($quotedArgs -join " ") + " >> " + '"' + $cycleLog + '"' + " 2>&1"
+  $cmdLine = ($quotedArgs -join " ") + " >> " + '"' + $stepLog + '"' + " 2>&1"
   & cmd.exe /d /c $cmdLine
   if ($LASTEXITCODE -ne 0) {
-    throw "$Label failed with exit code $LASTEXITCODE"
+    throw "$Label failed with exit code $LASTEXITCODE. See $stepLog"
   }
   Write-Log "END $Label"
 }
