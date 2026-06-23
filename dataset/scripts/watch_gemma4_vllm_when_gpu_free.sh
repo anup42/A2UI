@@ -97,11 +97,29 @@ existing_pid_from_file() {
 }
 
 existing_script_pids() {
-  local current_user script_name
+  local current_user script_name script_dir script_abs pid cmdline
   current_user="${USER:-$(id -un 2>/dev/null || true)}"
   script_name="$(basename "${WATCH_VLLM_SCRIPT}")"
-  ps -u "${current_user}" -o pid=,args= 2>/dev/null \
-    | awk -v self="$$" -v script="${script_name}" '$1 != self && index($0, script) {print $1}' \
+  script_dir="$(cd "$(dirname "${WATCH_VLLM_SCRIPT}")" 2>/dev/null && pwd || true)"
+  script_abs="${script_dir}/${script_name}"
+
+  ps -u "${current_user}" -o pid= 2>/dev/null \
+    | awk 'NF && $0 ~ /^[[:space:]]*[0-9]+[[:space:]]*$/ {print $1}' \
+    | while IFS= read -r pid; do
+        [[ -n "${pid}" && "${pid}" != "$$" ]] || continue
+        [[ -r "/proc/${pid}/cmdline" ]] || continue
+        cmdline="$(tr '\0' '\n' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+        if printf '%s\n' "${cmdline}" | awk -v base="${script_name}" -v abs="${script_abs}" '
+          $0 == base || $0 == abs || $0 ~ "/" base "$" { found = 1 }
+          END { exit(found ? 0 : 1) }
+        '; then
+          # Avoid reporting a transient process that disappeared during the scan.
+          sleep 0.1
+          if kill -0 "${pid}" 2>/dev/null; then
+            printf '%s\n' "${pid}"
+          fi
+        fi
+      done \
     | sort -u
 }
 
