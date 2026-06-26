@@ -1,0 +1,1 @@
+﻿Figure: TEDY architecture overview. Show a left-to-right pipeline from User Query to Structured Response to Flat-Spec IR to Contract Validation to Native Mobile UI. Emphasize that the model emits semantic JSON, while the renderer owns adaptive mobile UI. Use icons, mobile screen mockups, and a small JSON snippet. White background, paper-ready, no embedded caption title.
