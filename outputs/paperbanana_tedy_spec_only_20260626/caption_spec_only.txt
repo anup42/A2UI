@@ -1,0 +1,1 @@
+﻿Figure: TEDY flat-spec IR. Visualize the root-state-elements JSON contract, flat element map, compact table data in state, semantic component catalog, validation/repair checks, and renderer mapping to native mobile UI. White theme, icons, mini JSON, mini table, mobile preview, concise paper-ready labels, no embedded caption title.
