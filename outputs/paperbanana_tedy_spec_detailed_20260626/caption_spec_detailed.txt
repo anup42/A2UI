@@ -1,0 +1,1 @@
+﻿Detailed TEDY flat-spec IR diagram: a compact three-field JSON contract (`root`, `state`, `elements`) with element grammar, dynamic bindings, compact table metadata, validation/normalization, and adaptive native mobile rendering. White paper style, readable labels, icons, and a clear left-to-right spec flow.
