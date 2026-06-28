@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A2UI / TEDY Project Explainer</title>
+  <style>
+    :root {
+      --ink: #10212b;
+      --muted: #60727d;
+      --paper: #fffdf7;
+      --paper-2: #f4fbf8;
+      --line: rgba(16, 33, 43, 0.13);
+      --teal: #078d88;
+      --teal-deep: #045f63;
+      --blue: #1f6f8b;
+      --amber: #e09b2d;
+      --rust: #b95738;
+      --sage: #daeadd;
+      --cream: #fff3d7;
+      --shadow: 0 28px 80px rgba(16, 33, 43, 0.14);
+      --radius-xl: 34px;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 5%, rgba(224, 155, 45, 0.2), transparent 32rem),
+        radial-gradient(circle at 88% 12%, rgba(7, 141, 136, 0.18), transparent 30rem),
+        linear-gradient(135deg, #fffaf0 0%, #f8fbf5 48%, #eef9f7 100%);
+      font-family: "Aptos", "Bahnschrift", "Trebuchet MS", sans-serif;
+      line-height: 1.55;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.24;
+      background-image:
+        linear-gradient(rgba(16, 33, 43, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 33, 43, 0.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+
+    a {
+      color: var(--teal-deep);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 34px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(255, 253, 247, 0.82);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 16px rgba(7, 141, 136, 0.18));
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      border: 1px solid rgba(7, 141, 136, 0.2);
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: #23424a;
+      background: rgba(255, 255, 255, 0.58);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 72px 0 40px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(7, 141, 136, 0.1);
+      color: var(--teal-deep);
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 8px rgba(7, 141, 136, 0.12);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: -0.055em;
+    }
+
+    h1 {
+      margin-top: 20px;
+      max-width: 880px;
+      font-family: "Cambria", "Georgia", serif;
+      font-size: clamp(54px, 8vw, 104px);
+      font-weight: 900;
+    }
+
+    .lead {
+      margin: 24px 0 0;
+      max-width: 720px;
+      color: #3d5660;
+      font-size: clamp(18px, 2vw, 23px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-weight: 900;
+      border: 1px solid transparent;
+      box-shadow: 0 12px 32px rgba(16, 33, 43, 0.12);
+    }
+
+    .button.primary {
+      color: white;
+      background: linear-gradient(135deg, var(--teal), #086a8a);
+    }
+
+    .button.secondary {
+      color: #17313a;
+      background: rgba(255, 255, 255, 0.74);
+      border-color: var(--line);
+    }
+
+    .hero-card {
+      padding: 16px;
+      border: 1px solid rgba(7, 141, 136, 0.16);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: var(--shadow);
+      transform: rotate(1deg);
+    }
+
+    .hero-card img {
+      display: block;
+      width: 100%;
+      border-radius: 24px;
+      background: white;
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .metric {
+      min-height: 116px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: 0 18px 50px rgba(16, 33, 43, 0.08);
+    }
+
+    .metric strong {
+      display: block;
+      font-family: "Cambria", "Georgia", serif;
+      font-size: 34px;
+      line-height: 1;
+      color: var(--teal-deep);
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    section {
+      padding: 58px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.72fr) minmax(280px, 0.28fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    .kicker {
+      color: var(--rust);
+      font-size: 13px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-family: "Cambria", "Georgia", serif;
+      font-size: clamp(36px, 5vw, 66px);
+    }
+
+    .section-note {
+      color: var(--muted);
+      font-size: 17px;
+      margin: 0;
+    }
+
+    .outline {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .outline a,
+    .tile,
+    .detail-card,
+    .image-frame,
+    .code-card {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 18px 50px rgba(16, 33, 43, 0.08);
+    }
+
+    .outline a {
+      min-height: 126px;
+      padding: 16px;
+      color: var(--ink);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .outline a:hover {
+      transform: translateY(-4px);
+      text-decoration: none;
+      box-shadow: var(--shadow);
+    }
+
+    .outline b {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--teal-deep);
+      font-size: 23px;
+    }
+
+    .outline span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .detail-card {
+      padding: 26px;
+    }
+
+    .detail-card h3 {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .detail-card p {
+      color: #405762;
+      margin: 0 0 16px;
+    }
+
+    .detail-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #405762;
+    }
+
+    .detail-card li + li {
+      margin-top: 8px;
+    }
+
+    .image-frame {
+      overflow: hidden;
+      padding: 12px;
+    }
+
+    .image-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .caption {
+      margin: 12px 8px 4px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 178px;
+      padding: 18px;
+      border-radius: 22px;
+      color: white;
+      background: linear-gradient(145deg, #17313a, #0b7771);
+      box-shadow: 0 22px 55px rgba(4, 95, 99, 0.2);
+      overflow: hidden;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      inset: auto -24px -42px auto;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.13);
+    }
+
+    .step b {
+      display: block;
+      font-size: 34px;
+      line-height: 1;
+      margin-bottom: 18px;
+      color: #ffe2a7;
+    }
+
+    .step h3 {
+      font-size: 22px;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 14px;
+    }
+
+    .code-card {
+      padding: 24px;
+      background: #12252d;
+      color: #d9fff6;
+      overflow: auto;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font: 16px/1.5 "Cascadia Mono", "Consolas", monospace;
+    }
+
+    .tag-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 16px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 1px solid rgba(31, 111, 139, 0.22);
+      border-radius: 999px;
+      color: #214652;
+      background: rgba(233, 244, 255, 0.78);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .split-band {
+      position: relative;
+      padding: 34px;
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(135deg, rgba(7, 141, 136, 0.1), rgba(224, 155, 45, 0.1)),
+        rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .split-band::before {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -100px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(7, 141, 136, 0.12);
+    }
+
+    .renderer-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .phone-preview {
+      position: relative;
+      min-height: 480px;
+      padding: 22px;
+      border-radius: 46px;
+      background: #1d2c33;
+      box-shadow: var(--shadow);
+    }
+
+    .phone-screen {
+      height: 100%;
+      min-height: 430px;
+      padding: 22px;
+      border-radius: 34px;
+      background:
+        linear-gradient(180deg, rgba(244, 251, 248, 1), rgba(255, 253, 247, 1));
+      overflow: hidden;
+    }
+
+    .ui-card {
+      padding: 16px;
+      border: 1px solid rgba(7, 141, 136, 0.18);
+      border-radius: 22px;
+      background: white;
+      box-shadow: 0 12px 24px rgba(16, 33, 43, 0.08);
+      margin-bottom: 14px;
+    }
+
+    .ui-card h4 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .mini-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mini-table span {
+      padding: 8px;
+      border-radius: 10px;
+      background: #eef8f7;
+      color: #23424a;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .footer {
+      padding: 42px 0 70px;
+      color: var(--muted);
+    }
+
+    .footer-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .two-col,
+      .section-head,
+      .renderer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        transform: none;
+      }
+
+      .metric-strip,
+      .three-col,
+      .flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .outline {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        position: static;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+
+      .metric-strip,
+      .three-col,
+      .flow,
+      .outline {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-card,
+      .split-band {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top" aria-label="A2UI project explainer home">
+        <img src="../docs/assets/A2UI_dark.svg" alt="A2UI logo">
+        <span>A2UI / TEDY</span>
+      </a>
+      <nav class="nav" aria-label="Page sections">
+        <a href="#outline">Outline</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#spec">Spec</a>
+        <a href="#renderer">Renderer</a>
+        <a href="#dataset">Dataset</a>
+        <a href="#training">Training</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <div class="eyebrow"><span class="pulse"></span> Agent-generated UI, rendered safely</div>
+          <h1>From LLM response to native mobile interface.</h1>
+          <p class="lead">
+            This project extends A2UI into a complete GenUI research and engineering stack:
+            a compact flat-spec IR, a native Android renderer, dataset generation and metrics,
+            Stitch-guided visual refinement, and response-to-IR model training.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#spec">Explore the flat-spec</a>
+            <a class="button secondary" href="#dataset">See the generation pipeline</a>
+          </div>
+          <div class="metric-strip" aria-label="Project highlights">
+            <div class="metric"><strong>3</strong><span>required IR fields: root, state, elements</span></div>
+            <div class="metric"><strong>5</strong><span>dataset stages from query to rendered artifacts</span></div>
+            <div class="metric"><strong>Native</strong><span>Android renderer for phone-first UI</span></div>
+            <div class="metric"><strong>SFT</strong><span>training path for local Stage 3 models</span></div>
+          </div>
+        </div>
+        <figure class="hero-card">
+          <img src="paperbanana_tedy_spec_detailed_20260626/tedy_flat_spec_detailed_vector.png" alt="Detailed TEDY flat-spec diagram">
+          <figcaption class="caption">Detailed spec diagram: flat JSON contract, element grammar, validation gate, and native renderer mapping.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="outline">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">What the page shows</div>
+            <h2>Project outline</h2>
+          </div>
+          <p class="section-note">The explainer is organized around the concrete artifacts in this repo: docs, dataset pipeline, Android renderer, generated figures, and training code.</p>
+        </div>
+        <div class="outline">
+          <a href="#problem"><b>01</b><span>Why agent UI needs a safe declarative contract.</span></a>
+          <a href="#architecture"><b>02</b><span>End-to-end flow from user query to rendered interface.</span></a>
+          <a href="#spec"><b>03</b><span>TEDY flat-spec: root, state, elements, bindings, actions.</span></a>
+          <a href="#renderer"><b>04</b><span>Native renderer: adaptive mobile cards, tables, media, accessibility.</span></a>
+          <a href="#dataset"><b>05</b><span>Dataset stages, metrics, screenshots, and dashboards.</span></a>
+          <a href="#training"><b>06</b><span>Response-to-IR training and on-device Stage 3 path.</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem">
+      <div class="shell two-col">
+        <div class="detail-card">
+          <div class="kicker">Problem</div>
+          <h2>Text-only agents make UI-heavy tasks slow.</h2>
+          <p>
+            Agents can describe a booking form, weather card, comparison table, itinerary,
+            or troubleshooting checklist in text, but users often need a structured interface:
+            controls, cards, tables, images, sources, and actions.
+          </p>
+          <ul>
+            <li>HTML or generated code is risky across trust boundaries.</li>
+            <li>Plain text loses structure and makes actions hard to use.</li>
+            <li>Nested JSON can become large and brittle for LLM generation.</li>
+          </ul>
+        </div>
+        <div class="detail-card">
+          <div class="kicker">Approach</div>
+          <h2>Safe like data, expressive like UI.</h2>
+          <p>
+            The agent emits declarative JSON. The client validates the payload and renders it
+            with a trusted component catalog. The UI feels native because the app owns the
+            renderer, styling, accessibility, and action execution.
+          </p>
+          <div class="tag-grid">
+            <span class="tag">Declarative JSON</span>
+            <span class="tag">Trusted components</span>
+            <span class="tag">Native rendering</span>
+            <span class="tag">Validation before UI</span>
+            <span class="tag">No arbitrary code execution</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">Architecture</div>
+            <h2>End-to-end project flow</h2>
+          </div>
+          <p class="section-note">The repo keeps generation, validation, rendering, and training as separable layers so each can be improved independently.</p>
+        </div>
+        <div class="image-frame">
+          <img src="paper_figures_tedy_v3/fig1_tedy_architecture_v3.png" alt="TEDY architecture diagram">
+          <p class="caption">Architecture figure from the paper artifacts: query, response, IR generation, validation, renderer, metrics, and training feedback.</p>
+        </div>
+        <div class="flow" aria-label="Main stages">
+          <div class="step"><b>1</b><h3>Query</h3><p>Generate diverse user requests across task domains and constraints.</p></div>
+          <div class="step"><b>2</b><h3>Response</h3><p>Create rich grounded responses with assets, sources, tables, actions, and structure.</p></div>
+          <div class="step"><b>3</b><h3>Flat IR</h3><p>Convert response text into compact flat-spec GenUI JSON.</p></div>
+          <div class="step"><b>4</b><h3>Render</h3><p>Validate and render to phone-first native Android or web renderer outputs.</p></div>
+          <div class="step"><b>5</b><h3>Evaluate</h3><p>Score content coverage, table quality, actions, schema validity, and visual outputs.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="spec">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">Flat-spec IR</div>
+            <h2>The contract is intentionally small.</h2>
+          </div>
+          <p class="section-note">TEDY uses a flat element map plus a reusable state object. This keeps IR compact and makes validation deterministic.</p>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="code-card" aria-label="Flat-spec JSON sample">
+<pre>{
+  "root": "main",
+  "state": {
+    "flights": [
+      {"airline": "IndiGo", "fare": "INR 5,488"}
+    ]
+  },
+  "elements": {
+    "main": {
+      "type": "Stack",
+      "props": {"direction": "vertical"},
+      "children": ["title", "flightTable"]
+    },
+    "flightTable": {
+      "type": "Table",
+      "props": {
+        "columns": [...],
+        "statePath": "/flights",
+        "domain": "flight",
+        "preferredPresentation": "cards"
+      },
+      "children": []
+    }
+  }
+}</pre>
+            </div>
+          </div>
+          <div class="detail-card">
+            <h3>Spec details</h3>
+            <ul>
+              <li><b>root</b>: the id of the root element to render.</li>
+              <li><b>state</b>: reusable data arrays, table rows, media metadata, and scalar values.</li>
+              <li><b>elements</b>: flat id-to-node map; nodes carry type, props, children, repeat, and on handlers.</li>
+              <li><b>Table</b>: stores columns and rows compactly while renderer chooses cards, timelines, or horizontal tables.</li>
+              <li><b>Validation</b>: resolves child refs, normalizes aliases, prunes empty props, and enforces fallback validity.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="image-frame" style="margin-top:24px">
+          <img src="paper_figures_tedy_v3/fig2_tedy_flat_spec_contract_v3.png" alt="TEDY flat-spec contract diagram">
+          <p class="caption">Flat-spec contract: structure, reusable state, element nodes, validation rules, and renderer-facing semantics.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="renderer">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">Renderer</div>
+            <h2>Phone-first native rendering</h2>
+          </div>
+          <p class="section-note">The Android renderer maps semantic IR to adaptive UI patterns rather than blindly drawing a spreadsheet or generic card list.</p>
+        </div>
+        <div class="renderer-grid">
+          <div class="split-band">
+            <h3>Adaptive table routing</h3>
+            <p>
+              Tables stay compact in IR but render differently by domain and viewport:
+              weather cards, flight cards, booking cards, playlist rows, feature matrices,
+              schedule timelines, or horizontal scroll tables.
+            </p>
+            <div class="tag-grid">
+              <span class="tag">weather</span>
+              <span class="tag">flight</span>
+              <span class="tag">booking</span>
+              <span class="tag">comparison</span>
+              <span class="tag">playlist</span>
+              <span class="tag">schedule</span>
+              <span class="tag">status</span>
+            </div>
+          </div>
+          <div class="phone-preview" aria-label="Renderer preview">
+            <div class="phone-screen">
+              <div class="ui-card">
+                <h4>BLR to LKO Flights</h4>
+                <p class="caption">Domain-specific card route</p>
+                <div class="mini-table"><span>Airline</span><span>Fare</span><span>Time</span><span>Stops</span></div>
+              </div>
+              <div class="ui-card">
+                <h4>Weather Forecast</h4>
+                <p class="caption">Daily cards with icon/image fallback</p>
+                <div class="mini-table"><span>Mon 31 C</span><span>Tue 29 C</span><span>Rain 40%</span><span>AQI Good</span></div>
+              </div>
+              <div class="ui-card">
+                <h4>Source & Action</h4>
+                <p class="caption">Buttons are attached near the relevant content.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="image-frame" style="margin-top:24px">
+          <img src="paper_figures_tedy_v3/fig3_adaptive_table_rendering_v3.png" alt="Adaptive table rendering diagram">
+          <p class="caption">Adaptive table rendering: compact table data becomes cards, timelines, sticky tables, or domain-specific templates.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="dataset">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">Dataset pipeline</div>
+            <h2>Generation, assets, metrics, screenshots.</h2>
+          </div>
+          <p class="section-note">The dataset folder runs structured stages and writes auditable JSONL artifacts for every run.</p>
+        </div>
+        <div class="three-col">
+          <div class="detail-card">
+            <h3>Stage 1 / Query</h3>
+            <p>Generates diverse user tasks across domains and intent buckets with constraints suitable for UI rendering.</p>
+          </div>
+          <div class="detail-card">
+            <h3>Stage 2 / Response</h3>
+            <p>Produces response text, tables, sources, actions, and media assets. Asset handling supports local icons and deferred downloads.</p>
+          </div>
+          <div class="detail-card">
+            <h3>Stage 3 / IR</h3>
+            <p>Converts responses to strict flat-spec JSON, validates schema, computes metrics, and records model/token metadata.</p>
+          </div>
+          <div class="detail-card">
+            <h3>Stage 4 / Render</h3>
+            <p>Renders IR to HTML/PNG or Android screenshots for visual review and dashboard integration.</p>
+          </div>
+          <div class="detail-card">
+            <h3>Metrics</h3>
+            <p>Tracks schema validity, content coverage, table/action/section coverage, markdown leakage, media presence, and overall score.</p>
+          </div>
+          <div class="detail-card">
+            <h3>Golden sets</h3>
+            <p>Golden50 and Stitch-guided references are used to compare visual quality and recover renderer/prompt regressions.</p>
+          </div>
+        </div>
+        <div class="image-frame" style="margin-top:24px">
+          <img src="../docs/assets/end-to-end-data-flow.png" alt="A2UI end-to-end data flow diagram">
+          <p class="caption">A2UI flow from agent generation to client rendering and user actions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="training">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">Training and evaluation</div>
+            <h2>Response-to-IR models close the loop.</h2>
+          </div>
+          <p class="section-note">The training folder consumes completed dataset runs and trains local Stage 3 models without mixing training code into data generation.</p>
+        </div>
+        <div class="two-col">
+          <div class="image-frame">
+            <img src="paper_figures_tedy_v3/fig4_validation_metrics_training_v3.png" alt="Validation metrics and training diagram">
+            <p class="caption">Validation, metrics, and model training feedback loop.</p>
+          </div>
+          <div class="detail-card">
+            <h3>Model-agnostic training flow</h3>
+            <ul>
+              <li>Join Stage 2 responses with Stage 3 flat-spec IR by response id.</li>
+              <li>Filter strict-valid IR before SFT data preparation.</li>
+              <li>Train LoRA/QLoRA adapters through model-specific adapters.</li>
+              <li>Evaluate JSON parse rate, schema pass rate, repair rate, coverage metrics, and overall score.</li>
+              <li>Export compatible packages for Android and Edge Gallery-style local inference.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="kicker">Demo outputs</div>
+            <h2>What users see</h2>
+          </div>
+          <p class="section-note">Rendered cards, forms, media, and actions are controlled by the trusted renderer, not by arbitrary LLM code.</p>
+        </div>
+        <div class="two-col">
+          <div class="image-frame">
+            <img src="../docs/assets/a2ui_gallery_examples.png" alt="A2UI gallery examples">
+            <p class="caption">Gallery of generated UI compositions.</p>
+          </div>
+          <div class="image-frame">
+            <img src="../docs/assets/A2UI-widget-builder.png" alt="A2UI widget builder screenshot">
+            <p class="caption">A2UI widget builder and custom component workflow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-box">
+      <div>
+        <strong>A2UI / TEDY Project Explainer</strong><br>
+        Standalone HTML overview generated from repository docs, dataset notes, renderer architecture, and paper figures.
+      </div>
+      <a class="button secondary" href="#top">Back to top</a>
+    </div>
+  </footer>
+</body>
+</html>
