@@ -1,0 +1,636 @@
+{
+  "run_id": "score_calibration_native_self_20260701",
+  "base_run_id": "score_calibration_native_generated_20260701_base",
+  "items": [
+    {
+      "target_score": 40,
+      "actual_score": 29.7851,
+      "ui_id": "s040_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 37.1122,
+      "ui_id": "s050_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 46.611,
+      "ui_id": "s060_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 58.5065,
+      "ui_id": "s070_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 68.3341,
+      "ui_id": "s080_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 78.6205,
+      "ui_id": "s090_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 91.0092,
+      "ui_id": "s100_01_u_self_01_01",
+      "response_id": "r_self_001_01",
+      "query_id": "q_self_001",
+      "intent": "Weather",
+      "title": "Bengaluru 5-Day Weather Outlook"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.4959,
+      "ui_id": "s040_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 42.6987,
+      "ui_id": "s050_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 56.4672,
+      "ui_id": "s060_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 59.7469,
+      "ui_id": "s070_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 68.5562,
+      "ui_id": "s080_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 82.9839,
+      "ui_id": "s090_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 89.8544,
+      "ui_id": "s100_02_u_self_02_01",
+      "response_id": "r_self_002_01",
+      "query_id": "q_self_002",
+      "intent": "Travel",
+      "title": "BLR to LKO Flight Options for June 15"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.655,
+      "ui_id": "s040_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 42.5915,
+      "ui_id": "s050_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 49.4356,
+      "ui_id": "s060_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 61.1845,
+      "ui_id": "s070_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 71.4548,
+      "ui_id": "s080_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 79.7351,
+      "ui_id": "s090_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 85.83,
+      "ui_id": "s100_03_u_self_03_01",
+      "response_id": "r_self_003_01",
+      "query_id": "q_self_003",
+      "intent": "Booking",
+      "title": "Kyoto Family Hotel Shortlist"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 29.9975,
+      "ui_id": "s040_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 37.0416,
+      "ui_id": "s050_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 46.9587,
+      "ui_id": "s060_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 58.1339,
+      "ui_id": "s070_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 70.7017,
+      "ui_id": "s080_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 85.7649,
+      "ui_id": "s090_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 98.3111,
+      "ui_id": "s100_04_u_self_04_01",
+      "response_id": "r_self_004_01",
+      "query_id": "q_self_004",
+      "intent": "Shopping",
+      "title": "Coffee Maker Comparison for Small Apartments"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.2445,
+      "ui_id": "s040_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 37.3131,
+      "ui_id": "s050_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 47.3015,
+      "ui_id": "s060_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 59.851,
+      "ui_id": "s070_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 73.7117,
+      "ui_id": "s080_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 88.8892,
+      "ui_id": "s090_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 94.7663,
+      "ui_id": "s100_05_u_self_05_01",
+      "response_id": "r_self_005_01",
+      "query_id": "q_self_005",
+      "intent": "Entertainment",
+      "title": "Cyberpunk Rain Night Soundtrack"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.0786,
+      "ui_id": "s040_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 37.1735,
+      "ui_id": "s050_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 47.8177,
+      "ui_id": "s060_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 59.2902,
+      "ui_id": "s070_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 69.8794,
+      "ui_id": "s080_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 82.1103,
+      "ui_id": "s090_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 99.1792,
+      "ui_id": "s100_06_u_self_06_01",
+      "response_id": "r_self_006_01",
+      "query_id": "q_self_006",
+      "intent": "Travel",
+      "title": "Bengaluru 4-Day Vacation Itinerary"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 31.6474,
+      "ui_id": "s040_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 38.8164,
+      "ui_id": "s050_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 49.6504,
+      "ui_id": "s060_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 62.0219,
+      "ui_id": "s070_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 70.3953,
+      "ui_id": "s080_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 78.8205,
+      "ui_id": "s090_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 84.8239,
+      "ui_id": "s100_07_u_self_07_01",
+      "response_id": "r_self_007_01",
+      "query_id": "q_self_007",
+      "intent": "Calculation",
+      "title": "Mortgage Payment Estimate"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.5161,
+      "ui_id": "s040_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 38.2709,
+      "ui_id": "s050_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 47.9156,
+      "ui_id": "s060_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 59.1977,
+      "ui_id": "s070_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 70.2801,
+      "ui_id": "s080_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 74.888,
+      "ui_id": "s090_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 80.9156,
+      "ui_id": "s100_08_u_self_08_01",
+      "response_id": "r_self_008_01",
+      "query_id": "q_self_008",
+      "intent": "Writing",
+      "title": "Vendor Timeline Revision Email"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.5201,
+      "ui_id": "s040_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 38.125,
+      "ui_id": "s050_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 47.6205,
+      "ui_id": "s060_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 57.8242,
+      "ui_id": "s070_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 69.6465,
+      "ui_id": "s080_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 78.004,
+      "ui_id": "s090_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 84.6131,
+      "ui_id": "s100_09_u_self_09_01",
+      "response_id": "r_self_009_01",
+      "query_id": "q_self_009",
+      "intent": "Tech Support",
+      "title": "Fix npm EACCES Permission Errors"
+    },
+    {
+      "target_score": 40,
+      "actual_score": 30.1428,
+      "ui_id": "s040_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    },
+    {
+      "target_score": 50,
+      "actual_score": 37.769,
+      "ui_id": "s050_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    },
+    {
+      "target_score": 60,
+      "actual_score": 45.3608,
+      "ui_id": "s060_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    },
+    {
+      "target_score": 70,
+      "actual_score": 59.2041,
+      "ui_id": "s070_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    },
+    {
+      "target_score": 80,
+      "actual_score": 65.168,
+      "ui_id": "s080_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    },
+    {
+      "target_score": 90,
+      "actual_score": 77.428,
+      "ui_id": "s090_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    },
+    {
+      "target_score": 100,
+      "actual_score": 95.4653,
+      "ui_id": "s100_10_u_self_10_01",
+      "response_id": "r_self_010_01",
+      "query_id": "q_self_010",
+      "intent": "Planning",
+      "title": "3-Month Handmade Candle Launch Plan"
+    }
+  ]
+}

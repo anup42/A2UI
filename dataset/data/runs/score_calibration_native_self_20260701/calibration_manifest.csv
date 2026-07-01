@@ -1,0 +1,71 @@
+target_score,actual_score,ui_id,response_id,query_id,intent,title
+40,29.7851,s040_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+50,37.1122,s050_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+60,46.611,s060_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+70,58.5065,s070_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+80,68.3341,s080_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+90,78.6205,s090_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+100,91.0092,s100_01_u_self_01_01,r_self_001_01,q_self_001,Weather,Bengaluru 5-Day Weather Outlook
+40,30.4959,s040_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+50,42.6987,s050_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+60,56.4672,s060_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+70,59.7469,s070_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+80,68.5562,s080_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+90,82.9839,s090_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+100,89.8544,s100_02_u_self_02_01,r_self_002_01,q_self_002,Travel,BLR to LKO Flight Options for June 15
+40,30.655,s040_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+50,42.5915,s050_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+60,49.4356,s060_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+70,61.1845,s070_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+80,71.4548,s080_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+90,79.7351,s090_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+100,85.83,s100_03_u_self_03_01,r_self_003_01,q_self_003,Booking,Kyoto Family Hotel Shortlist
+40,29.9975,s040_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+50,37.0416,s050_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+60,46.9587,s060_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+70,58.1339,s070_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+80,70.7017,s080_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+90,85.7649,s090_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+100,98.3111,s100_04_u_self_04_01,r_self_004_01,q_self_004,Shopping,Coffee Maker Comparison for Small Apartments
+40,30.2445,s040_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+50,37.3131,s050_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+60,47.3015,s060_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+70,59.851,s070_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+80,73.7117,s080_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+90,88.8892,s090_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+100,94.7663,s100_05_u_self_05_01,r_self_005_01,q_self_005,Entertainment,Cyberpunk Rain Night Soundtrack
+40,30.0786,s040_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+50,37.1735,s050_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+60,47.8177,s060_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+70,59.2902,s070_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+80,69.8794,s080_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+90,82.1103,s090_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+100,99.1792,s100_06_u_self_06_01,r_self_006_01,q_self_006,Travel,Bengaluru 4-Day Vacation Itinerary
+40,31.6474,s040_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+50,38.8164,s050_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+60,49.6504,s060_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+70,62.0219,s070_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+80,70.3953,s080_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+90,78.8205,s090_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+100,84.8239,s100_07_u_self_07_01,r_self_007_01,q_self_007,Calculation,Mortgage Payment Estimate
+40,30.5161,s040_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+50,38.2709,s050_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+60,47.9156,s060_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+70,59.1977,s070_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+80,70.2801,s080_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+90,74.888,s090_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+100,80.9156,s100_08_u_self_08_01,r_self_008_01,q_self_008,Writing,Vendor Timeline Revision Email
+40,30.5201,s040_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+50,38.125,s050_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+60,47.6205,s060_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+70,57.8242,s070_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+80,69.6465,s080_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+90,78.004,s090_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+100,84.6131,s100_09_u_self_09_01,r_self_009_01,q_self_009,Tech Support,Fix npm EACCES Permission Errors
+40,30.1428,s040_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
+50,37.769,s050_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
+60,45.3608,s060_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
+70,59.2041,s070_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
+80,65.168,s080_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
+90,77.428,s090_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
+100,95.4653,s100_10_u_self_10_01,r_self_010_01,q_self_010,Planning,3-Month Handmade Candle Launch Plan
