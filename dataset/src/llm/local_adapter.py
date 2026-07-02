@@ -545,6 +545,15 @@ class LocalAdapter(BaseLLMAdapter):
 
         def post_once(request_body: dict[str, object]) -> str:
             data = json.dumps(request_body).encode("utf-8")
+            if self._is_truthy(os.environ.get("LOCAL_VLLM_LOG_REQUESTS")):
+                print(
+                    "Local vLLM POST "
+                    f"endpoint={endpoint} "
+                    f"model={request_body.get('model')} "
+                    f"max_tokens={request_body.get('max_tokens')}",
+                    file=sys.stderr,
+                    flush=True,
+                )
             req = urllib.request.Request(
                 endpoint,
                 data=data,

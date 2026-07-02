@@ -101,8 +101,8 @@ def run_stage1(
         intent_batch_size = 1
     if intent_cycle_size < 0:
         intent_cycle_size = 0
-    use_gemini_batch = adapter.spec.provider == "gemini" and hasattr(adapter, "generate_batch")
-    if use_gemini_batch and intent_batch_size > 1 and intent_cycle_size <= 0:
+    use_adapter_batch = adapter.spec.provider in {"gemini", "local"} and hasattr(adapter, "generate_batch")
+    if use_adapter_batch and intent_batch_size > 1 and intent_cycle_size <= 0:
         failures_by_intent = {intent: 0 for intent in intents}
         stopped_intents: set[str] = set()
         stop_all = False
