@@ -116,6 +116,35 @@ def shell_quote(value: str) -> str:
     return "'" + value.replace("'", "'\"'\"'") + "'"
 
 
+def ssh_password(source: dict[str, Any]) -> str:
+    return str(source.get("password") or "").strip()
+
+
+def ssh_transport_mode(source: dict[str, Any], copy: bool = False) -> str:
+    if not ssh_password(source):
+        return "openssh"
+    if shutil.which("sshpass"):
+        return "sshpass"
+    if copy:
+        if shutil.which("pscp"):
+            return "putty"
+    elif shutil.which("plink"):
+        return "putty"
+    need = "sshpass or PuTTY pscp" if copy else "sshpass or PuTTY plink"
+    raise RuntimeError(
+        f"SSH source {source.get('id')} uses password auth, but {need} was not found. "
+        "Install one of those tools or use identity_file key auth."
+    )
+
+
+def ssh_target(source: dict[str, Any]) -> str:
+    host = str(source.get("host") or "").strip()
+    if not host:
+        raise ValueError(f"SSH source {source.get('id')} missing host")
+    user = str(source.get("user") or "").strip()
+    return f"{user}@{host}" if user else host
+
+
 def run_command(command: list[str] | str, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
     shell = isinstance(command, str)
     return subprocess.run(
@@ -161,14 +190,19 @@ def list_local_files(root: Path, include_globs: list[str], exclude_globs: list[s
 
 
 def ssh_base_command(source: dict[str, Any]) -> list[str]:
-    host = str(source.get("host") or "").strip()
-    if not host:
-        raise ValueError(f"SSH source {source.get('id')} missing host")
-    user = str(source.get("user") or "").strip()
-    target = f"{user}@{host}" if user else host
-    cmd = ["ssh"]
+    target = ssh_target(source)
+    mode = ssh_transport_mode(source, copy=False)
+    password = ssh_password(source)
+    if mode == "sshpass":
+        cmd = ["sshpass", "-p", password, "ssh"]
+    elif mode == "putty":
+        cmd = ["plink", "-batch", "-pw", password]
+    else:
+        cmd = ["ssh"]
     port = source.get("port")
-    if port:
+    if port and mode == "putty":
+        cmd += ["-P", str(port)]
+    elif port:
         cmd += ["-p", str(port)]
     identity = str(source.get("identity_file") or "").strip()
     if identity:
@@ -180,7 +214,14 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
 
 
 def scp_base_command(source: dict[str, Any]) -> list[str]:
-    cmd = ["scp", "-p"]
+    mode = ssh_transport_mode(source, copy=True)
+    password = ssh_password(source)
+    if mode == "sshpass":
+        cmd = ["sshpass", "-p", password, "scp", "-p"]
+    elif mode == "putty":
+        cmd = ["pscp", "-batch", "-pw", password, "-p"]
+    else:
+        cmd = ["scp", "-p"]
     port = source.get("port")
     if port:
         cmd += ["-P", str(port)]
@@ -279,13 +320,14 @@ def copy_local_file(source_root: Path, dest_root: Path, rel: str) -> None:
 
 def copy_ssh_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
     remote_root = str(source.get("path") or "").rstrip("/")
-    user = str(source.get("user") or "").strip()
-    host = str(source.get("host") or "").strip()
-    target = f"{user}@{host}" if user else host
+    target = ssh_target(source)
     remote_path = str(PurePosixPath(remote_root) / PurePosixPath(rel))
     dest = dest_root / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
-    remote_spec = f"{target}:{shell_quote(remote_path)}"
+    if ssh_transport_mode(source, copy=True) == "putty":
+        remote_spec = f"{target}:{remote_path}"
+    else:
+        remote_spec = f"{target}:{shell_quote(remote_path)}"
     cmd = scp_base_command(source) + [remote_spec, str(dest)]
     result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
     if result.returncode != 0:

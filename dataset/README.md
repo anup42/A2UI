@@ -129,6 +129,11 @@ Edit `configs/dataset_dashboard.sources.json` and enable any required source:
 - `ssh`: lists files with `ssh` and copies changed files with `scp`.
 - `command`: uses custom list/copy commands for non-standard storage.
 
+For `ssh` sources, prefer passwordless key auth with `identity_file`. If you set a non-empty
+`password`, the dashboard will use non-interactive password auth through either `sshpass` or
+PuTTY `plink`/`pscp` if those commands are installed. Passwords are stored as plaintext in the
+private config file, so keep `configs/dataset_dashboard.sources.json` uncommitted.
+
 Start the dashboard from the `dataset/` folder:
 
 ```
