@@ -13,6 +13,8 @@ __pycache__
 # Local generated dataset artifacts
 dataset/data/cache
 dataset/data/cache/
+dataset/data/dashboard_mirror/
+dataset/configs/dataset_dashboard.sources.json
 presentation_work/
 **/run.log
 **/.prompt_cache.jsonl

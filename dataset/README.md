@@ -112,6 +112,44 @@ python src/main.py --stage 3 --model perplexity_gpt5 --run_id perplexity_gpt5
 
 Outputs are written to `data/runs/<run_id>/`.
 
+## Dataset dashboard
+
+Use the generated dataset dashboard to inspect all local runs and optionally mirror runs from other machines.
+The local checkout is scanned automatically; remote sources are configured separately so credentials are not committed.
+
+Create a private source config:
+
+```
+Copy-Item configs\dataset_dashboard.sources.example.json configs\dataset_dashboard.sources.json
+```
+
+Edit `configs/dataset_dashboard.sources.json` and enable any required source:
+
+- `local`: copies from another local folder.
+- `ssh`: lists files with `ssh` and copies changed files with `scp`.
+- `command`: uses custom list/copy commands for non-standard storage.
+
+Start the dashboard from the `dataset/` folder:
+
+```
+python scripts/dataset_dashboard.py --sync-on-start
+```
+
+Then open:
+
+```
+http://127.0.0.1:8765
+```
+
+One-off commands:
+
+```
+python scripts/dataset_dashboard.py --sync-once
+python scripts/dataset_dashboard.py --summary-once
+```
+
+Remote files are mirrored into `data/dashboard_mirror/`. The sync manifest stores source `size` and `mtime`, so repeat syncs copy only new or updated files.
+
 ## Local Qwen3 / DeepSeek
 
 Qwen and DeepSeek local models run directly via `transformers` in `LocalAdapter`.

@@ -1,0 +1,53 @@
+{
+  "mirror_dir": "data/dashboard_mirror",
+  "sources": [
+    {
+      "id": "local_repo",
+      "label": "Optional extra local runs folder",
+      "type": "local",
+      "path": "data/runs",
+      "enabled": false
+    },
+    {
+      "id": "gpu_box_1",
+      "label": "GPU Box 1",
+      "type": "ssh",
+      "host": "gpu-box-1.example.com",
+      "user": "anup",
+      "port": 22,
+      "identity_file": "~/.ssh/id_rsa",
+      "path": "/home/anup/A2UI/dataset/data/runs",
+      "enabled": false
+    },
+    {
+      "id": "custom_copy_source",
+      "label": "Custom copy source",
+      "type": "command",
+      "enabled": false,
+      "list_command": "python /path/to/list_dataset_files.py --root /remote/A2UI/dataset/data/runs",
+      "copy_command": "python /path/to/copy_one_file.py --root /remote/A2UI/dataset/data/runs --rel {rel} --out {dest}"
+    }
+  ],
+  "include_globs": [
+    "*.json",
+    "*.jsonl",
+    "*.csv",
+    "*.md",
+    "*.html",
+    "assets/*",
+    "android_device_rendered/*.png",
+    "android_device_rendered/*.json",
+    "rendered/**/*.html",
+    "rendered/**/*.png",
+    "rendered_lit/**/*.html",
+    "rendered_lit/**/*.png"
+  ],
+  "exclude_globs": [
+    ".prompt_cache*",
+    "run.log",
+    "*.log",
+    "stage*_worker*.log",
+    "vertex_batch_stage3/**",
+    "artifacts/error_*.json"
+  ]
+}
