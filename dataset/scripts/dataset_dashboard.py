@@ -120,20 +120,27 @@ def ssh_password(source: dict[str, Any]) -> str:
     return str(source.get("password") or "").strip()
 
 
+def configured_tool(source: dict[str, Any], config_key: str, executable: str) -> str:
+    raw = str(source.get(config_key) or "").strip()
+    if raw:
+        return os.path.expandvars(os.path.expanduser(raw))
+    return shutil.which(executable) or ""
+
+
 def ssh_transport_mode(source: dict[str, Any], copy: bool = False) -> str:
     if not ssh_password(source):
         return "openssh"
     if shutil.which("sshpass"):
         return "sshpass"
     if copy:
-        if shutil.which("pscp"):
+        if configured_tool(source, "pscp_path", "pscp"):
             return "putty"
-    elif shutil.which("plink"):
+    elif configured_tool(source, "plink_path", "plink"):
         return "putty"
     need = "sshpass or PuTTY pscp" if copy else "sshpass or PuTTY plink"
     raise RuntimeError(
         f"SSH source {source.get('id')} uses password auth, but {need} was not found. "
-        "Install one of those tools or use identity_file key auth."
+        "Install one of those tools, set plink_path/pscp_path, or use identity_file key auth."
     )
 
 
@@ -196,7 +203,7 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
     if mode == "sshpass":
         cmd = ["sshpass", "-p", password, "ssh"]
     elif mode == "putty":
-        cmd = ["plink", "-batch", "-pw", password]
+        cmd = [configured_tool(source, "plink_path", "plink"), "-batch", "-pw", password]
     else:
         cmd = ["ssh"]
     port = source.get("port")
@@ -219,7 +226,7 @@ def scp_base_command(source: dict[str, Any]) -> list[str]:
     if mode == "sshpass":
         cmd = ["sshpass", "-p", password, "scp", "-p"]
     elif mode == "putty":
-        cmd = ["pscp", "-batch", "-pw", password, "-p"]
+        cmd = [configured_tool(source, "pscp_path", "pscp"), "-batch", "-pw", password, "-p"]
     else:
         cmd = ["scp", "-p"]
     port = source.get("port")

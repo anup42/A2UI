@@ -133,6 +133,8 @@ For `ssh` sources, prefer passwordless key auth with `identity_file`. If you set
 `password`, the dashboard will use non-interactive password auth through either `sshpass` or
 PuTTY `plink`/`pscp` if those commands are installed. Passwords are stored as plaintext in the
 private config file, so keep `configs/dataset_dashboard.sources.json` uncommitted.
+On Windows, install PuTTY command-line tools or set `plink_path` and `pscp_path` to the full
+paths for `plink.exe` and `pscp.exe`.
 
 Start the dashboard from the `dataset/` folder:
 

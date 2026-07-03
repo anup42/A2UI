@@ -17,6 +17,8 @@
       "port": 22,
       "identity_file": "~/.ssh/id_rsa",
       "password": "",
+      "plink_path": "",
+      "pscp_path": "",
       "path": "/home/anup/A2UI/dataset/data/runs",
       "enabled": false
     },
