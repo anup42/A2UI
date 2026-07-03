@@ -578,7 +578,7 @@ INDEX_HTML = r"""<!doctype html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>A2UI Dataset Dashboard</title>
+  <title>GenUICraft Dataset Dashboard</title>
   <style>
     :root {
       --bg: #f5f1e8;
@@ -655,7 +655,7 @@ INDEX_HTML = r"""<!doctype html>
 </head>
 <body>
   <header>
-    <h1>A2UI Dataset Dashboard</h1>
+    <h1>GenUICraft Dataset Dashboard</h1>
     <p class="sub">Sync generated dataset runs from local folders, SSH servers, or custom copy commands. The mirror only downloads files whose source size/mtime changed.</p>
     <div class="toolbar">
       <button id="syncBtn">Sync sources</button>
