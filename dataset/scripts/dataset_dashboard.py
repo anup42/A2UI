@@ -2120,6 +2120,10 @@ INDEX_HTML = r"""<!doctype html>
       </section>
     </section>
     <section class="panel wide-panel">
+      <h2>Filtered Metrics Overview</h2>
+      <div id="metricsOverview"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>Throughput And ETA</h2>
       <div id="throughputEta"></div>
     </section>
@@ -3200,6 +3204,123 @@ INDEX_HTML = r"""<!doctype html>
         <div class="small">Diagnostics are aggregated from sampled run records and follow the current source/text/score/date/IR-version filters at run level.</div>
       `;
     }
+    const overviewMetrics = [
+      {key: "content_coverage", label: "Content coverage", kind: "pct"},
+      {key: "intent_score", label: "Intent score", kind: "pct"},
+      {key: "section_heading_coverage", label: "Heading coverage", kind: "pct"},
+      {key: "table_cell_coverage", label: "Table coverage", kind: "pct"},
+      {key: "action_coverage", label: "Action coverage", kind: "pct"},
+      {key: "image_presence", label: "Image presence", kind: "pct"},
+      {key: "icon_presence", label: "Icon presence", kind: "pct"},
+      {key: "markdown_leakage_rate", label: "Markdown leakage", kind: "pct_low"},
+      {key: "component_count", label: "Components", kind: "number"},
+      {key: "max_tree_depth", label: "Max depth", kind: "number"},
+    ];
+    function metricDisplay(metric, value) {
+      if (value == null) return "n/a";
+      if (metric.kind === "pct" || metric.kind === "pct_low") return metricPct(value);
+      return Number(value).toFixed(Number(value) >= 10 ? 1 : 2);
+    }
+    function aggregateMetricsOverview(runs) {
+      const scoreBands = [
+        {key: "excellent", label: ">= 80", runs: 0, genui: 0, className: "ok"},
+        {key: "good", label: "70-79", runs: 0, genui: 0, className: "ok"},
+        {key: "watch", label: "60-69", runs: 0, genui: 0, className: "warn"},
+        {key: "poor", label: "< 60", runs: 0, genui: 0, className: "error"},
+        {key: "unknown", label: "unknown", runs: 0, genui: 0, className: "unknown"},
+      ];
+      const bandForScore = score => {
+        if (score == null || Number.isNaN(Number(score))) return scoreBands[4];
+        const value = Number(score);
+        if (value >= 80) return scoreBands[0];
+        if (value >= 70) return scoreBands[1];
+        if (value >= 60) return scoreBands[2];
+        return scoreBands[3];
+      };
+      const metricTotals = new Map(overviewMetrics.map(metric => [metric.key, {sum: 0, weight: 0}]));
+      let scoreSum = 0;
+      let scoreWeight = 0;
+      for (const run of runs) {
+        const weight = Math.max(1, Number(run.genui || 0));
+        const score = run.display_score ?? run.overall_score;
+        const band = bandForScore(score);
+        band.runs += 1;
+        band.genui += Number(run.genui || 0);
+        if (score != null && !Number.isNaN(Number(score))) {
+          scoreSum += Number(score) * weight;
+          scoreWeight += weight;
+        }
+        for (const metric of overviewMetrics) {
+          const value = (run.metric_avgs || {})[metric.key];
+          if (value == null || Number.isNaN(Number(value))) continue;
+          const total = metricTotals.get(metric.key);
+          total.sum += Number(value) * weight;
+          total.weight += weight;
+        }
+      }
+      return {
+        weighted_score: scoreWeight ? scoreSum / scoreWeight : null,
+        score_weight: scoreWeight,
+        score_bands: scoreBands,
+        metrics: overviewMetrics.map(metric => {
+          const total = metricTotals.get(metric.key);
+          return {...metric, value: total.weight ? total.sum / total.weight : null, weight: total.weight};
+        }),
+      };
+    }
+    function renderMetricsOverview(runs) {
+      const target = document.getElementById("metricsOverview");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const overview = aggregateMetricsOverview(runs);
+      const totals = runTotals(runs);
+      const q = aggregateQuality(runs);
+      const maxBand = Math.max(1, ...overview.score_bands.map(band => band.genui || band.runs));
+      const scoreRows = overview.score_bands.map(band => {
+        const width = Math.max(3, Math.round(((band.genui || band.runs) / maxBand) * 100));
+        return `
+          <div class="dist-row">
+            <div><span class="badge ${band.className}">${band.label}</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+            <div class="small">${fmt(band.runs)} runs<br>${fmt(band.genui)} IR</div>
+          </div>`;
+      }).join("");
+      const metricRows = overview.metrics.map(metric => `
+        <tr>
+          <td><b>${metric.label}</b></td>
+          <td>${metricDisplay(metric, metric.value)}</td>
+          <td class="small">${fmt(metric.weight)} weighted IR</td>
+        </tr>`).join("");
+      const sampled = Math.max(1, q.sampled || 0);
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${scoreText(overview.weighted_score)}</b><br><span class="small">weighted avg score</span></div>
+          <div class="detail-box"><b>${fmt(totals.genui)}</b><br><span class="small">filtered IR records</span></div>
+          <div class="detail-box"><b>${fmt(totals.runs)}</b><br><span class="small">filtered runs</span></div>
+          <div class="detail-box"><b>${metricPct(q.strict_schema_fail / sampled)}</b><br><span class="small">sampled strict fail rate</span></div>
+          <div class="detail-box"><b>${metricPct(q.repair_attempted / sampled)}</b><br><span class="small">sampled repair rate</span></div>
+          <div class="detail-box"><b>${metricPct(q.fallback_generated / sampled)}</b><br><span class="small">sampled fallback rate</span></div>
+        </div>
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Score Bands</h2>
+            ${scoreRows}
+          </div>
+          <div>
+            <h2>Core Metric Averages</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Metric</th><th>Average</th><th>Weight</th></tr></thead>
+                <tbody>${metricRows}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Averages are weighted by filtered IR count per run. Validation rates use sampled genui.jsonl rows already collected for quality alerts.</div>
+      `;
+    }
     function aggregateIssueSamples(runs) {
       const rows = [];
       for (const run of runs) {
@@ -3502,6 +3623,7 @@ INDEX_HTML = r"""<!doctype html>
       renderRunDetails(runs);
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
+      renderMetricsOverview(runs);
       renderThroughputEta(runs, sourceStats);
       renderStorageArtifacts(runs, sourceStats);
       renderWorstSamples(runs);
