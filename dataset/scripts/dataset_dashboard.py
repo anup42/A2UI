@@ -3208,6 +3208,10 @@ INDEX_HTML = r"""<!doctype html>
       </section>
     </section>
     <section class="panel wide-panel">
+      <h2>Completion Funnel</h2>
+      <div id="completionFunnel"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>Data Integrity</h2>
       <div id="dataIntegrity"></div>
     </section>
@@ -3487,6 +3491,11 @@ INDEX_HTML = r"""<!doctype html>
       const text = String(value ?? "");
       return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
     }
+    function csvRatio(numerator, denominator) {
+      const den = Number(denominator || 0);
+      if (!den) return "";
+      return (Number(numerator || 0) / den).toFixed(4);
+    }
     function exportFiltered(format) {
       if (!current) return;
       const runs = filteredRuns();
@@ -3507,64 +3516,73 @@ INDEX_HTML = r"""<!doctype html>
       }
       const headers = [
         "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
+        "query_to_response_rate","response_to_ir_rate","query_to_ir_rate",
         "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
         "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
         "log_files","log_issues","log_latest_updated_at",
         "response_asset_records","missing_response_assets","ir_media_components","ir_local_media_missing","ir_remote_media_refs",
         "record_sample_count",
-        "paired_records","estimated_ready_score70","estimated_ready_score80","sample_ready_score70","sample_strict_valid",
+        "paired_records","estimated_ready_score70","estimated_ready_score80","sample_ready_score70","sample_strict_valid","estimated_ready70_rate","sample_strict_valid_rate",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
         "updated_at","response_model","ir_model","query_prompt_versions","response_prompt_versions","ir_prompt_versions","ir_versions","path",
       ];
-      const rows = runs.map(r => [
-        r.source_id,
-        r.source_label,
-        r.run_id,
-        r.queries,
-        r.responses,
-        r.genui,
-        r.response_backlog,
-        r.ir_backlog,
-        r.display_score ?? r.overall_score,
-        r.assets,
-        r.screenshots,
-        r.total_bytes,
-        r.file_count,
-        (r.missing_core_files || []).join("; "),
-        r.data_integrity?.total_issues || 0,
-        r.data_integrity?.parse_error_count || 0,
-        r.data_integrity?.duplicate_id_count || 0,
-        r.data_integrity?.missing_id_count || 0,
-        r.data_integrity?.orphan_link_count || 0,
-        r.run_logs?.file_count || 0,
-        r.run_logs?.issue_count || 0,
-        r.run_logs?.latest_updated_at || "",
-        r.media_health?.response_asset_records || 0,
-        r.media_health?.response_asset_files_missing || 0,
-        r.media_health?.ir_media_components || 0,
-        r.media_health?.ir_local_media_missing || 0,
-        r.media_health?.ir_remote_media_refs || 0,
-        (r.record_samples || []).length,
-        r.training_readiness?.paired_records || 0,
-        r.training_readiness?.estimated_ready_score70 || 0,
-        r.training_readiness?.estimated_ready_score80 || 0,
-        r.training_readiness?.ready_score70 || 0,
-        r.training_readiness?.strict_valid || 0,
-        r.response_usage?.total_tokens || 0,
-        r.response_usage?.avg_latency_ms ?? "",
-        r.response_usage?.cost_usd ?? "",
-        r.ir_usage?.total_tokens || 0,
-        r.ir_usage?.avg_latency_ms ?? "",
-        r.ir_usage?.cost_usd ?? "",
-        r.updated_at,
-        dominantModel(r.response_models),
-        dominantModel(r.ir_models),
-        Object.keys(r.query_prompt_versions || {}).join("; "),
-        Object.keys(r.response_prompt_versions || {}).join("; "),
-        Object.keys(r.ir_prompt_versions || {}).join("; "),
-        Object.keys(r.ir_versions || {}).join("; "),
-        r.path,
-      ]);
+      const rows = runs.map(r => {
+        const readiness = r.training_readiness || {};
+        return [
+          r.source_id,
+          r.source_label,
+          r.run_id,
+          r.queries,
+          r.responses,
+          r.genui,
+          r.response_backlog,
+          r.ir_backlog,
+          csvRatio(r.responses, r.queries),
+          csvRatio(r.genui, r.responses),
+          csvRatio(r.genui, r.queries),
+          r.display_score ?? r.overall_score,
+          r.assets,
+          r.screenshots,
+          r.total_bytes,
+          r.file_count,
+          (r.missing_core_files || []).join("; "),
+          r.data_integrity?.total_issues || 0,
+          r.data_integrity?.parse_error_count || 0,
+          r.data_integrity?.duplicate_id_count || 0,
+          r.data_integrity?.missing_id_count || 0,
+          r.data_integrity?.orphan_link_count || 0,
+          r.run_logs?.file_count || 0,
+          r.run_logs?.issue_count || 0,
+          r.run_logs?.latest_updated_at || "",
+          r.media_health?.response_asset_records || 0,
+          r.media_health?.response_asset_files_missing || 0,
+          r.media_health?.ir_media_components || 0,
+          r.media_health?.ir_local_media_missing || 0,
+          r.media_health?.ir_remote_media_refs || 0,
+          (r.record_samples || []).length,
+          readiness.paired_records || 0,
+          readiness.estimated_ready_score70 || 0,
+          readiness.estimated_ready_score80 || 0,
+          readiness.ready_score70 || 0,
+          readiness.strict_valid || 0,
+          csvRatio(readiness.estimated_ready_score70, readiness.paired_records),
+          csvRatio(readiness.strict_valid, readiness.sampled),
+          r.response_usage?.total_tokens || 0,
+          r.response_usage?.avg_latency_ms ?? "",
+          r.response_usage?.cost_usd ?? "",
+          r.ir_usage?.total_tokens || 0,
+          r.ir_usage?.avg_latency_ms ?? "",
+          r.ir_usage?.cost_usd ?? "",
+          r.updated_at,
+          dominantModel(r.response_models),
+          dominantModel(r.ir_models),
+          Object.keys(r.query_prompt_versions || {}).join("; "),
+          Object.keys(r.response_prompt_versions || {}).join("; "),
+          Object.keys(r.ir_prompt_versions || {}).join("; "),
+          Object.keys(r.ir_versions || {}).join("; "),
+          r.path,
+        ];
+      });
       const csv = [headers, ...rows].map(row => row.map(csvCell).join(",")).join("\n");
       downloadBlob(`genuicraft_dataset_dashboard_${stamp}.csv`, csv, "text/csv");
       setStatus(`Exported ${fmt(runs.length)} runs as CSV`);
@@ -4592,6 +4610,145 @@ INDEX_HTML = r"""<!doctype html>
             <div><b>${fmt(row.total_backlog)}</b><br><span class="small">backlog</span></div>
           </div>`;
       }).join("");
+    }
+    function ratioOrNull(numerator, denominator) {
+      const den = Number(denominator || 0);
+      return den ? Number(numerator || 0) / den : null;
+    }
+    function estimatedFromSample(total, sampleHitCount, sampleCount) {
+      const rate = ratioOrNull(sampleHitCount, sampleCount);
+      return rate == null ? null : Math.round(Number(total || 0) * rate);
+    }
+    function renderFunnelStep(step) {
+      const width = Math.max(3, Math.min(100, Math.round(Number(step.rate || 0) * 100)));
+      return `
+        <div class="day-row">
+          <div>
+            <b>${escapeHtml(step.label)}</b><br>
+            <span class="small">${escapeHtml(step.detail || "")}</span>
+          </div>
+          <div>
+            <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+            <div class="day-counts">
+              <span>${fmt(step.count == null ? 0 : step.count)} records</span>
+              <span>${pct(step.rate)} of queries</span>
+              ${step.stageRate == null ? "" : `<span>${escapeHtml(step.stageLabel || "stage")} ${pct(step.stageRate)}</span>`}
+            </div>
+          </div>
+          <div><b>${pct(step.rate)}</b><br><span class="small">cumulative</span></div>
+        </div>`;
+    }
+    function sourceFunnelRows(runs, sources) {
+      const bySource = new Map();
+      for (const run of runs) {
+        if (!bySource.has(run.source_id)) bySource.set(run.source_id, []);
+        bySource.get(run.source_id).push(run);
+      }
+      return sources.map(source => {
+        const sourceRuns = bySource.get(source.source_id) || [];
+        const readiness = aggregateTrainingReadiness(sourceRuns);
+        const ready70Rate = ratioOrNull(readiness.estimated_ready_score70, readiness.paired_records);
+        return {
+          ...source,
+          readiness,
+          queryToResponse: ratioOrNull(source.responses, source.queries),
+          responseToIr: ratioOrNull(source.genui, source.responses),
+          queryToIr: ratioOrNull(source.genui, source.queries),
+          ready70Rate,
+          total_backlog: (source.response_backlog || 0) + (source.ir_backlog || 0),
+        };
+      }).sort((a, b) =>
+        (b.total_backlog - a.total_backlog)
+        || ((a.queryToIr ?? 1) - (b.queryToIr ?? 1))
+        || ((a.ready70Rate ?? 1) - (b.ready70Rate ?? 1))
+        || String(a.source_label).localeCompare(String(b.source_label))
+      );
+    }
+    function renderCompletionFunnel(runs, sources) {
+      const target = document.getElementById("completionFunnel");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const totals = runTotals(runs);
+      const readiness = aggregateTrainingReadiness(runs);
+      const strictEstimate = estimatedFromSample(totals.genui, readiness.strict_valid, readiness.sampled);
+      const steps = [
+        {
+          label: "Stage 1 Queries",
+          count: totals.queries,
+          rate: totals.queries ? 1 : null,
+          detail: "accepted query records",
+        },
+        {
+          label: "Stage 2 Responses",
+          count: totals.responses,
+          rate: ratioOrNull(totals.responses, totals.queries),
+          stageRate: ratioOrNull(totals.responses, totals.queries),
+          stageLabel: "Q->R",
+          detail: `missing responses ${fmt(totals.response_backlog)}`,
+        },
+        {
+          label: "Stage 3 IR",
+          count: totals.genui,
+          rate: ratioOrNull(totals.genui, totals.queries),
+          stageRate: ratioOrNull(totals.genui, totals.responses),
+          stageLabel: "R->IR",
+          detail: `missing IR ${fmt(totals.ir_backlog)}`,
+        },
+        {
+          label: "Strict Valid IR (estimated)",
+          count: strictEstimate,
+          rate: ratioOrNull(strictEstimate, totals.queries),
+          stageRate: ratioOrNull(readiness.strict_valid, readiness.sampled),
+          stageLabel: "sample strict",
+          detail: `${fmt(readiness.strict_valid)} / ${fmt(readiness.sampled)} sampled rows passed strict schema`,
+        },
+        {
+          label: "Ready >=70 (estimated)",
+          count: readiness.estimated_ready_score70,
+          rate: ratioOrNull(readiness.estimated_ready_score70, totals.queries),
+          stageRate: ratioOrNull(readiness.ready_score70, readiness.sampled),
+          stageLabel: "sample ready",
+          detail: "strict, no fallback/error/markdown leakage, score >=70",
+        },
+        {
+          label: "Ready >=80 (estimated)",
+          count: readiness.estimated_ready_score80,
+          rate: ratioOrNull(readiness.estimated_ready_score80, totals.queries),
+          stageRate: ratioOrNull(readiness.ready_score80, readiness.sampled),
+          stageLabel: "sample ready",
+          detail: "same gate with score >=80",
+        },
+      ];
+      const sourceRows = sourceFunnelRows(runs, sources).slice(0, 12).map(row => `
+        <tr>
+          <td><b>${escapeHtml(row.source_label)}</b><br><span class="small">${fmt(row.run_count)} runs</span></td>
+          <td>${fmt(row.queries)} / ${fmt(row.responses)} / ${fmt(row.genui)}</td>
+          <td>${pct(row.queryToResponse)}<br><span class="small">Q->R</span></td>
+          <td>${pct(row.responseToIr)}<br><span class="small">R->IR</span></td>
+          <td>${pct(row.queryToIr)}<br><span class="small">Q->IR</span></td>
+          <td>${fmt(row.readiness.estimated_ready_score70 || 0)}<br><span class="small">${pct(row.ready70Rate)} of paired</span></td>
+          <td><span class="score ${scoreClass(row.avg_score)}">${scoreText(row.avg_score)}</span></td>
+        </tr>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${pct(ratioOrNull(totals.responses, totals.queries))}</b><br><span class="small">query -> response</span></div>
+          <div class="detail-box"><b>${pct(ratioOrNull(totals.genui, totals.responses))}</b><br><span class="small">response -> IR</span></div>
+          <div class="detail-box"><b>${pct(ratioOrNull(totals.genui, totals.queries))}</b><br><span class="small">query -> IR</span></div>
+          <div class="detail-box"><b>${fmt(strictEstimate || 0)}</b><br><span class="small">estimated strict valid IR</span></div>
+          <div class="detail-box"><b>${fmt(readiness.estimated_ready_score70 || 0)}</b><br><span class="small">estimated ready >=70</span></div>
+          <div class="detail-box"><b>${fmt(readiness.estimated_ready_score80 || 0)}</b><br><span class="small">estimated ready >=80</span></div>
+        </div>
+        <div class="warning-list">${steps.map(renderFunnelStep).join("")}</div>
+        <h2>Source Funnel</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Source</th><th>Q / R / IR</th><th>Q->R</th><th>R->IR</th><th>Q->IR</th><th>Ready >=70</th><th>Score</th></tr></thead>
+            <tbody>${sourceRows || "<tr><td colspan='7'><span class='small'>No source rows.</span></td></tr>"}</tbody>
+          </table>
+        </div>
+        <div class="small">Strict-valid and ready counts are sampled estimates from the same Stage 3 readiness gates used by the Training Readiness panel. Query/response/IR conversion uses exact filtered counts.</div>`;
     }
     function dayMs(day) {
       const ms = Date.parse(`${day}T23:59:59Z`);
@@ -6128,6 +6285,7 @@ INDEX_HTML = r"""<!doctype html>
       renderRunDetails(runs);
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
+      renderCompletionFunnel(runs, sourceStats);
       renderDataIntegrity(runs);
       renderMetricsOverview(runs);
       renderTrainingReadiness(runs);

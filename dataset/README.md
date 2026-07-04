@@ -210,6 +210,10 @@ dashboard, so it can be used to identify which remote generator or filtered slic
 The action-items panel ranks the most urgent source/run problems from the filtered view, combining
 sync errors, stale sources, backlog, data integrity, sampled quality failures, and artifact gaps into
 a short list with links back to run details.
+The completion funnel panel shows exact query-to-response, response-to-IR, and query-to-IR
+conversion rates, then combines them with sampled readiness estimates for strict-valid IR and
+score-threshold-ready records. Its source table makes it clear which generator/source is losing data
+at each pipeline step.
 The run-logs panel scans bounded tails from `*.log`, `logs/*.log`, and nested `run.log` files to
 surface recent errors, exceptions, HTTP failures, rate-limit messages, progress lines, and stale log
 updates. Use the run-health filter `Log issues` or sort by log issues to isolate failing workers.
