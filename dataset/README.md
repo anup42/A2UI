@@ -142,6 +142,10 @@ only in memory. Passwords stored in config are plaintext, so keep
 `configs/dataset_dashboard.sources.json` uncommitted. If you explicitly set
 `"ssh_backend": "openssh"` with a password, `sshpass` is required.
 
+SSH sources also support jump hosts through either `proxy_jump` or `proxy_command`. Use
+`proxy_command` when your working command uses `-o ProxyCommand="ssh ... -W %h:%p jump-host"`;
+the dashboard passes the same option to both `ssh` and `scp`.
+
 `path` can be a concrete directory or a glob pattern. For example, to sync only runs whose folder
 starts with `dataset_v1`, set:
 

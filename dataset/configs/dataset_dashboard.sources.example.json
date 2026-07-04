@@ -19,6 +19,12 @@
       "password": "",
       "ask_password": false,
       "ssh_backend": "",
+      "proxy_jump": "",
+      "proxy_command": "",
+      "ssh_options": {
+        "IdentitiesOnly": "yes",
+        "StrictHostKeyChecking": "no"
+      },
       "path": "/home/anup/A2UI/dataset/data/runs",
       "path_match": "literal",
       "path_base": "",

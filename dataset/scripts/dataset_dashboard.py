@@ -172,6 +172,8 @@ def use_paramiko_ssh(source: dict[str, Any]) -> bool:
         return True
     if backend == "openssh":
         return False
+    if source.get("proxy_command") or source.get("proxy_jump"):
+        return False
     return bool(ssh_password(source) or source_asks_password(source))
 
 
@@ -192,6 +194,33 @@ def ssh_target(source: dict[str, Any]) -> str:
         raise ValueError(f"SSH source {source.get('id')} missing host")
     user = str(source.get("user") or "").strip()
     return f"{user}@{host}" if user else host
+
+
+def normalized_ssh_options(source: dict[str, Any]) -> list[str]:
+    options: list[str] = []
+    raw_options = source.get("ssh_options", [])
+    if isinstance(raw_options, dict):
+        for key, value in raw_options.items():
+            if value is None or value == "":
+                continue
+            options.append(f"{key}={value}")
+    elif isinstance(raw_options, list):
+        for option in raw_options:
+            text = str(option).strip()
+            if text:
+                options.append(text)
+    elif raw_options:
+        text = str(raw_options).strip()
+        if text:
+            options.append(text)
+
+    proxy_jump = str(source.get("proxy_jump") or "").strip()
+    if proxy_jump:
+        options.append(f"ProxyJump={proxy_jump}")
+    proxy_command = str(source.get("proxy_command") or "").strip()
+    if proxy_command:
+        options.append(f"ProxyCommand={proxy_command}")
+    return options
 
 
 def run_command(command: list[str] | str, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
@@ -337,7 +366,7 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
     identity = str(source.get("identity_file") or "").strip()
     if identity:
         cmd += ["-i", os.path.expandvars(os.path.expanduser(identity))]
-    for option in source.get("ssh_options", []) or []:
+    for option in normalized_ssh_options(source):
         cmd += ["-o", str(option)]
     cmd.append(target)
     return cmd
@@ -356,7 +385,7 @@ def scp_base_command(source: dict[str, Any]) -> list[str]:
     identity = str(source.get("identity_file") or "").strip()
     if identity:
         cmd += ["-i", os.path.expandvars(os.path.expanduser(identity))]
-    for option in source.get("ssh_options", []) or []:
+    for option in normalized_ssh_options(source):
         cmd += ["-o", str(option)]
     return cmd
 
