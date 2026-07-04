@@ -1929,6 +1929,7 @@ INDEX_HTML = r"""<!doctype html>
     button:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .freshness-row { display:grid; grid-template-columns: minmax(160px, 1.4fr) 96px minmax(180px, 1fr); gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .eta-row { display:grid; grid-template-columns: minmax(160px, 1.2fr) minmax(220px, 1.4fr) minmax(190px, 1fr); gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
     .day-counts { display:flex; gap: 10px; flex-wrap: wrap; }
@@ -1939,7 +1940,7 @@ INDEX_HTML = r"""<!doctype html>
     .sync-top { display:flex; justify-content:space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
     .sync-messages { margin-top: 8px; display:grid; gap: 3px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
-    @media (max-width: 980px) { .grid, .two-col-panels, .freshness-row { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
+    @media (max-width: 980px) { .grid, .two-col-panels, .freshness-row, .eta-row { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
   </style>
 </head>
 <body>
@@ -2068,6 +2069,10 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Quality Alerts</h2>
         <div id="qualityAlerts"></div>
       </section>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Throughput And ETA</h2>
+      <div id="throughputEta"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Model Comparison</h2>
@@ -2623,6 +2628,11 @@ INDEX_HTML = r"""<!doctype html>
         screenshots: runs.reduce((a,r) => a + (r.screenshots || 0), 0),
       };
     }
+    function sortedDayBuckets(dayMap) {
+      return [...dayMap.values()]
+        .map(day => ({...day, avg_score: day.score_count ? day.score_sum / day.score_count : null}))
+        .sort((a, b) => b.day.localeCompare(a.day));
+    }
     function filteredSourceStats(sources, runs) {
       const emptySource = s => ({
         ...s,
@@ -2642,8 +2652,10 @@ INDEX_HTML = r"""<!doctype html>
         _scoreCount: 0,
         _latestMs: null,
         _oldestMs: null,
+        _dayMap: new Map(),
       });
       const bySource = new Map(sources.map(s => [s.source_id, emptySource(s)]));
+      const f = filters();
       for (const r of runs) {
         if (!bySource.has(r.source_id)) {
           bySource.set(r.source_id, emptySource({source_id: r.source_id, source_label: r.source_label, type: "unknown", local_path: ""}));
@@ -2673,10 +2685,21 @@ INDEX_HTML = r"""<!doctype html>
             s.oldest_run_updated_at = r.updated_at;
           }
         }
+        for (const day of filteredRunDays(r, f)) {
+          if (!s._dayMap.has(day.day)) {
+            s._dayMap.set(day.day, {day: day.day, queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0, avg_score: null});
+          }
+          const target = s._dayMap.get(day.day);
+          target.queries += day.queries || 0;
+          target.responses += day.responses || 0;
+          target.genui += day.genui || 0;
+          target.score_sum += day.score_sum || 0;
+          target.score_count += day.score_count || 0;
+        }
       }
       const sourceId = document.getElementById("sourceFilter").value;
       const rows = [...bySource.values()].filter(s => sourceId ? s.source_id === sourceId : s.run_count > 0);
-      return rows.map(s => ({...s, avg_score: s._scoreCount ? s._scoreSum / s._scoreCount : null, completion_rate: s.queries ? s.genui / s.queries : 0}));
+      return rows.map(s => ({...s, avg_score: s._scoreCount ? s._scoreSum / s._scoreCount : null, completion_rate: s.queries ? s.genui / s.queries : 0, days: sortedDayBuckets(s._dayMap)}));
     }
     function healthForSource(s) {
       return sourceHealthOverrides[s.source_id] || s.health || {status: "unknown", message: "Not tested"};
@@ -2866,6 +2889,120 @@ INDEX_HTML = r"""<!doctype html>
             <div><b>${fmt(row.total_backlog)}</b><br><span class="small">backlog</span></div>
           </div>`;
       }).join("");
+    }
+    function dayMs(day) {
+      const ms = Date.parse(`${day}T23:59:59Z`);
+      return Number.isFinite(ms) ? ms : null;
+    }
+    function windowStats(days, windowDays = 7) {
+      const cutoff = Date.now() - windowDays * 86400000;
+      const rows = (days || []).filter(day => {
+        const ms = dayMs(day.day);
+        return ms != null && ms >= cutoff;
+      });
+      const totals = rows.reduce((acc, day) => {
+        acc.queries += day.queries || 0;
+        acc.responses += day.responses || 0;
+        acc.genui += day.genui || 0;
+        acc.score_sum += day.score_sum || 0;
+        acc.score_count += day.score_count || 0;
+        return acc;
+      }, {queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0});
+      return {
+        ...totals,
+        active_days: rows.length,
+        window_days: windowDays,
+        response_per_day: totals.responses / windowDays,
+        ir_per_day: totals.genui / windowDays,
+        query_per_day: totals.queries / windowDays,
+        avg_score: totals.score_count ? totals.score_sum / totals.score_count : null,
+      };
+    }
+    function rateText(value) {
+      const n = Number(value || 0);
+      return n >= 10 ? n.toFixed(0) : n.toFixed(1);
+    }
+    function etaText(backlog, perDay) {
+      const missing = Number(backlog || 0);
+      const rate = Number(perDay || 0);
+      if (missing <= 0) return "cleared";
+      if (rate <= 0) return "no recent rate";
+      const days = missing / rate;
+      if (days < 1) return "<1d";
+      if (days < 30) return `${days.toFixed(days < 10 ? 1 : 0)}d`;
+      if (days < 365) return `${(days / 30).toFixed(1)}mo`;
+      return ">1y";
+    }
+    function bottleneckText(source) {
+      const responseBacklog = Number(source.response_backlog || 0);
+      const irBacklog = Number(source.ir_backlog || 0);
+      if (responseBacklog <= 0 && irBacklog <= 0) return "clear";
+      if (responseBacklog >= irBacklog) return "Stage 2";
+      return "Stage 3";
+    }
+    function renderThroughputEta(runs, sources) {
+      const target = document.getElementById("throughputEta");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const days = aggregateDaysFromRuns(runs);
+      if (!days.length) {
+        target.innerHTML = "<span class='small'>No dated buckets found for current filters.</span>";
+        return;
+      }
+      const totals = runTotals(runs);
+      const stats = windowStats(days, 7);
+      const latestDay = days[0]?.day || "unknown";
+      const sourceRows = [...sources]
+        .map(source => {
+          const rate = windowStats(source.days || [], 7);
+          return {
+            ...source,
+            rate,
+            total_backlog: (source.response_backlog || 0) + (source.ir_backlog || 0),
+            bottleneck: bottleneckText(source),
+          };
+        })
+        .sort((a, b) => (b.total_backlog - a.total_backlog) || (b.rate.genui - a.rate.genui) || String(a.source_label).localeCompare(String(b.source_label)))
+        .slice(0, 12);
+      const rows = sourceRows.map(row => `
+        <div class="eta-row">
+          <div>
+            <b>${escapeHtml(row.source_label)}</b><br>
+            <span class="badge ${row.bottleneck === "clear" ? "ok" : "warn"}">${row.bottleneck}</span>
+            <span class="small">${fmt(row.run_count)} runs</span>
+          </div>
+          <div>
+            <div class="day-counts">
+              <span>7d Q ${fmt(row.rate.queries)}</span>
+              <span>R ${fmt(row.rate.responses)}</span>
+              <span>IR ${fmt(row.rate.genui)}</span>
+              <span>R/day ${rateText(row.rate.response_per_day)}</span>
+              <span>IR/day ${rateText(row.rate.ir_per_day)}</span>
+            </div>
+            <div class="small">active dated buckets: ${fmt(row.rate.active_days)} | latest ${row.latest_run_updated_at ? ageText(row.latest_run_updated_at) : "unknown"}</div>
+          </div>
+          <div class="small">
+            missing R ${fmt(row.response_backlog)} -> ${etaText(row.response_backlog, row.rate.response_per_day)}<br>
+            missing IR ${fmt(row.ir_backlog)} -> ${etaText(row.ir_backlog, row.rate.ir_per_day)}
+          </div>
+        </div>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(stats.queries)}</b><br><span class="small">queries in last 7d</span></div>
+          <div class="detail-box"><b>${fmt(stats.responses)}</b><br><span class="small">responses in last 7d</span></div>
+          <div class="detail-box"><b>${fmt(stats.genui)}</b><br><span class="small">IR in last 7d</span></div>
+          <div class="detail-box"><b>${rateText(stats.response_per_day)}</b><br><span class="small">responses/day</span></div>
+          <div class="detail-box"><b>${rateText(stats.ir_per_day)}</b><br><span class="small">IR/day</span></div>
+          <div class="detail-box"><b>${etaText(totals.response_backlog, stats.response_per_day)}</b><br><span class="small">response backlog ETA</span></div>
+          <div class="detail-box"><b>${etaText(totals.ir_backlog, stats.ir_per_day)}</b><br><span class="small">IR backlog ETA</span></div>
+          <div class="detail-box"><b>${latestDay}</b><br><span class="small">latest dated bucket</span></div>
+        </div>
+        <h2>Source Throughput</h2>
+        <div class="warning-list">${rows || "<span class='small'>No source throughput rows.</span>"}</div>
+        <div class="small">Rates use dated records from the last 7 calendar days under the active filters. ETA is backlog divided by recent response/IR generation rate; no recent rate means the pipeline appears stalled for that filtered slice.</div>
+      `;
     }
     function aggregateQuality(runs) {
       const totals = {
@@ -3224,6 +3361,7 @@ INDEX_HTML = r"""<!doctype html>
       renderRunDetails(runs);
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
+      renderThroughputEta(runs, sourceStats);
       renderWorstSamples(runs);
       renderModelComparison(runs);
       renderDistribution(runs);

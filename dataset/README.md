@@ -204,6 +204,10 @@ The freshness panel highlights the latest matching run update, last sync age, so
 matching update in 7 days, runs older than 7 or 30 days, and runs that still have response or IR
 backlog. Freshness follows the same source/date/score/text/IR-version filters as the rest of the
 dashboard, so it can be used to identify which remote generator or filtered slice stopped updating.
+The throughput panel uses the filtered day buckets to show last-7-day query, response, and IR volume,
+response/day and IR/day rates, source-level bottlenecks, and backlog ETA. If a filtered slice has
+backlog but no recent response or IR rate, the ETA reports `no recent rate` so stalled workers are
+easy to distinguish from slow-but-active workers.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
 warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
 view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
