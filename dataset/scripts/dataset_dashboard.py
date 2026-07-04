@@ -1785,6 +1785,9 @@ INDEX_HTML = r"""<!doctype html>
     .dist-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; }
     .dist-row { display:grid; grid-template-columns: minmax(90px, 1fr) 2fr 70px; gap: 10px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
     .dist-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .pager { display:flex; align-items:center; justify-content:space-between; gap: 10px; flex-wrap:wrap; margin: 0 0 12px; }
+    .pager-controls { display:flex; align-items:center; gap: 8px; flex-wrap:wrap; }
+    button:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
@@ -1869,6 +1872,22 @@ INDEX_HTML = r"""<!doctype html>
       </aside>
       <section class="panel">
         <h2>Runs</h2>
+        <div class="pager">
+          <span class="small" id="runPageInfo"></span>
+          <div class="pager-controls">
+            <label class="date-label">Rows
+              <select id="pageSize">
+                <option value="25">25</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="250">250</option>
+                <option value="500">500</option>
+              </select>
+            </label>
+            <button class="mini-btn ghost-btn" id="prevPageBtn">Prev</button>
+            <button class="mini-btn ghost-btn" id="nextPageBtn">Next</button>
+          </div>
+        </div>
         <div class="scroll">
           <table>
             <thead>
@@ -1932,6 +1951,7 @@ INDEX_HTML = r"""<!doctype html>
     let summaryLoading = false;
     let sourceHealthOverrides = {};
     let selectedRunKey = null;
+    let runPage = 1;
     const fmt = n => (n ?? 0).toLocaleString();
     const pct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(1)}%`;
     const metricPct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(0)}%`;
@@ -2127,6 +2147,9 @@ INDEX_HTML = r"""<!doctype html>
       ];
       document.getElementById("stats").innerHTML = stats.map(([k,v]) => `<div class="stat"><div class="v">${fmt(v)}</div><div class="k">${k}</div></div>`).join("");
     }
+    function getPageSize() {
+      return Math.max(1, Number(document.getElementById("pageSize").value || "50"));
+    }
     function filters() {
       return {
         text: document.getElementById("filter").value.toLowerCase().trim(),
@@ -2247,6 +2270,24 @@ INDEX_HTML = r"""<!doctype html>
       const f = filters();
       return sortRuns((current.runs || []).filter(r => runMatches(r, f)).map(r => filteredRunRecord(r, f)), f.sortBy);
     }
+    function paginatedRuns(runs) {
+      const size = getPageSize();
+      const totalPages = Math.max(1, Math.ceil(runs.length / size));
+      runPage = Math.min(Math.max(1, runPage), totalPages);
+      const start = (runPage - 1) * size;
+      const rows = runs.slice(start, start + size);
+      return {
+        rows,
+        totalPages,
+        start: rows.length ? start + 1 : 0,
+        end: start + rows.length,
+        total: runs.length,
+      };
+    }
+    function resetPageAndRender() {
+      runPage = 1;
+      render();
+    }
     function runTotals(runs) {
       const sourceIds = new Set(runs.map(r => r.source_id));
       return {
@@ -2334,7 +2375,12 @@ INDEX_HTML = r"""<!doctype html>
       select.innerHTML = `<option value="">All IR versions</option>${options.join("")}`;
       if ([...select.options].some(o => o.value === selected)) select.value = selected;
     }
-    function renderRuns(runs) {
+    function renderRuns(runs, pageInfo) {
+      document.getElementById("runPageInfo").textContent = pageInfo.total
+        ? `Showing ${fmt(pageInfo.start)}-${fmt(pageInfo.end)} of ${fmt(pageInfo.total)} filtered runs, page ${fmt(runPage)} of ${fmt(pageInfo.totalPages)}`
+        : "No runs match current filters";
+      document.getElementById("prevPageBtn").disabled = runPage <= 1;
+      document.getElementById("nextPageBtn").disabled = runPage >= pageInfo.totalPages;
       document.getElementById("runs").innerHTML = runs.map(r => `
         <tr>
           <td>
@@ -2763,10 +2809,11 @@ INDEX_HTML = r"""<!doctype html>
       renderSourceFilter(current.sources || []);
       renderIrVersionFilter(current.ir_versions || {});
       const runs = filteredRuns();
+      const page = paginatedRuns(runs);
       renderStats(runTotals(runs));
       const sourceStats = filteredSourceStats(current.sources || [], runs);
       renderSources(sourceStats);
-      renderRuns(runs);
+      renderRuns(page.rows, page);
       renderRunDetails(runs);
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
@@ -2779,14 +2826,17 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
     document.getElementById("exportCsvBtn").onclick = () => exportFiltered("csv");
     document.getElementById("exportJsonBtn").onclick = () => exportFiltered("json");
-    document.getElementById("filter").oninput = render;
-    document.getElementById("sourceFilter").onchange = render;
-    document.getElementById("irVersionFilter").onchange = render;
-    document.getElementById("scoreFilter").onchange = render;
-    document.getElementById("issueFilter").onchange = render;
-    document.getElementById("sortBy").onchange = render;
-    document.getElementById("dateFrom").onchange = render;
-    document.getElementById("dateTo").onchange = render;
+    document.getElementById("filter").oninput = resetPageAndRender;
+    document.getElementById("sourceFilter").onchange = resetPageAndRender;
+    document.getElementById("irVersionFilter").onchange = resetPageAndRender;
+    document.getElementById("scoreFilter").onchange = resetPageAndRender;
+    document.getElementById("issueFilter").onchange = resetPageAndRender;
+    document.getElementById("sortBy").onchange = resetPageAndRender;
+    document.getElementById("dateFrom").onchange = resetPageAndRender;
+    document.getElementById("dateTo").onchange = resetPageAndRender;
+    document.getElementById("pageSize").onchange = resetPageAndRender;
+    document.getElementById("prevPageBtn").onclick = () => { runPage = Math.max(1, runPage - 1); render(); };
+    document.getElementById("nextPageBtn").onclick = () => { runPage += 1; render(); };
     document.getElementById("autoRefreshInterval").onchange = startAutoRefresh;
     loadSyncStatus().catch(() => {});
     loadSummary().then(startAutoRefresh).catch(e => setStatus(`Load failed: ${e.message}`));

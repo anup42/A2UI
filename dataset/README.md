@@ -188,6 +188,9 @@ refreshes the local scan every 30 seconds by default; use the Auto refresh dropd
 interval or turn it off.
 Use the run-health filter to focus on backlog, quality warnings, low content coverage, or low media
 usage, and use the sort dropdown to rank runs by freshness, score, IR count, backlog, or issue count.
+The runs table is paginated with selectable page size, while the top stats, source cards, backlog,
+quality alerts, model comparison, distributions, exports, and trend chart continue to use the full
+filtered run set.
 
 Source cards include a health badge based on the latest sync result and a `Test` action that checks
 the configured local/SSH/command source without copying files. The dashboard also shows response and
