@@ -2370,6 +2370,10 @@ INDEX_HTML = r"""<!doctype html>
       </div>
     </section>
     <section class="panel wide-panel">
+      <h2>IR Version Quality</h2>
+      <div id="irVersionQuality"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>Token Cost Latency</h2>
       <div id="usagePanel"></div>
     </section>
@@ -3843,6 +3847,114 @@ INDEX_HTML = r"""<!doctype html>
           </tr>`;
       }).join("");
     }
+    function addMapCount(map, key, count = 1) {
+      const label = String(key || "unknown");
+      map.set(label, (map.get(label) || 0) + Number(count || 0));
+    }
+    function aggregateIrVersionQuality(runs) {
+      const f = filters();
+      const buckets = new Map();
+      for (const run of runs) {
+        for (const [version, stats] of Object.entries(run.ir_version_stats || {})) {
+          if (f.irVersion && version !== f.irVersion) continue;
+          const dayRows = (stats.days || []).filter(day => !dateFilterActive(f) || dayInRange(day.day, f));
+          const counts = dateFilterActive(f)
+            ? dayRows.reduce((acc, day) => {
+                acc.queries += day.queries || 0;
+                acc.responses += day.responses || 0;
+                acc.genui += day.genui || 0;
+                acc.score_sum += day.score_sum || 0;
+                acc.score_count += day.score_count || 0;
+                return acc;
+              }, {queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0})
+            : {
+                queries: stats.queries || 0,
+                responses: stats.responses || 0,
+                genui: stats.genui || 0,
+                score_sum: stats.score_sum || 0,
+                score_count: stats.score_count || 0,
+              };
+          if (!counts.queries && !counts.responses && !counts.genui) continue;
+          if (!buckets.has(version)) {
+            buckets.set(version, {
+              version,
+              runs: 0,
+              sourceLabels: new Set(),
+              queries: 0,
+              responses: 0,
+              genui: 0,
+              score_sum: 0,
+              score_count: 0,
+              first_day: null,
+              latest_day: null,
+              irModels: new Map(),
+            });
+          }
+          const bucket = buckets.get(version);
+          bucket.runs += 1;
+          bucket.sourceLabels.add(run.source_label || run.source_id || "unknown");
+          bucket.queries += counts.queries || 0;
+          bucket.responses += counts.responses || 0;
+          bucket.genui += counts.genui || 0;
+          bucket.score_sum += counts.score_sum || 0;
+          bucket.score_count += counts.score_count || 0;
+          addMapCount(bucket.irModels, dominantModel(run.ir_models), counts.genui || 1);
+          for (const day of dayRows) {
+            if (!day.day) continue;
+            bucket.first_day = bucket.first_day == null || day.day < bucket.first_day ? day.day : bucket.first_day;
+            bucket.latest_day = bucket.latest_day == null || day.day > bucket.latest_day ? day.day : bucket.latest_day;
+          }
+        }
+      }
+      return [...buckets.values()]
+        .map(bucket => ({
+          ...bucket,
+          source_count: bucket.sourceLabels.size,
+          avg_score: bucket.score_count ? bucket.score_sum / bucket.score_count : null,
+          top_models: topCounts(bucket.irModels, 3),
+        }))
+        .sort((a,b) => (b.genui - a.genui) || (b.avg_score ?? -1) - (a.avg_score ?? -1) || a.version.localeCompare(b.version));
+    }
+    function renderIrVersionQuality(runs) {
+      const target = document.getElementById("irVersionQuality");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const rows = aggregateIrVersionQuality(runs);
+      if (!rows.length) {
+        target.innerHTML = "<span class='small'>No IR version data found for the current filters.</span>";
+        return;
+      }
+      const scored = rows.filter(row => row.avg_score != null);
+      const best = scored.slice().sort((a,b) => (b.avg_score - a.avg_score) || (b.genui - a.genui))[0];
+      const weakest = scored.slice().sort((a,b) => (a.avg_score - b.avg_score) || (b.genui - a.genui))[0];
+      const largest = rows.slice().sort((a,b) => b.genui - a.genui)[0];
+      const totalIr = rows.reduce((sum, row) => sum + (row.genui || 0), 0);
+      const tableRows = rows.map(row => `
+        <tr>
+          <td><b>${escapeHtml(row.version)}</b><br><span class="small">${fmt(row.runs)} runs | ${fmt(row.source_count)} sources</span></td>
+          <td>${fmt(row.queries)} Q<br>${fmt(row.responses)} R<br>${fmt(row.genui)} IR</td>
+          <td><span class="score ${scoreClass(row.avg_score)}">${scoreText(row.avg_score)}</span><br><span class="small">${fmt(row.score_count)} scored</span></td>
+          <td class="small">${row.first_day || "n/a"}<br>to ${row.latest_day || "n/a"}</td>
+          <td class="small">${row.top_models.map(([model, count]) => `${escapeHtml(model)} (${fmt(count)})`).join("<br>") || "n/a"}</td>
+        </tr>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(rows.length)}</b><br><span class="small">IR prompt versions</span></div>
+          <div class="detail-box"><b>${fmt(totalIr)}</b><br><span class="small">filtered IR rows</span></div>
+          <div class="detail-box"><b>${best ? escapeHtml(best.version) : "n/a"}</b><br><span class="small">best score ${best ? scoreText(best.avg_score) : ""}</span></div>
+          <div class="detail-box"><b>${weakest ? escapeHtml(weakest.version) : "n/a"}</b><br><span class="small">weakest score ${weakest ? scoreText(weakest.avg_score) : ""}</span></div>
+          <div class="detail-box"><b>${largest ? escapeHtml(largest.version) : "n/a"}</b><br><span class="small">largest ${largest ? fmt(largest.genui) : "0"} IR</span></div>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>IR Version</th><th>Counts</th><th>Avg Score</th><th>Date Span</th><th>Stage 3 Models</th></tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+        <div class="small">Version quality follows the current source/text/score/date filters and uses stored per-version score sums from genui.jsonl.</div>`;
+    }
     function emptyUsageBucket(label = "") {
       return {
         label,
@@ -4156,6 +4268,7 @@ INDEX_HTML = r"""<!doctype html>
       renderStorageArtifacts(runs, sourceStats);
       renderWorstSamples(runs);
       renderModelComparison(runs);
+      renderIrVersionQuality(runs);
       renderUsagePanel(runs);
       renderDistribution(runs);
       renderTrend(runs);

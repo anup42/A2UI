@@ -197,6 +197,8 @@ the configured local/SSH/command source without copying files. The dashboard als
 IR backlog (`queries - responses`, `responses - IR`) for the current filters, plus a model comparison
 table that groups runs by dominant Stage 2 response model and Stage 3 IR model with score and quality
 signals such as content coverage, section coverage, table coverage, action coverage, and media usage.
+The IR version quality panel groups filtered runs by Stage 3 prompt/IR version and shows count, score,
+date span, source coverage, and associated Stage 3 models so prompt changes can be compared directly.
 The sync configuration panel shows the effective local checkout plus configured sources with redacted
 credential indicators, path matching mode, SSH/proxy settings, include/exclude globs, and mirror path.
 The last-sync panel shows per-source listed/copied/skipped/error counts and mirror destinations.
