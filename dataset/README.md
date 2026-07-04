@@ -214,6 +214,9 @@ filtered IR count so larger runs contribute proportionally more than smoke tests
 The intent quality panel aggregates sampled `genui.jsonl` rows by intent/domain, showing largest
 intent buckets and lowest-scoring intents with coverage, heading, table, action, image, and icon
 signals. This makes it easier to identify weak domains even when the overall score looks acceptable.
+The token/cost/latency panel aggregates available `gen` metadata by stage and model, including input
+tokens, output tokens, total tokens, average latency, known cost, and generation errors. CSV exports
+include Stage 2 and Stage 3 token, latency, and cost fields for each filtered run.
 The storage and artifacts panel shows filtered disk usage, file counts, asset/screenshot bytes,
 storage by source, largest runs, runs missing core files, and runs with generated IR but no captured
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run

@@ -830,6 +830,83 @@ def collect_model_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
+def collect_generation_usage(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    totals: dict[str, Any] = {
+        "count": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "latency_ms_sum": 0.0,
+        "latency_count": 0,
+        "cost_usd_sum": 0.0,
+        "cost_count": 0,
+        "error_count": 0,
+        "models": {},
+    }
+    for row in rows:
+        gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+        provider = str(gen.get("provider") or gen.get("llm_provider") or "").strip()
+        model = str(gen.get("model") or "").strip()
+        model_key = "/".join(part for part in [provider, model] if part) or "unknown"
+        model_stats = totals["models"].setdefault(
+            model_key,
+            {
+                "count": 0,
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "latency_ms_sum": 0.0,
+                "latency_count": 0,
+                "cost_usd_sum": 0.0,
+                "cost_count": 0,
+                "error_count": 0,
+            },
+        )
+        totals["count"] += 1
+        model_stats["count"] += 1
+        for target in (totals, model_stats):
+            input_tokens = gen.get("input_tokens")
+            if isinstance(input_tokens, (int, float)):
+                target["input_tokens"] += int(input_tokens)
+            output_tokens = gen.get("output_tokens")
+            if isinstance(output_tokens, (int, float)):
+                target["output_tokens"] += int(output_tokens)
+            latency = gen.get("latency_ms")
+            if isinstance(latency, (int, float)):
+                target["latency_ms_sum"] += float(latency)
+                target["latency_count"] += 1
+            cost = gen.get("cost_usd")
+            if isinstance(cost, (int, float)):
+                target["cost_usd_sum"] += float(cost)
+                target["cost_count"] += 1
+            if gen.get("error"):
+                target["error_count"] += 1
+
+    def finalize(record: dict[str, Any]) -> dict[str, Any]:
+        latency_count = int(record.get("latency_count") or 0)
+        cost_count = int(record.get("cost_count") or 0)
+        return {
+            "count": int(record.get("count") or 0),
+            "input_tokens": int(record.get("input_tokens") or 0),
+            "output_tokens": int(record.get("output_tokens") or 0),
+            "total_tokens": int(record.get("input_tokens") or 0) + int(record.get("output_tokens") or 0),
+            "avg_latency_ms": float(record.get("latency_ms_sum") or 0.0) / latency_count if latency_count else None,
+            "latency_count": latency_count,
+            "cost_usd": float(record.get("cost_usd_sum") or 0.0) if cost_count else None,
+            "cost_count": cost_count,
+            "error_count": int(record.get("error_count") or 0),
+        }
+
+    models = {
+        key: finalize(value)
+        for key, value in sorted(
+            totals["models"].items(),
+            key=lambda kv: (-(int(kv[1].get("input_tokens") or 0) + int(kv[1].get("output_tokens") or 0)), kv[0]),
+        )
+    }
+    finalized = finalize(totals)
+    finalized["models"] = models
+    return finalized
+
+
 def dominant_model(counts: dict[str, int]) -> str:
     if not counts:
         return "unknown"
@@ -1823,6 +1900,9 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "query_models": collect_model_counts(query_rows),
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
+        "query_usage": collect_generation_usage(query_rows),
+        "response_usage": collect_generation_usage(response_rows),
+        "ir_usage": collect_generation_usage(genui_rows),
         "metric_avgs": collect_metric_avgs(genui_rows),
         "intent_quality": collect_intent_quality(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
@@ -2207,6 +2287,10 @@ INDEX_HTML = r"""<!doctype html>
       </div>
     </section>
     <section class="panel wide-panel">
+      <h2>Token Cost Latency</h2>
+      <div id="usagePanel"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>Filtered Distribution</h2>
       <div id="distribution" class="dist-grid"></div>
     </section>
@@ -2290,6 +2374,21 @@ INDEX_HTML = r"""<!doctype html>
       if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
       return `${fmt(n)} B`;
     };
+    const compactNumber = value => {
+      const n = Number(value || 0);
+      if (Math.abs(n) >= 1e9) return `${(n / 1e9).toFixed(1)}B`;
+      if (Math.abs(n) >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
+      if (Math.abs(n) >= 1e3) return `${(n / 1e3).toFixed(1)}K`;
+      return fmt(n);
+    };
+    const latencyText = value => {
+      if (value == null || Number.isNaN(Number(value))) return "n/a";
+      const ms = Number(value);
+      if (ms >= 60000) return `${(ms / 60000).toFixed(1)}m`;
+      if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+      return `${ms.toFixed(0)}ms`;
+    };
+    const costText = value => value == null || Number.isNaN(Number(value)) ? "n/a" : `$${Number(value).toFixed(Number(value) < 1 ? 4 : 2)}`;
     const modelText = obj => {
       const entries = Object.entries(obj || {}).slice(0, 3);
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
@@ -2431,7 +2530,9 @@ INDEX_HTML = r"""<!doctype html>
       }
       const headers = [
         "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
-        "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files","updated_at","response_model","ir_model","ir_versions","path",
+        "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
+        "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
+        "updated_at","response_model","ir_model","ir_versions","path",
       ];
       const rows = runs.map(r => [
         r.source_id,
@@ -2448,6 +2549,12 @@ INDEX_HTML = r"""<!doctype html>
         r.total_bytes,
         r.file_count,
         (r.missing_core_files || []).join("; "),
+        r.response_usage?.total_tokens || 0,
+        r.response_usage?.avg_latency_ms ?? "",
+        r.response_usage?.cost_usd ?? "",
+        r.ir_usage?.total_tokens || 0,
+        r.ir_usage?.avg_latency_ms ?? "",
+        r.ir_usage?.cost_usd ?? "",
         r.updated_at,
         dominantModel(r.response_models),
         dominantModel(r.ir_models),
@@ -3611,6 +3718,129 @@ INDEX_HTML = r"""<!doctype html>
           </tr>`;
       }).join("");
     }
+    function emptyUsageBucket(label = "") {
+      return {
+        label,
+        count: 0,
+        input_tokens: 0,
+        output_tokens: 0,
+        total_tokens: 0,
+        latency_ms_sum: 0,
+        latency_count: 0,
+        cost_usd_sum: 0,
+        cost_count: 0,
+        error_count: 0,
+      };
+    }
+    function addUsage(target, usage) {
+      if (!usage) return;
+      target.count += Number(usage.count || 0);
+      target.input_tokens += Number(usage.input_tokens || 0);
+      target.output_tokens += Number(usage.output_tokens || 0);
+      target.total_tokens += Number(usage.total_tokens || 0);
+      target.error_count += Number(usage.error_count || 0);
+      if (usage.avg_latency_ms != null && Number(usage.latency_count || 0)) {
+        target.latency_ms_sum += Number(usage.avg_latency_ms) * Number(usage.latency_count || 0);
+        target.latency_count += Number(usage.latency_count || 0);
+      }
+      if (usage.cost_usd != null && Number(usage.cost_count || 0)) {
+        target.cost_usd_sum += Number(usage.cost_usd);
+        target.cost_count += Number(usage.cost_count || 0);
+      }
+    }
+    function finalizeUsage(bucket) {
+      return {
+        ...bucket,
+        avg_latency_ms: bucket.latency_count ? bucket.latency_ms_sum / bucket.latency_count : null,
+        cost_usd: bucket.cost_count ? bucket.cost_usd_sum : null,
+      };
+    }
+    function aggregateUsage(runs) {
+      const stages = {
+        queries: emptyUsageBucket("Stage 1 Queries"),
+        responses: emptyUsageBucket("Stage 2 Responses"),
+        ir: emptyUsageBucket("Stage 3 IR"),
+      };
+      const models = new Map();
+      for (const run of runs) {
+        for (const [stageKey, usageKey, stageLabel] of [
+          ["queries", "query_usage", "Stage 1"],
+          ["responses", "response_usage", "Stage 2"],
+          ["ir", "ir_usage", "Stage 3"],
+        ]) {
+          const usage = run[usageKey] || {};
+          addUsage(stages[stageKey], usage);
+          for (const [model, modelUsage] of Object.entries(usage.models || {})) {
+            const key = `${stageLabel}::${model}`;
+            if (!models.has(key)) {
+              models.set(key, {...emptyUsageBucket(`${stageLabel} ${model}`), stage: stageLabel, model});
+            }
+            addUsage(models.get(key), modelUsage);
+          }
+        }
+      }
+      return {
+        stages: Object.values(stages).map(finalizeUsage),
+        models: [...models.values()].map(finalizeUsage).sort((a, b) => (b.total_tokens - a.total_tokens) || a.label.localeCompare(b.label)),
+      };
+    }
+    function renderUsagePanel(runs) {
+      const target = document.getElementById("usagePanel");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const usage = aggregateUsage(runs);
+      const total = finalizeUsage(usage.stages.reduce((acc, stage) => {
+        addUsage(acc, stage);
+        return acc;
+      }, emptyUsageBucket("Total")));
+      const stageRows = usage.stages.map(stage => `
+        <tr>
+          <td><b>${stage.label}</b></td>
+          <td>${fmt(stage.count)}</td>
+          <td>${compactNumber(stage.input_tokens)} in<br>${compactNumber(stage.output_tokens)} out</td>
+          <td>${compactNumber(stage.total_tokens)}</td>
+          <td>${latencyText(stage.avg_latency_ms)}<br><span class="small">${fmt(stage.latency_count)} timed</span></td>
+          <td>${costText(stage.cost_usd)}<br><span class="small">${fmt(stage.cost_count)} costed</span></td>
+          <td>${fmt(stage.error_count)}</td>
+        </tr>`).join("");
+      const modelRows = usage.models.slice(0, 18).map(row => `
+        <tr>
+          <td><span class="badge">${row.stage}</span><br><b>${escapeHtml(row.model)}</b></td>
+          <td>${fmt(row.count)}</td>
+          <td>${compactNumber(row.input_tokens)} / ${compactNumber(row.output_tokens)}</td>
+          <td>${compactNumber(row.total_tokens)}</td>
+          <td>${latencyText(row.avg_latency_ms)}</td>
+          <td>${costText(row.cost_usd)}</td>
+          <td>${fmt(row.error_count)}</td>
+        </tr>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${compactNumber(total.total_tokens)}</b><br><span class="small">sampled total tokens</span></div>
+          <div class="detail-box"><b>${compactNumber(total.input_tokens)}</b><br><span class="small">input tokens</span></div>
+          <div class="detail-box"><b>${compactNumber(total.output_tokens)}</b><br><span class="small">output tokens</span></div>
+          <div class="detail-box"><b>${latencyText(total.avg_latency_ms)}</b><br><span class="small">avg latency</span></div>
+          <div class="detail-box"><b>${costText(total.cost_usd)}</b><br><span class="small">known cost</span></div>
+          <div class="detail-box"><b>${fmt(total.error_count)}</b><br><span class="small">generation errors</span></div>
+        </div>
+        <h2>By Stage</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Stage</th><th>Rows</th><th>Input / Output</th><th>Total Tokens</th><th>Latency</th><th>Cost</th><th>Errors</th></tr></thead>
+            <tbody>${stageRows}</tbody>
+          </table>
+        </div>
+        <h2>Top Stage/Model Usage</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Model</th><th>Rows</th><th>Input / Output</th><th>Total Tokens</th><th>Latency</th><th>Cost</th><th>Errors</th></tr></thead>
+            <tbody>${modelRows || "<tr><td colspan='7'><span class='small'>No usage metadata found.</span></td></tr>"}</tbody>
+          </table>
+        </div>
+        <div class="small">Usage is aggregated from available gen metadata in sampled JSONL rows. Missing token/cost fields are shown as zero or n/a rather than estimated.</div>
+      `;
+    }
     function addObjectCounts(target, obj) {
       for (const [key, value] of Object.entries(obj || {})) {
         target.set(key, (target.get(key) || 0) + Number(value || 0));
@@ -3801,6 +4031,7 @@ INDEX_HTML = r"""<!doctype html>
       renderStorageArtifacts(runs, sourceStats);
       renderWorstSamples(runs);
       renderModelComparison(runs);
+      renderUsagePanel(runs);
       renderDistribution(runs);
       renderTrend(runs);
       renderDays(runs);
