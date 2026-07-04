@@ -1324,6 +1324,58 @@ def effective_dashboard_sources(config: dict[str, Any]) -> list[dict[str, Any]]:
     return sources
 
 
+def safe_identity_label(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    return Path(os.path.expandvars(os.path.expanduser(text))).name
+
+
+def source_config_summary(source: dict[str, Any]) -> dict[str, Any]:
+    source_id = safe_source_id(str(source.get("id") or source_label(source)))
+    summary = {
+        "source_id": source_id,
+        "source_label": source_label(source),
+        "type": str(source.get("type") or "local"),
+        "enabled": source_enabled(source),
+        "path": str(source.get("path") or ""),
+        "path_match": source_path_mode(source),
+        "path_base": str(source.get("path_base") or ""),
+        "mirror_local_in_place": bool(source.get("mirror_local_in_place", False)),
+        "ask_password": bool(source.get("ask_password") or source.get("prompt_password")),
+        "has_password": bool(ssh_password(source)),
+    }
+    for key in ("host", "user", "port", "ssh_backend", "proxy_jump"):
+        value = source.get(key)
+        if value not in (None, ""):
+            summary[key] = value
+    identity_label = safe_identity_label(source.get("identity_file"))
+    if identity_label:
+        summary["identity_file"] = identity_label
+    proxy_command = str(source.get("proxy_command") or "").strip()
+    if proxy_command:
+        summary["has_proxy_command"] = True
+        summary["proxy_command_preview"] = proxy_command[:96] + ("..." if len(proxy_command) > 96 else "")
+    options = normalized_ssh_options(source) if str(source.get("type") or "local").lower() == "ssh" else []
+    if options:
+        summary["ssh_options"] = options
+    return summary
+
+
+def dashboard_config_summary(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
+    configured_sources = [source for source in config.get("sources") or [] if isinstance(source, dict)]
+    effective_sources = effective_dashboard_sources(config)
+    return {
+        "mirror_dir": str(mirror_dir),
+        "include_globs": list(config.get("include_globs") or []),
+        "exclude_globs": list(config.get("exclude_globs") or []),
+        "configured_source_count": len(configured_sources),
+        "effective_source_count": len(effective_sources),
+        "enabled_source_count": len([source for source in effective_sources if source_enabled(source)]),
+        "sources": [source_config_summary(source) for source in effective_sources],
+    }
+
+
 def latest_sync_result(latest_sync: dict[str, Any] | None, source_id: str) -> dict[str, Any] | None:
     if not isinstance(latest_sync, dict):
         return None
@@ -1683,6 +1735,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         "ir_versions": aggregate_ir_versions(runs),
         "model_comparisons": aggregate_model_comparisons(runs),
         "last_sync": latest_sync,
+        "config": dashboard_config_summary(config, mirror_dir),
         "config_note": f"Using {DEFAULT_CONFIG if DEFAULT_CONFIG.exists() else DEFAULT_EXAMPLE_CONFIG}",
     }
 
@@ -1782,6 +1835,8 @@ INDEX_HTML = r"""<!doctype html>
     .artifact-row { display:grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
     .chart-wrap { min-height: 230px; }
     .chart-svg { width:100%; height:220px; overflow:visible; }
+    .config-source { border: 1px solid var(--line); border-radius: 14px; padding: 10px; margin-top: 8px; background: rgba(255,255,255,.52); }
+    .pill-row { display:flex; flex-wrap:wrap; gap: 6px; margin-top: 8px; }
     .dist-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; }
     .dist-row { display:grid; grid-template-columns: minmax(90px, 1fr) 2fr 70px; gap: 10px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
     .dist-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -1865,6 +1920,16 @@ INDEX_HTML = r"""<!doctype html>
   </header>
   <main>
     <section class="stats" id="stats"></section>
+    <section class="two-col-panels wide-panel">
+      <section class="panel">
+        <h2>Sync Configuration</h2>
+        <div id="syncConfig"></div>
+      </section>
+      <section class="panel">
+        <h2>Last Sync Results</h2>
+        <div id="lastSyncResults"></div>
+      </section>
+    </section>
     <section class="grid">
       <aside class="panel">
         <h2>Sources</h2>
@@ -2146,6 +2211,76 @@ INDEX_HTML = r"""<!doctype html>
         ["Screenshots", t.screenshots],
       ];
       document.getElementById("stats").innerHTML = stats.map(([k,v]) => `<div class="stat"><div class="v">${fmt(v)}</div><div class="k">${k}</div></div>`).join("");
+    }
+    function pills(items) {
+      return `<div class="pill-row">${(items || []).map(item => `<span class="badge">${escapeHtml(item)}</span>`).join("") || "<span class='small'>none</span>"}</div>`;
+    }
+    function renderSyncConfig(config) {
+      if (!config) {
+        document.getElementById("syncConfig").innerHTML = "<span class='small'>No config summary available.</span>";
+        return;
+      }
+      const sources = (config.sources || []).map(source => {
+        const meta = [
+          `${source.type}`,
+          source.enabled ? "enabled" : "disabled",
+          source.path_match ? `match ${source.path_match}` : "",
+          source.host ? `host ${source.host}` : "",
+          source.user ? `user ${source.user}` : "",
+          source.port ? `port ${source.port}` : "",
+          source.identity_file ? `key ${source.identity_file}` : "",
+          source.proxy_jump ? `jump ${source.proxy_jump}` : "",
+          source.has_proxy_command ? "proxy command" : "",
+          source.has_password ? "password in config" : "",
+          source.ask_password ? "prompt password" : "",
+        ].filter(Boolean);
+        return `
+          <div class="config-source">
+            <b>${escapeHtml(source.source_label)}</b>
+            ${pills(meta)}
+            <div class="small">path: ${escapeHtml(source.path || "n/a")}</div>
+            ${source.path_base ? `<div class="small">path_base: ${escapeHtml(source.path_base)}</div>` : ""}
+            ${source.proxy_command_preview ? `<div class="small">proxy: ${escapeHtml(source.proxy_command_preview)}</div>` : ""}
+            ${(source.ssh_options || []).length ? `<div class="small">ssh options: ${escapeHtml((source.ssh_options || []).join(" | "))}</div>` : ""}
+          </div>`;
+      }).join("");
+      document.getElementById("syncConfig").innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(config.effective_source_count)}</b><br><span class="small">effective sources</span></div>
+          <div class="detail-box"><b>${fmt(config.enabled_source_count)}</b><br><span class="small">enabled sources</span></div>
+          <div class="detail-box"><b>${fmt(config.configured_source_count)}</b><br><span class="small">configured sources</span></div>
+        </div>
+        <div class="small">mirror: ${escapeHtml(config.mirror_dir || "")}</div>
+        <div class="small">include globs:</div>${pills(config.include_globs)}
+        <div class="small">exclude globs:</div>${pills(config.exclude_globs)}
+        ${sources}
+      `;
+    }
+    function renderLastSyncResults(lastSync) {
+      if (!lastSync || !(lastSync.results || []).length) {
+        document.getElementById("lastSyncResults").innerHTML = "<span class='small'>No sync has been recorded yet.</span>";
+        return;
+      }
+      const rows = (lastSync.results || []).map(result => {
+        const errors = result.errors || [];
+        const status = (result.error_count || 0) ? "error" : "ok";
+        return `
+          <tr>
+            <td><b>${escapeHtml(result.source_label || result.source_id)}</b><br><span class="badge ${status}">${status}</span></td>
+            <td>listed ${fmt(result.listed)}<br>copied ${fmt(result.copied)}<br>skipped ${fmt(result.skipped)}</td>
+            <td>${fmt(result.error_count || 0)}<br><span class="small">${errors.length ? escapeHtml(errors[0]) : "no errors"}</span></td>
+            <td><span class="small">${escapeHtml(result.mirror_path || "")}</span></td>
+          </tr>`;
+      }).join("");
+      document.getElementById("lastSyncResults").innerHTML = `
+        <div class="small">synced at: ${lastSync.synced_at ? new Date(lastSync.synced_at).toLocaleString() : "unknown"}</div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Source</th><th>Files</th><th>Errors</th><th>Mirror</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
     }
     function getPageSize() {
       return Math.max(1, Number(document.getElementById("pageSize").value || "50"));
@@ -2811,6 +2946,8 @@ INDEX_HTML = r"""<!doctype html>
       const runs = filteredRuns();
       const page = paginatedRuns(runs);
       renderStats(runTotals(runs));
+      renderSyncConfig(current.config || {});
+      renderLastSyncResults(current.last_sync);
       const sourceStats = filteredSourceStats(current.sources || [], runs);
       renderSources(sourceStats);
       renderRuns(page.rows, page);

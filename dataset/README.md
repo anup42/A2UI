@@ -197,6 +197,9 @@ the configured local/SSH/command source without copying files. The dashboard als
 IR backlog (`queries - responses`, `responses - IR`) for the current filters, plus a model comparison
 table that groups runs by dominant Stage 2 response model and Stage 3 IR model with score and quality
 signals such as content coverage, section coverage, table coverage, action coverage, and media usage.
+The sync configuration panel shows the effective local checkout plus configured sources with redacted
+credential indicators, path matching mode, SSH/proxy settings, include/exclude globs, and mirror path.
+The last-sync panel shows per-source listed/copied/skipped/error counts and mirror destinations.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
 warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
 view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
