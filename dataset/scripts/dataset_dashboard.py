@@ -150,6 +150,17 @@ def configured_tool(source: dict[str, Any], config_key: str, executable: str) ->
     return shutil.which(executable) or ""
 
 
+def putty_host_keys(source: dict[str, Any]) -> list[str]:
+    keys: list[str] = []
+    raw_many = source.get("host_keys")
+    if isinstance(raw_many, list):
+        keys.extend(str(value).strip() for value in raw_many if str(value).strip())
+    raw_one = str(source.get("host_key") or "").strip()
+    if raw_one:
+        keys.append(raw_one)
+    return keys
+
+
 def ssh_transport_mode(source: dict[str, Any], copy: bool = False) -> str:
     if not ssh_password(source):
         return "openssh"
@@ -276,6 +287,8 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
         cmd = ["sshpass", "-p", password, "ssh"]
     elif mode == "putty":
         cmd = [configured_tool(source, "plink_path", "plink"), "-batch", "-pw", password]
+        for host_key in putty_host_keys(source):
+            cmd += ["-hostkey", host_key]
     else:
         cmd = ["ssh"]
     port = source.get("port")
@@ -299,6 +312,8 @@ def scp_base_command(source: dict[str, Any]) -> list[str]:
         cmd = ["sshpass", "-p", password, "scp", "-p"]
     elif mode == "putty":
         cmd = [configured_tool(source, "pscp_path", "pscp"), "-batch", "-pw", password, "-p"]
+        for host_key in putty_host_keys(source):
+            cmd += ["-hostkey", host_key]
     else:
         cmd = ["scp", "-p"]
     port = source.get("port")
