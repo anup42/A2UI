@@ -219,6 +219,10 @@ easy to distinguish from slow-but-active workers.
 The metrics overview panel shows score bands, weighted average score, weighted core metric averages,
 and sampled validation failure/repair/fallback rates for the current filters. Weighted averages use
 filtered IR count so larger runs contribute proportionally more than smoke tests.
+The IR structure panel samples flat-spec records and reports component type mix, table domains,
+presentation hints, action types, image/icon usage, special components, and uncommon component names.
+Use it to quickly catch prompt drift, unsupported components, missing media usage, or renderer coverage
+gaps before inspecting individual records.
 The data integrity panel scans core JSONL IDs and links for duplicate IDs, missing IDs, parse errors,
 count anomalies, and broken stage links such as IR records whose `response_id` is not present in
 `responses.jsonl`. Use the run-health filter `Data integrity issues` to isolate affected runs.
@@ -233,12 +237,12 @@ storage by source, largest runs, runs missing core files, and runs with generate
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
 view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
-warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
-view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
-also shows parsed `run_manifest.json` provenance, core artifacts, sample assets, and sample
-screenshots with copyable local paths, and the trend chart shows filtered daily volume with average
-IR score over time. Filtered distribution panels show top intents, Stage 2 models, Stage 3 models,
-IR versions, and source volume for the current view.
+warnings, IR structure, and metric breakdowns. `Export CSV` and `Export JSON` download the currently
+filtered run view, which is useful for sharing source-specific or score-thresholded slices. The run
+detail pane also shows parsed `run_manifest.json` provenance, core artifacts, sample assets, and
+sample screenshots with copyable local paths, and the trend chart shows filtered daily volume with
+average IR score over time. Filtered distribution panels show top intents, Stage 2 models, Stage 3
+models, IR versions, and source volume for the current view.
 The worst-sampled-records panel highlights low-score, repaired, fallback, markdown-leaking, sparse,
 or schema-failing IR rows from sampled `genui.jsonl` records and links back to the owning run details.
 

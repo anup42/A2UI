@@ -1123,6 +1123,192 @@ def collect_intent_quality(rows: list[dict[str, Any]], limit: int = 32) -> dict[
     return finalized
 
 
+KNOWN_COMPONENT_TYPES = {
+    "Stack",
+    "Column",
+    "Row",
+    "Card",
+    "Text",
+    "Image",
+    "Icon",
+    "Button",
+    "List",
+    "Divider",
+    "Tabs",
+    "Tab",
+    "Table",
+    "Badge",
+    "Chip",
+    "Spacer",
+    "Link",
+    "Form",
+    "Input",
+    "TextField",
+    "Select",
+    "Checkbox",
+    "Radio",
+    "Switch",
+    "Slider",
+    "Modal",
+    "CodeBlock",
+    "ConsoleLog",
+    "Formula",
+    "Chart",
+    "EmailPreview",
+}
+
+
+def increment_count(target: dict[str, int], key: Any, amount: int = 1) -> None:
+    label = str(key or "unknown").strip() or "unknown"
+    target[label] = target.get(label, 0) + amount
+
+
+def top_dict(counts: dict[str, int], limit: int = 20) -> dict[str, int]:
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:limit])
+
+
+def genui_payload(row: dict[str, Any]) -> dict[str, Any] | None:
+    for key in ("genui_json", "ir", "flat_spec", "payload"):
+        value = row.get(key)
+        if isinstance(value, dict) and isinstance(value.get("elements"), dict):
+            return value
+        if isinstance(value, str) and value.strip():
+            try:
+                parsed = json.loads(value)
+            except Exception:
+                continue
+            if isinstance(parsed, dict) and isinstance(parsed.get("elements"), dict):
+                return parsed
+    if isinstance(row.get("elements"), dict) and "root" in row:
+        return row
+    return None
+
+
+def resolve_state_path(state: Any, path: Any) -> Any:
+    if not isinstance(path, str) or not path.startswith("/"):
+        return None
+    current = state
+    for token in path.strip("/").split("/"):
+        token = token.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict):
+            current = current.get(token)
+        elif isinstance(current, list) and token.isdigit():
+            index = int(token)
+            current = current[index] if 0 <= index < len(current) else None
+        else:
+            return None
+    return current
+
+
+def table_dimensions(props: dict[str, Any], state: Any) -> tuple[int | None, int | None]:
+    columns = props.get("columns")
+    rows = props.get("rows")
+    if rows is None:
+        rows = resolve_state_path(state, props.get("statePath"))
+    column_count = len(columns) if isinstance(columns, list) else None
+    row_count = len(rows) if isinstance(rows, list) else None
+    return row_count, column_count
+
+
+def collect_ir_structure_summary(rows: list[dict[str, Any]], limit: int = 24) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "sampled": 0,
+        "flat_spec_rows": 0,
+        "component_count": 0,
+        "avg_components": None,
+        "component_types": {},
+        "uncommon_component_types": {},
+        "table_domains": {},
+        "table_presentations": {},
+        "action_types": {},
+        "table_count": 0,
+        "button_count": 0,
+        "image_count": 0,
+        "icon_count": 0,
+        "chart_count": 0,
+        "formula_count": 0,
+        "code_count": 0,
+        "email_preview_count": 0,
+        "table_rows_total": 0,
+        "table_rows_counted": 0,
+        "table_columns_total": 0,
+        "table_columns_counted": 0,
+        "avg_table_rows": None,
+        "avg_table_columns": None,
+    }
+    component_types: dict[str, int] = {}
+    uncommon_types: dict[str, int] = {}
+    table_domains: dict[str, int] = {}
+    table_presentations: dict[str, int] = {}
+    action_types: dict[str, int] = {}
+
+    sampled_rows = rows if limit <= 0 else rows[:limit]
+    for row in sampled_rows:
+        summary["sampled"] += 1
+        payload = genui_payload(row)
+        if not payload:
+            continue
+        elements = payload.get("elements")
+        if not isinstance(elements, dict):
+            continue
+        summary["flat_spec_rows"] += 1
+        state = payload.get("state") if isinstance(payload.get("state"), (dict, list)) else {}
+        summary["component_count"] += len(elements)
+        for element in elements.values():
+            if not isinstance(element, dict):
+                continue
+            type_name = str(element.get("type") or "unknown").strip() or "unknown"
+            props = element.get("props") if isinstance(element.get("props"), dict) else {}
+            increment_count(component_types, type_name)
+            if type_name not in KNOWN_COMPONENT_TYPES:
+                increment_count(uncommon_types, type_name)
+            if type_name == "Table":
+                summary["table_count"] += 1
+                increment_count(table_domains, props.get("domain") or "generic")
+                increment_count(table_presentations, props.get("preferredPresentation") or "auto")
+                row_count, column_count = table_dimensions(props, state)
+                if isinstance(row_count, int):
+                    summary["table_rows_total"] += row_count
+                    summary["table_rows_counted"] += 1
+                if isinstance(column_count, int):
+                    summary["table_columns_total"] += column_count
+                    summary["table_columns_counted"] += 1
+            elif type_name == "Button":
+                summary["button_count"] += 1
+            elif type_name == "Image":
+                summary["image_count"] += 1
+            elif type_name == "Icon":
+                summary["icon_count"] += 1
+            elif type_name == "Chart":
+                summary["chart_count"] += 1
+            elif type_name == "Formula":
+                summary["formula_count"] += 1
+            elif type_name in {"CodeBlock", "ConsoleLog"}:
+                summary["code_count"] += 1
+            elif type_name == "EmailPreview":
+                summary["email_preview_count"] += 1
+            on = element.get("on") if isinstance(element.get("on"), dict) else {}
+            for event in on.values():
+                if isinstance(event, dict):
+                    increment_count(action_types, event.get("action") or "unknown")
+            if isinstance(props.get("action"), str):
+                increment_count(action_types, props.get("action"))
+
+    flat_rows = int(summary["flat_spec_rows"] or 0)
+    if flat_rows:
+        summary["avg_components"] = float(summary["component_count"]) / flat_rows
+    if summary["table_rows_counted"]:
+        summary["avg_table_rows"] = float(summary["table_rows_total"]) / int(summary["table_rows_counted"])
+    if summary["table_columns_counted"]:
+        summary["avg_table_columns"] = float(summary["table_columns_total"]) / int(summary["table_columns_counted"])
+    summary["component_types"] = top_dict(component_types, limit)
+    summary["uncommon_component_types"] = top_dict(uncommon_types, limit)
+    summary["table_domains"] = top_dict(table_domains, limit)
+    summary["table_presentations"] = top_dict(table_presentations, limit)
+    summary["action_types"] = top_dict(action_types, limit)
+    return summary
+
+
 def row_issue_labels(row: dict[str, Any]) -> list[str]:
     labels: list[str] = []
     validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
@@ -2200,6 +2386,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "ir_usage": collect_generation_usage(genui_rows),
         "metric_avgs": collect_metric_avgs(genui_rows),
         "intent_quality": collect_intent_quality(genui_rows),
+        "ir_structure": collect_ir_structure_summary(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
         "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
         "run_logs": summarize_run_logs(run_dir),
@@ -2575,6 +2762,10 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>Filtered Metrics Overview</h2>
       <div id="metricsOverview"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>IR Structure</h2>
+      <div id="irStructure"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Intent Quality</h2>
@@ -3670,6 +3861,48 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Recent Log Progress</h2>
         <div class="warning-list">${progressRows || "<span class='small'>No progress lines found in log tails.</span>"}</div>`;
     }
+    function sortedObjectEntries(obj, limit = 8) {
+      return Object.entries(obj || {})
+        .map(([label, count]) => [String(label), Number(count || 0)])
+        .filter(([, count]) => count > 0)
+        .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]))
+        .slice(0, limit);
+    }
+    function renderRunIrStructureDetails(structure) {
+      const s = structure || {};
+      if (!s.sampled) return "<span class='small'>No sampled IR structure data found.</span>";
+      const uncommonRows = sortedObjectEntries(s.uncommon_component_types || {}, 8).map(([type, count]) => `
+        <div class="warning-row">
+          <span>${escapeHtml(type)}</span>
+          <b>${fmt(count)}</b>
+        </div>`).join("");
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(s.flat_spec_rows || 0)}</b><br><span class="small">sampled flat-spec rows</span></div>
+          <div class="detail-box"><b>${Number(s.avg_components || 0).toFixed(1)}</b><br><span class="small">avg components</span></div>
+          <div class="detail-box"><b>${fmt(s.component_count || 0)}</b><br><span class="small">sampled components</span></div>
+          <div class="detail-box"><b>${fmt(s.table_count || 0)}</b><br><span class="small">tables</span></div>
+          <div class="detail-box"><b>${fmt(s.button_count || 0)}</b><br><span class="small">buttons</span></div>
+          <div class="detail-box"><b>${fmt(s.image_count || 0)}</b><br><span class="small">images</span></div>
+          <div class="detail-box"><b>${fmt(s.icon_count || 0)}</b><br><span class="small">icons</span></div>
+          <div class="detail-box"><b>${Number(s.avg_table_rows || 0).toFixed(1)}</b><br><span class="small">avg table rows</span></div>
+          <div class="detail-box"><b>${Number(s.avg_table_columns || 0).toFixed(1)}</b><br><span class="small">avg table columns</span></div>
+        </div>
+        <div class="dist-grid">
+          ${renderStructureCountBlock("Component Types", sortedObjectEntries(s.component_types || {}, 10))}
+          ${renderStructureCountBlock("Table Domains", sortedObjectEntries(s.table_domains || {}, 8))}
+          ${renderStructureCountBlock("Table Presentations", sortedObjectEntries(s.table_presentations || {}, 8))}
+          ${renderStructureCountBlock("Action Types", sortedObjectEntries(s.action_types || {}, 8))}
+        </div>
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(s.chart_count || 0)}</b><br><span class="small">charts</span></div>
+          <div class="detail-box"><b>${fmt(s.formula_count || 0)}</b><br><span class="small">formula elements</span></div>
+          <div class="detail-box"><b>${fmt(s.code_count || 0)}</b><br><span class="small">code/console blocks</span></div>
+          <div class="detail-box"><b>${fmt(s.email_preview_count || 0)}</b><br><span class="small">email previews</span></div>
+        </div>
+        <h2>Uncommon Component Types</h2>
+        <div class="warning-list">${uncommonRows || "<span class='small'>No uncommon component types in sampled IR.</span>"}</div>`;
+    }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
       if (!runs.length) {
@@ -3724,6 +3957,8 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <h2>Validation Warnings</h2>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+        <h2>IR Structure</h2>
+        ${renderRunIrStructureDetails(selected.ir_structure || {})}
         <h2>Data Integrity</h2>
         ${renderIntegrityDetails(integrity)}
         <h2>Run Logs</h2>
@@ -4211,6 +4446,102 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <div class="small">Averages are weighted by filtered IR count per run. Validation rates use sampled genui.jsonl rows already collected for quality alerts.</div>
       `;
+    }
+    function addStructureCounts(target, obj) {
+      for (const [key, value] of Object.entries(obj || {})) {
+        target.set(key, (target.get(key) || 0) + Number(value || 0));
+      }
+    }
+    function aggregateIrStructure(runs) {
+      const componentTypes = new Map();
+      const uncommonTypes = new Map();
+      const tableDomains = new Map();
+      const tablePresentations = new Map();
+      const actionTypes = new Map();
+      const totals = {
+        sampled: 0,
+        flat_spec_rows: 0,
+        component_count: 0,
+        table_count: 0,
+        button_count: 0,
+        image_count: 0,
+        icon_count: 0,
+        chart_count: 0,
+        formula_count: 0,
+        code_count: 0,
+        email_preview_count: 0,
+        table_rows_total: 0,
+        table_rows_counted: 0,
+        table_columns_total: 0,
+        table_columns_counted: 0,
+      };
+      for (const run of runs) {
+        const s = run.ir_structure || {};
+        for (const key of Object.keys(totals)) {
+          totals[key] += Number(s[key] || 0);
+        }
+        addStructureCounts(componentTypes, s.component_types);
+        addStructureCounts(uncommonTypes, s.uncommon_component_types);
+        addStructureCounts(tableDomains, s.table_domains);
+        addStructureCounts(tablePresentations, s.table_presentations);
+        addStructureCounts(actionTypes, s.action_types);
+      }
+      return {
+        ...totals,
+        avg_components: totals.flat_spec_rows ? totals.component_count / totals.flat_spec_rows : null,
+        avg_table_rows: totals.table_rows_counted ? totals.table_rows_total / totals.table_rows_counted : null,
+        avg_table_columns: totals.table_columns_counted ? totals.table_columns_total / totals.table_columns_counted : null,
+        component_types: topCounts(componentTypes, 12),
+        uncommon_component_types: topCounts(uncommonTypes, 8),
+        table_domains: topCounts(tableDomains, 10),
+        table_presentations: topCounts(tablePresentations, 8),
+        action_types: topCounts(actionTypes, 10),
+      };
+    }
+    function renderStructureCountBlock(title, entries) {
+      return renderDistributionBlock(title, entries.length ? entries : [["none", 0]]);
+    }
+    function renderIrStructure(runs) {
+      const target = document.getElementById("irStructure");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const s = aggregateIrStructure(runs);
+      const uncommonRows = s.uncommon_component_types.map(([type, count]) => `
+        <div class="warning-row">
+          <span>${escapeHtml(type)}</span>
+          <b>${fmt(count)}</b>
+        </div>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(s.flat_spec_rows)}</b><br><span class="small">sampled flat-spec rows</span></div>
+          <div class="detail-box"><b>${Number(s.avg_components || 0).toFixed(1)}</b><br><span class="small">avg components</span></div>
+          <div class="detail-box"><b>${fmt(s.component_count)}</b><br><span class="small">sampled components</span></div>
+          <div class="detail-box"><b>${fmt(s.table_count)}</b><br><span class="small">tables</span></div>
+          <div class="detail-box"><b>${fmt(s.button_count)}</b><br><span class="small">buttons</span></div>
+          <div class="detail-box"><b>${fmt(s.image_count)}</b><br><span class="small">images</span></div>
+          <div class="detail-box"><b>${fmt(s.icon_count)}</b><br><span class="small">icons</span></div>
+          <div class="detail-box"><b>${Number(s.avg_table_rows || 0).toFixed(1)}</b><br><span class="small">avg table rows</span></div>
+          <div class="detail-box"><b>${Number(s.avg_table_columns || 0).toFixed(1)}</b><br><span class="small">avg table columns</span></div>
+        </div>
+        <div class="dist-grid">
+          ${renderStructureCountBlock("Component Types", s.component_types)}
+          ${renderStructureCountBlock("Table Domains", s.table_domains)}
+          ${renderStructureCountBlock("Table Presentations", s.table_presentations)}
+          ${renderStructureCountBlock("Action Types", s.action_types)}
+        </div>
+        <h2>Special Components</h2>
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(s.chart_count)}</b><br><span class="small">charts</span></div>
+          <div class="detail-box"><b>${fmt(s.formula_count)}</b><br><span class="small">formula elements</span></div>
+          <div class="detail-box"><b>${fmt(s.code_count)}</b><br><span class="small">code/console blocks</span></div>
+          <div class="detail-box"><b>${fmt(s.email_preview_count)}</b><br><span class="small">email previews</span></div>
+          <div class="detail-box"><b>${fmt(s.uncommon_component_types.reduce((sum, [, count]) => sum + Number(count || 0), 0))}</b><br><span class="small">uncommon components</span></div>
+        </div>
+        <h2>Uncommon Component Types</h2>
+        <div class="warning-list">${uncommonRows || "<span class='small'>No uncommon component types in sampled IR.</span>"}</div>
+        <div class="small">IR structure is computed from sampled genui.jsonl records per run. It helps verify prompt output and renderer coverage by showing actual component, table-domain, and action usage.</div>`;
     }
     const intentMetricKeys = [
       "content_coverage",
@@ -4862,6 +5193,7 @@ INDEX_HTML = r"""<!doctype html>
       renderQualityAlerts(runs);
       renderDataIntegrity(runs);
       renderMetricsOverview(runs);
+      renderIrStructure(runs);
       renderIntentQuality(runs);
       renderThroughputEta(runs, sourceStats);
       renderStorageArtifacts(runs, sourceStats);
