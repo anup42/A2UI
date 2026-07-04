@@ -136,6 +136,26 @@ private config file, so keep `configs/dataset_dashboard.sources.json` uncommitte
 On Windows, install PuTTY command-line tools or set `plink_path` and `pscp_path` to the full
 paths for `plink.exe` and `pscp.exe`.
 
+`path` can be a concrete directory or a glob pattern. For example, to sync only runs whose folder
+starts with `dataset_v1`, set:
+
+```
+"path": "/home/anup/A2UI/dataset/data/runs/dataset_v1*",
+"path_match": "glob"
+```
+
+The dashboard auto-detects glob mode when `path` contains `*`, `?`, or `[...]`, so `path_match`
+can usually be omitted. The matched folder name is preserved in the local mirror.
+
+For true regex matching, set `path_base` to the parent folder and match immediate child directory
+names under it:
+
+```
+"path_base": "/home/anup/A2UI/dataset/data/runs",
+"path": "^dataset_v1.*",
+"path_match": "regex"
+```
+
 Start the dashboard from the `dataset/` folder:
 
 ```

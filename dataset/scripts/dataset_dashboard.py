@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import glob
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -29,6 +31,7 @@ class FileEntry:
     rel: str
     size: int
     mtime: float
+    source_path: str | None = None
 
 
 def utc_now() -> str:
@@ -105,11 +108,31 @@ def match_any(rel: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatch(rel, pattern) for pattern in patterns)
 
 
+def match_filter_path(rel: str, patterns: list[str]) -> bool:
+    rel = rel.replace("\\", "/")
+    candidates = [rel]
+    if "/" in rel:
+        candidates.append(rel.split("/", 1)[1])
+    return any(match_any(candidate, patterns) for candidate in candidates)
+
+
 def should_include(rel: str, include_globs: list[str], exclude_globs: list[str]) -> bool:
     rel = rel.replace("\\", "/")
-    if exclude_globs and match_any(rel, exclude_globs):
+    if exclude_globs and match_filter_path(rel, exclude_globs):
         return False
-    return not include_globs or match_any(rel, include_globs)
+    return not include_globs or match_filter_path(rel, include_globs)
+
+
+def source_path_mode(source: dict[str, Any]) -> str:
+    mode = str(source.get("path_match") or "").strip().lower()
+    if mode in {"literal", "glob", "regex"}:
+        return mode
+    raw = str(source.get("path") or "")
+    return "glob" if glob.has_magic(os.path.expandvars(os.path.expanduser(raw))) else "literal"
+
+
+def root_label(root: Path) -> str:
+    return root.name or safe_source_id(str(root))
 
 
 def shell_quote(value: str) -> str:
@@ -176,12 +199,21 @@ def source_label(source: dict[str, Any]) -> str:
 
 def source_local_root(source: dict[str, Any], mirror_dir: Path) -> Path:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
-    if source.get("type") == "local" and source.get("mirror_local_in_place", False):
+    if (
+        source.get("type") == "local"
+        and source.get("mirror_local_in_place", False)
+        and source_path_mode(source) == "literal"
+    ):
         return resolve_dataset_path(str(source.get("path") or ""), ROOT)
     return mirror_dir / source_id
 
 
-def list_local_files(root: Path, include_globs: list[str], exclude_globs: list[str]) -> list[FileEntry]:
+def list_local_files(
+    root: Path,
+    include_globs: list[str],
+    exclude_globs: list[str],
+    rel_prefix: str = "",
+) -> list[FileEntry]:
     if not root.exists():
         return []
     entries: list[FileEntry] = []
@@ -189,10 +221,50 @@ def list_local_files(root: Path, include_globs: list[str], exclude_globs: list[s
         if not path.is_file():
             continue
         rel = rel_posix(path, root)
+        if rel_prefix:
+            rel = f"{rel_prefix.strip('/')}/{rel}"
         if not should_include(rel, include_globs, exclude_globs):
             continue
         stat = path.stat()
-        entries.append(FileEntry(rel=rel, size=stat.st_size, mtime=stat.st_mtime))
+        entries.append(FileEntry(rel=rel, size=stat.st_size, mtime=stat.st_mtime, source_path=str(path)))
+    return entries
+
+
+def regex_local_roots(source: dict[str, Any]) -> list[Path]:
+    pattern = str(source.get("path") or "").strip()
+    base_raw = str(source.get("path_base") or "").strip()
+    if not pattern:
+        return []
+    if not base_raw:
+        raise ValueError(f"local source {source.get('id')} uses path_match=regex but missing path_base")
+    base = resolve_dataset_path(base_raw, ROOT)
+    if not base.exists():
+        return []
+    compiled = re.compile(pattern)
+    roots: list[Path] = []
+    for candidate in base.iterdir():
+        if not candidate.is_dir():
+            continue
+        if compiled.search(candidate.name):
+            roots.append(candidate)
+    return sorted(roots, key=lambda p: p.as_posix())
+
+
+def list_local_source_files(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> list[FileEntry]:
+    raw_path = str(source.get("path") or "")
+    mode = source_path_mode(source)
+    if mode == "literal":
+        return list_local_files(resolve_dataset_path(raw_path, ROOT), include_globs, exclude_globs)
+    if mode == "glob":
+        pattern = str(resolve_dataset_path(raw_path, ROOT))
+        roots = [Path(p) for p in glob.glob(pattern) if Path(p).is_dir()]
+    elif mode == "regex":
+        roots = regex_local_roots(source)
+    else:
+        raise ValueError(f"Unsupported path_match for local source: {mode}")
+    entries: list[FileEntry] = []
+    for root in sorted(roots, key=lambda p: p.as_posix()):
+        entries.extend(list_local_files(root, include_globs, exclude_globs, rel_prefix=root_label(root)))
     return entries
 
 
@@ -244,33 +316,63 @@ def list_ssh_files(source: dict[str, Any], include_globs: list[str], exclude_glo
     remote_root = str(source.get("path") or "").rstrip("/")
     if not remote_root:
         raise ValueError(f"SSH source {source.get('id')} missing path")
+    mode = source_path_mode(source)
+    path_base = str(source.get("path_base") or "").rstrip("/")
+    if mode == "regex" and not path_base:
+        raise ValueError(f"SSH source {source.get('id')} uses path_match=regex but missing path_base")
     py = r"""
-import os, sys, json, fnmatch
+import os, sys, json, fnmatch, glob, re
 root=sys.argv[1]
-include=json.loads(sys.argv[2])
-exclude=json.loads(sys.argv[3])
+mode=sys.argv[2]
+path_base=sys.argv[3]
+include=json.loads(sys.argv[4])
+exclude=json.loads(sys.argv[5])
 def match_any(rel, patterns):
     return any(fnmatch.fnmatch(rel, p) for p in patterns)
-for base, dirs, files in os.walk(root):
-    dirs[:] = [d for d in dirs if d not in {'.git','__pycache__'}]
-    for name in files:
-        path=os.path.join(base,name)
-        rel=os.path.relpath(path, root).replace(os.sep, '/')
-        if exclude and match_any(rel, exclude):
-            continue
-        if include and not match_any(rel, include):
-            continue
-        try:
-            st=os.stat(path)
-        except OSError:
-            continue
-        print(json.dumps({'rel': rel, 'size': st.st_size, 'mtime': st.st_mtime}, separators=(',',':')))
+def match_filter_path(rel, patterns):
+    candidates=[rel]
+    if '/' in rel:
+        candidates.append(rel.split('/', 1)[1])
+    return any(match_any(candidate, patterns) for candidate in candidates)
+def roots_for_mode():
+    if mode == 'literal':
+        return [(root, '')] if os.path.isdir(root) else []
+    if mode == 'glob':
+        return [(p, os.path.basename(os.path.normpath(p))) for p in sorted(glob.glob(root)) if os.path.isdir(p)]
+    if mode == 'regex':
+        compiled=re.compile(root)
+        matches=[]
+        for name in os.listdir(path_base):
+            path=os.path.join(path_base, name)
+            if os.path.isdir(path) and compiled.search(name):
+                matches.append((path, os.path.basename(os.path.normpath(path))))
+        return sorted(matches)
+    raise SystemExit('Unsupported path_match: ' + mode)
+for scan_root, prefix in roots_for_mode():
+    for base, dirs, files in os.walk(scan_root):
+        dirs[:] = [d for d in dirs if d not in {'.git','__pycache__'}]
+        for name in files:
+            path=os.path.join(base,name)
+            rel=os.path.relpath(path, scan_root).replace(os.sep, '/')
+            if prefix:
+                rel=prefix.rstrip('/') + '/' + rel
+            if exclude and match_filter_path(rel, exclude):
+                continue
+            if include and not match_filter_path(rel, include):
+                continue
+            try:
+                st=os.stat(path)
+            except OSError:
+                continue
+            print(json.dumps({'rel': rel, 'size': st.st_size, 'mtime': st.st_mtime, 'source_path': path}, separators=(',',':')))
 """
     cmd = ssh_base_command(source) + [
         "python3",
         "-c",
         py,
         remote_root,
+        mode,
+        path_base,
         json.dumps(include_globs),
         json.dumps(exclude_globs),
     ]
@@ -283,7 +385,14 @@ for base, dirs, files in os.walk(root):
             obj = json.loads(line)
         except Exception:
             continue
-        entries.append(FileEntry(rel=str(obj["rel"]), size=int(obj["size"]), mtime=float(obj["mtime"])))
+        entries.append(
+            FileEntry(
+                rel=str(obj["rel"]),
+                size=int(obj["size"]),
+                mtime=float(obj["mtime"]),
+                source_path=str(obj.get("source_path") or ""),
+            )
+        )
     return entries
 
 
@@ -318,18 +427,18 @@ def list_command_files(source: dict[str, Any], include_globs: list[str], exclude
     return entries
 
 
-def copy_local_file(source_root: Path, dest_root: Path, rel: str) -> None:
-    src = source_root / rel
-    dest = dest_root / rel
+def copy_local_file(source_root: Path, dest_root: Path, entry: FileEntry) -> None:
+    src = Path(entry.source_path) if entry.source_path else source_root / entry.rel
+    dest = dest_root / entry.rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dest)
 
 
-def copy_ssh_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
+def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> None:
     remote_root = str(source.get("path") or "").rstrip("/")
     target = ssh_target(source)
-    remote_path = str(PurePosixPath(remote_root) / PurePosixPath(rel))
-    dest = dest_root / rel
+    remote_path = entry.source_path or str(PurePosixPath(remote_root) / PurePosixPath(entry.rel))
+    dest = dest_root / entry.rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     if ssh_transport_mode(source, copy=True) == "putty":
         remote_spec = f"{target}:{remote_path}"
@@ -338,7 +447,7 @@ def copy_ssh_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
     cmd = scp_base_command(source) + [remote_spec, str(dest)]
     result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
     if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {rel}")
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
 
 
 def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
@@ -368,7 +477,7 @@ def sync_source(
 
     if source_type == "local":
         source_root = resolve_dataset_path(str(source.get("path") or ""), ROOT)
-        entries = list_local_files(source_root, include_globs, exclude_globs)
+        entries = list_local_source_files(source, include_globs, exclude_globs)
     elif source_type == "ssh":
         source_root = None
         entries = list_ssh_files(source, include_globs, exclude_globs)
@@ -383,17 +492,18 @@ def sync_source(
     errors: list[str] = []
     current_files: dict[str, Any] = {}
     for entry in entries:
-        signature = {"size": entry.size, "mtime": round(entry.mtime, 6)}
+        legacy_signature = {"size": entry.size, "mtime": round(entry.mtime, 6)}
+        signature = {**legacy_signature, "source_path": entry.source_path or ""}
         current_files[entry.rel] = signature
-        if previous.get(entry.rel) == signature and (dest_root / entry.rel).exists():
+        if previous.get(entry.rel) in (signature, legacy_signature) and (dest_root / entry.rel).exists():
             skipped += 1
             continue
         try:
             if source_type == "local":
                 assert source_root is not None
-                copy_local_file(source_root, dest_root, entry.rel)
+                copy_local_file(source_root, dest_root, entry)
             elif source_type == "ssh":
-                copy_ssh_file(source, dest_root, entry.rel)
+                copy_ssh_file(source, dest_root, entry)
             else:
                 copy_command_file(source, dest_root, entry.rel)
             copied += 1

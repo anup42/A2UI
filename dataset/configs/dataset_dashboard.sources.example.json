@@ -20,6 +20,8 @@
       "plink_path": "",
       "pscp_path": "",
       "path": "/home/anup/A2UI/dataset/data/runs",
+      "path_match": "literal",
+      "path_base": "",
       "enabled": false
     },
     {
