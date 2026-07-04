@@ -213,6 +213,9 @@ easy to distinguish from slow-but-active workers.
 The metrics overview panel shows score bands, weighted average score, weighted core metric averages,
 and sampled validation failure/repair/fallback rates for the current filters. Weighted averages use
 filtered IR count so larger runs contribute proportionally more than smoke tests.
+The data integrity panel scans core JSONL IDs and links for duplicate IDs, missing IDs, parse errors,
+count anomalies, and broken stage links such as IR records whose `response_id` is not present in
+`responses.jsonl`. Use the run-health filter `Data integrity issues` to isolate affected runs.
 The intent quality panel aggregates sampled `genui.jsonl` rows by intent/domain, showing largest
 intent buckets and lowest-scoring intents with coverage, heading, table, action, image, and icon
 signals. This makes it easier to identify weak domains even when the overall score looks acceptable.

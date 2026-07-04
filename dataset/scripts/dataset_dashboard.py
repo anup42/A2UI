@@ -97,6 +97,138 @@ def read_first_jsonl(path: Path, limit: int = 2000) -> list[dict[str, Any]]:
     return rows
 
 
+def scan_jsonl_id_fields(path: Path, fields: list[str]) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "exists": path.exists(),
+        "rows": 0,
+        "parse_errors": 0,
+        "parse_error_lines": [],
+        "missing": {field: 0 for field in fields},
+        "ids": {field: set() for field in fields},
+        "duplicate_counts": {field: 0 for field in fields},
+        "duplicate_examples": {field: [] for field in fields},
+    }
+    if not path.exists():
+        return result
+    seen = {field: set() for field in fields}
+    with path.open("r", encoding="utf-8-sig", errors="replace") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            result["rows"] += 1
+            try:
+                row = json.loads(line)
+            except Exception:
+                result["parse_errors"] += 1
+                if len(result["parse_error_lines"]) < 5:
+                    result["parse_error_lines"].append(line_number)
+                continue
+            if not isinstance(row, dict):
+                result["parse_errors"] += 1
+                if len(result["parse_error_lines"]) < 5:
+                    result["parse_error_lines"].append(line_number)
+                continue
+            for field in fields:
+                value = str(row.get(field) or "").strip()
+                if not value:
+                    result["missing"][field] += 1
+                    continue
+                result["ids"][field].add(value)
+                if value in seen[field]:
+                    result["duplicate_counts"][field] += 1
+                    if len(result["duplicate_examples"][field]) < 5 and value not in result["duplicate_examples"][field]:
+                        result["duplicate_examples"][field].append(value)
+                seen[field].add(value)
+    return result
+
+
+def collect_data_integrity_summary(run_dir: Path, queries: int, responses: int, genui: int) -> dict[str, Any]:
+    query_scan = scan_jsonl_id_fields(run_dir / "queries.jsonl", ["query_id"])
+    response_scan = scan_jsonl_id_fields(run_dir / "responses.jsonl", ["query_id", "response_id"])
+    genui_scan = scan_jsonl_id_fields(run_dir / "genui.jsonl", ["query_id", "response_id", "ui_id"])
+
+    query_ids = query_scan["ids"].get("query_id", set())
+    response_query_ids = response_scan["ids"].get("query_id", set())
+    response_ids = response_scan["ids"].get("response_id", set())
+    genui_query_ids = genui_scan["ids"].get("query_id", set())
+    genui_response_ids = genui_scan["ids"].get("response_id", set())
+
+    orphan_links = {
+        "responses_without_query": sorted(response_query_ids - query_ids)[:8] if query_ids else [],
+        "genui_without_query": sorted(genui_query_ids - query_ids)[:8] if query_ids else [],
+        "genui_without_response": sorted(genui_response_ids - response_ids)[:8] if response_ids else [],
+    }
+    orphan_counts = {
+        "responses_without_query": len(response_query_ids - query_ids) if query_ids else 0,
+        "genui_without_query": len(genui_query_ids - query_ids) if query_ids else 0,
+        "genui_without_response": len(genui_response_ids - response_ids) if response_ids else 0,
+    }
+
+    count_warnings = []
+    if responses > queries and queries:
+        count_warnings.append({"type": "responses_gt_queries", "message": "responses count is greater than queries count"})
+    if genui > responses and responses:
+        count_warnings.append({"type": "ir_gt_responses", "message": "IR count is greater than responses count"})
+    if responses and not queries:
+        count_warnings.append({"type": "responses_without_queries_file", "message": "responses exist but queries are missing or empty"})
+    if genui and not responses:
+        count_warnings.append({"type": "ir_without_responses_file", "message": "IR exists but responses are missing or empty"})
+
+    files = {
+        "queries": {
+            "exists": query_scan["exists"],
+            "rows": query_scan["rows"],
+            "parse_errors": query_scan["parse_errors"],
+            "parse_error_lines": query_scan["parse_error_lines"],
+        },
+        "responses": {
+            "exists": response_scan["exists"],
+            "rows": response_scan["rows"],
+            "parse_errors": response_scan["parse_errors"],
+            "parse_error_lines": response_scan["parse_error_lines"],
+        },
+        "genui": {
+            "exists": genui_scan["exists"],
+            "rows": genui_scan["rows"],
+            "parse_errors": genui_scan["parse_errors"],
+            "parse_error_lines": genui_scan["parse_error_lines"],
+        },
+    }
+    missing_ids: dict[str, int] = {}
+    duplicate_ids: dict[str, dict[str, Any]] = {}
+    for label, scan in (("queries", query_scan), ("responses", response_scan), ("genui", genui_scan)):
+        for field, count in (scan.get("missing") or {}).items():
+            if count:
+                missing_ids[f"{label}.{field}"] = int(count)
+        for field, count in (scan.get("duplicate_counts") or {}).items():
+            if count:
+                duplicate_ids[f"{label}.{field}"] = {
+                    "count": int(count),
+                    "examples": scan.get("duplicate_examples", {}).get(field, []),
+                }
+
+    parse_total = sum(int(entry["parse_errors"]) for entry in files.values())
+    missing_total = sum(missing_ids.values())
+    duplicate_total = sum(int(entry["count"]) for entry in duplicate_ids.values())
+    orphan_total = sum(orphan_counts.values())
+    warning_total = len(count_warnings)
+    return {
+        "files": files,
+        "missing_ids": missing_ids,
+        "duplicate_ids": duplicate_ids,
+        "orphan_counts": orphan_counts,
+        "orphan_examples": orphan_links,
+        "count_warnings": count_warnings,
+        "parse_error_count": parse_total,
+        "missing_id_count": missing_total,
+        "duplicate_id_count": duplicate_total,
+        "orphan_link_count": orphan_total,
+        "count_warning_count": warning_total,
+        "total_issues": parse_total + missing_total + duplicate_total + orphan_total + warning_total,
+    }
+
+
 def safe_source_id(source_id: str) -> str:
     cleaned = "".join(ch if ch.isalnum() or ch in ("-", "_", ".") else "_" for ch in source_id.strip())
     return cleaned or "source"
@@ -1988,6 +2120,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "metric_avgs": collect_metric_avgs(genui_rows),
         "intent_quality": collect_intent_quality(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
+        "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
         "artifacts": run_artifacts(run_dir),
         "manifest_summary": summarize_manifest(run_dir),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
@@ -2233,6 +2366,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="">All run health</option>
         <option value="backlog">Has backlog</option>
         <option value="quality">Has quality issues</option>
+        <option value="integrity">Data integrity issues</option>
         <option value="low_coverage">Low content coverage</option>
         <option value="low_media">Low media usage</option>
       </select>
@@ -2246,6 +2380,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="ir_desc">Sort: IR count</option>
         <option value="backlog_desc">Sort: backlog</option>
         <option value="quality_desc">Sort: quality issues</option>
+        <option value="integrity_desc">Sort: integrity issues</option>
         <option value="source_run">Sort: source/run</option>
       </select>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
@@ -2336,6 +2471,10 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Quality Alerts</h2>
         <div id="qualityAlerts"></div>
       </section>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Data Integrity</h2>
+      <div id="dataIntegrity"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Filtered Metrics Overview</h2>
@@ -2618,6 +2757,7 @@ INDEX_HTML = r"""<!doctype html>
       const headers = [
         "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
         "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
+        "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
         "updated_at","response_model","ir_model","ir_versions","path",
       ];
@@ -2636,6 +2776,11 @@ INDEX_HTML = r"""<!doctype html>
         r.total_bytes,
         r.file_count,
         (r.missing_core_files || []).join("; "),
+        r.data_integrity?.total_issues || 0,
+        r.data_integrity?.parse_error_count || 0,
+        r.data_integrity?.duplicate_id_count || 0,
+        r.data_integrity?.missing_id_count || 0,
+        r.data_integrity?.orphan_link_count || 0,
         r.response_usage?.total_tokens || 0,
         r.response_usage?.avg_latency_ms ?? "",
         r.response_usage?.cost_usd ?? "",
@@ -2667,6 +2812,8 @@ INDEX_HTML = r"""<!doctype html>
         ["Storage", bytesText(t.total_bytes)],
         ["Files", t.file_count],
         ["Missing core runs", t.missing_core_run_count],
+        ["Integrity issue runs", t.integrity_issue_runs],
+        ["Integrity issues", t.integrity_issues],
       ];
       document.getElementById("stats").innerHTML = stats.map(([k,v]) => `<div class="stat"><div class="v">${fmt(v)}</div><div class="k">${k}</div></div>`).join("");
     }
@@ -2808,6 +2955,19 @@ INDEX_HTML = r"""<!doctype html>
       return ["json_parse_fail","strict_schema_fail","repair_needed","repair_attempted","gen_errors","fallback_generated","low_score","markdown_leakage","sparse_ir"]
         .reduce((sum, key) => sum + (q[key] || 0), 0);
     }
+    function integrityIssueCount(r) {
+      return Number((r.data_integrity || {}).total_issues || 0);
+    }
+    function integrityIssueLabels(summary) {
+      const s = summary || {};
+      const labels = [];
+      if (s.parse_error_count) labels.push(`parse errors ${fmt(s.parse_error_count)}`);
+      if (s.duplicate_id_count) labels.push(`duplicate IDs ${fmt(s.duplicate_id_count)}`);
+      if (s.missing_id_count) labels.push(`missing IDs ${fmt(s.missing_id_count)}`);
+      if (s.orphan_link_count) labels.push(`broken links ${fmt(s.orphan_link_count)}`);
+      if (s.count_warning_count) labels.push(`count warnings ${fmt(s.count_warning_count)}`);
+      return labels;
+    }
     function dateFilterActive(f) {
       return Boolean(f.dateFrom || f.dateTo);
     }
@@ -2881,6 +3041,7 @@ INDEX_HTML = r"""<!doctype html>
         const metrics = r.metric_avgs || {};
         if (f.issue === "backlog" && !Math.max((counts.queries || 0) - (counts.responses || 0), 0) && !Math.max((counts.responses || 0) - (counts.genui || 0), 0)) return false;
         if (f.issue === "quality" && !qualityIssueCount(r)) return false;
+        if (f.issue === "integrity" && !integrityIssueCount(r)) return false;
         if (f.issue === "low_coverage" && !(metrics.content_coverage != null && metrics.content_coverage < 0.65)) return false;
         if (f.issue === "low_media" && !((metrics.image_presence ?? 0) < 0.25 && (metrics.icon_presence ?? 0) < 0.25)) return false;
       }
@@ -2902,6 +3063,7 @@ INDEX_HTML = r"""<!doctype html>
         if (sortBy === "ir_desc") return (b.genui || 0) - (a.genui || 0) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "backlog_desc") return runBacklogTotal(b) - runBacklogTotal(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "quality_desc") return qualityIssueCount(b) - qualityIssueCount(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "integrity_desc") return integrityIssueCount(b) - integrityIssueCount(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "source_run") return textValue(a).localeCompare(textValue(b));
         return updatedValue(b) - updatedValue(a) || textValue(a).localeCompare(textValue(b));
       });
@@ -2947,6 +3109,8 @@ INDEX_HTML = r"""<!doctype html>
         total_bytes: runs.reduce((a,r) => a + (r.total_bytes || 0), 0),
         file_count: runs.reduce((a,r) => a + (r.file_count || 0), 0),
         missing_core_run_count: runs.reduce((a,r) => a + ((r.missing_core_files || []).length ? 1 : 0), 0),
+        integrity_issue_runs: runs.reduce((a,r) => a + (integrityIssueCount(r) ? 1 : 0), 0),
+        integrity_issues: runs.reduce((a,r) => a + integrityIssueCount(r), 0),
       };
     }
     function sortedDayBuckets(dayMap) {
@@ -3171,6 +3335,36 @@ INDEX_HTML = r"""<!doctype html>
         ${settings ? `<div class="detail-grid">${settings}</div>` : ""}
       `;
     }
+    function renderIntegrityDetails(summary) {
+      const s = summary || {};
+      const duplicateRows = Object.entries(s.duplicate_ids || {}).map(([field, info]) =>
+        `<div class="warning-row"><span>duplicate ${escapeHtml(field)} ${escapeHtml((info.examples || []).join(", "))}</span><b>${fmt(info.count || 0)}</b></div>`
+      ).join("");
+      const missingRows = Object.entries(s.missing_ids || {}).map(([field, count]) =>
+        `<div class="warning-row"><span>missing ${escapeHtml(field)}</span><b>${fmt(count)}</b></div>`
+      ).join("");
+      const orphanRows = Object.entries(s.orphan_counts || {}).filter(([, count]) => count).map(([field, count]) => {
+        const examples = (s.orphan_examples || {})[field] || [];
+        return `<div class="warning-row"><span>${escapeHtml(field)} ${escapeHtml(examples.join(", "))}</span><b>${fmt(count)}</b></div>`;
+      }).join("");
+      const parseRows = Object.entries(s.files || {}).filter(([, file]) => file.parse_errors).map(([name, file]) =>
+        `<div class="warning-row"><span>${escapeHtml(name)} parse errors at lines ${escapeHtml((file.parse_error_lines || []).join(", ") || "n/a")}</span><b>${fmt(file.parse_errors)}</b></div>`
+      ).join("");
+      const warningRows = (s.count_warnings || []).map(w =>
+        `<div class="warning-row"><span>${escapeHtml(w.message || w.type)}</span><b>1</b></div>`
+      ).join("");
+      const rows = [parseRows, duplicateRows, missingRows, orphanRows, warningRows].filter(Boolean).join("");
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(s.total_issues || 0)}</b><br><span class="small">integrity issues</span></div>
+          <div class="detail-box"><b>${fmt(s.parse_error_count || 0)}</b><br><span class="small">JSONL parse errors</span></div>
+          <div class="detail-box"><b>${fmt(s.duplicate_id_count || 0)}</b><br><span class="small">duplicate IDs</span></div>
+          <div class="detail-box"><b>${fmt(s.missing_id_count || 0)}</b><br><span class="small">missing IDs</span></div>
+          <div class="detail-box"><b>${fmt(s.orphan_link_count || 0)}</b><br><span class="small">broken stage links</span></div>
+          <div class="detail-box"><b>${fmt(s.count_warning_count || 0)}</b><br><span class="small">count warnings</span></div>
+        </div>
+        <div class="warning-list">${rows || "<span class='small'>No data integrity issues found.</span>"}</div>`;
+    }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
       if (!runs.length) {
@@ -3187,6 +3381,7 @@ INDEX_HTML = r"""<!doctype html>
       const m = selected.metric_avgs || {};
       const artifacts = selected.artifacts || {};
       const manifest = selected.manifest_summary || {};
+      const integrity = selected.data_integrity || {};
       const warnings = (q.warnings || []).map(w => `
         <div class="warning-row">
           <span>${escapeHtml(w.message)}</span>
@@ -3224,6 +3419,8 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <h2>Validation Warnings</h2>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+        <h2>Data Integrity</h2>
+        ${renderIntegrityDetails(integrity)}
         <h2>Run Provenance</h2>
         ${renderManifestSummary(manifest)}
         <h2>Artifacts</h2>
@@ -3443,6 +3640,55 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Artifact Issues</h2>
         <div class="warning-list">${issueRows || "<span class='small'>No missing core, screenshot, or asset issues detected in current filters.</span>"}</div>
       `;
+    }
+    function renderDataIntegrity(runs) {
+      const target = document.getElementById("dataIntegrity");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const totals = runs.reduce((acc, run) => {
+        const s = run.data_integrity || {};
+        acc.total += s.total_issues || 0;
+        acc.parse += s.parse_error_count || 0;
+        acc.duplicates += s.duplicate_id_count || 0;
+        acc.missing += s.missing_id_count || 0;
+        acc.orphans += s.orphan_link_count || 0;
+        acc.warnings += s.count_warning_count || 0;
+        if ((s.total_issues || 0) > 0) acc.affected += 1;
+        return acc;
+      }, {total: 0, parse: 0, duplicates: 0, missing: 0, orphans: 0, warnings: 0, affected: 0});
+      const issueRows = runs
+        .filter(run => integrityIssueCount(run))
+        .sort((a, b) => integrityIssueCount(b) - integrityIssueCount(a) || String(a.run_id).localeCompare(String(b.run_id)))
+        .slice(0, 12)
+        .map(run => {
+          const labels = integrityIssueLabels(run.data_integrity || {});
+          return `
+            <tr>
+              <td><b>${escapeHtml(run.run_id)}</b><br><span class="small">${escapeHtml(run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(run))}')">Details</button></td>
+              <td><b>${fmt(integrityIssueCount(run))}</b></td>
+              <td>${labels.map(label => `<span class="badge warn">${escapeHtml(label)}</span>`).join(" ")}</td>
+              <td class="small">Q ${fmt(run.queries)} | R ${fmt(run.responses)} | IR ${fmt(run.genui)}</td>
+            </tr>`;
+        }).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(totals.affected)}</b><br><span class="small">affected runs</span></div>
+          <div class="detail-box"><b>${fmt(totals.total)}</b><br><span class="small">total issue signals</span></div>
+          <div class="detail-box"><b>${fmt(totals.parse)}</b><br><span class="small">JSONL parse errors</span></div>
+          <div class="detail-box"><b>${fmt(totals.duplicates)}</b><br><span class="small">duplicate IDs</span></div>
+          <div class="detail-box"><b>${fmt(totals.missing)}</b><br><span class="small">missing IDs</span></div>
+          <div class="detail-box"><b>${fmt(totals.orphans)}</b><br><span class="small">broken stage links</span></div>
+          <div class="detail-box"><b>${fmt(totals.warnings)}</b><br><span class="small">count warnings</span></div>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Run</th><th>Issues</th><th>Categories</th><th>Counts</th></tr></thead>
+            <tbody>${issueRows || "<tr><td colspan='4'><span class='small'>No data integrity issues found in current filters.</span></td></tr>"}</tbody>
+          </table>
+        </div>
+        <div class="small">Integrity checks scan core JSONL IDs and links: query_id, response_id, ui_id, duplicate IDs, parse errors, and response/IR records that cannot be matched to upstream stages.</div>`;
     }
     function aggregateQuality(runs) {
       const totals = {
@@ -4262,6 +4508,7 @@ INDEX_HTML = r"""<!doctype html>
       renderRunDetails(runs);
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
+      renderDataIntegrity(runs);
       renderMetricsOverview(runs);
       renderIntentQuality(runs);
       renderThroughputEta(runs, sourceStats);
