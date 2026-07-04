@@ -186,11 +186,12 @@ metadata, so query/response/IR counts reflect only matching records where availa
 sources selected, day-wise counts are aggregated across every matching source. The dashboard auto
 refreshes the local scan every 30 seconds by default; use the Auto refresh dropdown to change the
 interval or turn it off.
-Use the run-health filter to focus on backlog, quality warnings, low content coverage, or low media
-usage, and use the sort dropdown to rank runs by freshness, score, IR count, backlog, or issue count.
-The runs table is paginated with selectable page size, while the top stats, source cards, backlog,
-quality alerts, metrics overview, intent quality, model comparison, distributions, exports, and trend
-chart continue to use the full filtered run set.
+Use the run-health filter to focus on backlog, quality warnings, low content coverage, low media
+usage, broken media references, data integrity issues, or log issues, and use the sort dropdown to
+rank runs by freshness, score, IR count, backlog, or issue count. The runs table is paginated with
+selectable page size, while the top stats, source cards, backlog, quality alerts, metrics overview,
+intent quality, model comparison, distributions, exports, and trend chart continue to use the full
+filtered run set.
 
 Source cards include a health badge based on the latest sync result and a `Test` action that checks
 the configured local/SSH/command source without copying files. The dashboard also shows response and
@@ -223,6 +224,11 @@ The IR structure panel samples flat-spec records and reports component type mix,
 presentation hints, action types, image/icon usage, special components, and uncommon component names.
 Use it to quickly catch prompt drift, unsupported components, missing media usage, or renderer coverage
 gaps before inspecting individual records.
+The media and asset health panel samples `responses.jsonl` asset records plus flat-spec Image/Icon
+props to show declared asset records, present/missing local files, remote media references left in IR,
+media host distribution, file extension mix, and sample broken references. Use the run-health filter
+`Broken media refs` to isolate runs whose copied assets are incomplete or whose IR still points at
+remote media instead of localized assets.
 The data integrity panel scans core JSONL IDs and links for duplicate IDs, missing IDs, parse errors,
 count anomalies, and broken stage links such as IR records whose `response_id` is not present in
 `responses.jsonl`. Use the run-health filter `Data integrity issues` to isolate affected runs.
@@ -237,12 +243,13 @@ storage by source, largest runs, runs missing core files, and runs with generate
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
 view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
-warnings, IR structure, and metric breakdowns. `Export CSV` and `Export JSON` download the currently
-filtered run view, which is useful for sharing source-specific or score-thresholded slices. The run
-detail pane also shows parsed `run_manifest.json` provenance, core artifacts, sample assets, and
-sample screenshots with copyable local paths, and the trend chart shows filtered daily volume with
-average IR score over time. Filtered distribution panels show top intents, Stage 2 models, Stage 3
-models, IR versions, and source volume for the current view.
+warnings, IR structure, media health, and metric breakdowns. `Export CSV` and `Export JSON` download
+the currently filtered run view, which is useful for sharing source-specific or score-thresholded
+slices. CSV exports include media health counters such as missing response assets, missing local IR
+media refs, and remote IR media refs. The run detail pane also shows parsed `run_manifest.json`
+provenance, core artifacts, sample assets, and sample screenshots with copyable local paths, and the
+trend chart shows filtered daily volume with average IR score over time. Filtered distribution panels
+show top intents, Stage 2 models, Stage 3 models, IR versions, and source volume for the current view.
 The worst-sampled-records panel highlights low-score, repaired, fallback, markdown-leaking, sparse,
 or schema-failing IR rows from sampled `genui.jsonl` records and links back to the owning run details.
 

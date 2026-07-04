@@ -1309,6 +1309,201 @@ def collect_ir_structure_summary(rows: list[dict[str, Any]], limit: int = 24) ->
     return summary
 
 
+MEDIA_COMPONENT_TYPES = {"Image", "Icon"}
+MEDIA_PROP_KEYS = ("url", "src", "image", "source", "name", "icon", "uri", "path", "value")
+MEDIA_EXTENSIONS = {
+    ".avif",
+    ".bmp",
+    ".gif",
+    ".html",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".svg",
+    ".webp",
+}
+
+
+def media_host(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    parsed = urlparse(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    return parsed.netloc.lower().removeprefix("www.")
+
+
+def media_extension(value: Any) -> str:
+    if not isinstance(value, str):
+        return "unknown"
+    parsed = urlparse(value)
+    suffix = Path(parsed.path or value).suffix.lower()
+    return suffix if suffix else "unknown"
+
+
+def nested_media_strings(value: Any) -> list[str]:
+    if isinstance(value, str) and value.strip():
+        return [value.strip()]
+    if isinstance(value, dict):
+        found: list[str] = []
+        for key in MEDIA_PROP_KEYS:
+            if key in value:
+                found.extend(nested_media_strings(value.get(key)))
+        return found
+    if isinstance(value, list):
+        found: list[str] = []
+        for item in value:
+            found.extend(nested_media_strings(item))
+        return found
+    return []
+
+
+def element_media_values(element_type: str, props: dict[str, Any]) -> list[str]:
+    values: list[str] = []
+    for key in MEDIA_PROP_KEYS:
+        if key in props:
+            values.extend(nested_media_strings(props.get(key)))
+    if element_type == "Icon" and not values:
+        # Icon names may be symbolic rather than file paths; only count explicit media-looking values.
+        for key in ("label", "alt"):
+            values.extend(nested_media_strings(props.get(key)))
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value not in seen:
+            deduped.append(value)
+            seen.add(value)
+    return deduped
+
+
+def local_media_path(run_dir: Path, value: str) -> Path | None:
+    raw = value.strip().strip("\"'")
+    if not raw or media_host(raw):
+        return None
+    if raw.startswith("file://"):
+        raw = raw[7:]
+    normalized = raw.replace("\\", "/")
+    while normalized.startswith("../"):
+        normalized = normalized[3:]
+    if "/assets/" in normalized:
+        normalized = normalized[normalized.index("/assets/") + 1 :]
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    if normalized.startswith("assets/"):
+        return run_dir / PurePosixPath(normalized)
+    candidate = Path(raw)
+    if candidate.is_absolute():
+        return candidate
+    return None
+
+
+def media_ref_sample(record_id: str, ref_type: str, value: str) -> dict[str, str]:
+    return {"id": record_id, "type": ref_type, "value": value[:240]}
+
+
+def collect_media_asset_summary(
+    run_dir: Path,
+    response_rows: list[dict[str, Any]],
+    genui_rows: list[dict[str, Any]],
+    limit: int = 48,
+) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "sampled_response_rows": 0,
+        "sampled_ir_rows": 0,
+        "response_asset_records": 0,
+        "response_asset_files_present": 0,
+        "response_asset_files_missing": 0,
+        "response_asset_bytes": 0,
+        "ir_media_components": 0,
+        "ir_image_components": 0,
+        "ir_icon_components": 0,
+        "ir_media_refs": 0,
+        "ir_local_media_refs": 0,
+        "ir_local_media_missing": 0,
+        "ir_remote_media_refs": 0,
+        "ir_symbolic_icon_refs": 0,
+        "asset_file_extensions": {},
+        "response_asset_hosts": {},
+        "ir_remote_hosts": {},
+        "missing_local_samples": [],
+        "remote_ref_samples": [],
+    }
+    asset_exts: dict[str, int] = {}
+    response_hosts: dict[str, int] = {}
+    ir_hosts: dict[str, int] = {}
+    missing_samples: list[dict[str, str]] = []
+    remote_samples: list[dict[str, str]] = []
+
+    for row in response_rows[:limit]:
+        summary["sampled_response_rows"] += 1
+        record_id = str(row.get("response_id") or row.get("query_id") or "response")
+        for asset in row.get("assets") or []:
+            if not isinstance(asset, dict):
+                continue
+            summary["response_asset_records"] += 1
+            url = asset.get("url") or asset.get("source_url") or asset.get("source")
+            host = media_host(url)
+            if host:
+                increment_count(response_hosts, host)
+            increment_count(asset_exts, media_extension(str(asset.get("path") or url or "")))
+            if isinstance(asset.get("bytes"), (int, float)):
+                summary["response_asset_bytes"] += int(asset.get("bytes") or 0)
+            path_value = str(asset.get("path") or "").strip()
+            resolved = local_media_path(run_dir, path_value) if path_value else None
+            if resolved and resolved.exists():
+                summary["response_asset_files_present"] += 1
+            elif path_value:
+                summary["response_asset_files_missing"] += 1
+                if len(missing_samples) < 8:
+                    missing_samples.append(media_ref_sample(record_id, "response asset", path_value))
+
+    for row in genui_rows[:limit]:
+        summary["sampled_ir_rows"] += 1
+        record_id = str(row.get("ui_id") or row.get("response_id") or row.get("query_id") or "IR")
+        payload = genui_payload(row)
+        elements = payload.get("elements") if isinstance(payload, dict) else None
+        if not isinstance(elements, dict):
+            continue
+        for element in elements.values():
+            if not isinstance(element, dict):
+                continue
+            element_type = str(element.get("type") or "").strip()
+            if element_type not in MEDIA_COMPONENT_TYPES:
+                continue
+            summary["ir_media_components"] += 1
+            if element_type == "Image":
+                summary["ir_image_components"] += 1
+            if element_type == "Icon":
+                summary["ir_icon_components"] += 1
+            props = element.get("props") if isinstance(element.get("props"), dict) else {}
+            for value in element_media_values(element_type, props):
+                host = media_host(value)
+                resolved = local_media_path(run_dir, value)
+                if host:
+                    summary["ir_media_refs"] += 1
+                    summary["ir_remote_media_refs"] += 1
+                    increment_count(ir_hosts, host)
+                    if len(remote_samples) < 8:
+                        remote_samples.append(media_ref_sample(record_id, element_type, value))
+                elif resolved:
+                    summary["ir_media_refs"] += 1
+                    summary["ir_local_media_refs"] += 1
+                    increment_count(asset_exts, media_extension(value))
+                    if not resolved.exists():
+                        summary["ir_local_media_missing"] += 1
+                        if len(missing_samples) < 8:
+                            missing_samples.append(media_ref_sample(record_id, element_type, value))
+                elif element_type == "Icon":
+                    summary["ir_symbolic_icon_refs"] += 1
+
+    summary["asset_file_extensions"] = top_dict(asset_exts, 12)
+    summary["response_asset_hosts"] = top_dict(response_hosts, 12)
+    summary["ir_remote_hosts"] = top_dict(ir_hosts, 12)
+    summary["missing_local_samples"] = missing_samples
+    summary["remote_ref_samples"] = remote_samples
+    return summary
+
+
 def row_issue_labels(row: dict[str, Any]) -> list[str]:
     labels: list[str] = []
     validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
@@ -2387,6 +2582,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "metric_avgs": collect_metric_avgs(genui_rows),
         "intent_quality": collect_intent_quality(genui_rows),
         "ir_structure": collect_ir_structure_summary(genui_rows),
+        "media_health": collect_media_asset_summary(run_dir, response_rows, genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
         "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
         "run_logs": summarize_run_logs(run_dir),
@@ -2643,6 +2839,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="logs">Log issues</option>
         <option value="low_coverage">Low content coverage</option>
         <option value="low_media">Low media usage</option>
+        <option value="media_refs">Broken media refs</option>
       </select>
       <select id="irVersionFilter">
         <option value="">All IR versions</option>
@@ -2766,6 +2963,10 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>IR Structure</h2>
       <div id="irStructure"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Media & Asset Health</h2>
+      <div id="mediaHealth"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Intent Quality</h2>
@@ -3046,6 +3247,7 @@ INDEX_HTML = r"""<!doctype html>
         "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
         "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
         "log_files","log_issues","log_latest_updated_at",
+        "response_asset_records","missing_response_assets","ir_media_components","ir_local_media_missing","ir_remote_media_refs",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
         "updated_at","response_model","ir_model","ir_versions","path",
       ];
@@ -3072,6 +3274,11 @@ INDEX_HTML = r"""<!doctype html>
         r.run_logs?.file_count || 0,
         r.run_logs?.issue_count || 0,
         r.run_logs?.latest_updated_at || "",
+        r.media_health?.response_asset_records || 0,
+        r.media_health?.response_asset_files_missing || 0,
+        r.media_health?.ir_media_components || 0,
+        r.media_health?.ir_local_media_missing || 0,
+        r.media_health?.ir_remote_media_refs || 0,
         r.response_usage?.total_tokens || 0,
         r.response_usage?.avg_latency_ms ?? "",
         r.response_usage?.cost_usd ?? "",
@@ -3362,6 +3569,17 @@ INDEX_HTML = r"""<!doctype html>
             source: run.source_label,
           });
         }
+        const mediaIssues = mediaIssueCount(run);
+        if (mediaIssues) {
+          addActionItem(items, {
+            severity: Math.min(78, 44 + Math.log10(mediaIssues + 1) * 12),
+            category: "Media",
+            title: `${run.run_id} has unresolved media references`,
+            detail: `missing local media/asset refs ${fmt(mediaIssues)}`,
+            run,
+            source: run.source_label,
+          });
+        }
       }
       return items
         .sort((a, b) => (b.severity - a.severity) || String(a.source || "").localeCompare(String(b.source || "")) || a.title.localeCompare(b.title))
@@ -3390,7 +3608,7 @@ INDEX_HTML = r"""<!doctype html>
         </div>`).join("");
       target.innerHTML = `
         <div class="warning-list">${rows}</div>
-        <div class="small">Action items are derived from the filtered run set and combine sync errors, stale sources, backlog, integrity issues, sampled generation quality, and artifact gaps.</div>`;
+        <div class="small">Action items are derived from the filtered run set and combine sync errors, stale sources, backlog, integrity issues, sampled generation quality, media references, and artifact gaps.</div>`;
     }
     function getPageSize() {
       return Math.max(1, Number(document.getElementById("pageSize").value || "50"));
@@ -3417,6 +3635,10 @@ INDEX_HTML = r"""<!doctype html>
     }
     function logIssueCount(r) {
       return Number((r.run_logs || {}).issue_count || 0);
+    }
+    function mediaIssueCount(r) {
+      const m = r.media_health || {};
+      return Number(m.ir_local_media_missing || 0) + Number(m.response_asset_files_missing || 0);
     }
     function integrityIssueLabels(summary) {
       const s = summary || {};
@@ -3503,6 +3725,7 @@ INDEX_HTML = r"""<!doctype html>
         if (f.issue === "quality" && !qualityIssueCount(r)) return false;
         if (f.issue === "integrity" && !integrityIssueCount(r)) return false;
         if (f.issue === "logs" && !logIssueCount(r)) return false;
+        if (f.issue === "media_refs" && !mediaIssueCount(r)) return false;
         if (f.issue === "low_coverage" && !(metrics.content_coverage != null && metrics.content_coverage < 0.65)) return false;
         if (f.issue === "low_media" && !((metrics.image_presence ?? 0) < 0.25 && (metrics.icon_presence ?? 0) < 0.25)) return false;
       }
@@ -3903,6 +4126,33 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Uncommon Component Types</h2>
         <div class="warning-list">${uncommonRows || "<span class='small'>No uncommon component types in sampled IR.</span>"}</div>`;
     }
+    function renderRunMediaHealthDetails(media) {
+      const m = media || {};
+      if (!m.sampled_response_rows && !m.sampled_ir_rows) {
+        return "<span class='small'>No sampled media health data found.</span>";
+      }
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(m.response_asset_records || 0)}</b><br><span class="small">response asset records</span></div>
+          <div class="detail-box"><b>${fmt(m.response_asset_files_present || 0)}</b><br><span class="small">asset files present</span></div>
+          <div class="detail-box"><b>${fmt(m.response_asset_files_missing || 0)}</b><br><span class="small">missing response assets</span></div>
+          <div class="detail-box"><b>${bytesText(m.response_asset_bytes || 0)}</b><br><span class="small">declared asset bytes</span></div>
+          <div class="detail-box"><b>${fmt(m.ir_media_components || 0)}</b><br><span class="small">IR media components</span></div>
+          <div class="detail-box"><b>${fmt(m.ir_image_components || 0)}</b><br><span class="small">IR images</span></div>
+          <div class="detail-box"><b>${fmt(m.ir_icon_components || 0)}</b><br><span class="small">IR icons</span></div>
+          <div class="detail-box"><b>${fmt(m.ir_local_media_missing || 0)}</b><br><span class="small">missing local IR refs</span></div>
+          <div class="detail-box"><b>${fmt(m.ir_remote_media_refs || 0)}</b><br><span class="small">remote refs left in IR</span></div>
+        </div>
+        <div class="dist-grid">
+          ${renderStructureCountBlock("Response Asset Hosts", sortedObjectEntries(m.response_asset_hosts || {}, 8))}
+          ${renderStructureCountBlock("IR Remote Hosts", sortedObjectEntries(m.ir_remote_hosts || {}, 8))}
+          ${renderStructureCountBlock("Asset Extensions", sortedObjectEntries(m.asset_file_extensions || {}, 8))}
+        </div>
+        <h2>Missing Local Media Samples</h2>
+        <div class="warning-list">${mediaSampleRows(m.missing_local_samples || [], "No missing local media references found in sampled rows.")}</div>
+        <h2>Remote IR Media Samples</h2>
+        <div class="warning-list">${mediaSampleRows(m.remote_ref_samples || [], "No remote media references found in sampled IR rows.")}</div>`;
+    }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
       if (!runs.length) {
@@ -3959,6 +4209,8 @@ INDEX_HTML = r"""<!doctype html>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
         <h2>IR Structure</h2>
         ${renderRunIrStructureDetails(selected.ir_structure || {})}
+        <h2>Media & Asset Health</h2>
+        ${renderRunMediaHealthDetails(selected.media_health || {})}
         <h2>Data Integrity</h2>
         ${renderIntegrityDetails(integrity)}
         <h2>Run Logs</h2>
@@ -4542,6 +4794,100 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Uncommon Component Types</h2>
         <div class="warning-list">${uncommonRows || "<span class='small'>No uncommon component types in sampled IR.</span>"}</div>
         <div class="small">IR structure is computed from sampled genui.jsonl records per run. It helps verify prompt output and renderer coverage by showing actual component, table-domain, and action usage.</div>`;
+    }
+    function aggregateMediaHealth(runs) {
+      const responseHosts = new Map();
+      const irHosts = new Map();
+      const extensions = new Map();
+      const totals = {
+        sampled_response_rows: 0,
+        sampled_ir_rows: 0,
+        response_asset_records: 0,
+        response_asset_files_present: 0,
+        response_asset_files_missing: 0,
+        response_asset_bytes: 0,
+        ir_media_components: 0,
+        ir_image_components: 0,
+        ir_icon_components: 0,
+        ir_media_refs: 0,
+        ir_local_media_refs: 0,
+        ir_local_media_missing: 0,
+        ir_remote_media_refs: 0,
+        ir_symbolic_icon_refs: 0,
+        missing_local_samples: [],
+        remote_ref_samples: [],
+        affected_runs: 0,
+      };
+      for (const run of runs) {
+        const m = run.media_health || {};
+        const issueCount = Number(m.ir_local_media_missing || 0) + Number(m.response_asset_files_missing || 0);
+        if (issueCount) totals.affected_runs += 1;
+        for (const key of Object.keys(totals)) {
+          if (Array.isArray(totals[key])) continue;
+          if (key === "affected_runs") continue;
+          totals[key] += Number(m[key] || 0);
+        }
+        addStructureCounts(responseHosts, m.response_asset_hosts);
+        addStructureCounts(irHosts, m.ir_remote_hosts);
+        addStructureCounts(extensions, m.asset_file_extensions);
+        for (const sample of m.missing_local_samples || []) {
+          if (totals.missing_local_samples.length < 10) {
+            totals.missing_local_samples.push({...sample, run_id: run.run_id, source_label: run.source_label});
+          }
+        }
+        for (const sample of m.remote_ref_samples || []) {
+          if (totals.remote_ref_samples.length < 10) {
+            totals.remote_ref_samples.push({...sample, run_id: run.run_id, source_label: run.source_label});
+          }
+        }
+      }
+      return {
+        ...totals,
+        response_asset_hosts: topCounts(responseHosts, 10),
+        ir_remote_hosts: topCounts(irHosts, 10),
+        asset_file_extensions: topCounts(extensions, 10),
+      };
+    }
+    function mediaSampleRows(samples, emptyText) {
+      return (samples || []).map(sample => `
+        <div class="warning-row">
+          <span>
+            <b>${escapeHtml(sample.run_id || sample.id || "sample")}</b>
+            ${sample.source_label ? `<span class="small"> | ${escapeHtml(sample.source_label)}</span>` : ""}<br>
+            <span class="small">${escapeHtml(sample.type || "media")} ${sample.id ? `from ${escapeHtml(sample.id)}` : ""}: ${escapeHtml(sample.value || "")}</span>
+          </span>
+        </div>`).join("") || `<span class='small'>${emptyText}</span>`;
+    }
+    function renderMediaHealth(runs) {
+      const target = document.getElementById("mediaHealth");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const s = aggregateMediaHealth(runs);
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(s.response_asset_records)}</b><br><span class="small">response asset records</span></div>
+          <div class="detail-box"><b>${fmt(s.response_asset_files_present)}</b><br><span class="small">asset files present</span></div>
+          <div class="detail-box"><b>${fmt(s.response_asset_files_missing)}</b><br><span class="small">missing response assets</span></div>
+          <div class="detail-box"><b>${bytesText(s.response_asset_bytes)}</b><br><span class="small">declared response asset bytes</span></div>
+          <div class="detail-box"><b>${fmt(s.ir_media_components)}</b><br><span class="small">IR media components</span></div>
+          <div class="detail-box"><b>${fmt(s.ir_image_components)}</b><br><span class="small">IR images</span></div>
+          <div class="detail-box"><b>${fmt(s.ir_icon_components)}</b><br><span class="small">IR icons</span></div>
+          <div class="detail-box"><b>${fmt(s.ir_local_media_missing)}</b><br><span class="small">missing local IR refs</span></div>
+          <div class="detail-box"><b>${fmt(s.ir_remote_media_refs)}</b><br><span class="small">remote refs left in IR</span></div>
+          <div class="detail-box"><b>${fmt(s.affected_runs)}</b><br><span class="small">affected runs</span></div>
+        </div>
+        <div class="dist-grid">
+          ${renderStructureCountBlock("Response Asset Hosts", s.response_asset_hosts)}
+          ${renderStructureCountBlock("IR Remote Hosts", s.ir_remote_hosts)}
+          ${renderStructureCountBlock("Asset Extensions", s.asset_file_extensions)}
+        </div>
+        <h2>Missing Local Media Samples</h2>
+        <div class="warning-list">${mediaSampleRows(s.missing_local_samples, "No missing local media references found in sampled rows.")}</div>
+        <h2>Remote IR Media Samples</h2>
+        <div class="warning-list">${mediaSampleRows(s.remote_ref_samples, "No remote media references found in sampled IR rows.")}</div>
+        <div class="small">Media health is sampled from response asset metadata and flat-spec Image/Icon props. Missing local refs indicate copied assets are incomplete or IR points at the wrong path; remote refs indicate assets were not localized before IR/rendering.</div>`;
     }
     const intentMetricKeys = [
       "content_coverage",
@@ -5194,6 +5540,7 @@ INDEX_HTML = r"""<!doctype html>
       renderDataIntegrity(runs);
       renderMetricsOverview(runs);
       renderIrStructure(runs);
+      renderMediaHealth(runs);
       renderIntentQuality(runs);
       renderThroughputEta(runs, sourceStats);
       renderStorageArtifacts(runs, sourceStats);
