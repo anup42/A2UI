@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -1644,11 +1644,101 @@ def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
+def collect_training_readiness_summary(rows: list[dict[str, Any]], responses: int, genui: int) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "paired_records": min(responses, genui),
+        "sampled": 0,
+        "json_parse_ok": 0,
+        "strict_valid": 0,
+        "score_ge_60": 0,
+        "score_ge_70": 0,
+        "score_ge_80": 0,
+        "score_unknown": 0,
+        "content_ge_65": 0,
+        "repair_free": 0,
+        "fallback_free": 0,
+        "markdown_clean": 0,
+        "gen_error_free": 0,
+        "ready_score70": 0,
+        "ready_score80": 0,
+        "estimated_ready_score70": 0,
+        "estimated_ready_score80": 0,
+        "avg_output_tokens_json": None,
+        "avg_component_count": None,
+    }
+    output_token_sum = 0.0
+    output_token_count = 0
+    component_sum = 0.0
+    component_count = 0
+    for row in rows:
+        summary["sampled"] += 1
+        validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
+        metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+        gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+        json_ok = validation.get("json_parse_ok") is True
+        strict_valid = validation.get("schema_valid_strict") is True
+        repair_free = not (validation.get("repair_needed") is True or int(validation.get("repair_attempts") or 0) > 0)
+        fallback_free = not (row.get("fallback_generated") or validation.get("fallback_generated"))
+        gen_error_free = not bool(gen.get("error"))
+        markdown = metrics.get("markdown_leakage_rate")
+        markdown_clean = not (isinstance(markdown, (int, float)) and markdown > 0)
+        score = metrics.get("overall_score")
+        score_value = float(score) if isinstance(score, (int, float)) else None
+        content_coverage = metrics.get("content_coverage")
+        if json_ok:
+            summary["json_parse_ok"] += 1
+        if strict_valid:
+            summary["strict_valid"] += 1
+        if repair_free:
+            summary["repair_free"] += 1
+        if fallback_free:
+            summary["fallback_free"] += 1
+        if markdown_clean:
+            summary["markdown_clean"] += 1
+        if gen_error_free:
+            summary["gen_error_free"] += 1
+        if score_value is None:
+            summary["score_unknown"] += 1
+        else:
+            if score_value >= 60:
+                summary["score_ge_60"] += 1
+            if score_value >= 70:
+                summary["score_ge_70"] += 1
+            if score_value >= 80:
+                summary["score_ge_80"] += 1
+        if isinstance(content_coverage, (int, float)) and content_coverage >= 0.65:
+            summary["content_ge_65"] += 1
+        output_tokens = metrics.get("output_tokens_json")
+        if isinstance(output_tokens, (int, float)):
+            output_token_sum += float(output_tokens)
+            output_token_count += 1
+        components = metrics.get("component_count")
+        if isinstance(components, (int, float)):
+            component_sum += float(components)
+            component_count += 1
+        base_ready = json_ok and strict_valid and gen_error_free and fallback_free and markdown_clean
+        if base_ready and score_value is not None and score_value >= 70:
+            summary["ready_score70"] += 1
+        if base_ready and score_value is not None and score_value >= 80:
+            summary["ready_score80"] += 1
+
+    sampled = int(summary["sampled"] or 0)
+    paired = int(summary["paired_records"] or 0)
+    if sampled:
+        summary["estimated_ready_score70"] = int(round(paired * int(summary["ready_score70"]) / sampled))
+        summary["estimated_ready_score80"] = int(round(paired * int(summary["ready_score80"]) / sampled))
+    if output_token_count:
+        summary["avg_output_tokens_json"] = output_token_sum / output_token_count
+    if component_count:
+        summary["avg_component_count"] = component_sum / component_count
+    return summary
+
+
 def compact_text(value: Any, limit: int = 900) -> str:
     text = re.sub(r"\s+", " ", str(value or "")).strip()
     if len(text) <= limit:
         return text
-    return text[: max(0, limit - 1)].rstrip() + "…"
+    return text[: max(0, limit - 3)].rstrip() + "..."
 
 
 def response_text_for_row(row: dict[str, Any]) -> str:
@@ -2724,6 +2814,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "ir_structure": collect_ir_structure_summary(genui_rows),
         "media_health": collect_media_asset_summary(run_dir, response_rows, genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
+        "training_readiness": collect_training_readiness_summary(genui_rows, responses, genui),
         "record_samples": collect_record_samples(query_rows, response_rows, genui_rows),
         "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
         "run_logs": summarize_run_logs(run_dir),
@@ -3106,6 +3197,10 @@ INDEX_HTML = r"""<!doctype html>
       <div id="metricsOverview"></div>
     </section>
     <section class="panel wide-panel">
+      <h2>Training Readiness</h2>
+      <div id="trainingReadiness"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>IR Structure</h2>
       <div id="irStructure"></div>
     </section>
@@ -3394,6 +3489,7 @@ INDEX_HTML = r"""<!doctype html>
         "log_files","log_issues","log_latest_updated_at",
         "response_asset_records","missing_response_assets","ir_media_components","ir_local_media_missing","ir_remote_media_refs",
         "record_sample_count",
+        "paired_records","estimated_ready_score70","estimated_ready_score80","sample_ready_score70","sample_strict_valid",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
         "updated_at","response_model","ir_model","ir_versions","path",
       ];
@@ -3426,6 +3522,11 @@ INDEX_HTML = r"""<!doctype html>
         r.media_health?.ir_local_media_missing || 0,
         r.media_health?.ir_remote_media_refs || 0,
         (r.record_samples || []).length,
+        r.training_readiness?.paired_records || 0,
+        r.training_readiness?.estimated_ready_score70 || 0,
+        r.training_readiness?.estimated_ready_score80 || 0,
+        r.training_readiness?.ready_score70 || 0,
+        r.training_readiness?.strict_valid || 0,
         r.response_usage?.total_tokens || 0,
         r.response_usage?.avg_latency_ms ?? "",
         r.response_usage?.cost_usd ?? "",
@@ -4397,6 +4498,8 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <h2>Validation Warnings</h2>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+        <h2>Training Readiness</h2>
+        ${renderTrainingReadinessDetails(selected.training_readiness || {})}
         <h2>IR Structure</h2>
         ${renderRunIrStructureDetails(selected.ir_structure || {})}
         <h2>Media & Asset Health</h2>
@@ -4890,6 +4993,139 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <div class="small">Averages are weighted by filtered IR count per run. Validation rates use sampled genui.jsonl rows already collected for quality alerts.</div>
       `;
+    }
+    function aggregateTrainingReadiness(runs) {
+      const totals = {
+        paired_records: 0,
+        sampled: 0,
+        json_parse_ok: 0,
+        strict_valid: 0,
+        score_ge_60: 0,
+        score_ge_70: 0,
+        score_ge_80: 0,
+        score_unknown: 0,
+        content_ge_65: 0,
+        repair_free: 0,
+        fallback_free: 0,
+        markdown_clean: 0,
+        gen_error_free: 0,
+        ready_score70: 0,
+        ready_score80: 0,
+        estimated_ready_score70: 0,
+        estimated_ready_score80: 0,
+        tokenSum: 0,
+        tokenWeight: 0,
+        componentSum: 0,
+        componentWeight: 0,
+      };
+      const runRows = [];
+      for (const run of runs) {
+        const t = run.training_readiness || {};
+        for (const key of [
+          "paired_records","sampled","json_parse_ok","strict_valid","score_ge_60","score_ge_70","score_ge_80",
+          "score_unknown","content_ge_65","repair_free","fallback_free","markdown_clean","gen_error_free",
+          "ready_score70","ready_score80","estimated_ready_score70","estimated_ready_score80",
+        ]) {
+          totals[key] += Number(t[key] || 0);
+        }
+        if (t.avg_output_tokens_json != null && Number(t.sampled || 0)) {
+          totals.tokenSum += Number(t.avg_output_tokens_json) * Number(t.sampled || 0);
+          totals.tokenWeight += Number(t.sampled || 0);
+        }
+        if (t.avg_component_count != null && Number(t.sampled || 0)) {
+          totals.componentSum += Number(t.avg_component_count) * Number(t.sampled || 0);
+          totals.componentWeight += Number(t.sampled || 0);
+        }
+        const sampled = Number(t.sampled || 0);
+        const readyRate = sampled ? Number(t.ready_score70 || 0) / sampled : null;
+        const strictRate = sampled ? Number(t.strict_valid || 0) / sampled : null;
+        if (sampled || run.genui) {
+          runRows.push({
+            run,
+            sampled,
+            paired: Number(t.paired_records || 0),
+            ready70: Number(t.ready_score70 || 0),
+            estimatedReady70: Number(t.estimated_ready_score70 || 0),
+            readyRate,
+            strictRate,
+            avgScore: run.display_score ?? run.overall_score,
+          });
+        }
+      }
+      totals.avg_output_tokens_json = totals.tokenWeight ? totals.tokenSum / totals.tokenWeight : null;
+      totals.avg_component_count = totals.componentWeight ? totals.componentSum / totals.componentWeight : null;
+      totals.weak_runs = runRows
+        .filter(row => row.sampled && row.paired)
+        .sort((a, b) => (a.readyRate - b.readyRate) || (a.strictRate - b.strictRate) || String(a.run.run_id).localeCompare(String(b.run.run_id)))
+        .slice(0, 12);
+      totals.best_runs = runRows
+        .filter(row => row.sampled && row.paired)
+        .sort((a, b) => (b.estimatedReady70 - a.estimatedReady70) || (b.readyRate - a.readyRate) || String(a.run.run_id).localeCompare(String(b.run.run_id)))
+        .slice(0, 8);
+      return totals;
+    }
+    function renderTrainingReadinessDetails(t) {
+      const sampled = Math.max(1, Number(t.sampled || 0));
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(t.paired_records || 0)}</b><br><span class="small">paired response/IR records</span></div>
+          <div class="detail-box"><b>${fmt(t.estimated_ready_score70 || 0)}</b><br><span class="small">estimated ready >=70</span></div>
+          <div class="detail-box"><b>${fmt(t.estimated_ready_score80 || 0)}</b><br><span class="small">estimated ready >=80</span></div>
+          <div class="detail-box"><b>${metricPct((t.ready_score70 || 0) / sampled)}</b><br><span class="small">sample ready >=70 rate</span></div>
+          <div class="detail-box"><b>${metricPct((t.strict_valid || 0) / sampled)}</b><br><span class="small">strict schema pass</span></div>
+          <div class="detail-box"><b>${metricPct((t.json_parse_ok || 0) / sampled)}</b><br><span class="small">JSON parse ok</span></div>
+          <div class="detail-box"><b>${metricPct((t.repair_free || 0) / sampled)}</b><br><span class="small">repair-free</span></div>
+          <div class="detail-box"><b>${metricPct((t.fallback_free || 0) / sampled)}</b><br><span class="small">fallback-free</span></div>
+          <div class="detail-box"><b>${metricPct((t.markdown_clean || 0) / sampled)}</b><br><span class="small">markdown-clean</span></div>
+          <div class="detail-box"><b>${Number(t.avg_output_tokens_json || 0).toFixed(0)}</b><br><span class="small">avg JSON output tokens</span></div>
+          <div class="detail-box"><b>${Number(t.avg_component_count || 0).toFixed(1)}</b><br><span class="small">avg components</span></div>
+        </div>`;
+    }
+    function renderTrainingReadiness(runs) {
+      const target = document.getElementById("trainingReadiness");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const t = aggregateTrainingReadiness(runs);
+      const weakRows = t.weak_runs.map(row => `
+        <tr>
+          <td><b>${escapeHtml(row.run.run_id)}</b><br><span class="small">${escapeHtml(row.run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(row.run))}')">Details</button></td>
+          <td>${fmt(row.paired)} paired<br><span class="small">${fmt(row.sampled)} sampled</span></td>
+          <td>${metricPct(row.readyRate)}<br><span class="small">est ${fmt(row.estimatedReady70)} ready</span></td>
+          <td>${metricPct(row.strictRate)}</td>
+          <td><span class="score ${scoreClass(row.avgScore)}">${scoreText(row.avgScore)}</span></td>
+        </tr>`).join("");
+      const bestRows = t.best_runs.map(row => `
+        <tr>
+          <td><b>${escapeHtml(row.run.run_id)}</b><br><span class="small">${escapeHtml(row.run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(row.run))}')">Details</button></td>
+          <td>${fmt(row.estimatedReady70)} ready >=70<br><span class="small">${fmt(row.paired)} paired</span></td>
+          <td>${metricPct(row.readyRate)}</td>
+          <td><span class="score ${scoreClass(row.avgScore)}">${scoreText(row.avgScore)}</span></td>
+        </tr>`).join("");
+      target.innerHTML = `
+        ${renderTrainingReadinessDetails(t)}
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Weakest Training Slices</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run</th><th>Records</th><th>Ready >=70</th><th>Strict</th><th>Score</th></tr></thead>
+                <tbody>${weakRows || "<tr><td colspan='5'><span class='small'>No sampled paired records found.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2>Largest Ready Runs</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run</th><th>Estimated Ready</th><th>Rate</th><th>Score</th></tr></thead>
+                <tbody>${bestRows || "<tr><td colspan='4'><span class='small'>No sampled paired records found.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Training readiness is a sampled estimate. A record is counted ready when Stage 3 JSON parses, strict schema passes, no generation error/fallback/markdown leakage is observed, and overall score meets the threshold.</div>`;
     }
     function addStructureCounts(target, obj) {
       for (const [key, value] of Object.entries(obj || {})) {
@@ -5731,6 +5967,7 @@ INDEX_HTML = r"""<!doctype html>
       renderQualityAlerts(runs);
       renderDataIntegrity(runs);
       renderMetricsOverview(runs);
+      renderTrainingReadiness(runs);
       renderIrStructure(runs);
       renderMediaHealth(runs);
       renderIntentQuality(runs);
@@ -5966,7 +6203,6 @@ def main() -> int:
     finally:
         httpd.server_close()
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
