@@ -188,7 +188,10 @@ python scripts/dataset_dashboard.py --sync-once
 python scripts/dataset_dashboard.py --summary-once
 ```
 
-Remote files are mirrored into `data/dashboard_mirror/`. The sync manifest stores source `size` and `mtime`, so repeat syncs copy only new or updated files.
+Remote files are mirrored into `data/dashboard_mirror/`. The sync manifest stores source `size`
+and `mtime`, so repeat syncs copy only new or updated files. While sync is running, the dashboard
+shows the active source, current file, listed/processed/copied/skipped/error counters, and recent
+sync messages.
 
 ## Local Qwen3 / DeepSeek
 

@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse
 
 
@@ -26,6 +26,7 @@ DEFAULT_EXAMPLE_CONFIG = ROOT / "configs" / "dataset_dashboard.sources.example.j
 DEFAULT_MIRROR_DIR = ROOT / "data" / "dashboard_mirror"
 MANIFEST_NAME = "sync_manifest.json"
 PASSWORD_CACHE: dict[str, str] = {}
+ProgressCallback = Callable[[dict[str, Any]], None]
 
 
 @dataclass(frozen=True)
@@ -533,11 +534,17 @@ def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"copy_command failed for {rel}")
 
 
+def emit_progress(progress: ProgressCallback | None, **payload: Any) -> None:
+    if progress is not None:
+        progress(payload)
+
+
 def sync_source(
     source: dict[str, Any],
     mirror_dir: Path,
     include_globs: list[str],
     exclude_globs: list[str],
+    progress: ProgressCallback | None = None,
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = str(source.get("type") or "local").lower()
@@ -547,6 +554,21 @@ def sync_source(
     previous: dict[str, Any] = manifest.get("files", {}) if isinstance(manifest, dict) else {}
     client = None
     sftp = None
+    emit_progress(
+        progress,
+        phase="listing",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        current_file="",
+        listed=0,
+        copied=0,
+        skipped=0,
+        error_count=0,
+        processed=0,
+        total=0,
+        message=f"Listing {source_label(source)}",
+    )
 
     if source_type == "local":
         source_root = resolve_dataset_path(str(source.get("path") or ""), ROOT)
@@ -562,18 +584,60 @@ def sync_source(
     else:
         raise ValueError(f"Unsupported source type: {source_type}")
 
+    emit_progress(
+        progress,
+        phase="copying",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        listed=len(entries),
+        total=len(entries),
+        processed=0,
+        copied=0,
+        skipped=0,
+        error_count=0,
+        message=f"Copying changed files from {source_label(source)}",
+    )
     copied = 0
     skipped = 0
     errors: list[str] = []
     current_files: dict[str, Any] = {}
-    for entry in entries:
+    for index, entry in enumerate(entries, start=1):
         legacy_signature = {"size": entry.size, "mtime": round(entry.mtime, 6)}
         signature = {**legacy_signature, "source_path": entry.source_path or ""}
         current_files[entry.rel] = signature
         if previous.get(entry.rel) in (signature, legacy_signature) and (dest_root / entry.rel).exists():
             skipped += 1
+            emit_progress(
+                progress,
+                phase="copying",
+                source_id=source_id,
+                source_label=source_label(source),
+                current_file=entry.rel,
+                listed=len(entries),
+                total=len(entries),
+                processed=index,
+                copied=copied,
+                skipped=skipped,
+                error_count=len(errors),
+                message=f"Skipped unchanged {entry.rel}",
+            )
             continue
         try:
+            emit_progress(
+                progress,
+                phase="copying",
+                source_id=source_id,
+                source_label=source_label(source),
+                current_file=entry.rel,
+                listed=len(entries),
+                total=len(entries),
+                processed=index - 1,
+                copied=copied,
+                skipped=skipped,
+                error_count=len(errors),
+                message=f"Copying {entry.rel}",
+            )
             if source_type == "local":
                 assert source_root is not None
                 copy_local_file(source_root, dest_root, entry)
@@ -587,6 +651,20 @@ def sync_source(
             copied += 1
         except Exception as exc:
             errors.append(f"{entry.rel}: {exc}")
+        emit_progress(
+            progress,
+            phase="copying",
+            source_id=source_id,
+            source_label=source_label(source),
+            current_file=entry.rel,
+            listed=len(entries),
+            total=len(entries),
+            processed=index,
+            copied=copied,
+            skipped=skipped,
+            error_count=len(errors),
+            message=f"Processed {index}/{len(entries)} from {source_label(source)}",
+        )
 
     if sftp is not None:
         sftp.close()
@@ -602,6 +680,21 @@ def sync_source(
             "synced_at": utc_now(),
             "files": current_files,
         },
+    )
+    emit_progress(
+        progress,
+        phase="source_done",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        current_file="",
+        listed=len(entries),
+        total=len(entries),
+        processed=len(entries),
+        copied=copied,
+        skipped=skipped,
+        error_count=len(errors),
+        message=f"Finished {source_label(source)}: copied {copied}, skipped {skipped}, errors {len(errors)}",
     )
     return {
         "source_id": source_id,
@@ -628,16 +721,44 @@ def load_config(config_path: Path) -> dict[str, Any]:
     return config
 
 
-def run_sync(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
+def run_sync(config: dict[str, Any], mirror_dir: Path, progress: ProgressCallback | None = None) -> dict[str, Any]:
     include_globs = list(config.get("include_globs") or [])
     exclude_globs = list(config.get("exclude_globs") or [])
     results = []
-    for source in config.get("sources") or []:
-        if not isinstance(source, dict) or not source_enabled(source):
-            continue
+    enabled_sources = [source for source in config.get("sources") or [] if isinstance(source, dict) and source_enabled(source)]
+    emit_progress(
+        progress,
+        running=True,
+        phase="starting",
+        total_sources=len(enabled_sources),
+        source_index=0,
+        message=f"Starting sync for {len(enabled_sources)} source(s)",
+    )
+    for source_index, source in enumerate(enabled_sources, start=1):
         try:
-            results.append(sync_source(source, mirror_dir, include_globs, exclude_globs))
+            emit_progress(
+                progress,
+                running=True,
+                phase="source_start",
+                total_sources=len(enabled_sources),
+                source_index=source_index,
+                source_id=safe_source_id(str(source.get("id") or source_label(source))),
+                source_label=source_label(source),
+                message=f"Starting source {source_index}/{len(enabled_sources)}: {source_label(source)}",
+            )
+            results.append(sync_source(source, mirror_dir, include_globs, exclude_globs, progress=progress))
         except Exception as exc:
+            emit_progress(
+                progress,
+                running=True,
+                phase="source_error",
+                total_sources=len(enabled_sources),
+                source_index=source_index,
+                source_id=safe_source_id(str(source.get("id") or source_label(source))),
+                source_label=source_label(source),
+                error_count=1,
+                message=f"Source failed: {source_label(source)}: {exc}",
+            )
             results.append(
                 {
                     "source_id": safe_source_id(str(source.get("id") or source_label(source))),
@@ -653,6 +774,19 @@ def run_sync(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
             )
     summary = {"synced_at": utc_now(), "results": results}
     write_json(mirror_dir / "last_sync.json", summary)
+    emit_progress(
+        progress,
+        running=False,
+        phase="done",
+        total_sources=len(enabled_sources),
+        source_index=len(enabled_sources),
+        listed=sum(int(r.get("listed") or 0) for r in results),
+        copied=sum(int(r.get("copied") or 0) for r in results),
+        skipped=sum(int(r.get("skipped") or 0) for r in results),
+        error_count=sum(int(r.get("error_count") or 0) for r in results),
+        current_file="",
+        message="Sync complete",
+    )
     return summary
 
 
@@ -1151,6 +1285,10 @@ INDEX_HTML = r"""<!doctype html>
     .day-counts { display:flex; gap: 10px; flex-wrap: wrap; }
     .day-counts span { color: var(--muted); font-size: 12px; }
     .day-table { margin-top: 12px; }
+    .sync-panel { display:none; margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.62); max-width: 980px; }
+    .sync-panel.active { display:block; }
+    .sync-top { display:flex; justify-content:space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .sync-messages { margin-top: 8px; display:grid; gap: 3px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
     @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
   </style>
@@ -1178,6 +1316,15 @@ INDEX_HTML = r"""<!doctype html>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
       <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
       <span class="status" id="status"></span>
+    </div>
+    <div class="sync-panel" id="syncPanel">
+      <div class="sync-top">
+        <b id="syncPhase">Sync idle</b>
+        <span class="small" id="syncCounters"></span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="syncBar" style="width:0%"></div></div>
+      <div class="small" id="syncFile"></div>
+      <div class="sync-messages small" id="syncMessages"></div>
     </div>
   </header>
   <main>
@@ -1212,6 +1359,7 @@ INDEX_HTML = r"""<!doctype html>
   </main>
   <script>
     let current = null;
+    let syncPollTimer = null;
     const fmt = n => (n ?? 0).toLocaleString();
     const scoreClass = s => s == null ? "" : s >= 75 ? "good" : s >= 60 ? "warn" : "";
     const scoreText = s => s == null ? "n/a" : Number(s).toFixed(2);
@@ -1224,6 +1372,44 @@ INDEX_HTML = r"""<!doctype html>
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
     };
     function setStatus(text) { document.getElementById("status").textContent = text || ""; }
+    function renderSyncStatus(s) {
+      const panel = document.getElementById("syncPanel");
+      const active = s && (s.running || (s.phase && s.phase !== "idle"));
+      panel.classList.toggle("active", Boolean(active));
+      if (!active) return;
+      const total = Number(s.total || 0);
+      const processed = Number(s.processed || 0);
+      const width = total ? Math.max(3, Math.min(100, Math.round((processed / total) * 100))) : (s.running ? 8 : 100);
+      const sourcePart = s.source_label ? `${s.source_label}` : "sources";
+      const sourceIndex = s.total_sources ? `source ${s.source_index || 0}/${s.total_sources}` : "";
+      document.getElementById("syncPhase").textContent = `${s.running ? "Syncing" : "Sync"} - ${s.phase || "status"} ${sourceIndex}`;
+      document.getElementById("syncCounters").textContent = [
+        sourcePart,
+        `listed ${fmt(s.listed)}`,
+        `processed ${fmt(processed)}/${fmt(total)}`,
+        `copied ${fmt(s.copied)}`,
+        `skipped ${fmt(s.skipped)}`,
+        `errors ${fmt(s.error_count)}`,
+      ].filter(Boolean).join(" | ");
+      document.getElementById("syncBar").style.width = `${width}%`;
+      document.getElementById("syncFile").textContent = s.current_file ? `Current: ${s.current_file}` : (s.message || "");
+      document.getElementById("syncMessages").innerHTML = (s.messages || []).slice(-5).map(m => `<div>${m}</div>`).join("");
+    }
+    async function loadSyncStatus() {
+      const res = await fetch("/api/sync/status");
+      const status = await res.json();
+      renderSyncStatus(status);
+      if (!status.running && syncPollTimer) {
+        clearInterval(syncPollTimer);
+        syncPollTimer = null;
+      }
+      return status;
+    }
+    function startSyncPolling() {
+      if (syncPollTimer) clearInterval(syncPollTimer);
+      loadSyncStatus().catch(() => {});
+      syncPollTimer = setInterval(() => loadSyncStatus().catch(() => {}), 1000);
+    }
     async function loadSummary() {
       setStatus("Loading...");
       const res = await fetch("/api/summary");
@@ -1233,12 +1419,19 @@ INDEX_HTML = r"""<!doctype html>
     }
     async function syncSources() {
       setStatus("Syncing sources...");
-      const res = await fetch("/api/sync", {method: "POST"});
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error || "sync failed");
-      await loadSummary();
-      const copied = (payload.results || []).reduce((a,r) => a + (r.copied || 0), 0);
-      setStatus(`Sync complete. Copied ${copied} changed files.`);
+      startSyncPolling();
+      try {
+        const res = await fetch("/api/sync", {method: "POST"});
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "sync failed");
+        await loadSyncStatus().catch(() => {});
+        await loadSummary();
+        const copied = (payload.results || []).reduce((a,r) => a + (r.copied || 0), 0);
+        setStatus(`Sync complete. Copied ${copied} changed files.`);
+      } catch (error) {
+        await loadSyncStatus().catch(() => {});
+        throw error;
+      }
     }
     function renderStats(t) {
       const stats = [
@@ -1499,6 +1692,7 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("scoreFilter").onchange = render;
     document.getElementById("dateFrom").onchange = render;
     document.getElementById("dateTo").onchange = render;
+    loadSyncStatus().catch(() => {});
     loadSummary().catch(e => setStatus(`Load failed: ${e.message}`));
   </script>
 </body>
@@ -1511,6 +1705,49 @@ class DashboardServer:
         self.config_path = config_path
         self.mirror_dir = mirror_dir
         self.lock = threading.Lock()
+        self.status_lock = threading.Lock()
+        self.sync_status: dict[str, Any] = self.new_sync_status()
+
+    def new_sync_status(self) -> dict[str, Any]:
+        return {
+            "running": False,
+            "phase": "idle",
+            "started_at": None,
+            "updated_at": utc_now(),
+            "source_id": "",
+            "source_label": "",
+            "source_type": "",
+            "source_index": 0,
+            "total_sources": 0,
+            "current_file": "",
+            "listed": 0,
+            "total": 0,
+            "processed": 0,
+            "copied": 0,
+            "skipped": 0,
+            "error_count": 0,
+            "message": "Idle",
+            "messages": [],
+        }
+
+    def update_sync_status(self, update: dict[str, Any]) -> None:
+        with self.status_lock:
+            if update.get("phase") == "starting":
+                self.sync_status = self.new_sync_status()
+                self.sync_status["started_at"] = utc_now()
+            status = dict(self.sync_status)
+            status.update(update)
+            status["updated_at"] = utc_now()
+            message = str(update.get("message") or "").strip()
+            messages = list(status.get("messages") or [])
+            if message and (not messages or messages[-1] != message):
+                messages.append(message)
+            status["messages"] = messages[-12:]
+            self.sync_status = status
+
+    def status(self) -> dict[str, Any]:
+        with self.status_lock:
+            return json.loads(json.dumps(self.sync_status))
 
     def config(self) -> dict[str, Any]:
         config = load_config(self.config_path)
@@ -1524,7 +1761,12 @@ class DashboardServer:
 
     def sync(self) -> dict[str, Any]:
         with self.lock:
-            return run_sync(self.config(), self.mirror_dir)
+            self.update_sync_status({"running": True, "phase": "starting", "message": "Starting sync"})
+            try:
+                return run_sync(self.config(), self.mirror_dir, progress=self.update_sync_status)
+            except Exception as exc:
+                self.update_sync_status({"running": False, "phase": "failed", "message": f"Sync failed: {exc}"})
+                raise
 
 
 def make_handler(server_state: DashboardServer):
@@ -1555,6 +1797,9 @@ def make_handler(server_state: DashboardServer):
                     self.send_json(server_state.summary())
                 except Exception as exc:
                     self.send_json({"error": str(exc)}, status=500)
+                return
+            if parsed.path == "/api/sync/status":
+                self.send_json(server_state.status())
                 return
             if parsed.path == "/api/config":
                 config = server_state.config()
