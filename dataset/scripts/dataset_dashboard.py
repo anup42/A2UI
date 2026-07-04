@@ -860,6 +860,68 @@ def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
     return {key: sums[key] / counts[key] for key in metric_keys if counts[key]}
 
 
+def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    summary = {
+        "sampled": 0,
+        "json_parse_fail": 0,
+        "strict_schema_fail": 0,
+        "repair_needed": 0,
+        "repair_attempted": 0,
+        "gen_errors": 0,
+        "fallback_generated": 0,
+        "low_score": 0,
+        "markdown_leakage": 0,
+        "sparse_ir": 0,
+        "warnings": [],
+    }
+    warnings: dict[str, int] = {}
+    for row in rows:
+        summary["sampled"] += 1
+        validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
+        metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+        gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+        if validation.get("json_parse_ok") is False:
+            summary["json_parse_fail"] += 1
+        if validation.get("schema_valid_strict") is False:
+            summary["strict_schema_fail"] += 1
+        if validation.get("repair_needed") is True:
+            summary["repair_needed"] += 1
+        if int(validation.get("repair_attempts") or 0) > 0:
+            summary["repair_attempted"] += 1
+        if gen.get("error"):
+            summary["gen_errors"] += 1
+        if row.get("fallback_generated") or validation.get("fallback_generated"):
+            summary["fallback_generated"] += 1
+        score = metrics.get("overall_score")
+        if isinstance(score, (int, float)) and score < 60:
+            summary["low_score"] += 1
+        markdown = metrics.get("markdown_leakage_rate")
+        if isinstance(markdown, (int, float)) and markdown > 0:
+            summary["markdown_leakage"] += 1
+        component_count = metrics.get("component_count")
+        content_coverage = metrics.get("content_coverage")
+        if (
+            isinstance(component_count, (int, float))
+            and isinstance(content_coverage, (int, float))
+            and component_count < 12
+            and content_coverage < 0.55
+        ):
+            summary["sparse_ir"] += 1
+        for error in validation.get("errors") or []:
+            text = str(error).strip()
+            if text:
+                warnings[text[:140]] = warnings.get(text[:140], 0) + 1
+        for warning in validation.get("warnings") or []:
+            text = str(warning).strip()
+            if text:
+                warnings[text[:140]] = warnings.get(text[:140], 0) + 1
+    summary["warnings"] = [
+        {"message": message, "count": count}
+        for message, count in sorted(warnings.items(), key=lambda kv: (-kv[1], kv[0]))[:8]
+    ]
+    return summary
+
+
 def ir_version_for_row(row: dict[str, Any]) -> str:
     gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
     candidates = [
@@ -1482,6 +1544,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
         "metric_avgs": collect_metric_avgs(genui_rows),
+        "quality_summary": collect_quality_summary(genui_rows),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
         "ir_version_stats": ir_version_stats,
         "intents": dict(sorted(intents.items(), key=lambda kv: (-kv[1], kv[0]))[:12]),
@@ -1639,6 +1702,7 @@ INDEX_HTML = r"""<!doctype html>
     .badge.empty, .badge.unknown { background: rgba(180,83,9,.12); color: var(--warn); }
     .badge.error { background: rgba(185,28,28,.12); color: var(--bad); }
     .mini-btn { padding: 7px 10px; border-radius: 999px; font-size: 12px; box-shadow: none; }
+    .ghost-btn { background: rgba(255,255,255,.66); color: var(--accent); border-color: rgba(15,118,110,.22); box-shadow: none; }
     .source-head { display:flex; align-items:flex-start; justify-content:space-between; gap: 10px; }
     .score { font-weight: 850; }
     .score.good { color: var(--good); }
@@ -1651,6 +1715,11 @@ INDEX_HTML = r"""<!doctype html>
     .kv div { background: rgba(255,255,255,.55); border-radius: 12px; padding: 9px; }
     .wide-panel { margin-top: 18px; }
     .two-col-panels { display:grid; grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.3fr); gap: 18px; align-items:start; }
+    .detail-panel { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+    .detail-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap: 10px; margin-top: 10px; }
+    .detail-box { background: rgba(255,255,255,.58); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
+    .warning-list { display:grid; gap: 8px; }
+    .warning-row { display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid var(--line); padding: 8px 0; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
@@ -1672,6 +1741,8 @@ INDEX_HTML = r"""<!doctype html>
     <div class="toolbar">
       <button id="syncBtn">Sync sources</button>
       <button id="refreshBtn">Refresh scan</button>
+      <button class="ghost-btn" id="exportCsvBtn">Export CSV</button>
+      <button class="ghost-btn" id="exportJsonBtn">Export JSON</button>
       <input id="filter" placeholder="Filter run/source/model..." />
       <select id="sourceFilter">
         <option value="">All sources</option>
@@ -1731,6 +1802,7 @@ INDEX_HTML = r"""<!doctype html>
             <tbody id="runs"></tbody>
           </table>
         </div>
+        <div id="runDetails" class="detail-panel"></div>
       </section>
     </section>
     <section class="two-col-panels wide-panel">
@@ -1739,21 +1811,25 @@ INDEX_HTML = r"""<!doctype html>
         <div id="backlog"></div>
       </section>
       <section class="panel">
-        <h2>Model Comparison</h2>
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Response -> IR</th>
-                <th>Runs / IR</th>
-                <th>Score</th>
-                <th>Quality Signals</th>
-              </tr>
-            </thead>
-            <tbody id="modelComparison"></tbody>
-          </table>
-        </div>
+        <h2>Quality Alerts</h2>
+        <div id="qualityAlerts"></div>
       </section>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Model Comparison</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Response -> IR</th>
+              <th>Runs / IR</th>
+              <th>Score</th>
+              <th>Quality Signals</th>
+            </tr>
+          </thead>
+          <tbody id="modelComparison"></tbody>
+        </table>
+      </div>
     </section>
     <section class="panel wide-panel">
       <h2 id="daysTitle">Day Wise Data</h2>
@@ -1766,12 +1842,15 @@ INDEX_HTML = r"""<!doctype html>
     let autoRefreshTimer = null;
     let summaryLoading = false;
     let sourceHealthOverrides = {};
+    let selectedRunKey = null;
     const fmt = n => (n ?? 0).toLocaleString();
     const pct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(1)}%`;
     const metricPct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(0)}%`;
     const scoreClass = s => s == null ? "" : s >= 75 ? "good" : s >= 60 ? "warn" : "";
     const scoreText = s => s == null ? "n/a" : Number(s).toFixed(2);
     const dominantModel = obj => Object.entries(obj || {})[0]?.[0] || "unknown";
+    const runKey = r => `${r.source_id}::${r.run_id}`;
+    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const modelText = obj => {
       const entries = Object.entries(obj || {}).slice(0, 3);
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
@@ -1877,6 +1956,65 @@ INDEX_HTML = r"""<!doctype html>
       sourceHealthOverrides[sourceId] = payload;
       render();
       setStatus(`${payload.source_label || sourceId}: ${payload.status} - ${payload.message || ""}`);
+    }
+    function downloadBlob(filename, content, type) {
+      const blob = new Blob([content], {type});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+    function exportFiltered(format) {
+      if (!current) return;
+      const runs = filteredRuns();
+      const sourceStats = filteredSourceStats(current.sources || [], runs);
+      const payload = {
+        exported_at: new Date().toISOString(),
+        generated_at: current.generated_at,
+        filters: filters(),
+        totals: runTotals(runs),
+        sources: sourceStats,
+        runs,
+      };
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      if (format === "json") {
+        downloadBlob(`genuicraft_dataset_dashboard_${stamp}.json`, JSON.stringify(payload, null, 2), "application/json");
+        setStatus(`Exported ${fmt(runs.length)} runs as JSON`);
+        return;
+      }
+      const headers = [
+        "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
+        "overall_score","assets","screenshots","updated_at","response_model","ir_model","ir_versions","path",
+      ];
+      const rows = runs.map(r => [
+        r.source_id,
+        r.source_label,
+        r.run_id,
+        r.queries,
+        r.responses,
+        r.genui,
+        r.response_backlog,
+        r.ir_backlog,
+        r.display_score ?? r.overall_score,
+        r.assets,
+        r.screenshots,
+        r.updated_at,
+        dominantModel(r.response_models),
+        dominantModel(r.ir_models),
+        Object.keys(r.ir_versions || {}).join("; "),
+        r.path,
+      ]);
+      const csv = [headers, ...rows].map(row => row.map(csvCell).join(",")).join("\n");
+      downloadBlob(`genuicraft_dataset_dashboard_${stamp}.csv`, csv, "text/csv");
+      setStatus(`Exported ${fmt(runs.length)} runs as CSV`);
     }
     function renderStats(t) {
       const stats = [
@@ -2069,7 +2207,12 @@ INDEX_HTML = r"""<!doctype html>
     function renderRuns(runs) {
       document.getElementById("runs").innerHTML = runs.map(r => `
         <tr>
-          <td><b>${r.run_id}</b><br><span class="small">${r.source_label}</span><br><span class="small">${r.path}</span></td>
+          <td>
+            <b>${escapeHtml(r.run_id)}</b><br>
+            <span class="small">${escapeHtml(r.source_label)}</span><br>
+            <span class="small">${escapeHtml(r.path)}</span><br>
+            <button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(r))}')">Details</button>
+          </td>
           <td>
             Q ${fmt(r.queries)}<br>R ${fmt(r.responses)}<br>IR ${fmt(r.genui)}<br>
             <span class="small">missing R ${fmt(r.response_backlog)} | missing IR ${fmt(r.ir_backlog)}</span><br>
@@ -2083,6 +2226,63 @@ INDEX_HTML = r"""<!doctype html>
           </td>
           <td><span class="small">${new Date(r.updated_at).toLocaleString()}</span></td>
         </tr>`).join("");
+    }
+    function selectRun(key) {
+      selectedRunKey = decodeURIComponent(key);
+      render();
+    }
+    function qualityBox(label, value) {
+      return `<div class="detail-box"><b>${fmt(value)}</b><br><span class="small">${label}</span></div>`;
+    }
+    function renderRunDetails(runs) {
+      const el = document.getElementById("runDetails");
+      if (!runs.length) {
+        selectedRunKey = null;
+        el.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const selected = selectedRunKey ? runs.find(r => runKey(r) === selectedRunKey) : null;
+      if (!selected) {
+        el.innerHTML = "<span class='small'>Select Details on a run to inspect metrics, warnings, models, intents, and versions.</span>";
+        return;
+      }
+      const q = selected.quality_summary || {};
+      const m = selected.metric_avgs || {};
+      const warnings = (q.warnings || []).map(w => `
+        <div class="warning-row">
+          <span>${escapeHtml(w.message)}</span>
+          <b>${fmt(w.count)}</b>
+        </div>`).join("");
+      el.innerHTML = `
+        <h2>${escapeHtml(selected.run_id)}</h2>
+        <div class="small">${escapeHtml(selected.path)}</div>
+        <div class="detail-grid">
+          ${qualityBox("sampled IR rows", q.sampled || 0)}
+          ${qualityBox("strict schema fail", q.strict_schema_fail || 0)}
+          ${qualityBox("repair attempted", q.repair_attempted || 0)}
+          ${qualityBox("generation errors", q.gen_errors || 0)}
+          ${qualityBox("low score rows", q.low_score || 0)}
+          ${qualityBox("markdown leakage rows", q.markdown_leakage || 0)}
+          ${qualityBox("sparse IR rows", q.sparse_ir || 0)}
+          <div class="detail-box"><b>${scoreText(selected.display_score ?? selected.overall_score)}</b><br><span class="small">filtered score</span></div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-box"><b>Stage 2</b><br><span class="small">${modelText(selected.response_models)}</span></div>
+          <div class="detail-box"><b>Stage 3</b><br><span class="small">${modelText(selected.ir_models)}</span></div>
+          <div class="detail-box"><b>IR versions</b><br><span class="small">${versionText(selected.ir_versions)}</span></div>
+          <div class="detail-box"><b>Intents</b><br><span class="small">${modelText(selected.intents)}</span></div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-box"><b>${metricPct(m.content_coverage)}</b><br><span class="small">content coverage</span></div>
+          <div class="detail-box"><b>${metricPct(m.intent_score)}</b><br><span class="small">intent score</span></div>
+          <div class="detail-box"><b>${metricPct(m.section_heading_coverage)}</b><br><span class="small">heading coverage</span></div>
+          <div class="detail-box"><b>${metricPct(m.table_cell_coverage)}</b><br><span class="small">table coverage</span></div>
+          <div class="detail-box"><b>${metricPct(m.action_coverage)}</b><br><span class="small">action coverage</span></div>
+          <div class="detail-box"><b>${metricPct(m.image_presence)}</b><br><span class="small">image presence</span></div>
+        </div>
+        <h2>Validation Warnings</h2>
+        <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+      `;
     }
     function totalDayCount(day) {
       return (day.queries || 0) + (day.responses || 0) + (day.genui || 0);
@@ -2117,6 +2317,61 @@ INDEX_HTML = r"""<!doctype html>
             <div><b>${fmt(row.total_backlog)}</b><br><span class="small">backlog</span></div>
           </div>`;
       }).join("");
+    }
+    function aggregateQuality(runs) {
+      const totals = {
+        sampled: 0,
+        json_parse_fail: 0,
+        strict_schema_fail: 0,
+        repair_needed: 0,
+        repair_attempted: 0,
+        gen_errors: 0,
+        fallback_generated: 0,
+        low_score: 0,
+        markdown_leakage: 0,
+        sparse_ir: 0,
+        warnings: new Map(),
+      };
+      for (const r of runs) {
+        const q = r.quality_summary || {};
+        for (const key of ["sampled","json_parse_fail","strict_schema_fail","repair_needed","repair_attempted","gen_errors","fallback_generated","low_score","markdown_leakage","sparse_ir"]) {
+          totals[key] += q[key] || 0;
+        }
+        for (const warning of q.warnings || []) {
+          const message = warning.message || "warning";
+          totals.warnings.set(message, (totals.warnings.get(message) || 0) + (warning.count || 0));
+        }
+      }
+      totals.warning_rows = [...totals.warnings.entries()]
+        .map(([message, count]) => ({message, count}))
+        .sort((a,b) => (b.count - a.count) || a.message.localeCompare(b.message))
+        .slice(0, 8);
+      return totals;
+    }
+    function renderQualityAlerts(runs) {
+      const q = aggregateQuality(runs);
+      const issueCount = q.json_parse_fail + q.strict_schema_fail + q.gen_errors + q.fallback_generated + q.low_score + q.markdown_leakage + q.sparse_ir;
+      const topWarnings = q.warning_rows.map(w => `
+        <div class="warning-row">
+          <span>${escapeHtml(w.message)}</span>
+          <b>${fmt(w.count)}</b>
+        </div>`).join("");
+      document.getElementById("qualityAlerts").innerHTML = `
+        <div class="detail-grid">
+          ${qualityBox("sampled IR rows", q.sampled)}
+          ${qualityBox("total issue signals", issueCount)}
+          ${qualityBox("strict schema fail", q.strict_schema_fail)}
+          ${qualityBox("generation errors", q.gen_errors)}
+          ${qualityBox("repair attempted", q.repair_attempted)}
+          ${qualityBox("fallback generated", q.fallback_generated)}
+          ${qualityBox("low score rows", q.low_score)}
+          ${qualityBox("markdown leakage", q.markdown_leakage)}
+          ${qualityBox("sparse IR", q.sparse_ir)}
+        </div>
+        <h2>Top Warnings</h2>
+        <div class="warning-list">${topWarnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+        <div class="small">Diagnostics are aggregated from sampled run records and follow the current source/text/score/date/IR-version filters at run level.</div>
+      `;
     }
     function addWeightedMetric(bucket, r, key, weight) {
       const value = (r.metric_avgs || {})[key];
@@ -2259,12 +2514,16 @@ INDEX_HTML = r"""<!doctype html>
       const sourceStats = filteredSourceStats(current.sources || [], runs);
       renderSources(sourceStats);
       renderRuns(runs);
+      renderRunDetails(runs);
       renderBacklog(sourceStats);
+      renderQualityAlerts(runs);
       renderModelComparison(runs);
       renderDays(runs);
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
+    document.getElementById("exportCsvBtn").onclick = () => exportFiltered("csv");
+    document.getElementById("exportJsonBtn").onclick = () => exportFiltered("json");
     document.getElementById("filter").oninput = render;
     document.getElementById("sourceFilter").onchange = render;
     document.getElementById("irVersionFilter").onchange = render;
