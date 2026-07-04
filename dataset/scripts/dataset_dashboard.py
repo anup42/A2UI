@@ -1598,6 +1598,87 @@ def run_artifacts(run_dir: Path) -> dict[str, Any]:
     }
 
 
+def tail_text(path: Path, max_bytes: int = 200_000) -> str:
+    if not path.exists() or path.stat().st_size <= 0:
+        return ""
+    size = path.stat().st_size
+    with path.open("rb") as handle:
+        if size > max_bytes:
+            handle.seek(max(0, size - max_bytes))
+        data = handle.read(max_bytes)
+    return data.decode("utf-8", errors="replace")
+
+
+def run_log_files(run_dir: Path, limit: int = 8) -> list[Path]:
+    candidates: dict[str, Path] = {}
+    for pattern in ("*.log", "logs/*.log", "*/run.log"):
+        for path in run_dir.glob(pattern):
+            if path.is_file():
+                candidates[path.resolve().as_posix()] = path
+    return sorted(candidates.values(), key=lambda path: path.stat().st_mtime, reverse=True)[:limit]
+
+
+LOG_ISSUE_RE = re.compile(
+    r"\b(error|exception|traceback|failed|failure|fatal|timeout|timed out|http\s*[45]\d\d|rate limit|quota|oom|out of memory|killed|connection refused)\b",
+    re.IGNORECASE,
+)
+LOG_PROGRESS_RE = re.compile(
+    r"\b(stage\s*[1-5]|generated|created|completed|finished|saved|wrote|score|aggregate|progress|processed|batch|queries|responses|genui|ir)\b",
+    re.IGNORECASE,
+)
+
+
+def summarize_run_logs(run_dir: Path) -> dict[str, Any]:
+    files = run_log_files(run_dir)
+    if not files:
+        return {"present": False, "files": [], "issue_count": 0, "progress_count": 0}
+    summaries = []
+    issue_lines: list[dict[str, Any]] = []
+    progress_lines: list[dict[str, Any]] = []
+    latest_mtime = 0.0
+    total_bytes = 0
+    for path in files:
+        stat = path.stat()
+        latest_mtime = max(latest_mtime, stat.st_mtime)
+        total_bytes += int(stat.st_size)
+        text = tail_text(path)
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        file_issue_count = 0
+        file_progress_count = 0
+        for line_number, line in enumerate(lines[-1000:], start=max(1, len(lines) - 999)):
+            compact = line[-500:]
+            if LOG_ISSUE_RE.search(line):
+                file_issue_count += 1
+                if len(issue_lines) < 12:
+                    issue_lines.append({"file": path.name, "line": line_number, "text": compact})
+            elif LOG_PROGRESS_RE.search(line):
+                file_progress_count += 1
+                if len(progress_lines) < 12:
+                    progress_lines.append({"file": path.name, "line": line_number, "text": compact})
+        summaries.append(
+            {
+                "name": path.name,
+                "path": str(path),
+                "size": int(stat.st_size),
+                "updated_at": datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat(),
+                "issue_count_tail": file_issue_count,
+                "progress_count_tail": file_progress_count,
+                "last_lines": lines[-5:],
+            }
+        )
+    return {
+        "present": True,
+        "files": summaries,
+        "file_count": len(summaries),
+        "total_bytes": total_bytes,
+        "latest_updated_at": datetime.fromtimestamp(latest_mtime, timezone.utc).isoformat() if latest_mtime else None,
+        "issue_count": sum(item["issue_count_tail"] for item in summaries),
+        "progress_count": sum(item["progress_count_tail"] for item in summaries),
+        "recent_issues": issue_lines,
+        "recent_progress": progress_lines[:8],
+    }
+
+
 def summarize_manifest(run_dir: Path) -> dict[str, Any]:
     manifest_path = run_dir / "run_manifest.json"
     try:
@@ -2121,6 +2202,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "intent_quality": collect_intent_quality(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
         "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
+        "run_logs": summarize_run_logs(run_dir),
         "artifacts": run_artifacts(run_dir),
         "manifest_summary": summarize_manifest(run_dir),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
@@ -2176,6 +2258,8 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
                 "total_bytes": sum(int(r.get("total_bytes") or 0) for r in source_runs),
                 "file_count": sum(int(r.get("file_count") or 0) for r in source_runs),
                 "missing_core_run_count": sum(1 for r in source_runs if r.get("missing_core_files")),
+                "log_issue_run_count": sum(1 for r in source_runs if int((r.get("run_logs") or {}).get("issue_count") or 0)),
+                "log_issue_count": sum(int((r.get("run_logs") or {}).get("issue_count") or 0) for r in source_runs),
                 "avg_score": (
                     sum(r["overall_score"] for r in source_runs if isinstance(r["overall_score"], (int, float)))
                     / max(1, len([r for r in source_runs if isinstance(r["overall_score"], (int, float))]))
@@ -2206,6 +2290,8 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         "total_bytes": sum(int(r.get("total_bytes") or 0) for r in runs),
         "file_count": sum(int(r.get("file_count") or 0) for r in runs),
         "missing_core_run_count": sum(1 for r in runs if r.get("missing_core_files")),
+        "log_issue_run_count": sum(1 for r in runs if int((r.get("run_logs") or {}).get("issue_count") or 0)),
+        "log_issue_count": sum(int((r.get("run_logs") or {}).get("issue_count") or 0) for r in runs),
         "latest_run_updated_at": max([str(r.get("updated_at") or "") for r in runs if r.get("updated_at")], default=None),
     }
     return {
@@ -2367,6 +2453,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="backlog">Has backlog</option>
         <option value="quality">Has quality issues</option>
         <option value="integrity">Data integrity issues</option>
+        <option value="logs">Log issues</option>
         <option value="low_coverage">Low content coverage</option>
         <option value="low_media">Low media usage</option>
       </select>
@@ -2381,6 +2468,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="backlog_desc">Sort: backlog</option>
         <option value="quality_desc">Sort: quality issues</option>
         <option value="integrity_desc">Sort: integrity issues</option>
+        <option value="logs_desc">Sort: log issues</option>
         <option value="source_run">Sort: source/run</option>
       </select>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
@@ -2425,6 +2513,10 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>Action Items</h2>
       <div id="actionItems"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Run Logs</h2>
+      <div id="runLogs"></div>
     </section>
     <section class="grid">
       <aside class="panel">
@@ -2762,6 +2854,7 @@ INDEX_HTML = r"""<!doctype html>
         "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
         "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
         "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
+        "log_files","log_issues","log_latest_updated_at",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
         "updated_at","response_model","ir_model","ir_versions","path",
       ];
@@ -2785,6 +2878,9 @@ INDEX_HTML = r"""<!doctype html>
         r.data_integrity?.duplicate_id_count || 0,
         r.data_integrity?.missing_id_count || 0,
         r.data_integrity?.orphan_link_count || 0,
+        r.run_logs?.file_count || 0,
+        r.run_logs?.issue_count || 0,
+        r.run_logs?.latest_updated_at || "",
         r.response_usage?.total_tokens || 0,
         r.response_usage?.avg_latency_ms ?? "",
         r.response_usage?.cost_usd ?? "",
@@ -2818,6 +2914,8 @@ INDEX_HTML = r"""<!doctype html>
         ["Missing core runs", t.missing_core_run_count],
         ["Integrity issue runs", t.integrity_issue_runs],
         ["Integrity issues", t.integrity_issues],
+        ["Log issue runs", t.log_issue_runs],
+        ["Log issues", t.log_issues],
       ];
       document.getElementById("stats").innerHTML = stats.map(([k,v]) => `<div class="stat"><div class="v">${fmt(v)}</div><div class="k">${k}</div></div>`).join("");
     }
@@ -2998,6 +3096,7 @@ INDEX_HTML = r"""<!doctype html>
       for (const run of runs) {
         const q = run.quality_summary || {};
         const integrity = integrityIssueCount(run);
+        const logIssues = logIssueCount(run);
         const backlog = runBacklogTotal(run);
         const artifactIssues = artifactIssueLabels(run);
         const qualityCritical = (q.strict_schema_fail || 0) + (q.gen_errors || 0) + (q.fallback_generated || 0);
@@ -3017,6 +3116,17 @@ INDEX_HTML = r"""<!doctype html>
             category: "Integrity",
             title: `${run.run_id} has ${fmt(integrity)} data integrity signals`,
             detail: integrityIssueLabels(run.data_integrity || {}).join(" | ") || "Inspect ID/link integrity.",
+            run,
+            source: run.source_label,
+          });
+        }
+        if (logIssues) {
+          const firstIssue = ((run.run_logs || {}).recent_issues || [])[0];
+          addActionItem(items, {
+            severity: Math.min(94, 58 + Math.log10(logIssues + 1) * 12),
+            category: "Logs",
+            title: `${run.run_id} has ${fmt(logIssues)} recent log issue lines`,
+            detail: firstIssue ? `${firstIssue.file}: ${firstIssue.text}` : "Inspect run logs.",
             run,
             source: run.source_label,
           });
@@ -3114,6 +3224,9 @@ INDEX_HTML = r"""<!doctype html>
     function integrityIssueCount(r) {
       return Number((r.data_integrity || {}).total_issues || 0);
     }
+    function logIssueCount(r) {
+      return Number((r.run_logs || {}).issue_count || 0);
+    }
     function integrityIssueLabels(summary) {
       const s = summary || {};
       const labels = [];
@@ -3198,6 +3311,7 @@ INDEX_HTML = r"""<!doctype html>
         if (f.issue === "backlog" && !Math.max((counts.queries || 0) - (counts.responses || 0), 0) && !Math.max((counts.responses || 0) - (counts.genui || 0), 0)) return false;
         if (f.issue === "quality" && !qualityIssueCount(r)) return false;
         if (f.issue === "integrity" && !integrityIssueCount(r)) return false;
+        if (f.issue === "logs" && !logIssueCount(r)) return false;
         if (f.issue === "low_coverage" && !(metrics.content_coverage != null && metrics.content_coverage < 0.65)) return false;
         if (f.issue === "low_media" && !((metrics.image_presence ?? 0) < 0.25 && (metrics.icon_presence ?? 0) < 0.25)) return false;
       }
@@ -3220,6 +3334,7 @@ INDEX_HTML = r"""<!doctype html>
         if (sortBy === "backlog_desc") return runBacklogTotal(b) - runBacklogTotal(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "quality_desc") return qualityIssueCount(b) - qualityIssueCount(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "integrity_desc") return integrityIssueCount(b) - integrityIssueCount(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "logs_desc") return logIssueCount(b) - logIssueCount(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "source_run") return textValue(a).localeCompare(textValue(b));
         return updatedValue(b) - updatedValue(a) || textValue(a).localeCompare(textValue(b));
       });
@@ -3267,6 +3382,8 @@ INDEX_HTML = r"""<!doctype html>
         missing_core_run_count: runs.reduce((a,r) => a + ((r.missing_core_files || []).length ? 1 : 0), 0),
         integrity_issue_runs: runs.reduce((a,r) => a + (integrityIssueCount(r) ? 1 : 0), 0),
         integrity_issues: runs.reduce((a,r) => a + integrityIssueCount(r), 0),
+        log_issue_runs: runs.reduce((a,r) => a + (logIssueCount(r) ? 1 : 0), 0),
+        log_issues: runs.reduce((a,r) => a + logIssueCount(r), 0),
       };
     }
     function sortedDayBuckets(dayMap) {
@@ -3521,6 +3638,38 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <div class="warning-list">${rows || "<span class='small'>No data integrity issues found.</span>"}</div>`;
     }
+    function renderRunLogDetails(logs) {
+      const l = logs || {};
+      if (!l.present) return "<span class='small'>No run log files found.</span>";
+      const fileRows = (l.files || []).map(file => `
+        <div class="artifact-row">
+          <b>${escapeHtml(file.name)}</b>
+          <span class="small">${escapeHtml(file.path)}<br>updated ${file.updated_at ? new Date(file.updated_at).toLocaleString() : "unknown"}</span>
+          <button class="mini-btn ghost-btn" onclick="copyText('${encodeURIComponent(file.path)}')">${bytesText(file.size)}</button>
+        </div>`).join("");
+      const issueRows = (l.recent_issues || []).map(issue => `
+        <div class="warning-row">
+          <span><b>${escapeHtml(issue.file)}:${fmt(issue.line)}</b><br><span class="small">${escapeHtml(issue.text)}</span></span>
+          <span class="badge error">issue</span>
+        </div>`).join("");
+      const progressRows = (l.recent_progress || []).map(item => `
+        <div class="warning-row">
+          <span><b>${escapeHtml(item.file)}:${fmt(item.line)}</b><br><span class="small">${escapeHtml(item.text)}</span></span>
+          <span class="badge ok">progress</span>
+        </div>`).join("");
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(l.file_count || 0)}</b><br><span class="small">log files</span></div>
+          <div class="detail-box"><b>${fmt(l.issue_count || 0)}</b><br><span class="small">issue lines in tail</span></div>
+          <div class="detail-box"><b>${fmt(l.progress_count || 0)}</b><br><span class="small">progress lines in tail</span></div>
+          <div class="detail-box"><b>${l.latest_updated_at ? ageText(l.latest_updated_at) : "unknown"}</b><br><span class="small">latest log update</span></div>
+        </div>
+        <div class="artifact-list">${fileRows || "<span class='small'>No log file metadata.</span>"}</div>
+        <h2>Recent Log Issues</h2>
+        <div class="warning-list">${issueRows || "<span class='small'>No issue lines found in log tails.</span>"}</div>
+        <h2>Recent Log Progress</h2>
+        <div class="warning-list">${progressRows || "<span class='small'>No progress lines found in log tails.</span>"}</div>`;
+    }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
       if (!runs.length) {
@@ -3577,6 +3726,8 @@ INDEX_HTML = r"""<!doctype html>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
         <h2>Data Integrity</h2>
         ${renderIntegrityDetails(integrity)}
+        <h2>Run Logs</h2>
+        ${renderRunLogDetails(selected.run_logs || {})}
         <h2>Run Provenance</h2>
         ${renderManifestSummary(manifest)}
         <h2>Artifacts</h2>
@@ -3845,6 +3996,49 @@ INDEX_HTML = r"""<!doctype html>
           </table>
         </div>
         <div class="small">Integrity checks scan core JSONL IDs and links: query_id, response_id, ui_id, duplicate IDs, parse errors, and response/IR records that cannot be matched to upstream stages.</div>`;
+    }
+    function renderRunLogs(runs) {
+      const target = document.getElementById("runLogs");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const withLogs = runs.filter(run => (run.run_logs || {}).present);
+      const issueRuns = withLogs.filter(run => logIssueCount(run));
+      const staleLogRuns = withLogs.filter(run => {
+        const updated = (run.run_logs || {}).latest_updated_at;
+        return updated && (ageHours(updated) ?? 0) > 24;
+      });
+      const issueRows = issueRuns
+        .sort((a, b) => logIssueCount(b) - logIssueCount(a) || String(a.run_id).localeCompare(String(b.run_id)))
+        .slice(0, 12)
+        .map(run => {
+          const logs = run.run_logs || {};
+          const firstIssue = (logs.recent_issues || [])[0];
+          return `
+            <tr>
+              <td><b>${escapeHtml(run.run_id)}</b><br><span class="small">${escapeHtml(run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(run))}')">Details</button></td>
+              <td>${fmt(logs.file_count || 0)} files<br><span class="small">${bytesText(logs.total_bytes || 0)}</span></td>
+              <td><span class="badge error">${fmt(logs.issue_count || 0)} issues</span><br><span class="small">${fmt(logs.progress_count || 0)} progress lines</span></td>
+              <td class="small">${logs.latest_updated_at ? `${ageText(logs.latest_updated_at)} (${new Date(logs.latest_updated_at).toLocaleString()})` : "unknown"}</td>
+              <td class="small">${firstIssue ? `${escapeHtml(firstIssue.file)}:${fmt(firstIssue.line)} ${escapeHtml(firstIssue.text)}` : "n/a"}</td>
+            </tr>`;
+        }).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(withLogs.length)}</b><br><span class="small">runs with logs</span></div>
+          <div class="detail-box"><b>${fmt(issueRuns.length)}</b><br><span class="small">runs with log issues</span></div>
+          <div class="detail-box"><b>${fmt(runs.reduce((sum, run) => sum + logIssueCount(run), 0))}</b><br><span class="small">issue lines in log tails</span></div>
+          <div class="detail-box"><b>${fmt(withLogs.reduce((sum, run) => sum + Number((run.run_logs || {}).progress_count || 0), 0))}</b><br><span class="small">progress lines in log tails</span></div>
+          <div class="detail-box"><b>${fmt(staleLogRuns.length)}</b><br><span class="small">log files stale >24h</span></div>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Run</th><th>Logs</th><th>Tail Signals</th><th>Latest Log</th><th>Recent Issue</th></tr></thead>
+            <tbody>${issueRows || "<tr><td colspan='5'><span class='small'>No issue lines found in current run log tails.</span></td></tr>"}</tbody>
+          </table>
+        </div>
+        <div class="small">Log scanning reads bounded tails from run log files only. Counts are operational signals, not full historical log totals.</div>`;
     }
     function aggregateQuality(runs) {
       const totals = {
@@ -4660,6 +4854,7 @@ INDEX_HTML = r"""<!doctype html>
       const sourceStats = filteredSourceStats(current.sources || [], runs);
       renderFreshness(runs, sourceStats, current.last_sync);
       renderActionItems(runs, sourceStats, current.last_sync);
+      renderRunLogs(runs);
       renderSources(sourceStats);
       renderRuns(page.rows, page);
       renderRunDetails(runs);

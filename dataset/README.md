@@ -209,6 +209,9 @@ dashboard, so it can be used to identify which remote generator or filtered slic
 The action-items panel ranks the most urgent source/run problems from the filtered view, combining
 sync errors, stale sources, backlog, data integrity, sampled quality failures, and artifact gaps into
 a short list with links back to run details.
+The run-logs panel scans bounded tails from `*.log`, `logs/*.log`, and nested `run.log` files to
+surface recent errors, exceptions, HTTP failures, rate-limit messages, progress lines, and stale log
+updates. Use the run-health filter `Log issues` or sort by log issues to isolate failing workers.
 The throughput panel uses the filtered day buckets to show last-7-day query, response, and IR volume,
 response/day and IR/day rates, source-level bottlenecks, and backlog ETA. If a filtered slice has
 backlog but no recent response or IR rate, the ETA reports `no recent rate` so stalled workers are
