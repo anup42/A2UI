@@ -1139,6 +1139,58 @@ INDEX_HTML = r"""<!doctype html>
       ];
       document.getElementById("stats").innerHTML = stats.map(([k,v]) => `<div class="stat"><div class="v">${fmt(v)}</div><div class="k">${k}</div></div>`).join("");
     }
+    function filters() {
+      return {
+        text: document.getElementById("filter").value.toLowerCase().trim(),
+        minScore: Number(document.getElementById("scoreFilter").value || "0"),
+        sourceId: document.getElementById("sourceFilter").value,
+      };
+    }
+    function runMatches(r, f) {
+      const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.intents]).toLowerCase();
+      if (f.sourceId && r.source_id !== f.sourceId) return false;
+      if (f.text && !hay.includes(f.text)) return false;
+      if (f.minScore && (r.overall_score == null || r.overall_score < f.minScore)) return false;
+      return true;
+    }
+    function filteredRuns() {
+      const f = filters();
+      return (current.runs || []).filter(r => runMatches(r, f));
+    }
+    function runTotals(runs) {
+      const sourceIds = new Set(runs.map(r => r.source_id));
+      return {
+        sources: sourceIds.size,
+        runs: runs.length,
+        queries: runs.reduce((a,r) => a + (r.queries || 0), 0),
+        responses: runs.reduce((a,r) => a + (r.responses || 0), 0),
+        genui: runs.reduce((a,r) => a + (r.genui || 0), 0),
+        assets: runs.reduce((a,r) => a + (r.assets || 0), 0),
+        screenshots: runs.reduce((a,r) => a + (r.screenshots || 0), 0),
+      };
+    }
+    function filteredSourceStats(sources, runs) {
+      const bySource = new Map(sources.map(s => [s.source_id, {...s, run_count: 0, queries: 0, responses: 0, genui: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0}]));
+      for (const r of runs) {
+        if (!bySource.has(r.source_id)) {
+          bySource.set(r.source_id, {source_id: r.source_id, source_label: r.source_label, type: "unknown", local_path: "", run_count: 0, queries: 0, responses: 0, genui: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0});
+        }
+        const s = bySource.get(r.source_id);
+        s.run_count += 1;
+        s.queries += r.queries || 0;
+        s.responses += r.responses || 0;
+        s.genui += r.genui || 0;
+        s.assets += r.assets || 0;
+        s.screenshots += r.screenshots || 0;
+        if (r.overall_score != null) {
+          s._scoreSum += Number(r.overall_score);
+          s._scoreCount += 1;
+        }
+      }
+      const sourceId = document.getElementById("sourceFilter").value;
+      const rows = [...bySource.values()].filter(s => sourceId ? s.source_id === sourceId : s.run_count > 0);
+      return rows.map(s => ({...s, avg_score: s._scoreCount ? s._scoreSum / s._scoreCount : null}));
+    }
     function renderSources(sources) {
       document.getElementById("sources").innerHTML = sources.map(s => `
         <div class="source-card">
@@ -1163,17 +1215,7 @@ INDEX_HTML = r"""<!doctype html>
       if ([...select.options].some(o => o.value === selected)) select.value = selected;
     }
     function renderRuns(runs) {
-      const q = document.getElementById("filter").value.toLowerCase().trim();
-      const minScore = Number(document.getElementById("scoreFilter").value || "0");
-      const sourceId = document.getElementById("sourceFilter").value;
-      const filtered = runs.filter(r => {
-        const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.intents]).toLowerCase();
-        if (sourceId && r.source_id !== sourceId) return false;
-        if (q && !hay.includes(q)) return false;
-        if (minScore && (r.overall_score == null || r.overall_score < minScore)) return false;
-        return true;
-      });
-      document.getElementById("runs").innerHTML = filtered.map(r => `
+      document.getElementById("runs").innerHTML = runs.map(r => `
         <tr>
           <td><b>${r.run_id}</b><br><span class="small">${r.source_label}</span><br><span class="small">${r.path}</span></td>
           <td>
@@ -1191,11 +1233,30 @@ INDEX_HTML = r"""<!doctype html>
     function totalDayCount(day) {
       return (day.queries || 0) + (day.responses || 0) + (day.genui || 0);
     }
-    function renderDays() {
+    function aggregateDaysFromRuns(runs) {
+      const byDay = new Map();
+      for (const run of runs) {
+        for (const day of (run.days || [])) {
+          if (!byDay.has(day.day)) {
+            byDay.set(day.day, {day: day.day, queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0, avg_score: null});
+          }
+          const target = byDay.get(day.day);
+          target.queries += day.queries || 0;
+          target.responses += day.responses || 0;
+          target.genui += day.genui || 0;
+          target.score_sum += day.score_sum || 0;
+          target.score_count += day.score_count || 0;
+        }
+      }
+      return [...byDay.values()]
+        .map(day => ({...day, avg_score: day.score_count ? day.score_sum / day.score_count : null}))
+        .sort((a,b) => b.day.localeCompare(a.day));
+    }
+    function renderDays(runs) {
       const sourceId = document.getElementById("sourceFilter").value;
       const source = (current.sources || []).find(s => s.source_id === sourceId);
-      const days = source ? (source.days || []) : (current.days || []);
-      const label = source ? source.source_label : "All sources";
+      const days = aggregateDaysFromRuns(runs);
+      const label = source ? source.source_label : "Filtered sources";
       document.getElementById("daysTitle").textContent = `Day Wise Data - ${label}`;
       if (!days.length) {
         document.getElementById("days").innerHTML = "<span class='small'>No dated records found.</span>";
@@ -1237,11 +1298,12 @@ INDEX_HTML = r"""<!doctype html>
     }
     function render() {
       if (!current) return;
-      renderStats(current.totals || {});
       renderSourceFilter(current.sources || []);
-      renderSources(current.sources || []);
-      renderRuns(current.runs || []);
-      renderDays();
+      const runs = filteredRuns();
+      renderStats(runTotals(runs));
+      renderSources(filteredSourceStats(current.sources || [], runs));
+      renderRuns(runs);
+      renderDays(runs);
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
