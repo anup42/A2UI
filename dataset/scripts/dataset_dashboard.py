@@ -347,16 +347,19 @@ for scan_root, prefix in roots_for_mode():
                 continue
             print(json.dumps({'rel': rel, 'size': st.st_size, 'mtime': st.st_mtime, 'source_path': path}, separators=(',',':')))
 """
-    cmd = ssh_base_command(source) + [
-        "python3",
-        "-c",
-        py,
-        remote_root,
-        mode,
-        path_base,
-        json.dumps(include_globs),
-        json.dumps(exclude_globs),
-    ]
+    remote_command = " ".join(
+        [
+            "python3",
+            "-c",
+            shell_quote(py),
+            shell_quote(remote_root),
+            shell_quote(mode),
+            shell_quote(path_base),
+            shell_quote(json.dumps(include_globs)),
+            shell_quote(json.dumps(exclude_globs)),
+        ]
+    )
+    cmd = ssh_base_command(source) + [remote_command]
     result = run_command(cmd, timeout=int(source.get("list_timeout_sec", 300)))
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh list failed")
