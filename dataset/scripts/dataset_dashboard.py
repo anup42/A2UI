@@ -703,6 +703,138 @@ def run_score(run_dir: Path) -> float | None:
     return None
 
 
+def parse_day(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        timestamp = float(value)
+        if timestamp > 100_000_000_000:
+            timestamp /= 1000
+        try:
+            return datetime.fromtimestamp(timestamp, timezone.utc).date().isoformat()
+        except Exception:
+            return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if re.match(r"^\d{4}-\d{2}-\d{2}", text):
+        return text[:10]
+    try:
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        return datetime.fromisoformat(text).astimezone(timezone.utc).date().isoformat()
+    except Exception:
+        return None
+
+
+def row_day(row: dict[str, Any], fallback_day: str) -> str:
+    candidates = [
+        row.get("created_at"),
+        row.get("generated_at"),
+        row.get("updated_at"),
+        row.get("timestamp"),
+    ]
+    gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+    candidates.extend([gen.get("created_at"), gen.get("timestamp")])
+    for candidate in candidates:
+        parsed = parse_day(candidate)
+        if parsed:
+            return parsed
+    return fallback_day
+
+
+def new_day_bucket(day: str) -> dict[str, Any]:
+    return {
+        "day": day,
+        "queries": 0,
+        "responses": 0,
+        "genui": 0,
+        "score_sum": 0.0,
+        "score_count": 0,
+    }
+
+
+def merge_day_buckets(target: dict[str, dict[str, Any]], source: dict[str, dict[str, Any]]) -> None:
+    for day, values in source.items():
+        bucket = target.setdefault(day, new_day_bucket(day))
+        bucket["queries"] += int(values.get("queries") or 0)
+        bucket["responses"] += int(values.get("responses") or 0)
+        bucket["genui"] += int(values.get("genui") or 0)
+        bucket["score_sum"] += float(values.get("score_sum") or 0.0)
+        bucket["score_count"] += int(values.get("score_count") or 0)
+
+
+def jsonl_day_buckets(path: Path, kind: str, fallback_day: str) -> dict[str, dict[str, Any]]:
+    buckets: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return buckets
+    with path.open("r", encoding="utf-8-sig", errors="replace") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except Exception:
+                row = {}
+            row = row if isinstance(row, dict) else {}
+            day = row_day(row, fallback_day)
+            bucket = buckets.setdefault(day, new_day_bucket(day))
+            if kind == "queries":
+                bucket["queries"] += 1
+            elif kind == "responses":
+                bucket["responses"] += 1
+            elif kind == "genui":
+                bucket["genui"] += 1
+                metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+                score = metrics.get("overall_score")
+                if isinstance(score, (int, float)):
+                    bucket["score_sum"] += float(score)
+                    bucket["score_count"] += 1
+    return buckets
+
+
+def finalize_day_buckets(buckets: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    days = []
+    for day in sorted(buckets.keys(), reverse=True):
+        bucket = buckets[day]
+        score_count = int(bucket.get("score_count") or 0)
+        avg_score = float(bucket["score_sum"]) / score_count if score_count else None
+        days.append(
+            {
+                "day": day,
+                "queries": int(bucket.get("queries") or 0),
+                "responses": int(bucket.get("responses") or 0),
+                "genui": int(bucket.get("genui") or 0),
+                "score_sum": float(bucket.get("score_sum") or 0.0),
+                "score_count": score_count,
+                "avg_score": avg_score,
+            }
+        )
+    return days
+
+
+def aggregate_days(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    buckets: dict[str, dict[str, Any]] = {}
+    for record in records:
+        for day_record in record.get("days") or []:
+            day = str(day_record.get("day") or "").strip()
+            if not day:
+                continue
+            bucket = buckets.setdefault(day, new_day_bucket(day))
+            bucket["queries"] += int(day_record.get("queries") or 0)
+            bucket["responses"] += int(day_record.get("responses") or 0)
+            bucket["genui"] += int(day_record.get("genui") or 0)
+            score_count = int(day_record.get("score_count") or 0)
+            if score_count:
+                bucket["score_sum"] += float(day_record.get("score_sum") or 0.0)
+                bucket["score_count"] += score_count
+            elif isinstance(day_record.get("avg_score"), (int, float)):
+                count = int(day_record.get("genui") or 0)
+                bucket["score_sum"] += float(day_record["avg_score"]) * count
+                bucket["score_count"] += count
+    return finalize_day_buckets(buckets)
+
+
 def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str, Any]:
     queries = count_jsonl(run_dir / "queries.jsonl")
     responses = count_jsonl(run_dir / "responses.jsonl")
@@ -722,6 +854,20 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         if intent:
             intents[intent] = intents.get(intent, 0) + 1
     mtime = max((p.stat().st_mtime for p in run_dir.rglob("*") if p.is_file()), default=run_dir.stat().st_mtime)
+    fallback_day = datetime.fromtimestamp(mtime, timezone.utc).date().isoformat()
+    day_buckets: dict[str, dict[str, Any]] = {}
+    for filename, kind in (
+        ("queries.jsonl", "queries"),
+        ("responses.jsonl", "responses"),
+        ("genui.jsonl", "genui"),
+    ):
+        path = run_dir / filename
+        file_day = (
+            datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).date().isoformat()
+            if path.exists()
+            else fallback_day
+        )
+        merge_day_buckets(day_buckets, jsonl_day_buckets(path, kind, file_day))
     return {
         "source_id": source_id,
         "source_label": source_label_text,
@@ -738,6 +884,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
         "intents": dict(sorted(intents.items(), key=lambda kv: (-kv[1], kv[0]))[:12]),
+        "days": finalize_day_buckets(day_buckets),
     }
 
 
@@ -792,6 +939,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
                     if source_runs
                     else None
                 ),
+                "days": aggregate_days(source_runs),
             }
         )
 
@@ -810,6 +958,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         "totals": totals,
         "sources": sorted(sources, key=lambda s: s["source_label"].lower()),
         "runs": sorted(runs, key=lambda r: (r["source_label"].lower(), r["run_id"].lower())),
+        "days": aggregate_days(runs),
         "last_sync": latest_sync,
         "config_note": f"Using {DEFAULT_CONFIG if DEFAULT_CONFIG.exists() else DEFAULT_EXAMPLE_CONFIG}",
     }
@@ -891,6 +1040,13 @@ INDEX_HTML = r"""<!doctype html>
     .source-card strong { display:block; margin-bottom:6px; }
     .kv { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 10px; }
     .kv div { background: rgba(255,255,255,.55); border-radius: 12px; padding: 9px; }
+    .wide-panel { margin-top: 18px; }
+    .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .day-counts { display:flex; gap: 10px; flex-wrap: wrap; }
+    .day-counts span { color: var(--muted); font-size: 12px; }
+    .day-table { margin-top: 12px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
     @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
   </style>
@@ -903,6 +1059,9 @@ INDEX_HTML = r"""<!doctype html>
       <button id="syncBtn">Sync sources</button>
       <button id="refreshBtn">Refresh scan</button>
       <input id="filter" placeholder="Filter run/source/model..." />
+      <select id="sourceFilter">
+        <option value="">All sources</option>
+      </select>
       <select id="scoreFilter">
         <option value="">All scores</option>
         <option value="80">Score >= 80</option>
@@ -936,6 +1095,10 @@ INDEX_HTML = r"""<!doctype html>
           </table>
         </div>
       </section>
+    </section>
+    <section class="panel wide-panel">
+      <h2 id="daysTitle">Day Wise Data</h2>
+      <div id="days"></div>
     </section>
   </main>
   <script>
@@ -984,17 +1147,28 @@ INDEX_HTML = r"""<!doctype html>
           <div class="small">${s.local_path}</div>
           <div class="kv">
             <div><b>${fmt(s.run_count)}</b><br><span class="small">runs</span></div>
+            <div><b>${fmt(s.queries)}</b><br><span class="small">queries</span></div>
+            <div><b>${fmt(s.responses)}</b><br><span class="small">responses</span></div>
             <div><b>${fmt(s.genui)}</b><br><span class="small">IR</span></div>
             <div><b>${scoreText(s.avg_score)}</b><br><span class="small">avg score</span></div>
             <div><b>${fmt(s.screenshots)}</b><br><span class="small">screenshots</span></div>
           </div>
         </div>`).join("");
     }
+    function renderSourceFilter(sources) {
+      const select = document.getElementById("sourceFilter");
+      const selected = select.value;
+      const options = sources.map(s => `<option value="${s.source_id}">${s.source_label} (${fmt(s.run_count)})</option>`);
+      select.innerHTML = `<option value="">All sources</option>${options.join("")}`;
+      if ([...select.options].some(o => o.value === selected)) select.value = selected;
+    }
     function renderRuns(runs) {
       const q = document.getElementById("filter").value.toLowerCase().trim();
       const minScore = Number(document.getElementById("scoreFilter").value || "0");
+      const sourceId = document.getElementById("sourceFilter").value;
       const filtered = runs.filter(r => {
         const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.intents]).toLowerCase();
+        if (sourceId && r.source_id !== sourceId) return false;
         if (q && !hay.includes(q)) return false;
         if (minScore && (r.overall_score == null || r.overall_score < minScore)) return false;
         return true;
@@ -1014,15 +1188,65 @@ INDEX_HTML = r"""<!doctype html>
           <td><span class="small">${new Date(r.updated_at).toLocaleString()}</span></td>
         </tr>`).join("");
     }
+    function totalDayCount(day) {
+      return (day.queries || 0) + (day.responses || 0) + (day.genui || 0);
+    }
+    function renderDays() {
+      const sourceId = document.getElementById("sourceFilter").value;
+      const source = (current.sources || []).find(s => s.source_id === sourceId);
+      const days = source ? (source.days || []) : (current.days || []);
+      const label = source ? source.source_label : "All sources";
+      document.getElementById("daysTitle").textContent = `Day Wise Data - ${label}`;
+      if (!days.length) {
+        document.getElementById("days").innerHTML = "<span class='small'>No dated records found.</span>";
+        return;
+      }
+      const maxTotal = Math.max(1, ...days.map(totalDayCount));
+      const rows = days.slice(0, 60);
+      const bars = rows.slice(0, 21).map(day => {
+        const total = totalDayCount(day);
+        const width = Math.max(4, Math.round((total / maxTotal) * 100));
+        return `
+          <div class="day-row">
+            <div><b>${day.day}</b><br><span class="small">${fmt(total)} total</span></div>
+            <div>
+              <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+              <div class="day-counts">
+                <span>Q ${fmt(day.queries)}</span>
+                <span>R ${fmt(day.responses)}</span>
+                <span>IR ${fmt(day.genui)}</span>
+              </div>
+            </div>
+            <div><span class="score ${scoreClass(day.avg_score)}">${scoreText(day.avg_score)}</span><br><span class="small">avg IR score</span></div>
+          </div>`;
+      }).join("");
+      const table = `
+        <table class="day-table">
+          <thead><tr><th>Day</th><th>Queries</th><th>Responses</th><th>IR</th><th>Avg IR Score</th></tr></thead>
+          <tbody>
+            ${rows.map(day => `<tr>
+              <td>${day.day}</td>
+              <td>${fmt(day.queries)}</td>
+              <td>${fmt(day.responses)}</td>
+              <td>${fmt(day.genui)}</td>
+              <td><span class="score ${scoreClass(day.avg_score)}">${scoreText(day.avg_score)}</span></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>`;
+      document.getElementById("days").innerHTML = `${bars}${table}`;
+    }
     function render() {
       if (!current) return;
       renderStats(current.totals || {});
+      renderSourceFilter(current.sources || []);
       renderSources(current.sources || []);
       renderRuns(current.runs || []);
+      renderDays();
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
     document.getElementById("filter").oninput = render;
+    document.getElementById("sourceFilter").onchange = render;
     document.getElementById("scoreFilter").onchange = render;
     loadSummary().catch(e => setStatus(`Load failed: ${e.message}`));
   </script>

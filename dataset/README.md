@@ -174,6 +174,11 @@ Then open:
 http://127.0.0.1:8765
 ```
 
+The UI shows separate query, response, and IR counts for every source. Use the source dropdown
+to filter the run table to a specific source; the day-wise section then shows that source's daily
+query/response/IR counts and average IR score. With all sources selected, day-wise counts are
+aggregated across every configured source.
+
 One-off commands:
 
 ```
