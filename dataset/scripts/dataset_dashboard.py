@@ -1612,6 +1612,38 @@ def command_source_probe(source: dict[str, Any], include_globs: list[str], exclu
     }
 
 
+def run_file_stats(run_dir: Path) -> dict[str, Any]:
+    fallback_mtime = run_dir.stat().st_mtime
+    stats = {
+        "mtime": fallback_mtime,
+        "total_bytes": 0,
+        "file_count": 0,
+        "asset_bytes": 0,
+        "asset_files": 0,
+        "screenshot_bytes": 0,
+        "screenshot_files": 0,
+    }
+    for path in run_dir.rglob("*"):
+        if not path.is_file():
+            continue
+        try:
+            stat = path.stat()
+            rel_parts = path.relative_to(run_dir).parts
+        except OSError:
+            continue
+        stats["file_count"] += 1
+        stats["total_bytes"] += int(stat.st_size)
+        stats["mtime"] = max(float(stats["mtime"]), float(stat.st_mtime))
+        top = rel_parts[0] if rel_parts else ""
+        if top == "assets":
+            stats["asset_files"] += 1
+            stats["asset_bytes"] += int(stat.st_size)
+        if top in {"android_device_rendered", "rendered", "rendered_lit"} and path.suffix.lower() == ".png":
+            stats["screenshot_files"] += 1
+            stats["screenshot_bytes"] += int(stat.st_size)
+    return stats
+
+
 def test_source_connection(
     config: dict[str, Any],
     mirror_dir: Path,
@@ -1684,12 +1716,14 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
     responses = count_jsonl(run_dir / "responses.jsonl")
     genui = count_jsonl(run_dir / "genui.jsonl")
     backlog = backlog_summary(queries, responses, genui)
-    assets = len([p for p in (run_dir / "assets").rglob("*") if p.is_file()]) if (run_dir / "assets").exists() else 0
-    screenshots = 0
-    for folder in ("android_device_rendered", "rendered", "rendered_lit"):
-        path = run_dir / folder
-        if path.exists():
-            screenshots += len(list(path.rglob("*.png")))
+    file_stats = run_file_stats(run_dir)
+    assets = int(file_stats.get("asset_files") or 0)
+    screenshots = int(file_stats.get("screenshot_files") or 0)
+    missing_core_files = [
+        name
+        for name in ("queries.jsonl", "responses.jsonl", "genui.jsonl", "aggregates.json")
+        if not (run_dir / name).exists()
+    ]
     genui_rows = read_first_jsonl(run_dir / "genui.jsonl", limit=5000)
     response_rows = read_first_jsonl(run_dir / "responses.jsonl", limit=5000)
     query_rows = read_first_jsonl(run_dir / "queries.jsonl", limit=5000)
@@ -1698,7 +1732,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         intent = str(row.get("intent") or row.get("intent_bucket") or "").strip()
         if intent:
             intents[intent] = intents.get(intent, 0) + 1
-    mtime = max((p.stat().st_mtime for p in run_dir.rglob("*") if p.is_file()), default=run_dir.stat().st_mtime)
+    mtime = float(file_stats.get("mtime") or run_dir.stat().st_mtime)
     fallback_day = datetime.fromtimestamp(mtime, timezone.utc).date().isoformat()
     day_buckets: dict[str, dict[str, Any]] = {}
     for filename, kind in (
@@ -1725,6 +1759,11 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         **backlog,
         "assets": assets,
         "screenshots": screenshots,
+        "asset_bytes": int(file_stats.get("asset_bytes") or 0),
+        "screenshot_bytes": int(file_stats.get("screenshot_bytes") or 0),
+        "total_bytes": int(file_stats.get("total_bytes") or 0),
+        "file_count": int(file_stats.get("file_count") or 0),
+        "missing_core_files": missing_core_files,
         "overall_score": run_score(run_dir),
         "updated_at": datetime.fromtimestamp(mtime, timezone.utc).isoformat(),
         "query_models": collect_model_counts(query_rows),
@@ -1781,6 +1820,11 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
                 **backlog,
                 "assets": sum(r["assets"] for r in source_runs),
                 "screenshots": sum(r["screenshots"] for r in source_runs),
+                "asset_bytes": sum(int(r.get("asset_bytes") or 0) for r in source_runs),
+                "screenshot_bytes": sum(int(r.get("screenshot_bytes") or 0) for r in source_runs),
+                "total_bytes": sum(int(r.get("total_bytes") or 0) for r in source_runs),
+                "file_count": sum(int(r.get("file_count") or 0) for r in source_runs),
+                "missing_core_run_count": sum(1 for r in source_runs if r.get("missing_core_files")),
                 "avg_score": (
                     sum(r["overall_score"] for r in source_runs if isinstance(r["overall_score"], (int, float)))
                     / max(1, len([r for r in source_runs if isinstance(r["overall_score"], (int, float))]))
@@ -1806,6 +1850,11 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         **backlog_summary(total_queries, total_responses, total_genui),
         "assets": sum(r["assets"] for r in runs),
         "screenshots": sum(r["screenshots"] for r in runs),
+        "asset_bytes": sum(int(r.get("asset_bytes") or 0) for r in runs),
+        "screenshot_bytes": sum(int(r.get("screenshot_bytes") or 0) for r in runs),
+        "total_bytes": sum(int(r.get("total_bytes") or 0) for r in runs),
+        "file_count": sum(int(r.get("file_count") or 0) for r in runs),
+        "missing_core_run_count": sum(1 for r in runs if r.get("missing_core_files")),
         "latest_run_updated_at": max([str(r.get("updated_at") or "") for r in runs if r.get("updated_at")], default=None),
     }
     return {
@@ -2075,6 +2124,10 @@ INDEX_HTML = r"""<!doctype html>
       <div id="throughputEta"></div>
     </section>
     <section class="panel wide-panel">
+      <h2>Storage And Artifacts</h2>
+      <div id="storageArtifacts"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>Model Comparison</h2>
       <div class="scroll">
         <table>
@@ -2315,7 +2368,7 @@ INDEX_HTML = r"""<!doctype html>
       }
       const headers = [
         "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
-        "overall_score","assets","screenshots","updated_at","response_model","ir_model","ir_versions","path",
+        "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files","updated_at","response_model","ir_model","ir_versions","path",
       ];
       const rows = runs.map(r => [
         r.source_id,
@@ -2329,6 +2382,9 @@ INDEX_HTML = r"""<!doctype html>
         r.display_score ?? r.overall_score,
         r.assets,
         r.screenshots,
+        r.total_bytes,
+        r.file_count,
+        (r.missing_core_files || []).join("; "),
         r.updated_at,
         dominantModel(r.response_models),
         dominantModel(r.ir_models),
@@ -2351,6 +2407,9 @@ INDEX_HTML = r"""<!doctype html>
         ["Pipeline complete", pct(t.completion_rate)],
         ["Assets", t.assets],
         ["Screenshots", t.screenshots],
+        ["Storage", bytesText(t.total_bytes)],
+        ["Files", t.file_count],
+        ["Missing core runs", t.missing_core_run_count],
       ];
       document.getElementById("stats").innerHTML = stats.map(([k,v]) => `<div class="stat"><div class="v">${fmt(v)}</div><div class="k">${k}</div></div>`).join("");
     }
@@ -2626,6 +2685,11 @@ INDEX_HTML = r"""<!doctype html>
         completion_rate: runs.reduce((a,r) => a + (r.queries || 0), 0) ? runs.reduce((a,r) => a + (r.genui || 0), 0) / runs.reduce((a,r) => a + (r.queries || 0), 0) : 0,
         assets: runs.reduce((a,r) => a + (r.assets || 0), 0),
         screenshots: runs.reduce((a,r) => a + (r.screenshots || 0), 0),
+        asset_bytes: runs.reduce((a,r) => a + (r.asset_bytes || 0), 0),
+        screenshot_bytes: runs.reduce((a,r) => a + (r.screenshot_bytes || 0), 0),
+        total_bytes: runs.reduce((a,r) => a + (r.total_bytes || 0), 0),
+        file_count: runs.reduce((a,r) => a + (r.file_count || 0), 0),
+        missing_core_run_count: runs.reduce((a,r) => a + ((r.missing_core_files || []).length ? 1 : 0), 0),
       };
     }
     function sortedDayBuckets(dayMap) {
@@ -2645,6 +2709,11 @@ INDEX_HTML = r"""<!doctype html>
         completion_rate: 0,
         assets: 0,
         screenshots: 0,
+        asset_bytes: 0,
+        screenshot_bytes: 0,
+        total_bytes: 0,
+        file_count: 0,
+        missing_core_run_count: 0,
         avg_score: null,
         latest_run_updated_at: null,
         oldest_run_updated_at: null,
@@ -2669,6 +2738,11 @@ INDEX_HTML = r"""<!doctype html>
         s.ir_backlog += r.ir_backlog || 0;
         s.assets += r.assets || 0;
         s.screenshots += r.screenshots || 0;
+        s.asset_bytes += r.asset_bytes || 0;
+        s.screenshot_bytes += r.screenshot_bytes || 0;
+        s.total_bytes += r.total_bytes || 0;
+        s.file_count += r.file_count || 0;
+        if ((r.missing_core_files || []).length) s.missing_core_run_count += 1;
         const score = r.display_score ?? r.overall_score;
         if (score != null) {
           s._scoreSum += Number(score);
@@ -2732,6 +2806,8 @@ INDEX_HTML = r"""<!doctype html>
             <div><b>${fmt(s.ir_backlog)}</b><br><span class="small">missing IR</span></div>
             <div><b>${scoreText(s.avg_score)}</b><br><span class="small">avg score</span></div>
             <div><b>${pct(s.completion_rate)}</b><br><span class="small">complete</span></div>
+            <div><b>${bytesText(s.total_bytes)}</b><br><span class="small">storage</span></div>
+            <div><b>${fmt(s.file_count)}</b><br><span class="small">files</span></div>
           </div>
         </div>`).join("");
     }
@@ -2831,6 +2907,9 @@ INDEX_HTML = r"""<!doctype html>
           ${qualityBox("markdown leakage rows", q.markdown_leakage || 0)}
           ${qualityBox("sparse IR rows", q.sparse_ir || 0)}
           <div class="detail-box"><b>${scoreText(selected.display_score ?? selected.overall_score)}</b><br><span class="small">filtered score</span></div>
+          <div class="detail-box"><b>${bytesText(selected.total_bytes)}</b><br><span class="small">storage</span></div>
+          <div class="detail-box"><b>${fmt(selected.file_count)}</b><br><span class="small">files</span></div>
+          <div class="detail-box"><b>${(selected.missing_core_files || []).length ? escapeHtml(selected.missing_core_files.join(", ")) : "none"}</b><br><span class="small">missing core files</span></div>
         </div>
         <div class="detail-grid">
           <div class="detail-box"><b>Stage 2</b><br><span class="small">${modelText(selected.response_models)}</span></div>
@@ -3002,6 +3081,68 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Source Throughput</h2>
         <div class="warning-list">${rows || "<span class='small'>No source throughput rows.</span>"}</div>
         <div class="small">Rates use dated records from the last 7 calendar days under the active filters. ETA is backlog divided by recent response/IR generation rate; no recent rate means the pipeline appears stalled for that filtered slice.</div>
+      `;
+    }
+    function artifactIssueLabels(r) {
+      const issues = [];
+      if ((r.missing_core_files || []).length) issues.push(`missing ${r.missing_core_files.join(", ")}`);
+      if ((r.genui || 0) > 0 && !(r.screenshots || 0)) issues.push("no screenshots");
+      if ((r.responses || 0) > 0 && !(r.assets || 0)) issues.push("no assets");
+      return issues;
+    }
+    function renderStorageArtifacts(runs, sources) {
+      const target = document.getElementById("storageArtifacts");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const totals = runTotals(runs);
+      const artifactIssueRuns = runs.filter(r => artifactIssueLabels(r).length);
+      const largestRuns = [...runs]
+        .sort((a, b) => (b.total_bytes || 0) - (a.total_bytes || 0))
+        .slice(0, 10);
+      const sourceRows = [...sources]
+        .sort((a, b) => (b.total_bytes || 0) - (a.total_bytes || 0))
+        .slice(0, 8)
+        .map(source => `
+          <div class="freshness-row">
+            <div><b>${escapeHtml(source.source_label)}</b><br><span class="small">${fmt(source.run_count)} runs | ${fmt(source.file_count)} files</span></div>
+            <div><b>${bytesText(source.total_bytes)}</b><br><span class="small">storage</span></div>
+            <div class="small">assets ${bytesText(source.asset_bytes)} | screenshots ${bytesText(source.screenshot_bytes)} | missing core runs ${fmt(source.missing_core_run_count)}</div>
+          </div>`).join("");
+      const largestRows = largestRuns.map(run => `
+        <tr>
+          <td><b>${escapeHtml(run.run_id)}</b><br><span class="small">${escapeHtml(run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(run))}')">Details</button></td>
+          <td>${bytesText(run.total_bytes)}<br><span class="small">${fmt(run.file_count)} files</span></td>
+          <td>${fmt(run.assets)}<br><span class="small">${bytesText(run.asset_bytes)}</span></td>
+          <td>${fmt(run.screenshots)}<br><span class="small">${bytesText(run.screenshot_bytes)}</span></td>
+          <td class="small">${artifactIssueLabels(run).map(escapeHtml).join("<br>") || "none"}</td>
+        </tr>`).join("");
+      const issueRows = artifactIssueRuns.slice(0, 10).map(run => `
+        <div class="warning-row">
+          <span><b>${escapeHtml(run.run_id)}</b><br><span class="small">${escapeHtml(run.source_label)} | ${escapeHtml(run.path)}</span></span>
+          <span>${artifactIssueLabels(run).map(issue => `<span class="badge warn">${escapeHtml(issue)}</span>`).join(" ")}</span>
+        </div>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${bytesText(totals.total_bytes)}</b><br><span class="small">filtered storage</span></div>
+          <div class="detail-box"><b>${fmt(totals.file_count)}</b><br><span class="small">files</span></div>
+          <div class="detail-box"><b>${bytesText(totals.asset_bytes)}</b><br><span class="small">asset bytes</span></div>
+          <div class="detail-box"><b>${bytesText(totals.screenshot_bytes)}</b><br><span class="small">screenshot bytes</span></div>
+          <div class="detail-box"><b>${fmt(totals.missing_core_run_count)}</b><br><span class="small">missing core runs</span></div>
+          <div class="detail-box"><b>${fmt(artifactIssueRuns.length)}</b><br><span class="small">artifact issue runs</span></div>
+        </div>
+        <h2>Storage By Source</h2>
+        <div class="warning-list">${sourceRows || "<span class='small'>No source storage rows.</span>"}</div>
+        <h2>Largest Runs</h2>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Run</th><th>Storage</th><th>Assets</th><th>Screenshots</th><th>Issues</th></tr></thead>
+            <tbody>${largestRows}</tbody>
+          </table>
+        </div>
+        <h2>Artifact Issues</h2>
+        <div class="warning-list">${issueRows || "<span class='small'>No missing core, screenshot, or asset issues detected in current filters.</span>"}</div>
       `;
     }
     function aggregateQuality(runs) {
@@ -3362,6 +3503,7 @@ INDEX_HTML = r"""<!doctype html>
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
       renderThroughputEta(runs, sourceStats);
+      renderStorageArtifacts(runs, sourceStats);
       renderWorstSamples(runs);
       renderModelComparison(runs);
       renderDistribution(runs);

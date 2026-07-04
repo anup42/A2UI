@@ -208,6 +208,10 @@ The throughput panel uses the filtered day buckets to show last-7-day query, res
 response/day and IR/day rates, source-level bottlenecks, and backlog ETA. If a filtered slice has
 backlog but no recent response or IR rate, the ETA reports `no recent rate` so stalled workers are
 easy to distinguish from slow-but-active workers.
+The storage and artifacts panel shows filtered disk usage, file counts, asset/screenshot bytes,
+storage by source, largest runs, runs missing core files, and runs with generated IR but no captured
+screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
+view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
 warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
 view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
