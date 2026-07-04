@@ -1200,6 +1200,63 @@ def backlog_summary(queries: int, responses: int, genui: int) -> dict[str, Any]:
     }
 
 
+def file_artifact(path: Path, label: str) -> dict[str, Any] | None:
+    if not path.exists() or not path.is_file():
+        return None
+    stat = path.stat()
+    return {
+        "label": label,
+        "name": path.name,
+        "path": str(path),
+        "size": int(stat.st_size),
+        "updated_at": datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat(),
+    }
+
+
+def sample_files(root: Path, pattern: str, limit: int = 6) -> list[dict[str, Any]]:
+    if not root.exists():
+        return []
+    files = [path for path in root.rglob(pattern) if path.is_file()]
+    files.sort(key=lambda path: path.stat().st_mtime, reverse=True)
+    samples = []
+    for path in files[:limit]:
+        stat = path.stat()
+        samples.append(
+            {
+                "name": path.name,
+                "path": str(path),
+                "size": int(stat.st_size),
+                "updated_at": datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat(),
+            }
+        )
+    return samples
+
+
+def run_artifacts(run_dir: Path) -> dict[str, Any]:
+    core = [
+        artifact
+        for artifact in (
+            file_artifact(run_dir / "queries.jsonl", "queries"),
+            file_artifact(run_dir / "responses.jsonl", "responses"),
+            file_artifact(run_dir / "genui.jsonl", "IR"),
+            file_artifact(run_dir / "aggregates.json", "aggregates"),
+            file_artifact(run_dir / "run_manifest.json", "manifest"),
+            file_artifact(run_dir / "run.log", "log"),
+        )
+        if artifact is not None
+    ]
+    screenshot_roots = [run_dir / name for name in ("android_device_rendered", "rendered", "rendered_lit")]
+    screenshots: list[dict[str, Any]] = []
+    for root in screenshot_roots:
+        screenshots.extend(sample_files(root, "*.png", limit=3))
+    screenshots.sort(key=lambda item: item.get("updated_at") or "", reverse=True)
+    return {
+        "core": core,
+        "asset_samples": sample_files(run_dir / "assets", "*", limit=6),
+        "screenshot_samples": screenshots[:6],
+    }
+
+
 def aggregate_model_comparisons(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     buckets: dict[str, dict[str, Any]] = {}
     for record in records:
@@ -1545,6 +1602,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "ir_models": collect_model_counts(genui_rows),
         "metric_avgs": collect_metric_avgs(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
+        "artifacts": run_artifacts(run_dir),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
         "ir_version_stats": ir_version_stats,
         "intents": dict(sorted(intents.items(), key=lambda kv: (-kv[1], kv[0]))[:12]),
@@ -1720,6 +1778,10 @@ INDEX_HTML = r"""<!doctype html>
     .detail-box { background: rgba(255,255,255,.58); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
     .warning-list { display:grid; gap: 8px; }
     .warning-row { display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid var(--line); padding: 8px 0; }
+    .artifact-list { display:grid; gap: 6px; margin-top: 8px; }
+    .artifact-row { display:grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+    .chart-wrap { min-height: 230px; }
+    .chart-svg { width:100%; height:220px; overflow:visible; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
@@ -1832,6 +1894,10 @@ INDEX_HTML = r"""<!doctype html>
       </div>
     </section>
     <section class="panel wide-panel">
+      <h2>Score And Volume Trend</h2>
+      <div id="trend" class="chart-wrap"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2 id="daysTitle">Day Wise Data</h2>
       <div id="days"></div>
     </section>
@@ -1851,6 +1917,13 @@ INDEX_HTML = r"""<!doctype html>
     const dominantModel = obj => Object.entries(obj || {})[0]?.[0] || "unknown";
     const runKey = r => `${r.source_id}::${r.run_id}`;
     const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const bytesText = value => {
+      const n = Number(value || 0);
+      if (n >= 1024 * 1024 * 1024) return `${(n / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+      if (n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+      if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
+      return `${fmt(n)} B`;
+    };
     const modelText = obj => {
       const entries = Object.entries(obj || {}).slice(0, 3);
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
@@ -2231,8 +2304,23 @@ INDEX_HTML = r"""<!doctype html>
       selectedRunKey = decodeURIComponent(key);
       render();
     }
+    function copyText(value) {
+      navigator.clipboard.writeText(decodeURIComponent(value)).then(
+        () => setStatus("Path copied"),
+        () => setStatus("Copy failed")
+      );
+    }
     function qualityBox(label, value) {
       return `<div class="detail-box"><b>${fmt(value)}</b><br><span class="small">${label}</span></div>`;
+    }
+    function renderArtifactRows(rows, label) {
+      if (!rows || !rows.length) return `<span class="small">No ${label} found.</span>`;
+      return `<div class="artifact-list">${rows.map(item => `
+        <div class="artifact-row">
+          <b>${escapeHtml(item.label || label)}</b>
+          <span class="small">${escapeHtml(item.name)}<br>${escapeHtml(item.path)}</span>
+          <button class="mini-btn ghost-btn" onclick="copyText('${encodeURIComponent(item.path)}')">${bytesText(item.size)}</button>
+        </div>`).join("")}</div>`;
     }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
@@ -2248,6 +2336,7 @@ INDEX_HTML = r"""<!doctype html>
       }
       const q = selected.quality_summary || {};
       const m = selected.metric_avgs || {};
+      const artifacts = selected.artifacts || {};
       const warnings = (q.warnings || []).map(w => `
         <div class="warning-row">
           <span>${escapeHtml(w.message)}</span>
@@ -2282,6 +2371,12 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <h2>Validation Warnings</h2>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+        <h2>Artifacts</h2>
+        <div class="detail-grid">
+          <div class="detail-box"><b>Core files</b>${renderArtifactRows(artifacts.core || [], "file")}</div>
+          <div class="detail-box"><b>Screenshot samples</b>${renderArtifactRows(artifacts.screenshot_samples || [], "screenshot")}</div>
+          <div class="detail-box"><b>Asset samples</b>${renderArtifactRows(artifacts.asset_samples || [], "asset")}</div>
+        </div>
       `;
     }
     function totalDayCount(day) {
@@ -2461,6 +2556,61 @@ INDEX_HTML = r"""<!doctype html>
         .map(day => ({...day, avg_score: day.score_count ? day.score_sum / day.score_count : null}))
         .sort((a,b) => b.day.localeCompare(a.day));
     }
+    function svgPoint(x, y) {
+      return `${Number(x).toFixed(1)},${Number(y).toFixed(1)}`;
+    }
+    function renderTrend(runs) {
+      const days = aggregateDaysFromRuns(runs).slice().sort((a,b) => a.day.localeCompare(b.day));
+      const target = document.getElementById("trend");
+      if (days.length < 2) {
+        target.innerHTML = "<span class='small'>Need at least two dated buckets to show a trend.</span>";
+        return;
+      }
+      const visible = days.slice(-45);
+      const width = 960;
+      const height = 220;
+      const pad = {left: 42, right: 22, top: 18, bottom: 38};
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+      const maxTotal = Math.max(1, ...visible.map(totalDayCount));
+      const scores = visible.map(d => d.avg_score).filter(v => v != null).map(Number);
+      const minScore = Math.max(0, Math.min(...scores, 50));
+      const maxScore = Math.min(100, Math.max(...scores, 100));
+      const xFor = index => pad.left + (visible.length === 1 ? plotW / 2 : (index / (visible.length - 1)) * plotW);
+      const yScore = score => pad.top + (1 - ((Number(score) - minScore) / Math.max(1, maxScore - minScore))) * plotH;
+      const yCount = count => pad.top + (1 - (count / maxTotal)) * plotH;
+      const bars = visible.map((day, index) => {
+        const x = xFor(index);
+        const y = yCount(totalDayCount(day));
+        const barW = Math.max(4, Math.min(14, plotW / visible.length * .58));
+        return `<rect x="${x - barW / 2}" y="${y}" width="${barW}" height="${pad.top + plotH - y}" rx="3" fill="rgba(15,118,110,.20)" />`;
+      }).join("");
+      const scorePoints = visible
+        .map((day, index) => day.avg_score == null ? null : svgPoint(xFor(index), yScore(day.avg_score)))
+        .filter(Boolean);
+      const scoreCircles = visible.map((day, index) => day.avg_score == null ? "" : `
+        <circle cx="${xFor(index)}" cy="${yScore(day.avg_score)}" r="4" fill="#c2410c">
+          <title>${day.day}: score ${scoreText(day.avg_score)}, Q ${fmt(day.queries)}, R ${fmt(day.responses)}, IR ${fmt(day.genui)}</title>
+        </circle>`).join("");
+      const labels = visible.filter((_, index) => index === 0 || index === visible.length - 1 || index % Math.ceil(visible.length / 6) === 0)
+        .map((day, index, arr) => {
+          const actualIndex = visible.indexOf(day);
+          return `<text x="${xFor(actualIndex)}" y="${height - 10}" text-anchor="middle" font-size="11" fill="#667085">${day.day.slice(5)}</text>`;
+        }).join("");
+      target.innerHTML = `
+        <svg class="chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Filtered score and volume trend">
+          <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + plotH}" stroke="rgba(36,48,64,.18)" />
+          <line x1="${pad.left}" y1="${pad.top + plotH}" x2="${width - pad.right}" y2="${pad.top + plotH}" stroke="rgba(36,48,64,.18)" />
+          <text x="4" y="${pad.top + 6}" font-size="11" fill="#667085">score</text>
+          <text x="4" y="${pad.top + plotH}" font-size="11" fill="#667085">${Math.round(minScore)}</text>
+          ${bars}
+          ${scorePoints.length ? `<polyline points="${scorePoints.join(" ")}" fill="none" stroke="#c2410c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />` : ""}
+          ${scoreCircles}
+          ${labels}
+        </svg>
+        <div class="small">Bars show total Q+R+IR records per day. Orange line shows average IR score where metric data exists. Trend follows all active filters.</div>
+      `;
+    }
     function renderDays(runs) {
       const sourceId = document.getElementById("sourceFilter").value;
       const source = (current.sources || []).find(s => s.source_id === sourceId);
@@ -2518,6 +2668,7 @@ INDEX_HTML = r"""<!doctype html>
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
       renderModelComparison(runs);
+      renderTrend(runs);
       renderDays(runs);
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
