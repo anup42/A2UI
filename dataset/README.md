@@ -186,6 +186,8 @@ metadata, so query/response/IR counts reflect only matching records where availa
 sources selected, day-wise counts are aggregated across every matching source. The dashboard auto
 refreshes the local scan every 30 seconds by default; use the Auto refresh dropdown to change the
 interval or turn it off.
+Use the run-health filter to focus on backlog, quality warnings, low content coverage, or low media
+usage, and use the sort dropdown to rank runs by freshness, score, IR count, backlog, or issue count.
 
 Source cards include a health badge based on the latest sync result and a `Test` action that checks
 the configured local/SSH/command source without copying files. The dashboard also shows response and
@@ -196,7 +198,8 @@ Use `Details` on any run to inspect model counts, IR prompt versions, intent mix
 warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
 view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
 also shows core artifacts, sample assets, and sample screenshots with copyable local paths, and the
-trend chart shows filtered daily volume with average IR score over time.
+trend chart shows filtered daily volume with average IR score over time. Filtered distribution panels
+show top intents, Stage 2 models, Stage 3 models, IR versions, and source volume for the current view.
 
 One-off commands:
 

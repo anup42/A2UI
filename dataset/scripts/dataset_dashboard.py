@@ -1782,6 +1782,9 @@ INDEX_HTML = r"""<!doctype html>
     .artifact-row { display:grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
     .chart-wrap { min-height: 230px; }
     .chart-svg { width:100%; height:220px; overflow:visible; }
+    .dist-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; }
+    .dist-row { display:grid; grid-template-columns: minmax(90px, 1fr) 2fr 70px; gap: 10px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+    .dist-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
@@ -1815,8 +1818,24 @@ INDEX_HTML = r"""<!doctype html>
         <option value="70">Score >= 70</option>
         <option value="60">Score >= 60</option>
       </select>
+      <select id="issueFilter">
+        <option value="">All run health</option>
+        <option value="backlog">Has backlog</option>
+        <option value="quality">Has quality issues</option>
+        <option value="low_coverage">Low content coverage</option>
+        <option value="low_media">Low media usage</option>
+      </select>
       <select id="irVersionFilter">
         <option value="">All IR versions</option>
+      </select>
+      <select id="sortBy">
+        <option value="updated_desc">Sort: newest</option>
+        <option value="score_desc">Sort: score high</option>
+        <option value="score_asc">Sort: score low</option>
+        <option value="ir_desc">Sort: IR count</option>
+        <option value="backlog_desc">Sort: backlog</option>
+        <option value="quality_desc">Sort: quality issues</option>
+        <option value="source_run">Sort: source/run</option>
       </select>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
       <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
@@ -1892,6 +1911,10 @@ INDEX_HTML = r"""<!doctype html>
           <tbody id="modelComparison"></tbody>
         </table>
       </div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Filtered Distribution</h2>
+      <div id="distribution" class="dist-grid"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Score And Volume Trend</h2>
@@ -2108,11 +2131,18 @@ INDEX_HTML = r"""<!doctype html>
       return {
         text: document.getElementById("filter").value.toLowerCase().trim(),
         minScore: Number(document.getElementById("scoreFilter").value || "0"),
+        issue: document.getElementById("issueFilter").value,
         sourceId: document.getElementById("sourceFilter").value,
         irVersion: document.getElementById("irVersionFilter").value,
+        sortBy: document.getElementById("sortBy").value,
         dateFrom: document.getElementById("dateFrom").value,
         dateTo: document.getElementById("dateTo").value,
       };
+    }
+    function qualityIssueCount(r) {
+      const q = r.quality_summary || {};
+      return ["json_parse_fail","strict_schema_fail","repair_needed","repair_attempted","gen_errors","fallback_generated","low_score","markdown_leakage","sparse_ir"]
+        .reduce((sum, key) => sum + (q[key] || 0), 0);
     }
     function dateFilterActive(f) {
       return Boolean(f.dateFrom || f.dateTo);
@@ -2182,13 +2212,40 @@ INDEX_HTML = r"""<!doctype html>
       if (f.irVersion && !(r.ir_version_stats || {})[f.irVersion]) return false;
       if (f.text && !hay.includes(f.text)) return false;
       if (dateFilterActive(f) && !filteredRunDays(r, f).length) return false;
+      if (f.issue) {
+        const counts = dayFilteredCounts(r, f);
+        const metrics = r.metric_avgs || {};
+        if (f.issue === "backlog" && !Math.max((counts.queries || 0) - (counts.responses || 0), 0) && !Math.max((counts.responses || 0) - (counts.genui || 0), 0)) return false;
+        if (f.issue === "quality" && !qualityIssueCount(r)) return false;
+        if (f.issue === "low_coverage" && !(metrics.content_coverage != null && metrics.content_coverage < 0.65)) return false;
+        if (f.issue === "low_media" && !((metrics.image_presence ?? 0) < 0.25 && (metrics.icon_presence ?? 0) < 0.25)) return false;
+      }
       const score = runScoreForFilter(r, f);
       if (f.minScore && (score == null || score < f.minScore)) return false;
       return true;
     }
+    function runBacklogTotal(r) {
+      return (r.response_backlog || 0) + (r.ir_backlog || 0);
+    }
+    function sortRuns(runs, sortBy) {
+      const sorted = [...runs];
+      const scoreValue = r => r.display_score ?? r.overall_score ?? -1;
+      const updatedValue = r => Date.parse(r.updated_at || "") || 0;
+      const textValue = r => `${r.source_label || ""}/${r.run_id || ""}`.toLowerCase();
+      sorted.sort((a, b) => {
+        if (sortBy === "score_desc") return scoreValue(b) - scoreValue(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "score_asc") return scoreValue(a) - scoreValue(b) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "ir_desc") return (b.genui || 0) - (a.genui || 0) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "backlog_desc") return runBacklogTotal(b) - runBacklogTotal(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "quality_desc") return qualityIssueCount(b) - qualityIssueCount(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "source_run") return textValue(a).localeCompare(textValue(b));
+        return updatedValue(b) - updatedValue(a) || textValue(a).localeCompare(textValue(b));
+      });
+      return sorted;
+    }
     function filteredRuns() {
       const f = filters();
-      return (current.runs || []).filter(r => runMatches(r, f)).map(r => filteredRunRecord(r, f));
+      return sortRuns((current.runs || []).filter(r => runMatches(r, f)).map(r => filteredRunRecord(r, f)), f.sortBy);
     }
     function runTotals(runs) {
       const sourceIds = new Set(runs.map(r => r.source_id));
@@ -2533,6 +2590,52 @@ INDEX_HTML = r"""<!doctype html>
           </tr>`;
       }).join("");
     }
+    function addObjectCounts(target, obj) {
+      for (const [key, value] of Object.entries(obj || {})) {
+        target.set(key, (target.get(key) || 0) + Number(value || 0));
+      }
+    }
+    function topCounts(map, limit = 8) {
+      return [...map.entries()].sort((a,b) => (b[1] - a[1]) || a[0].localeCompare(b[0])).slice(0, limit);
+    }
+    function renderDistributionBlock(title, entries) {
+      if (!entries.length) return `<div><h2>${title}</h2><span class="small">No data</span></div>`;
+      const max = Math.max(1, ...entries.map(([, count]) => count));
+      return `
+        <div>
+          <h2>${title}</h2>
+          ${entries.map(([label, count]) => {
+            const width = Math.max(3, Math.round((count / max) * 100));
+            return `
+              <div class="dist-row">
+                <div class="dist-label" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
+                <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+                <b>${fmt(count)}</b>
+              </div>`;
+          }).join("")}
+        </div>`;
+    }
+    function renderDistribution(runs) {
+      const intents = new Map();
+      const responseModels = new Map();
+      const irModels = new Map();
+      const irVersions = new Map();
+      const sources = new Map();
+      for (const run of runs) {
+        addObjectCounts(intents, run.intents || {});
+        addObjectCounts(responseModels, run.response_models || {});
+        addObjectCounts(irModels, run.ir_models || {});
+        addObjectCounts(irVersions, run.ir_versions || {});
+        sources.set(run.source_label, (sources.get(run.source_label) || 0) + (run.genui || run.responses || run.queries || 1));
+      }
+      document.getElementById("distribution").innerHTML = [
+        renderDistributionBlock("Intent Mix", topCounts(intents)),
+        renderDistributionBlock("Stage 2 Models", topCounts(responseModels)),
+        renderDistributionBlock("Stage 3 Models", topCounts(irModels)),
+        renderDistributionBlock("IR Versions", topCounts(irVersions)),
+        renderDistributionBlock("Source Volume", topCounts(sources)),
+      ].join("");
+    }
     function aggregateDaysFromRuns(runs) {
       const f = filters();
       const byDay = new Map();
@@ -2668,6 +2771,7 @@ INDEX_HTML = r"""<!doctype html>
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
       renderModelComparison(runs);
+      renderDistribution(runs);
       renderTrend(runs);
       renderDays(runs);
     }
@@ -2679,6 +2783,8 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("sourceFilter").onchange = render;
     document.getElementById("irVersionFilter").onchange = render;
     document.getElementById("scoreFilter").onchange = render;
+    document.getElementById("issueFilter").onchange = render;
+    document.getElementById("sortBy").onchange = render;
     document.getElementById("dateFrom").onchange = render;
     document.getElementById("dateTo").onchange = render;
     document.getElementById("autoRefreshInterval").onchange = startAutoRefresh;
