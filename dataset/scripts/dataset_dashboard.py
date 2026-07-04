@@ -830,6 +830,36 @@ def collect_model_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
+def dominant_model(counts: dict[str, int]) -> str:
+    if not counts:
+        return "unknown"
+    return next(iter(counts.keys()))
+
+
+def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
+    metric_keys = (
+        "overall_score",
+        "content_coverage",
+        "intent_score",
+        "section_heading_coverage",
+        "table_cell_coverage",
+        "action_coverage",
+        "image_presence",
+        "icon_presence",
+        "markdown_leakage_rate",
+    )
+    sums: dict[str, float] = {key: 0.0 for key in metric_keys}
+    counts: dict[str, int] = {key: 0 for key in metric_keys}
+    for row in rows:
+        metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+        for key in metric_keys:
+            value = metrics.get(key)
+            if isinstance(value, (int, float)):
+                sums[key] += float(value)
+                counts[key] += 1
+    return {key: sums[key] / counts[key] for key in metric_keys if counts[key]}
+
+
 def ir_version_for_row(row: dict[str, Any]) -> str:
     gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
     candidates = [
@@ -1097,10 +1127,314 @@ def aggregate_ir_versions(records: list[dict[str, Any]]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
+def backlog_summary(queries: int, responses: int, genui: int) -> dict[str, Any]:
+    response_backlog = max(queries - responses, 0)
+    ir_backlog = max(responses - genui, 0)
+    completion_rate = (genui / queries) if queries else (1.0 if genui else 0.0)
+    return {
+        "response_backlog": response_backlog,
+        "ir_backlog": ir_backlog,
+        "completion_rate": completion_rate,
+    }
+
+
+def aggregate_model_comparisons(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    buckets: dict[str, dict[str, Any]] = {}
+    for record in records:
+        response_model = dominant_model(record.get("response_models") or {})
+        ir_model = dominant_model(record.get("ir_models") or {})
+        key = f"{response_model} -> {ir_model}"
+        bucket = buckets.setdefault(
+            key,
+            {
+                "response_model": response_model,
+                "ir_model": ir_model,
+                "runs": 0,
+                "genui": 0,
+                "score_sum": 0.0,
+                "score_weight": 0,
+                "metrics": {},
+            },
+        )
+        weight = max(1, int(record.get("genui") or 0))
+        bucket["runs"] += 1
+        bucket["genui"] += int(record.get("genui") or 0)
+        score = record.get("overall_score")
+        if isinstance(score, (int, float)):
+            bucket["score_sum"] += float(score) * weight
+            bucket["score_weight"] += weight
+        for metric, value in (record.get("metric_avgs") or {}).items():
+            if not isinstance(value, (int, float)):
+                continue
+            metric_bucket = bucket["metrics"].setdefault(metric, {"sum": 0.0, "weight": 0})
+            metric_bucket["sum"] += float(value) * weight
+            metric_bucket["weight"] += weight
+
+    comparisons = []
+    for bucket in buckets.values():
+        metrics = {
+            key: data["sum"] / data["weight"]
+            for key, data in bucket["metrics"].items()
+            if data.get("weight")
+        }
+        comparisons.append(
+            {
+                "response_model": bucket["response_model"],
+                "ir_model": bucket["ir_model"],
+                "runs": bucket["runs"],
+                "genui": bucket["genui"],
+                "avg_score": bucket["score_sum"] / bucket["score_weight"] if bucket["score_weight"] else None,
+                "metrics": metrics,
+            }
+        )
+    return sorted(comparisons, key=lambda item: (-(item.get("genui") or 0), str(item.get("response_model"))))
+
+
+def effective_dashboard_sources(config: dict[str, Any]) -> list[dict[str, Any]]:
+    sources: list[dict[str, Any]] = [
+        {
+            "id": "_local_checkout",
+            "label": "Local checkout",
+            "type": "local",
+            "path": "data/runs",
+            "mirror_local_in_place": True,
+            "enabled": True,
+        }
+    ]
+    sources.extend(source for source in config.get("sources") or [] if isinstance(source, dict))
+    return sources
+
+
+def latest_sync_result(latest_sync: dict[str, Any] | None, source_id: str) -> dict[str, Any] | None:
+    if not isinstance(latest_sync, dict):
+        return None
+    for result in latest_sync.get("results") or []:
+        if isinstance(result, dict) and result.get("source_id") == source_id:
+            return result
+    return None
+
+
+def source_health_record(
+    source: dict[str, Any],
+    source_id: str,
+    local_root: Path,
+    source_runs: list[dict[str, Any]],
+    latest_sync: dict[str, Any] | None,
+) -> dict[str, Any]:
+    sync_result = latest_sync_result(latest_sync, source_id)
+    if sync_result:
+        errors = sync_result.get("errors") or []
+        error_count = int(sync_result.get("error_count") or 0)
+        status = "error" if error_count else "ok"
+        message = str(errors[0]) if errors else f"Last sync listed {int(sync_result.get('listed') or 0)} files"
+        return {
+            "status": status,
+            "message": message,
+            "last_synced_at": latest_sync.get("synced_at") if isinstance(latest_sync, dict) else None,
+            "listed": int(sync_result.get("listed") or 0),
+            "copied": int(sync_result.get("copied") or 0),
+            "skipped": int(sync_result.get("skipped") or 0),
+            "error_count": error_count,
+        }
+    if local_root.exists() and source_runs:
+        return {
+            "status": "ok",
+            "message": f"Local mirror has {len(source_runs)} run(s)",
+            "last_synced_at": None,
+            "listed": None,
+            "copied": None,
+            "skipped": None,
+            "error_count": 0,
+        }
+    if local_root.exists():
+        return {
+            "status": "empty",
+            "message": "Path exists, but no dataset runs were found",
+            "last_synced_at": None,
+            "listed": None,
+            "copied": None,
+            "skipped": None,
+            "error_count": 0,
+        }
+    return {
+        "status": "unknown",
+        "message": "No local mirror found; run sync or test connection",
+        "last_synced_at": None,
+        "listed": None,
+        "copied": None,
+        "skipped": None,
+        "error_count": None,
+    }
+
+
+def local_source_probe(source: dict[str, Any]) -> dict[str, Any]:
+    mode = source_path_mode(source)
+    roots: list[Path]
+    if mode == "literal":
+        root = resolve_dataset_path(str(source.get("path") or ""), ROOT)
+        roots = [root] if root.exists() else []
+    elif mode == "glob":
+        pattern = str(resolve_dataset_path(str(source.get("path") or ""), ROOT))
+        roots = [Path(p) for p in glob.glob(pattern) if Path(p).is_dir()]
+    elif mode == "regex":
+        roots = regex_local_roots(source)
+    else:
+        raise ValueError(f"Unsupported local path_match: {mode}")
+    return {
+        "root_count": len(roots),
+        "sample_roots": [str(path) for path in sorted(roots, key=lambda p: p.as_posix())[:5]],
+        "exists": bool(roots),
+    }
+
+
+def ssh_source_probe(source: dict[str, Any]) -> dict[str, Any]:
+    remote_root = str(source.get("path") or "").rstrip("/")
+    if not remote_root:
+        raise ValueError(f"SSH source {source.get('id')} missing path")
+    mode = source_path_mode(source)
+    path_base = str(source.get("path_base") or "").rstrip("/")
+    if mode == "regex" and not path_base:
+        raise ValueError(f"SSH source {source.get('id')} uses path_match=regex but missing path_base")
+    py = r"""
+import os, sys, json, glob, re
+root=sys.argv[1]
+mode=sys.argv[2]
+path_base=sys.argv[3]
+def roots_for_mode():
+    if mode == 'literal':
+        return [root] if os.path.isdir(root) else []
+    if mode == 'glob':
+        return [p for p in sorted(glob.glob(root)) if os.path.isdir(p)]
+    if mode == 'regex':
+        compiled=re.compile(root)
+        return [os.path.join(path_base, name) for name in sorted(os.listdir(path_base)) if os.path.isdir(os.path.join(path_base, name)) and compiled.search(name)]
+    raise SystemExit('Unsupported path_match: ' + mode)
+roots=roots_for_mode()
+print(json.dumps({'exists': bool(roots), 'root_count': len(roots), 'sample_roots': roots[:5]}, separators=(',',':')))
+"""
+    remote_command = " ".join(
+        [
+            "python3",
+            "-c",
+            shell_quote(py),
+            shell_quote(remote_root),
+            shell_quote(mode),
+            shell_quote(path_base),
+        ]
+    )
+    timeout = int(source.get("test_timeout_sec", source.get("connect_timeout_sec", 30)))
+    if use_paramiko_ssh(source):
+        client = connect_paramiko(source)
+        try:
+            stdin, stdout, stderr = client.exec_command(remote_command, timeout=timeout)
+            del stdin
+            output = stdout.read().decode("utf-8", errors="replace")
+            error = stderr.read().decode("utf-8", errors="replace")
+            exit_status = stdout.channel.recv_exit_status()
+            if exit_status != 0:
+                raise RuntimeError(error.strip() or output.strip() or "ssh source probe failed")
+        finally:
+            client.close()
+    else:
+        result = run_command(ssh_base_command(source) + [remote_command], timeout=timeout)
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh source probe failed")
+        output = result.stdout
+    for line in output.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except Exception:
+            continue
+        if isinstance(obj, dict):
+            return obj
+    raise RuntimeError("ssh source probe returned no JSON")
+
+
+def command_source_probe(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> dict[str, Any]:
+    entries = list_command_files(source, include_globs, exclude_globs)
+    return {
+        "exists": bool(entries),
+        "root_count": None,
+        "file_count": len(entries),
+        "sample_files": [entry.rel for entry in entries[:5]],
+    }
+
+
+def test_source_connection(
+    config: dict[str, Any],
+    mirror_dir: Path,
+    requested_source_id: str,
+) -> dict[str, Any]:
+    del mirror_dir
+    include_globs = list(config.get("include_globs") or [])
+    exclude_globs = list(config.get("exclude_globs") or [])
+    sources = effective_dashboard_sources(config)
+    source = None
+    for candidate in sources:
+        candidate_id = safe_source_id(str(candidate.get("id") or source_label(candidate)))
+        if candidate_id == requested_source_id:
+            source = candidate
+            break
+    if source is None:
+        raise ValueError(f"Unknown source_id: {requested_source_id}")
+    source_id = safe_source_id(str(source.get("id") or source_label(source)))
+    source_type = str(source.get("type") or "local").lower()
+    started = datetime.now(timezone.utc)
+    if not source_enabled(source):
+        return {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "status": "disabled",
+            "message": "Source is disabled",
+            "checked_at": utc_now(),
+            "elapsed_ms": 0,
+        }
+    try:
+        if source_type == "local":
+            probe = local_source_probe(source)
+        elif source_type == "ssh":
+            probe = ssh_source_probe(source)
+        elif source_type == "command":
+            probe = command_source_probe(source, include_globs, exclude_globs)
+        else:
+            raise ValueError(f"Unsupported source type: {source_type}")
+        status = "ok" if probe.get("exists") or probe.get("file_count") else "empty"
+        message = (
+            f"Found {probe.get('root_count')} root(s)"
+            if probe.get("root_count") is not None
+            else f"Found {probe.get('file_count', 0)} file(s)"
+        )
+        return {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "status": status,
+            "message": message,
+            "probe": probe,
+            "checked_at": utc_now(),
+            "elapsed_ms": int((datetime.now(timezone.utc) - started).total_seconds() * 1000),
+        }
+    except Exception as exc:
+        return {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "status": "error",
+            "message": str(exc),
+            "checked_at": utc_now(),
+            "elapsed_ms": int((datetime.now(timezone.utc) - started).total_seconds() * 1000),
+        }
+
+
 def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str, Any]:
     queries = count_jsonl(run_dir / "queries.jsonl")
     responses = count_jsonl(run_dir / "responses.jsonl")
     genui = count_jsonl(run_dir / "genui.jsonl")
+    backlog = backlog_summary(queries, responses, genui)
     assets = len([p for p in (run_dir / "assets").rglob("*") if p.is_file()]) if (run_dir / "assets").exists() else 0
     screenshots = 0
     for folder in ("android_device_rendered", "rendered", "rendered_lit"):
@@ -1139,6 +1473,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "queries": queries,
         "responses": responses,
         "genui": genui,
+        **backlog,
         "assets": assets,
         "screenshots": screenshots,
         "overall_score": run_score(run_dir),
@@ -1146,6 +1481,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "query_models": collect_model_counts(query_rows),
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
+        "metric_avgs": collect_metric_avgs(genui_rows),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
         "ir_version_stats": ir_version_stats,
         "intents": dict(sorted(intents.items(), key=lambda kv: (-kv[1], kv[0]))[:12]),
@@ -1156,18 +1492,8 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
 def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
     sources = []
     runs = []
-    # Always show this checkout even if no config exists.
-    effective_sources: list[dict[str, Any]] = [
-        {
-            "id": "_local_checkout",
-            "label": "Local checkout",
-            "type": "local",
-            "path": "data/runs",
-            "mirror_local_in_place": True,
-            "enabled": True,
-        }
-    ]
-    effective_sources.extend(source for source in config.get("sources") or [] if isinstance(source, dict))
+    latest_sync = load_json(mirror_dir / "last_sync.json", None)
+    effective_sources = effective_dashboard_sources(config)
 
     seen_sources: set[str] = set()
     for source in effective_sources:
@@ -1186,6 +1512,10 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
             record = scan_run(source_id, source_label(source), run_dir)
             runs.append(record)
             source_runs.append(record)
+        queries = sum(r["queries"] for r in source_runs)
+        responses = sum(r["responses"] for r in source_runs)
+        genui = sum(r["genui"] for r in source_runs)
+        backlog = backlog_summary(queries, responses, genui)
         sources.append(
             {
                 "source_id": source_id,
@@ -1193,9 +1523,10 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
                 "type": source.get("type", "local"),
                 "local_path": str(local_root),
                 "run_count": len(source_runs),
-                "queries": sum(r["queries"] for r in source_runs),
-                "responses": sum(r["responses"] for r in source_runs),
-                "genui": sum(r["genui"] for r in source_runs),
+                "queries": queries,
+                "responses": responses,
+                "genui": genui,
+                **backlog,
                 "assets": sum(r["assets"] for r in source_runs),
                 "screenshots": sum(r["screenshots"] for r in source_runs),
                 "avg_score": (
@@ -1205,19 +1536,23 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
                     else None
                 ),
                 "days": aggregate_days(source_runs),
+                "health": source_health_record(source, source_id, local_root, source_runs, latest_sync),
             }
         )
 
+    total_queries = sum(r["queries"] for r in runs)
+    total_responses = sum(r["responses"] for r in runs)
+    total_genui = sum(r["genui"] for r in runs)
     totals = {
         "sources": len(sources),
         "runs": len(runs),
-        "queries": sum(r["queries"] for r in runs),
-        "responses": sum(r["responses"] for r in runs),
-        "genui": sum(r["genui"] for r in runs),
+        "queries": total_queries,
+        "responses": total_responses,
+        "genui": total_genui,
+        **backlog_summary(total_queries, total_responses, total_genui),
         "assets": sum(r["assets"] for r in runs),
         "screenshots": sum(r["screenshots"] for r in runs),
     }
-    latest_sync = load_json(mirror_dir / "last_sync.json", None)
     return {
         "generated_at": utc_now(),
         "totals": totals,
@@ -1225,6 +1560,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         "runs": sorted(runs, key=lambda r: (r["source_label"].lower(), r["run_id"].lower())),
         "days": aggregate_days(runs),
         "ir_versions": aggregate_ir_versions(runs),
+        "model_comparisons": aggregate_model_comparisons(runs),
         "last_sync": latest_sync,
         "config_note": f"Using {DEFAULT_CONFIG if DEFAULT_CONFIG.exists() else DEFAULT_EXAMPLE_CONFIG}",
     }
@@ -1247,6 +1583,7 @@ INDEX_HTML = r"""<!doctype html>
       --accent2: #c2410c;
       --good: #15803d;
       --warn: #b45309;
+      --bad: #b91c1c;
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     body {
@@ -1298,6 +1635,11 @@ INDEX_HTML = r"""<!doctype html>
     th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
     tr:hover td { background: rgba(15,118,110,.05); }
     .badge { display:inline-flex; align-items:center; border-radius: 999px; padding: 4px 8px; background: rgba(15,118,110,.10); color: #115e59; font-weight: 750; font-size: 12px; }
+    .badge.ok { background: rgba(21,128,61,.12); color: var(--good); }
+    .badge.empty, .badge.unknown { background: rgba(180,83,9,.12); color: var(--warn); }
+    .badge.error { background: rgba(185,28,28,.12); color: var(--bad); }
+    .mini-btn { padding: 7px 10px; border-radius: 999px; font-size: 12px; box-shadow: none; }
+    .source-head { display:flex; align-items:flex-start; justify-content:space-between; gap: 10px; }
     .score { font-weight: 850; }
     .score.good { color: var(--good); }
     .score.warn { color: var(--warn); }
@@ -1308,6 +1650,7 @@ INDEX_HTML = r"""<!doctype html>
     .kv { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 10px; }
     .kv div { background: rgba(255,255,255,.55); border-radius: 12px; padding: 9px; }
     .wide-panel { margin-top: 18px; }
+    .two-col-panels { display:grid; grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.3fr); gap: 18px; align-items:start; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
@@ -1319,7 +1662,7 @@ INDEX_HTML = r"""<!doctype html>
     .sync-top { display:flex; justify-content:space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
     .sync-messages { margin-top: 8px; display:grid; gap: 3px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
-    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
+    @media (max-width: 980px) { .grid, .two-col-panels { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
   </style>
 </head>
 <body>
@@ -1390,6 +1733,28 @@ INDEX_HTML = r"""<!doctype html>
         </div>
       </section>
     </section>
+    <section class="two-col-panels wide-panel">
+      <section class="panel">
+        <h2>Backlog</h2>
+        <div id="backlog"></div>
+      </section>
+      <section class="panel">
+        <h2>Model Comparison</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Response -> IR</th>
+                <th>Runs / IR</th>
+                <th>Score</th>
+                <th>Quality Signals</th>
+              </tr>
+            </thead>
+            <tbody id="modelComparison"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
     <section class="panel wide-panel">
       <h2 id="daysTitle">Day Wise Data</h2>
       <div id="days"></div>
@@ -1400,9 +1765,13 @@ INDEX_HTML = r"""<!doctype html>
     let syncPollTimer = null;
     let autoRefreshTimer = null;
     let summaryLoading = false;
+    let sourceHealthOverrides = {};
     const fmt = n => (n ?? 0).toLocaleString();
+    const pct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(1)}%`;
+    const metricPct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(0)}%`;
     const scoreClass = s => s == null ? "" : s >= 75 ? "good" : s >= 60 ? "warn" : "";
     const scoreText = s => s == null ? "n/a" : Number(s).toFixed(2);
+    const dominantModel = obj => Object.entries(obj || {})[0]?.[0] || "unknown";
     const modelText = obj => {
       const entries = Object.entries(obj || {}).slice(0, 3);
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
@@ -1496,6 +1865,19 @@ INDEX_HTML = r"""<!doctype html>
         throw error;
       }
     }
+    async function testSource(sourceId) {
+      setStatus(`Testing ${sourceId}...`);
+      const res = await fetch("/api/source/test", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({source_id: sourceId}),
+      });
+      const payload = await res.json();
+      if (!res.ok && !payload.status) throw new Error(payload.error || "source test failed");
+      sourceHealthOverrides[sourceId] = payload;
+      render();
+      setStatus(`${payload.source_label || sourceId}: ${payload.status} - ${payload.message || ""}`);
+    }
     function renderStats(t) {
       const stats = [
         ["Sources", t.sources],
@@ -1503,6 +1885,9 @@ INDEX_HTML = r"""<!doctype html>
         ["Queries", t.queries],
         ["Responses", t.responses],
         ["IR records", t.genui],
+        ["Missing responses", t.response_backlog],
+        ["Missing IR", t.ir_backlog],
+        ["Pipeline complete", pct(t.completion_rate)],
         ["Assets", t.assets],
         ["Screenshots", t.screenshots],
       ];
@@ -1564,7 +1949,16 @@ INDEX_HTML = r"""<!doctype html>
     function filteredRunRecord(r, f) {
       const counts = dayFilteredCounts(r, f);
       const avg = counts.score_count ? counts.score_sum / counts.score_count : r.overall_score;
-      return {...r, queries: counts.queries, responses: counts.responses, genui: counts.genui, display_score: avg};
+      return {
+        ...r,
+        queries: counts.queries,
+        responses: counts.responses,
+        genui: counts.genui,
+        response_backlog: Math.max((counts.queries || 0) - (counts.responses || 0), 0),
+        ir_backlog: Math.max((counts.responses || 0) - (counts.genui || 0), 0),
+        completion_rate: counts.queries ? (counts.genui || 0) / counts.queries : ((counts.genui || 0) ? 1 : 0),
+        display_score: avg,
+      };
     }
     function runScoreForFilter(r, f) {
       if (!dateFilterActive(f)) return r.overall_score;
@@ -1593,21 +1987,26 @@ INDEX_HTML = r"""<!doctype html>
         queries: runs.reduce((a,r) => a + (r.queries || 0), 0),
         responses: runs.reduce((a,r) => a + (r.responses || 0), 0),
         genui: runs.reduce((a,r) => a + (r.genui || 0), 0),
+        response_backlog: runs.reduce((a,r) => a + (r.response_backlog || 0), 0),
+        ir_backlog: runs.reduce((a,r) => a + (r.ir_backlog || 0), 0),
+        completion_rate: runs.reduce((a,r) => a + (r.queries || 0), 0) ? runs.reduce((a,r) => a + (r.genui || 0), 0) / runs.reduce((a,r) => a + (r.queries || 0), 0) : 0,
         assets: runs.reduce((a,r) => a + (r.assets || 0), 0),
         screenshots: runs.reduce((a,r) => a + (r.screenshots || 0), 0),
       };
     }
     function filteredSourceStats(sources, runs) {
-      const bySource = new Map(sources.map(s => [s.source_id, {...s, run_count: 0, queries: 0, responses: 0, genui: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0}]));
+      const bySource = new Map(sources.map(s => [s.source_id, {...s, run_count: 0, queries: 0, responses: 0, genui: 0, response_backlog: 0, ir_backlog: 0, completion_rate: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0}]));
       for (const r of runs) {
         if (!bySource.has(r.source_id)) {
-          bySource.set(r.source_id, {source_id: r.source_id, source_label: r.source_label, type: "unknown", local_path: "", run_count: 0, queries: 0, responses: 0, genui: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0});
+          bySource.set(r.source_id, {source_id: r.source_id, source_label: r.source_label, type: "unknown", local_path: "", run_count: 0, queries: 0, responses: 0, genui: 0, response_backlog: 0, ir_backlog: 0, completion_rate: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0});
         }
         const s = bySource.get(r.source_id);
         s.run_count += 1;
         s.queries += r.queries || 0;
         s.responses += r.responses || 0;
         s.genui += r.genui || 0;
+        s.response_backlog += r.response_backlog || 0;
+        s.ir_backlog += r.ir_backlog || 0;
         s.assets += r.assets || 0;
         s.screenshots += r.screenshots || 0;
         const score = r.display_score ?? r.overall_score;
@@ -1618,21 +2017,38 @@ INDEX_HTML = r"""<!doctype html>
       }
       const sourceId = document.getElementById("sourceFilter").value;
       const rows = [...bySource.values()].filter(s => sourceId ? s.source_id === sourceId : s.run_count > 0);
-      return rows.map(s => ({...s, avg_score: s._scoreCount ? s._scoreSum / s._scoreCount : null}));
+      return rows.map(s => ({...s, avg_score: s._scoreCount ? s._scoreSum / s._scoreCount : null, completion_rate: s.queries ? s.genui / s.queries : 0}));
+    }
+    function healthForSource(s) {
+      return sourceHealthOverrides[s.source_id] || s.health || {status: "unknown", message: "Not tested"};
+    }
+    function renderHealth(h) {
+      const status = h.status || "unknown";
+      const checked = h.checked_at ? `<br><span class="small">checked ${new Date(h.checked_at).toLocaleString()}</span>` : "";
+      const sync = h.last_synced_at ? `<br><span class="small">synced ${new Date(h.last_synced_at).toLocaleString()}</span>` : "";
+      return `<span class="badge ${status}">${status}</span><div class="small">${h.message || ""}${checked}${sync}</div>`;
     }
     function renderSources(sources) {
       document.getElementById("sources").innerHTML = sources.map(s => `
         <div class="source-card">
-          <strong>${s.source_label}</strong>
-          <span class="badge">${s.type}</span>
+          <div class="source-head">
+            <div>
+              <strong>${s.source_label}</strong>
+              <span class="badge">${s.type}</span>
+              ${renderHealth(healthForSource(s))}
+            </div>
+            <button class="mini-btn" onclick="testSource('${s.source_id}')">Test</button>
+          </div>
           <div class="small">${s.local_path}</div>
           <div class="kv">
             <div><b>${fmt(s.run_count)}</b><br><span class="small">runs</span></div>
             <div><b>${fmt(s.queries)}</b><br><span class="small">queries</span></div>
             <div><b>${fmt(s.responses)}</b><br><span class="small">responses</span></div>
             <div><b>${fmt(s.genui)}</b><br><span class="small">IR</span></div>
+            <div><b>${fmt(s.response_backlog)}</b><br><span class="small">missing responses</span></div>
+            <div><b>${fmt(s.ir_backlog)}</b><br><span class="small">missing IR</span></div>
             <div><b>${scoreText(s.avg_score)}</b><br><span class="small">avg score</span></div>
-            <div><b>${fmt(s.screenshots)}</b><br><span class="small">screenshots</span></div>
+            <div><b>${pct(s.completion_rate)}</b><br><span class="small">complete</span></div>
           </div>
         </div>`).join("");
     }
@@ -1656,6 +2072,7 @@ INDEX_HTML = r"""<!doctype html>
           <td><b>${r.run_id}</b><br><span class="small">${r.source_label}</span><br><span class="small">${r.path}</span></td>
           <td>
             Q ${fmt(r.queries)}<br>R ${fmt(r.responses)}<br>IR ${fmt(r.genui)}<br>
+            <span class="small">missing R ${fmt(r.response_backlog)} | missing IR ${fmt(r.ir_backlog)}</span><br>
             <span class="small">assets ${fmt(r.assets)} | shots ${fmt(r.screenshots)}</span>
           </td>
           <td><span class="score ${scoreClass(r.display_score ?? r.overall_score)}">${scoreText(r.display_score ?? r.overall_score)}</span></td>
@@ -1669,6 +2086,102 @@ INDEX_HTML = r"""<!doctype html>
     }
     function totalDayCount(day) {
       return (day.queries || 0) + (day.responses || 0) + (day.genui || 0);
+    }
+    function renderBacklog(sources) {
+      const rows = [...sources]
+        .map(s => ({
+          ...s,
+          total_backlog: (s.response_backlog || 0) + (s.ir_backlog || 0),
+        }))
+        .sort((a,b) => (b.total_backlog - a.total_backlog) || String(a.source_label).localeCompare(String(b.source_label)));
+      if (!rows.length) {
+        document.getElementById("backlog").innerHTML = "<span class='small'>No source data found for current filters.</span>";
+        return;
+      }
+      const maxBacklog = Math.max(1, ...rows.map(r => r.total_backlog));
+      document.getElementById("backlog").innerHTML = rows.map(row => {
+        const width = Math.round((row.total_backlog / maxBacklog) * 100);
+        return `
+          <div class="day-row">
+            <div><b>${row.source_label}</b><br><span class="small">${fmt(row.run_count)} runs</span></div>
+            <div>
+              <div class="bar-track"><div class="bar-fill" style="width:${Math.max(3, width)}%"></div></div>
+              <div class="day-counts">
+                <span>Q ${fmt(row.queries)}</span>
+                <span>R ${fmt(row.responses)}</span>
+                <span>IR ${fmt(row.genui)}</span>
+                <span>missing R ${fmt(row.response_backlog)}</span>
+                <span>missing IR ${fmt(row.ir_backlog)}</span>
+              </div>
+            </div>
+            <div><b>${fmt(row.total_backlog)}</b><br><span class="small">backlog</span></div>
+          </div>`;
+      }).join("");
+    }
+    function addWeightedMetric(bucket, r, key, weight) {
+      const value = (r.metric_avgs || {})[key];
+      if (value == null || Number.isNaN(Number(value))) return;
+      const target = bucket.metrics[key] || {sum: 0, weight: 0};
+      target.sum += Number(value) * weight;
+      target.weight += weight;
+      bucket.metrics[key] = target;
+    }
+    function aggregateModelComparisonsFromRuns(runs) {
+      const buckets = new Map();
+      for (const r of runs) {
+        const responseModel = dominantModel(r.response_models);
+        const irModel = dominantModel(r.ir_models);
+        const key = `${responseModel} -> ${irModel}`;
+        if (!buckets.has(key)) {
+          buckets.set(key, {responseModel, irModel, runs: 0, genui: 0, scoreSum: 0, scoreWeight: 0, metrics: {}});
+        }
+        const bucket = buckets.get(key);
+        const weight = Math.max(1, r.genui || 0);
+        bucket.runs += 1;
+        bucket.genui += r.genui || 0;
+        const score = r.display_score ?? r.overall_score;
+        if (score != null) {
+          bucket.scoreSum += Number(score) * weight;
+          bucket.scoreWeight += weight;
+        }
+        for (const key of ["content_coverage", "intent_score", "section_heading_coverage", "table_cell_coverage", "action_coverage", "image_presence", "icon_presence", "markdown_leakage_rate"]) {
+          addWeightedMetric(bucket, r, key, weight);
+        }
+      }
+      return [...buckets.values()]
+        .map(bucket => {
+          const metrics = {};
+          for (const [key, value] of Object.entries(bucket.metrics)) {
+            if (value.weight) metrics[key] = value.sum / value.weight;
+          }
+          return {...bucket, metrics, avg_score: bucket.scoreWeight ? bucket.scoreSum / bucket.scoreWeight : null};
+        })
+        .sort((a,b) => (b.genui - a.genui) || String(a.responseModel).localeCompare(String(b.responseModel)));
+    }
+    function renderModelComparison(runs) {
+      const rows = aggregateModelComparisonsFromRuns(runs);
+      if (!rows.length) {
+        document.getElementById("modelComparison").innerHTML = "<tr><td colspan='4'><span class='small'>No model data found.</span></td></tr>";
+        return;
+      }
+      document.getElementById("modelComparison").innerHTML = rows.map(row => {
+        const m = row.metrics || {};
+        return `
+          <tr>
+            <td>
+              <b>${row.responseModel}</b><br>
+              <span class="small">to</span><br>
+              <b>${row.irModel}</b>
+            </td>
+            <td>${fmt(row.runs)} runs<br><span class="small">${fmt(row.genui)} IR</span></td>
+            <td><span class="score ${scoreClass(row.avg_score)}">${scoreText(row.avg_score)}</span></td>
+            <td class="small">
+              coverage ${metricPct(m.content_coverage)} | intent ${metricPct(m.intent_score)}<br>
+              headings ${metricPct(m.section_heading_coverage)} | table ${metricPct(m.table_cell_coverage)}<br>
+              actions ${metricPct(m.action_coverage)} | images ${metricPct(m.image_presence)} | markdown leak ${metricPct(m.markdown_leakage_rate)}
+            </td>
+          </tr>`;
+      }).join("");
     }
     function aggregateDaysFromRuns(runs) {
       const f = filters();
@@ -1743,8 +2256,11 @@ INDEX_HTML = r"""<!doctype html>
       renderIrVersionFilter(current.ir_versions || {});
       const runs = filteredRuns();
       renderStats(runTotals(runs));
-      renderSources(filteredSourceStats(current.sources || [], runs));
+      const sourceStats = filteredSourceStats(current.sources || [], runs);
+      renderSources(sourceStats);
       renderRuns(runs);
+      renderBacklog(sourceStats);
+      renderModelComparison(runs);
       renderDays(runs);
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
@@ -1832,6 +2348,9 @@ class DashboardServer:
                 self.update_sync_status({"running": False, "phase": "failed", "message": f"Sync failed: {exc}"})
                 raise
 
+    def test_source(self, source_id: str) -> dict[str, Any]:
+        return test_source_connection(self.config(), self.mirror_dir, source_id)
+
 
 def make_handler(server_state: DashboardServer):
     class Handler(BaseHTTPRequestHandler):
@@ -1845,6 +2364,19 @@ def make_handler(server_state: DashboardServer):
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)
+
+        def read_json_body(self) -> dict[str, Any]:
+            length = int(self.headers.get("Content-Length") or 0)
+            if not length:
+                return {}
+            raw = self.rfile.read(length).decode("utf-8", errors="replace")
+            try:
+                payload = json.loads(raw)
+            except Exception as exc:
+                raise ValueError(f"Invalid JSON body: {exc}") from exc
+            if not isinstance(payload, dict):
+                raise ValueError("JSON body must be an object")
+            return payload
 
         def do_GET(self) -> None:
             parsed = urlparse(self.path)
@@ -1883,6 +2415,17 @@ def make_handler(server_state: DashboardServer):
                     self.send_json(server_state.sync())
                 except Exception as exc:
                     self.send_json({"error": str(exc)}, status=500)
+                return
+            if parsed.path == "/api/source/test":
+                try:
+                    payload = self.read_json_body()
+                    source_id = str(payload.get("source_id") or "").strip()
+                    if not source_id:
+                        raise ValueError("source_id is required")
+                    result = server_state.test_source(source_id)
+                    self.send_json(result, status=200 if result.get("status") != "error" else 502)
+                except Exception as exc:
+                    self.send_json({"error": str(exc)}, status=400)
                 return
             self.send_error(404)
 

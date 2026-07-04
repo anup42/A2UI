@@ -187,6 +187,12 @@ sources selected, day-wise counts are aggregated across every matching source. T
 refreshes the local scan every 30 seconds by default; use the Auto refresh dropdown to change the
 interval or turn it off.
 
+Source cards include a health badge based on the latest sync result and a `Test` action that checks
+the configured local/SSH/command source without copying files. The dashboard also shows response and
+IR backlog (`queries - responses`, `responses - IR`) for the current filters, plus a model comparison
+table that groups runs by dominant Stage 2 response model and Stage 3 IR model with score and quality
+signals such as content coverage, section coverage, table coverage, action coverage, and media usage.
+
 One-off commands:
 
 ```
