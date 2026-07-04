@@ -1011,6 +1011,7 @@ INDEX_HTML = r"""<!doctype html>
       font-weight: 750;
       box-shadow: 0 10px 24px rgba(15,118,110,.18);
     }
+    .date-label { display:inline-flex; align-items:center; gap: 6px; color: var(--muted); font-size: 13px; }
     main { padding: 0 34px 34px; }
     .stats { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin: 16px 0 24px; }
     .stat, .panel {
@@ -1068,6 +1069,8 @@ INDEX_HTML = r"""<!doctype html>
         <option value="70">Score >= 70</option>
         <option value="60">Score >= 60</option>
       </select>
+      <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
+      <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
       <span class="status" id="status"></span>
     </div>
   </header>
@@ -1144,18 +1147,63 @@ INDEX_HTML = r"""<!doctype html>
         text: document.getElementById("filter").value.toLowerCase().trim(),
         minScore: Number(document.getElementById("scoreFilter").value || "0"),
         sourceId: document.getElementById("sourceFilter").value,
+        dateFrom: document.getElementById("dateFrom").value,
+        dateTo: document.getElementById("dateTo").value,
       };
+    }
+    function dateFilterActive(f) {
+      return Boolean(f.dateFrom || f.dateTo);
+    }
+    function dayInRange(day, f) {
+      if (!day) return false;
+      if (f.dateFrom && day < f.dateFrom) return false;
+      if (f.dateTo && day > f.dateTo) return false;
+      return true;
+    }
+    function filteredRunDays(r, f) {
+      return (r.days || []).filter(day => dayInRange(day.day, f));
+    }
+    function dayFilteredCounts(r, f) {
+      if (!dateFilterActive(f)) {
+        return {
+          queries: r.queries || 0,
+          responses: r.responses || 0,
+          genui: r.genui || 0,
+          score_sum: r.overall_score != null ? Number(r.overall_score) : 0,
+          score_count: r.overall_score != null ? 1 : 0,
+        };
+      }
+      return filteredRunDays(r, f).reduce((acc, day) => {
+        acc.queries += day.queries || 0;
+        acc.responses += day.responses || 0;
+        acc.genui += day.genui || 0;
+        acc.score_sum += day.score_sum || 0;
+        acc.score_count += day.score_count || 0;
+        return acc;
+      }, {queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0});
+    }
+    function filteredRunRecord(r, f) {
+      const counts = dayFilteredCounts(r, f);
+      const avg = counts.score_count ? counts.score_sum / counts.score_count : r.overall_score;
+      return {...r, queries: counts.queries, responses: counts.responses, genui: counts.genui, display_score: avg};
+    }
+    function runScoreForFilter(r, f) {
+      if (!dateFilterActive(f)) return r.overall_score;
+      const counts = dayFilteredCounts(r, f);
+      return counts.score_count ? counts.score_sum / counts.score_count : r.overall_score;
     }
     function runMatches(r, f) {
       const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.intents]).toLowerCase();
       if (f.sourceId && r.source_id !== f.sourceId) return false;
       if (f.text && !hay.includes(f.text)) return false;
-      if (f.minScore && (r.overall_score == null || r.overall_score < f.minScore)) return false;
+      if (dateFilterActive(f) && !filteredRunDays(r, f).length) return false;
+      const score = runScoreForFilter(r, f);
+      if (f.minScore && (score == null || score < f.minScore)) return false;
       return true;
     }
     function filteredRuns() {
       const f = filters();
-      return (current.runs || []).filter(r => runMatches(r, f));
+      return (current.runs || []).filter(r => runMatches(r, f)).map(r => filteredRunRecord(r, f));
     }
     function runTotals(runs) {
       const sourceIds = new Set(runs.map(r => r.source_id));
@@ -1182,8 +1230,9 @@ INDEX_HTML = r"""<!doctype html>
         s.genui += r.genui || 0;
         s.assets += r.assets || 0;
         s.screenshots += r.screenshots || 0;
-        if (r.overall_score != null) {
-          s._scoreSum += Number(r.overall_score);
+        const score = r.display_score ?? r.overall_score;
+        if (score != null) {
+          s._scoreSum += Number(score);
           s._scoreCount += 1;
         }
       }
@@ -1222,7 +1271,7 @@ INDEX_HTML = r"""<!doctype html>
             Q ${fmt(r.queries)}<br>R ${fmt(r.responses)}<br>IR ${fmt(r.genui)}<br>
             <span class="small">assets ${fmt(r.assets)} | shots ${fmt(r.screenshots)}</span>
           </td>
-          <td><span class="score ${scoreClass(r.overall_score)}">${scoreText(r.overall_score)}</span></td>
+          <td><span class="score ${scoreClass(r.display_score ?? r.overall_score)}">${scoreText(r.display_score ?? r.overall_score)}</span></td>
           <td>
             <span class="small">Stage 2</span><br>${modelText(r.response_models)}
             <br><span class="small">Stage 3</span><br>${modelText(r.ir_models)}
@@ -1234,9 +1283,11 @@ INDEX_HTML = r"""<!doctype html>
       return (day.queries || 0) + (day.responses || 0) + (day.genui || 0);
     }
     function aggregateDaysFromRuns(runs) {
+      const f = filters();
       const byDay = new Map();
       for (const run of runs) {
         for (const day of (run.days || [])) {
+          if (!dayInRange(day.day, f)) continue;
           if (!byDay.has(day.day)) {
             byDay.set(day.day, {day: day.day, queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0, avg_score: null});
           }
@@ -1310,6 +1361,8 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("filter").oninput = render;
     document.getElementById("sourceFilter").onchange = render;
     document.getElementById("scoreFilter").onchange = render;
+    document.getElementById("dateFrom").onchange = render;
+    document.getElementById("dateTo").onchange = render;
     loadSummary().catch(e => setStatus(`Load failed: ${e.message}`));
   </script>
 </body>
