@@ -860,6 +860,82 @@ def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
     return {key: sums[key] / counts[key] for key in metric_keys if counts[key]}
 
 
+def row_issue_labels(row: dict[str, Any]) -> list[str]:
+    labels: list[str] = []
+    validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
+    metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+    gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+    if validation.get("json_parse_ok") is False:
+        labels.append("json_parse_fail")
+    if validation.get("schema_valid_strict") is False:
+        labels.append("strict_schema_fail")
+    if validation.get("repair_needed") is True or int(validation.get("repair_attempts") or 0) > 0:
+        labels.append("repair")
+    if gen.get("error"):
+        labels.append("gen_error")
+    if row.get("fallback_generated") or validation.get("fallback_generated"):
+        labels.append("fallback")
+    score = metrics.get("overall_score")
+    if isinstance(score, (int, float)) and score < 60:
+        labels.append("low_score")
+    markdown = metrics.get("markdown_leakage_rate")
+    if isinstance(markdown, (int, float)) and markdown > 0:
+        labels.append("markdown_leak")
+    component_count = metrics.get("component_count")
+    content_coverage = metrics.get("content_coverage")
+    if (
+        isinstance(component_count, (int, float))
+        and isinstance(content_coverage, (int, float))
+        and component_count < 12
+        and content_coverage < 0.55
+    ):
+        labels.append("sparse_ir")
+    return labels
+
+
+def collect_issue_samples(rows: list[dict[str, Any]], limit: int = 12) -> list[dict[str, Any]]:
+    samples: list[dict[str, Any]] = []
+    for index, row in enumerate(rows, start=1):
+        metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+        validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
+        gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+        labels = row_issue_labels(row)
+        score = metrics.get("overall_score")
+        if not labels and not isinstance(score, (int, float)):
+            continue
+        if not labels and isinstance(score, (int, float)) and score >= 70:
+            continue
+        provider = str(gen.get("provider") or gen.get("llm_provider") or "").strip()
+        model = str(gen.get("model") or "").strip()
+        sample = {
+            "row": index,
+            "ui_id": str(row.get("ui_id") or "").strip(),
+            "response_id": str(row.get("response_id") or "").strip(),
+            "query_id": str(row.get("query_id") or "").strip(),
+            "intent": str(row.get("intent") or row.get("intent_bucket") or "").strip(),
+            "score": float(score) if isinstance(score, (int, float)) else None,
+            "issues": labels,
+            "model": "/".join(part for part in [provider, model] if part) or "unknown",
+            "prompt_version": ir_version_for_row(row),
+            "content_coverage": metrics.get("content_coverage") if isinstance(metrics.get("content_coverage"), (int, float)) else None,
+            "component_count": metrics.get("component_count") if isinstance(metrics.get("component_count"), (int, float)) else None,
+            "warnings": [
+                str(item)[:120]
+                for item in (validation.get("errors") or validation.get("warnings") or [])
+                if str(item).strip()
+            ][:2],
+        }
+        samples.append(sample)
+    samples.sort(
+        key=lambda item: (
+            item["score"] if isinstance(item.get("score"), (int, float)) else 999.0,
+            -len(item.get("issues") or []),
+            item.get("row") or 0,
+        )
+    )
+    return samples[:limit]
+
+
 def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     summary = {
         "sampled": 0,
@@ -873,6 +949,7 @@ def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "markdown_leakage": 0,
         "sparse_ir": 0,
         "warnings": [],
+        "issue_samples": [],
     }
     warnings: dict[str, int] = {}
     for row in rows:
@@ -919,6 +996,7 @@ def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         {"message": message, "count": count}
         for message, count in sorted(warnings.items(), key=lambda kv: (-kv[1], kv[0]))[:8]
     ]
+    summary["issue_samples"] = collect_issue_samples(rows)
     return summary
 
 
@@ -1831,6 +1909,7 @@ INDEX_HTML = r"""<!doctype html>
     .detail-box { background: rgba(255,255,255,.58); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
     .warning-list { display:grid; gap: 8px; }
     .warning-row { display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid var(--line); padding: 8px 0; }
+    .nowrap { white-space: nowrap; }
     .artifact-list { display:grid; gap: 6px; margin-top: 8px; }
     .artifact-row { display:grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
     .chart-wrap { min-height: 230px; }
@@ -1999,6 +2078,24 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>Filtered Distribution</h2>
       <div id="distribution" class="dist-grid"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Worst Sampled IR Records</h2>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Sample</th>
+              <th>Run</th>
+              <th>Score</th>
+              <th>Issues</th>
+              <th>Model / Prompt</th>
+              <th>Warnings</th>
+            </tr>
+          </thead>
+          <tbody id="worstSamples"></tbody>
+        </table>
+      </div>
     </section>
     <section class="panel wide-panel">
       <h2>Score And Volume Trend</h2>
@@ -2706,6 +2803,59 @@ INDEX_HTML = r"""<!doctype html>
         <div class="small">Diagnostics are aggregated from sampled run records and follow the current source/text/score/date/IR-version filters at run level.</div>
       `;
     }
+    function aggregateIssueSamples(runs) {
+      const rows = [];
+      for (const run of runs) {
+        const samples = ((run.quality_summary || {}).issue_samples || []);
+        for (const sample of samples) {
+          rows.push({
+            ...sample,
+            source_id: run.source_id,
+            source_label: run.source_label,
+            run_id: run.run_id,
+            run_key: runKey(run),
+          });
+        }
+      }
+      return rows
+        .sort((a, b) => {
+          const scoreA = a.score == null ? 999 : Number(a.score);
+          const scoreB = b.score == null ? 999 : Number(b.score);
+          return scoreA - scoreB || ((b.issues || []).length - (a.issues || []).length) || String(a.run_id).localeCompare(String(b.run_id));
+        })
+        .slice(0, 40);
+    }
+    function renderWorstSamples(runs) {
+      const samples = aggregateIssueSamples(runs);
+      if (!samples.length) {
+        document.getElementById("worstSamples").innerHTML = "<tr><td colspan='6'><span class='small'>No sampled low-score or failed records found for current filters.</span></td></tr>";
+        return;
+      }
+      document.getElementById("worstSamples").innerHTML = samples.map(sample => `
+        <tr>
+          <td>
+            <b>${escapeHtml(sample.ui_id || `row ${sample.row}`)}</b><br>
+            <span class="small">${escapeHtml(sample.query_id || "")} ${escapeHtml(sample.response_id || "")}</span><br>
+            <span class="small">${escapeHtml(sample.intent || "")}</span>
+          </td>
+          <td>
+            <b>${escapeHtml(sample.run_id)}</b><br>
+            <span class="small">${escapeHtml(sample.source_label)}</span><br>
+            <button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(sample.run_key)}')">Run details</button>
+          </td>
+          <td class="nowrap">
+            <span class="score ${scoreClass(sample.score)}">${scoreText(sample.score)}</span><br>
+            <span class="small">coverage ${metricPct(sample.content_coverage)}</span><br>
+            <span class="small">components ${fmt(sample.component_count)}</span>
+          </td>
+          <td>${(sample.issues || []).map(issue => `<span class="badge error">${escapeHtml(issue)}</span>`).join(" ") || "<span class='small'>low metric</span>"}</td>
+          <td>
+            <span class="small">${escapeHtml(sample.model || "unknown")}</span><br>
+            <span class="small">${escapeHtml(sample.prompt_version || "unknown")}</span>
+          </td>
+          <td class="small">${(sample.warnings || []).map(escapeHtml).join("<br>") || "n/a"}</td>
+        </tr>`).join("");
+    }
     function addWeightedMetric(bucket, r, key, weight) {
       const value = (r.metric_avgs || {})[key];
       if (value == null || Number.isNaN(Number(value))) return;
@@ -2954,6 +3104,7 @@ INDEX_HTML = r"""<!doctype html>
       renderRunDetails(runs);
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
+      renderWorstSamples(runs);
       renderModelComparison(runs);
       renderDistribution(runs);
       renderTrend(runs);
