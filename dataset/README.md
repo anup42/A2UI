@@ -129,10 +129,18 @@ Edit `configs/dataset_dashboard.sources.json` and enable any required source:
 - `ssh`: lists files with `ssh` and copies changed files with `scp`.
 - `command`: uses custom list/copy commands for non-standard storage.
 
-For `ssh` sources, prefer passwordless key auth with `identity_file`. If you set a non-empty
-`password`, the dashboard requires `sshpass` because OpenSSH does not accept passwords from scripts
-directly. Passwords are stored as plaintext in the private config file, so keep
-`configs/dataset_dashboard.sources.json` uncommitted.
+For `ssh` sources, prefer passwordless key auth with `identity_file`. For password auth, install
+the optional Python package `paramiko`:
+
+```
+python -m pip install paramiko
+```
+
+Then either set `password` in `configs/dataset_dashboard.sources.json`, or set
+`"ask_password": true` to type the password once per dashboard process. Prompted passwords are kept
+only in memory. Passwords stored in config are plaintext, so keep
+`configs/dataset_dashboard.sources.json` uncommitted. If you explicitly set
+`"ssh_backend": "openssh"` with a password, `sshpass` is required.
 
 `path` can be a concrete directory or a glob pattern. For example, to sync only runs whose folder
 starts with `dataset_v1`, set:

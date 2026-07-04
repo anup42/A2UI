@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import getpass
 import glob
 import json
 import os
@@ -24,6 +25,7 @@ DEFAULT_CONFIG = ROOT / "configs" / "dataset_dashboard.sources.json"
 DEFAULT_EXAMPLE_CONFIG = ROOT / "configs" / "dataset_dashboard.sources.example.json"
 DEFAULT_MIRROR_DIR = ROOT / "data" / "dashboard_mirror"
 MANIFEST_NAME = "sync_manifest.json"
+PASSWORD_CACHE: dict[str, str] = {}
 
 
 @dataclass(frozen=True)
@@ -143,6 +145,35 @@ def ssh_password(source: dict[str, Any]) -> str:
     return str(source.get("password") or "").strip()
 
 
+def ssh_cache_key(source: dict[str, Any]) -> str:
+    return f"{source.get('user') or ''}@{source.get('host') or ''}:{source.get('port') or 22}"
+
+
+def source_asks_password(source: dict[str, Any]) -> bool:
+    return bool(source.get("ask_password") or source.get("prompt_password"))
+
+
+def password_for_source(source: dict[str, Any]) -> str:
+    password = ssh_password(source)
+    if password:
+        return password
+    if not source_asks_password(source):
+        return ""
+    key = ssh_cache_key(source)
+    if key not in PASSWORD_CACHE:
+        PASSWORD_CACHE[key] = getpass.getpass(f"Password for {key}: ")
+    return PASSWORD_CACHE[key]
+
+
+def use_paramiko_ssh(source: dict[str, Any]) -> bool:
+    backend = str(source.get("ssh_backend") or "").strip().lower()
+    if backend == "paramiko":
+        return True
+    if backend == "openssh":
+        return False
+    return bool(ssh_password(source) or source_asks_password(source))
+
+
 def ssh_transport_mode(source: dict[str, Any]) -> str:
     if not ssh_password(source):
         return "openssh"
@@ -174,6 +205,42 @@ def run_command(command: list[str] | str, timeout: int | None = None) -> subproc
         errors="replace",
         timeout=timeout,
     )
+
+
+def import_paramiko() -> Any:
+    try:
+        import paramiko  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError(
+            "Password-based SSH sync requires the optional Python package 'paramiko'. "
+            "Install it with: python -m pip install paramiko"
+        ) from exc
+    return paramiko
+
+
+def connect_paramiko(source: dict[str, Any]) -> Any:
+    paramiko = import_paramiko()
+    host = str(source.get("host") or "").strip()
+    if not host:
+        raise ValueError(f"SSH source {source.get('id')} missing host")
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    identity = str(source.get("identity_file") or "").strip()
+    connect_kwargs: dict[str, Any] = {
+        "hostname": host,
+        "username": str(source.get("user") or "").strip() or None,
+        "port": int(source.get("port") or 22),
+        "timeout": int(source.get("connect_timeout_sec", 30)),
+        "look_for_keys": False,
+        "allow_agent": False,
+    }
+    password = password_for_source(source)
+    if password:
+        connect_kwargs["password"] = password
+    if identity:
+        connect_kwargs["key_filename"] = os.path.expandvars(os.path.expanduser(identity))
+    client.connect(**connect_kwargs)
+    return client
 
 
 def source_enabled(source: dict[str, Any]) -> bool:
@@ -293,7 +360,12 @@ def scp_base_command(source: dict[str, Any]) -> list[str]:
     return cmd
 
 
-def list_ssh_files(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> list[FileEntry]:
+def list_ssh_files(
+    source: dict[str, Any],
+    include_globs: list[str],
+    exclude_globs: list[str],
+    client: Any | None = None,
+) -> list[FileEntry]:
     remote_root = str(source.get("path") or "").rstrip("/")
     if not remote_root:
         raise ValueError(f"SSH source {source.get('id')} missing path")
@@ -359,12 +431,22 @@ for scan_root, prefix in roots_for_mode():
             shell_quote(json.dumps(exclude_globs)),
         ]
     )
-    cmd = ssh_base_command(source) + [remote_command]
-    result = run_command(cmd, timeout=int(source.get("list_timeout_sec", 300)))
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh list failed")
+    if client is not None:
+        stdin, stdout, stderr = client.exec_command(remote_command, timeout=int(source.get("list_timeout_sec", 300)))
+        del stdin
+        output = stdout.read().decode("utf-8", errors="replace")
+        error = stderr.read().decode("utf-8", errors="replace")
+        exit_status = stdout.channel.recv_exit_status()
+        if exit_status != 0:
+            raise RuntimeError(error.strip() or output.strip() or "ssh list failed")
+    else:
+        cmd = ssh_base_command(source) + [remote_command]
+        result = run_command(cmd, timeout=int(source.get("list_timeout_sec", 300)))
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh list failed")
+        output = result.stdout
     entries: list[FileEntry] = []
-    for line in result.stdout.splitlines():
+    for line in output.splitlines():
         try:
             obj = json.loads(line)
         except Exception:
@@ -431,6 +513,14 @@ def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> 
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
 
 
+def copy_paramiko_file(sftp: Any, dest_root: Path, entry: FileEntry) -> None:
+    if not entry.source_path:
+        raise RuntimeError(f"missing remote source path for {entry.rel}")
+    dest = dest_root / entry.rel
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    sftp.get(entry.source_path, str(dest))
+
+
 def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
     command = str(source.get("copy_command") or "").strip()
     if not command:
@@ -455,13 +545,17 @@ def sync_source(
     manifest_path = mirror_dir / source_id / f".{MANIFEST_NAME}"
     manifest = load_json(manifest_path, {"files": {}})
     previous: dict[str, Any] = manifest.get("files", {}) if isinstance(manifest, dict) else {}
+    client = None
+    sftp = None
 
     if source_type == "local":
         source_root = resolve_dataset_path(str(source.get("path") or ""), ROOT)
         entries = list_local_source_files(source, include_globs, exclude_globs)
     elif source_type == "ssh":
         source_root = None
-        entries = list_ssh_files(source, include_globs, exclude_globs)
+        client = connect_paramiko(source) if use_paramiko_ssh(source) else None
+        sftp = client.open_sftp() if client is not None else None
+        entries = list_ssh_files(source, include_globs, exclude_globs, client=client)
     elif source_type == "command":
         source_root = None
         entries = list_command_files(source, include_globs, exclude_globs)
@@ -484,12 +578,20 @@ def sync_source(
                 assert source_root is not None
                 copy_local_file(source_root, dest_root, entry)
             elif source_type == "ssh":
-                copy_ssh_file(source, dest_root, entry)
+                if sftp is not None:
+                    copy_paramiko_file(sftp, dest_root, entry)
+                else:
+                    copy_ssh_file(source, dest_root, entry)
             else:
                 copy_command_file(source, dest_root, entry.rel)
             copied += 1
         except Exception as exc:
             errors.append(f"{entry.rel}: {exc}")
+
+    if sftp is not None:
+        sftp.close()
+    if client is not None:
+        client.close()
 
     write_json(
         manifest_path,

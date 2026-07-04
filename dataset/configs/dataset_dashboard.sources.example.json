@@ -17,6 +17,8 @@
       "port": 22,
       "identity_file": "~/.ssh/id_rsa",
       "password": "",
+      "ask_password": false,
+      "ssh_backend": "",
       "path": "/home/anup/A2UI/dataset/data/runs",
       "path_match": "literal",
       "path_base": "",
