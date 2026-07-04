@@ -189,8 +189,8 @@ interval or turn it off.
 Use the run-health filter to focus on backlog, quality warnings, low content coverage, or low media
 usage, and use the sort dropdown to rank runs by freshness, score, IR count, backlog, or issue count.
 The runs table is paginated with selectable page size, while the top stats, source cards, backlog,
-quality alerts, metrics overview, model comparison, distributions, exports, and trend chart continue
-to use the full filtered run set.
+quality alerts, metrics overview, intent quality, model comparison, distributions, exports, and trend
+chart continue to use the full filtered run set.
 
 Source cards include a health badge based on the latest sync result and a `Test` action that checks
 the configured local/SSH/command source without copying files. The dashboard also shows response and
@@ -211,6 +211,9 @@ easy to distinguish from slow-but-active workers.
 The metrics overview panel shows score bands, weighted average score, weighted core metric averages,
 and sampled validation failure/repair/fallback rates for the current filters. Weighted averages use
 filtered IR count so larger runs contribute proportionally more than smoke tests.
+The intent quality panel aggregates sampled `genui.jsonl` rows by intent/domain, showing largest
+intent buckets and lowest-scoring intents with coverage, heading, table, action, image, and icon
+signals. This makes it easier to identify weak domains even when the overall score looks acceptable.
 The storage and artifacts panel shows filtered disk usage, file counts, asset/screenshot bytes,
 storage by source, largest runs, runs missing core files, and runs with generated IR but no captured
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run

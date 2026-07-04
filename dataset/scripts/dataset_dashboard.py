@@ -860,6 +860,60 @@ def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
     return {key: sums[key] / counts[key] for key in metric_keys if counts[key]}
 
 
+def collect_intent_quality(rows: list[dict[str, Any]], limit: int = 32) -> dict[str, Any]:
+    metric_keys = (
+        "content_coverage",
+        "intent_score",
+        "section_heading_coverage",
+        "table_cell_coverage",
+        "action_coverage",
+        "image_presence",
+        "icon_presence",
+        "markdown_leakage_rate",
+        "component_count",
+    )
+    stats: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        intent = str(row.get("intent") or row.get("intent_bucket") or "unknown").strip() or "unknown"
+        metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+        record = stats.setdefault(
+            intent,
+            {
+                "count": 0,
+                "score_sum": 0.0,
+                "score_count": 0,
+                "metrics": {key: {"sum": 0.0, "count": 0} for key in metric_keys},
+            },
+        )
+        record["count"] += 1
+        score = metrics.get("overall_score")
+        if isinstance(score, (int, float)):
+            record["score_sum"] += float(score)
+            record["score_count"] += 1
+        for key in metric_keys:
+            value = metrics.get(key)
+            if isinstance(value, (int, float)):
+                metric = record["metrics"][key]
+                metric["sum"] += float(value)
+                metric["count"] += 1
+
+    finalized: dict[str, Any] = {}
+    for intent, record in sorted(stats.items(), key=lambda kv: (-int(kv[1]["count"]), kv[0]))[:limit]:
+        metrics = {
+            key: metric["sum"] / metric["count"]
+            for key, metric in record["metrics"].items()
+            if metric["count"]
+        }
+        score_count = int(record.get("score_count") or 0)
+        finalized[intent] = {
+            "count": int(record.get("count") or 0),
+            "avg_score": float(record["score_sum"]) / score_count if score_count else None,
+            "score_count": score_count,
+            "metrics": metrics,
+        }
+    return finalized
+
+
 def row_issue_labels(row: dict[str, Any]) -> list[str]:
     labels: list[str] = []
     validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
@@ -1770,6 +1824,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
         "metric_avgs": collect_metric_avgs(genui_rows),
+        "intent_quality": collect_intent_quality(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
         "artifacts": run_artifacts(run_dir),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
@@ -2122,6 +2177,10 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>Filtered Metrics Overview</h2>
       <div id="metricsOverview"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Intent Quality</h2>
+      <div id="intentQuality"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Throughput And ETA</h2>
@@ -3321,6 +3380,119 @@ INDEX_HTML = r"""<!doctype html>
         <div class="small">Averages are weighted by filtered IR count per run. Validation rates use sampled genui.jsonl rows already collected for quality alerts.</div>
       `;
     }
+    const intentMetricKeys = [
+      "content_coverage",
+      "intent_score",
+      "section_heading_coverage",
+      "table_cell_coverage",
+      "action_coverage",
+      "image_presence",
+      "icon_presence",
+      "markdown_leakage_rate",
+      "component_count",
+    ];
+    function aggregateIntentQuality(runs) {
+      const byIntent = new Map();
+      for (const run of runs) {
+        for (const [intent, stats] of Object.entries(run.intent_quality || {})) {
+          const count = Number(stats.count || stats.score_count || 0);
+          if (!count) continue;
+          if (!byIntent.has(intent)) {
+            byIntent.set(intent, {intent, runs: 0, count: 0, scoreSum: 0, scoreWeight: 0, metrics: {}});
+          }
+          const target = byIntent.get(intent);
+          target.runs += 1;
+          target.count += count;
+          if (stats.avg_score != null && !Number.isNaN(Number(stats.avg_score))) {
+            target.scoreSum += Number(stats.avg_score) * count;
+            target.scoreWeight += count;
+          }
+          for (const key of intentMetricKeys) {
+            const value = (stats.metrics || {})[key];
+            if (value == null || Number.isNaN(Number(value))) continue;
+            const metric = target.metrics[key] || {sum: 0, weight: 0};
+            metric.sum += Number(value) * count;
+            metric.weight += count;
+            target.metrics[key] = metric;
+          }
+        }
+      }
+      return [...byIntent.values()].map(row => {
+        const metrics = {};
+        for (const [key, value] of Object.entries(row.metrics)) {
+          if (value.weight) metrics[key] = value.sum / value.weight;
+        }
+        return {
+          ...row,
+          avg_score: row.scoreWeight ? row.scoreSum / row.scoreWeight : null,
+          metrics,
+        };
+      });
+    }
+    function renderIntentQuality(runs) {
+      const target = document.getElementById("intentQuality");
+      const rows = aggregateIntentQuality(runs);
+      if (!rows.length) {
+        target.innerHTML = "<span class='small'>No sampled intent quality data found for current filters.</span>";
+        return;
+      }
+      const sortedByScore = [...rows].sort((a, b) => {
+        const scoreA = a.avg_score == null ? 999 : a.avg_score;
+        const scoreB = b.avg_score == null ? 999 : b.avg_score;
+        return scoreA - scoreB || b.count - a.count || a.intent.localeCompare(b.intent);
+      });
+      const sortedByVolume = [...rows].sort((a, b) => b.count - a.count || a.intent.localeCompare(b.intent));
+      const weakRows = sortedByScore.slice(0, 12).map(row => {
+        const m = row.metrics || {};
+        return `
+          <tr>
+            <td><b>${escapeHtml(row.intent)}</b><br><span class="small">${fmt(row.runs)} runs</span></td>
+            <td>${fmt(row.count)}</td>
+            <td><span class="score ${scoreClass(row.avg_score)}">${scoreText(row.avg_score)}</span></td>
+            <td class="small">
+              coverage ${metricPct(m.content_coverage)} | intent ${metricPct(m.intent_score)}<br>
+              headings ${metricPct(m.section_heading_coverage)} | table ${metricPct(m.table_cell_coverage)}<br>
+              actions ${metricPct(m.action_coverage)} | images ${metricPct(m.image_presence)} | icons ${metricPct(m.icon_presence)}
+            </td>
+          </tr>`;
+      }).join("");
+      const maxVolume = Math.max(1, ...sortedByVolume.map(row => row.count));
+      const volumeRows = sortedByVolume.slice(0, 12).map(row => {
+        const width = Math.max(3, Math.round((row.count / maxVolume) * 100));
+        return `
+          <div class="dist-row">
+            <div class="dist-label" title="${escapeHtml(row.intent)}">${escapeHtml(row.intent)}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${width}%"></div></div>
+            <div class="small">${fmt(row.count)} IR<br><span class="score ${scoreClass(row.avg_score)}">${scoreText(row.avg_score)}</span></div>
+          </div>`;
+      }).join("");
+      const best = sortedByScore.filter(row => row.avg_score != null).slice(-1)[0];
+      const weakest = sortedByScore.find(row => row.avg_score != null);
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(rows.length)}</b><br><span class="small">sampled intents</span></div>
+          <div class="detail-box"><b>${fmt(rows.reduce((a, r) => a + r.count, 0))}</b><br><span class="small">sampled IR rows</span></div>
+          <div class="detail-box"><b>${best ? escapeHtml(best.intent) : "n/a"}</b><br><span class="small">best intent ${best ? scoreText(best.avg_score) : ""}</span></div>
+          <div class="detail-box"><b>${weakest ? escapeHtml(weakest.intent) : "n/a"}</b><br><span class="small">weakest intent ${weakest ? scoreText(weakest.avg_score) : ""}</span></div>
+        </div>
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Largest Intent Buckets</h2>
+            ${volumeRows}
+          </div>
+          <div>
+            <h2>Lowest Scoring Intents</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Intent</th><th>Sampled IR</th><th>Score</th><th>Signals</th></tr></thead>
+                <tbody>${weakRows}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Intent quality is computed from sampled genui.jsonl rows per run and then aggregated across the current filtered run set. It is best used to identify weak domains, not as an exact full-dataset per-intent metric.</div>
+      `;
+    }
     function aggregateIssueSamples(runs) {
       const rows = [];
       for (const run of runs) {
@@ -3624,6 +3796,7 @@ INDEX_HTML = r"""<!doctype html>
       renderBacklog(sourceStats);
       renderQualityAlerts(runs);
       renderMetricsOverview(runs);
+      renderIntentQuality(runs);
       renderThroughputEta(runs, sourceStats);
       renderStorageArtifacts(runs, sourceStats);
       renderWorstSamples(runs);
