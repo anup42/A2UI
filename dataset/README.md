@@ -179,7 +179,9 @@ IR version dropdown, text filter, score filter, or date range filters to narrow 
 the top stats, source cards, and day-wise section recompute counts from the filtered runs. Date
 filters use each run's daily buckets, and IR version filters use each run's `gen.prompt_version`
 metadata, so query/response/IR counts reflect only matching records where available. With all
-sources selected, day-wise counts are aggregated across every matching source.
+sources selected, day-wise counts are aggregated across every matching source. The dashboard auto
+refreshes the local scan every 30 seconds by default; use the Auto refresh dropdown to change the
+interval or turn it off.
 
 One-off commands:
 

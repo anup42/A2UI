@@ -1315,6 +1315,15 @@ INDEX_HTML = r"""<!doctype html>
       </select>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
       <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
+      <label class="date-label">Auto refresh
+        <select id="autoRefreshInterval" title="Auto refresh interval">
+          <option value="0">Off</option>
+          <option value="15">15s</option>
+          <option value="30" selected>30s</option>
+          <option value="60">60s</option>
+          <option value="300">5m</option>
+        </select>
+      </label>
       <span class="status" id="status"></span>
     </div>
     <div class="sync-panel" id="syncPanel">
@@ -1360,6 +1369,8 @@ INDEX_HTML = r"""<!doctype html>
   <script>
     let current = null;
     let syncPollTimer = null;
+    let autoRefreshTimer = null;
+    let summaryLoading = false;
     const fmt = n => (n ?? 0).toLocaleString();
     const scoreClass = s => s == null ? "" : s >= 75 ? "good" : s >= 60 ? "warn" : "";
     const scoreText = s => s == null ? "n/a" : Number(s).toFixed(2);
@@ -1410,12 +1421,35 @@ INDEX_HTML = r"""<!doctype html>
       loadSyncStatus().catch(() => {});
       syncPollTimer = setInterval(() => loadSyncStatus().catch(() => {}), 1000);
     }
-    async function loadSummary() {
-      setStatus("Loading...");
-      const res = await fetch("/api/summary");
-      current = await res.json();
-      render();
-      setStatus(`Loaded ${new Date(current.generated_at).toLocaleString()}`);
+    async function loadSummary(options = {}) {
+      if (summaryLoading) return;
+      summaryLoading = true;
+      const silent = Boolean(options.silent);
+      if (!silent) setStatus("Loading...");
+      try {
+        const res = await fetch("/api/summary");
+        current = await res.json();
+        render();
+        setStatus(`${silent ? "Auto refreshed" : "Loaded"} ${new Date(current.generated_at).toLocaleString()}`);
+      } finally {
+        summaryLoading = false;
+      }
+    }
+    function startAutoRefresh() {
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+      }
+      const seconds = Number(document.getElementById("autoRefreshInterval").value || "0");
+      if (!seconds) {
+        setStatus(current ? `Loaded ${new Date(current.generated_at).toLocaleString()} | auto refresh off` : "Auto refresh off");
+        return;
+      }
+      autoRefreshTimer = setInterval(() => {
+        if (document.hidden) return;
+        loadSummary({silent: true}).catch(e => setStatus(`Auto refresh failed: ${e.message}`));
+      }, seconds * 1000);
+      if (current) setStatus(`Loaded ${new Date(current.generated_at).toLocaleString()} | auto refresh ${seconds}s`);
     }
     async function syncSources() {
       setStatus("Syncing sources...");
@@ -1692,8 +1726,9 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("scoreFilter").onchange = render;
     document.getElementById("dateFrom").onchange = render;
     document.getElementById("dateTo").onchange = render;
+    document.getElementById("autoRefreshInterval").onchange = startAutoRefresh;
     loadSyncStatus().catch(() => {});
-    loadSummary().catch(e => setStatus(`Load failed: ${e.message}`));
+    loadSummary().then(startAutoRefresh).catch(e => setStatus(`Load failed: ${e.message}`));
   </script>
 </body>
 </html>
