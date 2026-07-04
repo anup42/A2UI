@@ -130,25 +130,9 @@ Edit `configs/dataset_dashboard.sources.json` and enable any required source:
 - `command`: uses custom list/copy commands for non-standard storage.
 
 For `ssh` sources, prefer passwordless key auth with `identity_file`. If you set a non-empty
-`password`, the dashboard will use non-interactive password auth through either `sshpass` or
-PuTTY `plink`/`pscp` if those commands are installed. Passwords are stored as plaintext in the
-private config file, so keep `configs/dataset_dashboard.sources.json` uncommitted.
-On Windows, install PuTTY command-line tools or set `plink_path` and `pscp_path` to the full
-paths for `plink.exe` and `pscp.exe`.
-
-If PuTTY reports that the host is not cached and refuses to continue in batch mode, either connect
-once manually with `plink` and accept the host key, or copy the fingerprint from the PuTTY error and
-set it in the source config:
-
-```
-"host_key": "SHA256:PASTE_SERVER_FINGERPRINT_HERE"
-```
-
-For rotated hosts, multiple accepted fingerprints can be configured:
-
-```
-"host_keys": ["SHA256:FINGERPRINT_1", "SHA256:FINGERPRINT_2"]
-```
+`password`, the dashboard requires `sshpass` because OpenSSH does not accept passwords from scripts
+directly. Passwords are stored as plaintext in the private config file, so keep
+`configs/dataset_dashboard.sources.json` uncommitted.
 
 `path` can be a concrete directory or a glob pattern. For example, to sync only runs whose folder
 starts with `dataset_v1`, set:
