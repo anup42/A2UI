@@ -2422,6 +2422,10 @@ INDEX_HTML = r"""<!doctype html>
       <h2>Freshness</h2>
       <div id="freshness"></div>
     </section>
+    <section class="panel wide-panel">
+      <h2>Action Items</h2>
+      <div id="actionItems"></div>
+    </section>
     <section class="grid">
       <aside class="panel">
         <h2>Sources</h2>
@@ -2934,6 +2938,158 @@ INDEX_HTML = r"""<!doctype html>
         <div class="warning-list">${runRows || "<span class='small'>No run freshness data.</span>"}</div>
         <div class="small">Freshness follows current source, date, score, issue, text, and IR-version filters. Stale means no matching run update in 7 days; very stale means 30 days.</div>
       `;
+    }
+    function actionBadgeClass(severity) {
+      if (severity >= 80) return "error";
+      if (severity >= 50) return "warn";
+      return "ok";
+    }
+    function actionSeverityText(severity) {
+      if (severity >= 80) return "high";
+      if (severity >= 50) return "medium";
+      return "watch";
+    }
+    function addActionItem(items, item) {
+      items.push({
+        severity: Number(item.severity || 0),
+        category: item.category || "Action",
+        title: item.title || "Review item",
+        detail: item.detail || "",
+        run: item.run || null,
+        source: item.source || null,
+      });
+    }
+    function buildActionItems(runs, sources, lastSync) {
+      const items = [];
+      for (const result of lastSync?.results || []) {
+        const errors = result.errors || [];
+        if ((result.error_count || 0) > 0) {
+          addActionItem(items, {
+            severity: 95,
+            category: "Sync",
+            title: `${result.source_label || result.source_id} sync has ${fmt(result.error_count)} errors`,
+            detail: errors[0] || "Inspect source connection and mirror path.",
+            source: result.source_label || result.source_id,
+          });
+        }
+      }
+      for (const source of sources) {
+        const backlog = (source.response_backlog || 0) + (source.ir_backlog || 0);
+        if (backlog) {
+          addActionItem(items, {
+            severity: Math.min(92, 45 + Math.log10(backlog + 1) * 12),
+            category: "Backlog",
+            title: `${source.source_label} has ${fmt(backlog)} pending records`,
+            detail: `missing responses ${fmt(source.response_backlog)} | missing IR ${fmt(source.ir_backlog)}`,
+            source: source.source_label,
+          });
+        }
+        const hours = ageHours(source.latest_run_updated_at);
+        if (hours == null || hours > 24 * 7) {
+          addActionItem(items, {
+            severity: hours == null ? 72 : Math.min(90, hours > 24 * 30 ? 88 : 62),
+            category: "Freshness",
+            title: `${source.source_label} has stale or unknown updates`,
+            detail: `latest matching run update: ${ageText(source.latest_run_updated_at)}`,
+            source: source.source_label,
+          });
+        }
+      }
+      for (const run of runs) {
+        const q = run.quality_summary || {};
+        const integrity = integrityIssueCount(run);
+        const backlog = runBacklogTotal(run);
+        const artifactIssues = artifactIssueLabels(run);
+        const qualityCritical = (q.strict_schema_fail || 0) + (q.gen_errors || 0) + (q.fallback_generated || 0);
+        if ((run.missing_core_files || []).length) {
+          addActionItem(items, {
+            severity: 98,
+            category: "Files",
+            title: `${run.run_id} is missing core files`,
+            detail: (run.missing_core_files || []).join(", "),
+            run,
+            source: run.source_label,
+          });
+        }
+        if (integrity) {
+          addActionItem(items, {
+            severity: Math.min(96, 55 + Math.log10(integrity + 1) * 12),
+            category: "Integrity",
+            title: `${run.run_id} has ${fmt(integrity)} data integrity signals`,
+            detail: integrityIssueLabels(run.data_integrity || {}).join(" | ") || "Inspect ID/link integrity.",
+            run,
+            source: run.source_label,
+          });
+        }
+        if (qualityCritical) {
+          addActionItem(items, {
+            severity: Math.min(94, 60 + Math.log10(qualityCritical + 1) * 12),
+            category: "Quality",
+            title: `${run.run_id} has ${fmt(qualityCritical)} critical sampled IR issues`,
+            detail: `strict fail ${fmt(q.strict_schema_fail)} | gen errors ${fmt(q.gen_errors)} | fallback ${fmt(q.fallback_generated)}`,
+            run,
+            source: run.source_label,
+          });
+        } else if ((q.low_score || 0) || (q.markdown_leakage || 0) || (q.sparse_ir || 0)) {
+          const issueCount = (q.low_score || 0) + (q.markdown_leakage || 0) + (q.sparse_ir || 0);
+          addActionItem(items, {
+            severity: Math.min(72, 40 + Math.log10(issueCount + 1) * 10),
+            category: "Quality",
+            title: `${run.run_id} has sampled quality warnings`,
+            detail: `low score ${fmt(q.low_score)} | markdown ${fmt(q.markdown_leakage)} | sparse ${fmt(q.sparse_ir)}`,
+            run,
+            source: run.source_label,
+          });
+        }
+        if (backlog) {
+          addActionItem(items, {
+            severity: Math.min(82, 38 + Math.log10(backlog + 1) * 10),
+            category: "Backlog",
+            title: `${run.run_id} has incomplete pipeline stages`,
+            detail: `missing responses ${fmt(run.response_backlog)} | missing IR ${fmt(run.ir_backlog)}`,
+            run,
+            source: run.source_label,
+          });
+        }
+        if (artifactIssues.length) {
+          addActionItem(items, {
+            severity: 48 + artifactIssues.length * 5,
+            category: "Artifacts",
+            title: `${run.run_id} has artifact gaps`,
+            detail: artifactIssues.join(" | "),
+            run,
+            source: run.source_label,
+          });
+        }
+      }
+      return items
+        .sort((a, b) => (b.severity - a.severity) || String(a.source || "").localeCompare(String(b.source || "")) || a.title.localeCompare(b.title))
+        .slice(0, 16);
+    }
+    function renderActionItems(runs, sources, lastSync) {
+      const target = document.getElementById("actionItems");
+      if (!runs.length && !sources.length) {
+        target.innerHTML = "<span class='small'>No source or run data found.</span>";
+        return;
+      }
+      const items = buildActionItems(runs, sources, lastSync);
+      if (!items.length) {
+        target.innerHTML = "<span class='small'>No prioritized action items for the current filters.</span>";
+        return;
+      }
+      const rows = items.map(item => `
+        <div class="warning-row">
+          <span>
+            <span class="badge ${actionBadgeClass(item.severity)}">${actionSeverityText(item.severity)}</span>
+            <span class="badge">${escapeHtml(item.category)}</span>
+            <b>${escapeHtml(item.title)}</b><br>
+            <span class="small">${escapeHtml(item.detail)}${item.source ? ` | ${escapeHtml(item.source)}` : ""}</span>
+          </span>
+          ${item.run ? `<button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(item.run))}')">Details</button>` : `<span class="small">${Math.round(item.severity)}</span>`}
+        </div>`).join("");
+      target.innerHTML = `
+        <div class="warning-list">${rows}</div>
+        <div class="small">Action items are derived from the filtered run set and combine sync errors, stale sources, backlog, integrity issues, sampled generation quality, and artifact gaps.</div>`;
     }
     function getPageSize() {
       return Math.max(1, Number(document.getElementById("pageSize").value || "50"));
@@ -4503,6 +4659,7 @@ INDEX_HTML = r"""<!doctype html>
       renderLastSyncResults(current.last_sync);
       const sourceStats = filteredSourceStats(current.sources || [], runs);
       renderFreshness(runs, sourceStats, current.last_sync);
+      renderActionItems(runs, sourceStats, current.last_sync);
       renderSources(sourceStats);
       renderRuns(page.rows, page);
       renderRunDetails(runs);
