@@ -3264,6 +3264,10 @@ INDEX_HTML = r"""<!doctype html>
       <div id="promptProvenance"></div>
     </section>
     <section class="panel wide-panel">
+      <h2>Regression Watch</h2>
+      <div id="regressionWatch"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>IR Version Quality</h2>
       <div id="irVersionQuality"></div>
     </section>
@@ -5868,6 +5872,147 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <div class="small">Prompt provenance uses gen.prompt_version and related prompt/version fields from each stage. It helps identify mixed runs and compare full Stage 1 -> Stage 2 -> Stage 3 prompt lineages.</div>`;
     }
+    function regressionGroupKey(run) {
+      return [
+        run.source_id || "",
+        dominantModel(run.response_models),
+        dominantModel(run.ir_models),
+        dominantPromptVersion(run.ir_prompt_versions || run.ir_versions || {}),
+      ].join("||");
+    }
+    function regressionGroupLabel(run) {
+      return [
+        run.source_label || "unknown source",
+        `${dominantModel(run.response_models)} -> ${dominantModel(run.ir_models)}`,
+        dominantPromptVersion(run.ir_prompt_versions || run.ir_versions || {}),
+      ].join(" | ");
+    }
+    function scoreDeltaText(delta) {
+      if (delta == null || Number.isNaN(Number(delta))) return "n/a";
+      const value = Number(delta);
+      return `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
+    }
+    function deltaBadge(delta) {
+      if (delta == null || Number.isNaN(Number(delta))) return "<span class='small'>n/a</span>";
+      const value = Number(delta);
+      const klass = value < -5 ? "error" : value < -2 ? "warn" : value >= 2 ? "ok" : "";
+      return `<span class="badge ${klass}">${scoreDeltaText(value)}</span>`;
+    }
+    function buildRegressionWatch(runs) {
+      const byGroup = new Map();
+      for (const run of runs) {
+        if ((run.genui || 0) <= 0) continue;
+        const score = run.display_score ?? run.overall_score;
+        if (score == null || Number.isNaN(Number(score))) continue;
+        const key = regressionGroupKey(run);
+        if (!byGroup.has(key)) byGroup.set(key, []);
+        byGroup.get(key).push(run);
+      }
+      const comparisons = [];
+      for (const groupRuns of byGroup.values()) {
+        groupRuns.sort((a, b) => (timestampMs(b.updated_at) || 0) - (timestampMs(a.updated_at) || 0));
+        if (groupRuns.length < 2) continue;
+        const latest = groupRuns[0];
+        const previous = groupRuns[1];
+        const latestScore = Number(latest.display_score ?? latest.overall_score);
+        const previousScore = Number(previous.display_score ?? previous.overall_score);
+        comparisons.push({
+          latest,
+          previous,
+          groupLabel: regressionGroupLabel(latest),
+          latestScore,
+          previousScore,
+          delta: latestScore - previousScore,
+          irDelta: Number(latest.genui || 0) - Number(previous.genui || 0),
+        });
+      }
+      const regressions = comparisons
+        .filter(item => item.delta < -1)
+        .sort((a, b) => a.delta - b.delta || (timestampMs(b.latest.updated_at) || 0) - (timestampMs(a.latest.updated_at) || 0))
+        .slice(0, 12);
+      const improvements = comparisons
+        .filter(item => item.delta > 1)
+        .sort((a, b) => b.delta - a.delta || (timestampMs(b.latest.updated_at) || 0) - (timestampMs(a.latest.updated_at) || 0))
+        .slice(0, 8);
+      const latestWeak = [...runs]
+        .filter(run => (run.genui || 0) > 0 && (run.display_score ?? run.overall_score) != null && Number(run.display_score ?? run.overall_score) < 75)
+        .sort((a, b) => (timestampMs(b.updated_at) || 0) - (timestampMs(a.updated_at) || 0))
+        .slice(0, 12);
+      return {comparisons, regressions, improvements, latestWeak};
+    }
+    function renderRegressionRows(rows) {
+      return rows.map(item => `
+        <tr>
+          <td>
+            <b>${escapeHtml(item.latest.run_id)}</b><br>
+            <span class="small">${escapeHtml(item.groupLabel)}</span><br>
+            <button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(item.latest))}')">Latest</button>
+            <button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(item.previous))}')">Previous</button>
+          </td>
+          <td><span class="score ${scoreClass(item.latestScore)}">${scoreText(item.latestScore)}</span><br><span class="small">${ageText(item.latest.updated_at)}</span></td>
+          <td><span class="score ${scoreClass(item.previousScore)}">${scoreText(item.previousScore)}</span><br><span class="small">${ageText(item.previous.updated_at)}</span></td>
+          <td>${deltaBadge(item.delta)}<br><span class="small">IR ${scoreDeltaText(item.irDelta)}</span></td>
+          <td class="small">latest Q/R/IR ${fmt(item.latest.queries)} / ${fmt(item.latest.responses)} / ${fmt(item.latest.genui)}<br>prev Q/R/IR ${fmt(item.previous.queries)} / ${fmt(item.previous.responses)} / ${fmt(item.previous.genui)}</td>
+        </tr>`).join("");
+    }
+    function renderLatestWeakRows(rows) {
+      return rows.map(run => {
+        const score = run.display_score ?? run.overall_score;
+        const issues = [
+          (run.response_backlog || 0) ? `missing R ${fmt(run.response_backlog)}` : "",
+          (run.ir_backlog || 0) ? `missing IR ${fmt(run.ir_backlog)}` : "",
+          qualityIssueCount(run) ? `quality ${fmt(qualityIssueCount(run))}` : "",
+          integrityIssueCount(run) ? `integrity ${fmt(integrityIssueCount(run))}` : "",
+          logIssueCount(run) ? `logs ${fmt(logIssueCount(run))}` : "",
+        ].filter(Boolean);
+        return `
+          <tr>
+            <td><b>${escapeHtml(run.run_id)}</b><br><span class="small">${escapeHtml(run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(run))}')">Details</button></td>
+            <td><span class="score ${scoreClass(score)}">${scoreText(score)}</span><br><span class="small">${ageText(run.updated_at)}</span></td>
+            <td>${fmt(run.queries)} / ${fmt(run.responses)} / ${fmt(run.genui)}</td>
+            <td class="small">${issues.join("<br>") || "low score"}</td>
+          </tr>`;
+      }).join("");
+    }
+    function renderRegressionWatch(runs) {
+      const target = document.getElementById("regressionWatch");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const data = buildRegressionWatch(runs);
+      const worstDrop = data.regressions[0];
+      const bestGain = data.improvements[0];
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(data.comparisons.length)}</b><br><span class="small">comparable source/model/prompt groups</span></div>
+          <div class="detail-box"><b>${fmt(data.regressions.length)}</b><br><span class="small">latest runs down >1 score point</span></div>
+          <div class="detail-box"><b>${worstDrop ? scoreDeltaText(worstDrop.delta) : "n/a"}</b><br><span class="small">largest latest drop</span></div>
+          <div class="detail-box"><b>${bestGain ? scoreDeltaText(bestGain.delta) : "n/a"}</b><br><span class="small">largest latest gain</span></div>
+          <div class="detail-box"><b>${fmt(data.latestWeak.length)}</b><br><span class="small">recent sampled runs below 75</span></div>
+        </div>
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Latest Regressions</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run / Lineage</th><th>Latest</th><th>Previous</th><th>Delta</th><th>Volume</th></tr></thead>
+                <tbody>${renderRegressionRows(data.regressions) || "<tr><td colspan='5'><span class='small'>No latest score drops found for comparable groups.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2>Recent Weak Runs</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run</th><th>Score</th><th>Q / R / IR</th><th>Signals</th></tr></thead>
+                <tbody>${renderLatestWeakRows(data.latestWeak) || "<tr><td colspan='4'><span class='small'>No recent weak runs under the current filters.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Comparisons group runs by source, dominant Stage 2 model, dominant Stage 3 model, and dominant Stage 3 prompt version. This is a lightweight regression signal; use run details to inspect exact samples.</div>`;
+    }
     function addMapCount(map, key, count = 1) {
       const label = String(key || "unknown");
       map.set(label, (map.get(label) || 0) + Number(count || 0));
@@ -6297,6 +6442,7 @@ INDEX_HTML = r"""<!doctype html>
       renderWorstSamples(runs);
       renderModelComparison(runs);
       renderPromptProvenance(runs);
+      renderRegressionWatch(runs);
       renderIrVersionQuality(runs);
       renderUsagePanel(runs);
       renderDistribution(runs);

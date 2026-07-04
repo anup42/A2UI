@@ -251,6 +251,9 @@ The prompt provenance panel aggregates Stage 1 query prompt versions, Stage 2 re
 versions, and Stage 3 IR prompt versions. It shows full prompt lineages, highlights runs that mix
 multiple prompt versions inside one stage, and makes prompt-version strings searchable from the main
 text filter. CSV exports include all three stage prompt-version columns.
+The regression watch panel compares the latest run against the previous run with the same source,
+dominant Stage 2 model, dominant Stage 3 model, and Stage 3 prompt version. It highlights score
+drops, recent weak runs, and links directly to latest/previous run details for inspection.
 The storage and artifacts panel shows filtered disk usage, file counts, asset/screenshot bytes,
 storage by source, largest runs, runs missing core files, and runs with generated IR but no captured
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
