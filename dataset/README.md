@@ -224,6 +224,10 @@ easy to distinguish from slow-but-active workers.
 The metrics overview panel shows score bands, weighted average score, weighted core metric averages,
 and sampled validation failure/repair/fallback rates for the current filters. Weighted averages use
 filtered IR count so larger runs contribute proportionally more than smoke tests.
+The metric risk panel applies heuristic thresholds to per-run sampled metric averages and lists the
+most common failing quality dimensions plus the highest-risk runs. Use the `Metric risk` run-health
+filter or `Sort: metric risk` to isolate runs likely failing due to low coverage, missing
+headings/tables/actions/media, markdown leakage, or sparse structure.
 The training readiness panel estimates how many response-to-IR pairs are usable for SFT/evaluation
 at common score thresholds. It combines paired response/IR counts with sampled Stage 3 gates: JSON
 parse success, strict schema pass, no generation error, no fallback, no markdown leakage, and score

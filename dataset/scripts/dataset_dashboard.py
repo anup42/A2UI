@@ -3167,6 +3167,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="integrity">Data integrity issues</option>
         <option value="duplicates">Content duplicates</option>
         <option value="logs">Log issues</option>
+        <option value="metric_risk">Metric risk</option>
         <option value="low_coverage">Low content coverage</option>
         <option value="low_media">Low media usage</option>
         <option value="media_refs">Broken media refs</option>
@@ -3184,6 +3185,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="integrity_desc">Sort: integrity issues</option>
         <option value="duplicates_desc">Sort: content duplicates</option>
         <option value="logs_desc">Sort: log issues</option>
+        <option value="metric_risk_desc">Sort: metric risk</option>
         <option value="source_run">Sort: source/run</option>
       </select>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
@@ -3298,6 +3300,10 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>Filtered Metrics Overview</h2>
       <div id="metricsOverview"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Metric Risk</h2>
+      <div id="metricRisk"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Training Readiness</h2>
@@ -3602,6 +3608,7 @@ INDEX_HTML = r"""<!doctype html>
         "source_id","source_label","run_id","queries","responses","genui","missing_responses","missing_ir",
         "query_to_response_rate","response_to_ir_rate","query_to_ir_rate",
         "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
+        "content_coverage_avg","intent_score_avg","section_heading_coverage_avg","table_cell_coverage_avg","action_coverage_avg","image_presence_avg","icon_presence_avg","markdown_leakage_rate_avg","component_count_avg",
         "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
         "duplicate_query_rows","duplicate_response_rows","duplicate_ir_rows","duplicate_query_rate","duplicate_response_rate","duplicate_ir_rate",
         "log_files","log_issues","log_latest_updated_at",
@@ -3631,6 +3638,15 @@ INDEX_HTML = r"""<!doctype html>
           r.total_bytes,
           r.file_count,
           (r.missing_core_files || []).join("; "),
+          r.metric_avgs?.content_coverage ?? "",
+          r.metric_avgs?.intent_score ?? "",
+          r.metric_avgs?.section_heading_coverage ?? "",
+          r.metric_avgs?.table_cell_coverage ?? "",
+          r.metric_avgs?.action_coverage ?? "",
+          r.metric_avgs?.image_presence ?? "",
+          r.metric_avgs?.icon_presence ?? "",
+          r.metric_avgs?.markdown_leakage_rate ?? "",
+          r.metric_avgs?.component_count ?? "",
           r.data_integrity?.total_issues || 0,
           r.data_integrity?.parse_error_count || 0,
           r.data_integrity?.duplicate_id_count || 0,
@@ -4131,6 +4147,7 @@ INDEX_HTML = r"""<!doctype html>
         if (f.issue === "integrity" && !integrityIssueCount(r)) return false;
         if (f.issue === "duplicates" && !contentDuplicateTotal(r)) return false;
         if (f.issue === "logs" && !logIssueCount(r)) return false;
+        if (f.issue === "metric_risk" && !metricRiskForRun(r).length) return false;
         if (f.issue === "media_refs" && !mediaIssueCount(r)) return false;
         if (f.issue === "low_coverage" && !(metrics.content_coverage != null && metrics.content_coverage < 0.65)) return false;
         if (f.issue === "low_media" && !((metrics.image_presence ?? 0) < 0.25 && (metrics.icon_presence ?? 0) < 0.25)) return false;
@@ -4156,6 +4173,7 @@ INDEX_HTML = r"""<!doctype html>
         if (sortBy === "integrity_desc") return integrityIssueCount(b) - integrityIssueCount(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "duplicates_desc") return contentDuplicateTotal(b) - contentDuplicateTotal(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "logs_desc") return logIssueCount(b) - logIssueCount(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "metric_risk_desc") return metricRiskScore(b) - metricRiskScore(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "source_run") return textValue(a).localeCompare(textValue(b));
         return updatedValue(b) - updatedValue(a) || textValue(a).localeCompare(textValue(b));
       });
@@ -4702,6 +4720,8 @@ INDEX_HTML = r"""<!doctype html>
           <div class="detail-box"><b>${metricPct(m.action_coverage)}</b><br><span class="small">action coverage</span></div>
           <div class="detail-box"><b>${metricPct(m.image_presence)}</b><br><span class="small">image presence</span></div>
         </div>
+        <h2>Metric Risk</h2>
+        <div class="warning-list">${metricRiskBadges(selected, 8) || "<span class='small'>No sampled metric risks for this run.</span>"}</div>
         <h2>Validation Warnings</h2>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
         <h2>Training Readiness</h2>
@@ -5327,10 +5347,52 @@ INDEX_HTML = r"""<!doctype html>
       {key: "component_count", label: "Components", kind: "number"},
       {key: "max_tree_depth", label: "Max depth", kind: "number"},
     ];
+    const metricRiskRules = [
+      {key: "content_coverage", label: "Content coverage", kind: "pct", direction: "low", threshold: 0.65, weight: 1.5},
+      {key: "intent_score", label: "Intent score", kind: "pct", direction: "low", threshold: 0.70, weight: 1.5},
+      {key: "section_heading_coverage", label: "Heading coverage", kind: "pct", direction: "low", threshold: 0.50, weight: 1.1},
+      {key: "table_cell_coverage", label: "Table coverage", kind: "pct", direction: "low", threshold: 0.40, weight: 1.0},
+      {key: "action_coverage", label: "Action coverage", kind: "pct", direction: "low", threshold: 0.50, weight: 1.0},
+      {key: "image_presence", label: "Image presence", kind: "pct", direction: "low", threshold: 0.25, weight: 0.8},
+      {key: "icon_presence", label: "Icon presence", kind: "pct", direction: "low", threshold: 0.25, weight: 0.8},
+      {key: "markdown_leakage_rate", label: "Markdown leakage", kind: "pct_low", direction: "high", threshold: 0.01, weight: 1.0},
+      {key: "component_count", label: "Components", kind: "number", direction: "low", threshold: 12, weight: 0.8},
+    ];
     function metricDisplay(metric, value) {
       if (value == null) return "n/a";
       if (metric.kind === "pct" || metric.kind === "pct_low") return metricPct(value);
       return Number(value).toFixed(Number(value) >= 10 ? 1 : 2);
+    }
+    function metricRiskGap(rule, value) {
+      if (value == null || Number.isNaN(Number(value))) return null;
+      const actual = Number(value);
+      const threshold = Number(rule.threshold);
+      if (rule.direction === "high") {
+        if (actual <= threshold) return null;
+        return Math.max(0.1, actual - threshold) * Number(rule.weight || 1);
+      }
+      if (actual >= threshold) return null;
+      const base = threshold ? (threshold - actual) / Math.abs(threshold) : threshold - actual;
+      return Math.max(0.1, base) * Number(rule.weight || 1);
+    }
+    function metricRiskForRun(run) {
+      const metrics = run.metric_avgs || {};
+      const failures = [];
+      for (const rule of metricRiskRules) {
+        const value = metrics[rule.key];
+        const gap = metricRiskGap(rule, value);
+        if (gap == null) continue;
+        failures.push({...rule, value, gap});
+      }
+      failures.sort((a, b) => b.gap - a.gap || a.label.localeCompare(b.label));
+      return failures;
+    }
+    function metricRiskScore(run) {
+      return metricRiskForRun(run).reduce((sum, item) => sum + item.gap, 0);
+    }
+    function metricRiskBadges(run, limit = 4) {
+      const failures = metricRiskForRun(run).slice(0, limit);
+      return failures.map(item => `<span class="badge warn">${escapeHtml(item.label)} ${metricDisplay(item, item.value)}</span>`).join(" ");
     }
     function aggregateMetricsOverview(runs) {
       const scoreBands = [
@@ -5430,6 +5492,97 @@ INDEX_HTML = r"""<!doctype html>
           </div>
         </div>
         <div class="small">Averages are weighted by filtered IR count per run. Validation rates use sampled genui.jsonl rows already collected for quality alerts.</div>
+      `;
+    }
+    function aggregateMetricRisk(runs) {
+      const metricBuckets = new Map(metricRiskRules.map(rule => [
+        rule.key,
+        {...rule, affectedRuns: 0, affectedIr: 0, valueSum: 0, valueWeight: 0, worstRun: null, worstValue: null, worstGap: 0},
+      ]));
+      const riskyRuns = [];
+      for (const run of runs) {
+        const failures = metricRiskForRun(run);
+        if (!failures.length) continue;
+        const riskScore = metricRiskScore(run);
+        riskyRuns.push({run, failures, riskScore});
+        const weight = Math.max(1, Number(run.genui || 0));
+        for (const failure of failures) {
+          const bucket = metricBuckets.get(failure.key);
+          bucket.affectedRuns += 1;
+          bucket.affectedIr += Number(run.genui || 0);
+          bucket.valueSum += Number(failure.value) * weight;
+          bucket.valueWeight += weight;
+          if (bucket.worstRun == null || failure.gap > bucket.worstGap) {
+            bucket.worstRun = run;
+            bucket.worstValue = failure.value;
+            bucket.worstGap = failure.gap;
+          }
+        }
+      }
+      return {
+        affectedRuns: riskyRuns.length,
+        riskSignals: riskyRuns.reduce((sum, row) => sum + row.failures.length, 0),
+        metricRows: [...metricBuckets.values()]
+          .filter(row => row.affectedRuns)
+          .map(row => ({...row, avgValue: row.valueWeight ? row.valueSum / row.valueWeight : null}))
+          .sort((a, b) => b.affectedRuns - a.affectedRuns || b.affectedIr - a.affectedIr || a.label.localeCompare(b.label)),
+        riskyRuns: riskyRuns
+          .sort((a, b) => b.riskScore - a.riskScore || String(a.run.run_id).localeCompare(String(b.run.run_id)))
+          .slice(0, 12),
+      };
+    }
+    function renderMetricRisk(runs) {
+      const target = document.getElementById("metricRisk");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const risk = aggregateMetricRisk(runs);
+      const topMetric = risk.metricRows[0];
+      const metricRows = risk.metricRows.map(row => `
+        <tr>
+          <td><b>${escapeHtml(row.label)}</b><br><span class="small">${row.direction === "high" ? ">" : "<"} ${metricDisplay(row, row.threshold)}</span></td>
+          <td>${fmt(row.affectedRuns)}</td>
+          <td>${fmt(row.affectedIr)}</td>
+          <td>${metricDisplay(row, row.avgValue)}</td>
+          <td>${metricDisplay(row, row.worstValue)}<br><span class="small">${row.worstRun ? escapeHtml(row.worstRun.run_id) : "n/a"}</span></td>
+        </tr>`).join("");
+      const runRows = risk.riskyRuns.map(row => `
+        <tr>
+          <td><b>${escapeHtml(row.run.run_id)}</b><br><span class="small">${escapeHtml(row.run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(row.run))}')">Details</button></td>
+          <td><span class="score ${scoreClass(row.run.display_score ?? row.run.overall_score)}">${scoreText(row.run.display_score ?? row.run.overall_score)}</span></td>
+          <td>${fmt(row.failures.length)}<br><span class="small">risk ${row.riskScore.toFixed(2)}</span></td>
+          <td>${metricRiskBadges(row.run, 6) || "<span class='small'>none</span>"}</td>
+          <td class="small">Q/R/IR ${fmt(row.run.queries)} / ${fmt(row.run.responses)} / ${fmt(row.run.genui)}</td>
+        </tr>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(risk.affectedRuns)}</b><br><span class="small">runs with metric risk</span></div>
+          <div class="detail-box"><b>${fmt(risk.riskSignals)}</b><br><span class="small">metric risk signals</span></div>
+          <div class="detail-box"><b>${topMetric ? escapeHtml(topMetric.label) : "none"}</b><br><span class="small">most common risk</span></div>
+          <div class="detail-box"><b>${topMetric ? fmt(topMetric.affectedRuns) : "0"}</b><br><span class="small">runs affected by top risk</span></div>
+        </div>
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Risk By Metric</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Metric</th><th>Runs</th><th>IR</th><th>Avg Failing Value</th><th>Worst</th></tr></thead>
+                <tbody>${metricRows || "<tr><td colspan='5'><span class='small'>No metric risks found.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2>Highest Risk Runs</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run</th><th>Score</th><th>Risks</th><th>Signals</th><th>Volume</th></tr></thead>
+                <tbody>${runRows || "<tr><td colspan='5'><span class='small'>No metric risks found.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Metric risk uses heuristic thresholds over per-run sampled metric averages. It complements score bands by showing the likely failing quality dimension.</div>
       `;
     }
     function aggregateTrainingReadiness(runs) {
@@ -6672,6 +6825,7 @@ INDEX_HTML = r"""<!doctype html>
       renderDataIntegrity(runs);
       renderContentDuplicates(runs);
       renderMetricsOverview(runs);
+      renderMetricRisk(runs);
       renderTrainingReadiness(runs);
       renderIrStructure(runs);
       renderMediaHealth(runs);
