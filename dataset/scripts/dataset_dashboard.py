@@ -962,6 +962,35 @@ def collect_model_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
+def prompt_version_for_row(row: dict[str, Any]) -> str:
+    gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+    candidates = [
+        gen.get("prompt_version"),
+        row.get("prompt_version"),
+        gen.get("prompt_id"),
+        row.get("prompt_id"),
+        gen.get("template_version"),
+        row.get("template_version"),
+        row.get("ir_version"),
+        gen.get("ir_version"),
+        row.get("schema_version"),
+        row.get("version"),
+    ]
+    for candidate in candidates:
+        text = str(candidate or "").strip()
+        if text:
+            return text
+    return "unknown"
+
+
+def collect_prompt_versions(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        version = prompt_version_for_row(row)
+        counts[version] = counts.get(version, 0) + 1
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
 def collect_generation_usage(rows: list[dict[str, Any]]) -> dict[str, Any]:
     totals: dict[str, Any] = {
         "count": 0,
@@ -1875,20 +1904,7 @@ def collect_record_samples(
 
 
 def ir_version_for_row(row: dict[str, Any]) -> str:
-    gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
-    candidates = [
-        gen.get("prompt_version"),
-        row.get("prompt_version"),
-        row.get("ir_version"),
-        gen.get("ir_version"),
-        row.get("schema_version"),
-        row.get("version"),
-    ]
-    for candidate in candidates:
-        text = str(candidate or "").strip()
-        if text:
-            return text
-    return "unknown"
+    return prompt_version_for_row(row)
 
 
 def collect_ir_version_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
@@ -2806,6 +2822,9 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "query_models": collect_model_counts(query_rows),
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
+        "query_prompt_versions": collect_prompt_versions(query_rows),
+        "response_prompt_versions": collect_prompt_versions(response_rows),
+        "ir_prompt_versions": collect_prompt_versions(genui_rows),
         "query_usage": collect_generation_usage(query_rows),
         "response_usage": collect_generation_usage(response_rows),
         "ir_usage": collect_generation_usage(genui_rows),
@@ -3237,6 +3256,10 @@ INDEX_HTML = r"""<!doctype html>
       </div>
     </section>
     <section class="panel wide-panel">
+      <h2>Prompt Provenance</h2>
+      <div id="promptProvenance"></div>
+    </section>
+    <section class="panel wide-panel">
       <h2>IR Version Quality</h2>
       <div id="irVersionQuality"></div>
     </section>
@@ -3491,7 +3514,7 @@ INDEX_HTML = r"""<!doctype html>
         "record_sample_count",
         "paired_records","estimated_ready_score70","estimated_ready_score80","sample_ready_score70","sample_strict_valid",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
-        "updated_at","response_model","ir_model","ir_versions","path",
+        "updated_at","response_model","ir_model","query_prompt_versions","response_prompt_versions","ir_prompt_versions","ir_versions","path",
       ];
       const rows = runs.map(r => [
         r.source_id,
@@ -3536,6 +3559,9 @@ INDEX_HTML = r"""<!doctype html>
         r.updated_at,
         dominantModel(r.response_models),
         dominantModel(r.ir_models),
+        Object.keys(r.query_prompt_versions || {}).join("; "),
+        Object.keys(r.response_prompt_versions || {}).join("; "),
+        Object.keys(r.ir_prompt_versions || {}).join("; "),
         Object.keys(r.ir_versions || {}).join("; "),
         r.path,
       ]);
@@ -3961,7 +3987,18 @@ INDEX_HTML = r"""<!doctype html>
       return counts.score_count ? counts.score_sum / counts.score_count : r.overall_score;
     }
     function runMatches(r, f) {
-      const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.ir_versions, r.intents]).toLowerCase();
+      const hay = JSON.stringify([
+        r.source_label,
+        r.run_id,
+        r.query_models,
+        r.response_models,
+        r.ir_models,
+        r.query_prompt_versions,
+        r.response_prompt_versions,
+        r.ir_prompt_versions,
+        r.ir_versions,
+        r.intents,
+      ]).toLowerCase();
       if (f.sourceId && r.source_id !== f.sourceId) return false;
       if (f.irVersion && !(r.ir_version_stats || {})[f.irVersion]) return false;
       if (f.text && !hay.includes(f.text)) return false;
@@ -4488,6 +4525,8 @@ INDEX_HTML = r"""<!doctype html>
           <div class="detail-box"><b>IR versions</b><br><span class="small">${versionText(selected.ir_versions)}</span></div>
           <div class="detail-box"><b>Intents</b><br><span class="small">${modelText(selected.intents)}</span></div>
         </div>
+        <h2>Prompt Provenance</h2>
+        ${renderPromptVersionDetails(selected)}
         <div class="detail-grid">
           <div class="detail-box"><b>${metricPct(m.content_coverage)}</b><br><span class="small">content coverage</span></div>
           <div class="detail-box"><b>${metricPct(m.intent_score)}</b><br><span class="small">intent score</span></div>
@@ -5548,6 +5587,130 @@ INDEX_HTML = r"""<!doctype html>
           </tr>`;
       }).join("");
     }
+    const promptStageDefs = [
+      {key: "query_prompt_versions", label: "Stage 1 Query", countKey: "queries"},
+      {key: "response_prompt_versions", label: "Stage 2 Response", countKey: "responses"},
+      {key: "ir_prompt_versions", label: "Stage 3 IR", countKey: "genui"},
+    ];
+    function dominantPromptVersion(counts) {
+      const entries = Object.entries(counts || {});
+      return entries.length ? entries[0][0] : "unknown";
+    }
+    function promptVersionCount(counts) {
+      return Object.keys(counts || {}).length;
+    }
+    function renderPromptVersionDetails(run) {
+      const boxes = promptStageDefs.map(stage => {
+        const counts = run[stage.key] || {};
+        const total = Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0);
+        const versionCount = promptVersionCount(counts);
+        return `<div class="detail-box"><b>${escapeHtml(dominantPromptVersion(counts))}</b><br><span class="small">${escapeHtml(stage.label)} | ${fmt(total)} rows | ${fmt(versionCount)} version${versionCount === 1 ? "" : "s"}</span></div>`;
+      }).join("");
+      return `
+        <div class="detail-grid">${boxes}</div>
+        <div class="dist-grid">
+          ${renderStructureCountBlock("Stage 1 Prompt Versions", sortedObjectEntries(run.query_prompt_versions || {}, 8))}
+          ${renderStructureCountBlock("Stage 2 Prompt Versions", sortedObjectEntries(run.response_prompt_versions || {}, 8))}
+          ${renderStructureCountBlock("Stage 3 Prompt Versions", sortedObjectEntries(run.ir_prompt_versions || run.ir_versions || {}, 8))}
+        </div>`;
+    }
+    function aggregatePromptProvenance(runs) {
+      const stageMaps = {
+        query_prompt_versions: new Map(),
+        response_prompt_versions: new Map(),
+        ir_prompt_versions: new Map(),
+      };
+      const mixedRuns = [];
+      const triples = new Map();
+      for (const run of runs) {
+        const triple = [];
+        for (const stage of promptStageDefs) {
+          const counts = run[stage.key] || {};
+          addStructureCounts(stageMaps[stage.key], counts);
+          const versionCount = promptVersionCount(counts);
+          const dominant = dominantPromptVersion(counts);
+          triple.push(dominant);
+          if (versionCount > 1) {
+            mixedRuns.push({run, stage: stage.label, versionCount, dominant, rows: Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0)});
+          }
+        }
+        const key = triple.join(" -> ");
+        if (!triples.has(key)) {
+          triples.set(key, {key, runs: 0, genui: 0, scoreSum: 0, scoreWeight: 0});
+        }
+        const bucket = triples.get(key);
+        const weight = Math.max(1, run.genui || 0);
+        bucket.runs += 1;
+        bucket.genui += run.genui || 0;
+        const score = run.display_score ?? run.overall_score;
+        if (score != null) {
+          bucket.scoreSum += Number(score) * weight;
+          bucket.scoreWeight += weight;
+        }
+      }
+      return {
+        stage_versions: {
+          query_prompt_versions: topCounts(stageMaps.query_prompt_versions, 12),
+          response_prompt_versions: topCounts(stageMaps.response_prompt_versions, 12),
+          ir_prompt_versions: topCounts(stageMaps.ir_prompt_versions, 12),
+        },
+        mixed_runs: mixedRuns.sort((a, b) => (b.versionCount - a.versionCount) || String(a.run.run_id).localeCompare(String(b.run.run_id))).slice(0, 12),
+        triples: [...triples.values()]
+          .map(bucket => ({...bucket, avg_score: bucket.scoreWeight ? bucket.scoreSum / bucket.scoreWeight : null}))
+          .sort((a, b) => (b.genui - a.genui) || a.key.localeCompare(b.key))
+          .slice(0, 12),
+      };
+    }
+    function renderPromptProvenance(runs) {
+      const target = document.getElementById("promptProvenance");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const data = aggregatePromptProvenance(runs);
+      const mixedRows = data.mixed_runs.map(item => `
+        <tr>
+          <td><b>${escapeHtml(item.run.run_id)}</b><br><span class="small">${escapeHtml(item.run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(item.run))}')">Details</button></td>
+          <td>${escapeHtml(item.stage)}</td>
+          <td>${fmt(item.versionCount)}</td>
+          <td>${escapeHtml(item.dominant)}</td>
+          <td>${fmt(item.rows)}</td>
+        </tr>`).join("");
+      const tripleRows = data.triples.map(item => `
+        <tr>
+          <td><span class="small">${escapeHtml(item.key)}</span></td>
+          <td>${fmt(item.runs)}</td>
+          <td>${fmt(item.genui)}</td>
+          <td><span class="score ${scoreClass(item.avg_score)}">${scoreText(item.avg_score)}</span></td>
+        </tr>`).join("");
+      target.innerHTML = `
+        <div class="dist-grid">
+          ${renderStructureCountBlock("Stage 1 Query Prompts", data.stage_versions.query_prompt_versions)}
+          ${renderStructureCountBlock("Stage 2 Response Prompts", data.stage_versions.response_prompt_versions)}
+          ${renderStructureCountBlock("Stage 3 IR Prompts", data.stage_versions.ir_prompt_versions)}
+        </div>
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Prompt Combinations</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Stage 1 -> Stage 2 -> Stage 3</th><th>Runs</th><th>IR</th><th>Score</th></tr></thead>
+                <tbody>${tripleRows || "<tr><td colspan='4'><span class='small'>No prompt combinations found.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2>Mixed Prompt Runs</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run</th><th>Stage</th><th>Versions</th><th>Dominant</th><th>Rows</th></tr></thead>
+                <tbody>${mixedRows || "<tr><td colspan='5'><span class='small'>No mixed prompt-version runs in current filters.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Prompt provenance uses gen.prompt_version and related prompt/version fields from each stage. It helps identify mixed runs and compare full Stage 1 -> Stage 2 -> Stage 3 prompt lineages.</div>`;
+    }
     function addMapCount(map, key, count = 1) {
       const label = String(key || "unknown");
       map.set(label, (map.get(label) || 0) + Number(count || 0));
@@ -5975,6 +6138,7 @@ INDEX_HTML = r"""<!doctype html>
       renderStorageArtifacts(runs, sourceStats);
       renderWorstSamples(runs);
       renderModelComparison(runs);
+      renderPromptProvenance(runs);
       renderIrVersionQuality(runs);
       renderUsagePanel(runs);
       renderDistribution(runs);

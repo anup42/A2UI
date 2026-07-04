@@ -243,12 +243,17 @@ signals. This makes it easier to identify weak domains even when the overall sco
 The token/cost/latency panel aggregates available `gen` metadata by stage and model, including input
 tokens, output tokens, total tokens, average latency, known cost, and generation errors. CSV exports
 include Stage 2 and Stage 3 token, latency, and cost fields for each filtered run.
+The prompt provenance panel aggregates Stage 1 query prompt versions, Stage 2 response prompt
+versions, and Stage 3 IR prompt versions. It shows full prompt lineages, highlights runs that mix
+multiple prompt versions inside one stage, and makes prompt-version strings searchable from the main
+text filter. CSV exports include all three stage prompt-version columns.
 The storage and artifacts panel shows filtered disk usage, file counts, asset/screenshot bytes,
 storage by source, largest runs, runs missing core files, and runs with generated IR but no captured
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
 view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
-warnings, training readiness, IR structure, media health, sampled records, and metric breakdowns.
+warnings, prompt provenance, training readiness, IR structure, media health, sampled records, and
+metric breakdowns.
 Sampled records show issue-prioritized query text, response previews, score, validation notes, and
 compact IR component summaries so failing examples can be inspected without opening JSONL files.
 `Export CSV` and `Export JSON` download the currently filtered run view, which is useful for sharing
