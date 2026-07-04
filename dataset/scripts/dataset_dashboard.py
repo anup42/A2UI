@@ -1767,6 +1767,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         responses = sum(r["responses"] for r in source_runs)
         genui = sum(r["genui"] for r in source_runs)
         backlog = backlog_summary(queries, responses, genui)
+        updated_values = [str(r.get("updated_at") or "") for r in source_runs if r.get("updated_at")]
         sources.append(
             {
                 "source_id": source_id,
@@ -1786,6 +1787,8 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
                     if source_runs
                     else None
                 ),
+                "latest_run_updated_at": max(updated_values) if updated_values else None,
+                "oldest_run_updated_at": min(updated_values) if updated_values else None,
                 "days": aggregate_days(source_runs),
                 "health": source_health_record(source, source_id, local_root, source_runs, latest_sync),
             }
@@ -1803,6 +1806,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         **backlog_summary(total_queries, total_responses, total_genui),
         "assets": sum(r["assets"] for r in runs),
         "screenshots": sum(r["screenshots"] for r in runs),
+        "latest_run_updated_at": max([str(r.get("updated_at") or "") for r in runs if r.get("updated_at")], default=None),
     }
     return {
         "generated_at": utc_now(),
@@ -1889,6 +1893,7 @@ INDEX_HTML = r"""<!doctype html>
     .badge { display:inline-flex; align-items:center; border-radius: 999px; padding: 4px 8px; background: rgba(15,118,110,.10); color: #115e59; font-weight: 750; font-size: 12px; }
     .badge.ok { background: rgba(21,128,61,.12); color: var(--good); }
     .badge.empty, .badge.unknown { background: rgba(180,83,9,.12); color: var(--warn); }
+    .badge.warn { background: rgba(180,83,9,.12); color: var(--warn); }
     .badge.error { background: rgba(185,28,28,.12); color: var(--bad); }
     .mini-btn { padding: 7px 10px; border-radius: 999px; font-size: 12px; box-shadow: none; }
     .ghost-btn { background: rgba(255,255,255,.66); color: var(--accent); border-color: rgba(15,118,110,.22); box-shadow: none; }
@@ -1923,6 +1928,7 @@ INDEX_HTML = r"""<!doctype html>
     .pager-controls { display:flex; align-items:center; gap: 8px; flex-wrap:wrap; }
     button:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
     .day-row { display:grid; grid-template-columns: 118px 1fr 92px; gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .freshness-row { display:grid; grid-template-columns: minmax(160px, 1.4fr) 96px minmax(180px, 1fr); gap: 12px; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .bar-track { height: 12px; border-radius: 999px; background: rgba(15,118,110,.10); overflow:hidden; margin: 6px 0; }
     .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
     .day-counts { display:flex; gap: 10px; flex-wrap: wrap; }
@@ -1933,7 +1939,7 @@ INDEX_HTML = r"""<!doctype html>
     .sync-top { display:flex; justify-content:space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
     .sync-messages { margin-top: 8px; display:grid; gap: 3px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
-    @media (max-width: 980px) { .grid, .two-col-panels { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
+    @media (max-width: 980px) { .grid, .two-col-panels, .freshness-row { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
   </style>
 </head>
 <body>
@@ -2008,6 +2014,10 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Last Sync Results</h2>
         <div id="lastSyncResults"></div>
       </section>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Freshness</h2>
+      <div id="freshness"></div>
     </section>
     <section class="grid">
       <aside class="panel">
@@ -2121,6 +2131,36 @@ INDEX_HTML = r"""<!doctype html>
     const scoreText = s => s == null ? "n/a" : Number(s).toFixed(2);
     const dominantModel = obj => Object.entries(obj || {})[0]?.[0] || "unknown";
     const runKey = r => `${r.source_id}::${r.run_id}`;
+    const timestampMs = value => {
+      const ms = Date.parse(value || "");
+      return Number.isFinite(ms) ? ms : null;
+    };
+    const ageHours = value => {
+      const ms = timestampMs(value);
+      if (ms == null) return null;
+      return Math.max(0, (Date.now() - ms) / 36e5);
+    };
+    const ageText = value => {
+      const hours = ageHours(value);
+      if (hours == null) return "unknown";
+      if (hours < 1) return `${Math.max(1, Math.round(hours * 60))}m ago`;
+      if (hours < 48) return `${hours.toFixed(hours < 10 ? 1 : 0)}h ago`;
+      return `${(hours / 24).toFixed(hours < 24 * 10 ? 1 : 0)}d ago`;
+    };
+    const freshnessClass = value => {
+      const hours = ageHours(value);
+      if (hours == null) return "unknown";
+      if (hours > 24 * 30) return "error";
+      if (hours > 24 * 7) return "warn";
+      return "ok";
+    };
+    const freshnessLabel = value => {
+      const hours = ageHours(value);
+      if (hours == null) return "unknown";
+      if (hours > 24 * 30) return "very stale";
+      if (hours > 24 * 7) return "stale";
+      return "fresh";
+    };
     const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const bytesText = value => {
       const n = Number(value || 0);
@@ -2379,6 +2419,54 @@ INDEX_HTML = r"""<!doctype html>
         </div>
       `;
     }
+    function freshnessBadge(value) {
+      return `<span class="badge ${freshnessClass(value)}">${freshnessLabel(value)}</span>`;
+    }
+    function renderFreshness(runs, sources, lastSync) {
+      const target = document.getElementById("freshness");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const sortedRuns = [...runs].sort((a, b) => (timestampMs(b.updated_at) || 0) - (timestampMs(a.updated_at) || 0));
+      const latestRun = sortedRuns[0];
+      const staleRuns = runs.filter(r => (ageHours(r.updated_at) ?? Infinity) > 24 * 7);
+      const veryStaleRuns = runs.filter(r => (ageHours(r.updated_at) ?? Infinity) > 24 * 30);
+      const noRecentIrRuns = runs.filter(r => (r.responses || 0) > (r.genui || 0));
+      const staleSources = [...sources]
+        .filter(s => !s.latest_run_updated_at || (ageHours(s.latest_run_updated_at) ?? Infinity) > 24 * 7)
+        .sort((a, b) => (ageHours(b.latest_run_updated_at) ?? Infinity) - (ageHours(a.latest_run_updated_at) ?? Infinity));
+      const oldestRuns = [...runs]
+        .sort((a, b) => (timestampMs(a.updated_at) || Infinity) - (timestampMs(b.updated_at) || Infinity))
+        .slice(0, 8);
+      const sourceRows = staleSources.slice(0, 8).map(s => `
+        <div class="freshness-row">
+          <div><b>${escapeHtml(s.source_label)}</b><br><span class="small">${escapeHtml(s.local_path || "")}</span></div>
+          <div>${freshnessBadge(s.latest_run_updated_at)}<br><span class="small">${ageText(s.latest_run_updated_at)}</span></div>
+          <div class="small">${fmt(s.run_count)} runs | Q ${fmt(s.queries)} R ${fmt(s.responses)} IR ${fmt(s.genui)} | missing IR ${fmt(s.ir_backlog)}</div>
+        </div>`).join("");
+      const runRows = oldestRuns.map(r => `
+        <div class="freshness-row">
+          <div><b>${escapeHtml(r.run_id)}</b><br><span class="small">${escapeHtml(r.source_label)}</span></div>
+          <div>${freshnessBadge(r.updated_at)}<br><span class="small">${ageText(r.updated_at)}</span></div>
+          <div class="small">Q ${fmt(r.queries)} R ${fmt(r.responses)} IR ${fmt(r.genui)} | missing R ${fmt(r.response_backlog)} | missing IR ${fmt(r.ir_backlog)}</div>
+        </div>`).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${latestRun ? ageText(latestRun.updated_at) : "unknown"}</b><br><span class="small">latest run update</span></div>
+          <div class="detail-box"><b>${lastSync?.synced_at ? ageText(lastSync.synced_at) : "unknown"}</b><br><span class="small">last source sync</span></div>
+          <div class="detail-box"><b>${fmt(staleRuns.length)}</b><br><span class="small">runs older than 7d</span></div>
+          <div class="detail-box"><b>${fmt(veryStaleRuns.length)}</b><br><span class="small">runs older than 30d</span></div>
+          <div class="detail-box"><b>${fmt(staleSources.length)}</b><br><span class="small">sources stale/unknown</span></div>
+          <div class="detail-box"><b>${fmt(noRecentIrRuns.length)}</b><br><span class="small">runs with IR backlog</span></div>
+        </div>
+        <h2>Stale Sources</h2>
+        <div class="warning-list">${sourceRows || "<span class='small'>No stale sources in current filters.</span>"}</div>
+        <h2>Oldest Matching Runs</h2>
+        <div class="warning-list">${runRows || "<span class='small'>No run freshness data.</span>"}</div>
+        <div class="small">Freshness follows current source, date, score, issue, text, and IR-version filters. Stale means no matching run update in 7 days; very stale means 30 days.</div>
+      `;
+    }
     function getPageSize() {
       return Math.max(1, Number(document.getElementById("pageSize").value || "50"));
     }
@@ -2536,10 +2624,29 @@ INDEX_HTML = r"""<!doctype html>
       };
     }
     function filteredSourceStats(sources, runs) {
-      const bySource = new Map(sources.map(s => [s.source_id, {...s, run_count: 0, queries: 0, responses: 0, genui: 0, response_backlog: 0, ir_backlog: 0, completion_rate: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0}]));
+      const emptySource = s => ({
+        ...s,
+        run_count: 0,
+        queries: 0,
+        responses: 0,
+        genui: 0,
+        response_backlog: 0,
+        ir_backlog: 0,
+        completion_rate: 0,
+        assets: 0,
+        screenshots: 0,
+        avg_score: null,
+        latest_run_updated_at: null,
+        oldest_run_updated_at: null,
+        _scoreSum: 0,
+        _scoreCount: 0,
+        _latestMs: null,
+        _oldestMs: null,
+      });
+      const bySource = new Map(sources.map(s => [s.source_id, emptySource(s)]));
       for (const r of runs) {
         if (!bySource.has(r.source_id)) {
-          bySource.set(r.source_id, {source_id: r.source_id, source_label: r.source_label, type: "unknown", local_path: "", run_count: 0, queries: 0, responses: 0, genui: 0, response_backlog: 0, ir_backlog: 0, completion_rate: 0, assets: 0, screenshots: 0, avg_score: null, _scoreSum: 0, _scoreCount: 0});
+          bySource.set(r.source_id, emptySource({source_id: r.source_id, source_label: r.source_label, type: "unknown", local_path: ""}));
         }
         const s = bySource.get(r.source_id);
         s.run_count += 1;
@@ -2554,6 +2661,17 @@ INDEX_HTML = r"""<!doctype html>
         if (score != null) {
           s._scoreSum += Number(score);
           s._scoreCount += 1;
+        }
+        const updated = timestampMs(r.updated_at);
+        if (updated != null) {
+          if (s._latestMs == null || updated > s._latestMs) {
+            s._latestMs = updated;
+            s.latest_run_updated_at = r.updated_at;
+          }
+          if (s._oldestMs == null || updated < s._oldestMs) {
+            s._oldestMs = updated;
+            s.oldest_run_updated_at = r.updated_at;
+          }
         }
       }
       const sourceId = document.getElementById("sourceFilter").value;
@@ -2581,6 +2699,7 @@ INDEX_HTML = r"""<!doctype html>
             <button class="mini-btn" onclick="testSource('${s.source_id}')">Test</button>
           </div>
           <div class="small">${s.local_path}</div>
+          <div class="small">latest run: ${s.latest_run_updated_at ? `${ageText(s.latest_run_updated_at)} (${new Date(s.latest_run_updated_at).toLocaleString()})` : "unknown"}</div>
           <div class="kv">
             <div><b>${fmt(s.run_count)}</b><br><span class="small">runs</span></div>
             <div><b>${fmt(s.queries)}</b><br><span class="small">queries</span></div>
@@ -3099,6 +3218,7 @@ INDEX_HTML = r"""<!doctype html>
       renderSyncConfig(current.config || {});
       renderLastSyncResults(current.last_sync);
       const sourceStats = filteredSourceStats(current.sources || [], runs);
+      renderFreshness(runs, sourceStats, current.last_sync);
       renderSources(sourceStats);
       renderRuns(page.rows, page);
       renderRunDetails(runs);

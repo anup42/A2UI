@@ -200,6 +200,10 @@ signals such as content coverage, section coverage, table coverage, action cover
 The sync configuration panel shows the effective local checkout plus configured sources with redacted
 credential indicators, path matching mode, SSH/proxy settings, include/exclude globs, and mirror path.
 The last-sync panel shows per-source listed/copied/skipped/error counts and mirror destinations.
+The freshness panel highlights the latest matching run update, last sync age, sources with no
+matching update in 7 days, runs older than 7 or 30 days, and runs that still have response or IR
+backlog. Freshness follows the same source/date/score/text/IR-version filters as the rest of the
+dashboard, so it can be used to identify which remote generator or filtered slice stopped updating.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
 warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
 view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
