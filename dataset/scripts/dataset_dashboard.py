@@ -1644,6 +1644,146 @@ def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
+def compact_text(value: Any, limit: int = 900) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 1)].rstrip() + "…"
+
+
+def response_text_for_row(row: dict[str, Any]) -> str:
+    for key in ("response_text", "text", "content", "answer"):
+        value = row.get(key)
+        if isinstance(value, str) and value.strip():
+            return value
+    return ""
+
+
+def query_text_for_row(row: dict[str, Any]) -> str:
+    for key in ("query_text", "query", "prompt", "user_query"):
+        value = row.get(key)
+        if isinstance(value, str) and value.strip():
+            return value
+    return ""
+
+
+def legacy_component_list(row: dict[str, Any]) -> list[dict[str, Any]]:
+    value = row.get("genui_json")
+    if isinstance(value, str) and value.strip():
+        try:
+            value = json.loads(value)
+        except Exception:
+            return []
+    if not isinstance(value, list):
+        return []
+    components: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        update = item.get("updateComponents")
+        if isinstance(update, dict) and isinstance(update.get("components"), list):
+            components.extend(comp for comp in update["components"] if isinstance(comp, dict))
+    return components
+
+
+def summarize_ir_for_sample(row: dict[str, Any]) -> dict[str, Any]:
+    payload = genui_payload(row)
+    if payload:
+        elements = payload.get("elements") if isinstance(payload.get("elements"), dict) else {}
+        type_counts: dict[str, int] = {}
+        table_count = 0
+        image_count = 0
+        icon_count = 0
+        button_count = 0
+        for element in elements.values():
+            if not isinstance(element, dict):
+                continue
+            type_name = str(element.get("type") or "unknown").strip() or "unknown"
+            increment_count(type_counts, type_name)
+            if type_name == "Table":
+                table_count += 1
+            elif type_name == "Image":
+                image_count += 1
+            elif type_name == "Icon":
+                icon_count += 1
+            elif type_name == "Button":
+                button_count += 1
+        return {
+            "format": "flat_spec",
+            "root": str(payload.get("root") or ""),
+            "component_count": len(elements),
+            "component_types": top_dict(type_counts, 8),
+            "table_count": table_count,
+            "image_count": image_count,
+            "icon_count": icon_count,
+            "button_count": button_count,
+        }
+    components = legacy_component_list(row)
+    type_counts: dict[str, int] = {}
+    for component in components:
+        type_name = str(component.get("type") or component.get("component") or "unknown").strip() or "unknown"
+        increment_count(type_counts, type_name)
+    return {
+        "format": "legacy" if components else "unknown",
+        "root": "",
+        "component_count": len(components),
+        "component_types": top_dict(type_counts, 8),
+        "table_count": type_counts.get("Table", 0),
+        "image_count": type_counts.get("Image", 0),
+        "icon_count": type_counts.get("Icon", 0),
+        "button_count": type_counts.get("Button", 0),
+    }
+
+
+def collect_record_samples(
+    query_rows: list[dict[str, Any]],
+    response_rows: list[dict[str, Any]],
+    genui_rows: list[dict[str, Any]],
+    limit: int = 10,
+) -> list[dict[str, Any]]:
+    queries_by_id = {str(row.get("query_id") or ""): row for row in query_rows if row.get("query_id")}
+    responses_by_id = {str(row.get("response_id") or ""): row for row in response_rows if row.get("response_id")}
+    candidates: list[tuple[tuple[float, int, int], dict[str, Any]]] = []
+    for index, row in enumerate(genui_rows, start=1):
+        metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+        validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
+        gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+        score = metrics.get("overall_score")
+        score_value = float(score) if isinstance(score, (int, float)) else None
+        issues = row_issue_labels(row)
+        response_id = str(row.get("response_id") or "").strip()
+        query_id = str(row.get("query_id") or "").strip()
+        response = responses_by_id.get(response_id, {})
+        query = queries_by_id.get(query_id or str(response.get("query_id") or ""), {})
+        query_id = query_id or str(response.get("query_id") or "")
+        provider = str(gen.get("provider") or gen.get("llm_provider") or "").strip()
+        model = str(gen.get("model") or "").strip()
+        sample = {
+            "row": index,
+            "ui_id": str(row.get("ui_id") or "").strip(),
+            "response_id": response_id,
+            "query_id": query_id,
+            "intent": str(row.get("intent") or row.get("intent_bucket") or query.get("intent") or "").strip(),
+            "score": score_value,
+            "issues": issues,
+            "model": "/".join(part for part in [provider, model] if part) or "unknown",
+            "prompt_version": ir_version_for_row(row),
+            "query_text": compact_text(query_text_for_row(query), 520),
+            "response_preview": compact_text(response_text_for_row(response), 900),
+            "ir_summary": summarize_ir_for_sample(row),
+            "validation_errors": [
+                str(item)[:180]
+                for item in (validation.get("errors") or validation.get("warnings") or [])
+                if str(item).strip()
+            ][:3],
+        }
+        issue_rank = 0 if issues else 1
+        score_rank = score_value if score_value is not None else 999.0
+        candidates.append(((issue_rank, score_rank, index), sample))
+    candidates.sort(key=lambda item: item[0])
+    return [sample for _, sample in candidates[:limit]]
+
+
 def ir_version_for_row(row: dict[str, Any]) -> str:
     gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
     candidates = [
@@ -2584,6 +2724,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "ir_structure": collect_ir_structure_summary(genui_rows),
         "media_health": collect_media_asset_summary(run_dir, response_rows, genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
+        "record_samples": collect_record_samples(query_rows, response_rows, genui_rows),
         "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
         "run_logs": summarize_run_logs(run_dir),
         "artifacts": run_artifacts(run_dir),
@@ -2786,6 +2927,10 @@ INDEX_HTML = r"""<!doctype html>
     .nowrap { white-space: nowrap; }
     .artifact-list { display:grid; gap: 6px; margin-top: 8px; }
     .artifact-row { display:grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
+    .sample-list { display:grid; gap: 10px; margin-top: 10px; }
+    .sample-card { border: 1px solid var(--line); border-radius: 16px; padding: 10px; background: rgba(255,255,255,.55); }
+    .sample-card summary { cursor:pointer; font-weight: 800; }
+    .sample-preview { white-space: pre-wrap; background: rgba(23,32,42,.04); border: 1px solid var(--line); border-radius: 12px; padding: 9px; margin: 8px 0; max-height: 180px; overflow:auto; }
     .chart-wrap { min-height: 230px; }
     .chart-svg { width:100%; height:220px; overflow:visible; }
     .config-source { border: 1px solid var(--line); border-radius: 14px; padding: 10px; margin-top: 8px; background: rgba(255,255,255,.52); }
@@ -3248,6 +3393,7 @@ INDEX_HTML = r"""<!doctype html>
         "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
         "log_files","log_issues","log_latest_updated_at",
         "response_asset_records","missing_response_assets","ir_media_components","ir_local_media_missing","ir_remote_media_refs",
+        "record_sample_count",
         "stage2_tokens","stage2_avg_latency_ms","stage2_cost_usd","stage3_tokens","stage3_avg_latency_ms","stage3_cost_usd",
         "updated_at","response_model","ir_model","ir_versions","path",
       ];
@@ -3279,6 +3425,7 @@ INDEX_HTML = r"""<!doctype html>
         r.media_health?.ir_media_components || 0,
         r.media_health?.ir_local_media_missing || 0,
         r.media_health?.ir_remote_media_refs || 0,
+        (r.record_samples || []).length,
         r.response_usage?.total_tokens || 0,
         r.response_usage?.avg_latency_ms ?? "",
         r.response_usage?.cost_usd ?? "",
@@ -4153,6 +4300,49 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Remote IR Media Samples</h2>
         <div class="warning-list">${mediaSampleRows(m.remote_ref_samples || [], "No remote media references found in sampled IR rows.")}</div>`;
     }
+    function renderComponentTypeBadges(componentTypes) {
+      const entries = Object.entries(componentTypes || {}).slice(0, 8);
+      return entries.map(([type, count]) => `<span class="badge">${escapeHtml(type)} ${fmt(count)}</span>`).join(" ") || "<span class='small'>no components</span>";
+    }
+    function renderRunRecordSamples(samples) {
+      if (!(samples || []).length) {
+        return "<span class='small'>No sampled records found for this run.</span>";
+      }
+      const rows = samples.map(sample => {
+        const ir = sample.ir_summary || {};
+        const issueBadges = (sample.issues || []).map(issue => `<span class="badge error">${escapeHtml(issue)}</span>`).join(" ") || "<span class='badge ok'>sample</span>";
+        const validation = (sample.validation_errors || []).map(escapeHtml).join("<br>");
+        return `
+          <details class="sample-card">
+            <summary>
+              ${escapeHtml(sample.ui_id || `row ${sample.row}`)}
+              <span class="score ${scoreClass(sample.score)}">${scoreText(sample.score)}</span>
+              <span class="small">${escapeHtml(sample.intent || "")}</span>
+            </summary>
+            <div class="pill-row">
+              ${issueBadges}
+              <span class="badge">${escapeHtml(sample.prompt_version || "unknown prompt")}</span>
+              <span class="badge">${escapeHtml(sample.model || "unknown model")}</span>
+              <span class="badge">${escapeHtml(ir.format || "unknown IR")}</span>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-box"><b>${fmt(ir.component_count || 0)}</b><br><span class="small">components</span></div>
+              <div class="detail-box"><b>${fmt(ir.table_count || 0)}</b><br><span class="small">tables</span></div>
+              <div class="detail-box"><b>${fmt(ir.image_count || 0)}</b><br><span class="small">images</span></div>
+              <div class="detail-box"><b>${fmt(ir.icon_count || 0)}</b><br><span class="small">icons</span></div>
+              <div class="detail-box"><b>${fmt(ir.button_count || 0)}</b><br><span class="small">buttons</span></div>
+            </div>
+            <div class="small"><b>IDs:</b> ${escapeHtml(sample.query_id || "")} | ${escapeHtml(sample.response_id || "")}</div>
+            <div class="small"><b>Component types:</b> ${renderComponentTypeBadges(ir.component_types || {})}</div>
+            <h2>Query</h2>
+            <div class="sample-preview">${escapeHtml(sample.query_text || "n/a")}</div>
+            <h2>Response Preview</h2>
+            <div class="sample-preview">${escapeHtml(sample.response_preview || "n/a")}</div>
+            ${validation ? `<h2>Validation</h2><div class="sample-preview">${validation}</div>` : ""}
+          </details>`;
+      }).join("");
+      return `<div class="sample-list">${rows}</div>`;
+    }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
       if (!runs.length) {
@@ -4211,6 +4401,8 @@ INDEX_HTML = r"""<!doctype html>
         ${renderRunIrStructureDetails(selected.ir_structure || {})}
         <h2>Media & Asset Health</h2>
         ${renderRunMediaHealthDetails(selected.media_health || {})}
+        <h2>Sample Records</h2>
+        ${renderRunRecordSamples(selected.record_samples || [])}
         <h2>Data Integrity</h2>
         ${renderIntegrityDetails(integrity)}
         <h2>Run Logs</h2>
@@ -5740,6 +5932,14 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def emit_json_stdout(payload: Any) -> None:
+    text = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+    try:
+        sys.stdout.buffer.write(text.encode("utf-8"))
+    except AttributeError:
+        sys.stdout.write(text)
+
+
 def main() -> int:
     args = parse_args()
     config_path = resolve_dataset_path(args.config, ROOT)
@@ -5747,13 +5947,13 @@ def main() -> int:
     state = DashboardServer(config_path=config_path, mirror_dir=mirror_dir)
 
     if args.sync_once:
-        print(json.dumps(state.sync(), indent=2, ensure_ascii=False))
+        emit_json_stdout(state.sync())
         return 0
     if args.summary_once:
-        print(json.dumps(state.summary(), indent=2, ensure_ascii=False))
+        emit_json_stdout(state.summary())
         return 0
     if args.sync_on_start:
-        print(json.dumps(state.sync(), indent=2, ensure_ascii=False))
+        emit_json_stdout(state.sync())
 
     httpd = ThreadingHTTPServer((args.host, args.port), make_handler(state))
     print(f"Dataset dashboard: http://{args.host}:{args.port}")

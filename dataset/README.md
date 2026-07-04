@@ -243,13 +243,16 @@ storage by source, largest runs, runs missing core files, and runs with generate
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
 view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
-warnings, IR structure, media health, and metric breakdowns. `Export CSV` and `Export JSON` download
-the currently filtered run view, which is useful for sharing source-specific or score-thresholded
-slices. CSV exports include media health counters such as missing response assets, missing local IR
-media refs, and remote IR media refs. The run detail pane also shows parsed `run_manifest.json`
-provenance, core artifacts, sample assets, and sample screenshots with copyable local paths, and the
-trend chart shows filtered daily volume with average IR score over time. Filtered distribution panels
-show top intents, Stage 2 models, Stage 3 models, IR versions, and source volume for the current view.
+warnings, IR structure, media health, sampled records, and metric breakdowns. Sampled records show
+issue-prioritized query text, response previews, score, validation notes, and compact IR component
+summaries so failing examples can be inspected without opening JSONL files. `Export CSV` and
+`Export JSON` download the currently filtered run view, which is useful for sharing source-specific
+or score-thresholded slices. CSV exports include media health counters such as missing response
+assets, missing local IR media refs, remote IR media refs, and sample-record count. The run detail
+pane also shows parsed `run_manifest.json` provenance, core artifacts, sample assets, and sample
+screenshots with copyable local paths, and the trend chart shows filtered daily volume with average
+IR score over time. Filtered distribution panels show top intents, Stage 2 models, Stage 3 models,
+IR versions, and source volume for the current view.
 The worst-sampled-records panel highlights low-score, repaired, fallback, markdown-leaking, sparse,
 or schema-failing IR rows from sampled `genui.jsonl` records and links back to the owning run details.
 
