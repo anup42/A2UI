@@ -5,6 +5,7 @@ import argparse
 import fnmatch
 import getpass
 import glob
+import hashlib
 import json
 import os
 import re
@@ -1786,6 +1787,78 @@ def query_text_for_row(row: dict[str, Any]) -> str:
     return ""
 
 
+def normalize_duplicate_text(value: Any) -> str:
+    return re.sub(r"\s+", " ", str(value or "")).strip().lower()
+
+
+def duplicate_bucket_summary(values: list[str], limit: int = 5) -> dict[str, Any]:
+    counts: dict[str, int] = {}
+    previews: dict[str, str] = {}
+    for value in values:
+        normalized = normalize_duplicate_text(value)
+        if not normalized:
+            continue
+        key = hashlib.sha256(normalized.encode("utf-8", errors="replace")).hexdigest()
+        counts[key] = counts.get(key, 0) + 1
+        previews.setdefault(key, compact_text(value, 220))
+    duplicate_rows = sum(count - 1 for count in counts.values() if count > 1)
+    duplicate_groups = sum(1 for count in counts.values() if count > 1)
+    examples = [
+        {"count": count, "preview": previews[key]}
+        for key, count in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        if count > 1
+    ][:limit]
+    sampled = sum(counts.values())
+    return {
+        "sampled": sampled,
+        "unique": len(counts),
+        "duplicate_rows": duplicate_rows,
+        "duplicate_groups": duplicate_groups,
+        "duplicate_rate": duplicate_rows / sampled if sampled else 0.0,
+        "examples": examples,
+    }
+
+
+def ir_text_for_duplication(row: dict[str, Any]) -> str:
+    payload = genui_payload(row)
+    if payload:
+        try:
+            return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        except Exception:
+            return str(payload)
+    value = row.get("genui_json") or row.get("ir") or row.get("flat_spec") or row.get("payload")
+    if isinstance(value, str):
+        return value
+    if value is not None:
+        try:
+            return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        except Exception:
+            return str(value)
+    return ""
+
+
+def collect_content_duplication_summary(
+    query_rows: list[dict[str, Any]],
+    response_rows: list[dict[str, Any]],
+    genui_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    queries = duplicate_bucket_summary([query_text_for_row(row) for row in query_rows])
+    responses = duplicate_bucket_summary([response_text_for_row(row) for row in response_rows])
+    ir_payloads = duplicate_bucket_summary([ir_text_for_duplication(row) for row in genui_rows])
+    total_duplicate_rows = (
+        int(queries["duplicate_rows"])
+        + int(responses["duplicate_rows"])
+        + int(ir_payloads["duplicate_rows"])
+    )
+    return {
+        "sample_limit": max(len(query_rows), len(response_rows), len(genui_rows)),
+        "queries": queries,
+        "responses": responses,
+        "ir_payloads": ir_payloads,
+        "total_duplicate_rows": total_duplicate_rows,
+    }
+
+
 def legacy_component_list(row: dict[str, Any]) -> list[dict[str, Any]]:
     value = row.get("genui_json")
     if isinstance(value, str) and value.strip():
@@ -2835,6 +2908,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "quality_summary": collect_quality_summary(genui_rows),
         "training_readiness": collect_training_readiness_summary(genui_rows, responses, genui),
         "record_samples": collect_record_samples(query_rows, response_rows, genui_rows),
+        "content_duplicates": collect_content_duplication_summary(query_rows, response_rows, genui_rows),
         "data_integrity": collect_data_integrity_summary(run_dir, queries, responses, genui),
         "run_logs": summarize_run_logs(run_dir),
         "artifacts": run_artifacts(run_dir),
@@ -3091,6 +3165,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="backlog">Has backlog</option>
         <option value="quality">Has quality issues</option>
         <option value="integrity">Data integrity issues</option>
+        <option value="duplicates">Content duplicates</option>
         <option value="logs">Log issues</option>
         <option value="low_coverage">Low content coverage</option>
         <option value="low_media">Low media usage</option>
@@ -3107,6 +3182,7 @@ INDEX_HTML = r"""<!doctype html>
         <option value="backlog_desc">Sort: backlog</option>
         <option value="quality_desc">Sort: quality issues</option>
         <option value="integrity_desc">Sort: integrity issues</option>
+        <option value="duplicates_desc">Sort: content duplicates</option>
         <option value="logs_desc">Sort: log issues</option>
         <option value="source_run">Sort: source/run</option>
       </select>
@@ -3214,6 +3290,10 @@ INDEX_HTML = r"""<!doctype html>
     <section class="panel wide-panel">
       <h2>Data Integrity</h2>
       <div id="dataIntegrity"></div>
+    </section>
+    <section class="panel wide-panel">
+      <h2>Content Duplicates</h2>
+      <div id="contentDuplicates"></div>
     </section>
     <section class="panel wide-panel">
       <h2>Filtered Metrics Overview</h2>
@@ -3523,6 +3603,7 @@ INDEX_HTML = r"""<!doctype html>
         "query_to_response_rate","response_to_ir_rate","query_to_ir_rate",
         "overall_score","assets","screenshots","total_bytes","file_count","missing_core_files",
         "integrity_issues","integrity_parse_errors","integrity_duplicate_ids","integrity_missing_ids","integrity_orphan_links",
+        "duplicate_query_rows","duplicate_response_rows","duplicate_ir_rows","duplicate_query_rate","duplicate_response_rate","duplicate_ir_rate",
         "log_files","log_issues","log_latest_updated_at",
         "response_asset_records","missing_response_assets","ir_media_components","ir_local_media_missing","ir_remote_media_refs",
         "record_sample_count",
@@ -3555,6 +3636,12 @@ INDEX_HTML = r"""<!doctype html>
           r.data_integrity?.duplicate_id_count || 0,
           r.data_integrity?.missing_id_count || 0,
           r.data_integrity?.orphan_link_count || 0,
+          r.content_duplicates?.queries?.duplicate_rows || 0,
+          r.content_duplicates?.responses?.duplicate_rows || 0,
+          r.content_duplicates?.ir_payloads?.duplicate_rows || 0,
+          r.content_duplicates?.queries?.duplicate_rate ?? "",
+          r.content_duplicates?.responses?.duplicate_rate ?? "",
+          r.content_duplicates?.ir_payloads?.duplicate_rate ?? "",
           r.run_logs?.file_count || 0,
           r.run_logs?.issue_count || 0,
           r.run_logs?.latest_updated_at || "",
@@ -3814,6 +3901,17 @@ INDEX_HTML = r"""<!doctype html>
             source: run.source_label,
           });
         }
+        const contentDuplicates = contentDuplicateTotal(run);
+        if (contentDuplicates) {
+          addActionItem(items, {
+            severity: Math.min(84, 42 + Math.log10(contentDuplicates + 1) * 12),
+            category: "Duplicates",
+            title: `${run.run_id} has ${fmt(contentDuplicates)} sampled duplicate content rows`,
+            detail: "Inspect duplicate query, response, and IR payload examples.",
+            run,
+            source: run.source_label,
+          });
+        }
         if (logIssues) {
           const firstIssue = ((run.run_logs || {}).recent_issues || [])[0];
           addActionItem(items, {
@@ -4031,6 +4129,7 @@ INDEX_HTML = r"""<!doctype html>
         if (f.issue === "backlog" && !Math.max((counts.queries || 0) - (counts.responses || 0), 0) && !Math.max((counts.responses || 0) - (counts.genui || 0), 0)) return false;
         if (f.issue === "quality" && !qualityIssueCount(r)) return false;
         if (f.issue === "integrity" && !integrityIssueCount(r)) return false;
+        if (f.issue === "duplicates" && !contentDuplicateTotal(r)) return false;
         if (f.issue === "logs" && !logIssueCount(r)) return false;
         if (f.issue === "media_refs" && !mediaIssueCount(r)) return false;
         if (f.issue === "low_coverage" && !(metrics.content_coverage != null && metrics.content_coverage < 0.65)) return false;
@@ -4055,6 +4154,7 @@ INDEX_HTML = r"""<!doctype html>
         if (sortBy === "backlog_desc") return runBacklogTotal(b) - runBacklogTotal(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "quality_desc") return qualityIssueCount(b) - qualityIssueCount(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "integrity_desc") return integrityIssueCount(b) - integrityIssueCount(a) || textValue(a).localeCompare(textValue(b));
+        if (sortBy === "duplicates_desc") return contentDuplicateTotal(b) - contentDuplicateTotal(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "logs_desc") return logIssueCount(b) - logIssueCount(a) || textValue(a).localeCompare(textValue(b));
         if (sortBy === "source_run") return textValue(a).localeCompare(textValue(b));
         return updatedValue(b) - updatedValue(a) || textValue(a).localeCompare(textValue(b));
@@ -4359,6 +4459,51 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <div class="warning-list">${rows || "<span class='small'>No data integrity issues found.</span>"}</div>`;
     }
+    function contentDuplicateTotal(run) {
+      const d = run.content_duplicates || {};
+      return Number(d.total_duplicate_rows || 0);
+    }
+    function duplicateStageSummary(summary, key) {
+      const data = (summary || {})[key] || {};
+      return {
+        sampled: Number(data.sampled || 0),
+        unique: Number(data.unique || 0),
+        duplicateRows: Number(data.duplicate_rows || 0),
+        duplicateGroups: Number(data.duplicate_groups || 0),
+        duplicateRate: data.duplicate_rate == null ? null : Number(data.duplicate_rate),
+        examples: data.examples || [],
+      };
+    }
+    function renderDuplicateExamples(summary, key, label) {
+      const data = duplicateStageSummary(summary, key);
+      const rows = data.examples.map(example => `
+        <div class="warning-row">
+          <span><b>${escapeHtml(label)}</b><br><span class="small">${escapeHtml(example.preview || "")}</span></span>
+          <span class="badge warn">${fmt(example.count || 0)}x</span>
+        </div>`).join("");
+      return `
+        <div class="detail-box">
+          <b>${escapeHtml(label)}</b><br>
+          <span class="small">${fmt(data.duplicateRows)} duplicate rows | ${fmt(data.duplicateGroups)} groups | ${pct(data.duplicateRate)} rate | ${fmt(data.unique)} unique / ${fmt(data.sampled)} sampled</span>
+        </div>
+        ${rows}`;
+    }
+    function renderContentDuplicateDetails(summary) {
+      const s = summary || {};
+      const total = Number(s.total_duplicate_rows || 0);
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(total)}</b><br><span class="small">sampled duplicate content rows</span></div>
+          <div class="detail-box"><b>${fmt(duplicateStageSummary(s, "queries").duplicateRows)}</b><br><span class="small">duplicate query rows</span></div>
+          <div class="detail-box"><b>${fmt(duplicateStageSummary(s, "responses").duplicateRows)}</b><br><span class="small">duplicate response rows</span></div>
+          <div class="detail-box"><b>${fmt(duplicateStageSummary(s, "ir_payloads").duplicateRows)}</b><br><span class="small">duplicate IR rows</span></div>
+        </div>
+        <div class="warning-list">
+          ${renderDuplicateExamples(s, "queries", "Queries")}
+          ${renderDuplicateExamples(s, "responses", "Responses")}
+          ${renderDuplicateExamples(s, "ir_payloads", "IR Payloads")}
+        </div>`;
+    }
     function renderRunLogDetails(logs) {
       const l = logs || {};
       if (!l.present) return "<span class='small'>No run log files found.</span>";
@@ -4569,6 +4714,8 @@ INDEX_HTML = r"""<!doctype html>
         ${renderRunRecordSamples(selected.record_samples || [])}
         <h2>Data Integrity</h2>
         ${renderIntegrityDetails(integrity)}
+        <h2>Content Duplicates</h2>
+        ${renderContentDuplicateDetails(selected.content_duplicates || {})}
         <h2>Run Logs</h2>
         ${renderRunLogDetails(selected.run_logs || {})}
         <h2>Run Provenance</h2>
@@ -4978,6 +5125,97 @@ INDEX_HTML = r"""<!doctype html>
           </table>
         </div>
         <div class="small">Integrity checks scan core JSONL IDs and links: query_id, response_id, ui_id, duplicate IDs, parse errors, and response/IR records that cannot be matched to upstream stages.</div>`;
+    }
+    function aggregateContentDuplicates(runs) {
+      const totals = {
+        affectedRuns: 0,
+        duplicateRows: 0,
+        queries: {sampled: 0, unique: 0, duplicateRows: 0, duplicateGroups: 0},
+        responses: {sampled: 0, unique: 0, duplicateRows: 0, duplicateGroups: 0},
+        irPayloads: {sampled: 0, unique: 0, duplicateRows: 0, duplicateGroups: 0},
+      };
+      for (const run of runs) {
+        const summary = run.content_duplicates || {};
+        const total = contentDuplicateTotal(run);
+        if (total) totals.affectedRuns += 1;
+        totals.duplicateRows += total;
+        for (const [field, key] of [["queries", "queries"], ["responses", "responses"], ["irPayloads", "ir_payloads"]]) {
+          const data = duplicateStageSummary(summary, key);
+          totals[field].sampled += data.sampled;
+          totals[field].unique += data.unique;
+          totals[field].duplicateRows += data.duplicateRows;
+          totals[field].duplicateGroups += data.duplicateGroups;
+        }
+      }
+      return totals;
+    }
+    function duplicateMetricRows(totals) {
+      const rows = [
+        ["Queries", totals.queries],
+        ["Responses", totals.responses],
+        ["IR payloads", totals.irPayloads],
+      ];
+      return rows.map(([label, data]) => `
+        <tr>
+          <td><b>${label}</b></td>
+          <td>${fmt(data.duplicateRows)}</td>
+          <td>${fmt(data.duplicateGroups)}</td>
+          <td>${pct(ratioOrNull(data.duplicateRows, data.sampled))}</td>
+          <td class="small">${fmt(data.unique)} unique / ${fmt(data.sampled)} sampled</td>
+        </tr>`).join("");
+    }
+    function renderContentDuplicates(runs) {
+      const target = document.getElementById("contentDuplicates");
+      if (!runs.length) {
+        target.innerHTML = "<span class='small'>No runs match current filters.</span>";
+        return;
+      }
+      const totals = aggregateContentDuplicates(runs);
+      const affectedRows = [...runs]
+        .filter(run => contentDuplicateTotal(run))
+        .sort((a, b) => contentDuplicateTotal(b) - contentDuplicateTotal(a) || String(a.run_id).localeCompare(String(b.run_id)))
+        .slice(0, 12)
+        .map(run => {
+          const d = run.content_duplicates || {};
+          return `
+            <tr>
+              <td><b>${escapeHtml(run.run_id)}</b><br><span class="small">${escapeHtml(run.source_label)}</span><br><button class="mini-btn ghost-btn" onclick="selectRun('${encodeURIComponent(runKey(run))}')">Details</button></td>
+              <td>${fmt(contentDuplicateTotal(run))}</td>
+              <td>${fmt(duplicateStageSummary(d, "queries").duplicateRows)}<br><span class="small">${pct(duplicateStageSummary(d, "queries").duplicateRate)}</span></td>
+              <td>${fmt(duplicateStageSummary(d, "responses").duplicateRows)}<br><span class="small">${pct(duplicateStageSummary(d, "responses").duplicateRate)}</span></td>
+              <td>${fmt(duplicateStageSummary(d, "ir_payloads").duplicateRows)}<br><span class="small">${pct(duplicateStageSummary(d, "ir_payloads").duplicateRate)}</span></td>
+              <td><span class="score ${scoreClass(run.display_score ?? run.overall_score)}">${scoreText(run.display_score ?? run.overall_score)}</span></td>
+            </tr>`;
+        }).join("");
+      target.innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${fmt(totals.affectedRuns)}</b><br><span class="small">runs with sampled duplicates</span></div>
+          <div class="detail-box"><b>${fmt(totals.duplicateRows)}</b><br><span class="small">duplicate content rows</span></div>
+          <div class="detail-box"><b>${fmt(totals.queries.duplicateRows)}</b><br><span class="small">duplicate queries</span></div>
+          <div class="detail-box"><b>${fmt(totals.responses.duplicateRows)}</b><br><span class="small">duplicate responses</span></div>
+          <div class="detail-box"><b>${fmt(totals.irPayloads.duplicateRows)}</b><br><span class="small">duplicate IR payloads</span></div>
+        </div>
+        <div class="two-col-panels wide-panel">
+          <div>
+            <h2>Duplicate Rates</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Stage</th><th>Duplicate Rows</th><th>Groups</th><th>Rate</th><th>Sample</th></tr></thead>
+                <tbody>${duplicateMetricRows(totals)}</tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h2>Top Duplicate Runs</h2>
+            <div class="scroll">
+              <table>
+                <thead><tr><th>Run</th><th>Total</th><th>Query</th><th>Response</th><th>IR</th><th>Score</th></tr></thead>
+                <tbody>${affectedRows || "<tr><td colspan='6'><span class='small'>No sampled duplicate content found.</span></td></tr>"}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="small">Duplicate detection uses normalized exact text/payload matching over sampled JSONL rows already loaded for the dashboard. It catches repeated content, not semantic near-duplicates.</div>`;
     }
     function renderRunLogs(runs) {
       const target = document.getElementById("runLogs");
@@ -6432,6 +6670,7 @@ INDEX_HTML = r"""<!doctype html>
       renderQualityAlerts(runs);
       renderCompletionFunnel(runs, sourceStats);
       renderDataIntegrity(runs);
+      renderContentDuplicates(runs);
       renderMetricsOverview(runs);
       renderTrainingReadiness(runs);
       renderIrStructure(runs);

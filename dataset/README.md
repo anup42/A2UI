@@ -208,8 +208,8 @@ matching update in 7 days, runs older than 7 or 30 days, and runs that still hav
 backlog. Freshness follows the same source/date/score/text/IR-version filters as the rest of the
 dashboard, so it can be used to identify which remote generator or filtered slice stopped updating.
 The action-items panel ranks the most urgent source/run problems from the filtered view, combining
-sync errors, stale sources, backlog, data integrity, sampled quality failures, and artifact gaps into
-a short list with links back to run details.
+sync errors, stale sources, backlog, data integrity, sampled duplicate content, sampled quality
+failures, and artifact gaps into a short list with links back to run details.
 The completion funnel panel shows exact query-to-response, response-to-IR, and query-to-IR
 conversion rates, then combines them with sampled readiness estimates for strict-valid IR and
 score-threshold-ready records. Its source table makes it clear which generator/source is losing data
@@ -241,6 +241,9 @@ remote media instead of localized assets.
 The data integrity panel scans core JSONL IDs and links for duplicate IDs, missing IDs, parse errors,
 count anomalies, and broken stage links such as IR records whose `response_id` is not present in
 `responses.jsonl`. Use the run-health filter `Data integrity issues` to isolate affected runs.
+The content duplicates panel checks sampled normalized query text, response text, and IR payloads for
+exact duplicate content. Use the run-health filter `Content duplicates` or sort by content duplicates
+to isolate runs that may reduce training diversity even when IDs are unique.
 The intent quality panel aggregates sampled `genui.jsonl` rows by intent/domain, showing largest
 intent buckets and lowest-scoring intents with coverage, heading, table, action, image, and icon
 signals. This makes it easier to identify weak domains even when the overall score looks acceptable.
@@ -259,8 +262,8 @@ storage by source, largest runs, runs missing core files, and runs with generate
 screenshots. CSV and JSON exports also include storage and missing-core metadata for the filtered run
 view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
-warnings, prompt provenance, training readiness, IR structure, media health, sampled records, and
-metric breakdowns.
+warnings, prompt provenance, training readiness, IR structure, media health, duplicate examples,
+sampled records, and metric breakdowns.
 Sampled records show issue-prioritized query text, response previews, score, validation notes, and
 compact IR component summaries so failing examples can be inspected without opening JSONL files.
 `Export CSV` and `Export JSON` download the currently filtered run view, which is useful for sharing
