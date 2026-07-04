@@ -667,6 +667,31 @@ def collect_model_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
+def ir_version_for_row(row: dict[str, Any]) -> str:
+    gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
+    candidates = [
+        gen.get("prompt_version"),
+        row.get("prompt_version"),
+        row.get("ir_version"),
+        gen.get("ir_version"),
+        row.get("schema_version"),
+        row.get("version"),
+    ]
+    for candidate in candidates:
+        text = str(candidate or "").strip()
+        if text:
+            return text
+    return "unknown"
+
+
+def collect_ir_version_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        version = ir_version_for_row(row)
+        counts[version] = counts.get(version, 0) + 1
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
 def score_from_genui(genui_path: Path) -> float | None:
     values: list[float] = []
     with genui_path.open("r", encoding="utf-8-sig", errors="replace") as handle:
@@ -793,6 +818,72 @@ def jsonl_day_buckets(path: Path, kind: str, fallback_day: str) -> dict[str, dic
     return buckets
 
 
+def collect_ir_version_stats(path: Path, fallback_day: str) -> dict[str, dict[str, Any]]:
+    stats: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return stats
+    with path.open("r", encoding="utf-8-sig", errors="replace") as handle:
+        for index, line in enumerate(handle):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except Exception:
+                row = {}
+            row = row if isinstance(row, dict) else {}
+            version = ir_version_for_row(row)
+            record = stats.setdefault(
+                version,
+                {
+                    "queries": 0,
+                    "responses": 0,
+                    "genui": 0,
+                    "score_sum": 0.0,
+                    "score_count": 0,
+                    "days": {},
+                    "_query_ids": set(),
+                    "_response_ids": set(),
+                },
+            )
+            query_id = str(row.get("query_id") or "").strip()
+            response_id = str(row.get("response_id") or "").strip()
+            if query_id:
+                record["_query_ids"].add(query_id)
+            if response_id:
+                record["_response_ids"].add(response_id)
+            record["genui"] += 1
+            metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+            score = metrics.get("overall_score")
+            if isinstance(score, (int, float)):
+                record["score_sum"] += float(score)
+                record["score_count"] += 1
+            day = row_day(row, fallback_day)
+            day_bucket = record["days"].setdefault(day, new_day_bucket(day))
+            day_bucket["queries"] += 1 if query_id or not record["_query_ids"] else 0
+            day_bucket["responses"] += 1 if response_id or not record["_response_ids"] else 0
+            day_bucket["genui"] += 1
+            if isinstance(score, (int, float)):
+                day_bucket["score_sum"] += float(score)
+                day_bucket["score_count"] += 1
+
+    finalized: dict[str, dict[str, Any]] = {}
+    for version, record in stats.items():
+        genui_count = int(record.get("genui") or 0)
+        query_count = len(record.get("_query_ids") or []) or genui_count
+        response_count = len(record.get("_response_ids") or []) or genui_count
+        score_count = int(record.get("score_count") or 0)
+        finalized[version] = {
+            "queries": query_count,
+            "responses": response_count,
+            "genui": genui_count,
+            "score_sum": float(record.get("score_sum") or 0.0),
+            "score_count": score_count,
+            "avg_score": float(record["score_sum"]) / score_count if score_count else None,
+            "days": finalize_day_buckets(record.get("days") or {}),
+        }
+    return dict(sorted(finalized.items(), key=lambda kv: (-kv[1]["genui"], kv[0])))
+
+
 def finalize_day_buckets(buckets: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     days = []
     for day in sorted(buckets.keys(), reverse=True):
@@ -835,6 +926,14 @@ def aggregate_days(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return finalize_day_buckets(buckets)
 
 
+def aggregate_ir_versions(records: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for record in records:
+        for version, count in (record.get("ir_versions") or {}).items():
+            counts[version] = counts.get(version, 0) + int(count or 0)
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
 def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str, Any]:
     queries = count_jsonl(run_dir / "queries.jsonl")
     responses = count_jsonl(run_dir / "responses.jsonl")
@@ -868,6 +967,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
             else fallback_day
         )
         merge_day_buckets(day_buckets, jsonl_day_buckets(path, kind, file_day))
+    ir_version_stats = collect_ir_version_stats(run_dir / "genui.jsonl", fallback_day)
     return {
         "source_id": source_id,
         "source_label": source_label_text,
@@ -883,6 +983,8 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "query_models": collect_model_counts(query_rows),
         "response_models": collect_model_counts(response_rows),
         "ir_models": collect_model_counts(genui_rows),
+        "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
+        "ir_version_stats": ir_version_stats,
         "intents": dict(sorted(intents.items(), key=lambda kv: (-kv[1], kv[0]))[:12]),
         "days": finalize_day_buckets(day_buckets),
     }
@@ -959,6 +1061,7 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
         "sources": sorted(sources, key=lambda s: s["source_label"].lower()),
         "runs": sorted(runs, key=lambda r: (r["source_label"].lower(), r["run_id"].lower())),
         "days": aggregate_days(runs),
+        "ir_versions": aggregate_ir_versions(runs),
         "last_sync": latest_sync,
         "config_note": f"Using {DEFAULT_CONFIG if DEFAULT_CONFIG.exists() else DEFAULT_EXAMPLE_CONFIG}",
     }
@@ -1069,6 +1172,9 @@ INDEX_HTML = r"""<!doctype html>
         <option value="70">Score >= 70</option>
         <option value="60">Score >= 60</option>
       </select>
+      <select id="irVersionFilter">
+        <option value="">All IR versions</option>
+      </select>
       <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
       <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
       <span class="status" id="status"></span>
@@ -1113,6 +1219,10 @@ INDEX_HTML = r"""<!doctype html>
       const entries = Object.entries(obj || {}).slice(0, 3);
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
     };
+    const versionText = obj => {
+      const entries = Object.entries(obj || {}).slice(0, 3);
+      return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
+    };
     function setStatus(text) { document.getElementById("status").textContent = text || ""; }
     async function loadSummary() {
       setStatus("Loading...");
@@ -1147,6 +1257,7 @@ INDEX_HTML = r"""<!doctype html>
         text: document.getElementById("filter").value.toLowerCase().trim(),
         minScore: Number(document.getElementById("scoreFilter").value || "0"),
         sourceId: document.getElementById("sourceFilter").value,
+        irVersion: document.getElementById("irVersionFilter").value,
         dateFrom: document.getElementById("dateFrom").value,
         dateTo: document.getElementById("dateTo").value,
       };
@@ -1161,10 +1272,22 @@ INDEX_HTML = r"""<!doctype html>
       return true;
     }
     function filteredRunDays(r, f) {
-      return (r.days || []).filter(day => dayInRange(day.day, f));
+      const stats = f.irVersion ? (r.ir_version_stats || {})[f.irVersion] : null;
+      const days = stats ? (stats.days || []) : (r.days || []);
+      return days.filter(day => dayInRange(day.day, f));
     }
     function dayFilteredCounts(r, f) {
+      const versionStats = f.irVersion ? (r.ir_version_stats || {})[f.irVersion] : null;
       if (!dateFilterActive(f)) {
+        if (versionStats) {
+          return {
+            queries: versionStats.queries || 0,
+            responses: versionStats.responses || 0,
+            genui: versionStats.genui || 0,
+            score_sum: versionStats.score_sum || 0,
+            score_count: versionStats.score_count || 0,
+          };
+        }
         return {
           queries: r.queries || 0,
           responses: r.responses || 0,
@@ -1193,8 +1316,9 @@ INDEX_HTML = r"""<!doctype html>
       return counts.score_count ? counts.score_sum / counts.score_count : r.overall_score;
     }
     function runMatches(r, f) {
-      const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.intents]).toLowerCase();
+      const hay = JSON.stringify([r.source_label, r.run_id, r.query_models, r.response_models, r.ir_models, r.ir_versions, r.intents]).toLowerCase();
       if (f.sourceId && r.source_id !== f.sourceId) return false;
+      if (f.irVersion && !(r.ir_version_stats || {})[f.irVersion]) return false;
       if (f.text && !hay.includes(f.text)) return false;
       if (dateFilterActive(f) && !filteredRunDays(r, f).length) return false;
       const score = runScoreForFilter(r, f);
@@ -1263,6 +1387,13 @@ INDEX_HTML = r"""<!doctype html>
       select.innerHTML = `<option value="">All sources</option>${options.join("")}`;
       if ([...select.options].some(o => o.value === selected)) select.value = selected;
     }
+    function renderIrVersionFilter(versions) {
+      const select = document.getElementById("irVersionFilter");
+      const selected = select.value;
+      const options = Object.entries(versions || {}).map(([version, count]) => `<option value="${version}">${version} (${fmt(count)})</option>`);
+      select.innerHTML = `<option value="">All IR versions</option>${options.join("")}`;
+      if ([...select.options].some(o => o.value === selected)) select.value = selected;
+    }
     function renderRuns(runs) {
       document.getElementById("runs").innerHTML = runs.map(r => `
         <tr>
@@ -1275,6 +1406,7 @@ INDEX_HTML = r"""<!doctype html>
           <td>
             <span class="small">Stage 2</span><br>${modelText(r.response_models)}
             <br><span class="small">Stage 3</span><br>${modelText(r.ir_models)}
+            <br><span class="small">IR version</span><br>${versionText(r.ir_versions)}
           </td>
           <td><span class="small">${new Date(r.updated_at).toLocaleString()}</span></td>
         </tr>`).join("");
@@ -1286,7 +1418,9 @@ INDEX_HTML = r"""<!doctype html>
       const f = filters();
       const byDay = new Map();
       for (const run of runs) {
-        for (const day of (run.days || [])) {
+        const versionStats = f.irVersion ? (run.ir_version_stats || {})[f.irVersion] : null;
+        const days = versionStats ? (versionStats.days || []) : (run.days || []);
+        for (const day of days) {
           if (!dayInRange(day.day, f)) continue;
           if (!byDay.has(day.day)) {
             byDay.set(day.day, {day: day.day, queries: 0, responses: 0, genui: 0, score_sum: 0, score_count: 0, avg_score: null});
@@ -1350,6 +1484,7 @@ INDEX_HTML = r"""<!doctype html>
     function render() {
       if (!current) return;
       renderSourceFilter(current.sources || []);
+      renderIrVersionFilter(current.ir_versions || {});
       const runs = filteredRuns();
       renderStats(runTotals(runs));
       renderSources(filteredSourceStats(current.sources || [], runs));
@@ -1360,6 +1495,7 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
     document.getElementById("filter").oninput = render;
     document.getElementById("sourceFilter").onchange = render;
+    document.getElementById("irVersionFilter").onchange = render;
     document.getElementById("scoreFilter").onchange = render;
     document.getElementById("dateFrom").onchange = render;
     document.getElementById("dateTo").onchange = render;

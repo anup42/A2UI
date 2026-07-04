@@ -175,9 +175,10 @@ http://127.0.0.1:8765
 ```
 
 The UI shows separate query, response, and IR counts for every source. Use the source dropdown,
-text filter, score filter, or date range filters to narrow the visible runs; the top stats, source
-cards, and day-wise section recompute counts from the filtered runs. Date filters use each run's
-daily buckets, so query/response/IR counts reflect only records inside the selected range. With all
+IR version dropdown, text filter, score filter, or date range filters to narrow the visible runs;
+the top stats, source cards, and day-wise section recompute counts from the filtered runs. Date
+filters use each run's daily buckets, and IR version filters use each run's `gen.prompt_version`
+metadata, so query/response/IR counts reflect only matching records where available. With all
 sources selected, day-wise counts are aggregated across every matching source.
 
 One-off commands:
