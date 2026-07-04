@@ -1466,6 +1466,88 @@ def run_artifacts(run_dir: Path) -> dict[str, Any]:
     }
 
 
+def summarize_manifest(run_dir: Path) -> dict[str, Any]:
+    manifest_path = run_dir / "run_manifest.json"
+    try:
+        manifest = load_json(manifest_path, None)
+    except Exception as exc:
+        return {"present": False, "parse_error": str(exc), "path": str(manifest_path)}
+    if not isinstance(manifest, dict):
+        return {"present": False}
+
+    repo = manifest.get("repo") if isinstance(manifest.get("repo"), dict) else {}
+    model = manifest.get("model") if isinstance(manifest.get("model"), dict) else {}
+    command = manifest.get("command") if isinstance(manifest.get("command"), dict) else {}
+    config = manifest.get("config") if isinstance(manifest.get("config"), dict) else {}
+    paths = manifest.get("paths") if isinstance(manifest.get("paths"), dict) else {}
+    components = repo.get("components") if isinstance(repo.get("components"), dict) else {}
+    compatibility = repo.get("compatibility") if isinstance(repo.get("compatibility"), dict) else {}
+
+    settings = {
+        key: value
+        for key, value in manifest.items()
+        if key.endswith("_settings") and isinstance(value, dict)
+    }
+    setting_summary: dict[str, Any] = {}
+    for name, values in settings.items():
+        useful = {}
+        for key, value in values.items():
+            if key in {
+                "run_id",
+                "target",
+                "chunk_size",
+                "model",
+                "intent_count",
+                "k_per_intent",
+                "target_per_intent",
+                "stage1_batch_size",
+                "stage1_intent_batch_size",
+                "stage2_response_batch_size",
+                "stage2_query_batch_size",
+                "stage3_batch_size",
+                "rate_limit_qps",
+                "call_sleep_seconds",
+                "started_at",
+                "max_extra_source",
+                "replacement_batch_size",
+            }:
+                useful[key] = value
+        setting_summary[name] = useful or {key: values[key] for key in list(values.keys())[:12]}
+
+    argv = command.get("argv") if isinstance(command.get("argv"), list) else []
+    return {
+        "present": True,
+        "manifest_version": manifest.get("manifest_version"),
+        "generated_at": manifest.get("generated_at"),
+        "stage": manifest.get("stage"),
+        "repo": {
+            "release_version": repo.get("release_version"),
+            "git_commit": repo.get("git_commit"),
+            "git_branch": repo.get("git_branch"),
+            "git_dirty": repo.get("git_dirty"),
+            "components": components,
+            "compatibility": compatibility,
+        },
+        "model": {
+            "name": model.get("name"),
+            "provider": model.get("provider"),
+            "model": model.get("model"),
+        },
+        "config": {
+            "combined_sha256": config.get("combined_sha256"),
+            "file_count": len(config.get("files") or {}) if isinstance(config.get("files"), dict) else 0,
+            "files": list((config.get("files") or {}).keys())[:12] if isinstance(config.get("files"), dict) else [],
+        },
+        "paths": {key: paths.get(key) for key in ("run_dir", "queries_path", "responses_path", "genui_path", "aggregates_path") if paths.get(key)},
+        "command": {
+            "cwd": command.get("cwd"),
+            "argv": argv[:24],
+            "argv_truncated": len(argv) > 24,
+        },
+        "settings": setting_summary,
+    }
+
+
 def aggregate_model_comparisons(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     buckets: dict[str, dict[str, Any]] = {}
     for record in records:
@@ -1907,6 +1989,7 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "intent_quality": collect_intent_quality(genui_rows),
         "quality_summary": collect_quality_summary(genui_rows),
         "artifacts": run_artifacts(run_dir),
+        "manifest_summary": summarize_manifest(run_dir),
         "ir_versions": {version: stats["genui"] for version, stats in ir_version_stats.items()},
         "ir_version_stats": ir_version_stats,
         "intents": dict(sorted(intents.items(), key=lambda kv: (-kv[1], kv[0]))[:12]),
@@ -3045,6 +3128,45 @@ INDEX_HTML = r"""<!doctype html>
           <button class="mini-btn ghost-btn" onclick="copyText('${encodeURIComponent(item.path)}')">${bytesText(item.size)}</button>
         </div>`).join("")}</div>`;
     }
+    function renderObjectPairs(obj, emptyLabel = "none") {
+      const entries = Object.entries(obj || {}).filter(([, value]) => value != null && value !== "");
+      if (!entries.length) return `<span class="small">${emptyLabel}</span>`;
+      return entries.map(([key, value]) => `<div class="small"><b>${escapeHtml(key)}</b>: ${escapeHtml(Array.isArray(value) ? value.join(", ") : value)}</div>`).join("");
+    }
+    function renderManifestSummary(manifest) {
+      if (!manifest || !manifest.present) {
+        if (manifest?.parse_error) {
+          return `<span class="badge error">manifest parse error</span><div class="small">${escapeHtml(manifest.parse_error)}<br>${escapeHtml(manifest.path || "")}</div>`;
+        }
+        return "<span class='small'>No run_manifest.json found.</span>";
+      }
+      const repo = manifest.repo || {};
+      const model = manifest.model || {};
+      const config = manifest.config || {};
+      const command = manifest.command || {};
+      const argv = (command.argv || []).join(" ");
+      const settings = Object.entries(manifest.settings || {}).map(([name, values]) => `
+        <div class="detail-box">
+          <b>${escapeHtml(name)}</b>
+          ${renderObjectPairs(values)}
+        </div>`).join("");
+      return `
+        <div class="detail-grid">
+          <div class="detail-box"><b>${escapeHtml(manifest.stage ?? "unknown")}</b><br><span class="small">manifest stage</span></div>
+          <div class="detail-box"><b>${escapeHtml(manifest.generated_at || "unknown")}</b><br><span class="small">generated at</span></div>
+          <div class="detail-box"><b>${escapeHtml([model.provider, model.model].filter(Boolean).join("/") || model.name || "unknown")}</b><br><span class="small">manifest model</span></div>
+          <div class="detail-box"><b>${escapeHtml(repo.git_branch || "unknown")}</b><br><span class="small">git branch</span></div>
+          <div class="detail-box"><b>${escapeHtml((repo.git_commit || "").slice(0, 12) || "unknown")}</b><br><span class="small">git commit ${repo.git_dirty ? "(dirty)" : ""}</span></div>
+          <div class="detail-box"><b>${escapeHtml(config.combined_sha256 ? config.combined_sha256.slice(0, 12) : "unknown")}</b><br><span class="small">config hash | ${fmt(config.file_count || 0)} files</span></div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-box"><b>Command</b><br><span class="small">${escapeHtml(argv || "n/a")}${command.argv_truncated ? " ..." : ""}</span></div>
+          <div class="detail-box"><b>Command cwd</b><br><span class="small">${escapeHtml(command.cwd || "n/a")}</span></div>
+          <div class="detail-box"><b>Config files</b><br><span class="small">${escapeHtml((config.files || []).join(" | ") || "n/a")}</span></div>
+        </div>
+        ${settings ? `<div class="detail-grid">${settings}</div>` : ""}
+      `;
+    }
     function renderRunDetails(runs) {
       const el = document.getElementById("runDetails");
       if (!runs.length) {
@@ -3060,6 +3182,7 @@ INDEX_HTML = r"""<!doctype html>
       const q = selected.quality_summary || {};
       const m = selected.metric_avgs || {};
       const artifacts = selected.artifacts || {};
+      const manifest = selected.manifest_summary || {};
       const warnings = (q.warnings || []).map(w => `
         <div class="warning-row">
           <span>${escapeHtml(w.message)}</span>
@@ -3097,6 +3220,8 @@ INDEX_HTML = r"""<!doctype html>
         </div>
         <h2>Validation Warnings</h2>
         <div class="warning-list">${warnings || "<span class='small'>No sampled validation warnings.</span>"}</div>
+        <h2>Run Provenance</h2>
+        ${renderManifestSummary(manifest)}
         <h2>Artifacts</h2>
         <div class="detail-grid">
           <div class="detail-box"><b>Core files</b>${renderArtifactRows(artifacts.core || [], "file")}</div>

@@ -224,9 +224,10 @@ view.
 Use `Details` on any run to inspect model counts, IR prompt versions, intent mix, sampled validation
 warnings, and metric breakdowns. `Export CSV` and `Export JSON` download the currently filtered run
 view, which is useful for sharing source-specific or score-thresholded slices. The run detail pane
-also shows core artifacts, sample assets, and sample screenshots with copyable local paths, and the
-trend chart shows filtered daily volume with average IR score over time. Filtered distribution panels
-show top intents, Stage 2 models, Stage 3 models, IR versions, and source volume for the current view.
+also shows parsed `run_manifest.json` provenance, core artifacts, sample assets, and sample
+screenshots with copyable local paths, and the trend chart shows filtered daily volume with average
+IR score over time. Filtered distribution panels show top intents, Stage 2 models, Stage 3 models,
+IR versions, and source volume for the current view.
 The worst-sampled-records panel highlights low-score, repaired, fallback, markdown-leaking, sparse,
 or schema-failing IR rows from sampled `genui.jsonl` records and links back to the owning run details.
 
