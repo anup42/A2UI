@@ -26,7 +26,8 @@
         "IdentitiesOnly": "yes",
         "StrictHostKeyChecking": "no"
       },
-      "transfer_mode": "auto",
+      "transfer_mode": "direct",
+      "priority_copy_globs": ["*.jsonl", "*.json"],
       "path": "/home/anup/A2UI/dataset/data/runs",
       "path_match": "literal",
       "path_base": "",

@@ -12,7 +12,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tarfile
 import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -733,57 +732,6 @@ def run_remote_ssh_command(
     return result.stdout
 
 
-def upload_ssh_file(
-    source: dict[str, Any],
-    local_path: Path,
-    remote_path: str,
-    sftp: Any | None = None,
-    timeout: int | None = None,
-) -> None:
-    if sftp is not None:
-        sftp.put(str(local_path), remote_path)
-        return
-    target = ssh_target(source)
-    remote_spec = f"{target}:{shell_quote(remote_path)}"
-    cmd = scp_base_command(source) + [str(local_path), remote_spec]
-    result = run_command(cmd, timeout=timeout if timeout is not None else int(source.get("copy_timeout_sec", 300)))
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp upload failed for {remote_path}")
-
-
-def download_ssh_file(
-    source: dict[str, Any],
-    remote_path: str,
-    local_path: Path,
-    sftp: Any | None = None,
-    timeout: int | None = None,
-) -> None:
-    local_path.parent.mkdir(parents=True, exist_ok=True)
-    if sftp is not None:
-        sftp.get(remote_path, str(local_path))
-        return
-    target = ssh_target(source)
-    remote_spec = f"{target}:{shell_quote(remote_path)}"
-    cmd = scp_base_command(source) + [remote_spec, str(local_path)]
-    result = run_command(cmd, timeout=timeout if timeout is not None else int(source.get("copy_timeout_sec", 300)))
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp download failed for {remote_path}")
-
-
-def cleanup_remote_path(source: dict[str, Any], remote_path: str, client: Any | None = None) -> None:
-    if not remote_path:
-        return
-    py = "import shutil,sys; shutil.rmtree(sys.argv[1], ignore_errors=True)"
-    try:
-        run_remote_ssh_command(
-            source,
-            " ".join(["python3", "-c", shell_quote(py), shell_quote(remote_path)]),
-            client=client,
-        )
-    except Exception:
-        pass
-
-
 def copy_paramiko_file(sftp: Any, dest_root: Path, entry: FileEntry) -> None:
     if not entry.source_path:
         raise RuntimeError(f"missing remote source path for {entry.rel}")
@@ -816,14 +764,15 @@ def is_entry_unchanged(previous: dict[str, Any], dest_root: Path, entry: FileEnt
 
 
 def source_transfer_mode(source: dict[str, Any]) -> str:
-    mode = str(source.get("transfer_mode") or "auto").strip().lower()
-    return mode if mode in {"auto", "archive", "per_file"} else "auto"
+    # Archive mode was removed: remote temp space is too unreliable for large runs.
+    # Keep accepting older config keys, but all syncs now use direct changed-file copies.
+    return "direct"
 
 
-def source_direct_first_globs(source: dict[str, Any]) -> list[str]:
-    raw = source.get("direct_first_globs")
+def source_priority_copy_globs(source: dict[str, Any]) -> list[str]:
+    raw = source.get("priority_copy_globs", source.get("direct_first_globs"))
     if raw is None:
-        return ["*.jsonl"]
+        return ["*.jsonl", "*.json"]
     if isinstance(raw, str):
         text = raw.strip()
         return [text] if text else []
@@ -832,206 +781,18 @@ def source_direct_first_globs(source: dict[str, Any]) -> list[str]:
     return []
 
 
-def split_direct_first_entries(source: dict[str, Any], entries: list[FileEntry]) -> tuple[list[FileEntry], list[FileEntry]]:
-    patterns = source_direct_first_globs(source)
+def split_priority_entries(source: dict[str, Any], entries: list[FileEntry]) -> tuple[list[FileEntry], list[FileEntry]]:
+    patterns = source_priority_copy_globs(source)
     if not patterns:
         return [], entries
-    direct_first: list[FileEntry] = []
+    priority: list[FileEntry] = []
     remaining: list[FileEntry] = []
     for entry in entries:
         if match_filter_path(entry.rel, patterns):
-            direct_first.append(entry)
+            priority.append(entry)
         else:
             remaining.append(entry)
-    return direct_first, remaining
-
-
-def source_timeout_seconds(source: dict[str, Any], key: str, *, fallback_key: str = "copy_timeout_sec", default: int = 300) -> int:
-    for candidate_key in (key, fallback_key):
-        value = source.get(candidate_key)
-        if value in (None, ""):
-            continue
-        try:
-            parsed = int(value)
-        except (TypeError, ValueError):
-            continue
-        if parsed > 0:
-            return parsed
-    return default
-
-
-def safe_extract_tar_gz(archive_path: Path, dest_root: Path) -> int:
-    dest_root.mkdir(parents=True, exist_ok=True)
-    root = dest_root.resolve()
-    planned: list[tuple[Path, Path, tarfile.TarInfo]] = []
-    seen: set[str] = set()
-    with tempfile.TemporaryDirectory(prefix=".a2ui_extract_", dir=dest_root) as staging:
-        staging_root = Path(staging).resolve()
-        with tarfile.open(archive_path, "r:gz") as archive:
-            for member in archive.getmembers():
-                if not member.isfile():
-                    continue
-                member_name = safe_relative_path(member.name, context="archive member path")
-                if member_name in seen:
-                    raise RuntimeError(f"duplicate archive member path: {member.name}")
-                seen.add(member_name)
-                target = (dest_root / member_name).resolve()
-                if os.path.commonpath([str(root), str(target)]) != str(root):
-                    raise RuntimeError(f"archive member escapes destination: {member.name}")
-                staged = (staging_root / member_name).resolve()
-                if os.path.commonpath([str(staging_root), str(staged)]) != str(staging_root):
-                    raise RuntimeError(f"archive member escapes staging directory: {member.name}")
-                source = archive.extractfile(member)
-                if source is None:
-                    raise RuntimeError(f"failed to read archive member: {member.name}")
-                staged.parent.mkdir(parents=True, exist_ok=True)
-                with source, staged.open("wb") as handle:
-                    shutil.copyfileobj(source, handle)
-                planned.append((staged, target, member))
-        for staged, target, member in planned:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            os.replace(staged, target)
-            try:
-                os.chmod(target, member.mode & 0o777)
-            except OSError:
-                pass
-            if member.mtime is not None:
-                try:
-                    os.utime(target, (member.mtime, member.mtime))
-                except OSError:
-                    pass
-    return len(planned)
-
-
-def create_remote_archive(
-    source: dict[str, Any],
-    entries: list[FileEntry],
-    client: Any | None = None,
-    sftp: Any | None = None,
-) -> tuple[str, int, int]:
-    remote_tmp = ""
-    archive_timeout = source_timeout_seconds(source, "archive_timeout_sec", fallback_key="", default=1800)
-    try:
-        mktemp_py = "import tempfile; print(tempfile.mkdtemp(prefix='a2ui_dashboard_sync_'))"
-        remote_tmp = run_remote_ssh_command(
-            source,
-            " ".join(["python3", "-c", shell_quote(mktemp_py)]),
-            client=client,
-            timeout=archive_timeout,
-        ).strip().splitlines()[-1]
-        if not remote_tmp:
-            raise RuntimeError("remote temp directory creation returned no path")
-        remote_list = f"{remote_tmp.rstrip('/')}/files.jsonl"
-        remote_archive = f"{remote_tmp.rstrip('/')}/changes.tar.gz"
-        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".jsonl") as handle:
-            local_list = Path(handle.name)
-            for entry in entries:
-                if not entry.source_path:
-                    raise RuntimeError(f"missing remote source path for {entry.rel}")
-                handle.write(json.dumps({"rel": entry.rel, "source_path": entry.source_path}, separators=(",", ":")) + "\n")
-        try:
-            upload_ssh_file(source, local_list, remote_list, sftp=sftp, timeout=archive_timeout)
-        finally:
-            local_list.unlink(missing_ok=True)
-        archive_py = r"""
-import json, os, sys, tarfile
-list_path=sys.argv[1]
-archive_path=sys.argv[2]
-count=0
-payload_bytes=0
-with tarfile.open(archive_path, "w:gz", dereference=True) as archive:
-    with open(list_path, "r", encoding="utf-8") as handle:
-        for line in handle:
-            if not line.strip():
-                continue
-            item=json.loads(line)
-            rel=str(item.get("rel") or "")
-            source_path=str(item.get("source_path") or "")
-            if not rel or rel.startswith("/") or ".." in rel.replace("\\", "/").split("/"):
-                raise RuntimeError("unsafe relative path: " + rel)
-            if not source_path or not os.path.isfile(source_path):
-                raise FileNotFoundError(source_path)
-            payload_bytes += os.path.getsize(source_path)
-            archive.add(source_path, arcname=rel.replace("\\", "/"), recursive=False)
-            count += 1
-stat=os.stat(archive_path)
-print(json.dumps({"count": count, "payload_bytes": payload_bytes, "archive_size": stat.st_size}, separators=(",", ":")))
-"""
-        output = run_remote_ssh_command(
-            source,
-            " ".join(["python3", "-c", shell_quote(archive_py), shell_quote(remote_list), shell_quote(remote_archive)]),
-            client=client,
-            timeout=archive_timeout,
-        )
-        metadata = json.loads(output.strip().splitlines()[-1])
-        archived_count = int(metadata.get("count") or 0)
-        archive_size = int(metadata.get("archive_size") or 0)
-        if archived_count != len(entries):
-            raise RuntimeError(f"remote archive contained {archived_count}/{len(entries)} changed files")
-        return remote_archive, archived_count, archive_size
-    except Exception:
-        if remote_tmp:
-            cleanup_remote_path(source, remote_tmp, client=client)
-        raise
-
-
-def copy_ssh_archive(
-    source: dict[str, Any],
-    dest_root: Path,
-    entries: list[FileEntry],
-    client: Any | None,
-    sftp: Any | None,
-    progress: ProgressCallback | None,
-    base_progress: dict[str, Any],
-    cancel_event: threading.Event | None = None,
-) -> tuple[int, int]:
-    remote_archive = ""
-    archive_size = 0
-    archive_download_timeout = source_timeout_seconds(
-        source,
-        "archive_download_timeout_sec",
-        fallback_key="archive_timeout_sec",
-        default=1800,
-    )
-    with tempfile.TemporaryDirectory(prefix="a2ui_dashboard_archive_") as tmp:
-        local_archive = Path(tmp) / "changes.tar.gz"
-        try:
-            raise_if_sync_stopped(cancel_event)
-            emit_progress(
-                progress,
-                **base_progress,
-                phase="remote_archiving",
-                transfer_mode="archive",
-                current_file="",
-                message=f"Remote archiving {len(entries)} changed file(s) from {base_progress.get('source_label')}",
-            )
-            remote_archive, _, archive_size = create_remote_archive(source, entries, client=client, sftp=sftp)
-            raise_if_sync_stopped(cancel_event)
-            emit_progress(
-                progress,
-                **base_progress,
-                phase="downloading_archive",
-                transfer_mode="archive",
-                archive_size=archive_size,
-                message=f"Downloading archive ({archive_size} bytes) from {base_progress.get('source_label')}",
-            )
-            download_ssh_file(source, remote_archive, local_archive, sftp=sftp, timeout=archive_download_timeout)
-            raise_if_sync_stopped(cancel_event)
-            emit_progress(
-                progress,
-                **base_progress,
-                phase="extracting_archive",
-                transfer_mode="archive",
-                archive_size=archive_size,
-                message=f"Extracting archive from {base_progress.get('source_label')}",
-            )
-            extracted = safe_extract_tar_gz(local_archive, dest_root)
-            if extracted != len(entries):
-                raise RuntimeError(f"archive extracted {extracted}/{len(entries)} changed files")
-            return extracted, archive_size
-        finally:
-            if remote_archive:
-                cleanup_remote_path(source, str(PurePosixPath(remote_archive).parent), client=client)
+    return priority, remaining
 
 
 def emit_progress(progress: ProgressCallback | None, **payload: Any) -> None:
@@ -1097,8 +858,7 @@ def sync_source(
     cancelled = sync_stop_requested(cancel_event)
 
     transfer_mode = source_transfer_mode(source)
-    effective_transfer_mode = "per_file"
-    archive_size = 0
+    effective_transfer_mode = "direct"
     emit_progress(
         progress,
         phase="checking_changed_files",
@@ -1152,10 +912,11 @@ def sync_source(
     )
 
     processed_changed = 0
-    direct_first_entries: list[FileEntry] = []
-    archive_entries: list[FileEntry] = changed_entries
-    if source_type == "ssh" and transfer_mode == "auto":
-        direct_first_entries, archive_entries = split_direct_first_entries(source, changed_entries)
+    priority_entries, remaining_entries = split_priority_entries(source, changed_entries)
+    ordered_groups: list[tuple[str, list[FileEntry]]] = [
+        ("Copying priority JSON/JSONL", priority_entries),
+        ("Copying remaining changed files", remaining_entries),
+    ]
 
     def copy_entries_per_file(entries_to_copy: list[FileEntry], *, mode: str, label: str) -> None:
         nonlocal cancelled, copied, processed_changed
@@ -1243,86 +1004,14 @@ def sync_source(
                 message=f"Processed {skipped + processed_changed}/{len(entries)} from {source_label(source)}",
             )
 
-    if not cancelled and direct_first_entries:
-        effective_transfer_mode = "hybrid" if archive_entries else "per_file"
-        copy_entries_per_file(direct_first_entries, mode=effective_transfer_mode, label="Direct-copying priority JSONL")
-    if sync_stop_requested(cancel_event):
-        cancelled = True
-
-    fallback_entries: list[FileEntry] = []
-    if not cancelled and source_type == "ssh" and archive_entries and transfer_mode in {"auto", "archive"}:
-        effective_transfer_mode = "hybrid" if direct_first_entries else "archive"
-        base_progress = {
-            "source_id": source_id,
-            "source_label": source_label(source),
-            "source_type": source_type,
-            "listed": len(entries),
-            "total": len(entries),
-            "processed": skipped + processed_changed,
-            "copied": copied,
-            "skipped": skipped,
-            "error_count": len(errors),
-            "changed": len(changed_entries),
-        }
-        try:
-            archive_copied, archive_size_delta = copy_ssh_archive(
-                source,
-                dest_root,
-                archive_entries,
-                client=client,
-                sftp=sftp,
-                progress=progress,
-                base_progress=base_progress,
-                cancel_event=cancel_event,
-            )
-            archive_size += archive_size_delta
-            copied += archive_copied
-            processed_changed += len(archive_entries)
-            for entry in archive_entries:
-                current_files[entry.rel] = listed_signatures[entry.rel]
-        except SyncStopped:
+    for label, group_entries in ordered_groups:
+        if cancelled or not group_entries:
+            continue
+        copy_entries_per_file(group_entries, mode=effective_transfer_mode, label=label)
+        if sync_stop_requested(cancel_event):
             cancelled = True
-            effective_transfer_mode = "stopped"
-        except Exception as exc:
-            effective_transfer_mode = "fallback" if not direct_first_entries else "hybrid_fallback"
-            fallback_entries = archive_entries
-            fallback_reason = f"archive transfer failed: {exc}"
-            fallback_at = utc_now()
-            warnings.append(f"{fallback_reason}; falling back to per-file copy for non-JSONL files")
-            emit_progress(
-                progress,
-                phase="archive_fallback",
-                source_id=source_id,
-                source_label=source_label(source),
-                source_type=source_type,
-                transfer_mode=effective_transfer_mode,
-                listed=len(entries),
-                total=len(entries),
-                processed=skipped + processed_changed,
-                copied=copied,
-                skipped=skipped,
-                error_count=len(errors),
-                warning_count=len(warnings),
-                changed=len(changed_entries),
-                archive_size=archive_size,
-                fallback_reason=fallback_reason,
-                fallback_at=fallback_at,
-                message=f"Archive transfer failed for {source_label(source)}: {exc}; falling back to per-file copy for non-JSONL files",
-            )
-    elif not cancelled and changed_entries and (source_type != "ssh" or transfer_mode == "per_file"):
-        fallback_entries = changed_entries
-
-    if sync_stop_requested(cancel_event):
-        cancelled = True
-
-    if not cancelled and fallback_entries:
-        copy_entries_per_file(
-            fallback_entries,
-            mode=effective_transfer_mode,
-            label="Copying changed",
-        )
-    elif not cancelled and not changed_entries:
-        effective_transfer_mode = "archive" if source_type == "ssh" and transfer_mode in {"auto", "archive"} else "per_file"
+            break
+    if not cancelled and not changed_entries:
         emit_progress(
             progress,
             phase="copying",
@@ -1368,7 +1057,6 @@ def sync_source(
             error_count=len(errors),
             warning_count=len(warnings),
             changed=len(changed_entries),
-            archive_size=archive_size,
             fallback_reason=fallback_reason,
             fallback_at=fallback_at,
             cancelled=True,
@@ -1383,7 +1071,6 @@ def sync_source(
             "changed": len(changed_entries),
             "copied": copied,
             "skipped": skipped,
-            "archive_size": archive_size,
             "fallback_reason": fallback_reason,
             "fallback_at": fallback_at,
             "warnings": warnings[:50],
@@ -1410,7 +1097,6 @@ def sync_source(
         error_count=len(errors),
         warning_count=len(warnings),
         changed=len(changed_entries),
-        archive_size=archive_size,
         fallback_reason=fallback_reason,
         fallback_at=fallback_at,
         message=f"Updating manifest for {source_label(source)}",
@@ -1442,7 +1128,6 @@ def sync_source(
         error_count=len(errors),
         warning_count=len(warnings),
         changed=len(changed_entries),
-        archive_size=archive_size,
         fallback_reason=fallback_reason,
         fallback_at=fallback_at,
         message=f"Finished {source_label(source)}: copied {copied}, skipped {skipped}, errors {len(errors)}",
@@ -1456,7 +1141,6 @@ def sync_source(
         "changed": len(changed_entries),
         "copied": copied,
         "skipped": skipped,
-        "archive_size": archive_size,
         "fallback_reason": fallback_reason,
         "fallback_at": fallback_at,
         "warnings": warnings[:50],
@@ -1581,7 +1265,6 @@ def run_sync(
                 "changed": 0,
                 "copied": 0,
                 "skipped": 0,
-                "archive_size": 0,
                 "warnings": [message],
                 "warning_count": 1,
                 "errors": [],
@@ -1753,7 +1436,6 @@ def run_sync(
         skipped=sum(int(r.get("skipped") or 0) for r in results),
         error_count=sum(int(r.get("error_count") or 0) for r in results),
         warning_count=sum(int(r.get("warning_count") or 0) for r in results),
-        archive_size=sum(int(r.get("archive_size") or 0) for r in results),
         stop_requested=False,
         stopped_at=summary["stopped_at"],
         cancelled=cancelled,
@@ -4543,11 +4225,7 @@ INDEX_HTML = r"""<!doctype html>
       return ({
         listing: "listing remote files",
         checking_changed_files: "checking changed files",
-        remote_archiving: "remote archiving",
-        downloading_archive: "downloading archive",
-        extracting_archive: "extracting archive",
         updating_manifest: "updating manifest",
-        archive_fallback: "archive fallback",
         copying: "copying files",
         stopping: "stopping",
         stopped: "stopped",
@@ -4603,7 +4281,6 @@ INDEX_HTML = r"""<!doctype html>
           const hasFallback = Boolean(source.fallback_reason);
           const badgeClass = phase === "source_error" || Number(source.error_count || 0) ? "error" : (hasFallback || Number(source.warning_count || 0) ? "warn" : (source.done ? "ok" : (phase === "queued" ? "unknown" : "warn")));
           const transferMode = source.transfer_mode ? `mode ${source.transfer_mode}` : "";
-          const archiveSize = Number(source.archive_size || 0) ? `, archive ${bytesText(source.archive_size)}` : "";
           const fallbackDetail = source.fallback_reason ? `<br><span class="badge warn">fallback reason</span><br><span class="small">${escapeHtml(source.fallback_reason)}</span>` : "";
           const resyncButton = source.done && sourceId && !s.running
             ? `<button class="ghost-btn source-resync-btn" data-source-id="${escapeHtml(sourceId)}" title="Sync only this source">Resync source</button>`
@@ -4613,7 +4290,7 @@ INDEX_HTML = r"""<!doctype html>
               <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(syncPhaseLabel(phase))}</span><br><span class="small">${escapeHtml(transferMode)}</span>${fallbackDetail}</div>
               <div>
                 <div class="bar-track"><div class="bar-fill" style="width:${sourceWidth}%"></div></div>
-                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, warnings ${fmt(source.warning_count)}, errors ${fmt(source.error_count)}${archiveSize}</span>
+                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, warnings ${fmt(source.warning_count)}, errors ${fmt(source.error_count)}</span>
               </div>
               <div class="small">${escapeHtml(source.current_file || source.message || "")}${resyncButton ? `<div style="margin-top:8px">${resyncButton}</div>` : ""}</div>
             </div>`;
@@ -4698,7 +4375,7 @@ INDEX_HTML = r"""<!doctype html>
       if (!res.ok) throw new Error(payload.error || "stop sync failed");
       renderSyncStatus(payload);
       startSyncPolling();
-      setStatus(payload.running ? "Stop requested. Active copy/archive operation will finish first." : (payload.message || "Sync stopped"));
+      setStatus(payload.running ? "Stop requested. Active copy operation will finish first." : (payload.message || "Sync stopped"));
     }
     async function testSource(sourceId) {
       setStatus(`Testing ${sourceId}...`);
@@ -4931,7 +4608,7 @@ INDEX_HTML = r"""<!doctype html>
         return `
           <tr>
             <td><b>${escapeHtml(result.source_label || result.source_id)}</b><br><span class="badge ${status}">${status}</span><br><span class="small">mode ${escapeHtml(result.transfer_mode || "n/a")}</span></td>
-            <td>listed ${fmt(result.listed)}<br>changed ${fmt(result.changed)}<br>copied ${fmt(result.copied)}<br>skipped ${fmt(result.skipped)}${result.archive_size ? `<br>archive ${bytesText(result.archive_size)}` : ""}</td>
+            <td>listed ${fmt(result.listed)}<br>changed ${fmt(result.changed)}<br>copied ${fmt(result.copied)}<br>skipped ${fmt(result.skipped)}</td>
             <td>warnings ${fmt(result.warning_count || 0)}<br>errors ${fmt(result.error_count || 0)}${issueLines || "<br><span class='small'>no warnings/errors</span>"}</td>
             <td><span class="small">${escapeHtml(result.mirror_path || "")}</span></td>
           </tr>`;
@@ -8067,7 +7744,6 @@ class DashboardServer:
             "skipped": 0,
             "error_count": 0,
             "warning_count": 0,
-            "archive_size": 0,
             "stop_requested": False,
             "cancelled": False,
             "stopped_at": "",
@@ -8105,7 +7781,6 @@ class DashboardServer:
                     status["skipped"] = sum(int(item.get("skipped") or 0) for item in source_values)
                     status["error_count"] = sum(int(item.get("error_count") or 0) for item in source_values)
                     status["warning_count"] = sum(int(item.get("warning_count") or 0) for item in source_values)
-                    status["archive_size"] = sum(int(item.get("archive_size") or 0) for item in source_values)
                     status["completed_sources"] = sum(1 for item in source_values if item.get("done"))
                     status["active_sources"] = sum(
                         1
@@ -8171,7 +7846,7 @@ class DashboardServer:
                 "running": True,
                 "phase": "stopping",
                 "stop_requested": True,
-                "message": "Stop requested. Waiting for active copy/archive operation to finish.",
+                "message": "Stop requested. Waiting for active copy operation to finish.",
             }
         )
         return self.status()
