@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import fnmatch
 import getpass
 import glob
@@ -40,6 +41,16 @@ ACTIVE_PROCESSES_LOCK = threading.Lock()
 
 class SyncStopped(RuntimeError):
     """Raised when the user requests dashboard sync cancellation."""
+
+
+def is_client_disconnect_error(exc: BaseException) -> bool:
+    if isinstance(exc, (BrokenPipeError, ConnectionAbortedError, ConnectionResetError)):
+        return True
+    if not isinstance(exc, OSError):
+        return False
+    if getattr(exc, "winerror", None) in {10053, 10054, 10058}:
+        return True
+    return getattr(exc, "errno", None) in {errno.EPIPE, errno.ECONNABORTED, errno.ECONNRESET}
 
 
 class FastShutdownThreadingHTTPServer(ThreadingHTTPServer):
@@ -8006,13 +8017,31 @@ def make_handler(server_state: DashboardServer):
         def log_message(self, fmt: str, *args: Any) -> None:
             sys.stderr.write("[%s] %s\n" % (self.log_date_time_string(), fmt % args))
 
-        def send_json(self, payload: Any, status: int = 200) -> None:
+        def finish(self) -> None:
+            try:
+                super().finish()
+            except Exception as exc:
+                if is_client_disconnect_error(exc):
+                    return
+                raise
+
+        def write_response(self, data: bytes, content_type: str, status: int = 200) -> bool:
+            try:
+                self.send_response(status)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+                return True
+            except Exception as exc:
+                if is_client_disconnect_error(exc):
+                    self.close_connection = True
+                    return False
+                raise
+
+        def send_json(self, payload: Any, status: int = 200) -> bool:
             data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-            self.send_response(status)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
+            return self.write_response(data, "application/json; charset=utf-8", status=status)
 
         def read_json_body(self) -> dict[str, Any]:
             length = int(self.headers.get("Content-Length") or 0)
@@ -8031,11 +8060,7 @@ def make_handler(server_state: DashboardServer):
             parsed = urlparse(self.path)
             if parsed.path == "/":
                 data = INDEX_HTML.encode("utf-8")
-                self.send_response(200)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
-                self.send_header("Content-Length", str(len(data)))
-                self.end_headers()
-                self.wfile.write(data)
+                self.write_response(data, "text/html; charset=utf-8")
                 return
             if parsed.path == "/api/summary":
                 try:
