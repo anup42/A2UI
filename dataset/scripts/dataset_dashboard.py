@@ -399,6 +399,69 @@ def normalized_ssh_options(source: dict[str, Any]) -> list[str]:
     return options
 
 
+def strip_outer_quotes(value: str) -> str:
+    text = value.strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in {"'", '"'}:
+        return text[1:-1].strip()
+    return text
+
+
+def command_for_log(command: list[str] | str) -> str:
+    if isinstance(command, str):
+        return command
+    return " ".join(shell_quote(str(part)) for part in command)
+
+
+def resolve_executable(raw: str, *, source_id: str, purpose: str) -> str:
+    value = strip_outer_quotes(os.path.expandvars(os.path.expanduser(str(raw or "").strip())))
+    if not value:
+        raise RuntimeError(f"{purpose} executable is empty for source {source_id}")
+    resolved = shutil.which(value)
+    if resolved:
+        return resolved
+    path = Path(value)
+    looks_like_path = path.is_absolute() or any(separator in value for separator in ("/", "\\"))
+    if looks_like_path:
+        if path.exists() and path.is_file():
+            return str(path)
+        if path.exists() and path.is_dir():
+            raise RuntimeError(
+                f"{purpose} executable for source {source_id} points to a directory, not a file: {value}"
+            )
+        raise RuntimeError(f"{purpose} executable for source {source_id} was not found: {value}")
+    raise RuntimeError(f"{purpose} executable not found for source {source_id}: {value}")
+
+
+def resolve_rsync_executable(source: dict[str, Any]) -> str:
+    source_id = safe_source_id(str(source.get("id") or source_label(source)))
+    configured = strip_outer_quotes(str(source.get("rsync_path") or "").strip())
+    candidates = [configured] if configured else ["rsync"]
+    if os.name == "nt" and not configured:
+        candidates.extend(
+            [
+                r"C:\msys64\usr\bin\rsync.exe",
+                r"C:\Program Files\cwRsync\bin\rsync.exe",
+                r"C:\Program Files (x86)\cwRsync\bin\rsync.exe",
+            ]
+        )
+    last_error = ""
+    for candidate in candidates:
+        try:
+            return resolve_executable(candidate, source_id=source_id, purpose="rsync")
+        except RuntimeError as exc:
+            last_error = str(exc)
+    raise RuntimeError(
+        f"rsync executable not found for source {source_id}. "
+        "Install rsync, add it to PATH, or set source.rsync_path to rsync.exe. "
+        f"Last checked: {last_error}"
+    )
+
+
+def resolve_ssh_executable(source: dict[str, Any]) -> str:
+    source_id = safe_source_id(str(source.get("id") or source_label(source)))
+    return resolve_executable(str(source.get("ssh_path") or "ssh"), source_id=source_id, purpose="ssh")
+
+
 def track_process(process: subprocess.Popen[str]) -> None:
     with ACTIVE_PROCESSES_LOCK:
         ACTIVE_PROCESSES.add(process)
@@ -458,16 +521,19 @@ def run_command(
 ) -> subprocess.CompletedProcess[str]:
     shell = isinstance(command, str)
     start = time.monotonic()
-    process = subprocess.Popen(
-        command,
-        shell=shell,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=env,
-    )
+    try:
+        process = subprocess.Popen(
+            command,
+            shell=shell,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=env,
+        )
+    except OSError as exc:
+        raise RuntimeError(f"Failed to start command: {command_for_log(command)}\n{exc}") from exc
     track_process(process)
     try:
         while True:
@@ -581,9 +647,9 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
     mode = ssh_transport_mode(source)
     password = password_for_source(source)
     if mode == "sshpass":
-        cmd = ["sshpass", "-p", password, "ssh"]
+        cmd = ["sshpass", "-p", password, resolve_ssh_executable(source)]
     else:
-        cmd = ["ssh"]
+        cmd = [resolve_ssh_executable(source)]
     port = source.get("port")
     if port:
         cmd += ["-p", str(port)]
@@ -613,7 +679,7 @@ def source_timeout_seconds(source: dict[str, Any], key: str, default: int | None
 
 
 def rsync_ssh_shell(source: dict[str, Any]) -> str:
-    parts = ["ssh"]
+    parts = [resolve_ssh_executable(source)]
     port = source.get("port")
     if port:
         parts += ["-p", str(port)]
@@ -674,12 +740,7 @@ def rsync_remote_source(source: dict[str, Any]) -> str:
 
 
 def rsync_base_command(source: dict[str, Any]) -> list[str]:
-    rsync_bin = str(source.get("rsync_path") or "rsync").strip() or "rsync"
-    if not shutil.which(rsync_bin) and not Path(rsync_bin).exists():
-        raise RuntimeError(
-            f"rsync executable not found for source {source.get('id')}. "
-            "Install rsync or set source.rsync_path to the executable path."
-        )
+    rsync_bin = resolve_rsync_executable(source)
     mode = ssh_transport_mode(source)
     password = password_for_source(source)
     cmd: list[str] = []
@@ -697,6 +758,12 @@ def rsync_base_command(source: dict[str, Any]) -> list[str]:
     if config_bool(source.get("rsync_delete"), False):
         cmd.append("--delete")
     return cmd
+
+
+def rsync_local_dest_arg(path: Path) -> str:
+    # Native Windows paths with backslashes are fragile across cwRsync/MSYS2.
+    # Forward slashes are accepted by those builds and preserve drive prefixes.
+    return path.resolve().as_posix().rstrip("/") + "/"
 
 
 def parse_rsync_itemized_line(line: str) -> tuple[str, str] | None:
@@ -721,15 +788,18 @@ def run_streaming_command(
 ) -> subprocess.CompletedProcess[str]:
     shell = isinstance(command, str)
     start = time.monotonic()
-    process = subprocess.Popen(
-        command,
-        shell=shell,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
+    try:
+        process = subprocess.Popen(
+            command,
+            shell=shell,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except OSError as exc:
+        raise RuntimeError(f"Failed to start command: {command_for_log(command)}\n{exc}") from exc
     track_process(process)
     output_lines: list[str] = []
     try:
@@ -907,7 +977,7 @@ def sync_ssh_source_rsync(
     command = (
         rsync_base_command(source)
         + rsync_filter_args(include_globs, exclude_globs)
-        + [rsync_remote_source(source), str(dest_root) + os.sep]
+        + [rsync_remote_source(source), rsync_local_dest_arg(dest_root)]
     )
 
     def on_rsync_line(line: str) -> None:
