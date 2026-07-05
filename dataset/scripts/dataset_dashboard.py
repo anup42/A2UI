@@ -1433,6 +1433,21 @@ def positive_int(value: Any, default: int, *, minimum: int = 1, maximum: int = 6
     return max(minimum, min(maximum, parsed))
 
 
+def config_bool(value: Any, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "y", "on"}:
+        return True
+    if text in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
 def run_sync(
     config: dict[str, Any],
     mirror_dir: Path,
@@ -3244,17 +3259,21 @@ def aggregate_model_comparisons(records: list[dict[str, Any]]) -> list[dict[str,
 
 
 def effective_dashboard_sources(config: dict[str, Any]) -> list[dict[str, Any]]:
-    sources: list[dict[str, Any]] = [
-        {
-            "id": "_local_checkout",
-            "label": "Local checkout",
-            "type": "local",
-            "path": "data/runs",
-            "mirror_local_in_place": True,
-            "enabled": True,
-        }
-    ]
-    sources.extend(source for source in config.get("sources") or [] if isinstance(source, dict))
+    configured_sources = [source for source in config.get("sources") or [] if isinstance(source, dict)]
+    include_local_checkout = config_bool(config.get("include_local_checkout"), default=not configured_sources)
+    sources: list[dict[str, Any]] = []
+    if include_local_checkout:
+        sources.append(
+            {
+                "id": "_local_checkout",
+                "label": "Local checkout",
+                "type": "local",
+                "path": "data/runs",
+                "mirror_local_in_place": True,
+                "enabled": True,
+            }
+        )
+    sources.extend(configured_sources)
     return sources
 
 
