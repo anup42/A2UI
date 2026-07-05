@@ -353,19 +353,8 @@ def password_for_source(source: dict[str, Any]) -> str:
     return PASSWORD_CACHE[key]
 
 
-def use_paramiko_ssh(source: dict[str, Any]) -> bool:
-    backend = str(source.get("ssh_backend") or "").strip().lower()
-    if backend == "paramiko":
-        return True
-    if backend == "openssh":
-        return False
-    if source.get("proxy_command") or source.get("proxy_jump"):
-        return False
-    return bool(ssh_password(source) or source_asks_password(source))
-
-
 def ssh_transport_mode(source: dict[str, Any]) -> str:
-    if not ssh_password(source):
+    if not password_for_source(source):
         return "openssh"
     if shutil.which("sshpass"):
         return "sshpass"
@@ -508,42 +497,6 @@ def run_command(
         untrack_process(process)
 
 
-def import_paramiko() -> Any:
-    try:
-        import paramiko  # type: ignore
-    except ImportError as exc:
-        raise RuntimeError(
-            "Password-based SSH sync requires the optional Python package 'paramiko'. "
-            "Install it with: python -m pip install paramiko"
-        ) from exc
-    return paramiko
-
-
-def connect_paramiko(source: dict[str, Any]) -> Any:
-    paramiko = import_paramiko()
-    host = str(source.get("host") or "").strip()
-    if not host:
-        raise ValueError(f"SSH source {source.get('id')} missing host")
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    identity = str(source.get("identity_file") or "").strip()
-    connect_kwargs: dict[str, Any] = {
-        "hostname": host,
-        "username": str(source.get("user") or "").strip() or None,
-        "port": int(source.get("port") or 22),
-        "timeout": int(source.get("connect_timeout_sec", 30)),
-        "look_for_keys": False,
-        "allow_agent": False,
-    }
-    password = password_for_source(source)
-    if password:
-        connect_kwargs["password"] = password
-    if identity:
-        connect_kwargs["key_filename"] = os.path.expandvars(os.path.expanduser(identity))
-    client.connect(**connect_kwargs)
-    return client
-
-
 def source_enabled(source: dict[str, Any]) -> bool:
     return bool(source.get("enabled", True))
 
@@ -626,7 +579,7 @@ def list_local_source_files(source: dict[str, Any], include_globs: list[str], ex
 def ssh_base_command(source: dict[str, Any]) -> list[str]:
     target = ssh_target(source)
     mode = ssh_transport_mode(source)
-    password = ssh_password(source)
+    password = password_for_source(source)
     if mode == "sshpass":
         cmd = ["sshpass", "-p", password, "ssh"]
     else:
@@ -640,24 +593,6 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
     for option in normalized_ssh_options(source):
         cmd += ["-o", str(option)]
     cmd.append(target)
-    return cmd
-
-
-def scp_base_command(source: dict[str, Any]) -> list[str]:
-    mode = ssh_transport_mode(source)
-    password = ssh_password(source)
-    if mode == "sshpass":
-        cmd = ["sshpass", "-p", password, "scp", "-p"]
-    else:
-        cmd = ["scp", "-p"]
-    port = source.get("port")
-    if port:
-        cmd += ["-P", str(port)]
-    identity = str(source.get("identity_file") or "").strip()
-    if identity:
-        cmd += ["-i", os.path.expandvars(os.path.expanduser(identity))]
-    for option in normalized_ssh_options(source):
-        cmd += ["-o", str(option)]
     return cmd
 
 
@@ -677,108 +612,151 @@ def source_timeout_seconds(source: dict[str, Any], key: str, default: int | None
     return parsed if parsed > 0 else None
 
 
-def list_ssh_files(
-    source: dict[str, Any],
-    include_globs: list[str],
-    exclude_globs: list[str],
-    client: Any | None = None,
-) -> list[FileEntry]:
-    remote_root = str(source.get("path") or "").rstrip("/")
+def rsync_ssh_shell(source: dict[str, Any]) -> str:
+    parts = ["ssh"]
+    port = source.get("port")
+    if port:
+        parts += ["-p", str(port)]
+    identity = str(source.get("identity_file") or "").strip()
+    if identity:
+        parts += ["-i", os.path.expandvars(os.path.expanduser(identity))]
+    for option in normalized_ssh_options(source):
+        parts += ["-o", str(option)]
+    return " ".join(shell_quote(str(part)) for part in parts)
+
+
+def rsync_pattern_variants(pattern: str) -> list[str]:
+    value = pattern.replace("\\", "/").strip()
+    if not value:
+        return []
+    variants = [value]
+    if "/" in value and not value.startswith(("/", "**/")):
+        variants.append(f"**/{value}")
+    if value.endswith("/*"):
+        variants.append(value[:-1] + "***")
+        if "/" in value and not value.startswith(("/", "**/")):
+            variants.append(f"**/{value[:-1]}***")
+    return list(dict.fromkeys(variants))
+
+
+def rsync_filter_args(include_globs: list[str], exclude_globs: list[str]) -> list[str]:
+    args: list[str] = []
+    for pattern in exclude_globs:
+        for variant in rsync_pattern_variants(str(pattern)):
+            args += ["--exclude", variant]
+    if include_globs:
+        args += ["--include", "*/"]
+        for pattern in include_globs:
+            for variant in rsync_pattern_variants(str(pattern)):
+                args += ["--include", variant]
+        args += ["--exclude", "*"]
+    return args
+
+
+def rsync_remote_source(source: dict[str, Any]) -> str:
+    remote_root = str(source.get("path") or "").strip()
     if not remote_root:
         raise ValueError(f"SSH source {source.get('id')} missing path")
     mode = source_path_mode(source)
-    path_base = str(source.get("path_base") or "").rstrip("/")
-    if mode == "regex" and not path_base:
-        raise ValueError(f"SSH source {source.get('id')} uses path_match=regex but missing path_base")
-    py = r"""
-import os, sys, json, fnmatch, glob, re
-root=sys.argv[1]
-mode=sys.argv[2]
-path_base=sys.argv[3]
-include=json.loads(sys.argv[4])
-exclude=json.loads(sys.argv[5])
-def match_any(rel, patterns):
-    return any(fnmatch.fnmatch(rel, p) for p in patterns)
-def match_filter_path(rel, patterns):
-    candidates=[rel]
-    if '/' in rel:
-        candidates.append(rel.split('/', 1)[1])
-    return any(match_any(candidate, patterns) for candidate in candidates)
-def roots_for_mode():
-    if mode == 'literal':
-        return [(root, '')] if os.path.isdir(root) else []
-    if mode == 'glob':
-        return [(p, os.path.basename(os.path.normpath(p))) for p in sorted(glob.glob(root)) if os.path.isdir(p)]
-    if mode == 'regex':
-        compiled=re.compile(root)
-        matches=[]
-        for name in os.listdir(path_base):
-            path=os.path.join(path_base, name)
-            if os.path.isdir(path) and compiled.search(name):
-                matches.append((path, os.path.basename(os.path.normpath(path))))
-        return sorted(matches)
-    raise SystemExit('Unsupported path_match: ' + mode)
-for scan_root, prefix in roots_for_mode():
-    for base, dirs, files in os.walk(scan_root):
-        dirs[:] = [d for d in dirs if d not in {'.git','__pycache__'}]
-        for name in files:
-            path=os.path.join(base,name)
-            rel=os.path.relpath(path, scan_root).replace(os.sep, '/')
-            if prefix:
-                rel=prefix.rstrip('/') + '/' + rel
-            if exclude and match_filter_path(rel, exclude):
-                continue
-            if include and not match_filter_path(rel, include):
-                continue
-            try:
-                st=os.stat(path)
-            except OSError:
-                continue
-            print(json.dumps({'rel': rel, 'size': st.st_size, 'mtime': st.st_mtime, 'source_path': path}, separators=(',',':')))
-"""
-    remote_command = " ".join(
-        [
-            "python3",
-            "-c",
-            shell_quote(py),
-            shell_quote(remote_root),
-            shell_quote(mode),
-            shell_quote(path_base),
-            shell_quote(json.dumps(include_globs)),
-            shell_quote(json.dumps(exclude_globs)),
-        ]
-    )
-    list_timeout = source_timeout_seconds(source, "list_timeout_sec")
-    if client is not None:
-        stdin, stdout, stderr = client.exec_command(remote_command, timeout=list_timeout)
-        del stdin
-        output = stdout.read().decode("utf-8", errors="replace")
-        error = stderr.read().decode("utf-8", errors="replace")
-        exit_status = stdout.channel.recv_exit_status()
-        if exit_status != 0:
-            raise RuntimeError(error.strip() or output.strip() or "ssh list failed")
-    else:
-        cmd = ssh_base_command(source) + [remote_command]
-        result = run_command(cmd, timeout=list_timeout)
-        if result.returncode != 0:
-            raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh list failed")
-        output = result.stdout
-    entries: list[FileEntry] = []
-    for line in output.splitlines():
-        try:
-            obj = json.loads(line)
-        except Exception:
-            continue
-        rel = safe_relative_path(obj["rel"], context=f"SSH source {source.get('id')} output")
-        entries.append(
-            FileEntry(
-                rel=rel,
-                size=int(obj["size"]),
-                mtime=float(obj["mtime"]),
-                source_path=str(obj.get("source_path") or ""),
-            )
+    if mode == "regex":
+        raise ValueError(
+            f"SSH source {source.get('id')} uses path_match=regex, but rsync-only sync cannot resolve "
+            "remote regex paths without running remote code. Use path_match=glob and a shell glob path instead."
         )
-    return entries
+    if mode == "literal":
+        remote_path = remote_root.rstrip("/") + "/"
+        remote_path_arg = shell_quote(remote_path) if config_bool(source.get("rsync_quote_remote_path"), True) else remote_path
+    elif mode == "glob":
+        remote_path_arg = remote_root
+    else:
+        raise ValueError(f"Unsupported SSH path_match for rsync: {mode}")
+    return f"{ssh_target(source)}:{remote_path_arg}"
+
+
+def rsync_base_command(source: dict[str, Any]) -> list[str]:
+    rsync_bin = str(source.get("rsync_path") or "rsync").strip() or "rsync"
+    if not shutil.which(rsync_bin) and not Path(rsync_bin).exists():
+        raise RuntimeError(
+            f"rsync executable not found for source {source.get('id')}. "
+            "Install rsync or set source.rsync_path to the executable path."
+        )
+    mode = ssh_transport_mode(source)
+    password = password_for_source(source)
+    cmd: list[str] = []
+    if mode == "sshpass":
+        cmd += ["sshpass", "-p", password]
+    cmd += [
+        rsync_bin,
+        "-az",
+        "--partial",
+        "--itemize-changes",
+        "--out-format=%i\t%n\t%l",
+        "-e",
+        rsync_ssh_shell(source),
+    ]
+    if config_bool(source.get("rsync_delete"), False):
+        cmd.append("--delete")
+    return cmd
+
+
+def parse_rsync_itemized_line(line: str) -> tuple[str, str] | None:
+    text = line.rstrip("\r\n")
+    if not text or "\t" not in text:
+        return None
+    itemized, rel, *_ = text.split("\t")
+    rel = rel.replace("\\", "/").strip()
+    if not itemized or not rel or itemized.startswith("*deleting"):
+        return None
+    return itemized, rel
+
+
+def is_rsync_file_item(itemized: str) -> bool:
+    return len(itemized) > 1 and itemized[1] not in {"d"}
+
+
+def run_streaming_command(
+    command: list[str] | str,
+    timeout: int | None = None,
+    on_line: Callable[[str], None] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    shell = isinstance(command, str)
+    start = time.monotonic()
+    process = subprocess.Popen(
+        command,
+        shell=shell,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    track_process(process)
+    output_lines: list[str] = []
+    try:
+        assert process.stdout is not None
+        while True:
+            line = process.stdout.readline()
+            if line:
+                output_lines.append(line)
+                if on_line is not None:
+                    on_line(line)
+            elif process.poll() is not None:
+                break
+            else:
+                time.sleep(0.1)
+            if SHUTDOWN_EVENT.is_set():
+                terminate_process(process)
+                raise SyncStopped("command stopped during dashboard shutdown") from None
+            if timeout is not None and (time.monotonic() - start) >= timeout:
+                terminate_process(process)
+                raise subprocess.TimeoutExpired(command, timeout, output="".join(output_lines), stderr="")
+        return subprocess.CompletedProcess(command, process.returncode, "".join(output_lines), "")
+    except KeyboardInterrupt:
+        SHUTDOWN_EVENT.set()
+        terminate_process(process)
+        raise
+    finally:
+        untrack_process(process)
 
 
 def list_command_files(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> list[FileEntry]:
@@ -813,54 +791,6 @@ def copy_local_file(source_root: Path, dest_root: Path, entry: FileEntry) -> Non
     shutil.copy2(src, dest)
 
 
-def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> None:
-    remote_root = str(source.get("path") or "").rstrip("/")
-    target = ssh_target(source)
-    remote_path = entry.source_path or str(PurePosixPath(remote_root) / PurePosixPath(entry.rel))
-    dest = dest_root / entry.rel
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    # OpenSSH scp uses SFTP by default on modern systems. In SFTP mode, shell
-    # quoting becomes part of the remote filename and causes false "not found"
-    # errors for paths that do exist. Keep quoting opt-in only for legacy scp.
-    remote_path_arg = shell_quote(remote_path) if config_bool(source.get("scp_quote_remote_path"), False) else remote_path
-    remote_spec = f"{target}:{remote_path_arg}"
-    cmd = scp_base_command(source) + [remote_spec, str(dest)]
-    result = run_command(cmd, timeout=source_timeout_seconds(source, "copy_timeout_sec"))
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
-
-
-def run_remote_ssh_command(
-    source: dict[str, Any],
-    remote_command: str,
-    client: Any | None = None,
-    timeout: int | None = None,
-) -> str:
-    command_timeout = timeout if timeout is not None else source_timeout_seconds(source, "copy_timeout_sec")
-    if client is not None:
-        stdin, stdout, stderr = client.exec_command(remote_command, timeout=command_timeout)
-        del stdin
-        output = stdout.read().decode("utf-8", errors="replace")
-        error = stderr.read().decode("utf-8", errors="replace")
-        exit_status = stdout.channel.recv_exit_status()
-        if exit_status != 0:
-            raise RuntimeError(error.strip() or output.strip() or "ssh command failed")
-        return output
-    cmd = ssh_base_command(source) + [remote_command]
-    result = run_command(cmd, timeout=command_timeout)
-    if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh command failed")
-    return result.stdout
-
-
-def copy_paramiko_file(sftp: Any, dest_root: Path, entry: FileEntry) -> None:
-    if not entry.source_path:
-        raise RuntimeError(f"missing remote source path for {entry.rel}")
-    dest = dest_root / entry.rel
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    sftp.get(entry.source_path, str(dest))
-
-
 def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
     command = str(source.get("copy_command") or "").strip()
     if not command:
@@ -885,9 +815,7 @@ def is_entry_unchanged(previous: dict[str, Any], dest_root: Path, entry: FileEnt
 
 
 def source_transfer_mode(source: dict[str, Any]) -> str:
-    # Archive mode was removed: remote temp space is too unreliable for large runs.
-    # Keep accepting older config keys, but all syncs now use direct changed-file copies.
-    return "direct"
+    return "rsync" if str(source.get("type") or "local").lower() == "ssh" else "direct"
 
 
 def source_priority_copy_globs(source: dict[str, Any]) -> list[str]:
@@ -937,6 +865,205 @@ def raise_if_sync_stopped(cancel_event: threading.Event | None) -> None:
         raise SyncStopped("sync stopped by user")
 
 
+def sync_ssh_source_rsync(
+    source: dict[str, Any],
+    mirror_dir: Path,
+    include_globs: list[str],
+    exclude_globs: list[str],
+    progress: ProgressCallback | None = None,
+    cancel_event: threading.Event | None = None,
+) -> dict[str, Any]:
+    source_id = safe_source_id(str(source.get("id") or source_label(source)))
+    source_type = "ssh"
+    dest_root = source_local_root(source, mirror_dir)
+    manifest_path = mirror_dir / source_id / f".{MANIFEST_NAME}"
+    copied = 0
+    data_files_copied = 0
+    last_data_file = ""
+    errors: list[str] = []
+    warnings: list[str] = []
+    dest_root.mkdir(parents=True, exist_ok=True)
+    emit_progress(
+        progress,
+        phase="rsync_start",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        transfer_mode="rsync",
+        current_file="",
+        listed=0,
+        total=0,
+        processed=0,
+        changed=0,
+        copied=0,
+        data_file_copied_count=0,
+        last_data_file="",
+        skipped=0,
+        error_count=0,
+        warning_count=0,
+        message=f"Starting rsync for {source_label(source)}",
+    )
+
+    command = (
+        rsync_base_command(source)
+        + rsync_filter_args(include_globs, exclude_globs)
+        + [rsync_remote_source(source), str(dest_root) + os.sep]
+    )
+
+    def on_rsync_line(line: str) -> None:
+        nonlocal copied, data_files_copied, last_data_file
+        parsed = parse_rsync_itemized_line(line)
+        if parsed is None:
+            return
+        itemized, rel = parsed
+        if not is_rsync_file_item(itemized):
+            return
+        copied += 1
+        rel = rel.strip("/")
+        if is_live_count_data_file(rel):
+            data_files_copied += 1
+            last_data_file = rel
+        emit_progress(
+            progress,
+            phase="rsync_copying",
+            source_id=source_id,
+            source_label=source_label(source),
+            source_type=source_type,
+            transfer_mode="rsync",
+            current_file=rel,
+            listed=0,
+            total=max(copied, 1),
+            processed=copied,
+            changed=copied,
+            copied=copied,
+            data_file_copied_count=data_files_copied,
+            last_data_file=last_data_file,
+            skipped=0,
+            error_count=len(errors),
+            warning_count=len(warnings),
+            message=f"Rsync copied {rel}",
+        )
+
+    cancelled = False
+    try:
+        if sync_stop_requested(cancel_event):
+            raise SyncStopped("sync stopped by user")
+        result = run_streaming_command(
+            command,
+            timeout=source_timeout_seconds(source, "copy_timeout_sec"),
+            on_line=on_rsync_line,
+        )
+        if result.returncode != 0:
+            tail = "\n".join(result.stdout.splitlines()[-20:])
+            raise RuntimeError(tail.strip() or f"rsync failed with exit code {result.returncode}")
+    except SyncStopped:
+        cancelled = True
+        warnings.append("sync stopped by user")
+    except Exception as exc:
+        errors.append(str(exc))
+
+    emit_progress(
+        progress,
+        phase="scanning_local_mirror",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        transfer_mode="rsync",
+        current_file="",
+        listed=0,
+        total=max(copied, 1) if copied else 0,
+        processed=copied,
+        changed=copied,
+        copied=copied,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
+        skipped=0,
+        error_count=len(errors),
+        warning_count=len(warnings),
+        cancelled=cancelled,
+        message=f"Scanning local mirror for {source_label(source)}",
+    )
+    local_entries = validate_sync_entries(
+        list_local_files(dest_root, include_globs, exclude_globs),
+        source_name=f"local mirror for {source_label(source)}",
+    )
+    current_files = {entry.rel: file_signature(entry)[0] for entry in local_entries}
+    skipped = max(0, len(local_entries) - copied)
+
+    emit_progress(
+        progress,
+        phase="updating_manifest",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        transfer_mode="rsync",
+        current_file="",
+        listed=len(local_entries),
+        total=len(local_entries),
+        processed=len(local_entries),
+        changed=copied,
+        copied=copied,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
+        skipped=skipped,
+        error_count=len(errors),
+        warning_count=len(warnings),
+        cancelled=cancelled,
+        message=f"Updating manifest for {source_label(source)}",
+    )
+    write_json(
+        manifest_path,
+        {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "transfer_mode": "rsync",
+            "synced_at": utc_now(),
+            "files": current_files,
+        },
+    )
+    final_phase = "source_cancelled" if cancelled else ("source_error" if errors else "source_done")
+    emit_progress(
+        progress,
+        phase=final_phase,
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        transfer_mode="rsync",
+        current_file="",
+        listed=len(local_entries),
+        total=len(local_entries),
+        processed=len(local_entries),
+        changed=copied,
+        copied=copied,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
+        skipped=skipped,
+        error_count=len(errors),
+        warning_count=len(warnings),
+        cancelled=cancelled,
+        message=f"Finished {source_label(source)} with rsync: copied {copied}, local files {len(local_entries)}, errors {len(errors)}",
+    )
+    return {
+        "source_id": source_id,
+        "source_label": source_label(source),
+        "source_type": source_type,
+        "transfer_mode": "rsync",
+        "listed": len(local_entries),
+        "changed": copied,
+        "copied": copied,
+        "data_file_copied_count": data_files_copied,
+        "last_data_file": last_data_file,
+        "skipped": skipped,
+        "warnings": warnings[:50],
+        "warning_count": len(warnings),
+        "errors": errors[:50],
+        "error_count": len(errors),
+        "cancelled": cancelled,
+        "mirror_path": str(dest_root),
+    }
+
+
 def sync_source(
     source: dict[str, Any],
     mirror_dir: Path,
@@ -947,12 +1074,19 @@ def sync_source(
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = str(source.get("type") or "local").lower()
+    if source_type == "ssh":
+        return sync_ssh_source_rsync(
+            source,
+            mirror_dir,
+            include_globs,
+            exclude_globs,
+            progress=progress,
+            cancel_event=cancel_event,
+        )
     dest_root = source_local_root(source, mirror_dir)
     manifest_path = mirror_dir / source_id / f".{MANIFEST_NAME}"
     manifest = load_json(manifest_path, {"files": {}})
     previous: dict[str, Any] = manifest.get("files", {}) if isinstance(manifest, dict) else {}
-    client = None
-    sftp = None
     emit_progress(
         progress,
         phase="listing",
@@ -974,11 +1108,6 @@ def sync_source(
     if source_type == "local":
         source_root = resolve_dataset_path(str(source.get("path") or ""), ROOT)
         entries = list_local_source_files(source, include_globs, exclude_globs)
-    elif source_type == "ssh":
-        source_root = None
-        client = connect_paramiko(source) if use_paramiko_ssh(source) else None
-        sftp = client.open_sftp() if client is not None else None
-        entries = list_ssh_files(source, include_globs, exclude_globs, client=client)
     elif source_type == "command":
         source_root = None
         entries = list_command_files(source, include_globs, exclude_globs)
@@ -1109,11 +1238,6 @@ def sync_source(
                 if source_type == "local":
                     assert source_root is not None
                     copy_local_file(source_root, dest_root, entry)
-                elif source_type == "ssh":
-                    if sftp is not None:
-                        copy_paramiko_file(sftp, dest_root, entry)
-                    else:
-                        copy_ssh_file(source, dest_root, entry)
                 else:
                     copy_command_file(source, dest_root, entry.rel)
                 copied += 1
@@ -1179,11 +1303,6 @@ def sync_source(
             fallback_at=fallback_at,
             message=f"No changed files for {source_label(source)}",
         )
-
-    if sftp is not None:
-        sftp.close()
-    if client is not None:
-        client.close()
 
     if cancelled:
         if not any("sync stopped by user" in warning for warning in warnings):
@@ -3233,7 +3352,7 @@ def source_config_summary(source: dict[str, Any]) -> dict[str, Any]:
         "ask_password": bool(source.get("ask_password") or source.get("prompt_password")),
         "has_password": bool(ssh_password(source)),
     }
-    for key in ("host", "user", "port", "ssh_backend", "proxy_jump"):
+    for key in ("host", "user", "port", "proxy_jump"):
         value = source.get(key)
         if value not in (None, ""):
             summary[key] = value
@@ -3361,65 +3480,24 @@ def ssh_source_probe(source: dict[str, Any]) -> dict[str, Any]:
     if not remote_root:
         raise ValueError(f"SSH source {source.get('id')} missing path")
     mode = source_path_mode(source)
-    path_base = str(source.get("path_base") or "").rstrip("/")
-    if mode == "regex" and not path_base:
-        raise ValueError(f"SSH source {source.get('id')} uses path_match=regex but missing path_base")
-    py = r"""
-import os, sys, json, glob, re
-root=sys.argv[1]
-mode=sys.argv[2]
-path_base=sys.argv[3]
-def roots_for_mode():
-    if mode == 'literal':
-        return [root] if os.path.isdir(root) else []
-    if mode == 'glob':
-        return [p for p in sorted(glob.glob(root)) if os.path.isdir(p)]
-    if mode == 'regex':
-        compiled=re.compile(root)
-        return [os.path.join(path_base, name) for name in sorted(os.listdir(path_base)) if os.path.isdir(os.path.join(path_base, name)) and compiled.search(name)]
-    raise SystemExit('Unsupported path_match: ' + mode)
-roots=roots_for_mode()
-print(json.dumps({'exists': bool(roots), 'root_count': len(roots), 'sample_roots': roots[:5]}, separators=(',',':')))
-"""
-    remote_command = " ".join(
-        [
-            "python3",
-            "-c",
-            shell_quote(py),
-            shell_quote(remote_root),
-            shell_quote(mode),
-            shell_quote(path_base),
-        ]
-    )
-    timeout = source_timeout_seconds(source, "test_timeout_sec")
-    if use_paramiko_ssh(source):
-        client = connect_paramiko(source)
-        try:
-            stdin, stdout, stderr = client.exec_command(remote_command, timeout=timeout)
-            del stdin
-            output = stdout.read().decode("utf-8", errors="replace")
-            error = stderr.read().decode("utf-8", errors="replace")
-            exit_status = stdout.channel.recv_exit_status()
-            if exit_status != 0:
-                raise RuntimeError(error.strip() or output.strip() or "ssh source probe failed")
-        finally:
-            client.close()
+    if mode == "regex":
+        raise ValueError("SSH path_match=regex is not supported by rsync-only sync. Use path_match=glob instead.")
+    if mode == "literal":
+        remote_command = "test -d " + shell_quote(remote_root)
+    elif mode == "glob":
+        remote_command = f"for p in {remote_root}; do [ -d \"$p\" ] && exit 0; done; exit 1"
     else:
-        result = run_command(ssh_base_command(source) + [remote_command], timeout=timeout)
-        if result.returncode != 0:
-            raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh source probe failed")
-        output = result.stdout
-    for line in output.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            obj = json.loads(line)
-        except Exception:
-            continue
-        if isinstance(obj, dict):
-            return obj
-    raise RuntimeError("ssh source probe returned no JSON")
+        raise ValueError(f"Unsupported SSH path_match for probe: {mode}")
+    timeout = source_timeout_seconds(source, "test_timeout_sec")
+    result = run_command(ssh_base_command(source) + [remote_command], timeout=timeout)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh source probe failed")
+    return {
+        "exists": True,
+        "root_count": None,
+        "sample_roots": [remote_root],
+        "probe": "ssh-test",
+    }
 
 
 def command_source_probe(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> dict[str, Any]:

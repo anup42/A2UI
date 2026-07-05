@@ -19,28 +19,18 @@
       "identity_file": "~/.ssh/id_rsa",
       "password": "",
       "ask_password": false,
-      "ssh_backend": "",
       "proxy_jump": "",
       "proxy_command": "",
       "ssh_options": {
         "IdentitiesOnly": "yes",
         "StrictHostKeyChecking": "no"
       },
-      "transfer_mode": "direct",
-      "priority_copy_globs": ["*.jsonl", "*.json"],
-      "scp_quote_remote_path": false,
-      "path": "/home/anup/A2UI/dataset/data/runs",
-      "path_match": "literal",
+      "rsync_path": "rsync",
+      "rsync_delete": false,
+      "path": "/home/anup/A2UI/dataset/data/runs/dataset_*",
+      "path_match": "glob",
       "path_base": "",
       "enabled": false
-    },
-    {
-      "id": "custom_copy_source",
-      "label": "Custom copy source",
-      "type": "command",
-      "enabled": false,
-      "list_command": "python /path/to/list_dataset_files.py --root /remote/A2UI/dataset/data/runs",
-      "copy_command": "python /path/to/copy_one_file.py --root /remote/A2UI/dataset/data/runs --rel {rel} --out {dest}"
     }
   ],
   "include_globs": [
