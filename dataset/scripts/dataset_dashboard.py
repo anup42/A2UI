@@ -462,6 +462,11 @@ def resolve_ssh_executable(source: dict[str, Any]) -> str:
     return resolve_executable(str(source.get("ssh_path") or "ssh"), source_id=source_id, purpose="ssh")
 
 
+def resolve_scp_executable(source: dict[str, Any]) -> str:
+    source_id = safe_source_id(str(source.get("id") or source_label(source)))
+    return resolve_executable(str(source.get("scp_path") or "scp"), source_id=source_id, purpose="scp")
+
+
 def track_process(process: subprocess.Popen[str]) -> None:
     with ACTIVE_PROCESSES_LOCK:
         ACTIVE_PROCESSES.add(process)
@@ -662,6 +667,24 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
     return cmd
 
 
+def scp_base_command(source: dict[str, Any]) -> list[str]:
+    mode = ssh_transport_mode(source)
+    password = password_for_source(source)
+    if mode == "sshpass":
+        cmd = ["sshpass", "-p", password, resolve_scp_executable(source), "-p"]
+    else:
+        cmd = [resolve_scp_executable(source), "-p"]
+    port = source.get("port")
+    if port:
+        cmd += ["-P", str(port)]
+    identity = str(source.get("identity_file") or "").strip()
+    if identity:
+        cmd += ["-i", os.path.expandvars(os.path.expanduser(identity))]
+    for option in normalized_ssh_options(source):
+        cmd += ["-o", str(option)]
+    return cmd
+
+
 def source_timeout_seconds(source: dict[str, Any], key: str, default: int | None = None) -> int | None:
     value = source.get(key)
     if value in (None, ""):
@@ -829,6 +852,70 @@ def run_streaming_command(
         untrack_process(process)
 
 
+def ssh_scan_roots_expression(source: dict[str, Any]) -> tuple[str, str]:
+    remote_root = str(source.get("path") or "").strip()
+    if not remote_root:
+        raise ValueError(f"SSH source {source.get('id')} missing path")
+    mode = source_path_mode(source)
+    if mode == "regex":
+        raise ValueError(
+            f"SSH source {source.get('id')} uses path_match=regex, but SSH direct sync no longer runs "
+            "remote Python for regex expansion. Use path_match=glob and a shell glob path instead."
+        )
+    if mode == "literal":
+        return shell_quote(remote_root.rstrip("/")), "literal"
+    if mode == "glob":
+        return remote_root, "glob"
+    raise ValueError(f"Unsupported SSH path_match for source {source.get('id')}: {mode}")
+
+
+def ssh_find_list_command(source: dict[str, Any]) -> str:
+    roots_expression, mode = ssh_scan_roots_expression(source)
+    prefix_script = 'prefix=""' if mode == "literal" else 'prefix=$(basename "$scan_root")'
+    # GNU find is available on the Linux dataset hosts this dashboard syncs from.
+    # This avoids the previous remote Python dependency while still returning
+    # enough metadata for changed-file detection.
+    return "\n".join(
+        [
+            "set -f" if mode == "literal" else "set +f",
+            f"for scan_root in {roots_expression}; do",
+            '  [ -d "$scan_root" ] || continue',
+            f"  {prefix_script}",
+            r"""  find "$scan_root" \( -path "*/.git/*" -o -path "*/__pycache__/*" \) -prune -o -type f -printf "${prefix}\t%P\t%s\t%T@\t%p\n""" + '"',
+            "done",
+        ]
+    )
+
+
+def list_ssh_files(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> list[FileEntry]:
+    result = run_command(
+        ssh_base_command(source) + [ssh_find_list_command(source)],
+        timeout=source_timeout_seconds(source, "list_timeout_sec"),
+    )
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh find listing failed")
+    entries: list[FileEntry] = []
+    for line in result.stdout.splitlines():
+        if not line.strip():
+            continue
+        parts = line.split("\t", 4)
+        if len(parts) != 5:
+            continue
+        prefix, rel_raw, size_raw, mtime_raw, source_path = parts
+        rel = rel_raw.strip("/")
+        if prefix:
+            rel = f"{prefix.strip('/')}/{rel}"
+        try:
+            rel = safe_relative_path(rel, context=f"SSH source {source.get('id')} output")
+            size = int(size_raw)
+            mtime = float(mtime_raw)
+        except Exception:
+            continue
+        if should_include(rel, include_globs, exclude_globs):
+            entries.append(FileEntry(rel=rel, size=size, mtime=mtime, source_path=source_path))
+    return entries
+
+
 def list_command_files(source: dict[str, Any], include_globs: list[str], exclude_globs: list[str]) -> list[FileEntry]:
     command = str(source.get("list_command") or "").strip()
     if not command:
@@ -861,6 +948,25 @@ def copy_local_file(source_root: Path, dest_root: Path, entry: FileEntry) -> Non
     shutil.copy2(src, dest)
 
 
+def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> None:
+    if not entry.source_path:
+        raise RuntimeError(f"missing remote source path for {entry.rel}")
+    dest = dest_root / entry.rel
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    remote_path_arg = (
+        shell_quote(entry.source_path)
+        if config_bool(source.get("scp_quote_remote_path"), False)
+        else entry.source_path
+    )
+    remote_spec = f"{ssh_target(source)}:{remote_path_arg}"
+    result = run_command(
+        scp_base_command(source) + [remote_spec, str(dest)],
+        timeout=source_timeout_seconds(source, "copy_timeout_sec"),
+    )
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
+
+
 def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None:
     command = str(source.get("copy_command") or "").strip()
     if not command:
@@ -885,7 +991,12 @@ def is_entry_unchanged(previous: dict[str, Any], dest_root: Path, entry: FileEnt
 
 
 def source_transfer_mode(source: dict[str, Any]) -> str:
-    return "rsync" if str(source.get("type") or "local").lower() == "ssh" else "direct"
+    source_type = str(source.get("type") or "local").lower()
+    if source_type == "rsync":
+        return "rsync"
+    if source_type == "ssh":
+        return "ssh"
+    return "direct"
 
 
 def source_priority_copy_globs(source: dict[str, Any]) -> list[str]:
@@ -944,7 +1055,7 @@ def sync_ssh_source_rsync(
     cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
-    source_type = "ssh"
+    source_type = "rsync"
     dest_root = source_local_root(source, mirror_dir)
     manifest_path = mirror_dir / source_id / f".{MANIFEST_NAME}"
     copied = 0
@@ -1144,7 +1255,7 @@ def sync_source(
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = str(source.get("type") or "local").lower()
-    if source_type == "ssh":
+    if source_type == "rsync":
         return sync_ssh_source_rsync(
             source,
             mirror_dir,
@@ -1178,6 +1289,9 @@ def sync_source(
     if source_type == "local":
         source_root = resolve_dataset_path(str(source.get("path") or ""), ROOT)
         entries = list_local_source_files(source, include_globs, exclude_globs)
+    elif source_type == "ssh":
+        source_root = None
+        entries = list_ssh_files(source, include_globs, exclude_globs)
     elif source_type == "command":
         source_root = None
         entries = list_command_files(source, include_globs, exclude_globs)
@@ -1187,7 +1301,7 @@ def sync_source(
     cancelled = sync_stop_requested(cancel_event)
 
     transfer_mode = source_transfer_mode(source)
-    effective_transfer_mode = "direct"
+    effective_transfer_mode = transfer_mode
     copied = 0
     data_files_copied = 0
     last_data_file = ""
@@ -1308,6 +1422,8 @@ def sync_source(
                 if source_type == "local":
                     assert source_root is not None
                     copy_local_file(source_root, dest_root, entry)
+                elif source_type == "ssh":
+                    copy_ssh_file(source, dest_root, entry)
                 else:
                     copy_command_file(source, dest_root, entry.rel)
                 copied += 1
@@ -3433,7 +3549,11 @@ def source_config_summary(source: dict[str, Any]) -> dict[str, Any]:
     if proxy_command:
         summary["has_proxy_command"] = True
         summary["proxy_command_preview"] = proxy_command[:96] + ("..." if len(proxy_command) > 96 else "")
-    options = normalized_ssh_options(source) if str(source.get("type") or "local").lower() == "ssh" else []
+    options = (
+        normalized_ssh_options(source)
+        if str(source.get("type") or "local").lower() in {"ssh", "rsync"}
+        else []
+    )
     if options:
         summary["ssh_options"] = options
     return summary
@@ -3551,7 +3671,7 @@ def ssh_source_probe(source: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"SSH source {source.get('id')} missing path")
     mode = source_path_mode(source)
     if mode == "regex":
-        raise ValueError("SSH path_match=regex is not supported by rsync-only sync. Use path_match=glob instead.")
+        raise ValueError("Remote path_match=regex is not supported without remote Python. Use path_match=glob instead.")
     if mode == "literal":
         remote_command = "test -d " + shell_quote(remote_root)
     elif mode == "glob":
@@ -3645,7 +3765,7 @@ def test_source_connection(
     try:
         if source_type == "local":
             probe = local_source_probe(source)
-        elif source_type == "ssh":
+        elif source_type in {"ssh", "rsync"}:
             probe = ssh_source_probe(source)
         elif source_type == "command":
             probe = command_source_probe(source, include_globs, exclude_globs)
