@@ -26,6 +26,7 @@
         "IdentitiesOnly": "yes",
         "StrictHostKeyChecking": "no"
       },
+      "transfer_mode": "auto",
       "path": "/home/anup/A2UI/dataset/data/runs",
       "path_match": "literal",
       "path_base": "",

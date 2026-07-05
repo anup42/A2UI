@@ -12,6 +12,8 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
+import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -678,6 +680,62 @@ def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> 
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
 
 
+def run_remote_ssh_command(source: dict[str, Any], remote_command: str, client: Any | None = None) -> str:
+    if client is not None:
+        stdin, stdout, stderr = client.exec_command(remote_command, timeout=int(source.get("copy_timeout_sec", 300)))
+        del stdin
+        output = stdout.read().decode("utf-8", errors="replace")
+        error = stderr.read().decode("utf-8", errors="replace")
+        exit_status = stdout.channel.recv_exit_status()
+        if exit_status != 0:
+            raise RuntimeError(error.strip() or output.strip() or "ssh command failed")
+        return output
+    cmd = ssh_base_command(source) + [remote_command]
+    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh command failed")
+    return result.stdout
+
+
+def upload_ssh_file(source: dict[str, Any], local_path: Path, remote_path: str, sftp: Any | None = None) -> None:
+    if sftp is not None:
+        sftp.put(str(local_path), remote_path)
+        return
+    target = ssh_target(source)
+    remote_spec = f"{target}:{shell_quote(remote_path)}"
+    cmd = scp_base_command(source) + [str(local_path), remote_spec]
+    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp upload failed for {remote_path}")
+
+
+def download_ssh_file(source: dict[str, Any], remote_path: str, local_path: Path, sftp: Any | None = None) -> None:
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    if sftp is not None:
+        sftp.get(remote_path, str(local_path))
+        return
+    target = ssh_target(source)
+    remote_spec = f"{target}:{shell_quote(remote_path)}"
+    cmd = scp_base_command(source) + [remote_spec, str(local_path)]
+    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp download failed for {remote_path}")
+
+
+def cleanup_remote_path(source: dict[str, Any], remote_path: str, client: Any | None = None) -> None:
+    if not remote_path:
+        return
+    py = "import shutil,sys; shutil.rmtree(sys.argv[1], ignore_errors=True)"
+    try:
+        run_remote_ssh_command(
+            source,
+            " ".join(["python3", "-c", shell_quote(py), shell_quote(remote_path)]),
+            client=client,
+        )
+    except Exception:
+        pass
+
+
 def copy_paramiko_file(sftp: Any, dest_root: Path, entry: FileEntry) -> None:
     if not entry.source_path:
         raise RuntimeError(f"missing remote source path for {entry.rel}")
@@ -696,6 +754,167 @@ def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None
     result = run_command(formatted, timeout=int(source.get("copy_timeout_sec", 300)))
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"copy_command failed for {rel}")
+
+
+def file_signature(entry: FileEntry) -> tuple[dict[str, Any], dict[str, Any]]:
+    legacy_signature = {"size": entry.size, "mtime": round(entry.mtime, 6)}
+    signature = {**legacy_signature, "source_path": entry.source_path or ""}
+    return signature, legacy_signature
+
+
+def is_entry_unchanged(previous: dict[str, Any], dest_root: Path, entry: FileEntry) -> bool:
+    signature, legacy_signature = file_signature(entry)
+    return previous.get(entry.rel) in (signature, legacy_signature) and (dest_root / entry.rel).exists()
+
+
+def source_transfer_mode(source: dict[str, Any]) -> str:
+    mode = str(source.get("transfer_mode") or "auto").strip().lower()
+    return mode if mode in {"auto", "archive", "per_file"} else "auto"
+
+
+def safe_extract_tar_gz(archive_path: Path, dest_root: Path) -> int:
+    dest_root.mkdir(parents=True, exist_ok=True)
+    root = dest_root.resolve()
+    extracted = 0
+    with tarfile.open(archive_path, "r:gz") as archive:
+        for member in archive.getmembers():
+            if not member.isfile():
+                continue
+            member_name = member.name.replace("\\", "/")
+            if member_name.startswith("/") or ".." in PurePosixPath(member_name).parts:
+                raise RuntimeError(f"unsafe archive member path: {member.name}")
+            target = (dest_root / member_name).resolve()
+            if os.path.commonpath([str(root), str(target)]) != str(root):
+                raise RuntimeError(f"archive member escapes destination: {member.name}")
+            source = archive.extractfile(member)
+            if source is None:
+                raise RuntimeError(f"failed to read archive member: {member.name}")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with source, target.open("wb") as handle:
+                shutil.copyfileobj(source, handle)
+            if member.mtime:
+                os.utime(target, (member.mtime, member.mtime))
+            extracted += 1
+    return extracted
+
+
+def create_remote_archive(
+    source: dict[str, Any],
+    entries: list[FileEntry],
+    client: Any | None = None,
+    sftp: Any | None = None,
+) -> tuple[str, int, int]:
+    remote_tmp = ""
+    try:
+        mktemp_py = "import tempfile; print(tempfile.mkdtemp(prefix='a2ui_dashboard_sync_'))"
+        remote_tmp = run_remote_ssh_command(
+            source,
+            " ".join(["python3", "-c", shell_quote(mktemp_py)]),
+            client=client,
+        ).strip().splitlines()[-1]
+        if not remote_tmp:
+            raise RuntimeError("remote temp directory creation returned no path")
+        remote_list = f"{remote_tmp.rstrip('/')}/files.jsonl"
+        remote_archive = f"{remote_tmp.rstrip('/')}/changes.tar.gz"
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".jsonl") as handle:
+            local_list = Path(handle.name)
+            for entry in entries:
+                if not entry.source_path:
+                    raise RuntimeError(f"missing remote source path for {entry.rel}")
+                handle.write(json.dumps({"rel": entry.rel, "source_path": entry.source_path}, separators=(",", ":")) + "\n")
+        try:
+            upload_ssh_file(source, local_list, remote_list, sftp=sftp)
+        finally:
+            local_list.unlink(missing_ok=True)
+        archive_py = r"""
+import json, os, sys, tarfile
+list_path=sys.argv[1]
+archive_path=sys.argv[2]
+count=0
+payload_bytes=0
+with tarfile.open(archive_path, "w:gz") as archive:
+    with open(list_path, "r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            item=json.loads(line)
+            rel=str(item.get("rel") or "")
+            source_path=str(item.get("source_path") or "")
+            if not rel or rel.startswith("/") or ".." in rel.replace("\\", "/").split("/"):
+                raise RuntimeError("unsafe relative path: " + rel)
+            if not source_path or not os.path.isfile(source_path):
+                raise FileNotFoundError(source_path)
+            payload_bytes += os.path.getsize(source_path)
+            archive.add(source_path, arcname=rel.replace("\\", "/"), recursive=False)
+            count += 1
+stat=os.stat(archive_path)
+print(json.dumps({"count": count, "payload_bytes": payload_bytes, "archive_size": stat.st_size}, separators=(",", ":")))
+"""
+        output = run_remote_ssh_command(
+            source,
+            " ".join(["python3", "-c", shell_quote(archive_py), shell_quote(remote_list), shell_quote(remote_archive)]),
+            client=client,
+        )
+        metadata = json.loads(output.strip().splitlines()[-1])
+        archived_count = int(metadata.get("count") or 0)
+        archive_size = int(metadata.get("archive_size") or 0)
+        if archived_count != len(entries):
+            raise RuntimeError(f"remote archive contained {archived_count}/{len(entries)} changed files")
+        return remote_archive, archived_count, archive_size
+    except Exception:
+        if remote_tmp:
+            cleanup_remote_path(source, remote_tmp, client=client)
+        raise
+
+
+def copy_ssh_archive(
+    source: dict[str, Any],
+    dest_root: Path,
+    entries: list[FileEntry],
+    client: Any | None,
+    sftp: Any | None,
+    progress: ProgressCallback | None,
+    base_progress: dict[str, Any],
+) -> tuple[int, int]:
+    remote_archive = ""
+    archive_size = 0
+    with tempfile.TemporaryDirectory(prefix="a2ui_dashboard_archive_") as tmp:
+        local_archive = Path(tmp) / "changes.tar.gz"
+        try:
+            emit_progress(
+                progress,
+                **base_progress,
+                phase="remote_archiving",
+                transfer_mode="archive",
+                current_file="",
+                changed=len(entries),
+                message=f"Remote archiving {len(entries)} changed file(s) from {base_progress.get('source_label')}",
+            )
+            remote_archive, _, archive_size = create_remote_archive(source, entries, client=client, sftp=sftp)
+            emit_progress(
+                progress,
+                **base_progress,
+                phase="downloading_archive",
+                transfer_mode="archive",
+                archive_size=archive_size,
+                message=f"Downloading archive ({archive_size} bytes) from {base_progress.get('source_label')}",
+            )
+            download_ssh_file(source, remote_archive, local_archive, sftp=sftp)
+            emit_progress(
+                progress,
+                **base_progress,
+                phase="extracting_archive",
+                transfer_mode="archive",
+                archive_size=archive_size,
+                message=f"Extracting archive from {base_progress.get('source_label')}",
+            )
+            extracted = safe_extract_tar_gz(local_archive, dest_root)
+            if extracted != len(entries):
+                raise RuntimeError(f"archive extracted {extracted}/{len(entries)} changed files")
+            return extracted, archive_size
+        finally:
+            if remote_archive:
+                cleanup_remote_path(source, str(PurePosixPath(remote_archive).parent), client=client)
 
 
 def emit_progress(progress: ProgressCallback | None, **payload: Any) -> None:
@@ -748,86 +967,183 @@ def sync_source(
     else:
         raise ValueError(f"Unsupported source type: {source_type}")
 
+    transfer_mode = source_transfer_mode(source)
+    effective_transfer_mode = "per_file"
+    archive_size = 0
     emit_progress(
         progress,
-        phase="copying",
+        phase="checking_changed_files",
         source_id=source_id,
         source_label=source_label(source),
         source_type=source_type,
+        transfer_mode=transfer_mode,
         listed=len(entries),
         total=len(entries),
         processed=0,
         copied=0,
         skipped=0,
         error_count=0,
-        message=f"Copying changed files from {source_label(source)}",
+        message=f"Checking changed files from {source_label(source)}",
     )
     copied = 0
     skipped = 0
     errors: list[str] = []
     current_files: dict[str, Any] = {}
-    for index, entry in enumerate(entries, start=1):
-        legacy_signature = {"size": entry.size, "mtime": round(entry.mtime, 6)}
-        signature = {**legacy_signature, "source_path": entry.source_path or ""}
+    changed_entries: list[FileEntry] = []
+    for entry in entries:
+        signature, _ = file_signature(entry)
         current_files[entry.rel] = signature
-        if previous.get(entry.rel) in (signature, legacy_signature) and (dest_root / entry.rel).exists():
+        if is_entry_unchanged(previous, dest_root, entry):
             skipped += 1
-            emit_progress(
-                progress,
-                phase="copying",
-                source_id=source_id,
-                source_label=source_label(source),
-                current_file=entry.rel,
-                listed=len(entries),
-                total=len(entries),
-                processed=index,
-                copied=copied,
-                skipped=skipped,
-                error_count=len(errors),
-                message=f"Skipped unchanged {entry.rel}",
-            )
-            continue
+        else:
+            changed_entries.append(entry)
+    emit_progress(
+        progress,
+        phase="checking_changed_files",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        transfer_mode=transfer_mode,
+        listed=len(entries),
+        total=len(entries),
+        processed=skipped,
+        changed=len(changed_entries),
+        copied=0,
+        skipped=skipped,
+        error_count=0,
+        message=f"Found {len(changed_entries)} changed file(s), {skipped} unchanged file(s) from {source_label(source)}",
+    )
+
+    if source_type == "ssh" and changed_entries and transfer_mode in {"auto", "archive"}:
+        base_progress = {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "listed": len(entries),
+            "total": len(entries),
+            "processed": skipped,
+            "copied": copied,
+            "skipped": skipped,
+            "error_count": len(errors),
+            "changed": len(changed_entries),
+        }
         try:
+            copied, archive_size = copy_ssh_archive(
+                source,
+                dest_root,
+                changed_entries,
+                client=client,
+                sftp=sftp,
+                progress=progress,
+                base_progress=base_progress,
+            )
+            effective_transfer_mode = "archive"
+        except Exception as exc:
+            effective_transfer_mode = "fallback"
+            errors.append(f"archive transfer failed, falling back to per-file copy: {exc}")
             emit_progress(
                 progress,
-                phase="copying",
+                phase="archive_fallback",
                 source_id=source_id,
                 source_label=source_label(source),
-                current_file=entry.rel,
+                source_type=source_type,
+                transfer_mode=effective_transfer_mode,
                 listed=len(entries),
                 total=len(entries),
-                processed=index - 1,
+                processed=skipped,
                 copied=copied,
                 skipped=skipped,
                 error_count=len(errors),
-                message=f"Copying {entry.rel}",
+                changed=len(changed_entries),
+                archive_size=archive_size,
+                message=f"Archive transfer failed for {source_label(source)}; falling back to per-file copy",
             )
-            if source_type == "local":
-                assert source_root is not None
-                copy_local_file(source_root, dest_root, entry)
-            elif source_type == "ssh":
-                if sftp is not None:
-                    copy_paramiko_file(sftp, dest_root, entry)
-                else:
-                    copy_ssh_file(source, dest_root, entry)
-            else:
-                copy_command_file(source, dest_root, entry.rel)
-            copied += 1
-        except Exception as exc:
-            errors.append(f"{entry.rel}: {exc}")
+
+    if changed_entries and effective_transfer_mode != "archive":
         emit_progress(
             progress,
             phase="copying",
             source_id=source_id,
             source_label=source_label(source),
-            current_file=entry.rel,
+            source_type=source_type,
+            transfer_mode=effective_transfer_mode,
             listed=len(entries),
             total=len(entries),
-            processed=index,
+            processed=skipped,
             copied=copied,
             skipped=skipped,
             error_count=len(errors),
-            message=f"Processed {index}/{len(entries)} from {source_label(source)}",
+            changed=len(changed_entries),
+            message=f"Copying {len(changed_entries)} changed file(s) from {source_label(source)}",
+        )
+        for offset, entry in enumerate(changed_entries, start=1):
+            processed_count = skipped + offset
+            try:
+                emit_progress(
+                    progress,
+                    phase="copying",
+                    source_id=source_id,
+                    source_label=source_label(source),
+                    source_type=source_type,
+                    transfer_mode=effective_transfer_mode,
+                    current_file=entry.rel,
+                    listed=len(entries),
+                    total=len(entries),
+                    processed=processed_count - 1,
+                    copied=copied,
+                    skipped=skipped,
+                    error_count=len(errors),
+                    changed=len(changed_entries),
+                    message=f"Copying {entry.rel}",
+                )
+                if source_type == "local":
+                    assert source_root is not None
+                    copy_local_file(source_root, dest_root, entry)
+                elif source_type == "ssh":
+                    if sftp is not None:
+                        copy_paramiko_file(sftp, dest_root, entry)
+                    else:
+                        copy_ssh_file(source, dest_root, entry)
+                else:
+                    copy_command_file(source, dest_root, entry.rel)
+                copied += 1
+            except Exception as exc:
+                errors.append(f"{entry.rel}: {exc}")
+            emit_progress(
+                progress,
+                phase="copying",
+                source_id=source_id,
+                source_label=source_label(source),
+                source_type=source_type,
+                transfer_mode=effective_transfer_mode,
+                current_file=entry.rel,
+                listed=len(entries),
+                total=len(entries),
+                processed=processed_count,
+                copied=copied,
+                skipped=skipped,
+                error_count=len(errors),
+                changed=len(changed_entries),
+                message=f"Processed {processed_count}/{len(entries)} from {source_label(source)}",
+            )
+    elif not changed_entries:
+        effective_transfer_mode = "archive" if source_type == "ssh" and transfer_mode in {"auto", "archive"} else "per_file"
+        emit_progress(
+            progress,
+            phase="copying",
+            source_id=source_id,
+            source_label=source_label(source),
+            source_type=source_type,
+            transfer_mode=effective_transfer_mode,
+            current_file="",
+            listed=len(entries),
+            total=len(entries),
+            processed=len(entries),
+            copied=0,
+            skipped=skipped,
+            error_count=len(errors),
+            changed=0,
+            message=f"No changed files for {source_label(source)}",
         )
 
     if sftp is not None:
@@ -835,12 +1151,31 @@ def sync_source(
     if client is not None:
         client.close()
 
+    emit_progress(
+        progress,
+        phase="updating_manifest",
+        source_id=source_id,
+        source_label=source_label(source),
+        source_type=source_type,
+        transfer_mode=effective_transfer_mode,
+        current_file="",
+        listed=len(entries),
+        total=len(entries),
+        processed=len(entries),
+        copied=copied,
+        skipped=skipped,
+        error_count=len(errors),
+        changed=len(changed_entries),
+        archive_size=archive_size,
+        message=f"Updating manifest for {source_label(source)}",
+    )
     write_json(
         manifest_path,
         {
             "source_id": source_id,
             "source_label": source_label(source),
             "source_type": source_type,
+            "transfer_mode": effective_transfer_mode,
             "synced_at": utc_now(),
             "files": current_files,
         },
@@ -851,6 +1186,7 @@ def sync_source(
         source_id=source_id,
         source_label=source_label(source),
         source_type=source_type,
+        transfer_mode=effective_transfer_mode,
         current_file="",
         listed=len(entries),
         total=len(entries),
@@ -858,15 +1194,20 @@ def sync_source(
         copied=copied,
         skipped=skipped,
         error_count=len(errors),
+        changed=len(changed_entries),
+        archive_size=archive_size,
         message=f"Finished {source_label(source)}: copied {copied}, skipped {skipped}, errors {len(errors)}",
     )
     return {
         "source_id": source_id,
         "source_label": source_label(source),
         "source_type": source_type,
+        "transfer_mode": effective_transfer_mode,
         "listed": len(entries),
+        "changed": len(changed_entries),
         "copied": copied,
         "skipped": skipped,
+        "archive_size": archive_size,
         "errors": errors[:50],
         "error_count": len(errors),
         "mirror_path": str(dest_root),
@@ -1042,9 +1383,11 @@ def run_sync(
         completed_sources=len(enabled_sources),
         max_parallel_sources=configured_parallel,
         listed=sum(int(r.get("listed") or 0) for r in results),
+        changed=sum(int(r.get("changed") or 0) for r in results),
         copied=sum(int(r.get("copied") or 0) for r in results),
         skipped=sum(int(r.get("skipped") or 0) for r in results),
         error_count=sum(int(r.get("error_count") or 0) for r in results),
+        archive_size=sum(int(r.get("archive_size") or 0) for r in results),
         current_file="",
         message="Sync complete",
     )
@@ -2641,6 +2984,7 @@ def source_config_summary(source: dict[str, Any]) -> dict[str, Any]:
         "source_label": source_label(source),
         "type": str(source.get("type") or "local"),
         "enabled": source_enabled(source),
+        "transfer_mode": source_transfer_mode(source),
         "path": str(source.get("path") or ""),
         "path_match": source_path_mode(source),
         "path_base": str(source.get("path_base") or ""),
@@ -3576,6 +3920,23 @@ INDEX_HTML = r"""<!doctype html>
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
     };
     function setStatus(text) { document.getElementById("status").textContent = text || ""; }
+    function syncPhaseLabel(phase) {
+      return ({
+        listing: "listing remote files",
+        checking_changed_files: "checking changed files",
+        remote_archiving: "remote archiving",
+        downloading_archive: "downloading archive",
+        extracting_archive: "extracting archive",
+        updating_manifest: "updating manifest",
+        archive_fallback: "archive fallback",
+        copying: "copying files",
+        source_done: "done",
+        source_error: "source error",
+        source_complete: "done",
+        queued: "queued",
+        done: "done",
+      })[phase] || phase || "status";
+    }
     function renderSyncStatus(s) {
       const panel = document.getElementById("syncPanel");
       const active = s && (s.running || (s.phase && s.phase !== "idle"));
@@ -3589,10 +3950,11 @@ INDEX_HTML = r"""<!doctype html>
         : (s.source_label ? `${s.source_label}` : "sources");
       const sourceIndex = s.total_sources ? `${fmt(s.completed_sources || 0)}/${fmt(s.total_sources)} complete` : "";
       const activeSources = s.running ? `, ${fmt(s.active_sources || 0)} active, max ${fmt(s.max_parallel_sources || 1)}` : "";
-      document.getElementById("syncPhase").textContent = `${s.running ? "Syncing" : "Sync"} - ${s.phase || "status"} ${sourceIndex}${activeSources}`;
+      document.getElementById("syncPhase").textContent = `${s.running ? "Syncing" : "Sync"} - ${syncPhaseLabel(s.phase)} ${sourceIndex}${activeSources}`;
       document.getElementById("syncCounters").textContent = [
         sourcePart,
         `listed ${fmt(s.listed)}`,
+        `changed ${fmt(s.changed)}`,
         `processed ${fmt(processed)}/${fmt(total)}`,
         `copied ${fmt(s.copied)}`,
         `skipped ${fmt(s.skipped)}`,
@@ -3608,12 +3970,14 @@ INDEX_HTML = r"""<!doctype html>
           const sourceWidth = sourceTotal ? Math.max(3, Math.min(100, Math.round((sourceProcessed / sourceTotal) * 100))) : (source.running ? 8 : (source.done ? 100 : 0));
           const phase = String(source.phase || "queued");
           const badgeClass = phase === "source_error" || Number(source.error_count || 0) ? "error" : (source.done ? "ok" : (phase === "queued" ? "unknown" : "warn"));
+          const transferMode = source.transfer_mode ? `mode ${source.transfer_mode}` : "";
+          const archiveSize = Number(source.archive_size || 0) ? `, archive ${bytesText(source.archive_size)}` : "";
           return `
             <div class="sync-source-row">
-              <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(phase)}</span></div>
+              <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(syncPhaseLabel(phase))}</span><br><span class="small">${escapeHtml(transferMode)}</span></div>
               <div>
                 <div class="bar-track"><div class="bar-fill" style="width:${sourceWidth}%"></div></div>
-                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, errors ${fmt(source.error_count)}</span>
+                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, errors ${fmt(source.error_count)}${archiveSize}</span>
               </div>
               <div class="small">${escapeHtml(source.current_file || source.message || "")}</div>
             </div>`;
@@ -3866,6 +4230,7 @@ INDEX_HTML = r"""<!doctype html>
         const meta = [
           `${source.type}`,
           source.enabled ? "enabled" : "disabled",
+          source.transfer_mode ? `transfer ${source.transfer_mode}` : "",
           source.path_match ? `match ${source.path_match}` : "",
           source.host ? `host ${source.host}` : "",
           source.user ? `user ${source.user}` : "",
@@ -3909,8 +4274,8 @@ INDEX_HTML = r"""<!doctype html>
         const status = (result.error_count || 0) ? "error" : "ok";
         return `
           <tr>
-            <td><b>${escapeHtml(result.source_label || result.source_id)}</b><br><span class="badge ${status}">${status}</span></td>
-            <td>listed ${fmt(result.listed)}<br>copied ${fmt(result.copied)}<br>skipped ${fmt(result.skipped)}</td>
+            <td><b>${escapeHtml(result.source_label || result.source_id)}</b><br><span class="badge ${status}">${status}</span><br><span class="small">mode ${escapeHtml(result.transfer_mode || "n/a")}</span></td>
+            <td>listed ${fmt(result.listed)}<br>changed ${fmt(result.changed)}<br>copied ${fmt(result.copied)}<br>skipped ${fmt(result.skipped)}${result.archive_size ? `<br>archive ${bytesText(result.archive_size)}` : ""}</td>
             <td>${fmt(result.error_count || 0)}<br><span class="small">${errors.length ? escapeHtml(errors[0]) : "no errors"}</span></td>
             <td><span class="small">${escapeHtml(result.mirror_path || "")}</span></td>
           </tr>`;
@@ -7032,9 +7397,11 @@ class DashboardServer:
             "listed": 0,
             "total": 0,
             "processed": 0,
+            "changed": 0,
             "copied": 0,
             "skipped": 0,
             "error_count": 0,
+            "archive_size": 0,
             "message": "Idle",
             "messages": [],
             "sources": {},
@@ -7064,9 +7431,11 @@ class DashboardServer:
                     status["listed"] = sum(int(item.get("listed") or 0) for item in source_values)
                     status["total"] = sum(int(item.get("total") or item.get("listed") or 0) for item in source_values)
                     status["processed"] = sum(int(item.get("processed") or 0) for item in source_values)
+                    status["changed"] = sum(int(item.get("changed") or 0) for item in source_values)
                     status["copied"] = sum(int(item.get("copied") or 0) for item in source_values)
                     status["skipped"] = sum(int(item.get("skipped") or 0) for item in source_values)
                     status["error_count"] = sum(int(item.get("error_count") or 0) for item in source_values)
+                    status["archive_size"] = sum(int(item.get("archive_size") or 0) for item in source_values)
                     status["completed_sources"] = sum(1 for item in source_values if item.get("done"))
                     status["active_sources"] = sum(
                         1
