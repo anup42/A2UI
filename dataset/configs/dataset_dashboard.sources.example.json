@@ -27,6 +27,7 @@
       },
       "ssh_path": "ssh",
       "scp_path": "scp",
+      "ssh_copy_contents": true,
       "scp_quote_remote_path": false,
       "path": "/home/anup/A2UI/dataset/data/runs/dataset_*",
       "path_match": "glob",
