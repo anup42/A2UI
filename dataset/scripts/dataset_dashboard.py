@@ -820,6 +820,32 @@ def source_transfer_mode(source: dict[str, Any]) -> str:
     return mode if mode in {"auto", "archive", "per_file"} else "auto"
 
 
+def source_direct_first_globs(source: dict[str, Any]) -> list[str]:
+    raw = source.get("direct_first_globs")
+    if raw is None:
+        return ["*.jsonl"]
+    if isinstance(raw, str):
+        text = raw.strip()
+        return [text] if text else []
+    if isinstance(raw, list):
+        return [str(item).strip() for item in raw if str(item).strip()]
+    return []
+
+
+def split_direct_first_entries(source: dict[str, Any], entries: list[FileEntry]) -> tuple[list[FileEntry], list[FileEntry]]:
+    patterns = source_direct_first_globs(source)
+    if not patterns:
+        return [], entries
+    direct_first: list[FileEntry] = []
+    remaining: list[FileEntry] = []
+    for entry in entries:
+        if match_filter_path(entry.rel, patterns):
+            direct_first.append(entry)
+        else:
+            remaining.append(entry)
+    return direct_first, remaining
+
+
 def source_timeout_seconds(source: dict[str, Any], key: str, *, fallback_key: str = "copy_timeout_sec", default: int = 300) -> int:
     for candidate_key in (key, fallback_key):
         value = source.get(candidate_key)
@@ -1125,75 +1151,26 @@ def sync_source(
         message=f"Found {len(changed_entries)} changed file(s), {skipped} unchanged file(s) from {source_label(source)}",
     )
 
-    if not cancelled and source_type == "ssh" and changed_entries and transfer_mode in {"auto", "archive"}:
-        base_progress = {
-            "source_id": source_id,
-            "source_label": source_label(source),
-            "source_type": source_type,
-            "listed": len(entries),
-            "total": len(entries),
-            "processed": skipped,
-            "copied": copied,
-            "skipped": skipped,
-            "error_count": len(errors),
-            "changed": len(changed_entries),
-        }
-        try:
-            copied, archive_size = copy_ssh_archive(
-                source,
-                dest_root,
-                changed_entries,
-                client=client,
-                sftp=sftp,
-                progress=progress,
-                base_progress=base_progress,
-                cancel_event=cancel_event,
-            )
-            effective_transfer_mode = "archive"
-            for entry in changed_entries:
-                current_files[entry.rel] = listed_signatures[entry.rel]
-        except SyncStopped:
-            cancelled = True
-            effective_transfer_mode = "stopped"
-        except Exception as exc:
-            effective_transfer_mode = "fallback"
-            fallback_reason = f"archive transfer failed: {exc}"
-            fallback_at = utc_now()
-            warnings.append(f"{fallback_reason}; falling back to per-file copy")
-            emit_progress(
-                progress,
-                phase="archive_fallback",
-                source_id=source_id,
-                source_label=source_label(source),
-                source_type=source_type,
-                transfer_mode=effective_transfer_mode,
-                listed=len(entries),
-                total=len(entries),
-                processed=skipped,
-                copied=copied,
-                skipped=skipped,
-                error_count=len(errors),
-                warning_count=len(warnings),
-                changed=len(changed_entries),
-                archive_size=archive_size,
-                fallback_reason=fallback_reason,
-                fallback_at=fallback_at,
-                message=f"Archive transfer failed for {source_label(source)}: {exc}; falling back to per-file copy",
-            )
-    if sync_stop_requested(cancel_event):
-        cancelled = True
+    processed_changed = 0
+    direct_first_entries: list[FileEntry] = []
+    archive_entries: list[FileEntry] = changed_entries
+    if source_type == "ssh" and transfer_mode == "auto":
+        direct_first_entries, archive_entries = split_direct_first_entries(source, changed_entries)
 
-    if not cancelled and changed_entries and effective_transfer_mode != "archive":
+    def copy_entries_per_file(entries_to_copy: list[FileEntry], *, mode: str, label: str) -> None:
+        nonlocal cancelled, copied, processed_changed
+        if not entries_to_copy:
+            return
         emit_progress(
             progress,
             phase="copying",
             source_id=source_id,
             source_label=source_label(source),
             source_type=source_type,
-            transfer_mode=effective_transfer_mode,
+            transfer_mode=mode,
             listed=len(entries),
             total=len(entries),
-            processed=skipped,
+            processed=skipped + processed_changed,
             copied=copied,
             skipped=skipped,
             error_count=len(errors),
@@ -1201,13 +1178,12 @@ def sync_source(
             changed=len(changed_entries),
             fallback_reason=fallback_reason,
             fallback_at=fallback_at,
-            message=f"Copying {len(changed_entries)} changed file(s) from {source_label(source)}",
+            message=f"{label} {len(entries_to_copy)} file(s) from {source_label(source)}",
         )
-        for offset, entry in enumerate(changed_entries, start=1):
+        for entry in entries_to_copy:
             if sync_stop_requested(cancel_event):
                 cancelled = True
                 break
-            processed_count = skipped + offset
             try:
                 emit_progress(
                     progress,
@@ -1215,11 +1191,11 @@ def sync_source(
                     source_id=source_id,
                     source_label=source_label(source),
                     source_type=source_type,
-                    transfer_mode=effective_transfer_mode,
+                    transfer_mode=mode,
                     current_file=entry.rel,
                     listed=len(entries),
                     total=len(entries),
-                    processed=processed_count - 1,
+                    processed=skipped + processed_changed,
                     copied=copied,
                     skipped=skipped,
                     error_count=len(errors),
@@ -1245,17 +1221,18 @@ def sync_source(
                 errors.append(f"{entry.rel}: {exc}")
                 if previous.get(entry.rel) is not None and (dest_root / entry.rel).exists():
                     current_files[entry.rel] = previous[entry.rel]
+            processed_changed += 1
             emit_progress(
                 progress,
                 phase="copying",
                 source_id=source_id,
                 source_label=source_label(source),
                 source_type=source_type,
-                transfer_mode=effective_transfer_mode,
+                transfer_mode=mode,
                 current_file=entry.rel,
                 listed=len(entries),
                 total=len(entries),
-                processed=processed_count,
+                processed=skipped + processed_changed,
                 copied=copied,
                 skipped=skipped,
                 error_count=len(errors),
@@ -1263,8 +1240,87 @@ def sync_source(
                 changed=len(changed_entries),
                 fallback_reason=fallback_reason,
                 fallback_at=fallback_at,
-                message=f"Processed {processed_count}/{len(entries)} from {source_label(source)}",
+                message=f"Processed {skipped + processed_changed}/{len(entries)} from {source_label(source)}",
             )
+
+    if not cancelled and direct_first_entries:
+        effective_transfer_mode = "hybrid" if archive_entries else "per_file"
+        copy_entries_per_file(direct_first_entries, mode=effective_transfer_mode, label="Direct-copying priority JSONL")
+    if sync_stop_requested(cancel_event):
+        cancelled = True
+
+    fallback_entries: list[FileEntry] = []
+    if not cancelled and source_type == "ssh" and archive_entries and transfer_mode in {"auto", "archive"}:
+        effective_transfer_mode = "hybrid" if direct_first_entries else "archive"
+        base_progress = {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "listed": len(entries),
+            "total": len(entries),
+            "processed": skipped + processed_changed,
+            "copied": copied,
+            "skipped": skipped,
+            "error_count": len(errors),
+            "changed": len(changed_entries),
+        }
+        try:
+            archive_copied, archive_size_delta = copy_ssh_archive(
+                source,
+                dest_root,
+                archive_entries,
+                client=client,
+                sftp=sftp,
+                progress=progress,
+                base_progress=base_progress,
+                cancel_event=cancel_event,
+            )
+            archive_size += archive_size_delta
+            copied += archive_copied
+            processed_changed += len(archive_entries)
+            for entry in archive_entries:
+                current_files[entry.rel] = listed_signatures[entry.rel]
+        except SyncStopped:
+            cancelled = True
+            effective_transfer_mode = "stopped"
+        except Exception as exc:
+            effective_transfer_mode = "fallback" if not direct_first_entries else "hybrid_fallback"
+            fallback_entries = archive_entries
+            fallback_reason = f"archive transfer failed: {exc}"
+            fallback_at = utc_now()
+            warnings.append(f"{fallback_reason}; falling back to per-file copy for non-JSONL files")
+            emit_progress(
+                progress,
+                phase="archive_fallback",
+                source_id=source_id,
+                source_label=source_label(source),
+                source_type=source_type,
+                transfer_mode=effective_transfer_mode,
+                listed=len(entries),
+                total=len(entries),
+                processed=skipped + processed_changed,
+                copied=copied,
+                skipped=skipped,
+                error_count=len(errors),
+                warning_count=len(warnings),
+                changed=len(changed_entries),
+                archive_size=archive_size,
+                fallback_reason=fallback_reason,
+                fallback_at=fallback_at,
+                message=f"Archive transfer failed for {source_label(source)}: {exc}; falling back to per-file copy for non-JSONL files",
+            )
+    elif not cancelled and changed_entries and (source_type != "ssh" or transfer_mode == "per_file"):
+        fallback_entries = changed_entries
+
+    if sync_stop_requested(cancel_event):
+        cancelled = True
+
+    if not cancelled and fallback_entries:
+        copy_entries_per_file(
+            fallback_entries,
+            mode=effective_transfer_mode,
+            label="Copying changed",
+        )
     elif not cancelled and not changed_entries:
         effective_transfer_mode = "archive" if source_type == "ssh" and transfer_mode in {"auto", "archive"} else "per_file"
         emit_progress(
