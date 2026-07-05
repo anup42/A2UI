@@ -247,6 +247,31 @@ def rel_posix(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix()
 
 
+def safe_relative_path(raw: Any, *, context: str = "path") -> str:
+    rel = str(raw or "").replace("\\", "/").strip()
+    if not rel or rel == ".":
+        raise RuntimeError(f"empty relative {context}")
+    parts = PurePosixPath(rel).parts
+    if rel.startswith("/") or re.match(r"^[A-Za-z]:", rel) or ".." in parts:
+        raise RuntimeError(f"unsafe relative {context}: {raw}")
+    return rel
+
+
+def validate_sync_entries(entries: list[FileEntry], *, source_name: str) -> list[FileEntry]:
+    validated: list[FileEntry] = []
+    seen: set[str] = set()
+    for entry in entries:
+        rel = safe_relative_path(entry.rel, context=f"path from {source_name}")
+        if rel in seen:
+            raise RuntimeError(f"duplicate relative path from {source_name}: {rel}")
+        seen.add(rel)
+        if rel == entry.rel:
+            validated.append(entry)
+        else:
+            validated.append(FileEntry(rel=rel, size=entry.size, mtime=entry.mtime, source_path=entry.source_path))
+    return validated
+
+
 def match_any(rel: str, patterns: list[str]) -> bool:
     rel = rel.replace("\\", "/")
     return any(fnmatch.fnmatch(rel, pattern) for pattern in patterns)
@@ -622,9 +647,10 @@ for scan_root, prefix in roots_for_mode():
             obj = json.loads(line)
         except Exception:
             continue
+        rel = safe_relative_path(obj["rel"], context=f"SSH source {source.get('id')} output")
         entries.append(
             FileEntry(
-                rel=str(obj["rel"]),
+                rel=rel,
                 size=int(obj["size"]),
                 mtime=float(obj["mtime"]),
                 source_path=str(obj.get("source_path") or ""),
@@ -658,7 +684,7 @@ def list_command_files(source: dict[str, Any], include_globs: list[str], exclude
         if not line.strip():
             continue
         obj = json.loads(line)
-        rel = str(obj["rel"])
+        rel = safe_relative_path(obj["rel"], context=f"command source {source.get('id')} output")
         if should_include(rel, include_globs, exclude_globs):
             entries.append(FileEntry(rel=rel, size=int(obj.get("size", 0)), mtime=float(obj.get("mtime", 0))))
     return entries
@@ -779,27 +805,44 @@ def source_transfer_mode(source: dict[str, Any]) -> str:
 def safe_extract_tar_gz(archive_path: Path, dest_root: Path) -> int:
     dest_root.mkdir(parents=True, exist_ok=True)
     root = dest_root.resolve()
-    extracted = 0
-    with tarfile.open(archive_path, "r:gz") as archive:
-        for member in archive.getmembers():
-            if not member.isfile():
-                continue
-            member_name = member.name.replace("\\", "/")
-            if member_name.startswith("/") or ".." in PurePosixPath(member_name).parts:
-                raise RuntimeError(f"unsafe archive member path: {member.name}")
-            target = (dest_root / member_name).resolve()
-            if os.path.commonpath([str(root), str(target)]) != str(root):
-                raise RuntimeError(f"archive member escapes destination: {member.name}")
-            source = archive.extractfile(member)
-            if source is None:
-                raise RuntimeError(f"failed to read archive member: {member.name}")
+    planned: list[tuple[Path, Path, tarfile.TarInfo]] = []
+    seen: set[str] = set()
+    with tempfile.TemporaryDirectory(prefix=".a2ui_extract_", dir=dest_root) as staging:
+        staging_root = Path(staging).resolve()
+        with tarfile.open(archive_path, "r:gz") as archive:
+            for member in archive.getmembers():
+                if not member.isfile():
+                    continue
+                member_name = safe_relative_path(member.name, context="archive member path")
+                if member_name in seen:
+                    raise RuntimeError(f"duplicate archive member path: {member.name}")
+                seen.add(member_name)
+                target = (dest_root / member_name).resolve()
+                if os.path.commonpath([str(root), str(target)]) != str(root):
+                    raise RuntimeError(f"archive member escapes destination: {member.name}")
+                staged = (staging_root / member_name).resolve()
+                if os.path.commonpath([str(staging_root), str(staged)]) != str(staging_root):
+                    raise RuntimeError(f"archive member escapes staging directory: {member.name}")
+                source = archive.extractfile(member)
+                if source is None:
+                    raise RuntimeError(f"failed to read archive member: {member.name}")
+                staged.parent.mkdir(parents=True, exist_ok=True)
+                with source, staged.open("wb") as handle:
+                    shutil.copyfileobj(source, handle)
+                planned.append((staged, target, member))
+        for staged, target, member in planned:
             target.parent.mkdir(parents=True, exist_ok=True)
-            with source, target.open("wb") as handle:
-                shutil.copyfileobj(source, handle)
-            if member.mtime:
-                os.utime(target, (member.mtime, member.mtime))
-            extracted += 1
-    return extracted
+            os.replace(staged, target)
+            try:
+                os.chmod(target, member.mode & 0o777)
+            except OSError:
+                pass
+            if member.mtime is not None:
+                try:
+                    os.utime(target, (member.mtime, member.mtime))
+                except OSError:
+                    pass
+    return len(planned)
 
 
 def create_remote_archive(
@@ -836,7 +879,7 @@ list_path=sys.argv[1]
 archive_path=sys.argv[2]
 count=0
 payload_bytes=0
-with tarfile.open(archive_path, "w:gz") as archive:
+with tarfile.open(archive_path, "w:gz", dereference=True) as archive:
     with open(list_path, "r", encoding="utf-8") as handle:
         for line in handle:
             if not line.strip():
@@ -983,6 +1026,7 @@ def sync_source(
         entries = list_command_files(source, include_globs, exclude_globs)
     else:
         raise ValueError(f"Unsupported source type: {source_type}")
+    entries = validate_sync_entries(entries, source_name=source_label(source))
     cancelled = sync_stop_requested(cancel_event)
 
     transfer_mode = source_transfer_mode(source)
