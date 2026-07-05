@@ -4149,9 +4149,12 @@ INDEX_HTML = r"""<!doctype html>
     let syncPollTimer = null;
     let autoRefreshTimer = null;
     let summaryLoading = false;
+    let lastSyncSummaryRefreshMs = 0;
+    let lastSyncCopiedForSummary = -1;
     let sourceHealthOverrides = {};
     let selectedRunKey = null;
     let runPage = 1;
+    const syncSummaryRefreshIntervalMs = 3000;
     const fmt = n => (n ?? 0).toLocaleString();
     const pct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(1)}%`;
     const metricPct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(0)}%`;
@@ -4302,6 +4305,7 @@ INDEX_HTML = r"""<!doctype html>
       const res = await fetch("/api/sync/status");
       const status = await res.json();
       renderSyncStatus(status);
+      maybeRefreshSummaryDuringSync(status);
       if (!status.running && syncPollTimer) {
         clearInterval(syncPollTimer);
         syncPollTimer = null;
@@ -4317,15 +4321,33 @@ INDEX_HTML = r"""<!doctype html>
       if (summaryLoading) return;
       summaryLoading = true;
       const silent = Boolean(options.silent);
+      const preserveStatus = Boolean(options.preserveStatus);
       if (!silent) setStatus("Loading...");
       try {
         const res = await fetch("/api/summary");
         current = await res.json();
         render();
-        setStatus(`${silent ? "Auto refreshed" : "Loaded"} ${new Date(current.generated_at).toLocaleString()}`);
+        if (!preserveStatus) {
+          setStatus(`${silent ? "Auto refreshed" : "Loaded"} ${new Date(current.generated_at).toLocaleString()}`);
+        }
       } finally {
         summaryLoading = false;
       }
+    }
+    function maybeRefreshSummaryDuringSync(status) {
+      if (!status || !status.running) {
+        lastSyncSummaryRefreshMs = 0;
+        lastSyncCopiedForSummary = -1;
+        return;
+      }
+      const copied = Number(status.copied || 0);
+      const now = Date.now();
+      if (copied <= lastSyncCopiedForSummary) return;
+      if (now - lastSyncSummaryRefreshMs < syncSummaryRefreshIntervalMs) return;
+      if (summaryLoading) return;
+      lastSyncCopiedForSummary = copied;
+      lastSyncSummaryRefreshMs = now;
+      loadSummary({silent: true, preserveStatus: true}).catch(e => setStatus(`Live count refresh failed: ${e.message}`));
     }
     function startAutoRefresh() {
       if (autoRefreshTimer) {
