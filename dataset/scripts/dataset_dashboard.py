@@ -893,7 +893,6 @@ def copy_ssh_archive(
                 phase="remote_archiving",
                 transfer_mode="archive",
                 current_file="",
-                changed=len(entries),
                 message=f"Remote archiving {len(entries)} changed file(s) from {base_progress.get('source_label')}",
             )
             remote_archive, _, archive_size = create_remote_archive(source, entries, client=client, sftp=sftp)
