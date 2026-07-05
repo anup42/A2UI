@@ -1454,12 +1454,22 @@ def run_sync(
     progress: ProgressCallback | None = None,
     max_parallel_sources: int | None = None,
     cancel_event: threading.Event | None = None,
+    source_id: str | None = None,
 ) -> dict[str, Any]:
     if cancel_event is None:
         cancel_event = threading.Event()
     include_globs = list(config.get("include_globs") or [])
     exclude_globs = list(config.get("exclude_globs") or [])
     enabled_sources = [source for source in config.get("sources") or [] if isinstance(source, dict) and source_enabled(source)]
+    if source_id:
+        requested_source_id = safe_source_id(source_id)
+        enabled_sources = [
+            source
+            for source in enabled_sources
+            if safe_source_id(str(source.get("id") or source_label(source))) == requested_source_id
+        ]
+        if not enabled_sources:
+            raise ValueError(f"No enabled source found for source_id={source_id}")
     configured_parallel = positive_int(
         max_parallel_sources if max_parallel_sources is not None else config.get("max_parallel_sources"),
         DEFAULT_MAX_PARALLEL_SOURCES,
@@ -4533,11 +4543,15 @@ INDEX_HTML = r"""<!doctype html>
           const sourceProcessed = Number(source.processed || 0);
           const sourceWidth = sourceTotal ? Math.max(3, Math.min(100, Math.round((sourceProcessed / sourceTotal) * 100))) : (source.running ? 8 : (source.done ? 100 : 0));
           const phase = String(source.phase || "queued");
+          const sourceId = String(source.source_id || "");
           const hasFallback = Boolean(source.fallback_reason);
           const badgeClass = phase === "source_error" || Number(source.error_count || 0) ? "error" : (hasFallback || Number(source.warning_count || 0) ? "warn" : (source.done ? "ok" : (phase === "queued" ? "unknown" : "warn")));
           const transferMode = source.transfer_mode ? `mode ${source.transfer_mode}` : "";
           const archiveSize = Number(source.archive_size || 0) ? `, archive ${bytesText(source.archive_size)}` : "";
           const fallbackDetail = source.fallback_reason ? `<br><span class="badge warn">fallback reason</span><br><span class="small">${escapeHtml(source.fallback_reason)}</span>` : "";
+          const resyncButton = source.done && sourceId && !s.running
+            ? `<button class="ghost-btn source-resync-btn" data-source-id="${escapeHtml(sourceId)}" title="Sync only this source">Resync source</button>`
+            : "";
           return `
             <div class="sync-source-row">
               <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(syncPhaseLabel(phase))}</span><br><span class="small">${escapeHtml(transferMode)}</span>${fallbackDetail}</div>
@@ -4545,7 +4559,7 @@ INDEX_HTML = r"""<!doctype html>
                 <div class="bar-track"><div class="bar-fill" style="width:${sourceWidth}%"></div></div>
                 <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, warnings ${fmt(source.warning_count)}, errors ${fmt(source.error_count)}${archiveSize}</span>
               </div>
-              <div class="small">${escapeHtml(source.current_file || source.message || "")}</div>
+              <div class="small">${escapeHtml(source.current_file || source.message || "")}${resyncButton ? `<div style="margin-top:8px">${resyncButton}</div>` : ""}</div>
             </div>`;
         }).join("");
       document.getElementById("syncSourceProgress").innerHTML = sourceRows;
@@ -4596,22 +4610,26 @@ INDEX_HTML = r"""<!doctype html>
       }, seconds * 1000);
       if (current) setStatus(`Loaded ${new Date(current.generated_at).toLocaleString()} | auto refresh ${seconds}s`);
     }
-    async function syncSources() {
-      setStatus("Syncing sources...");
+    async function syncSources(sourceId = "") {
+      const targetSource = String(sourceId || "");
+      setStatus(targetSource ? `Syncing ${targetSource}...` : "Syncing sources...");
       startSyncPolling();
       try {
         const maxParallel = Number(document.getElementById("maxParallelSources").value || "10");
+        const body = {max_parallel_sources: targetSource ? 1 : maxParallel};
+        if (targetSource) body.source_id = targetSource;
         const res = await fetch("/api/sync", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({max_parallel_sources: maxParallel}),
+          body: JSON.stringify(body),
         });
         const payload = await res.json();
         if (!res.ok) throw new Error(payload.error || "sync failed");
         await loadSyncStatus().catch(() => {});
         await loadSummary();
         const copied = (payload.results || []).reduce((a,r) => a + (r.copied || 0), 0);
-        setStatus(payload.cancelled ? `Sync stopped. Copied ${copied} changed files before stopping.` : `Sync complete. Copied ${copied} changed files.`);
+        const scope = targetSource ? `Source ${targetSource}` : "Sync";
+        setStatus(payload.cancelled ? `${scope} stopped. Copied ${copied} changed files before stopping.` : `${scope} complete. Copied ${copied} changed files.`);
       } catch (error) {
         await loadSyncStatus().catch(() => {});
         throw error;
@@ -7930,6 +7948,13 @@ INDEX_HTML = r"""<!doctype html>
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
     document.getElementById("stopSyncBtn").onclick = () => stopSync().catch(e => setStatus(`Stop failed: ${e.message}`));
+    document.getElementById("syncSourceProgress").addEventListener("click", event => {
+      const button = event.target.closest(".source-resync-btn");
+      if (!button) return;
+      const sourceId = button.getAttribute("data-source-id") || "";
+      if (!sourceId) return;
+      syncSources(sourceId).catch(e => setStatus(`Source sync failed: ${e.message}`));
+    });
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
     document.getElementById("exportCsvBtn").onclick = () => exportFiltered("csv");
     document.getElementById("exportJsonBtn").onclick = () => exportFiltered("json");
@@ -8052,10 +8077,11 @@ class DashboardServer:
     def summary(self) -> dict[str, Any]:
         return scan_all(self.config(), self.mirror_dir)
 
-    def sync(self, max_parallel_sources: int | None = None) -> dict[str, Any]:
+    def sync(self, max_parallel_sources: int | None = None, source_id: str | None = None) -> dict[str, Any]:
         with self.lock:
             self.stop_event.clear()
-            self.update_sync_status({"running": True, "phase": "starting", "message": "Starting sync"})
+            message = f"Starting sync for {source_id}" if source_id else "Starting sync"
+            self.update_sync_status({"running": True, "phase": "starting", "message": message, "target_source_id": source_id or ""})
             try:
                 return run_sync(
                     self.config(),
@@ -8063,6 +8089,7 @@ class DashboardServer:
                     progress=self.update_sync_status,
                     max_parallel_sources=max_parallel_sources,
                     cancel_event=self.stop_event,
+                    source_id=source_id,
                 )
             except Exception as exc:
                 self.stop_event.clear()
@@ -8164,7 +8191,8 @@ def make_handler(server_state: DashboardServer):
                         if max_parallel_raw not in (None, "")
                         else None
                     )
-                    self.send_json(server_state.sync(max_parallel_sources=max_parallel_sources))
+                    source_id = str(payload.get("source_id") or "").strip() or None
+                    self.send_json(server_state.sync(max_parallel_sources=max_parallel_sources, source_id=source_id))
                 except Exception as exc:
                     self.send_json({"error": str(exc)}, status=500)
                 return
