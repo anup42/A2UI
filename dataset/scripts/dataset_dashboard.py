@@ -661,6 +661,22 @@ def scp_base_command(source: dict[str, Any]) -> list[str]:
     return cmd
 
 
+def source_timeout_seconds(source: dict[str, Any], key: str, default: int | None = None) -> int | None:
+    value = source.get(key)
+    if value in (None, ""):
+        return default
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in {"none", "null", "infinite", "inf", "unlimited"}:
+            return None
+        value = text
+    try:
+        parsed = int(float(value))
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed > 0 else None
+
+
 def list_ssh_files(
     source: dict[str, Any],
     include_globs: list[str],
@@ -732,8 +748,9 @@ for scan_root, prefix in roots_for_mode():
             shell_quote(json.dumps(exclude_globs)),
         ]
     )
+    list_timeout = source_timeout_seconds(source, "list_timeout_sec")
     if client is not None:
-        stdin, stdout, stderr = client.exec_command(remote_command, timeout=int(source.get("list_timeout_sec", 300)))
+        stdin, stdout, stderr = client.exec_command(remote_command, timeout=list_timeout)
         del stdin
         output = stdout.read().decode("utf-8", errors="replace")
         error = stderr.read().decode("utf-8", errors="replace")
@@ -742,7 +759,7 @@ for scan_root, prefix in roots_for_mode():
             raise RuntimeError(error.strip() or output.strip() or "ssh list failed")
     else:
         cmd = ssh_base_command(source) + [remote_command]
-        result = run_command(cmd, timeout=int(source.get("list_timeout_sec", 300)))
+        result = run_command(cmd, timeout=list_timeout)
         if result.returncode != 0:
             raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh list failed")
         output = result.stdout
@@ -774,7 +791,7 @@ def list_command_files(source: dict[str, Any], include_globs: list[str], exclude
     result = run_command(
         command,
         env=env,
-        timeout=int(source.get("list_timeout_sec", 300)),
+        timeout=source_timeout_seconds(source, "list_timeout_sec"),
     )
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "list_command failed")
@@ -808,7 +825,7 @@ def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> 
     remote_path_arg = shell_quote(remote_path) if config_bool(source.get("scp_quote_remote_path"), False) else remote_path
     remote_spec = f"{target}:{remote_path_arg}"
     cmd = scp_base_command(source) + [remote_spec, str(dest)]
-    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    result = run_command(cmd, timeout=source_timeout_seconds(source, "copy_timeout_sec"))
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
 
@@ -819,7 +836,7 @@ def run_remote_ssh_command(
     client: Any | None = None,
     timeout: int | None = None,
 ) -> str:
-    command_timeout = timeout if timeout is not None else int(source.get("copy_timeout_sec", 300))
+    command_timeout = timeout if timeout is not None else source_timeout_seconds(source, "copy_timeout_sec")
     if client is not None:
         stdin, stdout, stderr = client.exec_command(remote_command, timeout=command_timeout)
         del stdin
@@ -851,7 +868,7 @@ def copy_command_file(source: dict[str, Any], dest_root: Path, rel: str) -> None
     dest = dest_root / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
     formatted = command.format(rel=rel, dest=str(dest), dest_dir=str(dest.parent))
-    result = run_command(formatted, timeout=int(source.get("copy_timeout_sec", 300)))
+    result = run_command(formatted, timeout=source_timeout_seconds(source, "copy_timeout_sec"))
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"copy_command failed for {rel}")
 
@@ -3374,7 +3391,7 @@ print(json.dumps({'exists': bool(roots), 'root_count': len(roots), 'sample_roots
             shell_quote(path_base),
         ]
     )
-    timeout = int(source.get("test_timeout_sec", source.get("connect_timeout_sec", 30)))
+    timeout = source_timeout_seconds(source, "test_timeout_sec")
     if use_paramiko_ssh(source):
         client = connect_paramiko(source)
         try:
