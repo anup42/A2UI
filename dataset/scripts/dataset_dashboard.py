@@ -710,9 +710,15 @@ def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> 
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp failed for {entry.rel}")
 
 
-def run_remote_ssh_command(source: dict[str, Any], remote_command: str, client: Any | None = None) -> str:
+def run_remote_ssh_command(
+    source: dict[str, Any],
+    remote_command: str,
+    client: Any | None = None,
+    timeout: int | None = None,
+) -> str:
+    command_timeout = timeout if timeout is not None else int(source.get("copy_timeout_sec", 300))
     if client is not None:
-        stdin, stdout, stderr = client.exec_command(remote_command, timeout=int(source.get("copy_timeout_sec", 300)))
+        stdin, stdout, stderr = client.exec_command(remote_command, timeout=command_timeout)
         del stdin
         output = stdout.read().decode("utf-8", errors="replace")
         error = stderr.read().decode("utf-8", errors="replace")
@@ -721,25 +727,37 @@ def run_remote_ssh_command(source: dict[str, Any], remote_command: str, client: 
             raise RuntimeError(error.strip() or output.strip() or "ssh command failed")
         return output
     cmd = ssh_base_command(source) + [remote_command]
-    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    result = run_command(cmd, timeout=command_timeout)
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh command failed")
     return result.stdout
 
 
-def upload_ssh_file(source: dict[str, Any], local_path: Path, remote_path: str, sftp: Any | None = None) -> None:
+def upload_ssh_file(
+    source: dict[str, Any],
+    local_path: Path,
+    remote_path: str,
+    sftp: Any | None = None,
+    timeout: int | None = None,
+) -> None:
     if sftp is not None:
         sftp.put(str(local_path), remote_path)
         return
     target = ssh_target(source)
     remote_spec = f"{target}:{shell_quote(remote_path)}"
     cmd = scp_base_command(source) + [str(local_path), remote_spec]
-    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    result = run_command(cmd, timeout=timeout if timeout is not None else int(source.get("copy_timeout_sec", 300)))
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp upload failed for {remote_path}")
 
 
-def download_ssh_file(source: dict[str, Any], remote_path: str, local_path: Path, sftp: Any | None = None) -> None:
+def download_ssh_file(
+    source: dict[str, Any],
+    remote_path: str,
+    local_path: Path,
+    sftp: Any | None = None,
+    timeout: int | None = None,
+) -> None:
     local_path.parent.mkdir(parents=True, exist_ok=True)
     if sftp is not None:
         sftp.get(remote_path, str(local_path))
@@ -747,7 +765,7 @@ def download_ssh_file(source: dict[str, Any], remote_path: str, local_path: Path
     target = ssh_target(source)
     remote_spec = f"{target}:{shell_quote(remote_path)}"
     cmd = scp_base_command(source) + [remote_spec, str(local_path)]
-    result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
+    result = run_command(cmd, timeout=timeout if timeout is not None else int(source.get("copy_timeout_sec", 300)))
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"scp download failed for {remote_path}")
 
@@ -802,6 +820,20 @@ def source_transfer_mode(source: dict[str, Any]) -> str:
     return mode if mode in {"auto", "archive", "per_file"} else "auto"
 
 
+def source_timeout_seconds(source: dict[str, Any], key: str, *, fallback_key: str = "copy_timeout_sec", default: int = 300) -> int:
+    for candidate_key in (key, fallback_key):
+        value = source.get(candidate_key)
+        if value in (None, ""):
+            continue
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            continue
+        if parsed > 0:
+            return parsed
+    return default
+
+
 def safe_extract_tar_gz(archive_path: Path, dest_root: Path) -> int:
     dest_root.mkdir(parents=True, exist_ok=True)
     root = dest_root.resolve()
@@ -852,12 +884,14 @@ def create_remote_archive(
     sftp: Any | None = None,
 ) -> tuple[str, int, int]:
     remote_tmp = ""
+    archive_timeout = source_timeout_seconds(source, "archive_timeout_sec", fallback_key="", default=1800)
     try:
         mktemp_py = "import tempfile; print(tempfile.mkdtemp(prefix='a2ui_dashboard_sync_'))"
         remote_tmp = run_remote_ssh_command(
             source,
             " ".join(["python3", "-c", shell_quote(mktemp_py)]),
             client=client,
+            timeout=archive_timeout,
         ).strip().splitlines()[-1]
         if not remote_tmp:
             raise RuntimeError("remote temp directory creation returned no path")
@@ -870,7 +904,7 @@ def create_remote_archive(
                     raise RuntimeError(f"missing remote source path for {entry.rel}")
                 handle.write(json.dumps({"rel": entry.rel, "source_path": entry.source_path}, separators=(",", ":")) + "\n")
         try:
-            upload_ssh_file(source, local_list, remote_list, sftp=sftp)
+            upload_ssh_file(source, local_list, remote_list, sftp=sftp, timeout=archive_timeout)
         finally:
             local_list.unlink(missing_ok=True)
         archive_py = r"""
@@ -901,6 +935,7 @@ print(json.dumps({"count": count, "payload_bytes": payload_bytes, "archive_size"
             source,
             " ".join(["python3", "-c", shell_quote(archive_py), shell_quote(remote_list), shell_quote(remote_archive)]),
             client=client,
+            timeout=archive_timeout,
         )
         metadata = json.loads(output.strip().splitlines()[-1])
         archived_count = int(metadata.get("count") or 0)
@@ -926,6 +961,12 @@ def copy_ssh_archive(
 ) -> tuple[int, int]:
     remote_archive = ""
     archive_size = 0
+    archive_download_timeout = source_timeout_seconds(
+        source,
+        "archive_download_timeout_sec",
+        fallback_key="archive_timeout_sec",
+        default=1800,
+    )
     with tempfile.TemporaryDirectory(prefix="a2ui_dashboard_archive_") as tmp:
         local_archive = Path(tmp) / "changes.tar.gz"
         try:
@@ -948,7 +989,7 @@ def copy_ssh_archive(
                 archive_size=archive_size,
                 message=f"Downloading archive ({archive_size} bytes) from {base_progress.get('source_label')}",
             )
-            download_ssh_file(source, remote_archive, local_archive, sftp=sftp)
+            download_ssh_file(source, remote_archive, local_archive, sftp=sftp, timeout=archive_download_timeout)
             raise_if_sync_stopped(cancel_event)
             emit_progress(
                 progress,
@@ -1054,15 +1095,17 @@ def sync_source(
     fallback_reason = ""
     fallback_at = ""
     current_files: dict[str, Any] = {}
+    listed_signatures: dict[str, Any] = {}
     changed_entries: list[FileEntry] = []
     for entry in entries:
         if sync_stop_requested(cancel_event):
             cancelled = True
             break
         signature, _ = file_signature(entry)
-        current_files[entry.rel] = signature
+        listed_signatures[entry.rel] = signature
         if is_entry_unchanged(previous, dest_root, entry):
             skipped += 1
+            current_files[entry.rel] = signature
         else:
             changed_entries.append(entry)
     emit_progress(
@@ -1107,6 +1150,8 @@ def sync_source(
                 cancel_event=cancel_event,
             )
             effective_transfer_mode = "archive"
+            for entry in changed_entries:
+                current_files[entry.rel] = listed_signatures[entry.rel]
         except SyncStopped:
             cancelled = True
             effective_transfer_mode = "stopped"
@@ -1195,8 +1240,11 @@ def sync_source(
                 else:
                     copy_command_file(source, dest_root, entry.rel)
                 copied += 1
+                current_files[entry.rel] = listed_signatures[entry.rel]
             except Exception as exc:
                 errors.append(f"{entry.rel}: {exc}")
+                if previous.get(entry.rel) is not None and (dest_root / entry.rel).exists():
+                    current_files[entry.rel] = previous[entry.rel]
             emit_progress(
                 progress,
                 phase="copying",
