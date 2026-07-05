@@ -172,6 +172,10 @@ Start the dashboard from the `dataset/` folder:
 python scripts/dataset_dashboard.py --sync-on-start
 ```
 
+Source sync runs in parallel by default. Set `max_parallel_sources` in
+`configs/dataset_dashboard.sources.json` to change the saved default, or use the `Parallel sources`
+control in the page toolbar before clicking `Sync sources`. The default is `10`.
+
 Then open:
 
 ```
@@ -289,8 +293,8 @@ python scripts/dataset_dashboard.py --summary-once
 
 Remote files are mirrored into `data/dashboard_mirror/`. The sync manifest stores source `size`
 and `mtime`, so repeat syncs copy only new or updated files. While sync is running, the dashboard
-shows the active source, current file, listed/processed/copied/skipped/error counters, and recent
-sync messages.
+shows aggregate counters plus per-source phase, progress, current file, copied/skipped/error counts,
+and recent sync messages.
 
 ## Local Qwen3 / DeepSeek
 

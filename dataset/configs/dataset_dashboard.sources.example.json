@@ -1,5 +1,6 @@
 {
   "mirror_dir": "data/dashboard_mirror",
+  "max_parallel_sources": 10,
   "sources": [
     {
       "id": "local_repo",

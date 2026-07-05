@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -26,6 +27,7 @@ DEFAULT_CONFIG = ROOT / "configs" / "dataset_dashboard.sources.json"
 DEFAULT_EXAMPLE_CONFIG = ROOT / "configs" / "dataset_dashboard.sources.example.json"
 DEFAULT_MIRROR_DIR = ROOT / "data" / "dashboard_mirror"
 MANIFEST_NAME = "sync_manifest.json"
+DEFAULT_MAX_PARALLEL_SOURCES = 10
 PASSWORD_CACHE: dict[str, str] = {}
 ProgressCallback = Callable[[dict[str, Any]], None]
 
@@ -880,23 +882,83 @@ def load_config(config_path: Path) -> dict[str, Any]:
         config = {}
     if "sources" not in config:
         config["sources"] = []
+    if "max_parallel_sources" not in config:
+        config["max_parallel_sources"] = DEFAULT_MAX_PARALLEL_SOURCES
     return config
 
 
-def run_sync(config: dict[str, Any], mirror_dir: Path, progress: ProgressCallback | None = None) -> dict[str, Any]:
+def positive_int(value: Any, default: int, *, minimum: int = 1, maximum: int = 64) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return max(minimum, min(maximum, parsed))
+
+
+def run_sync(
+    config: dict[str, Any],
+    mirror_dir: Path,
+    progress: ProgressCallback | None = None,
+    max_parallel_sources: int | None = None,
+) -> dict[str, Any]:
     include_globs = list(config.get("include_globs") or [])
     exclude_globs = list(config.get("exclude_globs") or [])
-    results = []
     enabled_sources = [source for source in config.get("sources") or [] if isinstance(source, dict) and source_enabled(source)]
+    configured_parallel = positive_int(
+        max_parallel_sources if max_parallel_sources is not None else config.get("max_parallel_sources"),
+        DEFAULT_MAX_PARALLEL_SOURCES,
+    )
+    worker_count = min(configured_parallel, max(1, len(enabled_sources)))
+    results_by_index: list[dict[str, Any] | None] = [None] * len(enabled_sources)
     emit_progress(
         progress,
         running=True,
         phase="starting",
         total_sources=len(enabled_sources),
         source_index=0,
-        message=f"Starting sync for {len(enabled_sources)} source(s)",
+        completed_sources=0,
+        max_parallel_sources=configured_parallel,
+        message=f"Starting sync for {len(enabled_sources)} source(s) with up to {worker_count} parallel worker(s)",
     )
     for source_index, source in enumerate(enabled_sources, start=1):
+        emit_progress(
+            progress,
+            running=True,
+            phase="queued",
+            total_sources=len(enabled_sources),
+            source_index=source_index,
+            completed_sources=0,
+            max_parallel_sources=configured_parallel,
+            source_id=safe_source_id(str(source.get("id") or source_label(source))),
+            source_label=source_label(source),
+            source_type=str(source.get("type") or "local").lower(),
+            current_file="",
+            listed=0,
+            total=0,
+            processed=0,
+            copied=0,
+            skipped=0,
+            error_count=0,
+            message=f"Queued source {source_index}/{len(enabled_sources)}: {source_label(source)}",
+        )
+
+    def sync_one(source_index: int, source: dict[str, Any]) -> dict[str, Any]:
+        source_id = safe_source_id(str(source.get("id") or source_label(source)))
+        label = source_label(source)
+        source_type = str(source.get("type") or "local").lower()
+
+        def source_progress(payload: dict[str, Any]) -> None:
+            update = dict(payload)
+            update.update(
+                {
+                    "running": True,
+                    "total_sources": len(enabled_sources),
+                    "source_index": source_index,
+                    "max_parallel_sources": configured_parallel,
+                }
+            )
+            emit_progress(progress, **update)
+
         try:
             emit_progress(
                 progress,
@@ -904,11 +966,13 @@ def run_sync(config: dict[str, Any], mirror_dir: Path, progress: ProgressCallbac
                 phase="source_start",
                 total_sources=len(enabled_sources),
                 source_index=source_index,
-                source_id=safe_source_id(str(source.get("id") or source_label(source))),
-                source_label=source_label(source),
-                message=f"Starting source {source_index}/{len(enabled_sources)}: {source_label(source)}",
+                max_parallel_sources=configured_parallel,
+                source_id=source_id,
+                source_label=label,
+                source_type=source_type,
+                message=f"Starting source {source_index}/{len(enabled_sources)}: {label}",
             )
-            results.append(sync_source(source, mirror_dir, include_globs, exclude_globs, progress=progress))
+            return sync_source(source, mirror_dir, include_globs, exclude_globs, progress=source_progress)
         except Exception as exc:
             emit_progress(
                 progress,
@@ -916,25 +980,58 @@ def run_sync(config: dict[str, Any], mirror_dir: Path, progress: ProgressCallbac
                 phase="source_error",
                 total_sources=len(enabled_sources),
                 source_index=source_index,
-                source_id=safe_source_id(str(source.get("id") or source_label(source))),
-                source_label=source_label(source),
+                max_parallel_sources=configured_parallel,
+                source_id=source_id,
+                source_label=label,
+                source_type=source_type,
+                current_file="",
+                listed=0,
+                total=0,
+                processed=0,
+                copied=0,
+                skipped=0,
                 error_count=1,
-                message=f"Source failed: {source_label(source)}: {exc}",
+                message=f"Source failed: {label}: {exc}",
             )
-            results.append(
-                {
-                    "source_id": safe_source_id(str(source.get("id") or source_label(source))),
-                    "source_label": source_label(source),
-                    "source_type": source.get("type", "local"),
-                    "listed": 0,
-                    "copied": 0,
-                    "skipped": 0,
-                    "errors": [str(exc)],
-                    "error_count": 1,
-                    "mirror_path": str(source_local_root(source, mirror_dir)),
-                }
-            )
-    summary = {"synced_at": utc_now(), "results": results}
+            return {
+                "source_id": source_id,
+                "source_label": label,
+                "source_type": source_type,
+                "listed": 0,
+                "copied": 0,
+                "skipped": 0,
+                "errors": [str(exc)],
+                "error_count": 1,
+                "mirror_path": str(source_local_root(source, mirror_dir)),
+            }
+
+    if enabled_sources:
+        completed_sources = 0
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            future_to_index = {
+                executor.submit(sync_one, source_index, source): source_index
+                for source_index, source in enumerate(enabled_sources, start=1)
+            }
+            for future in as_completed(future_to_index):
+                source_index = future_to_index[future]
+                result = future.result()
+                results_by_index[source_index - 1] = result
+                completed_sources += 1
+                emit_progress(
+                    progress,
+                    running=True,
+                    phase="source_complete",
+                    total_sources=len(enabled_sources),
+                    source_index=source_index,
+                    completed_sources=completed_sources,
+                    max_parallel_sources=configured_parallel,
+                    source_id=result.get("source_id", ""),
+                    source_label=result.get("source_label", ""),
+                    source_type=result.get("source_type", ""),
+                    message=f"Completed {completed_sources}/{len(enabled_sources)} source(s)",
+                )
+    results = [result for result in results_by_index if result is not None]
+    summary = {"synced_at": utc_now(), "max_parallel_sources": configured_parallel, "results": results}
     write_json(mirror_dir / "last_sync.json", summary)
     emit_progress(
         progress,
@@ -942,6 +1039,8 @@ def run_sync(config: dict[str, Any], mirror_dir: Path, progress: ProgressCallbac
         phase="done",
         total_sources=len(enabled_sources),
         source_index=len(enabled_sources),
+        completed_sources=len(enabled_sources),
+        max_parallel_sources=configured_parallel,
         listed=sum(int(r.get("listed") or 0) for r in results),
         copied=sum(int(r.get("copied") or 0) for r in results),
         skipped=sum(int(r.get("skipped") or 0) for r in results),
@@ -2571,6 +2670,7 @@ def dashboard_config_summary(config: dict[str, Any], mirror_dir: Path) -> dict[s
     effective_sources = effective_dashboard_sources(config)
     return {
         "mirror_dir": str(mirror_dir),
+        "max_parallel_sources": positive_int(config.get("max_parallel_sources"), DEFAULT_MAX_PARALLEL_SOURCES),
         "include_globs": list(config.get("include_globs") or []),
         "exclude_globs": list(config.get("exclude_globs") or []),
         "configured_source_count": len(configured_sources),
@@ -3137,8 +3237,11 @@ INDEX_HTML = r"""<!doctype html>
     .sync-panel.active { display:block; }
     .sync-top { display:flex; justify-content:space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
     .sync-messages { margin-top: 8px; display:grid; gap: 3px; }
+    .sync-source-list { margin-top: 12px; display:grid; gap: 8px; }
+    .sync-source-row { display:grid; grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 1.4fr) minmax(150px, 1fr); gap: 10px; align-items:center; border-top: 1px solid var(--line); padding-top: 8px; }
+    .sync-source-row .bar-track { margin: 3px 0; height: 8px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
-    @media (max-width: 980px) { .grid, .two-col-panels, .freshness-row, .eta-row { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
+    @media (max-width: 980px) { .grid, .two-col-panels, .freshness-row, .eta-row, .sync-source-row { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
   </style>
 </head>
 <body>
@@ -3150,6 +3253,9 @@ INDEX_HTML = r"""<!doctype html>
       <button id="refreshBtn">Refresh scan</button>
       <button class="ghost-btn" id="exportCsvBtn">Export CSV</button>
       <button class="ghost-btn" id="exportJsonBtn">Export JSON</button>
+      <label class="date-label">Parallel sources
+        <input id="maxParallelSources" type="number" min="1" max="64" value="10" title="Maximum sources to sync at once" style="width:76px" />
+      </label>
       <input id="filter" placeholder="Filter run/source/model..." />
       <select id="sourceFilter">
         <option value="">All sources</option>
@@ -3208,6 +3314,7 @@ INDEX_HTML = r"""<!doctype html>
       </div>
       <div class="bar-track"><div class="bar-fill" id="syncBar" style="width:0%"></div></div>
       <div class="small" id="syncFile"></div>
+      <div class="sync-source-list" id="syncSourceProgress"></div>
       <div class="sync-messages small" id="syncMessages"></div>
     </div>
   </header>
@@ -3477,9 +3584,12 @@ INDEX_HTML = r"""<!doctype html>
       const total = Number(s.total || 0);
       const processed = Number(s.processed || 0);
       const width = total ? Math.max(3, Math.min(100, Math.round((processed / total) * 100))) : (s.running ? 8 : 100);
-      const sourcePart = s.source_label ? `${s.source_label}` : "sources";
-      const sourceIndex = s.total_sources ? `source ${s.source_index || 0}/${s.total_sources}` : "";
-      document.getElementById("syncPhase").textContent = `${s.running ? "Syncing" : "Sync"} - ${s.phase || "status"} ${sourceIndex}`;
+      const sourcePart = s.total_sources
+        ? `${fmt(s.active_sources || 0)} active / ${fmt(s.completed_sources || 0)} complete`
+        : (s.source_label ? `${s.source_label}` : "sources");
+      const sourceIndex = s.total_sources ? `${fmt(s.completed_sources || 0)}/${fmt(s.total_sources)} complete` : "";
+      const activeSources = s.running ? `, ${fmt(s.active_sources || 0)} active, max ${fmt(s.max_parallel_sources || 1)}` : "";
+      document.getElementById("syncPhase").textContent = `${s.running ? "Syncing" : "Sync"} - ${s.phase || "status"} ${sourceIndex}${activeSources}`;
       document.getElementById("syncCounters").textContent = [
         sourcePart,
         `listed ${fmt(s.listed)}`,
@@ -3490,7 +3600,26 @@ INDEX_HTML = r"""<!doctype html>
       ].filter(Boolean).join(" | ");
       document.getElementById("syncBar").style.width = `${width}%`;
       document.getElementById("syncFile").textContent = s.current_file ? `Current: ${s.current_file}` : (s.message || "");
-      document.getElementById("syncMessages").innerHTML = (s.messages || []).slice(-5).map(m => `<div>${m}</div>`).join("");
+      const sourceRows = Object.values(s.sources || {})
+        .sort((a, b) => Number(a.source_index || 0) - Number(b.source_index || 0))
+        .map(source => {
+          const sourceTotal = Number(source.total || source.listed || 0);
+          const sourceProcessed = Number(source.processed || 0);
+          const sourceWidth = sourceTotal ? Math.max(3, Math.min(100, Math.round((sourceProcessed / sourceTotal) * 100))) : (source.running ? 8 : (source.done ? 100 : 0));
+          const phase = String(source.phase || "queued");
+          const badgeClass = phase === "source_error" || Number(source.error_count || 0) ? "error" : (source.done ? "ok" : (phase === "queued" ? "unknown" : "warn"));
+          return `
+            <div class="sync-source-row">
+              <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(phase)}</span></div>
+              <div>
+                <div class="bar-track"><div class="bar-fill" style="width:${sourceWidth}%"></div></div>
+                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, errors ${fmt(source.error_count)}</span>
+              </div>
+              <div class="small">${escapeHtml(source.current_file || source.message || "")}</div>
+            </div>`;
+        }).join("");
+      document.getElementById("syncSourceProgress").innerHTML = sourceRows;
+      document.getElementById("syncMessages").innerHTML = (s.messages || []).slice(-5).map(m => `<div>${escapeHtml(m)}</div>`).join("");
     }
     async function loadSyncStatus() {
       const res = await fetch("/api/sync/status");
@@ -3541,7 +3670,12 @@ INDEX_HTML = r"""<!doctype html>
       setStatus("Syncing sources...");
       startSyncPolling();
       try {
-        const res = await fetch("/api/sync", {method: "POST"});
+        const maxParallel = Number(document.getElementById("maxParallelSources").value || "10");
+        const res = await fetch("/api/sync", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({max_parallel_sources: maxParallel}),
+        });
         const payload = await res.json();
         if (!res.ok) throw new Error(payload.error || "sync failed");
         await loadSyncStatus().catch(() => {});
@@ -3724,6 +3858,10 @@ INDEX_HTML = r"""<!doctype html>
         document.getElementById("syncConfig").innerHTML = "<span class='small'>No config summary available.</span>";
         return;
       }
+      const parallelInput = document.getElementById("maxParallelSources");
+      if (parallelInput && document.activeElement !== parallelInput && !parallelInput.dataset.userEdited) {
+        parallelInput.value = String(config.max_parallel_sources || 10);
+      }
       const sources = (config.sources || []).map(source => {
         const meta = [
           `${source.type}`,
@@ -3753,6 +3891,7 @@ INDEX_HTML = r"""<!doctype html>
           <div class="detail-box"><b>${fmt(config.effective_source_count)}</b><br><span class="small">effective sources</span></div>
           <div class="detail-box"><b>${fmt(config.enabled_source_count)}</b><br><span class="small">enabled sources</span></div>
           <div class="detail-box"><b>${fmt(config.configured_source_count)}</b><br><span class="small">configured sources</span></div>
+          <div class="detail-box"><b>${fmt(config.max_parallel_sources || 10)}</b><br><span class="small">default parallel sources</span></div>
         </div>
         <div class="small">mirror: ${escapeHtml(config.mirror_dir || "")}</div>
         <div class="small">include globs:</div>${pills(config.include_globs)}
@@ -6858,6 +6997,7 @@ INDEX_HTML = r"""<!doctype html>
     document.getElementById("prevPageBtn").onclick = () => { runPage = Math.max(1, runPage - 1); render(); };
     document.getElementById("nextPageBtn").onclick = () => { runPage += 1; render(); };
     document.getElementById("autoRefreshInterval").onchange = startAutoRefresh;
+    document.getElementById("maxParallelSources").onchange = event => { event.target.dataset.userEdited = "1"; };
     loadSyncStatus().catch(() => {});
     loadSummary().then(startAutoRefresh).catch(e => setStatus(`Load failed: ${e.message}`));
   </script>
@@ -6885,6 +7025,9 @@ class DashboardServer:
             "source_type": "",
             "source_index": 0,
             "total_sources": 0,
+            "completed_sources": 0,
+            "active_sources": 0,
+            "max_parallel_sources": DEFAULT_MAX_PARALLEL_SOURCES,
             "current_file": "",
             "listed": 0,
             "total": 0,
@@ -6894,6 +7037,7 @@ class DashboardServer:
             "error_count": 0,
             "message": "Idle",
             "messages": [],
+            "sources": {},
         }
 
     def update_sync_status(self, update: dict[str, Any]) -> None:
@@ -6904,6 +7048,31 @@ class DashboardServer:
             status = dict(self.sync_status)
             status.update(update)
             status["updated_at"] = utc_now()
+            source_id = str(update.get("source_id") or "").strip()
+            if source_id:
+                sources = dict(status.get("sources") or {})
+                source_status = dict(sources.get(source_id) or {})
+                source_status.update({k: v for k, v in update.items() if k not in {"sources", "messages"}})
+                source_status["updated_at"] = status["updated_at"]
+                phase = str(source_status.get("phase") or "")
+                source_status["done"] = phase in {"source_done", "source_error", "source_complete"}
+                source_status["running"] = bool(status.get("running")) and not bool(source_status.get("done"))
+                sources[source_id] = source_status
+                status["sources"] = sources
+                source_values = list(sources.values())
+                if source_values:
+                    status["listed"] = sum(int(item.get("listed") or 0) for item in source_values)
+                    status["total"] = sum(int(item.get("total") or item.get("listed") or 0) for item in source_values)
+                    status["processed"] = sum(int(item.get("processed") or 0) for item in source_values)
+                    status["copied"] = sum(int(item.get("copied") or 0) for item in source_values)
+                    status["skipped"] = sum(int(item.get("skipped") or 0) for item in source_values)
+                    status["error_count"] = sum(int(item.get("error_count") or 0) for item in source_values)
+                    status["completed_sources"] = sum(1 for item in source_values if item.get("done"))
+                    status["active_sources"] = sum(
+                        1
+                        for item in source_values
+                        if not item.get("done") and str(item.get("phase") or "") not in {"queued", ""}
+                    )
             message = str(update.get("message") or "").strip()
             messages = list(status.get("messages") or [])
             if message and (not messages or messages[-1] != message):
@@ -6925,11 +7094,16 @@ class DashboardServer:
     def summary(self) -> dict[str, Any]:
         return scan_all(self.config(), self.mirror_dir)
 
-    def sync(self) -> dict[str, Any]:
+    def sync(self, max_parallel_sources: int | None = None) -> dict[str, Any]:
         with self.lock:
             self.update_sync_status({"running": True, "phase": "starting", "message": "Starting sync"})
             try:
-                return run_sync(self.config(), self.mirror_dir, progress=self.update_sync_status)
+                return run_sync(
+                    self.config(),
+                    self.mirror_dir,
+                    progress=self.update_sync_status,
+                    max_parallel_sources=max_parallel_sources,
+                )
             except Exception as exc:
                 self.update_sync_status({"running": False, "phase": "failed", "message": f"Sync failed: {exc}"})
                 raise
@@ -6998,7 +7172,14 @@ def make_handler(server_state: DashboardServer):
             parsed = urlparse(self.path)
             if parsed.path == "/api/sync":
                 try:
-                    self.send_json(server_state.sync())
+                    payload = self.read_json_body()
+                    max_parallel_raw = payload.get("max_parallel_sources")
+                    max_parallel_sources = (
+                        positive_int(max_parallel_raw, DEFAULT_MAX_PARALLEL_SOURCES)
+                        if max_parallel_raw not in (None, "")
+                        else None
+                    )
+                    self.send_json(server_state.sync(max_parallel_sources=max_parallel_sources))
                 except Exception as exc:
                     self.send_json({"error": str(exc)}, status=500)
                 return
