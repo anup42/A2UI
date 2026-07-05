@@ -10,10 +10,12 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -31,10 +33,19 @@ MANIFEST_NAME = "sync_manifest.json"
 DEFAULT_MAX_PARALLEL_SOURCES = 10
 PASSWORD_CACHE: dict[str, str] = {}
 ProgressCallback = Callable[[dict[str, Any]], None]
+SHUTDOWN_EVENT = threading.Event()
+ACTIVE_PROCESSES: set[subprocess.Popen[str]] = set()
+ACTIVE_PROCESSES_LOCK = threading.Lock()
 
 
 class SyncStopped(RuntimeError):
     """Raised when the user requests dashboard sync cancellation."""
+
+
+class FastShutdownThreadingHTTPServer(ThreadingHTTPServer):
+    daemon_threads = True
+    block_on_close = False
+    allow_reuse_address = True
 
 
 @dataclass(frozen=True)
@@ -388,9 +399,66 @@ def normalized_ssh_options(source: dict[str, Any]) -> list[str]:
     return options
 
 
-def run_command(command: list[str] | str, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
+def track_process(process: subprocess.Popen[str]) -> None:
+    with ACTIVE_PROCESSES_LOCK:
+        ACTIVE_PROCESSES.add(process)
+
+
+def untrack_process(process: subprocess.Popen[str]) -> None:
+    with ACTIVE_PROCESSES_LOCK:
+        ACTIVE_PROCESSES.discard(process)
+
+
+def terminate_process(process: subprocess.Popen[str], grace_seconds: float = 1.5) -> None:
+    if process.poll() is not None:
+        return
+    try:
+        process.terminate()
+    except Exception:
+        pass
+    try:
+        process.wait(timeout=grace_seconds)
+        return
+    except Exception:
+        pass
+    if os.name == "nt":
+        try:
+            taskkill = subprocess.Popen(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            taskkill.wait(timeout=grace_seconds)
+            if process.poll() is not None:
+                return
+        except Exception:
+            pass
+    try:
+        process.kill()
+    except Exception:
+        pass
+    try:
+        process.wait(timeout=grace_seconds)
+    except Exception:
+        pass
+
+
+def terminate_active_processes() -> None:
+    with ACTIVE_PROCESSES_LOCK:
+        processes = list(ACTIVE_PROCESSES)
+    for process in processes:
+        terminate_process(process)
+
+
+def run_command(
+    command: list[str] | str,
+    timeout: int | None = None,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     shell = isinstance(command, str)
-    return subprocess.run(
+    start = time.monotonic()
+    process = subprocess.Popen(
         command,
         shell=shell,
         stdout=subprocess.PIPE,
@@ -398,8 +466,35 @@ def run_command(command: list[str] | str, timeout: int | None = None) -> subproc
         text=True,
         encoding="utf-8",
         errors="replace",
-        timeout=timeout,
+        env=env,
     )
+    track_process(process)
+    try:
+        while True:
+            try:
+                stdout, stderr = process.communicate(timeout=0.2)
+                return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+            except subprocess.TimeoutExpired:
+                if SHUTDOWN_EVENT.is_set():
+                    terminate_process(process)
+                    try:
+                        stdout, stderr = process.communicate(timeout=0.5)
+                    except Exception:
+                        stdout, stderr = "", ""
+                    raise SyncStopped("command stopped during dashboard shutdown") from None
+                if timeout is not None and (time.monotonic() - start) >= timeout:
+                    terminate_process(process)
+                    try:
+                        stdout, stderr = process.communicate(timeout=0.5)
+                    except Exception:
+                        stdout, stderr = "", ""
+                    raise subprocess.TimeoutExpired(command, timeout, output=stdout, stderr=stderr) from None
+    except KeyboardInterrupt:
+        SHUTDOWN_EVENT.set()
+        terminate_process(process)
+        raise
+    finally:
+        untrack_process(process)
 
 
 def import_paramiko() -> Any:
@@ -665,14 +760,8 @@ def list_command_files(source: dict[str, Any], include_globs: list[str], exclude
     env = os.environ.copy()
     env["A2UI_DASHBOARD_INCLUDE_GLOBS"] = json.dumps(include_globs)
     env["A2UI_DASHBOARD_EXCLUDE_GLOBS"] = json.dumps(exclude_globs)
-    result = subprocess.run(
+    result = run_command(
         command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
         env=env,
         timeout=int(source.get("list_timeout_sec", 300)),
     )
@@ -8026,11 +8115,35 @@ def emit_json_stdout(payload: Any) -> None:
         sys.stdout.write(text)
 
 
+def install_shutdown_handlers(
+    state: DashboardServer,
+    httpd: ThreadingHTTPServer | None = None,
+) -> None:
+    def request_shutdown(signum: int, frame: Any) -> None:
+        del signum, frame
+        SHUTDOWN_EVENT.set()
+        state.stop_event.set()
+        terminate_active_processes()
+        if httpd is not None:
+            threading.Thread(target=httpd.shutdown, daemon=True).start()
+
+    for signal_name in ("SIGINT", "SIGTERM"):
+        signal_value = getattr(signal, signal_name, None)
+        if signal_value is None:
+            continue
+        try:
+            signal.signal(signal_value, request_shutdown)
+        except (ValueError, OSError):
+            pass
+
+
 def main() -> int:
     args = parse_args()
+    SHUTDOWN_EVENT.clear()
     config_path = resolve_dataset_path(args.config, ROOT)
     mirror_dir = resolve_dataset_path(args.mirror_dir, ROOT)
     state = DashboardServer(config_path=config_path, mirror_dir=mirror_dir)
+    install_shutdown_handlers(state)
 
     if args.sync_once:
         emit_json_stdout(state.sync())
@@ -8041,15 +8154,19 @@ def main() -> int:
     if args.sync_on_start:
         emit_json_stdout(state.sync())
 
-    httpd = ThreadingHTTPServer((args.host, args.port), make_handler(state))
+    httpd = FastShutdownThreadingHTTPServer((args.host, args.port), make_handler(state))
+    install_shutdown_handlers(state, httpd)
     print(f"Dataset dashboard: http://{args.host}:{args.port}")
     print(f"Config: {config_path}")
     print(f"Mirror: {mirror_dir}")
     try:
-        httpd.serve_forever()
+        httpd.serve_forever(poll_interval=0.2)
     except KeyboardInterrupt:
         pass
     finally:
+        SHUTDOWN_EVENT.set()
+        state.stop_event.set()
+        terminate_active_processes()
         httpd.server_close()
     return 0
 
