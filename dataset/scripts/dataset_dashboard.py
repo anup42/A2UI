@@ -899,6 +899,13 @@ def split_priority_entries(source: dict[str, Any], entries: list[FileEntry]) -> 
     return priority, remaining
 
 
+def is_live_count_data_file(rel: str) -> bool:
+    name = PurePosixPath(rel.replace("\\", "/")).name.lower()
+    if name.endswith(".jsonl"):
+        return True
+    return name in {"aggregates.json", "run_manifest.json", "_complete.json"}
+
+
 def emit_progress(progress: ProgressCallback | None, **payload: Any) -> None:
     if progress is not None:
         progress(payload)
@@ -938,6 +945,8 @@ def sync_source(
         current_file="",
         listed=0,
         copied=0,
+        data_file_copied_count=0,
+        last_data_file="",
         skipped=0,
         error_count=0,
         processed=0,
@@ -963,6 +972,10 @@ def sync_source(
 
     transfer_mode = source_transfer_mode(source)
     effective_transfer_mode = "direct"
+    copied = 0
+    data_files_copied = 0
+    last_data_file = ""
+    skipped = 0
     emit_progress(
         progress,
         phase="checking_changed_files",
@@ -974,12 +987,12 @@ def sync_source(
         total=len(entries),
         processed=0,
         copied=0,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
         skipped=0,
         error_count=0,
         message=f"Checking changed files from {source_label(source)}",
     )
-    copied = 0
-    skipped = 0
     errors: list[str] = []
     warnings: list[str] = []
     fallback_reason = ""
@@ -1010,6 +1023,8 @@ def sync_source(
         processed=skipped,
         changed=len(changed_entries),
         copied=0,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
         skipped=skipped,
         error_count=0,
         message=f"Found {len(changed_entries)} changed file(s), {skipped} unchanged file(s) from {source_label(source)}",
@@ -1023,7 +1038,7 @@ def sync_source(
     ]
 
     def copy_entries_per_file(entries_to_copy: list[FileEntry], *, mode: str, label: str) -> None:
-        nonlocal cancelled, copied, processed_changed
+        nonlocal cancelled, copied, data_files_copied, last_data_file, processed_changed
         if not entries_to_copy:
             return
         emit_progress(
@@ -1037,6 +1052,8 @@ def sync_source(
             total=len(entries),
             processed=skipped + processed_changed,
             copied=copied,
+            data_file_copied_count=data_files_copied,
+            last_data_file=last_data_file,
             skipped=skipped,
             error_count=len(errors),
             warning_count=len(warnings),
@@ -1062,6 +1079,8 @@ def sync_source(
                     total=len(entries),
                     processed=skipped + processed_changed,
                     copied=copied,
+                    data_file_copied_count=data_files_copied,
+                    last_data_file=last_data_file,
                     skipped=skipped,
                     error_count=len(errors),
                     warning_count=len(warnings),
@@ -1082,6 +1101,9 @@ def sync_source(
                     copy_command_file(source, dest_root, entry.rel)
                 copied += 1
                 current_files[entry.rel] = listed_signatures[entry.rel]
+                if is_live_count_data_file(entry.rel):
+                    data_files_copied += 1
+                    last_data_file = entry.rel
             except Exception as exc:
                 errors.append(f"{entry.rel}: {exc}")
                 if previous.get(entry.rel) is not None and (dest_root / entry.rel).exists():
@@ -1099,6 +1121,8 @@ def sync_source(
                 total=len(entries),
                 processed=skipped + processed_changed,
                 copied=copied,
+                data_file_copied_count=data_files_copied,
+                last_data_file=last_data_file,
                 skipped=skipped,
                 error_count=len(errors),
                 warning_count=len(warnings),
@@ -1128,6 +1152,8 @@ def sync_source(
             total=len(entries),
             processed=len(entries),
             copied=0,
+            data_file_copied_count=data_files_copied,
+            last_data_file=last_data_file,
             skipped=skipped,
             error_count=len(errors),
             warning_count=len(warnings),
@@ -1157,6 +1183,8 @@ def sync_source(
             total=len(entries),
             processed=min(len(entries), skipped + copied),
             copied=copied,
+            data_file_copied_count=data_files_copied,
+            last_data_file=last_data_file,
             skipped=skipped,
             error_count=len(errors),
             warning_count=len(warnings),
@@ -1174,6 +1202,8 @@ def sync_source(
             "listed": len(entries),
             "changed": len(changed_entries),
             "copied": copied,
+            "data_file_copied_count": data_files_copied,
+            "last_data_file": last_data_file,
             "skipped": skipped,
             "fallback_reason": fallback_reason,
             "fallback_at": fallback_at,
@@ -1197,6 +1227,8 @@ def sync_source(
         total=len(entries),
         processed=len(entries),
         copied=copied,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
         skipped=skipped,
         error_count=len(errors),
         warning_count=len(warnings),
@@ -1228,6 +1260,8 @@ def sync_source(
         total=len(entries),
         processed=len(entries),
         copied=copied,
+        data_file_copied_count=data_files_copied,
+        last_data_file=last_data_file,
         skipped=skipped,
         error_count=len(errors),
         warning_count=len(warnings),
@@ -1244,6 +1278,8 @@ def sync_source(
         "listed": len(entries),
         "changed": len(changed_entries),
         "copied": copied,
+        "data_file_copied_count": data_files_copied,
+        "last_data_file": last_data_file,
         "skipped": skipped,
         "fallback_reason": fallback_reason,
         "fallback_at": fallback_at,
@@ -1520,6 +1556,8 @@ def run_sync(
                     listed=int(result.get("listed") or 0),
                     changed=int(result.get("changed") or 0),
                     copied=int(result.get("copied") or 0),
+                    data_file_copied_count=int(result.get("data_file_copied_count") or 0),
+                    last_data_file=str(result.get("last_data_file") or ""),
                     skipped=int(result.get("skipped") or 0),
                     error_count=source_error_count,
                     warning_count=source_warning_count,
@@ -1558,6 +1596,8 @@ def run_sync(
         listed=sum(int(r.get("listed") or 0) for r in results),
         changed=sum(int(r.get("changed") or 0) for r in results),
         copied=sum(int(r.get("copied") or 0) for r in results),
+        data_file_copied_count=sum(int(r.get("data_file_copied_count") or 0) for r in results),
+        last_data_file=next((str(r.get("last_data_file") or "") for r in reversed(results) if r.get("last_data_file")), ""),
         skipped=sum(int(r.get("skipped") or 0) for r in results),
         error_count=total_errors,
         warning_count=total_warnings,
@@ -4278,8 +4318,10 @@ INDEX_HTML = r"""<!doctype html>
     let syncPollTimer = null;
     let autoRefreshTimer = null;
     let summaryLoading = false;
+    let pendingSummaryRefresh = false;
     let lastSyncSummaryRefreshMs = 0;
     let lastSyncCopiedForSummary = -1;
+    let lastSyncDataFilesForSummary = -1;
     let sourceHealthOverrides = {};
     let selectedRunKey = null;
     let runPage = 1;
@@ -4423,7 +4465,7 @@ INDEX_HTML = r"""<!doctype html>
               <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(syncPhaseLabel(phase))}</span><br><span class="small">${escapeHtml(transferMode)}</span>${fallbackDetail}</div>
               <div>
                 <div class="bar-track"><div class="bar-fill" style="width:${sourceWidth}%"></div></div>
-                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, warnings ${fmt(source.warning_count)}, errors ${fmt(source.error_count)}</span>
+                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, data files ${fmt(source.data_file_copied_count)}, skipped ${fmt(source.skipped)}, warnings ${fmt(source.warning_count)}, errors ${fmt(source.error_count)}</span>
               </div>
               <div class="small">${escapeHtml(source.current_file || source.message || "")}${resyncButton ? `<div style="margin-top:8px">${resyncButton}</div>` : ""}</div>
             </div>`;
@@ -4462,22 +4504,49 @@ INDEX_HTML = r"""<!doctype html>
         }
       } finally {
         summaryLoading = false;
+        if (pendingSummaryRefresh) {
+          pendingSummaryRefresh = false;
+          setTimeout(() => loadSummary({silent: true, preserveStatus: true}).catch(e => setStatus(`Queued count refresh failed: ${e.message}`)), 0);
+        }
       }
     }
-    function maybeRefreshSummaryDuringSync(status) {
-      if (!status || !status.running) {
-        lastSyncSummaryRefreshMs = 0;
-        lastSyncCopiedForSummary = -1;
+    function requestLiveSummaryRefresh(reason) {
+      if (summaryLoading) {
+        pendingSummaryRefresh = true;
         return;
       }
+      loadSummary({silent: true, preserveStatus: true}).catch(e => setStatus(`${reason} failed: ${e.message}`));
+    }
+    function maybeRefreshSummaryDuringSync(status) {
+      if (!status) return;
       const copied = Number(status.copied || 0);
+      const dataFilesCopied = Number(status.data_file_copied_count || 0);
+      const dataFileChanged = dataFilesCopied > 0 && dataFilesCopied > lastSyncDataFilesForSummary;
+      if (!status.running) {
+        if (dataFileChanged) {
+          lastSyncDataFilesForSummary = dataFilesCopied;
+          requestLiveSummaryRefresh("Final data-file count refresh");
+          return;
+        }
+        lastSyncSummaryRefreshMs = 0;
+        lastSyncCopiedForSummary = -1;
+        lastSyncDataFilesForSummary = -1;
+        return;
+      }
       const now = Date.now();
+      if (dataFileChanged) {
+        lastSyncDataFilesForSummary = dataFilesCopied;
+        lastSyncCopiedForSummary = copied;
+        lastSyncSummaryRefreshMs = now;
+        requestLiveSummaryRefresh(`Refreshing counts after ${status.last_data_file || "data file"} copied`);
+        return;
+      }
       if (copied <= lastSyncCopiedForSummary) return;
       if (now - lastSyncSummaryRefreshMs < syncSummaryRefreshIntervalMs) return;
       if (summaryLoading) return;
       lastSyncCopiedForSummary = copied;
       lastSyncSummaryRefreshMs = now;
-      loadSummary({silent: true, preserveStatus: true}).catch(e => setStatus(`Live count refresh failed: ${e.message}`));
+      requestLiveSummaryRefresh("Live count refresh");
     }
     function startAutoRefresh() {
       if (autoRefreshTimer) {
@@ -7898,6 +7967,8 @@ class DashboardServer:
             "processed": 0,
             "changed": 0,
             "copied": 0,
+            "data_file_copied_count": 0,
+            "last_data_file": "",
             "skipped": 0,
             "error_count": 0,
             "warning_count": 0,
@@ -7935,6 +8006,15 @@ class DashboardServer:
                     status["processed"] = sum(int(item.get("processed") or 0) for item in source_values)
                     status["changed"] = sum(int(item.get("changed") or 0) for item in source_values)
                     status["copied"] = sum(int(item.get("copied") or 0) for item in source_values)
+                    status["data_file_copied_count"] = sum(
+                        int(item.get("data_file_copied_count") or 0) for item in source_values
+                    )
+                    latest_data_source = max(
+                        (item for item in source_values if item.get("last_data_file")),
+                        key=lambda item: str(item.get("updated_at") or ""),
+                        default=None,
+                    )
+                    status["last_data_file"] = str((latest_data_source or {}).get("last_data_file") or "")
                     status["skipped"] = sum(int(item.get("skipped") or 0) for item in source_values)
                     status["error_count"] = sum(int(item.get("error_count") or 0) for item in source_values)
                     status["warning_count"] = sum(int(item.get("warning_count") or 0) for item in source_values)
