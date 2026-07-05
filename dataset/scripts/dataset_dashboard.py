@@ -3947,53 +3947,12 @@ INDEX_HTML = r"""<!doctype html>
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 18px;
       align-items: start;
     }
-    .eyebrow {
-      position: relative;
-      z-index: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #0f5f59;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-    .eyebrow::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 0 6px rgba(15,118,110,.10);
-    }
     h1 { font-size: clamp(34px, 4.4vw, 66px); line-height: .95; max-width: 980px; }
     .sub { font-size: 15px; line-height: 1.55; max-width: 900px; }
-    .hero-metrics {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 8px;
-      max-width: 420px;
-    }
-    .hero-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 34px;
-      border: 1px solid rgba(15,118,110,.18);
-      border-radius: 999px;
-      padding: 0 12px;
-      background: rgba(255,255,255,.68);
-      color: #115e59;
-      font-size: 12px;
-      font-weight: 850;
-      box-shadow: 0 8px 18px rgba(15,118,110,.08);
-    }
     .toolbar {
       position: relative;
       z-index: 1;
@@ -4159,7 +4118,6 @@ INDEX_HTML = r"""<!doctype html>
     }
     @media (max-width: 980px) {
       .hero-row, .grid, .two-col-panels, .freshness-row, .eta-row, .sync-source-row { grid-template-columns: 1fr; }
-      .hero-metrics { justify-content:flex-start; max-width:none; }
       .quick-nav { border-radius: 22px; }
       .toolbar input:not([type="date"]), .toolbar select, .toolbar button, .toolbar label { width: 100%; box-sizing: border-box; }
       header, main { padding-left:18px; padding-right:18px; }
@@ -4169,17 +4127,10 @@ INDEX_HTML = r"""<!doctype html>
 <body>
   <header>
     <div class="header-card">
-      <div class="eyebrow">Dataset observability</div>
       <div class="hero-row">
         <div>
           <h1>GenUICraft Dataset Dashboard</h1>
           <p class="sub">Monitor generated queries, responses, IR quality, source sync, training readiness, media health, and model regressions from one local mirror.</p>
-        </div>
-        <div class="hero-metrics" aria-label="Dashboard capabilities">
-          <span class="hero-chip">Archive-first sync</span>
-          <span class="hero-chip">Live progress</span>
-          <span class="hero-chip">Quality gates</span>
-          <span class="hero-chip">Model deltas</span>
         </div>
       </div>
       <div class="toolbar">
