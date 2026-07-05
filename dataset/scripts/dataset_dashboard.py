@@ -3585,81 +3585,360 @@ INDEX_HTML = r"""<!doctype html>
     .sync-source-row { display:grid; grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 1.4fr) minmax(150px, 1fr); gap: 10px; align-items:center; border-top: 1px solid var(--line); padding-top: 8px; }
     .sync-source-row .bar-track { margin: 3px 0; height: 8px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
-    @media (max-width: 980px) { .grid, .two-col-panels, .freshness-row, .eta-row, .sync-source-row { grid-template-columns: 1fr; } header, main { padding-left:18px; padding-right:18px; } }
+    html { scroll-behavior: smooth; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(23,32,42,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23,32,42,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,.72), transparent 72%);
+    }
+    header { padding: 24px 34px 18px; }
+    .header-card {
+      position: relative;
+      overflow: visible;
+      max-width: 1580px;
+      margin: 0 auto;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 30px;
+      padding: clamp(20px, 3vw, 34px);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(15,118,110,.18), transparent 34%),
+        radial-gradient(circle at 92% 0%, rgba(194,65,12,.16), transparent 32%),
+        linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.68));
+      box-shadow: 0 28px 80px rgba(32,38,46,.12);
+      backdrop-filter: blur(18px);
+    }
+    .header-card::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -120px;
+      width: 310px;
+      height: 310px;
+      border-radius: 999px;
+      background: conic-gradient(from 120deg, rgba(15,118,110,.22), rgba(194,65,12,.18), rgba(15,118,110,.05), rgba(15,118,110,.22));
+      filter: blur(1px);
+      opacity: .55;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+    }
+    .eyebrow {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #0f5f59;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 6px rgba(15,118,110,.10);
+    }
+    h1 { font-size: clamp(34px, 4.4vw, 66px); line-height: .95; max-width: 980px; }
+    .sub { font-size: 15px; line-height: 1.55; max-width: 900px; }
+    .hero-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      max-width: 420px;
+    }
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      border: 1px solid rgba(15,118,110,.18);
+      border-radius: 999px;
+      padding: 0 12px;
+      background: rgba(255,255,255,.68);
+      color: #115e59;
+      font-size: 12px;
+      font-weight: 850;
+      box-shadow: 0 8px 18px rgba(15,118,110,.08);
+    }
+    .toolbar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      padding: 14px;
+      border: 1px solid rgba(36,48,64,.10);
+      border-radius: 24px;
+      background: rgba(255,255,255,.58);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+    }
+    .toolbar > * { flex: 0 1 auto; }
+    .toolbar input:not([type="date"]), .toolbar select { min-width: 150px; }
+    .toolbar #filter { flex: 1 1 320px; min-width: min(330px, 100%); }
+    button, input, select { transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease; }
+    button:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(15,118,110,.22); }
+    .ghost-btn:hover { background: rgba(15,118,110,.08); box-shadow: 0 10px 22px rgba(15,118,110,.08); }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(15,118,110,.18);
+      border-color: rgba(15,118,110,.42);
+    }
+    .quick-nav {
+      position: sticky;
+      top: 10px;
+      z-index: 5;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      padding: 10px;
+      border: 1px solid rgba(36,48,64,.10);
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 14px 30px rgba(32,38,46,.09);
+    }
+    .quick-nav a {
+      text-decoration: none;
+      color: #115e59;
+      font-size: 12px;
+      font-weight: 850;
+      padding: 8px 10px;
+      border-radius: 999px;
+    }
+    .quick-nav a:hover { background: rgba(15,118,110,.10); }
+    main {
+      max-width: 1580px;
+      margin: 0 auto;
+      padding: 0 34px 42px;
+    }
+    .stats { grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; margin: 18px 0 26px; }
+    .stat, .panel { border-color: rgba(36,48,64,.10); box-shadow: 0 18px 50px rgba(32,38,46,.09); }
+    .stat {
+      position: relative;
+      overflow: hidden;
+      min-height: 86px;
+      padding: 20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.74));
+    }
+    .stat::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: .85;
+    }
+    .stat .v { font-size: clamp(26px, 3vw, 38px); }
+    .stat .k { font-weight: 750; text-transform: uppercase; letter-spacing: .04em; }
+    .panel {
+      padding: 20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.72));
+    }
+    .panel > h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .panel > h2::before {
+      content: "";
+      width: 8px;
+      height: 24px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      flex: 0 0 auto;
+    }
+    .wide-panel { margin-top: 20px; }
+    .grid { grid-template-columns: minmax(320px, 430px) minmax(0, 1fr); gap: 20px; margin-top: 20px; }
+    .two-col-panels { gap: 20px; }
+    .scroll {
+      border: 1px solid rgba(36,48,64,.08);
+      border-radius: 16px;
+      background: rgba(255,255,255,.44);
+    }
+    .scroll table { min-width: 760px; }
+    .scroll thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(250,247,239,.96);
+      backdrop-filter: blur(12px);
+    }
+    th { color: #526070; font-weight: 900; }
+    td { line-height: 1.42; }
+    tbody tr:nth-child(2n) td { background: rgba(255,255,255,.24); }
+    tr:hover td { background: rgba(15,118,110,.075); }
+    .source-card, .sample-card, .config-source, .detail-box {
+      background: rgba(255,255,255,.68);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+    }
+    .source-card {
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .source-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(15,118,110,.22);
+      box-shadow: 0 12px 26px rgba(32,38,46,.08);
+    }
+    .badge { border: 1px solid rgba(15,118,110,.12); }
+    .bar-track {
+      background: rgba(15,118,110,.12);
+      box-shadow: inset 0 1px 2px rgba(23,32,42,.08);
+    }
+    .bar-fill { box-shadow: 0 0 20px rgba(15,118,110,.24); }
+    .sync-panel {
+      position: relative;
+      z-index: 1;
+      max-width: none;
+      margin-top: 14px;
+      padding: 16px;
+      background:
+        linear-gradient(135deg, rgba(15,118,110,.10), rgba(255,255,255,.70)),
+        rgba(255,255,255,.72);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.70);
+    }
+    .sync-source-row {
+      border: 1px solid rgba(36,48,64,.10);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.66);
+    }
+    .sync-messages div {
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.58);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+    @media (max-width: 980px) {
+      .hero-row, .grid, .two-col-panels, .freshness-row, .eta-row, .sync-source-row { grid-template-columns: 1fr; }
+      .hero-metrics { justify-content:flex-start; max-width:none; }
+      .quick-nav { border-radius: 22px; }
+      .toolbar input:not([type="date"]), .toolbar select, .toolbar button, .toolbar label { width: 100%; box-sizing: border-box; }
+      header, main { padding-left:18px; padding-right:18px; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>GenUICraft Dataset Dashboard</h1>
-    <p class="sub">Sync generated dataset runs from local folders, SSH servers, or custom copy commands. The mirror only downloads files whose source size/mtime changed.</p>
-    <div class="toolbar">
-      <button id="syncBtn">Sync sources</button>
-      <button id="refreshBtn">Refresh scan</button>
-      <button class="ghost-btn" id="exportCsvBtn">Export CSV</button>
-      <button class="ghost-btn" id="exportJsonBtn">Export JSON</button>
-      <label class="date-label">Parallel sources
-        <input id="maxParallelSources" type="number" min="1" max="64" value="10" title="Maximum sources to sync at once" style="width:76px" />
-      </label>
-      <input id="filter" placeholder="Filter run/source/model..." />
-      <select id="sourceFilter">
-        <option value="">All sources</option>
-      </select>
-      <select id="scoreFilter">
-        <option value="">All scores</option>
-        <option value="80">Score >= 80</option>
-        <option value="70">Score >= 70</option>
-        <option value="60">Score >= 60</option>
-      </select>
-      <select id="issueFilter">
-        <option value="">All run health</option>
-        <option value="backlog">Has backlog</option>
-        <option value="quality">Has quality issues</option>
-        <option value="integrity">Data integrity issues</option>
-        <option value="duplicates">Content duplicates</option>
-        <option value="logs">Log issues</option>
-        <option value="metric_risk">Metric risk</option>
-        <option value="low_coverage">Low content coverage</option>
-        <option value="low_media">Low media usage</option>
-        <option value="media_refs">Broken media refs</option>
-      </select>
-      <select id="irVersionFilter">
-        <option value="">All IR versions</option>
-      </select>
-      <select id="sortBy">
-        <option value="updated_desc">Sort: newest</option>
-        <option value="score_desc">Sort: score high</option>
-        <option value="score_asc">Sort: score low</option>
-        <option value="ir_desc">Sort: IR count</option>
-        <option value="backlog_desc">Sort: backlog</option>
-        <option value="quality_desc">Sort: quality issues</option>
-        <option value="integrity_desc">Sort: integrity issues</option>
-        <option value="duplicates_desc">Sort: content duplicates</option>
-        <option value="logs_desc">Sort: log issues</option>
-        <option value="metric_risk_desc">Sort: metric risk</option>
-        <option value="source_run">Sort: source/run</option>
-      </select>
-      <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
-      <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
-      <label class="date-label">Auto refresh
-        <select id="autoRefreshInterval" title="Auto refresh interval">
-          <option value="0">Off</option>
-          <option value="15">15s</option>
-          <option value="30" selected>30s</option>
-          <option value="60">60s</option>
-          <option value="300">5m</option>
-        </select>
-      </label>
-      <span class="status" id="status"></span>
-    </div>
-    <div class="sync-panel" id="syncPanel">
-      <div class="sync-top">
-        <b id="syncPhase">Sync idle</b>
-        <span class="small" id="syncCounters"></span>
+    <div class="header-card">
+      <div class="eyebrow">Dataset observability</div>
+      <div class="hero-row">
+        <div>
+          <h1>GenUICraft Dataset Dashboard</h1>
+          <p class="sub">Monitor generated queries, responses, IR quality, source sync, training readiness, media health, and model regressions from one local mirror.</p>
+        </div>
+        <div class="hero-metrics" aria-label="Dashboard capabilities">
+          <span class="hero-chip">Archive-first sync</span>
+          <span class="hero-chip">Live progress</span>
+          <span class="hero-chip">Quality gates</span>
+          <span class="hero-chip">Model deltas</span>
+        </div>
       </div>
-      <div class="bar-track"><div class="bar-fill" id="syncBar" style="width:0%"></div></div>
-      <div class="small" id="syncFile"></div>
-      <div class="sync-source-list" id="syncSourceProgress"></div>
-      <div class="sync-messages small" id="syncMessages"></div>
+      <div class="toolbar">
+        <button id="syncBtn">Sync sources</button>
+        <button id="refreshBtn">Refresh scan</button>
+        <button class="ghost-btn" id="exportCsvBtn">Export CSV</button>
+        <button class="ghost-btn" id="exportJsonBtn">Export JSON</button>
+        <label class="date-label">Parallel sources
+          <input id="maxParallelSources" type="number" min="1" max="64" value="10" title="Maximum sources to sync at once" style="width:76px" />
+        </label>
+        <input id="filter" placeholder="Filter run/source/model..." />
+        <select id="sourceFilter">
+          <option value="">All sources</option>
+        </select>
+        <select id="scoreFilter">
+          <option value="">All scores</option>
+          <option value="80">Score >= 80</option>
+          <option value="70">Score >= 70</option>
+          <option value="60">Score >= 60</option>
+        </select>
+        <select id="issueFilter">
+          <option value="">All run health</option>
+          <option value="backlog">Has backlog</option>
+          <option value="quality">Has quality issues</option>
+          <option value="integrity">Data integrity issues</option>
+          <option value="duplicates">Content duplicates</option>
+          <option value="logs">Log issues</option>
+          <option value="metric_risk">Metric risk</option>
+          <option value="low_coverage">Low content coverage</option>
+          <option value="low_media">Low media usage</option>
+          <option value="media_refs">Broken media refs</option>
+        </select>
+        <select id="irVersionFilter">
+          <option value="">All IR versions</option>
+        </select>
+        <select id="sortBy">
+          <option value="updated_desc">Sort: newest</option>
+          <option value="score_desc">Sort: score high</option>
+          <option value="score_asc">Sort: score low</option>
+          <option value="ir_desc">Sort: IR count</option>
+          <option value="backlog_desc">Sort: backlog</option>
+          <option value="quality_desc">Sort: quality issues</option>
+          <option value="integrity_desc">Sort: integrity issues</option>
+          <option value="duplicates_desc">Sort: content duplicates</option>
+          <option value="logs_desc">Sort: log issues</option>
+          <option value="metric_risk_desc">Sort: metric risk</option>
+          <option value="source_run">Sort: source/run</option>
+        </select>
+        <label class="date-label">From <input id="dateFrom" type="date" title="From date" /></label>
+        <label class="date-label">To <input id="dateTo" type="date" title="To date" /></label>
+        <label class="date-label">Auto refresh
+          <select id="autoRefreshInterval" title="Auto refresh interval">
+            <option value="0">Off</option>
+            <option value="15">15s</option>
+            <option value="30" selected>30s</option>
+            <option value="60">60s</option>
+            <option value="300">5m</option>
+          </select>
+        </label>
+        <span class="status" id="status"></span>
+      </div>
+      <nav class="quick-nav" aria-label="Dashboard sections">
+        <a href="#stats">Overview</a>
+        <a href="#syncConfig">Sync</a>
+        <a href="#sources">Sources</a>
+        <a href="#runsPanel">Runs</a>
+        <a href="#metricsOverview">Metrics</a>
+        <a href="#trainingReadiness">Training</a>
+        <a href="#irStructure">IR Structure</a>
+        <a href="#trend">Trends</a>
+      </nav>
+      <div class="sync-panel" id="syncPanel">
+        <div class="sync-top">
+          <b id="syncPhase">Sync idle</b>
+          <span class="small" id="syncCounters"></span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="syncBar" style="width:0%"></div></div>
+        <div class="small" id="syncFile"></div>
+        <div class="sync-source-list" id="syncSourceProgress"></div>
+        <div class="sync-messages small" id="syncMessages"></div>
+      </div>
     </div>
   </header>
   <main>
@@ -3691,7 +3970,7 @@ INDEX_HTML = r"""<!doctype html>
         <h2>Sources</h2>
         <div id="sources"></div>
       </aside>
-      <section class="panel">
+      <section class="panel" id="runsPanel">
         <h2>Runs</h2>
         <div class="pager">
           <span class="small" id="runPageInfo"></span>
