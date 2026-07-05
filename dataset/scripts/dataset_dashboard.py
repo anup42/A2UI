@@ -988,6 +988,9 @@ def sync_source(
     copied = 0
     skipped = 0
     errors: list[str] = []
+    warnings: list[str] = []
+    fallback_reason = ""
+    fallback_at = ""
     current_files: dict[str, Any] = {}
     changed_entries: list[FileEntry] = []
     for entry in entries:
@@ -1040,7 +1043,9 @@ def sync_source(
             effective_transfer_mode = "archive"
         except Exception as exc:
             effective_transfer_mode = "fallback"
-            errors.append(f"archive transfer failed, falling back to per-file copy: {exc}")
+            fallback_reason = f"archive transfer failed: {exc}"
+            fallback_at = utc_now()
+            warnings.append(f"{fallback_reason}; falling back to per-file copy")
             emit_progress(
                 progress,
                 phase="archive_fallback",
@@ -1054,9 +1059,12 @@ def sync_source(
                 copied=copied,
                 skipped=skipped,
                 error_count=len(errors),
+                warning_count=len(warnings),
                 changed=len(changed_entries),
                 archive_size=archive_size,
-                message=f"Archive transfer failed for {source_label(source)}; falling back to per-file copy",
+                fallback_reason=fallback_reason,
+                fallback_at=fallback_at,
+                message=f"Archive transfer failed for {source_label(source)}: {exc}; falling back to per-file copy",
             )
 
     if changed_entries and effective_transfer_mode != "archive":
@@ -1073,7 +1081,10 @@ def sync_source(
             copied=copied,
             skipped=skipped,
             error_count=len(errors),
+            warning_count=len(warnings),
             changed=len(changed_entries),
+            fallback_reason=fallback_reason,
+            fallback_at=fallback_at,
             message=f"Copying {len(changed_entries)} changed file(s) from {source_label(source)}",
         )
         for offset, entry in enumerate(changed_entries, start=1):
@@ -1093,7 +1104,10 @@ def sync_source(
                     copied=copied,
                     skipped=skipped,
                     error_count=len(errors),
+                    warning_count=len(warnings),
                     changed=len(changed_entries),
+                    fallback_reason=fallback_reason,
+                    fallback_at=fallback_at,
                     message=f"Copying {entry.rel}",
                 )
                 if source_type == "local":
@@ -1123,7 +1137,10 @@ def sync_source(
                 copied=copied,
                 skipped=skipped,
                 error_count=len(errors),
+                warning_count=len(warnings),
                 changed=len(changed_entries),
+                fallback_reason=fallback_reason,
+                fallback_at=fallback_at,
                 message=f"Processed {processed_count}/{len(entries)} from {source_label(source)}",
             )
     elif not changed_entries:
@@ -1142,7 +1159,10 @@ def sync_source(
             copied=0,
             skipped=skipped,
             error_count=len(errors),
+            warning_count=len(warnings),
             changed=0,
+            fallback_reason=fallback_reason,
+            fallback_at=fallback_at,
             message=f"No changed files for {source_label(source)}",
         )
 
@@ -1165,8 +1185,11 @@ def sync_source(
         copied=copied,
         skipped=skipped,
         error_count=len(errors),
+        warning_count=len(warnings),
         changed=len(changed_entries),
         archive_size=archive_size,
+        fallback_reason=fallback_reason,
+        fallback_at=fallback_at,
         message=f"Updating manifest for {source_label(source)}",
     )
     write_json(
@@ -1194,8 +1217,11 @@ def sync_source(
         copied=copied,
         skipped=skipped,
         error_count=len(errors),
+        warning_count=len(warnings),
         changed=len(changed_entries),
         archive_size=archive_size,
+        fallback_reason=fallback_reason,
+        fallback_at=fallback_at,
         message=f"Finished {source_label(source)}: copied {copied}, skipped {skipped}, errors {len(errors)}",
     )
     return {
@@ -1208,6 +1234,10 @@ def sync_source(
         "copied": copied,
         "skipped": skipped,
         "archive_size": archive_size,
+        "fallback_reason": fallback_reason,
+        "fallback_at": fallback_at,
+        "warnings": warnings[:50],
+        "warning_count": len(warnings),
         "errors": errors[:50],
         "error_count": len(errors),
         "mirror_path": str(dest_root),
@@ -3043,9 +3073,16 @@ def source_health_record(
     sync_result = latest_sync_result(latest_sync, source_id)
     if sync_result:
         errors = sync_result.get("errors") or []
+        warnings = sync_result.get("warnings") or []
         error_count = int(sync_result.get("error_count") or 0)
-        status = "error" if error_count else "ok"
-        message = str(errors[0]) if errors else f"Last sync listed {int(sync_result.get('listed') or 0)} files"
+        warning_count = int(sync_result.get("warning_count") or 0)
+        fallback_reason = str(sync_result.get("fallback_reason") or "").strip()
+        status = "error" if error_count else ("warn" if warning_count or fallback_reason else "ok")
+        message = (
+            str(errors[0])
+            if errors
+            else (fallback_reason or (str(warnings[0]) if warnings else f"Last sync listed {int(sync_result.get('listed') or 0)} files"))
+        )
         return {
             "status": status,
             "message": message,
@@ -3053,6 +3090,8 @@ def source_health_record(
             "listed": int(sync_result.get("listed") or 0),
             "copied": int(sync_result.get("copied") or 0),
             "skipped": int(sync_result.get("skipped") or 0),
+            "warning_count": warning_count,
+            "fallback_reason": fallback_reason,
             "error_count": error_count,
         }
     if local_root.exists() and source_runs:
@@ -4237,6 +4276,7 @@ INDEX_HTML = r"""<!doctype html>
         `processed ${fmt(processed)}/${fmt(total)}`,
         `copied ${fmt(s.copied)}`,
         `skipped ${fmt(s.skipped)}`,
+        `warnings ${fmt(s.warning_count)}`,
         `errors ${fmt(s.error_count)}`,
       ].filter(Boolean).join(" | ");
       document.getElementById("syncBar").style.width = `${width}%`;
@@ -4248,15 +4288,17 @@ INDEX_HTML = r"""<!doctype html>
           const sourceProcessed = Number(source.processed || 0);
           const sourceWidth = sourceTotal ? Math.max(3, Math.min(100, Math.round((sourceProcessed / sourceTotal) * 100))) : (source.running ? 8 : (source.done ? 100 : 0));
           const phase = String(source.phase || "queued");
-          const badgeClass = phase === "source_error" || Number(source.error_count || 0) ? "error" : (source.done ? "ok" : (phase === "queued" ? "unknown" : "warn"));
+          const hasFallback = Boolean(source.fallback_reason);
+          const badgeClass = phase === "source_error" || Number(source.error_count || 0) ? "error" : (hasFallback || Number(source.warning_count || 0) ? "warn" : (source.done ? "ok" : (phase === "queued" ? "unknown" : "warn")));
           const transferMode = source.transfer_mode ? `mode ${source.transfer_mode}` : "";
           const archiveSize = Number(source.archive_size || 0) ? `, archive ${bytesText(source.archive_size)}` : "";
+          const fallbackDetail = source.fallback_reason ? `<br><span class="badge warn">fallback reason</span><br><span class="small">${escapeHtml(source.fallback_reason)}</span>` : "";
           return `
             <div class="sync-source-row">
-              <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(syncPhaseLabel(phase))}</span><br><span class="small">${escapeHtml(transferMode)}</span></div>
+              <div><b>${escapeHtml(source.source_label || source.source_id || "source")}</b><br><span class="badge ${badgeClass}">${escapeHtml(syncPhaseLabel(phase))}</span><br><span class="small">${escapeHtml(transferMode)}</span>${fallbackDetail}</div>
               <div>
                 <div class="bar-track"><div class="bar-fill" style="width:${sourceWidth}%"></div></div>
-                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, errors ${fmt(source.error_count)}${archiveSize}</span>
+                <span class="small">${fmt(sourceProcessed)}/${fmt(sourceTotal)} files, listed ${fmt(source.listed)}, changed ${fmt(source.changed)}, copied ${fmt(source.copied)}, skipped ${fmt(source.skipped)}, warnings ${fmt(source.warning_count)}, errors ${fmt(source.error_count)}${archiveSize}</span>
               </div>
               <div class="small">${escapeHtml(source.current_file || source.message || "")}</div>
             </div>`;
@@ -4550,12 +4592,19 @@ INDEX_HTML = r"""<!doctype html>
       }
       const rows = (lastSync.results || []).map(result => {
         const errors = result.errors || [];
-        const status = (result.error_count || 0) ? "error" : "ok";
+        const warnings = result.warnings || [];
+        const fallbackReason = result.fallback_reason || "";
+        const status = (result.error_count || 0) ? "error" : (fallbackReason || (result.warning_count || 0) ? "warn" : "ok");
+        const issueLines = [
+          fallbackReason ? `<span class="badge warn">fallback</span><br><span class="small">${escapeHtml(fallbackReason)}</span>` : "",
+          warnings.length ? `<br><span class="small">${escapeHtml(warnings[0])}</span>` : "",
+          errors.length ? `<br><span class="small">${escapeHtml(errors[0])}</span>` : "",
+        ].filter(Boolean).join("");
         return `
           <tr>
             <td><b>${escapeHtml(result.source_label || result.source_id)}</b><br><span class="badge ${status}">${status}</span><br><span class="small">mode ${escapeHtml(result.transfer_mode || "n/a")}</span></td>
             <td>listed ${fmt(result.listed)}<br>changed ${fmt(result.changed)}<br>copied ${fmt(result.copied)}<br>skipped ${fmt(result.skipped)}${result.archive_size ? `<br>archive ${bytesText(result.archive_size)}` : ""}</td>
-            <td>${fmt(result.error_count || 0)}<br><span class="small">${errors.length ? escapeHtml(errors[0]) : "no errors"}</span></td>
+            <td>warnings ${fmt(result.warning_count || 0)}<br>errors ${fmt(result.error_count || 0)}${issueLines || "<br><span class='small'>no warnings/errors</span>"}</td>
             <td><span class="small">${escapeHtml(result.mirror_path || "")}</span></td>
           </tr>`;
       }).join("");
@@ -7680,6 +7729,7 @@ class DashboardServer:
             "copied": 0,
             "skipped": 0,
             "error_count": 0,
+            "warning_count": 0,
             "archive_size": 0,
             "message": "Idle",
             "messages": [],
@@ -7714,6 +7764,7 @@ class DashboardServer:
                     status["copied"] = sum(int(item.get("copied") or 0) for item in source_values)
                     status["skipped"] = sum(int(item.get("skipped") or 0) for item in source_values)
                     status["error_count"] = sum(int(item.get("error_count") or 0) for item in source_values)
+                    status["warning_count"] = sum(int(item.get("warning_count") or 0) for item in source_values)
                     status["archive_size"] = sum(int(item.get("archive_size") or 0) for item in source_values)
                     status["completed_sources"] = sum(1 for item in source_values if item.get("done"))
                     status["active_sources"] = sum(
