@@ -702,7 +702,11 @@ def copy_ssh_file(source: dict[str, Any], dest_root: Path, entry: FileEntry) -> 
     remote_path = entry.source_path or str(PurePosixPath(remote_root) / PurePosixPath(entry.rel))
     dest = dest_root / entry.rel
     dest.parent.mkdir(parents=True, exist_ok=True)
-    remote_spec = f"{target}:{shell_quote(remote_path)}"
+    # OpenSSH scp uses SFTP by default on modern systems. In SFTP mode, shell
+    # quoting becomes part of the remote filename and causes false "not found"
+    # errors for paths that do exist. Keep quoting opt-in only for legacy scp.
+    remote_path_arg = shell_quote(remote_path) if config_bool(source.get("scp_quote_remote_path"), False) else remote_path
+    remote_spec = f"{target}:{remote_path_arg}"
     cmd = scp_base_command(source) + [remote_spec, str(dest)]
     result = run_command(cmd, timeout=int(source.get("copy_timeout_sec", 300)))
     if result.returncode != 0:
@@ -1397,10 +1401,14 @@ def run_sync(
                 result = future.result()
                 results_by_index[source_index - 1] = result
                 completed_sources += 1
+                source_error_count = int(result.get("error_count") or 0)
+                source_warning_count = int(result.get("warning_count") or 0)
+                source_final_phase = "source_error" if source_error_count else "source_complete"
+                result_source_label = str(result.get("source_label") or "")
                 emit_progress(
                     progress,
                     running=True,
-                    phase="source_complete",
+                    phase=source_final_phase,
                     total_sources=len(enabled_sources),
                     source_index=source_index,
                     completed_sources=completed_sources,
@@ -1408,16 +1416,33 @@ def run_sync(
                     source_id=result.get("source_id", ""),
                     source_label=result.get("source_label", ""),
                     source_type=result.get("source_type", ""),
+                    transfer_mode=result.get("transfer_mode", ""),
+                    listed=int(result.get("listed") or 0),
+                    changed=int(result.get("changed") or 0),
+                    copied=int(result.get("copied") or 0),
+                    skipped=int(result.get("skipped") or 0),
+                    error_count=source_error_count,
+                    warning_count=source_warning_count,
                     stop_requested=cancel_event.is_set(),
                     cancelled=bool(result.get("cancelled")),
-                    message=f"Completed {completed_sources}/{len(enabled_sources)} source(s)",
+                    message=(
+                        f"Completed {completed_sources}/{len(enabled_sources)} source(s); "
+                        f"{result_source_label} had {source_error_count} error(s)"
+                        if source_error_count
+                        else f"Completed {completed_sources}/{len(enabled_sources)} source(s)"
+                    ),
                 )
     results = [result for result in results_by_index if result is not None]
     cancelled = cancel_event.is_set() or any(bool(result.get("cancelled")) for result in results)
+    total_errors = sum(int(r.get("error_count") or 0) for r in results)
+    total_warnings = sum(int(r.get("warning_count") or 0) for r in results)
+    final_phase = "stopped" if cancelled else ("done_with_errors" if total_errors else "done")
     summary = {
         "synced_at": utc_now(),
         "max_parallel_sources": configured_parallel,
         "cancelled": cancelled,
+        "error_count": total_errors,
+        "warning_count": total_warnings,
         "stopped_at": utc_now() if cancelled else "",
         "results": results,
     }
@@ -1425,7 +1450,7 @@ def run_sync(
     emit_progress(
         progress,
         running=False,
-        phase="stopped" if cancelled else "done",
+        phase=final_phase,
         total_sources=len(enabled_sources),
         source_index=len(enabled_sources),
         completed_sources=len(results),
@@ -1434,13 +1459,17 @@ def run_sync(
         changed=sum(int(r.get("changed") or 0) for r in results),
         copied=sum(int(r.get("copied") or 0) for r in results),
         skipped=sum(int(r.get("skipped") or 0) for r in results),
-        error_count=sum(int(r.get("error_count") or 0) for r in results),
-        warning_count=sum(int(r.get("warning_count") or 0) for r in results),
+        error_count=total_errors,
+        warning_count=total_warnings,
         stop_requested=False,
         stopped_at=summary["stopped_at"],
         cancelled=cancelled,
         current_file="",
-        message="Sync stopped by user" if cancelled else "Sync complete",
+        message=(
+            "Sync stopped by user"
+            if cancelled
+            else (f"Sync completed with {total_errors} error(s)" if total_errors else "Sync complete")
+        ),
     )
     return summary
 
@@ -4238,6 +4267,7 @@ INDEX_HTML = r"""<!doctype html>
         source_complete: "done",
         queued: "queued",
         done: "done",
+        done_with_errors: "completed with errors",
       })[phase] || phase || "status";
     }
     function renderSyncStatus(s) {
@@ -4617,6 +4647,11 @@ INDEX_HTML = r"""<!doctype html>
         document.getElementById("lastSyncResults").innerHTML = "<span class='small'>No sync has been recorded yet.</span>";
         return;
       }
+      const totalErrors = Number(lastSync.error_count || 0);
+      const totalWarnings = Number(lastSync.warning_count || 0);
+      const summaryBadge = totalErrors
+        ? `<span class="badge error">completed with ${fmt(totalErrors)} error(s)</span>`
+        : (totalWarnings ? `<span class="badge warn">completed with ${fmt(totalWarnings)} warning(s)</span>` : `<span class="badge ok">completed</span>`);
       const rows = (lastSync.results || []).map(result => {
         const errors = result.errors || [];
         const warnings = result.warnings || [];
@@ -4636,7 +4671,7 @@ INDEX_HTML = r"""<!doctype html>
           </tr>`;
       }).join("");
       document.getElementById("lastSyncResults").innerHTML = `
-        <div class="small">synced at: ${lastSync.synced_at ? new Date(lastSync.synced_at).toLocaleString() : "unknown"}</div>
+        <div class="small">synced at: ${lastSync.synced_at ? new Date(lastSync.synced_at).toLocaleString() : "unknown"} ${summaryBadge}</div>
         <div class="scroll">
           <table>
             <thead><tr><th>Source</th><th>Files</th><th>Errors</th><th>Mirror</th></tr></thead>

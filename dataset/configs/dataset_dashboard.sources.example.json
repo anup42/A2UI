@@ -28,6 +28,7 @@
       },
       "transfer_mode": "direct",
       "priority_copy_globs": ["*.jsonl", "*.json"],
+      "scp_quote_remote_path": false,
       "path": "/home/anup/A2UI/dataset/data/runs",
       "path_match": "literal",
       "path_base": "",
