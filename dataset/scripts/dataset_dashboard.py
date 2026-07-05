@@ -34,6 +34,10 @@ PASSWORD_CACHE: dict[str, str] = {}
 ProgressCallback = Callable[[dict[str, Any]], None]
 
 
+class SyncStopped(RuntimeError):
+    """Raised when the user requests dashboard sync cancellation."""
+
+
 @dataclass(frozen=True)
 class FileEntry:
     rel: str
@@ -875,12 +879,14 @@ def copy_ssh_archive(
     sftp: Any | None,
     progress: ProgressCallback | None,
     base_progress: dict[str, Any],
+    cancel_event: threading.Event | None = None,
 ) -> tuple[int, int]:
     remote_archive = ""
     archive_size = 0
     with tempfile.TemporaryDirectory(prefix="a2ui_dashboard_archive_") as tmp:
         local_archive = Path(tmp) / "changes.tar.gz"
         try:
+            raise_if_sync_stopped(cancel_event)
             emit_progress(
                 progress,
                 **base_progress,
@@ -891,6 +897,7 @@ def copy_ssh_archive(
                 message=f"Remote archiving {len(entries)} changed file(s) from {base_progress.get('source_label')}",
             )
             remote_archive, _, archive_size = create_remote_archive(source, entries, client=client, sftp=sftp)
+            raise_if_sync_stopped(cancel_event)
             emit_progress(
                 progress,
                 **base_progress,
@@ -900,6 +907,7 @@ def copy_ssh_archive(
                 message=f"Downloading archive ({archive_size} bytes) from {base_progress.get('source_label')}",
             )
             download_ssh_file(source, remote_archive, local_archive, sftp=sftp)
+            raise_if_sync_stopped(cancel_event)
             emit_progress(
                 progress,
                 **base_progress,
@@ -922,12 +930,22 @@ def emit_progress(progress: ProgressCallback | None, **payload: Any) -> None:
         progress(payload)
 
 
+def sync_stop_requested(cancel_event: threading.Event | None) -> bool:
+    return bool(cancel_event and cancel_event.is_set())
+
+
+def raise_if_sync_stopped(cancel_event: threading.Event | None) -> None:
+    if sync_stop_requested(cancel_event):
+        raise SyncStopped("sync stopped by user")
+
+
 def sync_source(
     source: dict[str, Any],
     mirror_dir: Path,
     include_globs: list[str],
     exclude_globs: list[str],
     progress: ProgressCallback | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = str(source.get("type") or "local").lower()
@@ -966,6 +984,7 @@ def sync_source(
         entries = list_command_files(source, include_globs, exclude_globs)
     else:
         raise ValueError(f"Unsupported source type: {source_type}")
+    cancelled = sync_stop_requested(cancel_event)
 
     transfer_mode = source_transfer_mode(source)
     effective_transfer_mode = "per_file"
@@ -994,6 +1013,9 @@ def sync_source(
     current_files: dict[str, Any] = {}
     changed_entries: list[FileEntry] = []
     for entry in entries:
+        if sync_stop_requested(cancel_event):
+            cancelled = True
+            break
         signature, _ = file_signature(entry)
         current_files[entry.rel] = signature
         if is_entry_unchanged(previous, dest_root, entry):
@@ -1017,7 +1039,7 @@ def sync_source(
         message=f"Found {len(changed_entries)} changed file(s), {skipped} unchanged file(s) from {source_label(source)}",
     )
 
-    if source_type == "ssh" and changed_entries and transfer_mode in {"auto", "archive"}:
+    if not cancelled and source_type == "ssh" and changed_entries and transfer_mode in {"auto", "archive"}:
         base_progress = {
             "source_id": source_id,
             "source_label": source_label(source),
@@ -1039,8 +1061,12 @@ def sync_source(
                 sftp=sftp,
                 progress=progress,
                 base_progress=base_progress,
+                cancel_event=cancel_event,
             )
             effective_transfer_mode = "archive"
+        except SyncStopped:
+            cancelled = True
+            effective_transfer_mode = "stopped"
         except Exception as exc:
             effective_transfer_mode = "fallback"
             fallback_reason = f"archive transfer failed: {exc}"
@@ -1066,8 +1092,10 @@ def sync_source(
                 fallback_at=fallback_at,
                 message=f"Archive transfer failed for {source_label(source)}: {exc}; falling back to per-file copy",
             )
+    if sync_stop_requested(cancel_event):
+        cancelled = True
 
-    if changed_entries and effective_transfer_mode != "archive":
+    if not cancelled and changed_entries and effective_transfer_mode != "archive":
         emit_progress(
             progress,
             phase="copying",
@@ -1088,6 +1116,9 @@ def sync_source(
             message=f"Copying {len(changed_entries)} changed file(s) from {source_label(source)}",
         )
         for offset, entry in enumerate(changed_entries, start=1):
+            if sync_stop_requested(cancel_event):
+                cancelled = True
+                break
             processed_count = skipped + offset
             try:
                 emit_progress(
@@ -1143,7 +1174,7 @@ def sync_source(
                 fallback_at=fallback_at,
                 message=f"Processed {processed_count}/{len(entries)} from {source_label(source)}",
             )
-    elif not changed_entries:
+    elif not cancelled and not changed_entries:
         effective_transfer_mode = "archive" if source_type == "ssh" and transfer_mode in {"auto", "archive"} else "per_file"
         emit_progress(
             progress,
@@ -1170,6 +1201,51 @@ def sync_source(
         sftp.close()
     if client is not None:
         client.close()
+
+    if cancelled:
+        if not any("sync stopped by user" in warning for warning in warnings):
+            warnings.append("sync stopped by user")
+        emit_progress(
+            progress,
+            phase="source_cancelled",
+            source_id=source_id,
+            source_label=source_label(source),
+            source_type=source_type,
+            transfer_mode=effective_transfer_mode,
+            current_file="",
+            listed=len(entries),
+            total=len(entries),
+            processed=min(len(entries), skipped + copied),
+            copied=copied,
+            skipped=skipped,
+            error_count=len(errors),
+            warning_count=len(warnings),
+            changed=len(changed_entries),
+            archive_size=archive_size,
+            fallback_reason=fallback_reason,
+            fallback_at=fallback_at,
+            cancelled=True,
+            message=f"Stopped {source_label(source)} after copying {copied} file(s)",
+        )
+        return {
+            "source_id": source_id,
+            "source_label": source_label(source),
+            "source_type": source_type,
+            "transfer_mode": effective_transfer_mode,
+            "listed": len(entries),
+            "changed": len(changed_entries),
+            "copied": copied,
+            "skipped": skipped,
+            "archive_size": archive_size,
+            "fallback_reason": fallback_reason,
+            "fallback_at": fallback_at,
+            "warnings": warnings[:50],
+            "warning_count": len(warnings),
+            "errors": errors[:50],
+            "error_count": len(errors),
+            "cancelled": True,
+            "mirror_path": str(dest_root),
+        }
 
     emit_progress(
         progress,
@@ -1271,7 +1347,10 @@ def run_sync(
     mirror_dir: Path,
     progress: ProgressCallback | None = None,
     max_parallel_sources: int | None = None,
+    cancel_event: threading.Event | None = None,
 ) -> dict[str, Any]:
+    if cancel_event is None:
+        cancel_event = threading.Event()
     include_globs = list(config.get("include_globs") or [])
     exclude_globs = list(config.get("exclude_globs") or [])
     enabled_sources = [source for source in config.get("sources") or [] if isinstance(source, dict) and source_enabled(source)]
@@ -1289,6 +1368,7 @@ def run_sync(
         source_index=0,
         completed_sources=0,
         max_parallel_sources=configured_parallel,
+        stop_requested=False,
         message=f"Starting sync for {len(enabled_sources)} source(s) with up to {worker_count} parallel worker(s)",
     )
     for source_index, source in enumerate(enabled_sources, start=1):
@@ -1310,6 +1390,7 @@ def run_sync(
             copied=0,
             skipped=0,
             error_count=0,
+            warning_count=0,
             message=f"Queued source {source_index}/{len(enabled_sources)}: {source_label(source)}",
         )
 
@@ -1317,6 +1398,25 @@ def run_sync(
         source_id = safe_source_id(str(source.get("id") or source_label(source)))
         label = source_label(source)
         source_type = str(source.get("type") or "local").lower()
+
+        def cancelled_result(message: str) -> dict[str, Any]:
+            return {
+                "source_id": source_id,
+                "source_label": label,
+                "source_type": source_type,
+                "transfer_mode": "stopped",
+                "listed": 0,
+                "changed": 0,
+                "copied": 0,
+                "skipped": 0,
+                "archive_size": 0,
+                "warnings": [message],
+                "warning_count": 1,
+                "errors": [],
+                "error_count": 0,
+                "cancelled": True,
+                "mirror_path": str(source_local_root(source, mirror_dir)),
+            }
 
         def source_progress(payload: dict[str, Any]) -> None:
             update = dict(payload)
@@ -1326,11 +1426,37 @@ def run_sync(
                     "total_sources": len(enabled_sources),
                     "source_index": source_index,
                     "max_parallel_sources": configured_parallel,
+                    "stop_requested": cancel_event.is_set(),
                 }
             )
             emit_progress(progress, **update)
 
         try:
+            if cancel_event.is_set():
+                emit_progress(
+                    progress,
+                    running=True,
+                    phase="source_cancelled",
+                    total_sources=len(enabled_sources),
+                    source_index=source_index,
+                    max_parallel_sources=configured_parallel,
+                    source_id=source_id,
+                    source_label=label,
+                    source_type=source_type,
+                    transfer_mode="stopped",
+                    current_file="",
+                    listed=0,
+                    total=0,
+                    processed=0,
+                    copied=0,
+                    skipped=0,
+                    error_count=0,
+                    warning_count=1,
+                    cancelled=True,
+                    stop_requested=True,
+                    message=f"Skipped source after stop request: {label}",
+                )
+                return cancelled_result("sync stopped by user before source started")
             emit_progress(
                 progress,
                 running=True,
@@ -1341,9 +1467,35 @@ def run_sync(
                 source_id=source_id,
                 source_label=label,
                 source_type=source_type,
+                stop_requested=cancel_event.is_set(),
                 message=f"Starting source {source_index}/{len(enabled_sources)}: {label}",
             )
-            return sync_source(source, mirror_dir, include_globs, exclude_globs, progress=source_progress)
+            return sync_source(source, mirror_dir, include_globs, exclude_globs, progress=source_progress, cancel_event=cancel_event)
+        except SyncStopped:
+            emit_progress(
+                progress,
+                running=True,
+                phase="source_cancelled",
+                total_sources=len(enabled_sources),
+                source_index=source_index,
+                max_parallel_sources=configured_parallel,
+                source_id=source_id,
+                source_label=label,
+                source_type=source_type,
+                transfer_mode="stopped",
+                current_file="",
+                listed=0,
+                total=0,
+                processed=0,
+                copied=0,
+                skipped=0,
+                error_count=0,
+                warning_count=1,
+                cancelled=True,
+                stop_requested=True,
+                message=f"Stopped source: {label}",
+            )
+            return cancelled_result("sync stopped by user")
         except Exception as exc:
             emit_progress(
                 progress,
@@ -1362,6 +1514,8 @@ def run_sync(
                 copied=0,
                 skipped=0,
                 error_count=1,
+                warning_count=0,
+                stop_requested=cancel_event.is_set(),
                 message=f"Source failed: {label}: {exc}",
             )
             return {
@@ -1399,27 +1553,40 @@ def run_sync(
                     source_id=result.get("source_id", ""),
                     source_label=result.get("source_label", ""),
                     source_type=result.get("source_type", ""),
+                    stop_requested=cancel_event.is_set(),
+                    cancelled=bool(result.get("cancelled")),
                     message=f"Completed {completed_sources}/{len(enabled_sources)} source(s)",
                 )
     results = [result for result in results_by_index if result is not None]
-    summary = {"synced_at": utc_now(), "max_parallel_sources": configured_parallel, "results": results}
+    cancelled = cancel_event.is_set() or any(bool(result.get("cancelled")) for result in results)
+    summary = {
+        "synced_at": utc_now(),
+        "max_parallel_sources": configured_parallel,
+        "cancelled": cancelled,
+        "stopped_at": utc_now() if cancelled else "",
+        "results": results,
+    }
     write_json(mirror_dir / "last_sync.json", summary)
     emit_progress(
         progress,
         running=False,
-        phase="done",
+        phase="stopped" if cancelled else "done",
         total_sources=len(enabled_sources),
         source_index=len(enabled_sources),
-        completed_sources=len(enabled_sources),
+        completed_sources=len(results),
         max_parallel_sources=configured_parallel,
         listed=sum(int(r.get("listed") or 0) for r in results),
         changed=sum(int(r.get("changed") or 0) for r in results),
         copied=sum(int(r.get("copied") or 0) for r in results),
         skipped=sum(int(r.get("skipped") or 0) for r in results),
         error_count=sum(int(r.get("error_count") or 0) for r in results),
+        warning_count=sum(int(r.get("warning_count") or 0) for r in results),
         archive_size=sum(int(r.get("archive_size") or 0) for r in results),
+        stop_requested=False,
+        stopped_at=summary["stopped_at"],
+        cancelled=cancelled,
         current_file="",
-        message="Sync complete",
+        message="Sync stopped by user" if cancelled else "Sync complete",
     )
     return summary
 
@@ -3737,6 +3904,12 @@ INDEX_HTML = r"""<!doctype html>
     button, input, select { transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease; }
     button:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(15,118,110,.22); }
     .ghost-btn:hover { background: rgba(15,118,110,.08); box-shadow: 0 10px 22px rgba(15,118,110,.08); }
+    .danger-btn {
+      background: #b91c1c;
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(185,28,28,.18);
+    }
+    .danger-btn:hover { box-shadow: 0 14px 28px rgba(185,28,28,.22); }
     button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible {
       outline: none;
       box-shadow: 0 0 0 4px rgba(15,118,110,.18);
@@ -3901,6 +4074,7 @@ INDEX_HTML = r"""<!doctype html>
       </div>
       <div class="toolbar">
         <button id="syncBtn">Sync sources</button>
+        <button class="danger-btn" id="stopSyncBtn" disabled>Stop Sync</button>
         <button id="refreshBtn">Refresh scan</button>
         <button class="ghost-btn" id="exportCsvBtn">Export CSV</button>
         <button class="ghost-btn" id="exportJsonBtn">Export JSON</button>
@@ -4248,6 +4422,9 @@ INDEX_HTML = r"""<!doctype html>
         updating_manifest: "updating manifest",
         archive_fallback: "archive fallback",
         copying: "copying files",
+        stopping: "stopping",
+        stopped: "stopped",
+        source_cancelled: "stopped",
         source_done: "done",
         source_error: "source error",
         source_complete: "done",
@@ -4258,6 +4435,13 @@ INDEX_HTML = r"""<!doctype html>
     function renderSyncStatus(s) {
       const panel = document.getElementById("syncPanel");
       const active = s && (s.running || (s.phase && s.phase !== "idle"));
+      const syncBtn = document.getElementById("syncBtn");
+      const stopBtn = document.getElementById("stopSyncBtn");
+      if (syncBtn) syncBtn.disabled = Boolean(s?.running);
+      if (stopBtn) {
+        stopBtn.disabled = !Boolean(s?.running);
+        stopBtn.textContent = s?.stop_requested ? "Stopping..." : "Stop Sync";
+      }
       panel.classList.toggle("active", Boolean(active));
       if (!active) return;
       const total = Number(s.total || 0);
@@ -4366,11 +4550,20 @@ INDEX_HTML = r"""<!doctype html>
         await loadSyncStatus().catch(() => {});
         await loadSummary();
         const copied = (payload.results || []).reduce((a,r) => a + (r.copied || 0), 0);
-        setStatus(`Sync complete. Copied ${copied} changed files.`);
+        setStatus(payload.cancelled ? `Sync stopped. Copied ${copied} changed files before stopping.` : `Sync complete. Copied ${copied} changed files.`);
       } catch (error) {
         await loadSyncStatus().catch(() => {});
         throw error;
       }
+    }
+    async function stopSync() {
+      setStatus("Stopping sync...");
+      const res = await fetch("/api/sync/stop", {method: "POST"});
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || "stop sync failed");
+      renderSyncStatus(payload);
+      startSyncPolling();
+      setStatus(payload.running ? "Stop requested. Active copy/archive operation will finish first." : (payload.message || "Sync stopped"));
     }
     async function testSource(sourceId) {
       setStatus(`Testing ${sourceId}...`);
@@ -7675,6 +7868,7 @@ INDEX_HTML = r"""<!doctype html>
       renderDays(runs);
     }
     document.getElementById("syncBtn").onclick = () => syncSources().catch(e => setStatus(`Sync failed: ${e.message}`));
+    document.getElementById("stopSyncBtn").onclick = () => stopSync().catch(e => setStatus(`Stop failed: ${e.message}`));
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
     document.getElementById("exportCsvBtn").onclick = () => exportFiltered("csv");
     document.getElementById("exportJsonBtn").onclick = () => exportFiltered("json");
@@ -7705,6 +7899,7 @@ class DashboardServer:
         self.mirror_dir = mirror_dir
         self.lock = threading.Lock()
         self.status_lock = threading.Lock()
+        self.stop_event = threading.Event()
         self.sync_status: dict[str, Any] = self.new_sync_status()
 
     def new_sync_status(self) -> dict[str, Any]:
@@ -7731,6 +7926,9 @@ class DashboardServer:
             "error_count": 0,
             "warning_count": 0,
             "archive_size": 0,
+            "stop_requested": False,
+            "cancelled": False,
+            "stopped_at": "",
             "message": "Idle",
             "messages": [],
             "sources": {},
@@ -7751,7 +7949,7 @@ class DashboardServer:
                 source_status.update({k: v for k, v in update.items() if k not in {"sources", "messages"}})
                 source_status["updated_at"] = status["updated_at"]
                 phase = str(source_status.get("phase") or "")
-                source_status["done"] = phase in {"source_done", "source_error", "source_complete"}
+                source_status["done"] = phase in {"source_done", "source_error", "source_complete", "source_cancelled"}
                 source_status["running"] = bool(status.get("running")) and not bool(source_status.get("done"))
                 sources[source_id] = source_status
                 status["sources"] = sources
@@ -7795,6 +7993,7 @@ class DashboardServer:
 
     def sync(self, max_parallel_sources: int | None = None) -> dict[str, Any]:
         with self.lock:
+            self.stop_event.clear()
             self.update_sync_status({"running": True, "phase": "starting", "message": "Starting sync"})
             try:
                 return run_sync(
@@ -7802,10 +8001,36 @@ class DashboardServer:
                     self.mirror_dir,
                     progress=self.update_sync_status,
                     max_parallel_sources=max_parallel_sources,
+                    cancel_event=self.stop_event,
                 )
             except Exception as exc:
-                self.update_sync_status({"running": False, "phase": "failed", "message": f"Sync failed: {exc}"})
+                self.stop_event.clear()
+                self.update_sync_status({"running": False, "phase": "failed", "stop_requested": False, "message": f"Sync failed: {exc}"})
                 raise
+
+    def stop_sync(self) -> dict[str, Any]:
+        status = self.status()
+        if not status.get("running"):
+            self.stop_event.clear()
+            self.update_sync_status(
+                {
+                    "running": False,
+                    "phase": "idle",
+                    "stop_requested": False,
+                    "message": "No active sync to stop",
+                }
+            )
+            return self.status()
+        self.stop_event.set()
+        self.update_sync_status(
+            {
+                "running": True,
+                "phase": "stopping",
+                "stop_requested": True,
+                "message": "Stop requested. Waiting for active copy/archive operation to finish.",
+            }
+        )
+        return self.status()
 
     def test_source(self, source_id: str) -> dict[str, Any]:
         return test_source_connection(self.config(), self.mirror_dir, source_id)
@@ -7879,6 +8104,12 @@ def make_handler(server_state: DashboardServer):
                         else None
                     )
                     self.send_json(server_state.sync(max_parallel_sources=max_parallel_sources))
+                except Exception as exc:
+                    self.send_json({"error": str(exc)}, status=500)
+                return
+            if parsed.path == "/api/sync/stop":
+                try:
+                    self.send_json(server_state.stop_sync())
                 except Exception as exc:
                     self.send_json({"error": str(exc)}, status=500)
                 return
