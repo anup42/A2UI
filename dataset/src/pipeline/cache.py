@@ -6,11 +6,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
+from llm.base import extract_reasoning_metadata
+
 
 @dataclass
 class CacheEntry:
     text: str
     raw: Any
+    reasoning_text: Optional[str] = None
+    reasoning_source: Optional[str] = None
+    reasoning_tokens: Optional[int] = None
 
 
 class PromptCache:
@@ -37,22 +42,53 @@ class PromptCache:
                     continue
                 key = obj.get("prompt_hash")
                 if key:
-                    self._cache[key] = CacheEntry(text=obj.get("text", ""), raw=obj.get("raw"))
+                    reasoning_text = obj.get("reasoning_text")
+                    reasoning_source = obj.get("reasoning_source")
+                    reasoning_tokens = obj.get("reasoning_tokens")
+                    if not reasoning_text:
+                        reasoning_text, reasoning_source, reasoning_tokens = (
+                            extract_reasoning_metadata(obj.get("raw"))
+                        )
+                    self._cache[key] = CacheEntry(
+                        text=obj.get("text", ""),
+                        raw=obj.get("raw"),
+                        reasoning_text=reasoning_text,
+                        reasoning_source=reasoning_source,
+                        reasoning_tokens=reasoning_tokens,
+                    )
 
     def get(self, prompt_hash: str) -> Optional[CacheEntry]:
         if not self.enabled:
             return None
         return self._cache.get(prompt_hash)
 
-    def set(self, prompt_hash: str, text: str, raw: Any) -> None:
+    def set(
+        self,
+        prompt_hash: str,
+        text: str,
+        raw: Any,
+        reasoning_text: Optional[str] = None,
+        reasoning_source: Optional[str] = None,
+        reasoning_tokens: Optional[int] = None,
+    ) -> None:
         if not self.enabled:
             return
         if prompt_hash in self._cache:
             return
         entry = {"prompt_hash": prompt_hash, "text": text, "raw": raw}
+        if reasoning_text:
+            entry["reasoning_text"] = reasoning_text
+            entry["reasoning_source"] = reasoning_source
+            entry["reasoning_tokens"] = reasoning_tokens
         with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        self._cache[prompt_hash] = CacheEntry(text=text, raw=raw)
+        self._cache[prompt_hash] = CacheEntry(
+            text=text,
+            raw=raw,
+            reasoning_text=reasoning_text,
+            reasoning_source=reasoning_source,
+            reasoning_tokens=reasoning_tokens,
+        )
 
 
 def _prompt_cache_enabled() -> bool:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any, Optional
 
@@ -25,6 +26,118 @@ class LLMResult:
     model: str
     provider: str
     error: Optional[str] = None
+    reasoning_text: Optional[str] = None
+    reasoning_source: Optional[str] = None
+    reasoning_tokens: Optional[int] = None
+
+
+def _reasoning_value_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, list):
+        chunks = [_reasoning_value_text(item) for item in value]
+        return "\n".join(chunk for chunk in chunks if chunk).strip()
+    if isinstance(value, dict):
+        for key in ("text", "content", "summary", "reasoning_content", "reasoning"):
+            text = _reasoning_value_text(value.get(key))
+            if text:
+                return text
+    return ""
+
+
+def extract_reasoning_metadata(payload: Any) -> tuple[Optional[str], Optional[str], Optional[int]]:
+    """Extract only reasoning explicitly returned by a provider payload."""
+    if not isinstance(payload, dict):
+        return None, None, None
+
+    usage = payload.get("usage") if isinstance(payload.get("usage"), dict) else {}
+    usage_metadata = (
+        payload.get("usageMetadata") if isinstance(payload.get("usageMetadata"), dict) else {}
+    )
+    token_candidates = [
+        usage_metadata.get("thoughtsTokenCount"),
+        (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")
+        if isinstance(usage.get("completion_tokens_details"), dict)
+        else None,
+        (usage.get("output_tokens_details") or {}).get("reasoning_tokens")
+        if isinstance(usage.get("output_tokens_details"), dict)
+        else None,
+    ]
+    reasoning_tokens: Optional[int] = None
+    for value in token_candidates:
+        try:
+            if value is not None:
+                reasoning_tokens = max(0, int(value))
+                break
+        except (TypeError, ValueError):
+            continue
+
+    choices = payload.get("choices")
+    if isinstance(choices, list):
+        for choice in choices:
+            if not isinstance(choice, dict):
+                continue
+            message = choice.get("message")
+            if not isinstance(message, dict):
+                continue
+            for key in ("reasoning_content", "reasoning_text", "reasoning", "analysis"):
+                text = _reasoning_value_text(message.get(key))
+                if text:
+                    return text, f"message.{key}", reasoning_tokens
+
+    candidates = payload.get("candidates")
+    if isinstance(candidates, list):
+        thought_chunks: list[str] = []
+        for candidate in candidates:
+            if not isinstance(candidate, dict):
+                continue
+            content = candidate.get("content")
+            parts = content.get("parts") if isinstance(content, dict) else None
+            if not isinstance(parts, list):
+                continue
+            for part in parts:
+                if isinstance(part, dict) and part.get("thought") is True:
+                    text = _reasoning_value_text(part.get("text"))
+                    if text:
+                        thought_chunks.append(text)
+        if thought_chunks:
+            return "\n".join(thought_chunks), "candidate.thought_parts", reasoning_tokens
+
+    output = payload.get("output")
+    if isinstance(output, list):
+        summary_chunks: list[str] = []
+        for item in output:
+            if not isinstance(item, dict) or item.get("type") != "reasoning":
+                continue
+            text = _reasoning_value_text(item.get("summary"))
+            if not text:
+                text = _reasoning_value_text(item.get("content"))
+            if text:
+                summary_chunks.append(text)
+        if summary_chunks:
+            return "\n".join(summary_chunks), "response.reasoning_summary", reasoning_tokens
+
+    return None, None, reasoning_tokens
+
+
+def split_reasoning_from_text(text: str) -> tuple[Optional[str], str]:
+    """Separate common inline thinking blocks while preserving the final answer."""
+    raw = text or ""
+    chunks: list[str] = []
+    patterns = (
+        r"(?is)<think>\s*(.*?)\s*</think>",
+        r"(?is)<\|think\|>\s*(.*?)\s*<\|/think\|>",
+        r"(?is)<\|channel\|>\s*(?:analysis|thought|thinking)\b(.*?)(?=<\|channel\|>|<\|message\|>|$)",
+        r"(?is)<\|channel>\s*(?:analysis|thought|thinking)\b(.*?)(?:<channel\|>|$)",
+        r"(?is)<\|start\|>\s*(?:analysis|thought|thinking)\b(.*?)(?=<\|end\|>|<\|start\|>|$)",
+    )
+    cleaned = raw
+    for pattern in patterns:
+        matches = re.findall(pattern, cleaned)
+        chunks.extend(match.strip() for match in matches if match.strip())
+        cleaned = re.sub(pattern, "", cleaned)
+    reasoning = "\n".join(chunks).strip() or None
+    return reasoning, cleaned.strip()
 
 
 class BaseLLMAdapter:

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 from typing import Optional
 
-from .base import BaseLLMAdapter, LLMResult
+from .base import BaseLLMAdapter, LLMResult, extract_reasoning_metadata, split_reasoning_from_text
 from .http_transport import urlopen
 
 
@@ -648,6 +648,13 @@ class LocalAdapter(BaseLLMAdapter):
         elapsed = (time.time() - start) * 1000
         payload = json.loads(raw)
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
+        reasoning_text, reasoning_source, reasoning_tokens = extract_reasoning_metadata(payload)
+        if not reasoning_text:
+            inline_reasoning, cleaned_text = split_reasoning_from_text(text)
+            if inline_reasoning:
+                reasoning_text = inline_reasoning
+                reasoning_source = "message.inline_thinking"
+                text = cleaned_text
         if self._should_strip_thinking():
             text = self._strip_thinking_text(text)
         usage = payload.get("usage", {})
@@ -661,6 +668,9 @@ class LocalAdapter(BaseLLMAdapter):
             model=self.spec.model,
             provider=self.spec.provider,
             error=None,
+            reasoning_text=reasoning_text,
+            reasoning_source=reasoning_source,
+            reasoning_tokens=reasoning_tokens,
         )
 
     def generate_batch(
@@ -883,6 +893,9 @@ class LocalAdapter(BaseLLMAdapter):
                 output_ids = self._model.generate(**encoded, **gen_kwargs)
             generated_ids = output_ids[0][prompt_len:]
             text = self._tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+            reasoning_text, cleaned_text = split_reasoning_from_text(text)
+            if reasoning_text:
+                text = cleaned_text
 
             elapsed = (time.time() - start) * 1000
             return LLMResult(
@@ -895,6 +908,8 @@ class LocalAdapter(BaseLLMAdapter):
                 model=self.spec.model,
                 provider=self.spec.provider,
                 error=None,
+                reasoning_text=reasoning_text,
+                reasoning_source="generated.inline_thinking" if reasoning_text else None,
             )
         except Exception as exc:
             return LLMResult(

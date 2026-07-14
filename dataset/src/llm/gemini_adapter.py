@@ -10,7 +10,7 @@ import urllib.request
 import urllib.error
 from typing import Any, Optional
 
-from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
+from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError, extract_reasoning_metadata
 from .http_transport import urlopen
 
 
@@ -818,6 +818,7 @@ class GeminiAdapter(BaseLLMAdapter):
         if candidates:
             text = self._extract_candidate_text(candidates[0])
         usage = payload.get("usageMetadata", {})
+        reasoning_text, reasoning_source, reasoning_tokens = extract_reasoning_metadata(payload)
 
         return LLMResult(
             text=text or "",
@@ -829,6 +830,9 @@ class GeminiAdapter(BaseLLMAdapter):
             model=self.spec.model,
             provider=self.spec.provider,
             error=None,
+            reasoning_text=reasoning_text,
+            reasoning_source=reasoning_source,
+            reasoning_tokens=reasoning_tokens,
         )
 
     def generate_batch(

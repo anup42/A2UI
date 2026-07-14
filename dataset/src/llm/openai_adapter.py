@@ -4,7 +4,7 @@ import os
 import time
 from typing import Optional
 
-from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError
+from .base import BaseLLMAdapter, LLMResult, LLMRateLimitError, extract_reasoning_metadata
 
 
 def _extract_rate_headers(headers) -> dict:
@@ -163,6 +163,7 @@ class OpenAIAdapter(BaseLLMAdapter):
 
         elapsed = (time.time() - start) * 1000
         payload = completion.model_dump() if hasattr(completion, "model_dump") else {}
+        reasoning_text, reasoning_source, reasoning_tokens = extract_reasoning_metadata(payload)
         text = ""
         try:
             if completion.choices and completion.choices[0].message:
@@ -182,4 +183,7 @@ class OpenAIAdapter(BaseLLMAdapter):
             model=self.spec.model,
             provider=self.spec.provider,
             error=None,
+            reasoning_text=reasoning_text,
+            reasoning_source=reasoning_source,
+            reasoning_tokens=reasoning_tokens,
         )

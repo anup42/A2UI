@@ -1049,6 +1049,9 @@ def run_stage3(
         provider: str,
         model: str,
         error: str | None,
+        reasoning_text: str | None = None,
+        reasoning_source: str | None = None,
+        reasoning_tokens: int | None = None,
     ) -> None:
         nonlocal total_created
         ui_id = task["ui_id"]
@@ -1060,6 +1063,10 @@ def run_stage3(
         tags_value = task.get("tags") if isinstance(task.get("tags"), list) else []
         query_text = task.get("query_text") if isinstance(task.get("query_text"), str) else ""
         prompt = task["prompt"]
+        accepted_reasoning_text = reasoning_text.strip() if isinstance(reasoning_text, str) else None
+        accepted_reasoning_source = reasoning_source
+        accepted_reasoning_tokens = reasoning_tokens
+        accepted_reasoning_attempt = "initial" if accepted_reasoning_text else None
 
         parsed_ok = True
         errors: list[str] = []
@@ -1156,6 +1163,16 @@ def run_stage3(
                 )
                 break
             raw_text = result.text
+            accepted_reasoning_text = (
+                result.reasoning_text.strip()
+                if isinstance(result.reasoning_text, str) and result.reasoning_text.strip()
+                else None
+            )
+            accepted_reasoning_source = result.reasoning_source
+            accepted_reasoning_tokens = result.reasoning_tokens
+            accepted_reasoning_attempt = (
+                f"repair_{repair_attempts}" if accepted_reasoning_text else None
+            )
             try:
                 parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
                 if flat_spec_mode:
@@ -1238,6 +1255,16 @@ def run_stage3(
                 break
 
             raw_text = regen_result.text
+            accepted_reasoning_text = (
+                regen_result.reasoning_text.strip()
+                if isinstance(regen_result.reasoning_text, str) and regen_result.reasoning_text.strip()
+                else None
+            )
+            accepted_reasoning_source = regen_result.reasoning_source
+            accepted_reasoning_tokens = regen_result.reasoning_tokens
+            accepted_reasoning_attempt = (
+                f"final_regen_{regen_attempt}" if accepted_reasoning_text else None
+            )
             try:
                 parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
                 if flat_spec_mode:
@@ -1316,6 +1343,10 @@ def run_stage3(
                     },
                 ]
             # Re-validate schema for fallback.
+            accepted_reasoning_text = None
+            accepted_reasoning_source = None
+            accepted_reasoning_tokens = None
+            accepted_reasoning_attempt = None
             parsed_ok = True
             errors = ["fallback_generated"]
             schema_valid_strict, schema_errors, validator_ok = _validate_schema(
@@ -1401,6 +1432,12 @@ def run_stage3(
             },
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
+        if accepted_reasoning_text:
+            record["reasoning_text"] = accepted_reasoning_text
+            record["gen"]["reasoning_available"] = True
+            record["gen"]["reasoning_source"] = accepted_reasoning_source
+            record["gen"]["reasoning_tokens"] = accepted_reasoning_tokens
+            record["gen"]["reasoning_attempt"] = accepted_reasoning_attempt
         sample_overall_score = _compute_sample_overall_score(record)
         record["metrics"]["overall_score"] = sample_overall_score
         writer.append(record)
@@ -1535,7 +1572,14 @@ def run_stage3(
         if result.error:
             _record_generation_error(task, result.error, result.raw)
             return
-        cache.set(task["prompt_hash"], result.text, result.raw)
+        cache.set(
+            task["prompt_hash"],
+            result.text,
+            result.raw,
+            result.reasoning_text,
+            result.reasoning_source,
+            result.reasoning_tokens,
+        )
         _process_generated(
             task,
             result.text,
@@ -1546,6 +1590,9 @@ def run_stage3(
             result.provider,
             result.model,
             result.error,
+            result.reasoning_text,
+            result.reasoning_source,
+            result.reasoning_tokens,
         )
 
     def _flush_pending() -> None:
@@ -1620,7 +1667,14 @@ def run_stage3(
                 if result.error:
                     _record_generation_error(task, result.error, result.raw)
                     continue
-                cache.set(task["prompt_hash"], result.text, result.raw)
+                cache.set(
+                    task["prompt_hash"],
+                    result.text,
+                    result.raw,
+                    result.reasoning_text,
+                    result.reasoning_source,
+                    result.reasoning_tokens,
+                )
                 _process_generated(
                     task,
                     result.text,
@@ -1631,6 +1685,9 @@ def run_stage3(
                     result.provider,
                     result.model,
                     result.error,
+                    result.reasoning_text,
+                    result.reasoning_source,
+                    result.reasoning_tokens,
                 )
             return
 
@@ -1652,7 +1709,14 @@ def run_stage3(
             if result.error:
                 _record_generation_error(task, result.error, result.raw)
                 continue
-            cache.set(task["prompt_hash"], result.text, result.raw)
+            cache.set(
+                task["prompt_hash"],
+                result.text,
+                result.raw,
+                result.reasoning_text,
+                result.reasoning_source,
+                result.reasoning_tokens,
+            )
             _process_generated(
                 task,
                 result.text,
@@ -1663,6 +1727,9 @@ def run_stage3(
                 result.provider,
                 result.model,
                 result.error,
+                result.reasoning_text,
+                result.reasoning_source,
+                result.reasoning_tokens,
             )
 
     try:
@@ -1740,6 +1807,9 @@ def run_stage3(
                         adapter.spec.provider,
                         adapter.spec.model,
                         None,
+                        cached.reasoning_text,
+                        cached.reasoning_source,
+                        cached.reasoning_tokens,
                     )
                     continue
 

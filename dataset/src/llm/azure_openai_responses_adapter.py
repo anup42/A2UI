@@ -7,7 +7,7 @@ import urllib.error
 import urllib.request
 from typing import Optional
 
-from .base import BaseLLMAdapter, LLMRateLimitError, LLMResult
+from .base import BaseLLMAdapter, LLMRateLimitError, LLMResult, extract_reasoning_metadata
 from .http_transport import urlopen
 
 
@@ -197,9 +197,11 @@ class AzureOpenAIResponsesAdapter(BaseLLMAdapter):
                 provider=self.spec.provider,
                 error="Azure OpenAI response did not include output text.",
             )
+        raw_payload = self._raw_json(raw_text)
+        reasoning_text, reasoning_source, reasoning_tokens = extract_reasoning_metadata(raw_payload)
         return LLMResult(
             text=text,
-            raw=self._raw_json(raw_text),
+            raw=raw_payload,
             latency_ms=(time.time() - start) * 1000,
             input_tokens=usage[0],
             output_tokens=usage[1],
@@ -207,6 +209,9 @@ class AzureOpenAIResponsesAdapter(BaseLLMAdapter):
             model=self.spec.model,
             provider=self.spec.provider,
             error=None,
+            reasoning_text=reasoning_text,
+            reasoning_source=reasoning_source,
+            reasoning_tokens=reasoning_tokens,
         )
 
     @staticmethod
