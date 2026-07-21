@@ -1,4 +1,5 @@
 import sys
+import json
 import unittest
 from pathlib import Path
 
@@ -150,6 +151,52 @@ class FlatSpecContractTests(unittest.TestCase):
         result = coerce_and_validate(spec)
         self.assertTrue(result.is_valid, msg=result.error)
         self.assertEqual(result.spec["elements"]["email"]["type"], "EmailPreview")
+
+    def test_chart_contract_is_aligned_across_schema_prompt_python_and_android(self) -> None:
+        spec = {
+            "root": "chart",
+            "state": {"rows": [{"label": "Q1", "value": 10}]},
+            "elements": {
+                "chart": {
+                    "type": "bar_chart",
+                    "props": {
+                        "columns": [
+                            {"key": "label", "label": "Quarter"},
+                            {"key": "value", "label": "Value"},
+                        ],
+                        "statePath": "/rows",
+                        "xKey": "label",
+                        "yKey": "value",
+                    },
+                    "children": [],
+                }
+            },
+        }
+        result = coerce_and_validate(spec)
+        self.assertTrue(result.is_valid, msg=result.error)
+        self.assertEqual(result.spec["elements"]["chart"]["type"], "Chart")
+
+        schema = json.loads((ROOT / "schema" / "genui_flatspec.schema.json").read_text(encoding="utf-8"))
+        type_enum = schema["$defs"]["element"]["properties"]["type"]["enum"]
+        self.assertIn("Chart", type_enum)
+
+        prompt = (ROOT / "prompts" / "genui_gen_gemma_v12_structure_preserve.md").read_text(encoding="utf-8")
+        self.assertIn("`Chart` props", prompt)
+
+        renderer = (
+            ROOT.parent
+            / "android"
+            / "app"
+            / "src"
+            / "main"
+            / "java"
+            / "com"
+            / "samsung"
+            / "genuicraft"
+            / "renderer"
+            / "FlatSpecRenderer.kt"
+        ).read_text(encoding="utf-8")
+        self.assertIn('"chart", "barchart", "bar_chart" -> RenderChart', renderer)
 
 
 if __name__ == "__main__":

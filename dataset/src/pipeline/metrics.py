@@ -6,6 +6,9 @@ import re
 from collections import Counter
 from typing import Any
 
+from pipeline.genui_quality.aggregate import aggregate_v4_records
+from pipeline.genui_quality.config import RewardConfig, normalize_metric_mode
+
 _stopwords = {
     "the","a","an","and","or","to","of","in","on","for","with","by","is","are","was","were","be","as","it","this","that"
 }
@@ -1190,9 +1193,12 @@ def compute_media_score(aggregate: dict[str, Any]) -> float | None:
 def aggregate_metrics(
     rows: list[dict[str, Any]],
     render_rows_by_ui_id: dict[str, dict[str, Any]] | None = None,
+    metric_version: str = "dual",
+    v4_config: RewardConfig | None = None,
 ) -> dict[str, Any]:
     if not rows:
         return {}
+    metric_mode = normalize_metric_mode(metric_version)
 
     def mean(values: list[float]) -> float:
         if not values:
@@ -1421,6 +1427,13 @@ def aggregate_metrics(
         "latency_ms_p95": pct(metrics["latency_ms"], 95),
     }
     aggregate["media_score"] = compute_media_score(aggregate)
+    aggregate["evaluation_metric_mode"] = metric_mode
+    if metric_mode in {"v4", "dual"}:
+        aggregate["genui_quality_v4"] = aggregate_v4_records(
+            rows,
+            render_rows_by_ui_id=render_rows_by_ui_id,
+            config=v4_config,
+        )
     return aggregate
 
 

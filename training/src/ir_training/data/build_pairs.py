@@ -86,6 +86,11 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
             intent = genui.get("intent") or response.get("intent")
             tags = genui.get("tags") or response.get("tags") or []
             intent_bucket = genui.get("intent_bucket") or response.get("intent_bucket") or intent
+            assets = genui.get("assets") or response.get("assets") or []
+            expected_ui_contract = (
+                genui.get("expected_ui_contract")
+                or response.get("expected_ui_contract")
+            )
             row_id = genui.get("ui_id") or f"u_{response_id}"
             prompt = build_prompt(system_prompt, url_processed.response_text)
             response_generation = _generation_metadata(response.get("gen"))
@@ -97,6 +102,18 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     "messages": build_messages(system_prompt, url_processed.response_text, url_processed.genui_json),
                     "prompt": prompt,
                     "completion": completion,
+                    # Preserve candidate-independent reward columns for an SFT -> GRPO handoff.
+                    "source_id": str(query_id or response_id),
+                    "response_text": url_processed.response_text,
+                    "intent_bucket": intent_bucket,
+                    "assets": assets,
+                    "expected_ui_contract": expected_ui_contract,
+                    "source_model_family": str(
+                        ir_generation.get("model")
+                        or response_generation.get("model")
+                        or "unknown"
+                    ),
+                    "source_created_at": genui.get("created_at") or response.get("created_at"),
                     "metadata": {
                         "query_id": query_id,
                         "ui_id": genui.get("ui_id"),

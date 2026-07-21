@@ -248,6 +248,7 @@ def main() -> None:
                     max_attempts=int(run_cfg.get("max_attempts", 6)),
                     aggregates_path=run_paths.aggregates_path,
                     aggregate_weights=eval_cfg.get("weights", {}),
+                    metric_version=eval_cfg.get("metric_version", "dual"),
                 )
             except LLMRateLimitError as exc:
                 sleep_seconds = rate_limit_sleep_seconds(exc, args.worker_index)

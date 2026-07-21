@@ -17,6 +17,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pipeline.cache import PromptCache
+from pipeline.genui_quality import normalize_metric_mode
 from pipeline.metrics import aggregate_metrics, compute_overall_score, compute_media_score
 from pipeline.stage1_queries import run_stage1
 from pipeline.stage2_responses import run_stage2
@@ -66,11 +67,20 @@ def _build_prompt_cache(root: Path, run_cfg: dict) -> PromptCache:
     return PromptCache(root / run_cfg.get("cache_dir", "data/cache"), enabled=enabled)
 
 
-def _compute_aggregates(genui_path: Path, weights: dict) -> dict:
+def _compute_aggregates(genui_path: Path, weights: dict, metric_version: str = "dual") -> dict:
+    metric_mode = normalize_metric_mode(metric_version)
     rows = list(iter_jsonl(genui_path))
     render_rows_by_ui_id = _load_render_rows_by_ui_id(genui_path.parent)
-    aggregate = aggregate_metrics(rows, render_rows_by_ui_id=render_rows_by_ui_id)
-    aggregate["overall_score"] = compute_overall_score(aggregate, weights)
+    aggregate = aggregate_metrics(
+        rows,
+        render_rows_by_ui_id=render_rows_by_ui_id,
+        metric_version=metric_mode,
+    )
+    if metric_mode in {"legacy", "dual"}:
+        legacy_score = compute_overall_score(aggregate, weights)
+        aggregate["legacy_structural_richness_score"] = legacy_score
+        aggregate["overall_score"] = legacy_score
+        aggregate["legacy_score_deprecation_date"] = "2026-10-01"
     aggregate["media_score"] = compute_media_score(aggregate)
     return aggregate
 
@@ -88,14 +98,19 @@ def _load_response_text_map(responses_path: Path) -> dict[str, str]:
 
 
 def _load_render_rows_by_ui_id(run_dir: Path) -> dict[str, dict]:
-    render_path = run_dir / "render.jsonl"
     rows: dict[str, dict] = {}
-    if not render_path.exists():
-        return rows
-    for row in iter_jsonl(render_path):
-        ui_id = row.get("ui_id")
-        if isinstance(ui_id, str) and ui_id:
-            rows[ui_id] = row
+    # Native checks are loaded last so a real device result supersedes generic
+    # browser/screenshot diagnostics for the renderer-smoke atomic metric.
+    for render_path in (
+        run_dir / "render.jsonl",
+        run_dir / "native_render_checks.jsonl",
+    ):
+        if not render_path.exists():
+            continue
+        for row in iter_jsonl(render_path):
+            ui_id = row.get("ui_id")
+            if isinstance(ui_id, str) and ui_id:
+                rows[ui_id] = row
     return rows
 
 
@@ -103,7 +118,9 @@ def _compute_aggregates_with_backfill(
     genui_path: Path,
     responses_path: Path,
     weights: dict,
+    metric_version: str = "dual",
 ) -> dict:
+    metric_mode = normalize_metric_mode(metric_version)
     rows = list(iter_jsonl(genui_path))
     if rows:
         response_map = _load_response_text_map(responses_path)
@@ -117,8 +134,16 @@ def _compute_aggregates_with_backfill(
                     if isinstance(backfill, str):
                         row["response_text"] = backfill
     render_rows_by_ui_id = _load_render_rows_by_ui_id(genui_path.parent)
-    aggregate = aggregate_metrics(rows, render_rows_by_ui_id=render_rows_by_ui_id)
-    aggregate["overall_score"] = compute_overall_score(aggregate, weights)
+    aggregate = aggregate_metrics(
+        rows,
+        render_rows_by_ui_id=render_rows_by_ui_id,
+        metric_version=metric_mode,
+    )
+    if metric_mode in {"legacy", "dual"}:
+        legacy_score = compute_overall_score(aggregate, weights)
+        aggregate["legacy_structural_richness_score"] = legacy_score
+        aggregate["overall_score"] = legacy_score
+        aggregate["legacy_score_deprecation_date"] = "2026-10-01"
     aggregate["media_score"] = compute_media_score(aggregate)
     return aggregate
 
@@ -818,11 +843,13 @@ def main() -> None:
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
                 aggregates_path=model_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
+                metric_version=eval_cfg.get("metric_version", "dual"),
             )
             aggregates[model_name] = _compute_aggregates_with_backfill(
                 model_paths.genui_path,
                 model_paths.responses_path,
                 eval_cfg.get("weights", {}),
+                eval_cfg.get("metric_version", "dual"),
             )
 
         run_paths.aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
@@ -860,6 +887,7 @@ def main() -> None:
                 run_paths.genui_path,
                 run_paths.responses_path,
                 eval_cfg.get("weights", {}),
+                eval_cfg.get("metric_version", "dual"),
             )
             run_paths.aggregates_path.write_text(
                 json.dumps(aggregates, indent=2),
@@ -969,6 +997,7 @@ def main() -> None:
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
                 aggregates_path=run_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
+                metric_version=eval_cfg.get("metric_version", "dual"),
             )
             logger.info("Stage3 complete.")
             return

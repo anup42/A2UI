@@ -48,6 +48,68 @@ def count_png_files(path: Path) -> int:
     return sum(1 for _ in path.rglob("*.png"))
 
 
+def write_native_render_checks(run_dir: Path, output_dir: Path) -> int:
+    """Publish device capture results in the metric's renderer-adapter format."""
+    capture_manifest = output_dir / "capture_manifest.jsonl"
+    if not capture_manifest.exists():
+        raise RuntimeError(f"Android capture did not produce a manifest: {capture_manifest}")
+
+    try:
+        output_relative = output_dir.relative_to(run_dir)
+    except ValueError:
+        output_relative = Path(output_dir.name)
+
+    rows: list[dict[str, object]] = []
+    for line_number, raw_line in enumerate(
+        capture_manifest.read_text(encoding="utf-8", errors="replace").splitlines(),
+        start=1,
+    ):
+        if not raw_line.strip():
+            continue
+        try:
+            capture = json.loads(raw_line)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                f"Invalid Android capture manifest JSON at line {line_number}: {exc}"
+            ) from exc
+        if not isinstance(capture, dict):
+            raise RuntimeError(
+                f"Invalid Android capture manifest row at line {line_number}: expected object"
+            )
+
+        screenshot_name = str(capture.get("screenshot") or "")
+        screenshot_path = (
+            (output_relative / screenshot_name).as_posix() if screenshot_name else ""
+        )
+        ok = capture.get("ok") is True
+        rows.append(
+            {
+                "ui_id": str(capture.get("ui_id") or ""),
+                "query_id": str(capture.get("query_id") or ""),
+                "response_id": str(capture.get("response_id") or ""),
+                "renderer_check_result": {
+                    "adapter": "android_native_flat_renderer",
+                    "source": "DatasetRenderCaptureActivity.capture_manifest",
+                    "attempted": True,
+                    "ok": ok,
+                    "status": "rendered" if ok else "failed",
+                    "screenshot": screenshot_path,
+                    "full_height_px": capture.get("full_height_px"),
+                    "tile_count": capture.get("tile_count"),
+                },
+            }
+        )
+
+    checks_path = run_dir / "native_render_checks.jsonl"
+    temp_path = checks_path.with_name(f".{checks_path.name}.{os.getpid()}.tmp")
+    temp_path.write_text(
+        "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    temp_path.replace(checks_path)
+    return len(rows)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Render a dataset run on Android device and capture per-IR screenshots."
@@ -91,6 +153,9 @@ def main() -> int:
         raise RuntimeError(f"Missing genui.jsonl: {genui_path}")
 
     ensure_device_connected(args.adb_bin)
+    # This capture replaces the screenshot directory, so its canonical metric
+    # sidecar must not remain stale if the new device attempt fails midway.
+    (run_dir / "native_render_checks.jsonl").unlink(missing_ok=True)
 
     if output_dir.exists():
         shutil.rmtree(output_dir)
@@ -173,6 +238,11 @@ def main() -> int:
 
     captured_png = count_png_files(output_dir)
     print(f"[ok] Captured {captured_png} screenshot(s) to: {output_dir}")
+    published_checks = write_native_render_checks(run_dir, output_dir)
+    print(
+        f"[ok] Published {published_checks} native renderer check(s) to: "
+        f"{run_dir / 'native_render_checks.jsonl'}"
+    )
 
     if not args.keep_remote:
         adb(args.adb_bin, "shell", "rm", "-rf", device_base)

@@ -76,6 +76,9 @@ benchmark:
   fixed_subset_size: 10
   fixed_seed: 123
 evaluation:
+  # One-release migration window. Set to legacy or v4 for rollback/cutover.
+  metric_version: dual
+  legacy_score_deprecation_date: '2026-10-01'
   weights:
     schema_valid_strict: 5.0
     content_coverage: 3.0

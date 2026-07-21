@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/expected_ui_contract.schema.json",
+  "title": "GenUI Expected UI Contract",
+  "description": "Source-derived expectations used to evaluate text-to-FlatSpec translation. The contract must be created independently of the candidate JSON.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {"type": "string"},
+    "extractor_version": {"type": "string"},
+    "source_hash": {"type": "string"},
+    "intent": {"type": ["string", "null"]},
+    "content_units": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "reference_content": {"type": "string"},
+    "headings": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "exact_values": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "tables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["headers", "rows"],
+        "properties": {
+          "id": {"type": "string"},
+          "required": {"type": "boolean", "default": true},
+          "headers": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {"type": "array", "items": {"type": ["string", "number", "boolean", "null"]}},
+                {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean", "null"]}}
+              ]
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "target"],
+        "properties": {
+          "label": {"type": "string"},
+          "target": {"type": "string"},
+          "action_type": {
+            "enum": ["openUrl", "setState", "pushState", "removeState", "validateForm"],
+            "default": "openUrl"
+          },
+          "required": {"type": "boolean", "default": true}
+        }
+      }
+    },
+    "source_links": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {"type": "string"},
+          {
+            "type": "object",
+            "required": ["url"],
+            "properties": {
+              "label": {"type": "string"},
+              "url": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "media": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "url"],
+        "properties": {
+          "kind": {"enum": ["Image", "Icon", "Video", "AudioPlayer"]},
+          "url": {"type": "string"},
+          "alt": {"type": "string"},
+          "required": {"type": "boolean", "default": true}
+        }
+      }
+    },
+    "code_blocks": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {"type": "string"},
+          {
+            "type": "object",
+            "required": ["code"],
+            "properties": {
+              "language": {"type": "string"},
+              "code": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "inline_code": {"type": "array", "items": {"type": "string"}},
+    "required_roles": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "boolean"},
+          {"type": "integer", "minimum": 0}
+        ]
+      }
+    },
+    "expected_role_counts": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    }
+  },
+  "anyOf": [
+    {"required": ["content_units"]},
+    {"required": ["reference_content"]},
+    {"required": ["headings"]},
+    {"required": ["tables"]},
+    {"required": ["actions"]},
+    {"required": ["media"]},
+    {"required": ["required_roles"]}
+  ]
+}

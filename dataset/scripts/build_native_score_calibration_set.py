@@ -26,6 +26,13 @@ from pipeline.metrics import (  # noqa: E402
     dup_rate,
     lint_score,
 )
+from pipeline.genui_quality import (  # noqa: E402
+    RewardConfig,
+    breakdown_to_mapping,
+    extract_expected_ui_contract,
+    load_default_reward_config,
+    score_genui_completion,
+)
 from pipeline.toon_convert import encode_toon, roundtrip_ok  # noqa: E402
 from pipeline.storage import iter_jsonl  # noqa: E402
 from utils.config import load_yaml  # noqa: E402
@@ -637,7 +644,16 @@ def _build_spec(s: dict[str, Any], target: int) -> dict[str, Any]:
     return {"root": "root", "state": state, "elements": elements}
 
 
-def _record_metrics(response_text: str, genui_json: dict[str, Any], intent: str, tags: list[str], weights: dict[str, float]) -> dict[str, Any]:
+def _record_metrics(
+    response_text: str,
+    genui_json: dict[str, Any],
+    intent: str,
+    tags: list[str],
+    assets: list[dict[str, Any]],
+    expected_ui_contract: dict[str, Any],
+    reward_config: RewardConfig,
+    weights: dict[str, float],
+) -> tuple[dict[str, Any], dict[str, Any]]:
     toon = encode_toon(genui_json)
     json_text = json.dumps(genui_json, ensure_ascii=False)
     metrics: dict[str, Any] = {
@@ -653,9 +669,30 @@ def _record_metrics(response_text: str, genui_json: dict[str, Any], intent: str,
     intent_metrics = compute_intent_metrics(intent, tags, response_text, metrics)
     intent_metrics.pop("intent_bucket", None)
     metrics.update(intent_metrics)
-    sample = {"response_text": response_text, "genui_json": genui_json, "metrics": metrics}
-    metrics["overall_score"] = compute_overall_score(aggregate_metrics([sample]), weights)
-    return metrics
+    result = score_genui_completion(
+        genui_json,
+        response_text,
+        intent=intent,
+        assets=assets,
+        expected_ui_contract=expected_ui_contract,
+        config=reward_config,
+    )
+    result_mapping = breakdown_to_mapping(result)
+    sample = {
+        "response_text": response_text,
+        "genui_json": genui_json,
+        "expected_ui_contract": expected_ui_contract,
+        "genui_quality_v4": result_mapping,
+        "metrics": metrics,
+    }
+    legacy_score = compute_overall_score(aggregate_metrics([sample], metric_version="legacy"), weights)
+    metrics["legacy_structural_richness_score"] = legacy_score
+    metrics["overall_score"] = legacy_score
+    metrics["genui_quality_v4"] = result.quality_0_100
+    metrics["genui_quality_v4_dimensions"] = result.dimensions
+    metrics["genui_quality_v4_active_caps"] = result.active_caps
+    metrics["genui_metric_version"] = result.metric_version
+    return metrics, result_mapping
 
 
 def _copy_assets(base_run: Path, out_run: Path) -> None:
@@ -677,6 +714,7 @@ def build(run_id: str, base_run_id: str) -> Path:
     assets_by_response = _load_base_assets(base_run)
     scenarios = _scenarios(assets_by_response)
     weights = load_yaml(ROOT / "configs" / "run.yaml").get("evaluation", {}).get("weights", {})
+    reward_config = load_default_reward_config()
 
     query_rows = []
     response_rows = []
@@ -702,12 +740,19 @@ def build(run_id: str, base_run_id: str) -> Path:
         for items in assets_by_response.values():
             all_assets.extend(items)
         assets_for_record[scenario["response_id"]] = all_assets
+        expected_ui_contract = extract_expected_ui_contract(
+            response_text,
+            intent=scenario["intent"],
+            assets=all_assets,
+        )
         response_rows.append(
             {
                 "response_id": scenario["response_id"],
                 "query_id": scenario["query_id"],
                 "n_idx": 1,
                 "response_text": response_text,
+                "expected_ui_contract": expected_ui_contract,
+                "expected_ui_contract_source": "deterministic fallback",
                 "created_at": now,
                 "assets": all_assets,
                 "asset_stats": {
@@ -727,7 +772,16 @@ def build(run_id: str, base_run_id: str) -> Path:
         for target in TARGETS:
             genui_json = _build_spec(scenario, target)
             toon = encode_toon(genui_json)
-            metrics = _record_metrics(response_text, genui_json, scenario["intent"], scenario["tags"], weights)
+            metrics, quality_v4 = _record_metrics(
+                response_text,
+                genui_json,
+                scenario["intent"],
+                scenario["tags"],
+                assets_for_record[scenario["response_id"]],
+                expected_ui_contract,
+                reward_config,
+                weights,
+            )
             ui_id = f"s{target:03d}_{scenario['slot']}_u_self_{scenario['slot']}_01"
             record = {
                 "ui_id": ui_id,
@@ -738,7 +792,17 @@ def build(run_id: str, base_run_id: str) -> Path:
                 "intent_bucket": metrics.get("intent_bucket", scenario["intent"].lower()),
                 "target_score_bucket": target,
                 "response_text": response_text,
+                "expected_ui_contract": expected_ui_contract,
+                "expected_ui_contract_source": "deterministic fallback",
                 "genui_json": genui_json,
+                "genui_quality_v4": quality_v4,
+                "evaluation_metric_mode": "dual",
+                "renderer_check_result": {
+                    "adapter": "android_native",
+                    "attempted": False,
+                    "ok": None,
+                    "source": "calibration_generation_not_rendered",
+                },
                 "assets": assets_for_record[scenario["response_id"]],
                 "toon": toon,
                 "validation": {
@@ -791,11 +855,15 @@ def build(run_id: str, base_run_id: str) -> Path:
     for target in TARGETS:
         rows = [row for row in genui_rows if row["target_score_bucket"] == target]
         agg = aggregate_metrics(rows)
-        agg["overall_score"] = compute_overall_score(agg, weights)
+        legacy_score = compute_overall_score(agg, weights)
+        agg["legacy_structural_richness_score"] = legacy_score
+        agg["overall_score"] = legacy_score
         agg["media_score"] = compute_media_score(agg)
         by_bucket[str(target)] = agg
     aggregate_all = aggregate_metrics(genui_rows)
-    aggregate_all["overall_score"] = compute_overall_score(aggregate_all, weights)
+    legacy_score = compute_overall_score(aggregate_all, weights)
+    aggregate_all["legacy_structural_richness_score"] = legacy_score
+    aggregate_all["overall_score"] = legacy_score
     aggregate_all["media_score"] = compute_media_score(aggregate_all)
     aggregate_all["bucket_scores"] = {
         target: by_bucket[str(target)].get("overall_score")

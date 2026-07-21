@@ -3,7 +3,8 @@ torch>=2.3
 transformers>=4.46
 accelerate>=0.33
 peft>=0.12
-trl>=0.9
+# 0.29.1 adds reward-function log_extra/log_metric hooks used by metric v4 observability.
+trl>=0.29.1
 datasets>=2.20
 jsonschema>=4.22
 PyYAML>=6.0

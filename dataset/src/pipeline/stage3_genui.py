@@ -23,6 +23,14 @@ from pipeline.flat_spec_contract import (
     extract_json_element,
 )
 from pipeline.image_resolver import repair_flat_spec_images
+from pipeline.genui_quality import (
+    SourceContractCache,
+    breakdown_to_mapping,
+    load_default_reward_config,
+    normalize_metric_mode,
+    resolve_expected_ui_contract,
+    score_genui_completion,
+)
 from pipeline.metrics import (
     content_coverage,
     dup_rate,
@@ -772,6 +780,7 @@ def run_stage3(
     max_attempts: int = 3,
     aggregates_path: Path | None = None,
     aggregate_weights: dict[str, float] | None = None,
+    metric_version: str = "dual",
 ) -> None:
     prompt_template = _maybe_compact_prompt_template(load_prompt(prompt_path), adapter, logger)
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
@@ -789,6 +798,15 @@ def run_stage3(
         final_regen_temperature,
     )
     artifacts_dir.mkdir(parents=True, exist_ok=True)
+    metric_mode = normalize_metric_mode(metric_version)
+    v4_config = load_default_reward_config() if metric_mode in {"v4", "dual"} else None
+    contract_cache = SourceContractCache(artifacts_dir / "genui_contract_cache")
+    aggregate_every = max(1, _env_int("GENUI_STAGE3_AGGREGATE_EVERY", 250))
+    logger.info(
+        "Stage3 evaluation metric mode=%s aggregate_every=%s",
+        metric_mode,
+        aggregate_every,
+    )
 
     prompt_token_multiplier = max(
         1.0,
@@ -926,17 +944,33 @@ def run_stage3(
                         if isinstance(backfill, str):
                             row["response_text"] = backfill
             render_rows_by_ui_id: dict[str, dict[str, Any]] = {}
-            render_log_path = genui_path.parent / "render.jsonl"
-            if render_log_path.exists():
+            # Device-native results load last and therefore override generic
+            # render rows when both exist for the same sample.
+            for render_log_path in (
+                genui_path.parent / "render.jsonl",
+                genui_path.parent / "native_render_checks.jsonl",
+            ):
+                if not render_log_path.exists():
+                    continue
                 for render_row in iter_jsonl(render_log_path):
                     ui_id = render_row.get("ui_id")
                     if isinstance(ui_id, str) and ui_id:
                         render_rows_by_ui_id[ui_id] = render_row
-            aggregates = aggregate_metrics(rows, render_rows_by_ui_id=render_rows_by_ui_id)
-            aggregates["overall_score"] = compute_overall_score(
-                aggregates,
-                aggregate_weights or {},
+            aggregates = aggregate_metrics(
+                rows,
+                render_rows_by_ui_id=render_rows_by_ui_id,
+                metric_version=metric_mode,
+                v4_config=v4_config,
             )
+            if metric_mode in {"legacy", "dual"}:
+                legacy_score = compute_overall_score(
+                    aggregates,
+                    aggregate_weights or {},
+                )
+                aggregates["legacy_structural_richness_score"] = legacy_score
+                # Compatibility field for one migration window.
+                aggregates["overall_score"] = legacy_score
+                aggregates["legacy_score_deprecation_date"] = "2026-10-01"
             aggregates["media_score"] = compute_media_score(aggregates)
             aggregates["aggregated_scope"] = "all_generated_samples"
             aggregates["aggregated_sample_count"] = len(rows)
@@ -962,9 +996,9 @@ def run_stage3(
         except Exception as exc:  # best-effort
             logger.warning("Stage3 aggregates failed: %s", exc)
 
-    def _compute_sample_overall_score(record: dict[str, Any]) -> float | None:
+    def _compute_sample_legacy_score(record: dict[str, Any]) -> float | None:
         try:
-            sample_aggregate = aggregate_metrics([record])
+            sample_aggregate = aggregate_metrics([record], metric_version="legacy")
             return compute_overall_score(sample_aggregate, aggregate_weights or {})
         except Exception as exc:  # best-effort logging metric
             logger.debug("Stage3 sample score failed ui_id=%s: %s", record.get("ui_id"), exc)
@@ -1070,6 +1104,23 @@ def run_stage3(
 
         parsed_ok = True
         errors: list[str] = []
+        contract_resolution = resolve_expected_ui_contract(
+            response_text,
+            intent=intent_value,
+            assets=assets_list,
+            persisted=(
+                task.get("expected_ui_contract")
+                if isinstance(task.get("expected_ui_contract"), dict)
+                else None
+            ),
+            persisted_source=(
+                str(task.get("expected_ui_contract_source"))
+                if task.get("expected_ui_contract_source")
+                else None
+            ),
+            cache=contract_cache,
+        )
+        errors.extend(contract_resolution.errors)
         converted_from_legacy = False
         try:
             parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
@@ -1405,6 +1456,10 @@ def run_stage3(
             "tags": tags_value,
             "intent_bucket": intent_bucket,
             "response_text": response_text,
+            "expected_ui_contract": contract_resolution.contract,
+            "expected_ui_contract_source": contract_resolution.source,
+            "expected_ui_contract_version": contract_resolution.contract.get("contract_version"),
+            "expected_ui_contract_cache_hit": contract_resolution.cache_hit,
             "genui_json": genui_json,
             "assets": assets_list,
             "toon": toon,
@@ -1432,27 +1487,64 @@ def run_stage3(
             },
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
+        record["evaluation_metric_mode"] = metric_mode
+        record["renderer_check_result"] = {
+            "adapter": "android_native",
+            "attempted": False,
+            "ok": None,
+            "source": "stage3_not_attempted",
+        }
         if accepted_reasoning_text:
             record["reasoning_text"] = accepted_reasoning_text
             record["gen"]["reasoning_available"] = True
             record["gen"]["reasoning_source"] = accepted_reasoning_source
             record["gen"]["reasoning_tokens"] = accepted_reasoning_tokens
             record["gen"]["reasoning_attempt"] = accepted_reasoning_attempt
-        sample_overall_score = _compute_sample_overall_score(record)
-        record["metrics"]["overall_score"] = sample_overall_score
+        if metric_mode in {"v4", "dual"}:
+            v4_result = score_genui_completion(
+                genui_json,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution.contract,
+                render_ok=None,
+                config=v4_config,
+            )
+            source_evidence = v4_result.evidence.get("source")
+            if isinstance(source_evidence, dict):
+                source_evidence["contract_source"] = contract_resolution.source
+                source_evidence["cache_hit"] = contract_resolution.cache_hit
+            record["genui_quality_v4"] = breakdown_to_mapping(v4_result)
+            record["metrics"]["genui_quality_v4"] = v4_result.quality_0_100
+            record["metrics"]["genui_quality_v4_dimensions"] = v4_result.dimensions
+            record["metrics"]["genui_quality_v4_active_caps"] = v4_result.active_caps
+            record["metrics"]["genui_metric_version"] = v4_result.metric_version
+
+        sample_legacy_score = (
+            _compute_sample_legacy_score(record)
+            if metric_mode in {"legacy", "dual"}
+            else None
+        )
+        if metric_mode in {"legacy", "dual"}:
+            record["metrics"]["legacy_structural_richness_score"] = sample_legacy_score
+            # Compatibility field for one migration window.
+            record["metrics"]["overall_score"] = sample_legacy_score
         writer.append(record)
         existing_ids.add(ui_id)
-        if sample_overall_score is None:
+        if sample_legacy_score is None and metric_mode == "legacy":
             logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
         else:
+            quality_v4 = record["metrics"].get("genui_quality_v4")
             logger.info(
-                "Stage3 created ui_id=%s schema_ok=%s overall_score=%.2f",
+                "Stage3 created ui_id=%s schema_ok=%s legacy_score=%s genui_quality_v4=%s",
                 ui_id,
                 schema_valid_strict,
-                sample_overall_score,
+                None if sample_legacy_score is None else round(sample_legacy_score, 2),
+                None if quality_v4 is None else round(float(quality_v4), 2),
             )
         total_created += 1
-        _write_aggregates(reason=f"after_ui={ui_id}")
+        if total_created == 1 or total_created % aggregate_every == 0:
+            _write_aggregates(reason=f"after_ui={ui_id}")
 
         if errors:
             error_path = artifacts_dir / f"error_{ui_id}.json"
@@ -1741,6 +1833,8 @@ def run_stage3(
             response_text = response.get("response_text")
             assets = response.get("assets") if isinstance(response, dict) else None
             assets_list = assets if isinstance(assets, list) else []
+            persisted_contract = response.get("expected_ui_contract") if isinstance(response, dict) else None
+            persisted_contract_source = response.get("expected_ui_contract_source") if isinstance(response, dict) else None
             n_idx = int(response.get("n_idx", 1))
             if not response_id or not query_id or not response_text:
                 continue
@@ -1787,6 +1881,8 @@ def run_stage3(
                     "query_id": query_id,
                     "response_text": response_text,
                     "assets_list": assets_list,
+                    "expected_ui_contract": persisted_contract,
+                    "expected_ui_contract_source": persisted_contract_source,
                     "intent": intent_info.get("intent"),
                     "tags": intent_info.get("tags"),
                     "query_text": intent_info.get("query_text") or "",
