@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"divisionRows": [{"totalCupcakes": 36, "cupcakesPerBox": 8, "fullBoxes": 4, "leftOver": 4}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "summary", "division_heading", "division_table", "calculation_card", "actions_heading", "used_check", "left_over"]}, "title": {"type": "Text", "props": {"text": "Cupcake Box Packing Result", "variant": "h2"}, "children": []}, "summary": {"type": "Card", "props": {}, "children": ["summary_text"]}, "summary_text": {"type": "Text", "props": {"text": "36 cupcakes packed into boxes of 8 makes 4 full boxes.", "variant": "body"}, "children": []}, "division_heading": {"type": "Text", "props": {"text": "Division Breakdown", "variant": "h3"}, "children": []}, "division_table": {"type": "Table", "props": {"columns": [{"key": "totalCupcakes", "label": "Total Cupcakes"}, {"key": "cupcakesPerBox", "label": "Cupcakes per Box"}, {"key": "fullBoxes", "label": "Full Boxes"}, {"key": "leftOver", "label": "Left Over"}], "statePath": "/divisionRows", "domain": "formula", "preferredPresentation": "table", "sourceFormat": "markdown"}, "children": []}, "calculation_card": {"type": "Card", "props": {}, "children": ["calculation_text"]}, "calculation_text": {"type": "Text", "props": {"text": "Calculation: 36 ÷ 8 = 4 remainder 4", "variant": "body"}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h3"}, "children": []}, "used_check": {"type": "Text", "props": {"text": "Check: 4 × 8 = 32 cupcakes used", "variant": "body"}, "children": []}, "left_over": {"type": "Text", "props": {"text": "Left over: 4 cupcakes", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

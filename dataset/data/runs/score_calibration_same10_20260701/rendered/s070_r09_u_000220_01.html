@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"specials": [{"option": "Option 1", "title": "Dave Chappelle — Killin’ Them Softly (2000)", "summary": "Razor-sharp observational set with memorable social framing and effortless control", "style": "Observational / social commentary", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt0240787/"}, {"option": "Option 2", "title": "Maria Bamford — Old Baby (2017)", "summary": "Deeply original, intimate, and psychologically insightful without needing shock tactics", "style": "Storytelling / personal observational", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt6445162/"}, {"option": "Option 3", "title": "Mike Birbiglia — The New One (2019)", "summary": "Elegant long-form storytelling about marriage, identity, and parenthood", "style": "Storytelling", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt10810424/"}, {"option": "Option 4", "title": "Demetri Martin — The Overthinker (2018)", "summary": "Precise, clever, low-key jokes built from language, logic, and visual bits", "style": "Deadpan / observational", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt9165686/"}, {"option": "Option 5", "title": "Hannah Gadsby — Douglas (2020)", "summary": "Thoughtful, structured comedy that blends analysis, identity, and cultural critique", "style": "Social commentary / storytelling", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt12585968/"}, {"option": "Option 6", "title": "Steven Wright — A Steven Wright Special (1985)", "summary": "Classic minimalist absurdism delivered with iconic deadpan rhythm", "style": "Deadpan / one-liner", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt0089984/"}, {"option": "Option 7", "title": "Jerrod Carmichael — Rothaniel (2022)", "summary": "Quiet, confessional, and intellectually precise, with unusually intimate writing", "style": "Storytelling / social commentary", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt19770238/"}, {"option": "Option 8", "title": "Nate Bargatze — Hello World (2023)", "summary": "Clean, understated observational comedy with exceptional timing and clarity", "style": "Observational / deadpan-leaning", "actionLabel": "View details", "actionUrl": "https://www.imdb.com/title/tt27434478/"}], "moodPicks": [{"mood": "For pure observational craft", "picks": "Killin’ Them Softly, Hello World"}, {"mood": "For narrative depth", "picks": "The New One, Rothaniel"}, {"mood": "For low-key, cerebral laughs", "picks": "The Overthinker, A Steven Wright Special"}, {"mood": "For thoughtful social lens", "picks": "Douglas, Killin’ Them Softly"}, {"mood": "Most likely to fit your brief exactly", "picks": "The Overthinker, The New One, Hello World"}], "sources": [{"source": "IMDb title listings", "actionLabel": "Open source", "url": "https://www.imdb.com/"}, {"source": "Netflix specials catalog", "actionLabel": "Open source", "url": "https://www.netflix.com/"}, {"source": "JustWatch streaming availability", "actionLabel": "Open source", "url": "https://www.justwatch.com/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "hero_card", "specials_heading", "specials_table", "mood_heading", "mood_table", "context_heading", "context_card", "actions_heading", "actions_card", "sources_heading", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Sharp, Insightful Stand-Up Picks", "variant": "h1"}, "children": []}, "hero_card": {"type": "Card", "props": {}, "children": ["hero_stack"]}, "hero_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["hero_meta", "hero_text"]}, "hero_meta": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center", "wrap": "wrap"}, "children": ["hero_chip1", "hero_chip2", "hero_chip3"]}, "hero_chip1": {"type": "Text", "props": {"text": "8 specials", "variant": "chip"}, "children": []}, "hero_chip2": {"type": "Text", "props": {"text": "1985–2023", "variant": "chip"}, "children": []}, "hero_chip3": {"type": "Text", "props": {"text": "Writing-first comedy", "variant": "chip"}, "children": []}, "hero_text": {"type": "Text", "props": {"text": "If you want comedy that rewards attention more than volume, these picks balance wit, structure, and point of view. The mix spans older and newer work, with styles grouped so you can pick based on mood.", "variant": "body"}, "children": []}, "specials_heading": {"type": "Text", "props": {"text": "8 Specials by Comedy Style", "variant": "h2"}, "children": []}, "specials_table": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "title", "label": "Special"}, {"key": "summary", "label": "Why it stands out"}, {"key": "style", "label": "Style"}, {"key": "actionLabel", "label": "Action"}, {"key": "actionUrl", "label": "URL"}], "statePath": "/specials", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["style"], "sourceFormat": "plain"}, "children": []}, "mood_heading": {"type": "Text", "props": {"text": "Best Picks by Mood", "variant": "h2"}, "children": []}, "mood_table": {"type": "Table", "props": {"columns": [{"key": "mood", "label": "Mood"}, {"key": "picks", "label": "Best picks"}], "statePath": "/moodPicks", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "mood", "highlightColumns": ["picks"], "sourceFormat": "plain"}, "children": []}, "context_heading": {"type": "Text", "props": {"text": "Context for This Mix", "variant": "h2"}, "children": []}, "context_card": {"type": "Card", "props": {}, "children": ["context_stack"]}, "context_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["context_text1", "context_text2"]}, "context_text1": {"type": "Text", "props": {"text": "These recommendations prioritize writing, structure, and insight over aggression, crowd work, or shock value.", "variant": "body"}, "children": []}, "context_text2": {"type": "Text", "props": {"text": "Older and newer here spans the mid-1980s through 2023, giving you both foundational and more recent specials.", "variant": "body"}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["netflix_button", "justwatch_button"]}, "netflix_button": {"type": "Button", "props": {"label": "Browse Netflix", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.netflix.com/"}}}}, "justwatch_button": {"type": "Button", "props": {"label": "Check JustWatch", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["source1", "source2", "source3"]}, "source1": {"type": "Button", "props": {"label": "IMDb title listings", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.imdb.com/"}}}}, "source2": {"type": "Button", "props": {"label": "Netflix specials catalog", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.netflix.com/"}}}}, "source3": {"type": "Button", "props": {"label": "JustWatch streaming availability", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

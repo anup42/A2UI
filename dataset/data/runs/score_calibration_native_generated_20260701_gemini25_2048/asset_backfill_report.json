@@ -1,0 +1,38 @@
+{
+  "run_id": "score_calibration_native_generated_20260701_base",
+  "scope": "all",
+  "kind": "all",
+  "responses_with_asset_entries": 10,
+  "unique_urls": 25,
+  "downloaded_unique_urls": 20,
+  "failed_unique_urls": 5,
+  "updated_responses": 10,
+  "updated_genui_rows": 0,
+  "local_icon_catalog_used": true,
+  "local_icon_catalog_entries": 72,
+  "physical_asset_files": 20,
+  "physical_asset_bytes": 15752511,
+  "deduped_asset_files_removed": 16,
+  "failures_sample": [
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Inside_Tipu_Sultan%27s_summer_palace_in_Bangalore_1.jpg/1280px-Inside_Tipu_Sultan%27s_summer_palace_in_Bangalore_1.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/BANGALORE_PALACE.jpg/1280px-BANGALORE_PALACE.jpg",
+      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/JR_Kyoto_Post.jpg/1280px-JR_Kyoto_Post.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Coffee_machine_sits_on_a_wooden_table_with_a_blue_coffee_capsule_near_a_clear_glass_cup.jpg/1280px-Coffee_machine_sits_on_a_wooden_table_with_a_blue_coffee_capsule_near_a_clear_glass_cup.jpg",
+      "error": "HTTP Error 429: Your request does not comply with our robot policy, https://w.wiki/4wJS. Please contact noc@wikimedia.org for further information (0fa5166)"
+    },
+    {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Indian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_129.jpg/1280px-Indian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_129.jpg",
+      "error": "HTTP Error 429: Too many requests (f061ab2)"
+    }
+  ]
+}

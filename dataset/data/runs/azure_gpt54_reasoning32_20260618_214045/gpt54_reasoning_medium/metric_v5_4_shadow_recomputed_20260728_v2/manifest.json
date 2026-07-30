@@ -1,0 +1,35 @@
+{
+  "calibration_status": "uncalibrated_engineering_score",
+  "count": 32,
+  "created_at": "2026-07-27T20:32:02.011786+00:00",
+  "elapsed_seconds": 10.836871799998335,
+  "generation": {
+    "count": 32,
+    "mean": 87.29825600341043,
+    "median": 90.12473445176724,
+    "q05": 75.97743854653655,
+    "q95": 96.07432246835111,
+    "sd": 6.8954115471598305
+  },
+  "human_calibration_performed": false,
+  "immutable": true,
+  "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+  "metric_name": "GenUI Representation Quality",
+  "metric_version": "5.4.0",
+  "native_render_evidence_available": false,
+  "render_artifact": {
+    "count": 32,
+    "mean": 87.29825600341043,
+    "median": 90.12473445176724,
+    "q05": 75.97743854653655,
+    "q95": 96.07432246835111,
+    "sd": 6.8954115471598305
+  },
+  "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+  "scores_sha256": "9c05ce5f77fdcbf339730cd68b39b196aaf9c2f8a43b572a190ed9500e4fb91b",
+  "shadow_only": true,
+  "source_files_modified": false,
+  "source_genui_sha256": "f0239bdfecd86da0808af7295a7820972b9b43f7f3e02da2629e1037769025bd",
+  "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_reasoning_medium",
+  "weight_learning_performed": false
+}

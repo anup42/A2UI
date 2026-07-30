@@ -1,0 +1,30 @@
+{
+  "queries": {
+    "hotel_thousand": "The Thousand Kyoto hotel",
+    "hotel_granvia": "Hotel Granvia Kyoto",
+    "hotel_century": "Kyoto Century Hotel",
+    "bangalore_palace": "Bangalore Palace Bengaluru",
+    "lalbagh": "Lalbagh Botanical Garden Bangalore",
+    "iskcon": "ISKCON Temple Bangalore",
+    "tipu": "Tipu Sultan Summer Palace Bangalore",
+    "french_press": "French press coffee",
+    "drip_coffee": "Drip coffee maker",
+    "coffee_pod": "Coffee capsule machine",
+    "cyberpunk_rain": "Tokyo neon rain night city",
+    "candles": "Handmade candles",
+    "ecommerce": "Ecommerce laptop workspace"
+  },
+  "urls": {
+    "hotel_thousand": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/JR_Kyoto_Post.jpg/1280px-JR_Kyoto_Post.jpg",
+    "hotel_granvia": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Hotel_Granvia_Kyoto_20111007-001.jpg/1280px-Hotel_Granvia_Kyoto_20111007-001.jpg",
+    "hotel_century": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Entrance_to_Kyoto_Century_Hotel_in_Kyoto%2C_Japan_%282019%29_-_002.jpg/1280px-Entrance_to_Kyoto_Century_Hotel_in_Kyoto%2C_Japan_%282019%29_-_002.jpg",
+    "bangalore_palace": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/BANGALORE_PALACE.jpg/1280px-BANGALORE_PALACE.jpg",
+    "lalbagh": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Indian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_129.jpg/1280px-Indian_Independence_day_celebration_216th_flower_show_2024%2C_Lalbagh%2C_Bangalore_129.jpg",
+    "iskcon": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Clothes_for_drying_in_Iskcon_temple%2C_Bangalore.JPG/1280px-Clothes_for_drying_in_Iskcon_temple%2C_Bangalore.JPG",
+    "tipu": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Inside_Tipu_Sultan%27s_summer_palace_in_Bangalore_1.jpg/1280px-Inside_Tipu_Sultan%27s_summer_palace_in_Bangalore_1.jpg",
+    "french_press": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/French_Press_coffee_making_03.jpg/1280px-French_Press_coffee_making_03.jpg",
+    "drip_coffee": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LCA_of_Electric_Drip_Coffee_Maker_vs._Press_Pot_%285622181773%29.jpg/1280px-LCA_of_Electric_Drip_Coffee_Maker_vs._Press_Pot_%285622181773%29.jpg",
+    "coffee_pod": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Coffee_machine_sits_on_a_wooden_table_with_a_blue_coffee_capsule_near_a_clear_glass_cup.jpg/1280px-Coffee_machine_sits_on_a_wooden_table_with_a_blue_coffee_capsule_near_a_clear_glass_cup.jpg",
+    "candles": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Handmade_Pillar_Candles_01.jpeg/1280px-Handmade_Pillar_Candles_01.jpeg"
+  }
+}

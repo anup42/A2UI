@@ -1,0 +1,58 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-07-01T05:20:19Z",
+  "run_id": "score_calibration_same10_20260701",
+  "stage": 4,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "1fcd24eea7df805f35a6f85119f2f6fc7c4d8cd1",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "openai_gpt4o",
+    "provider": "openai",
+    "model": "gpt-4o"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "732274de8202455755558a0a357e3e041c6e15ab4dc87252e987ffac08e766a4",
+      "configs\\models.yaml": "3a952cdb89347bd3e9dcb666c3a98e3d9f4cd2370df06e06dbf723c31172181e"
+    },
+    "combined_sha256": "8dd997a96a661ad7d52fd412de320f2969eccca0b6daad481791bfc16ca51b9d"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\score_calibration_same10_20260701",
+    "queries_path": "data\\runs\\score_calibration_same10_20260701\\queries.jsonl",
+    "responses_path": "data\\runs\\score_calibration_same10_20260701\\responses.jsonl",
+    "genui_path": "data\\runs\\score_calibration_same10_20260701\\genui.jsonl",
+    "metrics_path": "data\\runs\\score_calibration_same10_20260701\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\score_calibration_same10_20260701\\aggregates.json",
+    "artifacts_dir": "data\\runs\\score_calibration_same10_20260701\\artifacts",
+    "manifest_path": "data\\runs\\score_calibration_same10_20260701\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "4",
+      "--run_id",
+      "score_calibration_same10_20260701",
+      "--render_workers",
+      "4"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"songs": [{"artist": "Adele", "song": "Rolling in the Deep", "year": "2010", "style": "big, stomping soul-pop", "notes": "raw vocal and almost no glossy club feel"}, {"artist": "Gotye feat. Kimbra", "song": "Somebody That I Used to Know", "year": "2011", "style": "sparse, arty indie pop", "notes": "built around an unusual xylophone-like hook and awkward emotional tension"}, {"artist": "Kendrick Lamar", "song": "Alright", "year": "2015", "style": "jazz-inflected hip-hop", "notes": "complex rhythm, social weight, and a completely different vocal approach"}, {"artist": "The Weeknd", "song": "Blinding Lights", "year": "2019", "style": "bright synthwave revival", "notes": "clean and neon, basically built from 80s-style pulse"}, {"artist": "Billie Eilish", "song": "bad guy", "year": "2019", "style": "minimal, whispery, off-kilter pop", "notes": "succeeds by doing less, not more"}, {"artist": "BTS", "song": "Dynamite", "year": "2020", "style": "polished disco-pop", "notes": "engineered for lift and bounce"}, {"artist": "Megan Thee Stallion feat. Beyoncé", "song": "Savage Remix", "year": "2020", "style": "sharp, rhythmic, swagger-heavy rap", "notes": "almost no resemblance to Adele or BTS"}, {"artist": "Glass Animals", "song": "Heat Waves", "year": "2020", "style": "hazy alt-pop", "notes": "dreamy, drifting texture"}, {"artist": "Zach Bryan", "song": "Something in the Orange", "year": "2022", "style": "stripped-back country/folk storytelling", "notes": "intimate and rough-edged"}, {"artist": "Teddy Swims", "song": "Lose Control", "year": "2023", "style": "soulful pop-rock", "notes": "bluesy vocal and huge emotional crescendos"}], "challenge": [{"order": "1", "artist": "Adele", "song": "Rolling in the Deep", "year": "2010"}, {"order": "2", "artist": "Kendrick Lamar", "song": "Alright", "year": "2015"}, {"order": "3", "artist": "Billie Eilish", "song": "bad guy", "year": "2019"}, {"order": "4", "artist": "BTS", "song": "Dynamite", "year": "2020"}, {"order": "5", "artist": "Zach Bryan", "song": "Something in the Orange", "year": "2022"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "message_card", "songs_heading", "songs_table", "argument_card", "challenge_heading", "challenge_table", "closing_card"]}, "title": {"type": "Text", "props": {"text": "Message You Can Send", "variant": "h1"}, "children": []}, "message_card": {"type": "Card", "props": {}, "children": ["message_stack"]}, "message_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["msg_p1", "msg_p2"]}, "msg_p1": {"type": "Text", "props": {"text": "I get why it can feel that way—mainstream playlists do flatten things a bit, and a lot of pop shares similar production trends. But “all popular music after 2010 sounds the same” doesn’t really hold up once you put a few big songs side by side.", "variant": "body"}, "children": []}, "msg_p2": {"type": "Text", "props": {"text": "Think about how different these are:", "variant": "body"}, "children": []}, "songs_heading": {"type": "Text", "props": {"text": "Examples of how different these songs are", "variant": "h2"}, "children": []}, "songs_table": {"type": "Table", "props": {"columns": [{"key": "artist", "label": "Artist"}, {"key": "song", "label": "Song"}, {"key": "year", "label": "Year"}, {"key": "style", "label": "Style"}, {"key": "notes", "label": "What stands out"}], "statePath": "/songs", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "song", "highlightColumns": ["artist", "style"], "sourceFormat": "plain"}, "children": []}, "argument_card": {"type": "Card", "props": {}, "children": ["argument_stack"]}, "argument_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["arg_p1", "arg_p2", "arg_p3", "arg_p4"]}, "arg_p1": {"type": "Text", "props": {"text": "That’s soul-pop, indie pop, jazz-rap, synth-pop, minimalist alt-pop, disco-pop, rap, dreamy alt-pop, country-folk, and soul-rock—all in the “popular music after 2010” bucket.", "variant": "body"}, "children": []}, "arg_p2": {"type": "Text", "props": {"text": "I do think your point is partly fair: streaming, playlist culture, and certain production tools have made some songs converge around familiar beats, vocal effects, and structures. So yes, there are trends.", "variant": "body"}, "children": []}, "arg_p3": {"type": "Text", "props": {"text": "But trends aren’t the same thing as sameness. It’s more accurate to say popular music often shares a few surface features while still being wildly different in rhythm, vocal style, emotion, instrumentation, and genre roots.", "variant": "body"}, "children": []}, "arg_p4": {"type": "Text", "props": {"text": "A better test might be: if these songs really “all sound the same,” could you honestly confuse “Rolling in the Deep” with “Alright,” or “bad guy” with “Something in the Orange”? Probably not.", "variant": "body"}, "children": []}, "challenge_heading": {"type": "Text", "props": {"text": "5-Song Mini Listening Challenge", "variant": "h2"}, "children": []}, "challenge_table": {"type": "Table", "props": {"columns": [{"key": "order", "label": "Order"}, {"key": "artist", "label": "Artist"}, {"key": "song", "label": "Song"}, {"key": "year", "label": "Year"}], "statePath": "/challenge", "domain": "playlist", "preferredPresentation": "cards", "primaryColumn": "order", "highlightColumns": ["song", "artist"], "title": "Try these back to back, in this order", "sourceFormat": "plain"}, "children": []}, "closing_card": {"type": "Card", "props": {}, "children": ["closing_stack"]}, "closing_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["closing_text"]}, "closing_text": {"type": "Text", "props": {"text": "If those sound “basically the same,” then maybe your friend doesn’t dislike post-2010 music—they just dislike pop radio trends.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

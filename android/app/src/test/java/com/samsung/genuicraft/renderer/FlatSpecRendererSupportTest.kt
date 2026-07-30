@@ -1,6 +1,7 @@
 ﻿package com.samsung.genuicraft.renderer
 
 import com.google.gson.JsonParser
+import java.io.InputStreamReader
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -9,6 +10,118 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FlatSpecRendererSupportTest {
+
+    private fun parityComparable(value: Any?): Any? = when (value) {
+        is Number -> value.toDouble()
+        is Map<*, *> -> value.entries.associate { (key, nested) ->
+            key.toString() to parityComparable(nested)
+        }
+        is List<*> -> value.map(::parityComparable)
+        else -> value
+    }
+
+    @Test
+    fun flatExpressionResolver_matchesSharedV53ParityVectors() {
+        val stream = checkNotNull(
+            javaClass.classLoader?.getResourceAsStream(
+                "flat_expr_parity_vectors.json"
+            )
+        )
+        val corpus = InputStreamReader(stream).use { reader ->
+            JsonParser.parseReader(reader)
+        }.asJsonObject
+        assertEquals("2.0.0", corpus["version"].asString)
+        corpus["vectors"].asJsonArray.forEach { rawVector ->
+            val vector = rawVector.asJsonObject
+            val name = vector["name"].asString
+            @Suppress("UNCHECKED_CAST")
+            val state = FlatSpecParser.toKotlin(vector["state"])
+                as? Map<String, Any?> ?: emptyMap()
+            val item = FlatSpecParser.toKotlin(vector["item"])
+            val index = vector["index"]
+                ?.takeUnless { it.isJsonNull }
+                ?.asInt
+            val basePath = vector["base_path"]
+                ?.takeUnless { it.isJsonNull }
+                ?.asString
+            val expression = FlatSpecParser.toKotlin(vector["expression"])
+            val actual = resolveFlatExpressionForParity(
+                expression = expression,
+                state = state,
+                item = item,
+                index = index,
+                basePath = basePath
+            )
+            if (vector["expected_unknown"]?.asBoolean == true) {
+                assertNull(name, actual)
+            } else {
+                val expected = FlatSpecParser.toKotlin(
+                    vector["expected_value"]
+                )
+                assertEquals(
+                    name,
+                    parityComparable(expected),
+                    parityComparable(actual)
+                )
+            }
+            vector["expected_visible"]
+                ?.takeUnless { it.isJsonNull }
+                ?.let { expectedVisible ->
+                    assertEquals(
+                        name,
+                        expectedVisible.asBoolean,
+                        evaluateFlatVisibilityForParity(
+                            expression = expression,
+                            state = state,
+                            item = item,
+                            index = index,
+                            basePath = basePath
+                        )
+                    )
+                }
+        }
+    }
+
+    @Test
+    fun flatExpressionResolver_matchesSharedV54ParityVectors() {
+        val stream = checkNotNull(
+            javaClass.classLoader?.getResourceAsStream(
+                "flat_expr_parity_vectors_v5_4.json"
+            )
+        )
+        val corpus = InputStreamReader(stream).use { reader ->
+            JsonParser.parseReader(reader)
+        }.asJsonObject
+        assertEquals("3.0.0", corpus["version"].asString)
+        corpus["vectors"].asJsonArray.forEach { rawVector ->
+            val vector = rawVector.asJsonObject
+            val name = vector["name"].asString
+            @Suppress("UNCHECKED_CAST")
+            val state = FlatSpecParser.toKotlin(vector["state"])
+                as? Map<String, Any?> ?: emptyMap()
+            val item = FlatSpecParser.toKotlin(vector["item"])
+            val index = vector["index"]
+                ?.takeUnless { it.isJsonNull }
+                ?.asInt
+            val basePath = vector["base_path"]
+                ?.takeUnless { it.isJsonNull }
+                ?.asString
+            val expression = FlatSpecParser.toKotlin(vector["expression"])
+            val actual = resolveFlatExpressionForParity(
+                expression = expression,
+                state = state,
+                item = item,
+                index = index,
+                basePath = basePath
+            )
+            val expected = FlatSpecParser.toKotlin(vector["expected_value"])
+            assertEquals(
+                name,
+                parityComparable(expected),
+                parityComparable(actual)
+            )
+        }
+    }
 
     @Test
     fun resolveCoilMediaModel_mapsAssetPathsToAndroidAssetUris() {

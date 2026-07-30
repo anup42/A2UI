@@ -1,0 +1,66 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-07-01T05:31:14Z",
+  "run_id": "score_calibration_native_generated_20260701_base",
+  "stage": 2,
+  "repo": {
+    "release_version": "0.1.0",
+    "components": {
+      "pipeline": "0.1.0",
+      "renderer": "0.1.0",
+      "visualizer": "0.1.0",
+      "schema": "0.9.0",
+      "prompts": "0.1.0",
+      "metrics": "0.1.0"
+    },
+    "compatibility": {
+      "genui_schema": "v0.9",
+      "min_manifest_version": 1
+    },
+    "git_commit": "1fcd24eea7df805f35a6f85119f2f6fc7c4d8cd1",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "model": {
+    "name": "gemini_2_5_flash",
+    "provider": "gemini",
+    "model": "gemini-2.5-flash"
+  },
+  "config": {
+    "files": {
+      "configs\\run.yaml": "732274de8202455755558a0a357e3e041c6e15ab4dc87252e987ffac08e766a4",
+      "configs\\models.yaml": "3a952cdb89347bd3e9dcb666c3a98e3d9f4cd2370df06e06dbf723c31172181e"
+    },
+    "combined_sha256": "8dd997a96a661ad7d52fd412de320f2969eccca0b6daad481791bfc16ca51b9d"
+  },
+  "paths": {
+    "run_dir": "data\\runs\\score_calibration_native_generated_20260701_base",
+    "queries_path": "data\\runs\\score_calibration_native_generated_20260701_base\\queries.jsonl",
+    "responses_path": "data\\runs\\score_calibration_native_generated_20260701_base\\responses.jsonl",
+    "genui_path": "data\\runs\\score_calibration_native_generated_20260701_base\\genui.jsonl",
+    "metrics_path": "data\\runs\\score_calibration_native_generated_20260701_base\\metrics.jsonl",
+    "aggregates_path": "data\\runs\\score_calibration_native_generated_20260701_base\\aggregates.json",
+    "artifacts_dir": "data\\runs\\score_calibration_native_generated_20260701_base\\artifacts",
+    "manifest_path": "data\\runs\\score_calibration_native_generated_20260701_base\\run_manifest.json"
+  },
+  "command": {
+    "argv": [
+      "src/main.py",
+      "--stage",
+      "2",
+      "--model",
+      "gemini_2_5_flash",
+      "--run_id",
+      "score_calibration_native_generated_20260701_base",
+      "--max_responses_total",
+      "10",
+      "--stage2_batch_size",
+      "2",
+      "--stage2_response_batch_size",
+      "1",
+      "--rate_limit_qps",
+      "0.5"
+    ],
+    "cwd": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset"
+  }
+}

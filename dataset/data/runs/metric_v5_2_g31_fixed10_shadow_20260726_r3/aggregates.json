@@ -1,0 +1,102 @@
+{
+  "active_cap_rate": 0.6,
+  "binding_cap_rate": 0.4,
+  "calibration_status": "uncalibrated_engineering_score",
+  "contract_count_only_rate": 0.1,
+  "count": 10,
+  "created_at": "2026-07-26T16:36:12.317795+00:00",
+  "diagnostic_correlations": {
+    "completion_length_vs_v5_2_final": 0.09657490234597872,
+    "component_count_vs_v5_2_final": 0.11656941100624409,
+    "not_score_inputs": true
+  },
+  "dynamic_unknown_rate": 0.0,
+  "elapsed_seconds": 6.3937281999969855,
+  "immutable": true,
+  "limitations": [
+    "Ten rows are insufficient for weight learning or calibration.",
+    "No human equal-interval calibration is claimed.",
+    "Native-render evidence is present only for attempted renders."
+  ],
+  "matching_uncertified_rate": 0.0,
+  "metric_fingerprint": "29cc8078ef1564f9a71d2d02c5e3d30bd33b2444f790dc145a74704700d7281a",
+  "metric_name": "GenUI Representation Quality",
+  "metric_version": "5.2.0",
+  "native_render_attempt_rate": 0.0,
+  "samples_per_second": 1.564032703173825,
+  "shadow_only": true,
+  "source_files_modified": false,
+  "source_genui_sha256": "47aa3d9a25b6a7e9bffcbcac12f22cba2b747e2d597acfd2010934594990c6cc",
+  "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\metric_v5_g31_fixed10_20260726_gemini_3_1_flash_lite",
+  "v5_1_final": {
+    "count": 10,
+    "mean": 80.13155371649476,
+    "median": 80.4441197405796,
+    "q05": 55.75,
+    "q25": 75.0,
+    "q75": 90.06723024593039,
+    "q95": 97.97714623387475,
+    "sd": 16.014015560870007
+  },
+  "v5_1_generation": {
+    "count": 10,
+    "mean": 78.23575950411796,
+    "median": 78.82820944441457,
+    "q05": 54.08599165703999,
+    "q25": 75.0,
+    "q75": 87.11178674510472,
+    "q95": 94.93144430269722,
+    "sd": 15.04911484441172
+  },
+  "v5_2_final": {
+    "count": 10,
+    "mean": 79.58780412075177,
+    "median": 80.1262408032529,
+    "q05": 53.81345759297725,
+    "q25": 75.0,
+    "q75": 89.86066469243922,
+    "q95": 97.95209543828094,
+    "sd": 16.165940455566666
+  },
+  "v5_2_final_minus_generation": {
+    "count": 10,
+    "mean": 1.9015143364477567,
+    "median": 2.970007166357206,
+    "q05": 0.0,
+    "q25": 0.0,
+    "q75": 3.099510603588911,
+    "q95": 3.471908243163041,
+    "sd": 1.5675068110825667
+  },
+  "v5_2_generation": {
+    "count": 10,
+    "mean": 77.68628978430401,
+    "median": 78.62228301961174,
+    "q05": 52.11398884352886,
+    "q25": 75.0,
+    "q75": 86.76115408885032,
+    "q95": 94.9279201618626,
+    "sd": 15.252510736067286
+  },
+  "v5_2_minus_v5_1_final": {
+    "count": 10,
+    "mean": -0.5437495957429987,
+    "median": -0.02277345053982316,
+    "q05": -2.6823438339762555,
+    "q25": -0.2461980570441078,
+    "q75": 0.0,
+    "q95": 0.0,
+    "sd": 1.3565198373761682
+  },
+  "v5_2_minus_v5_1_generation": {
+    "count": 10,
+    "mean": -0.5494697198139675,
+    "median": -0.003203764395102837,
+    "q05": -2.5955594432805884,
+    "q25": -0.3506326562544224,
+    "q75": 0.0,
+    "q95": 0.0,
+    "sd": 1.288234556032987
+  },
+  "weight_learning_performed": false
+}

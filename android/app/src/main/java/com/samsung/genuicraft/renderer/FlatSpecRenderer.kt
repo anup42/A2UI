@@ -329,6 +329,7 @@ private val LocalFlatSpecTextHorizontalPadding = staticCompositionLocalOf { 16.d
 private const val WATCH_ACTION_BUDGET = 32
 private val IMAGE_PROP_KEYS = listOf("url", "src", "image", "source", "name")
 private val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
+private val MEDIA_PROP_KEYS = listOf("url", "src", "source", "name")
 private val MEDIA_OBJECT_KEYS = listOf("uri", "url", "src", "path", "value", "source", "image", "icon", "name")
 private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data")
 private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
@@ -490,9 +491,18 @@ object FlatSpecParser {
             when {
                 primitive.isBoolean -> primitive.asBoolean
                 primitive.isNumber -> {
-                    val number = primitive.asNumber
-                    val asLong = number.toLong()
-                    if (asLong.toDouble() == number.toDouble()) asLong else number.toDouble()
+                    // Preserve the JSON numeric representation used by
+                    // Kotlin equality. `3` is Long while `3.0`/`3e0` is
+                    // Double; collapsing both to Long makes renderer
+                    // `eq` disagree with Python and with Kotlin itself.
+                    val lexical = primitive.toString()
+                    if (lexical.contains('.') ||
+                        lexical.contains('e', ignoreCase = true)
+                    ) {
+                        primitive.asDouble
+                    } else {
+                        primitive.asLong
+                    }
                 }
                 else -> primitive.asString
             }
@@ -722,7 +732,9 @@ private fun deepEquals(left: Any?, right: Any?): Boolean {
     if (left == null || right == null) return false
     if (left is Map<*, *> && right is Map<*, *>) {
         if (left.size != right.size) return false
-        return left.keys.all { key -> deepEquals(left[key], right[key]) }
+        return left.keys.all { key ->
+            right.containsKey(key) && deepEquals(left[key], right[key])
+        }
     }
     if (left is List<*> && right is List<*>) {
         if (left.size != right.size) return false
@@ -998,6 +1010,36 @@ object FlatExprResolver {
         }
     }
 }
+
+/**
+ * Test-accessible parity boundary shared with the metric's checked-in JSON
+ * vectors. Production rendering uses the same resolver and built-ins.
+ */
+internal fun resolveFlatExpressionForParity(
+    expression: Any?,
+    state: Map<String, Any?>,
+    item: Any?,
+    index: Int?,
+    basePath: String?
+): Any? = FlatExprResolver.resolve(
+    expression,
+    state,
+    RepeatScope(item = item, index = index, basePath = basePath),
+    DefaultComputedFunctions
+)
+
+internal fun evaluateFlatVisibilityForParity(
+    expression: Any?,
+    state: Map<String, Any?>,
+    item: Any?,
+    index: Int?,
+    basePath: String?
+): Boolean = FlatExprResolver.evaluateVisible(
+    expression,
+    state,
+    RepeatScope(item = item, index = index, basePath = basePath),
+    DefaultComputedFunctions
+)
 
 internal object FlatActionRuntime {
 
@@ -15191,7 +15233,7 @@ private fun RenderVideo(
     modifier: Modifier = Modifier
 ) {
     val url = SafeContentPolicy.sanitizeMediaUrl(
-        props["url"]?.toString().orEmpty(),
+        resolveMediaUrlCandidate(props, MEDIA_PROP_KEYS),
         SafeContentPolicy.MediaKind.VIDEO
     ).orEmpty()
     if (url.isBlank()) return
@@ -15228,7 +15270,7 @@ private fun RenderAudioPlayer(
     modifier: Modifier = Modifier
 ) {
     val url = SafeContentPolicy.sanitizeMediaUrl(
-        props["url"]?.toString().orEmpty(),
+        resolveMediaUrlCandidate(props, MEDIA_PROP_KEYS),
         SafeContentPolicy.MediaKind.AUDIO
     ).orEmpty()
     if (url.isBlank()) return

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"programRows": [{"timeSgt": "08:30-09:00", "session": "Registration", "format": "Check-in", "roomAssignment": "Foyer / Main Hall Entrance", "notes": "Badge pickup, welcome desk, directional signage"}, {"timeSgt": "09:00-09:15", "session": "Opening Remarks", "format": "Plenary", "roomAssignment": "Main Hall", "notes": "All attendees"}, {"timeSgt": "09:15-10:00", "session": "Keynote Address", "format": "Plenary", "roomAssignment": "Main Hall", "notes": "No parallel sessions"}, {"timeSgt": "10:00-10:20", "session": "Coffee Break", "format": "Break", "roomAssignment": "Foyer", "notes": "Refreshments and informal mingling"}, {"timeSgt": "10:20-11:00", "session": "Breakout Session 1A", "format": "Parallel talks", "roomAssignment": "Breakout Room 1", "notes": "Research Track A"}, {"timeSgt": "10:20-11:00", "session": "Breakout Session 1B", "format": "Parallel talks", "roomAssignment": "Breakout Room 2", "notes": "Research Track B"}, {"timeSgt": "10:20-11:00", "session": "Breakout Session 1C", "format": "Parallel talks", "roomAssignment": "Breakout Room 3", "notes": "Research Track C"}, {"timeSgt": "11:00-11:10", "session": "Transition Buffer", "format": "Buffer", "roomAssignment": "All breakout areas", "notes": "Room change and AV reset"}, {"timeSgt": "11:10-11:50", "session": "Breakout Session 2A", "format": "Parallel talks", "roomAssignment": "Breakout Room 1", "notes": "Research Track D"}, {"timeSgt": "11:10-11:50", "session": "Breakout Session 2B", "format": "Parallel talks", "roomAssignment": "Breakout Room 2", "notes": "Research Track E"}, {"timeSgt": "11:10-11:50", "session": "Breakout Session 2C", "format": "Parallel talks", "roomAssignment": "Breakout Room 3", "notes": "Research Track F"}, {"timeSgt": "11:50-12:00", "session": "Transition Buffer", "format": "Buffer", "roomAssignment": "All rooms", "notes": "Move to lunch area"}, {"timeSgt": "12:00-13:00", "session": "Lunch", "format": "Meal break", "roomAssignment": "Dining Area / Foyer", "notes": "Buffet or boxed lunch"}, {"timeSgt": "13:00-14:00", "session": "Poster Session", "format": "Poster showcase", "roomAssignment": "Main Hall", "notes": "Poster boards around perimeter; all attendees circulate"}, {"timeSgt": "14:00-14:15", "session": "Transition Buffer", "format": "Buffer", "roomAssignment": "Main Hall", "notes": "Reset seating for panel"}, {"timeSgt": "14:15-15:00", "session": "Panel Discussion", "format": "Plenary", "roomAssignment": "Main Hall", "notes": "No parallel sessions"}, {"timeSgt": "15:00-15:20", "session": "Coffee Break", "format": "Break", "roomAssignment": "Foyer", "notes": "Refreshments before workshops"}, {"timeSgt": "15:20-16:20", "session": "Workshop Block W1", "format": "Interactive workshop", "roomAssignment": "Breakout Room 1", "notes": "Methods / tools workshop"}, {"timeSgt": "15:20-16:20", "session": "Workshop Block W2", "format": "Interactive workshop", "roomAssignment": "Breakout Room 2", "notes": "Writing / publishing workshop"}, {"timeSgt": "15:20-16:20", "session": "Workshop Block W3", "format": "Interactive workshop", "roomAssignment": "Breakout Room 3", "notes": "Industry / innovation workshop"}, {"timeSgt": "16:20-16:30", "session": "Transition Buffer", "format": "Buffer", "roomAssignment": "Main Hall", "notes": "Return to plenary seating"}, {"timeSgt": "16:30-16:45", "session": "Closing Remarks", "format": "Plenary", "roomAssignment": "Main Hall", "notes": "No parallel sessions"}, {"timeSgt": "16:45-17:30", "session": "Networking Reception", "format": "Networking", "roomAssignment": "Main Hall + Foyer", "notes": "Light refreshments, speaker meet-and-greet"}], "setupRows": [{"topic": "Room flow", "details": "Use Main Hall for all plenary items and poster session; reserve Breakout Rooms 1-3 for morning parallel sessions and the afternoon workshop block."}, {"topic": "Attendance planning", "details": "With 120 attendees, assume roughly 40 per breakout room; prepare overflow chairs and one floating staff member for room balancing."}, {"topic": "Poster layout", "details": "Place poster boards in the Main Hall perimeter or adjacent foyer so attendees can circulate easily without needing another room move."}, {"topic": "Buffer protection", "details": "Keep the 11:00-11:10, 11:50-12:00, 14:00-14:15, and 16:20-16:30 buffers intact for AV reset, speaker changeover, and crowd movement."}, {"topic": "AV staffing", "details": "Assign one AV lead in the Main Hall and one roaming technician for the 3 breakout rooms during parallel sessions."}, {"topic": "Signage", "details": "Use color-coded signs for Breakout Rooms 1-3 and print the room map on badges or the event handout."}], "sourceRows": [{"source": "Time zone reference for Singapore", "url": "https://www.timeanddate.com/time/zone/singapore", "actionLabel": "Open source"}, {"source": "Singapore local time overview", "url": "https://www.timeanddate.com/worldclock/singapore/singapore", "actionLabel": "Open source"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "overviewCard", "programSection", "setupSection", "actionsSection", "sourcesSection"]}, "title": {"type": "Text", "props": {"text": "Research Symposium Schedule Overview", "variant": "h1"}, "children": []}, "overviewCard": {"type": "Card", "props": {}, "children": ["overviewStack"]}, "overviewStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["overviewDate", "overviewMeta1", "overviewMeta2", "overviewMeta3"]}, "overviewDate": {"type": "Text", "props": {"text": "One-day university research symposium for 2026-10-14 in Singapore Time (SGT, UTC+8).", "variant": "body"}, "children": []}, "overviewMeta1": {"type": "Text", "props": {"text": "Planned for 120 attendees.", "variant": "body"}, "children": []}, "overviewMeta2": {"type": "Text", "props": {"text": "Venue layout: 1 Main Hall and 3 Breakout Rooms.", "variant": "body"}, "children": []}, "overviewMeta3": {"type": "Text", "props": {"text": "The schedule keeps keynote, panel, and closing fully conflict-free and uses buffer time where feasible.", "variant": "body"}, "children": []}, "programSection": {"type": "Card", "props": {}, "children": ["programStack"]}, "programStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["programHeading", "programIntro", "programTable"]}, "programHeading": {"type": "Text", "props": {"text": "Symposium Program Table", "variant": "h2"}, "children": []}, "programIntro": {"type": "Text", "props": {"text": "All session times are listed in SGT with plenary, breakout, buffer, meal, and networking blocks preserved in schedule order.", "variant": "body"}, "children": []}, "programTable": {"type": "Table", "props": {"columns": [{"key": "timeSgt", "label": "Time (SGT)"}, {"key": "session", "label": "Session"}, {"key": "format", "label": "Format"}, {"key": "roomAssignment", "label": "Room Assignment"}, {"key": "notes", "label": "Notes"}], "statePath": "/programRows", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "timeSgt", "highlightColumns": ["session", "roomAssignment"], "sourceFormat": "markdown"}, "children": []}, "setupSection": {"type": "Card", "props": {}, "children": ["setupStack"]}, "setupStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["setupHeading", "setupTable"]}, "setupHeading": {"type": "Text", "props": {"text": "Organizer Setup Notes", "variant": "h2"}, "children": []}, "setupTable": {"type": "Table", "props": {"columns": [{"key": "topic", "label": "Topic"}, {"key": "details", "label": "Details"}], "statePath": "/setupRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "topic", "highlightColumns": ["topic"]}, "children": []}, "actionsSection": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actionsHeading", "actionsButtons"]}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsButtons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["copyScheduleButton", "venueTimeCheckButton"]}, "copyScheduleButton": {"type": "Button", "props": {"label": "Copy Schedule", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.timeanddate.com/worldclock/singapore/singapore"}}}}, "venueTimeCheckButton": {"type": "Button", "props": {"label": "Venue Time Check", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.timeanddate.com/time/zone/singapore"}}}}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourcesTable"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesTable": {"type": "Table", "props": {"columns": [{"key": "source", "label": "Source"}, {"key": "url", "label": "URL"}, {"key": "actionLabel", "label": "Action"}], "statePath": "/sourceRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "source", "highlightColumns": ["actionLabel"]}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,242 @@
+"""Shared candidate parsing, production canonicalization, and strict validation."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from functools import lru_cache
+import hashlib
+import json
+from pathlib import Path
+from typing import Any, Mapping
+
+from ..flat_spec_contract import (
+    coerce_and_validate,
+    extract_json_element,
+    normalize_to_flat_spec,
+)
+from ._core import completion_to_text
+from .graph import audit_renderer_graph
+
+
+NORMALIZATION_POLICY_VERSION = "1.0.1"
+DEFAULT_STRICT_SCHEMA_PATH = (
+    Path(__file__).resolve().parents[3] / "schema" / "genui_flatspec.schema.json"
+)
+STRICT_TOP_LEVEL_PROPERTIES = frozenset({"root", "state", "elements"})
+
+
+@dataclass(frozen=True)
+class CandidateNormalizationResult:
+    raw_parse_ok: bool
+    canonical_spec: dict[str, Any] | None
+    production_valid: bool
+    strict_schema_valid: bool
+    converted_from_legacy: bool
+    raw_format_utility: float
+    errors: tuple[str, ...]
+    raw_hash: str
+    canonical_hash: str | None
+
+
+def _canonical_json(value: Any) -> str:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
+def _hash_text(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _raw_identity(completion: Any) -> tuple[str, str]:
+    if isinstance(completion, (Mapping, list, tuple)):
+        try:
+            value = _canonical_json(completion)
+            return value, _hash_text(value)
+        except (TypeError, ValueError):
+            pass
+    value = completion_to_text(completion)
+    return value, _hash_text(value)
+
+
+@lru_cache(maxsize=8)
+def _load_schema_at_state(path: str, mtime_ns: int, size: int) -> dict[str, Any]:
+    del mtime_ns, size
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _schema_state(path: str) -> tuple[str, int, int]:
+    resolved = Path(path).resolve()
+    stat = resolved.stat()
+    return str(resolved), stat.st_mtime_ns, stat.st_size
+
+
+def _load_schema(path: str) -> dict[str, Any]:
+    return _load_schema_at_state(*_schema_state(path))
+
+
+@lru_cache(maxsize=8)
+def _validator_at_state(path: str, mtime_ns: int, size: int) -> Any:
+    try:
+        import jsonschema  # type: ignore
+    except ImportError:
+        return None
+    return jsonschema.Draft202012Validator(
+        _load_schema_at_state(path, mtime_ns, size)
+    )
+
+
+def _validator(path: str) -> Any:
+    return _validator_at_state(*_schema_state(path))
+
+
+def load_strict_schema(path: Path | None = None) -> dict[str, Any]:
+    resolved = str((path or DEFAULT_STRICT_SCHEMA_PATH).resolve())
+    return dict(_load_schema(resolved))
+
+
+def _strict_validate(
+    value: Any,
+    schema: Mapping[str, Any] | None,
+) -> tuple[bool, list[str]]:
+    if not isinstance(value, Mapping):
+        return False, ["strict_schema.non_object"]
+    try:
+        import jsonschema  # type: ignore
+    except ImportError:
+        required = {"root", "elements"}
+        unknown = set(value) - STRICT_TOP_LEVEL_PROPERTIES
+        ok = required.issubset(value) and not unknown
+        return ok, ([] if ok else ["strict_schema.validator_unavailable_shape_failure"])
+
+    if schema is None:
+        validator = _validator(str(DEFAULT_STRICT_SCHEMA_PATH.resolve()))
+    else:
+        validator = jsonschema.Draft202012Validator(dict(schema))
+    assert validator is not None
+    failures = sorted(validator.iter_errors(dict(value)), key=lambda item: list(item.path))
+    return (
+        not failures,
+        [
+            "strict_schema."
+            + (".".join(str(part) for part in failure.path) or "root")
+            + ":"
+            + failure.validator
+            for failure in failures
+        ],
+    )
+
+
+def _parse_completion(completion: Any, raw_text: str) -> tuple[Any, bool, str | None]:
+    if isinstance(completion, Mapping):
+        return dict(completion), True, None
+    if isinstance(completion, (list, tuple)):
+        return list(completion), True, None
+    if not raw_text.strip():
+        return None, False, "parse.empty_completion"
+    try:
+        return extract_json_element(raw_text), True, None
+    except Exception as exc:
+        return None, False, f"parse.invalid_json:{type(exc).__name__}"
+
+
+def normalize_and_validate_candidate(
+    completion: Any,
+    *,
+    strict_schema: Mapping[str, Any] | None = None,
+) -> CandidateNormalizationResult:
+    """Apply one authoritative candidate boundary for every metric caller."""
+
+    raw_text, raw_hash = _raw_identity(completion)
+    parsed, raw_parse_ok, parse_error = _parse_completion(completion, raw_text)
+    errors: list[str] = []
+    if parse_error:
+        errors.append(parse_error)
+    if not raw_parse_ok or not isinstance(parsed, (Mapping, list)):
+        if raw_parse_ok:
+            errors.append("parse.non_object")
+        return CandidateNormalizationResult(
+            raw_parse_ok=False,
+            canonical_spec=None,
+            production_valid=False,
+            strict_schema_valid=False,
+            converted_from_legacy=False,
+            raw_format_utility=0.0,
+            errors=tuple(errors),
+            raw_hash=raw_hash,
+            canonical_hash=None,
+        )
+
+    strict_valid, strict_errors = _strict_validate(parsed, strict_schema)
+    errors.extend(strict_errors)
+    if isinstance(parsed, Mapping):
+        for key in sorted(set(parsed) - STRICT_TOP_LEVEL_PROPERTIES):
+            errors.append(f"strict_schema.unknown_top_level_property:{key}")
+
+    coerce_result = coerce_and_validate(parsed)
+    canonical_spec = coerce_result.spec
+    production_valid = coerce_result.is_valid
+    converted_from_legacy = bool(coerce_result.converted_from_legacy)
+    if not production_valid:
+        errors.append(f"production_validation:{coerce_result.error or 'failed'}")
+        normalized = normalize_to_flat_spec(parsed)
+        canonical_spec = normalized.spec
+        converted_from_legacy = bool(normalized.converted_from_legacy)
+
+    if canonical_spec is not None:
+        audit = audit_renderer_graph(canonical_spec)
+        if not audit.root_exists:
+            production_valid = False
+            errors.append("renderer_reference.missing_root")
+        if audit.missing_references:
+            production_valid = False
+            for target in sorted(audit.missing_references):
+                errors.append(f"renderer_reference.missing:{target}")
+        if audit.cycle_edges:
+            production_valid = False
+            for source, target in sorted(audit.cycle_edges):
+                errors.append(f"renderer_reference.cycle:{source}->{target}")
+
+    canonical_hash: str | None = None
+    if canonical_spec is not None:
+        try:
+            canonical_hash = _hash_text(_canonical_json(canonical_spec))
+        except (TypeError, ValueError):
+            canonical_spec = None
+            production_valid = False
+            errors.append("canonicalization.non_finite_or_non_json")
+
+    raw_format_utility = (
+        1.0
+        if strict_valid and production_valid
+        else 0.80
+        if production_valid
+        else 0.35
+        if canonical_spec is not None
+        else 0.0
+    )
+    return CandidateNormalizationResult(
+        raw_parse_ok=True,
+        canonical_spec=canonical_spec,
+        production_valid=production_valid,
+        strict_schema_valid=strict_valid,
+        converted_from_legacy=converted_from_legacy,
+        raw_format_utility=raw_format_utility,
+        errors=tuple(dict.fromkeys(errors)),
+        raw_hash=raw_hash,
+        canonical_hash=canonical_hash,
+    )
+
+
+__all__ = [
+    "CandidateNormalizationResult",
+    "DEFAULT_STRICT_SCHEMA_PATH",
+    "NORMALIZATION_POLICY_VERSION",
+    "STRICT_TOP_LEVEL_PROPERTIES",
+    "load_strict_schema",
+    "normalize_and_validate_candidate",
+]

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2ui.local/schema/genui_codex_packet_v2.schema.json",
+  "title": "Blinded Single-Codex GenUI packet v2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "packet_id",
+    "pass_type",
+    "protocol_fingerprint",
+    "screenshots",
+    "rubric"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "genui_single_codex_blinded_packet.v2"
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pass_type": {
+      "enum": [
+        "screenshot_only",
+        "source_conditioned"
+      ]
+    },
+    "protocol_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "screenshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "asset",
+          "sha256",
+          "viewport_profile",
+          "capture_kind",
+          "state_id"
+        ],
+        "properties": {
+          "asset": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "viewport_profile": {
+            "type": "string"
+          },
+          "capture_kind": {
+            "type": "string"
+          },
+          "state_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "source_text": {
+      "type": "string"
+    },
+    "expected_ui_contract": {
+      "type": "object"
+    },
+    "rubric": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "pass_type": {
+            "const": "source_conditioned"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "source_text",
+          "expected_ui_contract"
+        ]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "source_text"
+              ]
+            },
+            {
+              "required": [
+                "expected_ui_contract"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

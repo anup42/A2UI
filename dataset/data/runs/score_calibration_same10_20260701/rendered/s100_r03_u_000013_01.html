@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"monthlyPerformance": [{"month": "2025-01", "revenue": "38,200", "units": "755", "avgRevenuePerUnit": "50.60"}, {"month": "2025-02", "revenue": "40,200", "units": "791", "avgRevenuePerUnit": "50.82"}, {"month": "2025-03", "revenue": "42,100", "units": "817", "avgRevenuePerUnit": "51.53"}], "revenueTrend": [{"month": "2025-01", "totalRevenue": "38,200"}, {"month": "2025-02", "totalRevenue": "40,200"}, {"month": "2025-03", "totalRevenue": "42,100"}], "revenueMix": [{"month": "2025-01", "northStandard": "12400", "southStandard": "9800", "northPremium": "7600", "southPremium": "8400"}, {"month": "2025-02", "northStandard": "13100", "southStandard": "10100", "northPremium": "7900", "southPremium": "9100"}, {"month": "2025-03", "northStandard": "12700", "southStandard": "10900", "northPremium": "8800", "southPremium": "9700"}], "regionalRevenue": [{"month": "Jan", "northRevenue": "20,000", "southRevenue": "18,200", "gap": "1,800"}, {"month": "Feb", "northRevenue": "21,000", "southRevenue": "19,200", "gap": "1,800"}, {"month": "Mar", "northRevenue": "21,500", "southRevenue": "20,600", "gap": "900"}], "calculationNotes": [{"metric": "North total revenue", "value": "62,500"}, {"metric": "South total revenue", "value": "58,000"}, {"metric": "Standard total revenue", "value": "68,900"}, {"metric": "Premium total revenue", "value": "51,600"}, {"metric": "North total units", "value": "1,257"}, {"metric": "South total units", "value": "1,106"}, {"metric": "Standard total units", "value": "1,720"}, {"metric": "Premium total units", "value": "643"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "monthlySection", "chartsSection", "insightsSection", "actionsSection", "calculationSection", "sourcesSection"]}, "title": {"type": "Text", "props": {"text": "Monthly Sales Dashboard Snapshot", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroIntro", "metricsRow1", "metricsRow2", "heroNote"]}, "heroIntro": {"type": "Text", "props": {"text": "Here are the headline metrics from the dataset for Jan–Mar 2025.", "variant": "body"}, "children": []}, "metricsRow1": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["metricRevenue", "metricUnits"]}, "metricRevenue": {"type": "Text", "props": {"text": "Total revenue: 79,500", "variant": "chip"}, "children": []}, "metricUnits": {"type": "Text", "props": {"text": "Total units: 2,363", "variant": "chip"}, "children": []}, "metricsRow2": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["metricAvg", "metricBest"]}, "metricAvg": {"type": "Text", "props": {"text": "Overall average revenue per unit: 33.64", "variant": "chip"}, "children": []}, "metricBest": {"type": "Text", "props": {"text": "Best month by revenue: 2025-03 with 42,100 (corrected from the conflicting note)", "variant": "chip"}, "children": []}, "heroNote": {"type": "Text", "props": {"text": "Monthly revenue, units, and average revenue per unit all increased steadily across the quarter.", "variant": "body"}, "children": []}, "monthlySection": {"type": "Card", "props": {}, "children": ["monthlyStack"]}, "monthlyStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["monthlyHeading", "monthlyTable", "takeawaysText"]}, "monthlyHeading": {"type": "Text", "props": {"text": "Monthly Performance Breakdown", "variant": "h2"}, "children": []}, "monthlyTable": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "revenue", "label": "Revenue"}, {"key": "units", "label": "Units"}, {"key": "avgRevenuePerUnit", "label": "Avg Revenue/Unit"}], "statePath": "/monthlyPerformance", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "month", "highlightColumns": ["revenue", "avgRevenuePerUnit"], "numericColumns": ["revenue", "units", "avgRevenuePerUnit"], "sourceFormat": "markdown"}, "children": []}, "takeawaysText": {"type": "Text", "props": {"text": "Key segment takeaways: Revenue grew each month: 38,200 → 40,200 → 42,100. Units also grew each month: 755 → 791 → 817. Average revenue per unit improved steadily, suggesting a healthier product mix or pricing realization.", "variant": "body"}, "children": []}, "chartsSection": {"type": "Card", "props": {}, "children": ["chartsStack"]}, "chartsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["chartsHeading", "chart1Header", "chart1Text", "chart1Table", "chart2Header", "chart2Text", "chart2Table"]}, "chartsHeading": {"type": "Text", "props": {"text": "Recommended Dashboard Charts", "variant": "h2"}, "children": []}, "chart1Header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["chart1Icon", "chart1Title"]}, "chart1Icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_1_graph-up.svg"}, "children": []}, "chart1Title": {"type": "Text", "props": {"text": "Chart 1: Monthly Revenue Trend", "variant": "h3"}, "children": []}, "chart1Text": {"type": "Text", "props": {"text": "Use a line chart with X-axis: Month and Y-axis: Total revenue. Why this works: Best for showing the clear month-over-month growth pattern and gives an easy executive KPI view for the top of the dashboard.", "variant": "body"}, "children": []}, "chart1Table": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "totalRevenue", "label": "Total revenue"}], "statePath": "/revenueTrend", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "month", "numericColumns": ["totalRevenue"]}, "children": []}, "chart2Header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["chart2Icon", "chart2Title"]}, "chart2Icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_2_bar-chart.svg"}, "children": []}, "chart2Title": {"type": "Text", "props": {"text": "Chart 2: Revenue Mix by Region and Product", "variant": "h3"}, "children": []}, "chart2Text": {"type": "Text", "props": {"text": "Use a stacked column chart with X-axis: Month, Y-axis: Revenue, and stacks: North-Standard, South-Standard, North-Premium, South-Premium. Why this works: Shows both total monthly growth and what is driving it, and makes it easy to see that Standard is the bigger volume/revenue base while South Premium is strengthening over time.", "variant": "body"}, "children": []}, "chart2Table": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "northStandard", "label": "North-Standard"}, {"key": "southStandard", "label": "South-Standard"}, {"key": "northPremium", "label": "North-Premium"}, {"key": "southPremium", "label": "South-Premium"}], "statePath": "/revenueMix", "domain": "comparison", "preferredPresentation": "table", "primaryColumn": "month", "highlightColumns": ["northStandard", "southPremium"], "numericColumns": ["northStandard", "southStandard", "northPremium", "southPremium"]}, "children": []}, "insightsSection": {"type": "Card", "props": {}, "children": ["insightsStack"]}, "insightsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["insightsHeading", "insight1Header", "insight1Text", "insight2Header", "insight2Text", "insight3Header", "insight3Text", "regionalTable"]}, "insightsHeading": {"type": "Text", "props": {"text": "Dashboard-Ready Business Insights", "variant": "h2"}, "children": []}, "insight1Header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["insight1Icon", "insight1Title"]}, "insight1Icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_3_calendar.svg"}, "children": []}, "insight1Title": {"type": "Text", "props": {"text": "Insight 1: March is the strongest month so far", "variant": "h3"}, "children": []}, "insight1Text": {"type": "Text", "props": {"text": "Revenue rose from 38,200 in January to 42,100 in March. That is a 10.2% increase over the 3-month period. Units increased from 755 to 817, so growth is not just price-driven.", "variant": "body"}, "children": []}, "insight2Header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["insight2Icon", "insight2Title"]}, "insight2Icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_4_star.svg"}, "children": []}, "insight2Title": {"type": "Text", "props": {"text": "Insight 2: Premium is growing faster than Standard", "variant": "h3"}, "children": []}, "insight2Text": {"type": "Text", "props": {"text": "Premium revenue grew from 16,000 in January to 18,500 in March. That is +15.6%. Standard revenue grew from 22,200 to 23,600. That is +6.3%. This suggests Premium is becoming a stronger growth lever even though Standard remains larger overall.", "variant": "body"}, "children": []}, "insight3Header": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["insight3Icon", "insight3Title"]}, "insight3Icon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_5_geo-alt.svg"}, "children": []}, "insight3Title": {"type": "Text", "props": {"text": "Insight 3: South is closing the gap with North", "variant": "h3"}, "children": []}, "insight3Text": {"type": "Text", "props": {"text": "North revenue was 20,000 in Jan, 21,000 in Feb, and 21,500 in Mar. South revenue was 18,200 in Jan, 19,200 in Feb, and 20,600 in Mar. The gap narrowed from 1,800 in January to 900 in March. South appears to be gaining momentum faster, especially in Premium.", "variant": "body"}, "children": []}, "regionalTable": {"type": "Table", "props": {"columns": [{"key": "month", "label": "Month"}, {"key": "northRevenue", "label": "North revenue"}, {"key": "southRevenue", "label": "South revenue"}, {"key": "gap", "label": "Gap"}], "statePath": "/regionalRevenue", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "month", "highlightColumns": ["gap"], "numericColumns": ["northRevenue", "southRevenue", "gap"]}, "children": []}, "actionsSection": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actionsHeading", "actionsButtons"]}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsButtons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["btnRevenueLine", "btnStackedChart"]}, "btnRevenueLine": {"type": "Button", "props": {"label": "Build revenue line", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.datawrapper.de/"}}}}, "btnStackedChart": {"type": "Button", "props": {"label": "Build stacked chart", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.tableau.com/"}}}}, "calculationSection": {"type": "Card", "props": {}, "children": ["calcStack"]}, "calcStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["calcHeading", "calcTable"]}, "calcHeading": {"type": "Text", "props": {"text": "Calculation Notes", "variant": "h2"}, "children": []}, "calcTable": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "statePath": "/calculationNotes", "domain": "formula", "preferredPresentation": "table", "primaryColumn": "metric", "numericColumns": ["value"]}, "children": []}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourceCaption", "sourceButton"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourceCaption": {"type": "Text", "props": {"text": "Dataset provided in prompt.", "variant": "caption"}, "children": []}, "sourceButton": {"type": "Button", "props": {"label": "Open source", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://datatracker.ietf.org/doc/html/rfc4180"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

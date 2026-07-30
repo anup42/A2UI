@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "root", "state": {"scheduleRows": [{"reminder": "Levothyroxine", "activeDates": "Daily, ongoing", "exactTime": "07:00", "notificationTitle": "Take levothyroxine now", "shortMessageText": "Take levothyroxine on an empty stomach. Wait before breakfast."}, {"reminder": "Vitamin D", "activeDates": "Daily, ongoing", "exactTime": "12:30", "notificationTitle": "Take vitamin D with lunch", "shortMessageText": "Take vitamin D with food at lunch."}, {"reminder": "Amoxicillin dose 1", "activeDates": "2026-07-10 to 2026-07-17", "exactTime": "06:30", "notificationTitle": "Amoxicillin 500 mg — morning dose", "shortMessageText": "Take 1 capsule now. Next doses are later today."}, {"reminder": "Amoxicillin dose 2", "activeDates": "2026-07-10 to 2026-07-17", "exactTime": "14:30", "notificationTitle": "Amoxicillin 500 mg — afternoon dose", "shortMessageText": "Take 1 capsule now. Keep doses evenly spaced today."}, {"reminder": "Amoxicillin dose 3", "activeDates": "2026-07-10 to 2026-07-17", "exactTime": "22:00", "notificationTitle": "Amoxicillin 500 mg — night dose", "shortMessageText": "Take 1 capsule now. This is today’s last antibiotic dose."}], "snoozeRows": [{"medication": "Levothyroxine 07:00", "snoozeOptions": "10 min or 20 min", "latestSnooze": "08:00", "stopRule": "If user taps Taken, cancel any pending snoozes for that dose"}, {"medication": "Vitamin D 12:30", "snoozeOptions": "15 min or 30 min", "latestSnooze": "14:00", "stopRule": "If marked taken, cancel pending snoozes for that dose"}, {"medication": "Amoxicillin 06:30 / 14:30 / 22:00", "snoozeOptions": "15 min only", "latestSnooze": "Up to 60 min after scheduled time", "stopRule": "Stop snoozes immediately after dose is marked taken"}], "missedDoseRows": [{"medication": "Levothyroxine", "becomesMissedWhen": "not confirmed by 08:00", "missedTitle": "Levothyroxine missed", "missedMessage": "You missed today’s levothyroxine reminder. Follow your care plan before taking late."}, {"medication": "Vitamin D", "becomesMissedWhen": "not confirmed by 14:00", "missedTitle": "Vitamin D dose missed", "missedMessage": "You missed today’s vitamin D reminder. You can usually take it later with food if appropriate."}, {"medication": "Amoxicillin", "becomesMissedWhen": "not confirmed within 2 hours of scheduled time", "missedTitle": "Amoxicillin dose missed", "missedMessage": "You missed an amoxicillin dose. Follow your prescription guidance for late doses and do not double up unless instructed."}], "stateRows": [{"state": "scheduled", "rule": "One active state per dose instance"}, {"state": "snoozed", "rule": "One active state per dose instance"}, {"state": "taken", "rule": "Cancel all future notifications for that dose once status becomes taken"}, {"state": "missed", "rule": "Keep the dose card in app as Missed until user logs it or dismisses it"}, {"state": "skipped", "rule": "Cancel all future notifications for that dose once status becomes skipped"}], "blueprintRows": [{"option": "Option 1", "time": "07:00", "medication": "Levothyroxine", "purpose": "Empty-stomach morning reminder", "cadence": "Daily fixed time", "actionLabel": "Create 07:00 alert", "actionUrl": "https://en.wikipedia.org/wiki/Levothyroxine"}, {"option": "Option 2", "time": "12:30", "medication": "Vitamin D", "purpose": "Lunch-time reminder with food", "cadence": "Daily fixed time", "actionLabel": "Create 12:30 alert", "actionUrl": "https://en.wikipedia.org/wiki/Vitamin_D"}, {"option": "Option 3", "time": "06:30 / 14:30 / 22:00", "medication": "Amoxicillin", "purpose": "Three reminders per day for 8 days", "cadence": "Every 8 hours within quiet-hour limits", "actionLabel": "Create antibiotic series", "actionUrl": "https://en.wikipedia.org/wiki/Amoxicillin"}], "sourceRows": [{"source": "Toronto timezone reference", "url": "https://www.iana.org/time-zones", "actionLabel": "Open source"}, {"source": "Levothyroxine medicine overview", "url": "https://medlineplus.gov/druginfo/meds/a682461.html", "actionLabel": "Open source"}, {"source": "Amoxicillin medicine overview", "url": "https://medlineplus.gov/druginfo/meds/a685001.html", "actionLabel": "Open source"}]}, "elements": {"root": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "scheduleHeading", "scheduleTable", "logicHeading", "snoozeCard", "snoozeTable", "missedTable", "duplicateCard", "blueprintHeading", "blueprintTable", "actionsHeading", "actionsCard", "sourcesHeading", "sourcesTable"]}, "title": {"type": "Text", "props": {"text": "Medication Reminder Plan for Toronto", "variant": "h2"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroHeader", "heroText1", "heroText2", "heroText3"]}, "heroHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["bellIcon", "heroHeading"]}, "bellIcon": {"type": "Icon", "props": {"name": "../assets/r_000024_01_1_bell.svg"}, "children": []}, "heroHeading": {"type": "Text", "props": {"text": "Plan summary", "variant": "h3"}, "children": []}, "heroText1": {"type": "Text", "props": {"text": "Context used: one adult in America/Toronto timezone, daily meds at fixed times, and amoxicillin 500 mg every 8 hours from 2026-07-10 through 2026-07-17 inclusive."}, "children": []}, "heroText2": {"type": "Text", "props": {"text": "Quiet hours are 22:00–06:30, so the antibiotic schedule is aligned to avoid overnight alerts."}, "children": []}, "heroText3": {"type": "Text", "props": {"text": "The 8-hour antibiotic cadence is set to 06:30, 14:30, 22:00. On 2026-07-17, the final amoxicillin alert is 22:00."}, "children": []}, "scheduleHeading": {"type": "Text", "props": {"text": "Notification Schedule and Rule Set", "variant": "h2"}, "children": []}, "scheduleTable": {"type": "Table", "props": {"columns": [{"key": "reminder", "label": "Reminder"}, {"key": "activeDates", "label": "Active Dates"}, {"key": "exactTime", "label": "Exact Time"}, {"key": "notificationTitle", "label": "Notification Title"}, {"key": "shortMessageText", "label": "Short Message Text"}], "statePath": "/scheduleRows", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "reminder", "highlightColumns": ["exactTime"], "sourceFormat": "markdown"}, "children": []}, "logicHeading": {"type": "Text", "props": {"text": "Alert Logic for Snooze, Missed Doses, and Duplicates", "variant": "h2"}, "children": []}, "snoozeCard": {"type": "Card", "props": {}, "children": ["snoozeStack"]}, "snoozeStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["snoozeHeading", "snoozeNote1", "snoozeNote2"]}, "snoozeHeading": {"type": "Text", "props": {"text": "Snooze behavior", "variant": "h3"}, "children": []}, "snoozeNote1": {"type": "Text", "props": {"text": "Suggested latest amoxicillin reminders: 06:45, 07:00, 07:15, 07:30; 14:45, 15:00, 15:15, 15:30; 22:15, 22:30, 22:45, 23:00."}, "children": []}, "snoozeNote2": {"type": "Text", "props": {"text": "This keeps the morning antibiotic exactly at quiet-hours end and avoids alerts between 22:01 and 06:29."}, "children": []}, "snoozeTable": {"type": "Table", "props": {"columns": [{"key": "medication", "label": "Medication"}, {"key": "snoozeOptions", "label": "Snooze Options"}, {"key": "latestSnooze", "label": "Latest Snooze"}, {"key": "stopRule", "label": "Stop Rule"}], "statePath": "/snoozeRows", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "medication", "highlightColumns": ["latestSnooze"], "sourceFormat": "plain"}, "children": []}, "missedTable": {"type": "Table", "props": {"columns": [{"key": "medication", "label": "Medication"}, {"key": "becomesMissedWhen", "label": "Becomes Missed When"}, {"key": "missedTitle", "label": "Missed-dose Notification Title"}, {"key": "missedMessage", "label": "Missed-dose Message"}], "statePath": "/missedDoseRows", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "medication", "highlightColumns": ["becomesMissedWhen"], "sourceFormat": "plain"}, "children": []}, "duplicateCard": {"type": "Card", "props": {}, "children": ["duplicateStack"]}, "duplicateStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["duplicateHeading", "dup1", "dup2", "dup3", "dup4", "dup5", "dup6", "dup7"]}, "duplicateHeading": {"type": "Text", "props": {"text": "Duplicate-notification prevention", "variant": "h3"}, "children": []}, "dup1": {"type": "Text", "props": {"text": "Use a unique key per dose instance: user_id + medication + scheduled_datetime_local."}, "children": []}, "dup2": {"type": "Text", "props": {"text": "Do not send the base reminder if the dose was already marked taken early."}, "children": []}, "dup3": {"type": "Text", "props": {"text": "Do not send more than one snooze notification for the same dose at the same timestamp."}, "children": []}, "dup4": {"type": "Text", "props": {"text": "If app or device reconnects and retries queued pushes, suppress any notification whose dose status is no longer scheduled or snoozed."}, "children": []}, "dup5": {"type": "Text", "props": {"text": "If the user logs the same dose from two devices, first successful update wins; later duplicate events should be ignored."}, "children": []}, "dup6": {"type": "Text", "props": {"text": "For daylight-saving or timezone re-evaluation, store both local timezone: America/Toronto and resolved local scheduled datetime for each dose instance."}, "children": []}, "dup7": {"type": "Table", "props": {"columns": [{"key": "state", "label": "State"}, {"key": "rule", "label": "Rule"}], "statePath": "/stateRows", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "state", "sourceFormat": "plain"}, "children": []}, "blueprintHeading": {"type": "Text", "props": {"text": "Daily Notification Blueprint", "variant": "h2"}, "children": []}, "blueprintTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "time", "label": "Time"}, {"key": "medication", "label": "Medication"}, {"key": "purpose", "label": "Purpose"}, {"key": "cadence", "label": "Cadence"}, {"key": "actionLabel", "label": "Action Label"}, {"key": "actionUrl", "label": "Action URL"}], "statePath": "/blueprintRows", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["time"], "sourceFormat": "plain"}, "children": []}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["calendarButton", "timezoneButton"]}, "calendarButton": {"type": "Button", "props": {"label": "Add to calendar", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://calendar.google.com/"}}}}, "timezoneButton": {"type": "Button", "props": {"label": "Review timezone", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.iana.org/time-zones"}}}}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesTable": {"type": "Table", "props": {"columns": [{"key": "source", "label": "Source"}, {"key": "url", "label": "URL"}, {"key": "actionLabel", "label": "Action Label"}], "statePath": "/sourceRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "source", "sourceFormat": "plain"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

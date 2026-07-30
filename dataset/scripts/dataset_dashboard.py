@@ -37,6 +37,87 @@ ProgressCallback = Callable[[dict[str, Any]], None]
 SHUTDOWN_EVENT = threading.Event()
 ACTIVE_PROCESSES: set[subprocess.Popen[str]] = set()
 ACTIVE_PROCESSES_LOCK = threading.Lock()
+DASHBOARD_METRIC_VERSION = "legacy"
+V4_CALIBRATION_STATUS = "uncalibrated_engineering_score"
+V5_CALIBRATION_STATUS = "uncalibrated_engineering_score"
+
+
+def set_dashboard_metric_version(value: str) -> str:
+    normalized = str(value or "legacy").strip().lower()
+    if normalized not in {"legacy", "v4", "v5", "v5_3", "v5_4"}:
+        raise ValueError(
+            "dashboard metric version must be legacy, v4, v5, v5_3, or v5_4"
+        )
+    global DASHBOARD_METRIC_VERSION
+    DASHBOARD_METRIC_VERSION = normalized
+    return normalized
+
+
+def _score_value(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, dict):
+        quality = value.get("quality_0_100")
+        if isinstance(quality, dict):
+            return _score_value(quality.get("mean"))
+        return _score_value(quality)
+    return None
+
+
+def dashboard_row_score(
+    row: dict[str, Any],
+    metric_version: str | None = None,
+) -> float | None:
+    mode = str(metric_version or DASHBOARD_METRIC_VERSION).lower()
+    metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
+    if mode == "v5_4":
+        for value in (
+            metrics.get("render_artifact_quality_v5_4"),
+            metrics.get("genui_quality_v5_4"),
+            row.get("render_artifact_quality_v5_4"),
+            row.get("genui_quality_v5_4"),
+        ):
+            score = _score_value(value)
+            if score is not None:
+                return score
+        return None
+    if mode == "v5_3":
+        for value in (
+            metrics.get("render_artifact_quality_v5_3"),
+            metrics.get("genui_quality_v5_3"),
+            row.get("render_artifact_quality_v5_3"),
+            row.get("genui_quality_v5_3"),
+        ):
+            score = _score_value(value)
+            if score is not None:
+                return score
+        return None
+    if mode == "v5":
+        for value in (
+            metrics.get("render_artifact_quality_v5_1"),
+            metrics.get("genui_quality_v5_1"),
+            row.get("render_artifact_quality_v5_1"),
+            row.get("genui_quality_v5_1"),
+            metrics.get("genui_quality_v5"),
+            row.get("genui_quality_v5"),
+        ):
+            score = _score_value(value)
+            if score is not None:
+                return score
+        return None
+    if mode == "v4":
+        for value in (metrics.get("genui_quality_v4"), row.get("genui_quality_v4")):
+            score = _score_value(value)
+            if score is not None:
+                return score
+        return None
+    for key in ("legacy_structural_richness_score", "overall_score"):
+        score = _score_value(metrics.get(key))
+        if score is not None:
+            return score
+    return None
 
 
 class SyncStopped(RuntimeError):
@@ -2163,6 +2244,21 @@ def dominant_model(counts: dict[str, int]) -> str:
 def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
     metric_keys = (
         "overall_score",
+        "legacy_structural_richness_score",
+        "genui_quality_v4",
+        "genui_quality_v5",
+        "generation_reward_v5_1",
+        "render_artifact_quality_v5_1",
+        "genui_quality_v5_1",
+        "generation_reward_v5_2",
+        "render_artifact_quality_v5_2",
+        "genui_quality_v5_2",
+        "generation_reward_v5_3",
+        "render_artifact_quality_v5_3",
+        "genui_quality_v5_3",
+        "generation_reward_v5_4",
+        "render_artifact_quality_v5_4",
+        "genui_quality_v5_4",
         "content_coverage",
         "intent_score",
         "section_heading_coverage",
@@ -2172,8 +2268,24 @@ def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
         "icon_presence",
         "markdown_leakage_rate",
     )
-    sums: dict[str, float] = {key: 0.0 for key in metric_keys}
-    counts: dict[str, int] = {key: 0 for key in metric_keys}
+    dimension_keys = (
+        "integrity",
+        "fidelity",
+        "semantic_mapping",
+        "hierarchy",
+        "economy",
+        "accessibility",
+    )
+    all_keys = (
+        metric_keys
+        + tuple(f"genui_quality_v4_{key}" for key in dimension_keys)
+        + tuple(f"genui_quality_v5_{key}" for key in dimension_keys)
+        + tuple(f"genui_quality_v5_2_{key}" for key in dimension_keys)
+        + tuple(f"genui_quality_v5_3_{key}" for key in dimension_keys)
+        + tuple(f"genui_quality_v5_4_{key}" for key in dimension_keys)
+    )
+    sums: dict[str, float] = {key: 0.0 for key in all_keys}
+    counts: dict[str, int] = {key: 0 for key in all_keys}
     for row in rows:
         metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
         for key in metric_keys:
@@ -2181,7 +2293,34 @@ def collect_metric_avgs(rows: list[dict[str, Any]]) -> dict[str, float]:
             if isinstance(value, (int, float)):
                 sums[key] += float(value)
                 counts[key] += 1
-    return {key: sums[key] / counts[key] for key in metric_keys if counts[key]}
+        dimensions = metrics.get("genui_quality_v4_dimensions")
+        if isinstance(dimensions, dict):
+            for dimension in dimension_keys:
+                value = dimensions.get(dimension)
+                key = f"genui_quality_v4_{dimension}"
+                if isinstance(value, (int, float)):
+                    sums[key] += float(value)
+                    counts[key] += 1
+        dimensions = metrics.get("genui_quality_v5_dimensions")
+        if isinstance(dimensions, dict):
+            for dimension in dimension_keys:
+                value = dimensions.get(dimension)
+                key = f"genui_quality_v5_{dimension}"
+                if isinstance(value, (int, float)):
+                    sums[key] += float(value)
+                    counts[key] += 1
+        for version in ("v5_2", "v5_3", "v5_4"):
+            dimensions = metrics.get(
+                f"genui_quality_{version}_dimensions"
+            )
+            if isinstance(dimensions, dict):
+                for dimension in dimension_keys:
+                    value = dimensions.get(dimension)
+                    key = f"genui_quality_{version}_{dimension}"
+                    if isinstance(value, (int, float)):
+                        sums[key] += float(value)
+                        counts[key] += 1
+    return {key: sums[key] / counts[key] for key in all_keys if counts[key]}
 
 
 def collect_intent_quality(rows: list[dict[str, Any]], limit: int = 32) -> dict[str, Any]:
@@ -2210,7 +2349,7 @@ def collect_intent_quality(rows: list[dict[str, Any]], limit: int = 32) -> dict[
             },
         )
         record["count"] += 1
-        score = metrics.get("overall_score")
+        score = dashboard_row_score(row)
         if isinstance(score, (int, float)):
             record["score_sum"] += float(score)
             record["score_count"] += 1
@@ -2634,7 +2773,7 @@ def row_issue_labels(row: dict[str, Any]) -> list[str]:
         labels.append("gen_error")
     if row.get("fallback_generated") or validation.get("fallback_generated"):
         labels.append("fallback")
-    score = metrics.get("overall_score")
+    score = dashboard_row_score(row)
     if isinstance(score, (int, float)) and score < 60:
         labels.append("low_score")
     markdown = metrics.get("markdown_leakage_rate")
@@ -2659,7 +2798,7 @@ def collect_issue_samples(rows: list[dict[str, Any]], limit: int = 12) -> list[d
         validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
         gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
         labels = row_issue_labels(row)
-        score = metrics.get("overall_score")
+        score = dashboard_row_score(row)
         if not labels and not isinstance(score, (int, float)):
             continue
         if not labels and isinstance(score, (int, float)) and score >= 70:
@@ -2728,7 +2867,7 @@ def collect_quality_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             summary["gen_errors"] += 1
         if row.get("fallback_generated") or validation.get("fallback_generated"):
             summary["fallback_generated"] += 1
-        score = metrics.get("overall_score")
+        score = dashboard_row_score(row)
         if isinstance(score, (int, float)) and score < 60:
             summary["low_score"] += 1
         markdown = metrics.get("markdown_leakage_rate")
@@ -2797,7 +2936,7 @@ def collect_training_readiness_summary(rows: list[dict[str, Any]], responses: in
         gen_error_free = not bool(gen.get("error"))
         markdown = metrics.get("markdown_leakage_rate")
         markdown_clean = not (isinstance(markdown, (int, float)) and markdown > 0)
-        score = metrics.get("overall_score")
+        score = dashboard_row_score(row)
         score_value = float(score) if isinstance(score, (int, float)) else None
         content_coverage = metrics.get("content_coverage")
         if json_ok:
@@ -3025,7 +3164,7 @@ def collect_record_samples(
         metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
         validation = row.get("validation") if isinstance(row.get("validation"), dict) else {}
         gen = row.get("gen") if isinstance(row.get("gen"), dict) else {}
-        score = metrics.get("overall_score")
+        score = dashboard_row_score(row)
         score_value = float(score) if isinstance(score, (int, float)) else None
         issues = row_issue_labels(row)
         response_id = str(row.get("response_id") or "").strip()
@@ -3073,7 +3212,10 @@ def collect_ir_version_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
     return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
-def score_from_genui(genui_path: Path) -> float | None:
+def score_from_genui(
+    genui_path: Path,
+    metric_version: str | None = None,
+) -> float | None:
     values: list[float] = []
     with genui_path.open("r", encoding="utf-8-sig", errors="replace") as handle:
         for line in handle:
@@ -3083,8 +3225,7 @@ def score_from_genui(genui_path: Path) -> float | None:
                 row = json.loads(line)
             except Exception:
                 continue
-            metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
-            value = metrics.get("overall_score")
+            value = dashboard_row_score(row, metric_version)
             if isinstance(value, (int, float)):
                 values.append(float(value))
     if not values:
@@ -3092,12 +3233,41 @@ def score_from_genui(genui_path: Path) -> float | None:
     return sum(values) / len(values)
 
 
-def run_score(run_dir: Path) -> float | None:
+def run_score(run_dir: Path, metric_version: str | None = None) -> float | None:
+    mode = str(metric_version or DASHBOARD_METRIC_VERSION).lower()
     aggregate_path = run_dir / "aggregates.json"
     if aggregate_path.exists():
         try:
             aggregate = load_json(aggregate_path, {})
-            for key in ("overall_score", "score", "aggregate_score"):
+            if mode == "v5_4":
+                score = _score_value(
+                    aggregate.get("genui_quality_v5_4")
+                )
+                if score is not None:
+                    return score
+            if mode == "v5_3":
+                score = _score_value(
+                    aggregate.get("genui_quality_v5_3")
+                )
+                if score is not None:
+                    return score
+            if mode == "v5":
+                score = _score_value(
+                    aggregate.get("genui_quality_v5_1")
+                    or aggregate.get("genui_quality_v5")
+                )
+                if score is not None:
+                    return score
+            if mode == "v4":
+                score = _score_value(aggregate.get("genui_quality_v4"))
+                if score is not None:
+                    return score
+            for key in (
+                "legacy_structural_richness_score",
+                "overall_score",
+                "score",
+                "aggregate_score",
+            ) if mode == "legacy" else ():
                 value = aggregate.get(key)
                 if isinstance(value, (int, float)):
                     return float(value)
@@ -3105,7 +3275,7 @@ def run_score(run_dir: Path) -> float | None:
             pass
     genui_path = run_dir / "genui.jsonl"
     if genui_path.exists():
-        return score_from_genui(genui_path)
+        return score_from_genui(genui_path, mode)
     return None
 
 
@@ -3191,8 +3361,7 @@ def jsonl_day_buckets(path: Path, kind: str, fallback_day: str) -> dict[str, dic
                 bucket["responses"] += 1
             elif kind == "genui":
                 bucket["genui"] += 1
-                metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
-                score = metrics.get("overall_score")
+                score = dashboard_row_score(row)
                 if isinstance(score, (int, float)):
                     bucket["score_sum"] += float(score)
                     bucket["score_count"] += 1
@@ -3233,8 +3402,7 @@ def collect_ir_version_stats(path: Path, fallback_day: str) -> dict[str, dict[st
             if response_id:
                 record["_response_ids"].add(response_id)
             record["genui"] += 1
-            metrics = row.get("metrics") if isinstance(row.get("metrics"), dict) else {}
-            score = metrics.get("overall_score")
+            score = dashboard_row_score(row)
             if isinstance(score, (int, float)):
                 record["score_sum"] += float(score)
                 record["score_count"] += 1
@@ -3937,6 +4105,22 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         )
         merge_day_buckets(day_buckets, jsonl_day_buckets(path, kind, file_day))
     ir_version_stats = collect_ir_version_stats(run_dir / "genui.jsonl", fallback_day)
+    legacy_score = run_score(run_dir, "legacy")
+    v4_score = run_score(run_dir, "v4")
+    v5_score = run_score(run_dir, "v5")
+    v5_3_score = run_score(run_dir, "v5_3")
+    v5_4_score = run_score(run_dir, "v5_4")
+    selected_score = (
+        v5_4_score
+        if DASHBOARD_METRIC_VERSION == "v5_4"
+        else v5_3_score
+        if DASHBOARD_METRIC_VERSION == "v5_3"
+        else v5_score
+        if DASHBOARD_METRIC_VERSION == "v5"
+        else v4_score
+        if DASHBOARD_METRIC_VERSION == "v4"
+        else legacy_score
+    )
     return {
         "source_id": source_id,
         "source_label": source_label_text,
@@ -3953,7 +4137,20 @@ def scan_run(source_id: str, source_label_text: str, run_dir: Path) -> dict[str,
         "total_bytes": int(file_stats.get("total_bytes") or 0),
         "file_count": int(file_stats.get("file_count") or 0),
         "missing_core_files": missing_core_files,
-        "overall_score": run_score(run_dir),
+        "overall_score": selected_score,
+        "legacy_structural_richness_score": legacy_score,
+        "genui_quality_v4_score": v4_score,
+        "genui_quality_v5_score": v5_score,
+        "genui_quality_v5_3_score": v5_3_score,
+        "genui_quality_v5_4_score": v5_4_score,
+        "dashboard_metric_version": DASHBOARD_METRIC_VERSION,
+        "calibration_status": (
+            V5_CALIBRATION_STATUS
+            if DASHBOARD_METRIC_VERSION in {"v5", "v5_3", "v5_4"}
+            else V4_CALIBRATION_STATUS
+            if DASHBOARD_METRIC_VERSION == "v4"
+            else None
+        ),
         "updated_at": datetime.fromtimestamp(mtime, timezone.utc).isoformat(),
         "query_models": collect_model_counts(query_rows),
         "response_models": collect_model_counts(response_rows),
@@ -4067,6 +4264,14 @@ def scan_all(config: dict[str, Any], mirror_dir: Path) -> dict[str, Any]:
     }
     return {
         "generated_at": utc_now(),
+        "dashboard_metric_version": DASHBOARD_METRIC_VERSION,
+        "calibration_status": (
+            V5_CALIBRATION_STATUS
+            if DASHBOARD_METRIC_VERSION in {"v5", "v5_3", "v5_4"}
+            else V4_CALIBRATION_STATUS
+            if DASHBOARD_METRIC_VERSION == "v4"
+            else None
+        ),
         "totals": totals,
         "sources": sorted(sources, key=lambda s: s["source_label"].lower()),
         "runs": sorted(runs, key=lambda r: (r["source_label"].lower(), r["run_id"].lower())),
@@ -4110,6 +4315,16 @@ INDEX_HTML = r"""<!doctype html>
     header { padding: 30px 34px 18px; }
     h1 { margin: 0; font-size: clamp(30px, 4vw, 54px); letter-spacing: -.04em; }
     .sub { color: var(--muted); margin: 8px 0 0; max-width: 980px; }
+    .metric-banner {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px solid rgba(180,83,9,.22);
+      border-radius: 14px;
+      background: rgba(255,247,237,.78);
+      color: #92400e;
+      font-size: 13px;
+      font-weight: 700;
+    }
     .toolbar { display:flex; gap: 12px; align-items:center; flex-wrap: wrap; margin-top: 20px; }
     button, input, select {
       border: 1px solid var(--line);
@@ -4436,6 +4651,7 @@ INDEX_HTML = r"""<!doctype html>
           <p class="sub">Monitor generated queries, responses, IR quality, source sync, training readiness, media health, and model regressions from one local mirror.</p>
         </div>
       </div>
+      <div id="metricBanner" class="metric-banner"></div>
       <div class="toolbar">
         <button id="syncBtn">Sync sources</button>
         <button class="danger-btn" id="stopSyncBtn" disabled>Stop Sync</button>
@@ -4571,7 +4787,7 @@ INDEX_HTML = r"""<!doctype html>
               <tr>
                 <th>Source / Run</th>
                 <th>Counts</th>
-                <th>IR Score</th>
+                <th id="headlineScoreHeader">IR Score</th>
                 <th>Models</th>
                 <th>Updated</th>
               </tr>
@@ -4717,6 +4933,11 @@ INDEX_HTML = r"""<!doctype html>
     const metricPct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(0)}%`;
     const scoreClass = s => s == null ? "" : s >= 75 ? "good" : s >= 60 ? "warn" : "";
     const scoreText = s => s == null ? "n/a" : Number(s).toFixed(2);
+    const headlineScoreLabel = () => current?.dashboard_metric_version === "v5"
+      ? "GenUI v5.1 final-artifact representation score"
+      : current?.dashboard_metric_version === "v4"
+      ? "GenUI v4 engineering score"
+      : "Legacy structural richness score";
     const dominantModel = obj => Object.entries(obj || {})[0]?.[0] || "unknown";
     const runKey = r => `${r.source_id}::${r.run_id}`;
     const timestampMs = value => {
@@ -8257,6 +8478,13 @@ INDEX_HTML = r"""<!doctype html>
     }
     function render() {
       if (!current) return;
+      const banner = document.getElementById("metricBanner");
+      banner.textContent = current.dashboard_metric_version === "v5"
+        ? "GenUI Metric v5.1 — final renderer-artifact headline; uncalibrated representation engineering score (0–100), not an equal-interval quality percentage. Raw generation reward is reported separately."
+        : current.dashboard_metric_version === "v4"
+        ? "GenUI Metric v4 — frozen historical uncalibrated engineering score (0–100), not an equal-interval quality percentage."
+        : "Legacy structural richness score is the selected dashboard headline. Start with --metric-version v5 for the corrected representation score.";
+      document.getElementById("headlineScoreHeader").textContent = headlineScoreLabel();
       renderSourceFilter(current.sources || []);
       renderIrVersionFilter(current.ir_versions || {});
       const runs = filteredRuns();
@@ -8595,6 +8823,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mirror-dir", default=str(DEFAULT_MIRROR_DIR), help="Local mirror directory")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument(
+        "--metric-version",
+        choices=("legacy", "v4", "v5", "v5_3", "v5_4"),
+        default=os.environ.get("A2UI_DASHBOARD_METRIC_VERSION", "legacy"),
+        help="Headline score to display; v4/v5 remain explicitly labeled uncalibrated",
+    )
     parser.add_argument("--sync-on-start", action="store_true", help="Sync enabled sources before serving")
     parser.add_argument("--sync-once", action="store_true", help="Run one sync and exit")
     parser.add_argument("--summary-once", action="store_true", help="Print summary JSON and exit")
@@ -8633,6 +8867,7 @@ def install_shutdown_handlers(
 
 def main() -> int:
     args = parse_args()
+    set_dashboard_metric_version(args.metric_version)
     SHUTDOWN_EVENT.clear()
     config_path = resolve_dataset_path(args.config, ROOT)
     mirror_dir = resolve_dataset_path(args.mirror_dir, ROOT)

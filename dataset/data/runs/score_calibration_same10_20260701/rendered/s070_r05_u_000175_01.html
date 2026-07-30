@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"ideas": [{"option": "Option 1", "name": "One-Word Story", "summary": "Build a story one word at a time, taking turns", "bestFor": "storytelling, quiet carriage, 10-minute bursts", "rules": "One person says a single word, then the other adds one word, and so on. Keep sentences grammatically sensible if you want extra challenge. End after 5 minutes or when the story reaches a ridiculous conclusion.", "icon": "../assets/r_000175_01_1_book.svg"}, {"option": "Option 2", "name": "Two-Sentence Tales", "summary": "Each turn adds exactly two sentences to a shared story", "bestFor": "storytelling", "rules": "Player A starts with two sentences. Player B adds exactly two more. Continue until you hit a clear ending, or set a limit like 10 rounds.", "icon": "../assets/r_000175_01_1_book.svg"}, {"option": "Option 3", "name": "Genre Switch", "summary": "Start a story in one genre and suddenly change it", "bestFor": "storytelling, 10-minute bursts", "rules": "Begin with a genre like romance, mystery, or sci-fi. Every minute, one player calls a new genre. The story must continue while adapting instantly.", "icon": ""}, {"option": "Option 4", "name": "Backstory Battle", "summary": "Invent dramatic backstories for strangers you briefly notice", "bestFor": "storytelling, quiet carriage", "rules": "Quietly pick a person or imagine someone from memory. Each of you gives them a secret life, job, or mission. Vote on the funnier or more convincing version.", "icon": "../assets/r_000175_01_3_people.svg"}, {"option": "Option 5", "name": "Alternate Ending", "summary": "Rebuild the ending of a known film, book, or fairy tale", "bestFor": "storytelling, quiet carriage, 10-minute bursts", "rules": "Pick a story both of you know. One person changes the ending; the other has to continue logically from there. Bonus challenge: make it better than the original.", "icon": "../assets/r_000175_01_4_film.svg"}, {"option": "Option 6", "name": "Alphabet Category Duel", "summary": "Take turns naming items in a category from A onward", "bestFor": "wordplay, 10-minute bursts", "rules": "Choose a category like foods, cities, jobs, or animals. Start at A and alternate: apple, banana, carrot, etc. If someone stalls for 5 seconds, skip or score a point for the other player.", "icon": "../assets/r_000175_01_5_type.svg"}, {"option": "Option 7", "name": "Last Letter, Next Word", "summary": "Each new word must begin with the last letter of the previous word", "bestFor": "wordplay, quiet carriage, 10-minute bursts", "rules": "Say any noun to start. The next word must begin with the last letter of that noun. Avoid repeats; choose a theme if you want extra difficulty.", "icon": "../assets/r_000175_01_6_chat-quote.svg"}, {"option": "Option 8", "name": "Hidden Rhyme Challenge", "summary": "Trade words and try to answer with a rhyme instantly", "bestFor": "wordplay", "rules": "One person says a simple word like train. The other must quickly answer with a rhyme. If no rhyme appears, use near-rhymes and keep moving.", "icon": "../assets/r_000175_01_7_music-note.svg"}, {"option": "Option 9", "name": "Synonym Ladder", "summary": "Keep replacing a word with a close synonym until it gets weird", "bestFor": "wordplay, quiet carriage", "rules": "Start with a simple word like good. Alternate synonyms: good → nice → pleasant → agreeable. Stop when the word becomes awkward, old-fashioned, or hilariously off.", "icon": "../assets/r_000175_01_8_signpost-split.svg"}, {"option": "Option 10", "name": "Forbidden Word Chat", "summary": "Hold a normal conversation while avoiding a chosen word", "bestFor": "wordplay, quiet carriage", "rules": "Ban common words like train, yes, or I. Try chatting normally for 5–10 minutes. If someone slips, they lose the round or owe a silly challenge.", "icon": "../assets/r_000175_01_9_slash-circle.svg"}, {"option": "Option 11", "name": "Silent Movie Plot Pitch", "summary": "Quietly describe an absurd movie idea in short turns", "bestFor": "storytelling, quiet carriage, 10-minute bursts", "rules": "One person gives a title. Take turns adding cast, setting, problem, and final twist. Keep voices low and pitches short.", "icon": "../assets/r_000175_01_10_camera-reels.svg"}, {"option": "Option 12", "name": "Memory Chain", "summary": "Build a growing list from memory with a theme", "bestFor": "quiet carriage, 10-minute bursts", "rules": "Pick a theme like holidays, desserts, or countries. Player A says one item; Player B repeats it and adds another. Continue until someone forgets the sequence.", "icon": "../assets/r_000175_01_11_list-ol.svg"}, {"option": "Option 13", "name": "Question-Only Scene", "summary": "Act out a situation using only questions", "bestFor": "storytelling, wordplay", "rules": "Pick a setting like airport, royal court, or zombie shelter. Speak only in questions. First person to make a statement loses.", "icon": "../assets/r_000175_01_12_question-circle.svg"}, {"option": "Option 14", "name": "Six-Word Life Story", "summary": "Sum up a person, object, or era in exactly six words", "bestFor": "storytelling, wordplay, quiet carriage, 10-minute bursts", "rules": "Pick a subject: your week, a stranger’s vibe, the snack trolley, the train itself. Each player creates a six-word summary. Funniest, sharpest, or most poetic one wins.", "icon": "../assets/r_000175_01_13_pencil.svg"}, {"option": "Option 15", "name": "What Changed?", "summary": "Observe each other, close eyes, and guess one subtle change", "bestFor": "calm play, quiet carriage, 10-minute bursts", "rules": "Study each other for 10 seconds. One person closes their eyes while the other changes one small thing: sleeve roll, watch hand, posture. Guess the change, then swap roles.", "icon": "../assets/r_000175_01_14_eye.svg"}], "moodPicks": [{"category": "Best storytelling-heavy", "picks": "One-Word Story, Two-Sentence Tales, Genre Switch, Alternate Ending, Silent Movie Plot Pitch"}, {"category": "Best wordplay-heavy", "picks": "Alphabet Category Duel, Last Letter Next Word, Hidden Rhyme Challenge, Synonym Ladder, Forbidden Word Chat"}, {"category": "Best for a quiet carriage", "picks": "One-Word Story, Backstory Battle, Alternate Ending, Last Letter Next Word, Synonym Ladder, Forbidden Word Chat, Memory Chain, Six-Word Life Story, What Changed?"}], "burstOptions": [{"name": "One-Word Story"}, {"name": "Genre Switch"}, {"name": "Alternate Ending"}, {"name": "Alphabet Category Duel"}, {"name": "Last Letter, Next Word"}, {"name": "Memory Chain"}, {"name": "Six-Word Life Story"}, {"name": "What Changed?"}], "setup": [{"assumption": "No materials", "details": "You want games with no phone, pen, paper, cards, or props."}, {"assumption": "Quiet carriage", "details": "Low-volume speaking only, not full silence."}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "hero_card", "ideas_heading", "ideas_table", "mood_heading", "mood_table", "burst_heading", "burst_table", "setup_heading", "setup_table", "actions_heading", "actions_card"]}, "title": {"type": "Text", "props": {"text": "Train-Ride Fun List for Two Adults", "variant": "h1"}, "children": []}, "hero_card": {"type": "Card", "props": {}, "children": ["hero_stack"]}, "hero_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["hero_row", "hero_text", "hero_chip_row"]}, "hero_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["hero_icon", "hero_label"]}, "hero_icon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_book.svg"}, "children": []}, "hero_label": {"type": "Text", "props": {"text": "15 no-material games for a long train ride", "variant": "h3"}, "children": []}, "hero_text": {"type": "Text", "props": {"text": "These ideas are split across storytelling, wordplay, and quiet-carriage-friendly picks. Many work in more than one category.", "variant": "body"}, "children": []}, "hero_chip_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["chip_two_adults", "chip_no_materials", "chip_quiet_friendly", "chip_short_bursts"]}, "chip_two_adults": {"type": "Text", "props": {"text": "Two adults", "variant": "chip"}, "children": []}, "chip_no_materials": {"type": "Text", "props": {"text": "No materials", "variant": "chip"}, "children": []}, "chip_quiet_friendly": {"type": "Text", "props": {"text": "Quiet carriage friendly", "variant": "chip"}, "children": []}, "chip_short_bursts": {"type": "Text", "props": {"text": "10-minute bursts", "variant": "chip"}, "children": []}, "ideas_heading": {"type": "Text", "props": {"text": "15 No-Material Entertainment Ideas", "variant": "h2"}, "children": []}, "ideas_table": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "name", "label": "Name"}, {"key": "summary", "label": "Summary"}, {"key": "bestFor", "label": "Best for"}, {"key": "rules", "label": "Rules"}, {"key": "icon", "label": "Icon"}], "statePath": "/ideas", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "name", "highlightColumns": ["bestFor"], "sourceFormat": "plain"}, "children": []}, "mood_heading": {"type": "Text", "props": {"text": "Best Picks by Mood", "variant": "h2"}, "children": []}, "mood_table": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "picks", "label": "Picks"}], "statePath": "/moodPicks", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "category", "highlightColumns": ["picks"], "sourceFormat": "plain"}, "children": []}, "burst_heading": {"type": "Text", "props": {"text": "Best 10-Minute Burst Options", "variant": "h2"}, "children": []}, "burst_table": {"type": "Table", "props": {"columns": [{"key": "name", "label": "Option"}], "statePath": "/burstOptions", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "name", "sourceFormat": "plain"}, "children": []}, "setup_heading": {"type": "Text", "props": {"text": "Ride-Smart Setup", "variant": "h2"}, "children": []}, "setup_table": {"type": "Table", "props": {"columns": [{"key": "assumption", "label": "Assumption"}, {"key": "details", "label": "Details"}], "statePath": "/setup", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "assumption", "highlightColumns": ["details"], "sourceFormat": "plain"}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["save_button", "timer_button"]}, "save_button": {"type": "Button", "props": {"label": "Save Favorites", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://keep.google.com/"}}}}, "timer_button": {"type": "Button", "props": {"label": "Set 10-Min Timer", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=10+minute+timer"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

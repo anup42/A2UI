@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "draft_heading", "cover_letter", "notes_heading", "notes_card"]}, "title": {"type": "Text", "props": {"text": "Cover Letter Draft", "variant": "h2"}, "children": []}, "draft_heading": {"type": "Text", "props": {"text": "Ready-to-Send Letter", "variant": "h3"}, "children": []}, "cover_letter": {"type": "EmailPreview", "props": {"title": "Ready-to-Send Letter", "subtitle": "Cover letter draft for Mid-Level Product Analyst role in Berlin", "body": ["Dear Hiring Manager,", "I’m excited to apply for the Mid-Level Product Analyst role in Berlin. With 4 years of experience in SQL, Tableau, A/B testing, and stakeholder reporting, I’ve learned how to turn data into decisions that are practical, measurable, and easy for teams to act on. I’m now looking to bring that approach into SaaS product analytics as I relocate to Berlin in September 2026.", "In my current retail analytics role, I led reporting and experimentation work that helped improve a key conversion funnel by 12% over two quarters. I also built a Tableau reporting layer that cut weekly stakeholder reporting time by 40%, giving business teams faster access to the metrics they needed. Across both projects, I focused on clean analysis, clear communication, and recommendations that could be implemented without delay.", "What appeals to me about SaaS companies is the pace of learning and the direct link between product decisions and customer outcomes. I enjoy working in environments where small improvements can have a visible effect on retention, activation, and revenue. The chance to help a product team understand user behavior, test hypotheses, and refine the experience based on evidence is exactly the kind of work I want to do next.", "I would welcome the opportunity to discuss how my analytics background, experimentation experience, and stakeholder-facing communication can support your product team. Thank you for your time and consideration. I look forward to the possibility of speaking with you."], "signature": ["Sincerely,", "[Your Name]"]}, "children": []}, "notes_heading": {"type": "Text", "props": {"text": "Notes for Personalization", "variant": "h3"}, "children": []}, "notes_card": {"type": "Card", "props": {}, "children": ["notes_stack"]}, "notes_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["note1", "note2"]}, "note1": {"type": "Text", "props": {"text": "Replace the company name in the greeting if you have it.", "variant": "body"}, "children": []}, "note2": {"type": "Text", "props": {"text": "If you want, I can also tailor this into a version for a specific Berlin SaaS company or make it sound slightly warmer or more direct.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

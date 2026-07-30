@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"exchangeRows": [{"destination": "Japan (JPY)", "date_2025_01_15": "2,500 × 147.2 = 368,000 JPY", "date_2025_03_15": "2,500 × 149.8 = 374,500 JPY", "date_2025_06_15": "2,500 × 154.1 = 385,250 JPY", "change_jan_to_jun": "+17,250 JPY", "percent_change_jan_to_jun": "+4.69%"}, {"destination": "Mexico (MXN)", "date_2025_01_15": "2,500 × 16.9 = 42,250 MXN", "date_2025_03_15": "2,500 × 17.4 = 43,500 MXN", "date_2025_06_15": "2,500 × 18.1 = 45,250 MXN", "change_jan_to_jun": "+3,000 MXN", "percent_change_jan_to_jun": "+7.10%"}, {"destination": "Brazil (BRL)", "date_2025_01_15": "2,500 × 4.93 = 12,325 BRL", "date_2025_03_15": "2,500 × 5.08 = 12,700 BRL", "date_2025_06_15": "2,500 × 5.41 = 13,525 BRL", "change_jan_to_jun": "+1,200 BRL", "percent_change_jan_to_jun": "+9.74%"}, {"destination": "India (INR)", "date_2025_01_15": "2,500 × 83.1 = 207,750 INR", "date_2025_03_15": "2,500 × 82.7 = 206,750 INR", "date_2025_06_15": "2,500 × 83.9 = 209,750 INR", "change_jan_to_jun": "+2,000 INR", "percent_change_jan_to_jun": "+0.96%"}], "yieldRows": [{"date": "2025-01-15", "topDestination": "Japan", "localCurrencyReceived": "368,000 JPY"}, {"date": "2025-03-15", "topDestination": "Japan", "localCurrencyReceived": "374,500 JPY"}, {"date": "2025-06-15", "topDestination": "Japan", "localCurrencyReceived": "385,250 JPY"}], "percentRows": [{"currency": "JPY", "calculation": "(154.1 - 147.2) / 147.2 × 100", "result": "4.69%"}, {"currency": "MXN", "calculation": "(18.1 - 16.9) / 16.9 × 100", "result": "7.10%"}, {"currency": "BRL", "calculation": "(5.41 - 4.93) / 4.93 × 100", "result": "9.74%"}, {"currency": "INR", "calculation": "(83.9 - 83.1) / 83.1 × 100", "result": "0.96%"}], "notesRows": [{"item": "Comparison period used", "value": "2025-01-15 to 2025-06-15"}, {"item": "Rates interpreted exactly as provided", "value": "local currency per 1 USD"}, {"item": "Percentage change formula", "value": "(final rate - initial rate) / initial rate × 100"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "formulaCard", "calcHeading", "calcTable", "biggestHeading", "yieldCard", "percentCard", "takeawaysHeading", "takeawaysCard", "notesHeading", "notesTable"]}, "title": {"type": "Text", "props": {"text": "USD 2,500 Purchasing Power Snapshot", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroHeader", "heroText"]}, "heroHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["heroIcon", "heroTitle"]}, "heroIcon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_1_currency-rupee.svg"}, "children": []}, "heroTitle": {"type": "Text", "props": {"text": "Top result", "variant": "h3"}, "children": []}, "heroText": {"type": "Text", "props": {"text": "Using the given rates as local currency per 1 USD, the destination where USD 2,500 would have yielded the most local currency at every listed date was Japan (JPY), because JPY has the largest numeric local-currency-per-USD rate in the table.", "variant": "body"}, "children": []}, "formulaCard": {"type": "Card", "props": {}, "children": ["formulaStack"]}, "formulaStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["formulaHeading", "formulaEl"]}, "formulaHeading": {"type": "Text", "props": {"text": "Formula", "variant": "h2"}, "children": []}, "formulaEl": {"type": "Formula", "props": {"text": "Local currency received = 2,500 × exchange rate"}, "children": []}, "calcHeading": {"type": "Text", "props": {"text": "Exchange-Rate Calculations by Destination", "variant": "h2"}, "children": []}, "calcTable": {"type": "Table", "props": {"columns": [{"key": "destination", "label": "Destination"}, {"key": "date_2025_01_15", "label": "2025-01-15"}, {"key": "date_2025_03_15", "label": "2025-03-15"}, {"key": "date_2025_06_15", "label": "2025-06-15"}, {"key": "change_jan_to_jun", "label": "Change Jan→Jun"}, {"key": "percent_change_jan_to_jun", "label": "% Change Jan→Jun"}], "statePath": "/exchangeRows", "domain": "comparison", "preferredPresentation": "table", "primaryColumn": "destination", "highlightColumns": ["date_2025_06_15", "percent_change_jan_to_jun"], "sourceFormat": "markdown"}, "children": []}, "biggestHeading": {"type": "Text", "props": {"text": "Biggest Yield and Largest Percentage Move", "variant": "h2"}, "children": []}, "yieldCard": {"type": "Card", "props": {}, "children": ["yieldStack"]}, "yieldStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["yieldTitle", "yieldTable", "yieldSummary"]}, "yieldTitle": {"type": "Text", "props": {"text": "Most local currency for USD 2,500", "variant": "h3"}, "children": []}, "yieldTable": {"type": "Table", "props": {"columns": [{"key": "date", "label": "Date"}, {"key": "topDestination", "label": "Top Destination"}, {"key": "localCurrencyReceived", "label": "Local Currency Received"}], "statePath": "/yieldRows", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "date", "highlightColumns": ["topDestination", "localCurrencyReceived"]}, "children": []}, "yieldSummary": {"type": "Text", "props": {"text": "Japan was highest on all three dates: 2025-01-15, 2025-03-15, and 2025-06-15.", "variant": "body"}, "children": []}, "percentCard": {"type": "Card", "props": {}, "children": ["percentStack"]}, "percentStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["percentTitle", "percentLead", "percentWinner", "percentTable"]}, "percentTitle": {"type": "Text", "props": {"text": "Largest percentage change over the period (2025-01-15 to 2025-06-15)", "variant": "h3"}, "children": []}, "percentLead": {"type": "Text", "props": {"text": "Brazil (BRL) had the largest percentage increase.", "variant": "body"}, "children": []}, "percentWinner": {"type": "Text", "props": {"text": "+9.74%", "variant": "chip"}, "children": []}, "percentTable": {"type": "Table", "props": {"columns": [{"key": "currency", "label": "Currency"}, {"key": "calculation", "label": "Calculation"}, {"key": "result", "label": "Result"}], "statePath": "/percentRows", "domain": "formula", "preferredPresentation": "table", "primaryColumn": "currency", "highlightColumns": ["result"]}, "children": []}, "takeawaysHeading": {"type": "Text", "props": {"text": "Quick Takeaways", "variant": "h2"}, "children": []}, "takeawaysCard": {"type": "Card", "props": {}, "children": ["takeawaysStack"]}, "takeawaysStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["takeaway1", "takeaway2", "takeaway3"]}, "takeaway1": {"type": "Text", "props": {"text": "If your goal was simply to get the highest amount of local currency units, Japan (JPY) was highest on all three dates.", "variant": "body"}, "children": []}, "takeaway2": {"type": "Text", "props": {"text": "If your goal was to identify the currency that moved the most over the period, Brazil (BRL) had the largest percentage increase from January to June.", "variant": "body"}, "children": []}, "takeaway3": {"type": "Text", "props": {"text": "From a USD holder’s perspective, a higher local-currency-per-USD rate means more local currency received for the same USD amount.", "variant": "body"}, "children": []}, "notesHeading": {"type": "Text", "props": {"text": "Calculation Notes", "variant": "h2"}, "children": []}, "notesTable": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "value", "label": "Value"}], "statePath": "/notesRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "item"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

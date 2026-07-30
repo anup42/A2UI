@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"picks": [{"option": "Option 1", "title": "Gattaca (1997)", "summary": "Elegant near-future sci-fi about genetics, identity, and discrimination with strong moral ambiguity", "runtime": "106 min", "reason": "If you liked the thoughtfulness of Arrival and the ethical tension of Ex Machina, this delivers a smart, serious premise without comedy or superhero spectacle.", "contentConcerns": "Some tense sequences, themes of genetic discrimination and self-harm, and mild sensual content.", "icon": "../assets/r_000012_01_1_film.svg"}, {"option": "Option 2", "title": "Moon (2009)", "summary": "Intimate, cerebral space thriller centered on isolation, memory, and corporate ethics", "runtime": "97 min", "reason": "This is a clean match for your preferences because it stays focused on identity and moral uncertainty, with minimal romance and a restrained tone.", "contentConcerns": "Psychological distress, isolation, some disturbing implications, and brief strong language.", "icon": "../assets/r_000012_01_2_moon-stars.svg"}, {"option": "Option 3", "title": "Coherence (2013)", "summary": "Low-key but brainy sci-fi puzzle about reality fractures and human decisions under pressure", "runtime": "89 min", "reason": "It offers the kind of cerebral, unsettling what would you do tension that works well for fans of high-concept sci-fi without leaning comedic.", "contentConcerns": "Intense interpersonal conflict, anxiety-inducing scenes, mild violence, and some strong language.", "icon": "../assets/r_000012_01_3_stars.svg"}, {"option": "Option 4", "title": "Predestination (2014)", "summary": "Dark time-travel thriller built around paradox, identity, and ethically messy choices", "runtime": "97 min", "reason": "This is the most twist-driven pick here, but it stays serious, intellectually knotty, and morally complex in a way that should appeal to your stated taste.", "contentConcerns": "Violence, disturbing themes, identity-related trauma, brief sexual content, and emotionally heavy material.", "icon": "../assets/r_000012_01_4_clock-history.svg"}], "bestMatchOrder": [{"rank": "1", "movie": "Gattaca", "note": "best overall fit if you want polished, thoughtful, and accessible"}, {"rank": "2", "movie": "Moon", "note": "best if you want something closest in mood to Ex Machina"}, {"rank": "3", "movie": "Coherence", "note": "best if you want a lean, tense mind-bender"}, {"rank": "4", "movie": "Predestination", "note": "best if you want the darkest and most structurally intricate option"}], "fitNotes": [{"title": "Primer", "note": "very cerebral, but colder and more opaque than most people want."}, {"title": "Children of Men", "note": "excellent, but less puzzle-driven and more intense than your examples."}, {"title": "Annihilation", "note": "strong fit in tone, but runs slightly over your runtime limit."}], "sources": [{"source": "IMDb title search", "url": "https://www.imdb.com/search/title/"}, {"source": "Common Sense Media reviews", "url": "https://www.commonsensemedia.org/"}, {"source": "Rotten Tomatoes movie search", "url": "https://www.rottentomatoes.com/search"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "intro_card", "ranked_heading", "picks_table", "best_heading", "best_table", "notes_card", "actions_card", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Cerebral Sci‑Fi Picks That Fit Your Taste", "variant": "h1"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["intro_text", "taste_row"]}, "intro_text": {"type": "Text", "props": {"text": "You seem to want idea-driven science fiction with ethical tension, serious tone, low romance, and tight pacing. Based on that, these four are the strongest fits.", "variant": "body"}, "children": []}, "taste_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["chip1", "chip2", "chip3", "chip4"]}, "chip1": {"type": "Text", "props": {"text": "Idea-driven sci-fi", "variant": "chip"}, "children": []}, "chip2": {"type": "Text", "props": {"text": "Ethical tension", "variant": "chip"}, "children": []}, "chip3": {"type": "Text", "props": {"text": "Serious tone", "variant": "chip"}, "children": []}, "chip4": {"type": "Text", "props": {"text": "Low romance", "variant": "chip"}, "children": []}, "ranked_heading": {"type": "Text", "props": {"text": "Ranked Movie Picks", "variant": "h2"}, "children": []}, "picks_table": {"type": "Table", "props": {"statePath": "/picks", "columns": [{"key": "option", "label": "Option"}, {"key": "title", "label": "Movie"}, {"key": "summary", "label": "Summary"}, {"key": "runtime", "label": "Runtime"}, {"key": "reason", "label": "Reason"}, {"key": "contentConcerns", "label": "Content concerns"}, {"key": "icon", "label": "Icon"}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["runtime", "option"], "sourceFormat": "plain"}, "children": []}, "best_heading": {"type": "Text", "props": {"text": "Best Match Order", "variant": "h2"}, "children": []}, "best_table": {"type": "Table", "props": {"statePath": "/bestMatchOrder", "columns": [{"key": "rank", "label": "Rank"}, {"key": "movie", "label": "Movie"}, {"key": "note", "label": "Why it fits"}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "movie", "highlightColumns": ["rank"], "sourceFormat": "plain"}, "children": []}, "notes_card": {"type": "Card", "props": {}, "children": ["notes_stack"]}, "notes_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["notes_heading", "notes_intro", "notes_table"]}, "notes_heading": {"type": "Text", "props": {"text": "Fit Notes", "variant": "h2"}, "children": []}, "notes_intro": {"type": "Text", "props": {"text": "A few close contenders I did not prioritize:", "variant": "body"}, "children": []}, "notes_table": {"type": "Table", "props": {"statePath": "/fitNotes", "columns": [{"key": "title", "label": "Title"}, {"key": "note", "label": "Note"}], "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "title", "sourceFormat": "plain"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actions_heading", "actions_text", "action_buttons"]}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_text": {"type": "Text", "props": {"text": "Use these to preview trailers or compare reference listings before choosing tonight’s watch.", "variant": "body"}, "children": []}, "action_buttons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["trailers_btn", "ratings_btn"]}, "trailers_btn": {"type": "Button", "props": {"label": "Watch trailers", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.youtube.com/results?search_query=Gattaca+Moon+Coherence+Predestination+trailers"}}}}, "ratings_btn": {"type": "Button", "props": {"label": "Compare ratings", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.imdb.com/search/title/?title=Gattaca,Moon,Coherence,Predestination"}}}}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sources_heading", "sources_text", "source_btn_1", "source_btn_2", "source_btn_3"]}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_text": {"type": "Text", "props": {"text": "These links are useful for checking ratings, reviews, and parent-guide style content notes.", "variant": "caption"}, "children": []}, "source_btn_1": {"type": "Button", "props": {"label": "IMDb title search", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.imdb.com/search/title/"}}}}, "source_btn_2": {"type": "Button", "props": {"label": "Common Sense Media reviews", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.commonsensemedia.org/"}}}}, "source_btn_3": {"type": "Button", "props": {"label": "Rotten Tomatoes movie search", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.rottentomatoes.com/search"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

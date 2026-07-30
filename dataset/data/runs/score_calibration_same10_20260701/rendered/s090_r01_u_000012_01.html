@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"overspendingRows": [{"category": "Dining out", "current": "$540", "reasonableCut": "$220", "revisedBudget": "$320", "notes": "Still allows about 1–2 meals out per week"}, {"category": "Shopping", "current": "$410", "reasonableCut": "$160", "revisedBudget": "$250", "notes": "Keeps room for clothing/household extras"}, {"category": "Groceries", "current": "$620", "reasonableCut": "$120", "revisedBudget": "$500", "notes": "Achievable with meal planning and fewer convenience buys"}, {"category": "Subscriptions", "current": "$96", "reasonableCut": "$36", "revisedBudget": "$60", "notes": "Trim unused or overlapping services"}, {"category": "Miscellaneous", "current": "$260", "reasonableCut": "$60", "revisedBudget": "$200", "notes": "Add a cap for unplanned spending"}, {"category": "Travel sinking fund", "current": "$300", "reasonableCut": "$100", "revisedBudget": "$200", "notes": "Keeps travel savings, just slower"}, {"category": "Phone", "current": "$85", "reasonableCut": "$15", "revisedBudget": "$70", "notes": "Possible via plan review/autopay discount"}, {"category": "Gym", "current": "$70", "reasonableCut": "$10", "revisedBudget": "$60", "notes": "Only if a cheaper plan exists"}], "topCategories": [{"rank": "1", "category": "Groceries", "current": "$620", "reason": "High for one monthly budget unless you are supporting others, buying premium items, or relying on delivery/prepared food.", "reasonableTarget": "$500", "potentialCut": "$120"}, {"rank": "2", "category": "Dining out", "current": "$540", "reason": "This is the strongest cut opportunity.", "reasonableTarget": "$320", "potentialCut": "$220"}, {"rank": "3", "category": "Shopping", "current": "$410", "reason": "Usually the easiest discretionary category to cap.", "reasonableTarget": "$250", "potentialCut": "$160"}], "revisedBudgetRows": [{"category": "Rent", "amount": "$1,450"}, {"category": "Groceries", "amount": "$500"}, {"category": "Dining out", "amount": "$320"}, {"category": "Transport", "amount": "$310"}, {"category": "Utilities", "amount": "$190"}, {"category": "Phone", "amount": "$70"}, {"category": "Subscriptions", "amount": "$60"}, {"category": "Travel sinking fund", "amount": "$200"}, {"category": "Shopping", "amount": "$250"}, {"category": "Gym", "amount": "$60"}, {"category": "Insurance", "amount": "$210"}, {"category": "Student loan", "amount": "$280"}, {"category": "Emergency savings", "amount": "$120"}, {"category": "Miscellaneous", "amount": "$200"}], "sourceRows": [{"source": "Consumer budgeting guide", "url": "https://www.consumer.gov/articles/making-budget"}, {"source": "Monthly budgeting worksheet", "url": "https://www.ramseysolutions.com/budgeting/budget-worksheet"}, {"source": "CFPB money management resources", "url": "https://www.consumerfinance.gov/consumer-tools/budgeting/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["titleRow", "snapshotCard", "overspendingSection", "top3Section", "revisedBudgetSection", "quickActionsSection", "contextSection", "sourcesSection"]}, "titleRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["titleIcon", "titleText"]}, "titleIcon": {"type": "Icon", "props": {"name": "../assets/r_000012_01_1_currency-dollar.svg"}, "children": []}, "titleText": {"type": "Text", "props": {"text": "Monthly Cash-Flow Snapshot", "variant": "h1"}, "children": []}, "snapshotCard": {"type": "Card", "props": {}, "children": ["snapshotStack"]}, "snapshotStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["incomeText", "spendingText", "gapText", "budgetShareText"]}, "incomeText": {"type": "Text", "props": {"text": "After-tax income: $4,200", "variant": "body"}, "children": []}, "spendingText": {"type": "Text", "props": {"text": "Current monthly spending: $4,941", "variant": "body"}, "children": []}, "gapText": {"type": "Text", "props": {"text": "Current gap: -$741/month", "variant": "body"}, "children": []}, "budgetShareText": {"type": "Text", "props": {"text": "Your budget is currently running at about 118% of take-home pay, so the main goal is to trim flexible categories first rather than cut essentials aggressively.", "variant": "body"}, "children": []}, "overspendingSection": {"type": "Card", "props": {}, "children": ["overspendingStack"]}, "overspendingStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["overspendingHeading", "overspendingIntro", "overspendingTable", "cutsTotalText", "newSpendingText"]}, "overspendingHeading": {"type": "Text", "props": {"text": "Biggest Overspending Areas and Revised Budget", "variant": "h2"}, "children": []}, "overspendingIntro": {"type": "Text", "props": {"text": "Using a practical “not extreme” approach, the top three categories to target are dining out, shopping, and groceries. These are the largest flexible expenses and offer the cleanest savings without disrupting fixed obligations.", "variant": "body"}, "children": []}, "overspendingTable": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "current", "label": "Current"}, {"key": "reasonableCut", "label": "Reasonable Cut"}, {"key": "revisedBudget", "label": "Revised Budget"}, {"key": "notes", "label": "Notes"}], "statePath": "/overspendingRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "category", "highlightColumns": ["reasonableCut", "revisedBudget"], "numericColumns": ["current", "reasonableCut", "revisedBudget"], "sourceFormat": "markdown"}, "children": []}, "cutsTotalText": {"type": "Text", "props": {"text": "Total reasonable cuts identified: $721/month", "variant": "body"}, "children": []}, "newSpendingText": {"type": "Text", "props": {"text": "That brings spending from $4,941 down to about $4,220/month.", "variant": "body"}, "children": []}, "top3Section": {"type": "Card", "props": {}, "children": ["top3Stack"]}, "top3Stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["top3Heading", "top3Table"]}, "top3Heading": {"type": "Text", "props": {"text": "Top 3 overspending categories", "variant": "h3"}, "children": []}, "top3Table": {"type": "Table", "props": {"columns": [{"key": "rank", "label": "Rank"}, {"key": "category", "label": "Category"}, {"key": "current", "label": "Current"}, {"key": "reason", "label": "Reason"}, {"key": "reasonableTarget", "label": "Reasonable target"}, {"key": "potentialCut", "label": "Potential cut"}], "statePath": "/topCategories", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "category", "highlightColumns": ["reasonableTarget", "potentialCut"], "numericColumns": ["current", "reasonableTarget", "potentialCut"]}, "children": []}, "revisedBudgetSection": {"type": "Card", "props": {}, "children": ["revisedBudgetStack"]}, "revisedBudgetStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["revisedBudgetHeading", "revisedBudgetIntro", "revisedBudgetTable", "revisedTotalText", "remainingGapText", "betterBalancedHeading", "betterBalancedText"]}, "revisedBudgetHeading": {"type": "Text", "props": {"text": "Practical Revised Monthly Budget", "variant": "h2"}, "children": []}, "revisedBudgetIntro": {"type": "Text", "props": {"text": "This version aims to be realistic while nearly balancing the month.", "variant": "body"}, "children": []}, "revisedBudgetTable": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "amount", "label": "Amount"}], "statePath": "/revisedBudgetRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "category", "numericColumns": ["amount"]}, "children": []}, "revisedTotalText": {"type": "Text", "props": {"text": "Revised total: $4,220", "variant": "body"}, "children": []}, "remainingGapText": {"type": "Text", "props": {"text": "Remaining gap: -$20/month", "variant": "body"}, "children": []}, "betterBalancedHeading": {"type": "Text", "props": {"text": "Better-balanced version", "variant": "h3"}, "children": []}, "betterBalancedText": {"type": "Text", "props": {"text": "If you want to get back to a small positive monthly cushion, reduce just one more category slightly: Travel sinking fund from $200 → $150 or Miscellaneous from $200 → $180. That would put you at about $4,170–$4,200, which is much safer.", "variant": "body"}, "children": []}, "quickActionsSection": {"type": "Card", "props": {}, "children": ["quickActionsStack"]}, "quickActionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["quickActionsHeading", "copyBudgetButton", "trackSpendingButton"]}, "quickActionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "copyBudgetButton": {"type": "Button", "props": {"label": "Copy revised budget", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=monthly+budget+template+google+sheets"}}}}, "trackSpendingButton": {"type": "Button", "props": {"label": "Track spending", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumer.gov/articles/making-budget"}}}}, "contextSection": {"type": "Card", "props": {}, "children": ["contextStack"]}, "contextStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["contextHeading", "contextText"]}, "contextHeading": {"type": "Text", "props": {"text": "Budgeting Context", "variant": "h2"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "To estimate “overspending,” I treated rent, insurance, student loan, utilities, and most transport as harder-to-change fixed costs, and focused mainly on categories with the most flexibility.", "variant": "body"}, "children": []}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourcesTable"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesTable": {"type": "Table", "props": {"columns": [{"key": "source", "label": "Source"}, {"key": "url", "label": "URL"}], "statePath": "/sourceRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "source"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

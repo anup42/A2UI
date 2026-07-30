@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"restaurantComparison": [{"restaurant": "Simple Life", "cuisine": "Vegetarian Chinese/Malay fusion", "estCostFor4": "MYR 96", "budgetFit": "Yes", "noiseLevel": "Quiet", "vegetarianFit": "Excellent", "bestFor": "Calm dinner, easiest group fit"}, {"restaurant": "Banana Leaf House", "cuisine": "South Indian", "estCostFor4": "MYR 112", "budgetFit": "Yes", "noiseLevel": "Lively", "vegetarianFit": "Good", "bestFor": "Budget-friendly if noise matters less"}, {"restaurant": "Aliyaa Island", "cuisine": "Sri Lankan", "estCostFor4": "MYR 192", "budgetFit": "Yes, but tight", "noiseLevel": "Moderate", "vegetarianFit": "Fair-Good", "bestFor": "Slightly nicer meal with some veg choice"}, {"restaurant": "Din Tai Fung", "cuisine": "Taiwanese", "estCostFor4": "MYR 220", "budgetFit": "No", "noiseLevel": "Moderate", "vegetarianFit": "Limited", "bestFor": "Better only if budget/veg needs change"}], "planningNotes": [{"restaurant": "Simple Life", "calculation": "MYR 24 × 4 = MYR 96"}, {"restaurant": "Banana Leaf House", "calculation": "MYR 28 × 4 = MYR 112"}, {"restaurant": "Aliyaa Island", "calculation": "MYR 48 × 4 = MYR 192"}, {"restaurant": "Din Tai Fung", "calculation": "MYR 55 × 4 = MYR 220"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "summary_card", "comparison_section", "recommendation_section", "best_pick_section", "planning_section", "actions_section", "sources_section"]}, "title": {"type": "Text", "props": {"text": "Kuala Lumpur Dinner Fit for Your Group", "variant": "h1"}, "children": []}, "summary_card": {"type": "Card", "props": {}, "children": ["summary_stack"]}, "summary_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["summary_heading", "summary_text_1", "summary_text_2"]}, "summary_heading": {"type": "Text", "props": {"text": "Summary", "variant": "h2"}, "children": []}, "summary_text_1": {"type": "Text", "props": {"text": "For 4 people under MYR 200 before tax, the shortlist narrows to the places that stay within budget while handling 1 vegetarian and a quieter dinner around 19:30.", "variant": "body"}, "children": []}, "summary_text_2": {"type": "Text", "props": {"text": "Best overall fit: Simple Life.", "variant": "body"}, "children": []}, "comparison_section": {"type": "Card", "props": {}, "children": ["comparison_stack"]}, "comparison_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["comparison_heading", "comparison_table"]}, "comparison_heading": {"type": "Text", "props": {"text": "Restaurant Comparison", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "restaurant", "label": "Restaurant"}, {"key": "cuisine", "label": "Cuisine"}, {"key": "estCostFor4", "label": "Est. Cost for 4"}, {"key": "budgetFit", "label": "Budget Fit"}, {"key": "noiseLevel", "label": "Noise Level"}, {"key": "vegetarianFit", "label": "Vegetarian Fit"}, {"key": "bestFor", "label": "Best For"}], "statePath": "/restaurantComparison", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "restaurant", "highlightColumns": ["estCostFor4", "budgetFit"], "numericColumns": ["estCostFor4"], "sourceFormat": "plain"}, "children": []}, "recommendation_section": {"type": "Card", "props": {}, "children": ["recommendation_stack"]}, "recommendation_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["recommendation_heading", "option1_title", "option1_text", "option2_title", "option2_text", "option3_title", "option3_text"]}, "recommendation_heading": {"type": "Text", "props": {"text": "Ranked Recommendation", "variant": "h2"}, "children": []}, "option1_title": {"type": "Text", "props": {"text": "Option 1: Simple Life", "variant": "h3"}, "children": []}, "option1_text": {"type": "Text", "props": {"text": "Best match for your group’s budget, vegetarian need, and quieter atmosphere. Estimated MYR 96 total. It is the safest choice for a not-too-noisy dinner and leaves room for drinks or shared extras.", "variant": "body"}, "children": []}, "option2_title": {"type": "Text", "props": {"text": "Option 2: Aliyaa Island", "variant": "h3"}, "children": []}, "option2_text": {"type": "Text", "props": {"text": "Good second choice if you want a more distinctive dinner and can use most of the budget. Estimated MYR 192 total. It still fits, but only narrowly, and the vegetarian fit is less flexible than Simple Life.", "variant": "body"}, "children": []}, "option3_title": {"type": "Text", "props": {"text": "Option 3: Banana Leaf House", "variant": "h3"}, "children": []}, "option3_text": {"type": "Text", "props": {"text": "Strong value and vegetarian-friendly, with an estimated MYR 112 total, but the lively atmosphere clashes with your quieter preference.", "variant": "body"}, "children": []}, "best_pick_section": {"type": "Card", "props": {}, "children": ["best_pick_stack"]}, "best_pick_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["best_pick_heading", "best_pick_choice", "best_pick_intro", "priority_1", "priority_2", "priority_3", "priority_4", "why_not_heading", "why_not_1", "why_not_2", "why_not_3"]}, "best_pick_heading": {"type": "Text", "props": {"text": "Best Pick at 19:30", "variant": "h2"}, "children": []}, "best_pick_choice": {"type": "Text", "props": {"text": "Choose Simple Life.", "variant": "h3"}, "children": []}, "best_pick_intro": {"type": "Text", "props": {"text": "It is the only option that clearly aligns with all major priorities in order.", "variant": "body"}, "children": []}, "priority_1": {"type": "Text", "props": {"text": "Under MYR 200 total", "variant": "chip"}, "children": []}, "priority_2": {"type": "Text", "props": {"text": "Comfortable for one vegetarian", "variant": "chip"}, "children": []}, "priority_3": {"type": "Text", "props": {"text": "Quiet / not too noisy", "variant": "chip"}, "children": []}, "priority_4": {"type": "Text", "props": {"text": "Suitable for a relaxed 19:30 dinner", "variant": "chip"}, "children": []}, "why_not_heading": {"type": "Text", "props": {"text": "Why not the others", "variant": "h3"}, "children": []}, "why_not_1": {"type": "Text", "props": {"text": "Banana Leaf House: affordable, but likely noisier than you want.", "variant": "body"}, "children": []}, "why_not_2": {"type": "Text", "props": {"text": "Aliyaa Island: viable, but nearly maxes out budget and is less vegetarian-friendly.", "variant": "body"}, "children": []}, "why_not_3": {"type": "Text", "props": {"text": "Din Tai Fung: over budget and weaker for the vegetarian diner.", "variant": "body"}, "children": []}, "planning_section": {"type": "Card", "props": {}, "children": ["planning_stack"]}, "planning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["planning_heading", "planning_intro", "planning_table", "planning_note"]}, "planning_heading": {"type": "Text", "props": {"text": "Planning Notes", "variant": "h2"}, "children": []}, "planning_intro": {"type": "Text", "props": {"text": "Using the provided estimates:", "variant": "body"}, "children": []}, "planning_table": {"type": "Table", "props": {"columns": [{"key": "restaurant", "label": "Restaurant"}, {"key": "calculation", "label": "Calculation"}], "statePath": "/planningNotes", "domain": "formula", "preferredPresentation": "table", "primaryColumn": "restaurant", "sourceFormat": "plain"}, "children": []}, "planning_note": {"type": "Text", "props": {"text": "This assumes everyone orders around the stated average and that the MYR 200 cap is before tax, as specified.", "variant": "caption"}, "children": []}, "actions_section": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actions_heading", "reserve_button", "compare_button"]}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "reserve_button": {"type": "Button", "props": {"label": "Reserve Simple Life", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=Simple+Life+Kuala+Lumpur+reservation"}}}}, "compare_button": {"type": "Button", "props": {"label": "Compare locations", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/search/restaurants+in+Kuala+Lumpur+Malaysia"}}}}, "sources_section": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sources_heading", "source_text_1", "source_2_button"]}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source_text_1": {"type": "Text", "props": {"text": "Shortlist provided in your prompt.", "variant": "caption"}, "children": []}, "source_2_button": {"type": "Button", "props": {"label": "Kuala Lumpur dining area map search", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/maps/search/restaurants+in+Kuala+Lumpur+Malaysia"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"docs": [{"option": "Option 1", "title": "My Octopus Teacher", "category": "Nature / human connection", "feel": "Gentle, emotional, visually stunning", "hook": "A filmmaker forms an unexpected bond with an octopus, and it plays more like an intimate, healing story than a lesson about marine biology.", "icon": "../assets/r_000175_01_1_water.svg", "actionLabel": "Watch info", "url": "https://www.netflix.com/title/81045007"}, {"option": "Option 2", "title": "Free Solo", "category": "Sports / survival", "feel": "High tension, incredibly cinematic", "hook": "Even if you don’t care about climbing, the sheer suspense of Alex Honnold attempting the impossible makes it feel like a thriller.", "icon": "../assets/r_000175_01_2_activity.svg", "actionLabel": "Watch info", "url": "https://www.nationalgeographic.com/tv/movies-and-specials/free-solo"}, {"option": "Option 3", "title": "The Social Dilemma", "category": "Technology / society", "feel": "Fast, direct, highly relatable", "hook": "It works as an easy entry point because it connects big tech ideas to everyday phone habits and personal relationships almost everyone recognizes.", "icon": "../assets/r_000175_01_3_laptop.svg", "actionLabel": "Watch info", "url": "https://www.netflix.com/title/81254224"}, {"option": "Option 4", "title": "Exit Through the Gift Shop", "category": "Art / culture", "feel": "Funny, weird, unpredictable", "hook": "This is a great starter documentary because it has the energy of a prank-filled character study rather than a formal art-history lecture.", "icon": "../assets/r_000175_01_4_brush.svg", "actionLabel": "Watch info", "url": "https://www.imdb.com/title/tt1587707/"}, {"option": "Option 5", "title": "Won’t You Be My Neighbor?", "category": "Human story / culture", "feel": "Warm, moving, deeply accessible", "hook": "Fred Rogers’ kindness and emotional honesty make this feel uplifting and personal, even for viewers who think documentaries are dry.", "icon": "../assets/r_000175_01_5_heart.svg", "actionLabel": "Watch info", "url": "https://www.focusfeatures.com/wont-you-be-my-neighbor/"}, {"option": "Option 6", "title": "13th", "category": "Human story / history", "feel": "Urgent, powerful, clear", "hook": "It’s a strong entry point because its storytelling is so focused and forceful that the history feels immediate instead of academic.", "icon": "../assets/r_000175_01_6_people.svg", "actionLabel": "Watch info", "url": "https://www.netflix.com/title/80091741"}], "moods": [{"mood": "beautiful and emotional", "pick": "My Octopus Teacher"}, {"mood": "edge-of-your-seat tension", "pick": "Free Solo"}, {"mood": "something current and easy to discuss after", "pick": "The Social Dilemma"}, {"mood": "quirky and entertaining", "pick": "Exit Through the Gift Shop"}, {"mood": "warm and humane", "pick": "Won’t You Be My Neighbor?"}, {"mood": "serious but gripping", "pick": "13th"}], "sources": [{"source": "Netflix title page for My Octopus Teacher", "url": "https://www.netflix.com/title/81045007", "actionLabel": "Open source"}, {"source": "National Geographic title page for Free Solo", "url": "https://www.nationalgeographic.com/tv/movies-and-specials/free-solo", "actionLabel": "Open source"}, {"source": "Focus Features page for Won’t You Be My Neighbor?", "url": "https://www.focusfeatures.com/wont-you-be-my-neighbor/", "actionLabel": "Open source"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "intro_card", "picks_heading", "picks_table", "mood_heading", "mood_table", "actions_heading", "actions_card", "sources_heading", "sources_table"]}, "title": {"type": "Text", "props": {"text": "Six Documentaries That Don’t Feel Like Homework", "variant": "h1"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["intro_text"]}, "intro_text": {"type": "Text", "props": {"text": "These picks are chosen for momentum, emotion, and clarity first. They span nature, sports, technology, art, and human stories, with each film offering a strong hook for viewers who usually bounce off traditional documentaries.", "variant": "body"}, "children": []}, "picks_heading": {"type": "Text", "props": {"text": "Pick-by-Pick Entry Points", "variant": "h2"}, "children": []}, "picks_table": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "title", "label": "Title"}, {"key": "category", "label": "Category"}, {"key": "feel", "label": "Why it works"}, {"key": "hook", "label": "Entry point"}, {"key": "icon", "label": "Icon"}, {"key": "actionLabel", "label": "Action"}, {"key": "url", "label": "URL"}], "statePath": "/docs", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["category", "feel"], "sourceFormat": "plain"}, "children": []}, "mood_heading": {"type": "Text", "props": {"text": "Best First Pick by Mood", "variant": "h2"}, "children": []}, "mood_table": {"type": "Table", "props": {"columns": [{"key": "mood", "label": "If you want..."}, {"key": "pick", "label": "Best first pick"}], "statePath": "/moods", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "mood", "highlightColumns": ["pick"], "sourceFormat": "plain"}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["start_gentle", "start_thrilling"]}, "start_gentle": {"type": "Button", "props": {"label": "Start gentle", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.netflix.com/title/81045007"}}}}, "start_thrilling": {"type": "Button", "props": {"label": "Start thrilling", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nationalgeographic.com/tv/movies-and-specials/free-solo"}}}}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_table": {"type": "Table", "props": {"columns": [{"key": "source", "label": "Source"}, {"key": "actionLabel", "label": "Action"}, {"key": "url", "label": "URL"}], "statePath": "/sources", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "source", "highlightColumns": ["actionLabel"], "sourceFormat": "plain"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

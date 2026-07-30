@@ -1,0 +1,80 @@
+{
+  "run_group": "dataset_gpt54_no_reasoning_p5_20260619",
+  "updated_at": "2026-06-19T18:00:39.634621+00:00",
+  "monitor_pid": 36188,
+  "active_controllers": 5,
+  "target_total": 20000,
+  "totals": {
+    "queries": 5000,
+    "responses": 1142,
+    "genui": 1111
+  },
+  "complete": false,
+  "shards": [
+    {
+      "part": "01",
+      "run_id": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "controller_pid": "9808",
+      "controller_alive": true,
+      "queries": 1000,
+      "responses": 231,
+      "genui": 224,
+      "target": 4000,
+      "latest_stage_start": "[2026-06-19T23:26:03.0433468+05:30] START stage2_cycle_1_from_224 output_log=C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619_part01\\stage2_cycle_1_from_224.output.log args=src/main.py --stage 2 --model azure_gpt54_benchmark --run_id dataset_gpt54_no_reasoning_p5_20260619_part01 --max_responses_total 16 --stage2_batch_size 16 --stage2_response_batch_size 1 --rate_limit_qps 0.5",
+      "latest_stage_end": "[2026-06-19T23:26:02.9090011+05:30] END stage3_cycle_1_from_208",
+      "latest_cycle": "[2026-06-19T20:18:38.4560378+05:30] CYCLE 1 counts before queries=1000 responses=32 genui=0"
+    },
+    {
+      "part": "02",
+      "run_id": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "controller_pid": "56132",
+      "controller_alive": true,
+      "queries": 1000,
+      "responses": 224,
+      "genui": 216,
+      "target": 4000,
+      "latest_stage_start": "[2026-06-19T23:24:38.2323030+05:30] START stage3_cycle_1_from_208 output_log=C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619_part02\\stage3_cycle_1_from_208.output.log args=src/main.py --stage 3 --model azure_gpt54_benchmark --run_id dataset_gpt54_no_reasoning_p5_20260619_part02 --max_genui_total 16 --genui_batch_size 8 --rate_limit_qps 0.5",
+      "latest_stage_end": "[2026-06-19T23:24:38.0922973+05:30] END stage2_cycle_1_from_208",
+      "latest_cycle": "[2026-06-19T20:18:38.5798782+05:30] CYCLE 1 counts before queries=1000 responses=32 genui=0"
+    },
+    {
+      "part": "03",
+      "run_id": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "controller_pid": "52276",
+      "controller_alive": true,
+      "queries": 1000,
+      "responses": 224,
+      "genui": 224,
+      "target": 4000,
+      "latest_stage_start": "[2026-06-19T23:27:25.1962539+05:30] START stage2_cycle_1_from_224 output_log=C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619_part03\\stage2_cycle_1_from_224.output.log args=src/main.py --stage 2 --model azure_gpt54_benchmark --run_id dataset_gpt54_no_reasoning_p5_20260619_part03 --max_responses_total 16 --stage2_batch_size 16 --stage2_response_batch_size 1 --rate_limit_qps 0.5",
+      "latest_stage_end": "[2026-06-19T23:27:24.9707315+05:30] END stage3_cycle_1_from_208",
+      "latest_cycle": "[2026-06-19T20:18:38.6699195+05:30] CYCLE 1 counts before queries=1000 responses=32 genui=0"
+    },
+    {
+      "part": "04",
+      "run_id": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "controller_pid": "40676",
+      "controller_alive": true,
+      "queries": 1000,
+      "responses": 239,
+      "genui": 223,
+      "target": 4000,
+      "latest_stage_start": "[2026-06-19T23:28:15.3330991+05:30] START stage3_cycle_1_from_223 output_log=C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619_part04\\stage3_cycle_1_from_223.output.log args=src/main.py --stage 3 --model azure_gpt54_benchmark --run_id dataset_gpt54_no_reasoning_p5_20260619_part04 --max_genui_total 16 --genui_batch_size 8 --rate_limit_qps 0.5",
+      "latest_stage_end": "[2026-06-19T23:28:15.0617394+05:30] END stage2_cycle_1_from_223",
+      "latest_cycle": "[2026-06-19T20:18:38.7438044+05:30] CYCLE 1 counts before queries=1000 responses=31 genui=0"
+    },
+    {
+      "part": "05",
+      "run_id": "dataset_gpt54_no_reasoning_p5_20260619_part05",
+      "controller_pid": "54748",
+      "controller_alive": true,
+      "queries": 1000,
+      "responses": 224,
+      "genui": 224,
+      "target": 4000,
+      "latest_stage_start": "[2026-06-19T23:29:05.9957668+05:30] START stage2_cycle_1_from_224 output_log=C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619_part05\\stage2_cycle_1_from_224.output.log args=src/main.py --stage 2 --model azure_gpt54_benchmark --run_id dataset_gpt54_no_reasoning_p5_20260619_part05 --max_responses_total 16 --stage2_batch_size 16 --stage2_response_batch_size 1 --rate_limit_qps 0.5",
+      "latest_stage_end": "[2026-06-19T23:29:05.5911670+05:30] END stage3_cycle_1_from_208",
+      "latest_cycle": "[2026-06-19T20:18:38.8393049+05:30] CYCLE 1 counts before queries=1000 responses=32 genui=0"
+    }
+  ]
+}

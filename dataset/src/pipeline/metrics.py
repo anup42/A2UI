@@ -6,8 +6,17 @@ import re
 from collections import Counter
 from typing import Any
 
-from pipeline.genui_quality.aggregate import aggregate_v4_records
+from pipeline.genui_quality.aggregate import (
+    aggregate_v4_records,
+    aggregate_v5_0_records,
+    aggregate_v5_1_records,
+    aggregate_v5_records,
+    aggregate_v5_3_records,
+)
+from pipeline.genui_quality.aggregate_v5_4 import aggregate_v5_4_records
 from pipeline.genui_quality.config import RewardConfig, normalize_metric_mode
+from pipeline.genui_quality.config_v5_3 import RewardConfigV53
+from pipeline.genui_quality.config_v5_4 import RewardConfigV54
 
 _stopwords = {
     "the","a","an","and","or","to","of","in","on","for","with","by","is","are","was","were","be","as","it","this","that"
@@ -1195,6 +1204,11 @@ def aggregate_metrics(
     render_rows_by_ui_id: dict[str, dict[str, Any]] | None = None,
     metric_version: str = "dual",
     v4_config: RewardConfig | None = None,
+    v5_config: RewardConfig | None = None,
+    v5_1_config: RewardConfig | None = None,
+    v5_0_config: RewardConfig | None = None,
+    v5_3_config: RewardConfigV53 | None = None,
+    v5_4_config: RewardConfigV54 | None = None,
 ) -> dict[str, Any]:
     if not rows:
         return {}
@@ -1433,6 +1447,36 @@ def aggregate_metrics(
             rows,
             render_rows_by_ui_id=render_rows_by_ui_id,
             config=v4_config,
+        )
+    if metric_mode in {"v5", "v5_2", "dual"}:
+        aggregate["genui_quality_v5_2"] = aggregate_v5_records(
+            rows,
+            render_rows_by_ui_id=render_rows_by_ui_id,
+            config=v5_config,
+        )
+    if metric_mode in {"v5_1", "dual"}:
+        aggregate["genui_quality_v5_1"] = aggregate_v5_1_records(
+            rows,
+            render_rows_by_ui_id=render_rows_by_ui_id,
+            config=v5_1_config,
+        )
+    if metric_mode in {"v5_0", "dual"}:
+        aggregate["genui_quality_v5"] = aggregate_v5_0_records(
+            rows,
+            render_rows_by_ui_id=render_rows_by_ui_id,
+            config=v5_0_config,
+        )
+    if metric_mode in {"v5_3", "dual"}:
+        aggregate["genui_quality_v5_3"] = aggregate_v5_3_records(
+            rows,
+            render_rows_by_ui_id=render_rows_by_ui_id,
+            config=v5_3_config,
+        )
+    if metric_mode in {"v5_4", "dual"}:
+        aggregate["genui_quality_v5_4"] = aggregate_v5_4_records(
+            rows,
+            render_rows_by_ui_id=render_rows_by_ui_id,
+            config=v5_4_config,
         )
     return aggregate
 

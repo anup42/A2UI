@@ -13,6 +13,7 @@ from pipeline.flat_spec_contract import (
     coerce_and_validate,
     validate_flat_spec,
 )
+from pipeline.flat_spec_semantics import iter_renderer_references
 
 
 class FlatSpecContractTests(unittest.TestCase):
@@ -51,6 +52,76 @@ class FlatSpecContractTests(unittest.TestCase):
         validation = validate_flat_spec(bad_spec)
         self.assertFalse(validation.is_valid)
         self.assertIn("missing child", validation.error or "")
+
+    def test_tabs_modal_and_template_references_share_renderer_inventory(self) -> None:
+        tabs = {
+            "type": "Tabs",
+            "props": {
+                "tabs": [
+                    {"child": "first"},
+                    {"content": "second"},
+                    {"id": "third"},
+                    {"element": "fourth"},
+                ],
+                "template": "template",
+                "itemTemplate": "item_template",
+                "child": "property_child",
+            },
+            "children": ["ordinary"],
+            "repeat": {"statePath": "/items", "template": "repeat_template"},
+        }
+        references = {
+            (item.target_id, item.source_path, item.reference_kind)
+            for item in iter_renderer_references(tabs)
+        }
+        for target in (
+            "ordinary",
+            "template",
+            "item_template",
+            "property_child",
+            "repeat_template",
+            "first",
+            "second",
+            "third",
+            "fourth",
+        ):
+            self.assertTrue(any(item[0] == target for item in references), target)
+
+        modal = {
+            "type": "Modal",
+            "props": {"trigger": "open", "content": "content"},
+            "children": [],
+        }
+        self.assertEqual(
+            {item.reference_kind for item in iter_renderer_references(modal)},
+            {"modal_trigger", "modal_content"},
+        )
+
+    def test_missing_tabs_and_modal_references_are_rejected(self) -> None:
+        spec = {
+            "root": "tabs",
+            "state": {},
+            "elements": {
+                "tabs": {
+                    "type": "Tabs",
+                    "props": {"tabs": [{"child": "panel"}]},
+                    "children": [],
+                },
+                "panel": {
+                    "type": "Modal",
+                    "props": {"trigger": "trigger", "content": "missing"},
+                    "children": [],
+                },
+                "trigger": {
+                    "type": "Button",
+                    "props": {"label": "Open"},
+                    "children": [],
+                },
+            },
+        }
+        validation = validate_flat_spec(spec)
+        self.assertFalse(validation.is_valid)
+        self.assertIn("props.content", validation.error or "")
 
     def test_legacy_function_call_shape_is_rejected(self) -> None:
         bad_spec = {
@@ -180,7 +251,7 @@ class FlatSpecContractTests(unittest.TestCase):
         type_enum = schema["$defs"]["element"]["properties"]["type"]["enum"]
         self.assertIn("Chart", type_enum)
 
-        prompt = (ROOT / "prompts" / "genui_gen_gemma_v12_structure_preserve.md").read_text(encoding="utf-8")
+        prompt = (ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md").read_text(encoding="utf-8")
         self.assertIn("`Chart` props", prompt)
 
         renderer = (

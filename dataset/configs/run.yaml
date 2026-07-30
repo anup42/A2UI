@@ -76,7 +76,8 @@ benchmark:
   fixed_subset_size: 10
   fixed_seed: 123
 evaluation:
-  # One-release migration window. Set to legacy or v4 for rollback/cutover.
+  # Migration shadow mode: legacy + frozen v4 + corrected v5. Use an explicit
+  # single version only for rollback or controlled comparison.
   metric_version: dual
   legacy_score_deprecation_date: '2026-10-01'
   weights:

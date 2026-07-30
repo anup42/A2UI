@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"listeningOrder": [{"rank": "1", "album": "Ella and Louis", "why": "Warm vocals, clear song structures, and a relaxed swing feel make it the gentlest doorway into jazz."}, {"rank": "2", "album": "Kind of Blue", "why": "It is calm, spacious, and beautiful without sounding busy, so it feels sophisticated but very approachable."}, {"rank": "3", "album": "Time Out", "why": "The tunes are catchy and memorable, while the unusual time signatures add a light step up in complexity."}, {"rank": "4", "album": "Head Hunters", "why": "Funk grooves and electric textures feel familiar to modern ears, even as the improvising gets looser."}, {"rank": "5", "album": "Mingus Ah Um", "why": "It is more dynamic and layered, with bigger ensemble interplay and stronger shifts in mood and structure."}, {"rank": "6", "album": "The Epic", "why": "Its scale, long-form arrangements, and orchestral ambition ask for more patience and active listening."}, {"rank": "7", "album": "A Love Supreme", "why": "Deeply spiritual and emotionally intense, it rewards focus but can feel heavier than earlier entries."}, {"rank": "8", "album": "Bitches Brew", "why": "Its sprawling, electric, abstract sound world is the most challenging because groove, texture, and form matter more than melody."}], "sequenceOptions": [{"option": "Option 1", "focus": "Start with songs and voices", "details": "Ella and Louis gives you melody, charm, and emotional clarity", "level": "Lowest barrier", "actionLabel": "Listen album", "url": "https://en.wikipedia.org/wiki/Ella_and_Louis"}, {"option": "Option 2", "focus": "Move into classic instrumental jazz", "details": "Kind of Blue and Time Out introduce improvisation without overwhelming density", "level": "Core foundation", "actionLabel": "See albums", "url": "https://en.wikipedia.org/wiki/Kind_of_Blue"}, {"option": "Option 3", "focus": "Add groove and bigger ensembles", "details": "Head Hunters, Mingus Ah Um, and The Epic widen your sense of what jazz can sound like", "level": "Broader palette", "actionLabel": "Explore jazz", "url": "https://en.wikipedia.org/wiki/Jazz"}, {"option": "Option 4", "focus": "Finish with the most immersive records", "details": "A Love Supreme and Bitches Brew land best once your ears are used to repetition, tension, and abstraction", "level": "Highest challenge"}], "tips": [{"tip": "Do not try to understand everything at once. Treat the first listen like atmosphere, not a test."}, {"tip": "Follow one thing per track. The melody, the drums, the bass, or the singer is enough."}, {"tip": "Let repetition help you. Many jazz albums open up dramatically on the second or third listen."}, {"tip": "Read the mood, not the theory. Ask how does this feel before asking what is happening."}, {"tip": "Use shorter sessions. One album at a time is better than trying to absorb the whole history of jazz in a night."}], "sources": [{"label": "Jazz album reference", "url": "https://en.wikipedia.org/wiki/Jazz"}, {"label": "Kind of Blue", "url": "https://en.wikipedia.org/wiki/Kind_of_Blue"}, {"label": "Bitches Brew", "url": "https://en.wikipedia.org/wiki/Bitches_Brew"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "introCard", "orderCard", "sequenceCard", "tipsCard", "nextStepsCard", "sourcesCard"]}, "title": {"type": "Text", "props": {"text": "Jazz Entry Path for First-Time Listeners", "variant": "h1"}, "children": []}, "introCard": {"type": "Card", "props": {}, "children": ["introStack"]}, "introStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["introHeading", "introText", "introText2"]}, "introHeading": {"type": "Text", "props": {"text": "Overview", "variant": "h2"}, "children": []}, "introText": {"type": "Text", "props": {"text": "Start with the most melodic, familiar, and immediately enjoyable records, then move toward denser, longer, and more abstract listening experiences.", "variant": "body"}, "children": []}, "introText2": {"type": "Text", "props": {"text": "This order prioritizes accessibility first, then rhythmic complexity, then emotional and spiritual intensity, and finally full-on experimentation.", "variant": "body"}, "children": []}, "orderCard": {"type": "Card", "props": {}, "children": ["orderStack"]}, "orderStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["orderHeading", "orderContext", "orderTable"]}, "orderHeading": {"type": "Text", "props": {"text": "Easiest-to-Most-Challenging Listening Order", "variant": "h2"}, "children": []}, "orderContext": {"type": "Text", "props": {"text": "Use this ranked sequence as a gradual path into jazz, moving from friendly melody to more demanding forms and textures.", "variant": "body"}, "children": []}, "orderTable": {"type": "Table", "props": {"columns": [{"key": "rank", "label": "Rank"}, {"key": "album", "label": "Album"}, {"key": "why", "label": "Why it goes here"}], "statePath": "/listeningOrder", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "album", "highlightColumns": ["rank"], "sourceFormat": "plain"}, "children": []}, "sequenceCard": {"type": "Card", "props": {}, "children": ["sequenceStack"]}, "sequenceStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["sequenceHeading", "sequenceIntro", "optionsTable", "optionActions"]}, "sequenceHeading": {"type": "Text", "props": {"text": "Why This Sequence Works", "variant": "h2"}, "children": []}, "sequenceIntro": {"type": "Text", "props": {"text": "The progression moves from melody and familiarity toward groove, emotional intensity, and abstraction, so each step builds listening confidence before asking for deeper attention.", "variant": "body"}, "children": []}, "optionsTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "focus", "label": "Focus"}, {"key": "details", "label": "Why this step works"}, {"key": "level", "label": "Challenge level"}], "statePath": "/sequenceOptions", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["level"], "sourceFormat": "plain"}, "children": []}, "optionActions": {"type": "Stack", "props": {"direction": "horizontal", "wrap": "wrap", "gap": "sm"}, "children": ["option1Button", "option2Button", "option3Button"]}, "option1Button": {"type": "Button", "props": {"label": "Listen album", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://en.wikipedia.org/wiki/Ella_and_Louis"}}}}, "option2Button": {"type": "Button", "props": {"label": "See albums", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://en.wikipedia.org/wiki/Kind_of_Blue"}}}}, "option3Button": {"type": "Button", "props": {"label": "Explore jazz", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://en.wikipedia.org/wiki/Jazz"}}}}, "tipsCard": {"type": "Card", "props": {}, "children": ["tipsStack"]}, "tipsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["tipsHeading", "tipsIntro", "tip1", "tip2", "tip3", "tip4", "tip5"]}, "tipsHeading": {"type": "Text", "props": {"text": "Listening Tips That Keep Jazz Fun", "variant": "h2"}, "children": []}, "tipsIntro": {"type": "Text", "props": {"text": "A few simple habits can make unfamiliar albums feel inviting rather than intimidating.", "variant": "body"}, "children": []}, "tip1": {"type": "Text", "props": {"text": "Do not try to understand everything at once. Treat the first listen like atmosphere, not a test.", "variant": "body"}, "children": []}, "tip2": {"type": "Text", "props": {"text": "Follow one thing per track. The melody, the drums, the bass, or the singer is enough.", "variant": "body"}, "children": []}, "tip3": {"type": "Text", "props": {"text": "Let repetition help you. Many jazz albums open up dramatically on the second or third listen.", "variant": "body"}, "children": []}, "tip4": {"type": "Text", "props": {"text": "Read the mood, not the theory. Ask how does this feel before asking what is happening.", "variant": "body"}, "children": []}, "tip5": {"type": "Text", "props": {"text": "Use shorter sessions. One album at a time is better than trying to absorb the whole history of jazz in a night.", "variant": "body"}, "children": []}, "nextStepsCard": {"type": "Card", "props": {}, "children": ["nextStepsStack"]}, "nextStepsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["nextStepsHeading", "nextStepsText1", "nextStepsText2"]}, "nextStepsHeading": {"type": "Text", "props": {"text": "Next Steps", "variant": "h2"}, "children": []}, "nextStepsText1": {"type": "Text", "props": {"text": "If you want the easiest possible start, begin with Ella and Louis, then move to Kind of Blue, then Time Out.", "variant": "body"}, "children": []}, "nextStepsText2": {"type": "Text", "props": {"text": "Save A Love Supreme and Bitches Brew for later, once your ears are more comfortable with repetition, tension, and abstraction.", "variant": "body"}, "children": []}, "sourcesCard": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourcesCaption", "source1Button", "source2Button", "source3Button"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesCaption": {"type": "Text", "props": {"text": "Open these references for album context and broader jazz background.", "variant": "caption"}, "children": []}, "source1Button": {"type": "Button", "props": {"label": "Jazz album reference", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://en.wikipedia.org/wiki/Jazz"}}}}, "source2Button": {"type": "Button", "props": {"label": "Kind of Blue", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://en.wikipedia.org/wiki/Kind_of_Blue"}}}}, "source3Button": {"type": "Button", "props": {"label": "Bitches Brew", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://en.wikipedia.org/wiki/Bitches_Brew"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

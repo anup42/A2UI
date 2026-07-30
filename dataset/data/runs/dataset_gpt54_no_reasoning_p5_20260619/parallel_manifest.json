@@ -1,0 +1,61 @@
+﻿{
+    "run_group":  "dataset_gpt54_no_reasoning_p5_20260619",
+    "created_at":  "2026-06-19T18:30:46.8866785Z",
+    "model":  "azure_gpt54_benchmark",
+    "reasoning":  "none",
+    "prompt_cache":  "disabled",
+    "shards":  5,
+    "per_shard_target":  4000,
+    "total_target":  20000,
+    "chunks":  {
+                   "stage1":  1000,
+                   "stage2":  1000,
+                   "stage3":  1000,
+                   "response_ir":  16
+               },
+    "mode":  "interleave_response_ir",
+    "base_stage1_prompt":  "prompts/query_gen_gemma_v3_diverse_openings.md",
+    "stage3_prompt":  "prompts/genui_gen_gemma_v12_structure_preserve.md",
+    "runs":  [
+                 {
+                     "shard":  1,
+                     "run_id":  "dataset_gpt54_no_reasoning_p5_20260619_part01",
+                     "pid":  22364,
+                     "target":  4000,
+                     "stage1_prompt":  "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619\\_prompt_variants\\query_gen_shard_01.md",
+                     "started_at":  "2026-06-19T18:30:46.7940742Z"
+                 },
+                 {
+                     "shard":  2,
+                     "run_id":  "dataset_gpt54_no_reasoning_p5_20260619_part02",
+                     "pid":  12116,
+                     "target":  4000,
+                     "stage1_prompt":  "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619\\_prompt_variants\\query_gen_shard_02.md",
+                     "started_at":  "2026-06-19T18:30:46.8187479Z"
+                 },
+                 {
+                     "shard":  3,
+                     "run_id":  "dataset_gpt54_no_reasoning_p5_20260619_part03",
+                     "pid":  5740,
+                     "target":  4000,
+                     "stage1_prompt":  "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619\\_prompt_variants\\query_gen_shard_03.md",
+                     "started_at":  "2026-06-19T18:30:46.8423074Z"
+                 },
+                 {
+                     "shard":  4,
+                     "run_id":  "dataset_gpt54_no_reasoning_p5_20260619_part04",
+                     "pid":  24316,
+                     "target":  4000,
+                     "stage1_prompt":  "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619\\_prompt_variants\\query_gen_shard_04.md",
+                     "started_at":  "2026-06-19T18:30:46.8626605Z"
+                 },
+                 {
+                     "shard":  5,
+                     "run_id":  "dataset_gpt54_no_reasoning_p5_20260619_part05",
+                     "pid":  15324,
+                     "target":  4000,
+                     "stage1_prompt":  "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\dataset_gpt54_no_reasoning_p5_20260619\\_prompt_variants\\query_gen_shard_05.md",
+                     "started_at":  "2026-06-19T18:30:46.8866785Z"
+                 }
+             ]
+}

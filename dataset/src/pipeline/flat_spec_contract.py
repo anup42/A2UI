@@ -6,6 +6,8 @@ import json
 import re
 from typing import Any
 
+from .flat_spec_semantics import iter_renderer_references
+
 _ALLOWED_TYPES = {
     "stack",
     "column",
@@ -263,8 +265,14 @@ def validate_flat_spec(spec: dict[str, Any]) -> ValidationResult:
         for child in children:
             if not isinstance(child, str):
                 return ValidationResult(False, f"Element '{element_id}' contains a non-string child reference.")
-            if child not in ids:
-                return ValidationResult(False, f"Element '{element_id}' references missing child '{child}'.")
+        for reference in iter_renderer_references(raw_element):
+            if reference.target_id not in ids:
+                noun = "child" if reference.reference_kind == "child" else "element"
+                return ValidationResult(
+                    False,
+                    f"Element '{element_id}' references missing {noun} '{reference.target_id}' "
+                    f"at {reference.source_path}.",
+                )
 
         repeat = raw_element.get("repeat")
         if repeat is not None:
@@ -296,6 +304,32 @@ def validate_flat_spec(spec: dict[str, Any]) -> ValidationResult:
                 action_error = _validate_action_candidate(action_value, f"Element '{element_id}' watch.{state_path}")
                 if action_error:
                     return ValidationResult(False, action_error)
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(element_id: str) -> str | None:
+        if element_id in visiting:
+            return element_id
+        if element_id in visited:
+            return None
+        visiting.add(element_id)
+        raw_element = elements_node.get(element_id)
+        if isinstance(raw_element, dict):
+            for reference in iter_renderer_references(raw_element):
+                cycle_id = visit(reference.target_id)
+                if cycle_id is not None:
+                    return cycle_id
+        visiting.remove(element_id)
+        visited.add(element_id)
+        return None
+
+    cycle_id = visit(root)
+    if cycle_id is not None:
+        return ValidationResult(
+            False,
+            f"Renderer reference cycle is reachable from root through element '{cycle_id}'.",
+        )
 
     return ValidationResult(True)
 

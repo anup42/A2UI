@@ -36,7 +36,6 @@ import re
 from typing import Any, Callable, Iterable, Mapping, MutableMapping, Sequence
 from urllib.parse import urlsplit, urlunsplit
 
-
 REWARD_VERSION = "4.0.0"
 
 # Keep this aligned with the JSON schema and Android renderer.  Chart is
@@ -221,6 +220,12 @@ class Atomic:
 class SourceTable:
     headers: tuple[str, ...]
     rows: tuple[tuple[str, ...], ...]
+    id: str = ""
+    required: bool = True
+    minimum_count: int = 1
+    order_sensitive: bool = False
+    row_key: tuple[str, ...] = ()
+    representation_policy: str = "table_only"
 
     @property
     def cells(self) -> tuple[str, ...]:
@@ -232,6 +237,10 @@ class ActionRef:
     label: str
     url: str
     action_type: str = "openUrl"
+    id: str = ""
+    required: bool = True
+    minimum_count: int = 1
+    expected_component_id: str = ""
 
 
 @dataclass(frozen=True)
@@ -239,6 +248,12 @@ class MediaRef:
     kind: str
     url: str
     alt: str = ""
+    id: str = ""
+    required: bool = True
+    minimum_count: int = 1
+    media_policy: str = "exact"
+    expected_component_id: str = ""
+    component_id: str = ""
 
 
 @dataclass
@@ -257,6 +272,8 @@ class SourceContract:
     required_roles: dict[str, bool]
     expected_role_counts: dict[str, int]
     asset_aliases: dict[str, set[str]] = field(default_factory=dict)
+    content_units: list[str] = field(default_factory=list)
+    role_requirements: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
 
 
 @dataclass
@@ -313,7 +330,7 @@ class OutputEvidence:
     valid_type_counts: Counter[str] = field(default_factory=Counter)
 
 
-@dataclass
+@dataclass(frozen=True)
 class RewardBreakdown:
     reward: float
     quality_0_100: float
@@ -326,6 +343,19 @@ class RewardBreakdown:
     metric_version: str = REWARD_VERSION
     active_caps: list[dict[str, Any]] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    metric_name: str = "GenUI Representation Quality"
+    metric_fingerprint: str = ""
+    base_quality_before_caps: float = 0.0
+    effective_atomic_weights: dict[str, float] = field(default_factory=dict)
+    effective_dimension_weights: dict[str, float] = field(default_factory=dict)
+    applicable_atomic_count: int = 0
+    anti_domination_feasible: bool = True
+    normalization: dict[str, Any] = field(default_factory=dict)
+    identity: dict[str, str | None] = field(default_factory=dict)
+    binding_caps: list[dict[str, Any]] = field(default_factory=list)
+    cap_margin: float = 0.0
+    matching_certification: dict[str, Any] = field(default_factory=dict)
+    dynamic_semantics: dict[str, Any] = field(default_factory=dict)
 
     @property
     def engineering_score(self) -> float:
@@ -357,6 +387,19 @@ class RewardConfig:
     good_json_to_source_ratio: float = 3.0
     bad_json_to_source_ratio: float = 7.0
     max_atomic_global_weight: float = 0.10
+    anti_domination_infeasible_policy: str = "fail_closed"
+    max_repeat_items: int = 32
+    max_expanded_evidence_nodes: int = 512
+    max_expression_depth: int = 12
+    max_string_expansion_length: int = 4096
+    max_assignment_size: int = 64
+    max_matching_edges: int = 65536
+    large_matching_top_k: int = 16
+    max_matching_hungarian_work: int = 50_000_000
+    max_matching_sparse_relaxations: int = 50_000_000
+    role_match_threshold: float = 0.70
+    matching_incomplete_policy: str = "fail_closed"
+    dynamic_unknown_policy: str = "cap"
     render_check: Callable[[Mapping[str, Any]], bool] | None = None
 
     def __post_init__(self) -> None:
@@ -364,8 +407,12 @@ class RewardConfig:
             self.dimension_weights, "dimension_weights"
         )
         normalized_atomics: dict[str, dict[str, float]] = {}
-        for dimension, defaults in DEFAULT_ATOMIC_WEIGHTS.items():
+        dimensions = set(self.dimension_weights) | set(self.atomic_weights)
+        for dimension in sorted(dimensions):
+            defaults = DEFAULT_ATOMIC_WEIGHTS.get(dimension, {})
             raw = self.atomic_weights.get(dimension, defaults)
+            if not raw:
+                continue
             normalized_atomics[dimension] = self._normalize_group(
                 raw, f"atomic_weights.{dimension}"
             )
@@ -388,14 +435,33 @@ class RewardConfig:
             raise ValueError("bad_json_to_source_ratio must exceed good ratio")
         if not 0.0 < self.max_atomic_global_weight <= 1.0:
             raise ValueError("max_atomic_global_weight must be in (0, 1]")
-        for dimension, group in self.atomic_weights.items():
-            for atomic_name, atomic_weight in group.items():
-                effective = self.dimension_weights.get(dimension, 0.0) * atomic_weight
-                if effective > self.max_atomic_global_weight + 1e-9:
-                    raise ValueError(
-                        f"effective weight for {dimension}.{atomic_name} is {effective:.4f}; "
-                        f"limit is {self.max_atomic_global_weight:.4f}"
-                    )
+        if self.anti_domination_infeasible_policy not in {"fail_closed", "error"}:
+            raise ValueError(
+                "anti_domination_infeasible_policy must be fail_closed or error"
+            )
+        for name in (
+            "max_repeat_items",
+            "max_expanded_evidence_nodes",
+            "max_expression_depth",
+            "max_string_expansion_length",
+            "max_assignment_size",
+            "max_matching_edges",
+            "large_matching_top_k",
+            "max_matching_hungarian_work",
+            "max_matching_sparse_relaxations",
+        ):
+            if int(getattr(self, name)) <= 0:
+                raise ValueError(f"{name} must be positive")
+        if not 0.0 <= self.role_match_threshold <= 1.0:
+            raise ValueError("role_match_threshold must be in [0, 1]")
+        if self.matching_incomplete_policy not in {"fail_closed", "not_applicable"}:
+            raise ValueError(
+                "matching_incomplete_policy must be fail_closed or not_applicable"
+            )
+        if self.dynamic_unknown_policy not in {"cap", "not_applicable", "error"}:
+            raise ValueError(
+                "dynamic_unknown_policy must be cap, not_applicable, or error"
+            )
 
     @staticmethod
     def _normalize_group(values: Mapping[str, float], name: str) -> dict[str, float]:
@@ -416,16 +482,22 @@ class RewardConfig:
     ) -> "RewardConfig":
         dimensions = dict(DEFAULT_DIMENSION_WEIGHTS)
         dimensions.update(mapping.get("dimension_weights") or {})
-        atomics = {k: dict(v) for k, v in DEFAULT_ATOMIC_WEIGHTS.items()}
+        metric = mapping.get("metric") if isinstance(mapping.get("metric"), Mapping) else {}
+        is_v5 = str(metric.get("version") or "").startswith("5.")
+        atomics = {} if is_v5 else {k: dict(v) for k, v in DEFAULT_ATOMIC_WEIGHTS.items()}
         for dimension, values in (mapping.get("atomic_weights") or {}).items():
             if isinstance(values, Mapping):
-                atomics.setdefault(str(dimension), {}).update(values)
+                if is_v5:
+                    atomics[str(dimension)] = dict(values)
+                else:
+                    atomics.setdefault(str(dimension), {}).update(values)
         caps = dict(DEFAULT_CAPS)
         caps.update(mapping.get("caps") or {})
         aggregation = mapping.get("aggregation") or {}
         fidelity = mapping.get("fidelity") or {}
         economy = mapping.get("economy") or {}
         guardrails = mapping.get("guardrails") or {}
+        evidence_limits = mapping.get("evidence_limits") or {}
         return cls(
             dimension_weights=dimensions,
             atomic_weights=atomics,
@@ -443,6 +515,47 @@ class RewardConfig:
             ),
             max_atomic_global_weight=float(
                 guardrails.get("max_atomic_global_weight", 0.10)
+            ),
+            anti_domination_infeasible_policy=str(
+                guardrails.get("anti_domination_infeasible_policy", "fail_closed")
+            ),
+            max_repeat_items=int(evidence_limits.get("max_repeat_items", 32)),
+            max_expanded_evidence_nodes=int(
+                evidence_limits.get("max_expanded_evidence_nodes", 512)
+            ),
+            max_expression_depth=int(
+                evidence_limits.get("max_expression_depth", 12)
+            ),
+            max_string_expansion_length=int(
+                evidence_limits.get("max_string_expansion_length", 4096)
+            ),
+            max_assignment_size=int(
+                evidence_limits.get("max_assignment_size", 64)
+            ),
+            max_matching_edges=int(
+                evidence_limits.get("max_matching_edges", 65536)
+            ),
+            large_matching_top_k=int(
+                evidence_limits.get("large_matching_top_k", 16)
+            ),
+            max_matching_hungarian_work=int(
+                evidence_limits.get(
+                    "max_matching_hungarian_work", 50_000_000
+                )
+            ),
+            max_matching_sparse_relaxations=int(
+                evidence_limits.get(
+                    "max_matching_sparse_relaxations", 50_000_000
+                )
+            ),
+            role_match_threshold=float(
+                fidelity.get("role_match_threshold", 0.70)
+            ),
+            matching_incomplete_policy=str(
+                guardrails.get("matching_incomplete_policy", "fail_closed")
+            ),
+            dynamic_unknown_policy=str(
+                guardrails.get("dynamic_unknown_policy", "cap")
             ),
             render_check=render_check,
         )
@@ -731,6 +844,7 @@ def parse_source_contract(
 
     cleaned = _clean_source_for_content(response_text)
     content_tokens = Counter(tokenize(cleaned))
+    content_units = [line.strip() for line in cleaned.splitlines() if line.strip()]
 
     intent_norm = (intent or "").casefold().strip()
     chart_titles = len(re.findall(r"(?im)^\s*chart\s+title\s*:", response_text))
@@ -798,12 +912,13 @@ def parse_source_contract(
             "formula": 1 if formula_required else 0,
             "code": max(1, len(code_blocks)) if code_required else 0,
             "console": 1 if console_required else 0,
-            "image": 1 if image_required else 0,  # representative-media policy
+            "image": 1 if image_required else 0,  # frozen v4 representative-media policy
             "video": 1 if video_required else 0,
             "audio": 1 if audio_required else 0,
             "action": max(1, len(actionable_urls)) if actionable_urls or explicit_actions else 0,
         },
         asset_aliases=_asset_alias_map(assets),
+        content_units=content_units,
     )
 
 
@@ -855,7 +970,27 @@ def source_contract_from_mapping(
                             if headers and len(cells) < len(headers):
                                 cells += [""] * (len(headers) - len(cells))
                             rows.append(tuple(cells[: len(headers)] if headers else cells))
-                tables.append(SourceTable(headers, tuple(rows)))
+                row_key_raw = raw.get("row_key")
+                if isinstance(row_key_raw, str):
+                    row_key = (normalize_markdown(row_key_raw),)
+                elif isinstance(row_key_raw, Sequence) and not isinstance(row_key_raw, (str, bytes, bytearray)):
+                    row_key = tuple(normalize_markdown(value) for value in row_key_raw if normalize_markdown(value))
+                else:
+                    row_key = ()
+                tables.append(
+                    SourceTable(
+                        headers,
+                        tuple(rows),
+                        id=str(raw.get("id") or ""),
+                        required=bool(raw.get("required", True)),
+                        minimum_count=max(0, int(raw.get("minimum_count", 1) or 0)),
+                        order_sensitive=bool(raw.get("order_sensitive", False)),
+                        row_key=row_key,
+                        representation_policy=str(
+                            raw.get("representation_policy") or "table_only"
+                        ),
+                    )
+                )
     else:
         tables = list(fallback.tables)
 
@@ -873,7 +1008,19 @@ def source_contract_from_mapping(
                     action_type = str(raw.get("action_type") or raw.get("action") or "openUrl")
                     if action_type.casefold().replace("_", "") == "openurl":
                         action_type = "openUrl"
-                    explicit_actions.append(ActionRef(label, target, action_type))
+                    explicit_actions.append(
+                        ActionRef(
+                            label,
+                            target,
+                            action_type,
+                            id=str(raw.get("id") or ""),
+                            required=bool(raw.get("required", True)),
+                            minimum_count=max(0, int(raw.get("minimum_count", 1) or 0)),
+                            expected_component_id=str(
+                                raw.get("expected_component_id") or ""
+                            ),
+                        )
+                    )
                     actionable_urls.add(target)
         raw_links = mapping.get("source_links") or []
         if isinstance(raw_links, Sequence) and not isinstance(raw_links, (str, bytes, bytearray)):
@@ -902,7 +1049,20 @@ def source_contract_from_mapping(
                 url = normalize_url(raw.get("url") or raw.get("target") or "")
                 alt = normalize_markdown(raw.get("alt") or raw.get("description") or "")
                 if kind or url:
-                    media.append(MediaRef(kind=kind or "Image", url=url, alt=alt))
+                    media.append(
+                        MediaRef(
+                            kind=kind or "Image",
+                            url=url,
+                            alt=alt,
+                            id=str(raw.get("id") or ""),
+                            required=bool(raw.get("required", True)),
+                            minimum_count=max(0, int(raw.get("minimum_count", 1) or 0)),
+                            media_policy=str(raw.get("media_policy") or "exact"),
+                            expected_component_id=str(
+                                raw.get("expected_component_id") or ""
+                            ),
+                        )
+                    )
     else:
         media = list(fallback.media)
 
@@ -915,11 +1075,15 @@ def source_contract_from_mapping(
         )
 
     content_tokens = fallback.content_tokens.copy()
+    content_units = list(fallback.content_units)
     if "content_units" in mapping:
         units = mapping.get("content_units") or []
-        content_tokens = Counter(tokenize(" ".join(str(v) for v in units)))
+        content_units = [normalize_markdown(value) for value in units if normalize_markdown(value)]
+        content_tokens = Counter(tokenize(" ".join(content_units)))
     elif "reference_content" in mapping:
-        content_tokens = Counter(tokenize(mapping.get("reference_content") or ""))
+        reference_content = str(mapping.get("reference_content") or "")
+        content_units = [line.strip() for line in reference_content.splitlines() if line.strip()]
+        content_tokens = Counter(tokenize(reference_content))
 
     code_blocks = list(fallback.code_blocks)
     if "code_blocks" in mapping:
@@ -966,19 +1130,60 @@ def source_contract_from_mapping(
             default_counts[name] = count
             default_required[name] = count > 0
 
+    role_requirements: dict[str, list[dict[str, Any]]] = {}
+    raw_role_requirements = mapping.get("role_requirements")
+    if isinstance(raw_role_requirements, Mapping):
+        for raw_role, raw_items in raw_role_requirements.items():
+            if not isinstance(raw_items, Sequence) or isinstance(
+                raw_items, (str, bytes, bytearray)
+            ):
+                continue
+            role = str(raw_role).strip().casefold()
+            if role.endswith("s"):
+                role = role[:-1]
+            role = {
+                "code_block": "code",
+                "codeblock": "code",
+                "console_log": "console",
+                "consolelog": "console",
+                "email_preview": "email",
+                "emailpreview": "email",
+            }.get(role, role)
+            role_requirements[role] = [
+                {str(key): value for key, value in raw.items()}
+                for raw in raw_items
+                if isinstance(raw, Mapping)
+            ]
+
     # Explicit field collections also imply their corresponding role unless a
     # supplied required_roles/expected_role_counts block says otherwise.
     if "tables" in mapping and "required_roles" not in mapping and "expected_role_counts" not in mapping:
-        default_required["table"] = bool(tables)
-        default_counts["table"] = len(tables)
+        required_tables = [table for table in tables if table.required and table.minimum_count > 0]
+        default_required["table"] = bool(required_tables)
+        default_counts["table"] = sum(table.minimum_count for table in required_tables)
     if ("actions" in mapping or "source_links" in mapping) and "required_roles" not in mapping and "expected_role_counts" not in mapping:
-        default_required["action"] = bool(actionable_urls or explicit_actions)
-        default_counts["action"] = len(actionable_urls or {a.url for a in explicit_actions})
+        required_actions = [
+            action for action in explicit_actions if action.required and action.minimum_count > 0
+        ]
+        default_required["action"] = bool(required_actions)
+        default_counts["action"] = sum(action.minimum_count for action in required_actions)
     if "media" in mapping and "required_roles" not in mapping and "expected_role_counts" not in mapping:
         for role, kind in (("image", "image"), ("video", "video"), ("audio", "audioplayer")):
-            count = sum(1 for m in media if m.kind.casefold().replace("audio", "audioplayer") == kind)
+            relevant = [
+                item
+                for item in media
+                if item.required
+                and item.minimum_count > 0
+                and item.kind.casefold().replace("audio", "audioplayer") == kind
+            ]
+            representative = any(item.media_policy.casefold() == "representative" for item in relevant)
+            count = (
+                1
+                if representative and relevant
+                else sum(item.minimum_count for item in relevant)
+            )
             default_required[role] = count > 0
-            default_counts[role] = min(1, count) if count else 0
+            default_counts[role] = count
 
     return SourceContract(
         raw_text=fallback.raw_text,
@@ -995,11 +1200,18 @@ def source_contract_from_mapping(
         required_roles=default_required,
         expected_role_counts=default_counts,
         asset_aliases=fallback.asset_aliases,
+        content_units=content_units,
+        role_requirements=role_requirements,
     )
 
 
 def _element_references(raw: Mapping[str, Any]) -> list[Any]:
-    """Enumerate renderer child/template references without inspecting arbitrary props."""
+    """Frozen v4 renderer-reference inventory.
+
+    V5 uses ``graph.audit_renderer_graph`` and the shared authoritative
+    semantics. Keep this historical inventory unchanged so v4 scores retain
+    their original meaning.
+    """
     references: list[Any] = []
     children = raw.get("children", [])
     if isinstance(children, list):
@@ -1675,7 +1887,7 @@ def action_fidelity(source: SourceContract, output: OutputEvidence) -> float | N
 
 
 def media_fidelity(source: SourceContract, output: OutputEvidence) -> float | None:
-    source_media = [m for m in source.media if m.kind in {"Image", "Video", "AudioPlayer"}]
+    source_media = [m for m in source.media if m.kind in MEDIA_TYPES]
     if not source_media:
         return None
     if not output.media:

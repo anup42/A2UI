@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"watchlist": [{"option": "Option 1", "evening": "Playful Evening", "title": "The Sting", "year": "1973", "origin": "USA", "hook": "A warm, witty caper about grifters building an elaborate revenge con", "bestFor": "classic fun", "distinct": "Its joy comes from watching the scam get assembled piece by piece, with charm, swagger, and one of the most satisfying payoffs in the genre.", "detailsUrl": "https://www.imdb.com/title/tt0070735/", "actionLabel": "View details", "icon": "../assets/r_000220_01_1_play-circle.svg"}, {"option": "Option 2", "evening": "Playful Evening", "title": "Gambit", "year": "1966", "origin": "UK/USA", "hook": "A light, mischievous heist film that plays with audience expectations", "bestFor": "clever structure", "distinct": "It starts like a perfect-plan caper, then delights in showing how fantasy and reality diverge in a con.", "detailsUrl": "https://www.imdb.com/title/tt0060437/", "actionLabel": "View details", "icon": "../assets/r_000220_01_2_music-note-beamed.svg"}, {"option": "Option 3", "evening": "Tense Evening", "title": "Rififi", "year": "1955", "origin": "France", "hook": "A stripped-down crime classic with nerve-shredding execution", "bestFor": "pure suspense", "distinct": "Famous for its nearly dialogue-free burglary sequence, it turns process and precision into edge-of-seat tension.", "detailsUrl": "https://www.imdb.com/title/tt0048021/", "actionLabel": "View details", "icon": "../assets/r_000220_01_3_eye.svg"}, {"option": "Option 4", "evening": "Tense Evening", "title": "Nine Queens", "year": "2000", "origin": "Argentina", "hook": "Two small-time swindlers navigate a day of escalating deceit", "bestFor": "twisty cons", "distinct": "It feels fast, streetwise, and unstable, with shifting loyalties that keep you guessing about who is playing whom.", "detailsUrl": "https://www.imdb.com/title/tt0247586/", "actionLabel": "View details", "icon": "../assets/r_000220_01_4_signpost-split.svg"}, {"option": "Option 5", "evening": "Elegant Evening", "title": "Le Cercle Rouge", "year": "1970", "origin": "France/Italy", "hook": "A cool, minimalist crime film built on silence, ritual, and fatalism", "bestFor": "immaculate style", "distinct": "The heist is treated with near-sacred precision, and the whole film moves with calm confidence rather than flashy spectacle.", "detailsUrl": "https://www.imdb.com/title/tt0065531/", "actionLabel": "View details", "icon": "../assets/r_000220_01_5_star.svg"}, {"option": "Option 6", "evening": "Elegant Evening", "title": "The Lady Eve", "year": "1941", "origin": "USA", "hook": "A romantic con film where seduction and social performance are the real tools", "bestFor": "sophisticated wit", "distinct": "Instead of a vault or jewel job, the con happens through identity, dialogue, and razor-sharp sophistication.", "detailsUrl": "https://www.imdb.com/title/tt0033804/", "actionLabel": "View details", "icon": "../assets/r_000220_01_6_cup-hot.svg"}], "viewingOrder": [{"evening": "Evening 1", "mood": "Playful", "guidance": "Start with The Sting if you want a crowd-pleaser; choose Gambit if you want something breezier and more formally playful."}, {"evening": "Evening 2", "mood": "Tense", "guidance": "Pick Rififi for methodical suspense; pick Nine Queens for a more verbal, twist-driven pressure cooker."}, {"evening": "Evening 3", "mood": "Elegant", "guidance": "Choose Le Cercle Rouge for cool precision; choose The Lady Eve for graceful, flirtatious deception."}], "quickPicks": [{"mood": "Most purely entertaining", "pick": "The Sting"}, {"mood": "Most suspenseful", "pick": "Rififi"}, {"mood": "Most twisty", "pick": "Nine Queens"}, {"mood": "Most stylish", "pick": "Le Cercle Rouge"}, {"mood": "Most sophisticatedly funny", "pick": "The Lady Eve"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "hero_card", "night_picks_heading", "night_picks_note", "watchlist_table", "order_heading", "order_note", "order_table", "quick_picks_heading", "quick_picks_table", "actions_heading", "actions_row"]}, "title": {"type": "Text", "props": {"text": "Three-Evening Heist Watch Plan", "variant": "h1"}, "children": []}, "hero_card": {"type": "Card", "props": {}, "children": ["hero_stack"]}, "hero_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["hero_text", "chip_row"]}, "hero_text": {"type": "Text", "props": {"text": "A compact watchlist built around clever schemes, deception, and style rather than chase-heavy or superhero-driven action. Each evening has two picks and a distinct mood: playful, tense, and elegant.", "variant": "body"}, "children": []}, "chip_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["chip_playful", "chip_tense", "chip_elegant"]}, "chip_playful": {"type": "Text", "props": {"text": "Playful", "variant": "chip"}, "children": []}, "chip_tense": {"type": "Text", "props": {"text": "Tense", "variant": "chip"}, "children": []}, "chip_elegant": {"type": "Text", "props": {"text": "Elegant", "variant": "chip"}, "children": []}, "night_picks_heading": {"type": "Text", "props": {"text": "Night-by-Night Picks", "variant": "h2"}, "children": []}, "night_picks_note": {"type": "Text", "props": {"text": "Each row preserves the evening mood, the main hook, what the film is best for, and the detail that makes it stand out.", "variant": "body"}, "children": []}, "watchlist_table": {"type": "Table", "props": {"statePath": "/watchlist", "columns": [{"key": "option", "label": "Option"}, {"key": "evening", "label": "Evening"}, {"key": "title", "label": "Title"}, {"key": "year", "label": "Year"}, {"key": "origin", "label": "Origin"}, {"key": "hook", "label": "Hook"}, {"key": "bestFor", "label": "Best for"}, {"key": "distinct", "label": "What makes it distinct"}, {"key": "actionLabel", "label": "Action"}, {"key": "detailsUrl", "label": "Details URL"}, {"key": "icon", "label": "Icon"}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["evening", "bestFor"], "sourceFormat": "plain"}, "children": []}, "order_heading": {"type": "Text", "props": {"text": "Best Viewing Order", "variant": "h2"}, "children": []}, "order_note": {"type": "Text", "props": {"text": "Use this sequence if you want the mini-program to move from easiest fun to higher tension and then finish with a cooler or more sophisticated caper tone.", "variant": "body"}, "children": []}, "order_table": {"type": "Table", "props": {"statePath": "/viewingOrder", "columns": [{"key": "evening", "label": "Evening"}, {"key": "mood", "label": "Mood"}, {"key": "guidance", "label": "Guidance"}, {"key": "image", "label": "Image"}, {"key": "imageAlt", "label": "Image Alt"}], "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "evening", "highlightColumns": ["mood"], "sourceFormat": "plain"}, "children": []}, "quick_picks_heading": {"type": "Text", "props": {"text": "Quick Picks by Mood", "variant": "h2"}, "children": []}, "quick_picks_table": {"type": "Table", "props": {"statePath": "/quickPicks", "columns": [{"key": "mood", "label": "Mood"}, {"key": "pick", "label": "Pick"}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "mood", "highlightColumns": ["pick"], "sourceFormat": "plain"}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["browse_btn", "track_btn"]}, "browse_btn": {"type": "Button", "props": {"label": "Browse all titles", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}, "track_btn": {"type": "Button", "props": {"label": "Track your watchlist", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.letterboxd.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"budgetRows": [{"category": "Rent", "current": "$1,650", "recommended": "$1,650", "change": "$0"}, {"category": "Groceries", "current": "$520", "recommended": "$450", "change": "-$70"}, {"category": "Dining out", "current": "$410", "recommended": "$180", "change": "-$230"}, {"category": "Transport", "current": "$260", "recommended": "$240", "change": "-$20"}, {"category": "Utilities", "current": "$190", "recommended": "$180", "change": "-$10"}, {"category": "Phone", "current": "$75", "recommended": "$60", "change": "-$15"}, {"category": "Subscriptions", "current": "$68", "recommended": "$30", "change": "-$38"}, {"category": "Gym", "current": "$55", "recommended": "$40", "change": "-$15"}, {"category": "Travel sinking fund", "current": "$300", "recommended": "$150", "change": "-$150"}, {"category": "Shopping", "current": "$380", "recommended": "$150", "change": "-$230"}, {"category": "Student loan", "current": "$240", "recommended": "$240", "change": "$0"}, {"category": "Entertainment", "current": "$210", "recommended": "$100", "change": "-$110"}, {"category": "Misc", "current": "$170", "recommended": "$100", "change": "-$70"}, {"category": "Savings", "current": "$72", "recommended": "$1,230", "change": "+$1,158"}], "splitRows": [{"group": "Essentials + debt", "amount": "about $2,820"}, {"group": "Flexible/lifestyle", "amount": "about $550"}, {"group": "Travel fund", "amount": "$150"}, {"group": "Savings", "amount": "$1,230"}], "sourceRows": [{"source": "50/30/20 budgeting overview", "url": "https://www.nerdwallet.com/article/finance/nerdwallet-budget-calculator", "actionLabel": "Open source"}, {"source": "Savings goal guidance and budgeting basics", "url": "https://www.consumerfinance.gov/consumer-tools/budgeting/", "actionLabel": "Open source"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "summaryCard", "allocationCard", "troubleCard", "planCard", "actionsCard", "sourcesCard"]}, "title": {"type": "Text", "props": {"text": "Monthly Budget Snapshot", "variant": "h1"}, "children": []}, "summaryCard": {"type": "Card", "props": {}, "children": ["summaryStack"]}, "summaryStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["summaryHeading", "incomeText", "targetText", "statusText"]}, "summaryHeading": {"type": "Text", "props": {"text": "Current Position", "variant": "h2"}, "children": []}, "incomeText": {"type": "Text", "props": {"text": "Net income: $4,600/month", "variant": "body"}, "children": []}, "targetText": {"type": "Text", "props": {"text": "Savings target at 15%: $690/month", "variant": "body"}, "children": []}, "statusText": {"type": "Text", "props": {"text": "Current spending totals $4,528/month, leaving only $72/month for savings. That is well below the target, so the main issue is not housing alone. It is the combination of several flexible categories running high at the same time.", "variant": "body"}, "children": []}, "allocationCard": {"type": "Card", "props": {}, "children": ["allocationStack"]}, "allocationStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["allocationHeading", "budgetTable", "allocationNote"]}, "allocationHeading": {"type": "Text", "props": {"text": "Biggest Pressure Points and Revised Allocation", "variant": "h2"}, "children": []}, "budgetTable": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "current", "label": "Current"}, {"key": "recommended", "label": "Recommended"}, {"key": "change", "label": "Change"}], "statePath": "/budgetRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "category", "highlightColumns": ["recommended", "change"], "numericColumns": ["current", "recommended", "change"], "sourceFormat": "markdown"}, "children": []}, "allocationNote": {"type": "Text", "props": {"text": "Recommended spending would be $3,370/month, leaving $1,230/month for savings. That equals about 26.7% of net income, which clears the 15% goal comfortably.", "variant": "body"}, "children": []}, "troubleCard": {"type": "Card", "props": {}, "children": ["troubleStack"]}, "troubleStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["troubleHeaderRow", "tp1", "tp2", "tp3", "tp4", "tp5"]}, "troubleHeaderRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["troubleIcon", "troubleHeading"]}, "troubleIcon": {"type": "Icon", "props": {"name": "../assets/r_000013_01_1_currency-rupee.svg"}, "children": []}, "troubleHeading": {"type": "Text", "props": {"text": "Budget Trouble Areas", "variant": "h2"}, "children": []}, "tp1": {"type": "Text", "props": {"text": "Dining out + groceries = $930. Food spending is high for one monthly budget, especially with both grocery and restaurant spending elevated.", "variant": "body"}, "children": []}, "tp2": {"type": "Text", "props": {"text": "Shopping at $380. This is one of the biggest discretionary leaks and can usually be cut quickly without affecting essentials.", "variant": "body"}, "children": []}, "tp3": {"type": "Text", "props": {"text": "Travel sinking fund at $300. Fine as a goal, but too aggressive while savings are below target.", "variant": "body"}, "children": []}, "tp4": {"type": "Text", "props": {"text": "Entertainment + subscriptions = $278. This is a meaningful drag for a budget currently saving almost nothing.", "variant": "body"}, "children": []}, "tp5": {"type": "Text", "props": {"text": "Housing is manageable but heavy. Rent is about 35.9% of net income, which is on the high side but still workable if lifestyle categories are tightened.", "variant": "body"}, "children": []}, "planCard": {"type": "Card", "props": {}, "children": ["planStack"]}, "planStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["planHeading", "plan1", "plan2", "plan3", "plan4", "plan5", "plan6", "splitIntro", "splitTable"]}, "planHeading": {"type": "Text", "props": {"text": "Practical Reallocation Plan", "variant": "h2"}, "children": []}, "plan1": {"type": "Text", "props": {"text": "Keep fixed essentials mostly unchanged: rent, student loan, core utilities.", "variant": "body"}, "children": []}, "plan2": {"type": "Text", "props": {"text": "Reduce lifestyle spending first: dining out cap at $180, shopping cap at $150, entertainment cap at $100, and subscriptions trim to $30.", "variant": "body"}, "children": []}, "plan3": {"type": "Text", "props": {"text": "Bring groceries down modestly to $450 through meal planning and fewer top-up trips.", "variant": "body"}, "children": []}, "plan4": {"type": "Text", "props": {"text": "Cut travel sinking fund to $150 until savings habits are stable.", "variant": "body"}, "children": []}, "plan5": {"type": "Text", "props": {"text": "Send the freed-up cash directly to savings at the start of each month.", "variant": "body"}, "children": []}, "plan6": {"type": "Text", "props": {"text": "A clean target split from $4,600 net would look like:", "variant": "body"}, "children": []}, "splitIntro": {"type": "Text", "props": {"text": "Target Split", "variant": "h3"}, "children": []}, "splitTable": {"type": "Table", "props": {"columns": [{"key": "group", "label": "Group"}, {"key": "amount", "label": "Amount"}], "statePath": "/splitRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "group"}, "children": []}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actionsHeading", "copyBudgetBtn", "savingsCalcBtn"]}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "copyBudgetBtn": {"type": "Button", "props": {"label": "Copy New Budget", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.google.com/search?q=monthly+budget+template"}}}}, "savingsCalcBtn": {"type": "Button", "props": {"label": "Savings Calculator", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.calculator.net/savings-calculator.html"}}}}, "sourcesCard": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourceContext", "source1Btn", "source2Btn"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourceContext": {"type": "Text", "props": {"text": "Reference material for budgeting frameworks and savings guidance.", "variant": "caption"}, "children": []}, "source1Btn": {"type": "Button", "props": {"label": "50/30/20 budgeting overview", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nerdwallet.com/article/finance/nerdwallet-budget-calculator"}}}}, "source2Btn": {"type": "Button", "props": {"label": "Savings goal guidance and budgeting basics", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/consumer-tools/budgeting/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

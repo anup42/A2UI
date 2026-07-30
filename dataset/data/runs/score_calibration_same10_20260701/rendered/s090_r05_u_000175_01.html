@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"comparisonRows": [{"title": "Interpreter of Maladies", "approxPages": "198", "discussionPotential": "High", "tone": "Melancholic but humane", "literaryDifficulty": "Moderate", "fitForYourGroup": "Best overall balance"}, {"title": "Exhalation", "approxPages": "368", "discussionPotential": "Very High", "tone": "Thoughtful, often hopeful", "literaryDifficulty": "Moderate-High", "fitForYourGroup": "Strong pick, but over page goal"}, {"title": "Dubliners", "approxPages": "304", "discussionPotential": "High", "tone": "Quiet, often somber", "literaryDifficulty": "Moderate-High", "fitForYourGroup": "Good thematic fit for Dublin, slightly heavier"}, {"title": "Her Body and Other Parties", "approxPages": "320", "discussionPotential": "Very High", "tone": "Inventive, dark, intense", "literaryDifficulty": "High", "fitForYourGroup": "Great discussion, but may feel too heavy"}, {"title": "Tenth of December", "approxPages": "240", "discussionPotential": "High", "tone": "Darkly funny, compassionate", "literaryDifficulty": "Moderate-High", "fitForYourGroup": "Strong contender, slightly uneven accessibility"}, {"title": "What We Talk About When We Talk About Love", "approxPages": "176", "discussionPotential": "Medium-High", "tone": "Stark, often bleak", "literaryDifficulty": "Moderate", "fitForYourGroup": "Short, but likely too bleak for your brief"}], "sourcesRows": [{"source": "Goodreads book listing", "title": "Interpreter of Maladies", "actionLabel": "Open source", "url": "https://www.goodreads.com/book/show/5439.Interpreter_of_Maladies"}, {"source": "Goodreads book listing", "title": "Exhalation", "actionLabel": "Open source", "url": "https://www.goodreads.com/book/show/223380.Exhalation"}, {"source": "Encyclopedia Britannica", "title": "Dubliners", "actionLabel": "Open source", "url": "https://www.britannica.com/topic/Dubliners"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "context", "comparisonHeading", "comparisonTable", "rankingHeading", "winnerCard", "runnerCard", "cautionCard", "othersHeading", "othersCard", "actionsHeading", "actionsCard", "sourcesHeading", "sourcesTable"]}, "title": {"type": "Text", "props": {"text": "Best Book Club Fit for Next Month", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroRow", "heroSummary"]}, "heroRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["heroIcon", "heroText"]}, "heroIcon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_book.svg"}, "children": []}, "heroText": {"type": "Text", "props": {"text": "Interpreter of Maladies is the best overall fit for this Dublin book club.", "variant": "h3"}, "children": []}, "heroSummary": {"type": "Text", "props": {"text": "It stays under your page target, offers rich discussion without being relentlessly bleak, and lands well at a moderate literary difficulty.", "variant": "body"}, "children": []}, "context": {"type": "Text", "props": {"text": "Brief context note: page counts vary by edition, so I’m using commonly cited approximate lengths.", "variant": "caption"}, "children": []}, "comparisonHeading": {"type": "Text", "props": {"text": "Short Story Collection Comparison", "variant": "h2"}, "children": []}, "comparisonTable": {"type": "Table", "props": {"columns": [{"key": "title", "label": "Title"}, {"key": "approxPages", "label": "Approx. Pages"}, {"key": "discussionPotential", "label": "Discussion Potential"}, {"key": "tone", "label": "Tone"}, {"key": "literaryDifficulty", "label": "Literary Difficulty"}, {"key": "fitForYourGroup", "label": "Fit for Your Group"}], "statePath": "/comparisonRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["approxPages", "fitForYourGroup"], "numericColumns": ["approxPages"], "sourceFormat": "markdown"}, "children": []}, "rankingHeading": {"type": "Text", "props": {"text": "Winner, Runner-Up, and Caution Pick", "variant": "h2"}, "children": []}, "winnerCard": {"type": "Card", "props": {}, "children": ["winnerStack"]}, "winnerStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["winnerHeader", "winnerWhyTitle", "winnerWhyList", "winnerSuitsTitle", "winnerSuitsList"]}, "winnerHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["winnerIcon", "winnerTitle"]}, "winnerIcon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_book.svg"}, "children": []}, "winnerTitle": {"type": "Text", "props": {"text": "Winner: Interpreter of Maladies", "variant": "h3"}, "children": []}, "winnerWhyTitle": {"type": "Text", "props": {"text": "Why it wins", "variant": "label"}, "children": []}, "winnerWhyList": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["winnerWhy1", "winnerWhy2", "winnerWhy3", "winnerWhy4"]}, "winnerWhy1": {"type": "Text", "props": {"text": "• Reading load is light at under 200 pages in most editions.", "variant": "body"}, "children": []}, "winnerWhy2": {"type": "Text", "props": {"text": "• The stories invite lively discussion on marriage, identity, migration, intimacy, loneliness, and miscommunication.", "variant": "body"}, "children": []}, "winnerWhy3": {"type": "Text", "props": {"text": "• It is literary without being punishing; most readers can engage deeply without needing heavy prep.", "variant": "body"}, "children": []}, "winnerWhy4": {"type": "Text", "props": {"text": "• The tone is serious but not relentlessly bleak; there is emotional warmth and subtle humor alongside sadness.", "variant": "body"}, "children": []}, "winnerSuitsTitle": {"type": "Text", "props": {"text": "Why it suits your group", "variant": "label"}, "children": []}, "winnerSuitsList": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["winnerSuit1", "winnerSuit2", "winnerSuit3"]}, "winnerSuit1": {"type": "Text", "props": {"text": "• Works well for mixed reading preferences in a 6-person club.", "variant": "body"}, "children": []}, "winnerSuit2": {"type": "Text", "props": {"text": "• Gives plenty to discuss story by story, so everyone can latch onto at least one favorite.", "variant": "body"}, "children": []}, "winnerSuit3": {"type": "Text", "props": {"text": "• Feels substantial without becoming a chore for a one-month read.", "variant": "body"}, "children": []}, "runnerCard": {"type": "Card", "props": {}, "children": ["runnerStack"]}, "runnerStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["runnerHeader", "runnerWhyTitle", "runnerWhyList", "runnerSecondTitle", "runnerSecondList"]}, "runnerHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["runnerIcon", "runnerTitle"]}, "runnerIcon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_book.svg"}, "children": []}, "runnerTitle": {"type": "Text", "props": {"text": "Runner-up: Tenth of December", "variant": "h3"}, "children": []}, "runnerWhyTitle": {"type": "Text", "props": {"text": "Why it nearly wins", "variant": "label"}, "children": []}, "runnerWhyList": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["runnerWhy1", "runnerWhy2", "runnerWhy3"]}, "runnerWhy1": {"type": "Text", "props": {"text": "• Excellent for animated conversation: morality, class, loneliness, kindness, modern absurdity.", "variant": "body"}, "children": []}, "runnerWhy2": {"type": "Text", "props": {"text": "• More emotionally varied than its reputation suggests; it can be dark, but it is also compassionate and funny.", "variant": "body"}, "children": []}, "runnerWhy3": {"type": "Text", "props": {"text": "• The page count is comfortably manageable.", "variant": "body"}, "children": []}, "runnerSecondTitle": {"type": "Text", "props": {"text": "Why it finishes second", "variant": "label"}, "children": []}, "runnerSecondList": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["runnerSecond1", "runnerSecond2"]}, "runnerSecond1": {"type": "Text", "props": {"text": "• Its voice and stylistic shifts can be a bit more demanding for some readers than Lahiri’s collection.", "variant": "body"}, "children": []}, "runnerSecond2": {"type": "Text", "props": {"text": "• A few stories may split the group more sharply on accessibility.", "variant": "body"}, "children": []}, "cautionCard": {"type": "Card", "props": {}, "children": ["cautionStack"]}, "cautionStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["cautionHeader", "cautionTitle", "cautionList"]}, "cautionHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["cautionIcon", "cautionName"]}, "cautionIcon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_book.svg"}, "children": []}, "cautionName": {"type": "Text", "props": {"text": "Caution Pick: What We Talk About When We Talk About Love", "variant": "h3"}, "children": []}, "cautionTitle": {"type": "Text", "props": {"text": "Why to be cautious", "variant": "label"}, "children": []}, "cautionList": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm"}, "children": ["caution1", "caution2", "caution3"]}, "caution1": {"type": "Text", "props": {"text": "• It easily fits the page limit and is highly discussable.", "variant": "body"}, "children": []}, "caution2": {"type": "Text", "props": {"text": "• But it is also the option most likely to feel too stark and emotionally chilly for a group explicitly avoiding relentlessly bleak reads.", "variant": "body"}, "children": []}, "caution3": {"type": "Text", "props": {"text": "• Minimalism can produce great debate, but it may leave some readers admiring it more than enjoying it.", "variant": "body"}, "children": []}, "othersHeading": {"type": "Text", "props": {"text": "Why the Others Rank Lower", "variant": "h2"}, "children": []}, "othersCard": {"type": "Card", "props": {}, "children": ["othersStack"]}, "othersStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["other1", "other2", "other3"]}, "other1": {"type": "Text", "props": {"text": "• Exhalation: Brilliant and discussion-rich, but well over your preferred page limit in most editions and a bit more conceptually demanding.", "variant": "body"}, "children": []}, "other2": {"type": "Text", "props": {"text": "• Dubliners: Strong symbolic fit for a Dublin club and within range, but its emotional climate is often subdued and somber rather than lively.", "variant": "body"}, "children": []}, "other3": {"type": "Text", "props": {"text": "• Her Body and Other Parties: Possibly the most explosive discussion book here, but also the riskiest on tone and difficulty for this exact brief.", "variant": "body"}, "children": []}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["action1", "action2"]}, "action1": {"type": "Button", "props": {"label": "Read sample", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.harpercollins.com/products/interpreter-of-maladies-jhumpa-lahiri"}}}}, "action2": {"type": "Button", "props": {"label": "Compare editions", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.goodreads.com/book/show/5439.Interpreter_of_Maladies"}}}}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesTable": {"type": "Table", "props": {"columns": [{"key": "source", "label": "Source"}, {"key": "title", "label": "Title"}, {"key": "actionLabel", "label": "Action"}, {"key": "url", "label": "URL"}], "statePath": "/sourcesRows", "domain": "generic", "preferredPresentation": "table", "sourceFormat": "plain"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title_card", "summary_card", "kpi_title", "kpi_table", "formula_title", "formula_card", "variable_title", "variable_table", "breakdown_title", "breakdown_table", "meaning_title", "meaning_card"]}, "title_card": {"type": "Card", "props": {}, "children": ["title_stack"]}, "title_stack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "md", "align": "center", "padding": 16}, "children": ["budget_icon", "title_text_stack"]}, "budget_icon": {"type": "Icon", "props": {"name": "../assets/r_000016_01_1_calculator.svg"}, "children": []}, "title_text_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "xs"}, "children": ["title_text", "subtitle_text"]}, "title_text": {"type": "Text", "props": {"text": "Monthly Budget Snapshot", "variant": "h1"}, "children": []}, "subtitle_text": {"type": "Text", "props": {"text": "Your budget shows a healthy monthly surplus.", "variant": "body"}, "children": []}, "summary_card": {"type": "Card", "props": {}, "children": ["summary_text"]}, "summary_text": {"type": "Text", "props": {"text": "If you save all of it each month, you can build the emergency fund in a little under 5 months.", "variant": "body"}, "children": []}, "kpi_title": {"type": "Text", "props": {"text": "Income, Expenses, and Emergency Fund Runway", "variant": "h2"}, "children": []}, "kpi_table": {"type": "Table", "props": {"columns": [{"key": "metric", "label": "Metric"}, {"key": "value", "label": "Value"}], "rows": [{"metric": "Total monthly income", "value": "$5,150"}, {"metric": "Total monthly expenses", "value": "$3,308"}, {"metric": "Net surplus", "value": "$1,842"}, {"metric": "Savings rate", "value": "35.8%"}, {"metric": "Time to $8,500 emergency fund", "value": "4.62 months"}, {"metric": "Rounded up for whole months", "value": "5 months"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "plain"}, "children": []}, "formula_title": {"type": "Text", "props": {"text": "Formula", "variant": "h2"}, "children": []}, "formula_card": {"type": "Card", "props": {}, "children": ["formula_stack"]}, "formula_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["formula_1", "formula_2", "formula_3"]}, "formula_1": {"type": "Formula", "props": {"latex": "S = I - E", "title": "Surplus"}, "children": []}, "formula_2": {"type": "Formula", "props": {"latex": "R = \\frac{S}{I} \\times 100", "title": "Savings rate"}, "children": []}, "formula_3": {"type": "Formula", "props": {"latex": "M = \\frac{8500}{S}", "title": "Months to goal"}, "children": []}, "variable_title": {"type": "Text", "props": {"text": "Variable Check", "variant": "h2"}, "children": []}, "variable_table": {"type": "Table", "props": {"columns": [{"key": "variable", "label": "Variable"}, {"key": "description", "label": "Description"}, {"key": "value", "label": "Value"}], "rows": [{"variable": "I", "description": "Total monthly income", "value": "$5,150"}, {"variable": "E", "description": "Total monthly expenses", "value": "$3,308"}, {"variable": "S", "description": "Monthly surplus available to save", "value": "$1,842"}, {"variable": "R", "description": "Savings rate", "value": "35.8%"}, {"variable": "M", "description": "Months to $8,500 fund", "value": "4.62"}], "domain": "formula", "preferredPresentation": "table", "sourceFormat": "markdown"}, "children": []}, "breakdown_title": {"type": "Text", "props": {"text": "Budget Breakdown", "variant": "h2"}, "children": []}, "breakdown_table": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "items", "label": "Items"}, {"key": "monthlyTotal", "label": "Monthly Total"}], "rows": [{"category": "Income", "items": "Salary, freelance work, child support", "monthlyTotal": "$5,150"}, {"category": "Essential expenses", "items": "Rent, groceries, utilities, transport, insurance, phone, student loan", "monthlyTotal": "$2,935"}, {"category": "Flexible expenses", "items": "Subscriptions, dining out, miscellaneous", "monthlyTotal": "$373"}, {"category": "Total expenses", "items": "All listed expenses", "monthlyTotal": "$3,308"}, {"category": "Net surplus", "items": "Income minus expenses", "monthlyTotal": "$1,842"}], "domain": "generic", "preferredPresentation": "table", "sourceFormat": "markdown"}, "children": []}, "meaning_title": {"type": "Text", "props": {"text": "What this means", "variant": "h2"}, "children": []}, "meaning_card": {"type": "Card", "props": {}, "children": ["meaning_stack"]}, "meaning_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["meaning_1", "meaning_2", "meaning_3"]}, "meaning_1": {"type": "Text", "props": {"text": "At your current pace, you would reach $8,500 in about 4 months and 18 days.", "variant": "body"}, "children": []}, "meaning_2": {"type": "Text", "props": {"text": "If you want a cushion for surprise costs, keeping the full surplus in savings each month is a strong plan.", "variant": "body"}, "children": []}, "meaning_3": {"type": "Text", "props": {"text": "If you want, I can also turn this into a 50/30/20-style budget or show how long it takes to reach $10,000 instead.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"gatherRows": [{"item": "Move-out date", "whatToDocument": "The exact date you fully vacated the unit", "whyItMatters": "Starts the 21-day timeline", "bestProof": "Lease end date, move-out email, handoff message"}, {"item": "Notice given", "whatToDocument": "That you gave written notice 30 days before leaving", "whyItMatters": "Shows proper end of tenancy process", "bestProof": "Notice letter, email, text thread, certified mail proof"}, {"item": "Deposit amount", "whatToDocument": "Total security deposit originally paid", "whyItMatters": "Needed to calculate what should be returned", "bestProof": "Lease, receipt, move-in paperwork, bank record"}, {"item": "Unit condition at move-out", "whatToDocument": "Condition of each room, appliances, floors, walls, fixtures", "whyItMatters": "Counters exaggerated damage claims", "bestProof": "Dated photos/videos taken right before leaving"}, {"item": "Cleaning completed", "whatToDocument": "That the apartment was professionally cleaned", "whyItMatters": "Helps dispute cleaning deductions", "bestProof": "Cleaning invoice, receipt, before/after photos"}, {"item": "Keys and possession returned", "whatToDocument": "When keys, fobs, garage remotes, parking tags were returned", "whyItMatters": "Confirms landlord regained possession", "bestProof": "Key return receipt, email, text, drop-off proof"}, {"item": "Deduction statement timing", "whatToDocument": "Date landlord mailed or sent the itemized list", "whyItMatters": "Critical for the 21-day rule", "bestProof": "Envelope postmark, email timestamp, letter date"}, {"item": "Deduction support", "whatToDocument": "Whether invoices/receipts or good-faith estimates were included", "whyItMatters": "Tests whether deductions were properly documented", "bestProof": "Copy of itemization and attached receipts/estimates"}], "fileSetRows": [{"option": "Option 1", "packet": "Move-out photo packet", "details": "Create a single folder by room with dated photos/videos", "benefit": "Strongest condition evidence", "actionLabel": "Organize photos", "actionUrl": "https://selfhelp.courts.ca.gov/guide-security-deposits-california"}, {"option": "Option 2", "packet": "Cleaning proof packet", "details": "Combine professional cleaning receipt plus before/after kitchen and bath photos", "benefit": "Best for disputing cleaning charges", "actionLabel": "Review state guide", "actionUrl": "https://oag.ca.gov/consumers/general/landlord-tenant-issues"}, {"option": "Option 3", "packet": "Timeline packet", "details": "Put notice date, move-out date, key return date, and itemization date on one page", "benefit": "Makes the 21-day issue easy to explain", "actionLabel": "Check California law", "actionUrl": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1950.5.&lawCode=CIV"}, {"option": "Option 4", "packet": "Deduction review packet", "details": "Highlight each deduction and note whether it is unpaid rent, cleaning, repair, or unsupported", "benefit": "Helps keep your letter factual and concise", "actionLabel": "Compare deductions", "actionUrl": "https://dcba.lacounty.gov/portfolio/security-deposits/"}], "scenarioRows": [{"fact": "Lease ended", "value": "2026-02-28"}, {"fact": "Written notice", "value": "given 30 days earlier"}, {"fact": "Cleaning", "value": "professionally done"}, {"fact": "Itemized deductions sent", "value": "24 days after move-out"}], "emphasisRows": [{"focus": "Move-out date", "details": "proof of the 2026-02-28 move-out date"}, {"focus": "Written notice", "details": "proof of timely written notice"}, {"focus": "Cleaning invoice", "details": "the professional cleaning invoice"}, {"focus": "Condition evidence", "details": "dated move-out photos/videos"}, {"focus": "Timing evidence", "details": "the date stamp/postmark/email timestamp showing the deduction notice was sent on day 24, not within 21 days"}], "sourcesRows": [{"source": "California Civil Code § 1950.5", "actionLabel": "Read §1950.5", "url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1950.5.&lawCode=CIV"}, {"source": "California Courts Self-Help, Security Deposits", "actionLabel": "Tenant help guide", "url": "https://selfhelp.courts.ca.gov/guide-security-deposits-california"}, {"source": "California Attorney General, Landlord-Tenant Issues", "actionLabel": "Review state guide", "url": "https://oag.ca.gov/consumers/general/landlord-tenant-issues"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "gatherHeading", "gatherTable", "fileHeading", "fileTable", "outlineCard", "scenarioHeading", "scenarioTable", "emphasisTable", "actionsHeading", "actionsRow", "sourcesHeading", "sourcesTable"]}, "title": {"type": "Text", "props": {"text": "California Security-Deposit Return Checklist", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroIconRow", "heroText1", "heroText2"]}, "heroIconRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["heroIcon", "heroLabel"]}, "heroIcon": {"type": "Icon", "props": {"name": "../assets/r_000167_01_1_house.svg"}, "children": []}, "heroLabel": {"type": "Text", "props": {"text": "Tenant checklist", "variant": "chip"}, "children": []}, "heroText1": {"type": "Text", "props": {"text": "For a California tenant who already moved out, the best approach is to organize proof of condition, cleaning, notice, keys returned, and timing before sending a polite demand letter.", "variant": "body"}, "children": []}, "heroText2": {"type": "Text", "props": {"text": "In this scenario, the landlord sent the itemized deductions 24 days after move-out, which is later than California’s usual 21-day deadline for returning the deposit balance and itemized statement.", "variant": "body"}, "children": []}, "gatherHeading": {"type": "Text", "props": {"text": "What to Gather Before You Write the Letter", "variant": "h2"}, "children": []}, "gatherTable": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "whatToDocument", "label": "What to document"}, {"key": "whyItMatters", "label": "Why it matters"}, {"key": "bestProof", "label": "Best proof"}], "statePath": "/gatherRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "item", "sourceFormat": "markdown"}, "children": []}, "fileHeading": {"type": "Text", "props": {"text": "Practical File Set to Prepare", "variant": "h2"}, "children": []}, "fileTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "packet", "label": "Packet"}, {"key": "details", "label": "Details"}, {"key": "benefit", "label": "Benefit"}, {"key": "actionLabel", "label": "Action"}, {"key": "actionUrl", "label": "URL"}], "statePath": "/fileSetRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "packet", "highlightColumns": ["option", "benefit"], "sourceFormat": "plain"}, "children": []}, "outlineCard": {"type": "Card", "props": {}, "children": ["outlineStack"]}, "outlineStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["outlineHeading", "outlineIntro", "subjectHeading", "subjectText", "openingHeading", "openingText", "factsHeading", "factsText", "requestHeading", "requestText", "docsHeading", "docsText", "paymentHeading", "paymentText", "closingHeading", "closingText"]}, "outlineHeading": {"type": "Text", "props": {"text": "Demand Letter Outline You Can Use", "variant": "h2"}, "children": []}, "outlineIntro": {"type": "Text", "props": {"text": "Keep the tone calm, factual, and short. Ask for payment, not punishment.", "variant": "body"}, "children": []}, "subjectHeading": {"type": "Text", "props": {"text": "Subject Line", "variant": "h3"}, "children": []}, "subjectText": {"type": "Text", "props": {"text": "Request for Return of Security Deposit Balance", "variant": "body"}, "children": []}, "openingHeading": {"type": "Text", "props": {"text": "Opening", "variant": "h3"}, "children": []}, "openingText": {"type": "Text", "props": {"text": "State your name, rental address, and tenancy dates. State that the tenancy ended on 2026-02-28. State that you provided written notice 30 days earlier.", "variant": "body"}, "children": []}, "factsHeading": {"type": "Text", "props": {"text": "Short facts paragraph", "variant": "h3"}, "children": []}, "factsText": {"type": "Text", "props": {"text": "Say you vacated the unit on 2026-02-28 and returned possession/keys. Say the apartment was professionally cleaned before move-out. Say you received the landlord’s itemized deduction statement 24 days after move-out.", "variant": "body"}, "children": []}, "requestHeading": {"type": "Text", "props": {"text": "Request paragraph", "variant": "h3"}, "children": []}, "requestText": {"type": "Text", "props": {"text": "Request the prompt return of the deposit balance that you believe is owed. If some deductions appear unsupported or excessive, say you dispute those specific items and ask for supporting receipts, invoices, or explanation if not already provided. If the statement arrived after 21 days, politely note that California law generally requires the itemized statement and any remaining deposit to be sent within 21 days after vacating.", "variant": "body"}, "children": []}, "docsHeading": {"type": "Text", "props": {"text": "Documentation paragraph", "variant": "h3"}, "children": []}, "docsText": {"type": "Text", "props": {"text": "Mention what you have available if needed: move-out photos/videos, cleaning receipt, copy of written notice, proof of key return, and copy of the itemized statement and envelope/email date.", "variant": "body"}, "children": []}, "paymentHeading": {"type": "Text", "props": {"text": "Payment request", "variant": "h3"}, "children": []}, "paymentText": {"type": "Text", "props": {"text": "Ask that the amount owed be sent by a specific reasonable date, such as within 7 to 10 calendar days of the letter. Include where payment should be mailed or how it can be sent electronically if you want to offer that option.", "variant": "body"}, "children": []}, "closingHeading": {"type": "Text", "props": {"text": "Closing", "variant": "h3"}, "children": []}, "closingText": {"type": "Text", "props": {"text": "Thank the landlord for resolving the matter promptly. Sign with your full name, forwarding address, email, and phone number.", "variant": "body"}, "children": []}, "scenarioHeading": {"type": "Text", "props": {"text": "Tenant-Side Context for Your Scenario", "variant": "h2"}, "children": []}, "scenarioTable": {"type": "Table", "props": {"columns": [{"key": "fact", "label": "Fact"}, {"key": "value", "label": "Value"}], "statePath": "/scenarioRows", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "fact", "highlightColumns": ["value"], "sourceFormat": "plain"}, "children": []}, "emphasisTable": {"type": "Table", "props": {"columns": [{"key": "focus", "label": "Checklist emphasis"}, {"key": "details", "label": "Details"}], "statePath": "/emphasisRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "focus", "sourceFormat": "plain"}, "children": []}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["action1", "action2"]}, "action1": {"type": "Button", "props": {"label": "Read §1950.5", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1950.5.&lawCode=CIV"}}}}, "action2": {"type": "Button", "props": {"label": "Tenant help guide", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://selfhelp.courts.ca.gov/guide-security-deposits-california"}}}}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesTable": {"type": "Table", "props": {"columns": [{"key": "source", "label": "Source"}, {"key": "actionLabel", "label": "Action"}, {"key": "url", "label": "URL"}], "statePath": "/sourcesRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "source", "highlightColumns": ["actionLabel"], "sourceFormat": "plain"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

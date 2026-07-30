@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"books": [{"option": "Option 1", "title": "Six Crimson Cranes", "author": "Elizabeth Lim", "summary": "A princess cursed into silence must outwit magic, betrayal, and danger to save her brothers.", "notes": "Non-Western-inspired setting; duology", "ageFit": "14–16", "readingDifficulty": "Moderate", "hook": "When Shiori’s magical mistake is exposed, she’s banished and her brothers are transformed into cranes—forcing her into a dangerous journey where every word could cost someone their life.", "actionLabel": "View book", "actionUrl": "https://www.penguinrandomhouse.com/books/611184/six-crimson-cranes-by-elizabeth-lim/"}, {"option": "Option 2", "title": "Sabriel", "author": "Garth Nix", "summary": "Necromancy, bells, and a bleak magical kingdom make this a gripping classic adventure.", "notes": "Fast-moving quest; very light romance", "ageFit": "14–16", "readingDifficulty": "Moderate", "hook": "Sent from boarding school into a land of the dead, Sabriel must use forbidden magic and fierce courage to find her missing father before a greater evil rises.", "actionLabel": "View book", "actionUrl": "https://www.harpercollins.com/products/sabriel-garth-nix"}, {"option": "Option 3", "title": "A Wizard’s Guide to Defensive Baking", "author": "T. Kingfisher", "summary": "Funny, tense, and wildly inventive, with a heroine whose magic works only on bread.", "notes": "Standalone; highly accessible", "ageFit": "14–16", "readingDifficulty": "Easy to Moderate", "hook": "Mona can make gingerbread dance and bread rise—but when a murder draws her into a deadly plot, her small magic may be the city’s best defense.", "actionLabel": "View book", "actionUrl": "https://www.argyllproductions.com/a-wizards-guide-to-defensive-baking"}, {"option": "Option 4", "title": "The Raven Boys", "author": "Maggie Stiefvater", "summary": "A mystery-driven fantasy with psychic clues, ancient power, and sharp group dynamics.", "notes": "Series of 4; romance present but not dominant", "ageFit": "14–16", "readingDifficulty": "Moderate", "hook": "Blue has always been told that if she kisses her true love, he will die—then she meets a group of boys searching for a sleeping Welsh king, and everything gets stranger.", "actionLabel": "View book", "actionUrl": "https://www.simonandschuster.com/books/The-Raven-Boys/Maggie-Stiefvater/9780545424929"}, {"option": "Option 5", "title": "Skyward", "author": "Brandon Sanderson", "summary": "Sci-fi fantasy energy, high stakes, and a determined teen pilot make this a strong club pick.", "notes": "Series of 4; action-first", "ageFit": "14–16", "readingDifficulty": "Moderate", "hook": "In a world where humanity survives under constant attack, Spensa wants to become a pilot and prove that her disgraced family name does not define her future.", "actionLabel": "View book", "actionUrl": "https://www.penguinrandomhouse.com/books/561978/skyward-by-brandon-sanderson/"}, {"option": "Option 6", "title": "The Novice", "author": "Taran Matharu", "summary": "A battle-school fantasy with demons, politics, and quick momentum.", "notes": "Trilogy; very readable", "ageFit": "14–16", "readingDifficulty": "Easy to Moderate", "hook": "After accidentally summoning a demon, an orphaned apprentice is swept into a military academy where survival depends on mastering magic—and trusting almost no one.", "actionLabel": "View book", "actionUrl": "https://us.macmillan.com/books/9781250067128/thenovice"}], "bestFits": [{"priority": "Best overall for fast pace + low romance", "pick": "Sabriel"}, {"priority": "Best easiest club read", "pick": "A Wizard’s Guide to Defensive Baking"}, {"priority": "Best for readers who like ensemble mystery vibes", "pick": "The Raven Boys"}, {"priority": "Best non-Western-author pick", "pick": "Six Crimson Cranes"}], "sources": [{"source": "Penguin Random House book pages", "url": "https://www.penguinrandomhouse.com/"}, {"source": "HarperCollins title page for Sabriel", "url": "https://www.harpercollins.com/products/sabriel-garth-nix"}, {"source": "Common Sense Media age guidance hub", "url": "https://www.commonsensemedia.org/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "intro_card", "lineup_heading", "books_table", "bestfits_card", "actions_card", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Fantasy Picks for a Teen Book Club", "variant": "h1"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["intro_text"]}, "intro_text": {"type": "Text", "props": {"text": "These 6 novels lean fast-paced, keep romance light or secondary, and fit readers around 14–16. I also avoided very long series and included one strong non-Western-author pick.", "variant": "body"}, "children": []}, "lineup_heading": {"type": "Text", "props": {"text": "Recommended Fantasy Lineup", "variant": "h2"}, "children": []}, "books_table": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "title", "label": "Title"}, {"key": "author", "label": "Author"}, {"key": "summary", "label": "Summary"}, {"key": "notes", "label": "Notes"}, {"key": "ageFit", "label": "Age fit"}, {"key": "readingDifficulty", "label": "Reading difficulty"}, {"key": "hook", "label": "Spoiler-free hook"}, {"key": "actionLabel", "label": "Action"}, {"key": "actionUrl", "label": "Link"}], "statePath": "/books", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["ageFit", "readingDifficulty"], "sourceFormat": "plain"}, "children": []}, "bestfits_card": {"type": "Card", "props": {}, "children": ["bestfits_stack"]}, "bestfits_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["bestfits_heading", "bestfits_table"]}, "bestfits_heading": {"type": "Text", "props": {"text": "Best Fits for Your Stated Priorities", "variant": "h2"}, "children": []}, "bestfits_table": {"type": "Table", "props": {"columns": [{"key": "priority", "label": "Priority"}, {"key": "pick", "label": "Pick"}], "statePath": "/bestFits", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "priority", "highlightColumns": ["pick"], "sourceFormat": "plain"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actions_heading", "compare_button", "guides_button"]}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "compare_button": {"type": "Button", "props": {"label": "Compare all", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.goodreads.com/"}}}}, "guides_button": {"type": "Button", "props": {"label": "Reading guides", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.commonsensemedia.org/"}}}}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sources_heading", "source_1", "source_2", "source_3"]}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source_1": {"type": "Button", "props": {"label": "Penguin Random House book pages", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.penguinrandomhouse.com/"}}}}, "source_2": {"type": "Button", "props": {"label": "HarperCollins title page for Sabriel", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.harpercollins.com/products/sabriel-garth-nix"}}}}, "source_3": {"type": "Button", "props": {"label": "Common Sense Media age guidance hub", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.commonsensemedia.org/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

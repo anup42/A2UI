@@ -21,9 +21,9 @@ from pipeline.genui_quality import (  # noqa: E402
     SourceContractCache,
     aggregate_v4_records,
     breakdown_to_mapping,
-    load_default_reward_config,
+    load_v4_reward_config,
     resolve_expected_ui_contract,
-    score_record,
+    score_record_v4,
 )
 
 
@@ -107,7 +107,7 @@ def main() -> int:
     responses = load_by_id(run_dir / "responses.jsonl", "response_id")
     native_checks = load_native_checks(run_dir)
     contract_cache = SourceContractCache(output_dir / "contract_cache")
-    config = load_default_reward_config()
+    config = load_v4_reward_config()
 
     started = time.perf_counter()
     shadow_rows: list[dict[str, Any]] = []
@@ -142,7 +142,7 @@ def main() -> int:
         )
         ui_id = str(genui.get("ui_id") or "")
         native_row = native_checks.get(ui_id)
-        result = score_record(score_input, render_row=native_row, config=config)
+        result = score_record_v4(score_input, render_row=native_row, config=config)
         generation = genui.get("gen") if isinstance(genui.get("gen"), Mapping) else {}
         shadow_rows.append(
             {

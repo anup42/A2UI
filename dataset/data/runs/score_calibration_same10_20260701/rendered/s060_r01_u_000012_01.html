@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "intro", "atmoCard", "suspenseCard", "notesCard", "optionsCard"]}, "title": {"type": "Text", "props": {"text": "Story Opening Pair", "variant": "h1"}, "children": []}, "intro": {"type": "Text", "props": {"text": "Here are two contrasting opening paragraphs in third-person limited, each centered on the same night-shift archivist and her discovery.", "variant": "body"}, "children": []}, "atmoCard": {"type": "Card", "props": {}, "children": ["atmoStack"]}, "atmoStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["atmoTitle", "atmoText"]}, "atmoTitle": {"type": "Text", "props": {"text": "Quietly Atmospheric Opening", "variant": "h2"}, "children": []}, "atmoText": {"type": "Text", "props": {"text": "By half past one, Mara had settled the intake room into its proper order: accession ledger aligned with the scanner, nitrile gloves folded beside the bone folder, the new donations separated into clean, intelligible stacks. The building after midnight had a way of emptying itself of intention. Elevators slept between floors, the radiators clicked in measured reply to the cold, and somewhere in the ventilation a loose seam uttered the same small complaint every seven minutes. She noticed these things without being distracted by them. Noticed, too, the box that had not been on the cart at the start of her shift. It was ordinary enough—gray board, cotton tape, no institutional stamp—but its label arrested her. M. Vale, Private Correspondence, 2031–2032, written in a hand she knew better than most signatures in the world because she had spent years refining it into legibility. She did not feel fear at first. What came was thinner and harder to name: the sensation of standing in a room she recognized precisely, with one wall subtly moved.", "variant": "body"}, "children": []}, "suspenseCard": {"type": "Card", "props": {}, "children": ["suspenseStack"]}, "suspenseStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["suspenseTitle", "suspenseText"]}, "suspenseTitle": {"type": "Text", "props": {"text": "Tense and Suspenseful Opening", "variant": "h2"}, "children": []}, "suspenseText": {"type": "Text", "props": {"text": "Mara saw the box only because something in the manifest was wrong. She had already reconciled the delivery against the transfer sheet twice, and competence made her stubborn; numbers were either faithful or they were not. At 2:07 a.m., under the narrow pool of her task lamp, the count came up twenty-three while the cart held twenty-four containers. The extra box sat at the back as if it had edged there by patience rather than force, gray, unmarked except for a strip of white label tape. No barcode. No donor code. No chain-of-custody initials. Her pulse altered once, decisively. She pulled the cart closer and read the handwriting on the label, then read it again because the first pass had to be an error. M. Vale, Private Correspondence, 2031–2032. Her own surname. Dates six years ahead. She did not indulge the absurd immediately; she checked the glue line, the board stock, the aging at the corners, all the practical frauds. Then she loosened the tape and found, on top, an envelope addressed in her hand to her hand, marked OPEN ONLY IF IT HAS ALREADY BEGUN.", "variant": "body"}, "children": []}, "notesCard": {"type": "Card", "props": {}, "children": ["notesStack"]}, "notesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["notesTitle", "notesTable"]}, "notesTitle": {"type": "Text", "props": {"text": "Tone Contrast Notes", "variant": "h2"}, "children": []}, "notesTable": {"type": "Table", "props": {"columns": [{"key": "version", "label": "Version"}, {"key": "notes", "label": "Notes"}], "rows": [{"version": "Atmospheric version", "notes": "slower rhythm, observational detail, inward unease."}, {"version": "Suspenseful version", "notes": "immediate anomaly, procedural competence, rising threat."}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "version", "highlightColumns": ["notes"], "sourceFormat": "plain"}, "children": []}, "optionsCard": {"type": "Card", "props": {}, "children": ["optionsStack"]}, "optionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["optionsTitle", "option1", "option2"]}, "optionsTitle": {"type": "Text", "props": {"text": "Quick Use Options", "variant": "h2"}, "children": []}, "option1": {"type": "Text", "props": {"text": "I can also write 2 matching second paragraphs for each opening.", "variant": "body"}, "children": []}, "option2": {"type": "Text", "props": {"text": "I can turn either one into a full short-story first page with the same voice.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

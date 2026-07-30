@@ -1,0 +1,264 @@
+{
+  "metric_versions": {
+    "before": "4.0.0",
+    "after": "5.0.0"
+  },
+  "count": 20,
+  "combined": {
+    "v4_mean": 82.68429263356435,
+    "v5_mean": 81.7738447918233,
+    "mean_delta_v5_minus_v4": -0.9104478417410604,
+    "v4_median": 82.520361031203,
+    "v5_median": 87.98872342326106
+  },
+  "by_run": [
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "count": 10,
+      "v4_mean": 86.25773532090925,
+      "v5_mean": 84.22064595735067,
+      "mean_delta_v5_minus_v4": -2.0370893635585787,
+      "v4_median": 86.07526410067683,
+      "v5_median": 89.64411330071289
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "count": 10,
+      "v4_mean": 79.11084994621943,
+      "v5_mean": 79.32704362629593,
+      "mean_delta_v5_minus_v4": 0.21619368007650053,
+      "v4_median": 80.50416809766385,
+      "v5_median": 81.32230277203747
+    }
+  ],
+  "rows": [
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_001_01",
+      "intent_bucket": "weather",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 96.94426106922823,
+      "v5_quality_0_100": 96.31904372107081,
+      "delta_v5_minus_v4": -0.6252173481574204,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_002_01",
+      "intent_bucket": "travel",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 98.66960561818257,
+      "v5_quality_0_100": 96.5967044171815,
+      "delta_v5_minus_v4": -2.0729012010010734,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_003_01",
+      "intent_bucket": "booking",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 89.90153071500382,
+      "v5_quality_0_100": 94.14103985389171,
+      "delta_v5_minus_v4": 4.239509138887897,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_004_01",
+      "intent_bucket": "shopping",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 93.38600189694158,
+      "v5_quality_0_100": 91.82063600575455,
+      "delta_v5_minus_v4": -1.565365891187028,
+      "v5_active_caps": [
+        "partial_action"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_005_01",
+      "intent_bucket": "entertainment",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 82.24899748634984,
+      "v5_quality_0_100": 87.46759059567121,
+      "delta_v5_minus_v4": 5.218593109321375,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_006_01",
+      "intent_bucket": "travel",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 77.4380875676281,
+      "v5_quality_0_100": 63.24484499185598,
+      "delta_v5_minus_v4": -14.193242575772125,
+      "v5_active_caps": [
+        "missing_action"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_007_01",
+      "intent_bucket": "calculation",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 99.59039094560731,
+      "v5_quality_0_100": 96.86360121170338,
+      "delta_v5_minus_v4": -2.726789733903928,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_008_01",
+      "intent_bucket": "writing",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 72.26350978879242,
+      "v5_quality_0_100": 75.0,
+      "delta_v5_minus_v4": 2.736490211207581,
+      "v5_active_caps": [
+        "missing_action"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_009_01",
+      "intent_bucket": "tech_support",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 78.0,
+      "v5_quality_0_100": 78.0,
+      "delta_v5_minus_v4": 0.0,
+      "v5_active_caps": [
+        "missing_special_role"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash",
+      "ui_id": "u_self_010_01",
+      "intent_bucket": "planning",
+      "model": "gemini-2.5-flash",
+      "v4_quality_0_100": 74.1349681213587,
+      "v5_quality_0_100": 62.752998776377524,
+      "delta_v5_minus_v4": -11.381969344981172,
+      "v5_active_caps": [
+        "missing_table"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_002_01",
+      "intent_bucket": "travel",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 91.24091708680336,
+      "v5_quality_0_100": 88.5098562508509,
+      "delta_v5_minus_v4": -2.731060835952462,
+      "v5_active_caps": [
+        "partial_action"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_003_01",
+      "intent_bucket": "booking",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 93.43722812348456,
+      "v5_quality_0_100": 92.98641532971145,
+      "delta_v5_minus_v4": -0.45081279377311034,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_004_01",
+      "intent_bucket": "shopping",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 70.0,
+      "v5_quality_0_100": 70.0,
+      "delta_v5_minus_v4": 0.0,
+      "v5_active_caps": [
+        "partial_action",
+        "partial_reachability"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_005_01",
+      "intent_bucket": "entertainment",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 78.21661161927155,
+      "v5_quality_0_100": 74.13474929322405,
+      "delta_v5_minus_v4": -4.081862326047499,
+      "v5_active_caps": [
+        "partial_action"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_001_01",
+      "intent_bucket": "weather",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 95.7346826133341,
+      "v5_quality_0_100": 94.77560039464942,
+      "delta_v5_minus_v4": -0.959082218684685,
+      "v5_active_caps": [
+        "partial_action"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_006_01",
+      "intent_bucket": "travel",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 82.79172457605615,
+      "v5_quality_0_100": 91.59751409202642,
+      "delta_v5_minus_v4": 8.805789515970261,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_009_01",
+      "intent_bucket": "tech_support",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 65.93984139092908,
+      "v5_quality_0_100": 71.05391434662481,
+      "delta_v5_minus_v4": 5.1140729556957325,
+      "v5_active_caps": [
+        "missing_action",
+        "missing_special_role"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_010_01",
+      "intent_bucket": "planning",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 98.74749405231556,
+      "v5_quality_0_100": 98.35859558555217,
+      "delta_v5_minus_v4": -0.38889846676339346,
+      "v5_active_caps": []
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_007_01",
+      "intent_bucket": "calculation",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 40.0,
+      "v5_quality_0_100": 40.0,
+      "delta_v5_minus_v4": 0.0,
+      "v5_active_caps": [
+        "missing_special_role",
+        "reachability_below_90"
+      ]
+    },
+    {
+      "source_run": "metric_v4_g25_fixed10_20260721_gemini_2_5_flash_lite",
+      "ui_id": "u_self_008_01",
+      "intent_bucket": "writing",
+      "model": "gemini-2.5-flash-lite",
+      "v4_quality_0_100": 75.0,
+      "v5_quality_0_100": 71.85379097032015,
+      "delta_v5_minus_v4": -3.146209029679852,
+      "v5_active_caps": [
+        "missing_action"
+      ]
+    }
+  ],
+  "calibration_note": "Descriptive non-gating audit only. No weights or thresholds were fit to these 20 rows."
+}

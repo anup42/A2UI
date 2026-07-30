@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "cases": [
+    {
+      "source": "Daily Hours by Project (Stacked Bar Chart)",
+      "role": "chart",
+      "count": 1,
+      "specificity": 1.0
+    },
+    {
+      "source": "Total Effort Distribution by Project (Pie Chart)",
+      "role": "chart",
+      "count": 1,
+      "specificity": 1.0
+    },
+    {
+      "source": "Create two charts: revenue by quarter and cost by region",
+      "role": "chart",
+      "count": 2,
+      "specificity": 1.0
+    },
+    {
+      "source": "Charts to include:\n1. Revenue by quarter\n2. Cost by region",
+      "role": "chart",
+      "count": 2,
+      "specificity": 1.0
+    },
+    {
+      "source": "Formula: E = mc^2",
+      "role": "formula",
+      "count": 1,
+      "specificity": 1.0
+    },
+    {
+      "source": "ConsoleLog: build succeeded",
+      "role": "console",
+      "count": 1,
+      "specificity": 1.0
+    },
+    {
+      "source": "EmailPreview: finance@example.com",
+      "role": "email",
+      "count": 1,
+      "specificity": 1.0
+    },
+    {
+      "source": "Form: customer contact details",
+      "role": "form",
+      "count": 1,
+      "specificity": 1.0
+    }
+  ]
+}

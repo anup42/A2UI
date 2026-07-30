@@ -11,18 +11,13 @@ from pathlib import Path
 DATASET_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(DATASET_ROOT / "src"))
 
-from pipeline.genui_quality import score_genui_completion  # noqa: E402
+from pipeline.genui_quality import score_genui_completion_v4 as score_genui_completion  # noqa: E402
 
 
 ROWS = [
     json.loads(line)
     for line in (
-        DATASET_ROOT
-        / "data"
-        / "runs"
-        / "azure_gpt54_reasoning32_20260618_214045"
-        / "gpt54_reasoning_medium"
-        / "genui.jsonl"
+        DATASET_ROOT / "tests" / "fixtures" / "genui_metric_samples.jsonl"
     ).read_text(encoding="utf-8").splitlines()
     if line.strip()
 ]
@@ -98,7 +93,12 @@ class MetricV4MutationAuditTests(unittest.TestCase):
         changed = copy.deepcopy(row["genui_json"])
         changed["elements"]["unsupported_claim"] = {
             "type": "Text",
-            "props": {"text": "Guaranteed teleportation included with every booking", "variant": "body"},
+            "props": {
+                "text": " ".join(
+                    ["Guaranteed teleportation included with every booking"] * 12
+                ),
+                "variant": "body",
+            },
             "children": [],
         }
         changed["elements"][changed["root"]]["children"].append("unsupported_claim")

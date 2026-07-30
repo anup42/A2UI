@@ -12,7 +12,7 @@ sys.path.insert(0, str(DATASET_ROOT / "src"))
 sys.path.insert(0, str(DATASET_ROOT / "scripts"))
 
 from capture_android_run_screenshots import write_native_render_checks  # noqa: E402
-from pipeline.genui_quality import aggregate_v4_records, score_record  # noqa: E402
+from pipeline.genui_quality import aggregate_v4_records, score_record_v4 as score_record  # noqa: E402
 
 
 def simple_record(ui_id: str = "sample") -> dict:

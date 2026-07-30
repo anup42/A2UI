@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"categoryBreakdown": [{"category": "Needs", "includedItems": "Rent, utilities, internet, phone, car payment, insurance, groceries, gas, student loan", "actual": "$3,320", "target": "$2,425", "overUnder": "$895 over"}, {"category": "Wants", "includedItems": "Dining, entertainment, shopping, gym", "actual": "$520", "target": "$1,455", "overUnder": "$935 under"}, {"category": "Savings", "includedItems": "Income left after spending", "actual": "$825", "target": "$970", "overUnder": "$145 under"}], "budgetVariables": [{"variable": "Income", "description": "Monthly take-home pay", "value": "$4,850"}, {"variable": "Needs", "description": "Total of required expenses", "value": "$3,320"}, {"variable": "Wants", "description": "Total of flexible/non-essential spending", "value": "$520"}, {"variable": "Savings", "description": "Leftover after spending", "value": "$825"}, {"variable": "50% Needs Target", "description": "0.50 × 4850", "value": "$2,425"}, {"variable": "30% Wants Target", "description": "0.30 × 4850", "value": "$1,455"}, {"variable": "20% Savings Target", "description": "0.20 × 4850", "value": "$970"}], "adjustmentOptions": [{"option": "Option 1", "approach": "Cut from wants only", "change": "Reduce wants by $145", "newNeeds": "$3,320", "newWants": "$375", "newTotalSpending": "$3,695", "newSavings": "$970"}, {"option": "Option 2", "approach": "Cut from needs only", "change": "Reduce needs by $145", "newNeeds": "$3,175", "newWants": "$520", "newTotalSpending": "$3,695", "newSavings": "$970"}, {"option": "Option 3", "approach": "Split cuts across both", "change": "Any combination totaling $145", "newNeeds": "Varies", "newWants": "Varies", "newTotalSpending": "$3,695", "newSavings": "$970"}], "splitExamples": [{"example": "Example 1", "needsCut": "$100", "wantsCut": "$45"}, {"example": "Example 2", "needsCut": "$75", "wantsCut": "$70"}, {"example": "Example 3", "needsCut": "$120", "wantsCut": "$25"}], "practicalCuts": [{"plan": "Wants-only version", "category": "Shopping", "cut": "$100"}, {"plan": "Wants-only version", "category": "Dining", "cut": "$45"}, {"plan": "Needs-only version", "category": "Groceries", "cut": "$85"}, {"plan": "Needs-only version", "category": "Gas", "cut": "$60"}, {"plan": "Balanced version", "category": "Shopping", "cut": "$60"}, {"plan": "Balanced version", "category": "Dining", "cut": "$25"}, {"plan": "Balanced version", "category": "Groceries", "cut": "$40"}, {"plan": "Balanced version", "category": "Gas", "cut": "$20"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["titleRow", "summaryCard", "breakdownSection", "adjustmentsSection", "mathSection", "actionsSection", "sourcesSection"]}, "titleRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["titleIcon", "titleText"]}, "titleIcon": {"type": "Icon", "props": {"name": "../assets/r_000016_01_1_currency-rupee.svg"}, "children": []}, "titleText": {"type": "Text", "props": {"text": "50/30/20 Budget Snapshot", "variant": "h1"}, "children": []}, "summaryCard": {"type": "Card", "props": {}, "children": ["summaryStack"]}, "summaryStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["summaryHeading", "summaryTakeHome", "summarySpending", "summaryLeft", "summaryTarget", "summaryShortfall", "summaryNote"]}, "summaryHeading": {"type": "Text", "props": {"text": "Current Result", "variant": "h2"}, "children": []}, "summaryTakeHome": {"type": "Text", "props": {"text": "Take-home pay: $4,850", "variant": "body"}, "children": []}, "summarySpending": {"type": "Text", "props": {"text": "Total spending last month: $3,840", "variant": "body"}, "children": []}, "summaryLeft": {"type": "Text", "props": {"text": "Amount left over or actual savings: $825", "variant": "body"}, "children": []}, "summaryTarget": {"type": "Text", "props": {"text": "Target savings at 20%: $970", "variant": "body"}, "children": []}, "summaryShortfall": {"type": "Text", "props": {"text": "Shortfall to reach 20% savings: $145", "variant": "chip"}, "children": []}, "summaryNote": {"type": "Text", "props": {"text": "Your wants are already below the 30% guideline, so the gap comes from savings being $145 short of target.", "variant": "caption"}, "children": []}, "breakdownSection": {"type": "Card", "props": {}, "children": ["breakdownStack"]}, "breakdownStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["breakdownHeading", "breakdownTable"]}, "breakdownHeading": {"type": "Text", "props": {"text": "Category Breakdown Against 50/30/20", "variant": "h2"}, "children": []}, "breakdownTable": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "includedItems", "label": "Included Items"}, {"key": "actual", "label": "Actual"}, {"key": "target", "label": "Target"}, {"key": "overUnder", "label": "Over/Under"}], "statePath": "/categoryBreakdown", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "category", "highlightColumns": ["actual", "overUnder"], "numericColumns": ["actual", "target"], "sourceFormat": "plain"}, "children": []}, "adjustmentsSection": {"type": "Card", "props": {}, "children": ["adjustmentsStack"]}, "adjustmentsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["adjustmentsHeading", "adjustmentsIntro", "optionsTable", "splitExamplesHeading", "splitExamplesTable", "practicalHeading", "practicalTable"]}, "adjustmentsHeading": {"type": "Text", "props": {"text": "Exact Adjustments to Reach 20% Savings", "variant": "h2"}, "children": []}, "adjustmentsIntro": {"type": "Text", "props": {"text": "Because your wants are already below the 30% target, the cleanest way to hit 20% savings is to reduce spending by exactly $145 total.", "variant": "body"}, "children": []}, "optionsTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "approach", "label": "Approach"}, {"key": "change", "label": "Change"}, {"key": "newNeeds", "label": "New Needs"}, {"key": "newWants", "label": "New Wants"}, {"key": "newTotalSpending", "label": "New Total Spending"}, {"key": "newSavings", "label": "New Savings"}], "statePath": "/adjustmentOptions", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["approach", "newSavings"], "numericColumns": ["newTotalSpending", "newSavings"], "sourceFormat": "plain"}, "children": []}, "splitExamplesHeading": {"type": "Text", "props": {"text": "Split-Cut Examples", "variant": "h3"}, "children": []}, "splitExamplesTable": {"type": "Table", "props": {"columns": [{"key": "example", "label": "Example"}, {"key": "needsCut", "label": "Needs Cut"}, {"key": "wantsCut", "label": "Wants Cut"}], "statePath": "/splitExamples", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "example", "highlightColumns": ["needsCut", "wantsCut"], "sourceFormat": "plain"}, "children": []}, "practicalHeading": {"type": "Text", "props": {"text": "Practical Cut Targets Using Your Categories", "variant": "h3"}, "children": []}, "practicalTable": {"type": "Table", "props": {"columns": [{"key": "plan", "label": "Plan"}, {"key": "category", "label": "Category"}, {"key": "cut", "label": "Cut"}], "statePath": "/practicalCuts", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "plan", "highlightColumns": ["category", "cut"], "numericColumns": ["cut"], "sourceFormat": "plain"}, "children": []}, "mathSection": {"type": "Card", "props": {}, "children": ["mathStack"]}, "mathStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["mathHeading", "formula", "variablesTable"]}, "mathHeading": {"type": "Text", "props": {"text": "Budget Math Using Your Numbers", "variant": "h2"}, "children": []}, "formula": {"type": "Formula", "props": {"text": "Savings = Income - Needs - Wants", "title": "Formula", "result": "$825 current savings; $970 target savings"}, "children": []}, "variablesTable": {"type": "Table", "props": {"columns": [{"key": "variable", "label": "Variable"}, {"key": "description", "label": "Description"}, {"key": "value", "label": "Value"}], "statePath": "/budgetVariables", "domain": "formula", "preferredPresentation": "table", "primaryColumn": "variable", "numericColumns": ["value"], "sourceFormat": "plain"}, "children": []}, "actionsSection": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actionsHeading", "actionsNote", "actionBtn1", "actionBtn2"]}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsNote": {"type": "Text", "props": {"text": "Use these tools to test reduced spending scenarios and rebuild your monthly plan.", "variant": "body"}, "children": []}, "actionBtn1": {"type": "Button", "props": {"label": "Trim Wants Plan", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/consumer-tools/budgeting/"}}}}, "actionBtn2": {"type": "Button", "props": {"label": "Budget Worksheet", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nerdwallet.com/article/finance/budget-worksheet"}}}}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourcesNote", "source1", "source2"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesNote": {"type": "Text", "props": {"text": "Reference material for the 50/30/20 framework and budget planning tools.", "variant": "caption"}, "children": []}, "source1": {"type": "Button", "props": {"label": "50/30/20 Budgeting Overview", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/about-us/blog/budgeting-how-to-create-a-budget-and-stick-with-it/"}}}}, "source2": {"type": "Button", "props": {"label": "Budget Calculator Reference", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nerdwallet.com/article/finance/nerdwallet-budget-calculator"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

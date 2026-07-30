@@ -1,0 +1,422 @@
+{
+  "version": "2.0.0",
+  "vectors": [
+    {
+      "name": "state path without leading slash",
+      "state": {"user": {"name": "Ada"}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$state": "user/name"},
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "state path with leading slash",
+      "state": {"user": {"name": "Ada"}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$state": "/user/name"},
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "blank state path returns root",
+      "state": {"user": "Ada"},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$state": ""},
+      "expected_value": {"user": "Ada"},
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "slash state path returns root",
+      "state": {"user": "Ada"},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$state": "/"},
+      "expected_value": {"user": "Ada"},
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "escaped pointer tokens",
+      "state": {"a/b": {"til~de": 7}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$state": "/a~1b/til~0de"},
+      "expected_value": 7,
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "item slash path",
+      "state": {},
+      "item": {"user": {"name": "Ada"}},
+      "index": 2,
+      "base_path": null,
+      "expression": {"$item": "user/name"},
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "dotted item key stays literal",
+      "state": {},
+      "item": {"user.name": "literal", "user": {"name": "nested"}},
+      "index": 2,
+      "base_path": null,
+      "expression": {"$item": "user.name"},
+      "expected_value": "literal",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "bind state",
+      "state": {"form": {"email": "ada@example.com"}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$bindState": "form/email"},
+      "expected_value": "ada@example.com",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "bind item",
+      "state": {"rows": [{"name": "Ada"}, {"name": "Grace"}]},
+      "item": {"name": "Grace"},
+      "index": 1,
+      "base_path": "/rows/1",
+      "expression": {"$bindItem": "name"},
+      "expected_value": "Grace",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "index expression",
+      "state": {},
+      "item": null,
+      "index": 3,
+      "base_path": null,
+      "expression": {"$index": true},
+      "expected_value": 3,
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "conditional branch",
+      "state": {"enabled": true},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {"$state": "enabled", "eq": true},
+        "$then": "enabled",
+        "$else": "disabled"
+      },
+      "expected_value": "enabled",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "boolean is not numeric",
+      "state": {"flag": true},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {"$state": "flag", "gt": 0},
+        "$then": "wrong",
+        "$else": "android"
+      },
+      "expected_value": "android",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "and condition",
+      "state": {"a": 2, "b": "yes"},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "$and": [
+            {"$state": "a", "gte": 2},
+            {"$state": "b", "neq": "no"}
+          ]
+        },
+        "$then": true,
+        "$else": false
+      },
+      "expected_value": true,
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "or and not condition",
+      "state": {"a": 0, "b": false},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "$or": [
+            {"$state": "a", "gt": 1},
+            {"$state": "b", "not": true}
+          ]
+        },
+        "$then": true,
+        "$else": false
+      },
+      "expected_value": true,
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "deep equality",
+      "state": {"value": {"items": [1, {"ok": true}]}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "$state": "value",
+          "eq": {"literalString": "never"}
+        },
+        "$then": "wrong",
+        "$else": "deep-comparison-exercised"
+      },
+      "expected_value": "deep-comparison-exercised",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "literal values",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": [
+        {"literalString": "Ada"},
+        {"literalNumber": 4.5},
+        {"literalBoolean": true}
+      ],
+      "expected_value": ["Ada", 4.5, true],
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "generic index templates",
+      "state": {},
+      "item": null,
+      "index": 4,
+      "base_path": null,
+      "expression": "${index}/${index_0}/${index_1}",
+      "expected_value": "4/4/5",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "android item template dollar syntax",
+      "state": {},
+      "item": {"name": "Ada"},
+      "index": 0,
+      "base_path": null,
+      "expression": "${$item/name}",
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "android item template moustache syntax",
+      "state": {},
+      "item": {"name": "Ada"},
+      "index": 0,
+      "base_path": null,
+      "expression": "{{$item/name}}",
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "android item template legacy syntax",
+      "state": {},
+      "item": {"name": "Ada"},
+      "index": 0,
+      "base_path": null,
+      "expression": "{$item/name}",
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "concat builtin",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "concat",
+        "args": {"a": "A", "b": 2, "c": null, "d": true}
+      },
+      "expected_value": "A2true",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "case builtins",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": [
+        {"$computed": "uppercase", "args": {"value": "Ada"}},
+        {"$computed": "lowercase", "args": {"value": "ADA"}}
+      ],
+      "expected_value": ["ADA", "ada"],
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "coalesce builtin",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "coalesce",
+        "args": {"values": [null, "", "Ada", "Grace"]}
+      },
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "sum builtin ignores boolean",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "sum",
+        "args": {"values": [1, 2.5, true, "4"]}
+      },
+      "expected_value": 3.5,
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "sum double is not equal to integral literal",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "value": {"$computed": "sum", "args": {"values": [1, 2]}},
+          "eq": 3
+        },
+        "$then": "wrong",
+        "$else": "android"
+      },
+      "expected_value": "android",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "sum double equals double literal",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "value": {"$computed": "sum", "args": {"values": [1, 2]}},
+          "eq": 3.0
+        },
+        "$then": "android",
+        "$else": "wrong"
+      },
+      "expected_value": "android",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "nested numeric collection equality preserves type",
+      "state": {"value": {"items": [1, {"amount": 3}]}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "$state": "/value",
+          "eq": {"items": [1, {"amount": 3.0}]}
+        },
+        "$then": "wrong",
+        "$else": "android"
+      },
+      "expected_value": "android",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "collection concat uses Kotlin stringification",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "concat",
+        "args": {
+          "list": [1, null, true],
+          "map": {"x": true, "empty": null}
+        }
+      },
+      "expected_value": "[1, null, true]{x=true, empty=null}",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "inline collection stringification",
+      "state": {"value": [1, null, false]},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": "Value=${/value}",
+      "expected_value": "Value=[1, null, false]",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "lexical numeric string is not equal to number",
+      "state": {"value": "3"},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {"$state": "/value", "eq": 3},
+        "$then": "wrong",
+        "$else": "android"
+      },
+      "expected_value": "android",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "lexical numeric string participates in numeric comparison",
+      "state": {"value": "3"},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {"$state": "/value", "gt": 2},
+        "$then": "android",
+        "$else": "wrong"
+      },
+      "expected_value": "android",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "ordinary unknown dollar map",
+      "state": {"name": "Ada"},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$futureKey": {"$state": "name"},
+        "label": "ok"
+      },
+      "expected_value": {"$futureKey": "Ada", "label": "ok"},
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "unknown computed function is explicit",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$computed": "notRegistered", "args": {}},
+      "expected_unknown": true,
+      "expected_unknown_codes": ["computed_function_unknown:notRegistered"]
+    }
+  ]
+}

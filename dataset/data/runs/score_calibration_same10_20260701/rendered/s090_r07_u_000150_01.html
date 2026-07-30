@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"albumPicks": [{"album": "Punisher", "artist": "Phoebe Bridgers", "minutes": "40", "mood": "melancholic", "energy": "3", "lyricDensity": "9", "whyItFits": "Best match for reflective listening: very strong lyrics, low abrasiveness, intimate late-evening tone"}, {"album": "Titanic Rising", "artist": "Weyes Blood", "minutes": "41", "mood": "lush", "energy": "4", "lyricDensity": "7", "whyItFits": "Warm and immersive without being too heavy; reflective but more comforting than bleak"}, {"album": "A Moon Shaped Pool", "artist": "Radiohead", "minutes": "52", "mood": "haunting", "energy": "4", "lyricDensity": "8", "whyItFits": "Deep, atmospheric, and emotionally rich; serious but still restrained rather than abrasive"}], "listeningOrders": [{"option": "Option 1", "sequence": "Punisher → Titanic Rising → A Moon Shaped Pool", "notes": "Starts intimate, opens into warmth, ends in deep atmosphere", "bestFor": "Most balanced sequence"}, {"option": "Option 2", "sequence": "Titanic Rising → Punisher → A Moon Shaped Pool", "notes": "Slightly softer entry, then sharper lyrical focus, then a weightier close", "bestFor": "Best if you want a gentler start"}, {"option": "Option 3", "sequence": "Punisher + Titanic Rising only", "notes": "81 minutes for a shorter, smoother session", "bestFor": "Best if you want less emotional heaviness"}], "quickActions": [{"label": "Save These 3", "url": "https://open.spotify.com/"}, {"label": "Build Queue", "url": "https://music.apple.com/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "picksHeading", "picksTable", "whyHeading", "whyCard", "orderHeading", "orderTable", "actionsHeading", "actionsCard", "sourcesHeading", "sourcesCard"]}, "title": {"type": "Text", "props": {"text": "Evening Listening Fit", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroHeader", "heroText"]}, "heroHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["heroIcon", "heroSummary"]}, "heroIcon": {"type": "Icon", "props": {"name": "../assets/r_000150_01_1_music-note-beamed.svg"}, "children": []}, "heroSummary": {"type": "Text", "props": {"text": "Best 3 picks: Punisher, Titanic Rising, and A Moon Shaped Pool", "variant": "h3"}, "children": []}, "heroText": {"type": "Text", "props": {"text": "For a focused, reflective evening session under 2 hours, these three total 133 minutes, so they fit your time limit while staying lyrical, introspective, and relatively gentle in energy.", "variant": "body"}, "children": []}, "picksHeading": {"type": "Text", "props": {"text": "Best 3 Album Picks", "variant": "h2"}, "children": []}, "picksTable": {"type": "Table", "props": {"columns": [{"key": "album", "label": "Album"}, {"key": "artist", "label": "Artist"}, {"key": "minutes", "label": "Minutes"}, {"key": "mood", "label": "Mood"}, {"key": "energy", "label": "Energy"}, {"key": "lyricDensity", "label": "Lyric Density"}, {"key": "whyItFits", "label": "Why it fits"}], "statePath": "/albumPicks", "domain": "playlist", "preferredPresentation": "cards", "primaryColumn": "album", "highlightColumns": ["artist", "minutes"], "numericColumns": ["minutes", "energy", "lyricDensity"], "title": "Best 3 Album Picks"}, "children": []}, "whyHeading": {"type": "Text", "props": {"text": "Why These Beat the Other Options", "variant": "h2"}, "children": []}, "whyCard": {"type": "Card", "props": {}, "children": ["whyStack"]}, "whyStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["why1", "why2", "why3", "missedLabel", "missed1", "missed2", "missed3"]}, "why1": {"type": "Text", "props": {"text": "Punisher is the clearest first choice because it combines the highest lyrical strength with the lowest energy in the set. That makes it ideal for close listening at night.", "variant": "body"}, "children": []}, "why2": {"type": "Text", "props": {"text": "Titanic Rising adds variety without breaking the mood. Its lush feel keeps the set from becoming too stark, while still staying thoughtful and calm.", "variant": "body"}, "children": []}, "why3": {"type": "Text", "props": {"text": "A Moon Shaped Pool rounds out the trio with more emotional depth and complexity. Its haunting tone works well for an evening listen, and the energy level stays moderate.", "variant": "body"}, "children": []}, "missedLabel": {"type": "Text", "props": {"text": "Albums that missed the cut", "variant": "h3"}, "children": []}, "missed1": {"type": "Text", "props": {"text": "Currents: dreamy and evening-friendly, but less lyric-forward and a bit more groove-driven than reflective.", "variant": "body"}, "children": []}, "missed2": {"type": "Text", "props": {"text": "Fetch the Bolt Cutters: brilliant lyrically, but its higher energy and more jagged feel make it less suitable for a calm, focused evening.", "variant": "body"}, "children": []}, "missed3": {"type": "Text", "props": {"text": "22, A Million: interesting and introspective, but its fragmented mood and lower lyric clarity make it a weaker match for your stated preferences.", "variant": "body"}, "children": []}, "orderHeading": {"type": "Text", "props": {"text": "Best Listening Order", "variant": "h2"}, "children": []}, "orderTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "sequence", "label": "Sequence"}, {"key": "notes", "label": "Notes"}, {"key": "bestFor", "label": "Best for"}], "statePath": "/listeningOrders", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["bestFor"]}, "children": []}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "padding": 16, "wrap": "wrap"}, "children": ["saveButton", "queueButton"]}, "saveButton": {"type": "Button", "props": {"label": "Save These 3", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/"}}}}, "queueButton": {"type": "Button", "props": {"label": "Build Queue", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.apple.com/"}}}}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesCard": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourceText"]}, "sourceText": {"type": "Text", "props": {"text": "Album data provided in your prompt.", "variant": "caption"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

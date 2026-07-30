@@ -1,0 +1,10 @@
+{
+  "metric_version": "5.1.0",
+  "metric_fingerprint": "43c3337e79397cb96eb345e112d15ceffba3f0fc67ab6783ca3bfe567ea97fef",
+  "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\metric_v5_g31_fixed10_20260726_gemini_3_1_flash_lite",
+  "source_genui_sha256": "47aa3d9a25b6a7e9bffcbcac12f22cba2b747e2d597acfd2010934594990c6cc",
+  "scores_sha256": "cf54c55c0fc5e11e0814ac615f26f28312d4173c4e8a01b3a499ff53dfa2a1a6",
+  "aggregates_sha256": "23fda889f897f553c6b4f2e9c1ab9fec4ee875db4bd0126684cbb228c65f617f",
+  "created_at": "2026-07-26T11:27:47.309338+00:00",
+  "immutable": true
+}

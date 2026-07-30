@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"games": [{"activityGame": "Just One", "idealGroupSize": "4–7 per table", "noiseLevel": "Low–Medium", "whyItWorks": "Cooperative word-guessing keeps everyone involved; older and younger players can both contribute through vocabulary and shared knowledge."}, {"activityGame": "Dixit", "idealGroupSize": "4–8 per table", "noiseLevel": "Low", "whyItWorks": "Beautiful image cards invite creativity without requiring speed, trivia, or strategy experience; good for different personalities and ages."}, {"activityGame": "Telestrations", "idealGroupSize": "6–8 per table", "noiseLevel": "Medium–High", "whyItWorks": "Drawing plus guessing creates lots of laughter; artistic skill is not required, which helps level the field across generations."}, {"activityGame": "Hues and Cues", "idealGroupSize": "3–10 per table", "noiseLevel": "Low–Medium", "whyItWorks": "Players describe colors with simple words, so it is accessible, quick, and great for conversation without complex rules."}, {"activityGame": "Ticket to Ride", "idealGroupSize": "2–5 per table", "noiseLevel": "Low", "whyItWorks": "Route-building is intuitive and calm; turns are simple, and the theme is travel rather than conflict, which suits broad age appeal."}, {"activityGame": "Qwirkle", "idealGroupSize": "2–4 per table", "noiseLevel": "Low", "whyItWorks": "Pattern matching by color and shape is easy to teach and language-light, making it friendly for mixed ages and different experience levels."}, {"activityGame": "Sushi Go Party!", "idealGroupSize": "4–8 per table", "noiseLevel": "Medium", "whyItWorks": "Cute art and short rounds make it approachable; choices are simple enough for beginners while still fun for adults."}, {"activityGame": "Blank Slate", "idealGroupSize": "3–8 per table", "noiseLevel": "Low–Medium", "whyItWorks": "Matching words encourages gentle humor and shared cultural references without putting pressure on quick reflexes or bluffing."}, {"activityGame": "Bingo with themed prompts or prizes", "idealGroupSize": "10–30", "noiseLevel": "Medium", "whyItWorks": "Familiar format, inclusive pacing, and easy hosting make it ideal for a larger community event with varied ages and comfort levels."}, {"activityGame": "Team Charades or Picture Charades", "idealGroupSize": "8–20", "noiseLevel": "Medium–High", "whyItWorks": "No materials-heavy setup, easy to adapt for mobility or comfort, and naturally creates cross-age teamwork and laughter."}], "setupOptions": [{"option": "Option 1", "format": "Three-table rotation", "details": "Split into 3 groups of 6 and rotate every 25–35 minutes", "bestFor": "Best for variety", "actionLabel": "Plan Rotation", "actionUrl": "https://www.wikihow.com/Host-a-Game-Night"}, {"option": "Option 2", "format": "One all-group opener + table games", "details": "Start with Bingo or Charades, then break into smaller groups", "bestFor": "Best for warm-up and mingling", "actionLabel": "Event Tips", "actionUrl": "https://www.signupgenius.com/groups/game-night-ideas.cfm"}, {"option": "Option 3", "format": "Quiet room + lively room", "details": "Put Qwirkle, Dixit, Just One in a calmer space; Charades/Telestrations in a louder one", "bestFor": "Best for accessibility and comfort", "actionLabel": "Group Games", "actionUrl": "https://www.verywellfamily.com/fun-board-games-for-families-2764718"}, {"option": "Option 4", "format": "Most balanced shortlist", "details": "Just One, Dixit, Bingo, Telestrations, Qwirkle", "bestFor": "Best overall mix of calm, laughter, and easy learning", "actionLabel": "Compare Games", "actionUrl": "https://boardgamegeek.com"}], "sources": [{"source": "BoardGameGeek game listings and player counts", "actionLabel": "Open Source", "url": "https://boardgamegeek.com"}, {"source": "Family game roundup and accessibility-style guidance", "actionLabel": "Open Source", "url": "https://www.verywellfamily.com/fun-board-games-for-families-2764718"}, {"source": "Community event hosting basics", "actionLabel": "Open Source", "url": "https://www.wikihow.com/Host-a-Game-Night"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "gamesHeading", "gamesTable", "setupHeading", "setupCard", "fitHeading", "fitCard", "actionsHeading", "actionsCard", "sourcesHeading", "sourcesCard"]}, "title": {"type": "Text", "props": {"text": "Intergenerational Game Night Picks", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroHeader", "heroText"]}, "heroHeader": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["peopleIcon", "heroLabel"]}, "peopleIcon": {"type": "Icon", "props": {"name": "../assets/r_000220_01_1_people.svg"}, "children": []}, "heroLabel": {"type": "Text", "props": {"text": "Good fit for 18 guests ages 14 to 72", "variant": "h3"}, "children": []}, "heroText": {"type": "Text", "props": {"text": "A good mix is a rotation of light, social, easy-to-explain activities with low rules overhead and positive themes. The options below are all learnable in under 10 minutes, require no hobby-gaming background, and avoid war themes or deception-centered play.", "variant": "body"}, "children": []}, "gamesHeading": {"type": "Text", "props": {"text": "10 Easy-to-Learn Activities and Games", "variant": "h2"}, "children": []}, "gamesTable": {"type": "Table", "props": {"columns": [{"key": "activityGame", "label": "Activity/Game"}, {"key": "idealGroupSize", "label": "Ideal Group Size"}, {"key": "noiseLevel", "label": "Noise Level"}, {"key": "whyItWorks", "label": "Why it works for mixed ages"}], "statePath": "/games", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "activityGame", "highlightColumns": ["idealGroupSize", "noiseLevel"], "sourceFormat": "markdown"}, "children": []}, "setupHeading": {"type": "Text", "props": {"text": "Best Setup for 18 Guests", "variant": "h2"}, "children": []}, "setupCard": {"type": "Card", "props": {}, "children": ["setupStack"]}, "setupStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["setupTable"]}, "setupTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "format", "label": "Setup"}, {"key": "details", "label": "Details"}, {"key": "bestFor", "label": "Best For"}, {"key": "actionLabel", "label": "Action"}, {"key": "actionUrl", "label": "URL"}, {"key": "image", "label": "Image"}, {"key": "imageAlt", "label": "Image Alt"}], "statePath": "/setupOptions", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["format", "bestFor"], "sourceFormat": "plain"}, "children": []}, "fitHeading": {"type": "Text", "props": {"text": "Event Fit Notes", "variant": "h2"}, "children": []}, "fitCard": {"type": "Card", "props": {}, "children": ["fitStack"]}, "fitStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["fit1", "fit2", "fit3", "fit4", "fit5"]}, "fit1": {"type": "Text", "props": {"text": "Best overall for mixed ages: Just One, Dixit, Bingo", "variant": "body"}, "children": []}, "fit2": {"type": "Text", "props": {"text": "Best if you want laughter: Telestrations, Charades", "variant": "body"}, "children": []}, "fit3": {"type": "Text", "props": {"text": "Best for quieter tables: Qwirkle, Ticket to Ride, Dixit", "variant": "body"}, "children": []}, "fit4": {"type": "Text", "props": {"text": "Best for very quick teaching: Bingo, Charades, Blank Slate", "variant": "body"}, "children": []}, "fit5": {"type": "Text", "props": {"text": "Best if guests may not know each other well: Just One, Hues and Cues, Bingo", "variant": "body"}, "children": []}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsCard": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["btn1", "btn2"]}, "btn1": {"type": "Button", "props": {"label": "Print Bingo Cards", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://myfreebingocards.com"}}}}, "btn2": {"type": "Button", "props": {"label": "Game Night Guide", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.wikihow.com/Host-a-Game-Night"}}}}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesCard": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["source1", "source2", "source3"]}, "source1": {"type": "Button", "props": {"label": "BoardGameGeek game listings and player counts", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://boardgamegeek.com"}}}}, "source2": {"type": "Button", "props": {"label": "Family game roundup and accessibility-style guidance", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.verywellfamily.com/fun-board-games-for-families-2764718"}}}}, "source3": {"type": "Button", "props": {"label": "Community event hosting basics", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.wikihow.com/Host-a-Game-Night"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

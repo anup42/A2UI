@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"pairings": [{"id": "p1", "pairing": "Pairing 1", "novel": "Never Let Me Go", "author": "Kazuo Ishiguro", "screen": "Her", "format": "film", "themes": "memory, identity, loneliness", "whyItWorks": "Both explore what makes a self feel real when intimacy is shaped by larger systems. Quiet, tender, and emotionally precise, they ask unsettling questions about how people are valued while holding onto fragile human warmth.", "mood": "Intimate and tender", "icon": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/book.svg"}, {"id": "p2", "pairing": "Pairing 2", "novel": "The Memory Police", "author": "Yoko Ogawa", "screen": "Severance", "format": "series", "themes": "memory, surveillance, control", "whyItWorks": "Both center controlled forgetting and the politics of inner life. One is eerie and dreamlike, the other corporate and structured, but both ask who benefits when memory is partitioned or stripped away.", "mood": "Memory and control", "icon": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/play-circle.svg"}, {"id": "p3", "pairing": "Pairing 3", "novel": "Klara and the Sun", "author": "Kazuo Ishiguro", "screen": "After Yang", "format": "film", "themes": "identity, memory, artificial consciousness", "whyItWorks": "Both use constructed consciousness to reflect the strangeness of ordinary human love. Gentle and meditative, they treat memory less as storage than as a form of care.", "mood": "Quiet philosophical sci-fi", "icon": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/sun.svg"}, {"id": "p4", "pairing": "Pairing 4", "novel": "Convenience Store Woman", "author": "Sayaka Murata", "screen": "Perfect Days", "format": "film", "themes": "identity, modern loneliness, social scrutiny", "whyItWorks": "Both focus on repetitive urban routines, solitary people, and pressure to appear normal within modern systems. They find dignity in habits others dismiss and portray loneliness without sensationalizing it.", "mood": "Everyday solitude", "icon": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg"}, {"id": "p5", "pairing": "Pairing 5", "novel": "The Circle", "author": "Dave Eggers", "screen": "Black Mirror", "format": "selected episodes/series", "themes": "surveillance, identity, digital life", "whyItWorks": "Both examine the seductive language of transparency, convenience, and connection, showing how identity becomes performative when constantly watched. The strongest moments are when people still try to protect private feeling.", "mood": "Surveillance and digital self", "icon": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/camera-video.svg"}], "choices": [{"option": "Option 1", "pick": "Most emotionally moving", "pair": "Never Let Me Go + Her", "reason": "Intimate and tender"}, {"option": "Option 2", "pick": "Most conceptually rich", "pair": "The Memory Police + Severance", "reason": "Memory and control"}, {"option": "Option 3", "pick": "Most meditative", "pair": "Klara and the Sun + After Yang", "reason": "Quiet philosophical sci-fi"}, {"option": "Option 4", "pick": "Most grounded", "pair": "Convenience Store Woman + Perfect Days", "reason": "Everyday solitude"}, {"option": "Option 5", "pick": "Most sharply contemporary", "pair": "The Circle + Black Mirror", "reason": "Surveillance and digital self"}], "sources": [{"name": "Goodreads book catalog", "url": "https://www.goodreads.com/"}, {"name": "JustWatch streaming guide", "url": "https://www.justwatch.com/"}, {"name": "IMDb title reference", "url": "https://www.imdb.com/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "hero_card", "pairings_heading", "pairings_context", "pairings_table", "choose_heading", "choices_table", "actions_heading", "actions_row", "sources_heading", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Reading-and-Watching Crossover Picks", "variant": "h1"}, "children": []}, "hero_card": {"type": "Card", "props": {}, "children": ["hero_stack"]}, "hero_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["hero_text", "theme_chips"]}, "hero_text": {"type": "Text", "props": {"text": "A thoughtful set of pairings built around memory, identity, surveillance, and modern loneliness. These are mood-and-theme companions rather than straightforward adaptation matches.", "variant": "body"}, "children": []}, "theme_chips": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["chip1", "chip2", "chip3", "chip4"]}, "chip1": {"type": "Text", "props": {"text": "memory", "variant": "chip"}, "children": []}, "chip2": {"type": "Text", "props": {"text": "identity", "variant": "chip"}, "children": []}, "chip3": {"type": "Text", "props": {"text": "surveillance", "variant": "chip"}, "children": []}, "chip4": {"type": "Text", "props": {"text": "modern loneliness", "variant": "chip"}, "children": []}, "pairings_heading": {"type": "Text", "props": {"text": "Five Novel and Screen Pairings", "variant": "h2"}, "children": []}, "pairings_context": {"type": "Text", "props": {"text": "Each row matches a novel with a film or series that shares emotional texture, core themes, or philosophical questions.", "variant": "body"}, "children": []}, "pairings_table": {"type": "Table", "props": {"columns": [{"key": "pairing", "label": "Pairing"}, {"key": "novel", "label": "Novel"}, {"key": "author", "label": "Author"}, {"key": "screen", "label": "Screen"}, {"key": "format", "label": "Format"}, {"key": "themes", "label": "Themes"}, {"key": "whyItWorks", "label": "Why it works"}, {"key": "mood", "label": "Mood"}, {"key": "icon", "label": "Icon"}], "statePath": "/pairings", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "pairing", "highlightColumns": ["novel", "screen"], "sourceFormat": "plain"}, "children": []}, "choose_heading": {"type": "Text", "props": {"text": "How to Choose Your First Pair", "variant": "h2"}, "children": []}, "choices_table": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "pick", "label": "Pick"}, {"key": "pair", "label": "Pair"}, {"key": "reason", "label": "Reason"}], "statePath": "/choices", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["pick", "pair"], "sourceFormat": "plain"}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["books_btn", "stream_btn"]}, "books_btn": {"type": "Button", "props": {"label": "Find the books", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.goodreads.com/"}}}}, "stream_btn": {"type": "Button", "props": {"label": "Check streaming", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["source_intro", "source1", "source2", "source3"]}, "source_intro": {"type": "Text", "props": {"text": "Use these references to confirm book details, streaming availability, and title information.", "variant": "body"}, "children": []}, "source1": {"type": "Button", "props": {"label": "Goodreads book catalog", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.goodreads.com/"}}}}, "source2": {"type": "Button", "props": {"label": "JustWatch streaming guide", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}, "source3": {"type": "Button", "props": {"label": "IMDb title reference", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.imdb.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

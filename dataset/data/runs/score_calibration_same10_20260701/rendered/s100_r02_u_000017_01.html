@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"rankedLaptops": [{"rank": "1", "laptop": "Lenovo IdeaPad Slim 5", "price": "$899", "weight": "1.46 kg", "battery": "13 hrs", "ramStorage": "16GB / 512GB SSD", "keyTradeOff": "Best value and battery; less storage than Acer"}, {"rank": "2", "laptop": "Acer Swift Go 14", "price": "$1,099", "weight": "1.32 kg", "battery": "11 hrs", "ramStorage": "16GB / 1TB SSD", "keyTradeOff": "Lighter and more storage; costs more and trails Lenovo on battery"}, {"rank": "3", "laptop": "ASUS TUF A15", "price": "$999", "weight": "2.2 kg", "battery": "7 hrs", "ramStorage": "16GB / 512GB SSD", "keyTradeOff": "Strongest graphics; fails portability priority"}], "lenovoBestFor": [{"item": "Programming classes"}, {"item": "Note-taking and campus carry"}, {"item": "Web dev, IDEs, Docker, light VMs"}, {"item": "Long library and class days without charging"}], "lenovoTradeoffs": [{"item": "512GB SSD is good, but not as roomy as Acer’s 1TB"}, {"item": "Not the best pick if you later want GPU-heavy gaming or 3D work"}], "acerBestFor": [{"item": "CS students who want more storage headroom"}, {"item": "Frequent travel or daily carrying"}, {"item": "General coding, productivity, and modern CPU performance"}], "acerTradeoffs": [{"item": "Costs $200 more than Lenovo"}, {"item": "Battery is good, but still behind Lenovo’s stated 13 hours"}], "acerChooseWhen": [{"item": "If you value lighter weight and 1TB storage enough to justify the extra cost"}], "asusStrengths": [{"item": "Better for gaming"}, {"item": "Better for GPU-accelerated workloads like some ML, rendering, or CUDA-specific tasks"}], "asusTradeoffs": [{"item": "2.2 kg is well above your preferred weight limit"}, {"item": "7 hours battery is much worse for student use on campus"}, {"item": "Bulkier 15.6 inch form factor is less convenient for commuting"}], "asusBottomLine": [{"item": "Only choose this if you expect to game regularly or specifically need dedicated GPU power"}], "finalRecommendation": [{"priority": "Battery life", "assessment": "best"}, {"priority": "Weight", "assessment": "under target"}, {"priority": "Budget", "assessment": "comfortably under cap"}, {"priority": "RAM", "assessment": "meets 16GB requirement"}], "upgradeReasons": [{"item": "Lower weight"}, {"item": "More storage"}, {"item": "A slightly more premium portability-focused setup"}], "notRecommendedReasons": [{"item": "too heavy"}, {"item": "shorter battery life"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "hero_card", "comparison_heading", "comparison_table", "lenovo_card", "acer_card", "asus_card", "recommendation_heading", "recommendation_card", "buyer_heading", "buyer_card", "sources_heading", "sources_card"]}, "title": {"type": "Text", "props": {"text": "Best Laptop Fit for a CS Student", "variant": "h1"}, "children": []}, "hero_card": {"type": "Card", "props": {}, "children": ["hero_stack"]}, "hero_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["hero_title", "hero_text", "hero_actions"]}, "hero_title": {"type": "Text", "props": {"text": "Top pick: Lenovo IdeaPad Slim 5", "variant": "h3"}, "children": []}, "hero_text": {"type": "Text", "props": {"text": "For portability, battery life, 16GB RAM, and staying under $1,200, Lenovo is the strongest overall fit. Acer is the better premium alternative if you want lower weight and 1TB storage. ASUS is more gaming-focused but misses your portability priority.", "variant": "body"}, "children": []}, "hero_actions": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["pick_lenovo_button", "check_acer_button", "check_asus_button"]}, "pick_lenovo_button": {"type": "Button", "props": {"label": "Open Lenovo", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.lenovo.com/"}}}}, "check_acer_button": {"type": "Button", "props": {"label": "Open Acer", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.acer.com/"}}}}, "check_asus_button": {"type": "Button", "props": {"label": "Open ASUS", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.asus.com/"}}}}, "comparison_heading": {"type": "Text", "props": {"text": "Ranked Laptop Comparison", "variant": "h2"}, "children": []}, "comparison_table": {"type": "Table", "props": {"columns": [{"key": "rank", "label": "Rank"}, {"key": "laptop", "label": "Laptop"}, {"key": "price", "label": "Price"}, {"key": "weight", "label": "Weight"}, {"key": "battery", "label": "Battery"}, {"key": "ramStorage", "label": "RAM/Storage"}, {"key": "keyTradeOff", "label": "Key Trade-off"}], "statePath": "/rankedLaptops", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "laptop", "highlightColumns": ["rank", "price"], "numericColumns": ["price", "weight", "battery"]}, "children": []}, "lenovo_card": {"type": "Card", "props": {}, "children": ["lenovo_stack"]}, "lenovo_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["lenovo_title", "lenovo_why", "lenovo_bestfor_label", "lenovo_bestfor_table", "lenovo_tradeoffs_label", "lenovo_tradeoffs_table"]}, "lenovo_title": {"type": "Text", "props": {"text": "1) Lenovo IdeaPad Slim 5", "variant": "h3"}, "children": []}, "lenovo_why": {"type": "Text", "props": {"text": "It ranks first because it stays under budget, stays under 1.6 kg, includes 16GB RAM, and has the best battery life of the three.", "variant": "body"}, "children": []}, "lenovo_bestfor_label": {"type": "Text", "props": {"text": "Best for", "variant": "label"}, "children": []}, "lenovo_bestfor_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Best for"}], "statePath": "/lenovoBestFor", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "lenovo_tradeoffs_label": {"type": "Text", "props": {"text": "Trade-offs", "variant": "label"}, "children": []}, "lenovo_tradeoffs_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Trade-offs"}], "statePath": "/lenovoTradeoffs", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "acer_card": {"type": "Card", "props": {}, "children": ["acer_stack"]}, "acer_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["acer_title", "acer_why", "acer_bestfor_label", "acer_bestfor_table", "acer_tradeoffs_label", "acer_tradeoffs_table", "acer_choose_label", "acer_choose_table"]}, "acer_title": {"type": "Text", "props": {"text": "2) Acer Swift Go 14", "variant": "h3"}, "children": []}, "acer_why": {"type": "Text", "props": {"text": "It ranks second because it is the lightest option and gives you 1TB SSD storage, which is excellent for projects, datasets, and dual-boot setups, but it costs more and trails Lenovo on battery.", "variant": "body"}, "children": []}, "acer_bestfor_label": {"type": "Text", "props": {"text": "Best for", "variant": "label"}, "children": []}, "acer_bestfor_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Best for"}], "statePath": "/acerBestFor", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "acer_tradeoffs_label": {"type": "Text", "props": {"text": "Trade-offs", "variant": "label"}, "children": []}, "acer_tradeoffs_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Trade-offs"}], "statePath": "/acerTradeoffs", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "acer_choose_label": {"type": "Text", "props": {"text": "When to choose it over Lenovo", "variant": "label"}, "children": []}, "acer_choose_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "When to choose it over Lenovo"}], "statePath": "/acerChooseWhen", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "asus_card": {"type": "Card", "props": {}, "children": ["asus_stack"]}, "asus_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["asus_title", "asus_why", "asus_strengths_label", "asus_strengths_table", "asus_tradeoffs_label", "asus_tradeoffs_table", "asus_bottom_label", "asus_bottom_table"]}, "asus_title": {"type": "Text", "props": {"text": "3) ASUS TUF A15", "variant": "h3"}, "children": []}, "asus_why": {"type": "Text", "props": {"text": "It ranks third because the dedicated graphics help gaming and GPU-heavy tasks, but that is not your main priority and the extra weight hurts day-to-day student use.", "variant": "body"}, "children": []}, "asus_strengths_label": {"type": "Text", "props": {"text": "Strengths", "variant": "label"}, "children": []}, "asus_strengths_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Strengths"}], "statePath": "/asusStrengths", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "asus_tradeoffs_label": {"type": "Text", "props": {"text": "Trade-offs", "variant": "label"}, "children": []}, "asus_tradeoffs_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Trade-offs"}], "statePath": "/asusTradeoffs", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "asus_bottom_label": {"type": "Text", "props": {"text": "Bottom line", "variant": "label"}, "children": []}, "asus_bottom_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Bottom line"}], "statePath": "/asusBottomLine", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "recommendation_heading": {"type": "Text", "props": {"text": "Final Recommendation by Priority", "variant": "h2"}, "children": []}, "recommendation_card": {"type": "Card", "props": {}, "children": ["recommendation_stack"]}, "recommendation_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["best_overall_title", "best_overall_table", "upgrade_title", "upgrade_table", "not_recommended_title", "not_recommended_table"]}, "best_overall_title": {"type": "Text", "props": {"text": "Best overall: Lenovo IdeaPad Slim 5", "variant": "h3"}, "children": []}, "best_overall_table": {"type": "Table", "props": {"columns": [{"key": "priority", "label": "Priority"}, {"key": "assessment", "label": "Assessment"}], "statePath": "/finalRecommendation", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "priority", "highlightColumns": ["assessment"]}, "children": []}, "upgrade_title": {"type": "Text", "props": {"text": "Best upgrade pick: Acer Swift Go 14", "variant": "h3"}, "children": []}, "upgrade_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Choose this if you are willing to spend more for"}], "statePath": "/upgradeReasons", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "not_recommended_title": {"type": "Text", "props": {"text": "Not recommended for your stated needs: ASUS TUF A15", "variant": "h3"}, "children": []}, "not_recommended_table": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Reasons"}], "statePath": "/notRecommendedReasons", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "item"}, "children": []}, "buyer_heading": {"type": "Text", "props": {"text": "Buyer Context", "variant": "h2"}, "children": []}, "buyer_card": {"type": "Card", "props": {}, "children": ["buyer_stack"]}, "buyer_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["buyer_text"]}, "buyer_text": {"type": "Text", "props": {"text": "Using your constraints, the biggest eliminator is portability. That makes the ASUS hard to justify unless gaming or GPU work is a real need. Between Lenovo and Acer, Lenovo wins on value and battery, while Acer wins on lightness and storage.", "variant": "body"}, "children": []}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_card": {"type": "Card", "props": {}, "children": ["sources_stack"]}, "sources_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["source_lenovo", "source_asus", "source_acer"]}, "source_lenovo": {"type": "Button", "props": {"label": "Lenovo official site", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.lenovo.com/"}}}}, "source_asus": {"type": "Button", "props": {"label": "ASUS official site", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.asus.com/"}}}}, "source_acer": {"type": "Button", "props": {"label": "Acer official site", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.acer.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

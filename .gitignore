@@ -63,3 +63,5 @@ dataset/.hourly_generated_commit.lock
 # Dataset producer scratch files
 dataset/data/runs/*/.prompt_cache_stage1_producer.jsonl
 dataset/data/runs/*/progress_stage1_producer.json
+
+ppt/

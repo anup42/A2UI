@@ -12,6 +12,8 @@ Set `evaluation.metric_version` in `dataset/configs/run.yaml` to one of:
 
 During dual-write, the legacy headline is `legacy_structural_richness_score`. The compatibility alias `overall_score` remains until 2026-10-01. Do not rewrite historical run files when the alias is removed.
 
+The dataset dashboard remains on the legacy headline by default for the migration window. Select v4 explicitly with `python dataset/scripts/dataset_dashboard.py --metric-version v4`. In v4 mode the UI labels the 0-100 headline as an uncalibrated engineering score.
+
 Each Stage 3 row records the candidate-independent `expected_ui_contract`, its version/source/cache status, the full `genui_quality_v4` breakdown, dimension scores, active caps, metric version, and `renderer_check_result`. Run aggregates contain the per-sample score distribution, bootstrap confidence interval, intent macro/micro means, dimension distributions, cap rates, failure rates, and floor/ceiling rates. Latency, tokens, bytes, and cost remain diagnostics outside the quality score.
 
 Stage 3 refreshes partial aggregates after the first new row and every 250 new rows, then always at clean completion. Set `GENUI_STAGE3_AGGREGATE_EVERY` when a different progress cadence is needed; this avoids repeatedly bootstrapping the full growing run after every record.
@@ -68,7 +70,7 @@ Key monitoring dimensions are `metric_version`, `contract_version`, `intent_buck
 - role omissions, action/table fidelity, JSON/source economy, dimensions, and cap activation;
 - score drift against the frozen benchmark.
 
-Alert when component count or completion length rises across two comparable windows without a fidelity improvement, or when any failure/cap rate changes materially. Component count is diagnostic only and must never become a quality objective.
+The GRPO reward emits `genui/alert_component_inflation_without_fidelity_gain` and `genui/alert_length_inflation_without_fidelity_gain` when component count or completion length rises across two comparable EMA windows without the configured fidelity improvement. The associated growth ratios, fidelity gain, and comparable-window flag are logged beside the alerts. Component count is diagnostic only and must never become a quality objective.
 
 ## Verification
 

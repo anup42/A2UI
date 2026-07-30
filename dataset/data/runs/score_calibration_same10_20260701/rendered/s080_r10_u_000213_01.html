@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"scheduleRows": [{"time": "19:00-19:35", "segment": "Short Game", "whatToDo": "Play Codenames or a free phone/browser party game for a fast, funny icebreaker", "estimatedCost": "$0-$15"}, {"time": "19:35-21:25", "segment": "Movie", "whatToDo": "Watch Ocean's Eleven (2001) for a stylish, upbeat, non-horror pick", "estimatedCost": "$0-$4"}, {"time": "21:25-21:50", "segment": "Snack Break", "whatToDo": "Put out popcorn, chips + salsa, and sparkling drinks", "estimatedCost": "$14-$20"}, {"time": "21:50-23:30", "segment": "Music Segment", "whatToDo": "Do a shared mini music session: themed playlist rounds, light sing-along, or pass the aux", "estimatedCost": "$0-$6"}], "setupRows": [{"option": "Option 1: Best-fit plan", "summary": "Light competition, fun movie, easy snacks, upbeat music finish", "fit": "Balanced for all 3 preferences", "game": "Codenames, Heads Up!, or Gartic Phone", "movie": "Ocean's Eleven", "snacks": "Popcorn, tortilla chips, salsa, sparkling water or soda", "music": "Feel-good night drive playlist with each person picking 3 songs"}, {"option": "Option 2: Lowest-cost version", "summary": "Uses free game + existing subscription + simple pantry snacks", "fit": "Best for staying under $20", "game": "Charades or Two Truths and a Lie", "movie": "Any already-included comedy/heist title", "snacks": "Homemade popcorn + cookies + tea/soft drinks", "music": "Collaborative playlist on Spotify or YouTube"}, {"option": "Option 3: Most interactive version", "summary": "More group participation while keeping the movie as the anchor", "fit": "Best for the friend who likes interaction", "game": "Jackbox-style party game or trivia round", "movie": "Shorter crowd-pleasing comedy", "snacks": "DIY snack board", "music": "Guess-the-song challenge for the first 20 minutes, then chill playlist"}], "budgetRows": [{"category": "Game", "cost": "$0 if using free games, or about $15 if you already have or borrow Codenames", "notes": ""}, {"category": "Movie rental", "cost": "$0-$4 if not on an existing subscription", "notes": ""}, {"category": "Snacks", "cost": "$14-$20", "notes": "Microwave popcorn: $3; Chips: $4; Salsa or dip: $4; Chocolate/cookies: $4-$5; Sparkling water/soda: $3-$4"}, {"category": "Music segment", "cost": "$0-$6", "notes": "Usually free with an existing app or YouTube; Optional treat like candy or tea upgrade: $3-$6"}], "whyRows": [{"point": "No horror", "details": "The movie avoids horror and heavy tension."}, {"point": "Interactive need covered", "details": "The evening starts with a short game and ends with a participatory music segment."}, {"point": "Relaxed but not sleepy", "details": "Heist/comedy energy plus snacks and music keeps the mood light and awake."}, {"point": "Good pacing", "details": "No single block is too long before a reset."}], "backupRows": [{"option": "Option 1: Swap the movie", "when": "If no one wants a heist film", "idea": "Choose Paddington 2, The Intern, or School of Rock", "benefit": "Warm, upbeat vibe", "actionLabel": "Pick a Movie", "actionUrl": "https://www.justwatch.com/"}, {"option": "Option 2: Swap the game", "when": "If you want less setup", "idea": "Use Heads Up!, charades, or a 20-minute trivia round", "benefit": "Fast and interactive", "actionLabel": "Free Game Ideas", "actionUrl": "https://garticphone.com/"}, {"option": "Option 3: Swap the music segment", "when": "If you want a tighter ending", "idea": "Do each person brings 5 songs plus a vote for best closer instead of open-ended listening", "benefit": "Keeps energy focused", "actionLabel": "Make Playlist", "actionUrl": "https://open.spotify.com/"}], "sourceRows": [{"source": "JustWatch streaming availability", "actionLabel": "Open Source", "url": "https://www.justwatch.com/"}, {"source": "Spotify playlist platform", "actionLabel": "Open Source", "url": "https://open.spotify.com/"}, {"source": "YouTube Music", "actionLabel": "Open Source", "url": "https://music.youtube.com/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "scheduleSection", "setupSection", "budgetSection", "whySection", "backupSection", "sourcesSection"]}, "title": {"type": "Text", "props": {"text": "Cozy Night Plan: 19:00-23:30 for Three Friends", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroText", "heroBudget", "heroNote", "heroActions"]}, "heroText": {"type": "Text", "props": {"text": "A relaxed, social evening that stays lively without getting loud or exhausting. The plan balances one interactive game, one easy movie, a snack reset, and a music finish.", "variant": "body"}, "children": []}, "heroBudget": {"type": "Text", "props": {"text": "Estimated total: $14-$45 depending on whether you already own the game, snacks, and movie access.", "variant": "chip"}, "children": []}, "heroNote": {"type": "Text", "props": {"text": "Best target budget: around $24-$32, leaving room for a rental or extra dessert.", "variant": "caption"}, "children": []}, "heroActions": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["findMovieBtn", "buildPlaylistBtn"]}, "findMovieBtn": {"type": "Button", "props": {"label": "Find Movie", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}, "buildPlaylistBtn": {"type": "Button", "props": {"label": "Build Playlist", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.youtube.com/"}}}}, "scheduleSection": {"type": "Card", "props": {}, "children": ["scheduleStack"]}, "scheduleStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["scheduleHeading", "scheduleIntro", "scheduleTable"]}, "scheduleHeading": {"type": "Text", "props": {"text": "Evening Schedule", "variant": "h2"}, "children": []}, "scheduleIntro": {"type": "Text", "props": {"text": "A simple flow with one mood shift between each activity so the night stays fresh.", "variant": "body"}, "children": []}, "scheduleTable": {"type": "Table", "props": {"columns": [{"key": "time", "label": "Time"}, {"key": "segment", "label": "Segment"}, {"key": "whatToDo", "label": "What to do"}, {"key": "estimatedCost", "label": "Estimated Cost"}], "statePath": "/scheduleRows", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "time", "highlightColumns": ["segment"], "numericColumns": ["estimatedCost"], "sourceFormat": "plain"}, "children": []}, "setupSection": {"type": "Card", "props": {}, "children": ["setupStack"]}, "setupStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["setupHeading", "setupIntro", "setupTable"]}, "setupHeading": {"type": "Text", "props": {"text": "Recommended Setup", "variant": "h2"}, "children": []}, "setupIntro": {"type": "Text", "props": {"text": "Pick the version that best matches your group mood, budget, and energy level.", "variant": "body"}, "children": []}, "setupTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "summary", "label": "Summary"}, {"key": "fit", "label": "Fit"}, {"key": "game", "label": "Game"}, {"key": "movie", "label": "Movie"}, {"key": "snacks", "label": "Snacks"}, {"key": "music", "label": "Music"}], "statePath": "/setupRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["fit"], "sourceFormat": "plain"}, "children": []}, "budgetSection": {"type": "Card", "props": {}, "children": ["budgetStack"]}, "budgetStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["budgetHeading", "budgetIntro", "budgetTable"]}, "budgetHeading": {"type": "Text", "props": {"text": "Spending Plan Under $45", "variant": "h2"}, "children": []}, "budgetIntro": {"type": "Text", "props": {"text": "This breakdown keeps all categories visible so you can trim or upgrade quickly.", "variant": "body"}, "children": []}, "budgetTable": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "cost", "label": "Cost"}, {"key": "notes", "label": "Notes"}], "statePath": "/budgetRows", "domain": "generic", "preferredPresentation": "table", "primaryColumn": "category", "numericColumns": ["cost"], "sourceFormat": "plain"}, "children": []}, "whySection": {"type": "Card", "props": {}, "children": ["whyStack"]}, "whyStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["whyHeading", "whyTable"]}, "whyHeading": {"type": "Text", "props": {"text": "Why This Plan Works for Your Group", "variant": "h2"}, "children": []}, "whyTable": {"type": "Table", "props": {"columns": [{"key": "point", "label": "Point"}, {"key": "details", "label": "Details"}], "statePath": "/whyRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "point", "highlightColumns": ["point"], "sourceFormat": "plain"}, "children": []}, "backupSection": {"type": "Card", "props": {}, "children": ["backupStack"]}, "backupStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["backupHeading", "backupIntro", "backupTable"]}, "backupHeading": {"type": "Text", "props": {"text": "Backup Options", "variant": "h2"}, "children": []}, "backupIntro": {"type": "Text", "props": {"text": "Use these swaps if the group mood changes at the last minute.", "variant": "body"}, "children": []}, "backupTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "when", "label": "When"}, {"key": "idea", "label": "Idea"}, {"key": "benefit", "label": "Benefit"}, {"key": "actionLabel", "label": "Action Label"}, {"key": "actionUrl", "label": "Action URL"}], "statePath": "/backupRows", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["benefit"], "sourceFormat": "plain"}, "children": []}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "sourcesIntro", "source1", "source2", "source3"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sourcesIntro": {"type": "Text", "props": {"text": "Use these links for streaming availability and playlist setup.", "variant": "body"}, "children": []}, "source1": {"type": "Button", "props": {"label": "JustWatch streaming availability", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.justwatch.com/"}}}}, "source2": {"type": "Button", "props": {"label": "Spotify playlist platform", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/"}}}}, "source3": {"type": "Button", "props": {"label": "YouTube Music", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.youtube.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

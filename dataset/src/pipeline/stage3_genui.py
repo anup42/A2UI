@@ -24,12 +24,29 @@ from pipeline.flat_spec_contract import (
 )
 from pipeline.image_resolver import repair_flat_spec_images
 from pipeline.genui_quality import (
-    SourceContractCache,
+    SourceContractCacheV5_1,
+    SourceContractCacheV5_2,
+    SourceContractCacheV5_3,
+    SourceContractCacheV5_4,
     breakdown_to_mapping,
     load_default_reward_config,
+    load_v5_1_reward_config,
+    load_v5_reward_config,
+    load_v4_reward_config,
+    load_v5_3_reward_config,
+    load_v5_4_reward_config,
     normalize_metric_mode,
-    resolve_expected_ui_contract,
+    resolve_expected_ui_contract_v5_1,
+    resolve_expected_ui_contract_v5_2,
+    resolve_expected_ui_contract_v5_3,
+    resolve_expected_ui_contract_v5_4,
+    generation_reward_v5_4,
+    render_artifact_quality_v5_4,
     score_genui_completion,
+    score_genui_completion_v5_1,
+    score_genui_completion_v5_2,
+    score_genui_completion_v5_0,
+    score_genui_completion_v4,
 )
 from pipeline.metrics import (
     content_coverage,
@@ -228,32 +245,18 @@ def _stage3_quality_warnings(
     if not isinstance(elements, dict):
         return []
 
-    response_words = len(re.findall(r"[A-Za-z0-9]+", response_text or ""))
-    element_count = len(elements)
-    table_count = 0
-    text_count = 0
     generated_heading_count = 0
     for element in elements.values():
         if not isinstance(element, dict):
             continue
         element_type = str(element.get("type", "")).lower()
-        if element_type == "table":
-            table_count += 1
-        elif element_type == "text":
-            text_count += 1
+        if element_type == "text":
             props = element.get("props") if isinstance(element.get("props"), dict) else {}
             variant = str(props.get("variant", "")).lower()
             if variant in {"h2", "h3"}:
                 generated_heading_count += 1
 
     warnings: list[str] = []
-    if response_words >= 180 and element_count < 16:
-        warnings.append(f"low_component_count: words={response_words} elements={element_count}")
-    if response_words >= 120 and table_count >= 1 and element_count <= 12 and text_count <= 5:
-        warnings.append(
-            f"sparse_ir: words={response_words} elements={element_count} tables={table_count} text={text_count}"
-        )
-
     source_heading_count = _meaningful_response_heading_count(response_text)
     if source_heading_count >= 3 and generated_heading_count < max(2, source_heading_count // 2):
         warnings.append(
@@ -799,8 +802,41 @@ def run_stage3(
     )
     artifacts_dir.mkdir(parents=True, exist_ok=True)
     metric_mode = normalize_metric_mode(metric_version)
-    v4_config = load_default_reward_config() if metric_mode in {"v4", "dual"} else None
-    contract_cache = SourceContractCache(artifacts_dir / "genui_contract_cache")
+    v4_config = load_v4_reward_config() if metric_mode in {"v4", "dual"} else None
+    v5_2_config = (
+        load_default_reward_config()
+        if metric_mode in {"v5", "v5_2", "dual"}
+        else None
+    )
+    v5_3_config = (
+        load_v5_3_reward_config()
+        if metric_mode in {"v5_3", "dual"}
+        else None
+    )
+    v5_4_config = (
+        load_v5_4_reward_config()
+        if metric_mode in {"v5_4", "dual"}
+        else None
+    )
+    v5_1_config = (
+        load_v5_1_reward_config()
+        if metric_mode in {"v5_1", "dual"}
+        else None
+    )
+    v5_0_config = (
+        load_v5_reward_config()
+        if metric_mode in {"v5_0", "dual"}
+        else None
+    )
+    contract_cache = SourceContractCacheV5_2(
+        artifacts_dir / "genui_contract_cache_v5_2"
+    )
+    contract_cache_v5_3 = SourceContractCacheV5_3(
+        artifacts_dir / "genui_contract_cache_v5_3"
+    )
+    contract_cache_v5_4 = SourceContractCacheV5_4(
+        artifacts_dir / "genui_contract_cache_v5_4"
+    )
     aggregate_every = max(1, _env_int("GENUI_STAGE3_AGGREGATE_EVERY", 250))
     logger.info(
         "Stage3 evaluation metric mode=%s aggregate_every=%s",
@@ -961,6 +997,11 @@ def run_stage3(
                 render_rows_by_ui_id=render_rows_by_ui_id,
                 metric_version=metric_mode,
                 v4_config=v4_config,
+                v5_config=v5_2_config,
+                v5_1_config=v5_1_config,
+                v5_0_config=v5_0_config,
+                v5_3_config=v5_3_config,
+                v5_4_config=v5_4_config,
             )
             if metric_mode in {"legacy", "dual"}:
                 legacy_score = compute_overall_score(
@@ -1104,7 +1145,7 @@ def run_stage3(
 
         parsed_ok = True
         errors: list[str] = []
-        contract_resolution = resolve_expected_ui_contract(
+        contract_resolution = resolve_expected_ui_contract_v5_2(
             response_text,
             intent=intent_value,
             assets=assets_list,
@@ -1121,6 +1162,54 @@ def run_stage3(
             cache=contract_cache,
         )
         errors.extend(contract_resolution.errors)
+        contract_resolution_v5_3 = (
+            resolve_expected_ui_contract_v5_3(
+                response_text,
+                intent=intent_value,
+                assets=assets_list,
+                persisted=(
+                    task.get("expected_ui_contract_v5_3")
+                    if isinstance(
+                        task.get("expected_ui_contract_v5_3"), dict
+                    )
+                    else None
+                ),
+                persisted_source=(
+                    str(task.get("expected_ui_contract_v5_3_source"))
+                    if task.get("expected_ui_contract_v5_3_source")
+                    else None
+                ),
+                cache=contract_cache_v5_3,
+            )
+            if metric_mode in {"v5_3", "dual"}
+            else None
+        )
+        if contract_resolution_v5_3 is not None:
+            errors.extend(contract_resolution_v5_3.errors)
+        contract_resolution_v5_4 = (
+            resolve_expected_ui_contract_v5_4(
+                response_text,
+                intent=intent_value,
+                assets=assets_list,
+                persisted=(
+                    task.get("expected_ui_contract_v5_4")
+                    if isinstance(
+                        task.get("expected_ui_contract_v5_4"), dict
+                    )
+                    else None
+                ),
+                persisted_source=(
+                    str(task.get("expected_ui_contract_v5_4_source"))
+                    if task.get("expected_ui_contract_v5_4_source")
+                    else None
+                ),
+                cache=contract_cache_v5_4,
+            )
+            if metric_mode in {"v5_4", "dual"}
+            else None
+        )
+        if contract_resolution_v5_4 is not None:
+            errors.extend(contract_resolution_v5_4.errors)
         converted_from_legacy = False
         try:
             parsed_json = extract_json_element(raw_text) if flat_spec_mode else extract_json(raw_text)
@@ -1410,6 +1499,7 @@ def run_stage3(
                 if not validator_ok:
                     schema_valid_lenient = True
 
+        generation_completion = raw_text
         genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
         if flat_spec_mode:
             genui_json = _normalize_flat_spec_text_content(genui_json)
@@ -1501,7 +1591,7 @@ def run_stage3(
             record["gen"]["reasoning_tokens"] = accepted_reasoning_tokens
             record["gen"]["reasoning_attempt"] = accepted_reasoning_attempt
         if metric_mode in {"v4", "dual"}:
-            v4_result = score_genui_completion(
+            v4_result = score_genui_completion_v4(
                 genui_json,
                 response_text,
                 intent=intent_bucket,
@@ -1520,6 +1610,366 @@ def run_stage3(
             record["metrics"]["genui_quality_v4_active_caps"] = v4_result.active_caps
             record["metrics"]["genui_metric_version"] = v4_result.metric_version
 
+        if metric_mode in {"v5_0", "dual"}:
+            v5_0_candidate: Any = (
+                genui_json
+                if "fallback_generated" in errors
+                else generation_completion
+            )
+            v5_0_result = score_genui_completion_v5_0(
+                v5_0_candidate,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution.contract,
+                render_ok=None,
+                config=v5_0_config,
+            )
+            source_evidence = v5_0_result.evidence.get("source")
+            if isinstance(source_evidence, dict):
+                source_evidence["contract_source"] = contract_resolution.source
+                source_evidence["cache_hit"] = contract_resolution.cache_hit
+            record["genui_quality_v5"] = breakdown_to_mapping(v5_0_result)
+            record["metrics"]["genui_quality_v5"] = v5_0_result.quality_0_100
+            record["metrics"]["genui_quality_v5_dimensions"] = v5_0_result.dimensions
+            record["metrics"]["genui_quality_v5_active_caps"] = v5_0_result.active_caps
+
+        if metric_mode in {"v5_1", "dual"}:
+            legacy_contract = resolve_expected_ui_contract_v5_1(
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+            )
+            record["genui_raw_completion"] = generation_completion
+            generation_v5_1 = score_genui_completion_v5_1(
+                generation_completion,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=legacy_contract.contract,
+                render_ok=None,
+                config=v5_1_config,
+            )
+            artifact_v5_1 = score_genui_completion_v5_1(
+                genui_json,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=legacy_contract.contract,
+                render_ok=None,
+                config=v5_1_config,
+            )
+            record["generation_reward_v5_1"] = breakdown_to_mapping(
+                generation_v5_1
+            )
+            record["render_artifact_quality_v5_1"] = breakdown_to_mapping(
+                artifact_v5_1
+            )
+            record["genui_quality_v5_1"] = breakdown_to_mapping(
+                artifact_v5_1
+            )
+            record["metric_identity_v5_1"] = {
+                "metric_fingerprint": artifact_v5_1.metric_fingerprint,
+                **artifact_v5_1.identity,
+            }
+            record["metrics"]["generation_reward_v5_1"] = (
+                generation_v5_1.quality_0_100
+            )
+            record["metrics"]["render_artifact_quality_v5_1"] = (
+                artifact_v5_1.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_1"] = (
+                artifact_v5_1.quality_0_100
+            )
+
+        if metric_mode in {"v5", "v5_2", "dual"}:
+            record["genui_raw_completion"] = generation_completion
+            generation_result = score_genui_completion_v5_2(
+                generation_completion,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution.contract,
+                render_ok=None,
+                config=v5_2_config,
+            )
+            artifact_result = score_genui_completion_v5_2(
+                genui_json,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution.contract,
+                render_ok=None,
+                config=v5_2_config,
+            )
+            for result in (generation_result, artifact_result):
+                source_evidence = result.evidence.get("source")
+                if isinstance(source_evidence, dict):
+                    source_evidence["contract_source"] = contract_resolution.source
+                    source_evidence["cache_hit"] = contract_resolution.cache_hit
+            record["generation_reward_v5_2"] = breakdown_to_mapping(
+                generation_result
+            )
+            record["render_artifact_quality_v5_2"] = breakdown_to_mapping(
+                artifact_result
+            )
+            record["genui_quality_v5_2"] = breakdown_to_mapping(
+                artifact_result
+            )
+            record["metric_identity_v5_2"] = {
+                "metric_fingerprint": artifact_result.metric_fingerprint,
+                **artifact_result.identity,
+                "raw_candidate_hash": generation_result.identity.get(
+                    "raw_candidate_hash"
+                ),
+                "raw_canonical_candidate_hash": generation_result.identity.get(
+                    "canonical_candidate_hash"
+                ),
+                "final_candidate_hash": artifact_result.identity.get(
+                    "raw_candidate_hash"
+                ),
+                "final_canonical_candidate_hash": artifact_result.identity.get(
+                    "canonical_candidate_hash"
+                ),
+            }
+            record["metrics"]["generation_reward_v5_2"] = (
+                generation_result.quality_0_100
+            )
+            record["metrics"]["render_artifact_quality_v5_2"] = (
+                artifact_result.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_2"] = (
+                artifact_result.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_2_dimensions"] = (
+                artifact_result.dimensions
+            )
+            record["metrics"]["genui_quality_v5_2_active_caps"] = (
+                artifact_result.active_caps
+            )
+            record["metrics"]["genui_quality_v5_2_binding_caps"] = (
+                artifact_result.binding_caps
+            )
+            record["metrics"]["genui_quality_v5_2_matching_certification"] = (
+                artifact_result.matching_certification
+            )
+            record["metrics"]["genui_quality_v5_2_dynamic_semantics"] = (
+                artifact_result.dynamic_semantics
+            )
+            record["metrics"]["genui_metric_version"] = (
+                artifact_result.metric_version
+            )
+
+            content_assignment = artifact_result.evidence.get(
+                "content_assignment"
+            )
+            if isinstance(content_assignment, dict):
+                recall = content_assignment.get("source_unit_recall")
+                if isinstance(recall, (int, float)) and float(recall) < 0.80:
+                    quality_warnings.append(
+                        f"low_source_unit_recall: value={float(recall):.3f}"
+                    )
+
+        if metric_mode in {"v5_3", "dual"}:
+            assert contract_resolution_v5_3 is not None
+            record["genui_raw_completion"] = generation_completion
+            record["expected_ui_contract_v5_3"] = (
+                contract_resolution_v5_3.contract
+            )
+            record["expected_ui_contract_v5_3_source"] = (
+                contract_resolution_v5_3.source
+            )
+            generation_v5_3 = score_genui_completion(
+                generation_completion,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution_v5_3.contract,
+                render_ok=None,
+                config=v5_3_config,
+            )
+            artifact_v5_3 = score_genui_completion(
+                genui_json,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution_v5_3.contract,
+                render_ok=None,
+                config=v5_3_config,
+            )
+            for result in (generation_v5_3, artifact_v5_3):
+                source_evidence = result.evidence.get("source")
+                if isinstance(source_evidence, dict):
+                    source_evidence["contract_source"] = (
+                        contract_resolution_v5_3.source
+                    )
+                    source_evidence["cache_hit"] = (
+                        contract_resolution_v5_3.cache_hit
+                    )
+            record["generation_reward_v5_3"] = breakdown_to_mapping(
+                generation_v5_3
+            )
+            record["render_artifact_quality_v5_3"] = breakdown_to_mapping(
+                artifact_v5_3
+            )
+            record["genui_quality_v5_3"] = breakdown_to_mapping(
+                artifact_v5_3
+            )
+            record["metric_identity_v5_3"] = {
+                "metric_fingerprint": artifact_v5_3.metric_fingerprint,
+                "reward_pipeline_fingerprint": (
+                    artifact_v5_3.reward_pipeline_fingerprint
+                ),
+                **artifact_v5_3.identity,
+            }
+            record["metrics"]["generation_reward_v5_3"] = (
+                generation_v5_3.quality_0_100
+            )
+            record["metrics"]["render_artifact_quality_v5_3"] = (
+                artifact_v5_3.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_3"] = (
+                artifact_v5_3.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_3_dimensions"] = (
+                artifact_v5_3.dimensions
+            )
+            record["metrics"]["genui_quality_v5_3_active_caps"] = (
+                artifact_v5_3.active_caps
+            )
+            record["metrics"]["genui_quality_v5_3_atomic_applicability"] = (
+                artifact_v5_3.atomic_applicability
+            )
+            record["metrics"]["genui_metric_version"] = (
+                artifact_v5_3.metric_version
+            )
+            table_matching = artifact_v5_3.evidence.get("table_matching")
+            if isinstance(table_matching, dict):
+                for match in table_matching.get("matches") or []:
+                    if (
+                        isinstance(match, dict)
+                        and isinstance(match.get("row_fbeta"), (int, float))
+                        and float(match["row_fbeta"]) < 0.80
+                    ):
+                        quality_warnings.append(
+                            "missing_required_table_rows: "
+                            f"row_fbeta={float(match['row_fbeta']):.3f}"
+                        )
+                        break
+            action_matching = artifact_v5_3.evidence.get("action_matching")
+            if isinstance(action_matching, dict) and int(
+                action_matching.get("matched_required_count") or 0
+            ) < int(action_matching.get("required_count") or 0):
+                quality_warnings.append("missing_required_action")
+            if not bool(
+                artifact_v5_3.matching_certification.get(
+                    "optimality_certified"
+                )
+            ):
+                quality_warnings.append("matching_uncertified")
+            if int(
+                artifact_v5_3.dynamic_semantics.get("unknown_count", 0)
+                or 0
+            ):
+                quality_warnings.append("renderer_expression_unknown")
+            role_values = artifact_v5_3.evidence.get("role_gate_values")
+            if isinstance(role_values, dict) and any(
+                isinstance(value, (int, float)) and float(value) < 1.0
+                for value in role_values.values()
+            ):
+                quality_warnings.append("missing_required_role")
+            quality_warnings = list(dict.fromkeys(quality_warnings))
+            record["validation"]["warnings"] = quality_warnings
+
+        if metric_mode in {"v5_4", "dual"}:
+            assert contract_resolution_v5_4 is not None
+            record["genui_raw_completion"] = generation_completion
+            record["expected_ui_contract_v5_4"] = (
+                contract_resolution_v5_4.contract
+            )
+            record["expected_ui_contract_v5_4_source"] = (
+                contract_resolution_v5_4.source
+            )
+            generation_v5_4 = generation_reward_v5_4(
+                generation_completion,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution_v5_4.contract,
+                expected_ui_contract_source=contract_resolution_v5_4.source,
+                render_ok=None,
+                config=v5_4_config,
+            )
+            artifact_v5_4 = render_artifact_quality_v5_4(
+                genui_json,
+                response_text,
+                intent=intent_bucket,
+                assets=assets_list,
+                expected_ui_contract=contract_resolution_v5_4.contract,
+                expected_ui_contract_source=contract_resolution_v5_4.source,
+                render_ok=None,
+                config=v5_4_config,
+            )
+            record["generation_reward_v5_4"] = breakdown_to_mapping(
+                generation_v5_4
+            )
+            record["render_artifact_quality_v5_4"] = breakdown_to_mapping(
+                artifact_v5_4
+            )
+            record["genui_quality_v5_4"] = breakdown_to_mapping(
+                artifact_v5_4
+            )
+            record["metric_identity_v5_4"] = {
+                "metric_fingerprint": artifact_v5_4.metric_fingerprint,
+                "reward_pipeline_fingerprint": (
+                    artifact_v5_4.reward_pipeline_fingerprint
+                ),
+                **artifact_v5_4.identity,
+            }
+            record["metrics"]["generation_reward_v5_4"] = (
+                generation_v5_4.quality_0_100
+            )
+            record["metrics"]["render_artifact_quality_v5_4"] = (
+                artifact_v5_4.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_4"] = (
+                artifact_v5_4.quality_0_100
+            )
+            record["metrics"]["genui_quality_v5_4_dimensions"] = (
+                artifact_v5_4.dimensions
+            )
+            record["metrics"]["genui_quality_v5_4_active_caps"] = (
+                artifact_v5_4.active_caps
+            )
+            record["metrics"]["genui_quality_v5_4_atomic_applicability"] = (
+                artifact_v5_4.atomic_applicability
+            )
+            record["metrics"]["genui_quality_v5_4_artifact_quality"] = (
+                artifact_v5_4.artifact_quality_0_1 * 100.0
+            )
+            record["metrics"]["genui_metric_version"] = (
+                artifact_v5_4.metric_version
+            )
+            if not bool(
+                artifact_v5_4.matching_certification.get(
+                    "optimality_certified"
+                )
+            ):
+                quality_warnings.append("matching_uncertified")
+            if int(
+                artifact_v5_4.dynamic_semantics.get("unknown_count", 0)
+                or 0
+            ):
+                quality_warnings.append("renderer_expression_unknown")
+            if not bool(
+                artifact_v5_4.dynamic_semantics.get(
+                    "android_parity_certified", False
+                )
+            ):
+                quality_warnings.append("android_parity_uncertified")
+            quality_warnings = list(dict.fromkeys(quality_warnings))
+            record["validation"]["warnings"] = quality_warnings
+
         sample_legacy_score = (
             _compute_sample_legacy_score(record)
             if metric_mode in {"legacy", "dual"}
@@ -1532,15 +1982,27 @@ def run_stage3(
         writer.append(record)
         existing_ids.add(ui_id)
         if sample_legacy_score is None and metric_mode == "legacy":
-            logger.info("Stage3 created ui_id=%s schema_ok=%s", ui_id, schema_valid_strict)
+            logger.info(
+                "Stage3 created ui_id=%s schema_ok=%s contract_source=%s contract_cache_hit=%s",
+                ui_id,
+                schema_valid_strict,
+                contract_resolution.source,
+                contract_resolution.cache_hit,
+            )
         else:
             quality_v4 = record["metrics"].get("genui_quality_v4")
+            quality_v5 = record["metrics"].get("genui_quality_v5")
             logger.info(
-                "Stage3 created ui_id=%s schema_ok=%s legacy_score=%s genui_quality_v4=%s",
+                "Stage3 created ui_id=%s schema_ok=%s legacy_score=%s "
+                "genui_quality_v4=%s genui_quality_v5=%s "
+                "contract_source=%s contract_cache_hit=%s",
                 ui_id,
                 schema_valid_strict,
                 None if sample_legacy_score is None else round(sample_legacy_score, 2),
                 None if quality_v4 is None else round(float(quality_v4), 2),
+                None if quality_v5 is None else round(float(quality_v5), 2),
+                contract_resolution.source,
+                contract_resolution.cache_hit,
             )
         total_created += 1
         if total_created == 1 or total_created % aggregate_every == 0:

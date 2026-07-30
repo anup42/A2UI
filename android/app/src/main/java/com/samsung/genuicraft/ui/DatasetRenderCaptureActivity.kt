@@ -48,6 +48,7 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
         const val EXTRA_START_INDEX = "start_index"
         const val EXTRA_MAX_COUNT = "max_count"
         const val EXTRA_SETTLE_MS = "settle_ms"
+        const val EXTRA_CAPTURE_FULL_HEIGHT = "capture_full_height"
 
         private const val DEFAULT_SETTLE_MS = 1200L
         private const val DEFAULT_READY_TIMEOUT_MS = 10_000L
@@ -73,6 +74,9 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
     @Volatile private var observedCaptureWidthPx: Int = 0
     @Volatile private var observedCaptureHeightPx: Int = 0
     @Volatile private var observedRenderedUiId: String? = null
+    @Volatile private var observedNativeRenderReady: Boolean = false
+    @Volatile private var observedNativeRenderOk: Boolean = false
+    @Volatile private var observedNativeRenderError: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +104,10 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
         val startIndex = intent.getIntExtra(EXTRA_START_INDEX, 0).coerceAtLeast(0)
         val maxCount = intent.getIntExtra(EXTRA_MAX_COUNT, -1)
         val settleMs = intent.getLongExtra(EXTRA_SETTLE_MS, DEFAULT_SETTLE_MS).coerceAtLeast(200L)
+        val captureFullHeight = intent.getBooleanExtra(
+            EXTRA_CAPTURE_FULL_HEIGHT,
+            true
+        )
 
         val rawJson = runCatching { inputFile.readText(Charsets.UTF_8) }.getOrElse { error ->
             finishWithError(outputDir, "Failed to read input JSONL: ${error.message}")
@@ -135,6 +143,11 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
                     onRenderedRecord = { uiId ->
                         observedRenderedUiId = uiId
                     },
+                    onNativeRenderStatus = { ok, error ->
+                        observedNativeRenderReady = true
+                        observedNativeRenderOk = ok
+                        observedNativeRenderError = error
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -145,7 +158,8 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
                 outputDir = outputDir,
                 startIndex = startIndex,
                 maxCount = maxCount,
-                settleMs = settleMs
+                settleMs = settleMs,
+                captureFullHeight = captureFullHeight
             )
         }
     }
@@ -154,7 +168,8 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
         outputDir: File,
         startIndex: Int,
         maxCount: Int,
-        settleMs: Long
+        settleMs: Long,
+        captureFullHeight: Boolean
     ) {
         val safeStart = startIndex.coerceIn(0, records.lastIndex)
         val endExclusive = if (maxCount <= 0) {
@@ -185,19 +200,37 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
             observedViewportPx = 0
             observedMetricsReady = false
             observedRenderedUiId = null
+            observedNativeRenderReady = false
+            observedNativeRenderOk = false
+            observedNativeRenderError = null
             val record = records[index]
             waitForContentReady(DEFAULT_READY_TIMEOUT_MS)
             waitForRenderedRecord(record.uiId, DEFAULT_READY_TIMEOUT_MS)
+            waitForNativeRenderStatus(DEFAULT_READY_TIMEOUT_MS)
             waitForScrollMetricsReady(DEFAULT_READY_TIMEOUT_MS)
             waitForCaptureBoundsReady(DEFAULT_READY_TIMEOUT_MS)
 
             val fileName = buildFileName(index, record)
             val screenshotFile = File(outputDir, fileName)
-            val stats = captureFullLengthBitmap(
-                target = screenshotFile,
-                settleMs = settleMs
+            val viewportFile = File(
+                outputDir,
+                fileName.removeSuffix(".png") + "_viewport.png"
             )
-            if (stats.ok) {
+            val viewportOk = captureViewportBitmap(viewportFile)
+            val stats = if (captureFullHeight) {
+                captureFullLengthBitmap(
+                    target = screenshotFile,
+                    settleMs = settleMs
+                )
+            } else {
+                CaptureStats(ok = true, fullHeightPx = 0, tileCount = 0)
+            }
+            val candidateRenderOk = observedNativeRenderOk
+            val overallOk =
+                (!captureFullHeight || stats.ok) &&
+                    viewportOk &&
+                    candidateRenderOk
+            if (overallOk) {
                 captured += 1
                 Log.i(
                     TAG,
@@ -211,8 +244,15 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
                 file = manifestFile,
                 index = index,
                 record = record,
-                screenshotName = screenshotFile.name,
-                ok = stats.ok,
+                screenshotName = (
+                    if (captureFullHeight) screenshotFile.name else ""
+                ),
+                viewportName = viewportFile.name,
+                ok = overallOk,
+                viewportOk = viewportOk,
+                fullHeightAttempted = captureFullHeight,
+                nativeRenderOk = candidateRenderOk,
+                nativeRenderError = observedNativeRenderError,
                 fullHeightPx = stats.fullHeightPx,
                 tileCount = stats.tileCount
             )
@@ -231,7 +271,12 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
         index: Int,
         record: GenUiRecord,
         screenshotName: String,
+        viewportName: String,
         ok: Boolean,
+        viewportOk: Boolean,
+        fullHeightAttempted: Boolean,
+        nativeRenderOk: Boolean,
+        nativeRenderError: String?,
         fullHeightPx: Int,
         tileCount: Int
     ) {
@@ -239,8 +284,10 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
         val escapedQueryId = jsonEscape(record.queryId.orEmpty())
         val escapedResponseId = jsonEscape(record.responseId.orEmpty())
         val escapedScreenshot = jsonEscape(screenshotName)
+        val escapedViewport = jsonEscape(viewportName)
+        val escapedRenderError = jsonEscape(nativeRenderError.orEmpty())
         val line =
-            """{"index":$index,"ui_id":"$escapedUiId","query_id":"$escapedQueryId","response_id":"$escapedResponseId","screenshot":"$escapedScreenshot","ok":$ok,"full_height_px":$fullHeightPx,"tile_count":$tileCount}"""
+            """{"index":$index,"ui_id":"$escapedUiId","query_id":"$escapedQueryId","response_id":"$escapedResponseId","screenshot":"$escapedScreenshot","viewport_screenshot":"$escapedViewport","ok":$ok,"viewport_ok":$viewportOk,"full_height_attempted":$fullHeightAttempted,"native_render_ok":$nativeRenderOk,"native_render_error":"$escapedRenderError","full_height_px":$fullHeightPx,"tile_count":$tileCount}"""
         file.appendText("$line\n", Charsets.UTF_8)
     }
 
@@ -292,6 +339,17 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
             delay(POLL_INTERVAL_MS)
         }
         delay(120L)
+    }
+
+    private suspend fun waitForNativeRenderStatus(timeoutMs: Long) {
+        val startedAt = System.currentTimeMillis()
+        while (
+            !observedNativeRenderReady &&
+            (System.currentTimeMillis() - startedAt) < timeoutMs
+        ) {
+            delay(POLL_INTERVAL_MS)
+        }
+        delay(80L)
     }
 
     private suspend fun waitForCaptureBoundsReady(timeoutMs: Long) {
@@ -426,6 +484,29 @@ class DatasetRenderCaptureActivity : AppCompatActivity() {
         }
     }
 
+    private fun captureViewportBitmap(target: File): Boolean {
+        val captureRect = Rect(
+            0,
+            observedCaptureTopPx.coerceAtLeast(0),
+            window.decorView.rootView.width,
+            (observedCaptureTopPx + observedCaptureHeightPx).coerceAtLeast(0)
+        )
+        val bitmap = captureWindowBitmapRaw(captureRect) ?: return false
+        return runCatching {
+            target.parentFile?.mkdirs()
+            FileOutputStream(target).use { stream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                stream.flush()
+            }
+            bitmap.recycle()
+            true
+        }.getOrElse { error ->
+            bitmap.recycle()
+            Log.e(TAG, "Failed to persist viewport bitmap: ${error.message}", error)
+            false
+        }
+    }
+
     private fun captureWindowBitmapRaw(captureRect: Rect?): Bitmap? {
         return runCatching {
             val root = window.decorView.rootView
@@ -541,6 +622,7 @@ private fun DatasetCaptureRenderScreen(
     onScrollMetrics: (currentOffset: Int, maxOffset: Int, viewportPx: Int) -> Unit,
     onCaptureBounds: (leftPx: Int, topPx: Int, widthPx: Int, heightPx: Int) -> Unit,
     onRenderedRecord: (uiId: String?) -> Unit,
+    onNativeRenderStatus: (ok: Boolean, error: String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val result = remember(record?.rawJson, record?.sourceDir) {
@@ -552,6 +634,12 @@ private fun DatasetCaptureRenderScreen(
         DeviceSizeClass.Compact -> 12.dp
         DeviceSizeClass.Medium -> 18.dp
         DeviceSizeClass.Expanded -> 24.dp
+    }
+    LaunchedEffect(result, record?.uiId) {
+        onNativeRenderStatus(
+            result != null && result.errorMessage == null && result.surfaces.isNotEmpty(),
+            result?.errorMessage
+        )
     }
 
     GenUiScreenBackground(modifier = modifier.fillMaxSize()) { backgroundModifier ->

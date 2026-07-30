@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"diagnosticChecklist": [{"step": "1", "action": "Scan OBD-II codes", "whatToCheck": "Look for P0300-P0304, P0171/P0172, P0420, O2/MAF/MAP codes, coolant-temp codes", "expectedResult": "Narrow system before replacing parts"}, {"step": "2", "action": "Review freeze-frame + live data", "whatToCheck": "Misfire counts, short/long fuel trim, coolant temp, O2 behavior", "expectedResult": "Confirms rich/lean/misfire pattern"}, {"step": "3", "action": "Inspect ignition items", "whatToCheck": "Plug condition, coil boot cracking, oil in plug wells, loose connector", "expectedResult": "Finds common rough-idle causes fast"}, {"step": "4", "action": "Check intake/vacuum system", "whatToCheck": "Intake tube cracks, PCV hose leaks, vacuum leaks, purge valve behavior", "expectedResult": "Rules out unmetered air"}, {"step": "5", "action": "Clean throttle body", "whatToCheck": "Carbon around throttle plate; perform idle relearn if needed", "expectedResult": "Often improves unstable idle"}, {"step": "6", "action": "Verify warm-up behavior", "whatToCheck": "Coolant reaches normal temp steadily, not running cool", "expectedResult": "Detects bad thermostat/temp reading"}, {"step": "7", "action": "Evaluate sensor/fuel issues", "whatToCheck": "Upstream O2/A/F sensor response, injector balance, MAF/MAP plausibility", "expectedResult": "Targets MPG drop if basics pass"}], "rankedCauses": [{"rank": "1", "cause": "Ignition misfire from worn plugs or weak coil", "details": "Best fit if the CEL is tied to P030x codes. A mild misfire can show up most at idle or stoplights and crush city MPG. At 92,000 miles, spark plugs are a natural checkpoint even if not yet catastrophic.", "budgetRange": "$120-$300 for spark plugs; $120-$250 for one coil; full coil set if truly needed often pushes total higher, so diagnose first"}, {"rank": "2", "cause": "Dirty throttle body / intake carbon", "details": "Very common on short-trip city driving. Can cause unstable idle without hard starting or smoke. May also worsen fuel economy if idle control is compensating.", "budgetRange": "$100-$250"}, {"rank": "3", "cause": "Vacuum leak or PCV hose issue", "details": "Causes rough idle because leaks matter most at idle. Often triggers lean codes like P0171 and elevated fuel trims. Can be inexpensive if it is just a hose, seal, or PCV-related part.", "budgetRange": "$50-$250"}, {"rank": "4", "cause": "Upstream O2 / air-fuel sensor or MAP/MAF reading issue", "details": "A bad sensor can enrich the mixture and drop MPG fast. Less likely than ignition or vacuum issues unless code data points there.", "budgetRange": "$180-$450"}, {"rank": "5", "cause": "Thermostat stuck open", "details": "Especially plausible with short trips and a noticeable MPG drop. Engine may stay cooler than intended, running richer longer. Usually does not cause severe rough idle by itself, so this may be secondary.", "budgetRange": "$180-$350"}, {"rank": "6", "cause": "Injector or purge valve issue", "details": "Injector imbalance can cause rough idle and fuel loss. A purge valve stuck open can create rough idle after starts and at stops. Diagnose after cheaper common items are checked.", "budgetRange": "$150-$500"}], "repairSequence": [{"item": "Diagnostic scan with live data", "cost": "$100-$180"}, {"item": "Throttle body clean / intake inspection", "cost": "$100-$250"}, {"item": "Plugs or one coil repair", "cost": "$120-$300"}, {"item": "Small vacuum/PCV fix if found", "cost": "$50-$250"}], "attentionPriority": [{"priority": "Highest", "issue": "Active misfire", "notes": "Driving too long with a misfire can overheat and damage the catalytic converter, which can blow past your $900 budget quickly."}, {"priority": "Medium-high", "issue": "Fuel-rich condition from bad sensor or thermostat", "notes": "Usually not as immediately destructive as a misfire, but it wastes fuel and can still harm the catalyst over time."}, {"priority": "Medium", "issue": "Vacuum leak / throttle body contamination", "notes": "Usually cheaper to fix, but leaving it alone can worsen drivability and emissions."}], "sources": [{"name": "Honda Owners", "url": "https://owners.honda.com/"}, {"name": "OBD-II code reference", "url": "https://www.obd-codes.com/trouble_codes/"}, {"name": "NHTSA vehicle safety/TSB lookup", "url": "https://www.nhtsa.gov/recalls"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["titleRow", "snapshotCard", "checklistSection", "causesSection", "repairSection", "urgencySection", "actionsSection", "sourcesSection"]}, "titleRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["titleIcon", "titleText"]}, "titleIcon": {"type": "Icon", "props": {"name": "../assets/r_000012_01_1_car-front.svg"}, "children": []}, "titleText": {"type": "Text", "props": {"text": "2016 Honda Civic Symptom Snapshot", "variant": "h1"}, "children": []}, "snapshotCard": {"type": "Card", "props": {}, "children": ["snapshotStack"]}, "snapshotStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["snapshotText", "suspectsLabel", "suspects1", "suspects2", "suspects3", "suspects4", "suspects5", "suspects6"]}, "snapshotText": {"type": "Text", "props": {"text": "Your combination of check-engine light, rough idle, big MPG drop, and mostly short-trip driving most strongly points to a misfire or air-fuel control problem, with a smaller chance of a sensor or thermostat issue.", "variant": "body"}, "children": []}, "suspectsLabel": {"type": "Text", "props": {"text": "Most likely cost-conscious suspects, in order:", "variant": "label"}, "children": []}, "suspects1": {"type": "Text", "props": {"text": "Ignition coil or spark plug issue causing intermittent misfire", "variant": "chip"}, "children": []}, "suspects2": {"type": "Text", "props": {"text": "Dirty throttle body / intake carbon buildup affecting idle quality", "variant": "chip"}, "children": []}, "suspects3": {"type": "Text", "props": {"text": "Vacuum leak or PCV-related air leak", "variant": "chip"}, "children": []}, "suspects4": {"type": "Text", "props": {"text": "Faulty MAF/MAP or upstream O2 / air-fuel sensor", "variant": "chip"}, "children": []}, "suspects5": {"type": "Text", "props": {"text": "Stuck-open thermostat causing rich running and worse MPG", "variant": "chip"}, "children": []}, "suspects6": {"type": "Text", "props": {"text": "Less likely but possible: fuel injector imbalance, EVAP purge valve stuck open", "variant": "chip"}, "children": []}, "checklistSection": {"type": "Card", "props": {}, "children": ["checklistStack"]}, "checklistStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["checklistHeading", "checklistTable"]}, "checklistHeading": {"type": "Text", "props": {"text": "Cost-First Diagnostic Checklist", "variant": "h2"}, "children": []}, "checklistTable": {"type": "Table", "props": {"columns": [{"key": "step", "label": "Step"}, {"key": "action", "label": "Action"}, {"key": "whatToCheck", "label": "What to Check"}, {"key": "expectedResult", "label": "Expected Result"}], "statePath": "/diagnosticChecklist", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "step", "highlightColumns": ["action", "expectedResult"]}, "children": []}, "causesSection": {"type": "Card", "props": {}, "children": ["causesStack"]}, "causesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["causesHeading", "causesIntro", "causesTable"]}, "causesHeading": {"type": "Text", "props": {"text": "Most Likely Causes Ranked", "variant": "h2"}, "children": []}, "causesIntro": {"type": "Text", "props": {"text": "These are ranked by fit to your symptoms and by how often they can be fixed without blowing past the budget.", "variant": "body"}, "children": []}, "causesTable": {"type": "Table", "props": {"columns": [{"key": "rank", "label": "Rank"}, {"key": "cause", "label": "Cause"}, {"key": "details", "label": "Details"}, {"key": "budgetRange", "label": "Budget Range"}], "statePath": "/rankedCauses", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "cause", "highlightColumns": ["rank", "budgetRange"]}, "children": []}, "repairSection": {"type": "Card", "props": {}, "children": ["repairStack"]}, "repairStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["repairHeading", "repairIntro", "repair1", "repair2", "repair3", "repair4", "repair5", "repairTableNote", "repairTable", "repairRange"]}, "repairHeading": {"type": "Text", "props": {"text": "Best Repair Path Under $900", "variant": "h2"}, "children": []}, "repairIntro": {"type": "Text", "props": {"text": "For your budget, the smartest order is:", "variant": "body"}, "children": []}, "repair1": {"type": "Text", "props": {"text": "1. Get the codes read first. Many parts stores do this free, but a shop with live data is better.", "variant": "body"}, "children": []}, "repair2": {"type": "Text", "props": {"text": "2. If codes show misfire, start with inspect plugs, swap or test suspect coil, and replace only failed coil parts unless plugs are overdue.", "variant": "body"}, "children": []}, "repair3": {"type": "Text", "props": {"text": "3. If fuel trims show lean, check intake leaks, PCV or vacuum hoses, and purge valve behavior.", "variant": "body"}, "children": []}, "repair4": {"type": "Text", "props": {"text": "4. If idle is rough but ignition and vacuum checks are clean, clean throttle body and perform idle relearn.", "variant": "body"}, "children": []}, "repair5": {"type": "Text", "props": {"text": "5. If MPG remains poor and live data points there, test upstream O2 or A/F sensor and verify coolant temperature and thermostat operation.", "variant": "body"}, "children": []}, "repairTableNote": {"type": "Text", "props": {"text": "A realistic under-$900 sequence:", "variant": "label"}, "children": []}, "repairTable": {"type": "Table", "props": {"columns": [{"key": "item", "label": "Item"}, {"key": "cost", "label": "Cost"}], "statePath": "/repairSequence", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "item", "highlightColumns": ["cost"], "numericColumns": ["cost"]}, "children": []}, "repairRange": {"type": "Text", "props": {"text": "That keeps many likely outcomes in the $250-$700 range before getting into larger sensor or injector work.", "variant": "body"}, "children": []}, "urgencySection": {"type": "Card", "props": {}, "children": ["urgencyStack"]}, "urgencyStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["urgencyHeading", "priorityTable", "ruleLabel", "rule1", "rule2"]}, "urgencyHeading": {"type": "Text", "props": {"text": "What Needs Attention First", "variant": "h2"}, "children": []}, "priorityTable": {"type": "Table", "props": {"columns": [{"key": "priority", "label": "Priority"}, {"key": "issue", "label": "Issue"}, {"key": "notes", "label": "Notes"}], "statePath": "/attentionPriority", "domain": "status", "preferredPresentation": "cards", "primaryColumn": "issue", "highlightColumns": ["priority"]}, "children": []}, "ruleLabel": {"type": "Text", "props": {"text": "Practical urgency rule:", "variant": "label"}, "children": []}, "rule1": {"type": "Text", "props": {"text": "If the check-engine light is flashing, stop driving except to a repair shop.", "variant": "body"}, "children": []}, "rule2": {"type": "Text", "props": {"text": "If the check-engine light is steady, keep driving light and short only until codes are checked.", "variant": "body"}, "children": []}, "actionsSection": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actionsHeading", "actionsRow"]}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actionsRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["btnCodes", "btnHonda", "btnNhtsa"]}, "btnCodes": {"type": "Button", "props": {"label": "Find OBD Codes", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.obd-codes.com/trouble_codes/"}}}}, "btnHonda": {"type": "Button", "props": {"label": "Honda Owner Info", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://owners.honda.com/"}}}}, "btnNhtsa": {"type": "Button", "props": {"label": "Check NHTSA Recalls", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nhtsa.gov/recalls"}}}}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "source1", "source2", "source3"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source1": {"type": "Button", "props": {"label": "Honda Owners", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://owners.honda.com/"}}}}, "source2": {"type": "Button", "props": {"label": "OBD-II code reference", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.obd-codes.com/trouble_codes/"}}}}, "source3": {"type": "Button", "props": {"label": "NHTSA vehicle safety and TSB lookup", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.nhtsa.gov/recalls"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

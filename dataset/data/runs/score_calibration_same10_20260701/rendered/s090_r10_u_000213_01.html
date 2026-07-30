@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"playlistRows": [{"trackNumber": "1", "artist": "The xx", "title": "Intro", "estTime": "2:07", "role": "Quiet takeoff"}, {"trackNumber": "2", "artist": "Billie Eilish", "title": "Ocean Eyes", "estTime": "3:20", "role": "Airy and intimate"}, {"trackNumber": "3", "artist": "Rhye", "title": "Open", "estTime": "3:37", "role": "Warm, slow pulse"}, {"trackNumber": "4", "artist": "Men I Trust", "title": "Show Me How", "estTime": "3:37", "role": "Light drift"}, {"trackNumber": "5", "artist": "Frank Ocean", "title": "Pink + White", "estTime": "3:04", "role": "Gentle brightness"}, {"trackNumber": "6", "artist": "Bonobo", "title": "Kerala", "estTime": "3:56", "role": "Motion begins"}, {"trackNumber": "7", "artist": "M83", "title": "Midnight City", "estTime": "4:04", "role": "Mid-playlist lift"}, {"trackNumber": "8", "artist": "Khruangbin", "title": "Time (You and I)", "estTime": "4:31", "role": "Breezy comedown"}, {"trackNumber": "9", "artist": "Zero 7", "title": "In the Waiting Line", "estTime": "4:31", "role": "Floating cruise"}, {"trackNumber": "10", "artist": "Air", "title": "La Femme d'Argent", "estTime": "7:08", "role": "Spacious late-flight glide"}, {"trackNumber": "11", "artist": "Beach House", "title": "Space Song", "estTime": "5:20", "role": "Dream-state entry"}, {"trackNumber": "12", "artist": "Cigarettes After Sex", "title": "Apocalypse", "estTime": "4:50", "role": "Soft, dreamy landing"}], "alternatives": [{"option": "Option 1", "artistSong": "Sade - Smooth Operator", "swapNote": "Sleeker and more rhythmic than Frank Ocean", "bestFor": "Best if you want more groove", "actionLabel": "Listen", "actionUrl": "https://www.youtube.com/results?search_query=Sade+Smooth+Operator"}, {"option": "Option 2", "artistSong": "Massive Attack - Teardrop", "swapNote": "More shadowy and cinematic than Zero 7", "bestFor": "Best for a nocturnal mood", "actionLabel": "Listen", "actionUrl": "https://www.youtube.com/results?search_query=Massive+Attack+Teardrop"}, {"option": "Option 3", "artistSong": "Portishead - Glory Box", "swapNote": "Heavier emotional finish than Apocalypse", "bestFor": "Best as a moody closer", "actionLabel": "Listen", "actionUrl": "https://www.youtube.com/results?search_query=Portishead+Glory+Box"}], "sources": [{"source": "Spotify search", "actionLabel": "Open", "actionUrl": "https://open.spotify.com/search"}, {"source": "Apple Music search", "actionLabel": "Open", "actionUrl": "https://music.apple.com/us/search"}, {"source": "YouTube song lookup", "actionLabel": "Open", "actionUrl": "https://www.youtube.com/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["titleCard", "playlistSection", "whySection", "altSection", "actionsSection", "sourcesSection"]}, "titleCard": {"type": "Card", "props": {}, "children": ["titleStack"]}, "titleStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["titleRow", "subtitle", "totalChip"]}, "titleRow": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["musicIcon", "title"]}, "musicIcon": {"type": "Icon", "props": {"name": "../assets/r_000213_01_1_music-note-beamed.svg"}, "children": []}, "title": {"type": "Text", "props": {"text": "Long-Flight Playlist Arc", "variant": "h1"}, "children": []}, "subtitle": {"type": "Text", "props": {"text": "A calm-to-dreamy 12-song sequence that stays under 55 minutes, opens gently, gives you one clear lift in the middle, then glides back down for a soft landing.", "variant": "body"}, "children": []}, "totalChip": {"type": "Text", "props": {"text": "Estimated total: 50:05", "variant": "chip"}, "children": []}, "playlistSection": {"type": "Card", "props": {}, "children": ["playlistStack"]}, "playlistStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["playlistHeading", "playlistTable"]}, "playlistHeading": {"type": "Text", "props": {"text": "12-Track Sequence", "variant": "h2"}, "children": []}, "playlistTable": {"type": "Table", "props": {"columns": [{"key": "trackNumber", "label": "#"}, {"key": "artist", "label": "Artist"}, {"key": "title", "label": "Song"}, {"key": "estTime", "label": "Est. Time"}, {"key": "role", "label": "Role"}], "statePath": "/playlistRows", "domain": "playlist", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["artist", "estTime"], "title": "Long-Flight Playlist Arc", "subtitle": "12-track calm-to-dreamy sequence"}, "children": []}, "whySection": {"type": "Card", "props": {}, "children": ["whyStack"]}, "whyStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["whyHeading", "why1", "why2", "why3", "why4"]}, "whyHeading": {"type": "Text", "props": {"text": "Why This Order Works", "variant": "h2"}, "children": []}, "why1": {"type": "Text", "props": {"text": "Starts calm: The xx, Billie Eilish, and Rhye keep the first stretch hushed and weightless.", "variant": "body"}, "children": []}, "why2": {"type": "Text", "props": {"text": "Builds smoothly: Men I Trust, Frank Ocean, and Bonobo add motion without a jarring jump.", "variant": "body"}, "children": []}, "why3": {"type": "Text", "props": {"text": "Single lift in the middle: M83 - Midnight City is the one defined energy peak.", "variant": "body"}, "children": []}, "why4": {"type": "Text", "props": {"text": "Ends dreamy: Khruangbin through Cigarettes After Sex gradually blur into a night-flight mood.", "variant": "body"}, "children": []}, "altSection": {"type": "Card", "props": {}, "children": ["altStack"]}, "altStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["altHeading", "altIntro", "opt1Title", "opt1Desc", "opt1Button", "opt2Title", "opt2Desc", "opt2Button", "opt3Title", "opt3Desc", "opt3Button"]}, "altHeading": {"type": "Text", "props": {"text": "Swap-Friendly Alternatives", "variant": "h2"}, "children": []}, "altIntro": {"type": "Text", "props": {"text": "If you want a slightly darker or more sensual version, these are the best substitutes from your pool.", "variant": "body"}, "children": []}, "opt1Title": {"type": "Text", "props": {"text": "Option 1: Sade - Smooth Operator", "variant": "h3"}, "children": []}, "opt1Desc": {"type": "Text", "props": {"text": "Sleeker and more rhythmic than Frank Ocean. Best if you want more groove.", "variant": "body"}, "children": []}, "opt1Button": {"type": "Button", "props": {"label": "Listen", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.youtube.com/results?search_query=Sade+Smooth+Operator"}}}}, "opt2Title": {"type": "Text", "props": {"text": "Option 2: Massive Attack - Teardrop", "variant": "h3"}, "children": []}, "opt2Desc": {"type": "Text", "props": {"text": "More shadowy and cinematic than Zero 7. Best for a nocturnal mood.", "variant": "body"}, "children": []}, "opt2Button": {"type": "Button", "props": {"label": "Listen", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.youtube.com/results?search_query=Massive+Attack+Teardrop"}}}}, "opt3Title": {"type": "Text", "props": {"text": "Option 3: Portishead - Glory Box", "variant": "h3"}, "children": []}, "opt3Desc": {"type": "Text", "props": {"text": "Heavier emotional finish than Apocalypse. Best as a moody closer.", "variant": "body"}, "children": []}, "opt3Button": {"type": "Button", "props": {"label": "Listen", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.youtube.com/results?search_query=Portishead+Glory+Box"}}}}, "actionsSection": {"type": "Card", "props": {}, "children": ["actionsStack"]}, "actionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["actionsHeading", "spotifyButton", "appleButton"]}, "actionsHeading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "spotifyButton": {"type": "Button", "props": {"label": "Open Spotify", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/search"}}}}, "appleButton": {"type": "Button", "props": {"label": "Open Apple Music", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.apple.com/us/search"}}}}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesHeading", "source1", "source2", "source3"]}, "sourcesHeading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source1": {"type": "Button", "props": {"label": "Spotify search", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://open.spotify.com/search"}}}}, "source2": {"type": "Button", "props": {"label": "Apple Music search", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://music.apple.com/us/search"}}}}, "source3": {"type": "Button", "props": {"label": "YouTube song lookup", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.youtube.com/"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

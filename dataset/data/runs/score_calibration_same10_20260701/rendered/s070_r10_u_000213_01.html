@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"films": [{"option": "Option 1", "title": "Arrival", "summary": "A moving first-contact drama about language, loss, and the way love changes how we experience time.", "bestFor": "Especially good for post-film discussion", "icon": "../assets/r_000213_01_1_film.svg"}, {"option": "Option 2", "title": "Her", "summary": "Intimate and accessible, it explores loneliness, connection, and what it means to be truly known in a digital age.", "bestFor": "Especially good for post-film discussion", "icon": "../assets/r_000213_01_1_film.svg"}, {"option": "Option 3", "title": "Eternal Sunshine of the Spotless Mind", "summary": "A sci-fi romance about memory and heartbreak that feels emotionally messy, human, and deeply relatable.", "bestFor": "Especially good for post-film discussion", "icon": "../assets/r_000213_01_1_film.svg"}, {"option": "Option 4", "title": "Never Let Me Go", "summary": "Quiet, elegant, and devastating, it uses a speculative premise to talk about mortality, love, and acceptance.", "bestFor": "Best for reflective viewers", "icon": "../assets/r_000213_01_1_film.svg"}, {"option": "Option 5", "title": "After Yang", "summary": "A gentle, meditative film about family, grief, and the traces people leave behind.", "bestFor": "Especially good for post-film discussion", "icon": "../assets/r_000213_01_1_film.svg"}, {"option": "Option 6", "title": "Moon", "summary": "Small-scale and emotionally grounded, it turns an isolation premise into a humane story about identity and dignity.", "bestFor": "Especially good for post-film discussion", "icon": "../assets/r_000213_01_1_film.svg"}, {"option": "Option 7", "title": "Robot & Frank", "summary": "Warm, funny, and easy to watch, it pairs near-future tech with aging, memory, and companionship.", "bestFor": "Great entry point for non-genre fans", "icon": "../assets/r_000213_01_1_film.svg"}], "conversationStarters": [{"film": "Arrival", "discussionFocus": "free will, grief, and whether foreknowledge changes how we love"}, {"film": "Her", "discussionFocus": "authenticity, intimacy, and whether emotional connection requires a human body"}, {"film": "Eternal Sunshine of the Spotless Mind", "discussionFocus": "whether painful memories are essential to love"}, {"film": "After Yang", "discussionFocus": "memory, personhood, and what makes a family bond real"}, {"film": "Moon", "discussionFocus": "selfhood, ethics, and how identity depends on continuity"}], "firstWatchGuide": [{"situation": "For someone who dislikes “sci-fi” but loves character drama", "recommendation": "Her"}, {"situation": "For couples or friends who want a romantic but intellectually rich film", "recommendation": "Eternal Sunshine of the Spotless Mind"}, {"situation": "For a serious, elegant, literary mood", "recommendation": "Never Let Me Go"}, {"situation": "For a hopeful, emotionally overwhelming experience", "recommendation": "Arrival"}, {"situation": "For a quiet, understated evening", "recommendation": "After Yang"}, {"situation": "For a clever, contained watch with discussion value", "recommendation": "Moon"}, {"situation": "For something gentle and audience-friendly", "recommendation": "Robot & Frank"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "intro_card", "picks_heading", "films_table", "discussion_heading", "discussion_table", "guide_heading", "guide_table"]}, "title": {"type": "Text", "props": {"text": "Sci‑Fi Films With Heart", "variant": "h1"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["intro_header_row", "intro_text"]}, "intro_header_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["intro_icon", "intro_header"]}, "intro_icon": {"type": "Icon", "props": {"name": "../assets/r_000213_01_1_film.svg"}, "children": []}, "intro_header": {"type": "Text", "props": {"text": "A strong counterexample list", "variant": "h3"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "These films use science-fiction ideas to deepen human emotion, relationships, memory, grief, identity, and hope. They are also approachable for viewers who do not usually enjoy effects-heavy or lore-heavy sci-fi.", "variant": "body"}, "children": []}, "picks_heading": {"type": "Text", "props": {"text": "7 Emotionally Rich, Thoughtful Picks", "variant": "h2"}, "children": []}, "films_table": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "title", "label": "Title"}, {"key": "summary", "label": "Why it works"}, {"key": "bestFor", "label": "Best for"}, {"key": "icon", "label": "Icon"}], "statePath": "/films", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["bestFor"], "sourceFormat": "plain"}, "children": []}, "discussion_heading": {"type": "Text", "props": {"text": "Best Conversation Starters", "variant": "h2"}, "children": []}, "discussion_table": {"type": "Table", "props": {"columns": [{"key": "film", "label": "Film"}, {"key": "discussionFocus", "label": "Discussion focus"}], "statePath": "/conversationStarters", "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "film", "highlightColumns": ["discussionFocus"], "sourceFormat": "plain"}, "children": []}, "guide_heading": {"type": "Text", "props": {"text": "Picking the Right First Watch", "variant": "h2"}, "children": []}, "guide_table": {"type": "Table", "props": {"columns": [{"key": "situation", "label": "Situation"}, {"key": "recommendation", "label": "Recommendation"}], "statePath": "/firstWatchGuide", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "situation", "highlightColumns": ["recommendation"], "sourceFormat": "plain"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

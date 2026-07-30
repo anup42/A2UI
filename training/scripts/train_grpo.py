@@ -41,7 +41,14 @@ from transformers import AutoTokenizer, set_seed
 import trl
 from trl import GRPOConfig, GRPOTrainer
 
-from pipeline.genui_quality import load_reward_config, make_genui_grpo_reward
+from pipeline.genui_quality import (
+    RewardInflationMonitor,
+    ensure_v5_4_validation_ready,
+    load_reward_config_v5_4,
+    make_genui_grpo_reward_v5_4,
+    metric_fingerprint_v5_4,
+    reward_pipeline_fingerprint_v5_4,
+)
 
 
 MIN_TRL_VERSION = Version("0.29.1")
@@ -295,7 +302,9 @@ def make_grpo_config(**kwargs: Any) -> GRPOConfig:
 
 
 def parse_args() -> argparse.Namespace:
-    default_reward_config = REPO_ROOT / "dataset" / "configs" / "genui_metric_v4.yaml"
+    default_reward_config = (
+        REPO_ROOT / "dataset" / "configs" / "genui_metric_v5_4.yaml"
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--sft-checkpoint",
@@ -331,6 +340,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--use-vllm", action="store_true")
     parser.add_argument("--bf16", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--report-to", default="none")
+    parser.add_argument("--alert-component-growth", type=float, default=0.20)
+    parser.add_argument("--alert-length-growth", type=float, default=0.20)
+    parser.add_argument("--alert-min-fidelity-gain", type=float, default=0.01)
+    parser.add_argument("--alert-ema-alpha", type=float, default=0.25)
     return parser.parse_args()
 
 
@@ -394,8 +407,23 @@ def main() -> None:
             "per_device_eval_batch_size * WORLD_SIZE must be divisible by num_generations."
         )
 
-    reward_config = load_reward_config(args.reward_config)
-    reward_fn = make_genui_grpo_reward(reward_config, model_checkpoint=args.model)
+    ensure_v5_4_validation_ready()
+    reward_config = load_reward_config_v5_4(args.reward_config)
+    reward_metric_fingerprint = metric_fingerprint_v5_4(reward_config)
+    reward_pipeline_fingerprint = reward_pipeline_fingerprint_v5_4(
+        reward_metric_fingerprint
+    )
+    inflation_monitor = RewardInflationMonitor(
+        component_growth_threshold=args.alert_component_growth,
+        length_growth_threshold=args.alert_length_growth,
+        min_fidelity_gain=args.alert_min_fidelity_gain,
+        ema_alpha=args.alert_ema_alpha,
+    )
+    reward_fn = make_genui_grpo_reward_v5_4(
+        reward_config,
+        model_checkpoint=args.model,
+        inflation_monitor=inflation_monitor,
+    )
     scale_rewards: str | bool = False if args.scale_rewards == "none" else args.scale_rewards
 
     grpo_args = make_grpo_config(
@@ -449,6 +477,11 @@ def main() -> None:
                 "p99_prompt_tokens": p99_prompt,
                 "max_completion_length": max_completion_length,
                 "reward_config": args.reward_config,
+                "metric_version": "5.4.0",
+                "metric_fingerprint": reward_metric_fingerprint,
+                "reward_pipeline_fingerprint": (
+                    reward_pipeline_fingerprint
+                ),
                 "effective_batch": effective_batch,
                 "per_device_eval_batch_size": eval_per_device_batch,
                 "world_size": world_size,

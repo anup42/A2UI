@@ -199,6 +199,29 @@ android {
     }
 
     buildTypes {
+        create("judgeCapture") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".judgecapture"
+            versionNameSuffix = "-judge-capture"
+            matchingFallbacks += listOf("debug")
+            isDebuggable = true
+            // The capture-only package must never carry service credentials.
+            buildConfigField("String", "GEMINI_STAGE2_API_KEY_DEFAULT", "\"\"")
+            buildConfigField("String", "GEMINI_STAGE3_API_KEY_DEFAULT", "\"\"")
+            buildConfigField("String", "NEWS_API_KEY_DEFAULT", "\"\"")
+            buildConfigField("String", "SERPAPI_KEY_DEFAULT", "\"\"")
+            buildConfigField("String", "GOOGLE_MAPS_API_KEY_DEFAULT", "\"\"")
+            buildConfigField("String", "VERTEX_EXPRESS_API_KEY_DEFAULT", "\"\"")
+            buildConfigField("String", "VERTEX_OAUTH_ACCESS_TOKEN_DEFAULT", "\"\"")
+            buildConfigField("String", "VERTEX_PROJECT_ID_DEFAULT", "\"\"")
+            buildConfigField("String", "AZURE_OPENAI_API_KEY_DEFAULT", "\"\"")
+            buildConfigField(
+                "String",
+                "AZURE_OPENAI_RESPONSES_ENDPOINT_DEFAULT",
+                "\"\""
+            )
+            buildConfigField("String", "AZURE_OPENAI_DEPLOYMENT_DEFAULT", "\"\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

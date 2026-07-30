@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"comparisonRows": [{"card": "Card A", "grossRewardsYear": "$409.20", "annualFee": "$95", "usableCredit": "$0", "netRewardsYear": "$314.20"}, {"card": "Card B", "grossRewardsYear": "$484.80", "annualFee": "$0", "usableCredit": "$0", "netRewardsYear": "$484.80"}, {"card": "Card C", "grossRewardsYear": "$273.00", "annualFee": "$150", "usableCredit": "$100", "netRewardsYear": "$223.00"}], "spendRows": [{"category": "Groceries", "calculation": "$600 × 12", "yearlySpend": "$7,200"}, {"category": "Dining", "calculation": "$250 × 12", "yearlySpend": "$3,000"}, {"category": "Gas", "calculation": "$120 × 12", "yearlySpend": "$1,440"}, {"category": "Travel", "calculation": "$150 × 12", "yearlySpend": "$1,800"}, {"category": "Other", "calculation": "$900 × 12", "yearlySpend": "$10,800"}], "rankingRows": [{"rank": "1", "card": "Card B", "net": "$484.80 net"}, {"rank": "2", "card": "Card A", "net": "$321.40 net"}, {"rank": "3", "card": "Card C", "net": "$306.40 net"}], "fitRows": [{"option": "Option 1", "card": "Card B", "fit": "Best overall return for your current spending mix", "highlight": "Highest net rewards", "actionLabel": "Recheck Math", "actionUrl": "https://www.calculator.net/credit-card-calculator.html"}, {"option": "Option 2", "card": "Card A", "fit": "Better than Card C, but the annual fee drags down value", "highlight": "Strong only for heavy grocery spend", "actionLabel": "Compare Rates", "actionUrl": "https://www.consumerfinance.gov/consumer-tools/credit-cards/"}, {"option": "Option 3", "card": "Card C", "fit": "Travel credit helps, but your travel spend is too low to offset weaker everyday rewards", "highlight": "Best only for more travel-heavy users", "actionLabel": "Rewards Guide", "actionUrl": "https://www.nerdwallet.com/article/credit-cards/how-to-compare-credit-cards"}], "cardCalcRows": [{"card": "Card A", "details": "3% groceries = $216; 2% dining = $60; 1% on gas + travel + other ($14,040) = $140.40", "gross": "$416.40", "net": "Net after $95 fee = $321.40"}, {"card": "Card B", "details": "2% of total $24,240 = $484.80", "gross": "$484.80", "net": "Net = $484.80"}, {"card": "Card C", "details": "3% dining = $90; 4% travel = $72; 1% groceries + gas + other ($19,440) = $194.40", "gross": "$356.40", "net": "Net after $150 fee and $100 travel credit = $306.40"}], "sourceRows": [{"source": "Consumer Financial Protection Bureau credit card tools", "actionLabel": "Open Source", "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/"}, {"source": "U.S. government credit card basics", "actionLabel": "Open Source", "url": "https://www.usa.gov/credit-cards"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "heroCard", "comparisonSection", "calculationSection", "recommendationSection", "fitSection", "quickActionsSection", "contextSection", "sourcesSection"]}, "title": {"type": "Text", "props": {"text": "Best Card for Your Spending Pattern", "variant": "h1"}, "children": []}, "heroCard": {"type": "Card", "props": {}, "children": ["heroStack"]}, "heroStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["heroSpend", "heroMetric", "heroResult"]}, "heroSpend": {"type": "Text", "props": {"text": "You spend $24,240/year and always pay in full.", "variant": "body"}, "children": []}, "heroMetric": {"type": "Text", "props": {"text": "Key metric: net annual rewards after fees/credits.", "variant": "body"}, "children": []}, "heroResult": {"type": "Text", "props": {"text": "Based on your category mix, Card B comes out ahead.", "variant": "h3"}, "children": []}, "comparisonSection": {"type": "Card", "props": {}, "children": ["comparisonStack"]}, "comparisonStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["comparisonTitle", "comparisonTable"]}, "comparisonTitle": {"type": "Text", "props": {"text": "Yearly Net Rewards Comparison", "variant": "h2"}, "children": []}, "comparisonTable": {"type": "Table", "props": {"columns": [{"key": "card", "label": "Card"}, {"key": "grossRewardsYear", "label": "Gross Rewards/Year"}, {"key": "annualFee", "label": "Annual Fee"}, {"key": "usableCredit", "label": "Usable Credit"}, {"key": "netRewardsYear", "label": "Net Rewards/Year"}], "statePath": "/comparisonRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "card", "highlightColumns": ["netRewardsYear"], "numericColumns": ["grossRewardsYear", "annualFee", "usableCredit", "netRewardsYear"], "sourceFormat": "markdown"}, "children": []}, "calculationSection": {"type": "Card", "props": {}, "children": ["calculationStack"]}, "calculationStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["calcTitle", "spendSubhead", "spendTable", "cardCalcSubhead", "cardCalcTable"]}, "calcTitle": {"type": "Text", "props": {"text": "How the totals were calculated", "variant": "h3"}, "children": []}, "spendSubhead": {"type": "Text", "props": {"text": "Yearly spend by category", "variant": "label"}, "children": []}, "spendTable": {"type": "Table", "props": {"columns": [{"key": "category", "label": "Category"}, {"key": "calculation", "label": "Calculation"}, {"key": "yearlySpend", "label": "Yearly Spend"}], "statePath": "/spendRows", "domain": "formula", "preferredPresentation": "table", "primaryColumn": "category", "numericColumns": ["yearlySpend"], "sourceFormat": "plain"}, "children": []}, "cardCalcSubhead": {"type": "Text", "props": {"text": "Per-card reward math", "variant": "label"}, "children": []}, "cardCalcTable": {"type": "Table", "props": {"columns": [{"key": "card", "label": "Card"}, {"key": "details", "label": "Details"}, {"key": "gross", "label": "Gross"}, {"key": "net", "label": "Net"}], "statePath": "/cardCalcRows", "domain": "formula", "preferredPresentation": "table", "primaryColumn": "card", "numericColumns": ["gross"], "sourceFormat": "plain"}, "children": []}, "recommendationSection": {"type": "Card", "props": {}, "children": ["recommendationStack"]}, "recommendationStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["recommendationTitle", "recommendationLead", "whyWinsLabel", "why1", "why2", "why3", "rankingTitle", "rankingTable"]}, "recommendationTitle": {"type": "Text", "props": {"text": "Recommendation", "variant": "h2"}, "children": []}, "recommendationLead": {"type": "Text", "props": {"text": "Pick Card B if your goal is the highest estimated yearly net rewards.", "variant": "body"}, "children": []}, "whyWinsLabel": {"type": "Text", "props": {"text": "Why it wins", "variant": "h3"}, "children": []}, "why1": {"type": "Text", "props": {"text": "Flat 2% on everything works very well because a large share of your spending is in all other ($10,800/year), where Card A and Card C only earn 1%.", "variant": "body"}, "children": []}, "why2": {"type": "Text", "props": {"text": "No annual fee means there is no hurdle to overcome.", "variant": "body"}, "children": []}, "why3": {"type": "Text", "props": {"text": "Since you pay in full, there is no interest cost to consider, so rewards math is straightforward.", "variant": "body"}, "children": []}, "rankingTitle": {"type": "Text", "props": {"text": "Ranking", "variant": "h3"}, "children": []}, "rankingTable": {"type": "Table", "props": {"columns": [{"key": "rank", "label": "Rank"}, {"key": "card", "label": "Card"}, {"key": "net", "label": "Net"}], "statePath": "/rankingRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "rank", "highlightColumns": ["card", "net"], "sourceFormat": "plain"}, "children": []}, "fitSection": {"type": "Card", "props": {}, "children": ["fitStack"]}, "fitStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["fitTitle", "fitTable"]}, "fitTitle": {"type": "Text", "props": {"text": "Fit Notes", "variant": "h2"}, "children": []}, "fitTable": {"type": "Table", "props": {"columns": [{"key": "option", "label": "Option"}, {"key": "card", "label": "Card"}, {"key": "fit", "label": "Fit Notes"}, {"key": "highlight", "label": "Best Use"}, {"key": "actionLabel", "label": "Action"}, {"key": "actionUrl", "label": "Action URL"}], "statePath": "/fitRows", "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "option", "highlightColumns": ["card", "highlight"], "sourceFormat": "plain"}, "children": []}, "quickActionsSection": {"type": "Card", "props": {}, "children": ["quickActionsStack"]}, "quickActionsStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["quickActionsTitle", "quickButtons"]}, "quickActionsTitle": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "quickButtons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["compareAllButton", "rewardsBasicsButton"]}, "compareAllButton": {"type": "Button", "props": {"label": "Compare All", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/"}}}}, "rewardsBasicsButton": {"type": "Button", "props": {"label": "Rewards Basics", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.usa.gov/credit-cards"}}}}, "contextSection": {"type": "Card", "props": {}, "children": ["contextStack"]}, "contextStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["contextTitle", "contextText"]}, "contextTitle": {"type": "Text", "props": {"text": "Calculation Context", "variant": "h2"}, "children": []}, "contextText": {"type": "Text", "props": {"text": "I treated the $100 travel credit on Card C as fully used, exactly as stated, and assumed reward percentages apply directly as cash value on eligible spend.", "variant": "body"}, "children": []}, "sourcesSection": {"type": "Card", "props": {}, "children": ["sourcesStack"]}, "sourcesStack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["sourcesTitle", "source1Button", "source2Button"]}, "sourcesTitle": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "source1Button": {"type": "Button", "props": {"label": "Consumer Financial Protection Bureau credit card tools", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/"}}}}, "source2Button": {"type": "Button", "props": {"label": "U.S. government credit card basics", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.usa.gov/credit-cards"}}}}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

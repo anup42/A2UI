@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"/agendaRows": [{"date": "2026-03-18", "time": "9:00-9:20 AM", "sessionBlock": "Welcome, tech check, workshop goals", "audience": "Whole group", "notes": "Confirm audio/video, set expectations, and preview the 2-day flow."}, {"date": "2026-03-18", "time": "9:20 AM-12:30 PM", "sessionBlock": "Introductions; company overview; product demo; Break 1 at 10:50-11:00; Break 2 at 11:45-11:55", "audience": "Whole group", "notes": "Keep each teaching segment to 35-50 minutes; end with a brief role-context preview."}, {"date": "2026-03-18", "time": "12:30-1:15 PM", "sessionBlock": "Lunch", "audience": "Whole group", "notes": "45-minute lunch."}, {"date": "2026-03-18", "time": "1:15-4:30 PM", "sessionBlock": "Parallel role tracks; applied scenarios; Break 3 at 2:00-2:10; cross-functional handoff exercise; Q&A; day-1 wrap-up", "audience": "Split into engineering, sales, support cohorts of 6", "notes": "Rotate facilitators so each group gets role-specific depth and practical examples."}, {"date": "2026-03-19", "time": "9:00-9:15 AM", "sessionBlock": "Recap and day-2 goals", "audience": "Whole group", "notes": "Re-anchor priorities and answer quick overnight questions."}, {"date": "2026-03-19", "time": "9:15 AM-12:30 PM", "sessionBlock": "Advanced role training; hands-on practice; Break 1 at 10:00-10:10; Break 2 at 10:55-11:05; knowledge check", "audience": "Split into engineering, sales, support cohorts of 6", "notes": "Focus on tools, workflows, common scenarios, and success criteria for each function."}, {"date": "2026-03-19", "time": "12:30-1:15 PM", "sessionBlock": "Lunch", "audience": "Whole group", "notes": "45-minute lunch."}, {"date": "2026-03-19", "time": "1:15-4:30 PM", "sessionBlock": "Customer simulations; manager expectations; Break 3 at 2:00-2:10; final Q&A; action plans; closing wrap-up", "audience": "Whole group, then role groups for practice", "notes": "End with next steps, onboarding milestones, and a clear 30/60/90-day path."}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "lg", "padding": 16}, "children": ["title", "overview_card", "agenda_heading", "agenda_table", "notes_heading", "notes_card"]}, "title": {"type": "Text", "props": {"text": "2-Day Remote Onboarding Workshop Schedule", "variant": "h1"}, "children": []}, "overview_card": {"type": "Card", "props": {}, "children": ["overview_stack"]}, "overview_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["overview_time", "overview_cohorts"]}, "overview_time": {"type": "Text", "props": {"text": "All times below are in America/New_York.", "variant": "body"}, "children": []}, "overview_cohorts": {"type": "Text", "props": {"text": "The 18 new hires are balanced into three parallel cohorts of 6 so engineering, sales, and support each get dedicated time without losing shared context.", "variant": "body"}, "children": []}, "agenda_heading": {"type": "Text", "props": {"text": "Balanced Day-by-Day Agenda", "variant": "h2"}, "children": []}, "agenda_table": {"type": "Table", "props": {"columns": [{"key": "date", "label": "Date"}, {"key": "time", "label": "Time (ET)"}, {"key": "sessionBlock", "label": "Session block"}, {"key": "audience", "label": "Audience"}, {"key": "notes", "label": "Notes"}], "statePath": "/agendaRows", "domain": "schedule", "preferredPresentation": "cards", "primaryColumn": "date", "highlightColumns": ["time", "sessionBlock"]}, "children": []}, "notes_heading": {"type": "Text", "props": {"text": "Facilitation Notes", "variant": "h2"}, "children": []}, "notes_card": {"type": "Card", "props": {}, "children": ["notes_stack"]}, "notes_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["note_1", "note_2", "note_3", "note_4"]}, "note_1": {"type": "Text", "props": {"text": "Every teaching block stays under 60 minutes by design.", "variant": "body"}, "children": []}, "note_2": {"type": "Text", "props": {"text": "Use one whole-group facilitator plus three track leads for the parallel engineering, sales, and support sessions.", "variant": "body"}, "children": []}, "note_3": {"type": "Text", "props": {"text": "Keep the Q&A sections open-ended but time-boxed so the workshop ends on schedule.", "variant": "body"}, "children": []}, "note_4": {"type": "Text", "props": {"text": "If you want, the day-1 and day-2 breakout topics can be refined further by function, such as platform architecture for engineering, pipeline and discovery for sales, and ticket handling/escalation for support.", "variant": "body"}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

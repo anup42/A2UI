@@ -1,0 +1,144 @@
+{
+  "metric_versions": {
+    "before": "4.0.0",
+    "after": "5.0.0"
+  },
+  "probes": [
+    {
+      "probe": "unsupported_type_with_100_valid_nodes",
+      "v4_quality_0_100": 93.43314883337031,
+      "v5_quality_0_100": 25.0,
+      "v5_cap": 0.25,
+      "v5_production_valid": false,
+      "v5_active_caps": [
+        "production_invalid",
+        "strict_format"
+      ]
+    },
+    {
+      "probe": "forbidden_top_level_property",
+      "v4_clean": 94.78554926350182,
+      "v4_mutated": 94.78554926350182,
+      "v4_delta": 0.0,
+      "v5_clean": 93.06374881065652,
+      "v5_mutated": 88.1826831588963,
+      "v5_delta": -4.881065651760224,
+      "v5_strict_schema_valid": false,
+      "v5_unknown_top_level_properties": [
+        "debug"
+      ],
+      "v5_active_caps": [
+        "strict_format"
+      ]
+    },
+    {
+      "probe": "tabs_and_modal_nested_references",
+      "v4_reachable_elements": 1,
+      "v5_reachable_ids": [
+        "content",
+        "panel",
+        "tabs",
+        "trigger"
+      ],
+      "v5_missing_references": []
+    },
+    {
+      "probe": "table_row_value_swap",
+      "v4_table_atomic_before": 1.0,
+      "v4_table_atomic_after": 1.0,
+      "v5_table_atomic_before": 1.0,
+      "v5_table_atomic_after": 0.6900000000000001,
+      "v5_quality_delta": -7.1967312348668315
+    },
+    {
+      "probe": "ordered_content_reversal",
+      "v4_quality_before": 95.5043784696738,
+      "v4_quality_after": 95.5043784696738,
+      "v5_order_atomic_before": 1.0,
+      "v5_order_atomic_after": 0.5,
+      "v5_quality_delta": -3.4253092293054266
+    },
+    {
+      "probe": "wrong_action_destination",
+      "v5_matched_required_count": 0,
+      "v5_action_role_coverage": 0.0,
+      "v5_active_caps": [
+        "missing_action"
+      ]
+    },
+    {
+      "probe": "duplicate_identical_charts",
+      "candidate_chart_count": 3,
+      "required_distinct_count": 2,
+      "v5_distinct_role_coverage": 0.5,
+      "v5_active_caps": [
+        "partial_chart"
+      ]
+    },
+    {
+      "probe": "one_image_for_two_required_images",
+      "v5_required_count": 2,
+      "v5_matched_required_count": 1,
+      "v5_image_role_coverage": 0.5,
+      "v5_active_caps": [
+        "partial_media"
+      ]
+    },
+    {
+      "probe": "optional_requirements_omitted",
+      "v5_action_atomic": null,
+      "v5_table_atomic": null,
+      "v5_media_atomic": null,
+      "v5_active_caps": []
+    },
+    {
+      "probe": "repeat_vs_static_equivalent",
+      "v5_repeat_quality": 93.9524513654637,
+      "v5_static_quality": 93.34426832451416,
+      "absolute_delta": 0.608183040949541,
+      "v5_dynamic_unknowns": []
+    },
+    {
+      "probe": "global_atomic_budget",
+      "feasible": true,
+      "applicable_atomic_count": 30,
+      "effective_weight_sum": 1.0,
+      "maximum_effective_atomic_weight": 0.0825,
+      "configured_maximum": 0.1
+    },
+    {
+      "probe": "intent_sensitive_source_contract_cache",
+      "booking_cache_key": "f1c445dc3786ccc181690150188d6e76c22ba5ebb49b23a8da050b3b649546e4",
+      "technical_support_cache_key": "75706ea1c29cb91ac635459653bf87f5cf31f771e5ce7d144e43210ded9d9949",
+      "keys_differ": true
+    },
+    {
+      "probe": "stale_persisted_source_hash",
+      "resolved_source": "deterministic fallback",
+      "accepted_as_human_benchmark": false,
+      "resolution_errors": [
+        "persisted contract: source_hash: does not match normalized response text"
+      ]
+    },
+    {
+      "probe": "stored_score_fingerprint_reuse",
+      "default_fingerprint": "eae1ab47a6441a8753fbb2ed7ff70ead505f80cbfeb3d7da12324a0b3d330c04",
+      "changed_fingerprint": "fa90da4509d6ec971862f0ab7696a5ef116e8ef684135ae75edf2fe142ff9e58",
+      "matching_identity_reused": true,
+      "changed_config_reused": false,
+      "changed_config_stale_reasons": [
+        "metric_fingerprint_mismatch"
+      ]
+    },
+    {
+      "probe": "shared_raw_candidate_boundary",
+      "offline_reward": 0.7636536631779258,
+      "grpo_reward": 0.7636536631779258,
+      "rewards_identical": true,
+      "production_valid": true,
+      "strict_schema_valid": false,
+      "raw_format_utility": 0.8,
+      "metric_version": "5.0.0"
+    }
+  ]
+}

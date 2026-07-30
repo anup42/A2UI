@@ -1,0 +1,431 @@
+{
+  "metric_version": "4.0.0",
+  "contract_version": "1.0.0",
+  "calibration_status": "uncalibrated_engineering_score",
+  "count": 32,
+  "quality_0_100": {
+    "count": 32,
+    "mean": 95.76383558046875,
+    "median": 97.30750014662055,
+    "sd_population": 4.950749463275716,
+    "quantiles": {
+      "0.0": 78.0,
+      "0.05": 86.02302864195579,
+      "0.25": 94.8367072990613,
+      "0.5": 97.30750014662055,
+      "0.75": 98.60606184813486,
+      "0.95": 99.32883984293875,
+      "1.0": 99.505472066799
+    },
+    "bootstrap_mean_ci_95": {
+      "low": 94.02786709774213,
+      "high": 97.39204109040419,
+      "confidence": 0.95,
+      "iterations": 400
+    }
+  },
+  "reward_minus1_1": {
+    "count": 32,
+    "mean": 0.9152767116093748,
+    "median": 0.9461500029324114,
+    "sd_population": 0.0990149892655143,
+    "quantiles": {
+      "0.0": 0.56,
+      "0.05": 0.7204605728391158,
+      "0.25": 0.8967341459812259,
+      "0.5": 0.9461500029324114,
+      "0.75": 0.9721212369626971,
+      "0.95": 0.9865767968587751,
+      "1.0": 0.9901094413359799
+    },
+    "bootstrap_mean_ci_95": {
+      "low": 0.8805573419548425,
+      "high": 0.9478408218080836,
+      "confidence": 0.95,
+      "iterations": 400
+    }
+  },
+  "dimensions": {
+    "accessibility": {
+      "count": 27,
+      "mean": 0.9814814814814815,
+      "median": 1.0,
+      "sd_population": 0.09442628728875528,
+      "quantiles": {
+        "0.0": 0.5,
+        "0.05": 1.0,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9444444444444444,
+        "high": 1.0,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "economy": {
+      "count": 32,
+      "mean": 0.985345180167582,
+      "median": 0.9936105476673428,
+      "sd_population": 0.02128540854804438,
+      "quantiles": {
+        "0.0": 0.9140936448929013,
+        "0.05": 0.934419473637006,
+        "0.25": 0.9833335828231407,
+        "0.5": 0.9936105476673428,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9775405475113051,
+        "high": 0.9922633988511789,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "fidelity": {
+      "count": 32,
+      "mean": 0.9401254022877823,
+      "median": 0.9409642318381813,
+      "sd_population": 0.04000841332879969,
+      "quantiles": {
+        "0.0": 0.8324933235351059,
+        "0.05": 0.8661228806896627,
+        "0.25": 0.9133508055912893,
+        "0.5": 0.9409642318381813,
+        "0.75": 0.973238133342784,
+        "0.95": 0.9878268246273628,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9264536207149309,
+        "high": 0.9533747910995619,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "hierarchy": {
+      "count": 32,
+      "mean": 0.9904116209040643,
+      "median": 0.9925517241379311,
+      "sd_population": 0.011118776270530345,
+      "quantiles": {
+        "0.0": 0.952293918918919,
+        "0.05": 0.9690588235294118,
+        "0.25": 0.9870535714285714,
+        "0.5": 0.9925517241379311,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9865011921658221,
+        "high": 0.9938818558503218,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "integrity": {
+      "count": 32,
+      "mean": 1.0,
+      "median": 1.0,
+      "sd_population": 0.0,
+      "quantiles": {
+        "0.0": 1.0,
+        "0.05": 1.0,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 1.0,
+        "high": 1.0,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "semantic_mapping": {
+      "count": 32,
+      "mean": 0.9623976934523809,
+      "median": 1.0,
+      "sd_population": 0.09564275919873517,
+      "quantiles": {
+        "0.0": 0.5666666666666667,
+        "0.05": 0.7833333333333333,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9254996744791667,
+        "high": 0.9932291666666667,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    }
+  },
+  "intent": {
+    "micro_mean": 95.76383558046875,
+    "macro_mean": 95.76383558046875,
+    "by_intent": {
+      "automotive": {
+        "count": 1,
+        "mean": 97.34060234708201
+      },
+      "booking": {
+        "count": 1,
+        "mean": 98.86369367416583
+      },
+      "calculation": {
+        "count": 1,
+        "mean": 94.93586167537401
+      },
+      "career": {
+        "count": 1,
+        "mean": 94.53924417012315
+      },
+      "comparison": {
+        "count": 1,
+        "mean": 98.92193145982195
+      },
+      "creative_writing": {
+        "count": 1,
+        "mean": 99.505472066799
+      },
+      "data_visualization": {
+        "count": 1,
+        "mean": 78.0
+      },
+      "documentation": {
+        "count": 1,
+        "mean": 96.12751508454866
+      },
+      "education": {
+        "count": 1,
+        "mean": 96.36301087833992
+      },
+      "entertainment": {
+        "count": 1,
+        "mean": 98.69570888382671
+      },
+      "event_schedule": {
+        "count": 1,
+        "mean": 99.3439149653595
+      },
+      "finance": {
+        "count": 1,
+        "mean": 98.8031634687483
+      },
+      "food_and_dining": {
+        "count": 1,
+        "mean": 99.1324214631571
+      },
+      "healthcare": {
+        "count": 1,
+        "mean": 98.57617950290424
+      },
+      "home_services": {
+        "count": 1,
+        "mean": 97.86328252990782
+      },
+      "information_retrieval": {
+        "count": 1,
+        "mean": 95.28981462699677
+      },
+      "legal": {
+        "count": 1,
+        "mean": 96.13104605825148
+      },
+      "localization": {
+        "count": 1,
+        "mean": 97.27439794615911
+      },
+      "media_playback": {
+        "count": 1,
+        "mean": 97.51280331524096
+      },
+      "navigation": {
+        "count": 1,
+        "mean": 97.49153472289568
+      },
+      "notification": {
+        "count": 1,
+        "mean": 95.87680014995239
+      },
+      "planning": {
+        "count": 1,
+        "mean": 94.33262069718279
+      },
+      "product_lookup": {
+        "count": 1,
+        "mean": 92.58732480355599
+      },
+      "productivity": {
+        "count": 1,
+        "mean": 99.31650565186723
+      },
+      "qr_scanner": {
+        "count": 1,
+        "mean": 97.14689993308855
+      },
+      "real_estate": {
+        "count": 1,
+        "mean": 94.08552284540409
+      },
+      "recipe": {
+        "count": 1,
+        "mean": 98.25439794405675
+      },
+      "research_analysis": {
+        "count": 1,
+        "mean": 78.0
+      },
+      "status_check": {
+        "count": 1,
+        "mean": 98.39446595820446
+      },
+      "technical_support": {
+        "count": 1,
+        "mean": 97.50943348805488
+      },
+      "travel": {
+        "count": 1,
+        "mean": 93.69801175108817
+      },
+      "weather": {
+        "count": 1,
+        "mean": 94.52915651284229
+      }
+    }
+  },
+  "capped_rate": 0.125,
+  "cap_rates": {
+    "missing_chart": 0.0625,
+    "missing_special_role": 0.03125,
+    "partial_action": 0.0625
+  },
+  "parse_failure_rate": 0.0,
+  "root_failure_rate": 0.0,
+  "reference_failure_rate": 0.0,
+  "cycle_failure_rate": 0.0,
+  "native_render_attempt_rate": 0.0,
+  "native_render_failure_rate": null,
+  "diagnostics": {
+    "component_count": {
+      "count": 32,
+      "mean": 62.5,
+      "median": 56.5,
+      "sd_population": 20.270051800624486,
+      "quantiles": {
+        "0.0": 27.0,
+        "0.05": 37.75,
+        "0.25": 47.0,
+        "0.5": 56.5,
+        "0.75": 73.0,
+        "0.95": 100.29999999999998,
+        "1.0": 111.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 55.184374999999996,
+        "high": 69.721875,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "action_fidelity": {
+      "count": 27,
+      "mean": 0.9466387732256379,
+      "median": 0.968125,
+      "sd_population": 0.06084723730137105,
+      "quantiles": {
+        "0.0": 0.6866083354255585,
+        "0.05": 0.9117428125,
+        "0.25": 0.9149999999999999,
+        "0.5": 0.968125,
+        "0.75": 0.97875,
+        "0.95": 0.9999999999999998,
+        "1.0": 0.9999999999999999
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9189934001186658,
+        "high": 0.966549112654321,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "table_fidelity": {
+      "count": 30,
+      "mean": 0.9875969450284768,
+      "median": 1.0,
+      "sd_population": 0.030551509933163332,
+      "quantiles": {
+        "0.0": 0.8711562499999999,
+        "0.05": 0.9225540036231885,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9750516855538816,
+        "high": 0.9973842358091788,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "json_to_source_economy_utility": {
+      "count": 32,
+      "mean": 0.9832647841335511,
+      "median": 1.0,
+      "sd_population": 0.046275675099174476,
+      "quantiles": {
+        "0.0": 0.7771375464684015,
+        "0.05": 0.8926049730539174,
+        "0.25": 1.0,
+        "0.5": 1.0,
+        "0.75": 1.0,
+        "0.95": 1.0,
+        "1.0": 1.0
+      },
+      "bootstrap_mean_ci_95": {
+        "low": 0.9649609221815785,
+        "high": 0.9966017680588412,
+        "confidence": 0.95,
+        "iterations": 400
+      }
+    },
+    "role_omission_rates": {
+      "action": 0.07407407407407407,
+      "chart": 1.0,
+      "console": 0.0,
+      "email": 0.0,
+      "formula": 0.5,
+      "image": 0.6666666666666666,
+      "table": 0.0
+    },
+    "contract_source_counts": {
+      "deterministic fallback": 32
+    },
+    "model_checkpoint_counts": {
+      "gpt-5.4": 32
+    }
+  },
+  "floor_rate_0_05": 0.0,
+  "ceiling_rate_0_95": 0.71875,
+  "run_dir": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_reasoning_medium",
+  "created_at": "2026-07-21T18:56:05.362285+00:00",
+  "shadow_only": true,
+  "source_files_modified": false,
+  "elapsed_seconds": 6.036024300032295,
+  "samples_per_second": 5.3015028451473905
+}

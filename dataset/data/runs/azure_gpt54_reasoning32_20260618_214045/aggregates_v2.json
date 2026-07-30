@@ -1,0 +1,586 @@
+{
+  "calibration_status": "uncalibrated_engineering_score",
+  "combined": {
+    "dimensions_0_1": {
+      "accessibility": {
+        "count": 128,
+        "max": 1.0,
+        "mean": 0.96875,
+        "median": 1.0,
+        "min": 0.0,
+        "q05": 0.6750000000000003,
+        "q25": 1.0,
+        "q75": 1.0,
+        "q95": 1.0,
+        "sd": 0.13621559198564606
+      },
+      "economy": {
+        "count": 128,
+        "max": 1.0,
+        "mean": 0.9941942529336485,
+        "median": 1.0,
+        "min": 0.8098360655737705,
+        "q05": 0.975557179131429,
+        "q25": 1.0,
+        "q75": 1.0,
+        "q95": 1.0,
+        "sd": 0.021280678202760316
+      },
+      "fidelity": {
+        "count": 128,
+        "max": 0.9659471755999129,
+        "mean": 0.7508675373122485,
+        "median": 0.766046551036869,
+        "min": 0.4383079063916421,
+        "q05": 0.4998767467456351,
+        "q25": 0.6467690149465775,
+        "q75": 0.8892672430826836,
+        "q95": 0.9370401305839482,
+        "sd": 0.14432954304428122
+      },
+      "hierarchy": {
+        "count": 128,
+        "max": 1.0,
+        "mean": 0.969553736758245,
+        "median": 0.9757978036175712,
+        "min": 0.856982530956323,
+        "q05": 0.9246811870932294,
+        "q25": 0.96020083587212,
+        "q75": 0.9857355036073089,
+        "q95": 0.9960784823284823,
+        "sd": 0.024511254201336367
+      },
+      "integrity": {
+        "count": 128,
+        "max": 1.0,
+        "mean": 0.9998037540096231,
+        "median": 1.0,
+        "min": 0.9866666666666667,
+        "q05": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "q95": 1.0,
+        "sd": 0.0013409586182165226
+      },
+      "semantic_mapping": {
+        "count": 128,
+        "max": 1.0,
+        "mean": 0.943314625529699,
+        "median": 1.0,
+        "min": 0.3956043956043957,
+        "q05": 0.7307692307692308,
+        "q25": 0.9909926470588235,
+        "q75": 1.0,
+        "q95": 1.0,
+        "sd": 0.12393773557335665
+      }
+    },
+    "per_cap_active_rate": {
+      "missing_chart": 0.0546875,
+      "missing_media": 0.0234375,
+      "missing_special_role": 0.0625,
+      "missing_table": 0.015625,
+      "partial_action": 0.1015625,
+      "partial_media": 0.03125,
+      "partial_reachability": 0.0078125,
+      "partial_special_role": 0.015625,
+      "reachability_below_90": 0.0078125
+    },
+    "quality_0_100": {
+      "count": 128,
+      "max": 98.18476367238955,
+      "mean": 87.25771455316352,
+      "median": 89.39651231507531,
+      "min": 40.0,
+      "q05": 74.68498956597887,
+      "q25": 80.08687763505392,
+      "q75": 95.0748640347195,
+      "q95": 96.98989075096739,
+      "sd": 8.870203931715125
+    },
+    "sample_count": 128
+  },
+  "complete_variants_scored": 4,
+  "created_at": "2026-07-27T20:32:44.485431+00:00",
+  "headline": "render_artifact_quality_v5_4",
+  "incomplete_variants_excluded": [
+    "gpt54_pro_no_reasoning",
+    "gpt54_pro_reasoning_medium"
+  ],
+  "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+  "metric_name": "GenUI Representation Quality",
+  "metric_version": "5.4.0",
+  "notes": [
+    "Previous overall_score values use the legacy aggregate and are not formula-equivalent to v5.4.",
+    "Updated scores are deterministic source-conditioned renderer representation scores.",
+    "No native Android render evidence was available; scores are uncalibrated engineering scores."
+  ],
+  "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+  "source_group": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045",
+  "variants": [
+    {
+      "identity": {
+        "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+        "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+        "scores_sha256": "819fbe76b6a1a58290879ce33876303ff107fdca2422e066dadf2d253e08ad82",
+        "source_genui_sha256": "4168f54e23276b5a20a641624dfd7f4b27eea936b8e6b868a378172178f1653e"
+      },
+      "previous": {
+        "field": "overall_score",
+        "metric": "legacy_structural_aggregate",
+        "quality_0_100": 87.04085377332272
+      },
+      "sample_count": 32,
+      "sidecar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning\\metric_v5_4_shadow_recomputed_20260728_v2",
+      "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "updated": {
+        "delta_mean_vs_previous": 0.019257818611379207,
+        "dimensions_0_1": {
+          "accessibility": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.953125,
+            "median": 1.0,
+            "min": 0.5,
+            "q05": 0.5,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.14574029770451274
+          },
+          "economy": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.993190679873471,
+            "median": 1.0,
+            "min": 0.9184541420118344,
+            "q05": 0.9541978021978021,
+            "q25": 0.9994449607600165,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.01899069027525765
+          },
+          "fidelity": {
+            "count": 32,
+            "max": 0.9659471755999129,
+            "mean": 0.7783738793081951,
+            "median": 0.7844847642142876,
+            "min": 0.48645511602899094,
+            "q05": 0.5386446705888508,
+            "q25": 0.6940749787126652,
+            "q75": 0.8942769202677816,
+            "q95": 0.9389060605436885,
+            "sd": 0.13405122307815617
+          },
+          "hierarchy": {
+            "count": 32,
+            "max": 0.997628969634557,
+            "mean": 0.9574347757653393,
+            "median": 0.9696141796799692,
+            "min": 0.856982530956323,
+            "q05": 0.8830151962803288,
+            "q25": 0.9418218751898555,
+            "q75": 0.9845561594202898,
+            "q95": 0.9913615560640733,
+            "sd": 0.03401877713087328
+          },
+          "integrity": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9995294540229885,
+            "median": 1.0,
+            "min": 0.9866666666666667,
+            "q05": 0.9992241379310345,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.002329600266512975
+          },
+          "semantic_mapping": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9597088675213675,
+            "median": 1.0,
+            "min": 0.7307692307692308,
+            "q05": 0.7935897435897437,
+            "q25": 0.9775641025641025,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.07666230984156597
+          }
+        },
+        "metric_name": "GenUI Representation Quality",
+        "metric_version": "5.4.0",
+        "native_render_evidence_available": false,
+        "per_cap_active_rate": {
+          "missing_chart": 0.03125,
+          "missing_media": 0.03125,
+          "missing_special_role": 0.03125,
+          "partial_action": 0.1875,
+          "partial_reachability": 0.03125,
+          "reachability_below_90": 0.03125
+        },
+        "quality_0_100": {
+          "count": 32,
+          "max": 98.18476367238955,
+          "mean": 87.0601115919341,
+          "median": 89.25601810965817,
+          "min": 40.0,
+          "q05": 74.37335974560186,
+          "q25": 83.09058199529697,
+          "q75": 95.13324826257312,
+          "q95": 96.44669025016549,
+          "sd": 11.147321770155239
+        }
+      },
+      "variant": "gpt54_mini_no_reasoning"
+    },
+    {
+      "identity": {
+        "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+        "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+        "scores_sha256": "1bba1e9f1e5cb2b9a32e87d6ae4d9713bb5025ed5a80019789d067417ad9d5a7",
+        "source_genui_sha256": "c657b4816cc6224a0872c95a2161112534357df035231e0f13ba3db8ea6d1dd5"
+      },
+      "previous": {
+        "field": "overall_score",
+        "metric": "legacy_structural_aggregate",
+        "quality_0_100": 81.86356745245263
+      },
+      "sample_count": 32,
+      "sidecar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium\\metric_v5_4_shadow_recomputed_20260728_v2",
+      "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "updated": {
+        "delta_mean_vs_previous": 7.050827303590324,
+        "dimensions_0_1": {
+          "accessibility": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 1.0,
+            "median": 1.0,
+            "min": 1.0,
+            "q05": 1.0,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.0
+          },
+          "economy": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9888769158078237,
+            "median": 1.0,
+            "min": 0.8098360655737705,
+            "q05": 0.9503130091649694,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.03545657732840158
+          },
+          "fidelity": {
+            "count": 32,
+            "max": 0.9450916060291059,
+            "mean": 0.7837667562295434,
+            "median": 0.7754007289563587,
+            "min": 0.4531082415998394,
+            "q05": 0.5346550245922327,
+            "q25": 0.6983299442203349,
+            "q75": 0.9216870406450697,
+            "q95": 0.9410498204972861,
+            "sd": 0.1393907736345975
+          },
+          "hierarchy": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9729772287501499,
+            "median": 0.9788848957763432,
+            "min": 0.9207500000000001,
+            "q05": 0.9343657733363617,
+            "q25": 0.9603995749072077,
+            "q75": 0.9884677419354839,
+            "q95": 0.9978060031185032,
+            "sd": 0.020242223781499268
+          },
+          "integrity": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9996855620155038,
+            "median": 1.0,
+            "min": 0.9936046511627907,
+            "q05": 0.9983500000000001,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.0012646769760376367
+          },
+          "semantic_mapping": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9362408424908425,
+            "median": 1.0,
+            "min": 0.3956043956043957,
+            "q05": 0.6096153846153847,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.1515079638063543
+          }
+        },
+        "metric_name": "GenUI Representation Quality",
+        "metric_version": "5.4.0",
+        "native_render_evidence_available": false,
+        "per_cap_active_rate": {
+          "missing_chart": 0.03125,
+          "missing_special_role": 0.09375,
+          "missing_table": 0.0625
+        },
+        "quality_0_100": {
+          "count": 32,
+          "max": 97.9401909591529,
+          "mean": 88.91439475604295,
+          "median": 90.72018891543061,
+          "min": 65.0,
+          "q05": 72.15,
+          "q25": 85.89696670939054,
+          "q75": 96.22857552913862,
+          "q95": 97.40691007251311,
+          "sd": 8.929158899243587
+        }
+      },
+      "variant": "gpt54_mini_reasoning_medium"
+    },
+    {
+      "identity": {
+        "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+        "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+        "scores_sha256": "71f2971fb59ae557ec68685023a7242512d324273dbf28789919b273ed14300b",
+        "source_genui_sha256": "0a746b67b6cb98c5e8a3243b119427d57e06961f12f028433a9208e81d772707"
+      },
+      "previous": {
+        "field": "overall_score",
+        "metric": "legacy_structural_aggregate",
+        "quality_0_100": 95.40568647466158
+      },
+      "sample_count": 32,
+      "sidecar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning\\metric_v5_4_shadow_recomputed_20260728_v2",
+      "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "updated": {
+        "delta_mean_vs_previous": -9.647590613394996,
+        "dimensions_0_1": {
+          "accessibility": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9375,
+            "median": 1.0,
+            "min": 0.0,
+            "q05": 0.5,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.2072890493972125
+          },
+          "economy": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9976227865951077,
+            "median": 1.0,
+            "min": 0.9567567567567568,
+            "q05": 0.9923772893772893,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.007717173795059708
+          },
+          "fidelity": {
+            "count": 32,
+            "max": 0.9478999595417179,
+            "mean": 0.7001411952952873,
+            "median": 0.7105856135901794,
+            "min": 0.4487567197060188,
+            "q05": 0.48751667311004565,
+            "q25": 0.5321066587085347,
+            "q75": 0.8321748699705336,
+            "q95": 0.9163466920694301,
+            "sd": 0.15598219050296835
+          },
+          "hierarchy": {
+            "count": 32,
+            "max": 0.9973214285714287,
+            "mean": 0.9706617014065065,
+            "median": 0.9745920177450493,
+            "min": 0.9241355869810366,
+            "q05": 0.9322331903818466,
+            "q25": 0.9628832972582972,
+            "q75": 0.9804435679928095,
+            "q95": 0.9956825623700625,
+            "sd": 0.017843947596618243
+          },
+          "integrity": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 1.0,
+            "median": 1.0,
+            "min": 1.0,
+            "q05": 1.0,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.0
+          },
+          "semantic_mapping": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9407477454122675,
+            "median": 1.0,
+            "min": 0.41666666666666663,
+            "q05": 0.7730769230769231,
+            "q25": 0.9252136752136751,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.11980944388663373
+          }
+        },
+        "metric_name": "GenUI Representation Quality",
+        "metric_version": "5.4.0",
+        "native_render_evidence_available": false,
+        "per_cap_active_rate": {
+          "missing_chart": 0.09375,
+          "missing_special_role": 0.0625,
+          "partial_action": 0.09375,
+          "partial_media": 0.09375,
+          "partial_special_role": 0.03125
+        },
+        "quality_0_100": {
+          "count": 32,
+          "max": 96.99464013686354,
+          "mean": 85.75809586126658,
+          "median": 85.27324461912866,
+          "min": 74.24373991225156,
+          "q05": 75.222255689781,
+          "q25": 78.51979406639202,
+          "q75": 92.66047527403161,
+          "q95": 96.09255854012474,
+          "sd": 7.625521189116241
+        }
+      },
+      "variant": "gpt54_no_reasoning"
+    },
+    {
+      "identity": {
+        "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+        "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+        "scores_sha256": "9c05ce5f77fdcbf339730cd68b39b196aaf9c2f8a43b572a190ed9500e4fb91b",
+        "source_genui_sha256": "f0239bdfecd86da0808af7295a7820972b9b43f7f3e02da2629e1037769025bd"
+      },
+      "previous": {
+        "field": "overall_score",
+        "metric": "legacy_structural_aggregate",
+        "quality_0_100": 100.0
+      },
+      "sample_count": 32,
+      "sidecar": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_reasoning_medium\\metric_v5_4_shadow_recomputed_20260728_v2",
+      "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_reasoning_medium",
+      "updated": {
+        "delta_mean_vs_previous": -12.70174399658957,
+        "dimensions_0_1": {
+          "accessibility": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.984375,
+            "median": 1.0,
+            "min": 0.5,
+            "q05": 1.0,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.08699631816921909
+          },
+          "economy": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9970866294581914,
+            "median": 1.0,
+            "min": 0.9526429605059916,
+            "q05": 0.9835039653035935,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.009203106904444518
+          },
+          "fidelity": {
+            "count": 32,
+            "max": 0.9296679888657555,
+            "mean": 0.7411883184159686,
+            "median": 0.7790506321398332,
+            "min": 0.4383079063916421,
+            "q05": 0.527851250250593,
+            "q25": 0.6320253702170712,
+            "q75": 0.8401802621679488,
+            "q95": 0.9020092934811121,
+            "sd": 0.1307222228083225
+          },
+          "hierarchy": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9771412411109839,
+            "median": 0.9804345422379479,
+            "min": 0.9240038510698889,
+            "q05": 0.93823483227512,
+            "q25": 0.9727118773372394,
+            "q75": 0.9904096745645439,
+            "q95": 0.9948336100931441,
+            "sd": 0.01733169703831977
+          },
+          "integrity": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 1.0,
+            "median": 1.0,
+            "min": 1.0,
+            "q05": 1.0,
+            "q25": 1.0,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.0
+          },
+          "semantic_mapping": {
+            "count": 32,
+            "max": 1.0,
+            "mean": 0.9365610466943187,
+            "median": 1.0,
+            "min": 0.41666666666666663,
+            "q05": 0.7065384615384616,
+            "q25": 0.9909926470588235,
+            "q75": 1.0,
+            "q95": 1.0,
+            "sd": 0.13373542622358395
+          }
+        },
+        "metric_name": "GenUI Representation Quality",
+        "metric_version": "5.4.0",
+        "native_render_evidence_available": false,
+        "per_cap_active_rate": {
+          "missing_chart": 0.0625,
+          "missing_media": 0.0625,
+          "missing_special_role": 0.0625,
+          "partial_action": 0.125,
+          "partial_media": 0.03125,
+          "partial_special_role": 0.03125
+        },
+        "quality_0_100": {
+          "count": 32,
+          "max": 96.63890256623463,
+          "mean": 87.29825600341043,
+          "median": 90.12473445176724,
+          "min": 72.42014681728998,
+          "q05": 75.97743854653655,
+          "q25": 81.43598769622565,
+          "q75": 92.51757043172881,
+          "q95": 96.07432246835111,
+          "sd": 6.8954115471598305
+        }
+      },
+      "variant": "gpt54_reasoning_medium"
+    }
+  ]
+}

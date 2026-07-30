@@ -1,0 +1,727 @@
+{
+  "run_id": "score_calibration_same10_20260701",
+  "selection": "same 10 response ids; nearest existing real IR score per target",
+  "targets": [
+    40,
+    50,
+    60,
+    70,
+    80,
+    90,
+    100
+  ],
+  "selected_response_ids": [
+    "r_000012_01",
+    "r_000017_01",
+    "r_000013_01",
+    "r_000167_01",
+    "r_000175_01",
+    "r_000016_01",
+    "r_000150_01",
+    "r_000024_01",
+    "r_000220_01",
+    "r_000213_01"
+  ],
+  "items": [
+    {
+      "target_score": 40,
+      "actual_score": 49.1284,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s040_r01_u_000012_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000012_01",
+      "score_delta": 9.1284
+    },
+    {
+      "target_score": 50,
+      "actual_score": 49.1284,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s050_r01_u_000012_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000012_01",
+      "score_delta": -0.8716
+    },
+    {
+      "target_score": 60,
+      "actual_score": 68.814,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s060_r01_u_000012_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "source_ui_id": "u_000012_01",
+      "score_delta": 8.814
+    },
+    {
+      "target_score": 70,
+      "actual_score": 70.7561,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s070_r01_u_000012_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_reasoning_medium",
+      "source_ui_id": "u_000012_01",
+      "score_delta": 0.7561
+    },
+    {
+      "target_score": 80,
+      "actual_score": 82.1285,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s080_r01_u_000012_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000012_01",
+      "score_delta": 2.1285
+    },
+    {
+      "target_score": 90,
+      "actual_score": 89.6249,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s090_r01_u_000012_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000012_01",
+      "score_delta": -0.3751
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 1,
+      "response_id": "r_000012_01",
+      "ui_id": "s100_r01_u_000012_01",
+      "source_run": "dataset_gpt54_no_reasoning_20k_20260619",
+      "source_ui_id": "u_000012_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 53.5208,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s040_r02_u_000017_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000017_01",
+      "score_delta": 13.5208
+    },
+    {
+      "target_score": 50,
+      "actual_score": 53.5208,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s050_r02_u_000017_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000017_01",
+      "score_delta": 3.5208
+    },
+    {
+      "target_score": 60,
+      "actual_score": 53.5208,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s060_r02_u_000017_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000017_01",
+      "score_delta": -6.4792
+    },
+    {
+      "target_score": 70,
+      "actual_score": 75.914,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s070_r02_u_000017_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "source_ui_id": "u_000017_01",
+      "score_delta": 5.914
+    },
+    {
+      "target_score": 80,
+      "actual_score": 75.914,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s080_r02_u_000017_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "source_ui_id": "u_000017_01",
+      "score_delta": -4.086
+    },
+    {
+      "target_score": 90,
+      "actual_score": 89.3239,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s090_r02_u_000017_01",
+      "source_run": "dataset_gpt54_no_reasoning_20k_20260619",
+      "source_ui_id": "u_000017_01",
+      "score_delta": -0.6761
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 2,
+      "response_id": "r_000017_01",
+      "ui_id": "s100_r02_u_000017_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000017_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 56.3969,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s040_r03_u_000013_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000013_01",
+      "score_delta": 16.3969
+    },
+    {
+      "target_score": 50,
+      "actual_score": 56.3969,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s050_r03_u_000013_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000013_01",
+      "score_delta": 6.3969
+    },
+    {
+      "target_score": 60,
+      "actual_score": 56.3969,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s060_r03_u_000013_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000013_01",
+      "score_delta": -3.6031
+    },
+    {
+      "target_score": 70,
+      "actual_score": 74.4723,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s070_r03_u_000013_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "source_ui_id": "u_000013_01",
+      "score_delta": 4.4723
+    },
+    {
+      "target_score": 80,
+      "actual_score": 80.2524,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s080_r03_u_000013_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "source_ui_id": "u_000013_01",
+      "score_delta": 0.2524
+    },
+    {
+      "target_score": 90,
+      "actual_score": 90.8173,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s090_r03_u_000013_01",
+      "source_run": "dataset_gpt54_no_reasoning_20k_20260619",
+      "source_ui_id": "u_000013_01",
+      "score_delta": 0.8173
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 3,
+      "response_id": "r_000013_01",
+      "ui_id": "s100_r03_u_000013_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000013_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 56.8435,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s040_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000167_01",
+      "score_delta": 16.8435
+    },
+    {
+      "target_score": 50,
+      "actual_score": 56.8435,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s050_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000167_01",
+      "score_delta": 6.8435
+    },
+    {
+      "target_score": 60,
+      "actual_score": 56.8435,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s060_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000167_01",
+      "score_delta": -3.1565
+    },
+    {
+      "target_score": 70,
+      "actual_score": 68.682,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s070_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000167_01",
+      "score_delta": -1.318
+    },
+    {
+      "target_score": 80,
+      "actual_score": 84.0173,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s080_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_20k_20260619",
+      "source_ui_id": "u_000167_01",
+      "score_delta": 4.0173
+    },
+    {
+      "target_score": 90,
+      "actual_score": 91.3644,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s090_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "source_ui_id": "u_000167_01",
+      "score_delta": 1.3644
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 4,
+      "response_id": "r_000167_01",
+      "ui_id": "s100_r04_u_000167_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "source_ui_id": "u_000167_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 59.7747,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s040_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000175_01",
+      "score_delta": 19.7747
+    },
+    {
+      "target_score": 50,
+      "actual_score": 59.7747,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s050_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000175_01",
+      "score_delta": 9.7747
+    },
+    {
+      "target_score": 60,
+      "actual_score": 59.7747,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s060_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000175_01",
+      "score_delta": -0.2253
+    },
+    {
+      "target_score": 70,
+      "actual_score": 71.2479,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s070_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "source_ui_id": "u_000175_01",
+      "score_delta": 1.2479
+    },
+    {
+      "target_score": 80,
+      "actual_score": 77.4494,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s080_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000175_01",
+      "score_delta": -2.5506
+    },
+    {
+      "target_score": 90,
+      "actual_score": 100.0,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s090_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000175_01",
+      "score_delta": 10.0
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 5,
+      "response_id": "r_000175_01",
+      "ui_id": "s100_r05_u_000175_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000175_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 60.5917,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s040_r06_u_000016_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "source_ui_id": "u_000016_01",
+      "score_delta": 20.5917
+    },
+    {
+      "target_score": 50,
+      "actual_score": 60.5917,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s050_r06_u_000016_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "source_ui_id": "u_000016_01",
+      "score_delta": 10.5917
+    },
+    {
+      "target_score": 60,
+      "actual_score": 60.5917,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s060_r06_u_000016_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "source_ui_id": "u_000016_01",
+      "score_delta": 0.5917
+    },
+    {
+      "target_score": 70,
+      "actual_score": 74.5814,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s070_r06_u_000016_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000016_01",
+      "score_delta": 4.5814
+    },
+    {
+      "target_score": 80,
+      "actual_score": 75.2811,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s080_r06_u_000016_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "source_ui_id": "u_000016_01",
+      "score_delta": -4.7189
+    },
+    {
+      "target_score": 90,
+      "actual_score": 90.782,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s090_r06_u_000016_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "source_ui_id": "u_000016_01",
+      "score_delta": 0.782
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 6,
+      "response_id": "r_000016_01",
+      "ui_id": "s100_r06_u_000016_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part05",
+      "source_ui_id": "u_000016_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 60.9103,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s040_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "source_ui_id": "u_000150_01",
+      "score_delta": 20.9103
+    },
+    {
+      "target_score": 50,
+      "actual_score": 60.9103,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s050_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "source_ui_id": "u_000150_01",
+      "score_delta": 10.9103
+    },
+    {
+      "target_score": 60,
+      "actual_score": 60.9103,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s060_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part04",
+      "source_ui_id": "u_000150_01",
+      "score_delta": 0.9103
+    },
+    {
+      "target_score": 70,
+      "actual_score": 66.9146,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s070_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000150_01",
+      "score_delta": -3.0854
+    },
+    {
+      "target_score": 80,
+      "actual_score": 82.1832,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s080_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000150_01",
+      "score_delta": 2.1832
+    },
+    {
+      "target_score": 90,
+      "actual_score": 82.1832,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s090_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000150_01",
+      "score_delta": -7.8168
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 7,
+      "response_id": "r_000150_01",
+      "ui_id": "s100_r07_u_000150_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000150_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 61.0979,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s040_r08_u_000024_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "source_ui_id": "u_000024_01",
+      "score_delta": 21.0979
+    },
+    {
+      "target_score": 50,
+      "actual_score": 61.0979,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s050_r08_u_000024_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "source_ui_id": "u_000024_01",
+      "score_delta": 11.0979
+    },
+    {
+      "target_score": 60,
+      "actual_score": 61.0979,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s060_r08_u_000024_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+      "source_ui_id": "u_000024_01",
+      "score_delta": 1.0979
+    },
+    {
+      "target_score": 70,
+      "actual_score": 70.4731,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s070_r08_u_000024_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_reasoning_medium",
+      "source_ui_id": "u_000024_01",
+      "score_delta": 0.4731
+    },
+    {
+      "target_score": 80,
+      "actual_score": 81.6491,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s080_r08_u_000024_01",
+      "source_run": "azure_gpt54_reasoning32_20260618_214045\\gpt54_no_reasoning",
+      "source_ui_id": "u_000024_01",
+      "score_delta": 1.6491
+    },
+    {
+      "target_score": 90,
+      "actual_score": 88.975,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s090_r08_u_000024_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000024_01",
+      "score_delta": -1.025
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 8,
+      "response_id": "r_000024_01",
+      "ui_id": "s100_r08_u_000024_01",
+      "source_run": "dataset_gpt54_no_reasoning_20k_20260619",
+      "source_ui_id": "u_000024_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 62.2144,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s040_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000220_01",
+      "score_delta": 22.2144
+    },
+    {
+      "target_score": 50,
+      "actual_score": 62.2144,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s050_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000220_01",
+      "score_delta": 12.2144
+    },
+    {
+      "target_score": 60,
+      "actual_score": 62.2144,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s060_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000220_01",
+      "score_delta": 2.2144
+    },
+    {
+      "target_score": 70,
+      "actual_score": 71.3213,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s070_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "source_ui_id": "u_000220_01",
+      "score_delta": 1.3213
+    },
+    {
+      "target_score": 80,
+      "actual_score": 83.3162,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s080_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000220_01",
+      "score_delta": 3.3162
+    },
+    {
+      "target_score": 90,
+      "actual_score": 83.3162,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s090_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000220_01",
+      "score_delta": -6.6838
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 9,
+      "response_id": "r_000220_01",
+      "ui_id": "s100_r09_u_000220_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part05",
+      "source_ui_id": "u_000220_01",
+      "score_delta": 0.0
+    },
+    {
+      "target_score": 40,
+      "actual_score": 62.2144,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s040_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "source_ui_id": "u_000213_01",
+      "score_delta": 22.2144
+    },
+    {
+      "target_score": 50,
+      "actual_score": 62.2144,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s050_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "source_ui_id": "u_000213_01",
+      "score_delta": 12.2144
+    },
+    {
+      "target_score": 60,
+      "actual_score": 62.2144,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s060_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part01",
+      "source_ui_id": "u_000213_01",
+      "score_delta": 2.2144
+    },
+    {
+      "target_score": 70,
+      "actual_score": 63.4921,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s070_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_merged",
+      "source_ui_id": "u_000213_01",
+      "score_delta": -6.5079
+    },
+    {
+      "target_score": 80,
+      "actual_score": 84.9946,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s080_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part03",
+      "source_ui_id": "u_000213_01",
+      "score_delta": 4.9946
+    },
+    {
+      "target_score": 90,
+      "actual_score": 88.8496,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s090_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part05",
+      "source_ui_id": "u_000213_01",
+      "score_delta": -1.1504
+    },
+    {
+      "target_score": 100,
+      "actual_score": 100.0,
+      "response_slot": 10,
+      "response_id": "r_000213_01",
+      "ui_id": "s100_r10_u_000213_01",
+      "source_run": "dataset_gpt54_no_reasoning_p5_20260619_part02",
+      "source_ui_id": "u_000213_01",
+      "score_delta": 0.0
+    }
+  ]
+}

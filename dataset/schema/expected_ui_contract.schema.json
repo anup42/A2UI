@@ -2,13 +2,74 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/schemas/expected_ui_contract.schema.json",
   "title": "GenUI Expected UI Contract",
+  "$comment": "Current extractor contract version: 2.4.0 (GenUI metric v5.4.0). Historical versions remain readable through versioned migrations.",
   "description": "Source-derived expectations used to evaluate text-to-FlatSpec translation. The contract must be created independently of the candidate JSON.",
   "type": "object",
   "additionalProperties": false,
+  "$defs": {
+    "roleRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"},
+        "expected_component_id": {"type": "string"},
+        "required": {"type": "boolean", "default": true},
+        "minimum_count": {"type": "integer", "minimum": 0, "default": 1},
+        "interchangeable": {"type": "boolean", "default": false},
+        "title": {"type": "string"},
+        "content": {"type": "string"},
+        "source_section": {"type": "string"},
+        "chart_type": {"type": "string"},
+        "x_fields": {"type": "array", "items": {"type": "string"}},
+        "y_fields": {"type": "array", "items": {"type": "string"}},
+        "series": {"type": "array", "items": {"type": "string"}},
+        "data_identity": {"type": "string"},
+        "language": {"type": "string"},
+        "subject": {"type": "string"},
+        "to": {"type": "string"},
+        "from": {"type": "string"},
+        "control_type": {"type": "string"}
+      }
+    }
+  },
+  "required": [
+    "contract_version",
+    "extractor_version",
+    "extraction_policy_version",
+    "source_hash",
+    "cache_key"
+  ],
   "properties": {
     "contract_version": {"type": "string"},
     "extractor_version": {"type": "string"},
+    "extraction_policy_version": {"type": "string"},
     "source_hash": {"type": "string"},
+    "cache_key": {"type": "string"},
+    "contract_semantic_specificity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "count_only_role_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "extraction_diagnostics": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "contract_migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_version", "source_contract_version", "source", "confidence"],
+      "properties": {
+        "policy_version": {"type": "string"},
+        "source_contract_version": {"type": "string"},
+        "source": {"type": "string"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "heuristic_semantics_claimed_as_human": {"type": "boolean"}
+      }
+    },
     "intent": {"type": ["string", "null"]},
     "content_units": {
       "type": "array",
@@ -32,6 +93,24 @@
         "properties": {
           "id": {"type": "string"},
           "required": {"type": "boolean", "default": true},
+          "minimum_count": {"type": "integer", "minimum": 0, "default": 1},
+          "order_sensitive": {"type": "boolean", "default": false},
+          "representation_policy": {
+            "enum": [
+              "table_only",
+              "chart_only",
+              "structured_equivalent",
+              "both_required",
+              "either_table_or_chart"
+            ],
+            "default": "table_only"
+          },
+          "row_key": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}}
+            ]
+          },
           "headers": {
             "type": "array",
             "items": {"type": "string"}
@@ -61,7 +140,11 @@
             "enum": ["openUrl", "setState", "pushState", "removeState", "validateForm"],
             "default": "openUrl"
           },
-          "required": {"type": "boolean", "default": true}
+          "required": {"type": "boolean", "default": true},
+          "id": {"type": "string"},
+          "expected_component_id": {"type": "string"},
+          "minimum_count": {"type": "integer", "minimum": 0, "default": 1},
+          "order_sensitive": {"type": "boolean", "default": false}
         }
       }
     },
@@ -92,7 +175,17 @@
           "kind": {"enum": ["Image", "Icon", "Video", "AudioPlayer"]},
           "url": {"type": "string"},
           "alt": {"type": "string"},
-          "required": {"type": "boolean", "default": true}
+          "required": {"type": "boolean", "default": true},
+          "id": {"type": "string"},
+          "expected_component_id": {"type": "string"},
+          "decorative": {"type": "boolean", "default": false},
+          "renderer_asset": {"type": "boolean", "default": false},
+          "minimum_count": {"type": "integer", "minimum": 0, "default": 1},
+          "order_sensitive": {"type": "boolean", "default": false},
+          "media_policy": {
+            "enum": ["exact", "representative"],
+            "default": "exact"
+          }
         }
       }
     },
@@ -126,6 +219,61 @@
     "expected_role_counts": {
       "type": "object",
       "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "role_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "chart": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "formula": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "code": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "console": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "email": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "form": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "charts": {
+          "deprecated": true,
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "formulas": {
+          "deprecated": true,
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "code_blocks": {
+          "deprecated": true,
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "console_logs": {
+          "deprecated": true,
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        },
+        "emails": {
+          "deprecated": true,
+          "type": "array",
+          "items": {"$ref": "#/$defs/roleRequirement"}
+        }
+      }
     }
   },
   "anyOf": [
@@ -135,6 +283,7 @@
     {"required": ["tables"]},
     {"required": ["actions"]},
     {"required": ["media"]},
-    {"required": ["required_roles"]}
+    {"required": ["required_roles"]},
+    {"required": ["role_requirements"]}
   ]
 }

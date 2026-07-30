@@ -1,0 +1,34 @@
+{
+  "calibration_status": "uncalibrated_engineering_score",
+  "count": 32,
+  "created_at": "2026-07-27T20:31:32.171079+00:00",
+  "elapsed_seconds": 6.914641800001846,
+  "generation": {
+    "count": 32,
+    "mean": 87.0601115919341,
+    "median": 89.25601810965817,
+    "q05": 74.37335974560186,
+    "q95": 96.44669025016549,
+    "sd": 11.147321770155239
+  },
+  "human_calibration_performed": false,
+  "immutable": true,
+  "metric_fingerprint": "a8e7ff31bd38c758d340e8204ea292797e18e9872ef0165941594ca9f68f6079",
+  "metric_name": "GenUI Representation Quality",
+  "metric_version": "5.4.0",
+  "native_render_evidence_available": false,
+  "render_artifact": {
+    "count": 32,
+    "mean": 87.0601115919341,
+    "median": 89.25601810965817,
+    "q05": 74.37335974560186,
+    "q95": 96.44669025016549,
+    "sd": 11.147321770155239
+  },
+  "reward_pipeline_fingerprint": "57318869bcc8580dac7ede24a33abd82ea71b8cf84ab2c1f0d052497ea0173ca",
+  "shadow_only": true,
+  "source_files_modified": false,
+  "source_genui_sha256": "4168f54e23276b5a20a641624dfd7f4b27eea936b8e6b868a378172178f1653e",
+  "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\dataset\\data\\runs\\azure_gpt54_reasoning32_20260618_214045\\gpt54_mini_no_reasoning",
+  "weight_learning_performed": false
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>GenUICraft JSON Render</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #eef1f6;
+        --phone-bg: #ffffff;
+        --phone-border: #d8dde8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        background: radial-gradient(circle at top, #f9fbff 0%, var(--bg) 70%);
+        color: #111827;
+        font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 18px;
+      }
+
+      #phone-shell {
+        width: min(390px, 100%);
+        min-height: 780px;
+        border-radius: 28px;
+        border: 1px solid var(--phone-border);
+        background: var(--phone-bg);
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.16);
+        overflow: hidden;
+      }
+
+      #root {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      #fallback {
+        display: none;
+        padding: 14px;
+        margin: 14px;
+        border: 1px solid #f1b0b7;
+        border-radius: 12px;
+        background: #fff7f8;
+        color: #6b1f24;
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="phone-shell">
+      <div id="root"></div>
+      <div id="fallback"></div>
+    </div>
+    <script>
+      window.__GenUICraft_FLATSPEC__ = {"root": "main", "state": {"games": [{"option": "Option 1", "title": "Stardew Valley", "summary": "Cozy farming and town life with flexible pacing", "bestFor": "Best simulation starter", "difficulty": "Easy; you can learn one system at a time.", "controls": "Simple movement, one-button tools, easy menus with controller support.", "approachability": "There is no pressure to “win” quickly. You can farm, fish, talk to villagers, or just wander at your own pace.", "actionLabel": "View Game", "url": "https://www.stardewvalley.net/"}, {"option": "Option 2", "title": "Unpacking", "summary": "A gentle puzzle game about placing belongings in new homes", "bestFor": "Best low-stress puzzle", "difficulty": "Easy; puzzles are intuitive rather than tricky.", "controls": "Mostly pointing, selecting, and placing items; very little dexterity needed.", "approachability": "No timers, no enemies, and almost no camera stress. It teaches interaction naturally.", "actionLabel": "View Game", "url": "https://www.unpackinggame.com/"}, {"option": "Option 3", "title": "A Short Hike", "summary": "Small open-world exploration with light goals and warm humor", "bestFor": "Best first exploration game", "difficulty": "Easy; forgiving movement and short play sessions.", "controls": "Basic movement, jump, glide, talk.", "approachability": "It gives the pleasure of exploring without the overwhelm of a huge map or demanding combat.", "actionLabel": "View Game", "url": "https://ashorthike.com/"}, {"option": "Option 4", "title": "Dorfromantik", "summary": "Tile-placing strategy puzzle with a peaceful rhythm", "bestFor": "Best chill strategy-puzzle", "difficulty": "Easy to start, moderate later if you chase high scores.", "controls": "Very simple selection and placement; controller use is manageable but mouse/trackpad may feel even easier.", "approachability": "You can focus on making pretty landscapes while gently learning pattern matching and planning.", "actionLabel": "View Game", "url": "https://www.toukana.com/dorfromantik"}, {"option": "Option 5", "title": "Spiritfarer", "summary": "Narrative management game about caring for spirits on a boat", "bestFor": "Best emotional story game", "difficulty": "Easy to moderate; a few platforming moments, but forgiving overall.", "controls": "Move, jump, interact, manage tasks; all introduced gradually.", "approachability": "It combines light resource management with heartfelt storytelling and avoids intense action.", "actionLabel": "View Game", "url": "https://thunderlotusgames.com/games/spiritfarer/"}, {"option": "Option 6", "title": "The Sims 4", "summary": "Life simulation where you build homes and guide everyday routines", "bestFor": "Best sandbox life sim", "difficulty": "Easy; play can be as simple or detailed as you want.", "controls": "Mostly menu selection and camera movement; better with mouse/keyboard, but manageable for basic play on laptop.", "approachability": "Familiar real-life activities make the game easy to understand even if you’ve never played games before.", "actionLabel": "View Game", "url": "https://www.ea.com/games/the-sims/the-sims-4"}, {"option": "Option 7", "title": "Phoenix Wright: Ace Attorney Trilogy", "summary": "Story-driven mystery with courtroom choices and light investigation", "bestFor": "Best narrative beginner pick", "difficulty": "Easy to moderate; mostly logic and reading.", "controls": "Very simple menu choices, selecting evidence, and advancing dialogue.", "approachability": "It feels closer to an interactive novel than a reflex-heavy game, so it’s great for non-gamers.", "actionLabel": "View Game", "url": "https://www.ace-attorney.com/"}, {"option": "Option 8", "title": "PowerWash Simulator", "summary": "Clean dirty objects with satisfying, repetitive tasks", "bestFor": "Best relaxing “do one thing” game", "difficulty": "Very easy; the challenge is patience, not skill.", "controls": "Aim, spray, move slowly; controller support is solid.", "approachability": "It is calm, clear, and oddly satisfying. Motion is much slower than typical first-person games, which may help with motion sensitivity.", "actionLabel": "View Game", "url": "https://www.square-enix-games.com/en_US/games/powerwash-simulator"}, {"option": "Option 9", "title": "Overcooked! 2", "summary": "Cooperative kitchen chaos with short levels and simple tasks", "bestFor": "Best couch co-op laugh pick", "difficulty": "Easy early, then moderate; teamwork matters more than precision.", "controls": "Pick up, chop, cook, serve; only a few buttons to learn.", "approachability": "Great for playing with a friend who can guide you. It can get hectic, but in a funny, low-stakes way.", "actionLabel": "View Game", "url": "https://www.team17.com/games/overcooked-2/"}, {"option": "Option 10", "title": "Untitled Goose Game", "summary": "Silly stealth-puzzle game where you annoy people as a goose", "bestFor": "Best light co-op or solo comedy", "difficulty": "Easy to moderate; objectives are playful and readable.", "controls": "Walk, grab, honk, flap; very small move set.", "approachability": "It encourages experimentation without punishment, and the humor makes failure feel fun rather than frustrating.", "actionLabel": "View Game", "url": "https://goose.game/"}], "moodFits": [{"mood": "Most relaxing overall", "picks": "Stardew Valley, Unpacking, Dorfromantik"}, {"mood": "Best if you like stories", "picks": "Spiritfarer, Phoenix Wright"}, {"mood": "Best if you want familiar everyday play", "picks": "The Sims 4, PowerWash Simulator"}, {"mood": "Best with a partner", "picks": "Overcooked! 2, Untitled Goose Game, Spiritfarer"}, {"mood": "Best if motion sickness is a big concern", "picks": "Unpacking, Dorfromantik, Phoenix Wright, Stardew Valley"}], "sources": [{"source": "Official Stardew Valley site", "actionLabel": "Open Source", "url": "https://www.stardewvalley.net/"}, {"source": "Official Unpacking site", "actionLabel": "Open Source", "url": "https://www.unpackinggame.com/"}, {"source": "Official Spiritfarer site", "actionLabel": "Open Source", "url": "https://thunderlotusgames.com/games/spiritfarer/"}]}, "elements": {"main": {"type": "Stack", "props": {"direction": "vertical", "gap": "md", "padding": 16}, "children": ["title", "intro_card", "games_heading", "games_table", "mood_heading", "mood_table", "actions_heading", "actions_card", "notes_heading", "notes_card", "sources_heading", "sources_table"]}, "title": {"type": "Text", "props": {"text": "Gentle Starter Games for Laptop + Controller", "variant": "h1"}, "children": []}, "intro_card": {"type": "Card", "props": {}, "children": ["intro_stack"]}, "intro_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["hero_row", "intro_text", "chip_row"]}, "hero_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "align": "center"}, "children": ["hero_icon", "hero_label"]}, "hero_icon": {"type": "Icon", "props": {"name": "../assets/r_000175_01_1_house.svg"}, "children": []}, "hero_label": {"type": "Text", "props": {"text": "Beginner-friendly recommendations", "variant": "label"}, "children": []}, "intro_text": {"type": "Text", "props": {"text": "This list prioritizes low motion sickness risk, simple controls, calm pacing, and games that feel welcoming to a new adult player. It mixes puzzle, narrative, simulation, and cooperative picks, with most choices working well on a standard laptop and controller.", "variant": "body"}, "children": []}, "chip_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["chip1", "chip2", "chip3", "chip4"]}, "chip1": {"type": "Text", "props": {"text": "Low motion sickness risk", "variant": "chip"}, "children": []}, "chip2": {"type": "Text", "props": {"text": "Simple controls", "variant": "chip"}, "children": []}, "chip3": {"type": "Text", "props": {"text": "Calm pacing", "variant": "chip"}, "children": []}, "chip4": {"type": "Text", "props": {"text": "Controller-friendly", "variant": "chip"}, "children": []}, "games_heading": {"type": "Text", "props": {"text": "10 Beginner-Friendly Picks", "variant": "h2"}, "children": []}, "games_table": {"type": "Table", "props": {"statePath": "/games", "columns": [{"key": "option", "label": "Option"}, {"key": "title", "label": "Game"}, {"key": "summary", "label": "Summary"}, {"key": "bestFor", "label": "Best For"}, {"key": "difficulty", "label": "Difficulty"}, {"key": "controls", "label": "Controls"}, {"key": "approachability", "label": "Why It’s Approachable"}, {"key": "actionLabel", "label": "Action"}, {"key": "url", "label": "URL"}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "title", "highlightColumns": ["bestFor", "difficulty"]}, "children": []}, "mood_heading": {"type": "Text", "props": {"text": "Best Fit by Mood", "variant": "h2"}, "children": []}, "mood_table": {"type": "Table", "props": {"statePath": "/moodFits", "columns": [{"key": "mood", "label": "Mood"}, {"key": "picks", "label": "Best Picks"}], "domain": "comparison", "preferredPresentation": "cards", "primaryColumn": "mood", "highlightColumns": ["picks"]}, "children": []}, "actions_heading": {"type": "Text", "props": {"text": "Quick Actions", "variant": "h2"}, "children": []}, "actions_card": {"type": "Card", "props": {}, "children": ["actions_stack"]}, "actions_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["action_note", "action_buttons"]}, "action_note": {"type": "Text", "props": {"text": "Start with an especially cozy option or jump straight into a gentle puzzle.", "variant": "body"}, "children": []}, "action_buttons": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["btn_cozy", "btn_puzzle"]}, "btn_cozy": {"type": "Button", "props": {"label": "Start with Cozy", "variant": "primary"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.stardewvalley.net/"}}}}, "btn_puzzle": {"type": "Button", "props": {"label": "Try a Puzzle", "variant": "borderless"}, "children": [], "on": {"press": {"action": "openUrl", "params": {"url": "https://www.unpackinggame.com/"}}}}, "notes_heading": {"type": "Text", "props": {"text": "Helpful Fit Notes", "variant": "h2"}, "children": []}, "notes_card": {"type": "Card", "props": {}, "children": ["notes_stack"]}, "notes_stack": {"type": "Stack", "props": {"direction": "vertical", "gap": "sm", "padding": 16}, "children": ["notes_text", "safe_chip_row"]}, "notes_text": {"type": "Text", "props": {"text": "For this setup, 2D games, fixed-camera games, and slow-paced third-person games are the safest starting point. Fast first-person games, free-look cameras, and intense action games are more likely to feel uncomfortable, so this list mostly avoids them.", "variant": "body"}, "children": []}, "safe_chip_row": {"type": "Stack", "props": {"direction": "horizontal", "gap": "sm", "wrap": "wrap"}, "children": ["safe1", "safe2", "safe3"]}, "safe1": {"type": "Text", "props": {"text": "2D games", "variant": "chip"}, "children": []}, "safe2": {"type": "Text", "props": {"text": "Fixed-camera games", "variant": "chip"}, "children": []}, "safe3": {"type": "Text", "props": {"text": "Slow-paced third-person games", "variant": "chip"}, "children": []}, "sources_heading": {"type": "Text", "props": {"text": "Sources", "variant": "h2"}, "children": []}, "sources_table": {"type": "Table", "props": {"statePath": "/sources", "columns": [{"key": "source", "label": "Source"}, {"key": "actionLabel", "label": "Action"}, {"key": "url", "label": "URL"}], "domain": "generic", "preferredPresentation": "cards", "primaryColumn": "source", "highlightColumns": ["actionLabel"]}, "children": []}}};
+      window.__GenUICraft_RESET__ = true;
+      window.__GenUICraft_RENDER_DONE = false;
+      window.GenUICraft_READY = false;
+      window.__GenUICraft_ASSET_BASE__ = "../../../../renderer/json_render/";
+    </script>
+    <script src="../../../../renderer/json_render/vendor/app.bundle.js"></script>
+  </body>
+</html>

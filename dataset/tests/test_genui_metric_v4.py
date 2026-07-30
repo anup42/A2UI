@@ -16,18 +16,13 @@ from pipeline.genui_quality import (  # noqa: E402
     RewardConfig,
     genui_grpo_reward,
     load_reward_config,
-    score_genui_completion,
+    score_genui_completion_v4 as score_genui_completion,
 )
 
 ROWS = [
     json.loads(line)
     for line in (
-        DATASET_ROOT
-        / "data"
-        / "runs"
-        / "azure_gpt54_reasoning32_20260618_214045"
-        / "gpt54_reasoning_medium"
-        / "genui.jsonl"
+        HERE / "fixtures" / "genui_metric_samples.jsonl"
     ).read_text(encoding="utf-8").splitlines()
     if line.strip()
 ]

@@ -1,0 +1,27 @@
+{
+  "metric_version": "5.0.0",
+  "network_calls": 0,
+  "results": {
+    "small": {
+      "elements": 5,
+      "iterations": 30,
+      "p50_ms": 11.350200000000001,
+      "p95_ms": 15.164494999999995,
+      "mean_ms": 11.719959999999999
+    },
+    "medium": {
+      "elements": 33,
+      "iterations": 30,
+      "p50_ms": 113.91874999999999,
+      "p95_ms": 138.973715,
+      "mean_ms": 115.24363666666666
+    },
+    "large": {
+      "elements": 129,
+      "iterations": 30,
+      "p50_ms": 414.2208,
+      "p95_ms": 503.49028,
+      "mean_ms": 418.7976533333333
+    }
+  }
+}

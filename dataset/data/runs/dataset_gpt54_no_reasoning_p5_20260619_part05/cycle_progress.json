@@ -1,0 +1,20 @@
+﻿{
+    "run_id":  "dataset_gpt54_no_reasoning_p5_20260619_part05",
+    "model":  "azure_gpt54_benchmark",
+    "reasoning":  "none",
+    "target":  4000,
+    "cycle":  0,
+    "counts":  {
+                   "queries":  1000,
+                   "responses":  240,
+                   "genui":  224
+               },
+    "chunks":  {
+                   "stage1":  1000,
+                   "stage2":  1000,
+                   "stage3":  1000,
+                   "response_ir":  16
+               },
+    "mode":  "interleave_response_ir",
+    "updated_at":  "2026-06-19T18:30:47.4932420Z"
+}
