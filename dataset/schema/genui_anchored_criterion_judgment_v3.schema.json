@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2ui.local/schema/genui_anchored_criterion_judgment_v3.schema.json",
+  "title": "GenUI Anchored Criterion Judge pass v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "schema_version",
+    "packet_id",
+    "pass_type",
+    "protocol_fingerprint",
+    "dimensions",
+    "fatal_findings",
+    "cannot_assess",
+    "overall_rationale",
+    "judge_task_id",
+    "judge_model_identifier",
+    "judged_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "genui_anchored_criterion_judgment.v3"
+    },
+    "protocol_version": {
+      "const": "genui_anchored_criterion_rubric.v3.0.0"
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pass_type": {
+      "enum": [
+        "screenshot_only",
+        "source_conditioned"
+      ]
+    },
+    "protocol_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "dimensions": {
+      "type": "object",
+      "minProperties": 2,
+      "maxProperties": 8,
+      "additionalProperties": {
+        "$ref": "#/$defs/dimension"
+      }
+    },
+    "fatal_findings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "verified_candidate_render_failure",
+          "blank_or_failed_render",
+          "critical_overlap_or_clipping",
+          "core_required_semantic_role_absent"
+        ]
+      }
+    },
+    "cannot_assess": {
+      "$ref": "#/$defs/stringList"
+    },
+    "overall_rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "judge_task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "judge_model_identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "judged_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "stringList": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "string"
+      }
+    },
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "anchor_level",
+        "evidence",
+        "defects"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "scored",
+            "not_observable"
+          ]
+        },
+        "anchor_level": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/stringList"
+        },
+        "defects": {
+          "$ref": "#/$defs/stringList"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "scored"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "anchor_level": {
+                "type": "integer"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "anchor_level": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "defect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "severity",
+        "description"
+      ],
+      "properties": {
+        "severity": {
+          "enum": [
+            "minor",
+            "moderate",
+            "major",
+            "critical",
+            "broken"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criteria",
+        "defects",
+        "worst_defect_severity",
+        "confidence_0_1",
+        "rationale"
+      ],
+      "properties": {
+        "criteria": {
+          "type": "object",
+          "minProperties": 5,
+          "maxProperties": 5,
+          "additionalProperties": {
+            "$ref": "#/$defs/criterion"
+          }
+        },
+        "defects": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/defect"
+          }
+        },
+        "worst_defect_severity": {
+          "enum": [
+            "none",
+            "minor",
+            "moderate",
+            "major",
+            "critical",
+            "broken"
+          ]
+        },
+        "confidence_0_1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

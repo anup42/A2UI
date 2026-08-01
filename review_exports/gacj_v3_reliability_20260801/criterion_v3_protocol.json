@@ -1,0 +1,12 @@
+{
+  "note": "Repeat identity is sealed. Actual fresh LLM judgments are not produced by packet construction.",
+  "protocol_fingerprint": "2eb566e846e65859d402c686339e1cdf224ec139603eaeef253bd785d24098f9",
+  "protocol_version": "genui_anchored_criterion_rubric.v3.0.0",
+  "sample_count": 96,
+  "scheduled_occurrence_count": 192,
+  "schema_version": "genui_anchored_criterion_protocol_manifest.v3",
+  "seed": 20260801,
+  "source_bundle_label": "gacj_v3_review_bundle",
+  "source_bundle_manifest_sha256": "ccfa8bc367457de462f69ec17d6f5ed3c92e0bfda91da0ecf84d853271856304",
+  "task_block_size": 16
+}

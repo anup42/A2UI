@@ -1,0 +1,8 @@
+{
+  "judge_model_identifier": "gacj-v3-fresh-judge",
+  "protocol_fingerprint": "2eb566e846e65859d402c686339e1cdf224ec139603eaeef253bd785d24098f9",
+  "protocol_version": "genui_anchored_criterion_rubric.v3.0.0",
+  "schema_version": "genui_anchored_criterion_run.v3",
+  "started_at": "2026-08-01T16:14:53.115353+00:00",
+  "status": "in_progress"
+}

@@ -74,3 +74,37 @@ __all__ = [
     "verify_implementation_provenance",
     "validate_judgment_pass",
 ]
+# Versioned criterion-referenced judge.  V2 exports above remain unchanged.
+from .criterion_protocol_v3 import (
+    JUDGE_NAME as CRITERION_JUDGE_NAME,
+    JUDGE_PROTOCOL_VERSION as CRITERION_JUDGE_PROTOCOL_VERSION,
+    compute_criterion_judged_scores,
+    compute_dimension_score as compute_criterion_dimension_score,
+    protocol_fingerprint as criterion_protocol_fingerprint,
+    validate_criterion_judgment_pass,
+)
+from .criterion_judgments_v3 import (
+    append_criterion_judgment_pass,
+    combine_criterion_passes,
+    rebuild_criterion_packet_judgments,
+)
+from .criterion_packets_v3 import build_criterion_review_packets
+from .criterion_analysis_v3 import (
+    analyze_fresh_criterion_repeats,
+    backtest_v2_repeat_bundle,
+)
+
+__all__ += [
+    "CRITERION_JUDGE_NAME",
+    "CRITERION_JUDGE_PROTOCOL_VERSION",
+    "analyze_fresh_criterion_repeats",
+    "append_criterion_judgment_pass",
+    "backtest_v2_repeat_bundle",
+    "build_criterion_review_packets",
+    "combine_criterion_passes",
+    "compute_criterion_dimension_score",
+    "compute_criterion_judged_scores",
+    "criterion_protocol_fingerprint",
+    "rebuild_criterion_packet_judgments",
+    "validate_criterion_judgment_pass",
+]
