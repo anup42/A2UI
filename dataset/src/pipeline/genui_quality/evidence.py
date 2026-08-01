@@ -26,11 +26,13 @@ class RendererSemanticContract:
 
 
 RENDERER_SEMANTICS = RendererSemanticContract(
-    canonical_types=ALLOWED_TYPES,
+    # Keep the frozen v4 scorer constants unchanged while reporting the full
+    # renderer inventory introduced by capability manifest v2.
+    canonical_types=ALLOWED_TYPES | frozenset({"Alert", "Checklist"}),
     aliases={
         "stack": "Stack",
-        "column": "Column",
-        "row": "Row",
+        "column": "Stack",
+        "row": "Stack",
         "list": "List",
         "card": "Card",
         "text": "Text",
@@ -81,6 +83,12 @@ RENDERER_SEMANTICS = RendererSemanticContract(
         "datetimepicker": "DateTimeInput",
         "dateinput": "DateTimeInput",
         "datepicker": "DateTimeInput",
+        "alert": "Alert",
+        "notice": "Alert",
+        "messagecard": "Alert",
+        "message_card": "Alert",
+        "checklist": "Checklist",
+        "check_list": "Checklist",
     },
     required_props={
         "Text": ("text",),
@@ -100,6 +108,8 @@ RENDERER_SEMANTICS = RendererSemanticContract(
         "ChoicePicker": ("label", "options"),
         "Slider": ("min", "max", "value"),
         "DateTimeInput": ("value",),
+        "Alert": ("message|text",),
+        "Checklist": ("items",),
     },
     actions=ALLOWED_ACTIONS,
     state_pointer_props=("statePath", "path", "watch", "repeat.statePath"),

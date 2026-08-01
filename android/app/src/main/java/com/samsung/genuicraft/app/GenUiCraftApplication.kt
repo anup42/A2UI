@@ -4,9 +4,20 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.view.WindowManager
+import coil.ImageLoader
+import coil.ImageLoaderFactory
 import com.google.android.material.color.DynamicColors
+import com.samsung.genuicraft.renderer.flat.compose.*
 
-class GenUiCraftApplication : Application() {
+class GenUiCraftApplication : Application(), ImageLoaderFactory {
+
+    /**
+     * Supplies the single renderer-wide Coil loader. `Context.imageLoader`
+     * resolves to this, so every image and icon composable shares one memory
+     * and disk cache instead of building its own.
+     */
+    override fun newImageLoader(): ImageLoader = buildFlatImageLoader(this)
+
     override fun onCreate() {
         super.onCreate()
         // This is the Android-supported way for third-party apps to follow

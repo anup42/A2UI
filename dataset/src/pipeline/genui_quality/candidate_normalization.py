@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import lru_cache
 import hashlib
@@ -19,10 +20,16 @@ from .graph import audit_renderer_graph
 
 
 NORMALIZATION_POLICY_VERSION = "1.0.1"
+LEGACY_METRIC_CANONICALIZATION = "legacy_metric_v1"
+RENDERER_V2_CANONICALIZATION = "renderer_v2"
 DEFAULT_STRICT_SCHEMA_PATH = (
     Path(__file__).resolve().parents[3] / "schema" / "genui_flatspec.schema.json"
 )
 STRICT_TOP_LEVEL_PROPERTIES = frozenset({"root", "state", "elements"})
+_LEGACY_LAYOUT_ALIASES = {
+    "column": ("Column", "vertical"),
+    "row": ("Row", "horizontal"),
+}
 
 
 @dataclass(frozen=True)
@@ -131,6 +138,82 @@ def _strict_validate(
     )
 
 
+def _layout_alias_token(value: Any) -> str:
+    if not isinstance(value, str):
+        return ""
+    return "".join(character for character in value.strip() if character.isalnum()).lower()
+
+
+def _strict_legacy_candidate(value: Any) -> Any:
+    """Represent legacy layout aliases in the renderer-v2 strict schema.
+
+    Historical metric versions accepted ``Row`` and ``Column`` as strict
+    element types. The renderer-v2 schema expresses those as compatibility
+    aliases for ``Stack``. Translating only for schema validation preserves the
+    historical acceptance decision without weakening any other constraint.
+    """
+
+    if not isinstance(value, Mapping):
+        return value
+    candidate = deepcopy(dict(value))
+    elements = candidate.get("elements")
+    if not isinstance(elements, dict):
+        return candidate
+    for element in elements.values():
+        if not isinstance(element, dict):
+            continue
+        raw_type = element.get("type") or element.get("component")
+        if raw_type not in {"Row", "Column"}:
+            continue
+        token = _layout_alias_token(raw_type)
+        descriptor = _LEGACY_LAYOUT_ALIASES.get(token)
+        if descriptor is None:
+            continue
+        _, direction = descriptor
+        if "type" in element:
+            element["type"] = "Stack"
+        elif "component" in element:
+            element["component"] = "Stack"
+        props = element.get("props")
+        props = dict(props) if isinstance(props, Mapping) else {}
+        props.setdefault("direction", direction)
+        element["props"] = props
+    return candidate
+
+
+def _restore_legacy_layout_aliases(
+    parsed: Any,
+    canonical_spec: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Restore the canonical payload shape used by metric v5-v5.3."""
+
+    if canonical_spec is None or not isinstance(parsed, Mapping):
+        return canonical_spec
+    raw_elements = parsed.get("elements")
+    if not isinstance(raw_elements, Mapping):
+        return canonical_spec
+    restored = deepcopy(canonical_spec)
+    canonical_elements = restored.get("elements")
+    if not isinstance(canonical_elements, dict):
+        return restored
+    for element_id, raw_element in raw_elements.items():
+        if not isinstance(raw_element, Mapping):
+            continue
+        token = _layout_alias_token(raw_element.get("type") or raw_element.get("component"))
+        descriptor = _LEGACY_LAYOUT_ALIASES.get(token)
+        canonical_element = canonical_elements.get(str(element_id))
+        if descriptor is None or not isinstance(canonical_element, dict):
+            continue
+        legacy_type, direction = descriptor
+        canonical_element["type"] = legacy_type
+        raw_props = raw_element.get("props")
+        direction_was_explicit = isinstance(raw_props, Mapping) and "direction" in raw_props
+        props = canonical_element.get("props")
+        if not direction_was_explicit and isinstance(props, dict) and props.get("direction") == direction:
+            props.pop("direction", None)
+    return restored
+
+
 def _parse_completion(completion: Any, raw_text: str) -> tuple[Any, bool, str | None]:
     if isinstance(completion, Mapping):
         return dict(completion), True, None
@@ -148,8 +231,17 @@ def normalize_and_validate_candidate(
     completion: Any,
     *,
     strict_schema: Mapping[str, Any] | None = None,
+    canonicalization_profile: str = LEGACY_METRIC_CANONICALIZATION,
 ) -> CandidateNormalizationResult:
-    """Apply one authoritative candidate boundary for every metric caller."""
+    """Apply the candidate boundary pinned to the caller's metric version."""
+
+    if canonicalization_profile not in {
+        LEGACY_METRIC_CANONICALIZATION,
+        RENDERER_V2_CANONICALIZATION,
+    }:
+        raise ValueError(
+            f"Unsupported canonicalization profile: {canonicalization_profile}"
+        )
 
     raw_text, raw_hash = _raw_identity(completion)
     parsed, raw_parse_ok, parse_error = _parse_completion(completion, raw_text)
@@ -171,7 +263,12 @@ def normalize_and_validate_candidate(
             canonical_hash=None,
         )
 
-    strict_valid, strict_errors = _strict_validate(parsed, strict_schema)
+    strict_candidate = (
+        _strict_legacy_candidate(parsed)
+        if canonicalization_profile == LEGACY_METRIC_CANONICALIZATION
+        else parsed
+    )
+    strict_valid, strict_errors = _strict_validate(strict_candidate, strict_schema)
     errors.extend(strict_errors)
     if isinstance(parsed, Mapping):
         for key in sorted(set(parsed) - STRICT_TOP_LEVEL_PROPERTIES):
@@ -179,6 +276,8 @@ def normalize_and_validate_candidate(
 
     coerce_result = coerce_and_validate(parsed)
     canonical_spec = coerce_result.spec
+    if canonicalization_profile == LEGACY_METRIC_CANONICALIZATION:
+        canonical_spec = _restore_legacy_layout_aliases(parsed, canonical_spec)
     production_valid = coerce_result.is_valid
     converted_from_legacy = bool(coerce_result.converted_from_legacy)
     if not production_valid:
@@ -235,7 +334,9 @@ def normalize_and_validate_candidate(
 __all__ = [
     "CandidateNormalizationResult",
     "DEFAULT_STRICT_SCHEMA_PATH",
+    "LEGACY_METRIC_CANONICALIZATION",
     "NORMALIZATION_POLICY_VERSION",
+    "RENDERER_V2_CANONICALIZATION",
     "STRICT_TOP_LEVEL_PROPERTIES",
     "load_strict_schema",
     "normalize_and_validate_candidate",

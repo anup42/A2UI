@@ -59,6 +59,15 @@ private sealed interface IrDemoRenderUiState {
     data class Failure(val message: String) : IrDemoRenderUiState
 }
 
+private data class IrDemoGenerationDebugState(
+    val streamText: String = "",
+    val runtimeBackend: String? = null,
+    val outputTokens: Int? = null,
+    val outputTokensPerSecond: Double? = null,
+    val metricsAreEstimated: Boolean = true,
+    val complete: Boolean = false,
+)
+
 private object IrDemoRenderSessionCache {
     var recordIndex: Int = -1
     var debugMode: Boolean = false
@@ -67,6 +76,7 @@ private object IrDemoRenderSessionCache {
     var successResult: GenUiStagePipeline.PipelineResult? = null
     var loadingMessage: String? = null
     var failureMessage: String? = null
+    var generationDebugState: IrDemoGenerationDebugState = IrDemoGenerationDebugState()
 }
 
 private val IrDemoDebugJsonGson = GsonBuilder()
@@ -85,6 +95,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
     private var debugMode by mutableStateOf(false)
     private var pipelineLogs by mutableStateOf<List<String>>(emptyList())
     private var generatedIrJson by mutableStateOf<String?>(null)
+    private var generationDebugState by mutableStateOf(IrDemoGenerationDebugState())
     private var currentRecordIndex: Int = -1
     private var uiState by mutableStateOf<IrDemoRenderUiState>(
         IrDemoRenderUiState.Loading(message = "")
@@ -126,6 +137,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     logs = pipelineLogs,
                     debugMode = debugMode,
                     generatedIrJson = generatedIrJson,
+                    generationDebugState = generationDebugState,
                     onDebugModeChange = {
                         debugMode = it
                         persistSessionCache()
@@ -144,6 +156,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         IrDemoRenderSessionCache.successResult = null
         IrDemoRenderSessionCache.loadingMessage = null
         IrDemoRenderSessionCache.failureMessage = null
+        IrDemoRenderSessionCache.generationDebugState = IrDemoGenerationDebugState()
     }
 
     private fun restoreFromSessionCache(): Boolean {
@@ -154,9 +167,19 @@ class IrDemoRenderActivity : AppCompatActivity() {
         debugMode = IrDemoRenderSessionCache.debugMode
         pipelineLogs = IrDemoRenderSessionCache.logs
         generatedIrJson = IrDemoRenderSessionCache.generatedIrJson
+        generationDebugState = IrDemoRenderSessionCache.generationDebugState
 
         IrDemoRenderSessionCache.successResult?.let {
             uiState = IrDemoRenderUiState.Success(it)
+            if (generationDebugState.runtimeBackend.isNullOrBlank()) {
+                generationDebugState = generationDebugState.copy(
+                    runtimeBackend = it.stage3RuntimeBackend,
+                    outputTokens = it.stage3OutputTokens,
+                    outputTokensPerSecond = it.stage3OutputTokensPerSecond,
+                    metricsAreEstimated = false,
+                    complete = true,
+                )
+            }
             ensureIrGenerationTimingLog(
                 stageDurationsMs = it.stageDurationsMs,
                 stageStreamDurationsMs = it.stageStreamDurationsMs
@@ -178,6 +201,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         IrDemoRenderSessionCache.debugMode = debugMode
         IrDemoRenderSessionCache.logs = pipelineLogs
         IrDemoRenderSessionCache.generatedIrJson = generatedIrJson
+        IrDemoRenderSessionCache.generationDebugState = generationDebugState
         when (val state = uiState) {
             is IrDemoRenderUiState.Success -> {
                 IrDemoRenderSessionCache.successResult = state.result
@@ -206,6 +230,34 @@ class IrDemoRenderActivity : AppCompatActivity() {
         }
         pipelineLogs = pipelineLogs + sanitized
         persistSessionCache()
+    }
+
+    private fun applyGenerationDebugUpdate(update: GenUiStagePipeline.StageUpdate) {
+        val isStreamEvent = update.stage3StreamText != null
+        val hasDiagnostics = isStreamEvent ||
+            update.llmOutputTokens != null ||
+            update.llmOutputTokensPerSecond != null ||
+            !update.llmRuntimeBackend.isNullOrBlank()
+        if (!hasDiagnostics) {
+            return
+        }
+        generationDebugState = generationDebugState.copy(
+            streamText = update.stage3StreamText ?: generationDebugState.streamText,
+            runtimeBackend = update.llmRuntimeBackend ?: generationDebugState.runtimeBackend,
+            outputTokens = update.llmOutputTokens ?: generationDebugState.outputTokens,
+            outputTokensPerSecond = update.llmOutputTokensPerSecond
+                ?: generationDebugState.outputTokensPerSecond,
+            metricsAreEstimated = if (isStreamEvent) {
+                update.streamMetricsAreEstimated
+            } else {
+                generationDebugState.metricsAreEstimated
+            },
+            complete = when {
+                isStreamEvent -> update.stage3StreamComplete
+                !update.stage3Json.isNullOrBlank() -> true
+                else -> generationDebugState.complete
+            },
+        )
     }
 
     private fun ensureIrGenerationTimingLog(
@@ -245,6 +297,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         val savedIr = record.genUiJson?.trim().orEmpty()
         generatedIrJson = savedIr.takeIf { it.isNotBlank() }
         pipelineLogs = emptyList()
+        generationDebugState = IrDemoGenerationDebugState()
         if (payload.isNullOrBlank() || savedIr.isBlank()) {
             uiState = IrDemoRenderUiState.Failure("Saved Demo item is missing GenUI IR.")
             persistSessionCache()
@@ -286,6 +339,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         val queryText = decodeIrDemoQueryText(record.queryText)
         generatedIrJson = null
         pipelineLogs = emptyList()
+        generationDebugState = IrDemoGenerationDebugState()
         uiState = IrDemoRenderUiState.Loading(getString(R.string.ir_demo_status_initializing))
         persistSessionCache()
         val runStartedAtMs = System.currentTimeMillis()
@@ -302,8 +356,12 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 queryText = queryText,
                 stage2ResponseText = record.responseText
             ) { update ->
-                appendPipelineLog(update.message)
-                update.debugLog?.let(::appendPipelineLog)
+                val isStreamEvent = update.stage3StreamText != null
+                if (!isStreamEvent) {
+                    appendPipelineLog(update.message)
+                    update.debugLog?.let(::appendPipelineLog)
+                }
+                applyGenerationDebugUpdate(update)
                 if (!update.stage3Json.isNullOrBlank()) {
                     generatedIrJson = update.stage3Json
                 }
@@ -319,6 +377,15 @@ class IrDemoRenderActivity : AppCompatActivity() {
             uiState = when (outcome) {
                 is GenUiStagePipeline.Outcome.Success -> {
                     generatedIrJson = outcome.result.stage3Json
+                    generationDebugState = generationDebugState.copy(
+                        runtimeBackend = outcome.result.stage3RuntimeBackend
+                            ?: generationDebugState.runtimeBackend,
+                        outputTokens = outcome.result.stage3OutputTokens
+                            ?: generationDebugState.outputTokens,
+                        outputTokensPerSecond = outcome.result.stage3OutputTokensPerSecond
+                            ?: generationDebugState.outputTokensPerSecond,
+                        complete = true,
+                    )
                     ensureIrGenerationTimingLog(
                         stageDurationsMs = outcome.result.stageDurationsMs,
                         stageStreamDurationsMs = outcome.result.stageStreamDurationsMs,
@@ -335,6 +402,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
                 is GenUiStagePipeline.Outcome.Failure -> {
                     generatedIrJson = outcome.stage3Json
+                    generationDebugState = generationDebugState.copy(complete = true)
                     ensureIrGenerationTimingLog(
                         stageDurationsMs = outcome.stageDurationsMs,
                         stageStreamDurationsMs = outcome.stageStreamDurationsMs,
@@ -383,6 +451,7 @@ private fun IrDemoRenderScreen(
     logs: List<String>,
     debugMode: Boolean,
     generatedIrJson: String?,
+    generationDebugState: IrDemoGenerationDebugState,
     onDebugModeChange: (Boolean) -> Unit,
     onOpenExternalUrl: (String) -> Unit
 ) {
@@ -493,6 +562,24 @@ private fun IrDemoRenderScreen(
 
                     if (logs.isNotEmpty()) {
                         item { IrDemoLogCard(logs = logs) }
+                    }
+                    if (generationDebugState.hasMetrics()) {
+                        item {
+                            IrDemoGenerationStatsCard(state = generationDebugState)
+                        }
+                    }
+                    if (generationDebugState.streamText.isNotBlank()) {
+                        item {
+                            IrDemoDebugCard(
+                                title = if (generationDebugState.complete) {
+                                    "IR generation stream"
+                                } else {
+                                    "Live IR generation"
+                                },
+                                content = generationDebugState.streamText + if (generationDebugState.complete) "" else "\u258C",
+                                monospace = true
+                            )
+                        }
                     }
                     item {
                         IrDemoDebugCard(
@@ -633,6 +720,49 @@ private fun IrDemoLoadingCard(message: String) {
             )
         }
     }
+}
+
+@Composable
+private fun IrDemoGenerationStatsCard(state: IrDemoGenerationDebugState) {
+    val estimatePrefix = if (state.metricsAreEstimated) "~" else ""
+    val tokenText = state.outputTokens?.let { "$estimatePrefix$it tokens" } ?: "Waiting for tokens"
+    val speedText = state.outputTokensPerSecond?.let {
+        String.format(java.util.Locale.US, "$estimatePrefix%.2f tokens/s", it)
+    } ?: "Measuring speed"
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusLg),
+        colors = genUiCardColors(GenUiCardTone.Primary),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "IR inference",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Runtime: ${state.runtimeBackend ?: "Initializing"}",
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "$tokenText  |  $speedText",
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+private fun IrDemoGenerationDebugState.hasMetrics(): Boolean {
+    return !runtimeBackend.isNullOrBlank() || outputTokens != null || outputTokensPerSecond != null
 }
 
 @Composable

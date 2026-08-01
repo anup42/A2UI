@@ -137,17 +137,22 @@ object SafeContentPolicy {
         }
 
         val normalized = normalizeNetworkUrl(token, allowBareDomain = false) ?: return null
-        if (kind == MediaKind.IMAGE || kind == MediaKind.ICON) {
-            return normalized
-        }
         val uri = parseUri(normalized) ?: return null
         if (uri.scheme?.lowercase(Locale.US) != "https") return null
         val host = normalizeHost(uri.host) ?: return null
         if (!isAllowedPublicHost(host)) return null
 
         return when (kind) {
-            MediaKind.IMAGE,
-            MediaKind.ICON -> normalized
+            // Photo slots accept any legitimate public host, because real
+            // imagery comes from a long tail of news/CDN domains. An icon
+            // asset is never a photo, so it is rejected here even though the
+            // same URL is valid for MediaKind.ICON.
+            MediaKind.IMAGE -> normalized.takeIf { !isIconOnlyMediaUrl(normalized) }
+            // Icon slots accept the curated icon CDNs plus anything that is
+            // recognisably icon-shaped on an otherwise allowed public host.
+            MediaKind.ICON -> normalized.takeIf {
+                isAllowedIconUrl(host, uri) || isIconOnlyMediaUrl(normalized)
+            }
             MediaKind.VIDEO,
             MediaKind.AUDIO -> normalized.takeIf { sanitizeActionUrl(normalized) != null }
         }
@@ -287,6 +292,17 @@ object SafeContentPolicy {
     private fun isVerifiedUrlPlaceholder(value: String): Boolean =
         urlPlaceholderRegex.matches(value)
 
+    /**
+     * Strict photo allow-list, retained but intentionally not wired into
+     * [sanitizeMediaUrl].
+     *
+     * Requiring photos to match [allowedImageHosts] proved too narrow for live
+     * news imagery, which is why it was bypassed in "Fix news media rendering".
+     * [sanitizeMediaUrl] now enforces the public-host gate plus an icon-asset
+     * exclusion instead. Keep this available for a future strict/offline mode;
+     * do not silently re-bypass the gate again.
+     */
+    @Suppress("unused")
     private fun isAllowedPhotoUrl(host: String, uri: URI): Boolean {
         val path = uri.path.orEmpty().lowercase(Locale.US)
         if (isIconOnlyMediaUrl(uri.toString())) return false

@@ -9,6 +9,7 @@ from typing import Any, Mapping
 from ._core import completion_to_text
 from .candidate_normalization import (
     CandidateNormalizationResult,
+    RENDERER_V2_CANONICALIZATION,
     normalize_and_validate_candidate,
 )
 
@@ -124,7 +125,9 @@ def normalize_and_validate_candidate_v5_4(
 ) -> CandidateNormalizationResultV54:
     return CandidateNormalizationResultV54(
         boundary=normalize_and_validate_candidate(
-            completion, strict_schema=strict_schema
+            completion,
+            strict_schema=strict_schema,
+            canonicalization_profile=RENDERER_V2_CANONICALIZATION,
         ),
         raw_envelope=raw_json_envelope_evidence(completion),
     )

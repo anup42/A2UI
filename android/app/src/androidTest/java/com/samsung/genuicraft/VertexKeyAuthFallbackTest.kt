@@ -39,8 +39,12 @@ class VertexKeyAuthFallbackTest {
             vertexLocation = InferenceBackendSettings.getVertexLocation(context),
             vertexAccessToken = InferenceBackendSettings.getVertexAccessToken(context),
             vertexExpressApiKey = "",
+            azureOpenAiApiKey = "",
+            azureOpenAiResponsesEndpoint = "",
+            azureOpenAiDeployment = "",
             localServerBaseUrl = InferenceBackendSettings.getLocalServerBaseUrl(context),
-            localModelPath = InferenceBackendSettings.getLocalModelPath(context)
+            localModelPath = InferenceBackendSettings.getLocalModelPath(context),
+            onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(context),
         )
 
         val response = backend.generate(
@@ -58,4 +62,3 @@ class VertexKeyAuthFallbackTest {
         assertFalse(error.contains("AI Studio", ignoreCase = true))
     }
 }
-

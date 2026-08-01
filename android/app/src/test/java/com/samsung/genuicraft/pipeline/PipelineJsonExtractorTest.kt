@@ -6,6 +6,9 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
 
 class PipelineJsonExtractorTest {
 

@@ -3,55 +3,42 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import json
+from pathlib import Path
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 from .flat_spec_semantics import iter_renderer_references
 
-_ALLOWED_TYPES = {
-    "stack",
-    "column",
-    "row",
-    "list",
-    "card",
-    "text",
-    "formula",
-    "codeblock",
-    "consolelog",
-    "emailpreview",
-    "table",
-    "chart",
-    "image",
-    "icon",
-    "video",
-    "audioplayer",
-    "divider",
-    "button",
-    "tabs",
-    "modal",
-    "textfield",
-    "checkbox",
-    "choicepicker",
-    "slider",
-    "datetimeinput",
-}
-
-_ALLOWED_ACTIONS = {
-    "openUrl",
-    "setState",
-    "pushState",
-    "removeState",
-    "validateForm",
-}
+_CAPABILITY_PATH = Path(__file__).resolve().parents[2] / "schema" / "renderer_capabilities.json"
+_CAPABILITIES = json.loads(_CAPABILITY_PATH.read_text(encoding="utf-8"))
+if _CAPABILITIES.get("version") != "2.0.0":
+    raise RuntimeError("Python flat-spec contract requires renderer capability version 2.0.0")
 
 _TYPE_CANONICAL_MAP = {
-    "stack": "Stack",
-    "column": "Column",
-    "row": "Row",
-    "list": "List",
-    "card": "Card",
-    "text": "Text",
-    "formula": "Formula",
+    "".join(ch for ch in str(alias) if ch.isalnum()).lower(): str(entry["canonical"])
+    for entry in _CAPABILITIES["types"]
+    for alias in entry.get("aliases", [])
+}
+for _alias, _descriptor in _CAPABILITIES.get("compatibility_type_aliases", {}).items():
+    _TYPE_CANONICAL_MAP[str(_alias).lower()] = str(_descriptor["canonical"])
+
+_ALLOWED_TYPES = set(_TYPE_CANONICAL_MAP)
+_COMPATIBILITY_TYPE_DIRECTIONS = {
+    str(alias).lower(): str(descriptor.get("props", {}).get("direction", ""))
+    for alias, descriptor in _CAPABILITIES.get("compatibility_type_aliases", {}).items()
+}
+_ALLOWED_ACTIONS = {str(action["name"]) for action in _CAPABILITIES["actions"]}
+_ACTION_DESCRIPTORS = {
+    str(action["name"]).lower(): action for action in _CAPABILITIES["actions"]
+}
+_TABLE_DOMAINS = {str(value) for value in _CAPABILITIES["table_domains"]["canonical"]}
+_TABLE_DOMAIN_ALIASES = {
+    str(alias): str(canonical)
+    for alias, canonical in _CAPABILITIES["table_domains"].get("aliases", {}).items()
+}
+
+_LEGACY_TYPE_CANONICAL_MAP = {
     "code": "CodeBlock",
     "codeblock": "CodeBlock",
     "code_block": "CodeBlock",
@@ -97,6 +84,7 @@ _TYPE_CANONICAL_MAP = {
     "dateinput": "DateTimeInput",
     "datepicker": "DateTimeInput",
 }
+_TYPE_CANONICAL_MAP.update(_LEGACY_TYPE_CANONICAL_MAP)
 
 _EVENT_ALIASES = {
     "click": "press",
@@ -355,6 +343,15 @@ def canonicalize_flat_spec(raw: dict[str, Any]) -> dict[str, Any]:
 
         props = element_value.get("props") if isinstance(element_value.get("props"), dict) else {}
         props = deepcopy(props)
+        compatibility_token = "".join(
+            ch for ch in str(element_type).strip() if ch.isalnum()
+        ).lower()
+        compatibility_direction = _COMPATIBILITY_TYPE_DIRECTIONS.get(compatibility_token)
+        if compatibility_direction and "direction" not in props:
+            props["direction"] = compatibility_direction
+        if canonical_type == "Table" and isinstance(props.get("domain"), str):
+            domain_token = str(props["domain"]).strip().lower()
+            props["domain"] = _TABLE_DOMAIN_ALIASES.get(domain_token, domain_token)
 
         for key, val in element_value.items():
             if key in {"type", "component", "props", "children", "on", "repeat", "visible", "watch"}:
@@ -745,11 +742,46 @@ def _validate_single_action_binding(binding: Any, context: str) -> str | None:
     if action not in _ALLOWED_ACTIONS:
         return f"{context} action '{action}' is not allowed."
 
+    unsupported_keys = set(binding) - {"action", "params"}
+    if unsupported_keys:
+        return f"{context} contains unsupported action fields {sorted(unsupported_keys)}."
+
     params = binding.get("params")
     if params is not None and not isinstance(params, dict):
         return f"{context} params must be an object when present."
 
+    descriptor = _ACTION_DESCRIPTORS[action.lower()]
+    params = params if isinstance(params, dict) else {}
+    missing = [key for key in descriptor.get("required", []) if key not in params]
+    if missing:
+        return f"{context} action '{action}' requires params {sorted(missing)}."
+    for alternatives in descriptor.get("required_any", []):
+        if not any(
+            key in params and (not isinstance(params[key], str) or bool(params[key].strip()))
+            for key in alternatives
+        ):
+            return f"{context} action '{action}' requires one of params {sorted(alternatives)}."
+    if descriptor.get("safe_url"):
+        alternatives = descriptor.get("required_any", [[]])[0]
+        raw_url = next((params[key] for key in alternatives if key in params), None)
+        if not _is_safe_action_url(raw_url):
+            return f"{context} openUrl contains unsafe URL."
+    if action == "removeState":
+        index = params.get("index")
+        if not isinstance(index, (int, float)) or index < 0 or int(index) != index:
+            return f"{context} removeState params.index must be a non-negative integer."
+
     return None
+
+
+def _is_safe_action_url(raw: Any) -> bool:
+    if not isinstance(raw, str) or not raw.strip():
+        return False
+    value = raw.strip()
+    if value.lower().startswith("tel:"):
+        return bool(re.fullmatch(r"tel:[+0-9().\-\s]{3,}", value, flags=re.IGNORECASE))
+    parsed = urlparse(value)
+    return parsed.scheme.lower() == "https" and bool(parsed.netloc)
 
 
 _URL_RE = re.compile(r"https?://[^\s)]+", re.IGNORECASE)
@@ -871,6 +903,14 @@ def _infer_table_domain(headers: list[str], full_text: str) -> tuple[str, str]:
         return "flight", "cards"
     if any(token in source for token in ("hotel", "room", "rating", "amenity", "booking")):
         return "booking", "cards"
+    if any(token in source for token in ("restaurant", "cuisine", "dish", "menu", "dining")):
+        return "restaurants", "cards"
+    if any(token in source for token in ("track", "artist", "album", "playlist", "duration")):
+        return "playlist", "cards"
+    if any(token in source for token in ("headline", "publisher", "article", "news", "published")):
+        return "news", "cards"
+    if any(token in source for token in ("product", "price", "availability", "seller", "catalog")):
+        return "product", "cards"
     if any(token in source for token in ("schedule", "time slot", "agenda", "session")):
         return "schedule", "cards"
     if any(token in source for token in ("status", "state", "health", "uptime")):

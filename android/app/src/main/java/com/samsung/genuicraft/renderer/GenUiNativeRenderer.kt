@@ -72,15 +72,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.samsung.genuicraft.renderer.FlatSpec
 import com.samsung.genuicraft.renderer.FlatSpecContent
-import com.samsung.genuicraft.renderer.FlatSpecParser
+import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
+import com.samsung.genuicraft.pipeline.FlatSpecIngestor
 import com.samsung.genuicraft.renderer.native.NativeActionParsing
 import com.samsung.genuicraft.renderer.native.NativeFormComponents
 import com.samsung.genuicraft.renderer.native.NativePayloadParser
@@ -106,6 +105,11 @@ import com.samsung.genuicraft.renderer.native.text.NativeVariantStyleResolver
 import java.io.File
 import java.util.Locale
 import kotlin.math.abs
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
+import com.samsung.genuicraft.renderer.flat.compose.*
+import com.samsung.genuicraft.renderer.flat.model.*
 
 object GenUiNativeRenderer {
     private val flatSpecWrapperKeys = listOf(
@@ -191,10 +195,17 @@ object GenUiNativeRenderer {
         warnings: MutableList<String>,
         assetUrlMap: Map<String, String>
     ): SurfaceState? {
-        val flatSpec = FlatSpecParser.parse(parsed) ?: return null
-        maybeBuildLegacySurfaceFromTextHeavyFlatSpec(flatSpec)?.let { legacySurface ->
-            warnings += "Flat-spec contained text-heavy fallback content; rendered with structured text parser."
-            return legacySurface.copy(assetUrlMap = assetUrlMap)
+        val ingested = FlatSpecIngestor.ingest(parsed)
+        val flatSpec = when (ingested) {
+            is FlatSpecIngestResult.CanonicalFlatSpec -> {
+                warnings += ingested.warnings
+                ingested.renderSpec
+            }
+            is FlatSpecIngestResult.GenuineLegacyPayload -> return null
+            is FlatSpecIngestResult.RejectedPayload -> {
+                warnings += ingested.diagnostics.map { diagnostic -> diagnostic.message }
+                return null
+            }
         }
         return SurfaceState(
             surfaceId = "flat_surface",
@@ -203,102 +214,6 @@ object GenUiNativeRenderer {
             flatSpec = flatSpec,
             assetUrlMap = assetUrlMap
         )
-    }
-
-    private fun maybeBuildLegacySurfaceFromTextHeavyFlatSpec(flatSpec: FlatSpec): SurfaceState? {
-        val reachableIds = collectReachableFlatElementIds(flatSpec)
-        if (reachableIds.isEmpty()) {
-            return null
-        }
-
-        val supportedTypes = setOf("stack", "column", "row", "list", "card", "text", "divider")
-        val unsupportedReachable = reachableIds.any { id ->
-            val type = flatSpec.elements[id]?.type?.trim()?.lowercase(Locale.US).orEmpty()
-            type.isNotBlank() && type !in supportedTypes
-        }
-        if (unsupportedReachable) {
-            return null
-        }
-
-        val textElements = reachableIds.mapNotNull { id ->
-            val element = flatSpec.elements[id] ?: return@mapNotNull null
-            if (!element.type.equals("text", ignoreCase = true)) {
-                return@mapNotNull null
-            }
-            val textValue = element.props["text"]?.toString().orEmpty().trim()
-            if (textValue.isBlank()) {
-                return@mapNotNull null
-            }
-            id to element
-        }
-        if (textElements.size != 1) {
-            return null
-        }
-
-        val textElement = textElements.first().second
-        val textValue = textElement.props["text"]?.toString().orEmpty()
-        if (!looksLikeStructuredRichText(textValue)) {
-            return null
-        }
-
-        val variant = textElement.props["variant"]?.toString()?.trim().orEmpty().ifBlank { "body" }
-        val rootId = "root"
-        val textId = "text_1"
-        val rootComponent = JsonObject().apply {
-            addProperty("id", rootId)
-            addProperty("component", "Column")
-            add("children", JsonArray().apply { add(textId) })
-        }
-        val textComponent = JsonObject().apply {
-            addProperty("id", textId)
-            addProperty("component", "Text")
-            addProperty("variant", variant)
-            addProperty("text", textValue)
-        }
-        return SurfaceState(
-            surfaceId = "flat_surface",
-            rootId = rootId,
-            components = linkedMapOf(
-                rootId to rootComponent,
-                textId to textComponent
-            ),
-            flatSpec = null
-        )
-    }
-
-    private fun collectReachableFlatElementIds(flatSpec: FlatSpec): Set<String> {
-        val visited = linkedSetOf<String>()
-        fun walk(id: String) {
-            if (!visited.add(id)) {
-                return
-            }
-            val element = flatSpec.elements[id] ?: return
-            element.children.forEach(::walk)
-        }
-        walk(flatSpec.root)
-        return visited
-    }
-
-    private fun looksLikeStructuredRichText(value: String): Boolean {
-        val normalized = value.replace("\r\n", "\n").trim()
-        if (normalized.isEmpty()) {
-            return false
-        }
-        val lines = normalized.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        if (lines.size < 2) {
-            return false
-        }
-        return normalized.contains("\n\n") ||
-            lines.any { line ->
-                line.startsWith("#") ||
-                    line.startsWith("Action:", ignoreCase = true) ||
-                    line.startsWith("Source", ignoreCase = true) ||
-                    line.startsWith("Media:", ignoreCase = true) ||
-                    line.startsWith("Tags:", ignoreCase = true) ||
-                    line.startsWith("- ") ||
-                    line.startsWith("* ") ||
-                    (line.contains('|') && line.count { it == '|' } >= 2)
-            }
     }
 
     private fun findEmbeddedFlatSpec(
@@ -2457,11 +2372,7 @@ object GenUiNativeRenderer {
     ) {
         val context = LocalContext.current
         val model = remember(rawUrl, sourceDir) { resolveImageModel(rawUrl, sourceDir) }
-        val imageLoader = remember(context) {
-            ImageLoader.Builder(context)
-                .components { add(SvgDecoder.Factory()) }
-                .build()
-        }
+        val imageLoader = rememberFlatImageLoader()
         var failed by remember(rawUrl, sourceDir) { mutableStateOf(false) }
 
         val loadingBg = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isSystemInDarkTheme()) 0.16f else 0.30f)
@@ -3488,4 +3399,3 @@ object GenUiNativeRenderer {
     }
 
 }
-

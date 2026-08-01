@@ -151,17 +151,28 @@ class GenUiHtmlRendererTest {
     }
 
     @Test
-    fun rendersAllBundledSamplesWithoutErrorPage() {
+    fun bundledSamplesEitherRenderOrAreStrictlyRejectedForUnsafeActions() {
         val sampleFile = File("src/main/assets/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4_genui.jsonl")
         assertTrue(sampleFile.exists())
         val lines = sampleFile.readLines().filter { it.isNotBlank() }
         assertTrue(lines.size >= 50)
 
+        var rendered = 0
+        var unsafeRejected = 0
         lines.forEachIndexed { index, line ->
             val result = GenUiNativeRenderer.render(line, sourceDir = sampleFile.parentFile)
-            assertTrue("Sample ${index + 1} returned error: ${result.errorMessage}", result.errorMessage == null)
-            assertTrue("Sample ${index + 1} missing native surface output", result.surfaces.isNotEmpty())
+            if (result.errorMessage == null) {
+                rendered += 1
+                assertTrue("Sample ${index + 1} missing native surface output", result.surfaces.isNotEmpty())
+            } else {
+                assertTrue(
+                    "Sample ${index + 1} had an unexpected strict rejection: ${result.warnings}",
+                    result.warnings.any { it.contains("unsafe URL", ignoreCase = true) }
+                )
+                unsafeRejected += 1
+            }
         }
+        assertTrue("Most of Golden50 should remain renderable", rendered >= 45)
+        assertTrue("The legacy corpus should exercise unsafe-action rejection", unsafeRejected > 0)
     }
 }
-

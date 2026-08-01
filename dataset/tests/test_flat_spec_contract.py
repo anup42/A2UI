@@ -175,7 +175,11 @@ class FlatSpecContractTests(unittest.TestCase):
         press = result.spec["elements"]["cta"]["on"]["press"]
         self.assertEqual(press["action"], "openUrl")
         self.assertEqual(press["params"]["url"], "https://example.com")
-        self.assertEqual(result.spec["elements"]["root"]["type"], "Column")
+        self.assertEqual(result.spec["elements"]["root"]["type"], "Stack")
+        self.assertEqual(
+            result.spec["elements"]["root"]["props"]["direction"],
+            "vertical",
+        )
 
     def test_repeat_and_watch_keys_are_normalized(self) -> None:
         spec = {
@@ -254,7 +258,7 @@ class FlatSpecContractTests(unittest.TestCase):
         prompt = (ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md").read_text(encoding="utf-8")
         self.assertIn("`Chart` props", prompt)
 
-        renderer = (
+        renderer_registry = (
             ROOT.parent
             / "android"
             / "app"
@@ -265,9 +269,11 @@ class FlatSpecContractTests(unittest.TestCase):
             / "samsung"
             / "genuicraft"
             / "renderer"
-            / "FlatSpecRenderer.kt"
+            / "flat"
+            / "compose"
+            / "FlatRenderRegistry.kt"
         ).read_text(encoding="utf-8")
-        self.assertIn('"chart", "barchart", "bar_chart" -> RenderChart', renderer)
+        self.assertIn('"chart" to { c -> RenderChart', renderer_registry)
 
 
 if __name__ == "__main__":

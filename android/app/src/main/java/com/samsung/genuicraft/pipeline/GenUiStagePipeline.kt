@@ -1,6 +1,8 @@
 package com.samsung.genuicraft
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
@@ -14,6 +16,9 @@ import com.samsung.genuicraft.mcp.McpResponseFormatter
 import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
 import com.samsung.genuicraft.pipeline.FlatSpecContract
+import com.samsung.genuicraft.pipeline.FlatSpecIngestMode
+import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
+import com.samsung.genuicraft.pipeline.FlatSpecIngestor
 import com.samsung.genuicraft.pipeline.PipelineImageResolver
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
@@ -38,7 +43,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3Json: String? = null,
         val renderResult: GenUiNativeRenderer.RenderResult? = null,
         val llmInputTokens: Int? = null,
-        val llmOutputTokens: Int? = null
+        val llmOutputTokens: Int? = null,
+        val llmOutputTokensPerSecond: Double? = null,
+        val llmRuntimeBackend: String? = null,
+        val stage3StreamText: String? = null,
+        val streamMetricsAreEstimated: Boolean = false,
+        val stage3StreamComplete: Boolean = false
     )
 
     data class PipelineResult(
@@ -54,7 +64,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stageStreamDurationsMs: Map<Stage, Long>,
         val usedFallback: Boolean,
         val warnings: List<String>,
-        val renderResult: GenUiNativeRenderer.RenderResult
+        val renderResult: GenUiNativeRenderer.RenderResult,
+        val stage3OutputTokensPerSecond: Double? = null,
+        val stage3RuntimeBackend: String? = null
     )
 
     private data class Stage3RepairDiagnostics(
@@ -113,6 +125,24 @@ class GenUiStagePipeline(private val appContext: Context) {
         } else {
             0.2
         }
+    }
+
+    private fun usesRawStage3ResponseProfile(
+        provider: InferenceBackendSettings.Provider,
+        onDeviceModelPath: String,
+    ): Boolean {
+        return provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT &&
+            com.samsung.genuicraft.inference.OnDeviceModelCatalog
+                .entryForModelPath(onDeviceModelPath)?.rawStage3Response == true
+    }
+
+    private fun rawStage3ResponsePrefix(
+        provider: InferenceBackendSettings.Provider,
+        onDeviceModelPath: String,
+    ): String? {
+        if (provider != InferenceBackendSettings.Provider.ON_DEVICE_LITERT) return null
+        return com.samsung.genuicraft.inference.OnDeviceModelCatalog
+            .entryForModelPath(onDeviceModelPath)?.stage3TrainingPromptPrefix
     }
 
     suspend fun execute(
@@ -517,7 +547,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                     message = "Could not load stage 3 prompt: ${it.message ?: it.javaClass.simpleName}"
                 )
             }
-        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
+        val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(irProvider, onDeviceModelPath)
+        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
+            genUiTemplate,
+            rawResponseOnly = useRawStage3ResponseProfile,
+            rawResponsePrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
+        )
         val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI &&
             geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
             async(Dispatchers.IO) {
@@ -633,7 +668,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             userTemplate = promptContext.userTemplate,
             stage2Response = stage2Response,
             catalogId = catalogId,
-            assets = emptyList()
+            assets = emptyList(),
+            appendRequestPolicies = !useRawStage3ResponseProfile,
         )
         if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
             responseProvider != InferenceBackendSettings.Provider.LOCAL_SERVER
@@ -812,13 +848,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        val stage3ResponseText = PipelinePromptBuilder.stripStage3TrainingPromptLeak(
+            responseText = stage3Call.text,
+            trainingPromptPrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
+        )
+        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3ResponseText)
         val stage3Diagnostics = Stage3RepairDiagnostics(
-            rawStage3Text = stage3Call.text,
+            rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
         )
         val stage3JsonElement = repairAndValidateFlatSpec(
-            stage3RawText = stage3Call.text,
+            stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
             backend = irBackend,
             provider = irProvider,
@@ -957,7 +997,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             debugLog = buildTableDiagnosticsDebugLog(stage3Diagnostics.tableDiagnostics),
             stage3Json = stage3Json,
             llmInputTokens = stage3Call.inputTokens,
-            llmOutputTokens = stage3Call.outputTokens
+            llmOutputTokens = stage3Call.outputTokens,
+            llmOutputTokensPerSecond = stage3Call.outputTokensPerSecond,
+            llmRuntimeBackend = stage3Call.runtimeBackend
         )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
@@ -997,7 +1039,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
                 usedFallback = false,
                 warnings = warnings,
-                renderResult = renderResult
+                renderResult = renderResult,
+                stage3OutputTokensPerSecond = stage3Call.outputTokensPerSecond,
+                stage3RuntimeBackend = stage3Call.runtimeBackend
             )
         )
     }
@@ -1179,7 +1223,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                     stageStreamDurationsMs = stageStreamDurationsMs.toMap()
                 )
             }
-        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
+        val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(provider, onDeviceModelPath)
+        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
+            genUiTemplate,
+            rawResponseOnly = useRawStage3ResponseProfile,
+            rawResponsePrefix = rawStage3ResponsePrefix(provider, onDeviceModelPath),
+        )
         val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI &&
             geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
             async(Dispatchers.IO) {
@@ -1239,7 +1288,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             userTemplate = promptContext.userTemplate,
             stage2Response = stage2Response,
             catalogId = catalogId,
-            assets = emptyList()
+            assets = emptyList(),
+            appendRequestPolicies = !useRawStage3ResponseProfile,
         )
         val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             cacheManager.buildLocalSystemPromptCacheKey(
@@ -1365,7 +1415,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             localSystemPromptCacheKey = localStage3SystemPromptCacheKey,
             localSendSystemPrompt = localSendStage3SystemPrompt,
             geminiCacheFallbackSystemPrompt = promptContext.systemPrompt,
-            onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) }
+            onGeminiCachedContentMissing = { reason -> cacheManager.invalidateStage3InstructionCache(reason) },
+            onStreamUpdate = { streamUpdate ->
+                postStreamUpdate(onStageUpdate, streamUpdate)
+            }
         )
         markStreamDuration(Stage.STAGE3, stage3Call.streamDurationMs)
 
@@ -1380,13 +1433,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        val stage3ResponseText = PipelinePromptBuilder.stripStage3TrainingPromptLeak(
+            responseText = stage3Call.text,
+            trainingPromptPrefix = rawStage3ResponsePrefix(provider, onDeviceModelPath),
+        )
+        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3ResponseText)
         val stage3Diagnostics = Stage3RepairDiagnostics(
-            rawStage3Text = stage3Call.text,
+            rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
         )
         val stage3JsonElement = repairAndValidateFlatSpec(
-            stage3RawText = stage3Call.text,
+            stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
             backend = backend,
             provider = provider,
@@ -1525,7 +1582,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             debugLog = buildTableDiagnosticsDebugLog(stage3Diagnostics.tableDiagnostics),
             stage3Json = stage3Json,
             llmInputTokens = stage3Call.inputTokens,
-            llmOutputTokens = stage3Call.outputTokens
+            llmOutputTokens = stage3Call.outputTokens,
+            llmOutputTokensPerSecond = stage3Call.outputTokensPerSecond,
+            llmRuntimeBackend = stage3Call.runtimeBackend
         )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
@@ -1565,7 +1624,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
                 usedFallback = false,
                 warnings = warnings,
-                renderResult = renderResult
+                renderResult = renderResult,
+                stage3OutputTokensPerSecond = stage3Call.outputTokensPerSecond,
+                stage3RuntimeBackend = stage3Call.runtimeBackend
             )
         )
     }
@@ -1656,12 +1717,19 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
-        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(genUiTemplate)
+        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
+        val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(irProvider, onDeviceModelPath)
+        val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
+            genUiTemplate,
+            rawResponseOnly = useRawStage3ResponseProfile,
+            rawResponsePrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
+        )
         val stage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
             stage2Response = stage3InputResponse,
             catalogId = catalogId,
-            assets = emptyList()
+            assets = emptyList(),
+            appendRequestPolicies = !useRawStage3ResponseProfile,
         )
 
         val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
@@ -1735,13 +1803,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3Call.text)
+        val stage3ResponseText = PipelinePromptBuilder.stripStage3TrainingPromptLeak(
+            responseText = stage3Call.text,
+            trainingPromptPrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
+        )
+        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3ResponseText)
         val stage3Diagnostics = Stage3RepairDiagnostics(
-            rawStage3Text = stage3Call.text,
+            rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
         )
         val stage3JsonElement = repairAndValidateFlatSpec(
-            stage3RawText = stage3Call.text,
+            stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
             backend = irBackend,
             provider = irProvider,
@@ -1955,21 +2027,30 @@ class GenUiStagePipeline(private val appContext: Context) {
         warnings: MutableList<String>,
         diagnostics: Stage3RepairDiagnostics
     ): JsonElement? {
-        val initialCoerce = FlatSpecContract.coerceAndValidate(initialJsonElement)
-        if (initialCoerce.warnings.isNotEmpty()) {
-            warnings += initialCoerce.warnings
-        }
-        diagnostics.tableDiagnostics = initialCoerce.tableDiagnostics
-        if (initialCoerce.isValid) {
-            if (initialCoerce.convertedFromLegacy) {
-                warnings += "Stage 3 returned legacy format; converted to flat spec."
+        val initialIngest = FlatSpecIngestor.ingest(initialJsonElement, FlatSpecIngestMode.STRICT)
+        val initialError = when (initialIngest) {
+            is FlatSpecIngestResult.CanonicalFlatSpec -> {
+                warnings += initialIngest.warnings
+                diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
+                return initialIngest.canonicalJson
             }
-            return initialCoerce.spec
+            is FlatSpecIngestResult.GenuineLegacyPayload -> {
+                warnings += initialIngest.warnings
+                diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
+                val migrated = initialIngest.migratedFlatSpec
+                if (migrated != null) {
+                    warnings += "Stage 3 returned genuine legacy format; migrated through the shared ingestor."
+                    return migrated
+                }
+                "Stage 3 legacy payload could not be migrated to flat spec."
+            }
+            is FlatSpecIngestResult.RejectedPayload ->
+                initialIngest.diagnostics.joinToString("; ") { it.message }
         }
 
         val initialReason = flatSpecValidationFailureReason(
             jsonElement = initialJsonElement,
-            coerceError = initialCoerce.error,
+            coerceError = initialError,
             parseFailureReason = "Stage 3 JSON parse failed."
         )
         diagnostics.initialValidationError = initialReason
@@ -2025,21 +2106,30 @@ class GenUiStagePipeline(private val appContext: Context) {
             diagnostics.repairOutputTexts += repairCall.text
             val repairedElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
             diagnostics.repairSelectedCandidateTexts += repairedElement?.toString()
-            val repairedCoerce = FlatSpecContract.coerceAndValidate(repairedElement)
-            if (repairedCoerce.warnings.isNotEmpty()) {
-                warnings += repairedCoerce.warnings
-            }
-            diagnostics.tableDiagnostics = repairedCoerce.tableDiagnostics
-            if (repairedCoerce.isValid) {
-                if (repairedCoerce.convertedFromLegacy) {
-                    warnings += "Stage 3 repair returned legacy format; converted to flat spec."
+            val repairedIngest = FlatSpecIngestor.ingest(repairedElement, FlatSpecIngestMode.STRICT)
+            val repairedError = when (repairedIngest) {
+                is FlatSpecIngestResult.CanonicalFlatSpec -> {
+                    warnings += repairedIngest.warnings
+                    diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
+                    return repairedIngest.canonicalJson
                 }
-                return repairedCoerce.spec
+                is FlatSpecIngestResult.GenuineLegacyPayload -> {
+                    warnings += repairedIngest.warnings
+                    diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
+                    val migrated = repairedIngest.migratedFlatSpec
+                    if (migrated != null) {
+                        warnings += "Stage 3 repair returned genuine legacy format; migrated through the shared ingestor."
+                        return migrated
+                    }
+                    "Repair returned legacy content that could not be migrated."
+                }
+                is FlatSpecIngestResult.RejectedPayload ->
+                    repairedIngest.diagnostics.joinToString("; ") { it.message }
             }
 
             val repairedReason = flatSpecValidationFailureReason(
                 jsonElement = repairedElement,
-                coerceError = repairedCoerce.error,
+                coerceError = repairedError,
                 parseFailureReason = "Repair attempt $attempt produced unparseable JSON."
             )
             diagnostics.repairValidationErrors += "Attempt $attempt: $repairedReason"
@@ -2138,17 +2228,22 @@ class GenUiStagePipeline(private val appContext: Context) {
                 error = "Stage 3 safe IR is not valid JSON: ${error.message.orEmpty()}"
             )
         }
-        val validation = FlatSpecContract.coerceAndValidate(parsed)
-        if (!validation.isValid || validation.spec == null) {
-            return FinalStage3SafetyResult(
+        return when (val validation = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)) {
+            is FlatSpecIngestResult.CanonicalFlatSpec -> FinalStage3SafetyResult(
+                jsonText = gson.toJson(validation.canonicalJson),
+                error = null
+            )
+            is FlatSpecIngestResult.GenuineLegacyPayload -> validation.migratedFlatSpec?.let { migrated ->
+                FinalStage3SafetyResult(jsonText = gson.toJson(migrated), error = null)
+            } ?: FinalStage3SafetyResult(
                 jsonText = null,
-                error = validation.error ?: "Stage 3 safe IR failed strict validation."
+                error = "Stage 3 safe legacy IR could not be migrated."
+            )
+            is FlatSpecIngestResult.RejectedPayload -> FinalStage3SafetyResult(
+                jsonText = null,
+                error = validation.diagnostics.joinToString("; ") { it.message }
             )
         }
-        return FinalStage3SafetyResult(
-            jsonText = gson.toJson(validation.spec),
-            error = null
-        )
     }
 
     private fun buildStrictStage3FailureDebugLog(diagnostics: Stage3RepairDiagnostics): String {
@@ -2227,6 +2322,30 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
     }
 
+    private fun postStreamUpdate(
+        callback: (StageUpdate) -> Unit,
+        streamUpdate: InferenceBackend.StreamUpdate
+    ) {
+        Handler(Looper.getMainLooper()).post {
+            callback(
+                StageUpdate(
+                    stage = Stage.STAGE3,
+                    message = if (streamUpdate.complete) {
+                        "IR generation complete"
+                    } else {
+                        "Generating IR"
+                    },
+                    llmOutputTokens = streamUpdate.outputTokens,
+                    llmOutputTokensPerSecond = streamUpdate.outputTokensPerSecond,
+                    llmRuntimeBackend = streamUpdate.runtimeBackend,
+                    stage3StreamText = streamUpdate.text,
+                    streamMetricsAreEstimated = streamUpdate.metricsAreEstimated,
+                    stage3StreamComplete = streamUpdate.complete
+                )
+            )
+        }
+    }
+
     private suspend fun postUpdate(
         callback: (StageUpdate) -> Unit,
         stage: Stage,
@@ -2236,7 +2355,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         stage3Json: String? = null,
         renderResult: GenUiNativeRenderer.RenderResult? = null,
         llmInputTokens: Int? = null,
-        llmOutputTokens: Int? = null
+        llmOutputTokens: Int? = null,
+        llmOutputTokensPerSecond: Double? = null,
+        llmRuntimeBackend: String? = null
     ) {
         withContext(Dispatchers.Main) {
             callback(
@@ -2248,7 +2369,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                     stage3Json = stage3Json,
                     renderResult = renderResult,
                     llmInputTokens = llmInputTokens,
-                    llmOutputTokens = llmOutputTokens
+                    llmOutputTokens = llmOutputTokens,
+                    llmOutputTokensPerSecond = llmOutputTokensPerSecond,
+                    llmRuntimeBackend = llmRuntimeBackend
                 )
             )
         }
@@ -2279,7 +2402,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         localSystemPromptCacheKey: String? = null,
         localSendSystemPrompt: Boolean = true,
         geminiCacheFallbackSystemPrompt: String? = null,
-        onGeminiCachedContentMissing: ((String) -> Unit)? = null
+        onGeminiCachedContentMissing: ((String) -> Unit)? = null,
+        onStreamUpdate: ((InferenceBackend.StreamUpdate) -> Unit)? = null
     ): InferenceBackend.GenerateResponse {
         var attempt = 0
         var accumulatedStreamMs = 0L
@@ -2316,7 +2440,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                     cachedContentName = effectiveCachedContentName,
                     structuredOutput = structuredOutput,
                     localSystemPromptCacheKey = localSystemPromptCacheKey,
-                    localSendSystemPrompt = localSendSystemPrompt
+                    localSendSystemPrompt = localSendSystemPrompt,
+                    onStreamUpdate = onStreamUpdate
                 )
             )
             last.streamDurationMs?.let {
@@ -2342,7 +2467,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return last.copy(
                     streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
                     inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
-                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null,
+                    outputTokensPerSecond = last.outputTokensPerSecond,
+                    runtimeBackend = last.runtimeBackend
                 )
             }
             val errorClass = backend.classifyError(last.error!!)
@@ -2362,7 +2489,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                         cachedContentName = effectiveCachedContentName,
                         structuredOutput = structuredOutput,
                         localSystemPromptCacheKey = localSystemPromptCacheKey,
-                        localSendSystemPrompt = localSendSystemPrompt
+                        localSendSystemPrompt = localSendSystemPrompt,
+                        onStreamUpdate = onStreamUpdate
                     )
                 )
                 fallback.streamDurationMs?.let {
@@ -2380,7 +2508,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return fallback.copy(
                     streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
                     inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
-                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null,
+                    outputTokensPerSecond = fallback.outputTokensPerSecond,
+                    runtimeBackend = fallback.runtimeBackend
                 )
             }
             if (
@@ -2399,7 +2529,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                         cachedContentName = effectiveCachedContentName,
                         structuredOutput = false,
                         localSystemPromptCacheKey = localSystemPromptCacheKey,
-                        localSendSystemPrompt = localSendSystemPrompt
+                        localSendSystemPrompt = localSendSystemPrompt,
+                        onStreamUpdate = onStreamUpdate
                     )
                 )
                 fallback.streamDurationMs?.let {
@@ -2417,7 +2548,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return fallback.copy(
                     streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
                     inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
-                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null,
+                    outputTokensPerSecond = fallback.outputTokensPerSecond,
+                    runtimeBackend = fallback.runtimeBackend
                 )
             }
             if (
@@ -2441,7 +2574,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                         cachedContentName = effectiveCachedContentName,
                         structuredOutput = structuredOutput,
                         localSystemPromptCacheKey = localSystemPromptCacheKey,
-                        localSendSystemPrompt = true
+                        localSendSystemPrompt = true,
+                        onStreamUpdate = onStreamUpdate
                     )
                 )
                 cacheRecovery.streamDurationMs?.let {
@@ -2465,7 +2599,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return cacheRecovery.copy(
                     streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
                     inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
-                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null,
+                    outputTokensPerSecond = cacheRecovery.outputTokensPerSecond,
+                    runtimeBackend = cacheRecovery.runtimeBackend
                 )
             }
             if (
@@ -2499,7 +2635,8 @@ class GenUiStagePipeline(private val appContext: Context) {
                         cachedContentName = null,
                         structuredOutput = structuredOutput,
                         localSystemPromptCacheKey = localSystemPromptCacheKey,
-                        localSendSystemPrompt = localSendSystemPrompt
+                        localSendSystemPrompt = localSendSystemPrompt,
+                        onStreamUpdate = onStreamUpdate
                     )
                 )
                 cacheRecovery.streamDurationMs?.let {
@@ -2517,7 +2654,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return cacheRecovery.copy(
                     streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
                     inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
-                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null,
+                    outputTokensPerSecond = cacheRecovery.outputTokensPerSecond,
+                    runtimeBackend = cacheRecovery.runtimeBackend
                 )
             }
             val retryable = errorClass == InferenceBackend.ErrorClass.TRANSIENT
@@ -2525,7 +2664,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 return last.copy(
                     streamDurationMs = if (hasStreamSample) accumulatedStreamMs else null,
                     inputTokens = if (hasInputTokenSample) accumulatedInputTokens.toInt() else null,
-                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null
+                    outputTokens = if (hasOutputTokenSample) accumulatedOutputTokens.toInt() else null,
+                    outputTokensPerSecond = last.outputTokensPerSecond,
+                    runtimeBackend = last.runtimeBackend
                 )
             }
             Log.w(
@@ -2554,5 +2695,3 @@ class GenUiStagePipeline(private val appContext: Context) {
         val gson = GsonBuilder().disableHtmlEscaping().create()
     }
 }
-
-

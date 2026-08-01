@@ -80,14 +80,17 @@ class SafeContentPolicyTest {
     }
 
     @Test
-    fun mediaPolicy_acceptsIconHostsAsRemoteMedia() {
+    fun mediaPolicy_allowsIconHostsOnlyForIcons() {
         val bootstrapIcon = "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg"
         val weatherIcon = "https://cdn.weatherapi.com/weather/64x64/day/116.png"
 
         assertTrue(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.ICON))
         assertTrue(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.ICON))
-        assertTrue(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.IMAGE))
-        assertTrue(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.IMAGE))
+        // An icon asset must not satisfy a photo slot. FlatSpecContract and
+        // PipelineMediaSanitizer both rely on this to route icon URLs to Icon
+        // elements instead of Image elements.
+        assertFalse(SafeContentPolicy.isSafeMediaUrl(bootstrapIcon, SafeContentPolicy.MediaKind.IMAGE))
+        assertFalse(SafeContentPolicy.isSafeMediaUrl(weatherIcon, SafeContentPolicy.MediaKind.IMAGE))
         assertTrue(SafeContentPolicy.isIconOnlyMediaUrl(bootstrapIcon))
     }
 

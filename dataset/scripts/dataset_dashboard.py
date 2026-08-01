@@ -17,6 +17,7 @@ import sys
 import tempfile
 import threading
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -33,7 +34,9 @@ DEFAULT_MIRROR_DIR = ROOT / "data" / "dashboard_mirror"
 MANIFEST_NAME = "sync_manifest.json"
 DEFAULT_MAX_PARALLEL_SOURCES = 10
 PASSWORD_CACHE: dict[str, str] = {}
+PASSWORD_CACHE_LOCK = threading.Lock()
 ProgressCallback = Callable[[dict[str, Any]], None]
+PasswordProvider = Callable[[dict[str, Any]], str]
 SHUTDOWN_EVENT = threading.Event()
 ACTIVE_PROCESSES: set[subprocess.Popen[str]] = set()
 ACTIVE_PROCESSES_LOCK = threading.Lock()
@@ -419,30 +422,83 @@ def ssh_cache_key(source: dict[str, Any]) -> str:
 
 
 def source_asks_password(source: dict[str, Any]) -> bool:
-    return bool(source.get("ask_password") or source.get("prompt_password"))
+    return any(
+        config_bool(source.get(key), False)
+        for key in ("ask_password", "prompt_password", "requires_password", "password_required")
+    )
 
 
-def password_for_source(source: dict[str, Any]) -> str:
+def password_for_source(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> str:
+    key = ssh_cache_key(source)
+    with PASSWORD_CACHE_LOCK:
+        cached = PASSWORD_CACHE.get(key, "")
+    if cached:
+        return cached
     password = ssh_password(source)
     if password:
         return password
     if not source_asks_password(source):
         return ""
-    key = ssh_cache_key(source)
-    if key not in PASSWORD_CACHE:
-        PASSWORD_CACHE[key] = getpass.getpass(f"Password for {key}: ")
-    return PASSWORD_CACHE[key]
+    password = (
+        password_provider(source)
+        if password_provider is not None
+        else getpass.getpass(f"Password for {key}: ")
+    )
+    if password:
+        with PASSWORD_CACHE_LOCK:
+            PASSWORD_CACHE[key] = password
+    return password
 
 
-def ssh_transport_mode(source: dict[str, Any]) -> str:
-    if not password_for_source(source):
+def clear_cached_password(source: dict[str, Any]) -> None:
+    with PASSWORD_CACHE_LOCK:
+        PASSWORD_CACHE.pop(ssh_cache_key(source), None)
+
+
+def auth_failure_output(output: str) -> bool:
+    return bool(
+        re.search(
+            r"permission denied|authentication failed|no supported authentication methods|"
+            r"could not authenticate|access denied|invalid password",
+            str(output or ""),
+            re.IGNORECASE,
+        )
+    )
+
+
+def password_prompt_source(source: dict[str, Any]) -> dict[str, Any]:
+    prompted = dict(source)
+    prompted["ask_password"] = True
+    return prompted
+
+
+def ssh_transport_mode(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> str:
+    if not password_for_source(source, password_provider=password_provider):
         return "openssh"
     if shutil.which("sshpass"):
         return "sshpass"
-    raise RuntimeError(
-        f"SSH source {source.get('id')} uses password auth, but sshpass was not found. "
-        "Install sshpass or use identity_file key auth."
-    )
+    return "askpass"
+
+
+def ssh_askpass_env(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> dict[str, str] | None:
+    password = password_for_source(source, password_provider=password_provider)
+    if not password or shutil.which("sshpass"):
+        return None
+    env = os.environ.copy()
+    env["SSH_ASKPASS"] = f'"{sys.executable}" "{Path(__file__).resolve()}" --askpass'
+    env["SSH_ASKPASS_REQUIRE"] = "force"
+    env.setdefault("DISPLAY", "dataset-dashboard")
+    env["A2UI_DASHBOARD_ASKPASS_PASSWORD"] = password
+    return env
 
 
 def ssh_target(source: dict[str, Any]) -> str:
@@ -490,7 +546,17 @@ def strip_outer_quotes(value: str) -> str:
 def command_for_log(command: list[str] | str) -> str:
     if isinstance(command, str):
         return command
-    return " ".join(shell_quote(str(part)) for part in command)
+    rendered: list[str] = []
+    redact_next = False
+    for index, part in enumerate(command):
+        text = "***" if redact_next else str(part)
+        rendered.append(shell_quote(text))
+        redact_next = (
+            str(part) == "-p"
+            and index > 0
+            and Path(str(command[index - 1])).name.lower() == "sshpass"
+        )
+    return " ".join(rendered)
 
 
 def resolve_executable(raw: str, *, source_id: str, purpose: str) -> str:
@@ -728,10 +794,13 @@ def list_local_source_files(source: dict[str, Any], include_globs: list[str], ex
     return entries
 
 
-def ssh_base_command(source: dict[str, Any]) -> list[str]:
+def ssh_base_command(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> list[str]:
     target = ssh_target(source)
-    mode = ssh_transport_mode(source)
-    password = password_for_source(source)
+    mode = ssh_transport_mode(source, password_provider=password_provider)
+    password = password_for_source(source, password_provider=password_provider)
     if mode == "sshpass":
         cmd = ["sshpass", "-p", password, resolve_ssh_executable(source)]
     else:
@@ -744,13 +813,18 @@ def ssh_base_command(source: dict[str, Any]) -> list[str]:
         cmd += ["-i", os.path.expandvars(os.path.expanduser(identity))]
     for option in normalized_ssh_options(source):
         cmd += ["-o", str(option)]
+    if not password and not source_asks_password(source):
+        cmd += ["-o", "BatchMode=yes"]
     cmd.append(target)
     return cmd
 
 
-def scp_base_command(source: dict[str, Any]) -> list[str]:
-    mode = ssh_transport_mode(source)
-    password = password_for_source(source)
+def scp_base_command(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> list[str]:
+    mode = ssh_transport_mode(source, password_provider=password_provider)
+    password = password_for_source(source, password_provider=password_provider)
     if mode == "sshpass":
         cmd = ["sshpass", "-p", password, resolve_scp_executable(source), "-p"]
     else:
@@ -763,6 +837,8 @@ def scp_base_command(source: dict[str, Any]) -> list[str]:
         cmd += ["-i", os.path.expandvars(os.path.expanduser(identity))]
     for option in normalized_ssh_options(source):
         cmd += ["-o", str(option)]
+    if not password and not source_asks_password(source):
+        cmd += ["-o", "BatchMode=yes"]
     return cmd
 
 
@@ -782,7 +858,7 @@ def source_timeout_seconds(source: dict[str, Any], key: str, default: int | None
     return parsed if parsed > 0 else None
 
 
-def rsync_ssh_shell(source: dict[str, Any]) -> str:
+def rsync_ssh_shell(source: dict[str, Any], password: str = "") -> str:
     parts = [resolve_ssh_executable(source)]
     port = source.get("port")
     if port:
@@ -792,6 +868,8 @@ def rsync_ssh_shell(source: dict[str, Any]) -> str:
         parts += ["-i", os.path.expandvars(os.path.expanduser(identity))]
     for option in normalized_ssh_options(source):
         parts += ["-o", str(option)]
+    if not password and not source_asks_password(source):
+        parts += ["-o", "BatchMode=yes"]
     return " ".join(shell_quote(str(part)) for part in parts)
 
 
@@ -843,10 +921,13 @@ def rsync_remote_source(source: dict[str, Any]) -> str:
     return f"{ssh_target(source)}:{remote_path_arg}"
 
 
-def rsync_base_command(source: dict[str, Any]) -> list[str]:
+def rsync_base_command(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> list[str]:
     rsync_bin = resolve_rsync_executable(source)
-    mode = ssh_transport_mode(source)
-    password = password_for_source(source)
+    mode = ssh_transport_mode(source, password_provider=password_provider)
+    password = password_for_source(source, password_provider=password_provider)
     cmd: list[str] = []
     if mode == "sshpass":
         cmd += ["sshpass", "-p", password]
@@ -857,7 +938,7 @@ def rsync_base_command(source: dict[str, Any]) -> list[str]:
         "--itemize-changes",
         "--out-format=%i\t%n\t%l",
         "-e",
-        rsync_ssh_shell(source),
+        rsync_ssh_shell(source, password=password),
     ]
     if config_bool(source.get("rsync_delete"), False):
         cmd.append("--delete")
@@ -889,6 +970,7 @@ def run_streaming_command(
     command: list[str] | str,
     timeout: int | None = None,
     on_line: Callable[[str], None] | None = None,
+    env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     shell = isinstance(command, str)
     start = time.monotonic()
@@ -901,6 +983,7 @@ def run_streaming_command(
             text=True,
             encoding="utf-8",
             errors="replace",
+            env=env,
         )
     except OSError as exc:
         raise RuntimeError(f"Failed to start command: {command_for_log(command)}\n{exc}") from exc
@@ -1071,6 +1154,7 @@ def sync_ssh_source_bulk(
     exclude_globs: list[str],
     progress: ProgressCallback | None = None,
     cancel_event: threading.Event | None = None,
+    password_provider: PasswordProvider | None = None,
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = "ssh"
@@ -1102,14 +1186,57 @@ def sync_ssh_source_bulk(
         message=f"Copying {source_label(source)} with SSH/SCP",
     )
 
-    command = scp_base_command(source) + ["-r", ssh_bulk_remote_source(source), str(dest_root)]
+    command = scp_base_command(source, password_provider=password_provider) + [
+        "-r",
+        ssh_bulk_remote_source(source),
+        str(dest_root),
+    ]
+    command_env = ssh_askpass_env(source, password_provider=password_provider)
     try:
         if sync_stop_requested(cancel_event):
             raise SyncStopped("sync stopped by user")
         result = run_streaming_command(
             command,
             timeout=source_timeout_seconds(source, "copy_timeout_sec"),
+            env=command_env,
         )
+        if (
+            result.returncode != 0
+            and password_provider is not None
+            and not ssh_password(source)
+            and auth_failure_output(result.stdout)
+        ):
+            clear_cached_password(source)
+            emit_progress(
+                progress,
+                phase="awaiting_password",
+                source_id=source_id,
+                source_label=source_label(source),
+                source_type=source_type,
+                transfer_mode="ssh",
+                current_file="",
+                listed=0,
+                total=0,
+                processed=0,
+                changed=0,
+                copied=0,
+                data_file_copied_count=0,
+                last_data_file="",
+                skipped=0,
+                error_count=0,
+                warning_count=0,
+                message=f"Password required for {source_label(source)}",
+            )
+            retry_source = password_prompt_source(source)
+            retry_command = scp_base_command(
+                retry_source,
+                password_provider=password_provider,
+            ) + ["-r", ssh_bulk_remote_source(retry_source), str(dest_root)]
+            result = run_streaming_command(
+                retry_command,
+                timeout=source_timeout_seconds(source, "copy_timeout_sec"),
+                env=ssh_askpass_env(retry_source, password_provider=password_provider),
+            )
         if result.returncode != 0:
             tail = "\n".join(result.stdout.splitlines()[-20:])
             raise RuntimeError(tail.strip() or f"scp failed with exit code {result.returncode}")
@@ -1231,6 +1358,7 @@ def sync_rsync_source(
     exclude_globs: list[str],
     progress: ProgressCallback | None = None,
     cancel_event: threading.Event | None = None,
+    password_provider: PasswordProvider | None = None,
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = "rsync"
@@ -1264,10 +1392,11 @@ def sync_rsync_source(
     )
 
     command = (
-        rsync_base_command(source)
+        rsync_base_command(source, password_provider=password_provider)
         + rsync_filter_args(include_globs, exclude_globs)
         + [rsync_remote_source(source), rsync_local_dest_arg(dest_root)]
     )
+    command_env = ssh_askpass_env(source, password_provider=password_provider)
 
     def on_rsync_line(line: str) -> None:
         nonlocal copied, data_files_copied, last_data_file
@@ -1311,7 +1440,50 @@ def sync_rsync_source(
             command,
             timeout=source_timeout_seconds(source, "copy_timeout_sec"),
             on_line=on_rsync_line,
+            env=command_env,
         )
+        if (
+            result.returncode != 0
+            and password_provider is not None
+            and not ssh_password(source)
+            and auth_failure_output(result.stdout)
+        ):
+            clear_cached_password(source)
+            emit_progress(
+                progress,
+                phase="awaiting_password",
+                source_id=source_id,
+                source_label=source_label(source),
+                source_type=source_type,
+                transfer_mode="rsync",
+                current_file="",
+                listed=0,
+                total=max(copied, 1) if copied else 0,
+                processed=copied,
+                changed=copied,
+                copied=copied,
+                data_file_copied_count=data_files_copied,
+                last_data_file=last_data_file,
+                skipped=0,
+                error_count=0,
+                warning_count=0,
+                message=f"Password required for {source_label(source)}",
+            )
+            retry_source = password_prompt_source(source)
+            retry_command = (
+                rsync_base_command(
+                    retry_source,
+                    password_provider=password_provider,
+                )
+                + rsync_filter_args(include_globs, exclude_globs)
+                + [rsync_remote_source(retry_source), rsync_local_dest_arg(dest_root)]
+            )
+            result = run_streaming_command(
+                retry_command,
+                timeout=source_timeout_seconds(source, "copy_timeout_sec"),
+                on_line=on_rsync_line,
+                env=ssh_askpass_env(retry_source, password_provider=password_provider),
+            )
         if result.returncode != 0:
             tail = "\n".join(result.stdout.splitlines()[-20:])
             raise RuntimeError(tail.strip() or f"rsync failed with exit code {result.returncode}")
@@ -1430,6 +1602,7 @@ def sync_source(
     exclude_globs: list[str],
     progress: ProgressCallback | None = None,
     cancel_event: threading.Event | None = None,
+    password_provider: PasswordProvider | None = None,
 ) -> dict[str, Any]:
     source_id = safe_source_id(str(source.get("id") or source_label(source)))
     source_type = str(source.get("type") or "local").lower()
@@ -1441,6 +1614,7 @@ def sync_source(
             exclude_globs,
             progress=progress,
             cancel_event=cancel_event,
+            password_provider=password_provider,
         )
     if source_type == "rsync":
         return sync_rsync_source(
@@ -1450,6 +1624,7 @@ def sync_source(
             exclude_globs,
             progress=progress,
             cancel_event=cancel_event,
+            password_provider=password_provider,
         )
     dest_root = source_local_root(source, mirror_dir)
     manifest_path = mirror_dir / source_id / f".{MANIFEST_NAME}"
@@ -1839,6 +2014,7 @@ def run_sync(
     max_parallel_sources: int | None = None,
     cancel_event: threading.Event | None = None,
     source_id: str | None = None,
+    password_provider: PasswordProvider | None = None,
 ) -> dict[str, Any]:
     if cancel_event is None:
         cancel_event = threading.Event()
@@ -1969,7 +2145,15 @@ def run_sync(
                 stop_requested=cancel_event.is_set(),
                 message=f"Starting source {source_index}/{len(enabled_sources)}: {label}",
             )
-            return sync_source(source, mirror_dir, include_globs, exclude_globs, progress=source_progress, cancel_event=cancel_event)
+            return sync_source(
+                source,
+                mirror_dir,
+                include_globs,
+                exclude_globs,
+                progress=source_progress,
+                cancel_event=cancel_event,
+                password_provider=password_provider,
+            )
         except SyncStopped:
             emit_progress(
                 progress,
@@ -3804,7 +3988,7 @@ def source_config_summary(source: dict[str, Any]) -> dict[str, Any]:
         "path_match": source_path_mode(source),
         "path_base": str(source.get("path_base") or ""),
         "mirror_local_in_place": bool(source.get("mirror_local_in_place", False)),
-        "ask_password": bool(source.get("ask_password") or source.get("prompt_password")),
+        "ask_password": source_asks_password(source),
         "has_password": bool(ssh_password(source)),
     }
     for key in ("host", "user", "port", "proxy_jump"):
@@ -3934,7 +4118,10 @@ def local_source_probe(source: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def ssh_source_probe(source: dict[str, Any]) -> dict[str, Any]:
+def ssh_source_probe(
+    source: dict[str, Any],
+    password_provider: PasswordProvider | None = None,
+) -> dict[str, Any]:
     remote_root = str(source.get("path") or "").rstrip("/")
     if not remote_root:
         raise ValueError(f"SSH source {source.get('id')} missing path")
@@ -3948,7 +4135,26 @@ def ssh_source_probe(source: dict[str, Any]) -> dict[str, Any]:
     else:
         raise ValueError(f"Unsupported SSH path_match for probe: {mode}")
     timeout = source_timeout_seconds(source, "test_timeout_sec")
-    result = run_command(ssh_base_command(source) + [remote_command], timeout=timeout)
+    command = ssh_base_command(source, password_provider=password_provider) + [remote_command]
+    result = run_command(
+        command,
+        timeout=timeout,
+        env=ssh_askpass_env(source, password_provider=password_provider),
+    )
+    if (
+        result.returncode != 0
+        and password_provider is not None
+        and not ssh_password(source)
+        and auth_failure_output(f"{result.stdout}\n{result.stderr}")
+    ):
+        clear_cached_password(source)
+        retry_source = password_prompt_source(source)
+        retry_result = run_command(
+            ssh_base_command(retry_source, password_provider=password_provider) + [remote_command],
+            timeout=timeout,
+            env=ssh_askpass_env(retry_source, password_provider=password_provider),
+        )
+        result = retry_result
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "ssh source probe failed")
     return {
@@ -4005,6 +4211,7 @@ def test_source_connection(
     config: dict[str, Any],
     mirror_dir: Path,
     requested_source_id: str,
+    password_provider: PasswordProvider | None = None,
 ) -> dict[str, Any]:
     del mirror_dir
     include_globs = list(config.get("include_globs") or [])
@@ -4035,7 +4242,7 @@ def test_source_connection(
         if source_type == "local":
             probe = local_source_probe(source)
         elif source_type in {"ssh", "rsync"}:
-            probe = ssh_source_probe(source)
+            probe = ssh_source_probe(source, password_provider=password_provider)
         elif source_type == "command":
             probe = command_source_probe(source, include_globs, exclude_globs)
         else:
@@ -4396,6 +4603,8 @@ INDEX_HTML = r"""<!doctype html>
     .chart-wrap { min-height: 230px; }
     .chart-svg { width:100%; height:220px; overflow:visible; }
     .config-source { border: 1px solid var(--line); border-radius: 14px; padding: 10px; margin-top: 8px; background: rgba(255,255,255,.52); }
+    .config-source-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .source-sync-btn { white-space:nowrap; }
     .pill-row { display:flex; flex-wrap:wrap; gap: 6px; margin-top: 8px; }
     .dist-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; }
     .dist-row { display:grid; grid-template-columns: minmax(90px, 1fr) 2fr 70px; gap: 10px; align-items:center; padding: 7px 0; border-bottom: 1px solid var(--line); }
@@ -4419,6 +4628,14 @@ INDEX_HTML = r"""<!doctype html>
     .sync-source-row { display:grid; grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 1.4fr) minmax(150px, 1fr); gap: 10px; align-items:center; border-top: 1px solid var(--line); padding-top: 8px; }
     .sync-source-row .bar-track { margin: 3px 0; height: 8px; }
     .status { min-height: 20px; color: var(--muted); font-size: 13px; }
+    .password-modal-backdrop { display:none; position:fixed; inset:0; z-index:30; align-items:center; justify-content:center; padding:20px; background:rgba(23,32,42,.42); backdrop-filter:blur(5px); }
+    .password-modal-backdrop.active { display:flex; }
+    .password-modal { width:min(460px, 100%); border:1px solid rgba(255,255,255,.82); border-radius:22px; padding:22px; background:rgba(255,255,255,.96); box-shadow:0 30px 90px rgba(23,32,42,.28); }
+    .password-modal h2 { margin:0 0 8px; }
+    .password-modal p { line-height:1.5; margin:8px 0 14px; }
+    .password-modal form { display:grid; gap:10px; }
+    .password-modal-actions { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+    .password-modal-error { min-height:20px; color:#b91c1c; font-size:13px; }
     html { scroll-behavior: smooth; }
     body::before {
       content: "";
@@ -4732,6 +4949,20 @@ INDEX_HTML = r"""<!doctype html>
         <div class="sync-source-list" id="syncSourceProgress"></div>
         <div class="sync-messages small" id="syncMessages"></div>
       </div>
+      <div class="password-modal-backdrop" id="passwordModalBackdrop">
+        <div class="password-modal" role="dialog" aria-modal="true" aria-labelledby="passwordModalTitle">
+          <h2 id="passwordModalTitle">Password required</h2>
+          <p id="passwordModalText">A source needs authentication before it can sync.</p>
+          <form id="passwordForm">
+            <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Enter password" />
+            <div class="password-modal-error" id="passwordModalError"></div>
+            <div class="password-modal-actions">
+              <button class="ghost-btn" type="button" id="skipPasswordBtn">Skip this PC</button>
+              <button type="submit" id="submitPasswordBtn">Continue sync</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </header>
   <main>
@@ -4918,6 +5149,7 @@ INDEX_HTML = r"""<!doctype html>
   <script>
     let current = null;
     let syncPollTimer = null;
+    let syncPollSawRunning = false;
     let autoRefreshTimer = null;
     let summaryLoading = false;
     let pendingSummaryRefresh = false;
@@ -4927,6 +5159,8 @@ INDEX_HTML = r"""<!doctype html>
     let sourceHealthOverrides = {};
     let selectedRunKey = null;
     let runPage = 1;
+    let activePasswordRequestId = "";
+    let passwordModalBusy = false;
     const syncSummaryRefreshIntervalMs = 3000;
     const fmt = n => (n ?? 0).toLocaleString();
     const pct = n => n == null ? "n/a" : `${(Number(n) * 100).toFixed(1)}%`;
@@ -5002,6 +5236,70 @@ INDEX_HTML = r"""<!doctype html>
       return entries.length ? entries.map(([k,v]) => `${k} (${v})`).join("<br>") : "<span class='small'>n/a</span>";
     };
     function setStatus(text) { document.getElementById("status").textContent = text || ""; }
+    function passwordRequests(status) {
+      if (Array.isArray(status?.password_requests)) return status.password_requests;
+      return Object.values(status?.password_requests || {});
+    }
+    function renderPasswordPrompt(status) {
+      const backdrop = document.getElementById("passwordModalBackdrop");
+      const request = passwordRequests(status).find(item => item && item.request_id);
+      if (!request) {
+        activePasswordRequestId = "";
+        backdrop.classList.remove("active");
+        return;
+      }
+      backdrop.classList.add("active");
+      const input = document.getElementById("passwordInput");
+      const submit = document.getElementById("submitPasswordBtn");
+      const skip = document.getElementById("skipPasswordBtn");
+      if (activePasswordRequestId !== request.request_id) {
+        activePasswordRequestId = request.request_id;
+        input.value = "";
+        document.getElementById("passwordModalError").textContent = "";
+        document.getElementById("passwordModalText").textContent =
+          `Enter the password for ${request.source_label || request.target || "this PC"}.` +
+          (request.target ? ` Target: ${request.target}.` : "");
+        setTimeout(() => input.focus(), 0);
+      }
+      input.disabled = passwordModalBusy;
+      submit.disabled = passwordModalBusy;
+      skip.disabled = passwordModalBusy;
+    }
+    async function respondToPasswordRequest(cancel = false) {
+      if (passwordModalBusy || !activePasswordRequestId) return;
+      const input = document.getElementById("passwordInput");
+      const password = input.value;
+      if (!cancel && !password) {
+        document.getElementById("passwordModalError").textContent = "Enter a password or skip this PC.";
+        input.focus();
+        return;
+      }
+      passwordModalBusy = true;
+      renderPasswordPrompt({password_requests: [{request_id: activePasswordRequestId}]});
+      try {
+        const res = await fetch("/api/sync/password", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            request_id: activePasswordRequestId,
+            source_id: document.getElementById("passwordModalBackdrop").dataset.sourceId || "",
+            password,
+            cancel,
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Unable to submit password");
+        activePasswordRequestId = "";
+        input.value = "";
+        passwordModalBusy = false;
+        renderSyncStatus(payload);
+        await loadSyncStatus().catch(() => {});
+      } catch (error) {
+        passwordModalBusy = false;
+        document.getElementById("passwordModalError").textContent = error.message;
+        renderPasswordPrompt({password_requests: [{request_id: activePasswordRequestId}]});
+      }
+    }
     function syncPhaseLabel(phase) {
       return ({
         listing: "preparing files",
@@ -5009,6 +5307,7 @@ INDEX_HTML = r"""<!doctype html>
         ssh_copying: "copying with SSH/SCP",
         rsync_start: "starting rsync",
         rsync_copying: "copying with rsync",
+        awaiting_password: "waiting for password",
         updating_manifest: "updating manifest",
         copying: "copying files",
         stopping: "stopping",
@@ -5028,6 +5327,14 @@ INDEX_HTML = r"""<!doctype html>
       const syncBtn = document.getElementById("syncBtn");
       const stopBtn = document.getElementById("stopSyncBtn");
       if (syncBtn) syncBtn.disabled = Boolean(s?.running);
+      document.querySelectorAll(".source-sync-btn").forEach(button => {
+        button.disabled = Boolean(s?.running);
+      });
+      const pendingPassword = passwordRequests(s).find(item => item && item.request_id);
+      if (pendingPassword) {
+        document.getElementById("passwordModalBackdrop").dataset.sourceId = pendingPassword.source_id || "";
+      }
+      renderPasswordPrompt(s);
       if (stopBtn) {
         stopBtn.disabled = !Boolean(s?.running);
         stopBtn.textContent = s?.stop_requested ? "Stopping..." : "Stop Sync";
@@ -5088,14 +5395,17 @@ INDEX_HTML = r"""<!doctype html>
       const status = await res.json();
       renderSyncStatus(status);
       maybeRefreshSummaryDuringSync(status);
-      if (!status.running && syncPollTimer) {
+      if (status.running) syncPollSawRunning = true;
+      if (!status.running && syncPollTimer && syncPollSawRunning) {
         clearInterval(syncPollTimer);
         syncPollTimer = null;
+        syncPollSawRunning = false;
       }
       return status;
     }
     function startSyncPolling() {
       if (syncPollTimer) clearInterval(syncPollTimer);
+      syncPollSawRunning = false;
       loadSyncStatus().catch(() => {});
       syncPollTimer = setInterval(() => loadSyncStatus().catch(() => {}), 1000);
     }
@@ -5189,6 +5499,7 @@ INDEX_HTML = r"""<!doctype html>
         });
         const payload = await res.json();
         if (!res.ok) throw new Error(payload.error || "sync failed");
+        syncPollSawRunning = true;
         await loadSyncStatus().catch(() => {});
         await loadSummary();
         const copied = (payload.results || []).reduce((a,r) => a + (r.copied || 0), 0);
@@ -5383,7 +5694,9 @@ INDEX_HTML = r"""<!doctype html>
       if (parallelInput && document.activeElement !== parallelInput && !parallelInput.dataset.userEdited) {
         parallelInput.value = String(config.max_parallel_sources || 10);
       }
+      const sourceSyncDisabled = document.getElementById("syncBtn")?.disabled ? " disabled" : "";
       const sources = (config.sources || []).map(source => {
+        const sourceId = String(source.source_id || "");
         const meta = [
           `${source.type}`,
           source.enabled ? "enabled" : "disabled",
@@ -5398,9 +5711,12 @@ INDEX_HTML = r"""<!doctype html>
           source.has_password ? "password in config" : "",
           source.ask_password ? "prompt password" : "",
         ].filter(Boolean);
+        const syncButton = source.enabled && sourceId
+          ? `<button class="ghost-btn source-sync-btn" data-source-id="${escapeHtml(sourceId)}" title="Sync only this PC"${sourceSyncDisabled}>Sync this PC</button>`
+          : "";
         return `
           <div class="config-source">
-            <b>${escapeHtml(source.source_label)}</b>
+            <div class="config-source-head"><b>${escapeHtml(source.source_label)}</b>${syncButton}</div>
             ${pills(meta)}
             <div class="small">path: ${escapeHtml(source.path || "n/a")}</div>
             ${source.path_base ? `<div class="small">path_base: ${escapeHtml(source.path_base)}</div>` : ""}
@@ -8531,6 +8847,24 @@ INDEX_HTML = r"""<!doctype html>
       if (!sourceId) return;
       syncSources(sourceId).catch(e => setStatus(`Source sync failed: ${e.message}`));
     });
+    document.getElementById("syncConfig").addEventListener("click", event => {
+      const button = event.target.closest(".source-sync-btn");
+      if (!button) return;
+      const sourceId = button.getAttribute("data-source-id") || "";
+      if (!sourceId) return;
+      syncSources(sourceId).catch(e => setStatus(`Source sync failed: ${e.message}`));
+    });
+    document.getElementById("passwordForm").addEventListener("submit", event => {
+      event.preventDefault();
+      respondToPasswordRequest(false).catch(e => {
+        document.getElementById("passwordModalError").textContent = e.message;
+      });
+    });
+    document.getElementById("skipPasswordBtn").onclick = () => {
+      respondToPasswordRequest(true).catch(e => {
+        document.getElementById("passwordModalError").textContent = e.message;
+      });
+    };
     document.getElementById("refreshBtn").onclick = () => loadSummary().catch(e => setStatus(`Refresh failed: ${e.message}`));
     document.getElementById("exportCsvBtn").onclick = () => exportFiltered("csv");
     document.getElementById("exportJsonBtn").onclick = () => exportFiltered("json");
@@ -8561,6 +8895,8 @@ class DashboardServer:
         self.mirror_dir = mirror_dir
         self.lock = threading.Lock()
         self.status_lock = threading.Lock()
+        self.password_request_lock = threading.Lock()
+        self.password_requests: dict[str, dict[str, Any]] = {}
         self.stop_event = threading.Event()
         self.sync_status: dict[str, Any] = self.new_sync_status()
 
@@ -8595,6 +8931,7 @@ class DashboardServer:
             "message": "Idle",
             "messages": [],
             "sources": {},
+            "password_requests": [],
         }
 
     def update_sync_status(self, update: dict[str, Any]) -> None:
@@ -8648,9 +8985,141 @@ class DashboardServer:
             status["messages"] = messages[-12:]
             self.sync_status = status
 
+    def public_password_requests(self) -> list[dict[str, Any]]:
+        with self.password_request_lock:
+            requests = list(self.password_requests.values())
+        return [
+            {
+                "request_id": request["request_id"],
+                "source_id": request["source_id"],
+                "source_label": request["source_label"],
+                "host": request["host"],
+                "user": request["user"],
+                "port": request["port"],
+                "target": request["target"],
+            }
+            for request in requests
+        ]
+
+    def request_password(self, source: dict[str, Any]) -> str:
+        if self.stop_event.is_set():
+            raise SyncStopped("sync stopped by user")
+        source_id = safe_source_id(str(source.get("id") or source_label(source)))
+        key = ssh_cache_key(source)
+        with self.password_request_lock:
+            request = next(
+                (
+                    item
+                    for item in self.password_requests.values()
+                    if item.get("cache_key") == key
+                ),
+                None,
+            )
+            if request is None:
+                request_id = uuid.uuid4().hex
+                host = str(source.get("host") or "").strip()
+                user = str(source.get("user") or "").strip()
+                target = f"{user}@{host}" if user else host
+                request = {
+                    "request_id": request_id,
+                    "source_id": source_id,
+                    "source_label": source_label(source),
+                    "host": host,
+                    "user": user,
+                    "port": source.get("port") or 22,
+                    "target": target,
+                    "cache_key": key,
+                    "event": threading.Event(),
+                    "password": "",
+                    "error": "",
+                }
+                self.password_requests[request_id] = request
+                is_new_request = True
+            else:
+                is_new_request = False
+        if is_new_request:
+            self.update_sync_status(
+                {
+                    "running": True,
+                    "phase": "awaiting_password",
+                    "source_id": source_id,
+                    "source_label": source_label(source),
+                    "source_type": str(source.get("type") or "ssh").lower(),
+                    "password_required": True,
+                    "message": f"Password required for {source_label(source)}",
+                }
+            )
+        event = request["event"]
+        while not event.wait(0.2):
+            if self.stop_event.is_set():
+                self._cancel_pending_password_requests("Sync stopped by user")
+                raise SyncStopped("sync stopped by user")
+        error = str(request.get("error") or "")
+        if error:
+            if error == "Sync stopped by user":
+                raise SyncStopped(error)
+            raise RuntimeError(error)
+        password = str(request.get("password") or "")
+        if not password:
+            raise RuntimeError(f"No password supplied for {source_label(source)}")
+        return password
+
+    def _cancel_pending_password_requests(self, reason: str) -> None:
+        with self.password_request_lock:
+            requests = list(self.password_requests.values())
+            self.password_requests.clear()
+            for request in requests:
+                request["error"] = reason
+                request["event"].set()
+
+    def provide_password(
+        self,
+        request_id: str,
+        source_id: str,
+        password: str,
+        cancel: bool = False,
+    ) -> dict[str, Any]:
+        request_id = str(request_id or "").strip()
+        raw_source_id = str(source_id or "").strip()
+        source_id = safe_source_id(raw_source_id) if raw_source_id else ""
+        if not request_id:
+            raise ValueError("request_id is required")
+        with self.password_request_lock:
+            request = self.password_requests.get(request_id)
+            if request is None:
+                raise ValueError("Password request is no longer pending")
+            if source_id and request["source_id"] != source_id:
+                raise ValueError("Password request source mismatch")
+            if cancel:
+                request["error"] = f"Password entry cancelled for {request['source_label']}"
+                message = f"Skipped {request['source_label']} because no password was supplied"
+            else:
+                value = str(password or "")
+                if not value:
+                    raise ValueError("password is required")
+                request["password"] = value
+                with PASSWORD_CACHE_LOCK:
+                    PASSWORD_CACHE[request["cache_key"]] = value
+                message = f"Password received for {request['source_label']}"
+            self.password_requests.pop(request_id, None)
+            request["event"].set()
+            request_source_id = request["source_id"]
+        self.update_sync_status(
+            {
+                "source_id": request_source_id,
+                "password_required": False,
+                "message": message,
+            }
+        )
+        return self.status()
+
     def status(self) -> dict[str, Any]:
         with self.status_lock:
-            return json.loads(json.dumps(self.sync_status))
+            status = json.loads(json.dumps(self.sync_status))
+        password_requests = self.public_password_requests()
+        status["password_requests"] = password_requests
+        status["waiting_for_password"] = bool(password_requests)
+        return status
 
     def config(self) -> dict[str, Any]:
         config = load_config(self.config_path)
@@ -8662,7 +9131,12 @@ class DashboardServer:
     def summary(self) -> dict[str, Any]:
         return scan_all(self.config(), self.mirror_dir)
 
-    def sync(self, max_parallel_sources: int | None = None, source_id: str | None = None) -> dict[str, Any]:
+    def sync(
+        self,
+        max_parallel_sources: int | None = None,
+        source_id: str | None = None,
+        use_dashboard_password: bool = True,
+    ) -> dict[str, Any]:
         with self.lock:
             self.stop_event.clear()
             message = f"Starting sync for {source_id}" if source_id else "Starting sync"
@@ -8675,8 +9149,10 @@ class DashboardServer:
                     max_parallel_sources=max_parallel_sources,
                     cancel_event=self.stop_event,
                     source_id=source_id,
+                    password_provider=self.request_password if use_dashboard_password else None,
                 )
             except Exception as exc:
+                self._cancel_pending_password_requests(str(exc))
                 self.stop_event.clear()
                 self.update_sync_status({"running": False, "phase": "failed", "stop_requested": False, "message": f"Sync failed: {exc}"})
                 raise
@@ -8695,6 +9171,7 @@ class DashboardServer:
             )
             return self.status()
         self.stop_event.set()
+        self._cancel_pending_password_requests("Sync stopped by user")
         self.update_sync_status(
             {
                 "running": True,
@@ -8706,7 +9183,34 @@ class DashboardServer:
         return self.status()
 
     def test_source(self, source_id: str) -> dict[str, Any]:
-        return test_source_connection(self.config(), self.mirror_dir, source_id)
+        with self.lock:
+            if self.status().get("running"):
+                raise RuntimeError("A sync is already running")
+            self.stop_event.clear()
+            self.update_sync_status(
+                {
+                    "running": True,
+                    "phase": "testing",
+                    "message": f"Testing source {source_id}",
+                }
+            )
+            try:
+                return test_source_connection(
+                    self.config(),
+                    self.mirror_dir,
+                    source_id,
+                    password_provider=self.request_password,
+                )
+            finally:
+                self._cancel_pending_password_requests("Source test finished")
+                self.update_sync_status(
+                    {
+                        "running": False,
+                        "phase": "idle",
+                        "stop_requested": False,
+                        "message": f"Finished testing source {source_id}",
+                    }
+                )
 
 
 def make_handler(server_state: DashboardServer):
@@ -8801,6 +9305,24 @@ def make_handler(server_state: DashboardServer):
                 except Exception as exc:
                     self.send_json({"error": str(exc)}, status=500)
                 return
+            if parsed.path == "/api/sync/password":
+                try:
+                    payload = self.read_json_body()
+                    request_id = str(payload.get("request_id") or "").strip()
+                    source_id = str(payload.get("source_id") or "").strip()
+                    password = str(payload.get("password") or "")
+                    cancel = config_bool(payload.get("cancel"), False)
+                    self.send_json(
+                        server_state.provide_password(
+                            request_id=request_id,
+                            source_id=source_id,
+                            password=password,
+                            cancel=cancel,
+                        )
+                    )
+                except Exception as exc:
+                    self.send_json({"error": str(exc)}, status=400)
+                return
             if parsed.path == "/api/source/test":
                 try:
                     payload = self.read_json_body()
@@ -8832,6 +9354,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sync-on-start", action="store_true", help="Sync enabled sources before serving")
     parser.add_argument("--sync-once", action="store_true", help="Run one sync and exit")
     parser.add_argument("--summary-once", action="store_true", help="Print summary JSON and exit")
+    parser.add_argument("--askpass", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
 
 
@@ -8866,6 +9389,9 @@ def install_shutdown_handlers(
 
 
 def main() -> int:
+    if "--askpass" in sys.argv[1:]:
+        sys.stdout.write(os.environ.get("A2UI_DASHBOARD_ASKPASS_PASSWORD", ""))
+        return 0
     args = parse_args()
     set_dashboard_metric_version(args.metric_version)
     SHUTDOWN_EVENT.clear()
@@ -8875,13 +9401,13 @@ def main() -> int:
     install_shutdown_handlers(state)
 
     if args.sync_once:
-        emit_json_stdout(state.sync())
+        emit_json_stdout(state.sync(use_dashboard_password=False))
         return 0
     if args.summary_once:
         emit_json_stdout(state.summary())
         return 0
     if args.sync_on_start:
-        emit_json_stdout(state.sync())
+        emit_json_stdout(state.sync(use_dashboard_password=False))
 
     httpd = FastShutdownThreadingHTTPServer((args.host, args.port), make_handler(state))
     install_shutdown_handlers(state, httpd)

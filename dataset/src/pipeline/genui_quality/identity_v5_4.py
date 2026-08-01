@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -53,7 +54,7 @@ from .source_contract_v5_4 import (
 METRIC_NAME = "GenUI Representation Quality"
 ALGORITHM_VERSION = REWARD_VERSION_V54
 REPORTING_POLICY_VERSION = "5.4.0"
-SOURCE_MANIFEST_VERSION = "3.0.0"
+SOURCE_MANIFEST_VERSION = "4.0.0"
 REWARD_PIPELINE_POLICY_VERSION = "2.0.0"
 
 _PACKAGE_DIR = Path(__file__).resolve().parent
@@ -64,6 +65,18 @@ DEFAULT_PARITY_VECTOR_PATH_V54 = (
     / "tests"
     / "fixtures"
     / "flat_expr_parity_vectors_v5_4.json"
+)
+ANDROID_RENDERER_DIR = (
+    _REPO_ROOT
+    / "android"
+    / "app"
+    / "src"
+    / "main"
+    / "java"
+    / "com"
+    / "samsung"
+    / "genuicraft"
+    / "renderer"
 )
 _SCORE_FILES = (
     "_core.py",
@@ -126,6 +139,44 @@ def score_source_manifest_v5_4(
     return _manifest(_SCORE_FILES, source_hash_overrides)
 
 
+def _kotlin_source_sha256(path: Path) -> str:
+    """Hash Kotlin source with line endings normalized to LF.
+
+    Kotlin has no stable AST parser available here, so the bytes are the
+    contract. Normalizing CRLF keeps the hash identical regardless of a
+    contributor's ``core.autocrlf`` setting.
+    """
+
+    text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def android_renderer_manifest() -> dict[str, str]:
+    """Sorted ``relative posix path -> hash`` map for the Android renderer.
+
+    Hashing the directory rather than a single file keeps score identity
+    stable across renderer refactors that split or rename files, while still
+    rotating when renderer behaviour changes.
+    """
+
+    if not ANDROID_RENDERER_DIR.is_dir():
+        raise FileNotFoundError(
+            "Android renderer sources not found at "
+            f"{ANDROID_RENDERER_DIR}. Score identity requires a full "
+            "repository checkout."
+        )
+    return {
+        source.relative_to(ANDROID_RENDERER_DIR).as_posix(): (
+            _kotlin_source_sha256(source)
+        )
+        for source in sorted(ANDROID_RENDERER_DIR.rglob("*.kt"))
+    }
+
+
+def android_renderer_manifest_hash() -> str:
+    return sha256_json(android_renderer_manifest())
+
+
 def metric_fingerprint_v5_4(
     config: RewardConfigV54,
     *,
@@ -146,19 +197,6 @@ def metric_fingerprint_v5_4(
         return _METRIC_CACHE[cache_key]
     manifest = score_source_manifest_v5_4(
         source_hash_overrides=source_hash_overrides
-    )
-    android = (
-        _REPO_ROOT
-        / "android"
-        / "app"
-        / "src"
-        / "main"
-        / "java"
-        / "com"
-        / "samsung"
-        / "genuicraft"
-        / "renderer"
-        / "FlatSpecRenderer.kt"
     )
     prompt = (
         _DATASET_DIR
@@ -181,7 +219,7 @@ def metric_fingerprint_v5_4(
             EXPECTED_SCHEMA_PATH.resolve()
         ),
         "prompt_contract_hash": semantic_file_sha256(prompt.resolve()),
-        "android_renderer_hash": semantic_file_sha256(android.resolve()),
+        "android_renderer_hash": android_renderer_manifest_hash(),
         "renderer_reference_semantics": {
             "version": RENDERER_SEMANTICS_VERSION,
             "hash": renderer_reference_inventory_hash(),

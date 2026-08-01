@@ -6,6 +6,9 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
 
 class FlatSpecContractTest {
 
@@ -338,7 +341,7 @@ class FlatSpecContractTest {
         assertTrue(result.spec?.getAsJsonObject("elements")?.has("title") == true)
         val rootElement = result.spec?.getAsJsonObject("elements")?.getAsJsonObject("root")
         assertEquals("Stack", rootElement?.get("type")?.asString)
-        assertFalse(rootElement?.getAsJsonObject("props")?.has("direction") == true)
+        assertEquals("vertical", rootElement?.getAsJsonObject("props")?.get("direction")?.asString)
         val rowElement = result.spec?.getAsJsonObject("elements")?.getAsJsonObject("row_title")
         assertEquals("Stack", rowElement?.get("type")?.asString)
         assertEquals("horizontal", rowElement?.getAsJsonObject("props")?.get("direction")?.asString)
@@ -439,7 +442,7 @@ class FlatSpecContractTest {
     }
 
     @Test
-    fun coerceAndValidate_rejectsLegacyRowTypeInFlatSpec() {
+    fun coerceAndValidate_normalizesLegacyRowTypeInFlatSpec() {
         val payload = JsonParser.parseString(
             """
             {
@@ -457,8 +460,10 @@ class FlatSpecContractTest {
         )
 
         val result = FlatSpecContract.coerceAndValidate(payload)
-        assertFalse(result.isValid)
-        assertTrue(result.error?.contains("unsupported type", ignoreCase = true) == true)
+        assertTrue(result.isValid)
+        val main = result.spec!!.getAsJsonObject("elements").getAsJsonObject("main")
+        assertEquals("Stack", main.get("type").asString)
+        assertEquals("horizontal", main.getAsJsonObject("props").get("direction").asString)
     }
 
     @Test
@@ -577,7 +582,7 @@ class FlatSpecContractTest {
     }
 
     @Test
-    fun coerceAndValidate_rejectsLegacyColumnTypeInFlatSpec() {
+    fun coerceAndValidate_normalizesLegacyColumnTypeInFlatSpec() {
         val payload = JsonParser.parseString(
             """
             {
@@ -595,8 +600,10 @@ class FlatSpecContractTest {
         )
 
         val result = FlatSpecContract.coerceAndValidate(payload)
-        assertFalse(result.isValid)
-        assertTrue(result.error?.contains("unsupported type", ignoreCase = true) == true)
+        assertTrue(result.isValid)
+        val main = result.spec!!.getAsJsonObject("elements").getAsJsonObject("main")
+        assertEquals("Stack", main.get("type").asString)
+        assertEquals("vertical", main.getAsJsonObject("props").get("direction").asString)
     }
 
     @Test
@@ -799,7 +806,7 @@ class FlatSpecContractTest {
     }
 
     @Test
-    fun coerceAndValidate_setsWeatherDomainDefaultsForTable() {
+    fun coerceAndValidate_respectsExplicitGenericDomainForTable() {
         val payload = JsonParser.parseString(
             """
             {
@@ -832,10 +839,10 @@ class FlatSpecContractTest {
             .getAsJsonObject("elements")
             .getAsJsonObject("table")
             .getAsJsonObject("props")
-        assertEquals("weather", tableProps.get("domain").asString)
-        assertEquals("cards", tableProps.get("preferredPresentation").asString)
-        assertEquals("weather", result.tableDiagnostics.tableDomain)
-        assertTrue(result.warnings.any { it.contains("rewrote props.domain from generic to weather", ignoreCase = true) })
+        assertEquals("generic", tableProps.get("domain").asString)
+        assertEquals("table", tableProps.get("preferredPresentation").asString)
+        assertEquals("generic", result.tableDiagnostics.tableDomain)
+        assertTrue(result.warnings.none { it.contains("domain from generic", ignoreCase = true) })
     }
 
     @Test
@@ -882,10 +889,10 @@ class FlatSpecContractTest {
             .getAsJsonObject("elements")
             .getAsJsonObject("forecast_table")
             .getAsJsonObject("props")
-        assertEquals("weather", tableProps.get("domain").asString)
-        assertEquals("cards", tableProps.get("preferredPresentation").asString)
+        assertEquals("generic", tableProps.get("domain").asString)
+        assertEquals("table", tableProps.get("preferredPresentation").asString)
         assertTrue(result.tableDiagnostics.tableDetected)
-        assertEquals("weather", result.tableDiagnostics.tableDomain)
+        assertEquals("generic", result.tableDiagnostics.tableDomain)
         assertEquals(4, result.tableDiagnostics.columns)
     }
 

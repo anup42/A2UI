@@ -1,0 +1,200 @@
+{
+  "version": "2.0.0",
+  "renderer": "android_flatspec",
+  "types": [
+    {
+      "canonical": "Stack",
+      "runtime_key": "stack",
+      "aliases": ["stack"],
+      "consumed_props": ["direction", "gap", "spacing", "space", "align", "justify", "wrap", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"]
+    },
+    {
+      "canonical": "List",
+      "runtime_key": "list",
+      "aliases": ["list"],
+      "consumed_props": ["items"]
+    },
+    {
+      "canonical": "Card",
+      "runtime_key": "card",
+      "aliases": ["card"],
+      "consumed_props": ["title", "subtitle", "tone", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"]
+    },
+    {
+      "canonical": "Table",
+      "runtime_key": "table",
+      "aliases": ["table"],
+      "consumed_props": ["title", "domain", "preferredPresentation", "presentation", "columns", "rows", "statePath", "rowsPath", "dataPath", "primaryColumn", "highlightColumns", "numericColumns", "entityMedia"]
+    },
+    {
+      "canonical": "Formula",
+      "runtime_key": "formula",
+      "aliases": ["formula"],
+      "consumed_props": ["latex", "text", "title", "subtitle", "result", "display"]
+    },
+    {
+      "canonical": "Chart",
+      "runtime_key": "chart",
+      "aliases": ["chart", "barchart", "bar_chart"],
+      "consumed_props": ["chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey"]
+    },
+    {
+      "canonical": "CodeBlock",
+      "runtime_key": "codeblock",
+      "aliases": ["codeblock", "code", "code_block", "pre", "preformatted"],
+      "consumed_props": ["code", "language", "title"]
+    },
+    {
+      "canonical": "ConsoleLog",
+      "runtime_key": "consolelog",
+      "aliases": ["consolelog", "console", "console_log", "terminal", "logoutput", "log_output"],
+      "consumed_props": ["code", "language", "title"]
+    },
+    {
+      "canonical": "Text",
+      "runtime_key": "text",
+      "aliases": ["text"],
+      "consumed_props": ["text", "variant", "heading", "accessibilityLabel", "contentDescription", "decorative"]
+    },
+    {
+      "canonical": "EmailPreview",
+      "runtime_key": "emailpreview",
+      "aliases": ["emailpreview", "email_preview"],
+      "consumed_props": ["from", "to", "cc", "bcc", "subject", "body", "date", "timestamp", "attachments", "title"]
+    },
+    {
+      "canonical": "Image",
+      "runtime_key": "image",
+      "aliases": ["image"],
+      "consumed_props": ["url", "src", "source", "name", "fit", "contentScale", "alt", "fallbackUrl", "height", "width", "accessibilityLabel", "contentDescription", "decorative"]
+    },
+    {
+      "canonical": "Icon",
+      "runtime_key": "icon",
+      "aliases": ["icon"],
+      "consumed_props": ["name", "icon", "source", "url", "src", "size", "iconSize", "tint", "accessibilityLabel", "contentDescription", "decorative"]
+    },
+    {
+      "canonical": "Button",
+      "runtime_key": "button",
+      "aliases": ["button"],
+      "consumed_props": ["label", "text", "variant", "icon", "accessibilityLabel", "contentDescription", "onClickLabel", "actionLabel"]
+    },
+    {
+      "canonical": "Divider",
+      "runtime_key": "divider",
+      "aliases": ["divider"],
+      "consumed_props": []
+    },
+    {
+      "canonical": "Tabs",
+      "runtime_key": "tabs",
+      "aliases": ["tabs"],
+      "consumed_props": ["tabs", "activeTabId"]
+    },
+    {
+      "canonical": "Modal",
+      "runtime_key": "modal",
+      "aliases": ["modal"],
+      "consumed_props": ["trigger", "content", "title"]
+    },
+    {
+      "canonical": "TextField",
+      "runtime_key": "textfield",
+      "aliases": ["textfield"],
+      "consumed_props": ["label", "value", "statePath", "placeholder", "accessibilityLabel", "contentDescription"]
+    },
+    {
+      "canonical": "CheckBox",
+      "runtime_key": "checkbox",
+      "aliases": ["checkbox"],
+      "consumed_props": ["label", "value", "statePath", "accessibilityLabel", "contentDescription"]
+    },
+    {
+      "canonical": "ChoicePicker",
+      "runtime_key": "choicepicker",
+      "aliases": ["choicepicker"],
+      "consumed_props": ["label", "value", "statePath", "options", "accessibilityLabel", "contentDescription"]
+    },
+    {
+      "canonical": "Slider",
+      "runtime_key": "slider",
+      "aliases": ["slider"],
+      "consumed_props": ["label", "value", "statePath", "min", "max", "step", "accessibilityLabel", "contentDescription"]
+    },
+    {
+      "canonical": "DateTimeInput",
+      "runtime_key": "datetimeinput",
+      "aliases": ["datetimeinput"],
+      "consumed_props": ["label", "value", "statePath", "mode", "placeholder", "accessibilityLabel", "contentDescription"]
+    },
+    {
+      "canonical": "Video",
+      "runtime_key": "video",
+      "aliases": ["video"],
+      "consumed_props": ["url", "src", "source", "name", "poster", "posterUrl", "thumbnail", "thumbnailUrl", "description", "title"],
+      "capability_level": "poster_external_open"
+    },
+    {
+      "canonical": "AudioPlayer",
+      "runtime_key": "audioplayer",
+      "aliases": ["audioplayer"],
+      "consumed_props": ["url", "src", "source", "name", "poster", "posterUrl", "thumbnail", "thumbnailUrl", "description", "title"],
+      "capability_level": "poster_external_open"
+    },
+    {
+      "canonical": "Alert",
+      "runtime_key": "alert",
+      "aliases": ["alert", "notice", "messagecard", "message_card"],
+      "consumed_props": ["message", "text", "title", "tone", "timestamp", "source", "icon"]
+    },
+    {
+      "canonical": "Checklist",
+      "runtime_key": "checklist",
+      "aliases": ["checklist", "check_list"],
+      "consumed_props": ["title", "items", "disclaimer", "source"]
+    }
+  ],
+  "compatibility_type_aliases": {
+    "row": {"canonical": "Stack", "props": {"direction": "horizontal"}},
+    "column": {"canonical": "Stack", "props": {"direction": "vertical"}}
+  },
+  "table_domains": {
+    "canonical": ["weather", "flight", "booking", "restaurants", "schedule", "status", "playlist", "news", "product", "generic", "comparison", "formula"],
+    "card_first": ["weather", "flight", "booking", "restaurants", "schedule", "status", "playlist", "news", "product"],
+    "aliases": {
+      "restaurant": "restaurants",
+      "dining": "restaurants",
+      "music": "playlist",
+      "entertainment": "playlist",
+      "headline": "news",
+      "headlines": "news",
+      "article": "news",
+      "articles": "news",
+      "calculation": "formula",
+      "calculator": "formula",
+      "math": "formula",
+      "travel": "schedule",
+      "trip": "schedule",
+      "vacation": "schedule",
+      "holiday": "schedule",
+      "itinerary": "schedule",
+      "places": "schedule",
+      "attractions": "schedule",
+      "shopping": "product",
+      "products": "product",
+      "catalog": "product"
+    }
+  },
+  "actions": [
+    {"name": "openUrl", "runtime_key": "openurl", "required_any": [["url", "href", "link", "targetUrl"]], "safe_url": true},
+    {"name": "setState", "runtime_key": "setstate", "required_any": [["statePath", "path"]], "required": ["value"]},
+    {"name": "pushState", "runtime_key": "pushstate", "required_any": [["statePath", "path"]], "required": ["value"], "optional": ["clearStatePath"]},
+    {"name": "removeState", "runtime_key": "removestate", "required_any": [["statePath", "path"]], "required": ["index"]},
+    {"name": "validateForm", "runtime_key": "validateform", "optional": ["resultStatePath", "statePath", "path"]}
+  ],
+  "chart_subtypes": {
+    "canonical": ["bar", "column"],
+    "aliases": {"bar_chart": "bar"}
+  }
+}

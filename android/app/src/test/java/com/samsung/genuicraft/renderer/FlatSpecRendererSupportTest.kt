@@ -8,6 +8,13 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.samsung.genuicraft.renderer.flat.domain.*
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
+import com.samsung.genuicraft.renderer.flat.compose.*
+import com.samsung.genuicraft.renderer.flat.model.*
+import com.samsung.genuicraft.renderer.flat.compose.table.*
 
 class FlatSpecRendererSupportTest {
 
@@ -327,9 +334,7 @@ class FlatSpecRendererSupportTest {
                     "artist" to "Vitamin String Quartet",
                     "songTitle" to "thank u, next"
                 )
-            ),
-            "domain" to "generic",
-            "preferredPresentation" to "table"
+            )
         )
 
         val model = extractDirectTableModel(
@@ -1201,7 +1206,7 @@ class FlatSpecRendererSupportTest {
     }
 
     @Test
-    fun extractFlatTableModel_overridesGenericDomainHintForWeatherSignals() {
+    fun extractFlatTableModel_respectsExplicitGenericDomainHintDespiteWeatherSignals() {
         val payload = JsonParser.parseString(
             """
             {
@@ -1241,9 +1246,8 @@ class FlatSpecRendererSupportTest {
         )
 
         assertNotNull(model)
-        assertEquals("weather", model!!.domain)
-        assertEquals("cards", model.preferredPresentation)
-        assertEquals(FlatTableRenderMode.WEATHER_CARDS, model.renderMode)
+        assertEquals("generic", model!!.domain)
+        assertEquals("table", model.preferredPresentation)
     }
 
     @Test
@@ -1419,9 +1423,7 @@ class FlatSpecRendererSupportTest {
                 mapOf("key" to "high", "label" to "High (Â°C/Â°F)"),
                 mapOf("key" to "low", "label" to "Low (Â°C/Â°F)")
             ),
-            "statePath" to "/forecast",
-            "domain" to "generic",
-            "preferredPresentation" to "table"
+            "statePath" to "/forecast"
         )
         val state = mapOf<String, Any?>(
             "forecast" to listOf(
@@ -1536,7 +1538,6 @@ class FlatSpecRendererSupportTest {
                     "websiteUrl" to "https://the-yard.in/"
                 )
             ),
-            "domain" to "generic",
             "preferredPresentation" to "cards"
         )
 
@@ -1685,4 +1686,3 @@ class FlatSpecRendererSupportTest {
         assertTrue(isCalculationBreakdownTable(breakdown))
     }
 }
-

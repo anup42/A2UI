@@ -117,6 +117,8 @@ def test_checked_in_source_role_benchmark() -> None:
         / "genui_metric_v5_4_source_role_benchmark.json"
     )
     payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["renderer_effective_semantics"] == "5.4.1"
+    assert payload["reapproved_for_renderer_capabilities"] == "2.0.0"
     for case in payload["cases"]:
         contract = extract_expected_ui_contract_v5_4(case["source"])
         requirements = contract["role_requirements"].get(case["role"], [])

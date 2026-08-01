@@ -42,7 +42,9 @@ import androidx.compose.material.icons.filled.Directions
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Restaurant
@@ -66,6 +68,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -104,11 +107,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.samsung.genuicraft.GenUiTokens
 import com.samsung.genuicraft.GenUiCardTone
 import com.samsung.genuicraft.genUiCardContainerColor
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
@@ -127,43 +130,44 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import java.util.UUID
 import java.net.URI
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Schedule
+import java.time.Instant
+import java.time.ZoneOffset
+import com.samsung.genuicraft.renderer.flat.domain.*
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
+import com.samsung.genuicraft.renderer.flat.compose.*
+import com.samsung.genuicraft.renderer.flat.capability.GeneratedRendererCapabilities
+import com.samsung.genuicraft.renderer.flat.legacy.*
+import com.samsung.genuicraft.renderer.flat.model.*
+import com.samsung.genuicraft.renderer.flat.compose.table.*
 
-data class FlatSpec(
-    val root: String,
-    val state: Map<String, Any?>,
-    val elements: Map<String, FlatElement>
-)
-
-data class FlatElement(
-    val type: String,
-    val props: Map<String, Any?>,
-    val children: List<String>,
-    val repeat: RepeatConfig? = null,
-    val visible: Any? = null,
-    val on: Map<String, Any?>? = null,
-    val watch: Map<String, Any?>? = null
-)
-
-data class RepeatConfig(
-    val statePath: String,
-    val key: String? = null
-)
-
-data class RepeatScope(
-    val item: Any? = null,
-    val index: Int? = null,
-    val basePath: String? = null
-)
-
-private data class FlatSourceSection(
+internal data class FlatSourceSection(
     val title: String?,
     val links: List<ParsedButton>
 )
 
-private data class WatchEntry(
+internal data class WatchEntry(
+    val elementId: String,
     val key: String,
     val statePath: String,
     val actionBinding: Any?
+)
+
+/** Carries the originating element through the legacy two-argument action callback. */
+internal data class SourcedActionCandidate(
+    val candidate: Any?,
+    val elementId: String
 )
 
 internal enum class FlatTableRenderMode {
@@ -176,9 +180,9 @@ internal enum class FlatTableRenderMode {
     RESTAURANT_CARDS,
     NEWS_CARDS,
     PLAYLIST_CARDS,
+    PRODUCT_CARDS,
     RESPONSIVE_CARD_ROWS
 }
-
 internal fun shouldBypassSourceLinkIntercept(renderMode: FlatTableRenderMode): Boolean =
     renderMode == FlatTableRenderMode.NEWS_CARDS
 
@@ -192,7 +196,7 @@ internal enum class FlatTableShape {
     GENERIC_GRID
 }
 
-private enum class AdaptiveTablePresentation {
+internal enum class AdaptiveTablePresentation {
     TABLE,
     HORIZONTAL_TABLE,
     STICKY_HORIZONTAL_TABLE,
@@ -205,23 +209,6 @@ private enum class AdaptiveTablePresentation {
     TIMELINE_CARDS,
     METRIC_CARDS
 }
-
-private data class PlaylistTrackRow(
-    val number: String,
-    val title: String,
-    val artist: String?,
-    val chips: List<String>,
-    val sourceRow: List<String>
-)
-
-private data class ClimateComparisonRow(
-    val place: String,
-    val verdict: String?,
-    val high: String?,
-    val low: String?,
-    val metrics: List<Pair<String, String>>,
-    val sourceRow: List<String>
-)
 
 internal data class ChartPoint(
     val label: String,
@@ -288,9 +275,9 @@ internal data class TableEntityMedia(
     val alt: String
 )
 
-private fun useScrollableNativeTableRendering(): Boolean = true
+internal fun useScrollableNativeTableRendering(): Boolean = true
 
-private fun nativeTableShouldScroll(
+internal fun nativeTableShouldScroll(
     compactScreen: Boolean,
     screenWidthDp: Int,
     headers: List<String>,
@@ -306,10 +293,10 @@ private fun nativeTableShouldScroll(
         )
 }
 
-private fun nativeTableStickyFirstColumn(headers: List<String>, horizontalScrollEnabled: Boolean): Boolean =
+internal fun nativeTableStickyFirstColumn(headers: List<String>, horizontalScrollEnabled: Boolean): Boolean =
     horizontalScrollEnabled && headers.size >= 4
 
-private fun directColumnsFromHeaders(headers: List<String>): List<FlatDirectTableColumn> =
+internal fun directColumnsFromHeaders(headers: List<String>): List<FlatDirectTableColumn> =
     headers.mapIndexed { index, header ->
         FlatDirectTableColumn(
             key = normalizeTableColumnKey(header, "col_${index + 1}"),
@@ -317,276 +304,34 @@ private fun directColumnsFromHeaders(headers: List<String>): List<FlatDirectTabl
         )
     }
 
-private data class GeneratedRestaurantVisual(
+internal data class GeneratedRestaurantVisual(
     val title: String
 )
 
 typealias FlatComputedFunction = (Map<String, Any?>) -> Any?
 
-private val LocalFlatSpecAssetResolver = staticCompositionLocalOf<(String) -> String> { { raw -> raw } }
-private val LocalFlatSpecComputedFunctions = staticCompositionLocalOf<Map<String, FlatComputedFunction>> { emptyMap() }
-private val LocalFlatSpecTextHorizontalPadding = staticCompositionLocalOf { 16.dp }
-private const val WATCH_ACTION_BUDGET = 32
-private val IMAGE_PROP_KEYS = listOf("url", "src", "image", "source", "name")
-private val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
-private val MEDIA_PROP_KEYS = listOf("url", "src", "source", "name")
-private val MEDIA_OBJECT_KEYS = listOf("uri", "url", "src", "path", "value", "source", "image", "icon", "name")
-private val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data")
-private const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
-private val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
-private val FORMULA_TABLE_DOMAIN_ALIASES = setOf("formula", "calculation", "calculator", "math")
-private val RESTAURANT_TABLE_DOMAIN_ALIASES = setOf("restaurant", "restaurants", "dining")
-private val NEWS_TABLE_DOMAIN_ALIASES = setOf("news", "headline", "headlines", "article", "articles")
-private val TRAVEL_TABLE_DOMAIN_ALIASES = setOf("travel", "trip", "vacation", "holiday", "itinerary", "places", "attractions")
-private val CARD_FIRST_TABLE_DOMAINS = setOf("weather", "flight", "booking", "restaurants", "schedule", "status", "playlist", "news")
-private val SUPPORTED_TABLE_DOMAINS = CARD_FIRST_TABLE_DOMAINS + setOf("generic", "comparison", "formula")
+internal val LocalFlatSpecAssetResolver = staticCompositionLocalOf<(String) -> String> { { raw -> raw } }
+internal val LocalFlatSpecComputedFunctions = staticCompositionLocalOf<Map<String, FlatComputedFunction>> { emptyMap() }
+internal val LocalFlatSpecTextHorizontalPadding = staticCompositionLocalOf { 16.dp }
+internal val LocalFlatDiagnosticSink = staticCompositionLocalOf<(FlatDiagnostic) -> Unit> { {} }
+internal const val WATCH_ACTION_BUDGET = 32
+internal val IMAGE_PROP_KEYS = listOf("url", "src", "image", "source", "name")
+internal val ICON_PROP_KEYS = listOf("name", "icon", "source", "url", "src")
+internal val MEDIA_PROP_KEYS = listOf("url", "src", "source", "name")
+internal val MEDIA_OBJECT_KEYS = listOf("uri", "url", "src", "path", "value", "source", "image", "icon", "name")
+internal val DIRECT_TABLE_ROW_LIST_KEYS = listOf("cells", "values", "row", "data")
+internal const val FLAT_SPEC_RENDERER_TAG = "FlatSpecRenderer"
+internal val PLAYLIST_TABLE_DOMAIN_ALIASES = setOf("playlist", "music", "entertainment")
+internal val FORMULA_TABLE_DOMAIN_ALIASES = setOf("formula", "calculation", "calculator", "math")
+internal val RESTAURANT_TABLE_DOMAIN_ALIASES = setOf("restaurant", "restaurants", "dining")
+internal val NEWS_TABLE_DOMAIN_ALIASES = setOf("news", "headline", "headlines", "article", "articles")
+internal val TRAVEL_TABLE_DOMAIN_ALIASES = setOf("travel", "trip", "vacation", "holiday", "itinerary", "places", "attractions")
+internal val PRODUCT_TABLE_DOMAIN_ALIASES = setOf("product", "products", "shopping", "catalog")
+internal val CARD_FIRST_TABLE_DOMAINS = GeneratedRendererCapabilities.cardFirstTableDomains
+internal val SUPPORTED_TABLE_DOMAINS = GeneratedRendererCapabilities.tableDomains
 
-object FlatSpecParser {
 
-    fun isFlatSpec(json: JsonElement): Boolean {
-        if (!json.isJsonObject) return false
-        val obj = json.asJsonObject
-        return obj.has("root") && obj.has("elements")
-    }
-
-    fun parse(json: JsonElement): FlatSpec? {
-        if (!isFlatSpec(json)) return null
-        val obj = json.asJsonObject
-        val root = obj.get("root")?.takeIf { it.isJsonPrimitive }?.asString ?: return null
-
-        val stateMap = mutableMapOf<String, Any?>()
-        obj.getAsJsonObject("state")?.entrySet()?.forEach { (key, value) ->
-            stateMap[key] = toKotlin(value)
-        }
-
-        val elements = mutableMapOf<String, FlatElement>()
-        obj.getAsJsonObject("elements")?.entrySet()?.forEach { (id, value) ->
-            if (value.isJsonObject) {
-                parseElement(value.asJsonObject)?.let { elements[id] = it }
-            }
-        }
-
-        if (!elements.containsKey(root)) return null
-        return FlatSpec(root = root, state = stateMap, elements = elements)
-    }
-
-    private fun parseElement(obj: JsonObject): FlatElement? {
-        val rawType = obj.get("type")?.takeIf { it.isJsonPrimitive }?.asString ?: return null
-        val props = mutableMapOf<String, Any?>()
-        obj.getAsJsonObject("props")?.entrySet()?.forEach { (key, value) ->
-            props[key] = toKotlin(value)
-        }
-        obj.entrySet().forEach { (key, value) ->
-            if (key in setOf("type", "props", "children", "child", "repeat", "visible", "on", "watch")) return@forEach
-            if (!props.containsKey(key)) {
-                props[key] = toKotlin(value)
-            }
-        }
-
-        val children = mutableListOf<String>()
-        obj.getAsJsonArray("children")
-            ?.mapNotNull { child -> child.takeIf { it.isJsonPrimitive }?.asString }
-            ?.forEach { childId ->
-                if (childId.isNotBlank() && childId !in children) {
-                    children += childId
-                }
-            }
-        obj.get("child")
-            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
-            ?.asString
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-            ?.let { childId ->
-                if (childId !in children) {
-                    children += childId
-                }
-            }
-        listOf("template", "itemTemplate", "child").forEach { key ->
-            props[key]
-                ?.toString()
-                ?.trim()
-                ?.takeIf { it.isNotBlank() }
-                ?.let { childId ->
-                    if (childId !in children) {
-                        children += childId
-                    }
-                }
-        }
-
-        val repeat = parseRepeat(obj.getAsJsonObject("repeat")) ?: parseRepeat(props["repeat"])
-
-        val visible = obj.get("visible")?.let(::toKotlin) ?: props["visible"]
-        val on = obj.getAsJsonObject("on")
-            ?.entrySet()
-            ?.associate { (key, value) -> key to toKotlin(value) } ?: toStringKeyMap(props["on"])
-        val watch = obj.getAsJsonObject("watch")
-            ?.entrySet()
-            ?.associate { (key, value) -> key to toKotlin(value) } ?: toStringKeyMap(props["watch"])
-
-        val type = normalizeElementType(rawType, props)
-
-        return FlatElement(
-            type = type,
-            props = props,
-            children = children,
-            repeat = repeat,
-            visible = visible,
-            on = on,
-            watch = watch
-        )
-    }
-
-    private fun parseRepeat(value: JsonObject?): RepeatConfig? {
-        val statePath = value?.get("statePath")
-            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
-            ?.asString
-            ?.trim()
-            ?: value?.get("path")
-                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
-                ?.asString
-                ?.trim()
-            ?: return null
-        if (statePath.isBlank()) return null
-        val key = value?.get("key")
-            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
-            ?.asString
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-        return RepeatConfig(
-            statePath = normalizePointer(statePath),
-            key = key
-        )
-    }
-
-    private fun parseRepeat(value: Any?): RepeatConfig? {
-        val map = toStringKeyMap(value) ?: return null
-        val statePath = map["statePath"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-            ?: map["path"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-            ?: return null
-        val key = map["key"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-        return RepeatConfig(
-            statePath = normalizePointer(statePath),
-            key = key
-        )
-    }
-
-    private fun normalizeElementType(rawType: String, props: MutableMap<String, Any?>): String {
-        return when (rawType.trim().lowercase()) {
-            "row" -> {
-                props.putIfAbsent("direction", "horizontal")
-                "Stack"
-            }
-            "column" -> {
-                props.putIfAbsent("direction", "vertical")
-                "Stack"
-            }
-            else -> rawType
-        }
-    }
-
-    fun toKotlin(element: JsonElement): Any? = when {
-        element.isJsonNull -> null
-        element.isJsonPrimitive -> {
-            val primitive = element.asJsonPrimitive
-            when {
-                primitive.isBoolean -> primitive.asBoolean
-                primitive.isNumber -> {
-                    // Preserve the JSON numeric representation used by
-                    // Kotlin equality. `3` is Long while `3.0`/`3e0` is
-                    // Double; collapsing both to Long makes renderer
-                    // `eq` disagree with Python and with Kotlin itself.
-                    val lexical = primitive.toString()
-                    if (lexical.contains('.') ||
-                        lexical.contains('e', ignoreCase = true)
-                    ) {
-                        primitive.asDouble
-                    } else {
-                        primitive.asLong
-                    }
-                }
-                else -> primitive.asString
-            }
-        }
-        element.isJsonArray -> element.asJsonArray.map(::toKotlin)
-        element.isJsonObject -> element.asJsonObject.entrySet().associate { (key, value) ->
-            key to toKotlin(value)
-        }
-        else -> null
-    }
-
-    fun getAtPath(root: Any?, path: String): Any? {
-        val tokens = pointerTokens(path)
-        if (tokens.isEmpty()) return root
-        var current: Any? = root
-        tokens.forEach { token ->
-            current = when (current) {
-                is Map<*, *> -> current[token]
-                is List<*> -> {
-                    val list = current as List<*>
-                    token.toIntOrNull()?.let { index ->
-                        if (index >= 0 && index < list.size) list[index] else null
-                    }
-                }
-                else -> return null
-            }
-        }
-        return current
-    }
-
-    fun setAtPath(stateStore: MutableMap<String, Any?>, path: String, value: Any?) {
-        val tokens = pointerTokens(path)
-        if (tokens.isEmpty()) return
-        val topKey = tokens.first()
-        if (tokens.size == 1) {
-            stateStore[topKey] = value
-            return
-        }
-
-        val existingRoot = stateStore[topKey]
-        val updatedRoot = setInNode(existingRoot, tokens.drop(1), value)
-        stateStore[topKey] = updatedRoot
-    }
-
-    private fun setInNode(node: Any?, tokens: List<String>, value: Any?): Any? {
-        if (tokens.isEmpty()) return value
-        val head = tokens.first()
-        val tail = tokens.drop(1)
-        val index = head.toIntOrNull()
-        return if (index != null) {
-            val list = when (node) {
-                is List<*> -> node.toMutableList()
-                else -> mutableListOf()
-            }
-            while (list.size <= index) {
-                list.add(null)
-            }
-            list[index] = setInNode(list[index], tail, value)
-            list
-        } else {
-            val map = when (node) {
-                is Map<*, *> -> node.entries.associate { (k, v) -> k.toString() to v }.toMutableMap()
-                else -> mutableMapOf()
-            }
-            map[head] = setInNode(map[head], tail, value)
-            map
-        }
-    }
-
-    private fun pointerTokens(path: String): List<String> {
-        if (path.isBlank() || path == "/") return emptyList()
-        return path
-            .removePrefix("/")
-            .split('/')
-            .filter { it.isNotEmpty() }
-            .map { decodePointerToken(it) }
-    }
-
-    private fun decodePointerToken(token: String): String {
-        return token.replace("~1", "/").replace("~0", "~")
-    }
-}
-
-private val DefaultComputedFunctions: Map<String, FlatComputedFunction> = mapOf(
+internal val DefaultComputedFunctions: Map<String, FlatComputedFunction> = mapOf(
     "concat" to { args -> args.values.joinToString(separator = "") { it?.toString().orEmpty() } },
     "uppercase" to { args -> args["value"]?.toString()?.uppercase().orEmpty() },
     "lowercase" to { args -> args["value"]?.toString()?.lowercase().orEmpty() },
@@ -604,18 +349,18 @@ private val DefaultComputedFunctions: Map<String, FlatComputedFunction> = mapOf(
     }
 )
 
-private fun toStringKeyMap(value: Any?): Map<String, Any?>? {
+internal fun toStringKeyMap(value: Any?): Map<String, Any?>? {
     val map = value as? Map<*, *> ?: return null
     return map.entries.associate { (k, v) -> k.toString() to v }
 }
 
-private fun accessibilityMap(props: Map<String, Any?>): Map<String, Any?> {
+internal fun accessibilityMap(props: Map<String, Any?>): Map<String, Any?> {
     return toStringKeyMap(props["accessibility"])
         ?: toStringKeyMap(props["a11y"])
         ?: emptyMap()
 }
 
-private fun accessibilityString(
+internal fun accessibilityString(
     props: Map<String, Any?>,
     vararg keys: String
 ): String? {
@@ -627,7 +372,7 @@ private fun accessibilityString(
     return null
 }
 
-private fun accessibilityLabel(
+internal fun accessibilityLabel(
     props: Map<String, Any?>,
     fallback: String? = null
 ): String? {
@@ -642,7 +387,7 @@ private fun accessibilityLabel(
     ) ?: fallback?.trim()?.takeIf { it.isNotBlank() }
 }
 
-private fun isAccessibilityDecorative(props: Map<String, Any?>): Boolean {
+internal fun isAccessibilityDecorative(props: Map<String, Any?>): Boolean {
     val value = accessibilityMap(props)["decorative"] ?: props["decorative"] ?: props["ariaHidden"]
     return when (value) {
         is Boolean -> value
@@ -651,7 +396,7 @@ private fun isAccessibilityDecorative(props: Map<String, Any?>): Boolean {
     }
 }
 
-private fun Modifier.accessibilitySemantics(
+internal fun Modifier.accessibilitySemantics(
     props: Map<String, Any?>,
     fallbackLabel: String? = null,
     semanticRole: Role? = null,
@@ -687,23 +432,23 @@ private fun Modifier.accessibilitySemantics(
     }
 }
 
-private fun normalizePointer(path: String): String {
+internal fun normalizePointer(path: String): String {
     val trimmed = path.trim()
     if (trimmed.isBlank()) return ""
     return if (trimmed.startsWith('/')) trimmed else "/$trimmed"
 }
 
-private fun encodePointerToken(token: String): String {
+internal fun encodePointerToken(token: String): String {
     return token.replace("~", "~0").replace("/", "~1")
 }
 
-private fun combinePointerPath(basePath: String?, token: String): String? {
+internal fun combinePointerPath(basePath: String?, token: String): String? {
     val normalizedBase = basePath?.trim()?.takeIf { it.isNotBlank() } ?: return null
     val pointerBase = normalizePointer(normalizedBase)
     return "${pointerBase.trimEnd('/')}/${encodePointerToken(token)}"
 }
 
-private fun resolveItemValue(item: Any?, path: String): Any? {
+internal fun resolveItemValue(item: Any?, path: String): Any? {
     if (item == null) return null
     val normalized = path.trim()
     if (normalized.isBlank()) return item
@@ -712,14 +457,14 @@ private fun resolveItemValue(item: Any?, path: String): Any? {
     return if (normalized == "value") item else null
 }
 
-private fun resolveBindItemPath(rawPath: String?, scope: RepeatScope?): String? {
+internal fun resolveBindItemPath(rawPath: String?, scope: RepeatScope?): String? {
     val basePath = scope?.basePath?.takeIf { it.isNotBlank() } ?: return null
     val requested = rawPath?.trim().orEmpty()
     if (requested.isBlank()) return normalizePointer(basePath)
     return combinePointerPath(basePath, requested)
 }
 
-private fun deepCopyValue(value: Any?): Any? {
+internal fun deepCopyValue(value: Any?): Any? {
     return when (value) {
         is Map<*, *> -> value.entries.associate { (k, v) -> k.toString() to deepCopyValue(v) }
         is List<*> -> value.map { deepCopyValue(it) }
@@ -727,7 +472,7 @@ private fun deepCopyValue(value: Any?): Any? {
     }
 }
 
-private fun deepEquals(left: Any?, right: Any?): Boolean {
+internal fun deepEquals(left: Any?, right: Any?): Boolean {
     if (left === right) return true
     if (left == null || right == null) return false
     if (left is Map<*, *> && right is Map<*, *>) {
@@ -743,273 +488,6 @@ private fun deepEquals(left: Any?, right: Any?): Boolean {
     return left == right
 }
 
-object FlatExprResolver {
-
-    private val expressionKeys = setOf(
-        "\$item",
-        "\$state",
-        "\$bindState",
-        "\$bindItem",
-        "\$index",
-        "\$cond",
-        "\$template",
-        "\$computed",
-        "literalString",
-        "literalNumber",
-        "literalBoolean"
-    )
-
-    fun resolve(value: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Any? {
-        return resolve(value, state, RepeatScope(item = item), emptyMap())
-    }
-
-    fun resolve(
-        value: Any?,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>
-    ): Any? {
-        return when (value) {
-            is Map<*, *> -> resolveMap(value, state, repeatScope, computedFunctions)
-            is List<*> -> value.map { child ->
-                resolve(child, state, repeatScope, computedFunctions)
-            }
-            is String -> resolveInlineTemplateString(value, state, repeatScope)
-            else -> value
-        }
-    }
-
-    fun resolveString(value: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): String {
-        return resolve(value, state, RepeatScope(item = item), emptyMap())?.toString().orEmpty()
-    }
-
-    fun resolveString(
-        value: Any?,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>
-    ): String {
-        return resolve(value, state, repeatScope, computedFunctions)?.toString().orEmpty()
-    }
-
-    fun resolveBoolean(value: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Boolean {
-        return resolveBoolean(value, state, RepeatScope(item = item), emptyMap())
-    }
-
-    fun resolveBoolean(
-        value: Any?,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>
-    ): Boolean {
-        return when (val resolved = resolve(value, state, repeatScope, computedFunctions)) {
-            is Boolean -> resolved
-            is Number -> resolved.toInt() != 0
-            is String -> resolved.equals("true", ignoreCase = true)
-            else -> false
-        }
-    }
-
-    fun evaluateVisible(visible: Any?, state: Map<String, Any?>, item: Map<String, Any?>?): Boolean {
-        return evaluateVisible(visible, state, RepeatScope(item = item), emptyMap())
-    }
-
-    fun evaluateVisible(
-        visible: Any?,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>
-    ): Boolean {
-        if (visible == null) return true
-        return evaluateCondition(visible, state, repeatScope, computedFunctions)
-    }
-
-    private fun resolveMap(
-        map: Map<*, *>,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>
-    ): Any? {
-        val stringMap = toStringKeyMap(map) ?: return map
-        val hasExpressionKey = stringMap.keys.any { key -> key in expressionKeys }
-        if (!hasExpressionKey) {
-            return stringMap.mapValues { (_, value) ->
-                resolve(value, state, repeatScope, computedFunctions)
-            }
-        }
-
-        return when {
-            stringMap.containsKey("\$item") -> {
-                val itemPath = stringMap["\$item"]?.toString().orEmpty()
-                resolveItemValue(repeatScope?.item, itemPath)
-            }
-
-            stringMap.containsKey("\$state") ->
-                FlatSpecParser.getAtPath(state, stringMap["\$state"]?.toString().orEmpty())
-
-            stringMap.containsKey("\$bindState") ->
-                FlatSpecParser.getAtPath(state, stringMap["\$bindState"]?.toString().orEmpty())
-
-            stringMap.containsKey("\$bindItem") -> {
-                val itemPath = stringMap["\$bindItem"]?.toString()
-                val resolvedPath = resolveBindItemPath(itemPath, repeatScope)
-                if (resolvedPath.isNullOrBlank()) null else FlatSpecParser.getAtPath(state, resolvedPath)
-            }
-
-            stringMap.containsKey("\$index") -> repeatScope?.index
-
-            stringMap.containsKey("\$cond") -> {
-                val condition = evaluateCondition(stringMap["\$cond"], state, repeatScope, computedFunctions)
-                if (condition) {
-                    resolve(stringMap["\$then"], state, repeatScope, computedFunctions)
-                } else {
-                    resolve(stringMap["\$else"], state, repeatScope, computedFunctions)
-                }
-            }
-
-            stringMap.containsKey("\$template") -> interpolate(
-                template = stringMap["\$template"]?.toString().orEmpty(),
-                state = state,
-                repeatScope = repeatScope
-            )
-
-            stringMap.containsKey("\$computed") -> {
-                val functionName = stringMap["\$computed"]?.toString()?.trim().orEmpty()
-                val args = toStringKeyMap(stringMap["args"])
-                    ?.mapValues { (_, argValue) ->
-                        resolve(argValue, state, repeatScope, computedFunctions)
-                    }
-                    ?: emptyMap()
-                computedFunctions[functionName]?.invoke(args)
-            }
-
-            stringMap.containsKey("literalString") -> stringMap["literalString"]
-            stringMap.containsKey("literalNumber") -> stringMap["literalNumber"]
-            stringMap.containsKey("literalBoolean") -> stringMap["literalBoolean"]
-            else -> stringMap.mapValues { (_, value) ->
-                resolve(value, state, repeatScope, computedFunctions)
-            }
-        }
-    }
-
-    private fun evaluateCondition(
-        condition: Any?,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>
-    ): Boolean {
-        if (condition == null) return true
-        if (condition is Boolean) return condition
-        if (condition is List<*>) {
-            return condition.all { child -> evaluateCondition(child, state, repeatScope, computedFunctions) }
-        }
-        if (condition !is Map<*, *>) return true
-        val expr = toStringKeyMap(condition) ?: return true
-
-        if (expr.containsKey("\$and")) {
-            val list = expr["\$and"] as? List<*> ?: return true
-            return list.all { child -> evaluateCondition(child, state, repeatScope, computedFunctions) }
-        }
-        if (expr.containsKey("\$or")) {
-            val list = expr["\$or"] as? List<*> ?: return false
-            return list.any { child -> evaluateCondition(child, state, repeatScope, computedFunctions) }
-        }
-
-        val rawValue: Any? = when {
-            expr.containsKey("\$state") -> FlatSpecParser.getAtPath(state, expr["\$state"]?.toString().orEmpty())
-            expr.containsKey("\$item") -> resolveItemValue(repeatScope?.item, expr["\$item"]?.toString().orEmpty())
-            expr.containsKey("\$index") -> repeatScope?.index
-            expr.containsKey("value") -> resolve(expr["value"], state, repeatScope, computedFunctions)
-            else -> null
-        }
-
-        val eqValue = resolve(expr["eq"], state, repeatScope, computedFunctions)
-        val neqValue = resolve(expr["neq"], state, repeatScope, computedFunctions)
-        val gtValue = resolve(expr["gt"], state, repeatScope, computedFunctions)
-        val gteValue = resolve(expr["gte"], state, repeatScope, computedFunctions)
-        val ltValue = resolve(expr["lt"], state, repeatScope, computedFunctions)
-        val lteValue = resolve(expr["lte"], state, repeatScope, computedFunctions)
-
-        val result = when {
-            expr.containsKey("eq") -> deepEquals(rawValue, eqValue)
-            expr.containsKey("neq") -> !deepEquals(rawValue, neqValue)
-            expr.containsKey("gt") -> toDouble(rawValue) > toDouble(gtValue)
-            expr.containsKey("gte") -> toDouble(rawValue) >= toDouble(gteValue)
-            expr.containsKey("lt") -> toDouble(rawValue) < toDouble(ltValue)
-            expr.containsKey("lte") -> toDouble(rawValue) <= toDouble(lteValue)
-            else -> truthy(rawValue)
-        }
-        val invert = expr["not"] == true
-        return if (invert) !result else result
-    }
-
-    private fun toDouble(value: Any?): Double {
-        return when (value) {
-            is Number -> value.toDouble()
-            is String -> value.toDoubleOrNull() ?: 0.0
-            else -> 0.0
-        }
-    }
-
-    private fun truthy(value: Any?): Boolean {
-        return when (value) {
-            null -> false
-            is Boolean -> value
-            is Number -> value.toDouble() != 0.0
-            is String -> value.isNotBlank() && !value.equals("false", ignoreCase = true)
-            else -> true
-        }
-    }
-
-    private fun interpolate(template: String, state: Map<String, Any?>, repeatScope: RepeatScope?): String {
-        return resolveInlineTemplateString(template, state, repeatScope)
-    }
-
-    private fun resolveInlineTemplateString(template: String, state: Map<String, Any?>, repeatScope: RepeatScope?): String {
-        if (!template.contains("\$item") &&
-            !template.contains("\$index") &&
-            !template.contains("\${/") &&
-            !template.contains("\${index") &&
-            !Regex("""[$]\{[^}]+\}""").containsMatchIn(template)
-        ) {
-            return template
-        }
-        val item = repeatScope?.item
-        val dollarItemResolved = Regex("""[$]\{\s*[$]item[./]([^}]+?)\s*\}""").replace(template) { match ->
-            val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
-            resolveItemValue(item, itemPath)?.toString().orEmpty()
-        }
-        val mustacheItemResolved = Regex("""\{\{\s*[$]item[./]([^}]+?)\s*\}\}""").replace(dollarItemResolved) { match ->
-            val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
-            resolveItemValue(item, itemPath)?.toString().orEmpty()
-        }
-        val itemResolved = Regex("""(?<![$])\{\s*[$]item[./]([^}]+?)\s*\}""").replace(mustacheItemResolved) { match ->
-            val itemPath = match.groupValues.getOrNull(1).orEmpty().trim()
-            resolveItemValue(item, itemPath)?.toString().orEmpty()
-        }
-        val legacyIndexResolved = Regex("""(?<![$])\{\s*[$]index\s*(?:\+\s*1)?\s*\}""").replace(itemResolved) { match ->
-            val raw = match.value
-            val index = repeatScope?.index ?: return@replace ""
-            if (raw.contains("+")) (index + 1).toString() else index.toString()
-        }
-        return Regex("""[$]\{([^}]+)\}""").replace(legacyIndexResolved) { match ->
-            val rawPath = match.groupValues.getOrNull(1).orEmpty()
-            when (rawPath.trim()) {
-                "index", "index_0" -> repeatScope?.index?.toString().orEmpty()
-                "index_1" -> repeatScope?.index?.let { (it + 1).toString() }.orEmpty()
-                else -> {
-                    val path = normalizePointer(rawPath)
-                    val stateValue = FlatSpecParser.getAtPath(state, path)
-                    if (stateValue != null) {
-                        stateValue.toString()
-                    } else {
-                        resolveItemValue(item, rawPath.trim())?.toString().orEmpty()
-                    }
-                }
-            }
-        }
-    }
-}
 
 /**
  * Test-accessible parity boundary shared with the metric's checked-in JSON
@@ -1041,219 +519,146 @@ internal fun evaluateFlatVisibilityForParity(
     DefaultComputedFunctions
 )
 
-internal object FlatActionRuntime {
-
-    fun execute(
-        actionCandidate: Any?,
-        stateStore: MutableMap<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>,
-        onOpenUrl: (String) -> Unit
-    ): Int {
-        val bindings = toActionBindings(actionCandidate)
-        var executed = 0
-        bindings.forEach { binding ->
-            val actionName = binding["action"]?.toString()?.trim()?.lowercase().orEmpty()
-            if (actionName.isBlank()) return@forEach
-
-            val rawParams = toStringKeyMap(binding["params"]) ?: emptyMap()
-            val resolvedParams = rawParams.mapValues { (_, value) ->
-                FlatExprResolver.resolve(value, stateStore, repeatScope, computedFunctions)
-            }
-
-            when (actionName) {
-                "openurl" -> {
-                    val url = firstNonBlankString(resolvedParams, "url", "href", "link", "targetUrl")
-                    val safeUrl = SafeContentPolicy.sanitizeActionUrl(url)
-                    if (!safeUrl.isNullOrBlank()) {
-                        onOpenUrl(safeUrl)
-                    }
-                }
-
-                "setstate" -> {
-                    val path = resolveStatePathParam(
-                        rawParams,
-                        stateStore,
-                        repeatScope,
-                        computedFunctions,
-                        "statePath",
-                        "path"
-                    )
-                    if (path.isNotBlank()) {
-                        FlatSpecParser.setAtPath(stateStore, path, resolvedParams["value"])
-                    }
-                }
-
-                "pushstate" -> {
-                    val path = resolveStatePathParam(
-                        rawParams,
-                        stateStore,
-                        repeatScope,
-                        computedFunctions,
-                        "statePath",
-                        "path"
-                    )
-                    if (path.isNotBlank()) {
-                        val current = (FlatSpecParser.getAtPath(stateStore, path) as? List<*>)?.toMutableList()
-                            ?: mutableListOf()
-                        val generatedId = UUID.randomUUID().toString()
-                        val value = replaceGeneratedIdToken(resolvedParams["value"], generatedId)
-                        current.add(value)
-                        FlatSpecParser.setAtPath(stateStore, path, current.toList())
-                        val clearStatePath = resolveStatePathParam(
-                            rawParams,
-                            stateStore,
-                            repeatScope,
-                            computedFunctions,
-                            "clearStatePath"
-                        )
-                        if (clearStatePath.isNotBlank()) {
-                            FlatSpecParser.setAtPath(stateStore, clearStatePath, null)
-                        }
-                    }
-                }
-
-                "removestate" -> {
-                    val path = resolveStatePathParam(
-                        rawParams,
-                        stateStore,
-                        repeatScope,
-                        computedFunctions,
-                        "statePath",
-                        "path"
-                    )
-                    val index = toInt(resolvedParams["index"])
-                    if (path.isNotBlank() && index != null) {
-                        val current = (FlatSpecParser.getAtPath(stateStore, path) as? List<*>)?.toMutableList()
-                        if (current != null && index in current.indices) {
-                            current.removeAt(index)
-                            FlatSpecParser.setAtPath(stateStore, path, current.toList())
-                        }
-                    }
-                }
-
-                "validateform" -> {
-                    val targetPath = resolveStatePathParam(
-                        rawParams,
-                        stateStore,
-                        repeatScope,
-                        computedFunctions,
-                        "resultStatePath",
-                        "statePath",
-                        "path"
-                    )
-                        .ifBlank { "/formValidation" }
-                    val validationResult = mapOf(
-                        "valid" to true,
-                        "errors" to emptyMap<String, String>()
-                    )
-                    FlatSpecParser.setAtPath(stateStore, targetPath, validationResult)
-                }
-            }
-            executed += 1
-        }
-        return executed
-    }
-
-    private fun toActionBindings(actionCandidate: Any?): List<Map<String, Any?>> {
-        return when (actionCandidate) {
-            is List<*> -> actionCandidate.mapNotNull { entry ->
-                val binding = toStringKeyMap(entry) ?: return@mapNotNull null
-                binding.takeIf { it["action"] is String }
-            }
-
-            else -> {
-                val binding = toStringKeyMap(actionCandidate)
-                if (binding != null && binding["action"] is String) listOf(binding) else emptyList()
-            }
-        }
-    }
-
-    private fun resolveStatePathParam(
-        rawParams: Map<String, Any?>,
-        state: Map<String, Any?>,
-        repeatScope: RepeatScope?,
-        computedFunctions: Map<String, FlatComputedFunction>,
-        vararg keys: String
-    ): String {
-        keys.forEach { key ->
-            val rawValue = rawParams[key] ?: return@forEach
-            val rawMap = toStringKeyMap(rawValue)
-            val resolved = if (rawMap != null && rawMap.containsKey("\$item")) {
-                resolveBindItemPath(rawMap["\$item"]?.toString(), repeatScope)
-            } else {
-                FlatExprResolver.resolve(rawValue, state, repeatScope, computedFunctions)?.toString()
-            }
-            val normalized = resolved?.trim().orEmpty()
-            if (normalized.isNotBlank()) {
-                return normalized
-            }
-        }
-        return ""
-    }
-
-    private fun firstNonBlankString(map: Map<String, Any?>, vararg keys: String): String {
-        keys.forEach { key ->
-            val value = map[key]?.toString()?.trim().orEmpty()
-            if (value.isNotBlank()) {
-                return value
-            }
-        }
-        return ""
-    }
-
-    private fun toInt(value: Any?): Int? {
-        return when (value) {
-            is Number -> value.toInt()
-            is String -> value.toIntOrNull()
-            else -> null
-        }
-    }
-
-    private fun replaceGeneratedIdToken(value: Any?, generatedId: String): Any? {
-        return when (value) {
-            "\$id" -> generatedId
-            is Map<*, *> -> value.entries.associate { (k, v) ->
-                k.toString() to replaceGeneratedIdToken(v, generatedId)
-            }
-
-            is List<*> -> value.map { replaceGeneratedIdToken(it, generatedId) }
-            else -> value
-        }
-    }
+/**
+ * Test-accessible table-routing boundary. Mirrors what [RenderDirectTable]
+ * resolves before it renders anything, without needing a composition.
+ */
+internal fun resolveFlatTableRoutingForParity(
+    props: Map<String, Any?>,
+    state: Map<String, Any?>,
+    screenWidthDp: Int
+): Map<String, Any?>? {
+    val table = extractDirectTableModel(
+        props,
+        state,
+        compactScreen = isFlatCompactScreenWidth(screenWidthDp)
+    ) ?: return null
+    return linkedMapOf(
+        "domain" to table.domain,
+        "preferredPresentation" to table.preferredPresentation,
+        "shape" to table.shape.name,
+        "renderMode" to table.renderMode.name,
+        "columns" to table.columns.size,
+        "rows" to table.rows.size,
+        "primaryColumn" to table.primaryColumn,
+        "highlightColumns" to table.highlightColumns.sorted(),
+        "numericColumns" to table.numericColumns.sorted(),
+        "entityMediaKeys" to table.entityMedia.keys.sorted()
+    )
 }
 
-internal class FlatWatchRuntime(elements: Map<String, FlatElement>) {
+/**
+ * Single definition of the compact-width breakpoint used by table routing.
+ * Composable call sites read this from `LocalConfiguration.screenWidthDp`.
+ */
+internal fun isFlatCompactScreenWidth(screenWidthDp: Int): Boolean = screenWidthDp <= 480
 
-    private val entries: List<WatchEntry> = elements.flatMap { (elementId, element) ->
-        element.watch.orEmpty().map { (statePath, binding) ->
-            WatchEntry(
-                key = "$elementId::$statePath",
-                statePath = normalizePointer(statePath),
-                actionBinding = binding
+/**
+ * Deterministic, `@Composable`-free description of every reachable element and
+ * the table-routing decision the renderer would make for it.
+ *
+ * This is the invariance net for renderer refactors: moving declarations
+ * between files, or deleting redundant heuristics that the contract already
+ * stamps upstream, must not change this output. Diff the golden after each
+ * move. It intentionally records prop *keys* rather than values, so it stays
+ * readable in review and does not duplicate the parity vectors.
+ */
+internal fun describeFlatSpecRouting(spec: FlatSpec, screenWidthDp: Int): String {
+    val compactScreen = isFlatCompactScreenWidth(screenWidthDp)
+    val described = mutableListOf<Map<String, Any?>>()
+    val visited = mutableSetOf<String>()
+
+    fun childReferences(element: FlatElement): List<String> {
+        val refs = mutableListOf<String>()
+        refs += element.children
+        when (element.type.trim().lowercase(Locale.US)) {
+            "tabs" -> (element.props["tabs"] as? List<*>)?.forEach { tab ->
+                val map = tab as? Map<*, *> ?: return@forEach
+                val ref = map["child"]?.toString()
+                    ?: map["content"]?.toString()
+                    ?: map["id"]?.toString()
+                    ?: map["element"]?.toString()
+                if (!ref.isNullOrBlank()) refs += ref
+            }
+            "modal" -> {
+                element.props["trigger"]?.toString()?.takeIf { it.isNotBlank() }?.let { refs += it }
+                element.props["content"]?.toString()?.takeIf { it.isNotBlank() }?.let { refs += it }
+            }
+        }
+        return refs
+    }
+
+    fun visit(elementId: String, depth: Int) {
+        if (!visited.add(elementId)) return
+        val element = spec.elements[elementId] ?: run {
+            described += linkedMapOf<String, Any?>(
+                "id" to elementId,
+                "depth" to depth,
+                "missing" to true
+            )
+            return
+        }
+        val type = element.type.trim().lowercase(Locale.US)
+        val entry = linkedMapOf<String, Any?>(
+            "id" to elementId,
+            "depth" to depth,
+            "type" to type,
+            "propKeys" to element.props.keys.sorted(),
+            "childCount" to element.children.size,
+            "hasRepeat" to (element.repeat != null),
+            "hasVisible" to (element.visible != null),
+            "eventKeys" to (element.on?.keys?.sorted() ?: emptyList<String>()),
+            "watchKeys" to (element.watch?.keys?.sorted() ?: emptyList<String>())
+        )
+        if (type == "table") {
+            entry["directTable"] = resolveFlatTableRoutingForParity(
+                element.props,
+                spec.state,
+                screenWidthDp
             )
         }
-    }
-    private val lastValues = mutableMapOf<String, Any?>()
-    private var initialized = false
-
-    fun collectTriggered(state: Map<String, Any?>): List<Any?> {
-        if (entries.isEmpty()) return emptyList()
-        val triggered = mutableListOf<Any?>()
-        entries.forEach { entry ->
-            val currentValue = deepCopyValue(FlatSpecParser.getAtPath(state, entry.statePath))
-            val previousValue = lastValues[entry.key]
-            if (initialized && !deepEquals(previousValue, currentValue)) {
-                triggered += entry.actionBinding
+        // Legacy table-like stacks are routed by a separate extractor.
+        if (type == "stack" || type == "row" || type == "column" || type == "list") {
+            val legacy = extractFlatTableModel(
+                element.children,
+                element.props,
+                spec.elements,
+                spec.state,
+                compactScreen
+            )
+            if (legacy != null) {
+                entry["legacyTable"] = linkedMapOf<String, Any?>(
+                    "domain" to legacy.domain,
+                    "preferredPresentation" to legacy.preferredPresentation,
+                    "shape" to legacy.shape.name,
+                    "renderMode" to legacy.renderMode.name,
+                    "columns" to legacy.columns,
+                    "rows" to legacy.rows,
+                    "cardMappingStatus" to legacy.cardMappingStatus
+                )
             }
-            lastValues[entry.key] = currentValue
         }
-        if (!initialized) {
-            initialized = true
-        }
-        return triggered
+        described += entry
+        childReferences(element).forEach { childId -> visit(childId, depth + 1) }
     }
+
+    visit(spec.root, 0)
+
+    val payload = linkedMapOf<String, Any?>(
+        "version" to FLAT_ROUTING_GOLDEN_VERSION,
+        "root" to spec.root,
+        "screenWidthDp" to screenWidthDp,
+        "compactScreen" to compactScreen,
+        "reachableElements" to described.size,
+        "declaredElements" to spec.elements.size,
+        "elements" to described
+    )
+    return GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(payload)
 }
+
+internal const val FLAT_ROUTING_GOLDEN_VERSION = "2.0.0"
+
+
 
 @Composable
 fun FlatSpecContent(
@@ -1263,54 +668,170 @@ fun FlatSpecContent(
     collapseRootHorizontalPadding: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    // Legacy entry point. Keeps the previous behaviour, including state that is
+    // keyed on the spec instance, so existing callers are unaffected.
+    FlatSpecContent(
+        spec = spec,
+        host = rememberDefaultFlatRendererHost(resolveAssetUrl),
+        stateHolder = rememberFlatSpecStateHolder(spec, spec.state),
+        computedFunctions = computedFunctions,
+        collapseRootHorizontalPadding = collapseRootHorizontalPadding,
+        modifier = modifier
+    )
+}
+
+/**
+ * Host-agnostic entry point.
+ *
+ * Differences from the legacy overload: navigation, asset resolution, image
+ * loading and diagnostics arrive via [host] instead of being reached for through
+ * `LocalContext`; render state is owned by [stateHolder] so a surface update can
+ * preserve it; and [onEvent] reports actions and state changes so a host or
+ * agent can observe them.
+ */
+@Composable
+fun FlatSpecContent(
+    spec: FlatSpec,
+    host: FlatRendererHost,
+    stateHolder: FlatSpecStateHolder = rememberFlatSpecStateHolder(spec, spec.state),
+    computedFunctions: Map<String, FlatComputedFunction> = emptyMap(),
+    onEvent: (FlatRenderEvent) -> Unit = {},
+    collapseRootHorizontalPadding: Boolean = false,
+    modifier: Modifier = Modifier
+) {
     val renderSpec = remember(spec, collapseRootHorizontalPadding) {
         if (collapseRootHorizontalPadding) spec.withCollapsedRootHorizontalPadding() else spec
     }
-    val stateStore = remember(spec) {
-        mutableStateMapOf<String, Any?>().apply { putAll(spec.state) }
-    }
+    val stateStore = stateHolder.state
     val combinedComputedFunctions = remember(computedFunctions) {
         DefaultComputedFunctions + computedFunctions
     }
     val watchRuntime = remember(renderSpec) { FlatWatchRuntime(renderSpec.elements) }
+    val watchCascade = remember(renderSpec) { FlatWatchCascadeTransaction(WATCH_ACTION_BUDGET) }
+    val emitDiagnostic: (FlatDiagnostic) -> Unit = { diagnostic ->
+        host.onDiagnostic(diagnostic)
+        onEvent(
+            FlatRenderEvent(
+                kind = FlatRenderEvent.Kind.DIAGNOSTIC,
+                elementId = diagnostic.elementId,
+                value = diagnostic.message,
+                params = mapOf(
+                    "code" to diagnostic.code.name,
+                    "severity" to diagnostic.severity.name
+                ) + diagnostic.details
+            )
+        )
+    }
 
     val onOpenUrl: (String) -> Unit = { url ->
-        SafeContentPolicy.sanitizeActionUrl(url)?.let { safeUrl ->
-            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(safeUrl))) }
-        }
+        onEvent(FlatRenderEvent(FlatRenderEvent.Kind.NAVIGATION, action = "openUrl", value = url))
+        host.openUrl(url)
     }
     val onSetState: (String, Any?) -> Unit = { path, value ->
         val normalizedPath = normalizePointer(path)
         if (normalizedPath.isNotBlank()) {
+            val before = deepCopyValue(FlatSpecParser.getAtPath(stateStore, normalizedPath))
             FlatSpecParser.setAtPath(stateStore, normalizedPath, value)
+            val mutation = FlatStateMutation(
+                path = normalizedPath,
+                operation = FlatStateMutation.Operation.SET,
+                before = before,
+                after = deepCopyValue(value)
+            )
+            onEvent(
+                FlatRenderEvent(
+                    FlatRenderEvent.Kind.STATE_CHANGE,
+                    statePath = normalizedPath,
+                    value = value,
+                    success = true,
+                    stateMutations = listOf(mutation)
+                )
+            )
         }
     }
     val onAction: (Any?, RepeatScope?) -> Int = { actionCandidate, repeatScope ->
-        FlatActionRuntime.execute(
-            actionCandidate = actionCandidate,
+        val sourced = actionCandidate as? SourcedActionCandidate
+        val result = FlatActionRuntime.executeDetailed(
+            actionCandidate = sourced?.candidate ?: actionCandidate,
             stateStore = stateStore,
             repeatScope = repeatScope,
             computedFunctions = combinedComputedFunctions,
-            onOpenUrl = onOpenUrl
+            onOpenUrl = onOpenUrl,
+            onDiagnostic = emitDiagnostic,
+            elements = renderSpec.elements,
+            elementId = sourced?.elementId
         )
+        result.actions.forEach { execution ->
+            onEvent(
+                FlatRenderEvent(
+                    kind = FlatRenderEvent.Kind.ACTION,
+                    action = execution.action,
+                    params = execution.params,
+                    elementId = sourced?.elementId,
+                    success = execution.success,
+                    stateMutations = execution.stateMutations
+                )
+            )
+            execution.stateMutations.forEach { mutation ->
+                onEvent(
+                    FlatRenderEvent(
+                        kind = FlatRenderEvent.Kind.STATE_CHANGE,
+                        action = execution.action,
+                        elementId = sourced?.elementId,
+                        statePath = mutation.path,
+                        value = mutation.after,
+                        success = execution.success,
+                        stateMutations = listOf(mutation)
+                    )
+                )
+            }
+        }
+        result.attempted
     }
 
     LaunchedEffect(renderSpec) {
         snapshotFlow { stateStore.toMap() }.collect { snapshot ->
-            val triggered = watchRuntime.collectTriggered(snapshot)
-            var remainingBudget = WATCH_ACTION_BUDGET
-            triggered.forEach { candidate ->
-                if (remainingBudget <= 0) return@forEach
-                val executed = onAction(candidate, null)
-                remainingBudget -= executed.coerceAtLeast(1)
+            val triggered = watchRuntime.collectTriggeredEntries(snapshot)
+            if (triggered.isEmpty()) {
+                watchCascade.reset()
+                return@collect
+            }
+            watchCascade.beginEmission()
+            triggered.forEach { trigger ->
+                if (!watchCascade.enter(trigger)) {
+                    if (watchCascade.claimTerminationDiagnostic()) {
+                        emitDiagnostic(
+                            FlatDiagnostic(
+                                code = FlatDiagnostic.Code.WATCH_CASCADE_TERMINATED,
+                                severity = FlatDiagnostic.Severity.ERROR,
+                                message = "Watch cascade terminated after a repeated fingerprint or the $WATCH_ACTION_BUDGET-action budget.",
+                                details = mapOf(
+                                    "watch" to trigger.watchKey,
+                                    "statePath" to trigger.statePath,
+                                    "remainingActions" to watchCascade.remainingActions
+                                )
+                            )
+                        )
+                    }
+                    return@forEach
+                }
+                val candidate = limitActionCandidate(trigger.actionBinding, watchCascade.remainingActions)
+                val executed = onAction(
+                    SourcedActionCandidate(candidate, trigger.elementId),
+                    null
+                )
+                watchCascade.consume(executed)
             }
         }
     }
 
     CompositionLocalProvider(
-        LocalFlatSpecAssetResolver provides resolveAssetUrl,
-        LocalFlatSpecComputedFunctions provides combinedComputedFunctions
+        // Asset resolution and image loading both come from the host now, so a
+        // consumer outside this app module can supply its own.
+        LocalFlatSpecAssetResolver provides { raw -> host.resolveAssetUrl(raw) },
+        LocalFlatImageLoader provides host.imageLoader,
+        LocalFlatSpecComputedFunctions provides combinedComputedFunctions,
+        LocalFlatDiagnosticSink provides emitDiagnostic
     ) {
         RenderElement(
             elementId = renderSpec.root,
@@ -1326,7 +847,12 @@ fun FlatSpecContent(
     }
 }
 
-private fun FlatSpec.withCollapsedRootHorizontalPadding(): FlatSpec {
+internal fun limitActionCandidate(candidate: Any?, actionBudget: Int): Any? {
+    if (actionBudget <= 0) return emptyList<Any?>()
+    return if (candidate is List<*>) candidate.take(actionBudget) else candidate
+}
+
+internal fun FlatSpec.withCollapsedRootHorizontalPadding(): FlatSpec {
     val rootElement = elements[root] ?: return this
     val rootType = rootElement.type.trim().lowercase()
     if (rootType !in setOf("stack", "column", "row", "list", "container", "box")) return this
@@ -1349,7 +875,7 @@ private fun FlatSpec.withCollapsedRootHorizontalPadding(): FlatSpec {
 }
 
 @Composable
-private fun RenderElement(
+internal fun RenderElement(
     elementId: String,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -1360,12 +886,60 @@ private fun RenderElement(
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
-    if (elementId in activePath) return
-    val element = elements[elementId] ?: return
+    val diagnosticSink = LocalFlatDiagnosticSink.current
+    if (elementId in activePath) {
+        val diagnostic = FlatDiagnostic(
+            code = FlatDiagnostic.Code.REFERENCE_CYCLE,
+            severity = FlatDiagnostic.Severity.ERROR,
+            message = "Renderer reference cycle detected at '$elementId'.",
+            elementId = elementId
+        )
+        LaunchedEffect(diagnostic.code, elementId) { diagnosticSink(diagnostic) }
+        RenderUnsupportedElement("Reference cycle: $elementId", modifier)
+        return
+    }
+    val element = elements[elementId]
+    if (element == null) {
+        val diagnostic = FlatDiagnostic(
+            code = FlatDiagnostic.Code.MISSING_ELEMENT,
+            severity = FlatDiagnostic.Severity.ERROR,
+            message = "Missing renderer element '$elementId'.",
+            elementId = elementId
+        )
+        LaunchedEffect(diagnostic.code, elementId) { diagnosticSink(diagnostic) }
+        RenderUnsupportedElement("Missing element: $elementId", modifier)
+        return
+    }
     val computedFunctions = LocalFlatSpecComputedFunctions.current
     if (!FlatExprResolver.evaluateVisible(element.visible, state, repeatScope, computedFunctions)) return
 
     val repeatedChildScopes: List<RepeatScope>? = buildRepeatScopes(element.repeat, state)
+    val repeatKeyIssues = repeatedChildScopes.orEmpty().filter { it.keyIssue != null }
+    if (repeatKeyIssues.isNotEmpty()) {
+        LaunchedEffect(elementId, repeatKeyIssues) {
+            repeatKeyIssues.forEach { scope ->
+                val issue = scope.keyIssue ?: return@forEach
+                diagnosticSink(
+                    FlatDiagnostic(
+                        code = FlatDiagnostic.Code.DUPLICATE_REPEAT_KEY,
+                        severity = FlatDiagnostic.Severity.WARNING,
+                        message = when (issue) {
+                            RepeatKeyIssue.MISSING ->
+                                "repeat.key '${element.repeat?.key}' is missing at index ${scope.index}; using index identity."
+                            RepeatKeyIssue.DUPLICATE ->
+                                "repeat.key '${element.repeat?.key}' is duplicated at index ${scope.index}; using index identity."
+                        },
+                        elementId = elementId,
+                        details = mapOf(
+                            "repeatKey" to element.repeat?.key,
+                            "index" to scope.index,
+                            "issue" to issue.name.lowercase(Locale.US)
+                        )
+                    )
+                )
+            }
+        }
+    }
 
     val resolvedProps = element.props.mapValues { (_, value) ->
         FlatExprResolver.resolve(value, state, repeatScope, computedFunctions)
@@ -1390,7 +964,7 @@ private fun RenderElement(
 }
 
 @Composable
-private fun RenderByType(
+internal fun RenderByType(
     elementId: String,
     type: String,
     props: Map<String, Any?>,
@@ -1406,59 +980,104 @@ private fun RenderByType(
     activePath: Set<String>,
     modifier: Modifier = Modifier
 ) {
-    when (type.lowercase()) {
-        "stack" -> RenderStack(elementId, props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "row" -> RenderStack(elementId, props + mapOf("direction" to "horizontal"), children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "column" -> RenderStack(elementId, props + mapOf("direction" to "vertical"), children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "list" -> RenderList(children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "card" -> RenderCard(elementId, props, children, elements, state, repeatScope, repeatedChildScopes, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "table" -> RenderDirectTable(props, state, onOpenUrl, modifier)
-        "formula" -> RenderFormula(props, modifier)
-        "chart", "barchart", "bar_chart" -> RenderChart(props, state, modifier)
-        "code", "codeblock", "code_block", "pre", "preformatted" -> RenderCodeBlock(
-            codeBlock = codeBlockFromProps(props, defaultLanguage = "text", isConsole = false),
+    val compatibilityDirection = GeneratedRendererCapabilities.compatibilityTypeDirections[
+        type.trim().lowercase(Locale.US)
+    ]
+    val effectiveProps = if (compatibilityDirection != null && "direction" !in props) {
+        props + ("direction" to compatibilityDirection)
+    } else {
+        props
+    }
+    val sourcedOnAction: (Any?, RepeatScope?) -> Int = { candidate, scope ->
+        // Child renderers pass their already-sourced value through parent
+        // containers, so the innermost interactive element remains the source.
+        onAction(
+            candidate as? SourcedActionCandidate
+                ?: SourcedActionCandidate(candidate, elementId),
+            scope
+        )
+    }
+    val context = FlatRenderContext(
+        elementId = elementId,
+        type = type,
+        props = effectiveProps,
+        children = children,
+        onMap = onMap,
+        elements = elements,
+        state = state,
+        repeatScope = repeatScope,
+        repeatedChildScopes = repeatedChildScopes,
+        onOpenUrl = onOpenUrl,
+        onSetState = onSetState,
+        onAction = sourcedOnAction,
+        activePath = activePath,
+        modifier = modifier
+    )
+    val renderer = flatRendererFor(type)
+    if (renderer != null) {
+        renderer(context)
+        return
+    }
+    val diagnosticSink = LocalFlatDiagnosticSink.current
+    val diagnostic = FlatDiagnostic(
+        code = FlatDiagnostic.Code.UNSUPPORTED_TYPE,
+        severity = FlatDiagnostic.Severity.ERROR,
+        message = "Unsupported element type '$type' on '$elementId'.",
+        elementId = elementId,
+        details = mapOf("type" to type)
+    )
+    LaunchedEffect(diagnostic.code, elementId, type) { diagnosticSink(diagnostic) }
+    Log.w(
+        FLAT_SPEC_RENDERER_TAG,
+        "Unsupported element type '$type' on '$elementId'" +
+            if (children.isEmpty()) " (rendered as a placeholder)"
+            else " (rendered its ${children.size} child element(s))"
+    )
+    if (children.isNotEmpty()) {
+        RenderStack(
+            elementId = elementId,
+            props = mapOf("direction" to "vertical"),
+            children = children,
+            elements = elements,
+            state = state,
+            repeatScope = repeatScope,
+            repeatedChildScopes = repeatedChildScopes,
+            onOpenUrl = onOpenUrl,
+            onSetState = onSetState,
+            onAction = onAction,
+            activePath = activePath,
             modifier = modifier
         )
-        "console", "consolelog", "console_log", "terminal", "logoutput", "log_output" -> RenderCodeBlock(
-            codeBlock = codeBlockFromProps(props, defaultLanguage = "console", isConsole = true),
-            modifier = modifier
-        )
-        "text" -> RenderText(props, modifier)
-        "emailpreview", "email_preview" -> RenderEmailPreview(props, modifier)
-        "image" -> RenderImage(props, onOpenUrl, modifier)
-        "icon" -> RenderIcon(props, modifier)
-        "button" -> RenderButton(props, onMap, repeatScope, onAction, modifier)
-        "divider" -> RenderDivider(modifier)
-        "tabs" -> RenderTabs(props, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "modal" -> RenderModal(props, children, elements, state, repeatScope, onOpenUrl, onSetState, onAction, activePath, modifier)
-        "textfield" -> RenderTextField(props, onSetState, state, repeatScope, modifier)
-        "checkbox" -> RenderCheckBox(props, onSetState, state, repeatScope, modifier)
-        "choicepicker" -> RenderChoicePicker(props, onSetState, state, repeatScope, modifier)
-        "slider" -> RenderSlider(props, onSetState, state, repeatScope, modifier)
-        "datetimeinput" -> RenderDateTimeInput(props, onSetState, state, repeatScope, modifier)
-        "video" -> RenderVideo(props, onOpenUrl, modifier)
-        "audioplayer" -> RenderAudioPlayer(props, onOpenUrl, modifier)
-        else -> if (children.isNotEmpty()) {
-            RenderStack(
-                elementId = elementId,
-                props = mapOf("direction" to "vertical"),
-                children = children,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                repeatedChildScopes = repeatedChildScopes,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath,
-                modifier = modifier
-            )
-        }
+    } else {
+        RenderUnsupportedElement(type, modifier)
     }
 }
 
 @Composable
-private fun RenderChildren(
+internal fun RenderUnsupportedElement(
+    type: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(8.dp)),
+        color = MaterialTheme.colorScheme.errorContainer
+    ) {
+        Text(
+            text = "Unsupported element: $type",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            modifier = Modifier
+                .padding(12.dp)
+                .semantics { contentDescription = "Unsupported element type $type" }
+        )
+    }
+}
+
+@Composable
+internal fun RenderChildren(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -1499,22 +1118,24 @@ private fun RenderChildren(
 
     repeatedChildScopes.forEach { scopedRepeat ->
         visibleChildren.forEach { childId ->
-            RenderElement(
-                elementId = childId,
-                elements = elements,
-                state = state,
-                repeatScope = scopedRepeat,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
+            key("$childId:${scopedRepeat.stableKey ?: scopedRepeat.index}") {
+                RenderElement(
+                    elementId = childId,
+                    elements = elements,
+                    state = state,
+                    repeatScope = scopedRepeat,
+                    onOpenUrl = onOpenUrl,
+                    onSetState = onSetState,
+                    onAction = onAction,
+                    activePath = activePath
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun RenderFlatSourceSection(
+internal fun RenderFlatSourceSection(
     section: FlatSourceSection,
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -1573,7 +1194,7 @@ private fun RenderFlatSourceSection(
 }
 
 @Composable
-private fun RenderFlatSourceRow(
+internal fun RenderFlatSourceRow(
     source: ParsedButton,
     onOpenUrl: (String) -> Unit
 ) {
@@ -1706,7 +1327,7 @@ internal fun isDetachedMediaDumpElement(
     }
 }
 
-private fun looksLikeCurrentWeatherMetricsTable(
+internal fun looksLikeCurrentWeatherMetricsTable(
     elementId: String,
     props: Map<String, Any?>,
     state: Map<String, Any?>
@@ -1745,7 +1366,7 @@ private fun looksLikeCurrentWeatherMetricsTable(
     return currentTitle || weatherMetricSignals >= 3
 }
 
-private fun containsForecastWeatherTableElement(
+internal fun containsForecastWeatherTableElement(
     elementId: String,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -1762,7 +1383,7 @@ private fun containsForecastWeatherTableElement(
     }
 }
 
-private fun isRedundantTopMetricSummaryElement(
+internal fun isRedundantTopMetricSummaryElement(
     elementId: String,
     siblingIds: List<String>,
     elements: Map<String, FlatElement>,
@@ -1793,7 +1414,7 @@ private fun isRedundantTopMetricSummaryElement(
     return looksLikeTopMetricTextBlock(elementId, elements)
 }
 
-private fun looksLikeTopMetricContainerBlock(
+internal fun looksLikeTopMetricContainerBlock(
     elementId: String,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>
@@ -1844,7 +1465,7 @@ private fun looksLikeTopMetricContainerBlock(
     return textValues.any(::isTopMetricHeadingText) || textValues.count(::isTopMetricLabelText) >= 2
 }
 
-private fun containsResultTableElement(
+internal fun containsResultTableElement(
     elementId: String,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -1862,7 +1483,7 @@ private fun containsResultTableElement(
     }
 }
 
-private fun looksLikeTopMetricTable(
+internal fun looksLikeTopMetricTable(
     props: Map<String, Any?>,
     state: Map<String, Any?>
 ): Boolean {
@@ -1872,7 +1493,7 @@ private fun looksLikeTopMetricTable(
     return labels.count(::isTopMetricLabelText) >= 2
 }
 
-private fun looksLikeTopMetricTextBlock(
+internal fun looksLikeTopMetricTextBlock(
     elementId: String,
     elements: Map<String, FlatElement>
 ): Boolean {
@@ -1916,7 +1537,7 @@ private fun looksLikeTopMetricTextBlock(
     return metricLabelCount >= 2 && valueLikeCount >= 2
 }
 
-private fun isTopMetricHeadingText(text: String): Boolean {
+internal fun isTopMetricHeadingText(text: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(text)
     return normalized in setOf(
         "metrics",
@@ -1929,7 +1550,7 @@ private fun isTopMetricHeadingText(text: String): Boolean {
     )
 }
 
-private fun isTopResultCountSummaryText(text: String): Boolean {
+internal fun isTopResultCountSummaryText(text: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(text)
     if (normalized.length > 90) return false
     return normalized.contains("returned") &&
@@ -1937,7 +1558,7 @@ private fun isTopResultCountSummaryText(text: String): Boolean {
         (normalized.contains("best") || normalized.contains("other") || normalized.contains("total"))
 }
 
-private fun isTopMetricLabelText(text: String): Boolean {
+internal fun isTopMetricLabelText(text: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(text)
     if (normalized.isBlank() || normalized.length > 36) return false
     val phrases = listOf(
@@ -1963,7 +1584,7 @@ private fun isTopMetricLabelText(text: String): Boolean {
     return phrases.any { normalized.contains(it) }
 }
 
-private fun isShortMetricValueText(text: String): Boolean {
+internal fun isShortMetricValueText(text: String): Boolean {
     val trimmed = text.trim()
     if (trimmed.isBlank() || trimmed.length > 32 || SafeContentPolicy.looksLikeUrl(trimmed)) return false
     return trimmed.any(Char::isDigit) ||
@@ -1973,7 +1594,7 @@ private fun isShortMetricValueText(text: String): Boolean {
         trimmed.startsWith("£")
 }
 
-private fun looksLikeForecastWeatherTable(
+internal fun looksLikeForecastWeatherTable(
     props: Map<String, Any?>,
     state: Map<String, Any?>
 ): Boolean {
@@ -2001,7 +1622,7 @@ internal fun isRedundantWeatherLeadInElement(
     return looksLikeCurrentWeatherLeadInElement(elementId, elements, state)
 }
 
-private fun looksLikeCurrentWeatherLeadInElement(
+internal fun looksLikeCurrentWeatherLeadInElement(
     elementId: String,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>
@@ -2084,13 +1705,13 @@ private fun looksLikeCurrentWeatherLeadInElement(
     return hasCurrentCue && metricSignals >= 2
 }
 
-private fun asFloat(value: Any?): Float? = when (value) {
+internal fun asFloat(value: Any?): Float? = when (value) {
     is Number -> value.toFloat()
     is String -> value.toFloatOrNull()
     else -> null
 }
 
-private fun asDp(value: Any?): androidx.compose.ui.unit.Dp? {
+internal fun asDp(value: Any?): androidx.compose.ui.unit.Dp? {
     val number = asFloat(value) ?: return null
     if (!number.isFinite()) return null
     return number.dp
@@ -2159,7 +1780,7 @@ internal fun resolveMediaUrlCandidate(
     }.orEmpty()
 }
 
-private fun isIconLikeMediaUrl(value: String): Boolean {
+internal fun isIconLikeMediaUrl(value: String): Boolean {
     val normalized = value.trim()
     if (normalized.isBlank()) return false
     val lower = normalized.lowercase()
@@ -2168,13 +1789,13 @@ private fun isIconLikeMediaUrl(value: String): Boolean {
         lower.contains("cdn.jsdelivr.net/npm/bootstrap-icons")
 }
 
-private fun isPhotoLikeMediaUrl(value: String): Boolean {
+internal fun isPhotoLikeMediaUrl(value: String): Boolean {
     val normalized = value.trim()
     if (normalized.isBlank() || isIconLikeMediaUrl(normalized)) return false
     return NativeMediaVisualUtils.isPhotoLikeImageUrl(normalized)
 }
 
-private fun parseUrlHost(rawUrl: String): String {
+internal fun parseUrlHost(rawUrl: String): String {
     val normalized = rawUrl.trim()
     if (normalized.isBlank()) return ""
     return runCatching {
@@ -2182,7 +1803,7 @@ private fun parseUrlHost(rawUrl: String): String {
     }.getOrElse { "" }
 }
 
-private fun flatSourceCueText(value: String?): Boolean {
+internal fun flatSourceCueText(value: String?): Boolean {
     val normalized = NativeSourceParsing
         .normalizeSourceHeadingToken(value.orEmpty())
         .trim()
@@ -2194,7 +1815,7 @@ private fun flatSourceCueText(value: String?): Boolean {
         lower.contains("citation")
 }
 
-private fun flatSourceCueFromSelf(
+internal fun flatSourceCueFromSelf(
     elementId: String,
     props: Map<String, Any?>
 ): Boolean {
@@ -2212,7 +1833,7 @@ private fun flatSourceCueFromSelf(
     ).any { key -> flatSourceCueText(props[key]?.toString()) }
 }
 
-private fun flatDirectSourceCue(
+internal fun flatDirectSourceCue(
     childId: String,
     element: FlatElement,
     state: Map<String, Any?>,
@@ -2241,7 +1862,7 @@ private fun flatDirectSourceCue(
         .any { NativeSourceParsing.isSourceHeadingLine(it) }
 }
 
-private fun flatResolvedString(
+internal fun flatResolvedString(
     value: Any?,
     state: Map<String, Any?>,
     repeatScope: RepeatScope?,
@@ -2253,17 +1874,17 @@ private fun flatResolvedString(
         .orEmpty()
 }
 
-private fun toFlatExternalUrl(value: String?): String? {
+internal fun toFlatExternalUrl(value: String?): String? {
     val normalized = NativePayloadParser.canonicalizeNetworkUrlToken(
         flatSanitizeUrlToken(value.orEmpty())
     )
     return SafeContentPolicy.sanitizeActionUrl(normalized)
 }
 
-private fun flatSanitizeUrlToken(value: String): String =
+internal fun flatSanitizeUrlToken(value: String): String =
     NativeStructureParsing.sanitizeUrlToken(value)
 
-private fun parseFlatSourceLinksFromLine(line: String): List<ParsedButton> {
+internal fun parseFlatSourceLinksFromLine(line: String): List<ParsedButton> {
     return NativeSourceParsing.parseSourceLinksFromLine(
         line = line,
         stripLeadingBulletMarker = NativeStructureParsing::stripLeadingBulletMarker,
@@ -2274,7 +1895,7 @@ private fun parseFlatSourceLinksFromLine(line: String): List<ParsedButton> {
     )
 }
 
-private fun flatSourceTitleFromText(value: String): String? {
+internal fun flatSourceTitleFromText(value: String): String? {
     return value
         .lineSequence()
         .map { it.trim() }
@@ -2283,7 +1904,7 @@ private fun flatSourceTitleFromText(value: String): String? {
         ?.takeIf { it.isNotBlank() }
 }
 
-private fun flatSourceUrlCandidateFromAction(
+internal fun flatSourceUrlCandidateFromAction(
     onMap: Map<String, Any?>?,
     props: Map<String, Any?>,
     state: Map<String, Any?>,
@@ -2325,7 +1946,7 @@ private fun flatSourceUrlCandidateFromAction(
         }
 }
 
-private fun flatSourceLabelFromButtonProps(
+internal fun flatSourceLabelFromButtonProps(
     props: Map<String, Any?>,
     fallbackUrl: String,
     state: Map<String, Any?>,
@@ -2340,7 +1961,7 @@ private fun flatSourceLabelFromButtonProps(
         ?: flatSourceLabelFromUrl(fallbackUrl)
 }
 
-private fun parseFlatSourceLinksFromListItems(value: Any?): List<ParsedButton> {
+internal fun parseFlatSourceLinksFromListItems(value: Any?): List<ParsedButton> {
     val items = value as? List<*> ?: return emptyList()
     return items.flatMap { item ->
         when (item) {
@@ -2377,7 +1998,7 @@ private fun parseFlatSourceLinksFromListItems(value: Any?): List<ParsedButton> {
     }.distinctBy { flatCanonicalSourceUrl(it.url) }
 }
 
-private fun flatTablePropsLookLikeSourceLinks(
+internal fun flatTablePropsLookLikeSourceLinks(
     props: Map<String, Any?>,
     state: Map<String, Any?>
 ): Boolean {
@@ -2389,7 +2010,7 @@ private fun flatTablePropsLookLikeSourceLinks(
         collectFlatSourceLinksFromTableProps(props, state, forceSourceContext = forceSourceContext).isNotEmpty()
 }
 
-private fun flatHeadersLookLikeSourceTable(headers: List<String>): Boolean {
+internal fun flatHeadersLookLikeSourceTable(headers: List<String>): Boolean {
     return headers.any { header ->
         val normalized = normalizeTableHeaderForMatch(header)
         normalized in setOf("source", "sources", "reference", "references", "citation", "citations") ||
@@ -2399,7 +2020,7 @@ private fun flatHeadersLookLikeSourceTable(headers: List<String>): Boolean {
     }
 }
 
-private fun collectFlatSourceLinksFromRows(
+internal fun collectFlatSourceLinksFromRows(
     headers: List<String>,
     rows: List<List<String>>,
     rawRows: List<Any?> = emptyList(),
@@ -2442,7 +2063,7 @@ private fun collectFlatSourceLinksFromRows(
     }.distinctBy { flatCanonicalSourceUrl(it.url) }
 }
 
-private fun collectFlatSourceLinksFromTableProps(
+internal fun collectFlatSourceLinksFromTableProps(
     props: Map<String, Any?>,
     state: Map<String, Any?>,
     forceSourceContext: Boolean = false
@@ -2459,7 +2080,7 @@ private fun collectFlatSourceLinksFromTableProps(
     )
 }
 
-private fun flatSourceUrlFromRawTableRow(rawRow: Any?): String? {
+internal fun flatSourceUrlFromRawTableRow(rawRow: Any?): String? {
     val map = toStringKeyMap(rawRow)
     if (!map.isNullOrEmpty()) {
         val keyCandidates = listOf(
@@ -2495,7 +2116,7 @@ private fun flatSourceUrlFromRawTableRow(rawRow: Any?): String? {
     }
 }
 
-private fun flatTableSourceLabelCandidate(value: String?): String? {
+internal fun flatTableSourceLabelCandidate(value: String?): String? {
     val trimmed = NativeTextFormatter.sanitizeDisplayText(value.orEmpty()).trim()
     if (trimmed.isBlank()) return null
     if (NativeTextFormatter.containsUrlLikeToken(trimmed)) return null
@@ -2506,111 +2127,8 @@ private fun flatTableSourceLabelCandidate(value: String?): String? {
     return trimmed
 }
 
-private fun collectFlatSourceLinks(
-    elementIds: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    computedFunctions: Map<String, FlatComputedFunction>,
-    activePath: Set<String> = emptySet()
-): FlatSourceSection {
-    var title: String? = null
-    val links = mutableListOf<ParsedButton>()
 
-    elementIds.forEach { childId ->
-        if (childId in activePath) return@forEach
-        val element = elements[childId] ?: return@forEach
-        val resolvedProps = element.props.mapValues { (_, value) ->
-            FlatExprResolver.resolve(value, state, repeatScope, computedFunctions)
-        }
-        when (element.type.lowercase()) {
-            "text" -> {
-                val rawText = listOf("text", "title", "label", "content", "value")
-                    .firstNotNullOfOrNull { key -> resolvedProps[key]?.toString() }
-                    .orEmpty()
-                title = title ?: flatSourceTitleFromText(rawText)
-                rawText
-                    .lineSequence()
-                    .map { it.trim() }
-                    .filter { it.isNotBlank() && !NativeSourceParsing.isSourceHeadingLine(it) }
-                    .flatMap { parseFlatSourceLinksFromLine(it).asSequence() }
-                    .forEach(links::add)
-            }
-            "button" -> {
-                val url = flatSourceUrlCandidateFromAction(
-                    onMap = element.on,
-                    props = resolvedProps,
-                    state = state,
-                    repeatScope = repeatScope,
-                    computedFunctions = computedFunctions
-                )
-                if (url != null) {
-                    links += ParsedButton(
-                        label = flatSourceLabelFromButtonProps(
-                            props = resolvedProps,
-                            fallbackUrl = url,
-                            state = state,
-                            repeatScope = repeatScope,
-                            computedFunctions = computedFunctions
-                        ),
-                        url = url
-                    )
-                }
-            }
-            "table" -> {
-                links += collectFlatSourceLinksFromTableProps(
-                    props = resolvedProps,
-                    state = state,
-                    forceSourceContext = true
-                )
-            }
-            "list" -> {
-                links += parseFlatSourceLinksFromListItems(resolvedProps["items"])
-                val nestedChildren = element.children.ifEmpty {
-                    resolvedProps["child"]?.toString()?.takeIf { it.isNotBlank() }?.let(::listOf)
-                        ?: emptyList()
-                }
-                if (nestedChildren.isNotEmpty()) {
-                    val nested = collectFlatSourceLinks(
-                        elementIds = nestedChildren,
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        computedFunctions = computedFunctions,
-                        activePath = activePath + childId
-                    )
-                    title = title ?: nested.title
-                    links += nested.links
-                }
-            }
-            else -> {
-                val nestedChildren = element.children.ifEmpty {
-                    resolvedProps["child"]?.toString()?.takeIf { it.isNotBlank() }?.let(::listOf)
-                        ?: emptyList()
-                }
-                if (nestedChildren.isNotEmpty()) {
-                    val nested = collectFlatSourceLinks(
-                        elementIds = nestedChildren,
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        computedFunctions = computedFunctions,
-                        activePath = activePath + childId
-                    )
-                    title = title ?: nested.title
-                    links += nested.links
-                }
-            }
-        }
-    }
-
-    return FlatSourceSection(
-        title = title,
-        links = links.distinctBy { flatCanonicalSourceUrl(it.url) }
-    )
-}
-
-private fun extractFlatSourceSection(
+internal fun extractFlatSourceSection(
     elementId: String,
     props: Map<String, Any?>,
     children: List<String>,
@@ -2644,7 +2162,7 @@ private fun extractFlatSourceSection(
     return section.takeIf { it.links.isNotEmpty() }
 }
 
-private fun flatCanonicalSourceUrl(raw: String): String {
+internal fun flatCanonicalSourceUrl(raw: String): String {
     val normalized = raw.trim()
     val uri = runCatching { Uri.parse(normalized) }.getOrNull()
         ?: return normalized.lowercase()
@@ -2667,7 +2185,7 @@ private fun flatCanonicalSourceUrl(raw: String): String {
     }
 }
 
-private fun flatSourceLabelFromUrl(url: String): String {
+internal fun flatSourceLabelFromUrl(url: String): String {
     val host = runCatching { Uri.parse(url).host?.removePrefix("www.").orEmpty() }
         .getOrElse { "" }
     return host
@@ -2684,7 +2202,7 @@ private fun flatSourceLabelFromUrl(url: String): String {
         .ifBlank { "Source" }
 }
 
-private fun flatSourceUrlDisplay(url: String): String {
+internal fun flatSourceUrlDisplay(url: String): String {
     val uri = runCatching { Uri.parse(url) }.getOrNull() ?: return url
     val host = uri.host?.removePrefix("www.").orEmpty()
     if (host.isBlank()) return url
@@ -2710,7 +2228,7 @@ internal fun deriveImageFallbackUrl(
     return explicitFallback.takeIf { it.isNotBlank() }
 }
 
-private fun parseAspectRatio(value: Any?): Float? {
+internal fun parseAspectRatio(value: Any?): Float? {
     return when (value) {
         is Number -> value.toFloat().takeIf { it.isFinite() && it > 0f }
         is String -> {
@@ -2733,7 +2251,7 @@ private fun parseAspectRatio(value: Any?): Float? {
     }
 }
 
-private fun resolveImageScale(props: Map<String, Any?>): ContentScale {
+internal fun resolveImageScale(props: Map<String, Any?>): ContentScale {
     val token = (
         props["contentScale"]?.toString()
             ?: props["fit"]?.toString()
@@ -2748,7 +2266,7 @@ private fun resolveImageScale(props: Map<String, Any?>): ContentScale {
     }
 }
 
-private fun resolveIconSize(props: Map<String, Any?>): androidx.compose.ui.unit.Dp {
+internal fun resolveIconSize(props: Map<String, Any?>): androidx.compose.ui.unit.Dp {
     asDp(props["size"])?.let { return it }
     asDp(props["iconSize"])?.let { return it }
     asDp(props["width"])?.let { return it }
@@ -2763,7 +2281,7 @@ private fun resolveIconSize(props: Map<String, Any?>): androidx.compose.ui.unit.
     }
 }
 
-private fun stackDirection(props: Map<String, Any?>): String {
+internal fun stackDirection(props: Map<String, Any?>): String {
     val raw = (
         props["direction"]?.toString()
             ?: props["orientation"]?.toString()
@@ -2779,7 +2297,7 @@ private fun stackDirection(props: Map<String, Any?>): String {
     }
 }
 
-private fun stackGap(props: Map<String, Any?>): androidx.compose.ui.unit.Dp {
+internal fun stackGap(props: Map<String, Any?>): androidx.compose.ui.unit.Dp {
     val raw = props["gap"] ?: props["spacing"] ?: props["space"]
     if (raw is Number) {
         return raw.toFloat().dp
@@ -2795,22 +2313,42 @@ private fun stackGap(props: Map<String, Any?>): androidx.compose.ui.unit.Dp {
     }
 }
 
-private fun buildRepeatScopes(
+internal fun buildRepeatScopes(
     repeat: RepeatConfig?,
     state: Map<String, Any?>
 ): List<RepeatScope>? {
     val repeatConfig = repeat ?: return null
     val items = (FlatSpecParser.getAtPath(state, repeatConfig.statePath) as? List<*>).orEmpty()
+    val seenKeys = mutableSetOf<String>()
     return items.mapIndexed { index, item ->
+        val requestedKey = repeatConfig.key?.trim().orEmpty()
+        val rawKey = if (requestedKey.isBlank()) null else {
+            (item as? Map<*, *>)?.entries
+                ?.firstOrNull { (key, _) -> key?.toString() == requestedKey }
+                ?.value
+        }
+        val normalizedKey = rawKey?.toString()?.trim().orEmpty()
+        val issue = when {
+            requestedKey.isBlank() -> null
+            normalizedKey.isBlank() -> RepeatKeyIssue.MISSING
+            !seenKeys.add(normalizedKey) -> RepeatKeyIssue.DUPLICATE
+            else -> null
+        }
         RepeatScope(
             item = item,
             index = index,
-            basePath = combinePointerPath(repeatConfig.statePath, index.toString())
+            basePath = combinePointerPath(repeatConfig.statePath, index.toString()),
+            stableKey = if (issue == null && normalizedKey.isNotBlank()) {
+                "$requestedKey:$normalizedKey"
+            } else {
+                "index:$index"
+            },
+            keyIssue = issue
         )
     }
 }
 
-private fun isHorizontalRowElement(element: FlatElement?): Boolean {
+internal fun isHorizontalRowElement(element: FlatElement?): Boolean {
     if (element == null) return false
     return when (element.type.lowercase()) {
         "row" -> true
@@ -2819,17 +2357,17 @@ private fun isHorizontalRowElement(element: FlatElement?): Boolean {
     }
 }
 
-private fun hasOnlyTextCellChildren(element: FlatElement, elements: Map<String, FlatElement>): Boolean {
+internal fun hasOnlyTextCellChildren(element: FlatElement, elements: Map<String, FlatElement>): Boolean {
     return element.children.isNotEmpty() && element.children.all { childId ->
         elements[childId]?.type?.equals("text", ignoreCase = true) == true
     }
 }
 
-private fun textLikeValue(props: Map<String, Any?>): Any? {
+internal fun textLikeValue(props: Map<String, Any?>): Any? {
     return props["text"] ?: props["title"] ?: props["label"] ?: props["content"] ?: props["value"]
 }
 
-private fun resolveTableHeaderLabel(
+internal fun resolveTableHeaderLabel(
     element: FlatElement?,
     state: Map<String, Any?>
 ): String {
@@ -2843,480 +2381,29 @@ private fun resolveTableHeaderLabel(
     return resolved.trim()
 }
 
-private fun isWeatherHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "weather",
-        "temp",
-        "temperature",
-        "condition",
-        "high",
-        "low",
-        "max",
-        "min",
-        "humidity",
-        "wind",
-        "rain",
-        "rainy",
-        "precip",
-        "forecast",
-        "climate",
-        "sunshine",
-        "sunny",
-        "uv",
-        "feels"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
+
+
+
+
+
+
+
+
+
+
+
+
+
+internal fun normalizeExplicitTableDomain(value: String?): String? {
+    val token = value?.trim()?.lowercase(Locale.US)?.takeIf { it.isNotBlank() } ?: return null
+    return GeneratedRendererCapabilities.tableDomainAliases[token] ?: token
 }
 
-private fun isFlightHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "airline",
-        "carrier",
-        "flight",
-        "depart",
-        "departure",
-        "arrival",
-        "arrive",
-        "duration",
-        "fare",
-        "price",
-        "cost",
-        "stops",
-        "layover"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
 
-private fun isStrongFlightHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "airline",
-        "carrier",
-        "flight",
-        "depart",
-        "departure",
-        "arrival",
-        "arrive",
-        "takeoff",
-        "landing",
-        "origin",
-        "destination"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
 
-private fun isRestaurantHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = normalizeTableHeaderForMatch(label)
-    val keywords = listOf(
-        "restaurant",
-        "place",
-        "name",
-        "rating",
-        "review",
-        "price",
-        "cuisine",
-        "type",
-        "address",
-        "hours",
-        "open",
-        "photo",
-        "image",
-        "maps",
-        "website",
-        "direction",
-        "call"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
 
-private fun isBookingEntityHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "hotel",
-        "property",
-        "provider",
-        "option",
-        "listing",
-        "vendor",
-        "airline",
-        "plan",
-        "package",
-        "name"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
 
-private fun isBookingValueHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "price",
-        "cost",
-        "fare",
-        "rate",
-        "night",
-        "duration",
-        "room",
-        "amenity",
-        "wifi",
-        "rating",
-        "review",
-        "book",
-        "reserve",
-        "deal",
-        "url",
-        "link"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
 
-private fun isScheduleHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val timeKeywords = listOf("time", "date", "day", "slot", "start", "end")
-    val eventKeywords = listOf("event", "activity", "agenda", "session", "task", "title", "stop", "location")
-    return timeKeywords.any { token.contains(it) } || eventKeywords.any { token.contains(it) }
-}
-
-private fun isStatusHeaderLabel(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "status",
-        "state",
-        "stage",
-        "progress",
-        "eta",
-        "updated",
-        "resolved",
-        "tracking",
-        "phase"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
-
-internal fun looksLikeProcessStateTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    domain: String = "generic"
-): Boolean {
-    if (rows.size !in 2..8) return false
-    if (domain !in setOf("status", "schedule", "generic")) return false
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasState = tokens.any { token ->
-        token == "state" ||
-            token == "ui state" ||
-            token == "screen state" ||
-            token == "status" ||
-            token == "step" ||
-            token == "stage"
-    }
-    val hasVisuals = tokens.any { token ->
-        token.contains("visual") ||
-            token.contains("screen") ||
-            token.contains("view") ||
-            token.contains("interface")
-    }
-    val hasFeedback = tokens.any { token ->
-        token.contains("feedback") ||
-            token.contains("message") ||
-            token.contains("text") ||
-            token.contains("result")
-    }
-    val rowSignals = rows.flatten().joinToString(" ").lowercase().let { combined ->
-        listOf("scan", "success", "invalid", "error", "ready", "state", "overlay", "check-in", "qr").count {
-            combined.contains(it)
-        }
-    }
-    return hasState && (hasVisuals || hasFeedback) && rowSignals >= 2
-}
-
-internal fun looksLikeIncidentStatusTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    domain: String = "generic"
-): Boolean {
-    if (rows.isEmpty()) return false
-    if (domain !in setOf("status", "generic")) return false
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasComponent = tokens.any { token ->
-        token == "component" ||
-            token == "service" ||
-            token == "system" ||
-            token == "module" ||
-            token.contains("service")
-    }
-    val hasStatus = tokens.any { token ->
-        token == "status" ||
-            token == "current status" ||
-            token == "health" ||
-            token.contains("status")
-    }
-    val hasNotes = tokens.any { token ->
-        token == "notes" ||
-            token == "impact" ||
-            token == "details" ||
-            token == "description" ||
-            token.contains("message")
-    }
-    val rowSignals = rows.flatten().joinToString(" ").lowercase().let { combined ->
-        listOf("outage", "degraded", "operational", "partial", "incident", "failure", "delayed").count {
-            combined.contains(it)
-        }
-    }
-    return hasComponent && hasStatus && hasNotes && rowSignals >= 1
-}
-
-internal fun looksLikeMarketHoldingsTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    domain: String = "generic"
-): Boolean {
-    if (headers.size < 3 || rows.isEmpty()) return false
-    if (domain !in setOf("generic", "comparison", "finance", "portfolio", "market", "investment", "schedule")) {
-        return false
-    }
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasTicker = tokens.any { token ->
-        token in setOf("ticker", "symbol", "stock", "asset", "holding", "security") ||
-            token.contains("ticker") ||
-            token.contains("symbol")
-    }
-    val hasCurrentValue = tokens.any { token ->
-        (token.contains("current") && token.contains("value")) ||
-            token.contains("market value") ||
-            (token == "value") ||
-            (token.contains("price") && !token.contains("change"))
-    }
-    val hasChange = tokens.any { token ->
-        token.contains("change") ||
-            token.contains("return") ||
-            token.contains("gain") ||
-            token.contains("loss") ||
-            token.contains("p l")
-    }
-    val hasPercentColumn = tokens.any { token ->
-        token.contains("pct") ||
-            token.contains("percent") ||
-            token.contains("percentage")
-    } || headers.any { header -> header.contains('%') }
-    val firstColumnIndex = marketTickerColumnIndex(headers)
-    val tickerLikeRows = rows.count { row ->
-        row.getOrNull(firstColumnIndex).orEmpty().trim().matches(Regex("""[A-Z][A-Z0-9.\-]{1,6}"""))
-    }
-    val currencyOrPercentValues = rows.flatten().count { value ->
-        val token = value.trim()
-        token.contains('$') ||
-            token.contains('%') ||
-            token.startsWith("+") ||
-            token.startsWith("-")
-    }
-    return hasTicker &&
-        hasCurrentValue &&
-        (hasChange || hasPercentColumn) &&
-        tickerLikeRows >= maxOf(1, rows.size / 2) &&
-        currencyOrPercentValues >= rows.size
-}
-
-private fun isComparisonFeatureHeader(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = label.lowercase()
-    val keywords = listOf(
-        "feature",
-        "metric",
-        "criteria",
-        "criterion",
-        "attribute",
-        "spec",
-        "dimension",
-        "parameter",
-        "category",
-        "aspect",
-        "factor",
-        "topic"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
-
-private fun isComparisonEntityHeader(label: String): Boolean {
-    if (label.isBlank()) return false
-    val token = normalizeTableHeaderForMatch(label)
-    val keywords = listOf(
-        "model",
-        "product",
-        "item",
-        "option",
-        "name",
-        "plan",
-        "package",
-        "provider",
-        "service",
-        "tool",
-        "device",
-        "site",
-        "destination",
-        "hotel",
-        "route",
-        "airline",
-        "project",
-        "task",
-        "drink",
-        "recipe"
-    )
-    return keywords.any { keyword -> token.contains(keyword) }
-}
-
-private fun normalizeExplicitTableDomain(value: String?): String? {
-    val token = value?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
-    return when {
-        token in PLAYLIST_TABLE_DOMAIN_ALIASES -> "playlist"
-        token in FORMULA_TABLE_DOMAIN_ALIASES -> "formula"
-        token in RESTAURANT_TABLE_DOMAIN_ALIASES -> "restaurants"
-        token in NEWS_TABLE_DOMAIN_ALIASES -> "news"
-        token in TRAVEL_TABLE_DOMAIN_ALIASES -> "schedule"
-        else -> token
-    }
-}
-
-private fun isPlaylistTableHeaderSet(headers: List<String>, domain: String = "generic"): Boolean {
-    if (domain == "playlist") return true
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasTrackNumber = headers.any { it.trim() == "#" } ||
-        tokens.any { token ->
-            token in setOf("no", "number", "track number", "track no", "tracknumber", "track")
-        }
-    val hasTrackTitle = tokens.any { token ->
-        token == "track" ||
-            token == "song" ||
-            token == "title" ||
-            token == "songtitle" ||
-            token == "tracktitle" ||
-            token.contains("track title") ||
-            token.contains("track name") ||
-            token.contains("song title") ||
-            token.contains("song name")
-    }
-    val hasArtist = tokens.any { token ->
-        token == "artist" ||
-            token.contains("artist") ||
-            token.contains("performer") ||
-            token.contains("band")
-    }
-    val hasMusicMetadata = tokens.any { token ->
-        token.contains("album") ||
-            token.contains("genre") ||
-            token.contains("mood") ||
-            token.contains("tempo") ||
-            token.contains("phase") ||
-            token.contains("set")
-    }
-    return hasTrackTitle && (hasTrackNumber || hasArtist || hasMusicMetadata)
-}
-
-internal fun isFormulaVariableHeaderSet(headers: List<String>): Boolean {
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasVariable = tokens.any { token ->
-        token in setOf("variable", "symbol", "term", "parameter")
-    }
-    val hasDescription = tokens.any { token ->
-        token.contains("description") || token.contains("meaning") || token.contains("definition")
-    }
-    val hasValue = tokens.any { token ->
-        token in setOf("value", "amount", "input value", "given")
-    }
-    return headers.size in 2..4 && hasVariable && (hasDescription || hasValue)
-}
-
-internal fun isCalculationBreakdownHeaderSet(headers: List<String>): Boolean {
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasLabel = tokens.any { token ->
-        token in setOf("component", "item", "metric", "field", "label", "cost component")
-    }
-    val hasAmount = tokens.any { token ->
-        token in setOf("amount", "value", "cost", "total", "payment") ||
-            token.contains("amount") ||
-            token.contains("payment")
-    }
-    return headers.size == 2 && hasLabel && hasAmount
-}
-
-private fun isNewsTableHeaderSet(headers: List<String>, domain: String = "generic"): Boolean {
-    if (domain == "news") return true
-    val tokens = headers.map(::normalizeTableHeaderForMatch)
-    val hasTitle = tokens.any { token ->
-        token in setOf("article", "headline", "title", "story", "news") ||
-            token.contains("headline") ||
-            token.contains("article")
-    }
-    val hasSource = tokens.any { token ->
-        token == "source" ||
-            token == "publisher" ||
-            token == "publication" ||
-            token == "source name" ||
-            token == "source url"
-    }
-    val hasTime = tokens.any { token ->
-        token.contains("published") ||
-            token.contains("pub date") ||
-            token.contains("time") ||
-            token.contains("date")
-    }
-    val hasArticleUrl = tokens.any { token ->
-        token.contains("article url") ||
-            token == "url" ||
-            token == "link" ||
-            token.contains("read")
-    }
-    val hasNewsMedia = tokens.any { token ->
-        token.contains("image url") ||
-            token.contains("source icon") ||
-            token.contains("thumbnail")
-    }
-    return hasTitle && hasSource && (hasTime || hasArticleUrl || hasNewsMedia)
-}
-
-private fun inferTableDomainFromHeaders(headers: List<String>): String {
-    val weatherSignals = headers.count(::isWeatherHeaderLabel)
-    val weatherPeriodSignals = headers.count(::isWeatherPeriodHeaderLabel)
-    val flightSignals = headers.count(::isFlightHeaderLabel)
-    val strongFlightSignals = headers.count(::isStrongFlightHeaderLabel)
-    val restaurantSignals = headers.count(::isRestaurantHeaderLabel)
-    val bookingEntitySignals = headers.count(::isBookingEntityHeaderLabel)
-    val bookingValueSignals = headers.count(::isBookingValueHeaderLabel)
-    val scheduleSignals = headers.count(::isScheduleHeaderLabel)
-    val statusSignals = headers.count(::isStatusHeaderLabel)
-    val featureLike = isComparisonFeatureHeader(headers.firstOrNull().orEmpty())
-    val entityLike = isComparisonEntityHeader(headers.firstOrNull().orEmpty())
-    return when {
-        isPlaylistTableHeaderSet(headers) -> "playlist"
-        isFormulaVariableHeaderSet(headers) || isCalculationBreakdownHeaderSet(headers) -> "formula"
-        isNewsTableHeaderSet(headers) -> "news"
-        weatherSignals >= 2 -> "weather"
-        weatherSignals >= 1 && weatherPeriodSignals >= 1 -> "weather"
-        strongFlightSignals >= 1 && flightSignals >= 2 -> "flight"
-        restaurantSignals >= 2 -> "restaurants"
-        bookingEntitySignals >= 1 && bookingValueSignals >= 2 -> "booking"
-        scheduleSignals >= 2 && statusSignals >= 1 -> "status"
-        scheduleSignals >= 2 -> "schedule"
-        featureLike && headers.size >= 3 -> "comparison"
-        entityLike && headers.size >= 4 -> "comparison"
-        else -> "generic"
-    }
-}
-
-private fun shouldPreferComparisonCards(headers: List<String>, compactScreen: Boolean): Boolean {
-    if (!compactScreen || headers.size < 3) return false
-    val firstHeader = headers.firstOrNull().orEmpty()
-    return isComparisonFeatureHeader(firstHeader) ||
-        (headers.size >= 4 && isComparisonEntityHeader(firstHeader))
-}
 
 internal fun looksLikeClimateComparisonTable(
     headers: List<String>,
@@ -3367,7 +2454,7 @@ internal fun looksLikeClimateComparisonTable(
     return comparisonLike && climateSignals >= 2 && hasTemperature && hasOutdoorMetric
 }
 
-private fun stringSetFromTableProp(value: Any?): Set<String> {
+internal fun stringSetFromTableProp(value: Any?): Set<String> {
     return when (value) {
         is List<*> -> value.mapNotNull { item -> item?.toString()?.trim()?.takeIf { it.isNotBlank() } }.toSet()
         is String -> value
@@ -3378,9 +2465,9 @@ private fun stringSetFromTableProp(value: Any?): Set<String> {
     }
 }
 
-private fun normalizeColumnToken(value: String): String = normalizeTableHeaderForMatch(value)
+internal fun normalizeColumnToken(value: String): String = normalizeTableHeaderForMatch(value)
 
-private fun columnIndexForToken(columns: List<FlatDirectTableColumn>, token: String): Int? {
+internal fun columnIndexForToken(columns: List<FlatDirectTableColumn>, token: String): Int? {
     val normalized = normalizeColumnToken(token)
     if (normalized.isBlank()) return null
     return columns.indexOfFirst { column ->
@@ -3389,7 +2476,7 @@ private fun columnIndexForToken(columns: List<FlatDirectTableColumn>, token: Str
     }.takeIf { it >= 0 }
 }
 
-private fun numericColumnIndexes(
+internal fun numericColumnIndexes(
     columns: List<FlatDirectTableColumn>,
     rows: List<List<String>>,
     explicitTokens: Set<String>
@@ -3422,25 +2509,25 @@ private fun numericColumnIndexes(
     }.toSet()
 }
 
-private fun looksLikeNumericTableValue(value: String): Boolean {
+internal fun looksLikeNumericTableValue(value: String): Boolean {
     val normalized = value.trim()
     if (normalized.isBlank()) return false
     return Regex("""^[₹$€£]?\s*[-+]?\d[\d,]*(?:\.\d+)?\s*(?:%|x|k|K|m|M|bn|hrs?|hours?|mins?|minutes?|days?|°[CF]?)?$""")
         .containsMatchIn(normalized)
 }
 
-private fun looksLikeRankHeader(label: String): Boolean {
+internal fun looksLikeRankHeader(label: String): Boolean {
     val token = normalizeTableHeaderForMatch(label)
     return token in setOf("rank", "id", "number", "no") || label.trim() == "#"
 }
 
-private fun looksLikeLongDetailHeader(label: String): Boolean {
+internal fun looksLikeLongDetailHeader(label: String): Boolean {
     val token = normalizeTableHeaderForMatch(label)
     return listOf("note", "notes", "description", "detail", "details", "justification", "reason", "summary", "remarks")
         .any { keyword -> token.contains(keyword) }
 }
 
-private fun isCompactTableBadgeValue(value: String): Boolean {
+internal fun isCompactTableBadgeValue(value: String): Boolean {
     val normalized = value.trim()
     if (normalized.isBlank() || isLikelyHttpUrl(normalized)) return false
     if (normalized.contains('\n')) return false
@@ -3448,14 +2535,14 @@ private fun isCompactTableBadgeValue(value: String): Boolean {
     return normalized.length <= 34
 }
 
-private fun isCompactHighlightColumn(rows: List<List<String>>, index: Int): Boolean {
+internal fun isCompactHighlightColumn(rows: List<List<String>>, index: Int): Boolean {
     val values = rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
     if (values.isEmpty()) return false
     val compactCount = values.count(::isCompactTableBadgeValue)
     return compactCount >= maxOf(1, values.size * 2 / 3)
 }
 
-private fun inferEntityPrimaryColumnIndex(headers: List<String>, primaryColumn: String?): Int {
+internal fun inferEntityPrimaryColumnIndex(headers: List<String>, primaryColumn: String?): Int {
     primaryColumn?.let { token ->
         val explicit = headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
         if (explicit >= 0) return explicit
@@ -3471,7 +2558,7 @@ private fun inferEntityPrimaryColumnIndex(headers: List<String>, primaryColumn: 
     return 0
 }
 
-private fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
+internal fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
     val normalized = headers.map(::normalizeTableHeaderForMatch)
     val routeSignals = normalized.count { header ->
         header.contains("depart") ||
@@ -3493,248 +2580,23 @@ private fun shouldUseNativeFlightCards(headers: List<String>): Boolean {
     return routeSignals >= 2 && rankedComparisonSignals < 2
 }
 
-private fun rankedFlightColumnIndex(headers: List<String>, keywords: List<String>): Int? {
+internal fun rankedFlightColumnIndex(headers: List<String>, keywords: List<String>): Int? {
     return headers.indexOfFirst { header ->
         val token = normalizeTableHeaderForMatch(header)
         keywords.any { keyword -> token.contains(keyword) }
     }.takeIf { it >= 0 }
 }
 
-private fun looksLikeRankedFlightComparisonTable(headers: List<String>): Boolean {
-    val normalized = headers.map(::normalizeTableHeaderForMatch)
-    val hasAirline = normalized.any { it.contains("airline") || it.contains("carrier") }
-    val hasRank = normalized.any { it.contains("rank") || it.contains("score") || it.contains("order") }
-    val hasCost = normalized.any { it.contains("cost") || it.contains("fare") || it.contains("price") }
-    val hasDuration = normalized.any { it.contains("time") || it.contains("duration") || it.contains("travel") }
-    val hasStops = normalized.any { it.contains("layover") || it.contains("stop") || it.contains("connection") }
-    return hasAirline && (hasRank || hasCost) && (hasDuration || hasStops)
-}
 
-private fun compactRankBadge(rawRank: String, fallbackIndex: Int): String {
+internal fun compactRankBadge(rawRank: String, fallbackIndex: Int): String {
     val number = Regex("""\d+""").find(rawRank)?.value ?: (fallbackIndex + 1).toString()
     return "#$number"
 }
 
-private fun looksLikeMultiLegFlightTable(headers: List<String>): Boolean {
-    val normalized = headers.map(::normalizeTableHeaderForMatch)
-    val legSignals = normalized.count { header ->
-        header.contains("leg") ||
-            Regex("""\b[a-z]{3}\s*[/-]\s*[a-z]{3}\b""").containsMatchIn(header)
-    }
-    val carrierSignals = normalized.count { header ->
-        header.contains("carrier") || header.contains("airline")
-    }
-    return legSignals >= 2 && carrierSignals >= 1
-}
 
-private fun detectTableShape(
-    headers: List<String>,
-    rows: List<List<String>>,
-    domain: String
-): FlatTableShape {
-    val columnCount = maxOf(headers.size, rows.maxOfOrNull { row -> row.size } ?: 0)
-    val firstHeader = headers.firstOrNull().orEmpty()
-    val firstHeaderToken = normalizeTableHeaderForMatch(firstHeader)
-    val firstColumnValues = rows.mapNotNull { row -> row.getOrNull(0)?.trim()?.takeIf { it.isNotBlank() } }
-    val compactFirstColumn = firstColumnValues.isNotEmpty() &&
-        firstColumnValues.all { value -> value.length <= 44 }
-    val numericLikeColumns = headers.indices.count { index ->
-        rows.mapNotNull { row -> row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() } }
-            .let { values -> values.size >= 2 && values.count(::looksLikeNumericTableValue) >= values.size / 2 }
-    }
-    return when {
-        isPlaylistTableHeaderSet(headers, domain) -> FlatTableShape.PLAYLIST
-        domain == "formula" && isFormulaVariableHeaderSet(headers) -> FlatTableShape.KEY_VALUE
-        domain == "formula" && columnCount == 2 && firstHeaderToken == "input" -> FlatTableShape.KEY_VALUE
-        domain == "formula" && isCalculationBreakdownHeaderSet(headers) -> FlatTableShape.NUMERIC_METRICS
-        columnCount <= 2 &&
-            firstHeaderToken in setOf("metric", "feature", "field", "label", "item", "name", "attribute", "key") ->
-            FlatTableShape.KEY_VALUE
-        columnCount <= 2 && domain == "generic" -> FlatTableShape.KEY_VALUE
-        domain in setOf("schedule", "status") -> FlatTableShape.SCHEDULE_TIMELINE
-        isComparisonFeatureHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.FEATURE_MATRIX
-        domain == "comparison" && isComparisonFeatureHeader(firstHeader) -> FlatTableShape.FEATURE_MATRIX
-        domain in CARD_FIRST_TABLE_DOMAINS -> FlatTableShape.ENTITY_ROW
-        domain == "comparison" && compactFirstColumn -> FlatTableShape.ENTITY_ROW
-        columnCount <= 2 -> FlatTableShape.KEY_VALUE
-        isComparisonEntityHeader(firstHeader) && columnCount >= 3 -> FlatTableShape.ENTITY_ROW
-        numericLikeColumns >= 2 && columnCount <= 4 -> FlatTableShape.NUMERIC_METRICS
-        else -> FlatTableShape.GENERIC_GRID
-    }
-}
 
-internal fun extractFlatTableModel(
-    containerChildren: List<String>,
-    containerProps: Map<String, Any?>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    compactScreen: Boolean
-): FlatTableModel? {
-    if (containerChildren.size < 2) return null
-    // If the IR already contains an explicit Table component, let that component render directly.
-    // The row-based heuristic below is only for legacy table-like stacks.
-    if (containerChildren.any { childId ->
-            elements[childId]?.type?.equals("table", ignoreCase = true) == true
-        }
-    ) {
-        return null
-    }
 
-    val headerRowId = containerChildren.firstOrNull { childId ->
-        val element = elements[childId] ?: return@firstOrNull false
-        isHorizontalRowElement(element) &&
-            element.repeat == null &&
-            element.children.size >= 2 &&
-            hasOnlyTextCellChildren(element, elements)
-    } ?: return null
-    val headerRow = elements[headerRowId] ?: return null
-
-    val bodyContainerId = containerChildren.firstOrNull { childId ->
-        if (childId == headerRowId) return@firstOrNull false
-        val bodyElement = elements[childId] ?: return@firstOrNull false
-        if (bodyElement.repeat == null) return@firstOrNull false
-        val templateId = bodyElement.children.firstOrNull() ?: return@firstOrNull false
-        val template = elements[templateId] ?: return@firstOrNull false
-        isHorizontalRowElement(template) && template.children.size >= 2
-    }
-
-    val staticRowIds = if (bodyContainerId == null) {
-        containerChildren.filter { childId ->
-            childId != headerRowId && isHorizontalRowElement(elements[childId])
-        }
-    } else {
-        emptyList()
-    }
-    if (bodyContainerId == null && staticRowIds.isEmpty()) {
-        return null
-    }
-
-    val tableMemberIds = buildSet {
-        add(headerRowId)
-        bodyContainerId?.let { add(it) }
-        addAll(staticRowIds)
-    }
-    val nonTableChildren = containerChildren.filterNot { it in tableMemberIds }
-    if (
-        nonTableChildren.size > 2 ||
-        nonTableChildren.any { childId ->
-            val type = elements[childId]?.type?.trim()?.lowercase().orEmpty()
-            type !in setOf("text", "divider")
-        }
-    ) {
-        return null
-    }
-
-    val bodyElement = bodyContainerId?.let(elements::get)
-    val rowTemplateId = bodyElement?.children?.firstOrNull()
-    val rowTemplate = rowTemplateId?.let(elements::get)
-    val rows = if (bodyElement?.repeat != null) {
-        buildRepeatScopes(bodyElement.repeat, state)?.size ?: 0
-    } else {
-        staticRowIds.size
-    }
-
-    val templateColumns = when {
-        rowTemplate != null -> rowTemplate.children.size
-        staticRowIds.isNotEmpty() -> staticRowIds.maxOf { id -> elements[id]?.children?.size ?: 0 }
-        else -> 0
-    }
-    val columns = maxOf(headerRow.children.size, templateColumns)
-    if (columns < 2) return null
-
-    val headers = (0 until columns).map { index ->
-        val cellId = headerRow.children.getOrNull(index)
-        val label = resolveTableHeaderLabel(cellId?.let(elements::get), state)
-        label.ifBlank { "Column ${index + 1}" }
-    }
-    val inferredDomain = inferTableDomainFromHeaders(headers)
-    val isWeather = inferredDomain == "weather"
-    val isFlight = inferredDomain == "flight"
-    val explicitDomain = normalizeExplicitTableDomain(containerProps["domain"]?.toString())
-        ?.takeIf { it in SUPPORTED_TABLE_DOMAINS }
-    val domain = when {
-        explicitDomain != null && explicitDomain in CARD_FIRST_TABLE_DOMAINS -> explicitDomain
-        explicitDomain == "generic" && inferredDomain in CARD_FIRST_TABLE_DOMAINS -> inferredDomain
-        explicitDomain != null -> explicitDomain
-        else -> inferredDomain
-    }
-    val explicitPreferredPresentation = containerProps["preferredPresentation"]?.toString()?.trim()?.lowercase()
-        ?.takeIf { it in setOf("cards", "table") }
-    val preferredPresentation = when {
-        explicitPreferredPresentation == null -> if (domain in CARD_FIRST_TABLE_DOMAINS) "cards" else "table"
-        explicitDomain == "generic" &&
-            explicitPreferredPresentation == "table" &&
-            domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
-        else -> explicitPreferredPresentation
-    }
-    val resolvedTableRows = collectResolvedTableRows(
-        tableModel = FlatTableModel(
-            headerRowId = headerRowId,
-            bodyContainerId = bodyContainerId,
-            rowTemplateId = rowTemplateId,
-            staticRowIds = staticRowIds,
-            headers = headers,
-            columns = columns,
-            rows = rows,
-            isWeather = isWeather,
-            isFlight = isFlight,
-            domain = domain,
-            preferredPresentation = preferredPresentation,
-            title = containerProps["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() },
-            shape = FlatTableShape.GENERIC_GRID,
-            cardMappingStatus = "not_applicable",
-            renderMode = FlatTableRenderMode.TABLE
-        ),
-        elements = elements,
-        state = state,
-        repeatedRowScopes = bodyElement?.repeat?.let { buildRepeatScopes(it, state) }.orEmpty(),
-        repeatScope = null
-    )
-    val shape = detectTableShape(
-        headers = headers,
-        rows = resolvedTableRows,
-        domain = domain
-    )
-    val cardMappingStatus = when (domain) {
-        "comparison" -> "pending_runtime_mapping"
-        in CARD_FIRST_TABLE_DOMAINS -> "pending_runtime_mapping"
-        else -> "not_applicable"
-    }
-    val comparisonCardsPreferred = domain == "comparison" && shouldPreferComparisonCards(headers, compactScreen)
-    val renderMode = when {
-        looksLikeProcessStateTable(headers, resolvedTableRows, domain) -> FlatTableRenderMode.PROCESS_CARDS
-        domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
-        domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
-        domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
-        domain == "restaurants" -> FlatTableRenderMode.RESTAURANT_CARDS
-        domain == "news" -> FlatTableRenderMode.NEWS_CARDS
-        domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
-        comparisonCardsPreferred -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        domain in setOf("schedule", "status") -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        compactScreen && columns >= 4 -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        else -> FlatTableRenderMode.TABLE
-    }
-
-    return FlatTableModel(
-        headerRowId = headerRowId,
-        bodyContainerId = bodyContainerId,
-        rowTemplateId = rowTemplateId,
-        staticRowIds = staticRowIds,
-        headers = headers,
-        columns = columns,
-        rows = rows,
-        isWeather = isWeather,
-        isFlight = isFlight,
-        domain = domain,
-        preferredPresentation = preferredPresentation,
-        title = containerProps["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() },
-        shape = shape,
-        cardMappingStatus = cardMappingStatus,
-        renderMode = renderMode
-    )
-}
-
-private fun applyStackModifier(
+internal fun applyStackModifier(
     base: Modifier,
     props: Map<String, Any?>,
     direction: String
@@ -3778,7 +2640,7 @@ private fun applyStackModifier(
     return out
 }
 
-private fun hasHorizontalContainerPadding(props: Map<String, Any?>): Boolean =
+internal fun hasHorizontalContainerPadding(props: Map<String, Any?>): Boolean =
     asFlatSpacingDp(props["padding"]) != null ||
         asFlatSpacingDp(props["paddingHorizontal"]) != null ||
         asFlatSpacingDp(props["contentPadding"]) != null ||
@@ -3789,7 +2651,7 @@ internal fun rowChildFlex(element: FlatElement?): Float =
         ?.takeIf { it > 0f }
         ?: 0f
 
-private fun isPaddedContainerElement(element: FlatElement?): Boolean {
+internal fun isPaddedContainerElement(element: FlatElement?): Boolean {
     if (element == null || !hasHorizontalContainerPadding(element.props)) return false
     return when (element.type.trim().lowercase()) {
         "stack", "column", "row", "list", "container", "box" -> true
@@ -3797,353 +2659,9 @@ private fun isPaddedContainerElement(element: FlatElement?): Boolean {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderStack(
-    elementId: String,
-    props: Map<String, Any?>,
-    children: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    repeatedChildScopes: List<RepeatScope>?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val compactScreen = LocalConfiguration.current.screenWidthDp <= 480
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    extractFlatSourceSection(
-        elementId = elementId,
-        props = props,
-        children = children,
-        elements = elements,
-        state = state,
-        repeatScope = repeatScope,
-        computedFunctions = computedFunctions,
-        allowChildSourceCue = false
-    )?.let { sourceSection ->
-        RenderFlatSourceSection(
-            section = sourceSection,
-            onOpenUrl = onOpenUrl,
-            modifier = modifier,
-            wrapInCard = false,
-            showTitle = sourceSection.title != null
-        )
-        return
-    }
-    val tableModel = if (repeatedChildScopes == null) {
-        extractFlatTableModel(
-            containerChildren = children,
-            containerProps = props,
-            elements = elements,
-            state = state,
-            compactScreen = compactScreen
-        )
-    } else {
-        null
-    }
-    if (tableModel != null) {
-        RenderTableLayout(
-            tableModel = tableModel,
-            elementId = elementId,
-            props = props,
-            elements = elements,
-            state = state,
-            repeatScope = repeatScope,
-            onOpenUrl = onOpenUrl,
-            onSetState = onSetState,
-            onAction = onAction,
-            activePath = activePath,
-            modifier = modifier
-        )
-        return
-    }
-
-    val direction = stackDirection(props)
-    val gap = stackGap(props)
-    val align = (
-        props["align"]?.toString()
-            ?: props["crossAxisAlignment"]?.toString()
-            ?: if (direction == "horizontal") props["verticalAlignment"]?.toString() else props["horizontalAlignment"]?.toString()
-        )
-        ?.trim()
-        ?.lowercase()
-        .orEmpty()
-    val justify = (
-        props["justify"]?.toString()
-            ?: props["mainAxisAlignment"]?.toString()
-            ?: if (direction == "horizontal") props["horizontalArrangement"]?.toString() else props["verticalArrangement"]?.toString()
-        )
-        ?.trim()
-        ?.lowercase()
-        .orEmpty()
-    val wrap = props["wrap"]?.toString()?.trim()?.lowercase() == "wrap"
-    val childElements = children.mapNotNull { childId -> elements[childId] }
-    val allButtonChildren = childElements.isNotEmpty() &&
-        childElements.all { child -> child.type.equals("button", ignoreCase = true) }
-    val hasLongButtonLabel = childElements.any { child ->
-        child.props["label"]?.toString()?.trim()?.length ?: 0 > 20
-    }
-    val autoWrapButtonRow = direction == "horizontal" &&
-        compactScreen &&
-        !wrap &&
-        allButtonChildren &&
-        children.size >= 2
-    val hasImageChild = childElements.any { child ->
-        child.type.equals("image", ignoreCase = true)
-    }
-    val hasLongTextChild = childElements.any { child ->
-        if (!child.type.equals("text", ignoreCase = true)) return@any false
-        val rawText = (
-            child.props["text"]
-                ?: child.props["title"]
-                ?: child.props["label"]
-                ?: child.props["content"]
-                ?: child.props["value"]
-            )
-            ?.toString()
-            .orEmpty()
-        rawText.length >= 90
-    }
-    val forceVerticalMediaTextRow = direction == "horizontal" &&
-        compactScreen &&
-        !wrap &&
-        children.size in 2..3 &&
-        hasImageChild &&
-        hasLongTextChild
-    val compactIconTextRow = direction == "horizontal" &&
-        compactScreen &&
-        !wrap &&
-        children.size == 2 &&
-        childElements.getOrNull(0)?.type?.equals("icon", ignoreCase = true) == true &&
-        childElements.getOrNull(1)?.type?.equals("text", ignoreCase = true) == true
-    val forceVerticalCardRow = direction == "horizontal" &&
-        compactScreen &&
-        !wrap &&
-        children.size >= 2 &&
-        childElements.all { child -> child.type.equals("card", ignoreCase = true) }
-    val compactTextButtonRow = direction == "horizontal" &&
-        compactScreen &&
-        !wrap &&
-        children.size == 2 &&
-        childElements.any { child -> child.type.equals("text", ignoreCase = true) } &&
-        childElements.any { child -> child.type.equals("button", ignoreCase = true) }
-    val forceVerticalButtonStack = autoWrapButtonRow && hasLongButtonLabel
-    val stackModifier = applyStackModifier(modifier, props, direction)
-    val childTextHorizontalPadding = if (hasHorizontalContainerPadding(props)) {
-        0.dp
-    } else {
-        LocalFlatSpecTextHorizontalPadding.current
-    }
-
-    if (direction == "horizontal") {
-        val horizontalArrangement: Arrangement.Horizontal = when (justify) {
-            "center" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.CenterHorizontally) else Arrangement.Center
-            "end" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.End) else Arrangement.End
-            "between" -> Arrangement.SpaceBetween
-            "around" -> Arrangement.SpaceAround
-            else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Start
-        }
-        if (compactIconTextRow) {
-            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-                Row(
-                    modifier = stackModifier,
-                    horizontalArrangement = Arrangement.spacedBy(gap),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    RenderElement(
-                        elementId = children[0],
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        onOpenUrl = onOpenUrl,
-                        onSetState = onSetState,
-                        onAction = onAction,
-                        activePath = activePath
-                    )
-                    RenderElement(
-                        elementId = children[1],
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        onOpenUrl = onOpenUrl,
-                        onSetState = onSetState,
-                        onAction = onAction,
-                        activePath = activePath,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            return
-        }
-        if (forceVerticalButtonStack || forceVerticalCardRow) {
-            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-                Column(
-                    modifier = stackModifier,
-                    verticalArrangement = Arrangement.spacedBy(gap)
-                ) {
-                    RenderChildren(
-                        children = children,
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        repeatedChildScopes = repeatedChildScopes,
-                        onOpenUrl = onOpenUrl,
-                        onSetState = onSetState,
-                        onAction = onAction,
-                        activePath = activePath
-                    )
-                }
-            }
-            return
-        }
-        if (compactTextButtonRow) {
-            val textChildId = children.firstOrNull { childId ->
-                elements[childId]?.type?.equals("text", ignoreCase = true) == true
-            }
-            val buttonChildId = children.firstOrNull { childId ->
-                elements[childId]?.type?.equals("button", ignoreCase = true) == true
-            }
-            if (textChildId != null && buttonChildId != null) {
-                CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-                    Column(
-                        modifier = stackModifier,
-                        verticalArrangement = Arrangement.spacedBy(if (gap > 0.dp) gap else 6.dp)
-                    ) {
-                        RenderElement(
-                            elementId = textChildId,
-                            elements = elements,
-                            state = state,
-                            repeatScope = repeatScope,
-                            onOpenUrl = onOpenUrl,
-                            onSetState = onSetState,
-                            onAction = onAction,
-                            activePath = activePath
-                        )
-                        RenderElement(
-                            elementId = buttonChildId,
-                            elements = elements,
-                            state = state,
-                            repeatScope = repeatScope,
-                            onOpenUrl = onOpenUrl,
-                            onSetState = onSetState,
-                            onAction = onAction,
-                            activePath = activePath,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-                return
-            }
-        }
-        if (forceVerticalMediaTextRow) {
-            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-                Column(
-                    modifier = stackModifier,
-                    verticalArrangement = Arrangement.spacedBy(gap)
-                ) {
-                    RenderChildren(
-                        children = children,
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        repeatedChildScopes = repeatedChildScopes,
-                        onOpenUrl = onOpenUrl,
-                        onSetState = onSetState,
-                        onAction = onAction,
-                        activePath = activePath
-                    )
-                }
-            }
-            return
-        }
-        if (wrap || autoWrapButtonRow) {
-            CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-                FlowRow(
-                    modifier = stackModifier,
-                    horizontalArrangement = horizontalArrangement,
-                    verticalArrangement = Arrangement.spacedBy(gap)
-                ) {
-                    RenderChildren(
-                        children = children,
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        repeatedChildScopes = repeatedChildScopes,
-                        onOpenUrl = onOpenUrl,
-                        onSetState = onSetState,
-                        onAction = onAction,
-                        activePath = activePath
-                    )
-                }
-            }
-            return
-        }
-        val verticalAlignment = when (align) {
-            "center" -> Alignment.CenterVertically
-            "end" -> Alignment.Bottom
-            else -> Alignment.Top
-        }
-        CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-            Row(
-                modifier = stackModifier,
-                horizontalArrangement = horizontalArrangement,
-                verticalAlignment = verticalAlignment
-            ) {
-                RenderRowChildren(
-                    children = children,
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    repeatedChildScopes = repeatedChildScopes,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
-            }
-        }
-        return
-    }
-
-    val verticalArrangement: Arrangement.Vertical = when (justify) {
-        "center" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.CenterVertically) else Arrangement.Center
-        "end" -> if (gap > 0.dp) Arrangement.spacedBy(gap, Alignment.Bottom) else Arrangement.Bottom
-        "between" -> Arrangement.SpaceBetween
-        "around" -> Arrangement.SpaceAround
-        else -> if (gap > 0.dp) Arrangement.spacedBy(gap) else Arrangement.Top
-    }
-    val horizontalAlignment = when (align) {
-        "center" -> Alignment.CenterHorizontally
-        "end" -> Alignment.End
-        else -> Alignment.Start
-    }
-    CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides childTextHorizontalPadding) {
-        Column(
-            modifier = stackModifier,
-            verticalArrangement = verticalArrangement,
-            horizontalAlignment = horizontalAlignment
-        ) {
-            RenderChildren(
-                children = children,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                repeatedChildScopes = repeatedChildScopes,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
-        }
-    }
-}
 
 @Composable
-private fun RowScope.RenderRowChildren(
+internal fun RowScope.RenderRowChildren(
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -4174,449 +2692,7 @@ private fun RowScope.RenderRowChildren(
     }
 }
 
-@Composable
-private fun RenderTableLayout(
-    tableModel: FlatTableModel,
-    elementId: String,
-    props: Map<String, Any?>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val compactScreen = screenWidthDp <= 480
-    val gap = stackGap(props)
-    val tableModifier = applyStackModifier(modifier, props, "vertical")
-    val spacing = if (gap > 0.dp) gap else 8.dp
-    val bodyElement = tableModel.bodyContainerId?.let(elements::get)
-    val repeatedRowScopes = buildRepeatScopes(bodyElement?.repeat, state).orEmpty()
-    val tableRows = collectResolvedTableRows(
-        tableModel = tableModel,
-        elements = elements,
-        state = state,
-        repeatedRowScopes = repeatedRowScopes,
-        repeatScope = repeatScope
-    )
-    val sourceLinks = if (shouldBypassSourceLinkIntercept(tableModel.renderMode)) {
-        emptyList()
-    } else {
-        collectFlatSourceLinksFromRows(tableModel.headers, tableRows)
-    }
-    if (sourceLinks.isNotEmpty()) {
-        RenderFlatSourceSection(
-            section = FlatSourceSection(title = "Sources", links = sourceLinks),
-            onOpenUrl = onOpenUrl,
-            modifier = tableModifier,
-            wrapInCard = true,
-            showTitle = true
-        )
-        return
-    }
-    val weatherRows = NativeWeatherSemantics.buildWeatherRows(tableModel.headers, tableRows)
-    if (!weatherRows.isNullOrEmpty()) {
-        NativeWeatherUiRenderer.RenderWeatherRows(
-            rows = weatherRows,
-            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
-            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
-            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
-            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
-            weatherConditionIcon = { condition, size ->
-                NativeWeatherUiRenderer.WeatherConditionIcon(
-                    condition = condition,
-                    size = size,
-                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                )
-            }
-        )
-        return
-    }
-    val currentWeatherRows = NativeWeatherSemantics.buildCurrentWeatherRowsFromKeyValueTable(tableModel.headers, tableRows)
-    if (!currentWeatherRows.isNullOrEmpty()) {
-        NativeWeatherUiRenderer.RenderWeatherRows(
-            rows = currentWeatherRows,
-            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
-            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
-            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
-            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
-            weatherConditionIcon = { condition, size ->
-                NativeWeatherUiRenderer.WeatherConditionIcon(
-                    condition = condition,
-                    size = size,
-                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                )
-            }
-        )
-        return
-    }
-    val cardsRequested =
-        tableModel.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
-            tableModel.renderMode == FlatTableRenderMode.NEWS_CARDS
-    val autoHorizontalScroll = shouldUseHorizontalTableScroll(
-        compactScreen = compactScreen,
-        screenWidthDp = screenWidthDp,
-        headers = tableModel.headers,
-        rows = tableRows
-    )
 
-    if (tableModel.shape == FlatTableShape.KEY_VALUE &&
-        looksLikeTravelItinerarySummaryTable(tableModel.headers, tableRows)
-    ) {
-        return
-    }
-
-    if (tableModel.shape == FlatTableShape.KEY_VALUE && tableRows.isNotEmpty()) {
-        RenderKeyValueTablePanel(
-            headers = tableModel.headers,
-            rows = tableRows,
-            title = tableModel.title,
-            modifier = tableModifier
-        )
-        return
-    }
-
-    if (looksLikeTravelItineraryTable(tableModel.headers) ||
-        looksLikePlaceStopItineraryTable(tableModel.headers, tableRows)
-    ) {
-        RenderTravelItineraryTable(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier,
-            title = tableModel.title,
-            onOpenUrl = onOpenUrl
-        )
-        return
-    }
-
-    if (tableModel.renderMode == FlatTableRenderMode.RESTAURANT_CARDS) {
-        val rendered = renderRestaurantRowsIfPossible(
-            headers = tableModel.headers,
-            rows = tableRows,
-            onOpenUrl = onOpenUrl,
-            modifier = tableModifier,
-            title = tableModel.title
-        )
-        if (rendered) {
-            return
-        }
-    }
-
-    if (tableModel.renderMode == FlatTableRenderMode.NEWS_CARDS) {
-        val rendered = renderNewsRowsIfPossible(
-            headers = tableModel.headers,
-            rows = tableRows,
-            onOpenUrl = onOpenUrl,
-            modifier = tableModifier,
-            title = tableModel.title
-        )
-        if (rendered) {
-            return
-        }
-    }
-
-    if (useScrollableNativeTableRendering() && tableRows.isNotEmpty()) {
-        val horizontalScrollEnabled = nativeTableShouldScroll(
-            compactScreen = compactScreen,
-            screenWidthDp = screenWidthDp,
-            headers = tableModel.headers,
-            rows = tableRows
-        )
-        val columns = directColumnsFromHeaders(tableModel.headers)
-        RenderAdaptiveTableGrid(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier,
-            horizontalScrollEnabled = horizontalScrollEnabled,
-            stickyFirstColumn = nativeTableStickyFirstColumn(tableModel.headers, horizontalScrollEnabled),
-            numericColumns = numericColumnIndexes(columns, tableRows, emptySet())
-        )
-        return
-    }
-
-    if (tableModel.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
-        RenderProcessStateTable(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier,
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        return
-    }
-    if (looksLikeIncidentStatusTable(tableModel.headers, tableRows, tableModel.domain)) {
-        RenderIncidentStatusDashboard(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier,
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        return
-    }
-    if (looksLikeMarketHoldingsTable(tableModel.headers, tableRows, tableModel.domain)) {
-        RenderMarketHoldingsTable(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier
-        )
-        return
-    }
-
-    if (looksLikeClimateComparisonTable(tableModel.headers, tableRows, tableModel.domain)) {
-        RenderClimateComparisonCards(
-            headers = tableModel.headers,
-            rows = tableRows,
-            modifier = tableModifier,
-            spacing = spacing,
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        return
-    }
-    if (tableModel.renderMode == FlatTableRenderMode.FLIGHT_CARDS) {
-        if (looksLikeMultiLegFlightTable(tableModel.headers)) {
-            RenderFlightItineraryTableCards(
-                headers = tableModel.headers,
-                rows = tableRows,
-                modifier = tableModifier,
-                spacing = spacing
-            )
-            return
-        }
-        val flightRows = NativeFlightSemantics.buildFlightRows(tableModel.headers, tableRows)
-        if (!flightRows.isNullOrEmpty()) {
-            NativeFlightUiRenderer.RenderFlightRows(flightRows, onOpenUrl = onOpenUrl)
-            return
-        }
-    }
-    if (tableModel.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
-        val rendered = renderBookingRowsIfPossible(
-            headers = tableModel.headers,
-            rows = tableRows,
-            onOpenUrl = onOpenUrl
-        )
-        if (rendered) {
-            return
-        }
-    }
-    val effectiveRenderMode = when {
-        tableModel.renderMode == FlatTableRenderMode.RESPONSIVE_CARD_ROWS -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        cardsRequested && autoHorizontalScroll && tableModel.columns <= 3 -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        cardsRequested && autoHorizontalScroll -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        cardsRequested -> FlatTableRenderMode.TABLE
-        tableModel.renderMode == FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        autoHorizontalScroll && tableModel.columns <= 3 -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        autoHorizontalScroll -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        else -> FlatTableRenderMode.TABLE
-    }
-
-    Column(
-        modifier = tableModifier,
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        if (effectiveRenderMode == FlatTableRenderMode.TABLE ||
-            effectiveRenderMode == FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        ) {
-            val horizontalScrollEnabled = effectiveRenderMode == FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-            val contentModifier = if (horizontalScrollEnabled) {
-                Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-            } else {
-                Modifier.fillMaxWidth()
-            }
-            val minTableWidth = estimateTableMinWidthDp(
-                headers = tableModel.headers,
-                rows = tableRows,
-                baseMinDp = if (cardsRequested) 128 else 120
-            ).dp
-            Box(
-                modifier = contentModifier.semantics {
-                    contentDescription = tableAccessibilitySummary(
-                        headers = tableModel.headers,
-                        rows = tableRows,
-                        horizontalScroll = horizontalScrollEnabled
-                    )
-                }
-            ) {
-                Column(
-                    modifier = if (horizontalScrollEnabled) {
-                        Modifier.widthIn(min = minTableWidth)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
-                    verticalArrangement = Arrangement.spacedBy(spacing)
-                ) {
-                    RenderElement(
-                        elementId = tableModel.headerRowId,
-                        elements = elements,
-                        state = state,
-                        repeatScope = repeatScope,
-                        onOpenUrl = onOpenUrl,
-                        onSetState = onSetState,
-                        onAction = onAction,
-                        activePath = activePath + elementId
-                    )
-                    if (tableModel.rowTemplateId != null && repeatedRowScopes.isNotEmpty()) {
-                        repeatedRowScopes.forEachIndexed { index, scopedRepeat ->
-                            RenderElement(
-                                elementId = tableModel.rowTemplateId,
-                                elements = elements,
-                                state = state,
-                                repeatScope = scopedRepeat,
-                                onOpenUrl = onOpenUrl,
-                                onSetState = onSetState,
-                                onAction = onAction,
-                                activePath = activePath + elementId
-                            )
-                            if (index < repeatedRowScopes.lastIndex) {
-                                HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    modifier = Modifier.padding(horizontal = 8.dp)
-                                )
-                            }
-                        }
-                    } else {
-                        tableModel.staticRowIds.forEachIndexed { index, rowId ->
-                            RenderElement(
-                                elementId = rowId,
-                                elements = elements,
-                                state = state,
-                                repeatScope = repeatScope,
-                                onOpenUrl = onOpenUrl,
-                                onSetState = onSetState,
-                                onAction = onAction,
-                                activePath = activePath + elementId
-                            )
-                            if (index < tableModel.staticRowIds.lastIndex) {
-                                HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    modifier = Modifier.padding(horizontal = 8.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            return@Column
-        }
-
-        if (tableRows.isNotEmpty()) {
-            RenderResponsiveTableRows(
-                headers = tableModel.headers,
-                rows = tableRows,
-                modifier = Modifier.fillMaxWidth(),
-                spacing = spacing
-            )
-            return@Column
-        }
-
-        if (tableModel.rowTemplateId != null && repeatedRowScopes.isNotEmpty()) {
-            repeatedRowScopes.forEachIndexed { index, scopedRepeat ->
-                RenderResponsiveTableRowCard(
-                    rowId = tableModel.rowTemplateId,
-                    rowScope = scopedRepeat,
-                    rowIndex = index,
-                    headers = tableModel.headers,
-                    elements = elements,
-                    state = state,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath + elementId
-                )
-            }
-        } else {
-            tableModel.staticRowIds.forEachIndexed { index, rowId ->
-                RenderResponsiveTableRowCard(
-                    rowId = rowId,
-                    rowScope = repeatScope,
-                    rowIndex = index,
-                    headers = tableModel.headers,
-                    elements = elements,
-                    state = state,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath + elementId
-                )
-            }
-        }
-    }
-}
-
-internal fun extractDirectTableModel(
-    props: Map<String, Any?>,
-    state: Map<String, Any?>,
-    compactScreen: Boolean
-): FlatDirectTableModel? {
-    val rows = resolveDirectTableRows(props, state)
-    val columns = resolveDirectTableColumns(props, rows)
-    if (columns.size < 2) return null
-
-    val resolvedRows = rows.map { row -> resolveDirectTableRow(row, columns, state) }
-    val headerLabels = columns.map { column -> column.label }
-    val explicitDomain = normalizeExplicitTableDomain(props["domain"]?.toString())
-        ?.takeIf { it in SUPPORTED_TABLE_DOMAINS }
-    val inferredDomain = inferTableDomainFromHeaders(headerLabels)
-    val domain = when {
-        explicitDomain != null && explicitDomain in CARD_FIRST_TABLE_DOMAINS -> explicitDomain
-        explicitDomain == "generic" && inferredDomain in CARD_FIRST_TABLE_DOMAINS -> inferredDomain
-        explicitDomain != null -> explicitDomain
-        else -> inferredDomain
-    }
-    val explicitPreferredPresentation = props["preferredPresentation"]?.toString()?.trim()?.lowercase()
-        ?.takeIf { it in setOf("cards", "table") }
-    val preferredPresentation = when {
-        explicitPreferredPresentation == null -> if (domain in CARD_FIRST_TABLE_DOMAINS) "cards" else "table"
-        explicitDomain == "generic" &&
-            explicitPreferredPresentation == "table" &&
-            domain in CARD_FIRST_TABLE_DOMAINS -> "cards"
-        else -> explicitPreferredPresentation
-    }
-    val shape = detectTableShape(headerLabels, resolvedRows, domain)
-    val primaryColumn = props["primaryColumn"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-    val highlightColumns = stringSetFromTableProp(props["highlightColumns"])
-    val numericColumns = stringSetFromTableProp(props["numericColumns"])
-    val entityMedia = extractTableEntityMedia(props)
-    val renderMode = when {
-        looksLikeProcessStateTable(headerLabels, resolvedRows, domain) -> FlatTableRenderMode.PROCESS_CARDS
-        domain == "weather" -> FlatTableRenderMode.WEATHER_CARDS
-        domain == "flight" -> FlatTableRenderMode.FLIGHT_CARDS
-        domain == "booking" -> FlatTableRenderMode.BOOKING_CARDS
-        domain == "restaurants" -> FlatTableRenderMode.RESTAURANT_CARDS
-        domain == "news" -> FlatTableRenderMode.NEWS_CARDS
-        domain == "playlist" -> FlatTableRenderMode.PLAYLIST_CARDS
-        compactScreen && shape in setOf(
-            FlatTableShape.PLAYLIST,
-            FlatTableShape.ENTITY_ROW,
-            FlatTableShape.FEATURE_MATRIX,
-            FlatTableShape.KEY_VALUE,
-            FlatTableShape.SCHEDULE_TIMELINE,
-            FlatTableShape.NUMERIC_METRICS
-        ) -> FlatTableRenderMode.RESPONSIVE_CARD_ROWS
-        compactScreen && columns.size >= 4 -> FlatTableRenderMode.TABLE_HORIZONTAL_SCROLL
-        else -> FlatTableRenderMode.TABLE
-    }
-    return FlatDirectTableModel(
-        columns = columns,
-        rows = resolvedRows,
-        domain = domain,
-        preferredPresentation = preferredPresentation,
-        shape = shape,
-        primaryColumn = primaryColumn,
-        highlightColumns = highlightColumns,
-        numericColumns = numericColumns,
-        entityMedia = entityMedia,
-        renderMode = renderMode
-    )
-}
 
 internal fun extractTableEntityMedia(props: Map<String, Any?>): Map<String, TableEntityMedia> {
     val raw = toStringKeyMap(props["entityMedia"]) ?: return emptyMap()
@@ -4650,7 +2726,7 @@ internal fun extractTableEntityMedia(props: Map<String, Any?>): Map<String, Tabl
     return out
 }
 
-private fun tableEntityMediaLookupKeys(value: String): Set<String> {
+internal fun tableEntityMediaLookupKeys(value: String): Set<String> {
     val normalized = normalizeTableHeaderForMatch(value)
     val compact = normalized.replace(" ", "")
     val underscore = normalized.replace(" ", "_")
@@ -4659,7 +2735,7 @@ private fun tableEntityMediaLookupKeys(value: String): Set<String> {
         .toSet()
 }
 
-private fun entityMediaForColumn(
+internal fun entityMediaForColumn(
     columns: List<FlatDirectTableColumn>,
     headers: List<String>,
     columnIndex: Int,
@@ -4677,44 +2753,8 @@ private fun entityMediaForColumn(
     return candidates.firstNotNullOfOrNull { key -> entityMedia[key] }
 }
 
-private fun resolveDirectTableColumns(
-    props: Map<String, Any?>,
-    rows: List<Any?>
-): List<FlatDirectTableColumn> {
-    val explicitColumns = parseDirectTableColumns(props["columns"])
-    if (explicitColumns.isNotEmpty()) {
-        return augmentRestaurantDirectTableColumns(props, rows, explicitColumns)
-    }
 
-    val tablePayload = toStringKeyMap(props["table"])
-    val payloadColumns = parseDirectTableColumns(tablePayload?.get("columns"))
-    if (payloadColumns.isNotEmpty()) {
-        return augmentRestaurantDirectTableColumns(props, rows, payloadColumns)
-    }
-
-    val firstMapRow = rows.firstOrNull { row -> toStringKeyMap(row) != null }?.let(::toStringKeyMap)
-    if (!firstMapRow.isNullOrEmpty()) {
-        return firstMapRow.keys.map { key ->
-            FlatDirectTableColumn(
-                key = key,
-                label = prettifyTableKey(key)
-            )
-        }
-    }
-
-    val firstListRow = rows.firstOrNull { row -> row is List<*> } as? List<*>
-    if (!firstListRow.isNullOrEmpty() && firstListRow.size >= 2) {
-        return firstListRow.indices.map { index ->
-            FlatDirectTableColumn(
-                key = index.toString(),
-                label = "Column ${index + 1}"
-            )
-        }
-    }
-    return emptyList()
-}
-
-private val RESTAURANT_ACTION_ROW_COLUMN_ALIASES = listOf(
+internal val RESTAURANT_ACTION_ROW_COLUMN_ALIASES = listOf(
     "photoUrl" to "Photo URL",
     "photoUrls" to "Photo URLs",
     "photos" to "Photos",
@@ -4737,7 +2777,7 @@ private val RESTAURANT_ACTION_ROW_COLUMN_ALIASES = listOf(
     "internationalPhoneNumber" to "Phone"
 )
 
-private fun augmentRestaurantDirectTableColumns(
+internal fun augmentRestaurantDirectTableColumns(
     props: Map<String, Any?>,
     rows: List<Any?>,
     columns: List<FlatDirectTableColumn>
@@ -4773,7 +2813,7 @@ private fun augmentRestaurantDirectTableColumns(
     return augmented
 }
 
-private fun shouldAugmentRestaurantDirectTableColumns(
+internal fun shouldAugmentRestaurantDirectTableColumns(
     props: Map<String, Any?>,
     rows: List<Any?>,
     columns: List<FlatDirectTableColumn>
@@ -4809,7 +2849,7 @@ private fun shouldAugmentRestaurantDirectTableColumns(
     return hasRestaurantEntity && (hasRestaurantData || hasRestaurantActionData)
 }
 
-private fun parseDirectTableColumns(value: Any?): List<FlatDirectTableColumn> {
+internal fun parseDirectTableColumns(value: Any?): List<FlatDirectTableColumn> {
     val list = value as? List<*> ?: return emptyList()
     return list.mapIndexedNotNull { index, raw ->
         when (raw) {
@@ -4841,101 +2881,10 @@ private fun parseDirectTableColumns(value: Any?): List<FlatDirectTableColumn> {
     }
 }
 
-private fun resolveDirectTableRows(
-    props: Map<String, Any?>,
-    state: Map<String, Any?>
-): List<Any?> {
-    val directRows = props["rows"] as? List<*>
-    if (directRows != null) return directRows.toList()
 
-    val statePath = props["statePath"]?.toString()?.trim().orEmpty()
-    if (statePath.isNotBlank()) {
-        val fromState = FlatSpecParser.getAtPath(state, normalizePointer(statePath))
-        if (fromState is List<*>) {
-            return fromState.toList()
-        }
-    }
 
-    val tablePayload = toStringKeyMap(props["table"])
-    val payloadRows = tablePayload?.get("rows") as? List<*>
-    if (payloadRows != null) return payloadRows.toList()
 
-    return emptyList()
-}
-
-private fun resolveDirectTableRow(
-    row: Any?,
-    columns: List<FlatDirectTableColumn>,
-    state: Map<String, Any?>
-): List<String> {
-    val mapRow = toStringKeyMap(row)
-    if (mapRow != null) {
-        extractDirectTableRowList(mapRow)?.let { listRow ->
-            return columns.mapIndexed { index, _ ->
-                tableCellDisplayText(
-                    resolveDirectTableCellValue(listRow.getOrNull(index), state)
-                )
-            }
-        }
-        val orderedEntries = mapRow.entries.toList()
-        val normalizedLookup = buildDirectTableNormalizedRowLookup(mapRow)
-        val directMatchCount = columns.count { column ->
-            resolveRowMapColumnValue(
-                row = mapRow,
-                column = column,
-                columnIndex = -1,
-                normalizedLookup = normalizedLookup,
-                orderedEntries = orderedEntries,
-                usePositionalFallback = false
-            ) != null
-        }
-        val usePositionalFallback = directMatchCount == 0 && orderedEntries.size >= columns.size
-        return columns.mapIndexed { index, column ->
-            tableCellDisplayText(
-                resolveDirectTableCellValue(
-                    value = resolveRowMapColumnValue(
-                        row = mapRow,
-                        column = column,
-                        columnIndex = index,
-                        normalizedLookup = normalizedLookup,
-                        orderedEntries = orderedEntries,
-                        usePositionalFallback = usePositionalFallback
-                    ),
-                    state = state
-                )
-            )
-        }
-    }
-    val listRow = row as? List<*>
-    if (listRow != null) {
-        return columns.mapIndexed { index, _ ->
-            tableCellDisplayText(
-                resolveDirectTableCellValue(listRow.getOrNull(index), state)
-            )
-        }
-    }
-    return columns.mapIndexed { index, _ ->
-        if (index == 0) {
-            tableCellDisplayText(resolveDirectTableCellValue(row, state))
-        } else {
-            ""
-        }
-    }
-}
-
-private fun resolveDirectTableCellValue(
-    value: Any?,
-    state: Map<String, Any?>
-): Any? {
-    return FlatExprResolver.resolve(
-        value = value,
-        state = state,
-        repeatScope = null,
-        computedFunctions = DefaultComputedFunctions
-    )
-}
-
-private fun extractDirectTableRowList(row: Map<String, Any?>): List<Any?>? {
+internal fun extractDirectTableRowList(row: Map<String, Any?>): List<Any?>? {
     DIRECT_TABLE_ROW_LIST_KEYS.forEach { key ->
         val list = row[key] as? List<*>
         if (list != null) return list.toList()
@@ -4968,7 +2917,7 @@ internal fun resolveCoilMediaModel(url: String): String {
     }
 }
 
-private fun resolveRowMapColumnValue(
+internal fun resolveRowMapColumnValue(
     row: Map<String, Any?>,
     column: FlatDirectTableColumn,
     columnIndex: Int,
@@ -5005,7 +2954,7 @@ private fun resolveRowMapColumnValue(
     return null
 }
 
-private fun buildDirectTableNormalizedRowLookup(
+internal fun buildDirectTableNormalizedRowLookup(
     row: Map<String, Any?>
 ): Map<String, Any?> {
     val lookup = linkedMapOf<String, Any?>()
@@ -5025,32 +2974,9 @@ private fun buildDirectTableNormalizedRowLookup(
     return lookup
 }
 
-private fun normalizeTableLookupToken(raw: String): String {
-    return raw.trim().lowercase().replace(Regex("[^a-z0-9]+"), "")
-}
 
-private fun inferTableColumnOrdinal(
-    key: String,
-    label: String
-): Int? {
-    val ordinalRegex = Regex("""(?:^|[_\s-])(column|col)?[_\s-]*(\d+)$""")
-    listOf(key, label).forEach { token ->
-        val trimmed = token.trim().lowercase()
-        if (trimmed.isBlank()) return@forEach
-        val direct = trimmed.toIntOrNull()
-        if (direct != null && direct > 0) {
-            return direct - 1
-        }
-        val match = ordinalRegex.find(trimmed)
-        val value = match?.groupValues?.getOrNull(2)?.toIntOrNull()
-        if (value != null && value > 0) {
-            return value - 1
-        }
-    }
-    return null
-}
 
-private fun resolveRowMapPathValue(
+internal fun resolveRowMapPathValue(
     row: Map<String, Any?>,
     key: String
 ): Any? {
@@ -5074,7 +3000,7 @@ private fun resolveRowMapPathValue(
     return current
 }
 
-private fun tableCellDisplayText(value: Any?): String {
+internal fun tableCellDisplayText(value: Any?): String {
     return when (value) {
         null -> ""
         is String -> value.trim()
@@ -5087,14 +3013,8 @@ private fun tableCellDisplayText(value: Any?): String {
     }
 }
 
-private fun normalizeTableColumnKey(raw: String, fallback: String): String {
-    val normalized = raw.trim()
-        .replace(Regex("[^A-Za-z0-9_./-]+"), "_")
-        .trim('_')
-    return if (normalized.isBlank()) fallback else normalized
-}
 
-private fun prettifyTableKey(key: String): String {
+internal fun prettifyTableKey(key: String): String {
     val cleaned = key.trim()
         .replace('_', ' ')
         .replace('.', ' ')
@@ -5107,7 +3027,7 @@ private fun prettifyTableKey(key: String): String {
     }
 }
 
-private fun normalizedTableTextLength(value: String): Int {
+internal fun normalizedTableTextLength(value: String): Int {
     return value
         .trim()
         .replace(Regex("\\s+"), " ")
@@ -5115,7 +3035,7 @@ private fun normalizedTableTextLength(value: String): Int {
         .coerceAtMost(96)
 }
 
-private fun estimateTableColumnMinWidthsDp(
+internal fun estimateTableColumnMinWidthsDp(
     headers: List<String>,
     rows: List<List<String>>,
     baseMinDp: Int = 112
@@ -5142,7 +3062,7 @@ private fun estimateTableColumnMinWidthsDp(
     }
 }
 
-private fun estimateTableMinWidthDp(
+internal fun estimateTableMinWidthDp(
     headers: List<String>,
     rows: List<List<String>>,
     baseMinDp: Int = 112
@@ -5158,46 +3078,19 @@ private fun estimateTableMinWidthDp(
     return columnWidths.sum() + columnSpacing + sidePadding
 }
 
-private fun shouldUseHorizontalTableScroll(
-    compactScreen: Boolean,
-    screenWidthDp: Int,
-    headers: List<String>,
-    rows: List<List<String>>
-): Boolean {
-    val narrowScreen = compactScreen || screenWidthDp <= 720
-    if (!narrowScreen) return false
-    val columnCount = maxOf(headers.size, rows.maxOfOrNull { row -> row.size } ?: 0)
-    if (columnCount <= 1) return false
-    if (columnCount >= 4) return true
-    val availableWidthDp = (screenWidthDp - 24).coerceAtLeast(240)
-    val requiredMinWidthDp = estimateTableMinWidthDp(
-        headers = headers,
-        rows = rows,
-        baseMinDp = 120
-    )
-    return requiredMinWidthDp > availableWidthDp
-}
 
-private enum class ResponsiveTableCardTemplate {
+internal enum class ResponsiveTableCardTemplate {
     COMPARISON,
     SCHEDULE,
     GENERIC
 }
 
-private fun normalizeTableHeaderForMatch(raw: String): String {
-    return raw
-        .trim()
-        .lowercase()
-        .replace(Regex("[^a-z0-9]+"), " ")
-        .replace(Regex("\\s+"), " ")
-        .trim()
-}
 
-private fun tableHeaderLabel(headers: List<String>, index: Int): String {
+internal fun tableHeaderLabel(headers: List<String>, index: Int): String {
     return headers.getOrNull(index)?.trim().orEmpty().ifBlank { "Column ${index + 1}" }
 }
 
-private fun shouldPromoteTimelineSecondTitle(firstHeader: String, secondHeader: String): Boolean {
+internal fun shouldPromoteTimelineSecondTitle(firstHeader: String, secondHeader: String): Boolean {
     val first = normalizeTableHeaderForMatch(firstHeader)
     val second = normalizeTableHeaderForMatch(secondHeader)
     if (first.isBlank() || second.isBlank()) return false
@@ -5209,7 +3102,7 @@ private fun shouldPromoteTimelineSecondTitle(firstHeader: String, secondHeader: 
         (first.contains("day") && first.contains("date"))
 }
 
-private fun shouldPrefixTimelineTitle(label: String): Boolean {
+internal fun shouldPrefixTimelineTitle(label: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(label)
     return normalized == "total" ||
         normalized == "status" ||
@@ -5219,7 +3112,7 @@ private fun shouldPrefixTimelineTitle(label: String): Boolean {
         normalized == "ethics"
 }
 
-private fun formatTimelineTitle(label: String, value: String): String {
+internal fun formatTimelineTitle(label: String, value: String): String {
     val cleanValue = value.trim()
     if (cleanValue.isBlank()) return ""
     val cleanLabel = label.trim()
@@ -5236,32 +3129,10 @@ private fun formatTimelineTitle(label: String, value: String): String {
     }
 }
 
-private fun isIconColumnLabel(label: String): Boolean {
-    val normalized = normalizeTableHeaderForMatch(label)
-    return normalized == "icon" || normalized == "media icon" || normalized == "visual"
-}
 
-private fun isImageColumnLabel(label: String): Boolean {
-    val normalized = normalizeTableHeaderForMatch(label)
-    return normalized == "image" ||
-        normalized == "photo" ||
-        normalized == "picture" ||
-        normalized == "thumbnail" ||
-        normalized == "hero image" ||
-        normalized == "image url" ||
-        normalized == "photo url" ||
-        normalized == "media image"
-}
 
-private fun isImageAltColumnLabel(label: String): Boolean {
-    val normalized = normalizeTableHeaderForMatch(label)
-    return normalized == "alt" ||
-        normalized == "image alt" ||
-        normalized == "photo alt" ||
-        normalized == "caption"
-}
 
-private fun pickResponsiveTableTemplate(
+internal fun pickResponsiveTableTemplate(
     headers: List<String>,
     rows: List<List<String>>
 ): ResponsiveTableCardTemplate {
@@ -5304,69 +3175,8 @@ private fun pickResponsiveTableTemplate(
     return ResponsiveTableCardTemplate.GENERIC
 }
 
-private fun looksLikeTravelItineraryTable(headers: List<String>): Boolean {
-    if (headers.size < 3) return false
-    val normalized = headers.map(::normalizeTableHeaderForMatch)
-    val first = normalized.firstOrNull().orEmpty()
-    val second = normalized.getOrNull(1).orEmpty()
-    val hasDayColumn = first.contains("day") || first.contains("date")
-    val hasTimeColumn = first.contains("time") || first.contains("slot")
-    val hasDateColumn = normalized.any { it.contains("date") }
-    val hasAreaColumn = normalized.any { header ->
-        header.contains("area") ||
-            header.contains("focus") ||
-            header == "title" ||
-            header.contains("route") ||
-            header.contains("district") ||
-            header.contains("neighborhood") ||
-            header.contains("location")
-    }
-    val hasRoadTripColumn = normalized.any { header ->
-        header.contains("driving") ||
-            header.contains("drive") ||
-            header.contains("miles") ||
-            header.contains("scenic") ||
-            header.contains("hike") ||
-            header.contains("overnight") ||
-            header.contains("stay")
-    }
-    val hasTimeActivityDetailsShape = hasTimeColumn &&
-        (second.contains("activity") || second.contains("stop") || second.contains("place")) &&
-        normalized.drop(2).any { header ->
-            header.contains("detail") ||
-                header.contains("location") ||
-                header.contains("note") ||
-                header.contains("plan")
-        }
-    val activityColumns = normalized.drop(1).count { header ->
-        header.contains("activity") ||
-            header.contains("morning") ||
-            header.contains("afternoon") ||
-            header.contains("evening") ||
-            header.contains("stop") ||
-            header.contains("plan")
-    }
-    val hasDiningColumn = normalized.any { header ->
-        header.contains("dining") ||
-            header.contains("food") ||
-            header.contains("meal") ||
-            header.contains("restaurant")
-    }
-    val hasSummaryItineraryShape = hasDayColumn &&
-        hasDateColumn &&
-        hasAreaColumn &&
-        normalized.any { header ->
-            header.contains("activity") ||
-                header.contains("plan") ||
-                header.contains("highlight")
-        }
-    return hasTimeActivityDetailsShape ||
-        hasSummaryItineraryShape ||
-        (hasDayColumn && hasRoadTripColumn) ||
-        (hasDayColumn && (activityColumns >= 2 || hasDiningColumn))
-}
 
-private fun looksLikePlaceStopItineraryTable(headers: List<String>, rows: List<List<String>>): Boolean {
+internal fun looksLikePlaceStopItineraryTable(headers: List<String>, rows: List<List<String>>): Boolean {
     if (headers.size < 3 || rows.isEmpty()) return false
     val normalized = headers.map(::normalizeTableHeaderForMatch)
     val hasDay = normalized.any { it.contains("day") || it.contains("date") }
@@ -5389,7 +3199,7 @@ private fun looksLikePlaceStopItineraryTable(headers: List<String>, rows: List<L
     return hasDay && hasPlace && hasTravelMeta
 }
 
-private fun isItineraryActionUrlLabel(label: String): Boolean {
+internal fun isItineraryActionUrlLabel(label: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(label)
     return normalized.contains("maps") ||
         normalized.contains("direction") ||
@@ -5402,7 +3212,7 @@ private fun isItineraryActionUrlLabel(label: String): Boolean {
         normalized.endsWith(" link")
 }
 
-private fun isItineraryMetricLabel(label: String): Boolean {
+internal fun isItineraryMetricLabel(label: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(label)
     return normalized.contains("rating") ||
         normalized.contains("review") ||
@@ -5413,7 +3223,7 @@ private fun isItineraryMetricLabel(label: String): Boolean {
         normalized.contains("difficulty")
 }
 
-private fun isItineraryPlaceLabel(label: String): Boolean {
+internal fun isItineraryPlaceLabel(label: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(label)
     return normalized in setOf("place", "stop", "attraction", "site", "destination", "name", "activity") ||
         normalized.contains("place") ||
@@ -5422,7 +3232,7 @@ private fun isItineraryPlaceLabel(label: String): Boolean {
         normalized.contains("destination")
 }
 
-private fun isItineraryAreaLabel(label: String): Boolean {
+internal fun isItineraryAreaLabel(label: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(label)
     return normalized.contains("area") ||
         normalized.contains("focus") ||
@@ -5433,7 +3243,7 @@ private fun isItineraryAreaLabel(label: String): Boolean {
         normalized.contains("location")
 }
 
-private fun isItineraryCategoryLabel(label: String): Boolean {
+internal fun isItineraryCategoryLabel(label: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(label)
     return normalized.contains("type") ||
         normalized.contains("category") ||
@@ -5442,13 +3252,13 @@ private fun isItineraryCategoryLabel(label: String): Boolean {
         normalized.contains("kind")
 }
 
-private fun itineraryColumnIndex(headers: List<String>, predicate: (String) -> Boolean): Int? =
+internal fun itineraryColumnIndex(headers: List<String>, predicate: (String) -> Boolean): Int? =
     headers.indices.firstOrNull { index -> predicate(headers[index]) }
 
-private fun itineraryCell(headers: List<String>, row: List<String>, predicate: (String) -> Boolean): String =
+internal fun itineraryCell(headers: List<String>, row: List<String>, predicate: (String) -> Boolean): String =
     itineraryColumnIndex(headers, predicate)?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
 
-private fun firstPhotoLikeItineraryImage(headers: List<String>, row: List<String>): String {
+internal fun firstPhotoLikeItineraryImage(headers: List<String>, row: List<String>): String {
     return headers.indices.firstNotNullOfOrNull { index ->
         val header = headers.getOrNull(index).orEmpty()
         val value = row.getOrNull(index).orEmpty().trim()
@@ -5461,7 +3271,7 @@ private fun firstPhotoLikeItineraryImage(headers: List<String>, row: List<String
     }.orEmpty()
 }
 
-private fun allPhotoLikeItineraryImages(headers: List<String>, rows: List<List<String>>): List<String> =
+internal fun allPhotoLikeItineraryImages(headers: List<String>, rows: List<List<String>>): List<String> =
     rows.flatMap { row ->
         headers.indices.mapNotNull { index ->
             val header = headers.getOrNull(index).orEmpty()
@@ -5475,7 +3285,7 @@ private fun allPhotoLikeItineraryImages(headers: List<String>, rows: List<List<S
         }
     }.distinct()
 
-private fun selectItineraryHeroImages(
+internal fun selectItineraryHeroImages(
     headers: List<String>,
     rows: List<List<String>>,
     groups: Map<String, List<List<String>>>
@@ -5492,14 +3302,14 @@ private fun selectItineraryHeroImages(
         ).distinct()
 }
 
-private fun itineraryImageAlt(headers: List<String>, row: List<String>, fallback: String): String {
+internal fun itineraryImageAlt(headers: List<String>, row: List<String>, fallback: String): String {
     return itineraryColumnIndex(headers, ::isImageAltColumnLabel)
         ?.let { row.getOrNull(it).orEmpty().trim() }
         ?.takeIf { it.isNotBlank() }
         ?: fallback
 }
 
-private fun itineraryActionLabel(label: String): String {
+internal fun itineraryActionLabel(label: String): String {
     val normalized = normalizeTableHeaderForMatch(label)
     return when {
         normalized.contains("direction") || normalized.contains("maps") || normalized.contains("map") -> "Directions"
@@ -5509,7 +3319,7 @@ private fun itineraryActionLabel(label: String): String {
     }
 }
 
-private fun itineraryActionIcon(label: String): ImageVector {
+internal fun itineraryActionIcon(label: String): ImageVector {
     val normalized = normalizeTableHeaderForMatch(label)
     return when {
         normalized.contains("direction") || normalized.contains("maps") || normalized.contains("map") -> Icons.Filled.Directions
@@ -5518,7 +3328,7 @@ private fun itineraryActionIcon(label: String): ImageVector {
     }
 }
 
-private fun collectItineraryActions(
+internal fun collectItineraryActions(
     headers: List<String>,
     row: List<String>
 ): List<Pair<String, Pair<ImageVector, String>>> {
@@ -5530,7 +3340,7 @@ private fun collectItineraryActions(
     }.distinctBy { it.second.second }.take(3)
 }
 
-private fun itineraryDayToken(headers: List<String>, row: List<String>, fallbackIndex: Int): String {
+internal fun itineraryDayToken(headers: List<String>, row: List<String>, fallbackIndex: Int): String {
     val explicit = itineraryColumnIndex(headers) { label ->
         val normalized = normalizeTableHeaderForMatch(label)
         normalized.contains("day") || normalized.contains("date")
@@ -5538,13 +3348,13 @@ private fun itineraryDayToken(headers: List<String>, row: List<String>, fallback
     return explicit.ifBlank { "Day ${fallbackIndex + 1}" }
 }
 
-private fun itineraryAreaTitle(headers: List<String>, row: List<String>, day: String): String {
+internal fun itineraryAreaTitle(headers: List<String>, row: List<String>, day: String): String {
     val area = itineraryCell(headers, row, ::isItineraryAreaLabel)
     val place = itineraryCell(headers, row, ::isItineraryPlaceLabel)
     return area.ifBlank { place }.ifBlank { day }
 }
 
-private fun itineraryHeroTitle(title: String?, rows: List<List<String>>): String {
+internal fun itineraryHeroTitle(title: String?, rows: List<List<String>>): String {
     return title
         ?.trim()
         ?.takeIf { it.isNotBlank() }
@@ -5555,171 +3365,14 @@ private fun itineraryHeroTitle(title: String?, rows: List<List<String>>): String
         ?: "Vacation itinerary"
 }
 
-private fun itineraryHeroSubtitle(dayCount: Int, stopCount: Int): String {
+internal fun itineraryHeroSubtitle(dayCount: Int, stopCount: Int): String {
     return "$dayCount day plan with $stopCount curated stops, place photos, ratings, and quick actions."
 }
 
-@Composable
-private fun RenderTravelItineraryTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    title: String? = null,
-    onOpenUrl: (String) -> Unit
-) {
-    val shownRows = rows.filter { row -> row.any { it.trim().isNotBlank() } }
-    if (shownRows.isEmpty()) return
-    val placeStopMode = looksLikePlaceStopItineraryTable(headers, shownRows)
-    val groups = shownRows
-        .mapIndexed { index, row -> itineraryDayToken(headers, row, index) to row }
-        .groupBy({ it.first }, { it.second })
-    val itineraryImages = allPhotoLikeItineraryImages(headers, shownRows)
-    val heroImages = selectItineraryHeroImages(headers, shownRows, groups)
-    val heroArea = shownRows.firstNotNullOfOrNull { row ->
-        itineraryAreaTitle(headers, row, "").takeIf { it.isNotBlank() }
-    }
-    PrefetchFlatSpecImages(itineraryImages.take(12))
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = "Vacation itinerary with ${groups.size} days and ${shownRows.size} entries"
-            },
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        TravelItineraryHero(
-            title = itineraryHeroTitle(title, shownRows),
-            subtitle = itineraryHeroSubtitle(groups.size.coerceAtLeast(1), shownRows.size),
-            days = groups.size,
-            stops = shownRows.size,
-            imageUrls = heroImages,
-            area = heroArea
-        )
-        TravelItineraryDayChipRow(groups.keys.toList())
-        groups.entries.forEachIndexed { index, entry ->
-            TravelItineraryNativeDayCard(
-                dayIndex = index,
-                day = entry.key,
-                headers = headers,
-                rows = entry.value,
-                placeStopMode = placeStopMode,
-                onOpenUrl = onOpenUrl
-            )
-        }
-    }
-}
+
 
 @Composable
-private fun TravelItineraryHero(
-    title: String,
-    subtitle: String,
-    days: Int,
-    stops: Int,
-    imageUrls: List<String>,
-    area: String?
-) {
-    val shape = RoundedCornerShape(28.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .clip(shape)
-            .background(
-                Brush.linearGradient(
-                    listOf(
-                        Color(0xFF123B8E),
-                        Color(0xFF1E5BC6),
-                        Color(0xFF0F766E)
-                    )
-                )
-            )
-    ) {
-        if (imageUrls.isNotEmpty()) {
-            RenderImage(
-                props = mapOf(
-                    "url" to imageUrls.first(),
-                    "fallbackUrls" to imageUrls.drop(1),
-                    "fit" to "cover",
-                    "height" to 250,
-                    "alt" to title
-                ),
-                onOpenUrl = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0xFF071833).copy(alpha = 0.68f),
-                                Color(0xFF071833).copy(alpha = 0.46f),
-                                Color(0xFF071833).copy(alpha = 0.88f)
-                            )
-                        )
-                    )
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        Brush.radialGradient(
-                            listOf(Color.White.copy(alpha = 0.26f), Color.Transparent)
-                        )
-                    )
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(18.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Surface(
-                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                color = Color.White.copy(alpha = 0.17f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.16f))
-            ) {
-                Text(
-                    text = area?.takeIf { it.isNotBlank() } ?: "MCP Places itinerary",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
-                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(11.dp)) {
-                Text(
-                    text = parseBoldMarkdown(title),
-                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
-                    color = Color.White,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = parseBoldMarkdown(subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.88f),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(9.dp)
-                ) {
-                    TravelItineraryHeroStat("$days", "days", Modifier.weight(1f))
-                    TravelItineraryHeroStat("$stops", "stops", Modifier.weight(1f))
-                    TravelItineraryHeroStat("Maps", "actions", Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TravelItineraryHeroStat(
+internal fun TravelItineraryHeroStat(
     value: String,
     label: String,
     modifier: Modifier = Modifier
@@ -5752,7 +3405,7 @@ private fun TravelItineraryHeroStat(
 }
 
 @Composable
-private fun TravelItineraryDayChipRow(days: List<String>) {
+internal fun TravelItineraryDayChipRow(days: List<String>) {
     if (days.isEmpty()) return
     Row(
         modifier = Modifier
@@ -5788,7 +3441,7 @@ private fun TravelItineraryDayChipRow(days: List<String>) {
 }
 
 @Composable
-private fun TravelItineraryDayOverview(
+internal fun TravelItineraryDayOverview(
     headers: List<String>,
     rows: List<List<String>>,
     day: String,
@@ -5831,118 +3484,9 @@ private fun TravelItineraryDayOverview(
     }
 }
 
-@Composable
-private fun TravelItineraryNativeDayCard(
-    dayIndex: Int,
-    day: String,
-    headers: List<String>,
-    rows: List<List<String>>,
-    placeStopMode: Boolean,
-    onOpenUrl: (String) -> Unit
-) {
-    val firstRow = rows.firstOrNull().orEmpty()
-    val area = itineraryAreaTitle(headers, firstRow, day)
-    val imageUrl = rows.firstNotNullOfOrNull { row ->
-        firstPhotoLikeItineraryImage(headers, row).takeIf { it.isNotBlank() }
-    }.orEmpty()
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                contentDescription = "Day ${dayIndex + 1}: $day, ${rows.size} itinerary entries"
-            },
-        shape = RoundedCornerShape(26.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = flatSpecCardBorder()
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(
-                            Brush.linearGradient(
-                                listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "${dayIndex + 1}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Text(
-                        text = parseBoldMarkdown(area.ifBlank { day }),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = NativeTextFormatter.sanitizeDisplayText("$day · ${rows.size} ${if (rows.size == 1) "stop" else "stops"}"),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            if (!placeStopMode) {
-                if (imageUrl.isNotBlank()) {
-                    RenderImage(
-                        props = mapOf(
-                            "url" to imageUrl,
-                            "fit" to "cover",
-                            "aspectRatio" to 1.78f,
-                            "alt" to itineraryImageAlt(headers, firstRow, area)
-                        ),
-                        onOpenUrl = onOpenUrl,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else {
-                    RenderGeneratedItineraryDayVisual(
-                        day = day,
-                        area = area,
-                        modifier = Modifier.fillMaxWidth().height(136.dp)
-                    )
-                }
-                TravelItineraryDaySections(headers = headers, row = firstRow, onOpenUrl = onOpenUrl)
-            } else {
-                TravelItineraryDayOverview(
-                    headers = headers,
-                    rows = rows,
-                    day = day,
-                    area = area
-                )
-                rows.forEachIndexed { stopIndex, row ->
-                    TravelItineraryStopCard(
-                        headers = headers,
-                        row = row,
-                        stopIndex = stopIndex,
-                        fallbackDay = day,
-                        onOpenUrl = onOpenUrl
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun TravelItineraryDaySections(
+internal fun TravelItineraryDaySections(
     headers: List<String>,
     row: List<String>,
     onOpenUrl: (String) -> Unit
@@ -5971,128 +3515,9 @@ private fun TravelItineraryDaySections(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun TravelItineraryStopCard(
-    headers: List<String>,
-    row: List<String>,
-    stopIndex: Int,
-    fallbackDay: String,
-    onOpenUrl: (String) -> Unit
-) {
-    val title = itineraryCell(headers, row, ::isItineraryPlaceLabel)
-        .ifBlank { itineraryAreaTitle(headers, row, fallbackDay) }
-        .ifBlank { "Stop ${stopIndex + 1}" }
-    val imageUrl = firstPhotoLikeItineraryImage(headers, row)
-    val actions = collectItineraryActions(headers, row)
-    val area = itineraryCell(headers, row, ::isItineraryAreaLabel)
-    val fallbackDetail = buildList {
-        area.takeIf { it.isNotBlank() && it != title && it != fallbackDay }?.let(::add)
-        itineraryCell(headers, row, ::isItineraryCategoryLabel)
-            .takeIf { it.isNotBlank() && it != title }
-            ?.let(::add)
-    }.distinct().joinToString(" - ")
-    val metricIndexes = headers.indices.filter { index ->
-        val label = tableHeaderLabel(headers, index)
-        val value = row.getOrNull(index).orEmpty().trim()
-        value.isNotBlank() && isItineraryMetricLabel(label) && !isLikelyHttpUrl(value)
-    }.take(3)
-    val bodyIndexes = headers.indices.filter { index ->
-        val label = tableHeaderLabel(headers, index)
-        val value = row.getOrNull(index).orEmpty().trim()
-        val normalized = normalizeTableHeaderForMatch(label)
-        value.isNotBlank() &&
-            !isLikelyHttpUrl(value) &&
-            !isImageColumnLabel(label) &&
-            !isImageAltColumnLabel(label) &&
-            !isIconColumnLabel(label) &&
-            !isItineraryActionUrlLabel(label) &&
-            !isUrlColumnLabel(label) &&
-            !isItineraryMetricLabel(label) &&
-            !isItineraryPlaceLabel(label) &&
-            !isItineraryAreaLabel(label) &&
-            !normalized.contains("day") &&
-            !normalized.contains("date")
-    }.take(2)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.46f))
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        if (imageUrl.isNotBlank()) {
-            RenderImage(
-                props = mapOf(
-                    "url" to imageUrl,
-                    "fit" to "cover",
-                    "width" to 112,
-                    "height" to 118,
-                    "alt" to itineraryImageAlt(headers, row, title)
-                ),
-                onOpenUrl = onOpenUrl,
-                modifier = Modifier
-            )
-        } else {
-            RenderGeneratedItineraryDayVisual(
-                day = "${stopIndex + 1}",
-                area = title,
-                modifier = Modifier.size(112.dp, 118.dp)
-            )
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
-        ) {
-            Text(
-                text = parseBoldMarkdown(title),
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Black),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (metricIndexes.isNotEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    metricIndexes.forEach { index ->
-                        TravelItineraryMetricChip(
-                            label = tableHeaderLabel(headers, index),
-                            value = row.getOrNull(index).orEmpty()
-                        )
-                    }
-                }
-            }
-            bodyIndexes.forEach { index ->
-                Text(
-                    text = parseBoldMarkdown(row.getOrNull(index).orEmpty()),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (bodyIndexes.isEmpty() && fallbackDetail.isNotBlank()) {
-                Text(
-                    text = parseBoldMarkdown(NativeTextFormatter.sanitizeDisplayText(fallbackDetail)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (actions.isNotEmpty()) {
-                TravelItineraryActionRow(actions = actions, onOpenUrl = onOpenUrl)
-            }
-        }
-    }
-}
 
 @Composable
-private fun TravelItineraryMetricChip(label: String, value: String) {
+internal fun TravelItineraryMetricChip(label: String, value: String) {
     val normalizedLabel = normalizeTableHeaderForMatch(label)
     val text = when {
         normalizedLabel.contains("rating") -> NativeTextFormatter.sanitizeDisplayText(value).let { "★ $it" }
@@ -6117,7 +3542,7 @@ private fun TravelItineraryMetricChip(label: String, value: String) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TravelItineraryActionRow(
+internal fun TravelItineraryActionRow(
     actions: List<Pair<String, Pair<ImageVector, String>>>,
     onOpenUrl: (String) -> Unit
 ) {
@@ -6137,7 +3562,7 @@ private fun TravelItineraryActionRow(
     }
 }
 
-private fun compactItinerarySectionLabel(label: String): String {
+internal fun compactItinerarySectionLabel(label: String): String {
     val normalized = normalizeTableHeaderForMatch(label)
     return when {
         normalized.contains("morning") -> "Morning"
@@ -6149,7 +3574,7 @@ private fun compactItinerarySectionLabel(label: String): String {
     }
 }
 
-private fun splitLeadingItineraryTitle(value: String): Pair<String?, String> {
+internal fun splitLeadingItineraryTitle(value: String): Pair<String?, String> {
     val trimmed = value.trim()
     val match = Regex("""^([^:;]{3,56})[:;]\s+(.+)$""").find(trimmed)
     if (match != null) {
@@ -6163,7 +3588,7 @@ private fun splitLeadingItineraryTitle(value: String): Pair<String?, String> {
 }
 
 @Composable
-private fun ItinerarySectionBlock(
+internal fun ItinerarySectionBlock(
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -6199,91 +3624,8 @@ private fun ItinerarySectionBlock(
     }
 }
 
-@Composable
-private fun RenderGeneratedItineraryDayVisual(
-    day: String,
-    area: String?,
-    modifier: Modifier = Modifier
-) {
-    val title = area?.trim()?.takeIf { it.isNotBlank() } ?: day.ifBlank { "Itinerary" }
-    val palette = itineraryVisualPalette("$day|$title")
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Brush.linearGradient(listOf(palette.first, palette.second)))
-            .accessibilitySemantics(
-                props = emptyMap(),
-                fallbackLabel = "$title itinerary visual",
-                mergeDescendants = true
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.26f), Color.Transparent)
-                    )
-                )
-        )
-        Text(
-            text = day.take(18).ifBlank { "Trip" },
-            color = Color.White.copy(alpha = 0.18f),
-            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Black),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 14.dp, bottom = 8.dp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Surface(
-                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                color = Color.White.copy(alpha = 0.20f)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Image,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Text(
-                        text = "Trip visual",
-                        color = Color.White,
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold)
-                    )
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = title,
-                color = Color.White,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = day,
-                color = Color.White.copy(alpha = 0.82f),
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
 
-private fun itineraryVisualPalette(seed: String): Pair<Color, Color> {
+internal fun itineraryVisualPalette(seed: String): Pair<Color, Color> {
     val palettes = listOf(
         Color(0xFF0F766E) to Color(0xFF38BDF8),
         Color(0xFF92400E) to Color(0xFFF59E0B),
@@ -6295,138 +3637,9 @@ private fun itineraryVisualPalette(seed: String): Pair<Color, Color> {
     return palettes[safeHash.rem(palettes.size)]
 }
 
-@Composable
-private fun TravelItineraryDayCard(
-    headers: List<String>,
-    row: List<String>
-) {
-    val cellCount = maxOf(headers.size, row.size)
-    val cells = (0 until cellCount).map { index ->
-        Triple(index, tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty().trim())
-    }.filter { (_, _, value) -> value.isNotBlank() }
-    if (cells.isEmpty()) return
-    val day = row.getOrNull(0).orEmpty().trim().ifBlank { "Day" }
-    val imageCell = cells.firstOrNull { (_, label, _) -> isImageColumnLabel(label) }
-    val imageAltCell = cells.firstOrNull { (_, label, _) -> isImageAltColumnLabel(label) }
-    val iconCell = cells.firstOrNull { (_, label, _) -> isIconColumnLabel(label) }
-    val rawImageUrl = imageCell?.third.orEmpty()
-    val imageUrl = rawImageUrl.takeIf(::isPhotoLikeMediaUrl).orEmpty()
-    val iconUrl = iconCell?.third?.takeIf { it.isNotBlank() }
-        ?: rawImageUrl.takeIf(::isIconLikeMediaUrl)
-    val dateCell = cells.firstOrNull { (index, label, _) ->
-        index != 0 && normalizeTableHeaderForMatch(label).contains("date")
-    }
-    val areaCell = cells.firstOrNull { (index, label, _) ->
-        index != 0 &&
-            normalizeTableHeaderForMatch(label).let { normalized ->
-                normalized.contains("area") ||
-                    normalized.contains("focus") ||
-                    normalized == "title" ||
-                    normalized.contains("district") ||
-                    normalized.contains("neighborhood") ||
-                    normalized.contains("location")
-            }
-    }
-    val excludedIndexes = setOfNotNull(
-        0,
-        imageCell?.first,
-        imageAltCell?.first,
-        iconCell?.first,
-        dateCell?.first,
-        areaCell?.first
-    )
-    val sections = cells.mapNotNull { (index, label, value) ->
-        if (index in excludedIndexes) null else label to value
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp)
-            .semantics(mergeDescendants = true) {
-                contentDescription = tableRowAccessibilitySummary(headers, row)
-            },
-        shape = RoundedCornerShape(20.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 13.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            if (imageUrl.isNotBlank()) {
-                RenderImage(
-                    props = mapOf(
-                        "url" to imageUrl,
-                        "fit" to "cover",
-                        "height" to 132,
-                        "alt" to imageAltCell?.third.orEmpty().ifBlank { day }
-                    ),
-                    onOpenUrl = {},
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                RenderGeneratedItineraryDayVisual(
-                    day = day,
-                    area = areaCell?.third,
-                    modifier = Modifier.fillMaxWidth().height(132.dp)
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                iconUrl?.let { icon ->
-                    RenderIcon(
-                        props = mapOf("name" to icon, "size" to "sm", "decorative" to true),
-                        modifier = Modifier
-                    )
-                }
-                Surface(
-                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = parseBoldMarkdown(day),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp)
-                    )
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    dateCell?.third?.takeIf { it.isNotBlank() }?.let { date ->
-                        Text(
-                            text = parseBoldMarkdown(date),
-                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    areaCell?.third?.takeIf { it.isNotBlank() }?.let { area ->
-                        Text(
-                            text = parseBoldMarkdown(area),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-            sections.forEach { (label, value) ->
-                ItinerarySectionBlock(label = label, value = value)
-            }
-        }
-    }
-}
 
 @Composable
-private fun ScheduleDetailBlock(
+internal fun ScheduleDetailBlock(
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -6458,7 +3671,7 @@ private fun ScheduleDetailBlock(
 }
 
 @Composable
-private fun ResponsiveFieldBlock(
+internal fun ResponsiveFieldBlock(
     label: String,
     value: String,
     modifier: Modifier = Modifier
@@ -6510,18 +3723,18 @@ internal fun compactBulletItems(label: String, value: String): List<String> {
 }
 
 @Composable
-private fun flatSpecCardColors() = CardDefaults.cardColors(
+internal fun flatSpecCardColors() = CardDefaults.cardColors(
     containerColor = genUiCardContainerColor(GenUiCardTone.Neutral),
     contentColor = MaterialTheme.colorScheme.onSurface
 )
 
 @Composable
-private fun flatSpecCardBorder() = BorderStroke(
+internal fun flatSpecCardBorder() = BorderStroke(
     width = 1.dp,
     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
 )
 
-private fun tableAccessibilitySummary(
+internal fun tableAccessibilitySummary(
     headers: List<String>,
     rows: List<List<String>>,
     horizontalScroll: Boolean = false
@@ -6536,34 +3749,13 @@ private fun tableAccessibilitySummary(
     }
 }
 
-private fun isWeatherPeriodHeaderLabel(label: String): Boolean {
-    val token = normalizeTableHeaderForMatch(label)
-    return token in setOf("day", "date", "time", "hour", "period")
-}
 
-private fun tableRowAccessibilitySummary(
-    headers: List<String>,
-    row: List<String>,
-    rowIndex: Int? = null
-): String {
-    val pairs = (0 until maxOf(headers.size, row.size)).mapNotNull { index ->
-        val value = row.getOrNull(index).orEmpty().trim()
-        if (value.isBlank()) {
-            null
-        } else {
-            val label = tableHeaderLabel(headers, index)
-            "$label: $value"
-        }
-    }
-    val prefix = rowIndex?.let { "Row ${it + 1}. " }.orEmpty()
-    return prefix + pairs.joinToString(". ")
-}
 
-private fun marketTickerColumnIndex(headers: List<String>): Int =
+internal fun marketTickerColumnIndex(headers: List<String>): Int =
     findTableColumnIndex(headers, listOf("ticker", "symbol", "stock", "asset", "holding", "security"))
         ?: 0
 
-private fun marketValueColumnIndex(headers: List<String>, tickerIndex: Int): Int =
+internal fun marketValueColumnIndex(headers: List<String>, tickerIndex: Int): Int =
     headers.indices.firstOrNull { index ->
         if (index == tickerIndex) {
             false
@@ -6576,7 +3768,7 @@ private fun marketValueColumnIndex(headers: List<String>, tickerIndex: Int): Int
         }
     } ?: headers.indices.firstOrNull { it != tickerIndex } ?: 0
 
-private fun marketChangeAmountColumnIndex(headers: List<String>, exclude: Set<Int>): Int? =
+internal fun marketChangeAmountColumnIndex(headers: List<String>, exclude: Set<Int>): Int? =
     headers.indices.firstOrNull { index ->
         if (index in exclude) {
             false
@@ -6590,7 +3782,7 @@ private fun marketChangeAmountColumnIndex(headers: List<String>, exclude: Set<In
         }
     }
 
-private fun marketChangePercentColumnIndex(headers: List<String>, exclude: Set<Int>): Int? =
+internal fun marketChangePercentColumnIndex(headers: List<String>, exclude: Set<Int>): Int? =
     headers.indices.firstOrNull { index ->
         if (index in exclude) {
             false
@@ -6606,7 +3798,7 @@ private fun marketChangePercentColumnIndex(headers: List<String>, exclude: Set<I
         }
     }
 
-private fun marketTrendToken(vararg values: String?): Boolean? {
+internal fun marketTrendToken(vararg values: String?): Boolean? {
     values.forEach { raw ->
         val value = raw?.trim().orEmpty()
         val first = value.firstOrNull()
@@ -6619,7 +3811,7 @@ private fun marketTrendToken(vararg values: String?): Boolean? {
 }
 
 @Composable
-private fun marketTrendColor(positive: Boolean?): Color {
+internal fun marketTrendColor(positive: Boolean?): Color {
     return when (positive) {
         true -> Color(0xFF15803D)
         false -> Color(0xFFDC2626)
@@ -6627,182 +3819,27 @@ private fun marketTrendColor(positive: Boolean?): Color {
     }
 }
 
-@Composable
-private fun RenderMarketHoldingsTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier
-) {
-    if (rows.isEmpty()) return
-    val tickerIndex = marketTickerColumnIndex(headers)
-    val valueIndex = marketValueColumnIndex(headers, tickerIndex)
-    val amountIndex = marketChangeAmountColumnIndex(headers, setOf(tickerIndex, valueIndex))
-    val percentIndex = marketChangePercentColumnIndex(headers, setOf(tickerIndex, valueIndex) + listOfNotNull(amountIndex))
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        shape = RoundedCornerShape(18.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)
-        ) {
-            rows.forEachIndexed { rowIndex, row ->
-                MarketHoldingRow(
-                    headers = headers,
-                    row = row,
-                    rowIndex = rowIndex,
-                    tickerIndex = tickerIndex,
-                    valueIndex = valueIndex,
-                    amountIndex = amountIndex,
-                    percentIndex = percentIndex
-                )
-            }
-        }
-    }
-}
 
-@Composable
-private fun MarketHoldingRow(
-    headers: List<String>,
-    row: List<String>,
-    rowIndex: Int,
-    tickerIndex: Int,
-    valueIndex: Int,
-    amountIndex: Int?,
-    percentIndex: Int?
-) {
-    val ticker = row.getOrNull(tickerIndex).orEmpty().trim().ifBlank { "Asset ${rowIndex + 1}" }
-    val value = row.getOrNull(valueIndex).orEmpty().trim()
-    val amount = amountIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-    val percent = percentIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-    val trend = marketTrendToken(percent, amount)
-    val accent = marketTrendColor(trend)
-    val valueLabel = tableHeaderLabel(headers, valueIndex)
-    val changeLabel = percentIndex?.let { tableHeaderLabel(headers, it) }
-        ?: amountIndex?.let { tableHeaderLabel(headers, it) }
-        ?: "Change"
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
-            },
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.54f)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .widthIn(min = 54.dp, max = 66.dp)
-                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                    .background(accent.copy(alpha = 0.12f))
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = ticker,
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = accent,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(1.dp)
-            ) {
-                Text(
-                    text = valueLabel,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = parseBoldMarkdown(value),
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(3.dp),
-                modifier = Modifier.widthIn(min = 88.dp, max = 118.dp)
-            ) {
-                val primaryChange = percent.ifBlank { amount }
-                if (primaryChange.isNotBlank()) {
-                    Surface(
-                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                        color = accent.copy(alpha = 0.12f)
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(primaryChange),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = accent,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-                if (amount.isNotBlank() && amount != primaryChange) {
-                    Text(
-                        text = parseBoldMarkdown(amount),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = accent,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                } else {
-                    Text(
-                        text = changeLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-    }
-}
-
-private fun processStateColumnIndex(headers: List<String>): Int =
+internal fun processStateColumnIndex(headers: List<String>): Int =
     findTableColumnIndex(headers, listOf("ui state", "screen state", "state", "status", "step", "stage"))
         ?: 0
 
-private fun processVisualColumnIndex(headers: List<String>, stateIndex: Int): Int? =
+internal fun processVisualColumnIndex(headers: List<String>, stateIndex: Int): Int? =
     findTableColumnIndex(
         headers,
         listOf("visual", "screen", "view", "interface"),
         exclude = setOf(stateIndex)
     )
 
-private fun processFeedbackColumnIndex(headers: List<String>, stateIndex: Int): Int? =
+internal fun processFeedbackColumnIndex(headers: List<String>, stateIndex: Int): Int? =
     findTableColumnIndex(
         headers,
         listOf("feedback", "message", "text", "result", "copy"),
         exclude = setOf(stateIndex)
     )
 
-private fun processStateAccent(title: String): Color {
+internal fun processStateAccent(title: String): Color {
     val token = title.lowercase()
     return when {
         token.contains("success") || token.contains("valid") || token.contains("complete") -> Color(0xFF5EEAD4)
@@ -6812,25 +3849,25 @@ private fun processStateAccent(title: String): Color {
     }
 }
 
-private fun incidentComponentColumnIndex(headers: List<String>): Int =
+internal fun incidentComponentColumnIndex(headers: List<String>): Int =
     findTableColumnIndex(headers, listOf("component", "service", "system", "module", "dependency"))
         ?: 0
 
-private fun incidentStatusColumnIndex(headers: List<String>, componentIndex: Int): Int =
+internal fun incidentStatusColumnIndex(headers: List<String>, componentIndex: Int): Int =
     findTableColumnIndex(
         headers,
         listOf("current status", "status", "health", "state"),
         exclude = setOf(componentIndex)
     ) ?: headers.indices.firstOrNull { it != componentIndex } ?: 0
 
-private fun incidentNotesColumnIndex(headers: List<String>, excluded: Set<Int>): Int? =
+internal fun incidentNotesColumnIndex(headers: List<String>, excluded: Set<Int>): Int? =
     findTableColumnIndex(
         headers,
         listOf("notes", "impact", "details", "description", "message"),
         exclude = excluded
     )
 
-private fun incidentSeverityRank(status: String): Int {
+internal fun incidentSeverityRank(status: String): Int {
     val token = status.lowercase()
     return when {
         token.contains("major") ||
@@ -6846,14 +3883,14 @@ private fun incidentSeverityRank(status: String): Int {
     }
 }
 
-private fun incidentStatusAccent(status: String): Color = when (incidentSeverityRank(status)) {
+internal fun incidentStatusAccent(status: String): Color = when (incidentSeverityRank(status)) {
     3 -> Color(0xFFF97373)
     2 -> Color(0xFFFBBF24)
     1 -> Color(0xFF60A5FA)
     else -> Color(0xFF34D399)
 }
 
-private fun incidentStatusLabel(status: String): String {
+internal fun incidentStatusLabel(status: String): String {
     val cleaned = status.replace('_', ' ').replace('-', ' ').trim()
     if (cleaned.isBlank()) return "Unknown"
     return cleaned
@@ -6862,14 +3899,14 @@ private fun incidentStatusLabel(status: String): String {
         .joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
 }
 
-private fun incidentCompactStatusLabel(status: String): String = when (incidentSeverityRank(status)) {
+internal fun incidentCompactStatusLabel(status: String): String = when (incidentSeverityRank(status)) {
     3 -> "Major"
     2 -> "Degraded"
     1 -> "Maintenance"
     else -> "OK"
 }
 
-private fun incidentOverallLabel(rows: List<List<String>>, statusIndex: Int): String {
+internal fun incidentOverallLabel(rows: List<List<String>>, statusIndex: Int): String {
     val worst = rows
         .map { row -> row.getOrNull(statusIndex).orEmpty() }
         .maxByOrNull(::incidentSeverityRank)
@@ -6883,7 +3920,7 @@ private fun incidentOverallLabel(rows: List<List<String>>, statusIndex: Int): St
 }
 
 @Composable
-private fun IncidentSeverityPill(
+internal fun IncidentSeverityPill(
     status: String,
     modifier: Modifier = Modifier
 ) {
@@ -6904,130 +3941,9 @@ private fun IncidentSeverityPill(
     }
 }
 
-@Composable
-private fun IncidentStatusHero(
-    rows: List<List<String>>,
-    componentIndex: Int,
-    statusIndex: Int,
-    modifier: Modifier = Modifier
-) {
-    val overall = incidentOverallLabel(rows, statusIndex)
-    val affectedCount = rows.count { row ->
-        incidentSeverityRank(row.getOrNull(statusIndex).orEmpty()) > 0
-    }.coerceAtLeast(rows.size)
-    val worstRawStatus = rows
-        .map { row -> row.getOrNull(statusIndex).orEmpty() }
-        .maxByOrNull(::incidentSeverityRank)
-        .orEmpty()
-    val accent = incidentStatusAccent(worstRawStatus)
-    val topServices = rows
-        .sortedByDescending { row -> incidentSeverityRank(row.getOrNull(statusIndex).orEmpty()) }
-        .take(3)
-
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = Color.White.copy(alpha = 0.10f),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = "System status",
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color.White.copy(alpha = 0.72f)
-                    )
-                    Text(
-                        text = parseBoldMarkdown(overall),
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
-                        color = Color.White,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .size(54.dp)
-                        .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                        .background(accent.copy(alpha = 0.18f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "!",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
-                        color = accent
-                    )
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IncidentSeverityPill(status = worstRawStatus.ifBlank { overall })
-                Surface(
-                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    color = Color.White.copy(alpha = 0.12f)
-                ) {
-                    Text(
-                        text = "$affectedCount affected",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color.White.copy(alpha = 0.82f),
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                    )
-                }
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                topServices.forEach { row ->
-                    val component = row.getOrNull(componentIndex).orEmpty().ifBlank { "Service" }
-                    val status = row.getOrNull(statusIndex).orEmpty()
-                    val rowAccent = incidentStatusAccent(status)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(9.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                .background(rowAccent)
-                        )
-                        Text(
-                            text = parseBoldMarkdown(component),
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = Color.White.copy(alpha = 0.86f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = incidentCompactStatusLabel(status),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.64f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun IncidentServiceRowCard(
+internal fun IncidentServiceRowCard(
     headers: List<String>,
     row: List<String>,
     rowIndex: Int,
@@ -7098,196 +4014,10 @@ private fun IncidentServiceRowCard(
     }
 }
 
-@Composable
-private fun RenderIncidentStatusDashboard(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    landscape: Boolean
-) {
-    if (rows.isEmpty()) return
-    val componentIndex = incidentComponentColumnIndex(headers)
-    val statusIndex = incidentStatusColumnIndex(headers, componentIndex)
-    val notesIndex = incidentNotesColumnIndex(headers, setOf(componentIndex, statusIndex))
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        shape = RoundedCornerShape(28.dp),
-        color = Color.Transparent,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            Color(0xFF130D1B),
-                            Color(0xFF2B1724),
-                            Color(0xFF0F2433)
-                        )
-                    )
-                )
-                .padding(14.dp)
-        ) {
-            if (landscape) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    IncidentStatusHero(
-                        rows = rows,
-                        componentIndex = componentIndex,
-                        statusIndex = statusIndex,
-                        modifier = Modifier.widthIn(min = 220.dp, max = 280.dp)
-                    )
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .heightIn(max = 430.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(9.dp)
-                    ) {
-                        rows.forEachIndexed { rowIndex, row ->
-                            IncidentServiceRowCard(
-                                headers = headers,
-                                row = row,
-                                rowIndex = rowIndex,
-                                componentIndex = componentIndex,
-                                statusIndex = statusIndex,
-                                notesIndex = notesIndex
-                            )
-                        }
-                    }
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    IncidentStatusHero(
-                        rows = rows,
-                        componentIndex = componentIndex,
-                        statusIndex = statusIndex
-                    )
-                    rows.forEachIndexed { rowIndex, row ->
-                        IncidentServiceRowCard(
-                            headers = headers,
-                            row = row,
-                            rowIndex = rowIndex,
-                            componentIndex = componentIndex,
-                            statusIndex = statusIndex,
-                            notesIndex = notesIndex
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
-private fun ProcessScannerHero(
-    rows: List<List<String>>,
-    stateIndex: Int,
-    modifier: Modifier = Modifier
-) {
-    val states = rows.mapNotNull { row -> row.getOrNull(stateIndex)?.trim()?.takeIf(String::isNotBlank) }
-    val primaryState = states.firstOrNull().orEmpty()
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = Color.White.copy(alpha = 0.10f),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Process flow",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White.copy(alpha = 0.92f)
-                )
-                Surface(
-                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    color = Color.White.copy(alpha = 0.12f)
-                ) {
-                    Text(
-                        text = "${rows.size} states",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color.White.copy(alpha = 0.82f),
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(172.dp)
-                    .clip(RoundedCornerShape(22.dp))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                Color(0xFF020617),
-                                Color(0xFF0F172A),
-                                Color(0xFF12324B)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(112.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(Color.White.copy(alpha = 0.08f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(7.dp)
-                    ) {
-                        Text(
-                            text = "QR",
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black),
-                            color = Color.White
-                        )
-                        Box(
-                            modifier = Modifier
-                                .width(72.dp)
-                                .height(3.dp)
-                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                .background(Color(0xFF5EEAD4))
-                        )
-                        Text(
-                            text = primaryState.ifBlank { "Scan state" },
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = Color.White.copy(alpha = 0.72f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProcessStateStepCard(
+internal fun ProcessStateStepCard(
     headers: List<String>,
     row: List<String>,
     rowIndex: Int,
@@ -7363,95 +4093,8 @@ private fun ProcessStateStepCard(
     }
 }
 
-@Composable
-private fun RenderProcessStateTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    landscape: Boolean
-) {
-    if (rows.isEmpty()) return
-    val stateIndex = processStateColumnIndex(headers)
-    val visualIndex = processVisualColumnIndex(headers, stateIndex)
-    val feedbackIndex = processFeedbackColumnIndex(headers, stateIndex)
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        shape = RoundedCornerShape(28.dp),
-        color = Color.Transparent,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            Color(0xFF07111F),
-                            Color(0xFF102A43),
-                            Color(0xFF062E2E)
-                        )
-                    )
-                )
-                .padding(14.dp)
-        ) {
-            if (landscape) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    ProcessScannerHero(
-                        rows = rows,
-                        stateIndex = stateIndex,
-                        modifier = Modifier.widthIn(min = 220.dp, max = 280.dp)
-                    )
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .heightIn(max = 430.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(9.dp)
-                    ) {
-                        rows.forEachIndexed { rowIndex, row ->
-                            ProcessStateStepCard(
-                                headers = headers,
-                                row = row,
-                                rowIndex = rowIndex,
-                                stateIndex = stateIndex,
-                                visualIndex = visualIndex,
-                                feedbackIndex = feedbackIndex
-                            )
-                        }
-                    }
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    ProcessScannerHero(rows = rows, stateIndex = stateIndex)
-                    rows.forEachIndexed { rowIndex, row ->
-                        ProcessStateStepCard(
-                            headers = headers,
-                            row = row,
-                            rowIndex = rowIndex,
-                            stateIndex = stateIndex,
-                            visualIndex = visualIndex,
-                            feedbackIndex = feedbackIndex
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
-private fun findTableColumnIndex(
+internal fun findTableColumnIndex(
     headers: List<String>,
     keywords: List<String>,
     exclude: Set<Int> = emptySet()
@@ -7467,11 +4110,11 @@ private fun findTableColumnIndex(
     }
 }
 
-private fun isLikelyHttpUrl(value: String): Boolean {
+internal fun isLikelyHttpUrl(value: String): Boolean {
     return SafeContentPolicy.looksLikeUrl(value)
 }
 
-private fun bookingActionLabelIndex(headers: List<String>): Int? =
+internal fun bookingActionLabelIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         token in setOf("actionlabel", "action label", "buttonlabel", "button label", "ctalabel", "cta label") ||
@@ -7480,7 +4123,7 @@ private fun bookingActionLabelIndex(headers: List<String>): Int? =
             (token.contains("cta") && token.contains("label"))
     }
 
-private fun bookingImageIndex(headers: List<String>): Int? =
+internal fun bookingImageIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         if (token.contains("data") || token.contains("details") || token.contains("source")) {
@@ -7506,25 +4149,25 @@ private fun bookingImageIndex(headers: List<String>): Int? =
             (token.contains("photo") && token.contains("url"))
     }
 
-private fun bookingRatingIndex(headers: List<String>): Int? =
+internal fun bookingRatingIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("rating", "score", "stars", "review score"))
 
-private fun bookingReviewCountIndex(headers: List<String>): Int? =
+internal fun bookingReviewCountIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("review count", "reviews", "user rating count"))
 
-private fun bookingClassIndex(headers: List<String>): Int? =
+internal fun bookingClassIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("hotel class", "class", "type", "category", "property type"))
 
-private fun bookingAmenitiesIndex(headers: List<String>): Int? =
+internal fun bookingAmenitiesIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("amenities", "facilities", "features", "services", "highlights"))
 
-private fun bookingMapIndex(headers: List<String>): Int? =
+internal fun bookingMapIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("map", "maps", "directions", "location url", "maps url"))
 
-private fun bookingWebsiteIndex(headers: List<String>): Int? =
+internal fun bookingWebsiteIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("website", "official", "site", "homepage"))
 
-private fun bookingPhotosDataIndex(headers: List<String>): Int? =
+internal fun bookingPhotosDataIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         (token.contains("photo") || token.contains("image")) &&
@@ -7546,7 +4189,7 @@ internal fun bookingRowImageUrl(headers: List<String>, row: List<String>): Strin
         ?.takeIf { it.isNotBlank() }
 }
 
-private fun bookingRowImageUrls(headers: List<String>, row: List<String>): List<String> {
+internal fun bookingRowImageUrls(headers: List<String>, row: List<String>): List<String> {
     val index = bookingImageIndex(headers) ?: return emptyList()
     return splitRestaurantPhotoUrls(row.getOrNull(index).orEmpty())
         .ifEmpty { row.getOrNull(index)?.trim()?.takeIf { it.isNotBlank() }?.let(::listOf).orEmpty() }
@@ -7554,25 +4197,25 @@ private fun bookingRowImageUrls(headers: List<String>, row: List<String>): List<
         .take(4)
 }
 
-private fun restaurantTitleIndex(headers: List<String>): Int =
+internal fun restaurantTitleIndex(headers: List<String>): Int =
     findTableColumnIndex(headers, listOf("restaurant", "place", "name", "title")) ?: 0
 
-private fun restaurantRatingIndex(headers: List<String>): Int? =
+internal fun restaurantRatingIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("rating", "score", "stars"))
 
-private fun restaurantReviewCountIndex(headers: List<String>): Int? =
+internal fun restaurantReviewCountIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("review count", "reviews", "user rating count"))
 
-private fun restaurantPriceIndex(headers: List<String>): Int? =
+internal fun restaurantPriceIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("price", "price level", "cost", "budget"))
 
-private fun restaurantStatusIndex(headers: List<String>): Int? =
+internal fun restaurantStatusIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("status", "open", "hours", "open now", "opening"))
 
-private fun restaurantAddressIndex(headers: List<String>): Int? =
+internal fun restaurantAddressIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("address", "location"))
 
-private fun restaurantDescriptionIndex(headers: List<String>): Int? =
+internal fun restaurantDescriptionIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("description", "summary", "reason", "why", "notes", "details", "editorial"))
         ?: headers.indices.firstOrNull { index ->
             val token = normalizeTableHeaderForMatch(headers[index])
@@ -7581,35 +4224,35 @@ private fun restaurantDescriptionIndex(headers: List<String>): Int? =
                 token !in setOf("review", "reviews", "userratingcount", "user rating count")
         }
 
-private fun restaurantTagsIndex(headers: List<String>): Int? =
+internal fun restaurantTagsIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("tags", "type", "types", "cuisine", "category"))
 
-private fun restaurantPhotoIndex(headers: List<String>): Int? =
+internal fun restaurantPhotoIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("photo", "photos", "photo uri", "photouri", "photo url", "photourl", "photo urls", "photourls", "image", "images", "image url", "imageurl", "image urls", "imageurls", "media"))
 
-private fun restaurantPhotoIndexes(headers: List<String>): List<Int> =
+internal fun restaurantPhotoIndexes(headers: List<String>): List<Int> =
     headers.indices.filter { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         listOf("photo", "photos", "photo uri", "photouri", "photo url", "photourl", "photo urls", "photourls", "image", "images", "image url", "imageurl", "image urls", "imageurls", "media").any(token::contains)
     }
 
-private fun restaurantMapsIndex(headers: List<String>): Int? =
+internal fun restaurantMapsIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("maps", "map", "directions", "google maps", "googlemapsuri", "google maps uri"))
 
-private fun restaurantWebsiteIndex(headers: List<String>): Int? =
+internal fun restaurantWebsiteIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         token.contains("website") || token == "site" || token.contains("websiteuri") || token.contains("website uri")
     }
 
-private fun restaurantBookUrlIndex(headers: List<String>): Int? =
+internal fun restaurantBookUrlIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         (token.contains("book") || token.contains("reserve") || token.contains("reservation")) &&
             (token.contains("url") || token.contains("link") || token.contains("uri"))
     }
 
-private fun restaurantActionLabelIndex(headers: List<String>): Int? =
+internal fun restaurantActionLabelIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         token in setOf("actionlabel", "action label", "buttonlabel", "button label", "ctalabel", "cta label") ||
@@ -7618,19 +4261,19 @@ private fun restaurantActionLabelIndex(headers: List<String>): Int? =
             (token.contains("cta") && token.contains("label"))
     }
 
-private fun restaurantAmenitiesIndex(headers: List<String>): Int? =
+internal fun restaurantAmenitiesIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("amenities", "features", "services", "highlights"))
 
-private fun restaurantPhoneIndex(headers: List<String>): Int? =
+internal fun restaurantPhoneIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("phone", "telephone", "call", "national phone", "international phone"))
 
-private fun splitRestaurantTags(raw: String): List<String> =
+internal fun splitRestaurantTags(raw: String): List<String> =
     raw.split('|', ',', ';')
         .mapNotNull { it.trim().takeIf { token -> token.isNotBlank() && !isLikelyHttpUrl(token) } }
         .distinct()
         .take(4)
 
-private fun splitRestaurantPhotoUrls(raw: String): List<String> =
+internal fun splitRestaurantPhotoUrls(raw: String): List<String> =
     raw.split('|', '\n', '\t')
         .flatMap { chunk -> chunk.split(Regex("""\s*,\s*(?=https://|genuicraft://|../|assets/)""")) }
         .mapNotNull { value ->
@@ -7644,7 +4287,7 @@ private fun splitRestaurantPhotoUrls(raw: String): List<String> =
         .distinct()
         .take(5)
 
-private fun compactRestaurantMeta(
+internal fun compactRestaurantMeta(
     rating: String,
     reviewCount: String,
     price: String
@@ -7660,274 +4303,9 @@ private fun compactRestaurantMeta(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun renderRestaurantRowsIfPossible(
-    headers: List<String>,
-    rows: List<List<String>>,
-    onOpenUrl: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    title: String? = null
-): Boolean {
-    if (rows.isEmpty()) return false
-    val titleIndex = restaurantTitleIndex(headers)
-    val ratingIndex = restaurantRatingIndex(headers)
-    val reviewCountIndex = restaurantReviewCountIndex(headers)
-    val priceIndex = restaurantPriceIndex(headers)
-    val statusIndex = restaurantStatusIndex(headers)
-    val addressIndex = restaurantAddressIndex(headers)
-    val descriptionIndex = restaurantDescriptionIndex(headers)
-    val tagsIndex = restaurantTagsIndex(headers)
-    val photoIndex = restaurantPhotoIndex(headers)
-    val photoIndexes = restaurantPhotoIndexes(headers)
-    val mapsIndex = restaurantMapsIndex(headers)
-    val websiteIndex = restaurantWebsiteIndex(headers)
-    val bookUrlIndex = restaurantBookUrlIndex(headers)
-    val actionLabelIndex = restaurantActionLabelIndex(headers)
-    val amenitiesIndex = restaurantAmenitiesIndex(headers)
-    val phoneIndex = restaurantPhoneIndex(headers)
-    val hasRestaurantSignal =
-        headers.any(::isRestaurantHeaderLabel) &&
-            (ratingIndex != null || addressIndex != null || photoIndex != null || mapsIndex != null || websiteIndex != null || bookUrlIndex != null)
-    if (!hasRestaurantSignal) return false
-
-    val shownRows = rows.filter { row -> row.any { value -> value.trim().isNotBlank() } }
-    if (shownRows.isEmpty()) return false
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = "Restaurant results with ${shownRows.size} places"
-            },
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        title?.trim()?.takeIf { it.isNotBlank() }?.let { headingText ->
-            Text(
-                text = parseBoldMarkdown(headingText),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 2.dp, vertical = 6.dp)
-                    .semantics { heading() }
-            )
-        }
-        shownRows.forEachIndexed { index, row ->
-            val restaurantName = row.getOrNull(titleIndex).orEmpty().trim().ifBlank { "Restaurant ${index + 1}" }
-            val rating = ratingIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val reviews = reviewCountIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val price = priceIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val status = statusIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val address = addressIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val description = descriptionIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val amenities = amenitiesIndex?.let { splitRestaurantTags(row.getOrNull(it).orEmpty()) }.orEmpty()
-            val tags = (tagsIndex?.let { splitRestaurantTags(row.getOrNull(it).orEmpty()) }.orEmpty() + amenities)
-                .distinct()
-                .take(7)
-            val photos = photoIndexes
-                .flatMap { splitRestaurantPhotoUrls(row.getOrNull(it).orEmpty()) }
-                .distinct()
-                .take(3)
-                .ifEmpty { listOf("genuicraft://visual/restaurant?title=${Uri.encode(restaurantName)}") }
-            val mapsUrl = mapsIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
-            val websiteUrl = websiteIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
-            val bookUrl = bookUrlIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
-            val hasReservationSignal = tags.any { tag ->
-                tag.contains("reservation", ignoreCase = true) ||
-                    tag.contains("reserve", ignoreCase = true) ||
-                    tag.contains("book", ignoreCase = true)
-            }
-            val rawActionLabel = actionLabelIndex
-                ?.let { row.getOrNull(it).orEmpty().trim() }
-                ?.takeIf { it.isNotBlank() && !isLikelyHttpUrl(it) }
-                ?.let { label ->
-                    if (label.contains("reserve", ignoreCase = true) ||
-                        label.contains("book table", ignoreCase = true)
-                    ) {
-                        "Reserve Table"
-                    } else {
-                        label
-                    }
-                }
-            val actionLabel = when {
-                hasReservationSignal && !bookUrl.isNullOrBlank() ->
-                    rawActionLabel
-                        ?.takeIf { it.contains("reserve", ignoreCase = true) }
-                        ?: "Reserve Table"
-                hasReservationSignal && !mapsUrl.isNullOrBlank() ->
-                    rawActionLabel
-                        ?.takeIf { it.contains("reserve", ignoreCase = true) }
-                        ?: "Reserve Table"
-                !rawActionLabel.isNullOrBlank() -> rawActionLabel
-                else -> when {
-                    !bookUrl.isNullOrBlank() -> "Menu / Details"
-                    !websiteUrl.isNullOrBlank() -> "Website"
-                    !mapsUrl.isNullOrBlank() && hasReservationSignal -> "Reserve Table"
-                    !mapsUrl.isNullOrBlank() -> "Directions"
-                    else -> ""
-                }
-            }
-            val phone = phoneIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-            val phoneDialUrl = SafeContentPolicy.sanitizePhoneDialUrl(phone)
-            val hasReserveAction = actionLabel.contains("reserve", ignoreCase = true) ||
-                actionLabel.contains("book table", ignoreCase = true)
-            val reserveUrl = bookUrl.takeIf { hasReserveAction && !it.isNullOrBlank() }
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = tableRowAccessibilitySummary(headers, row)
-                    },
-                shape = RoundedCornerShape(20.dp),
-                colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                border = flatSpecCardBorder()
-            ) {
-                Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    RestaurantPhotoStrip(
-                        name = restaurantName,
-                        photos = photos,
-                        onOpenUrl = onOpenUrl
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(restaurantName),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    RestaurantRatingChips(
-                        rating = rating,
-                        reviews = reviews,
-                        price = price
-                    )
-                    if (status.isNotBlank()) {
-                        val openLike = status.contains("open", ignoreCase = true) && !status.contains("closed", ignoreCase = true)
-                        val darkTheme = isSystemInDarkTheme()
-                        Surface(
-                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                            color = if (openLike) {
-                                if (darkTheme) Color(0xFF163529) else Color(0xFFEAF7F0)
-                            } else {
-                                MaterialTheme.colorScheme.errorContainer.copy(alpha = if (darkTheme) 0.30f else 0.52f)
-                            },
-                            border = BorderStroke(
-                                1.dp,
-                                if (openLike) {
-                                    Color(0xFF18A767).copy(alpha = if (darkTheme) 0.28f else 0.22f)
-                                } else {
-                                    MaterialTheme.colorScheme.error.copy(alpha = if (darkTheme) 0.26f else 0.18f)
-                                }
-                            )
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(status),
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                                color = if (openLike) {
-                                    if (darkTheme) Color(0xFF8DDBB3) else Color(0xFF1C6B45)
-                                } else {
-                                    MaterialTheme.colorScheme.onErrorContainer
-                                },
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                            )
-                        }
-                    }
-                    if (description.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(description),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    if (address.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(address),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    if (tags.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(7.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            tags.forEach { tag ->
-                                RestaurantTagChip(tag)
-                            }
-                        }
-                    }
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (!reserveUrl.isNullOrBlank()) {
-                            RestaurantActionPill(
-                                label = "Reserve Table",
-                                icon = Icons.Filled.EventAvailable,
-                                primary = true,
-                                onClick = { onOpenUrl(reserveUrl) }
-                            )
-                        }
-                        if (!phoneDialUrl.isNullOrBlank()) {
-                            RestaurantActionPill(
-                                label = "Call",
-                                icon = Icons.Filled.Call,
-                                onClick = { onOpenUrl(phoneDialUrl) }
-                            )
-                        }
-                        if (!mapsUrl.isNullOrBlank()) {
-                            RestaurantActionPill(
-                                label = "Directions",
-                                icon = Icons.Filled.Directions,
-                                onClick = { onOpenUrl(mapsUrl) }
-                            )
-                        }
-                        if (!websiteUrl.isNullOrBlank()) {
-                            RestaurantActionPill(
-                                label = "Website",
-                                icon = Icons.Filled.Language,
-                                onClick = { onOpenUrl(websiteUrl) }
-                            )
-                        }
-                        if (reserveUrl.isNullOrBlank() &&
-                            bookUrl != null &&
-                            bookUrl != websiteUrl &&
-                            bookUrl != mapsUrl &&
-                            actionLabel.isNotBlank()
-                        ) {
-                            RestaurantActionPill(
-                                label = actionLabel,
-                                icon = Icons.Filled.Link,
-                                primary = true,
-                                onClick = { onOpenUrl(bookUrl) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return true
-}
 
 @Composable
-private fun RestaurantTagChip(label: String) {
+internal fun RestaurantTagChip(label: String) {
     val darkTheme = isSystemInDarkTheme()
     val contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (darkTheme) 0.86f else 0.88f)
     Surface(
@@ -7950,7 +4328,7 @@ private fun RestaurantTagChip(label: String) {
 }
 
 @Composable
-private fun RestaurantPhotoStrip(
+internal fun RestaurantPhotoStrip(
     name: String,
     photos: List<String>,
     onOpenUrl: (String) -> Unit
@@ -8000,7 +4378,7 @@ private fun RestaurantPhotoStrip(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RestaurantRatingChips(
+internal fun RestaurantRatingChips(
     rating: String,
     reviews: String,
     price: String
@@ -8030,7 +4408,7 @@ private fun RestaurantRatingChips(
 }
 
 @Composable
-private fun RestaurantMetricChip(
+internal fun RestaurantMetricChip(
     label: String,
     icon: ImageVector? = null,
     emphasized: Boolean = false
@@ -8083,7 +4461,7 @@ private fun RestaurantMetricChip(
 }
 
 @Composable
-private fun RestaurantActionPill(
+internal fun RestaurantActionPill(
     label: String,
     icon: ImageVector,
     enabled: Boolean = true,
@@ -8146,7 +4524,7 @@ private fun RestaurantActionPill(
     }
 }
 
-private data class NewsArticleCardRow(
+internal data class NewsArticleCardRow(
     val title: String,
     val source: String,
     val published: String,
@@ -8162,7 +4540,7 @@ private data class NewsArticleCardRow(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun renderNewsRowsIfPossible(
+internal fun renderNewsRowsIfPossible(
     headers: List<String>,
     rows: List<List<String>>,
     onOpenUrl: (String) -> Unit,
@@ -8234,7 +4612,7 @@ private fun renderNewsRowsIfPossible(
 }
 
 @Composable
-private fun NewsLeadStoryCard(
+internal fun NewsLeadStoryCard(
     article: NewsArticleCardRow,
     onOpenUrl: (String) -> Unit
 ) {
@@ -8296,7 +4674,7 @@ private fun NewsLeadStoryCard(
 }
 
 @Composable
-private fun NewsArticleCard(
+internal fun NewsArticleCard(
     article: NewsArticleCardRow,
     onOpenUrl: (String) -> Unit
 ) {
@@ -8357,7 +4735,7 @@ private fun NewsArticleCard(
 }
 
 @Composable
-private fun NewsArticleImage(
+internal fun NewsArticleImage(
     title: String,
     imageUrl: String,
     aspectRatio: Float,
@@ -8371,11 +4749,7 @@ private fun NewsArticleImage(
     val safeImageUrl = SafeContentPolicy.sanitizeMediaUrl(imageUrl, SafeContentPolicy.MediaKind.IMAGE)
     if (!safeImageUrl.isNullOrBlank()) {
         val context = LocalContext.current
-        val imageLoader = remember(context) {
-            ImageLoader.Builder(context)
-                .components { add(SvgDecoder.Factory()) }
-                .build()
-        }
+        val imageLoader = rememberFlatImageLoader()
         var failed by remember(safeImageUrl) { mutableStateOf(false) }
         if (failed) {
             NewsImagePlaceholder(title = title, modifier = imageModifier)
@@ -8404,7 +4778,7 @@ private fun NewsArticleImage(
 }
 
 @Composable
-private fun NewsImagePlaceholder(title: String, modifier: Modifier = Modifier) {
+internal fun NewsImagePlaceholder(title: String, modifier: Modifier = Modifier) {
     val seed = kotlin.math.abs(title.hashCode().takeIf { it != Int.MIN_VALUE } ?: 0)
     val palette = listOf(
         Color(0xFF0F766E) to Color(0xFF38BDF8),
@@ -8428,7 +4802,7 @@ private fun NewsImagePlaceholder(title: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun NewsSourceLine(
+internal fun NewsSourceLine(
     article: NewsArticleCardRow,
     prominent: Boolean,
     onOpenUrl: (String) -> Unit
@@ -8470,7 +4844,7 @@ private fun NewsSourceLine(
 }
 
 @Composable
-private fun NewsSourceIcon(
+internal fun NewsSourceIcon(
     source: String,
     sourceIcon: String,
     sourceUrl: String,
@@ -8515,7 +4889,7 @@ private fun NewsSourceIcon(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun NewsMetaChips(article: NewsArticleCardRow) {
+internal fun NewsMetaChips(article: NewsArticleCardRow) {
     val chips = splitRestaurantTags(article.category).ifEmpty {
         listOfNotNull(article.published.takeIf { it.isNotBlank() })
     }.take(4)
@@ -8532,7 +4906,7 @@ private fun NewsMetaChips(article: NewsArticleCardRow) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun NewsActions(
+internal fun NewsActions(
     article: NewsArticleCardRow,
     onOpenUrl: (String) -> Unit,
     primaryFullWidth: Boolean
@@ -8564,7 +4938,7 @@ private fun NewsActions(
 }
 
 @Composable
-private fun NewsTextAction(
+internal fun NewsTextAction(
     label: String,
     icon: ImageVector,
     onClick: () -> Unit
@@ -8595,31 +4969,31 @@ private fun NewsTextAction(
     }
 }
 
-private fun newsTitleIndex(headers: List<String>): Int? =
+internal fun newsTitleIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("article", "headline", "title", "story", "news"))
 
-private fun newsSourceIndex(headers: List<String>): Int? =
+internal fun newsSourceIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("source", "publisher", "publication"), exclude = setOfNotNull(newsSourceUrlIndex(headers), newsSourceIconIndex(headers)))
 
-private fun newsPublishedIndex(headers: List<String>): Int? =
+internal fun newsPublishedIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("published", "pub date", "date", "time"))
 
-private fun newsCategoryIndex(headers: List<String>): Int? =
+internal fun newsCategoryIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("category", "section", "topic", "tag"))
 
-private fun newsSummaryIndex(headers: List<String>): Int? =
+internal fun newsSummaryIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("summary", "description", "snippet", "excerpt", "content"))
 
-private fun newsImageIndex(headers: List<String>): Int? =
+internal fun newsImageIndex(headers: List<String>): Int? =
     findTableColumnIndex(headers, listOf("image url", "image", "thumbnail", "photo", "media"))
 
-private fun newsSourceIconIndex(headers: List<String>): Int? =
+internal fun newsSourceIconIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         token.contains("source icon") || token.contains("publisher icon") || token == "icon"
     }
 
-private fun newsArticleUrlIndex(headers: List<String>): Int? =
+internal fun newsArticleUrlIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         (token.contains("article") && token.contains("url")) ||
@@ -8629,245 +5003,21 @@ private fun newsArticleUrlIndex(headers: List<String>): Int? =
             token.contains("read url")
     }
 
-private fun newsSourceUrlIndex(headers: List<String>): Int? =
+internal fun newsSourceUrlIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         token.contains("source url") || token.contains("publisher url") || token == "source link"
     }
 
-private fun newsActionLabelIndex(headers: List<String>): Int? =
+internal fun newsActionLabelIndex(headers: List<String>): Int? =
     headers.indices.firstOrNull { index ->
         val token = normalizeTableHeaderForMatch(headers[index])
         token.contains("action label") || token.contains("button label") || token.contains("cta label")
     }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun renderBookingRowsIfPossible(
-    headers: List<String>,
-    rows: List<List<String>>,
-    onOpenUrl: (String) -> Unit
-): Boolean {
-    if (rows.isEmpty()) return false
-    val titleIndex = findTableColumnIndex(
-        headers = headers,
-        keywords = listOf("hotel", "property", "provider", "option", "listing", "vendor", "airline", "name", "route", "plan")
-    ) ?: 0
-    val priceIndex = findTableColumnIndex(
-        headers = headers,
-        keywords = listOf("price", "cost", "fare", "rate", "night", "budget")
-    )
-    val actionLabelIndex = bookingActionLabelIndex(headers)
-    val imageIndex = bookingImageIndex(headers)
-    val ratingIndex = bookingRatingIndex(headers)
-    val reviewCountIndex = bookingReviewCountIndex(headers)
-    val classIndex = bookingClassIndex(headers)
-    val amenitiesIndex = bookingAmenitiesIndex(headers)
-    val mapIndex = bookingMapIndex(headers)
-    val websiteIndex = bookingWebsiteIndex(headers)
-    val photosDataIndex = bookingPhotosDataIndex(headers)
-    val linkIndex = findTableColumnIndex(
-        headers = headers,
-        keywords = listOf("book", "booking", "reserve", "action url", "url", "link", "website"),
-        exclude = setOfNotNull(imageIndex, mapIndex, photosDataIndex)
-    )
-    val secondaryIndex = findTableColumnIndex(
-        headers = headers,
-        keywords = listOf("duration", "time", "date", "location", "room", "type", "class", "stops", "status"),
-        exclude = setOfNotNull(titleIndex, priceIndex, ratingIndex, reviewCountIndex, amenitiesIndex)
-    )
-    val hasBookingSignal = priceIndex != null || linkIndex != null || headers.any(::isBookingEntityHeaderLabel)
-    if (!hasBookingSignal) return false
-
-    val shownRows = rows.filter { row ->
-        row.any { value -> value.trim().isNotBlank() }
-    }
-    if (shownRows.isEmpty()) return false
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        shownRows.forEach { row ->
-            val title = row.getOrNull(titleIndex).orEmpty().trim().ifBlank { "Option" }
-            val price = priceIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
-            val secondary = secondaryIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
-            val rating = ratingIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
-            val reviews = reviewCountIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
-            val hotelClass = classIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }.orEmpty()
-            val amenities = amenitiesIndex?.let { index -> splitRestaurantTags(row.getOrNull(index).orEmpty()) }.orEmpty()
-            val actionUrl = linkIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
-                ?.let(SafeContentPolicy::sanitizeActionUrl)
-            val mapsUrl = mapIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
-                ?.let(SafeContentPolicy::sanitizeActionUrl)
-            val websiteUrl = websiteIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
-                ?.let(SafeContentPolicy::sanitizeActionUrl)
-            val photosDataUrl = photosDataIndex?.let { index -> row.getOrNull(index).orEmpty().trim() }
-                ?.let(SafeContentPolicy::sanitizeActionUrl)
-            val actionLabel = bookingRowActionLabel(headers, row) ?: "Open Option"
-            val imageUrls = bookingRowImageUrls(headers, row)
-            val excludedChipIndexes = setOfNotNull(
-                titleIndex,
-                priceIndex,
-                secondaryIndex,
-                linkIndex,
-                actionLabelIndex,
-                imageIndex,
-                ratingIndex,
-                reviewCountIndex,
-                classIndex,
-                amenitiesIndex,
-                mapIndex,
-                websiteIndex,
-                photosDataIndex
-            )
-            val chips = buildList {
-                headers.forEachIndexed { index, header ->
-                    if (index in excludedChipIndexes) {
-                        return@forEachIndexed
-                    }
-                    val value = row.getOrNull(index).orEmpty().trim()
-                    if (value.isBlank() || isLikelyHttpUrl(value)) return@forEachIndexed
-                    add(header.ifBlank { "Detail" } to value)
-                }
-            }.take(5)
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
-                        contentDescription = tableRowAccessibilitySummary(headers, row)
-                    },
-                shape = RoundedCornerShape(22.dp),
-                colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                border = flatSpecCardBorder()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    if (imageUrls.isNotEmpty()) {
-                        BookingPhotoStrip(
-                            name = title,
-                            photos = imageUrls,
-                            onOpenUrl = onOpenUrl
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(title),
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            val subtitle = listOf(hotelClass, secondary)
-                                .filter { it.isNotBlank() }
-                                .distinct()
-                                .joinToString(" • ")
-                            if (subtitle.isNotBlank()) {
-                                Text(
-                                    text = parseBoldMarkdown(subtitle),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        if (price.isNotBlank()) {
-                            Surface(
-                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                color = MaterialTheme.colorScheme.primaryContainer
-                            ) {
-                                Text(
-                                    text = parseBoldMarkdown(price),
-                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                                )
-                            }
-                        }
-                    }
-                    if (rating.isNotBlank() || reviews.isNotBlank()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (rating.isNotBlank()) {
-                                BookingMetricChip(
-                                    label = rating,
-                                    icon = Icons.Filled.Star,
-                                    emphasized = true
-                                )
-                            }
-                            if (reviews.isNotBlank()) {
-                                BookingMetricChip(
-                                    label = reviews,
-                                    icon = Icons.Filled.RateReview
-                                )
-                            }
-                        }
-                    }
-                    if (amenities.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(7.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            amenities.take(6).forEach { amenity ->
-                                BookingDetailChip(amenity)
-                            }
-                        }
-                    }
-                    if (chips.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            chips.forEach { (label, value) ->
-                                BookingDetailChip("${label.trim()}: ${value.trim()}")
-                            }
-                        }
-                    }
-                    val actions = listOfNotNull(
-                        actionUrl?.let { actionLabel to (Icons.Filled.EventAvailable to it) },
-                        mapsUrl?.takeIf { it != actionUrl }?.let { "Directions" to (Icons.Filled.Directions to it) },
-                        websiteUrl?.takeIf { it != actionUrl && it != mapsUrl }?.let { "Website" to (Icons.Filled.Language to it) },
-                        photosDataUrl?.takeIf { it != actionUrl && it != mapsUrl && it != websiteUrl }?.let { "Photos" to (Icons.Filled.Image to it) }
-                    )
-                    if (actions.isNotEmpty()) {
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            actions.forEachIndexed { index, (label, iconAndUrl) ->
-                                RestaurantActionPill(
-                                    label = label,
-                                    icon = iconAndUrl.first,
-                                    primary = index == 0,
-                                    onClick = { onOpenUrl(iconAndUrl.second) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return true
-}
 
 @Composable
-private fun BookingPhotoStrip(
+internal fun BookingPhotoStrip(
     name: String,
     photos: List<String>,
     onOpenUrl: (String) -> Unit
@@ -8909,7 +5059,7 @@ private fun BookingPhotoStrip(
 }
 
 @Composable
-private fun BookingMetricChip(
+internal fun BookingMetricChip(
     label: String,
     icon: ImageVector? = null,
     emphasized: Boolean = false
@@ -8954,7 +5104,7 @@ private fun BookingMetricChip(
 }
 
 @Composable
-private fun BookingDetailChip(label: String) {
+internal fun BookingDetailChip(label: String) {
     Surface(
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -8972,7 +5122,7 @@ private fun BookingDetailChip(label: String) {
 }
 
 @Composable
-private fun ResponsiveComparisonRowCard(
+internal fun ResponsiveComparisonRowCard(
     headers: List<String>,
     row: List<String>
 ) {
@@ -9043,7 +5193,7 @@ private fun ResponsiveComparisonRowCard(
 }
 
 @Composable
-private fun ResponsiveComparisonColumnCards(
+internal fun ResponsiveComparisonColumnCards(
     headers: List<String>,
     rows: List<List<String>>,
     spacing: Dp,
@@ -9117,7 +5267,7 @@ private fun ResponsiveComparisonColumnCards(
 }
 
 @Composable
-private fun ComparisonEntityMediaTile(media: TableEntityMedia) {
+internal fun ComparisonEntityMediaTile(media: TableEntityMedia) {
     RenderImage(
         props = mapOf(
             "url" to media.image,
@@ -9131,7 +5281,7 @@ private fun ComparisonEntityMediaTile(media: TableEntityMedia) {
 }
 
 @Composable
-private fun FeatureMatrixField(
+internal fun FeatureMatrixField(
     feature: String,
     value: String
 ) {
@@ -9191,246 +5341,11 @@ private fun FeatureMatrixField(
     }
 }
 
-@Composable
-private fun ResponsiveScheduleRowCard(
-    headers: List<String>,
-    row: List<String>
-) {
-    if (looksLikeTravelItineraryTable(headers)) {
-        TravelItineraryDayCard(headers = headers, row = row)
-        return
-    }
-    if (looksLikeStudyPlanTable(headers)) {
-        StudyPlanWeekCard(headers = headers, row = row)
-        return
-    }
 
-    val cellCount = maxOf(headers.size, row.size)
-    val cells = (0 until cellCount).map { index ->
-        Triple(index, tableHeaderLabel(headers, index), row.getOrNull(index).orEmpty().trim())
-    }.filter { (_, _, value) -> value.isNotBlank() }
-    if (cells.isEmpty()) return
-    val iconCell = cells.firstOrNull { (_, label, value) ->
-        isIconColumnLabel(label) && value.isNotBlank()
-    }
-    val contentCells = cells.filterNot { (index, _, _) -> index == iconCell?.first }
-    if (contentCells.isEmpty()) return
 
-    val promoteSecond = contentCells.size > 1 &&
-        shouldPromoteTimelineSecondTitle(contentCells[0].second, contentCells[1].second)
-    val titleCellIndex = if (promoteSecond) 1 else 0
-    val badgeCell = if (promoteSecond) contentCells.firstOrNull() else null
-    val titleCell = contentCells.getOrNull(titleCellIndex) ?: contentCells.first()
-    val titleValue = formatTimelineTitle(titleCell.second, titleCell.third)
-    val bodyCells = contentCells.filterNot { (index, _, _) ->
-        index == titleCell.first || index == badgeCell?.first
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp)
-            .semantics(mergeDescendants = true) {
-                contentDescription = tableRowAccessibilitySummary(headers, row)
-            },
-        shape = RoundedCornerShape(16.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = flatSpecCardBorder()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val badgeValue = badgeCell?.third.orEmpty()
-            val titleIsLong = titleValue.length > 64 || titleValue.contains('\n')
-            if (badgeValue.isNotBlank() && titleIsLong) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (iconCell != null) {
-                        RenderIcon(
-                            props = mapOf("name" to iconCell.third, "size" to "sm", "decorative" to true),
-                            modifier = Modifier
-                        )
-                    }
-                    Surface(
-                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(badgeValue),
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-                Text(
-                    text = parseBoldMarkdown(titleValue),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    if (iconCell != null) {
-                        RenderIcon(
-                            props = mapOf("name" to iconCell.third, "size" to "sm", "decorative" to true),
-                            modifier = Modifier
-                        )
-                    }
-                    if (badgeValue.isNotBlank()) {
-                        Surface(
-                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(badgeValue),
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                    Text(
-                        text = parseBoldMarkdown(titleValue),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            bodyCells.forEach { (_, label, value) ->
-                ScheduleDetailBlock(label = label, value = value)
-            }
-        }
-    }
-}
-
-private fun looksLikeStudyPlanTable(headers: List<String>): Boolean {
-    val normalized = headers.map(::normalizeTableHeaderForMatch)
-    val hasWeek = normalized.any { it == "week" || it.contains("week") }
-    val hasStudyFocus = normalized.any { header ->
-        header.contains("topic") ||
-            header.contains("focus") ||
-            header.contains("session") ||
-            header.contains("study") ||
-            header.contains("practice")
-    }
-    val hasGoalOrAssessment = normalized.any { header ->
-        header.contains("goal") ||
-            header.contains("quiz") ||
-            header.contains("test") ||
-            header.contains("review")
-    }
-    val hasScheduleSignal = normalized.any { header ->
-        header.contains("date") ||
-            header.contains("day") ||
-            header.contains("saturday") ||
-            header.contains("duration")
-    }
-    return hasWeek && hasScheduleSignal && (hasStudyFocus || hasGoalOrAssessment)
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun StudyPlanWeekCard(
-    headers: List<String>,
-    row: List<String>
-) {
-    val weekIndex = findTableColumnIndex(headers, listOf("week")) ?: 0
-    val dateIndex = findTableColumnIndex(headers, listOf("date", "dates", "range"), exclude = setOf(weekIndex))
-    val focusIndex = findTableColumnIndex(
-        headers = headers,
-        keywords = listOf("focus", "topic", "module", "subject"),
-        exclude = setOf(weekIndex, dateIndex ?: -1)
-    )
-    val title = focusIndex?.let { row.getOrNull(it).orEmpty().trim() }
-        ?.takeIf { it.isNotBlank() }
-        ?: row.firstOrNull { it.trim().isNotBlank() }.orEmpty().trim().ifBlank { "Study week" }
-    val rawWeek = row.getOrNull(weekIndex).orEmpty().trim()
-    val weekLabel = when {
-        rawWeek.isBlank() -> "Week"
-        normalizeTableHeaderForMatch(rawWeek).contains("week") -> rawWeek
-        else -> "Week $rawWeek"
-    }
-    val dateValue = dateIndex?.let { row.getOrNull(it).orEmpty().trim() }.orEmpty()
-    val excluded = setOfNotNull(weekIndex, dateIndex, focusIndex)
-    val detailCells = headers.indices.mapNotNull { index ->
-        val value = row.getOrNull(index).orEmpty().trim()
-        if (index in excluded || value.isBlank()) null else tableHeaderLabel(headers, index) to value
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp)
-            .semantics(mergeDescendants = true) {
-                contentDescription = tableRowAccessibilitySummary(headers, row)
-            },
-        shape = RoundedCornerShape(18.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = flatSpecCardBorder()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp)
-        ) {
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = parseBoldMarkdown(weekLabel),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp)
-                    )
-                }
-                if (dateValue.isNotBlank()) {
-                    Surface(
-                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(dateValue),
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                        )
-                    }
-                }
-            }
-            Text(
-                text = parseBoldMarkdown(title),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            detailCells.forEach { (label, value) ->
-                ScheduleDetailBlock(label = label, value = value)
-            }
-        }
-    }
-}
 
 @Composable
-private fun RenderTimelineTableCards(
+internal fun RenderTimelineTableCards(
     headers: List<String>,
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
@@ -9455,7 +5370,7 @@ private fun RenderTimelineTableCards(
 }
 
 @Composable
-private fun ResponsiveGenericRowCard(
+internal fun ResponsiveGenericRowCard(
     headers: List<String>,
     row: List<String>
 ) {
@@ -9506,7 +5421,7 @@ private fun ResponsiveGenericRowCard(
 }
 
 @Composable
-private fun RenderResponsiveTableRows(
+internal fun RenderResponsiveTableRows(
     headers: List<String>,
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
@@ -9562,7 +5477,7 @@ private fun RenderResponsiveTableRows(
     }
 }
 
-private fun selectAdaptiveTablePresentation(
+internal fun selectAdaptiveTablePresentation(
     table: FlatDirectTableModel,
     screenWidthDp: Int,
     isLandscape: Boolean,
@@ -9625,260 +5540,11 @@ private fun selectAdaptiveTablePresentation(
     }
 }
 
-internal fun isFormulaVariablesTable(table: FlatDirectTableModel): Boolean =
-    table.domain == "formula" && isFormulaVariableHeaderSet(table.columns.map { it.label })
 
-internal fun isCalculationBreakdownTable(table: FlatDirectTableModel): Boolean {
-    if (table.domain != "formula") return false
-    if (!isCalculationBreakdownHeaderSet(table.columns.map { it.label })) return false
-    return table.rows.any { row ->
-        row.any { value ->
-            value.contains('$') ||
-                value.contains('€') ||
-                value.contains('£') ||
-                value.contains('₹') ||
-                looksLikeNumericTableValue(value)
-        }
-    }
-}
 
-@Composable
-private fun RenderFormulaVariablesTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier
-) {
-    if (rows.isEmpty()) return
-    val variableIndex = headers.indexOfFirst { normalizeTableHeaderForMatch(it) in setOf("variable", "symbol", "term", "parameter", "input") }
-        .takeIf { it >= 0 } ?: 0
-    val descriptionIndex = headers.indexOfFirst {
-        normalizeTableHeaderForMatch(it).let { token ->
-            token.contains("description") || token.contains("meaning") || token.contains("definition")
-        }
-    }
-    val valueIndex = headers.indexOfFirst {
-        normalizeTableHeaderForMatch(it).let { token ->
-            token in setOf("value", "amount", "input value", "given")
-        }
-    }
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = "Formula variables table with ${rows.size} variables"
-            },
-        shape = RoundedCornerShape(18.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f))
-                    .padding(horizontal = 10.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = headers.getOrNull(variableIndex).orEmpty().ifBlank { "Variable" },
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.width(58.dp)
-                )
-                Text(
-                    text = headers.getOrNull(descriptionIndex).orEmpty().ifBlank { "Meaning" },
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
-                )
-                if (valueIndex >= 0) {
-                    Text(
-                        text = headers.getOrNull(valueIndex).orEmpty().ifBlank { "Value" },
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.widthIn(min = 72.dp)
-                    )
-                }
-            }
-            rows.forEachIndexed { index, row ->
-                val variable = row.getOrNull(variableIndex).orEmpty().trim().ifBlank { "-" }
-                val description = row.getOrNull(descriptionIndex).orEmpty().trim()
-                val value = row.getOrNull(valueIndex).orEmpty().trim()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 8.dp)
-                        .semantics(mergeDescendants = true) {
-                            contentDescription = listOf(variable, description, value)
-                                .filter(String::isNotBlank)
-                                .joinToString(": ")
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .width(58.dp)
-                            .heightIn(min = 36.dp)
-                            .clip(RoundedCornerShape(11.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = variable,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    Text(
-                        text = parseBoldMarkdown(description),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (valueIndex >= 0) {
-                        Text(
-                            text = value,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontFamily = FontFamily.Monospace
-                            ),
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.widthIn(min = 72.dp)
-                        )
-                    }
-                }
-                if (index < rows.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
-                }
-            }
-        }
-    }
-}
 
-@Composable
-private fun RenderCalculationBreakdownTable(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier
-) {
-    if (rows.isEmpty()) return
-    val labelIndex = headers.indexOfFirst {
-        normalizeTableHeaderForMatch(it) in setOf("component", "item", "metric", "field", "label", "cost component")
-    }.takeIf { it >= 0 } ?: 0
-    val amountIndex = headers.indexOfFirst {
-        normalizeTableHeaderForMatch(it).let { token ->
-            token.contains("amount") || token.contains("payment") || token == "value" || token == "cost" || token == "total"
-        }
-    }.takeIf { it >= 0 } ?: rows.firstOrNull()?.indices?.firstOrNull { it != labelIndex } ?: 1
-    val labelHeader = headers.getOrNull(labelIndex).orEmpty().ifBlank { "Item" }
-    val amountHeader = headers.getOrNull(amountIndex).orEmpty().ifBlank { "Value" }
-    val inputStyleTable = normalizeTableHeaderForMatch(labelHeader) in setOf("metric", "input", "field") &&
-        normalizeTableHeaderForMatch(amountHeader) == "value"
-    val labelWeight = if (inputStyleTable) 0.66f else 0.54f
-    val amountWeight = 1f - labelWeight
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = "Calculation breakdown table with ${rows.size} rows"
-            },
-        shape = RoundedCornerShape(18.dp),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f))
-                    .padding(horizontal = 10.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = labelHeader,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(labelWeight)
-                )
-                Text(
-                    text = amountHeader,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.weight(amountWeight)
-                )
-            }
-            rows.forEachIndexed { index, row ->
-                val label = row.getOrNull(labelIndex).orEmpty().trim()
-                val amount = row.getOrNull(amountIndex).orEmpty().trim()
-                val highlight = label.contains("monthly", ignoreCase = true) ||
-                    label.contains("lifetime", ignoreCase = true) ||
-                    label.contains("total", ignoreCase = true)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 8.dp)
-                        .semantics(mergeDescendants = true) {
-                            contentDescription = "$label: $amount"
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = parseBoldMarkdown(label),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = if (highlight) FontWeight.SemiBold else FontWeight.Normal
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(labelWeight)
-                    )
-                    Text(
-                        text = amount,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Monospace
-                        ),
-                        color = if (highlight) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        textAlign = TextAlign.End,
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(amountWeight)
-                    )
-                }
-                if (index < rows.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                }
-            }
-        }
-    }
-}
 
-private fun looksLikeTravelItinerarySummaryTable(
+internal fun looksLikeTravelItinerarySummaryTable(
     headers: List<String>,
     rows: List<List<String>>
 ): Boolean {
@@ -9922,7 +5588,7 @@ private fun looksLikeTravelItinerarySummaryTable(
 }
 
 @Composable
-private fun RenderKeyValueTablePanel(
+internal fun RenderKeyValueTablePanel(
     headers: List<String>,
     rows: List<List<String>>,
     title: String? = null,
@@ -10003,34 +5669,8 @@ private fun RenderKeyValueTablePanel(
     }
 }
 
-@Composable
-private fun RenderFeatureMatrixEntityCards(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    spacing: Dp = 8.dp,
-    columns: List<FlatDirectTableColumn> = emptyList(),
-    entityMedia: Map<String, TableEntityMedia> = emptyMap()
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        ResponsiveComparisonColumnCards(
-            headers = headers,
-            rows = rows,
-            spacing = spacing,
-            columns = columns,
-            entityMedia = entityMedia
-        )
-    }
-}
 
-private fun playlistNumberColumnIndex(headers: List<String>): Int? {
+internal fun playlistNumberColumnIndex(headers: List<String>): Int? {
     return headers.indexOfFirst { header ->
         val raw = header.trim().lowercase()
         val token = normalizeTableHeaderForMatch(header)
@@ -10038,7 +5678,7 @@ private fun playlistNumberColumnIndex(headers: List<String>): Int? {
     }.takeIf { it >= 0 }
 }
 
-private fun playlistTitleColumnIndex(headers: List<String>): Int? {
+internal fun playlistTitleColumnIndex(headers: List<String>): Int? {
     return headers.indexOfFirst { header ->
         val token = normalizeTableHeaderForMatch(header)
         token == "track" ||
@@ -10049,7 +5689,7 @@ private fun playlistTitleColumnIndex(headers: List<String>): Int? {
     }.takeIf { it >= 0 }
 }
 
-private fun playlistArtistColumnIndex(headers: List<String>): Int? {
+internal fun playlistArtistColumnIndex(headers: List<String>): Int? {
     return headers.indexOfFirst { header ->
         val token = normalizeTableHeaderForMatch(header)
         token == "artist" ||
@@ -10059,7 +5699,7 @@ private fun playlistArtistColumnIndex(headers: List<String>): Int? {
     }.takeIf { it >= 0 }
 }
 
-private fun playlistChipColumnIndexes(
+internal fun playlistChipColumnIndexes(
     headers: List<String>,
     usedIndexes: Set<Int>
 ): List<Int> {
@@ -10074,7 +5714,7 @@ private fun playlistChipColumnIndexes(
     }
 }
 
-private fun splitPlaylistTrack(raw: String): Pair<String?, String> {
+internal fun splitPlaylistTrack(raw: String): Pair<String?, String> {
     val text = raw.trim()
     if (text.isBlank()) return null to ""
     val parts = text.split(Regex("""\s+[-\u2013\u2014]\s+"""), limit = 2)
@@ -10088,7 +5728,7 @@ private fun splitPlaylistTrack(raw: String): Pair<String?, String> {
     return null to text
 }
 
-private fun playlistStringListProp(value: Any?): List<String> {
+internal fun playlistStringListProp(value: Any?): List<String> {
     return when (value) {
         is List<*> -> value.mapNotNull { it?.toString()?.trim()?.takeIf(String::isNotBlank) }
         is String -> value
@@ -10098,7 +5738,7 @@ private fun playlistStringListProp(value: Any?): List<String> {
     }
 }
 
-private fun buildPlaylistTrackRows(
+internal fun buildPlaylistTrackRows(
     headers: List<String>,
     rows: List<List<String>>
 ): List<PlaylistTrackRow> {
@@ -10132,14 +5772,14 @@ private fun buildPlaylistTrackRows(
     }
 }
 
-private fun climateColumnIndex(headers: List<String>, vararg keywords: String): Int? {
+internal fun climateColumnIndex(headers: List<String>, vararg keywords: String): Int? {
     return headers.indexOfFirst { header ->
         val token = normalizeTableHeaderForMatch(header)
         keywords.any { keyword -> token.contains(keyword) }
     }.takeIf { it >= 0 }
 }
 
-private fun compactClimateMetricLabel(header: String): String {
+internal fun compactClimateMetricLabel(header: String): String {
     val token = normalizeTableHeaderForMatch(header)
     return when {
         token.contains("rain") || token.contains("precip") -> "Rain"
@@ -10153,40 +5793,15 @@ private fun compactClimateMetricLabel(header: String): String {
     }
 }
 
-private fun firstNumberFromText(value: String?): Double? {
+internal fun firstNumberFromText(value: String?): Double? {
     return Regex("""-?\d+(?:\.\d+)?""")
         .find(value.orEmpty())
         ?.value
         ?.toDoubleOrNull()
 }
 
-private fun inferClimateCondition(row: ClimateComparisonRow): String {
-    val textPool = buildString {
-        append(row.verdict.orEmpty())
-        row.metrics.forEach { (_, value) ->
-            append(' ')
-            append(value)
-        }
-    }.lowercase()
-    val sunshine = row.metrics.firstOrNull { (label, _) ->
-        normalizeTableHeaderForMatch(label).contains("sun")
-    }?.second?.let(::firstNumberFromText)
-    val rain = row.metrics.firstOrNull { (label, _) ->
-        normalizeTableHeaderForMatch(label).contains("rain")
-    }?.second?.let(::firstNumberFromText)
-    return when {
-        textPool.contains("storm") -> "Thunderstorm"
-        textPool.contains("snow") -> "Snow"
-        textPool.contains("rain") && textPool.contains("heavy") -> "Rain"
-        rain != null && rain >= 12 -> "Rain"
-        sunshine != null && sunshine >= 7 -> "Sunny"
-        textPool.contains("sun") || textPool.contains("recommended") -> "Sunny"
-        textPool.contains("dry") || textPool.contains("mild") -> "Partly Cloudy"
-        else -> "Cloudy"
-    }
-}
 
-private fun buildClimateComparisonRows(
+internal fun buildClimateComparisonRows(
     headers: List<String>,
     rows: List<List<String>>
 ): List<ClimateComparisonRow> {
@@ -10217,59 +5832,13 @@ private fun buildClimateComparisonRows(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderClimateComparisonCards(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    spacing: Dp = 8.dp,
-    landscape: Boolean = false
-) {
-    val climateRows = buildClimateComparisonRows(headers, rows)
-    if (climateRows.isEmpty()) return
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        if (landscape && climateRows.size == 2) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(spacing)
-            ) {
-                climateRows.forEachIndexed { index, row ->
-                    ClimateComparisonCard(
-                        row = row,
-                        rowIndex = index,
-                        highlighted = isPreferredClimateRow(row),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        } else {
-            climateRows.forEachIndexed { index, row ->
-                ClimateComparisonCard(
-                    row = row,
-                    rowIndex = index,
-                    highlighted = isPreferredClimateRow(row),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-    }
-}
-
-private fun parseChartNumber(value: String): Double? {
+internal fun parseChartNumber(value: String): Double? {
     val match = Regex("""-?\d[\d,]*(?:\.\d+)?""").find(value) ?: return null
     return match.value.replace(",", "").toDoubleOrNull()
 }
 
-private fun chartColumnIndex(
+internal fun chartColumnIndex(
     columns: List<FlatDirectTableColumn>,
     explicitKey: String?,
     fallbackIndex: Int
@@ -10312,13 +5881,13 @@ internal fun extractChartPoints(
     }
 }
 
-private fun formatChartNumber(value: Double, currencyPrefix: String?): String {
+internal fun formatChartNumber(value: Double, currencyPrefix: String?): String {
     val rounded = value.roundToInt()
     val formatted = "%,d".format(rounded)
     return if (currencyPrefix.isNullOrBlank()) formatted else "$currencyPrefix$formatted"
 }
 
-private fun inferChartCurrency(points: List<ChartPoint>): String? {
+internal fun inferChartCurrency(points: List<ChartPoint>): String? {
     val value = points.firstOrNull { it.displayValue.trim().startsWith("$") } ?: return null
     return value.displayValue.trim().takeWhile { !it.isDigit() && it != '-' }.takeIf { it.isNotBlank() }
 }
@@ -10378,139 +5947,9 @@ internal fun extractPercentageMatrixChartModel(
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderChart(
-    props: Map<String, Any?>,
-    state: Map<String, Any?>,
-    modifier: Modifier = Modifier
-) {
-    val chartType = props["chartType"]?.toString()?.trim()?.lowercase().orEmpty().ifBlank { "bar" }
-    if (chartType !in setOf("bar", "bar_chart", "column")) return
-    val points = extractChartPoints(props, state)
-    if (points.isEmpty()) return
-
-    val title = props["title"]?.toString()?.trim().orEmpty()
-    val subtitle = props["subtitle"]?.toString()?.trim().orEmpty()
-    val yLabel = props["yLabel"]?.toString()?.trim().orEmpty()
-    val maxValue = points.maxOf { it.value }.takeIf { it > 0.0 } ?: 1.0
-    val currencyPrefix = inferChartCurrency(points)
-    val total = points.sumOf { it.value }
-    val peak = points.maxByOrNull { it.value }
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                contentDescription = buildString {
-                    if (title.isNotBlank()) append(title).append(". ")
-                    append("Bar chart with ${points.size} values. ")
-                    points.forEach { point ->
-                        append(point.label).append(": ").append(point.displayValue).append(". ")
-                    }
-                }
-            },
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            if (title.isNotBlank() || subtitle.isNotBlank()) {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    if (title.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(title),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    if (subtitle.isNotBlank()) {
-                        Text(
-                            text = parseBoldMarkdown(subtitle),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                points.forEachIndexed { index, point ->
-                    val fraction = (point.value / maxValue).toFloat().coerceIn(0.04f, 1f)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown(point.label),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.width(76.dp)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(30.dp)
-                                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.52f))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(fraction)
-                                    .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            colors = listOf(
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.86f),
-                                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.78f)
-                                            )
-                                        )
-                                    )
-                            )
-                        }
-                        Text(
-                            text = parseBoldMarkdown(point.displayValue),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.End,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.width(82.dp)
-                        )
-                    }
-                    if (index < points.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.36f))
-                    }
-                }
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp)
-            ) {
-                peak?.let { point ->
-                    ChartSummaryChip("Peak: ${point.label} ${point.displayValue}")
-                }
-                ChartSummaryChip("Total: ${formatChartNumber(total, currencyPrefix)}")
-                if (yLabel.isNotBlank()) {
-                    ChartSummaryChip(yLabel)
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun ChartSummaryChip(text: String) {
+internal fun ChartSummaryChip(text: String) {
     Surface(
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.62f)
@@ -10524,125 +5963,9 @@ private fun ChartSummaryChip(text: String) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderPercentageMatrixChart(
-    model: MultiSeriesChartModel,
-    modifier: Modifier = Modifier,
-    landscape: Boolean = false
-) {
-    val palette = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.error.copy(alpha = 0.82f),
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.58f),
-        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.58f)
-    )
-    val seriesLabels = model.rows
-        .flatMap { row -> row.segments.map { segment -> segment.label } }
-        .distinct()
-    val colorBySeries = seriesLabels.mapIndexed { index, label ->
-        label to palette[index % palette.size]
-    }.toMap()
-    val title = if (model.percentBased) {
-        "Preference distribution"
-    } else {
-        "Data distribution"
-    }
-    val subtitle = "Grouped by ${model.categoryLabel}"
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                contentDescription = buildString {
-                    append(title).append(". ")
-                    model.rows.forEach { row ->
-                        append(row.label).append(": ")
-                        append(row.segments.joinToString(", ") { segment -> "${segment.label} ${segment.displayValue}" })
-                        append(". ")
-                    }
-                }
-            },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.22f),
-                            genUiCardContainerColor(GenUiCardTone.Neutral)
-                        )
-                    )
-                )
-                .padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                ) {
-                    Text(
-                        text = "Graph",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp)
-            ) {
-                seriesLabels.forEach { label ->
-                    ChartLegendChip(
-                        label = label,
-                        color = colorBySeries[label] ?: MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(if (landscape) 8.dp else 11.dp)) {
-                model.rows.forEachIndexed { index, row ->
-                    PercentageMatrixChartRow(
-                        row = row,
-                        colorBySeries = colorBySeries,
-                        compact = !landscape
-                    )
-                    if (index < model.rows.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.22f))
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun ChartLegendChip(
+internal fun ChartLegendChip(
     label: String,
     color: Color
 ) {
@@ -10672,7 +5995,7 @@ private fun ChartLegendChip(
 }
 
 @Composable
-private fun PercentageMatrixChartRow(
+internal fun PercentageMatrixChartRow(
     row: MultiSeriesChartRow,
     colorBySeries: Map<String, Color>,
     compact: Boolean
@@ -10730,160 +6053,10 @@ private fun PercentageMatrixChartRow(
     }
 }
 
-private fun isPreferredClimateRow(row: ClimateComparisonRow): Boolean {
-    val text = "${row.place} ${row.verdict.orEmpty()} ${row.metrics.joinToString(" ") { it.second }}".lowercase()
-    return text.contains("recommended") ||
-        text.contains("pick") ||
-        text.contains("best") ||
-        text.contains("more sun") ||
-        text.contains("warmer")
-}
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ClimateComparisonCard(
-    row: ClimateComparisonRow,
-    rowIndex: Int,
-    highlighted: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val condition = inferClimateCondition(row)
-    val background = if (highlighted) {
-        Brush.linearGradient(
-            colors = listOf(
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f),
-                MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.78f)
-            )
-        )
-    } else {
-        Brush.linearGradient(
-            colors = listOf(
-                MaterialTheme.colorScheme.surfaceContainerHigh,
-                MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.72f)
-            )
-        )
-    }
-    val chipColor = if (highlighted) {
-        MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f)
-    }
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(22.dp))
-            .background(background)
-            .semantics(mergeDescendants = true) {
-                contentDescription = tableRowAccessibilitySummary(
-                    headers = listOf("Place", "Verdict", "High", "Low") + row.metrics.map { it.first },
-                    row = listOf(row.place, row.verdict.orEmpty(), row.high.orEmpty(), row.low.orEmpty()) +
-                        row.metrics.map { it.second },
-                    rowIndex = rowIndex
-                )
-            }
-            .padding(horizontal = 14.dp, vertical = 13.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                NativeWeatherUiRenderer.WeatherConditionIcon(
-                    condition = condition,
-                    size = 34.dp,
-                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                )
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    Text(
-                        text = parseBoldMarkdown(row.place),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    row.verdict?.let { verdict ->
-                        Text(
-                            text = parseBoldMarkdown(verdict),
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                row.high?.let { high ->
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Text(
-                            text = "High",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = parseBoldMarkdown(high),
-                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-                row.low?.let { low ->
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Text(
-                            text = "Low",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = parseBoldMarkdown(low),
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp)
-            ) {
-                row.metrics.forEach { (label, value) ->
-                    Surface(
-                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                        color = chipColor
-                    ) {
-                        Text(
-                            text = parseBoldMarkdown("$label: $value"),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun PlaylistCoverArt(
+internal fun PlaylistCoverArt(
     trackCount: Int,
     compact: Boolean = false,
     modifier: Modifier = Modifier
@@ -10964,7 +6137,7 @@ private fun PlaylistCoverArt(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PlaylistMetaTags(tags: List<String>) {
+internal fun PlaylistMetaTags(tags: List<String>) {
     if (tags.isEmpty()) return
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -10988,146 +6161,10 @@ private fun PlaylistMetaTags(tags: List<String>) {
     }
 }
 
-@Composable
-private fun PlaylistHeroBlock(
-    title: String,
-    subtitle: String,
-    tags: List<String>,
-    trackCount: Int,
-    landscape: Boolean,
-    modifier: Modifier = Modifier
-) {
-    if (landscape) {
-        Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            PlaylistCoverArt(
-                trackCount = trackCount,
-                compact = false,
-                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-            )
-            Text(
-                text = parseBoldMarkdown(title),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = parseBoldMarkdown(subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.74f)
-            )
-            PlaylistMetaTags(tags)
-        }
-    } else {
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PlaylistCoverArt(
-                trackCount = trackCount,
-                compact = true,
-                modifier = Modifier.size(92.dp)
-            )
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = parseBoldMarkdown(title),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = parseBoldMarkdown(subtitle),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.72f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                PlaylistMetaTags(tags)
-            }
-        }
-    }
-}
+
 
 @Composable
-private fun PlaylistTrackRowView(
-    headers: List<String>,
-    track: PlaylistTrackRow,
-    rowIndex: Int,
-    dense: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = if (rowIndex == 0) 0.13f else 0.07f))
-            .padding(horizontal = if (dense) 10.dp else 12.dp, vertical = if (dense) 7.dp else 9.dp)
-            .semantics(mergeDescendants = true) {
-                contentDescription = tableRowAccessibilitySummary(headers, track.sourceRow, rowIndex)
-            },
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(if (dense) 30.dp else 34.dp)
-                .clip(RoundedCornerShape(GenUiTokens.RadiusPill))
-                .background(Color.White.copy(alpha = 0.13f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = track.number,
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White.copy(alpha = 0.9f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = parseBoldMarkdown(track.title),
-                style = (if (dense) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.titleSmall)
-                    .copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White,
-                maxLines = if (dense) 1 else 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (!track.artist.isNullOrBlank()) {
-                Text(
-                    text = parseBoldMarkdown(track.artist),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.68f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        if (track.chips.isNotEmpty()) {
-            Text(
-                text = track.chips.first(),
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White.copy(alpha = 0.64f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.widthIn(max = 92.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun PlaylistTrackList(
+internal fun PlaylistTrackList(
     headers: List<String>,
     tracks: List<PlaylistTrackRow>,
     dense: Boolean,
@@ -11148,97 +6185,9 @@ private fun PlaylistTrackList(
     }
 }
 
-@Composable
-private fun RenderPlaylistTableRows(
-    headers: List<String>,
-    rows: List<List<String>>,
-    props: Map<String, Any?>,
-    modifier: Modifier = Modifier,
-    landscape: Boolean
-) {
-    if (rows.isEmpty()) return
-    val tracks = buildPlaylistTrackRows(headers, rows)
-    val trackCount = tracks.size
-    val title = props["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() } ?: "Playlist"
-    val subtitle = props["subtitle"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-        ?: "$trackCount ${if (trackCount == 1) "track" else "tracks"}"
-    val tags = playlistStringListProp(props["mood"]) + playlistStringListProp(props["genre"])
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        shape = RoundedCornerShape(26.dp),
-        color = Color.Transparent,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFF070712),
-                            Color(0xFF172044),
-                            Color(0xFF082F35)
-                        )
-                    )
-                )
-                .padding(14.dp)
-        ) {
-            if (landscape) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(18.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    PlaylistHeroBlock(
-                        title = title,
-                        subtitle = subtitle,
-                        tags = tags,
-                        trackCount = trackCount,
-                        landscape = true,
-                        modifier = Modifier.widthIn(min = 210.dp, max = 260.dp)
-                    )
-                    PlaylistTrackList(
-                        headers = headers,
-                        tracks = tracks,
-                        dense = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .heightIn(max = 430.dp)
-                            .verticalScroll(rememberScrollState())
-                    )
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    PlaylistHeroBlock(
-                        title = title,
-                        subtitle = subtitle,
-                        tags = tags,
-                        trackCount = trackCount,
-                        landscape = false,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    PlaylistTrackList(
-                        headers = headers,
-                        tracks = tracks,
-                        dense = false,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun EntityProviderBadge(title: String) {
+internal fun EntityProviderBadge(title: String) {
     val accent = entityProviderAccentColor(title)
     val initials = entityProviderInitials(title)
     Box(
@@ -11266,7 +6215,7 @@ private fun EntityProviderBadge(title: String) {
 }
 
 @Composable
-private fun entityProviderAccentColor(title: String): Color {
+internal fun entityProviderAccentColor(title: String): Color {
     val normalized = normalizeTableHeaderForMatch(title)
     return when {
         normalized.contains("google") -> Color(0xFF4285F4)
@@ -11280,7 +6229,7 @@ private fun entityProviderAccentColor(title: String): Color {
     }
 }
 
-private fun entityProviderInitials(title: String): String {
+internal fun entityProviderInitials(title: String): String {
     val normalized = normalizeTableHeaderForMatch(title)
     val explicit = when {
         normalized.contains("google") -> "G"
@@ -11301,7 +6250,7 @@ private fun entityProviderInitials(title: String): String {
         .take(3)
 }
 
-private fun shouldShowEntityProviderBadge(title: String, actionUrl: String?): Boolean {
+internal fun shouldShowEntityProviderBadge(title: String, actionUrl: String?): Boolean {
     if (!actionUrl.isNullOrBlank()) return true
     val normalized = normalizeTableHeaderForMatch(title)
     return normalized.contains("google") ||
@@ -11314,27 +6263,9 @@ private fun shouldShowEntityProviderBadge(title: String, actionUrl: String?): Bo
         normalized.contains("expedia")
 }
 
-private fun isUrlColumnLabel(header: String): Boolean {
-    val normalized = normalizeTableHeaderForMatch(header)
-    return normalized == "url" ||
-        normalized == "link" ||
-        normalized == "href" ||
-        normalized.contains("website") ||
-        normalized.contains("booking url") ||
-        normalized.contains("action url") ||
-        normalized.endsWith(" link")
-}
 
-private fun isActionLabelColumn(header: String): Boolean {
-    val normalized = normalizeTableHeaderForMatch(header)
-    return normalized.contains("action label") ||
-        normalized.contains("button label") ||
-        normalized.contains("cta label") ||
-        normalized == "action" ||
-        normalized == "cta"
-}
 
-private fun entityActionLabel(headers: List<String>, row: List<String>, title: String): String {
+internal fun entityActionLabel(headers: List<String>, row: List<String>, title: String): String {
     val explicit = headers.indices
         .firstOrNull { index -> isActionLabelColumn(headers[index]) }
         ?.let { row.getOrNull(it).orEmpty().trim() }
@@ -11350,189 +6281,10 @@ private fun entityActionLabel(headers: List<String>, row: List<String>, title: S
     return if (compactTitle.isBlank()) "Open" else "Open $compactTitle"
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderEntityTableCards(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    spacing: Dp = 8.dp,
-    primaryColumn: String?,
-    highlightColumns: Set<String>,
-    onOpenUrl: (String) -> Unit
-) {
-    if (rows.isEmpty()) return
-    val primaryIndex = inferEntityPrimaryColumnIndex(headers, primaryColumn)
-    val explicitHighlightIndexes = highlightColumns.mapNotNull { token ->
-        headers.indexOfFirst { header -> normalizeColumnToken(header) == normalizeColumnToken(token) }
-            .takeIf { it >= 0 }
-    }.filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
-        .filter { index -> isCompactHighlightColumn(rows, index) }
-    val inferredHighlightIndexes = explicitHighlightIndexes.ifEmpty {
-        headers.indices
-            .filterNot { it == primaryIndex }
-            .filter { index ->
-                val header = normalizeTableHeaderForMatch(headers[index])
-                header.contains("price") ||
-                    header.contains("cost") ||
-                    header.contains("fare") ||
-                    header.contains("rating") ||
-                    header.contains("status") ||
-                    header.contains("date") ||
-                    header.contains("time")
-            }
-            .filter { index -> isCompactHighlightColumn(rows, index) }
-            .take(2)
-            .ifEmpty {
-                headers.indices
-                    .filterNot { it == primaryIndex || looksLikeLongDetailHeader(headers.getOrNull(it).orEmpty()) }
-                    .filter { index -> isCompactHighlightColumn(rows, index) }
-                    .take(2)
-            }
-    }.take(2)
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        rows.forEachIndexed { rowIndex, row ->
-            val title = row.getOrNull(primaryIndex).orEmpty().trim().ifBlank { "Item ${rowIndex + 1}" }
-            val actionUrlIndex = headers.indices.firstOrNull { index ->
-                isUrlColumnLabel(headers[index]) && SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
-            } ?: row.indexOfFirst { value -> SafeContentPolicy.isSafeActionUrl(value.trim()) }.takeIf { it >= 0 }
-            val actionUrl = actionUrlIndex?.let { SafeContentPolicy.sanitizeActionUrl(row.getOrNull(it).orEmpty().trim()) }
-            val actionLabel = entityActionLabel(headers, row, title)
-            val showProviderBadge = shouldShowEntityProviderBadge(title, actionUrl)
-            val bodyIndexes = headers.indices.filterNot { index ->
-                val value = row.getOrNull(index).orEmpty().trim()
-                index == primaryIndex ||
-                    index == actionUrlIndex ||
-                    index in inferredHighlightIndexes ||
-                    value.isBlank() ||
-                    isLikelyHttpUrl(value) ||
-                    isUrlColumnLabel(headers[index]) ||
-                    isActionLabelColumn(headers[index])
-            }
-            val (shortBodyIndexes, detailBodyIndexes) = bodyIndexes.partition { index ->
-                val value = row.getOrNull(index).orEmpty()
-                isCompactTableBadgeValue(value) && !looksLikeLongDetailHeader(headers.getOrNull(index).orEmpty())
-            }
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
-                    },
-                shape = RoundedCornerShape(16.dp),
-                colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (showProviderBadge) {
-                            EntityProviderBadge(title)
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(title),
-                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            actionUrl?.let {
-                                Text(
-                                    text = "Tap to open related search",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-                    if (inferredHighlightIndexes.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            inferredHighlightIndexes.forEach { index ->
-                                val value = row.getOrNull(index).orEmpty().trim()
-                                if (value.isNotBlank()) {
-                                    Surface(
-                                        shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                        color = MaterialTheme.colorScheme.primaryContainer
-                                    ) {
-                                        Text(
-                                            text = parseBoldMarkdown("${tableHeaderLabel(headers, index)}: $value"),
-                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        shortBodyIndexes.take(6).forEach { index ->
-                            val value = row.getOrNull(index).orEmpty().trim()
-                            if (value.isBlank() || isLikelyHttpUrl(value)) return@forEach
-                            Surface(
-                                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                                color = MaterialTheme.colorScheme.surfaceContainerHighest
-                            ) {
-                                Text(
-                                    text = parseBoldMarkdown("${tableHeaderLabel(headers, index)}: $value"),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
-                                )
-                            }
-                        }
-                    }
-                    detailBodyIndexes.take(3).forEach { index ->
-                        ResponsiveFieldBlock(
-                            label = tableHeaderLabel(headers, index),
-                            value = row.getOrNull(index).orEmpty(),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                    if (!actionUrl.isNullOrBlank()) {
-                        Button(
-                            onClick = { onOpenUrl(actionUrl) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(actionLabel)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RenderMetricTableCards(
+internal fun RenderMetricTableCards(
     headers: List<String>,
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
@@ -11587,7 +6339,7 @@ private fun RenderMetricTableCards(
     }
 }
 
-private fun flightCarrierColumnIndex(headers: List<String>): Int {
+internal fun flightCarrierColumnIndex(headers: List<String>): Int {
     val explicit = headers.indexOfFirst { header ->
         val normalized = normalizeTableHeaderForMatch(header)
         normalized.contains("carrier") || normalized.contains("airline")
@@ -11595,7 +6347,7 @@ private fun flightCarrierColumnIndex(headers: List<String>): Int {
     return explicit.takeIf { it >= 0 } ?: 0
 }
 
-private fun flightLegColumnIndexes(headers: List<String>): List<Int> {
+internal fun flightLegColumnIndexes(headers: List<String>): List<Int> {
     return headers.indices.filter { index ->
         val normalized = normalizeTableHeaderForMatch(headers[index])
         normalized.contains("leg") ||
@@ -11603,22 +6355,22 @@ private fun flightLegColumnIndexes(headers: List<String>): List<Int> {
     }
 }
 
-private fun flightLegBadge(header: String, index: Int): String {
+internal fun flightLegBadge(header: String, index: Int): String {
     val prefix = header.substringBefore(":").trim()
     return prefix.takeIf { it.isNotBlank() && it.length <= 12 } ?: "Leg ${index + 1}"
 }
 
-private fun flightLegRoute(header: String): String {
+internal fun flightLegRoute(header: String): String {
     val route = header.substringAfter(":", missingDelimiterValue = "").trim()
     return route.takeIf { it.isNotBlank() } ?: header.trim()
 }
 
-private data class RankedFlightEndpoint(
+internal data class RankedFlightEndpoint(
     val code: String?,
     val time: String?
 )
 
-private data class RankedFlightLeg(
+internal data class RankedFlightLeg(
     val fromCode: String,
     val fromTime: String,
     val toCode: String,
@@ -11627,7 +6379,7 @@ private data class RankedFlightLeg(
 )
 
 @Composable
-private fun RankedFlightAirlineBadge(
+internal fun RankedFlightAirlineBadge(
     airline: String,
     rank: String,
     best: Boolean,
@@ -11640,11 +6392,7 @@ private fun RankedFlightAirlineBadge(
     }
     var logoFailed by remember(safeLogo) { mutableStateOf(false) }
     val context = LocalContext.current
-    val imageLoader = remember(context) {
-        ImageLoader.Builder(context)
-            .components { add(SvgDecoder.Factory()) }
-            .build()
-    }
+    val imageLoader = rememberFlatImageLoader()
     Box(
         modifier = Modifier
             .size(42.dp)
@@ -11678,7 +6426,7 @@ private fun RankedFlightAirlineBadge(
     }
 }
 
-private fun rankedFlightLogoUrl(airline: String, explicitLogoUrl: String?): String? {
+internal fun rankedFlightLogoUrl(airline: String, explicitLogoUrl: String?): String? {
     SafeContentPolicy.sanitizeMediaUrl(explicitLogoUrl, SafeContentPolicy.MediaKind.IMAGE)
         ?.let { return it }
     val code = NativeFlightSemantics.airlineBadgeCode(airline).trim()
@@ -11688,60 +6436,9 @@ private fun rankedFlightLogoUrl(airline: String, explicitLogoUrl: String?): Stri
     return "https://www.gstatic.com/flights/airline_logos/70px/${code.uppercase(Locale.US)}.png"
 }
 
-@Composable
-private fun RankedFlightRouteLine(
-    departure: RankedFlightEndpoint,
-    arrival: RankedFlightEndpoint,
-    accent: Color
-) {
-    if (departure.code.isNullOrBlank() && departure.time.isNullOrBlank() &&
-        arrival.code.isNullOrBlank() && arrival.time.isNullOrBlank()
-    ) {
-        return
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        RankedFlightEndpointCell(
-            code = departure.code,
-            time = departure.time,
-            align = TextAlign.Start,
-            modifier = Modifier.widthIn(min = 52.dp)
-        )
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            color = accent.copy(alpha = 0.38f)
-        )
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .clip(RoundedCornerShape(GenUiTokens.RadiusPill)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.FlightTakeoff,
-                contentDescription = null,
-                tint = accent,
-                modifier = Modifier.size(15.dp)
-            )
-        }
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            color = accent.copy(alpha = 0.38f)
-        )
-        RankedFlightEndpointCell(
-            code = arrival.code,
-            time = arrival.time,
-            align = TextAlign.End,
-            modifier = Modifier.widthIn(min = 52.dp)
-        )
-    }
-}
 
 @Composable
-private fun RankedFlightEndpointCell(
+internal fun RankedFlightEndpointCell(
     code: String?,
     time: String?,
     align: TextAlign,
@@ -11775,77 +6472,10 @@ private fun RankedFlightEndpointCell(
     }
 }
 
-@Composable
-private fun RankedFlightLegRows(
-    legs: List<RankedFlightLeg>,
-    accent: Color
-) {
-    if (legs.isEmpty()) return
-    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-        legs.take(3).forEach { leg ->
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = accent.copy(alpha = if (isSystemInDarkTheme()) 0.18f else 0.08f),
-                border = BorderStroke(GenUiTokens.BorderSm, accent.copy(alpha = 0.16f))
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 9.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = leg.fromCode,
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black),
-                            color = accent,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = leg.fromTime,
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.weight(1f),
-                            color = accent.copy(alpha = 0.26f)
-                        )
-                        Text(
-                            text = leg.toTime,
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = leg.toCode,
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black),
-                            color = accent,
-                            maxLines = 1
-                        )
-                    }
-                    leg.detail?.takeIf { it.isNotBlank() }?.let { detail ->
-                        Text(
-                            text = detail,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RankedFlightChipRow(chips: List<String>, accent: Color) {
+internal fun RankedFlightChipRow(chips: List<String>, accent: Color) {
     if (chips.isEmpty()) return
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(7.dp),
@@ -11871,7 +6501,7 @@ private fun RankedFlightChipRow(chips: List<String>, accent: Color) {
 }
 
 @Composable
-private fun RankedFlightBestChip(text: String, accent: Color) {
+internal fun RankedFlightBestChip(text: String, accent: Color) {
     Surface(
         shape = RoundedCornerShape(GenUiTokens.RadiusPill),
         color = accent.copy(alpha = 0.12f),
@@ -11888,68 +6518,9 @@ private fun RankedFlightBestChip(text: String, accent: Color) {
     }
 }
 
-@Composable
-private fun RankedFlightRouteHint(
-    duration: String?,
-    stopLabel: String?,
-    accent: Color
-) {
-    if (duration.isNullOrBlank() && stopLabel.isNullOrBlank()) return
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(9.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clip(RoundedCornerShape(GenUiTokens.RadiusPill)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.FlightTakeoff,
-                contentDescription = null,
-                tint = accent,
-                modifier = Modifier.size(14.dp)
-            )
-        }
-        HorizontalDivider(
-            modifier = Modifier.weight(1f),
-            color = accent.copy(alpha = 0.34f)
-        )
-        duration?.takeIf { it.isNotBlank() }?.let { value ->
-            Text(
-                text = value,
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        stopLabel?.takeIf { it.isNotBlank() }?.let { value ->
-            Surface(
-                shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f)
-            ) {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = accent,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
 
 @Composable
-private fun rankedFlightAccentColor(airline: String): Color {
+internal fun rankedFlightAccentColor(airline: String): Color {
     val dark = isSystemInDarkTheme()
     val normalized = NativeFlightSemantics.normalizeMatchText(airline)
     return when {
@@ -11965,232 +6536,8 @@ private fun rankedFlightAccentColor(airline: String): Color {
     }
 }
 
-@Composable
-private fun RenderRankedFlightComparisonCards(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    spacing: Dp = 10.dp,
-    onOpenUrl: (String) -> Unit = {}
-) {
-    if (rows.isEmpty()) return
-    val rankIndex = rankedFlightColumnIndex(headers, listOf("rank", "order", "score"))
-    val airlineIndex = rankedFlightColumnIndex(headers, listOf("airline", "carrier")) ?: 0
-    val costIndex = rankedFlightColumnIndex(headers, listOf("cost", "fare", "price", "amount"))
-    val durationIndex = rankedFlightColumnIndex(headers, listOf("travel time", "duration", "time"))
-    val stopsIndex = rankedFlightColumnIndex(headers, listOf("stops", "stop"))
-    val layoverIndex = rankedFlightColumnIndex(headers, listOf("layover", "connection"))
-    val reasonIndex = rankedFlightColumnIndex(headers, listOf("justification", "reason", "why", "notes", "detail"))
-    val statusIndex = rankedFlightColumnIndex(headers, listOf("status", "type"))
-    val departureIndex = rankedFlightColumnIndex(headers, listOf("departure", "depart"))
-    val arrivalIndex = rankedFlightColumnIndex(headers, listOf("arrival", "arrive"))
-    val legsIndex = rankedFlightColumnIndex(headers, listOf("legs", "segments", "itinerary"))
-    val carbonIndex = rankedFlightColumnIndex(headers, listOf("carbon", "emission", "co2"))
-    val bookingStatusIndex = rankedFlightColumnIndex(headers, listOf("booking"))
-    val logoIndex = rankedFlightColumnIndex(headers, listOf("airline logo", "logo", "icon", "image"))
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        rows.forEachIndexed { rowIndex, row ->
-            val rank = compactRankBadge(
-                rawRank = row.getOrNull(rankIndex ?: -1).orEmpty().trim(),
-                fallbackIndex = rowIndex
-            )
-            val airlineRaw = row.getOrNull(airlineIndex).orEmpty().trim().ifBlank { "Flight option ${rowIndex + 1}" }
-            val airline = airlineRaw.substringBefore(" - ").trim().ifBlank { airlineRaw }
-            val flightNumbers = airlineRaw.substringAfter(" - ", missingDelimiterValue = "").trim()
-            val cost = row.getOrNull(costIndex ?: -1).orEmpty().trim()
-            val duration = row.getOrNull(durationIndex ?: -1).orEmpty().trim()
-            val stops = row.getOrNull(stopsIndex ?: -1).orEmpty().trim()
-            val layover = row.getOrNull(layoverIndex ?: -1).orEmpty().trim()
-            val reason = row.getOrNull(reasonIndex ?: -1).orEmpty().trim()
-            val status = row.getOrNull(statusIndex ?: -1).orEmpty().trim()
-            val departure = parseRankedFlightEndpoint(row.getOrNull(departureIndex ?: -1).orEmpty())
-            val arrival = parseRankedFlightEndpoint(row.getOrNull(arrivalIndex ?: -1).orEmpty())
-            val legs = parseRankedFlightLegs(row.getOrNull(legsIndex ?: -1).orEmpty())
-            val carbon = row.getOrNull(carbonIndex ?: -1).orEmpty().trim()
-            val bookingStatus = row.getOrNull(bookingStatusIndex ?: -1).orEmpty().trim()
-            val logoUrl = row.getOrNull(logoIndex ?: -1).orEmpty().trim()
-            val actionUrlIndex = headers.indices.firstOrNull { index ->
-                isFlightActionUrlColumn(headers[index]) &&
-                    SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
-            } ?: headers.indices.firstOrNull { index ->
-                isUrlColumnLabel(headers[index]) &&
-                    SafeContentPolicy.isSafeActionUrl(row.getOrNull(index).orEmpty().trim())
-            }
-            val actionUrl = actionUrlIndex?.let { index ->
-                SafeContentPolicy.sanitizeActionUrl(row.getOrNull(index).orEmpty().trim())
-            }
-            val actionLabelIndex = headers.indices.firstOrNull { index ->
-                isActionLabelColumn(headers[index]) && index != actionUrlIndex
-            }
-            val actionLabel = row.getOrNull(actionLabelIndex ?: -1)
-                .orEmpty()
-                .trim()
-                .takeIf { it.isNotBlank() && !SafeContentPolicy.looksLikeUrl(it) }
-                ?: "View fare"
-            val best = rowIndex == 0 || rank == "#1"
-            val accent = rankedFlightAccentColor(airline)
-            val normalizedDuration = NativeFlightSemantics.normalizeDurationLabel(duration) ?: duration
-            val normalizedStop = NativeFlightSemantics.canonicalizeStopLabel(stops) ?: stops
-            val (fareValue, fareMeta) = NativeFlightSemantics.splitFareDisplay(cost)
-            val subtitle = rankedFlightSubtitle(status, flightNumbers, normalizedStop, normalizedDuration, best)
-            val chips = rankedFlightChips(
-                stopLabel = normalizedStop,
-                layover = layover,
-                carbon = carbon,
-                bookingStatus = bookingStatus
-            )
-            val cardShape = RoundedCornerShape(20.dp)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
-                    },
-                shape = cardShape,
-                color = genUiCardContainerColor(GenUiCardTone.Neutral),
-                tonalElevation = 0.dp,
-                shadowElevation = 0.dp,
-                border = BorderStroke(
-                    width = GenUiTokens.BorderSm,
-                    color = if (best) {
-                        accent.copy(alpha = 0.55f)
-                    } else {
-                        MaterialTheme.colorScheme.outlineVariant
-                    }
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 11.dp),
-                    verticalArrangement = Arrangement.spacedBy(9.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        RankedFlightAirlineBadge(
-                            airline = airline,
-                            rank = rank,
-                            best = best,
-                            logoUrl = logoUrl
-                        )
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(3.dp)
-                        ) {
-                            Text(
-                                text = airline,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RankedFlightBestChip(if (best) "Best value" else rank, accent)
-                            }
-                            if (subtitle.isNotBlank()) {
-                                Text(
-                                    text = subtitle,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                        if (cost.isNotBlank()) {
-                            Column(
-                                modifier = Modifier.widthIn(min = 78.dp, max = 116.dp),
-                                horizontalAlignment = Alignment.End
-                            ) {
-                                Text(
-                                    text = fareValue ?: cost,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    textAlign = TextAlign.End,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                fareMeta?.let { suffix ->
-                                    Text(
-                                        text = suffix,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        textAlign = TextAlign.End
-                                    )
-                                }
-                            }
-                        }
-                    }
 
-                    if (departure.code != null || departure.time != null || arrival.code != null || arrival.time != null) {
-                        RankedFlightRouteLine(
-                            departure = departure,
-                            arrival = arrival,
-                            accent = accent
-                        )
-                    } else {
-                        RankedFlightRouteHint(
-                            duration = normalizedDuration.takeIf { it.isNotBlank() },
-                            stopLabel = normalizedStop.takeIf { it.isNotBlank() },
-                            accent = accent
-                        )
-                    }
-
-                    RankedFlightLegRows(legs = legs, accent = accent)
-                    RankedFlightChipRow(chips = chips, accent = accent)
-
-                    if (reason.isNotBlank()) {
-                        Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(reason),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 3,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
-                    actionUrl?.let { safeUrl ->
-                        Button(
-                            onClick = { onOpenUrl(safeUrl) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(GenUiTokens.RadiusPill)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.FlightTakeoff,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Text(
-                                text = actionLabel,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun isFlightActionUrlColumn(header: String): Boolean {
+internal fun isFlightActionUrlColumn(header: String): Boolean {
     val normalized = normalizeTableHeaderForMatch(header)
     return normalized.contains("booking url") ||
         normalized.contains("book url") ||
@@ -12200,7 +6547,7 @@ private fun isFlightActionUrlColumn(header: String): Boolean {
         normalized == "link"
 }
 
-private fun parseRankedFlightEndpoint(raw: String): RankedFlightEndpoint {
+internal fun parseRankedFlightEndpoint(raw: String): RankedFlightEndpoint {
     val point = NativeFlightSemantics.parseFlightPoint(raw, fallbackCode = null)
     val code = point.code
         ?: Regex("""\b([A-Z]{3})\b""")
@@ -12214,7 +6561,7 @@ private fun parseRankedFlightEndpoint(raw: String): RankedFlightEndpoint {
     )
 }
 
-private fun parseRankedFlightLegs(raw: String): List<RankedFlightLeg> {
+internal fun parseRankedFlightLegs(raw: String): List<RankedFlightLeg> {
     if (raw.isBlank()) return emptyList()
     val legPattern = Regex(
         """^\s*([A-Z]{3})\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?(?:\+\d+)?)\s*->\s*([A-Z]{3})\s+(\d{1,2}:\d{2}(?:\s?[AP]M)?(?:\+\d+)?)\s*(?:\((.*)\))?\s*$""",
@@ -12261,7 +6608,7 @@ private fun parseRankedFlightLegs(raw: String): List<RankedFlightLeg> {
         }
 }
 
-private fun rankedFlightSubtitle(
+internal fun rankedFlightSubtitle(
     status: String,
     flightNumbers: String,
     stopLabel: String,
@@ -12279,7 +6626,7 @@ private fun rankedFlightSubtitle(
         .joinToString(" • ")
 }
 
-private fun rankedFlightChips(
+internal fun rankedFlightChips(
     stopLabel: String,
     layover: String,
     carbon: String,
@@ -12292,7 +6639,7 @@ private fun rankedFlightChips(
 }
 
 @Composable
-private fun FlightLegTimelineRow(
+internal fun FlightLegTimelineRow(
     badge: String,
     route: String,
     carrier: String
@@ -12337,215 +6684,10 @@ private fun FlightLegTimelineRow(
     }
 }
 
-@Composable
-private fun RenderFlightItineraryTableCards(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    spacing: Dp = 10.dp
-) {
-    if (rows.isEmpty()) return
-    val carrierIndex = flightCarrierColumnIndex(headers)
-    val legIndexes = flightLegColumnIndexes(headers)
-    if (legIndexes.isEmpty()) return
-    val detailIndexes = headers.indices.filterNot { index ->
-        index == carrierIndex || index in legIndexes
-    }
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                contentDescription = tableAccessibilitySummary(headers, rows)
-            },
-        verticalArrangement = Arrangement.spacedBy(spacing)
-    ) {
-        rows.forEachIndexed { rowIndex, row ->
-            val carrier = row.getOrNull(carrierIndex).orEmpty().trim().ifBlank { "Flight option ${rowIndex + 1}" }
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = tableRowAccessibilitySummary(headers, row, rowIndex)
-                    },
-                shape = RoundedCornerShape(GenUiTokens.RadiusLg),
-                colors = flatSpecCardColors(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(9.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(GenUiTokens.RadiusPill),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.FlightTakeoff,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(8.dp).size(20.dp)
-                            )
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Text(
-                                text = parseBoldMarkdown(carrier),
-                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Multi-city itinerary",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
 
-                    legIndexes.forEachIndexed { legOrder, columnIndex ->
-                        val legCarrier = row.getOrNull(columnIndex).orEmpty().trim()
-                        if (legCarrier.isBlank()) return@forEachIndexed
-                        FlightLegTimelineRow(
-                            badge = flightLegBadge(headers.getOrNull(columnIndex).orEmpty(), legOrder),
-                            route = flightLegRoute(headers.getOrNull(columnIndex).orEmpty()),
-                            carrier = legCarrier
-                        )
-                    }
-
-                    detailIndexes.forEach { index ->
-                        val value = row.getOrNull(index).orEmpty().trim()
-                        if (value.isBlank()) return@forEach
-                        FeatureMatrixField(
-                            feature = tableHeaderLabel(headers, index),
-                            value = value
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun RenderAdaptiveTableGrid(
-    headers: List<String>,
-    rows: List<List<String>>,
-    modifier: Modifier = Modifier,
-    horizontalScrollEnabled: Boolean,
-    stickyFirstColumn: Boolean,
-    numericColumns: Set<Int>
-) {
-    if (headers.isEmpty() || rows.isEmpty()) return
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp
-    val columnMinWidthsDp = estimateTableColumnMinWidthsDp(
-        headers = headers,
-        rows = rows,
-        baseMinDp = if (horizontalScrollEnabled) 120 else 96
-    )
-    val estimatedMinTableWidth = estimateTableMinWidthDp(
-        headers = headers,
-        rows = rows,
-        baseMinDp = if (horizontalScrollEnabled) 120 else 96
-    )
-    val minTableWidth = if (horizontalScrollEnabled) {
-        estimatedMinTableWidth.coerceAtLeast((screenWidthDp + 18).coerceAtLeast(520))
-    } else {
-        estimatedMinTableWidth
-    }.dp
-    val tableColor = MaterialTheme.colorScheme.surfaceContainerLow
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics {
-                    contentDescription = tableAccessibilitySummary(
-                        headers = headers,
-                        rows = rows,
-                        horizontalScroll = horizontalScrollEnabled
-                    )
-                },
-            shape = RoundedCornerShape(16.dp),
-            color = tableColor
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                if (stickyFirstColumn && headers.size > 1) {
-                    RenderStickyFirstColumnTable(
-                        headers = headers,
-                        rows = rows,
-                        columnMinWidthsDp = columnMinWidthsDp,
-                        scrollState = scrollState,
-                        numericColumns = numericColumns
-                    )
-                } else {
-                    val contentModifier = if (horizontalScrollEnabled) {
-                        Modifier
-                            .widthIn(min = minTableWidth)
-                            .horizontalScroll(scrollState)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    }
-                    Column(
-                        modifier = contentModifier.padding(vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(0.dp)
-                    ) {
-                        RenderTableGridRow(
-                            headers = headers,
-                            row = headers,
-                            rowIndex = -1,
-                            columnMinWidthsDp = columnMinWidthsDp,
-                            numericColumns = numericColumns,
-                            weighted = !horizontalScrollEnabled,
-                            isHeader = true
-                        )
-                        rows.forEachIndexed { index, row ->
-                            RenderTableGridRow(
-                                headers = headers,
-                                row = row,
-                                rowIndex = index,
-                                columnMinWidthsDp = columnMinWidthsDp,
-                                numericColumns = numericColumns,
-                                weighted = !horizontalScrollEnabled,
-                                isHeader = false
-                            )
-                        }
-                    }
-                }
-                if (horizontalScrollEnabled) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .fillMaxHeight()
-                            .width(48.dp)
-                            .background(
-                                Brush.horizontalGradient(
-                                    colors = listOf(
-                                        Color.Transparent,
-                                        tableColor.copy(alpha = 0.92f)
-                                    )
-                                )
-                            )
-                            .semantics {}
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RenderStickyFirstColumnTable(
+internal fun RenderStickyFirstColumnTable(
     headers: List<String>,
     rows: List<List<String>>,
     columnMinWidthsDp: List<Int>,
@@ -12581,7 +6723,7 @@ private fun RenderStickyFirstColumnTable(
 }
 
 @Composable
-private fun RenderStickyTableRow(
+internal fun RenderStickyTableRow(
     headers: List<String>,
     row: List<String>,
     rowIndex: Int,
@@ -12630,7 +6772,7 @@ private fun RenderStickyTableRow(
 }
 
 @Composable
-private fun RenderTableGridRow(
+internal fun RenderTableGridRow(
     headers: List<String>,
     row: List<String>,
     rowIndex: Int,
@@ -12670,7 +6812,7 @@ private fun RenderTableGridRow(
 }
 
 @Composable
-private fun TableGridCell(
+internal fun TableGridCell(
     text: String,
     isHeader: Boolean,
     isNumeric: Boolean,
@@ -12698,7 +6840,7 @@ private fun TableGridCell(
 }
 
 @Composable
-private fun tableGridRowColor(isHeader: Boolean, rowIndex: Int): Color {
+internal fun tableGridRowColor(isHeader: Boolean, rowIndex: Int): Color {
     return when {
         isHeader -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.055f)
         rowIndex >= 0 && rowIndex % 2 == 1 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.025f)
@@ -12706,326 +6848,8 @@ private fun tableGridRowColor(isHeader: Boolean, rowIndex: Int): Color {
     }
 }
 
-@Composable
-private fun RenderDirectTable(
-    props: Map<String, Any?>,
-    state: Map<String, Any?>,
-    onOpenUrl: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val compactPortrait = screenWidthDp < 600 && !isLandscape
-    val table = extractDirectTableModel(props, state, compactPortrait) ?: return
-    val headers = table.columns.map { column -> column.label }
-    val tableModifier = applyStackModifier(modifier, props, "vertical")
-    val sourceLinks = if (shouldBypassSourceLinkIntercept(table.renderMode)) {
-        emptyList()
-    } else {
-        collectFlatSourceLinksFromTableProps(props, state)
-    }
-    if (sourceLinks.isNotEmpty()) {
-        RenderFlatSourceSection(
-            section = FlatSourceSection(title = "Sources", links = sourceLinks),
-            onOpenUrl = onOpenUrl,
-            modifier = tableModifier,
-            wrapInCard = true,
-            showTitle = true
-        )
-        return
-    }
-    val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
-    if (!weatherRows.isNullOrEmpty()) {
-        NativeWeatherUiRenderer.RenderWeatherRows(
-            rows = weatherRows,
-            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
-            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
-            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
-            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
-            weatherConditionIcon = { condition, size ->
-                NativeWeatherUiRenderer.WeatherConditionIcon(
-                    condition = condition,
-                    size = size,
-                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                )
-            }
-        )
-        return
-    }
-    val currentWeatherRows = NativeWeatherSemantics.buildCurrentWeatherRowsFromKeyValueTable(headers, table.rows)
-    if (!currentWeatherRows.isNullOrEmpty()) {
-        NativeWeatherUiRenderer.RenderWeatherRows(
-            rows = currentWeatherRows,
-            sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText,
-            weatherTemperatureText = NativeWeatherSemantics::weatherTemperatureText,
-            orderWeatherRows = NativeWeatherSemantics::orderWeatherRows,
-            isTodayWeatherRow = NativeWeatherSemantics::isTodayWeatherRow,
-            weatherConditionIcon = { condition, size ->
-                NativeWeatherUiRenderer.WeatherConditionIcon(
-                    condition = condition,
-                    size = size,
-                    sanitizeDisplayText = NativeTextFormatter::sanitizeDisplayText
-                )
-            }
-        )
-        return
-    }
-    if (table.shape == FlatTableShape.KEY_VALUE && looksLikeTravelItinerarySummaryTable(headers, table.rows)) {
-        return
-    }
 
-    if (table.shape == FlatTableShape.KEY_VALUE && table.rows.isNotEmpty()) {
-        RenderKeyValueTablePanel(
-            headers = headers,
-            rows = table.rows,
-            title = props["title"]?.toString(),
-            modifier = tableModifier
-        )
-        return
-    }
-
-    if (looksLikeTravelItineraryTable(headers) || looksLikePlaceStopItineraryTable(headers, table.rows)) {
-        RenderTravelItineraryTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            title = props["title"]?.toString(),
-            onOpenUrl = onOpenUrl
-        )
-        return
-    }
-
-    if (table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS) {
-        val rendered = renderRestaurantRowsIfPossible(
-            headers = headers,
-            rows = table.rows,
-            onOpenUrl = onOpenUrl,
-            modifier = tableModifier,
-            title = props["title"]?.toString()
-        )
-        if (rendered) {
-            return
-        }
-    }
-
-    if (table.renderMode == FlatTableRenderMode.NEWS_CARDS) {
-        val rendered = renderNewsRowsIfPossible(
-            headers = headers,
-            rows = table.rows,
-            onOpenUrl = onOpenUrl,
-            modifier = tableModifier,
-            title = props["title"]?.toString()
-        )
-        if (rendered) {
-            return
-        }
-    }
-
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeRankedFlightComparisonTable(headers)) {
-        RenderRankedFlightComparisonCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
-            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp,
-            onOpenUrl = onOpenUrl
-        )
-        return
-    }
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && looksLikeMultiLegFlightTable(headers)) {
-        RenderFlightItineraryTableCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
-            spacing = stackGap(props).takeIf { it > 0.dp } ?: 10.dp
-        )
-        return
-    }
-    if (table.renderMode == FlatTableRenderMode.FLIGHT_CARDS && shouldUseNativeFlightCards(headers)) {
-        val flightRows = NativeFlightSemantics.buildFlightRows(headers, table.rows)
-        if (!flightRows.isNullOrEmpty()) {
-            NativeFlightUiRenderer.RenderFlightRows(flightRows, onOpenUrl = onOpenUrl)
-            return
-        }
-    }
-    if (table.renderMode == FlatTableRenderMode.BOOKING_CARDS) {
-        val rendered = renderBookingRowsIfPossible(
-            headers = headers,
-            rows = table.rows,
-            onOpenUrl = onOpenUrl
-        )
-        if (rendered) {
-            return
-        }
-    }
-
-    if (useScrollableNativeTableRendering() && table.rows.isNotEmpty()) {
-        val horizontalScrollEnabled = nativeTableShouldScroll(
-            compactScreen = compactPortrait,
-            screenWidthDp = screenWidthDp,
-            headers = headers,
-            rows = table.rows
-        )
-        RenderAdaptiveTableGrid(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            horizontalScrollEnabled = horizontalScrollEnabled,
-            stickyFirstColumn = nativeTableStickyFirstColumn(headers, horizontalScrollEnabled),
-            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
-        )
-        return
-    }
-    val cardsRequested =
-        table.renderMode == FlatTableRenderMode.WEATHER_CARDS ||
-            table.renderMode == FlatTableRenderMode.FLIGHT_CARDS ||
-            table.renderMode == FlatTableRenderMode.BOOKING_CARDS ||
-            table.renderMode == FlatTableRenderMode.RESTAURANT_CARDS ||
-            table.renderMode == FlatTableRenderMode.NEWS_CARDS ||
-            table.renderMode == FlatTableRenderMode.PLAYLIST_CARDS
-
-    if (table.renderMode == FlatTableRenderMode.PROCESS_CARDS) {
-        RenderProcessStateTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        return
-    }
-    if (looksLikeIncidentStatusTable(headers, table.rows, table.domain)) {
-        RenderIncidentStatusDashboard(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical"),
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        return
-    }
-    if (looksLikeMarketHoldingsTable(headers, table.rows, table.domain)) {
-        RenderMarketHoldingsTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = applyStackModifier(modifier, props, "vertical")
-        )
-        return
-    }
-
-    if (isFormulaVariablesTable(table)) {
-        RenderFormulaVariablesTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier
-        )
-        return
-    }
-    if (isCalculationBreakdownTable(table)) {
-        RenderCalculationBreakdownTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier
-        )
-        return
-    }
-    extractPercentageMatrixChartModel(
-        columns = table.columns,
-        rows = table.rows,
-        domain = table.domain
-    )?.let { chartModel ->
-        RenderPercentageMatrixChart(
-            model = chartModel,
-            modifier = tableModifier,
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        return
-    }
-
-    val spacing = 8.dp
-    val autoHorizontalScroll = shouldUseHorizontalTableScroll(
-        compactScreen = compactPortrait,
-        screenWidthDp = screenWidthDp,
-        headers = headers,
-        rows = table.rows
-    )
-    val presentation = selectAdaptiveTablePresentation(
-        table = table,
-        screenWidthDp = screenWidthDp,
-        isLandscape = isLandscape,
-        autoHorizontalScroll = autoHorizontalScroll,
-        cardsRequested = cardsRequested
-    )
-    when (presentation) {
-        AdaptiveTablePresentation.CLIMATE_CARDS -> RenderClimateComparisonCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            spacing = spacing,
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        AdaptiveTablePresentation.KEY_VALUE_PANEL -> RenderKeyValueTablePanel(
-            headers = headers,
-            rows = table.rows,
-            title = props["title"]?.toString(),
-            modifier = tableModifier
-        )
-        AdaptiveTablePresentation.ITINERARY_CARDS -> RenderTravelItineraryTable(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            title = props["title"]?.toString(),
-            onOpenUrl = onOpenUrl
-        )
-        AdaptiveTablePresentation.TIMELINE_CARDS -> RenderTimelineTableCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            spacing = spacing
-        )
-        AdaptiveTablePresentation.FEATURE_CARDS -> RenderFeatureMatrixEntityCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            spacing = spacing,
-            columns = table.columns,
-            entityMedia = table.entityMedia
-        )
-        AdaptiveTablePresentation.ENTITY_CARDS -> RenderEntityTableCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            spacing = spacing,
-            primaryColumn = table.primaryColumn,
-            highlightColumns = table.highlightColumns,
-            onOpenUrl = onOpenUrl
-        )
-        AdaptiveTablePresentation.PLAYLIST_ROWS -> RenderPlaylistTableRows(
-            headers = headers,
-            rows = table.rows,
-            props = props,
-            modifier = tableModifier,
-            landscape = isLandscape || screenWidthDp >= 600
-        )
-        AdaptiveTablePresentation.METRIC_CARDS -> RenderMetricTableCards(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            spacing = spacing,
-            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
-        )
-        AdaptiveTablePresentation.TABLE,
-        AdaptiveTablePresentation.HORIZONTAL_TABLE,
-        AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE -> RenderAdaptiveTableGrid(
-            headers = headers,
-            rows = table.rows,
-            modifier = tableModifier,
-            horizontalScrollEnabled = presentation != AdaptiveTablePresentation.TABLE,
-            stickyFirstColumn = presentation == AdaptiveTablePresentation.STICKY_HORIZONTAL_TABLE,
-            numericColumns = numericColumnIndexes(table.columns, table.rows, table.numericColumns)
-        )
-    }
-}
-
-private fun collectResolvedTableRows(
+internal fun collectResolvedTableRows(
     tableModel: FlatTableModel,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -13066,7 +6890,7 @@ private fun collectResolvedTableRows(
 }
 
 @Composable
-private fun RenderResponsiveTableRowCard(
+internal fun RenderResponsiveTableRowCard(
     rowId: String,
     rowScope: RepeatScope?,
     rowIndex: Int,
@@ -13125,141 +6949,9 @@ private fun RenderResponsiveTableRowCard(
     }
 }
 
-@Composable
-private fun RenderList(
-    children: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    repeatedChildScopes: List<RepeatScope>?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        RenderChildren(
-            children = children,
-            elements = elements,
-            state = state,
-            repeatScope = repeatScope,
-            repeatedChildScopes = repeatedChildScopes,
-            onOpenUrl = onOpenUrl,
-            onSetState = onSetState,
-            onAction = onAction,
-            activePath = activePath
-        )
-    }
-}
 
-@Composable
-private fun RenderCard(
-    elementId: String,
-    props: Map<String, Any?>,
-    children: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    repeatedChildScopes: List<RepeatScope>?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val allChildren = children.ifEmpty {
-        props["child"]?.toString()?.let { listOf(it) } ?: emptyList()
-    }
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    extractFlatSourceSection(
-        elementId = elementId,
-        props = props,
-        children = allChildren,
-        elements = elements,
-        state = state,
-        repeatScope = repeatScope,
-        computedFunctions = computedFunctions,
-        allowChildSourceCue = true
-    )?.let { sourceSection ->
-        RenderFlatSourceSection(
-            section = sourceSection,
-            onOpenUrl = onOpenUrl,
-            modifier = modifier,
-            wrapInCard = true,
-            showTitle = true
-        )
-        return
-    }
-    extractEmailPreviewPropsFromCard(allChildren, elements, state, repeatScope)?.let { emailProps ->
-        RenderEmailPreview(emailProps, modifier)
-        return
-    }
-    val hasExplicitCardPadding = props.containsKey("contentPadding") ||
-        props.containsKey("contentPaddingHorizontal") ||
-        props.containsKey("contentPaddingVertical") ||
-        props.containsKey("padding") ||
-        props.containsKey("paddingHorizontal") ||
-        props.containsKey("paddingVertical")
-    val defaultContentPadding = if (!hasExplicitCardPadding &&
-        allChildren.size == 1 &&
-        isPaddedContainerElement(elements[allChildren.first()])
-    ) {
-        0.dp
-    } else {
-        10.dp
-    }
-    val contentPaddingAll = asFlatSpacingDp(props["contentPadding"]) ?: asFlatSpacingDp(props["padding"])
-    val contentPaddingHorizontal = asFlatSpacingDp(props["contentPaddingHorizontal"])
-        ?: asFlatSpacingDp(props["paddingHorizontal"])
-        ?: contentPaddingAll
-        ?: defaultContentPadding
-    val contentPaddingVertical = asFlatSpacingDp(props["contentPaddingVertical"])
-        ?: asFlatSpacingDp(props["paddingVertical"])
-        ?: contentPaddingAll
-        ?: defaultContentPadding
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .accessibilitySemantics(
-                props = props,
-                mergeDescendants = false
-            ),
-        colors = flatSpecCardColors(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(16.dp),
-        border = flatSpecCardBorder()
-    ) {
-        CompositionLocalProvider(LocalFlatSpecTextHorizontalPadding provides 0.dp) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = contentPaddingHorizontal,
-                        vertical = contentPaddingVertical
-                    )
-            ) {
-                RenderChildren(
-                    children = allChildren,
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    repeatedChildScopes = repeatedChildScopes,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
-            }
-        }
-    }
-}
 
-private fun collectTextValuesForEmail(
+internal fun collectTextValuesForEmail(
     elementIds: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -13291,7 +6983,7 @@ private fun collectTextValuesForEmail(
     }
 }
 
-private fun extractEmailPreviewPropsFromCard(
+internal fun extractEmailPreviewPropsFromCard(
     childIds: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -13381,7 +7073,7 @@ private fun extractEmailPreviewPropsFromCard(
     )
 }
 
-private fun emailFirstString(props: Map<String, Any?>, vararg keys: String): String {
+internal fun emailFirstString(props: Map<String, Any?>, vararg keys: String): String {
     keys.forEach { key ->
         val value = props[key]
         if (value is String && value.isNotBlank()) return value.trim()
@@ -13393,7 +7085,7 @@ private fun emailFirstString(props: Map<String, Any?>, vararg keys: String): Str
     return ""
 }
 
-private fun emailFirstNonBlank(map: Map<String, Any?>, vararg keys: String): String {
+internal fun emailFirstNonBlank(map: Map<String, Any?>, vararg keys: String): String {
     keys.forEach { key ->
         val value = map[key]?.toString()?.trim().orEmpty()
         if (value.isNotBlank()) return value
@@ -13401,7 +7093,7 @@ private fun emailFirstNonBlank(map: Map<String, Any?>, vararg keys: String): Str
     return ""
 }
 
-private fun emailStringList(value: Any?): List<String> {
+internal fun emailStringList(value: Any?): List<String> {
     return when (value) {
         is List<*> -> value.mapNotNull { item ->
             when (item) {
@@ -13427,7 +7119,7 @@ private fun emailStringList(value: Any?): List<String> {
     }
 }
 
-private fun emailMetadataItems(props: Map<String, Any?>): List<Pair<String, String>> {
+internal fun emailMetadataItems(props: Map<String, Any?>): List<Pair<String, String>> {
     val items = mutableListOf<Pair<String, String>>()
     fun add(label: String, value: String) {
         if (value.isNotBlank()) items += label to value
@@ -13460,320 +7152,9 @@ private fun emailMetadataItems(props: Map<String, Any?>): List<Pair<String, Stri
     return items.distinct()
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderEmailPreview(props: Map<String, Any?>, modifier: Modifier = Modifier) {
-    val clipboard = LocalClipboardManager.current
-    val title = emailFirstString(props, "title", "heading").ifBlank { "Email Draft" }
-    val subtitle = emailFirstString(props, "subtitle", "preheader", "summary")
-    val subject = emailFirstString(props, "subject", "emailSubject")
-    val body = emailStringList(props["body"] ?: props["paragraphs"] ?: props["emailBody"])
-    val signature = emailStringList(props["signature"] ?: props["signoff"])
-    val metadata = emailMetadataItems(props)
-    val copyBody = (body + signature).joinToString("\n\n")
-    val label = accessibilityLabel(
-        props,
-        listOfNotNull("Email preview", subject, metadata.firstOrNull()?.second)
-            .filter { it.isNotBlank() }
-            .joinToString(". ")
-    )
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .accessibilitySemantics(
-                props = props,
-                fallbackLabel = label,
-                mergeDescendants = false
-            ),
-        colors = CardDefaults.cardColors(containerColor = genUiCardContainerColor(GenUiCardTone.Neutral)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(24.dp),
-        border = flatSpecCardBorder()
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                MaterialTheme.colorScheme.tertiaryContainer
-                            )
-                        )
-                    )
-                    .padding(horizontal = 18.dp, vertical = 16.dp)
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.semantics { heading() }
-                        )
-                        Surface(
-                            shape = RoundedCornerShape(999.dp),
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
-                        ) {
-                            Text(
-                                text = "Draft",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                    if (subtitle.isNotBlank()) {
-                        Text(
-                            text = subtitle,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f)
-                        )
-                    }
-                }
-            }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                if (metadata.isNotEmpty()) {
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        metadata.take(5).forEach { (metaLabel, value) ->
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surfaceContainerHighest
-                            ) {
-                                Text(
-                                    text = "$metaLabel: $value",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (subject.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f)
-                    ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            Text(
-                                text = "Subject",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.76f)
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = subject,
-                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                    }
-                }
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        body.forEach { paragraph ->
-                            Text(
-                                text = paragraph,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        if (signature.isNotEmpty()) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                signature.forEachIndexed { index, line ->
-                                    Text(
-                                        text = line,
-                                        style = if (index == 0) {
-                                            MaterialTheme.typography.bodyMedium
-                                        } else {
-                                            MaterialTheme.typography.bodyMedium.copy(
-                                                fontWeight = if (index == 1) FontWeight.SemiBold else FontWeight.Normal
-                                            )
-                                        },
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (subject.isNotBlank()) {
-                        OutlinedButton(
-                            onClick = { clipboard.setText(AnnotatedString(subject)) },
-                            modifier = Modifier.semantics {
-                                contentDescription = "Copy email subject"
-                                role = Role.Button
-                            }
-                        ) {
-                            Text("Copy Subject")
-                        }
-                    }
-                    if (copyBody.isNotBlank()) {
-                        Button(
-                            onClick = { clipboard.setText(AnnotatedString(copyBody)) },
-                            modifier = Modifier.semantics {
-                                contentDescription = "Copy email body"
-                                role = Role.Button
-                            }
-                        ) {
-                            Text("Copy Email")
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RenderText(props: Map<String, Any?>, modifier: Modifier = Modifier) {
-    val rawText = (
-        props["text"]
-            ?: props["title"]
-            ?: props["label"]
-            ?: props["content"]
-            ?: props["value"]
-        )
-        ?.toString()
-        .orEmpty()
-    if (rawText.isBlank()) return
-    parseFencedCodeBlock(rawText)?.let { codeBlock ->
-        RenderCodeBlock(codeBlock = codeBlock, modifier = modifier)
-        return
-    }
-    inferCodeBlockFromPlainText(rawText, props)?.let { codeBlock ->
-        RenderCodeBlock(codeBlock = codeBlock, modifier = modifier)
-        return
-    }
-    if (looksLikeFormulaText(rawText)) {
-        RenderFormula(
-            props = mapOf(
-                "latex" to rawText,
-                "title" to props["formulaTitle"]
-            ),
-            modifier = modifier
-        )
-        return
-    }
-    val markdown = parseSupportedMarkdownText(rawText)
-    val rawVariant = (
-        props["variant"]?.toString()
-            ?: props["typography"]?.toString()
-        )
-        ?.lowercase()
-        .orEmpty()
-    val impliedHeadingVariant = when (markdown.headingLevel) {
-        1 -> "h1"
-        2 -> "h2"
-        3 -> "h3"
-        else -> ""
-    }
-    val normalizedVariantSource = if (rawVariant.isBlank()) impliedHeadingVariant else rawVariant
-    val variant = when {
-        normalizedVariantSource == "h1" || normalizedVariantSource.contains("headline-large") -> "h1"
-        normalizedVariantSource == "h2" || normalizedVariantSource.contains("headline") || normalizedVariantSource.contains("title-large") -> "h2"
-        normalizedVariantSource == "h3" || normalizedVariantSource.contains("title") || normalizedVariantSource.contains("subtitle") || normalizedVariantSource.contains("heading") -> "h3"
-        normalizedVariantSource.contains("caption") || normalizedVariantSource.contains("label") || normalizedVariantSource.contains("body-small") -> "caption"
-        normalizedVariantSource.contains("chip") -> "chip"
-        else -> normalizedVariantSource
-    }
-    val horizontalPadding = asFlatSpacingDp(props["textPaddingHorizontal"])
-        ?: asFlatSpacingDp(props["paddingHorizontal"])
-        ?: LocalFlatSpecTextHorizontalPadding.current
-    val primaryTextColor = MaterialTheme.colorScheme.onSurface
-    when (variant) {
-        "h1" -> Text(
-            text = markdown.content,
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-            color = primaryTextColor,
-            modifier = modifier
-                .padding(horizontal = horizontalPadding, vertical = 8.dp)
-                .accessibilitySemantics(props = props, isHeading = true)
-        )
-        "h2" -> Text(
-            text = markdown.content,
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            color = primaryTextColor,
-            modifier = modifier
-                .padding(horizontal = horizontalPadding, vertical = 6.dp)
-                .accessibilitySemantics(props = props, isHeading = true)
-        )
-        "h3" -> Text(
-            text = markdown.content,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = primaryTextColor,
-            modifier = modifier
-                .padding(horizontal = horizontalPadding, vertical = 4.dp)
-                .accessibilitySemantics(props = props, isHeading = true)
-        )
-        "caption", "label" -> Text(
-            text = markdown.content,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = modifier
-                .padding(horizontal = horizontalPadding, vertical = 2.dp)
-                .accessibilitySemantics(props = props)
-        )
-        "chip" -> Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            modifier = modifier
-                .padding(2.dp)
-                .accessibilitySemantics(props = props, fallbackLabel = rawText)
-        ) {
-            Text(
-                text = markdown.content,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-            )
-        }
-        else -> Text(
-            text = markdown.content,
-            style = MaterialTheme.typography.bodyMedium,
-            color = primaryTextColor,
-            modifier = modifier
-                .padding(horizontal = horizontalPadding, vertical = 2.dp)
-                .accessibilitySemantics(props = props)
-        )
-    }
-}
-
-private data class FencedCodeBlock(
+internal data class FencedCodeBlock(
     val code: String,
     val language: String? = null,
     val title: String? = null,
@@ -13792,84 +7173,9 @@ internal sealed class FormulaVisualSegment {
     data class FractionSegment(val numerator: String, val denominator: String) : FormulaVisualSegment()
 }
 
-@Composable
-private fun RenderFormula(props: Map<String, Any?>, modifier: Modifier = Modifier) {
-    val rawFormula = (
-        props["latex"]
-            ?: props["formula"]
-            ?: props["text"]
-            ?: props["value"]
-        )
-        ?.toString()
-        .orEmpty()
-    val normalizedFormula = normalizeFormulaText(rawFormula)
-    if (normalizedFormula.isBlank()) return
-    val title = props["title"]?.toString()?.trim().orEmpty()
-    val subtitle = props["subtitle"]?.toString()?.trim().orEmpty()
-    val result = props["result"]?.toString()?.trim().orEmpty()
-    val displayFormula = plainBracketFractionToLatex(normalizedFormula)
-    val segments = parseFormulaSegments(displayFormula)
-    Surface(
-        shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.64f),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 6.dp)
-            .semantics(mergeDescendants = true) {
-                contentDescription = "Formula ${readableFormulaText(displayFormula)}"
-            }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            if (title.isNotBlank()) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            if (subtitle.isNotBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val scrollState = rememberScrollState()
-                RenderFormulaExpression(
-                    displayFormula = displayFormula,
-                    segments = segments,
-                    scrollState = scrollState
-                )
-            }
-            if (result.isNotBlank()) {
-                Surface(
-                    shape = RoundedCornerShape(999.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = result,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun RenderFormulaExpression(
+internal fun RenderFormulaExpression(
     displayFormula: String,
     segments: List<FormulaVisualSegment>,
     scrollState: androidx.compose.foundation.ScrollState
@@ -13935,7 +7241,7 @@ private fun RenderFormulaExpression(
 }
 
 @Composable
-private fun FormulaFractionView(
+internal fun FormulaFractionView(
     numerator: String,
     denominator: String,
     modifier: Modifier = Modifier
@@ -13979,130 +7285,14 @@ private fun FormulaFractionView(
     }
 }
 
-@Composable
-private fun RenderCodeBlock(codeBlock: FencedCodeBlock, modifier: Modifier = Modifier) {
-    if (codeBlock.code.isBlank() && codeBlock.title.isNullOrBlank()) return
-    val isConsole = codeBlock.isConsole ||
-        codeBlock.language.equals("console", ignoreCase = true) ||
-        codeBlock.language.equals("terminal", ignoreCase = true) ||
-        codeBlock.language.equals("shell", ignoreCase = true) ||
-        codeBlock.language.equals("bash", ignoreCase = true)
-    val label = codeBlock.title?.trim()?.takeIf { it.isNotBlank() }
-        ?: codeBlock.language?.trim()?.takeIf { it.isNotBlank() }
-        ?: if (isConsole) "Console" else "Code"
-    val containerColor = if (isConsole) Color(0xFF0B1020) else Color(0xFF111827)
-    val headerColor = if (isConsole) Color(0xFF67E8F9) else Color(0xFFA7F3D0)
-    val bodyColor = Color(0xFFE5E7EB)
-    val clipboard = LocalClipboardManager.current
-    val copyText = codeBlock.code.trim()
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = containerColor,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = LocalFlatSpecTextHorizontalPadding.current, vertical = 6.dp)
-            .semantics {
-                contentDescription = buildString {
-                    append(if (isConsole) "Console log" else "Code block")
-                    label.takeIf { it.isNotBlank() }?.let { language ->
-                        append(", ")
-                        append(language)
-                    }
-                    codeBlock.code.trim().takeIf { it.isNotBlank() }?.let { code ->
-                        append(". ")
-                        append(code)
-                    }
-                }
-            }
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = label.uppercase(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = headerColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                if (copyText.isNotBlank()) {
-                    Icon(
-                        imageVector = Icons.Filled.ContentCopy,
-                        contentDescription = if (isConsole) "Copy shell output" else "Copy code",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(999.dp))
-                            .background(Color.White.copy(alpha = 0.14f))
-                            .clickable {
-                                clipboard.setText(AnnotatedString(copyText))
-                            }
-                            .semantics {
-                                role = Role.Button
-                            }
-                            .padding(6.dp)
-                            .size(16.dp)
-                    )
-                }
-            }
-            val codeTextModifier = if (isConsole) {
-                Modifier.fillMaxWidth()
-            } else {
-                Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-            }
-            Text(
-                text = codeBlock.code.ifBlank { " " },
-                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                color = bodyColor,
-                softWrap = isConsole,
-                modifier = codeTextModifier
-            )
-        }
-    }
-}
 
-private fun codeBlockFromProps(
-    props: Map<String, Any?>,
-    defaultLanguage: String? = null,
-    isConsole: Boolean = false
-): FencedCodeBlock {
-    val rawContent = listOf("code", "text", "content", "value", "output", "log", "logs")
-        .firstNotNullOfOrNull { key -> props[key]?.toString()?.takeIf { it.isNotBlank() } }
-        .orEmpty()
-    val parsed = parseFencedCodeBlock(rawContent)
-    val language = props["language"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-        ?: props["lang"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-        ?: props["syntax"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-        ?: parsed?.language
-        ?: defaultLanguage
-    val title = props["title"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-        ?: props["label"]?.toString()?.trim()?.takeIf { it.isNotBlank() }
-    val console = isConsole ||
-        props["kind"]?.toString()?.contains("console", ignoreCase = true) == true ||
-        props["role"]?.toString()?.contains("console", ignoreCase = true) == true ||
-        language.equals("console", ignoreCase = true) ||
-        language.equals("terminal", ignoreCase = true)
-    return FencedCodeBlock(
-        code = parsed?.code ?: rawContent,
-        language = language,
-        title = title,
-        isConsole = console
-    )
-}
 
-private data class SupportedMarkdownText(
+internal data class SupportedMarkdownText(
     val content: AnnotatedString,
     val headingLevel: Int?
 )
 
-private fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
+internal fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
     val trimmed = raw.trim()
     val fence = when {
         trimmed.startsWith("```") -> "```"
@@ -14134,7 +7324,7 @@ private fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
     return FencedCodeBlock(code = code, language = languageToken, isConsole = isConsole)
 }
 
-private fun inferCodeBlockFromPlainText(raw: String, props: Map<String, Any?>): FencedCodeBlock? {
+internal fun inferCodeBlockFromPlainText(raw: String, props: Map<String, Any?>): FencedCodeBlock? {
     val text = raw.trim()
     if ('\n' !in text || text.length < 16) return null
     val variant = props["variant"]?.toString()?.lowercase().orEmpty()
@@ -14277,9 +7467,9 @@ internal fun formulaDisplayTextSegment(raw: String, nextIsFraction: Boolean): St
     return if (alreadyOperator) text else "$text ×"
 }
 
-private data class LatexGroup(val value: String, val nextIndex: Int)
+internal data class LatexGroup(val value: String, val nextIndex: Int)
 
-private fun readLatexGroup(text: String, start: Int): LatexGroup? {
+internal fun readLatexGroup(text: String, start: Int): LatexGroup? {
     if (start >= text.length || text[start] != '{') return null
     var depth = 0
     for (index in start until text.length) {
@@ -14342,9 +7532,9 @@ internal fun formulaAnnotatedString(raw: String): AnnotatedString = buildAnnotat
     }
 }
 
-private data class FormulaToken(val value: String, val nextIndex: Int)
+internal data class FormulaToken(val value: String, val nextIndex: Int)
 
-private fun readFormulaScriptToken(text: String, start: Int): FormulaToken {
+internal fun readFormulaScriptToken(text: String, start: Int): FormulaToken {
     if (start >= text.length) return FormulaToken("", start)
     if (text[start] == '{') {
         readLatexGroup(text, start)?.let { return FormulaToken(it.value, it.nextIndex) }
@@ -14352,13 +7542,13 @@ private fun readFormulaScriptToken(text: String, start: Int): FormulaToken {
     return FormulaToken(text[start].toString(), start + 1)
 }
 
-private fun readLatexCommand(text: String, start: Int): FormulaToken {
+internal fun readLatexCommand(text: String, start: Int): FormulaToken {
     var index = start
     while (index < text.length && text[index].isLetter()) index++
     return FormulaToken(text.substring(start, index), index)
 }
 
-private fun latexCommandReplacement(command: String): String? = when (command) {
+internal fun latexCommandReplacement(command: String): String? = when (command) {
     "alpha" -> "α"
     "beta" -> "β"
     "gamma" -> "γ"
@@ -14379,7 +7569,7 @@ private fun latexCommandReplacement(command: String): String? = when (command) {
     else -> null
 }
 
-private fun readableFormulaText(raw: String): String =
+internal fun readableFormulaText(raw: String): String =
     normalizeFormulaText(raw)
         .replace("\\frac", " fraction ")
         .replace("{", " ")
@@ -14387,7 +7577,7 @@ private fun readableFormulaText(raw: String): String =
         .replace(Regex("""\s+"""), " ")
         .trim()
 
-private fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
+internal fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
     val trimmedStart = raw.trimStart()
     val headingLevel = when {
         trimmedStart.startsWith("### ") -> 3
@@ -14406,9 +7596,9 @@ private fun parseSupportedMarkdownText(raw: String): SupportedMarkdownText {
     )
 }
 
-private val LEADING_LABEL_REGEX = Regex("^(\\s*)([A-Za-z][A-Za-z0-9 ./()&+\\-]{0,40})([:;])(\\s*.*)$")
+internal val LEADING_LABEL_REGEX = Regex("^(\\s*)([A-Za-z][A-Za-z0-9 ./()&+\\-]{0,40})([:;])(\\s*.*)$")
 
-private fun parseBoldMarkdown(raw: String): AnnotatedString {
+internal fun parseBoldMarkdown(raw: String): AnnotatedString {
     val cleanedRaw = NativeTextFormatter.sanitizeDisplayText(raw, preserveMarkdown = true)
     return buildAnnotatedString {
         cleanedRaw.split('\n').forEachIndexed { index, line ->
@@ -14436,7 +7626,7 @@ private fun parseBoldMarkdown(raw: String): AnnotatedString {
     }
 }
 
-private fun AnnotatedString.Builder.appendMarkdownBoldSpans(segment: String) {
+internal fun AnnotatedString.Builder.appendMarkdownBoldSpans(segment: String) {
     var cursor = 0
     while (cursor < segment.length) {
         val start = segment.indexOf("**", cursor)
@@ -14460,9 +7650,9 @@ private fun AnnotatedString.Builder.appendMarkdownBoldSpans(segment: String) {
     }
 }
 
-private const val FLAT_SPEC_IMAGE_USER_AGENT = "A2UI GenUICraft Android/1.0 image-renderer"
+internal const val FLAT_SPEC_IMAGE_USER_AGENT = "A2UI GenUICraft Android/1.0 image-renderer"
 
-private fun ImageRequest.Builder.applyFlatSpecRemoteImageHeaders(url: String): ImageRequest.Builder = apply {
+internal fun ImageRequest.Builder.applyFlatSpecRemoteImageHeaders(url: String): ImageRequest.Builder = apply {
     val normalized = url.trim()
     if (normalized.startsWith("http://", ignoreCase = true) ||
         normalized.startsWith("https://", ignoreCase = true)
@@ -14472,21 +7662,17 @@ private fun ImageRequest.Builder.applyFlatSpecRemoteImageHeaders(url: String): I
     }
 }
 
-private fun imageLogLabel(url: String): String {
+internal fun imageLogLabel(url: String): String {
     val host = parseUrlHost(url).ifBlank { "local/inline image" }
     return host.take(80)
 }
 
 @Composable
-private fun PrefetchFlatSpecImages(rawUrls: List<String>) {
+internal fun PrefetchFlatSpecImages(rawUrls: List<String>) {
     if (rawUrls.isEmpty()) return
     val resolveAssetUrl = LocalFlatSpecAssetResolver.current
     val context = LocalContext.current
-    val imageLoader = remember(context) {
-        ImageLoader.Builder(context)
-            .components { add(SvgDecoder.Factory()) }
-            .build()
-    }
+    val imageLoader = rememberFlatImageLoader()
     val urls = remember(rawUrls, resolveAssetUrl) {
         rawUrls
             .mapNotNull { raw ->
@@ -14510,165 +7696,8 @@ private fun PrefetchFlatSpecImages(rawUrls: List<String>) {
     }
 }
 
-@Composable
-private fun RenderImage(
-    props: Map<String, Any?>,
-    onOpenUrl: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val resolveAssetUrl = LocalFlatSpecAssetResolver.current
-    val rawUrl = resolveMediaUrlCandidate(props, IMAGE_PROP_KEYS)
-    val candidateUrls = buildList {
-        add(rawUrl)
-        addAll(extractMediaUrlTokens(props["fallbackUrl"]))
-        addAll(extractMediaUrlTokens(props["fallbackUrls"]))
-        addAll(extractMediaUrlTokens(props["fallback"]))
-        addAll(extractMediaUrlTokens(props["alternates"]))
-        addAll(extractMediaUrlTokens(props["photoUrls"]))
-        addAll(extractMediaUrlTokens(props["photos"]))
-    }
-        .mapNotNull { candidate ->
-            SafeContentPolicy.sanitizeMediaUrl(candidate, SafeContentPolicy.MediaKind.IMAGE)
-                ?.let(resolveAssetUrl)
-                ?.let(::resolveCoilMediaModel)
-                ?.takeIf { it.isNotBlank() }
-        }
-        .distinct()
-    val url = candidateUrls.firstOrNull() ?: return
-    val resolvedUrl = url
-    val contentScale = resolveImageScale(props)
-    val context = LocalContext.current
-    val imageLoader = remember(context) {
-        ImageLoader.Builder(context)
-            .components { add(SvgDecoder.Factory()) }
-            .build()
-    }
-    val actionUrl = SafeContentPolicy.sanitizeActionUrl(extractMediaUrlToken(props["actionUrl"])).orEmpty()
-    val widthDp = asDp(props["width"])
-    val heightDp = asDp(props["height"])
-    val aspectRatio = parseAspectRatio(props["aspectRatio"]) ?: if (heightDp == null) 16f / 9f else null
-    var imageModifier = modifier
-    imageModifier = if (widthDp != null) imageModifier.width(widthDp) else imageModifier.fillMaxWidth()
-    if (heightDp != null) {
-        imageModifier = imageModifier.height(heightDp)
-    }
-    if (aspectRatio != null) {
-        imageModifier = imageModifier.aspectRatio(aspectRatio)
-    }
-    imageModifier = imageModifier.clip(RoundedCornerShape(12.dp))
-    val clickableModifier = if (actionUrl.isNotBlank()) {
-        imageModifier.clickable(
-            role = Role.Button,
-            onClickLabel = accessibilityString(props, "onClickLabel", "actionLabel") ?: "Open image"
-        ) { onOpenUrl(actionUrl) }
-    } else {
-        imageModifier
-    }
-    val generatedRestaurantVisual = parseGeneratedRestaurantVisual(resolvedUrl)
-        ?: parseGeneratedRestaurantVisual(url)
-    if (generatedRestaurantVisual != null) {
-        RenderGeneratedRestaurantVisual(
-            visual = generatedRestaurantVisual,
-            modifier = clickableModifier,
-            imageLabel = accessibilityLabel(props, "${generatedRestaurantVisual.title} restaurant image")
-        )
-        return
-    }
-    var failed by remember(candidateUrls) { mutableStateOf(false) }
-    var activeIndex by remember(candidateUrls) { mutableIntStateOf(0) }
-    val activeUrl = candidateUrls.getOrElse(activeIndex) { url }
-    val imageLabel = accessibilityLabel(props, props["alt"]?.toString() ?: "Image")
-    val placeholderBg = MaterialTheme.colorScheme.surfaceContainerHighest
-    val iconLikeImage = isIconLikeMediaUrl(resolvedUrl) || isIconLikeMediaUrl(url)
 
-    Box(
-        modifier = clickableModifier
-            .background(placeholderBg)
-            .accessibilitySemantics(
-                props = props,
-                fallbackLabel = imageLabel,
-                semanticRole = Role.Button.takeIf { actionUrl.isNotBlank() },
-                state = "Image unavailable".takeIf { failed },
-                mergeDescendants = true
-        ),
-        contentAlignment = Alignment.Center
-    ) {
-        if (iconLikeImage && !failed) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(activeUrl)
-                    .applyFlatSpecRemoteImageHeaders(activeUrl)
-                    .crossfade(true)
-                    .allowHardware(false)
-                    .build(),
-                imageLoader = imageLoader,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                modifier = Modifier.size(42.dp),
-                onSuccess = { failed = false },
-                onError = {
-                    val nextIndex = activeIndex + 1
-                    if (nextIndex < candidateUrls.size) {
-                        activeIndex = nextIndex
-                        failed = false
-                        Log.w(
-                            FLAT_SPEC_RENDERER_TAG,
-                            "RenderImage icon-like media failed for ${imageLogLabel(activeUrl)}; retrying candidate ${nextIndex + 1}/${candidateUrls.size}."
-                        )
-                    } else {
-                        failed = true
-                        Log.w(
-                            FLAT_SPEC_RENDERER_TAG,
-                            "RenderImage received icon-like media URL from ${imageLogLabel(activeUrl)}; compact icon load failed."
-                        )
-                    }
-                }
-            )
-        } else if (failed) {
-            Icon(
-                imageVector = Icons.Filled.Image,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(24.dp)
-            )
-        } else {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(activeUrl)
-                    .applyFlatSpecRemoteImageHeaders(activeUrl)
-                    .crossfade(true)
-                    .allowHardware(false)
-                    .build(),
-                imageLoader = imageLoader,
-                contentDescription = null,
-                contentScale = contentScale,
-                modifier = Modifier.fillMaxSize(),
-                onSuccess = { failed = false },
-                onError = {
-                    val failedUrl = activeUrl
-                    val nextIndex = activeIndex + 1
-                    if (nextIndex < candidateUrls.size) {
-                        activeIndex = nextIndex
-                        failed = false
-                        Log.w(
-                            FLAT_SPEC_RENDERER_TAG,
-                            "RenderImage failed for ${imageLogLabel(failedUrl)}; retrying candidate ${nextIndex + 1}/${candidateUrls.size}."
-                        )
-                    } else {
-                        failed = true
-                        Log.w(
-                            FLAT_SPEC_RENDERER_TAG,
-                            "RenderImage failed for ${imageLogLabel(failedUrl)} with ${candidateUrls.size} candidate(s)."
-                        )
-                    }
-                }
-            )
-        }
-    }
-}
-
-private fun parseGeneratedRestaurantVisual(raw: String): GeneratedRestaurantVisual? {
+internal fun parseGeneratedRestaurantVisual(raw: String): GeneratedRestaurantVisual? {
     val uri = runCatching { Uri.parse(raw.trim()) }.getOrNull() ?: return null
     if (!uri.scheme.equals("genuicraft", ignoreCase = true)) return null
     if (!uri.host.equals("visual", ignoreCase = true)) return null
@@ -14682,7 +7711,7 @@ private fun parseGeneratedRestaurantVisual(raw: String): GeneratedRestaurantVisu
 }
 
 @Composable
-private fun RenderGeneratedRestaurantVisual(
+internal fun RenderGeneratedRestaurantVisual(
     visual: GeneratedRestaurantVisual,
     modifier: Modifier,
     imageLabel: String?
@@ -14738,7 +7767,7 @@ private fun RenderGeneratedRestaurantVisual(
     }
 }
 
-private fun restaurantVisualPalette(seed: String): Pair<Color, Color> {
+internal fun restaurantVisualPalette(seed: String): Pair<Color, Color> {
     val palettes = listOf(
         Color(0xFF8A3FFC) to Color(0xFFFF7A59),
         Color(0xFF0F766E) to Color(0xFFF59E0B),
@@ -14750,236 +7779,13 @@ private fun restaurantVisualPalette(seed: String): Pair<Color, Color> {
     return palettes[index]
 }
 
-@Composable
-private fun RenderIcon(
-    props: Map<String, Any?>,
-    modifier: Modifier = Modifier
-) {
-    val resolveAssetUrl = LocalFlatSpecAssetResolver.current
-    val rawUrl = resolveMediaUrlCandidate(props, ICON_PROP_KEYS)
-    val safeRawUrl = SafeContentPolicy.sanitizeMediaUrl(rawUrl, SafeContentPolicy.MediaKind.ICON) ?: return
-    val url = resolveCoilMediaModel(resolveAssetUrl(safeRawUrl))
-    if (url.isBlank()) return
-    val context = LocalContext.current
-    val imageLoader = remember(context) {
-        ImageLoader.Builder(context)
-            .components { add(SvgDecoder.Factory()) }
-            .build()
-    }
-    val iconSize = resolveIconSize(props)
-    val basePadding = asFlatSpacingDp(props["padding"]) ?: asFlatSpacingDp(props["iconPadding"]) ?: 4.dp
-    val horizontalPadding =
-        asFlatSpacingDp(props["paddingHorizontal"]) ?: asFlatSpacingDp(props["iconPaddingHorizontal"]) ?: basePadding
-    val verticalPadding =
-        asFlatSpacingDp(props["paddingVertical"]) ?: asFlatSpacingDp(props["iconPaddingVertical"]) ?: basePadding
-    val iconModifier = modifier
-        .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-        .size(iconSize)
-    var failed by remember(url) { mutableStateOf(false) }
-    val iconDescription = if (isAccessibilityDecorative(props)) {
-        null
-    } else {
-        accessibilityLabel(props)
-    }
-    if (failed) {
-        Icon(
-            imageVector = Icons.Filled.Image,
-            contentDescription = iconDescription?.let { "$it unavailable" },
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = iconModifier
-        )
-    } else {
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(url)
-                .applyFlatSpecRemoteImageHeaders(url)
-                .crossfade(false)
-                .allowHardware(false)
-                .build(),
-            imageLoader = imageLoader,
-            contentDescription = iconDescription,
-            contentScale = ContentScale.Fit,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-            modifier = iconModifier,
-            onSuccess = { failed = false },
-            onError = { failed = true }
-        )
-    }
-}
 
-@Composable
-private fun RenderButton(
-    props: Map<String, Any?>,
-    onMap: Map<String, Any?>?,
-    repeatScope: RepeatScope?,
-    onAction: (Any?, RepeatScope?) -> Int,
-    modifier: Modifier = Modifier
-) {
-    val label = props["label"]?.toString().orEmpty().ifBlank { "Open" }
-    val variant = props["variant"]?.toString()?.lowercase().orEmpty()
-    val actionCandidate = onMap?.get("press") ?: onMap?.get("click") ?: onMap?.get("tap")
-    val onClick: () -> Unit = if (actionCandidate == null) {
-        {}
-    } else {
-        { onAction(actionCandidate, repeatScope) }
-    }
-    val buttonModifier = modifier
-        .padding(horizontal = 16.dp, vertical = 4.dp)
-        .let { base ->
-            if (label.length > 20) base.fillMaxWidth() else base
-        }
-        .accessibilitySemantics(
-            props = props,
-            fallbackLabel = label,
-            semanticRole = Role.Button,
-            state = "Disabled".takeIf { actionCandidate == null }
-        )
-    if (variant == "borderless" || variant == "text" || variant == "outlined") {
-        OutlinedButton(
-            onClick = onClick,
-            enabled = actionCandidate != null,
-            modifier = buttonModifier
-        ) {
-            Text(text = label)
-        }
-    } else {
-        Button(
-            onClick = onClick,
-            enabled = actionCandidate != null,
-            modifier = buttonModifier
-        ) {
-            Text(text = label)
-        }
-    }
-}
 
-@Composable
-private fun RenderDivider(modifier: Modifier = Modifier) {
-    HorizontalDivider(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        color = MaterialTheme.colorScheme.outlineVariant
-    )
-}
 
-@Composable
-private fun RenderTabs(
-    props: Map<String, Any?>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val tabs = props["tabs"] as? List<*> ?: return
-    if (tabs.isEmpty()) return
 
-    val activeTabId = props["activeTabId"]?.toString().orEmpty()
-    val initialIndex = tabs.indexOfFirst { tab ->
-        val map = tab as? Map<*, *> ?: return@indexOfFirst false
-        val tabChild = map["child"]?.toString()
-            ?: map["content"]?.toString()
-            ?: map["id"]?.toString()
-            ?: map["element"]?.toString()
-        tabChild == activeTabId
-    }.takeIf { it >= 0 } ?: 0
 
-    var selectedIndex by remember(tabs, activeTabId) { mutableIntStateOf(initialIndex) }
 
-    Column(modifier = modifier.fillMaxWidth()) {
-        ScrollableTabRow(selectedTabIndex = selectedIndex) {
-            tabs.forEachIndexed { index, tabAny ->
-                val tab = tabAny as? Map<*, *> ?: return@forEachIndexed
-                val title = (tab["title"]?.toString() ?: tab["label"]?.toString()).orEmpty().ifBlank { "Tab ${index + 1}" }
-                Tab(
-                    selected = selectedIndex == index,
-                    onClick = { selectedIndex = index },
-                    text = { Text(title) }
-                )
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        val selectedTab = tabs.getOrNull(selectedIndex) as? Map<*, *>
-        val childId = (
-            selectedTab?.get("child")?.toString()
-                ?: selectedTab?.get("content")?.toString()
-                ?: selectedTab?.get("id")?.toString()
-                ?: selectedTab?.get("element")?.toString()
-            ).orEmpty()
-        if (childId.isNotBlank()) {
-            RenderElement(
-                elementId = childId,
-                elements = elements,
-                state = state,
-                repeatScope = repeatScope,
-                onOpenUrl = onOpenUrl,
-                onSetState = onSetState,
-                onAction = onAction,
-                activePath = activePath
-            )
-        }
-    }
-}
-
-@Composable
-private fun RenderModal(
-    props: Map<String, Any?>,
-    children: List<String>,
-    elements: Map<String, FlatElement>,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    onOpenUrl: (String) -> Unit,
-    onSetState: (String, Any?) -> Unit,
-    onAction: (Any?, RepeatScope?) -> Int,
-    activePath: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val title = props["title"]?.toString().orEmpty().ifBlank { "Modal" }
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .accessibilitySemantics(
-                props = props,
-                fallbackLabel = title
-            ),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .semantics { heading() }
-            )
-            val ids = buildList {
-                props["trigger"]?.toString()?.takeIf { it.isNotBlank() }?.let(::add)
-                props["content"]?.toString()?.takeIf { it.isNotBlank() }?.let(::add)
-                addAll(children)
-            }.distinct()
-            ids.forEach { childId ->
-                RenderElement(
-                    elementId = childId,
-                    elements = elements,
-                    state = state,
-                    repeatScope = repeatScope,
-                    onOpenUrl = onOpenUrl,
-                    onSetState = onSetState,
-                    onAction = onAction,
-                    activePath = activePath
-                )
-            }
-        }
-    }
-}
-
-private fun bindPathFromValueExpression(value: Any?, repeatScope: RepeatScope?): String? {
+internal fun bindPathFromValueExpression(value: Any?, repeatScope: RepeatScope?): String? {
     val valueMap = toStringKeyMap(value) ?: return null
     val bindState = valueMap["\$bindState"]?.toString()?.takeIf { it.isNotBlank() }
     if (bindState != null) {
@@ -14993,311 +7799,41 @@ private fun bindPathFromValueExpression(value: Any?, repeatScope: RepeatScope?):
     return valueMap["\$state"]?.toString()?.takeIf { it.isNotBlank() }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun RenderTextField(
-    props: Map<String, Any?>,
-    onSetState: (String, Any?) -> Unit,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    modifier: Modifier = Modifier
-) {
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    val label = props["label"]?.toString().orEmpty().ifBlank { "Input" }
-    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
-    val value = FlatExprResolver.resolveString(props["value"], state, repeatScope, computedFunctions)
-    var localValue by remember(label) { mutableStateOf(value) }
-    val textValue = if (!bindPath.isNullOrBlank()) value else localValue
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
 
-    OutlinedTextField(
-        value = textValue,
-        onValueChange = { next ->
-            if (!bindPath.isNullOrBlank()) {
-                onSetState(bindPath, next)
-            } else {
-                localValue = next
-            }
-        },
-        label = { Text(label) },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            }
-    )
+
+
+
+
+
+
+
+
+
+
+
+/** First non-blank string among [keys], or null. */
+internal fun firstNonBlankStringProp(props: Map<String, Any?>, vararg keys: String): String? {
+    keys.forEach { key ->
+        val value = props[key]?.toString()?.trim()
+        if (!value.isNullOrBlank()) return value
+    }
+    return null
 }
 
-@Composable
-private fun RenderCheckBox(
-    props: Map<String, Any?>,
-    onSetState: (String, Any?) -> Unit,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    modifier: Modifier = Modifier
-) {
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    val label = props["label"]?.toString().orEmpty().ifBlank { "Option" }
-    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
-    val checked = FlatExprResolver.resolveBoolean(props["value"], state, repeatScope, computedFunctions)
-    var localChecked by remember(label) { mutableStateOf(checked) }
-    val isChecked = if (!bindPath.isNullOrBlank()) checked else localChecked
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .toggleable(
-                value = isChecked,
-                role = Role.Checkbox,
-                onValueChange = { next ->
-                    if (!bindPath.isNullOrBlank()) {
-                        onSetState(bindPath, next)
-                    } else {
-                        localChecked = next
-                    }
-                }
-            )
-            .accessibilitySemantics(
-                props = props,
-                fallbackLabel = label,
-                state = if (isChecked) "Checked" else "Not checked",
-                mergeDescendants = true
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = null
-        )
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+/**
+ * Human-readable duration for a media tile.
+ *
+ * Accepts an already-formatted string, or seconds as a number, which is what the
+ * generator tends to emit.
+ */
+internal fun flatMediaDurationLabel(props: Map<String, Any?>): String? {
+    val raw = props["duration"] ?: props["length"] ?: props["runtime"] ?: return null
+    (raw as? Number)?.let { number ->
+        val total = number.toInt()
+        if (total <= 0) return null
+        val minutes = total / 60
+        val seconds = total % 60
+        return if (minutes > 0) "$minutes min ${seconds}s" else "${seconds}s"
     }
+    return raw.toString().trim().takeIf { it.isNotBlank() }
 }
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun RenderChoicePicker(
-    props: Map<String, Any?>,
-    onSetState: (String, Any?) -> Unit,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    modifier: Modifier = Modifier
-) {
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    val label = props["label"]?.toString().orEmpty().ifBlank { "Choose" }
-    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
-    val resolvedValue = FlatExprResolver.resolve(props["value"], state, repeatScope, computedFunctions)
-    val selected = when (resolvedValue) {
-        is List<*> -> resolvedValue.mapNotNull { it?.toString() }.toSet()
-        is String -> setOf(resolvedValue)
-        else -> emptySet()
-    }
-    val options = (props["options"] as? List<*>)?.mapNotNull { optionAny ->
-        val optionMap = optionAny as? Map<*, *> ?: return@mapNotNull null
-        val optionLabel = optionMap["label"]?.toString().orEmpty()
-        val optionValue = optionMap["value"]?.toString().orEmpty()
-        if (optionValue.isBlank()) null else optionLabel.ifBlank { optionValue } to optionValue
-    }.orEmpty()
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-    ) {
-        Text(text = label, style = MaterialTheme.typography.labelLarge)
-        Spacer(Modifier.height(6.dp))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            options.forEach { (optionLabel, optionValue) ->
-                val active = selected.contains(optionValue)
-                OutlinedButton(
-                    onClick = {
-                        val next = if (active) selected - optionValue else selected + optionValue
-                        if (!bindPath.isNullOrBlank()) {
-                            onSetState(bindPath, next.toList())
-                        }
-                    },
-                    modifier = Modifier.semantics {
-                        contentDescription = optionLabel
-                        stateDescription = if (active) "Selected" else "Not selected"
-                    }
-                ) {
-                    Text(optionLabel)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RenderSlider(
-    props: Map<String, Any?>,
-    onSetState: (String, Any?) -> Unit,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    modifier: Modifier = Modifier
-) {
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    val label = props["label"]?.toString().orEmpty()
-    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
-    val min = (props["min"] as? Number)?.toFloat() ?: 0f
-    val max = (props["max"] as? Number)?.toFloat() ?: 100f
-    val resolved = FlatExprResolver.resolve(props["value"], state, repeatScope, computedFunctions)
-    val initial = (resolved as? Number)?.toFloat() ?: min
-    var localValue by remember(label) { mutableStateOf(initial.coerceIn(min, max)) }
-    val current = if (!bindPath.isNullOrBlank()) {
-        ((FlatSpecParser.getAtPath(state, bindPath) as? Number)?.toFloat() ?: initial).coerceIn(min, max)
-    } else {
-        localValue
-    }
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-    ) {
-        if (label.isNotBlank()) {
-            Text("$label: ${current.roundToInt()}", style = MaterialTheme.typography.labelLarge)
-            Spacer(Modifier.height(4.dp))
-        }
-        Slider(
-            value = current,
-            valueRange = min..max,
-            modifier = Modifier.semantics {
-                contentDescription = label.ifBlank { "Slider" }
-                stateDescription = "${current.roundToInt()} of ${max.roundToInt()}"
-            },
-            onValueChange = { next ->
-                if (!bindPath.isNullOrBlank()) {
-                    onSetState(bindPath, next)
-                } else {
-                    localValue = next
-                }
-            }
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun RenderDateTimeInput(
-    props: Map<String, Any?>,
-    onSetState: (String, Any?) -> Unit,
-    state: Map<String, Any?>,
-    repeatScope: RepeatScope?,
-    modifier: Modifier = Modifier
-) {
-    val computedFunctions = LocalFlatSpecComputedFunctions.current
-    val label = props["label"]?.toString().orEmpty().ifBlank { "Date/Time" }
-    val bindPath = bindPathFromValueExpression(props["value"], repeatScope) ?: props["statePath"]?.toString()
-    val resolvedValue = FlatExprResolver.resolveString(props["value"], state, repeatScope, computedFunctions)
-    var localValue by remember(label) { mutableStateOf(resolvedValue) }
-    val value = if (!bindPath.isNullOrBlank()) resolvedValue else localValue
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = { next ->
-            if (!bindPath.isNullOrBlank()) {
-                onSetState(bindPath, next)
-            } else {
-                localValue = next
-            }
-        },
-        label = { Text(label) },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .bringIntoViewRequester(bringIntoViewRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            }
-    )
-}
-
-@Composable
-private fun RenderVideo(
-    props: Map<String, Any?>,
-    onOpenUrl: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val url = SafeContentPolicy.sanitizeMediaUrl(
-        resolveMediaUrlCandidate(props, MEDIA_PROP_KEYS),
-        SafeContentPolicy.MediaKind.VIDEO
-    ).orEmpty()
-    if (url.isBlank()) return
-    val label = accessibilityLabel(props, "Video")
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                role = Role.Button,
-                onClickLabel = accessibilityString(props, "onClickLabel", "actionLabel") ?: "Open video"
-            ) { onOpenUrl(url) }
-            .accessibilitySemantics(
-                props = props,
-                fallbackLabel = label,
-                semanticRole = Role.Button,
-                mergeDescendants = true
-            ),
-        color = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Text(
-            text = "Video",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Composable
-private fun RenderAudioPlayer(
-    props: Map<String, Any?>,
-    onOpenUrl: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val url = SafeContentPolicy.sanitizeMediaUrl(
-        resolveMediaUrlCandidate(props, MEDIA_PROP_KEYS),
-        SafeContentPolicy.MediaKind.AUDIO
-    ).orEmpty()
-    if (url.isBlank()) return
-    val description = props["description"]?.toString().orEmpty().ifBlank { "Audio" }
-    val label = accessibilityLabel(props, description)
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                role = Role.Button,
-                onClickLabel = accessibilityString(props, "onClickLabel", "actionLabel") ?: "Open audio"
-            ) { onOpenUrl(url) }
-            .accessibilitySemantics(
-                props = props,
-                fallbackLabel = label,
-                semanticRole = Role.Button,
-                mergeDescendants = true
-            ),
-        color = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-

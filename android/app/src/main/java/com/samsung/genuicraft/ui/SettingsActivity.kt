@@ -751,8 +751,17 @@ private fun SettingsScreen(
                                                         overflow = TextOverflow.Ellipsis
                                                     )
                                                     Text(
+                                                        text = "${entry.quantization} · ${entry.subtitle}",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        maxLines = 2,
+                                                        overflow = TextOverflow.Ellipsis
+                                                    )
+                                                    Text(
                                                         text = if (downloaded) {
                                                             stringResource(id = R.string.settings_on_device_downloaded)
+                                                        } else if (!entry.isDownloadable) {
+                                                            "${stringResource(id = R.string.settings_on_device_sideload_required)} - ${entry.approximateSize}"
                                                         } else {
                                                             "${stringResource(id = R.string.settings_on_device_not_downloaded)} - ${entry.approximateSize}"
                                                         },
@@ -761,7 +770,8 @@ private fun SettingsScreen(
                                                     )
                                                 }
                                                 TextButton(
-                                                    enabled = !isDownloading && (!downloaded || !selected),
+                                                    enabled = !isDownloading && (!downloaded || !selected) &&
+                                                        (downloaded || entry.isDownloadable),
                                                     onClick = {
                                                         if (downloaded) {
                                                             onDeviceModelPath = entry.localPath(context)
@@ -798,6 +808,7 @@ private fun SettingsScreen(
                                                             isDownloading -> stringResource(id = R.string.settings_on_device_downloading)
                                                             downloaded && selected -> stringResource(id = R.string.settings_on_device_selected)
                                                             downloaded -> stringResource(id = R.string.settings_on_device_select)
+                                                            !entry.isDownloadable -> stringResource(id = R.string.settings_on_device_sideload)
                                                             else -> stringResource(id = R.string.settings_on_device_download)
                                                         },
                                                         maxLines = 1

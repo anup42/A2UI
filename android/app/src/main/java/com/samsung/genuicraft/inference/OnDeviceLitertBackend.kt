@@ -7,9 +7,13 @@ import com.google.ai.edge.litertlm.Contents
 import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
+import com.google.ai.edge.litertlm.Message
+import com.google.ai.edge.litertlm.MessageCallback
 import com.google.ai.edge.litertlm.SamplerConfig
 import java.io.File
 import java.util.Locale
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -34,28 +38,50 @@ class OnDeviceLitertBackend(
         }
 
         return try {
-            val promptParts = buildPromptParts(request)
-            val maxContextTokens = maxContextTokensFor(promptParts.combinedForEstimates, request.maxOutputTokens)
+            val runtimeProfile = OnDeviceModelCatalog.entryForModelPath(modelPath)
+            val promptParts = buildPromptParts(
+                request,
+                useRawTrainingWrapper = runtimeProfile?.useRawTrainingWrapper == true,
+            )
             val modelFile = File(modelPath.trim())
-            val holder = getOrCreateEngine(modelFile, maxContextTokens, forceCpu = false)
-            val text = try {
-                generateWithEngine(holder, promptParts, request.temperature)
+            val maxContextTokens = maxContextTokensFor(
+                prompt = promptParts.combinedForEstimates,
+                requestedMaxOutputTokens = request.maxOutputTokens,
+                modelMaxContextTokens = runtimeProfile?.maxContextTokens ?: ON_DEVICE_MAX_CONTEXT_TOKENS,
+                modelMaxOutputTokens = runtimeProfile?.maxOutputTokens ?: ON_DEVICE_MAX_OUTPUT_TOKENS,
+            )
+            val requireGpu = runtimeProfile?.requireGpu == true
+            val holder = getOrCreateEngine(
+                modelFile = modelFile,
+                maxContextTokens = maxContextTokens,
+                forceCpu = false,
+                requireGpu = requireGpu,
+            )
+            val generation = try {
+                generateWithEngine(holder, promptParts, request.temperature, request.onStreamUpdate)
             } catch (gpuFailure: Throwable) {
-                if (holder.backendName != BACKEND_GPU) {
+                if (holder.backendName != BACKEND_GPU || requireGpu) {
                     throw gpuFailure
                 }
                 Log.w(LOG_TAG, "LiteRT GPU generation failed; retrying on CPU: ${gpuFailure.message}")
                 closeCachedEngine()
-                val cpuHolder = getOrCreateEngine(modelFile, maxContextTokens, forceCpu = true)
-                generateWithEngine(cpuHolder, promptParts, request.temperature)
+                val cpuHolder = getOrCreateEngine(
+                    modelFile = modelFile,
+                    maxContextTokens = maxContextTokens,
+                    forceCpu = true,
+                    requireGpu = false,
+                )
+                generateWithEngine(cpuHolder, promptParts, request.temperature, request.onStreamUpdate)
             }
             InferenceBackend.GenerateResponse(
-                text = text,
-                rawResponse = text,
+                text = generation.text,
+                rawResponse = generation.text,
                 error = null,
                 streamDurationMs = System.currentTimeMillis() - startMs,
-                inputTokens = estimateTokens(promptParts.combinedForEstimates),
-                outputTokens = estimateTokens(text)
+                inputTokens = generation.inputTokens ?: estimateTokens(promptParts.combinedForEstimates),
+                outputTokens = generation.outputTokens,
+                outputTokensPerSecond = generation.outputTokensPerSecond,
+                runtimeBackend = generation.backendName
             )
         } catch (t: Throwable) {
             InferenceBackend.GenerateResponse(
@@ -120,9 +146,23 @@ class OnDeviceLitertBackend(
             get() = if (system.isNullOrBlank()) user else "$system\n\n$user"
     }
 
-    private fun buildPromptParts(request: InferenceBackend.GenerateRequest): PromptParts {
+    private fun buildPromptParts(
+        request: InferenceBackend.GenerateRequest,
+        useRawTrainingWrapper: Boolean = false,
+    ): PromptParts {
         val system = request.systemPrompt?.trim().orEmpty()
         val user = request.prompt.trim()
+        if (useRawTrainingWrapper) {
+            val combined = if (request.localSendSystemPrompt && system.isNotBlank()) {
+                "$system\n\n$user"
+            } else {
+                user
+            }
+            return PromptParts(
+                system = null,
+                user = "<|im_start|>user\n$combined\n<|im_start|>assistant\n",
+            )
+        }
         return if (request.localSendSystemPrompt && system.isNotBlank()) {
             PromptParts(system = system, user = user)
         } else {
@@ -134,36 +174,179 @@ class OnDeviceLitertBackend(
         holder: EngineHolder,
         promptParts: PromptParts,
         temperature: Double,
-    ): String {
+        onStreamUpdate: ((InferenceBackend.StreamUpdate) -> Unit)?,
+    ): GenerationOutput {
         val startedAt = System.currentTimeMillis()
         Log.i(
             LOG_TAG,
             "LiteRT IR generation start backend=${holder.backendName} context=${holder.maxContextTokens} " +
                 "inputTokensApprox=${estimateTokens(promptParts.combinedForEstimates)}"
         )
+        val deterministic = temperature <= 0.0
         val conversationConfig = ConversationConfig(
             systemInstruction = promptParts.system?.let { Contents.of(it) },
             samplerConfig = SamplerConfig(
                 temperature = temperature,
-                topK = 32,
-                topP = 0.9
+                topK = if (deterministic) 1 else 32,
+                topP = if (deterministic) 1.0 else 0.9,
             )
         )
-        val response = holder.engine.createConversation(conversationConfig).use { conversation ->
-            conversation.sendMessage(promptParts.user)
-        }
-        val text = response.contents.contents.joinToString(separator = "") { content ->
-            when (content) {
-                is Content.Text -> content.text
-                else -> content.toString()
+        onStreamUpdate?.invoke(
+            InferenceBackend.StreamUpdate(
+                text = "",
+                outputTokens = 0,
+                outputTokensPerSecond = null,
+                runtimeBackend = holder.backendName,
+                metricsAreEstimated = true,
+                complete = false,
+            )
+        )
+        val generation = holder.engine.createConversation(conversationConfig).use { conversation ->
+            val done = CountDownLatch(1)
+            val failure = AtomicReference<Throwable?>(null)
+            val textLock = Any()
+            var streamedText = ""
+            var firstTokenAtMs: Long? = null
+            var lastUiUpdateAtMs = 0L
+
+            conversation.sendMessageAsync(
+                promptParts.user,
+                object : MessageCallback {
+                    override fun onMessage(message: Message) {
+                        val chunk = messageText(message)
+                        if (chunk.isEmpty()) {
+                            return
+                        }
+                        val nowMs = System.currentTimeMillis()
+                        val snapshot = synchronized(textLock) {
+                            streamedText = mergeLiteRtStreamText(streamedText, chunk)
+                            streamedText
+                        }
+                        if (firstTokenAtMs == null) {
+                            firstTokenAtMs = nowMs
+                        }
+                        if (lastUiUpdateAtMs == 0L || nowMs - lastUiUpdateAtMs >= STREAM_UI_INTERVAL_MS) {
+                            lastUiUpdateAtMs = nowMs
+                            val tokenCount = estimateTokens(snapshot)
+                            onStreamUpdate?.invoke(
+                                InferenceBackend.StreamUpdate(
+                                    text = snapshot,
+                                    outputTokens = tokenCount,
+                                    outputTokensPerSecond = estimatedDecodeRate(
+                                        outputTokens = tokenCount,
+                                        firstTokenAtMs = firstTokenAtMs,
+                                        nowMs = nowMs,
+                                    ),
+                                    runtimeBackend = holder.backendName,
+                                    metricsAreEstimated = true,
+                                    complete = false,
+                                )
+                            )
+                        }
+                    }
+
+                    override fun onDone() {
+                        done.countDown()
+                    }
+
+                    override fun onError(throwable: Throwable) {
+                        failure.set(throwable)
+                        done.countDown()
+                    }
+                }
+            )
+            done.await()
+            failure.get()?.let { throw it }
+
+            val text = synchronized(textLock) { streamedText }.trim()
+            val benchmark = readBenchmarkSnapshot(conversation)
+            val benchmarkOutputTokens = benchmark?.outputTokens?.takeIf { it > 0 }
+            val outputTokens = benchmarkOutputTokens ?: estimateTokens(text)
+            val benchmarkRate = benchmark?.outputTokensPerSecond
+                ?.takeIf { it.isFinite() && it > 0.0 }
+            val outputTokensPerSecond = benchmarkRate ?: run {
+                val elapsedMs = (System.currentTimeMillis() - (firstTokenAtMs ?: startedAt)).coerceAtLeast(1L)
+                outputTokens * 1000.0 / elapsedMs
             }
-        }.trim()
+            onStreamUpdate?.invoke(
+                InferenceBackend.StreamUpdate(
+                    text = text,
+                    outputTokens = outputTokens,
+                    outputTokensPerSecond = outputTokensPerSecond,
+                    runtimeBackend = holder.backendName,
+                    metricsAreEstimated = benchmarkOutputTokens == null || benchmarkRate == null,
+                    complete = true,
+                )
+            )
+            GenerationOutput(
+                text = text,
+                inputTokens = benchmark?.inputTokens?.takeIf { it > 0 },
+                outputTokens = outputTokens,
+                outputTokensPerSecond = outputTokensPerSecond,
+                backendName = holder.backendName,
+            )
+        }
         Log.i(
             LOG_TAG,
             "LiteRT IR generation complete backend=${holder.backendName} elapsedMs=${System.currentTimeMillis() - startedAt} " +
-                "outputTokensApprox=${estimateTokens(text)}"
+                "outputTokens=${generation.outputTokens} decodeTokensPerSecond=${generation.outputTokensPerSecond}"
         )
-        return text
+        return generation
+    }
+
+    private fun messageText(message: Message): String {
+        return message.contents.contents.joinToString(separator = "") { content ->
+            when (content) {
+                is Content.Text -> content.text
+                else -> ""
+            }
+        }
+    }
+
+    private fun estimatedDecodeRate(
+        outputTokens: Int,
+        firstTokenAtMs: Long?,
+        nowMs: Long,
+    ): Double? {
+        val firstMs = firstTokenAtMs ?: return null
+        val elapsedMs = nowMs - firstMs
+        if (outputTokens <= 0 || elapsedMs < MIN_RATE_SAMPLE_MS) {
+            return null
+        }
+        return outputTokens * 1000.0 / elapsedMs
+    }
+
+    private data class GenerationOutput(
+        val text: String,
+        val inputTokens: Int?,
+        val outputTokens: Int,
+        val outputTokensPerSecond: Double,
+        val backendName: String,
+    )
+
+    private data class BenchmarkSnapshot(
+        val inputTokens: Int,
+        val outputTokens: Int,
+        val outputTokensPerSecond: Double,
+    )
+
+    /**
+     * LiteRT 0.14 exposes these getters in bytecode but hides them from Kotlin source metadata.
+     * Reflection keeps this backend compatible until the public Kotlin API exposes the values.
+     */
+    private fun readBenchmarkSnapshot(conversation: Any): BenchmarkSnapshot? {
+        return runCatching {
+            val benchmark = conversation.javaClass
+                .getMethod("getBenchmarkInfo")
+                .invoke(conversation)
+            val benchmarkClass = benchmark.javaClass
+            BenchmarkSnapshot(
+                inputTokens = (benchmarkClass.getMethod("getLastPrefillTokenCount").invoke(benchmark) as Number).toInt(),
+                outputTokens = (benchmarkClass.getMethod("getLastDecodeTokenCount").invoke(benchmark) as Number).toInt(),
+                outputTokensPerSecond =
+                    (benchmarkClass.getMethod("getLastDecodeTokensPerSecond").invoke(benchmark) as Number).toDouble(),
+            )
+        }.getOrNull()
     }
 
     private fun estimateTokens(text: String): Int {
@@ -173,15 +356,25 @@ class OnDeviceLitertBackend(
         return max(1, (text.length / 4.0).roundToInt())
     }
 
-    private fun maxContextTokensFor(prompt: String, maxOutputTokens: Int): Int {
-        val estimatedTotal = estimateTokens(prompt) + min(maxOutputTokens, ON_DEVICE_MAX_OUTPUT_TOKENS) + 256
-        return estimatedTotal.coerceIn(ON_DEVICE_MIN_CONTEXT_TOKENS, ON_DEVICE_MAX_CONTEXT_TOKENS)
+    private fun maxContextTokensFor(
+        prompt: String,
+        requestedMaxOutputTokens: Int,
+        modelMaxContextTokens: Int,
+        modelMaxOutputTokens: Int,
+    ): Int {
+        val contextLimit = modelMaxContextTokens.coerceAtLeast(1_024)
+        val outputLimit = min(requestedMaxOutputTokens, modelMaxOutputTokens)
+        val estimatedTotal = estimateTokens(prompt) + outputLimit + 256
+        val minimum = min(ON_DEVICE_MIN_CONTEXT_TOKENS, contextLimit)
+        return estimatedTotal.coerceIn(minimum, contextLimit)
     }
 
     private companion object {
         private const val LOG_TAG = "OnDeviceLitertBackend"
         private const val BACKEND_GPU = "GPU"
         private const val BACKEND_CPU = "CPU"
+        private const val STREAM_UI_INTERVAL_MS = 80L
+        private const val MIN_RATE_SAMPLE_MS = 100L
         private const val ON_DEVICE_MIN_CONTEXT_TOKENS = 8192
         private const val ON_DEVICE_MAX_CONTEXT_TOKENS = 12288
         private const val ON_DEVICE_MAX_OUTPUT_TOKENS = 4096
@@ -201,13 +394,15 @@ class OnDeviceLitertBackend(
             modelFile: File,
             maxContextTokens: Int,
             forceCpu: Boolean,
+            requireGpu: Boolean,
         ): EngineHolder {
             val canonicalPath = modelFile.canonicalPath
             synchronized(engineLock) {
                 cachedEngine?.let { existing ->
                     val cacheCanServeRequest = cachedPath == canonicalPath &&
                         (cachedMaxContextTokens ?: 0) >= maxContextTokens &&
-                        (!forceCpu || cachedBackendName == BACKEND_CPU)
+                        (!forceCpu || cachedBackendName == BACKEND_CPU) &&
+                        (!requireGpu || cachedBackendName == BACKEND_GPU)
                     if (cacheCanServeRequest) {
                         return existing
                     }
@@ -215,10 +410,11 @@ class OnDeviceLitertBackend(
                 }
                 val cacheDir = cacheDirFor(canonicalPath, modelFile)
 
-                val backendCandidates = if (forceCpu) {
-                    listOf(BACKEND_CPU to cpuBackend())
-                } else {
-                    listOf(BACKEND_GPU to Backend.GPU(), BACKEND_CPU to cpuBackend())
+                val backendCandidates = liteRtBackendOrder(forceCpu, requireGpu).map { backendName ->
+                    when (backendName) {
+                        BACKEND_GPU -> backendName to Backend.GPU()
+                        else -> backendName to cpuBackend()
+                    }
                 }
                 var lastError: Throwable? = null
                 for ((backendName, backend) in backendCandidates) {
@@ -282,5 +478,23 @@ class OnDeviceLitertBackend(
                 mkdirs()
             }.absolutePath
         }
+    }
+}
+
+internal fun liteRtBackendOrder(forceCpu: Boolean, requireGpu: Boolean): List<String> {
+    return when {
+        forceCpu -> listOf("CPU")
+        requireGpu -> listOf("GPU")
+        else -> listOf("GPU", "CPU")
+    }
+}
+
+internal fun mergeLiteRtStreamText(current: String, incoming: String): String {
+    return when {
+        incoming.isEmpty() -> current
+        current.isEmpty() -> incoming
+        incoming == current -> current
+        incoming.startsWith(current) -> incoming
+        else -> current + incoming
     }
 }

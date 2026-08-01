@@ -60,6 +60,40 @@ Valid (flat-spec):
 - For comparison data, emit one compact `Table`; renderer will choose cards or horizontal table based on metadata and columns.
 - Keep IR small: do not duplicate the same fact in summary text, KPI cards, and table rows. If a result table/card list already contains the data, do not add a separate metric summary above it.
 
+## Deterministic 32-intent recipes
+- Information Retrieval -> one fact Card, structured `generic` Table, source Buttons.
+- Entertainment -> `playlist` Table for music; `news` Table for ranked non-music results.
+- product_lookup -> `product` Table with required name and optional image, price, rating, availability, seller, badge, URL.
+- Booking -> `booking` Table with row-local verified actions.
+- weather -> one `weather` Table; Android supplies hero, trend, and day cards.
+- data visualisation -> `bar|column` Chart backed by compact rows plus Table only when exact values matter.
+- Planning -> `schedule` Table; add Checklist only for explicit actionable gates.
+- productivity -> Checklist plus `status` Table for progress.
+- Recipe -> compact hero, ingredient Table, instruction Tabs; no detached gallery.
+- Localization -> `comparison` Table preserving locale-specific values and units.
+- Technical support -> Checklist/`status` Table; separate CodeBlock commands and ConsoleLog output.
+- Creating Writing -> Card/Text with minimal framing and no invented actions.
+- Event Schedule -> one `schedule` Table rendered as timeline cards.
+- Research Analysis -> `comparison` Table plus findings/limitations Cards and real source actions.
+- Comparison -> one `comparison` Table with declared primary column.
+- calculation -> Formula plus `formula` variables and breakdown Tables.
+- Travel -> one `schedule` itinerary Table with row-attached verified media.
+- Navigation -> one `schedule` route Table with row-local map actions.
+- Education -> study `schedule` Table plus required-learning Checklist.
+- Documentation -> concise Text, API Table, CodeBlock examples.
+- media playback -> Video/AudioPlayer poster plus external open only; never claim inline playback.
+- qr scanner -> Alert plus `status` workflow Table; camera capture/barcode recognition are outside renderer scope.
+- status check -> current Alert plus `status` component Table.
+- notification -> Alert with title/message/tone/timestamp/source and optional child actions.
+- Finance -> Formula plus `comparison` Table; preserve values and do not generate financial advice.
+- Healthcare -> presentation-only Checklist/Alert with source and disclaimer; never generate diagnosis, advice, or conclusions.
+- Legal -> presentation-only Checklist/Alert with sources and disclaimer; never generate legal advice or conclusions.
+- Real Estate -> `comparison` Table with verified listing actions and product-style media.
+- Career -> application Checklist plus role Card; EmailPreview only for source-provided drafts.
+- Food and Dining -> `restaurants` Table with row-local actions.
+- Home Services -> `booking` Table plus scoped service Checklist.
+- Automotive -> `product`/`comparison` Table plus service-status Checklist when needed.
+
 ## Asset URL policy
 - If no Assets mapping is provided, preserve media URLs exactly as given.
 - Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
@@ -114,7 +148,7 @@ Allowed dynamic value expressions in props:
     - `[{"key":"column_1","label":"Column 1"}, {"key":"column_2","label":"Column 2"}, ...]`
   - Column keys/labels should be generic and derived from source headers for the current domain (not weather-specific by default).
   - Include metadata:
-    - `domain`: `weather | flight | booking | restaurants | news | playlist | schedule | status | formula | comparison | generic`
+    - `domain`: `weather | flight | booking | restaurants | news | playlist | product | schedule | status | formula | comparison | generic`
     - `preferredPresentation`: `cards | table`
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
@@ -214,7 +248,7 @@ Content:
 - `Table` props:
   - `columns` (required list of `{ "key": "...", "label": "..." }`)
   - `statePath` (preferred, pointer to row array in state) OR `rows` (inline row array)
-  - `domain` optional (`weather|flight|booking|restaurants|news|playlist|schedule|status|formula|comparison|generic`)
+  - `domain` optional (`weather|flight|booking|restaurants|news|playlist|product|schedule|status|formula|comparison|generic`)
   - `preferredPresentation` optional (`cards|table`)
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)
@@ -223,7 +257,9 @@ Content:
   - `title`, `subtitle`, `mood`, `genre` optional for playlist/music table hero metadata
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text
-- `Chart` props: `chartType` optional (`bar`), `columns`, `statePath` OR `rows`, `xKey`, `yKey`, optional `title`, `subtitle`, `yLabel`. Use this for generated charts instead of image placeholders.
+- `Chart` props: `chartType` optional (`bar|column`), `columns`, `statePath` OR `rows`, `xKey`, `yKey`, optional `title`, `subtitle`, `yLabel`. Use this for generated charts instead of image placeholders.
+- `Alert` props: `message` (required), optional `title`, `tone` (`info|success|warning|error`), `timestamp`, `source`, `icon`; actions are child Buttons.
+- `Checklist` props: `title`, `items` (required list of `{label, detail?, state, required?}` where state is `pending|complete|warning|blocked`), optional `disclaimer`, `source`.
 - `Image` props: `url` (required), `fit` optional (`cover|contain`)
 - `Icon` props: `name` (required, icon URL)
 - `Video` props: `url` (required)
@@ -231,7 +267,7 @@ Content:
 - `Divider`
 
 Interactive:
-- `Button` props: `label`, `variant` optional (`primary|borderless`)
+- `Button` props: `label` or compatibility alias `text`, optional `icon`, `variant` (`primary|borderless`)
 - Use element-level `on.press` for button actions.
 - `Tabs` props: `tabs` (required list of `{ "title": "...", "child": "<id>" }`)
 - `Modal` props: `trigger` optional, `content` optional

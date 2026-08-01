@@ -166,9 +166,13 @@ internal object PipelineJsonExtractor {
         if (FlatSpecContract.looksLikeFlatSpec(element)) {
             score += 260
         }
-        val coerce = FlatSpecContract.coerceAndValidate(element)
-        if (coerce.isValid) {
-            val spec = coerce.spec
+        val ingest = FlatSpecIngestor.ingest(element, FlatSpecIngestMode.STRICT)
+        val spec = when (ingest) {
+            is FlatSpecIngestResult.CanonicalFlatSpec -> ingest.canonicalJson
+            is FlatSpecIngestResult.GenuineLegacyPayload -> ingest.migratedFlatSpec
+            is FlatSpecIngestResult.RejectedPayload -> null
+        }
+        if (spec != null) {
             val elements = spec?.getAsJsonObject("elements")
             val size = elements?.size() ?: 0
             score += 400
@@ -181,7 +185,7 @@ internal object PipelineJsonExtractor {
                 score += 60
             }
         } else {
-            val normalized = FlatSpecContract.normalizeToFlatSpec(element)
+            val normalized = FlatSpecContract.normalizeToFlatSpec(element, compatibilityHeaderInference = false)
             if (normalized.spec != null) {
                 score += 160
             } else if (element.isJsonArray) {

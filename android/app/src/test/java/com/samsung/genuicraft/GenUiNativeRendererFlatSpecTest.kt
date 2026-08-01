@@ -9,6 +9,9 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
 
 class GenUiNativeRendererFlatSpecTest {
 
@@ -49,7 +52,7 @@ class GenUiNativeRendererFlatSpecTest {
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
-        assertTrue(result.warnings.isEmpty())
+        assertTrue(result.warnings.none { it.contains("invalid", ignoreCase = true) })
         val surface = result.surfaces.single()
         val spec = surface.flatSpec
         assertNotNull(spec)
@@ -160,7 +163,7 @@ class GenUiNativeRendererFlatSpecTest {
     }
 
     @Test
-    fun render_bridgesStackTextHeavyFallbackPayloadForHistoricalData() {
+    fun render_keepsValidTextHeavyFlatSpecOnTheCanonicalRenderer() {
         val payload = """
             {
               "root": "root",
@@ -180,10 +183,8 @@ class GenUiNativeRendererFlatSpecTest {
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
-        assertNull(result.surfaces.single().flatSpec)
-        assertFalse(result.surfaces.single().components.isEmpty())
-        assertTrue(
-            result.warnings.any { it.contains("text-heavy fallback content", ignoreCase = true) }
-        )
+        assertNotNull(result.surfaces.single().flatSpec)
+        assertTrue(result.surfaces.single().components.isEmpty())
+        assertTrue(result.warnings.none { it.contains("legacy", ignoreCase = true) })
     }
 }

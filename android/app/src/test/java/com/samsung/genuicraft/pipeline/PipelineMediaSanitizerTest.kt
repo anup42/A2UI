@@ -3,6 +3,9 @@ package com.samsung.genuicraft.pipeline
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.samsung.genuicraft.renderer.flat.parse.*
+import com.samsung.genuicraft.renderer.flat.expr.*
+import com.samsung.genuicraft.renderer.flat.runtime.*
 
 class PipelineMediaSanitizerTest {
     @Test

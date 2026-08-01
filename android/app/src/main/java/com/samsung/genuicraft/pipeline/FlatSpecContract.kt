@@ -3,8 +3,10 @@ package com.samsung.genuicraft.pipeline
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.samsung.genuicraft.renderer.flat.capability.GeneratedRendererCapabilities
 import com.samsung.genuicraft.security.SafeContentPolicy
 import java.util.Locale
+import com.samsung.genuicraft.renderer.flat.legacy.*
 
 internal object FlatSpecContract {
 
@@ -48,36 +50,9 @@ internal object FlatSpecContract {
         val isValid: Boolean get() = spec != null && error == null
     }
 
-    private val allowedTypes = setOf(
-        "stack",
-        "list",
-        "card",
-        "table",
-        "chart",
-        "formula",
-        "code",
-        "codeblock",
-        "consolelog",
-        "console",
-        "terminal",
-        "text",
-        "emailpreview",
-        "image",
-        "icon",
-        "video",
-        "audioplayer",
-        "divider",
-        "button",
-        "tabs",
-        "modal",
-        "textfield",
-        "checkbox",
-        "choicepicker",
-        "slider",
-        "datetimeinput"
-    )
-    private val cardFirstTableDomains = setOf("weather", "flight", "booking", "schedule", "status")
-    private val supportedTableDomains = cardFirstTableDomains + setOf("generic", "comparison", "formula")
+    private val allowedTypes = GeneratedRendererCapabilities.typeAliases.keys
+    private val cardFirstTableDomains = GeneratedRendererCapabilities.cardFirstTableDomains
+    private val supportedTableDomains = GeneratedRendererCapabilities.tableDomains
 
     fun looksLikeFlatSpec(json: JsonElement?): Boolean {
         if (json == null || !json.isJsonObject) return false
@@ -85,11 +60,14 @@ internal object FlatSpecContract {
         return obj.has("root") && obj.has("elements")
     }
 
-    fun coerceAndValidate(json: JsonElement?): CoerceResult {
+    fun coerceAndValidate(
+        json: JsonElement?,
+        compatibilityHeaderInference: Boolean = false
+    ): CoerceResult {
         if (json == null) {
             return CoerceResult(spec = null, convertedFromLegacy = false, error = "Stage 3 output is null.")
         }
-        val normalized = normalizeToFlatSpec(json)
+        val normalized = normalizeToFlatSpec(json, compatibilityHeaderInference)
         val spec = normalized.spec ?: return CoerceResult(
             spec = null,
             convertedFromLegacy = normalized.convertedFromLegacy,
@@ -116,9 +94,12 @@ internal object FlatSpecContract {
         )
     }
 
-    fun normalizeToFlatSpec(json: JsonElement): NormalizeResult {
+    fun normalizeToFlatSpec(
+        json: JsonElement,
+        compatibilityHeaderInference: Boolean = false
+    ): NormalizeResult {
         if (looksLikeFlatSpec(json)) {
-            val canonical = canonicalizeFlatSpec(json.asJsonObject)
+            val canonical = canonicalizeFlatSpec(json.asJsonObject, compatibilityHeaderInference)
             return NormalizeResult(
                 spec = canonical.spec,
                 convertedFromLegacy = false,
@@ -130,7 +111,7 @@ internal object FlatSpecContract {
         val unwrapped = unwrapKnownContainers(json)
         if (unwrapped != null) {
             if (looksLikeFlatSpec(unwrapped)) {
-                val canonical = canonicalizeFlatSpec(unwrapped.asJsonObject)
+                val canonical = canonicalizeFlatSpec(unwrapped.asJsonObject, compatibilityHeaderInference)
                 return NormalizeResult(
                     spec = canonical.spec,
                     convertedFromLegacy = true,
@@ -141,7 +122,7 @@ internal object FlatSpecContract {
             if (unwrapped.isJsonArray) {
                 val converted = convertLegacyMessages(unwrapped.asJsonArray)
                 return if (converted != null) {
-                    val canonical = canonicalizeFlatSpec(converted)
+                    val canonical = canonicalizeFlatSpec(converted, compatibilityHeaderInference)
                     NormalizeResult(
                         spec = canonical.spec,
                         convertedFromLegacy = true,
@@ -159,7 +140,7 @@ internal object FlatSpecContract {
             if (unwrapped.isJsonObject) {
                 val converted = convertLegacyMessages(JsonArray().apply { add(unwrapped) })
                 if (converted != null) {
-                    val canonical = canonicalizeFlatSpec(converted)
+                    val canonical = canonicalizeFlatSpec(converted, compatibilityHeaderInference)
                     return NormalizeResult(
                         spec = canonical.spec,
                         convertedFromLegacy = true,
@@ -173,7 +154,7 @@ internal object FlatSpecContract {
         if (json.isJsonArray) {
             val converted = convertLegacyMessages(json.asJsonArray)
             return if (converted != null) {
-                val canonical = canonicalizeFlatSpec(converted)
+                val canonical = canonicalizeFlatSpec(converted, compatibilityHeaderInference)
                 NormalizeResult(
                     spec = canonical.spec,
                     convertedFromLegacy = true,
@@ -192,7 +173,7 @@ internal object FlatSpecContract {
         if (json.isJsonObject) {
             val converted = convertLegacyMessages(JsonArray().apply { add(json) })
             if (converted != null) {
-                val canonical = canonicalizeFlatSpec(converted)
+                val canonical = canonicalizeFlatSpec(converted, compatibilityHeaderInference)
                 return NormalizeResult(
                     spec = canonical.spec,
                     convertedFromLegacy = true,
@@ -385,15 +366,48 @@ internal object FlatSpecContract {
         if (action == null || !action.isJsonPrimitive || !action.asJsonPrimitive.isString || action.asString.isBlank()) {
             return "$context action must be a non-empty string."
         }
+        val unsupportedKeys = obj.entrySet().map { it.key }.toSet() - setOf("action", "params")
+        if (unsupportedKeys.isNotEmpty()) {
+            return "$context contains unsupported action fields ${unsupportedKeys.sorted()}."
+        }
+        val actionKey = action.asString.trim().lowercase(Locale.US)
+        if (actionKey !in GeneratedRendererCapabilities.actionRuntimeKeys) {
+            return "$context uses unsupported action '${action.asString}'. Supported: ${GeneratedRendererCapabilities.actionNames.sorted()}."
+        }
         val params = obj.get("params")
         if (params != null && !params.isJsonNull && !params.isJsonObject) {
             return "$context params must be an object when present."
         }
-        if (action.asString.equals("openUrl", ignoreCase = true) && params != null && params.isJsonObject) {
-            val paramsObject = params.asJsonObject
+        val paramsObject = params?.takeIf { it.isJsonObject }?.asJsonObject ?: JsonObject()
+        val missingRequired = GeneratedRendererCapabilities.actionRequired[actionKey]
+            .orEmpty()
+            .filterNot(paramsObject::has)
+        if (missingRequired.isNotEmpty()) {
+            return "$context action '${action.asString}' requires params ${missingRequired.sorted()}."
+        }
+        GeneratedRendererCapabilities.actionRequiredAny[actionKey].orEmpty().forEach { alternatives ->
+            val hasAlternative = alternatives.any { key ->
+                val value = paramsObject.get(key)
+                value != null && !value.isJsonNull &&
+                    (!value.isJsonPrimitive || !value.asJsonPrimitive.isString || value.asString.isNotBlank())
+            }
+            if (!hasAlternative) {
+                return "$context action '${action.asString}' requires one of params ${alternatives.sorted()}."
+            }
+        }
+        if (actionKey in GeneratedRendererCapabilities.safeUrlActions) {
             val url = firstStringProp(paramsObject, "url", "href", "link", "targetUrl")
             if (url != null && SafeContentPolicy.sanitizeActionUrl(url) == null) {
                 return "$context openUrl contains unsafe URL."
+            }
+        }
+        if (actionKey == "removestate") {
+            val index = paramsObject.get("index")
+            val numericIndex = index
+                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }
+                ?.asDouble
+            if (numericIndex == null || numericIndex < 0.0 || numericIndex % 1.0 != 0.0) {
+                return "$context removeState params.index must be a non-negative integer."
             }
         }
         return null
@@ -412,10 +426,23 @@ internal object FlatSpecContract {
         id: String
     ): String? {
         if (type.equals("image", ignoreCase = true)) {
-            return null
+            val imageUrl = firstStringProp(props, "url", "src", "image", "source", "name")
+            if (imageUrl != null && !SafeContentPolicy.isSafeMediaUrl(imageUrl, SafeContentPolicy.MediaKind.IMAGE)) {
+                return if (SafeContentPolicy.isIconOnlyMediaUrl(imageUrl)) {
+                    "Element '$id' Image source points to icon/vector media. Use Icon instead of Image."
+                } else {
+                    "Element '$id' Image source is not allowed by the safe media policy."
+                }
+            }
         }
         if (type.equals("icon", ignoreCase = true)) {
-            return null
+            val iconUrl = firstStringProp(props, "name", "icon", "source", "url", "src")
+            if (iconUrl != null &&
+                (SafeContentPolicy.looksLikeUrl(iconUrl) || SafeContentPolicy.isLocalAssetUrl(iconUrl)) &&
+                !SafeContentPolicy.isSafeMediaUrl(iconUrl, SafeContentPolicy.MediaKind.ICON)
+            ) {
+                return "Element '$id' Icon source is not allowed by the safe media policy."
+            }
         }
         if (type.equals("video", ignoreCase = true)) {
             val videoUrl = firstStringProp(props, "url", "src", "source")
@@ -430,7 +457,7 @@ internal object FlatSpecContract {
             }
         }
         if (type.equals("table", ignoreCase = true)) {
-            return null
+            return validateTableImageColumns(props, state, id)
         }
         return null
     }
@@ -705,7 +732,10 @@ internal object FlatSpecContract {
         val columns: Int
     )
 
-    private fun canonicalizeFlatSpec(raw: JsonObject): CanonicalizationResult {
+    private fun canonicalizeFlatSpec(
+        raw: JsonObject,
+        compatibilityHeaderInference: Boolean
+    ): CanonicalizationResult {
         val rewrites = mutableListOf<String>()
         val stats = CanonicalizationStats()
         val root = raw.get("root")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
@@ -754,7 +784,8 @@ internal object FlatSpecContract {
         )
         applyTableDomainDefaults(
             elements = canonicalElements,
-            rewrites = rewrites
+            rewrites = rewrites,
+            compatibilityHeaderInference = compatibilityHeaderInference
         )
         alignTableColumnsWithRows(
             elements = canonicalElements,
@@ -779,7 +810,8 @@ internal object FlatSpecContract {
         val tableDiagnostics = buildTableDiagnostics(
             spec = spec,
             rewrites = rewrites,
-            stats = stats
+            stats = stats,
+            compatibilityHeaderInference = compatibilityHeaderInference
         )
         return CanonicalizationResult(
             spec = spec,
@@ -1025,27 +1057,28 @@ internal object FlatSpecContract {
 
     private fun applyTableDomainDefaults(
         elements: JsonObject,
-        rewrites: MutableList<String>
+        rewrites: MutableList<String>,
+        compatibilityHeaderInference: Boolean
     ) {
         elements.entrySet()
-            .mapNotNull { (elementId, _) -> detectTableCandidate(elementId, elements, JsonObject()) }
+            .mapNotNull { (elementId, _) ->
+                detectTableCandidate(elementId, elements, JsonObject(), compatibilityHeaderInference)
+            }
             .forEach { candidate ->
                 val tableElement = elements.get(candidate.tableElementId)?.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
                 val props = tableElement.get("props")?.takeIf { it.isJsonObject }?.asJsonObject ?: JsonObject().also {
                     tableElement.add("props", it)
                 }
-                val normalizedDomain = props.get("domain")
+                val rawDomain = props.get("domain")
                     ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
                     ?.asString
-                    ?.trim()
-                    ?.lowercase()
+                val normalizedDomain = normalizeManifestTableDomain(rawDomain)
                 if (normalizedDomain !in supportedTableDomains) {
                     props.addProperty("domain", candidate.domain)
                     rewrites += "Element '${candidate.tableElementId}': set props.domain=${candidate.domain}."
-                } else if (normalizedDomain == "generic" && candidate.domain in cardFirstTableDomains) {
-                    props.addProperty("domain", candidate.domain)
-                    rewrites +=
-                        "Element '${candidate.tableElementId}': rewrote props.domain from generic to ${candidate.domain} based on header signals."
+                } else if (!rawDomain.equals(normalizedDomain, ignoreCase = true)) {
+                    props.addProperty("domain", normalizedDomain)
+                    rewrites += "Element '${candidate.tableElementId}': normalized props.domain to $normalizedDomain."
                 }
                 val normalizedPresentation = props.get("preferredPresentation")
                     ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
@@ -1055,14 +1088,6 @@ internal object FlatSpecContract {
                 if (normalizedPresentation !in setOf("cards", "table")) {
                     props.addProperty("preferredPresentation", candidate.preferredPresentation)
                     rewrites += "Element '${candidate.tableElementId}': set props.preferredPresentation=${candidate.preferredPresentation}."
-                } else if (
-                    normalizedDomain == "generic" &&
-                    candidate.domain in cardFirstTableDomains &&
-                    normalizedPresentation == "table"
-                ) {
-                    props.addProperty("preferredPresentation", "cards")
-                    rewrites +=
-                        "Element '${candidate.tableElementId}': rewrote props.preferredPresentation from table to cards for ${candidate.domain} domain."
                 }
             }
     }
@@ -1252,7 +1277,6 @@ internal object FlatSpecContract {
             ?.lowercase()
             .orEmpty()
         if (normalizedType == "stack") {
-            removed += removeDefaultProp(props, "direction", "vertical")
             removed += removeDefaultProp(props, "gap", "md")
             removed += removeDefaultProp(props, "align", "start")
             removed += removeDefaultProp(props, "justify", "start")
@@ -1334,6 +1358,49 @@ internal object FlatSpecContract {
     ) {
         val props = element.getAsJsonObject("props")
         val children = element.getAsJsonArray("children")
+
+        val rawType = element.get("type")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?.trim()
+            ?.lowercase(Locale.US)
+        val compatibilityDirection = rawType
+            ?.let(GeneratedRendererCapabilities.compatibilityTypeDirections::get)
+        if (rawType != null && compatibilityDirection != null) {
+            element.addProperty("type", "Stack")
+            if (!props.has("direction")) {
+                props.addProperty("direction", compatibilityDirection)
+            }
+            rewrites += "Element '$elementId': normalized compatibility type '$rawType' to Stack/$compatibilityDirection."
+        }
+
+        if (element.get("type")?.asString?.equals("stack", ignoreCase = true) == true) {
+            val spacingTokens = mapOf(
+                "none" to 0,
+                "xs" to 2,
+                "sm" to 4,
+                "md" to 8,
+                "lg" to 12,
+                "xl" to 16
+            )
+            listOf(
+                "padding",
+                "paddingHorizontal",
+                "paddingVertical",
+                "margin",
+                "marginHorizontal",
+                "marginVertical"
+            ).forEach { prop ->
+                val token = props.get(prop)
+                    ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                    ?.asString
+                    ?.trim()
+                    ?.lowercase(Locale.US)
+                val numeric = spacingTokens[token] ?: return@forEach
+                props.addProperty(prop, numeric)
+                rewrites += "Element '$elementId': normalized props.$prop spacing token '$token' to $numeric."
+            }
+        }
 
         if (props.has("repeat")) {
             if (!element.has("repeat")) {
@@ -1517,7 +1584,8 @@ internal object FlatSpecContract {
     private fun buildTableDiagnostics(
         spec: JsonObject,
         rewrites: List<String>,
-        stats: CanonicalizationStats
+        stats: CanonicalizationStats,
+        compatibilityHeaderInference: Boolean
     ): TableDiagnostics {
         val elements = spec.getAsJsonObject("elements") ?: return TableDiagnostics(
             canonicalizationRewrites = rewrites,
@@ -1534,7 +1602,8 @@ internal object FlatSpecContract {
                 detectTableCandidate(
                     tableElementId = elementId,
                     elements = elements,
-                    state = state
+                    state = state,
+                    compatibilityHeaderInference = compatibilityHeaderInference
                 )
             }
             .maxByOrNull { candidate ->
@@ -1596,7 +1665,8 @@ internal object FlatSpecContract {
     private fun detectTableCandidate(
         tableElementId: String,
         elements: JsonObject,
-        state: JsonObject
+        state: JsonObject,
+        compatibilityHeaderInference: Boolean
     ): TableCandidate? {
         val container = elements.get(tableElementId)?.takeIf { it.isJsonObject }?.asJsonObject ?: return null
         val type = container.get("type")
@@ -1612,7 +1682,7 @@ internal object FlatSpecContract {
             val columns = headerLabels.size
             if (columns < 2) return null
             val rows = resolveTableRowCountFromProps(props, state)
-            val intent = inferTableIntent(props, headerLabels)
+            val intent = inferTableIntent(props, headerLabels, compatibilityHeaderInference)
             return TableCandidate(
                 tableElementId = tableElementId,
                 columns = columns,
@@ -1663,7 +1733,7 @@ internal object FlatSpecContract {
         val headerLabels = headerChildren.map { childId ->
             extractTextLabel(elements.get(childId)?.takeIf { it.isJsonObject }?.asJsonObject)
         }
-        val intent = inferTableIntent(props, headerLabels)
+        val intent = inferTableIntent(props, headerLabels, compatibilityHeaderInference)
 
         if (repeatedBodyEntry != null) {
             val bodyElement = repeatedBodyEntry.second
@@ -1718,18 +1788,20 @@ internal object FlatSpecContract {
 
     private fun inferTableIntent(
         props: JsonObject,
-        headerLabels: List<String>
+        headerLabels: List<String>,
+        compatibilityHeaderInference: Boolean
     ): TableIntent {
-        val explicitDomain = props.get("domain")
-            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
-            ?.asString
-            ?.trim()
-            ?.lowercase()
-            ?.takeIf { it in supportedTableDomains }
-        val inferredFromHeaders = inferTableDomainFromHeaders(headerLabels)
+        val explicitDomain = normalizeManifestTableDomain(
+            props.get("domain")
+                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                ?.asString
+        )?.takeIf { it in supportedTableDomains }
+        val inferredFromHeaders = if (compatibilityHeaderInference) {
+            inferTableDomainFromHeaders(headerLabels)
+        } else {
+            "generic"
+        }
         val inferredDomain = when {
-            explicitDomain != null && explicitDomain in cardFirstTableDomains -> explicitDomain
-            explicitDomain == "generic" && inferredFromHeaders in cardFirstTableDomains -> inferredFromHeaders
             explicitDomain != null -> explicitDomain
             else -> inferredFromHeaders
         }
@@ -1741,15 +1813,17 @@ internal object FlatSpecContract {
             ?.takeIf { it in setOf("cards", "table") }
         val preferredPresentation = when {
             explicitPresentation == null -> if (inferredDomain in cardFirstTableDomains) "cards" else "table"
-            explicitDomain == "generic" &&
-                inferredDomain in cardFirstTableDomains &&
-                explicitPresentation == "table" -> "cards"
             else -> explicitPresentation
         }
         return TableIntent(
             domain = inferredDomain,
             preferredPresentation = preferredPresentation
         )
+    }
+
+    private fun normalizeManifestTableDomain(raw: String?): String? {
+        val token = raw?.trim()?.lowercase(Locale.US)?.takeIf { it.isNotBlank() } ?: return null
+        return GeneratedRendererCapabilities.tableDomainAliases[token] ?: token
     }
 
     private fun extractTableColumnLabelsFromProps(props: JsonObject): List<String> {

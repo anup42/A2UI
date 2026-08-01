@@ -14,6 +14,7 @@ from pipeline.genui_quality.aggregate import (
     aggregate_v5_3_records,
 )
 from pipeline.genui_quality.aggregate_v5_4 import aggregate_v5_4_records
+from pipeline.renderer_capability import renderer_coverage
 from pipeline.genui_quality.config import RewardConfig, normalize_metric_mode
 from pipeline.genui_quality.config_v5_3 import RewardConfigV53
 from pipeline.genui_quality.config_v5_4 import RewardConfigV54
@@ -1248,6 +1249,12 @@ def aggregate_metrics(
             row_metrics["content_coverage"] = content_coverage(response_text, genui_json)
             row_metrics["dup_rate"] = dup_rate(genui_json)
             row_metrics["lint_score"] = lint_score(genui_json)
+            # How much of the generated IR the Android renderer actually
+            # consumes. Computed here rather than in flat_spec_contract or
+            # renderer_effective_semantics_v5_4 because those are hashed into
+            # metric_fingerprint_v5_4; metrics.py is not, so this reports
+            # coverage without rotating score identity.
+            row_metrics.update(renderer_coverage(genui_json))
             row_metrics.update(
                 compute_intent_metrics(
                     row.get("intent"),

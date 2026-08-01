@@ -19,12 +19,14 @@ object OnDeviceModelDownloader {
         entry: OnDeviceModelCatalog.Entry,
         onProgress: (Progress) -> Unit
     ): File {
+        val downloadUrl = entry.downloadUrl?.takeIf { it.isNotBlank() }
+            ?: throw IllegalStateException("${entry.displayName} must be installed from a local exported model.")
         val target = entry.localFile(context)
         target.parentFile?.mkdirs()
         val temp = File(target.parentFile, "${entry.fileName}.part")
         if (temp.exists()) temp.delete()
 
-        val connection = (URL(entry.downloadUrl).openConnection() as HttpURLConnection).apply {
+        val connection = (URL(downloadUrl).openConnection() as HttpURLConnection).apply {
             requestMethod = "GET"
             connectTimeout = 15000
             readTimeout = 120000

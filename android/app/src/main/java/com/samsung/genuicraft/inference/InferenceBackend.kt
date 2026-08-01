@@ -22,7 +22,17 @@ interface InferenceBackend {
         val cachedContentName: String? = null,
         val structuredOutput: Boolean = false,
         val localSystemPromptCacheKey: String? = null,
-        val localSendSystemPrompt: Boolean = true
+        val localSendSystemPrompt: Boolean = true,
+        val onStreamUpdate: ((StreamUpdate) -> Unit)? = null
+    )
+
+    data class StreamUpdate(
+        val text: String,
+        val outputTokens: Int?,
+        val outputTokensPerSecond: Double?,
+        val runtimeBackend: String?,
+        val metricsAreEstimated: Boolean,
+        val complete: Boolean
     )
 
     data class GenerateResponse(
@@ -31,7 +41,9 @@ interface InferenceBackend {
         val error: String?,
         val streamDurationMs: Long?,
         val inputTokens: Int? = null,
-        val outputTokens: Int? = null
+        val outputTokens: Int? = null,
+        val outputTokensPerSecond: Double? = null,
+        val runtimeBackend: String? = null
     )
 
     data class HealthCheckResult(

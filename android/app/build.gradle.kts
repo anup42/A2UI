@@ -2,10 +2,13 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    jacoco
 }
 
 import java.util.Properties
+import groovy.json.JsonSlurper
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
@@ -96,10 +99,7 @@ val embeddedGoogleMapsApiKey = resolveSecret(
     "GOOGLE_MAPS_API_KEY",
     "GOOGLE_PLACES_API_KEY",
     "PLACES_API_KEY"
-).ifBlank {
-    // POC default requested for restaurant/place live-data rendering.
-    "AIzaSyBew3zyuEKgDT9ja3FC9dQ-kphqSVT6rIY"
-}
+)
 val embeddedVertexExpressApiKey = resolveSecret(
     "VERTEX_EXPRESS_API_KEY",
     "GEMINI_VERTEX_EXPRESS_API_KEY"
@@ -128,6 +128,129 @@ val embeddedAzureOpenAiDeployment = resolveSecret(
     "AZURE_OPENAI_MODEL"
 ).ifBlank {
     "gpt-5.4-mini"
+}
+
+val rendererCapabilitiesManifest =
+    rootProject.layout.projectDirectory.file("../dataset/schema/renderer_capabilities.json")
+val generatedRendererCapabilitiesDir =
+    layout.buildDirectory.dir("generated/source/rendererCapabilities/main/kotlin")
+val generatedIntentFixturesDir =
+    layout.buildDirectory.dir("generated/assets/intentFixtures")
+
+val generateRendererCapabilities by tasks.registering {
+    group = "build setup"
+    description = "Generates the Android renderer capability contract from the shared v2 manifest."
+    inputs.file(rendererCapabilitiesManifest)
+    outputs.dir(generatedRendererCapabilitiesDir)
+
+    doLast {
+        @Suppress("UNCHECKED_CAST")
+        val manifest = JsonSlurper().parse(rendererCapabilitiesManifest.asFile) as Map<String, Any?>
+        @Suppress("UNCHECKED_CAST")
+        val types = manifest["types"] as List<Map<String, Any?>>
+        @Suppress("UNCHECKED_CAST")
+        val compatibilityAliases =
+            manifest["compatibility_type_aliases"] as Map<String, Map<String, Any?>>
+        @Suppress("UNCHECKED_CAST")
+        val tableDomains = manifest["table_domains"] as Map<String, Any?>
+        @Suppress("UNCHECKED_CAST")
+        val actions = manifest["actions"] as List<Map<String, Any?>>
+        @Suppress("UNCHECKED_CAST")
+        val chartSubtypes = manifest["chart_subtypes"] as Map<String, Any?>
+
+        fun quote(value: Any?): String = "\"" + value.toString()
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"") + "\""
+        fun stringSet(values: Iterable<*>): String = values.joinToString(
+            prefix = "setOf(",
+            postfix = ")"
+        ) { quote(it) }
+        fun stringMap(values: Map<*, *>): String = values.entries.joinToString(
+            prefix = "mapOf(",
+            postfix = ")"
+        ) { (key, value) -> "${quote(key)} to ${quote(value)}" }
+
+        val typeAliases = linkedMapOf<String, String>()
+        val consumedProps = linkedMapOf<String, List<*>>()
+        types.forEach { type ->
+            val runtimeKey = type["runtime_key"].toString()
+            @Suppress("UNCHECKED_CAST")
+            val aliases = type["aliases"] as List<*>
+            aliases.forEach { alias -> typeAliases[alias.toString()] = runtimeKey }
+            @Suppress("UNCHECKED_CAST")
+            val props = type["consumed_props"] as List<*>
+            consumedProps[runtimeKey] = props
+        }
+        val compatibilityDirections = compatibilityAliases.mapValues { (_, value) ->
+            @Suppress("UNCHECKED_CAST")
+            val props = value["props"] as Map<String, Any?>
+            props["direction"].toString()
+        }
+        @Suppress("UNCHECKED_CAST")
+        val domainAliases = tableDomains["aliases"] as Map<String, String>
+        @Suppress("UNCHECKED_CAST")
+        val chartAliases = chartSubtypes["aliases"] as Map<String, String>
+
+        val generated = buildString {
+            appendLine("package com.samsung.genuicraft.renderer.flat.capability")
+            appendLine()
+            appendLine("/** Generated from dataset/schema/renderer_capabilities.json. Do not edit. */")
+            appendLine("internal object GeneratedRendererCapabilities {")
+            appendLine("    const val VERSION: String = ${quote(manifest["version"])}")
+            appendLine("    val canonicalTypes: Set<String> = ${stringSet(types.map { it["canonical"] })}")
+            appendLine("    val runtimeTypes: Set<String> = ${stringSet(types.map { it["runtime_key"] })}")
+            appendLine("    val typeAliases: Map<String, String> = ${stringMap(typeAliases)}")
+            appendLine("    val compatibilityTypeDirections: Map<String, String> = ${stringMap(compatibilityDirections)}")
+            appendLine("    val consumedProps: Map<String, Set<String>> = mapOf(")
+            consumedProps.entries.forEachIndexed { index, (type, props) ->
+                val suffix = if (index == consumedProps.size - 1) "" else ","
+                appendLine("        ${quote(type)} to ${stringSet(props)}$suffix")
+            }
+            appendLine("    )")
+            @Suppress("UNCHECKED_CAST")
+            appendLine("    val tableDomains: Set<String> = ${stringSet(tableDomains["canonical"] as List<*>)}")
+            @Suppress("UNCHECKED_CAST")
+            appendLine("    val cardFirstTableDomains: Set<String> = ${stringSet(tableDomains["card_first"] as List<*>)}")
+            appendLine("    val tableDomainAliases: Map<String, String> = ${stringMap(domainAliases)}")
+            appendLine("    val actionNames: Set<String> = ${stringSet(actions.map { it["name"] })}")
+            appendLine("    val actionRuntimeKeys: Set<String> = ${stringSet(actions.map { it["runtime_key"] })}")
+            appendLine("    val actionRequired: Map<String, Set<String>> = mapOf(")
+            actions.forEachIndexed { index, action ->
+                @Suppress("UNCHECKED_CAST")
+                val required = action["required"] as? List<*> ?: emptyList<Any?>()
+                val suffix = if (index == actions.size - 1) "" else ","
+                appendLine("        ${quote(action["runtime_key"])} to ${stringSet(required)}$suffix")
+            }
+            appendLine("    )")
+            appendLine("    val actionRequiredAny: Map<String, List<Set<String>>> = mapOf(")
+            actions.forEachIndexed { index, action ->
+                @Suppress("UNCHECKED_CAST")
+                val groups = action["required_any"] as? List<List<*>> ?: emptyList()
+                val rendered = groups.joinToString(prefix = "listOf(", postfix = ")") { stringSet(it) }
+                val suffix = if (index == actions.size - 1) "" else ","
+                appendLine("        ${quote(action["runtime_key"])} to $rendered$suffix")
+            }
+            appendLine("    )")
+            appendLine("    val safeUrlActions: Set<String> = ${stringSet(actions.filter { it["safe_url"] == true }.map { it["runtime_key"] })}")
+            @Suppress("UNCHECKED_CAST")
+            appendLine("    val chartSubtypes: Set<String> = ${stringSet(chartSubtypes["canonical"] as List<*>)}")
+            appendLine("    val chartSubtypeAliases: Map<String, String> = ${stringMap(chartAliases)}")
+            appendLine("}")
+        }
+
+        val output = generatedRendererCapabilitiesDir.get().asFile.resolve(
+            "com/samsung/genuicraft/renderer/flat/capability/GeneratedRendererCapabilities.kt"
+        )
+        output.parentFile.mkdirs()
+        output.writeText(generated, Charsets.UTF_8)
+    }
+}
+
+val syncIntentFixtures by tasks.registering(Copy::class) {
+    group = "build setup"
+    description = "Copies the shared 32-intent canonical fixture corpus into Android assets."
+    from(rootProject.file("../dataset/tests/fixtures/intent_flat_specs_v2.json"))
+    into(generatedIntentFixturesDir)
 }
 
 android {
@@ -222,6 +345,9 @@ android {
             )
             buildConfigField("String", "AZURE_OPENAI_DEPLOYMENT_DEFAULT", "\"\"")
         }
+        debug {
+            enableUnitTestCoverage = true
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -240,6 +366,69 @@ android {
         compose = true
         buildConfig = true
     }
+
+    testOptions {
+        unitTests.all {
+            // Forward the routing-golden record flag into the test JVM so
+            // `-DflatRoutingGolden.record=true` works from the command line.
+            System.getProperty("flatRoutingGolden.record")?.let { value ->
+                it.systemProperty("flatRoutingGolden.record", value)
+            }
+        }
+    }
+
+    sourceSets.named("main") {
+        java.srcDir(generatedRendererCapabilitiesDir)
+        assets.srcDir(generatedIntentFixturesDir)
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+val rendererCoverageClasses = files(
+    fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        include("com/samsung/genuicraft/pipeline/FlatSpecContract*")
+        include("com/samsung/genuicraft/pipeline/FlatSpecIngestor*")
+        include("com/samsung/genuicraft/renderer/FlatRendererApi*")
+        include("com/samsung/genuicraft/renderer/FlatSpecRenderer*")
+        include("com/samsung/genuicraft/renderer/flat/**")
+        exclude("**/*ComposableSingletons*")
+    },
+    fileTree(layout.buildDirectory.dir("intermediates/javac/debug/classes")) {
+        include("com/samsung/genuicraft/pipeline/FlatSpecContract*")
+        include("com/samsung/genuicraft/pipeline/FlatSpecIngestor*")
+        include("com/samsung/genuicraft/renderer/FlatRendererApi*")
+        include("com/samsung/genuicraft/renderer/FlatSpecRenderer*")
+        include("com/samsung/genuicraft/renderer/flat/**")
+    }
+)
+
+val rendererCoverageExecutionData = fileTree(layout.buildDirectory) {
+    include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    include("jacoco/testDebugUnitTest.exec")
+}
+
+tasks.register<JacocoReport>("rendererCoverageReport") {
+    group = "verification"
+    description = "Runs renderer unit tests and writes the renderer-focused JaCoCo HTML/XML report."
+    dependsOn("testDebugUnitTest")
+    classDirectories.setFrom(rendererCoverageClasses)
+    sourceDirectories.setFrom(
+        files("src/main/java", generatedRendererCapabilitiesDir)
+    )
+    executionData.setFrom(rendererCoverageExecutionData)
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(generateRendererCapabilities)
+    dependsOn(syncIntentFixtures)
 }
 
 kotlin {
@@ -336,7 +525,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-svg:2.7.0")
-    implementation("com.google.ai.edge.litertlm:litertlm-android:0.12.0")
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.14.0")
 
     debugImplementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
@@ -349,4 +538,6 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

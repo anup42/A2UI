@@ -49,7 +49,17 @@ internal object PipelinePromptBuilder {
         }
     }
 
-    fun prepareStage3PromptContext(template: String): Stage3PromptContext {
+    fun prepareStage3PromptContext(
+        template: String,
+        rawResponseOnly: Boolean = false,
+        rawResponsePrefix: String? = null,
+    ): Stage3PromptContext {
+        if (rawResponseOnly) {
+            return Stage3PromptContext(
+                systemPrompt = null,
+                userTemplate = "${rawResponsePrefix.orEmpty()}{response_text}",
+            )
+        }
         return preparePromptContext(
             template = template,
             placeholder = "{response_text}",
@@ -91,8 +101,15 @@ internal object PipelinePromptBuilder {
         userTemplate: String,
         stage2Response: String,
         catalogId: String,
-        assets: List<AssetMapping>
+        assets: List<AssetMapping>,
+        appendRequestPolicies: Boolean = true,
     ): String {
+        if (!appendRequestPolicies) {
+            return renderPrompt(
+                template = userTemplate,
+                values = mapOf("response_text" to stage2Response.trim()),
+            )
+        }
         val assetPolicy = if (assets.isEmpty()) {
             "Asset URL policy for this request:\n" +
                 "- No local asset mapping is provided.\n" +
@@ -138,5 +155,17 @@ internal object PipelinePromptBuilder {
             rendered = rendered.replace("{$key}", value)
         }
         return rendered
+    }
+
+    fun stripStage3TrainingPromptLeak(
+        responseText: String,
+        trainingPromptPrefix: String?,
+    ): String {
+        val leakedInstruction = trainingPromptPrefix?.trim().orEmpty()
+        return if (leakedInstruction.isBlank()) {
+            responseText
+        } else {
+            responseText.replace(leakedInstruction, "")
+        }
     }
 }

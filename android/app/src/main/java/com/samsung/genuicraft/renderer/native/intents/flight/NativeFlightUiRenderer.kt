@@ -41,7 +41,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.samsung.genuicraft.GenUiCardTone
 import com.samsung.genuicraft.GenUiTokens
@@ -51,6 +50,7 @@ import com.samsung.genuicraft.genUiCardContainerColor
 import com.samsung.genuicraft.renderer.native.FlightRow
 import com.samsung.genuicraft.renderer.native.NativeTextFormatter
 import com.samsung.genuicraft.security.SafeContentPolicy
+import com.samsung.genuicraft.renderer.flat.compose.*
 
 internal object NativeFlightUiRenderer {
     @Composable
@@ -322,11 +322,7 @@ internal object NativeFlightUiRenderer {
         val resolvedLogo = remember(airline, logoUrl) { airlineLogoUrl(airline, logoUrl) }
         var logoFailed by remember(resolvedLogo) { mutableStateOf(false) }
         val context = LocalContext.current
-        val imageLoader = remember(context) {
-            ImageLoader.Builder(context)
-                .components { add(SvgDecoder.Factory()) }
-                .build()
-        }
+        val imageLoader = rememberFlatImageLoader()
         Box(
             modifier = Modifier
                 .size(42.dp)

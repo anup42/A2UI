@@ -19,8 +19,8 @@ from .genui_quality import _core
 from .genui_quality.evidence_v5_2 import resolve_renderer_path_v5_2
 
 
-RENDERER_EFFECTIVE_SEMANTICS_VERSION = "5.4.0"
-COMPONENT_CONTRACT_POLICY_VERSION = "5.4.0"
+RENDERER_EFFECTIVE_SEMANTICS_VERSION = "5.4.1"
+COMPONENT_CONTRACT_POLICY_VERSION = "5.4.1"
 MEDIA_MAX_DEPTH = 5
 
 _ROW_LIST_KEYS = ("cells", "values", "row", "data")
