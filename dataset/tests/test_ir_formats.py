@@ -369,4 +369,7 @@ def test_benchmark_cli_reports_semantic_roundtrip(tmp_path: Path) -> None:
     assert report["corpus_samples_benchmarked"] == 1
     assert report["failures"] == []
     assert all(details["roundtrip_passed"] == 1 for details in report["formats"].values())
-    assert output_csv.read_text(encoding="utf-8").count("\n") >= 2
+    csv_text = output_csv.read_text(encoding="utf-8")
+    assert csv_text.count("\n") >= 2
+    assert str(tmp_path) not in csv_text
+    assert "corpus.json:$.fixtures[0].spec" in csv_text

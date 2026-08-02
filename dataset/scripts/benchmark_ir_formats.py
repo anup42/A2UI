@@ -134,6 +134,15 @@ def _read_corpus(path: Path) -> list[tuple[str, Mapping[str, Any]]]:
     return list(_walk_specs(value))
 
 
+def _portable_source_path(path: Path) -> str:
+    """Keep reports reproducible without disclosing the checkout location."""
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return path.name
+
+
 def _pct(values: list[float], percentile: float) -> float:
     if not values:
         return 0.0
@@ -271,8 +280,9 @@ def main() -> int:
 
     corpus: list[tuple[str, Mapping[str, Any]]] = []
     for input_path in args.inputs or [DEFAULT_CORPUS]:
+        source_path = _portable_source_path(input_path)
         for subpath, spec in _read_corpus(input_path):
-            corpus.append((f"{input_path}:{subpath}", spec))
+            corpus.append((f"{source_path}:{subpath}", spec))
     if not corpus:
         raise SystemExit("No FlatSpec objects were discovered in the supplied corpus")
 
