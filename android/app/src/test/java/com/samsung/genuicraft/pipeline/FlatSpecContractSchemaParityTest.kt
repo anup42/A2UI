@@ -29,7 +29,8 @@ class FlatSpecContractSchemaParityTest {
             "setState",
             "pushState",
             "removeState",
-            "validateForm"
+            "validateForm",
+            "emitEvent"
         )
 
         val INTENTIONALLY_UNSUPPORTED = emptySet<String>()

@@ -273,9 +273,14 @@ internal object FlatSpecContract {
                 if (!child.isJsonPrimitive || !child.asJsonPrimitive.isString) {
                     return ValidationResult(false, "Element '$id' contains a non-string child reference.")
                 }
-                val childId = child.asString
-                if (!ids.contains(childId)) {
-                    return ValidationResult(false, "Element '$id' references missing child '$childId'.")
+            }
+            FlatSpecReferenceSemantics.references(element).forEach { reference ->
+                if (!ids.contains(reference.targetId)) {
+                    val noun = if (reference.kind == "child") "child" else "element"
+                    return ValidationResult(
+                        false,
+                        "Element '$id' references missing $noun '${reference.targetId}' at ${reference.sourcePath}."
+                    )
                 }
             }
 
@@ -327,6 +332,25 @@ internal object FlatSpecContract {
                     }
                 }
             }
+        }
+        val visiting = linkedSetOf<String>()
+        val visited = linkedSetOf<String>()
+        fun visit(elementId: String): String? {
+            if (elementId in visiting) return elementId
+            if (elementId in visited) return null
+            visiting += elementId
+            val element = elements.get(elementId)?.takeIf { it.isJsonObject }?.asJsonObject
+            element?.let {
+                FlatSpecReferenceSemantics.references(it).forEach { reference ->
+                    visit(reference.targetId)?.let { cycle -> return cycle }
+                }
+            }
+            visiting -= elementId
+            visited += elementId
+            return null
+        }
+        visit(root.asString)?.let { cycle ->
+            return ValidationResult(false, "Renderer reference cycle is reachable from root through element '$cycle'.")
         }
         return ValidationResult(true)
     }
@@ -1871,15 +1895,8 @@ internal object FlatSpecContract {
         return if (statePath.isBlank()) 0 else resolveStateArraySize(state, statePath)
     }
 
-    private fun extractChildIds(element: JsonObject): List<String> {
-        return element.get("children")
-            ?.takeIf { it.isJsonArray }
-            ?.asJsonArray
-            ?.mapNotNull { child ->
-                child.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
-            }
-            .orEmpty()
-    }
+    private fun extractChildIds(element: JsonObject): List<String> =
+        FlatSpecReferenceSemantics.references(element).map { it.targetId }
 
     private fun isRowLikeElement(element: JsonObject): Boolean {
         val type = element.get("type")

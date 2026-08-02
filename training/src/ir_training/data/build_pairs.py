@@ -8,8 +8,15 @@ from typing import Any
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.common.jsonl import load_by_key, read_jsonl, write_jsonl
-from ir_training.data.chat_templates import build_messages, build_prompt, minify_json
+from ir_training.data.chat_templates import build_messages, build_prompt
 from ir_training.data.filters import FlatSpecValidator, row_passes_basic_filters
+from ir_training.data.ir_targets import (
+    canonical_flat_spec,
+    materialize_completion_targets,
+    resolve_target_formats,
+    semantic_hash,
+    serialize_completion,
+)
 from ir_training.data.splits import stratified_split
 from ir_training.data.url_preprocess import preprocess_training_urls
 
@@ -49,6 +56,16 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         for row_index, genui in genui_rows:
             response_id = str(genui.get("response_id") or f"{genui_path.stem}:{row_index}")
             response = responses_by_id.get(response_id, {})
+            if genui.get("record_status") == "format_rejected":
+                rejected.append(
+                    {
+                        "response_id": response_id,
+                        "source_path": source_key,
+                        "reason": "format_rejected",
+                        "source_format": genui.get("source_format"),
+                    }
+                )
+                continue
             genui_json = genui.get("genui_json") if genui.get("genui_json") is not None else genui.get("a2ui_json")
             response_text = str(genui.get("response_text") or response.get("response_text") or "")
             if not response_text.strip():
@@ -60,9 +77,21 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     }
                 )
                 continue
+            try:
+                canonical = canonical_flat_spec(genui_json)
+            except (TypeError, ValueError) as exc:
+                rejected.append(
+                    {
+                        "response_id": response_id,
+                        "source_path": source_key,
+                        "reason": f"ir_decode_error:{exc}",
+                        "source_format": genui.get("source_format"),
+                    }
+                )
+                continue
             validation = row_passes_basic_filters(
                 response_text=response_text,
-                genui_json=genui_json,
+                genui_json=canonical,
                 validator=validator,
                 max_input_chars=max_input_chars,
                 max_output_chars=max_output_chars,
@@ -72,15 +101,11 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 continue
             url_processed = preprocess_training_urls(
                 response_text,
-                genui_json,
+                canonical,
                 enabled=url_preprocessing_enabled,
             )
-            completion = minify_json(url_processed.genui_json)
-            dedupe_key = hashlib.sha256((url_processed.response_text + "\n" + completion).encode("utf-8")).hexdigest()
-            if deduplicate and dedupe_key in seen_hashes:
-                rejected.append({"response_id": response_id, "source_path": source_key, "reason": "duplicate_pair"})
-                continue
-            seen_hashes.add(dedupe_key)
+            completion_targets = materialize_completion_targets(url_processed.genui_json)
+            selected_target_formats = resolve_target_formats(run_cfg, genui)
 
             query_id = genui.get("query_id") or response.get("query_id")
             intent = genui.get("intent") or response.get("intent")
@@ -92,51 +117,83 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 or response.get("expected_ui_contract")
             )
             row_id = genui.get("ui_id") or f"u_{response_id}"
-            prompt = build_prompt(system_prompt, url_processed.response_text)
             response_generation = _generation_metadata(response.get("gen"))
             ir_generation = _generation_metadata(genui.get("gen"))
-            accepted.append(
-                {
-                    "id": f"{source_key}:{row_id}",
-                    "response_id": response_id,
-                    "messages": build_messages(system_prompt, url_processed.response_text, url_processed.genui_json),
-                    "prompt": prompt,
-                    "completion": completion,
-                    # Preserve candidate-independent reward columns for an SFT -> GRPO handoff.
-                    "source_id": str(query_id or response_id),
-                    "response_text": url_processed.response_text,
-                    "intent_bucket": intent_bucket,
-                    "assets": assets,
-                    "expected_ui_contract": expected_ui_contract,
-                    "source_model_family": str(
-                        ir_generation.get("model")
-                        or response_generation.get("model")
-                        or "unknown"
-                    ),
-                    "source_created_at": genui.get("created_at") or response.get("created_at"),
-                    "metadata": {
-                        "query_id": query_id,
-                        "ui_id": genui.get("ui_id"),
-                        "intent": intent,
+            for target_format in selected_target_formats:
+                target_payload = completion_targets[target_format]
+                completion = serialize_completion(target_payload, target_format)
+                dedupe_key = hashlib.sha256(
+                    (target_format + "\n" + url_processed.response_text + "\n" + completion).encode("utf-8")
+                ).hexdigest()
+                if deduplicate and dedupe_key in seen_hashes:
+                    rejected.append(
+                        {
+                            "response_id": response_id,
+                            "source_path": source_key,
+                            "reason": "duplicate_pair",
+                            "target_format": target_format,
+                        }
+                    )
+                    continue
+                seen_hashes.add(dedupe_key)
+                prompt = build_prompt(
+                    system_prompt,
+                    url_processed.response_text,
+                    target_format=target_format,
+                )
+                accepted.append(
+                    {
+                        "id": f"{source_key}:{row_id}:{target_format}",
+                        "response_id": response_id,
+                        "messages": build_messages(
+                            system_prompt,
+                            url_processed.response_text,
+                            target_payload,
+                            target_format=target_format,
+                        ),
+                        "prompt": prompt,
+                        "completion": completion,
+                        "completion_targets": completion_targets,
+                        "target_format": target_format,
+                        "source_format": genui.get("source_format") or "flat_spec_v1",
+                        "semantic_hash": semantic_hash(url_processed.genui_json),
+                        # Preserve candidate-independent reward columns for an SFT -> GRPO handoff.
+                        "source_id": str(query_id or response_id),
+                        "response_text": url_processed.response_text,
                         "intent_bucket": intent_bucket,
-                        "tags": tags,
-                        "prompt_version": run_cfg.get("prompt_version"),
-                        "schema_path": run_cfg.get("schema_path"),
-                        "source_path": source_key,
-                        "source_row_index": row_index,
-                        "input_chars": len(url_processed.response_text),
-                        "output_chars": len(completion),
-                        "response_generation": response_generation,
-                        "ir_generation": ir_generation,
-                        "source_generation": ir_generation,
-                        "url_preprocessing": {
-                            "enabled": url_preprocessing_enabled,
-                            "url_map": url_processed.url_map,
-                            "metrics": url_processed.metrics,
+                        "assets": assets,
+                        "expected_ui_contract": expected_ui_contract,
+                        "source_model_family": str(
+                            ir_generation.get("model")
+                            or response_generation.get("model")
+                            or "unknown"
+                        ),
+                        "source_created_at": genui.get("created_at") or response.get("created_at"),
+                        "metadata": {
+                            "query_id": query_id,
+                            "ui_id": genui.get("ui_id"),
+                            "intent": intent,
+                            "intent_bucket": intent_bucket,
+                            "tags": tags,
+                            "prompt_version": run_cfg.get("prompt_version"),
+                            "schema_path": run_cfg.get("schema_path"),
+                            "source_path": source_key,
+                            "source_row_index": row_index,
+                            "target_format": target_format,
+                            "source_format": genui.get("source_format") or "flat_spec_v1",
+                            "input_chars": len(url_processed.response_text),
+                            "output_chars": len(completion),
+                            "response_generation": response_generation,
+                            "ir_generation": ir_generation,
+                            "source_generation": ir_generation,
+                            "url_preprocessing": {
+                                "enabled": url_preprocessing_enabled,
+                                "url_map": url_processed.url_map,
+                                "metrics": url_processed.metrics,
+                            },
                         },
-                    },
-                }
-            )
+                    }
+                )
 
     splits = stratified_split(
         accepted,

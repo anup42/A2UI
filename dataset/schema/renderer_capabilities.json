@@ -191,7 +191,8 @@
     {"name": "setState", "runtime_key": "setstate", "required_any": [["statePath", "path"]], "required": ["value"]},
     {"name": "pushState", "runtime_key": "pushstate", "required_any": [["statePath", "path"]], "required": ["value"], "optional": ["clearStatePath"]},
     {"name": "removeState", "runtime_key": "removestate", "required_any": [["statePath", "path"]], "required": ["index"]},
-    {"name": "validateForm", "runtime_key": "validateform", "optional": ["resultStatePath", "statePath", "path"]}
+    {"name": "validateForm", "runtime_key": "validateform", "optional": ["resultStatePath", "statePath", "path"]},
+    {"name": "emitEvent", "runtime_key": "emitevent", "required": ["name"], "optional": ["context", "wantResponse", "responsePath"]}
   ],
   "chart_subtypes": {
     "canonical": ["bar", "column"],

@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genui.samsung.com/specification/a2ui/v1/agent_to_renderer.json",
+  "title": "GenUICraft A2UI v1 Wire Messages",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/create"
+    },
+    {
+      "$ref": "#/$defs/updateComponents"
+    },
+    {
+      "$ref": "#/$defs/updateDataModel"
+    },
+    {
+      "$ref": "#/$defs/deleteSurface"
+    },
+    {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/create"
+          },
+          {
+            "$ref": "#/$defs/updateComponents"
+          },
+          {
+            "$ref": "#/$defs/updateDataModel"
+          },
+          {
+            "$ref": "#/$defs/deleteSurface"
+          }
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "create": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "createSurface"
+      ],
+      "properties": {
+        "version": {
+          "const": "v1.0"
+        },
+        "createSurface": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "surfaceId"
+          ],
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "catalogId": {
+              "type": "string",
+              "const": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"
+            },
+            "rootId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "components": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "component"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "component": {
+                    "type": "string",
+                    "enum": [
+                      "Alert",
+                      "AudioPlayer",
+                      "Button",
+                      "Card",
+                      "Chart",
+                      "CheckBox",
+                      "Checklist",
+                      "ChoicePicker",
+                      "CodeBlock",
+                      "Column",
+                      "ConsoleLog",
+                      "DateTimeInput",
+                      "Divider",
+                      "EmailPreview",
+                      "Formula",
+                      "Icon",
+                      "Image",
+                      "List",
+                      "Modal",
+                      "Row",
+                      "Slider",
+                      "Stack",
+                      "Table",
+                      "Tabs",
+                      "Text",
+                      "TextField",
+                      "Video"
+                    ]
+                  }
+                }
+              }
+            },
+            "dataModel": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "sendDataModel": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "updateComponents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "updateComponents"
+      ],
+      "properties": {
+        "version": {
+          "const": "v1.0"
+        },
+        "updateComponents": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "surfaceId",
+            "components"
+          ],
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "components": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "component"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "component": {
+                    "type": "string",
+                    "enum": [
+                      "Alert",
+                      "AudioPlayer",
+                      "Button",
+                      "Card",
+                      "Chart",
+                      "CheckBox",
+                      "Checklist",
+                      "ChoicePicker",
+                      "CodeBlock",
+                      "Column",
+                      "ConsoleLog",
+                      "DateTimeInput",
+                      "Divider",
+                      "EmailPreview",
+                      "Formula",
+                      "Icon",
+                      "Image",
+                      "List",
+                      "Modal",
+                      "Row",
+                      "Slider",
+                      "Stack",
+                      "Table",
+                      "Tabs",
+                      "Text",
+                      "TextField",
+                      "Video"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "updateDataModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "updateDataModel"
+      ],
+      "properties": {
+        "version": {
+          "const": "v1.0"
+        },
+        "updateDataModel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "surfaceId",
+            "value"
+          ],
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string"
+            },
+            "value": {}
+          }
+        }
+      }
+    },
+    "deleteSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "deleteSurface"
+      ],
+      "properties": {
+        "version": {
+          "const": "v1.0"
+        },
+        "deleteSurface": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "surfaceId"
+          ],
+          "properties": {
+            "surfaceId": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

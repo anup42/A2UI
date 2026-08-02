@@ -30,7 +30,7 @@
       "properties": {
         "action": {
           "type": "string",
-          "enum": ["openUrl", "setState", "pushState", "removeState", "validateForm"]
+          "enum": ["openUrl", "setState", "pushState", "removeState", "validateForm", "emitEvent"]
         },
         "params": {
           "type": "object",
@@ -74,6 +74,17 @@
               "params": {
                 "required": ["index"],
                 "anyOf": [{"required": ["statePath"]}, {"required": ["path"]}]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"action": {"const": "emitEvent"}}},
+          "then": {
+            "required": ["params"],
+            "properties": {
+              "params": {
+                "required": ["name"]
               }
             }
           }

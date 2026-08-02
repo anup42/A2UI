@@ -95,15 +95,17 @@ def iter_renderer_references(
         _append(out, props.get(key), f"props.{key}", kind)
 
     repeat = element.get("repeat")
+    repeat_path = "repeat"
     if not isinstance(repeat, Mapping):
         repeat_value = props.get("repeat")
         repeat = repeat_value if isinstance(repeat_value, Mapping) else {}
+        repeat_path = "props.repeat"
     for key, kind in (
         ("template", "repeat_template"),
         ("itemTemplate", "repeat_item_template"),
         ("child", "repeat_child"),
     ):
-        _append(out, repeat.get(key), f"repeat.{key}", kind)
+        _append(out, repeat.get(key), f"{repeat_path}.{key}", kind)
 
     element_type = str(element.get("type") or element.get("component") or "").casefold()
     if element_type in {"tabs", "tab", "tabgroup"}:

@@ -404,11 +404,23 @@ internal object FlatActionRuntime {
                     success = true
                 }
 
+                "emitevent" -> {
+                    val eventName = resolvedParams["name"]?.toString()?.trim().orEmpty()
+                    if (eventName.isNotEmpty()) {
+                        // FlatSpecRenderer publishes every successful execution through
+                        // FlatRenderEvent.Kind.ACTION, including the resolved context and
+                        // optional response metadata carried by this action.
+                        success = true
+                    } else {
+                        invalid("Action '$displayName' requires a non-empty event name.")
+                    }
+                }
+
                 else -> onDiagnostic(
                     FlatDiagnostic(
                         code = FlatDiagnostic.Code.UNSUPPORTED_ACTION,
                         severity = FlatDiagnostic.Severity.WARNING,
-                        message = "Unsupported action '$actionName'. Supported: openUrl, setState, pushState, removeState, validateForm.",
+                        message = "Unsupported action '$actionName'. Supported: openUrl, setState, pushState, removeState, validateForm, emitEvent.",
                         elementId = elementId,
                         details = mapOf("action" to actionName)
                     )
@@ -430,6 +442,7 @@ internal object FlatActionRuntime {
         "pushstate" -> "pushState"
         "removestate" -> "removeState"
         "validateform" -> "validateForm"
+        "emitevent" -> "emitEvent"
         else -> actionName
     }
 

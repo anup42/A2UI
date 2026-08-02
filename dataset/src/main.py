@@ -154,7 +154,37 @@ def _count_jsonl_rows(path: Path) -> int:
     return sum(1 for _ in iter_jsonl(path))
 
 
-def _expected_stage3_ui_ids(responses_path: Path, candidates_per_response: int) -> set[str]:
+def _stage3_id_suffixes(ir_formats: object) -> tuple[str, ...]:
+    if ir_formats is None:
+        raw_values = ["compact_ir_v2", "a2ui_express_v1"]
+    elif isinstance(ir_formats, str):
+        raw_values = [part.strip() for part in ir_formats.split(",") if part.strip()]
+    elif isinstance(ir_formats, (list, tuple)):
+        raw_values = [str(part).strip() for part in ir_formats if str(part).strip()]
+    else:
+        raw_values = [str(ir_formats).strip()]
+    aliases = {
+        "compact": "_cir2",
+        "compact_ir": "_cir2",
+        "compact_ir_v2": "_cir2",
+        "gci2": "_cir2",
+        "express": "_exp1",
+        "a2ui_express": "_exp1",
+        "a2ui_express_v1": "_exp1",
+        "legacy": "",
+        "flat": "",
+        "flat_spec": "",
+        "flat_spec_v1": "",
+    }
+    suffixes = tuple(dict.fromkeys(aliases.get(value.lower(), "") for value in raw_values))
+    return suffixes or ("",)
+
+
+def _expected_stage3_ui_ids(
+    responses_path: Path,
+    candidates_per_response: int,
+    ir_formats: object = None,
+) -> set[str]:
     expected: set[str] = set()
     if not responses_path.exists():
         return expected
@@ -170,15 +200,23 @@ def _expected_stage3_ui_ids(responses_path: Path, candidates_per_response: int) 
             n_idx = 1
         suffix = query_id.replace("q_", "")
         for c_idx in range(1, candidate_count + 1):
-            if c_idx == 1:
-                expected.add(f"u_{suffix}_{n_idx:02d}")
-            else:
-                expected.add(f"u_{suffix}_{n_idx:02d}_{c_idx:02d}")
+            base_id = (
+                f"u_{suffix}_{n_idx:02d}"
+                if c_idx == 1
+                else f"u_{suffix}_{n_idx:02d}_{c_idx:02d}"
+            )
+            for format_suffix in _stage3_id_suffixes(ir_formats):
+                expected.add(base_id + format_suffix)
     return expected
 
 
-def _is_stage3_complete(responses_path: Path, genui_path: Path, candidates_per_response: int) -> bool:
-    expected = _expected_stage3_ui_ids(responses_path, candidates_per_response)
+def _is_stage3_complete(
+    responses_path: Path,
+    genui_path: Path,
+    candidates_per_response: int,
+    ir_formats: object = None,
+) -> bool:
+    expected = _expected_stage3_ui_ids(responses_path, candidates_per_response, ir_formats)
     if not expected:
         return False
     if not genui_path.exists():
@@ -844,6 +882,7 @@ def main() -> None:
                 aggregates_path=model_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
                 metric_version=eval_cfg.get("metric_version", "dual"),
+                ir_formats=run_cfg.get("stage3_ir_formats"),
             )
             aggregates[model_name] = _compute_aggregates_with_backfill(
                 model_paths.genui_path,
@@ -880,6 +919,7 @@ def main() -> None:
             run_paths.responses_path,
             run_paths.genui_path,
             stage3_candidates,
+            run_cfg.get("stage3_ir_formats"),
         ):
             if not run_paths.genui_path.exists():
                 raise SystemExit(f"Missing genui file: {run_paths.genui_path}")
@@ -998,6 +1038,7 @@ def main() -> None:
                 aggregates_path=run_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
                 metric_version=eval_cfg.get("metric_version", "dual"),
+                ir_formats=run_cfg.get("stage3_ir_formats"),
             )
             logger.info("Stage3 complete.")
             return

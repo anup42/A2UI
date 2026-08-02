@@ -15,6 +15,7 @@ from ..flat_spec_contract import (
     extract_json_element,
     normalize_to_flat_spec,
 )
+from ..ir_formats import decode_to_flat_spec
 from ._core import completion_to_text
 from .graph import audit_renderer_graph
 
@@ -215,16 +216,29 @@ def _restore_legacy_layout_aliases(
 
 
 def _parse_completion(completion: Any, raw_text: str) -> tuple[Any, bool, str | None]:
+    if not raw_text.strip() and not isinstance(completion, (Mapping, list, tuple)):
+        return None, False, "parse.empty_completion"
+    # All model-facing formats cross the same canonical boundary before metrics.
+    try:
+        candidate: Any = completion
+        if isinstance(completion, tuple):
+            candidate = list(completion)
+        decoded = decode_to_flat_spec(candidate)
+        return decoded.flat_spec, True, None
+    except Exception:
+        pass
     if isinstance(completion, Mapping):
         return dict(completion), True, None
     if isinstance(completion, (list, tuple)):
         return list(completion), True, None
-    if not raw_text.strip():
-        return None, False, "parse.empty_completion"
     try:
-        return extract_json_element(raw_text), True, None
+        parsed = extract_json_element(raw_text)
+        try:
+            return decode_to_flat_spec(parsed).flat_spec, True, None
+        except Exception:
+            return parsed, True, None
     except Exception as exc:
-        return None, False, f"parse.invalid_json:{type(exc).__name__}"
+        return None, False, f"parse.invalid_ir:{type(exc).__name__}"
 
 
 def normalize_and_validate_candidate(

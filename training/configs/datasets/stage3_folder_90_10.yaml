@@ -6,11 +6,12 @@ run:
     - ../dataset/data/runs/dataset_v2/genui.jsonl
     - ../dataset/data/runs/dataset_v3/genui.jsonl
   output_dir: outputs/datasets/stage3_folder_90_10
-  prompt_version: genui_gen_mobile_flatspec_v11
-  schema_path: ../dataset/schema/genui_flatspec.schema.json
+  target_format: compact_ir_v2
+  prompt_version: genui_gen_mobile_compact_ir_v2
+  schema_path: ../dataset/schema/genui_compact_ir_v2.schema.json
   system_prompt: |
-    You convert response text into compact Android flat-spec GenUI IR.
-    Return JSON only with top-level keys root, state, and elements.
+    You convert response text into Compact IR v2 for the Android GenUI renderer.
+    Return JSON only with v, r, optional s, and e.
     Keep tables compact as Table props plus state rows. Do not output markdown fences or prose.
 filters:
   require_strict_flat_spec: true

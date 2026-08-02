@@ -102,6 +102,7 @@ internal object PipelinePromptBuilder {
         stage2Response: String,
         catalogId: String,
         assets: List<AssetMapping>,
+        outputFormat: GenUiIrFormat = GenUiIrFormat.COMPACT_IR_V2,
         appendRequestPolicies: Boolean = true,
     ): String {
         if (!appendRequestPolicies) {
@@ -131,14 +132,20 @@ internal object PipelinePromptBuilder {
             "Assets (local copies of any URLs in the response; use ONLY these local paths):\n$rows"
         }
 
-        val formatPolicy = "Flat-spec policy for this request:\n" +
-            "- Return ONE JSON object with keys: root, elements, and optional state.\n" +
-            "- `root` must be a non-empty string and must exist as a key in `elements`.\n" +
-            "- `elements` must be a non-empty object (at least 2 elements: root container + content).\n" +
-            "- Every element must include `type`, `props` object, and `children` array.\n" +
-            "- Every id in `children` must exist in `elements`.\n" +
-            "- Use only component types from the prompt catalog.\n" +
-            "- Return JSON only (no prose, no markdown, no fences)."
+        val formatPolicy = when (outputFormat) {
+            GenUiIrFormat.A2UI_EXPRESS_V1 -> "A2UI Express policy for this request:\n" +
+                "- Return one <a2ui>...</a2ui> block and no prose.\n" +
+                "- Assign the root component to reserved variable root.\n" +
+                "- Preserve rich UI structure and all requested interactions.\n" +
+                "- Use _props/_children/_repeat/_visible/_on/_watch when required.\n" +
+                "- Every component reference must resolve."
+            else -> "Compact IR v2 policy for this request:\n" +
+                "- Return ONE JSON object with v=\"gci2\", r, optional s, and e.\n" +
+                "- Elements use t and optional p/c/x/z/o/w.\n" +
+                "- Omit empty fields but preserve all semantic UI components.\n" +
+                "- Every referenced id must exist in e.\n" +
+                "- Return JSON only (no prose, markdown, or fences)."
+        }
         val responseWithPolicy = "${stage2Response.trim()}\n\n$formatPolicy\n\n$assetPolicy"
         val responseText = if (assetContext.isBlank()) {
             responseWithPolicy

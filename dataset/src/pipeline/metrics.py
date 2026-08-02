@@ -938,7 +938,17 @@ def compute_intent_metrics(
     }
 
 
+def _canonical_metric_payload(value: Any) -> Any:
+    """Decode Compact IR/Express/A2UI wire before all structural metrics."""
+    try:
+        from pipeline.ir_formats import decode_to_flat_spec
+        return decode_to_flat_spec(value).flat_spec
+    except Exception:
+        return value
+
+
 def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
+    genui_json = _canonical_metric_payload(genui_json)
     components = _iter_components(genui_json)
     component_count = len(components)
     comp_types = [c.get("component") for c in components if isinstance(c.get("component"), str)]
@@ -1111,6 +1121,7 @@ def count_characters(text: str) -> int:
 
 
 def content_coverage(response_text: str, genui_json: Any) -> float:
+    genui_json = _canonical_metric_payload(genui_json)
     text = response_text.lower()
     words = [w for w in re.findall(r"[a-z0-9]+", text) if w not in _stopwords]
     if not words:
@@ -1121,6 +1132,7 @@ def content_coverage(response_text: str, genui_json: Any) -> float:
 
 
 def dup_rate(genui_json: Any) -> float:
+    genui_json = _canonical_metric_payload(genui_json)
     serialized = json.dumps(genui_json, sort_keys=True)
     lines = serialized.split(",")
     if not lines:
@@ -1131,6 +1143,7 @@ def dup_rate(genui_json: Any) -> float:
 
 
 def lint_score(genui_json: Any) -> float:
+    genui_json = _canonical_metric_payload(genui_json)
     score = 1.0
     penalties = 0.0
 
@@ -1486,6 +1499,5 @@ def aggregate_metrics(
             config=v5_4_config,
         )
     return aggregate
-
 
 

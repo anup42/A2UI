@@ -4,6 +4,10 @@
   output_dir: data/runs
   stage3_prompt_file: prompts/genui_gen_mobile_flatspec_v11.md
   stage3_schema_file: schema/genui_flatspec.schema.json
+  # The pilot generates and validates both native formats independently.
+  stage3_ir_formats:
+  - compact_ir_v2
+  - a2ui_express_v1
   stage3_legacy_prompt_file: prompts/genui_gen.md
   stage3_legacy_schema_file: schema/genui.schema.json
   k_queries_per_intent: 400

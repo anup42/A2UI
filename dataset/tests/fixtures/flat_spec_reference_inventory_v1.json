@@ -1,0 +1,88 @@
+{
+  "version": "1.0.0",
+  "cases": [
+    {
+      "name": "ordinary_and_template_references",
+      "element": {
+        "type": "Stack",
+        "props": {
+          "template": "props_template",
+          "itemTemplate": "props_item",
+          "child": "props_child"
+        },
+        "children": ["first", "second"],
+        "child": "legacy_child",
+        "template": "top_template",
+        "itemTemplate": "top_item",
+        "repeat": {
+          "statePath": "/items",
+          "template": "repeat_template",
+          "itemTemplate": "repeat_item",
+          "child": "repeat_child"
+        }
+      },
+      "references": [
+        ["first", "children[0]", "child"],
+        ["second", "children[1]", "child"],
+        ["legacy_child", "child", "legacy_child"],
+        ["top_template", "template", "template"],
+        ["top_item", "itemTemplate", "item_template"],
+        ["props_template", "props.template", "template"],
+        ["props_item", "props.itemTemplate", "item_template"],
+        ["props_child", "props.child", "property_child"],
+        ["repeat_template", "repeat.template", "repeat_template"],
+        ["repeat_item", "repeat.itemTemplate", "repeat_item_template"],
+        ["repeat_child", "repeat.child", "repeat_child"]
+      ]
+    },
+    {
+      "name": "props_repeat_fallback",
+      "element": {
+        "type": "List",
+        "props": {
+          "repeat": {
+            "statePath": "/items",
+            "template": "props_repeat_template"
+          }
+        },
+        "children": []
+      },
+      "references": [
+        ["props_repeat_template", "props.repeat.template", "repeat_template"]
+      ]
+    },
+    {
+      "name": "tabs_alias_precedence",
+      "element": {
+        "type": "Tabs",
+        "props": {
+          "tabs": [
+            {"child": "tab_child", "content": "ignored_content"},
+            {"content": "tab_content", "id": "ignored_id"},
+            {"id": "tab_id", "element": "ignored_element"},
+            {"element": "tab_element"}
+          ]
+        },
+        "children": []
+      },
+      "references": [
+        ["tab_child", "props.tabs[0].child", "tab_content"],
+        ["tab_content", "props.tabs[1].content", "tab_content"],
+        ["tab_id", "props.tabs[2].id", "tab_content"],
+        ["tab_element", "props.tabs[3].element", "tab_content"]
+      ]
+    },
+    {
+      "name": "modal_references",
+      "element": {
+        "type": "Modal",
+        "props": {"trigger": "open_button", "content": "dialog_body"},
+        "children": []
+      },
+      "references": [
+        ["open_button", "props.trigger", "modal_trigger"],
+        ["dialog_body", "props.content", "modal_content"]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "report_version": "genuicraft_ir_benchmark.v1",
+  "corpus_samples_discovered": 32,
+  "corpus_samples_benchmarked": 32,
+  "failures": [],
+  "tokenizer": {
+    "name": "regex_lexical_estimate_v1",
+    "exact_for_deployed_model": false,
+    "note": "Deterministic estimate; rerun with the deployed Gemma tokenizer for production token counts."
+  },
+  "codec_identity": {
+    "manifestVersion": "1.1.0",
+    "upstreamCommit": "2276f8cc702eaeac25ffb05be85797b2a1205c74",
+    "protocolVersion": "v1.0",
+    "compactIrVersion": "gci2",
+    "expressVersion": "genuicraft-express-v1",
+    "catalogIdentityHash": "42806ada6b3bc72f55584481cd5106a52fed51bf1878288a9e373402a85ce5b5",
+    "rendererReferenceInventoryHash": "beb3b18e18ea7322edb9d33d3fce66d133994473ad05a09af656d66439ea19b7"
+  },
+  "formats": {
+    "flat_spec_v1": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 10889.0,
+        "mean": 340.28125,
+        "median": 343.5,
+        "p95": 469.0,
+        "min": 153.0,
+        "max": 582.0
+      },
+      "utf8_bytes": {
+        "total": 10924.0,
+        "mean": 341.375,
+        "median": 344.0,
+        "p95": 471.0,
+        "min": 155.0,
+        "max": 584.0
+      },
+      "tokens": {
+        "total": 5125.0,
+        "mean": 160.15625,
+        "median": 163.5,
+        "p95": 226.0,
+        "min": 77.0,
+        "max": 289.0
+      },
+      "character_reduction_vs_flat": {
+        "total": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "token_reduction_vs_flat": {
+        "total": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "compact_ir_v2": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 10010.0,
+        "mean": 312.8125,
+        "median": 319.5,
+        "p95": 445.0,
+        "min": 122.0,
+        "max": 558.0
+      },
+      "utf8_bytes": {
+        "total": 10045.0,
+        "mean": 313.90625,
+        "median": 320.0,
+        "p95": 447.0,
+        "min": 124.0,
+        "max": 560.0
+      },
+      "tokens": {
+        "total": 5066.0,
+        "mean": 158.3125,
+        "median": 164.5,
+        "p95": 227.0,
+        "min": 71.0,
+        "max": 290.0
+      },
+      "character_reduction_vs_flat": {
+        "total": 2.9607202935636914,
+        "mean": 0.09252250917386536,
+        "median": 0.07207272202582787,
+        "p95": 0.19496855345911945,
+        "min": 0.04123711340206182,
+        "max": 0.20261437908496727
+      },
+      "token_reduction_vs_flat": {
+        "total": 0.6385537916622919,
+        "mean": 0.01995480598944662,
+        "median": -0.004854483327441983,
+        "p95": 0.07499999999999996,
+        "min": -0.007092198581560183,
+        "max": 0.07792207792207795
+      }
+    },
+    "a2ui_express_v1": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 7216.0,
+        "mean": 225.5,
+        "median": 233.0,
+        "p95": 331.0,
+        "min": 67.0,
+        "max": 432.0
+      },
+      "utf8_bytes": {
+        "total": 7251.0,
+        "mean": 226.59375,
+        "median": 234.0,
+        "p95": 333.0,
+        "min": 69.0,
+        "max": 434.0
+      },
+      "tokens": {
+        "total": 3070.0,
+        "mean": 95.9375,
+        "median": 99.5,
+        "p95": 149.0,
+        "min": 29.0,
+        "max": 200.0
+      },
+      "character_reduction_vs_flat": {
+        "total": 11.328622096910783,
+        "mean": 0.35401944052846196,
+        "median": 0.3288437842278204,
+        "p95": 0.5345911949685535,
+        "min": 0.25773195876288657,
+        "max": 0.5620915032679739
+      },
+      "token_reduction_vs_flat": {
+        "total": 13.632430519546453,
+        "mean": 0.42601345373582666,
+        "median": 0.39167478091528724,
+        "p95": 0.6233766233766234,
+        "min": 0.3079584775086506,
+        "max": 0.625
+      }
+    },
+    "a2ui_v1_wire": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 14976.0,
+        "mean": 468.0,
+        "median": 477.5,
+        "p95": 603.0,
+        "min": 272.0,
+        "max": 716.0
+      },
+      "utf8_bytes": {
+        "total": 15011.0,
+        "mean": 469.09375,
+        "median": 478.0,
+        "p95": 605.0,
+        "min": 274.0,
+        "max": 718.0
+      },
+      "tokens": {
+        "total": 6344.0,
+        "mean": 198.25,
+        "median": 204.5,
+        "p95": 267.0,
+        "min": 111.0,
+        "max": 330.0
+      },
+      "character_reduction_vs_flat": {
+        "total": -13.128461673660082,
+        "mean": -0.41026442730187757,
+        "median": -0.37290221699281645,
+        "p95": -0.2857142857142858,
+        "min": -0.7777777777777777,
+        "max": -0.23024054982817876
+      },
+      "token_reduction_vs_flat": {
+        "total": -8.288028542739191,
+        "mean": -0.2590008919605997,
+        "median": -0.23960135079482736,
+        "p95": -0.18141592920353977,
+        "min": -0.4415584415584415,
+        "max": -0.1418685121107266
+      }
+    }
+  },
+  "preferred_compact_format_by_token_total": "a2ui_express_v1",
+  "selection_guard": "Only formats with 100% semantic round-trip pass are eligible; UI component count is unchanged."
+}

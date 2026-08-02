@@ -19,6 +19,9 @@ import com.samsung.genuicraft.pipeline.FlatSpecContract
 import com.samsung.genuicraft.pipeline.FlatSpecIngestMode
 import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
 import com.samsung.genuicraft.pipeline.FlatSpecIngestor
+import com.samsung.genuicraft.pipeline.GenUiIrCodec
+import com.samsung.genuicraft.pipeline.GenUiIrFormat
+import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
 import com.samsung.genuicraft.pipeline.PipelineImageResolver
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
@@ -94,13 +97,33 @@ class GenUiStagePipeline(private val appContext: Context) {
     private val cacheManager = PipelineCacheManager(appContext)
 
     private fun loadStage3PromptTemplate(provider: InferenceBackendSettings.Provider): String {
-        val assetPath = if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
-            PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET
-        } else {
-            PipelinePromptBuilder.STAGE3_PROMPT_ASSET
-        }
-        return PipelinePromptBuilder.loadPromptAsset(appContext.assets, assetPath)
+        // Both new formats are first-class. Legacy FlatSpec prompt assets are retained
+        // for migration/audit only and are not a generation fallback.
+        return PipelinePromptBuilder.loadPromptAsset(
+            appContext.assets,
+            IrPromptVersionSettings.stage3PromptAssetPath(appContext)
+        )
     }
+
+    private fun currentStage3Format(): GenUiIrFormat = IrPromptVersionSettings.outputFormat(appContext)
+
+    private fun extractStage3Candidate(text: String): JsonElement? =
+        if (currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
+            com.google.gson.JsonPrimitive(text.trim())
+        } else {
+            PipelineJsonExtractor.extractJsonElement(text)
+        }
+
+    private fun buildStage3RepairPrompt(rawText: String, failureReason: String): String =
+        if (currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
+            "Repair the following A2UI Express output. Return only one <a2ui>...</a2ui> block. " +
+                "Preserve all semantic components and interactions; do not simplify the UI. " +
+                "Every reference must resolve. Failure: $failureReason\n\n$rawText"
+        } else {
+            "Repair the following Compact IR v2 output. Return one JSON object with v=\"gci2\", r, optional s, and e. " +
+                "Preserve all semantic components and interactions; do not simplify the UI. " +
+                "Every reference must resolve. Failure: $failureReason\n\n$rawText"
+        }
 
     private fun stage3MaxOutputTokensFor(
         provider: InferenceBackendSettings.Provider,
@@ -669,6 +692,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
             catalogId = catalogId,
             assets = emptyList(),
+            outputFormat = currentStage3Format(),
             appendRequestPolicies = !useRawStage3ResponseProfile,
         )
         if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
@@ -811,12 +835,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "Local stage3 KV prefix cache hit path (cache key only)."
             }
         }
-        val stage3StructuredOutput = shouldUseStructuredOutput(irProvider, geminiApiMode)
+        val stage3StructuredOutput = shouldUseStructuredOutput(irProvider, geminiApiMode) && currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1
         if (irProvider == InferenceBackendSettings.Provider.GEMINI && !stage3StructuredOutput) {
             warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
         }
 
-        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
+        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into selected GenUICraft IR")
         val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
             backend = irBackend,
@@ -825,7 +849,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             temperature = stage3TemperatureFor(irProvider),
             maxOutputTokens = stage3MaxOutputTokens,
-            jsonMode = true,
+            jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
@@ -852,7 +876,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage3Call.text,
             trainingPromptPrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
         )
-        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3ResponseText)
+        val stage3InitialCandidate = extractStage3Candidate(stage3ResponseText)
         val stage3Diagnostics = Stage3RepairDiagnostics(
             rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
@@ -1289,6 +1313,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
             catalogId = catalogId,
             assets = emptyList(),
+            outputFormat = currentStage3Format(),
             appendRequestPolicies = !useRawStage3ResponseProfile,
         )
         val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
@@ -1393,12 +1418,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "Local stage3 KV prefix cache hit path (cache key only)."
             }
         }
-        val stage3StructuredOutput = shouldUseStructuredOutput(provider, geminiApiMode)
+        val stage3StructuredOutput = shouldUseStructuredOutput(provider, geminiApiMode) && currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1
         if (provider == InferenceBackendSettings.Provider.GEMINI && !stage3StructuredOutput) {
             warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
         }
 
-        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
+        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into selected GenUICraft IR")
         val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
             backend = backend,
@@ -1407,7 +1432,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             temperature = stage3TemperatureFor(provider),
             maxOutputTokens = stage3MaxOutputTokens,
-            jsonMode = true,
+            jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
             enableGoogleSearch = false,
             cachedContentName = stage3Cache.name,
             allowCachedContent = true,
@@ -1437,7 +1462,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage3Call.text,
             trainingPromptPrefix = rawStage3ResponsePrefix(provider, onDeviceModelPath),
         )
-        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3ResponseText)
+        val stage3InitialCandidate = extractStage3Candidate(stage3ResponseText)
         val stage3Diagnostics = Stage3RepairDiagnostics(
             rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
@@ -1729,6 +1754,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage3InputResponse,
             catalogId = catalogId,
             assets = emptyList(),
+            outputFormat = currentStage3Format(),
             appendRequestPolicies = !useRawStage3ResponseProfile,
         )
 
@@ -1770,12 +1796,12 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3StructuredOutput = shouldUseStructuredOutput(
             irProvider,
             InferenceBackendSettings.getGeminiApiMode(appContext)
-        )
+        ) && currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1
         if (irProvider == InferenceBackendSettings.Provider.GEMINI && !stage3StructuredOutput) {
             warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
         }
 
-        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into GenUICraft IR JSON")
+        postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into selected GenUICraft IR")
         val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
             backend = irBackend,
@@ -1784,7 +1810,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             systemPrompt = promptContext.systemPrompt,
             temperature = stage3TemperatureFor(irProvider),
             maxOutputTokens = stage3MaxOutputTokens,
-            jsonMode = true,
+            jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
             enableGoogleSearch = false,
             cachedContentName = null,
             allowCachedContent = false,
@@ -1807,7 +1833,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             responseText = stage3Call.text,
             trainingPromptPrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
         )
-        val stage3InitialCandidate = PipelineJsonExtractor.extractJsonElement(stage3ResponseText)
+        val stage3InitialCandidate = extractStage3Candidate(stage3ResponseText)
         val stage3Diagnostics = Stage3RepairDiagnostics(
             rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
@@ -2030,19 +2056,16 @@ class GenUiStagePipeline(private val appContext: Context) {
         val initialIngest = FlatSpecIngestor.ingest(initialJsonElement, FlatSpecIngestMode.STRICT)
         val initialError = when (initialIngest) {
             is FlatSpecIngestResult.CanonicalFlatSpec -> {
-                warnings += initialIngest.warnings
-                diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
-                return initialIngest.canonicalJson
+                if (initialIngest.sourceFormat != currentStage3Format()) {
+                    "Stage 3 returned ${initialIngest.sourceFormat.wireId}; expected ${currentStage3Format().wireId}."
+                } else {
+                    warnings += initialIngest.warnings
+                    diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
+                    return initialIngest.canonicalJson
+                }
             }
             is FlatSpecIngestResult.GenuineLegacyPayload -> {
-                warnings += initialIngest.warnings
-                diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
-                val migrated = initialIngest.migratedFlatSpec
-                if (migrated != null) {
-                    warnings += "Stage 3 returned genuine legacy format; migrated through the shared ingestor."
-                    return migrated
-                }
-                "Stage 3 legacy payload could not be migrated to flat spec."
+                "Stage 3 returned legacy content; expected ${currentStage3Format().wireId}."
             }
             is FlatSpecIngestResult.RejectedPayload ->
                 initialIngest.diagnostics.joinToString("; ") { it.message }
@@ -2054,7 +2077,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             parseFailureReason = "Stage 3 JSON parse failed."
         )
         diagnostics.initialValidationError = initialReason
-        warnings += "$initialReason Running strict flat-spec repair."
+        warnings += "$initialReason Running strict selected-format repair."
 
         var rawForRepair = stage3RawText
         var reasonForRepair = initialReason
@@ -2068,24 +2091,19 @@ class GenUiStagePipeline(private val appContext: Context) {
             val escalatedReason = if (attempt == 1) {
                 reasonForRepair
             } else {
-                "$reasonForRepair (strict attempt $attempt/$repairAttempts: enforce non-empty elements and valid root reference)."
+                "$reasonForRepair (strict attempt $attempt/$repairAttempts: enforce a non-empty component graph and valid root reference)."
             }
             val repairCall = generateWithRetry(
                 backend = backend,
                 provider = provider,
-                prompt = PipelineJsonExtractor.buildFlatSpecRepairPrompt(
+                prompt = buildStage3RepairPrompt(
                     rawText = rawForRepair,
                     failureReason = escalatedReason,
-                    mode = if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
-                        PipelineJsonExtractor.FlatSpecRepairMode.ON_DEVICE_LITERT
-                    } else {
-                        PipelineJsonExtractor.FlatSpecRepairMode.GENERAL
-                    }
                 ),
                 systemPrompt = systemPrompt,
                 temperature = stage3TemperatureFor(provider),
                 maxOutputTokens = stage3RepairMaxOutputTokens,
-                jsonMode = true,
+                jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
                 enableGoogleSearch = false,
                 cachedContentName = cachedContentName,
                 allowCachedContent = allowCachedContent,
@@ -2104,24 +2122,21 @@ class GenUiStagePipeline(private val appContext: Context) {
             }
 
             diagnostics.repairOutputTexts += repairCall.text
-            val repairedElement = PipelineJsonExtractor.extractJsonElement(repairCall.text)
+            val repairedElement = extractStage3Candidate(repairCall.text)
             diagnostics.repairSelectedCandidateTexts += repairedElement?.toString()
             val repairedIngest = FlatSpecIngestor.ingest(repairedElement, FlatSpecIngestMode.STRICT)
             val repairedError = when (repairedIngest) {
                 is FlatSpecIngestResult.CanonicalFlatSpec -> {
-                    warnings += repairedIngest.warnings
-                    diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
-                    return repairedIngest.canonicalJson
+                    if (repairedIngest.sourceFormat != currentStage3Format()) {
+                        "Repair returned ${repairedIngest.sourceFormat.wireId}; expected ${currentStage3Format().wireId}."
+                    } else {
+                        warnings += repairedIngest.warnings
+                        diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
+                        return repairedIngest.canonicalJson
+                    }
                 }
                 is FlatSpecIngestResult.GenuineLegacyPayload -> {
-                    warnings += repairedIngest.warnings
-                    diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
-                    val migrated = repairedIngest.migratedFlatSpec
-                    if (migrated != null) {
-                        warnings += "Stage 3 repair returned genuine legacy format; migrated through the shared ingestor."
-                        return migrated
-                    }
-                    "Repair returned legacy content that could not be migrated."
+                    "Repair returned legacy content; expected ${currentStage3Format().wireId}."
                 }
                 is FlatSpecIngestResult.RejectedPayload ->
                     repairedIngest.diagnostics.joinToString("; ") { it.message }
@@ -2150,10 +2165,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (jsonElement == null) {
             return parseFailureReason
         }
-        if (!FlatSpecContract.looksLikeFlatSpec(jsonElement)) {
-            return "Stage 3 output did not contain a valid flat-spec object with root/elements."
+        val detected = runCatching { GenUiIrCodec.detect(jsonElement) }.getOrNull()
+        if (detected != currentStage3Format()) {
+            return "Stage 3 output did not contain a valid selected-format payload."
         }
-        return coerceError ?: "Stage 3 flat-spec validation failed."
+        return coerceError ?: "Stage 3 selected-format validation failed."
     }
 
     private fun shouldUseStructuredOutput(

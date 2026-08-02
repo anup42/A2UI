@@ -1,0 +1,73 @@
+{
+  "report_version": "genuicraft.compact_ir_dual_format.test_report.v1",
+  "generated_at": "2026-08-02T09:25:40+05:30",
+  "status": "passed",
+  "branch": "new_ir_changes_20260331",
+  "starting_commit": "1051ae31903cf61aadcab950899fabb99e726ae4",
+  "checks": [
+    {
+      "name": "generated_ir_artifact_drift",
+      "command": "python dataset/scripts/generate_ir_specs.py --check",
+      "status": "passed",
+      "verified_files": 5
+    },
+    {
+      "name": "focused_codec_metrics_and_cli_tests",
+      "command": "python -m pytest -q dataset/tests/test_ir_formats.py",
+      "status": "passed",
+      "tests": 17,
+      "failures": 0
+    },
+    {
+      "name": "relevant_dataset_and_training_tests",
+      "command": "python -m pytest -q dataset/tests/test_flat_spec_contract.py dataset/tests/test_metrics_flatspec.py dataset/tests/test_renderer_capability.py dataset/tests/test_renderer_manifest_stability.py dataset/tests/test_ir_formats.py dataset/tests/test_stage3_dual_formats.py training/tests/test_training_scaffold.py training/tests/test_ir_targets.py",
+      "status": "passed",
+      "tests": 89,
+      "failures": 0,
+      "warnings": 7,
+      "warning_scope": "jsonschema RefResolver and datetime.utcnow deprecations"
+    },
+    {
+      "name": "android_debug_unit_tests",
+      "command": "gradlew.bat :app:testDebugUnitTest",
+      "status": "passed",
+      "suites": 33,
+      "tests": 265,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "android_kotlin_compile",
+      "command": "gradlew.bat :app:compileDebugKotlin",
+      "status": "passed"
+    },
+    {
+      "name": "android_debug_assemble",
+      "command": "gradlew.bat :app:assembleDebug",
+      "status": "passed",
+      "artifact": "android/app/build/outputs/apk/debug/app-debug.apk"
+    },
+    {
+      "name": "ir_corpus_roundtrip_benchmark",
+      "command": "python dataset/scripts/benchmark_ir_formats.py --output-json docs/review_artifacts/ir_token_benchmark.json --output-csv docs/review_artifacts/ir_token_benchmark.csv",
+      "status": "passed",
+      "samples": 32,
+      "formats": 4,
+      "roundtrip_failures": 0,
+      "tokenizer": "regex_lexical_estimate_v1",
+      "exact_for_deployed_model": false
+    },
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "status": "passed",
+      "note": "Git emitted line-ending conversion notices only."
+    }
+  ],
+  "not_executed": [
+    "Live Gemini generation",
+    "Physical-device Android rendering",
+    "Exact deployed-Gemma tokenizer benchmark"
+  ]
+}

@@ -26,14 +26,16 @@ internal sealed interface FlatSpecIngestResult {
         val renderSpec: FlatSpec,
         val warnings: List<String>,
         val tableDiagnostics: FlatSpecContract.TableDiagnostics,
-        val routingComparison: FlatRoutingComparison? = null
+        val routingComparison: FlatRoutingComparison? = null,
+        val sourceFormat: GenUiIrFormat = GenUiIrFormat.FLAT_SPEC_V1
     ) : FlatSpecIngestResult
 
     data class GenuineLegacyPayload(
         val payload: JsonElement,
         val migratedFlatSpec: JsonObject?,
         val warnings: List<String>,
-        val tableDiagnostics: FlatSpecContract.TableDiagnostics
+        val tableDiagnostics: FlatSpecContract.TableDiagnostics,
+        val sourceFormat: GenUiIrFormat = GenUiIrFormat.FLAT_SPEC_V1
     ) : FlatSpecIngestResult
 
     data class RejectedPayload(
@@ -52,8 +54,17 @@ internal object FlatSpecIngestor {
     ): FlatSpecIngestResult {
         if (payload == null) return rejected("Flat-spec payload is null.")
         val compatibility = mode == FlatSpecIngestMode.COMPATIBILITY
+        val detectedFormat = runCatching { GenUiIrCodec.detect(payload) }.getOrNull()
+        val decoded = runCatching {
+            detectedFormat?.let { GenUiIrCodec.decode(payload) }
+            // A null detection retains the historical legacy-message migration path.
+        }.getOrElse { error ->
+            return rejected(error.message ?: "IR format decoding failed.")
+        }
+        val contractPayload = decoded?.flatSpec ?: payload
+        val sourceFormat = decoded?.sourceFormat ?: GenUiIrFormat.FLAT_SPEC_V1
         val result = FlatSpecContract.coerceAndValidate(
-            payload,
+            contractPayload,
             compatibilityHeaderInference = compatibility
         )
         if (!result.isValid || result.spec == null) {
@@ -64,13 +75,14 @@ internal object FlatSpecIngestor {
                 payload = payload,
                 migratedFlatSpec = result.spec,
                 warnings = result.warnings,
-                tableDiagnostics = result.tableDiagnostics
+                tableDiagnostics = result.tableDiagnostics,
+                sourceFormat = sourceFormat
             )
         }
 
         val canonicalSpec = FlatSpecParser.parse(result.spec)
             ?: return rejected("Canonical flat-spec could not be parsed by the renderer.")
-        val rawSpec = payload.takeIf(FlatSpecContract::looksLikeFlatSpec)?.let(FlatSpecParser::parse)
+        val rawSpec = contractPayload.takeIf(FlatSpecContract::looksLikeFlatSpec)?.let(FlatSpecParser::parse)
         val comparison = if (compatibility && rawSpec != null) {
             compareRoutes(rawSpec, canonicalSpec)
         } else {
@@ -87,7 +99,8 @@ internal object FlatSpecIngestor {
             renderSpec = if (compatibility) rawSpec ?: canonicalSpec else canonicalSpec,
             warnings = result.warnings + comparisonWarnings,
             tableDiagnostics = result.tableDiagnostics,
-            routingComparison = comparison
+            routingComparison = comparison,
+            sourceFormat = sourceFormat
         )
     }
 

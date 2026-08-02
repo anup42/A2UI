@@ -1,0 +1,29 @@
+{
+  "manifestVersion": "1.1.0",
+  "upstreamRepository": "a2ui-project/a2ui",
+  "upstreamCommit": "2276f8cc702eaeac25ffb05be85797b2a1205c74",
+  "protocolVersion": "v1.0",
+  "compactIrVersion": "gci2",
+  "expressVersion": "genuicraft-express-v1",
+  "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
+  "catalogIdentityHash": "42806ada6b3bc72f55584481cd5106a52fed51bf1878288a9e373402a85ce5b5",
+  "files": {
+    "dataset/schema/genui_compact_ir_v2.schema.json": {
+      "sha256": "66743d21b5ac92d8283392b850481f2ec3d4ce4273072932304aad72bd52e0dc",
+      "bytes": 3938
+    },
+    "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
+      "sha256": "72ab9cfa541e179ed29bb29d99f2354cc133240f3449a8ebdf30788b5cd43b87",
+      "bytes": 39958
+    },
+    "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": {
+      "sha256": "a92d7f728d0bdb15435ff417284bfbb79602aac4ca4d820266d995f2ea93004f",
+      "bytes": 6697
+    },
+    "specification/inference_formats/express/Express.g4": {
+      "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",
+      "bytes": 1451,
+      "upstreamGitBlobSha": "4f2492ae4600598d8b10e68fcd9f4292529dd653"
+    }
+  }
+}
