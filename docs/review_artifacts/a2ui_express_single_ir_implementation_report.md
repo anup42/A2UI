@@ -45,8 +45,10 @@ wire schema, prompt, Python codec, Kotlin codec, migration tool, grammar, and
 manifest hashes:
 
 ```text
+python dataset/scripts/generate_a2ui_express_prompt.py --check
+A2UI Express prompt verified (5 files)
 python dataset/scripts/generate_ir_specs.py --check
-IR artifacts verified: 15 files
+IR artifacts verified: 21 files
 ```
 
 ## Main implementation areas
@@ -75,18 +77,22 @@ IR artifacts verified: 15 files
 - `dataset/src/pipeline/stage3_genui.py` and Android Stage 3 pipeline/prompt
   builders: Express-only generation with no Compact/FlatSpec fallback. URL and
   local-asset references are masked before provider prompts and restored only
-  after strict parsing.
+  after strict parsing. The repair prompt is the generated contract, not a
+  second hand-maintained signature list.
 - `dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py` and the isolated
   `dataset/src/migration/` package: one-time migration boundary with hashes,
   source preservation, strict rejects, deterministic output, and resume mode.
 - `training/src/ir_training/data/`, `training/scripts/train_grpo.py`, and the
   three Express configs: Express-only target materialization, masked URL/path
-  metadata (including local asset paths), tokenizer-based completion sizing,
-  and source-group split isolation. GRPO rewards validate raw Express
-  directly.
+  metadata (including local asset paths), provider-token accounting with a
+  clearly labeled lexical diagnostic fallback, and source-group split
+  isolation. GRPO rewards validate raw Express directly.
 - `android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiNativeRenderer.kt`:
   read-only FlatSpec compatibility is explicitly separated from production
   Express ingestion.
+- `SettingsActivity` and `IrDemoListActivity` no longer expose an IR-format
+  selector; the internal prompt-version compatibility API resolves only to
+  A2UI Express and cannot persist or select a legacy format.
 
 ## Coverage
 
@@ -107,24 +113,33 @@ the canonical semantic hash; they do not remove meaningful UI components.
 The benchmark report compares the retained FlatSpec baseline, Express, and
 standard wire forms. It used a deterministic lexical tokenizer because the
 deployed Gemma tokenizer/checkpoint was not present; the report is explicitly
-marked `exact_for_deployed_model: false`, includes p50/p90/p95, and must not be
-read as provider token counts. On 32 representative fixtures, Express
-round-tripped 32/32 and had a 41.5% mean lexical-token reduction versus
-FlatSpec; the wire form is an internal representation and was larger in this
-diagnostic. The exact-token gate remains BLOCKED.
+marked `exact_for_deployed_model: false`, includes mean/median/p50/p90/p95,
+and must not be read as provider token counts. On 32 representative fixtures,
+Express round-tripped 32/32 and had a 41.47% mean lexical-token reduction
+versus FlatSpec; the wire form is an internal representation and was larger in
+this diagnostic. Token metrics are regression diagnostics only and cannot
+select a production format or checkpoint. The exact-token gate remains
+BLOCKED.
 
 ## Verification and known limitations
 
-Python dataset tests (422 passed separately), training tests (49 passed), and
-the Android JVM suite (297 passed) are recorded in
-`a2ui_express_test_report.json`. The connected Flip smoke test passed on
-`R3CW408WE4J` (`SM-F731U`, Android 16), and the inspected screenshot shows the
-A2UI Express title, native Compose card, and Details/Ready state; the window
-hierarchy also contains the Table component. The screenshot SHA-256 is
-`4ACCAE7137BCA24A1658B40CFE7EEF81FE1F0C1980BECAB6FAB66A831001C0C9` and the
+The combined Python dataset/training suite passed 476 tests with 7
+deprecation warnings, and the Android JVM suite passed 297 tests across 39 XML
+suites. The connected instrumentation smoke passed on both detected targets,
+`SM-F731U` (Flip) and `SM-F966B`, Android 16. On the Flip, the inspected
+Express screenshot shows the A2UI Express title, native Compose card, and
+Details/Ready state; the window hierarchy contains the Table component. The
+test-process screenshot SHA-256 is
+`681EAC79B768368CDE150349EF2FE48A33812F970F464FD41D906A865A81173E` and the
 window-dump SHA-256 is
-`953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09`. The
-device images remain outside the source-only archive.
+`953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09`.
+The GenUI Demo landing view was also opened on the Flip; its screenshot SHA is
+`621C47B25A2936039D8ABAEF89CFE800133A15FD0B08A5569A4DF66894BD727A`, and the
+hierarchy exposes the generated-contract copy, the Flights BLR to LKO starter,
+and the Native render tile. Selecting that starter on the device produced
+`Show flights from BLR to LKO on 18 August 2026` on device date `2026-08-03`,
+confirming the current-date-plus-15-days example. Device images are review
+evidence and are excluded from the source-only ZIP.
 
 Python and Kotlin both consume the byte-identical fixture
 `a2ui_express_conformance_v1.json`; the conformance report is now PASS for the
@@ -142,9 +157,9 @@ Two end-to-end model calls remain environment-blocked, not code-passing:
    app data.
 
 These limitations are not reported as successful model-generation tests. A
-second connected device was present during the instrumentation invocation but
-could not install the test APK because its existing package signature differs;
-the Flip result is independently PASS.
+second connected device was present during the latest instrumentation
+invocation and also completed the one-test smoke successfully; the release
+report therefore does not claim a secondary-device installation failure.
 
 The final cleanup scan found no Compact/dual-format imports in the active Stage
 3, active codec, training target, or Android inference modules. The only
@@ -152,3 +167,5 @@ The final cleanup scan found no Compact/dual-format imports in the active Stage
 only Android FlatSpec references are read-only renderer compatibility,
 diagnostics, and negative rejection checks. A static policy test now guards
 these boundaries and prevents a second active IR from being reintroduced.
+The shared prompt generator and drift test cover dataset, training fallback,
+Android inference, Android repair, and the Gemma asset mirror byte-for-byte.

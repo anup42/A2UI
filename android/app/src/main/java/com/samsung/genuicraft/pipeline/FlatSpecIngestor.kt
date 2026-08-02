@@ -61,6 +61,29 @@ internal object FlatSpecIngestor {
         }.getOrElse { error ->
             return rejected(error.message ?: "IR format decoding failed.")
         }
+        if (decoded != null && decoded.sourceFormat in setOf(
+                GenUiIrFormat.A2UI_EXPRESS_V1,
+                GenUiIrFormat.A2UI_V1_WIRE,
+            )) {
+            // Express/wire already crossed their strict catalog and canonical
+            // graph boundary in GenUiIrCodec. Never run model output through
+            // the legacy FlatSpec coercer merely to reach the native parser.
+            val canonicalJson = decoded.canonicalGraph
+            val canonicalValidation = A2uiCanonicalGraph.validate(canonicalJson)
+            if (!canonicalValidation.isValid) {
+                return rejected(canonicalValidation.error ?: "Canonical A2UI graph is invalid.")
+            }
+            val canonicalSpec = FlatSpecParser.parse(canonicalJson)
+                ?: return rejected("Canonical A2UI graph could not be lowered to the renderer graph.")
+            return FlatSpecIngestResult.CanonicalFlatSpec(
+                canonicalJson = canonicalJson,
+                canonicalSpec = canonicalSpec,
+                renderSpec = canonicalSpec,
+                warnings = emptyList(),
+                tableDiagnostics = FlatSpecContract.TableDiagnostics(),
+                sourceFormat = decoded.sourceFormat,
+            )
+        }
         val contractPayload = decoded?.flatSpec ?: payload
         val sourceFormat = decoded?.sourceFormat ?: GenUiIrFormat.FLAT_SPEC_V1
         val result = FlatSpecContract.coerceAndValidate(

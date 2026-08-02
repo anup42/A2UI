@@ -15,6 +15,7 @@ from ir_training.data.ir_targets import (
     materialize_completion_targets,
     resolve_target_formats,
 )
+from ir_training.data.legacy_targets import canonical_graph_from_legacy_source
 
 
 def _spec() -> dict:
@@ -49,6 +50,16 @@ def test_target_policy_preserves_native_format_and_does_not_double_history() -> 
     assert resolve_target_formats({}, {"source_format": A2UI_EXPRESS_V1}) == [A2UI_EXPRESS_V1]
     with pytest.raises(ValueError, match="Only a2ui_express_v1"):
         resolve_target_formats({"target_formats": ["both"]}, {})
+
+
+def test_compact_source_is_rejected_outside_the_isolated_migration_tool() -> None:
+    compact = {
+        "v": "gci2",
+        "r": "root",
+        "e": {"root": {"t": "Text", "p": {"text": "legacy"}, "c": []}},
+    }
+    with pytest.raises(ValueError, match="migration-only"):
+        canonical_graph_from_legacy_source(compact, source_format="compact_ir_v2")
 
 
 def test_prepare_dataset_emits_only_express_target(tmp_path: Path) -> None:

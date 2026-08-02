@@ -2,10 +2,8 @@ package com.samsung.genuicraft.pipeline
 
 import android.content.Context
 
-/** The production model-output contract. Legacy formats have no production setting. */
+/** The sole production model-output contract. Legacy formats have no production setting. */
 internal object IrPromptVersionSettings {
-    private const val PREFS_NAME = "ir_prompt_version_settings"
-    private const val KEY_SELECTED_VERSION_ID = "selected_version_id"
     private const val DEFAULT_VERSION_ID = "a2ui_express_v1"
 
     data class Option(
@@ -26,23 +24,15 @@ internal object IrPromptVersionSettings {
         ),
     )
 
-    private val optionById: Map<String, Option> = options.associateBy { it.id }
     fun options(): List<Option> = options
-    fun defaultOption(): Option = requireNotNull(optionById[DEFAULT_VERSION_ID])
+    fun defaultOption(): Option = options.single { it.id == DEFAULT_VERSION_ID }
 
-    fun getSelectedVersionId(context: Context): String {
-        val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_SELECTED_VERSION_ID, null)?.trim()
-        return stored?.takeIf(optionById::containsKey) ?: defaultOption().id
-    }
+    fun getSelectedVersionId(context: Context): String = defaultOption().id
 
-    fun getSelectedOption(context: Context): Option = optionById[getSelectedVersionId(context)] ?: defaultOption()
+    fun getSelectedOption(context: Context): Option = defaultOption()
 
-    fun setSelectedVersionId(context: Context, versionId: String) {
-        val resolved = optionById[versionId.trim()]?.id ?: defaultOption().id
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-            .putString(KEY_SELECTED_VERSION_ID, resolved).apply()
-    }
+    /** Retained for migration/test callers; no alternate production format can be selected. */
+    fun setSelectedVersionId(context: Context, versionId: String) = Unit
 
     fun stage3PromptAssetPath(context: Context): String = getSelectedOption(context).stage3PromptAssetPath
     fun outputFormat(context: Context): GenUiIrFormat = getSelectedOption(context).outputFormat

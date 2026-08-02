@@ -7,6 +7,7 @@ import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import com.samsung.genuicraft.inference.InferenceBackend
 import com.samsung.genuicraft.inference.InferenceBackendFactory
 import com.samsung.genuicraft.inference.LocalServerBackend
@@ -17,6 +18,7 @@ import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
 import com.samsung.genuicraft.pipeline.FlatSpecContract
 import com.samsung.genuicraft.pipeline.A2uiWireCodec
+import com.samsung.genuicraft.pipeline.A2uiExpressCodec
 import com.samsung.genuicraft.pipeline.A2uiCanonicalGraph
 import com.samsung.genuicraft.pipeline.GenUiIrCodec
 import com.samsung.genuicraft.pipeline.GenUiIrFormat
@@ -118,6 +120,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         failureReason: String,
         sourceResponseText: String,
     ): String {
+        val sharedContract = runCatching {
+            PipelinePromptBuilder.loadPromptAsset(
+                appContext.assets,
+                "pipeline_prompts/genui_gen_a2ui_express_v1.md",
+            ).replace("{response_text}", "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]")
+        }.getOrElse {
+            "Return exactly one strict <a2ui>...</a2ui> A2UI Express block using " +
+                "the pinned catalog; preserve every source fact and interaction."
+        }
         val sourceContext = sourceResponseText.trim().take(REPAIR_SOURCE_CONTEXT_MAX_CHARS)
         val authoritativeSource = if (sourceContext.isBlank()) {
             ""
@@ -126,29 +137,10 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "<response>\n$sourceContext\n</response>\n\n"
         }
         return authoritativeSource +
-                "Rewrite the following invalid output as A2UI Express assignment DSL. " +
-                "Return only one <a2ui>...</a2ui> block with one component assignment per line. " +
-                "The required shape is root=Column([child]) followed by assignments such as " +
-                "child=Text(\"content\",\"body\"). Do not return JSON, HTML, CSS, type/props objects, " +
-                "or markdown fences. If the input uses the wrong dialect, preserve its semantic content " +
-                "but discard its syntax. Every reference must resolve. Never put a bare component type " +
-                "such as Icon in a child list: instantiate it inline, for example Icon(\"local_shipping\"), " +
-                "or assign it to an identifier. Every event value must be an action call. In particular, " +
-                "rewrite onPress=\"https://www.samsung.com/support/\" as " +
-                "onPress=openUrl(\"https://www.samsung.com/support/\"), or " +
-                "use Event(\"event_name\",{}). A quoted URL or event name is not a valid event value. " +
-                "Visible Text, Card title, and Button label values must be natural user-facing copy; " +
-                "never expose assignment ids or snake_case names such as status_card. " +
-                "Before returning, audit every authoritative response value against visible component props. " +
-                "Include every carrier, status, ETA, date, time, amount, unit, and identifier in Text, Card, " +
-                "or Table content; a value appearing only inside an action URL does not count as visible. " +
-                "For Table, the exact positional signature is Table(columns,statePath,rows,title,domain," +
-                "preferredPresentation). Use _ as statePath when rows are inline, for example " +
-                "Table([\"Detail\",\"Value\"],_,[[\"Carrier\",\"SwiftShip\"]],\"Details\",\"status\",\"table\"). " +
-                "Finally, list every assigned identifier and every child reference. Each child must exactly " +
-                "match an assignment. For example, if the Button assignment is named button, use button in " +
-                "the child list; never leave an unassigned generic child such as action. " +
-                "Failure: $failureReason\n\n<invalid>\n$rawText\n</invalid>"
+            "The previous completion failed strict validation. Re-emit it using this generated " +
+            "pinned contract; do not silently repair by changing facts or dropping components.\n\n" +
+            sharedContract +
+            "\n\nFailure: $failureReason\n\n<invalid>\n$rawText\n</invalid>"
     }
 
     private fun stage3MaxOutputTokensFor(
@@ -1028,7 +1020,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Preserved ${linkRepairResult.sourcesAdded} source link(s) and ${linkRepairResult.actionsAdded} quick action(s) from Stage 2."
         }
         val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
-        if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
+        val finalWirePayload = finalSafetyResult.jsonText
+        if (finalSafetyResult.error != null || finalWirePayload == null) {
             markDuration(Stage.STAGE3, stage3StartedAtMs)
             postUpdate(
                 onStageUpdate,
@@ -1047,7 +1040,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
-        stage3Json = finalSafetyResult.jsonText
+        stage3Json = wirePayloadToExpressPayload(finalWirePayload)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1078,7 +1071,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
-        val renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+        val renderResult = GenUiNativeRenderer.render(finalWirePayload, sourceDir = null)
 
         if (renderResult.errorMessage != null) {
             markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -1642,7 +1635,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Preserved ${linkRepairResult.sourcesAdded} source link(s) and ${linkRepairResult.actionsAdded} quick action(s) from Stage 2."
         }
         val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
-        if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
+        val finalWirePayload = finalSafetyResult.jsonText
+        if (finalSafetyResult.error != null || finalWirePayload == null) {
             markDuration(Stage.STAGE3, stage3StartedAtMs)
             postUpdate(
                 onStageUpdate,
@@ -1661,7 +1655,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
-        stage3Json = finalSafetyResult.jsonText
+        stage3Json = wirePayloadToExpressPayload(finalWirePayload)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(stage2Response)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -1692,7 +1686,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
-        val renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+        val renderResult = GenUiNativeRenderer.render(finalWirePayload, sourceDir = null)
 
         if (renderResult.errorMessage != null) {
             markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -2068,7 +2062,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Preserved ${linkRepairResult.sourcesAdded} source link(s) and ${linkRepairResult.actionsAdded} quick action(s) from Stage 2."
         }
         val finalSafetyResult = enforceFinalStage3Safety(stage3Json, warnings)
-        if (finalSafetyResult.error != null || finalSafetyResult.jsonText == null) {
+        val finalWirePayload = finalSafetyResult.jsonText
+        if (finalSafetyResult.error != null || finalWirePayload == null) {
             markDuration(Stage.STAGE3, stage3StartedAtMs)
             postUpdate(
                 onStageUpdate,
@@ -2087,7 +2082,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
-        stage3Json = finalSafetyResult.jsonText
+        stage3Json = wirePayloadToExpressPayload(finalWirePayload)
         val stage2HasInlineIcon = PipelineMediaSanitizer.hasInlineIconUrl(sanitizedResponse)
         val stage3HasInlineImage = PipelineMediaSanitizer.genUiPreservesInlineImages(stage3Json)
         val stage3HasInlineIcon = PipelineMediaSanitizer.genUiPreservesInlineIcons(stage3Json)
@@ -2122,7 +2117,7 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering output")
         val stage4StartedAtMs = System.currentTimeMillis()
-        val renderResult = GenUiNativeRenderer.render(stage3Json, sourceDir = null)
+        val renderResult = GenUiNativeRenderer.render(finalWirePayload, sourceDir = null)
 
         if (renderResult.errorMessage != null) {
             markDuration(Stage.STAGE4, stage4StartedAtMs)
@@ -2413,6 +2408,29 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
         return FinalStage3SafetyResult(jsonText = gson.toJson(wire), error = null)
+    }
+
+    /**
+     * Keep the debug/transport-facing Stage 3 value model-facing Express even
+     * though the safety gate returns the validated standard wire stream. The
+     * native renderer receives the already-validated wire payload separately.
+     */
+    private fun wirePayloadToExpressPayload(wireJson: String): String {
+        val wire = JsonParser.parseString(wireJson)
+        val graph = A2uiWireCodec.decode(wire)
+        val validation = A2uiCanonicalGraph.validate(graph)
+        require(validation.isValid) {
+            validation.error ?: "Wire payload failed canonical validation before Express re-encoding."
+        }
+        val express = A2uiExpressCodec.encode(graph)
+        val roundTrip = GenUiIrCodec.decode(JsonPrimitive(express))
+        require(roundTrip.sourceFormat == GenUiIrFormat.A2UI_EXPRESS_V1) {
+            "Wire payload did not re-encode to A2UI Express."
+        }
+        require(A2uiCanonicalGraph.validate(roundTrip.canonicalGraph).isValid) {
+            "Re-encoded A2UI Express failed canonical validation."
+        }
+        return express
     }
 
     private fun buildStrictStage3FailureDebugLog(diagnostics: Stage3RepairDiagnostics): String {

@@ -1,53 +1,62 @@
 {
-  "report_version": "a2ui_express_test_report.v1",
+  "report_version": "a2ui_express_test_report.v2",
   "environment": {
     "host_date": "2026-08-03",
     "device_serial": "R3CW408WE4J",
     "device_model": "SM-F731U",
     "device_os": "Android 16",
+    "apk_version_name": "1.1.0",
+    "apk_version_code": 2,
     "install_policy": "update install only; no uninstall, clear-data, model deletion, or reindex"
   },
   "passed": [
     {
-      "command": "python -m pytest dataset/tests -q; python -m pytest training/tests -q",
-      "result": "422 dataset tests + 49 training tests passed in separate suites; 7 dataset deprecation warnings"
+      "command": "$env:PYTHONPATH='dataset/src;training/src'; python -m pytest -q dataset/tests training/tests --disable-warnings",
+      "result": "476 passed, 7 warnings in 106.28s"
     },
     {
-      "command": "./gradlew :app:testDebugUnitTest --no-daemon",
-      "result": "BUILD SUCCESSFUL; 297 tests passed across 39 XML suites with 0 failures and 0 errors"
+      "command": "./gradlew.bat :app:testDebugUnitTest --no-daemon",
+      "result": "BUILD SUCCESSFUL; 297 tests across 39 XML suites, 0 failures, 0 errors"
     },
     {
-      "command": "python dataset/scripts/generate_ir_specs.py --check",
-      "result": "15 generated artifacts verified"
+      "command": "python dataset/scripts/generate_a2ui_express_prompt.py --check; python dataset/scripts/generate_ir_specs.py --check; python -m compileall -q dataset/src training/src",
+      "result": "A2UI Express prompt verified (5 files); IR artifacts verified (21 files); Python compileall passed"
     },
     {
-      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --output-dir <temporary-output> --strict",
+      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-row FlatSpec JSONL> --output-dir <temporary-output> --input-format flat_spec_v1 --strict",
       "result": "32 accepted, 0 rejected; Express and standard-wire semantic hashes matched"
     },
     {
-      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --output-dir <same-temporary-output> --resume --strict",
+      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <same-32-row JSONL> --output-dir <same-temporary-output> --input-format flat_spec_v1 --strict --resume",
       "result": "0 new, 0 rejected; deterministic resume pass"
     },
     {
+      "command": "$env:PYTHONPATH='dataset/src'; python dataset/scripts/benchmark_ir_formats.py --output-json docs/review_artifacts/a2ui_express_token_benchmark.json --output-csv docs/review_artifacts/a2ui_express_token_benchmark.csv",
+      "result": "32/32 round trips passed for FlatSpec baseline, Express, and standard wire; lexical token gate explicitly BLOCKED"
+    },
+    {
+      "command": "powershell -ExecutionPolicy Bypass -File C:\\Users\\anupk\\.codex\\skills\\android-build-install\\scripts\\build_install_android.ps1 -Root C:\\Users\\anupk\\Documents\\git\\A2UI\\android -Module :app -Variant Debug -Serial R3CW408WE4J",
+      "result": "Debug APK built and update-installed on the connected Flip without modifying app data"
+    },
+    {
       "command": "./gradlew.bat :app:connectedDebugAndroidTest \"-Pandroid.testInstrumentationRunnerArguments.class=com.samsung.genuicraft.A2uiExpressRenderOnDeviceTest\" --no-daemon",
-      "result": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip passed on R3CW408WE4J (SM-F731U, Android 16); the secondary SM-F966B target was not runnable because its existing package signature differs"
+      "result": "1/1 Express device smoke passed on SM-F731U and 1/1 passed on SM-F966B, both Android 16"
     },
     {
-      "command": "powershell ... build_install_android.ps1 -Root android -Module :app -Variant Debug -Serial R3CW408WE4J",
-      "result": "Debug APK built and installed as an update"
-    },
-    {
-      "command": "adb shell am instrument -w -e class com.samsung.genuicraft.A2uiExpressRenderOnDeviceTest com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner",
-      "result": "1/1 device test passed after update install; result screenshot and window hierarchy pulled from the test process"
+      "command": "adb start MainActivity; open GenUI Demo; select Flights BLR to LKO starter; pull UI hierarchy",
+      "result": "GenUI Demo rendered; hierarchy exposed generated A2UI Express copy, Native render tile, and starter populated with Show flights from BLR to LKO on 18 August 2026"
     }
   ],
   "device_render_evidence": {
     "test": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip",
     "visual_result": "A2UI Express title, native Compose card, and Details/Ready state rendered correctly; the window hierarchy contains the Table component",
     "screenshot_path": "C:/Users/anupk/Documents/git/A2UI/docs/review_artifacts/a2ui_express_device_smoke/screenshot_flip.png",
-    "screenshot_sha256": "4ACCAE7137BCA24A1658B40CFE7EEF81FE1F0C1980BECAB6FAB66A831001C0C9",
+    "screenshot_sha256": "681EAC79B768368CDE150349EF2FE48A33812F970F464FD41D906A865A81173E",
     "window_dump_sha256": "953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09",
-    "note": "The screenshot and window hierarchy were copied from the test process result directory after the Flip test; the screenshot shows the A2UI Express title, native Compose card, and Details/Ready state, while the hierarchy contains the Table component. Device binaries remain outside the source-only review ZIP."
+    "genui_demo_landing_screenshot_sha256": "621C47B25A2936039D8ABAEF89CFE800133A15FD0B08A5569A4DF66894BD727A",
+    "genui_demo_landing_window_sha256": "25D0E75129322A0292733FD8477032A0438C0219EBEA05BD968ADB34C0D15EF9",
+    "flight_starter_window_sha256": "5B163651A2134FAAED1152F72C726DD54D25438B3502E0525BC2AB0717EAF408",
+    "note": "The screenshot and hierarchy were pulled from the connected Flip test process; the GenUI Demo landing and starter hierarchy were captured separately. Device binaries remain outside the source-only review ZIP."
   },
   "blocked": [
     {
@@ -59,11 +68,16 @@
       "test": "Gemma4E2bPretrainedMtpOnDeviceTest",
       "result": "blocked before generation",
       "reason": "The requested Gemma 4 E2B .litertlm checkpoint is absent from both documented app model directories on the connected device. No model or app data was removed."
+    },
+    {
+      "test": "Exact deployed Gemma tokenizer benchmark",
+      "result": "blocked",
+      "reason": "The deployed tokenizer/checkpoint is unavailable; the benchmark uses a labeled regex lexical diagnostic and cannot make a production token-selection claim."
     }
   ],
   "not_run": [
-    "Exact deployed Gemma tokenizer benchmark: tokenizer/checkpoint unavailable; lexical diagnostic is labeled non-exact.",
-    "Successful live Vertex response generation: billing must be enabled or a working project key supplied."
+    "Successful live Vertex response generation: billing must be enabled or a working project key supplied.",
+    "Successful on-device Gemma MTP generation: the requested .litertlm checkpoint must be provisioned on the device."
   ],
-  "interpretation": "Blocked external model tests are not counted as passes. All local parser/compiler/training/renderer tests and the connected-device Express rendering smoke test passed."
+  "interpretation": "Blocked external model tests are not counted as passes. All local parser/compiler/training/renderer tests, schema/prompt drift checks, migration checks, benchmark round trips, and connected-device Express rendering checks passed."
 }

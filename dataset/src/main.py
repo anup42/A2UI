@@ -877,14 +877,14 @@ def main() -> None:
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
                 aggregates_path=model_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
-                metric_version=eval_cfg.get("metric_version", "dual"),
+                metric_version=eval_cfg.get("metric_version", "v5_4"),
                 ir_formats=run_cfg.get("stage3_ir_formats"),
             )
             aggregates[model_name] = _compute_aggregates_with_backfill(
                 model_paths.genui_path,
                 model_paths.responses_path,
                 eval_cfg.get("weights", {}),
-                eval_cfg.get("metric_version", "dual"),
+                eval_cfg.get("metric_version", "v5_4"),
             )
 
         run_paths.aggregates_path.write_text(json.dumps(aggregates, indent=2), encoding="utf-8")
@@ -923,7 +923,7 @@ def main() -> None:
                 run_paths.genui_path,
                 run_paths.responses_path,
                 eval_cfg.get("weights", {}),
-                eval_cfg.get("metric_version", "dual"),
+                eval_cfg.get("metric_version", "v5_4"),
             )
             run_paths.aggregates_path.write_text(
                 json.dumps(aggregates, indent=2),
@@ -1033,7 +1033,7 @@ def main() -> None:
                 max_attempts=int(run_cfg.get("max_attempts", 3)),
                 aggregates_path=run_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
-                metric_version=eval_cfg.get("metric_version", "dual"),
+                metric_version=eval_cfg.get("metric_version", "v5_4"),
                 ir_formats=run_cfg.get("stage3_ir_formats"),
             )
             logger.info("Stage3 complete.")

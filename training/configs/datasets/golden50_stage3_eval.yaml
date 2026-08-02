@@ -6,10 +6,7 @@ run:
   target_format: a2ui_express_v1
   prompt_version: genui_gen_mobile_a2ui_express_v1
   schema_path: ../dataset/schema/genuicraft_a2ui_express_profile_v1.json
-  system_prompt: |
-    You convert response text into A2UI Express v1 for the Android GenUI renderer.
-    Return exactly one <a2ui>...</a2ui> block and no prose or markdown fences.
-    Use explicit named properties and action calls; opaque metadata bags are forbidden.
+  system_prompt: ""
 filters:
   require_strict_express: true
   max_input_chars: 60000

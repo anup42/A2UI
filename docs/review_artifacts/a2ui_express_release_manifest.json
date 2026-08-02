@@ -28,8 +28,8 @@
     },
     "files": {
       "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
-        "sha256": "68cbb1b692a512d6a6754c7ce834975cf88eb8edbba9b364be737747132c49d1",
-        "bytes": 101570
+        "sha256": "668082a49664d33c154ac62c8a58db24b487df683d1c17112d74c9b3bd98a9d1",
+        "bytes": 105907
       },
       "dataset/schema/genuicraft_a2ui_express_profile_v1.json": {
         "sha256": "18d5675c4c95d227cd4148a68caff35f166b61d3a8caa7fb76d30f6dd40fd786",
@@ -40,12 +40,12 @@
         "bytes": 967
       },
       "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": {
-        "sha256": "2458d032434967a04271155072c7b1cbad3128096a35205101a56febad5aad2a",
-        "bytes": 79113
+        "sha256": "01bb062a82de3a026bb5f1c9412c169ca55464d598c9acfb7eb19d3ed1bd3628",
+        "bytes": 81340
       },
       "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md": {
-        "sha256": "7a14b63bfe27ad3810221521dcff1660bb239bff3621f77348f0d189e4ba366b",
-        "bytes": 4762
+        "sha256": "5eadf7a877932d8279234f7a9a0bba55dae151c58c4b834efbe3caee2f6a86cc",
+        "bytes": 4453
       },
       "dataset/src/pipeline/ir_formats/express.py": {
         "sha256": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
@@ -101,27 +101,27 @@
     "device_render_window": "docs/review_artifacts/a2ui_express_device_smoke/window_flip.xml"
   },
   "validation": {
-    "python_dataset_tests": "python -m pytest dataset/tests -q: 422 passed, 7 deprecation warnings",
-    "python_training_tests": "python -m pytest training/tests -q: 49 passed",
+    "python_dataset_training_tests": "$env:PYTHONPATH='dataset/src;training/src'; python -m pytest -q dataset/tests training/tests --disable-warnings: 476 passed, 7 warnings",
     "android_jvm_tests": "./gradlew :app:testDebugUnitTest --no-daemon: BUILD SUCCESSFUL (297 tests; 0 failures, 0 errors)",
-    "pinned_artifact_check": "python dataset/scripts/generate_ir_specs.py --check: 15 generated artifacts verified",
-    "device_express_render": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip: 1/1 passed on SM-F731U / Android 16; screenshot SHA 4ACCAE7137BCA24A1658B40CFE7EEF81FE1F0C1980BECAB6FAB66A831001C0C9; window SHA 953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09; secondary SM-F966B install incompatible",
+    "pinned_artifact_check": "python dataset/scripts/generate_a2ui_express_prompt.py --check; python dataset/scripts/generate_ir_specs.py --check: 5 prompt mirrors and 21 IR artifacts verified",
+    "device_express_render": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip: 1/1 passed on SM-F731U and 1/1 on SM-F966B, both Android 16; Flip screenshot SHA 681EAC79B768368CDE150349EF2FE48A33812F970F464FD41D906A865A81173E; window SHA 953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09",
     "legacy_migration": "32 accepted, 0 rejected; deterministic resume pass",
     "url_masking": "Stage3 Python mask/restore test plus Android McpUrlShortener tests passed",
-    "source_zip_denylist": "source-only archive scan: 0 credential/media/data/build/APK entries; device binaries and self-referential metadata excluded",
-    "express_conformance": "Python/Kotlin shared corpus: 4 valid and 12 invalid cases accepted/rejected equivalently"
+    "source_zip_denylist": "source-only archive scan: 0 credential/media/data/build/APK entries; device binaries excluded; external archive hash avoids self-reference",
+    "express_conformance": "Python/Kotlin shared corpus: 4 valid and 12 invalid cases accepted/rejected equivalently",
+    "genui_demo_device": "Flip landing screenshot SHA 621C47B25A2936039D8ABAEF89CFE800133A15FD0B08A5569A4DF66894BD727A; starter hierarchy confirms 18 August 2026 (device date 2026-08-03)"
   },
   "external_blockers": [
     "Vertex Express smoke call reached Google but returned HTTP 403 because billing is disabled for the key's project.",
     "Gemma 4 E2B .litertlm checkpoint was absent from both documented app model directories on the connected device."
   ],
   "review_zip": {
-    "path": "C:/Users/anupk/Downloads/A2UI-a2ui-express-review-20260803-r8.zip",
+    "path": "C:/Users/anupk/Downloads/A2UI-a2ui-express-review-20260803-r9.zip",
     "source_only": true,
-    "sha256": "F47E10594EAA53FE4CC1FB50179B359EE0C063BEC8084477AEFA54460A0EC700",
-    "bytes": 8708815,
-    "archive_entries": 2900,
-    "hash_note": "SHA-256 is reported in the final handoff; the archive is generated from the audited source allowlist and excludes data, media, model, build, APK, credential, device-artifact, and self-referential review-metadata entries."
+    "sha256": null,
+    "bytes": null,
+    "archive_entries": 3528,
+    "hash_note": "The final archive SHA-256 and byte count are reported in the handoff after archive creation; the archive is generated from the audited source allowlist and excludes data, media, model, build, APK, credential, and device-artifact entries."
   },
   "secret_policy": "No API keys, service-account credentials, APKs, datasets, media, or device screenshots are included in the source-only release artifact."
 }

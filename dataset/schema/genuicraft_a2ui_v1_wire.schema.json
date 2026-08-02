@@ -66,6 +66,104 @@
         }
       }
     },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "event"
+          ],
+          "properties": {
+            "event": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "context": {
+                  "type": "object"
+                },
+                "wantResponse": {
+                  "type": "boolean"
+                },
+                "responsePath": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "functionCall"
+          ],
+          "properties": {
+            "functionCall": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "call"
+              ],
+              "properties": {
+                "call": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "args": {
+                  "type": "object"
+                },
+                "returnType": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "actionMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "repeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statePath"
+      ],
+      "properties": {
+        "statePath": {
+          "type": "string",
+          "pattern": "^/.*"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "template": {
+          "type": "string",
+          "minLength": 1
+        },
+        "itemTemplate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "child": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "dynamicString": {
       "oneOf": [
         {
@@ -207,69 +305,6 @@
         }
       ]
     },
-    "action": {
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "event"
-          ],
-          "properties": {
-            "event": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "name"
-              ],
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "context": {
-                  "type": "object"
-                },
-                "wantResponse": {
-                  "type": "boolean"
-                },
-                "responsePath": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "functionCall"
-          ],
-          "properties": {
-            "functionCall": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "call"
-              ],
-              "properties": {
-                "call": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "args": {
-                  "type": "object"
-                },
-                "returnType": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
     "components": {
       "Alert": {
         "type": "object",
@@ -289,7 +324,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -382,7 +419,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -484,7 +523,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -574,7 +615,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -673,7 +716,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -778,7 +823,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -859,7 +906,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -943,7 +992,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1027,7 +1078,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1108,7 +1161,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1189,7 +1244,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1276,7 +1333,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1348,7 +1407,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1450,7 +1511,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1540,7 +1603,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1639,7 +1704,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1755,7 +1822,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1830,7 +1899,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -1911,7 +1982,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2001,7 +2074,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2192,7 +2267,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2303,7 +2380,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2381,7 +2460,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2462,7 +2543,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2546,7 +2629,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2648,7 +2733,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {
@@ -2822,7 +2909,9 @@
           "children": {
             "$ref": "#/$defs/childList"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
             "type": "object",
             "additionalProperties": {

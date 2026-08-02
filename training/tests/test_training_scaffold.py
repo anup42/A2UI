@@ -131,6 +131,47 @@ def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
     assert (out_dir / "all.jsonl").exists()
 
 
+def test_prepare_dataset_assigns_source_groups_before_target_materialization(tmp_path):
+    run_dir = tmp_path / "grouped_run"
+    spec = {
+        "root": "root",
+        "state": {},
+        "elements": {"root": {"type": "Text", "props": {"text": "same"}, "children": []}},
+    }
+    responses = []
+    genui = []
+    for index in range(12):
+        responses.append({
+            "response_id": f"r{index}",
+            "source_id": f"source-{index // 2}",
+            "response_text": f"Source group {index // 2}",
+            "intent_bucket": "status" if index % 2 else "weather",
+        })
+        genui.append({
+            "response_id": f"r{index}",
+            "source_id": f"source-{index // 2}",
+            "ui_id": f"u{index}",
+            "genui_json": spec,
+        })
+    _write_jsonl(run_dir / "responses.jsonl", responses)
+    _write_jsonl(run_dir / "genui.jsonl", genui)
+    out_dir = tmp_path / "grouped_out"
+    manifest = prepare_dataset({
+        "run": {"source_run_dir": str(run_dir), "output_dir": str(out_dir), "seed": 7},
+        "filters": {"max_input_chars": 1000, "max_output_chars": 1000},
+        "split": {"train": 0.5, "val": 0.25, "test": 0.25, "stratify_by": "intent_bucket"},
+    })
+    assert manifest["split_assignment_stage"] == "source_group_before_target_materialization"
+    assignments = {}
+    for split in ("train", "val", "test"):
+        path = out_dir / f"{split}.jsonl"
+        for line in path.read_text(encoding="utf-8").splitlines():
+            row = json.loads(line)
+            previous = assignments.setdefault(row["source_id"], split)
+            assert previous == split
+    assert len(assignments) == manifest["source_group_count"]
+
+
 def test_url_preprocessing_placeholderizes_and_restores_roles():
     spec = {
         "root": "root",

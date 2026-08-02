@@ -24,13 +24,7 @@ class PipelinePromptBuilderTest {
         assertTrue(prompt.contains("selected GenUICraft IR format"))
         assertTrue(prompt.contains("A2UI Express policy"))
         assertTrue(prompt.contains("Order A-1042 is out for delivery."))
-        assertTrue(prompt.contains("openUrl(\"https://...\")"))
-        assertTrue(prompt.contains("bare component type such as Icon"))
-        assertTrue(prompt.contains("never expose assignment ids or snake_case names"))
-        assertTrue(prompt.contains("every carrier, status, ETA"))
-        assertTrue(prompt.contains("never an unassigned generic name such as action"))
-        assertTrue(prompt.contains("Table(columns,statePath,rows,title,domain,preferredPresentation)"))
-        assertTrue(prompt.contains("Table([\"Detail\",\"Value\"],_,[[\"Status\",\"Ready\"]]"))
+        assertTrue(prompt.contains("follow the generated pinned Express contract"))
     }
 
     @Test

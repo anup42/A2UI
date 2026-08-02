@@ -18,22 +18,22 @@ This plan is the review checkpoint for the attached single-active-IR directive. 
 | Pinned Express grammar version/blob or commit | DONE | Manifest pins `genuicraft-express-v1` and grammar blob `4f2492ae4600598d8b10e68fcd9f4292529dd653`. |
 | Strict standard catalog | DONE | Generated catalog has closed schemas and explicit renderer properties. |
 | Express inference profile | DONE | `dataset/schema/genuicraft_a2ui_express_profile_v1.json`. |
-| Python/Kotlin parser strategy and equivalence | PARTIAL | Both strict codecs pass local suites and consume the shared conformance corpus; handwritten implementations still need a generated parser/equivalence gate. |
+| Python/Kotlin parser strategy and equivalence | PARTIAL | Both strict codecs pass local suites and consume the shared conformance corpus; handwritten implementations still need a generated parser/equivalence gate. The limitation is explicit rather than treated as complete. |
 | Canonical graph and semantic hash | DONE | Canonical schema and round-trip hash checks in Python/Kotlin/migration tests. |
 | Standard A2UI compiler and schema validation | DONE | Wire codec requires standard `root` component and validates schema-facing payloads. |
-| Explicit shared repair layer and validity separation | PARTIAL | Raw/native/repaired fields are separated and invalid raw cases are covered; the repair rule implementation is not yet generated from one shared rule file. |
-| Shared prompt generation and drift check | PARTIAL | Express mirrors and prompt verification pass; a fully generated signature template is a follow-up. |
+| Explicit shared repair layer and validity separation | DONE | Raw/native/repaired fields are separate in dataset metrics and Android Stage 3; malformed-raw/valid-repaired coverage passes in `training/tests/test_express_metrics.py`, and repair prompts load the generated Express contract. |
+| Shared prompt generation and drift check | DONE | `dataset/scripts/generate_a2ui_express_prompt.py --check` verifies five byte-identical mirrors; `dataset/tests/test_a2ui_express_prompt_generation.py` passes. |
 | Lossless Express encoder/decoder and optimization rules | DONE | Strict codec tests, sparse positional fix, deterministic/default-elision rules, and benchmark round-trips. |
 | Legacy dataset migration command, resume, manifests, rejects | DONE | 32/32 strict conversion and deterministic resume pass; migration report. |
 | Stage 3 generation pipeline Express-only | DONE | Express-only prompt/format and wrong-native-format rejection tests. |
 | SFT/GRPO/preference/MTP/evaluation Express-only targets | DONE | Express configs/target guards, strict GRPO reward, generation/MTP evaluators, and training tests pass. Live MTP model execution is separately blocked by device state. |
 | Immutable source-group split isolation | DONE | `test_source_group_splits.py` passes with zero group leakage. |
 | Tokenizer-accurate benchmark and regression metrics | BLOCKED | 32-sample p50/p90/p95 lexical diagnostic is labeled non-exact; exact deployed Gemma tokenizer/checkpoint is unavailable. |
-| Android prompt, parser, compiler, renderer ingestion, telemetry | PARTIAL | Local/JVM/device Express render path passes; Vertex live call is externally blocked by billing and Gemma checkpoint is missing. |
+| Android prompt, parser, compiler, renderer ingestion, telemetry | DONE | Update-installed Debug APK; JVM suite 297/297 and connected Express smoke 1/1 on both SM-F731U and SM-F966B; GenUI Demo landing and current-date-plus-15-days starter were inspected on the Flip; settings/IR-demo format selectors were removed. Vertex and Gemma live gates remain separately BLOCKED. |
 | Cross-language fixture corpus and conformance report | DONE | `dataset/tests/fixtures/a2ui_express_conformance_v1.json` and the byte-identical Android test resource are consumed by Python and Kotlin tests; report records the remaining handwritten-parser limitation. |
-| Dataset/training/Android/static cleanup tests | DONE | 422 dataset and 49 training tests passed separately, 297 Android JVM tests passed, and the Flip device Express smoke test passed; cleanup scan recorded. |
+| Dataset/training/Android/static cleanup tests | DONE | Combined Python suite 476 passed with 7 warnings, Android JVM 297 passed, connected Express smoke passed on both devices, and prompt/IR checks passed; cleanup scan recorded. |
 | Release gates 1-20 | PARTIAL | Local gates pass; exact deployed-tokenizer and two external model gates are blocked and documented. |
-| Required reports, manifest, checksums, patch, and review ZIP | DONE | Final reports, staged patch, source-only ZIP (`A2UI-a2ui-express-review-20260803-r7.zip`), release manifest, and SHA-256 checksums were regenerated from the audited index. |
+| Required reports, manifest, checksums, patch, and review ZIP | DONE | Reports, manifest, changed-files inventory, code-only patch, checksums, and the source-only review ZIP are regenerated from the final staged source; the external archive hash is supplied in the handoff. |
 
 ## Working constraints
 

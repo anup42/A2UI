@@ -236,15 +236,9 @@ def benchmark(
             "token_reduction_vs_flat": _summarize(token_reductions),
         }
 
-    valid_production_formats = [
-        format_id
-        for format_id in (A2UI_EXPRESS_V1, A2UI_V1_WIRE)
-        if by_format[format_id]["roundtrip_passed"] == by_format[format_id]["samples"]
-    ]
-    preferred = min(
-        valid_production_formats,
+    offline_order = sorted(
+        (A2UI_EXPRESS_V1, A2UI_V1_WIRE),
         key=lambda item: by_format[item]["tokens"]["total"],
-        default=None,
     )
     report = {
         "report_version": "genuicraft_ir_benchmark.v1",
@@ -270,8 +264,11 @@ def benchmark(
         },
         "codec_identity": codec_identity(),
         "formats": by_format,
-        "preferred_production_format_by_token_total": preferred,
-        "selection_guard": "Only formats with 100% semantic round-trip pass are eligible; UI component count is unchanged.",
+        # Express is the sole active model-output format.  This ordering is
+        # retained only as an offline regression view; it is never consumed by
+        # production format or checkpoint selection.
+        "offline_comparison_order_by_token_total": offline_order,
+        "selection_guard": "Token metrics are regression diagnostics only; production format and checkpoint selection are fixed to A2UI Express.",
     }
     return report, rows
 

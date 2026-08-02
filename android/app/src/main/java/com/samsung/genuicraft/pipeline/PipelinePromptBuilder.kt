@@ -134,18 +134,10 @@ internal object PipelinePromptBuilder {
         }
 
         val formatPolicy = when (outputFormat) {
-            GenUiIrFormat.A2UI_EXPRESS_V1 -> "A2UI Express policy for this request:\n" +
-                "- Return one <a2ui>...</a2ui> block and no prose.\n" +
-                "- Assign the root component to reserved variable root.\n" +
-                "- Preserve rich UI structure and all requested interactions.\n" +
-                "- Use explicit named properties, children, repeat, visible, watch, and action arguments; opaque _props/_children/_repeat/_visible/_on/_watch bags are forbidden.\n" +
-                "- Table positional signature is Table(columns,statePath,rows,title,domain,preferredPresentation); use _ for statePath with inline rows, for example Table([\"Detail\",\"Value\"],_,[[\"Status\",\"Ready\"]],\"Details\",\"status\",\"table\").\n" +
-                "- Event values must be action calls: use Event(\"name\",{}) for app events or openUrl(\"https://...\") for links; never use a quoted URL or event name directly as onPress/onClick.\n" +
-                "- In child lists, inline components require call syntax such as Icon(\"local_shipping\"); a bare component type such as Icon is an unresolved reference.\n" +
-                "- Visible text, Card titles, and button labels must be natural user-facing copy; never expose assignment ids or snake_case names such as status_card.\n" +
-                "- Audit every response value before returning: every carrier, status, ETA, date, time, amount, unit, and identifier must appear in visible Text, Card, or Table content; appearing only in an action URL does not count.\n" +
-                "- Final identifier audit: every child name must exactly match an assignment; if the Button is assigned as button, reference button and never an unassigned generic name such as action.\n" +
-                "- Every component reference must resolve and every useful component must be reachable from root."
+            GenUiIrFormat.A2UI_EXPRESS_V1 ->
+                "A2UI Express policy for this request: follow the generated " +
+                    "pinned Express contract in the system prompt exactly; " +
+                    "preserve all semantics and return no prose."
             else -> error("Only A2UI Express is a production model-output format.")
         }
         val responseWithPolicy = "${stage2Response.trim()}\n\n$formatPolicy\n\n$assetPolicy"

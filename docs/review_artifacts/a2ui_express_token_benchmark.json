@@ -184,6 +184,9 @@
       }
     }
   },
-  "preferred_production_format_by_token_total": "a2ui_express_v1",
-  "selection_guard": "Only formats with 100% semantic round-trip pass are eligible; UI component count is unchanged."
+  "offline_comparison_order_by_token_total": [
+    "a2ui_express_v1",
+    "a2ui_v1_wire"
+  ],
+  "selection_guard": "Token metrics are regression diagnostics only; production format and checkpoint selection are fixed to A2UI Express."
 }

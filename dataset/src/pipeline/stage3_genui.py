@@ -1269,10 +1269,13 @@ def run_stage3(
 
     def _repair_instructions(raw_text: str, errors: list[str]) -> str:
         failure_reason = "; ".join(errors[-5:]) if errors else "format validation failed"
+        shared_contract = prompt_template.replace(
+            "{response_text}", "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]"
+        ).strip()
         return (
-            "Repair the malformed GenUICraft A2UI Express v1 completion. "
-            "Return ONLY one complete <a2ui>...</a2ui> block. Do not return JSON, "
-            "legacy FlatSpec or prose. Preserve the full UI semantics while emitting only A2UI Express. "
+            "The previous completion failed strict validation. Re-emit it using this generated "
+            "pinned A2UI Express contract; preserve all source facts and interactions.\n\n"
+            f"{shared_contract}\n\n"
             f"Errors: {failure_reason}\n\nOriginal:\n{raw_text}"
         )
 

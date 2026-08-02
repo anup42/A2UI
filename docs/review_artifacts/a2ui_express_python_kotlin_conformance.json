@@ -6,7 +6,7 @@
       "dataset/tests/test_ir_formats.py",
       "dataset/tests/test_stage3_a2ui_express.py"
     ],
-      "result": "422 dataset tests passed separately; shared corpus acceptance/rejection cases passed"
+      "result": "476 combined dataset/training tests passed; shared corpus acceptance/rejection cases passed"
   },
   "kotlin": {
     "tests": [

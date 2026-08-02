@@ -64,14 +64,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -214,14 +216,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -373,14 +377,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -518,14 +524,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -684,14 +692,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -844,14 +854,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -973,14 +985,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1107,14 +1121,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1241,14 +1257,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1372,14 +1390,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1504,14 +1524,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1630,14 +1652,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1755,14 +1779,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -1913,14 +1939,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -2059,14 +2087,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -2223,14 +2253,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -2387,14 +2419,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -2506,14 +2540,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -2640,14 +2676,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -2797,14 +2835,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -3057,14 +3097,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -3221,14 +3263,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -3347,14 +3391,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -3477,14 +3523,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -3615,14 +3663,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -3790,14 +3840,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -4040,14 +4092,16 @@
             }
           },
           "repeat": {
-            "type": "object"
+            "$ref": "#/$defs/repeat"
           },
-          "visible": {},
+          "visible": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
           "on": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "watch": {
-            "type": "object"
+            "$ref": "#/$defs/actionMap"
           },
           "accessibility": {
             "$ref": "#/$defs/dynamicObject"
@@ -4366,6 +4420,99 @@
             "any",
             "void"
           ]
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "params"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "openUrl",
+            "setState",
+            "pushState",
+            "removeState",
+            "validateForm",
+            "emitEvent"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "statePath": {
+              "type": "string"
+            },
+            "value": {},
+            "index": {
+              "type": [
+                "integer",
+                "string"
+              ]
+            },
+            "clearStatePath": {
+              "type": "string"
+            },
+            "resultStatePath": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object"
+            },
+            "wantResponse": {
+              "type": "boolean"
+            },
+            "responsePath": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "actionMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "repeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statePath"
+      ],
+      "properties": {
+        "statePath": {
+          "type": "string",
+          "pattern": "^/.*"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "template": {
+          "type": "string",
+          "minLength": 1
+        },
+        "itemTemplate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "child": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },

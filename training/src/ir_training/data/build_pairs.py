@@ -43,6 +43,11 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
     url_preprocessing_enabled = bool(url_cfg.get("enabled", True))
 
     accepted: list[dict[str, Any]] = []
+    # Keep source-level records separate from serialized completion targets.
+    # Split assignment is deliberately performed on this list before an
+    # Express target is materialized, so target-format suffixes can never
+    # influence train/validation/test membership.
+    prepared_sources: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     seen_hashes: set[str] = set()
 
@@ -123,28 +128,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 if isinstance(processed_bundle, dict)
                 else assets
             )
-            completion_targets = materialize_completion_targets(processed_graph)
             selected_target_formats = resolve_target_formats(run_cfg, genui)
-            # Validate the serialized target, never the legacy graph, as the
-            # production training contract.
-            completion_check = row_passes_express_filters(
-                response_text=url_processed.response_text,
-                completion=completion_targets[A2UI_EXPRESS_V1],
-                validator=validator,
-                max_input_chars=max_input_chars,
-                max_output_chars=max_output_chars,
-            )
-            if not completion_check.valid:
-                rejected.append(
-                    {
-                        "response_id": response_id,
-                        "source_path": source_key,
-                        "reason": completion_check.reason or "express_invalid",
-                        "source_format": source_format,
-                    }
-                )
-                continue
-
             query_id = genui.get("query_id") or response.get("query_id")
             intent = genui.get("intent") or response.get("intent")
             tags = genui.get("tags") or response.get("tags") or []
@@ -154,98 +138,179 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 or response.get("expected_ui_contract")
             )
             row_id = genui.get("ui_id") or f"u_{response_id}"
+            source_id = str(
+                genui.get("source_id")
+                or response.get("source_id")
+                or query_id
+                or response_id
+            )
             response_generation = _generation_metadata(response.get("gen"))
             ir_generation = _generation_metadata(genui.get("gen"))
-            for target_format in selected_target_formats:
-                target_payload = completion_targets[target_format]
-                completion = serialize_completion(target_payload, target_format)
-                dedupe_key = hashlib.sha256(
-                    (target_format + "\n" + url_processed.response_text + "\n" + completion).encode("utf-8")
-                ).hexdigest()
-                if deduplicate and dedupe_key in seen_hashes:
-                    rejected.append(
-                        {
-                            "response_id": response_id,
-                            "source_path": source_key,
-                            "reason": "duplicate_pair",
-                            "target_format": target_format,
-                        }
-                    )
-                    continue
-                seen_hashes.add(dedupe_key)
-                prompt = build_prompt(
-                    system_prompt,
-                    url_processed.response_text,
-                    target_format=target_format,
-                )
-                accepted.append(
-                    {
-                        "id": f"{source_key}:{row_id}:{target_format}",
-                        "response_id": response_id,
-                        "messages": build_messages(
-                            system_prompt,
-                            url_processed.response_text,
-                            target_payload,
-                            target_format=target_format,
-                        ),
-                        "prompt": prompt,
-                        "completion": completion,
-                        "a2ui_express": completion,
-                        "completion_targets": completion_targets,
-                        "canonical_graph": processed_graph,
-                        "target_format": target_format,
-                        "source_format": source_format,
-                        "semantic_hash": semantic_hash(processed_graph),
-                        # Preserve candidate-independent reward columns for an SFT -> GRPO handoff.
-                        "source_id": str(query_id or response_id),
-                        "response_text": url_processed.response_text,
-                        "intent_bucket": intent_bucket,
-                        "assets": masked_assets,
-                        "expected_ui_contract": expected_ui_contract,
-                        "source_model_family": str(
-                            ir_generation.get("model")
-                            or response_generation.get("model")
-                            or "unknown"
-                        ),
-                        "source_created_at": genui.get("created_at") or response.get("created_at"),
-                        "metadata": {
-                            "query_id": query_id,
-                            "ui_id": genui.get("ui_id"),
-                            "intent": intent,
-                            "intent_bucket": intent_bucket,
-                            "tags": tags,
-                            "prompt_version": run_cfg.get("prompt_version"),
-                            "schema_path": run_cfg.get("schema_path"),
-                            "source_path": source_key,
-                            "source_row_index": row_index,
-                            "target_format": target_format,
-                            "source_format": source_format,
-                            "input_chars": len(url_processed.response_text),
-                            "output_chars": len(completion),
-                            "response_generation": response_generation,
-                            "ir_generation": ir_generation,
-                            "source_generation": ir_generation,
-                            "url_preprocessing": {
-                                "enabled": url_preprocessing_enabled,
-                                "url_map": url_processed.url_map,
-                                "metrics": url_processed.metrics,
-                            },
-                        },
-                    }
-                )
+            prepared_sources.append(
+                {
+                    "source_key": source_key,
+                    "source_row_index": row_index,
+                    "row_id": row_id,
+                    "response_id": response_id,
+                    "query_id": query_id,
+                    "source_id": source_id,
+                    "source_format": source_format,
+                    "response_text": url_processed.response_text,
+                    "processed_graph": processed_graph,
+                    "masked_assets": masked_assets,
+                    "url_map": url_processed.url_map,
+                    "url_metrics": url_processed.metrics,
+                    "intent": intent,
+                    "intent_bucket": intent_bucket,
+                    "tags": tags,
+                    "expected_ui_contract": expected_ui_contract,
+                    "response_generation": response_generation,
+                    "ir_generation": ir_generation,
+                    "created_at": genui.get("created_at") or response.get("created_at"),
+                    "target_formats": selected_target_formats,
+                }
+            )
 
-    splits = stratified_split(
-        accepted,
+    # Assign immutable source groups before encoding or validating any active
+    # completion target. This remains true even if a future config adds more
+    # derived candidates or target views.
+    source_splits = stratified_split(
+        prepared_sources,
         train_ratio=float(split_cfg.get("train", 0.96)),
         val_ratio=float(split_cfg.get("val", 0.02)),
         test_ratio=float(split_cfg.get("test", 0.02)),
         stratify_key=str(split_cfg.get("stratify_by", "intent_bucket")),
         seed=int(run_cfg.get("seed", 42)),
     )
+    split_by_source_object = {
+        id(row): split_name
+        for split_name, rows in source_splits.items()
+        for row in rows
+    }
+    split_rows: dict[str, list[dict[str, Any]]] = {
+        "train": [],
+        "val": [],
+        "test": [],
+    }
+
+    for source in prepared_sources:
+        split_name = split_by_source_object.get(id(source), "train")
+        try:
+            completion_targets = materialize_completion_targets(source["processed_graph"])
+            for target_format in source["target_formats"]:
+                target_payload = completion_targets[target_format]
+                completion = serialize_completion(target_payload, target_format)
+                # Validate the serialized target, never the legacy graph, as
+                # the production training contract.
+                completion_check = row_passes_express_filters(
+                    response_text=source["response_text"],
+                    completion=completion,
+                    validator=validator,
+                    max_input_chars=max_input_chars,
+                    max_output_chars=max_output_chars,
+                )
+                if not completion_check.valid:
+                    rejected.append(
+                        {
+                            "response_id": source["response_id"],
+                            "source_path": source["source_key"],
+                            "reason": completion_check.reason or "express_invalid",
+                            "source_format": source["source_format"],
+                            "assigned_split": split_name,
+                        }
+                    )
+                    continue
+
+                dedupe_key = hashlib.sha256(
+                    (target_format + "\n" + source["response_text"] + "\n" + completion).encode("utf-8")
+                ).hexdigest()
+                if deduplicate and dedupe_key in seen_hashes:
+                    rejected.append(
+                        {
+                            "response_id": source["response_id"],
+                            "source_path": source["source_key"],
+                            "reason": "duplicate_pair",
+                            "target_format": target_format,
+                            "assigned_split": split_name,
+                        }
+                    )
+                    continue
+                seen_hashes.add(dedupe_key)
+                prompt = build_prompt(
+                    system_prompt,
+                    source["response_text"],
+                    target_format=target_format,
+                )
+                accepted_row = {
+                    "id": f"{source['source_key']}:{source['row_id']}:{target_format}",
+                    "response_id": source["response_id"],
+                    "messages": build_messages(
+                        system_prompt,
+                        source["response_text"],
+                        target_payload,
+                        target_format=target_format,
+                    ),
+                    "prompt": prompt,
+                    "completion": completion,
+                    "a2ui_express": completion,
+                    "completion_targets": completion_targets,
+                    "canonical_graph": source["processed_graph"],
+                    "target_format": target_format,
+                    "source_format": source["source_format"],
+                    "semantic_hash": semantic_hash(source["processed_graph"]),
+                    "source_id": source["source_id"],
+                    "response_text": source["response_text"],
+                    "intent_bucket": source["intent_bucket"],
+                    "assets": source["masked_assets"],
+                    "expected_ui_contract": source["expected_ui_contract"],
+                    "source_model_family": str(
+                        source["ir_generation"].get("model")
+                        or source["response_generation"].get("model")
+                        or "unknown"
+                    ),
+                    "source_created_at": source["created_at"],
+                    "metadata": {
+                        "query_id": source["query_id"],
+                        "ui_id": source["row_id"],
+                        "intent": source["intent"],
+                        "intent_bucket": source["intent_bucket"],
+                        "tags": source["tags"],
+                        "prompt_version": run_cfg.get("prompt_version"),
+                        "schema_path": run_cfg.get("schema_path"),
+                        "source_path": source["source_key"],
+                        "source_row_index": source["source_row_index"],
+                        "source_id": source["source_id"],
+                        "assigned_split": split_name,
+                        "target_format": target_format,
+                        "source_format": source["source_format"],
+                        "input_chars": len(source["response_text"]),
+                        "output_chars": len(completion),
+                        "response_generation": source["response_generation"],
+                        "ir_generation": source["ir_generation"],
+                        "source_generation": source["ir_generation"],
+                        "url_preprocessing": {
+                            "enabled": url_preprocessing_enabled,
+                            "url_map": source["url_map"],
+                            "metrics": source["url_metrics"],
+                        },
+                    },
+                }
+                accepted.append(accepted_row)
+                split_rows[split_name].append(accepted_row)
+        except (KeyError, TypeError, ValueError) as exc:
+            rejected.append(
+                {
+                    "response_id": source["response_id"],
+                    "source_path": source["source_key"],
+                    "reason": f"express_materialization_error:{exc}",
+                    "source_format": source["source_format"],
+                    "assigned_split": split_name,
+                }
+            )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     all_count = write_jsonl(output_dir / "all.jsonl", accepted)
-    counts = {name: write_jsonl(output_dir / f"{name}.jsonl", rows) for name, rows in splits.items()}
+    counts = {name: write_jsonl(output_dir / f"{name}.jsonl", rows) for name, rows in split_rows.items()}
     rejected_count = write_jsonl(output_dir / "rejected.jsonl", rejected)
     manifest = {
         "run_id": run_cfg.get("id", output_dir.name),
@@ -260,6 +325,8 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         "model_counts": _model_counts_by_generation(accepted),
         "filters": filter_cfg,
         "split": split_cfg,
+        "split_assignment_stage": "source_group_before_target_materialization",
+        "source_group_count": len({str(row["source_id"]) for row in prepared_sources}),
         "url_preprocessing": {"enabled": url_preprocessing_enabled},
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")

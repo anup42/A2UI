@@ -34,15 +34,37 @@ def score_prediction(
     )
 
     validation = validate_express_completion(generated_text, repaired_generated_text)
-    parsed = validation.canonical_graph if validation.raw_valid else None
-    wire_valid = False
-    wire_error = None
-    if parsed is not None:
+    raw_validation = validate_express_completion(generated_text)
+    repaired_validation = (
+        validate_express_completion(repaired_generated_text)
+        if repaired_generated_text is not None
+        else None
+    )
+
+    def _wire_status(graph: dict[str, Any] | None) -> tuple[bool, str | None]:
+        if graph is None:
+            return False, None
         try:
-            compile_express_to_wire(parsed)
-            wire_valid = True
+            compile_express_to_wire(graph)
+            return True, None
         except Exception as exc:
-            wire_error = f"{type(exc).__name__}:{exc}"
+            return False, f"{type(exc).__name__}:{exc}"
+
+    raw_graph = raw_validation.canonical_graph if raw_validation.raw_valid else None
+    repaired_graph = (
+        repaired_validation.canonical_graph
+        if repaired_validation is not None and repaired_validation.raw_valid
+        else None
+    )
+    raw_wire_valid, raw_wire_error = _wire_status(raw_graph)
+    repaired_wire_valid, repaired_wire_error = _wire_status(repaired_graph)
+    # The primary graph is raw when raw parsing succeeds; otherwise it is the
+    # explicitly repaired candidate for downstream quality metrics.  The
+    # distinct fields below prevent that fallback from being reported as raw
+    # native validity.
+    parsed = raw_graph if raw_graph is not None else repaired_graph
+    wire_valid = raw_wire_valid if raw_graph is not None else repaired_wire_valid
+    wire_error = raw_wire_error if raw_graph is not None else repaired_wire_error
     expected_graph = None
     expected_hash = None
     if expected is not None:
@@ -56,12 +78,19 @@ def score_prediction(
             expected_graph = None
     metrics: dict[str, Any] = {
         "express_parse_ok": validation.raw_valid,
-        "native_syntax_valid": validation.raw_valid,
-        "native_catalog_valid": validation.raw_valid,
-        "repaired_syntax_valid": validation.repaired_valid,
+        "native_syntax_valid": raw_validation.raw_valid,
+        "native_catalog_valid": raw_validation.raw_valid,
+        "raw_standard_a2ui_valid": raw_wire_valid,
+        "raw_standard_a2ui_error": raw_wire_error,
+        "raw_canonical_semantic_valid": raw_graph is not None,
+        "repaired_syntax_valid": bool(repaired_validation and repaired_validation.raw_valid),
+        "repaired_catalog_valid": bool(repaired_validation and repaired_validation.raw_valid),
+        "repaired_standard_a2ui_valid": repaired_wire_valid,
+        "repaired_standard_a2ui_error": repaired_wire_error,
+        "repaired_canonical_semantic_valid": repaired_graph is not None,
         "repair_applied": validation.repair_applied,
-        "schema_valid_strict": validation.raw_valid,
-        "schema_error": None if validation.raw_valid else (validation.errors[0] if validation.errors else "express_invalid"),
+        "schema_valid_strict": raw_validation.raw_valid,
+        "schema_error": None if raw_validation.raw_valid else (raw_validation.errors[0] if raw_validation.errors else "express_invalid"),
         "standard_a2ui_valid": wire_valid,
         "standard_a2ui_error": wire_error,
         "canonical_semantic_valid": parsed is not None,

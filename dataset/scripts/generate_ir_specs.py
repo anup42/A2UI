@@ -37,6 +37,14 @@ CANONICAL_GRAPH_PATH = SCHEMA_DIR / "canonical_ui_graph_v1.schema.json"
 WIRE_SCHEMA_PATH = SCHEMA_DIR / "genuicraft_a2ui_v1_wire.schema.json"
 CATALOG_PATH = SCHEMA_DIR / "genuicraft_a2ui_catalog_v1.json"
 PROMPT_PATH = ROOT / "dataset" / "prompts" / "genui_gen_mobile_a2ui_express_v1.md"
+PROMPT_MIRROR_PATH = ROOT / "dataset" / "prompts" / "genui_gen.md"
+PROMPT_GENERATOR_PATH = ROOT / "dataset" / "scripts" / "generate_a2ui_express_prompt.py"
+QUALITY_POLICY_PATH = ROOT / "dataset" / "prompts" / "a2ui_express_quality_policy_v1.md"
+ANDROID_PROMPT_PATHS = (
+    ROOT / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen.md",
+    ROOT / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen_a2ui_express_v1.md",
+    ROOT / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen_gemma_litert.md",
+)
 PY_COMPILER_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "express.py"
 PY_ACTIVE_BOUNDARY_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "active.py"
 PY_WIRE_COMPILER_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "a2ui_wire.py"
@@ -115,7 +123,16 @@ def catalog_document() -> dict[str, Any]:
             schema["additionalProperties"] = False
             properties = schema.setdefault("properties", {})
             for property_name in list(properties):
-                if property_name in {"id", "component", "children", "repeat", "on", "watch", "visible"}:
+                if property_name == "visible":
+                    properties[property_name] = {"$ref": "#/$defs/dynamicBoolean"}
+                    continue
+                if property_name == "repeat":
+                    properties[property_name] = {"$ref": "#/$defs/repeat"}
+                    continue
+                if property_name in {"on", "watch"}:
+                    properties[property_name] = {"$ref": "#/$defs/actionMap"}
+                    continue
+                if property_name in {"id", "component", "children"}:
                     continue
                 properties[property_name] = _property_schema(str(property_name), str(name))
     return catalog
@@ -155,6 +172,49 @@ def _catalog_defs() -> dict[str, Any]:
     return {
         "dataBinding": _binding_schema(),
         "functionCall": _function_call_schema(),
+        "action": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["action", "params"],
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": ["openUrl", "setState", "pushState", "removeState", "validateForm", "emitEvent"],
+                },
+                "params": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "url": {"type": "string"},
+                        "statePath": {"type": "string"},
+                        "value": {},
+                        "index": {"type": ["integer", "string"]},
+                        "clearStatePath": {"type": "string"},
+                        "resultStatePath": {"type": "string"},
+                        "name": {"type": "string"},
+                        "context": {"type": "object"},
+                        "wantResponse": {"type": "boolean"},
+                        "responsePath": {"type": "string"},
+                    },
+                },
+            },
+        },
+        "actionMap": {
+            "type": "object",
+            "additionalProperties": {"$ref": "#/$defs/action"},
+        },
+        "repeat": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["statePath"],
+            "properties": {
+                "statePath": {"type": "string", "pattern": "^/.*"},
+                "key": {"type": "string", "minLength": 1},
+                "template": {"type": "string", "minLength": 1},
+                "itemTemplate": {"type": "string", "minLength": 1},
+                "child": {"type": "string", "minLength": 1},
+            },
+        },
         "dynamicString": {
             "oneOf": [
                 {"type": "string"},
@@ -459,6 +519,10 @@ def generated_files() -> dict[Path, bytes]:
         CANONICAL_GRAPH_PATH: CANONICAL_GRAPH_PATH.read_bytes(),
         WIRE_SCHEMA_PATH: _json_bytes(wire_schema()),
         PROMPT_PATH: PROMPT_PATH.read_bytes(),
+        PROMPT_MIRROR_PATH: PROMPT_MIRROR_PATH.read_bytes(),
+        PROMPT_GENERATOR_PATH: PROMPT_GENERATOR_PATH.read_bytes(),
+        QUALITY_POLICY_PATH: QUALITY_POLICY_PATH.read_bytes(),
+        **{path: path.read_bytes() for path in ANDROID_PROMPT_PATHS},
         PY_COMPILER_PATH: PY_COMPILER_PATH.read_bytes(),
         PY_ACTIVE_BOUNDARY_PATH: PY_ACTIVE_BOUNDARY_PATH.read_bytes(),
         PY_WIRE_COMPILER_PATH: PY_WIRE_COMPILER_PATH.read_bytes(),

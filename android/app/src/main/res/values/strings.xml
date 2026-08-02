@@ -13,8 +13,6 @@
     <string name="settings_provider_description">Choose backend separately for response generation and GenUI IR conversion.</string>
     <string name="settings_provider_response_title">Response backend</string>
     <string name="settings_provider_ir_title">IR generation backend</string>
-    <string name="settings_ir_format_title">IR output format</string>
-    <string name="settings_ir_format_description">Choose the Stage 3 syntax used by cloud and pretrained on-device models. A2UI Express is the default.</string>
     <string name="settings_provider_azure_openai">Azure OpenAI</string>
     <string name="settings_provider_gemini">Gemini API</string>
     <string name="settings_provider_local_server">Local Server</string>
@@ -121,8 +119,6 @@
     <string name="ir_demo_source">GenUICraft Demo</string>
     <string name="ir_demo_list_empty">No query-response items found in default IR demo dataset.</string>
     <string name="ir_demo_item_count">%1$d item(s)</string>
-    <string name="ir_demo_format_title">IR output format</string>
-    <string name="ir_demo_format_description">Choose the syntax used when converting a response. Both formats decode to the same native renderer; saved Demo items keep their stored IR.</string>
     <string name="ir_demo_query_prefix">Query</string>
     <string name="ir_demo_response_prefix">Response</string>
     <string name="ir_demo_render_title">IR Render</string>
