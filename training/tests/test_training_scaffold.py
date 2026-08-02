@@ -2,6 +2,7 @@
 
 import json
 import sys
+import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,7 +15,9 @@ from ir_training.export.edge_gallery import build_litert_export_command
 from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
 from ir_training.common.cuda_env import normalize_cuda_visible_devices
+from ir_training.train import callbacks as callbacks_module
 from ir_training.train import sft as sft_module
+from ir_training.train.callbacks import build_golden_set_eval_callback
 from ir_training.train.sft import (
     _CausalLMDataCollator,
     _checked_shifted_causal_lm_loss,
@@ -312,6 +315,204 @@ def test_gemma4_lora_targets_inner_linear_modules():
     targets = adapter.default_lora_targets()
     assert "q_proj.linear" in targets
     assert "q_proj" not in targets
+
+
+def test_model_adapter_can_force_fast_tokenizer_loader(monkeypatch):
+    calls: list[tuple[str, dict]] = []
+
+    class FakeTokenizer:
+        pad_token = None
+        eos_token = "<eos>"
+
+    class FakeFastLoader:
+        @staticmethod
+        def from_pretrained(model_id, **kwargs):
+            calls.append((model_id, kwargs))
+            return FakeTokenizer()
+
+    class UnexpectedAutoLoader:
+        @staticmethod
+        def from_pretrained(*args, **kwargs):
+            raise AssertionError("AutoTokenizer should not be used for the explicit fast-tokenizer loader")
+
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        types.SimpleNamespace(
+            AutoTokenizer=UnexpectedAutoLoader,
+            PreTrainedTokenizerFast=FakeFastLoader,
+        ),
+    )
+    adapter = create_adapter(
+        {
+            "family": "gemma",
+            "model_id": "google/gemma-4-E2B-it",
+            "tokenizer_loader": "pretrained_tokenizer_fast",
+        }
+    )
+
+    tokenizer = adapter.load_tokenizer()
+
+    assert calls == [("google/gemma-4-E2B-it", {"trust_remote_code": False})]
+    assert tokenizer.pad_token == "<eos>"
+    assert tokenizer.padding_side == "right"
+
+
+def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypatch):
+    split_path = tmp_path / "golden.jsonl"
+    _write_jsonl(split_path, [{"id": "one"}])
+    output_dir = tmp_path / "eval"
+    best_dir = tmp_path / "best"
+    generated_dirs: list[Path] = []
+    saved_scores: list[float] = []
+    scores = iter([20.0, 10.0])
+
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        types.SimpleNamespace(TrainerCallback=object),
+    )
+
+    def fake_generate_predictions(**kwargs):
+        output_path = kwargs["output_path"]
+        generated_dirs.append(output_path.parent)
+        _write_jsonl(output_path, [{"generated_text": "{}"}])
+        return 1
+
+    def fake_evaluate_predictions(**kwargs):
+        return {"overall_score": next(scores), "count": 1}
+
+    def fake_save_best_checkpoint(**kwargs):
+        saved_scores.append(float(kwargs["best_info"]["metric_value"]))
+
+    monkeypatch.setattr(callbacks_module, "_generate_predictions_with_model", fake_generate_predictions)
+    monkeypatch.setattr(callbacks_module, "evaluate_predictions", fake_evaluate_predictions)
+    monkeypatch.setattr(callbacks_module, "_save_best_golden_checkpoint", fake_save_best_checkpoint)
+    monkeypatch.setattr(callbacks_module, "_distributed_context", lambda: (0, 1))
+    monkeypatch.setattr(callbacks_module, "_distributed_barrier", lambda: None)
+
+    callback = build_golden_set_eval_callback(
+        enabled=True,
+        split_path=split_path,
+        output_dir=output_dir,
+        adapter=object(),
+        tokenizer=object(),
+        trigger="evaluate",
+        metric_for_best_model="overall_score",
+        best_checkpoint_dir=best_dir,
+    )
+    control = object()
+    model = object()
+
+    callback.on_epoch_end(None, types.SimpleNamespace(epoch=1.0, global_step=5), control, model=model)
+    callback.on_evaluate(None, types.SimpleNamespace(epoch=1.0, global_step=10), control, model=model)
+    callback.on_evaluate(None, types.SimpleNamespace(epoch=2.0, global_step=20), control, model=model)
+
+    assert generated_dirs == [output_dir / "step_000000010", output_dir / "step_000000020"]
+    assert saved_scores == [20.0]
+    assert callback.summary() == {
+        "metric": "overall_score",
+        "metric_value": 20.0,
+        "greater_is_better": True,
+        "step": 10,
+        "epoch": 1.0,
+        "checkpoint_dir": str(best_dir),
+    }
+
+
+def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tmp_path, monkeypatch):
+    import torch
+
+    split_path = tmp_path / "golden.jsonl"
+    output_path = tmp_path / "predictions.jsonl"
+    _write_jsonl(
+        split_path,
+        [
+            {
+                "id": "sample-1",
+                "response_id": "response-1",
+                "completion": '{"root":"expected","state":{},"elements":{}}',
+                "messages": [{"role": "user", "content": "Create this UI"}],
+                "metadata": {
+                    "query_id": "query-1",
+                    "ui_id": "ui-1",
+                    "intent": "status",
+                    "tags": ["compact"],
+                },
+            }
+        ],
+    )
+    tokenizer_calls: list[dict] = []
+
+    class Batch(dict):
+        def to(self, device):
+            return self
+
+    class Tokenizer:
+        pad_token_id = 7
+        eos_token_id = 8
+
+        def __call__(self, prompt, **kwargs):
+            tokenizer_calls.append({"prompt": prompt, **kwargs})
+            return Batch(input_ids=torch.tensor([[1, 2]], dtype=torch.long))
+
+        def decode(self, tokens, skip_special_tokens=True):
+            assert tokens.tolist() == [3]
+            assert skip_special_tokens is True
+            return '{"root":"generated","state":{},"elements":{}}'
+
+    class Adapter:
+        def format_example(self, row, tokenizer, include_assistant):
+            assert include_assistant is False
+            return "formatted prompt"
+
+    class Model:
+        device = torch.device("cpu")
+
+        def __init__(self):
+            self.training = True
+
+        def eval(self):
+            self.training = False
+
+        def train(self):
+            self.training = True
+
+        def generate(self, **kwargs):
+            assert kwargs["max_new_tokens"] == 456
+            assert kwargs["do_sample"] is False
+            assert kwargs["pad_token_id"] == 7
+            return torch.tensor([[1, 2, 3]], dtype=torch.long)
+
+    monkeypatch.setattr(callbacks_module, "_distributed_context", lambda: (0, 1))
+    model = Model()
+
+    count = callbacks_module._generate_predictions_with_model(
+        model=model,
+        tokenizer=Tokenizer(),
+        adapter=Adapter(),
+        split_path=split_path,
+        output_path=output_path,
+        max_rows=1,
+        max_input_tokens=123,
+        max_new_tokens=456,
+    )
+
+    assert count == 1
+    assert model.training is True
+    assert tokenizer_calls == [
+        {
+            "prompt": "formatted prompt",
+            "return_tensors": "pt",
+            "truncation": True,
+            "max_length": 123,
+        }
+    ]
+    prediction = json.loads(output_path.read_text(encoding="utf-8"))
+    assert prediction["query_id"] == "query-1"
+    assert prediction["ui_id"] == "ui-1"
+    assert prediction["expected"]["root"] == "expected"
+    assert prediction["generated_text"].startswith('{"root":"generated"')
 
 
 def test_sft_tokenizer_model_alignment_resizes_and_sets_special_ids():

@@ -39,11 +39,64 @@ python training/scripts/prepare_dataset.py --config training/configs/datasets/go
 python training/scripts/train_sft.py --config training/configs/models/gemma_e2b_ir_lora.yaml
 ```
 
-Start Gemma 4 E2B QLoRA training with golden50 evaluation at the end of every epoch:
+Start Gemma 4 E2B LoRA training with golden50 evaluation at each configured
+Trainer evaluation event:
 
 ```powershell
 python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_lora.yaml
 ```
+
+The Gemma 4 E2B profile uses the fast-tokenizer loader and PEFT's
+`all-linear` discovery used by the supplied working trainer. Golden evaluation
+runs every `training.eval_steps`, distributes generation across DDP ranks, and
+saves the highest-`overall_score` adapter under
+`training/runs/gemma4_e2b_ir_lora/best_golden_checkpoint`. Per-evaluation
+predictions and metrics remain under
+`training/outputs/eval/gemma4_e2b_ir_lora/golden50/step_*`.
+
+The callback is controlled by the `golden_eval` YAML block. Use
+`trigger: epoch` for epoch-end evaluation, increase `interval` to evaluate less
+often, or set `save_best_checkpoint: false` to retain metrics without saving a
+second adapter checkpoint. `max_input_tokens + max_new_tokens` is bounded by
+the configured model context.
+
+### Gemma 4 QAT-derived LoRA and MTP workflow
+
+The recommended low-bit experiment is intentionally separate from the standard
+Gemma 4 baseline. It fine-tunes only Google's unquantized Q4_0 QAT-derived
+target with BF16 LoRA, keeps the matching assistant frozen, and requires
+post-merge Q4_0 conversion plus final runtime/device validation. It is **not**
+continued QAT or joint target/assistant training.
+
+Read the durable support boundaries, recommendation, command inventory, and
+promotion gates before using it:
+
+- `training/docs/gemma4_e2b_qat_mtp_knowledge.md`
+- `docs/gemma4_e2b_qat_mtp_implementation_prompt.md`
+
+Install the current Gemma 4 dependency overlay and run the no-model static
+preflight:
+
+```powershell
+python -m pip install -r training/requirements-gemma4-qat.txt
+python training/scripts/validate_qat_mtp_workflow.py
+```
+
+The expensive helpers are plan-only unless `--execute` is supplied:
+
+```powershell
+python training/scripts/merge_qat_lora.py
+python training/scripts/benchmark_qat_mtp.py
+python training/scripts/convert_qat_q4_0.py --llama-cpp-dir C:\path\to\llama.cpp
+```
+
+The later authorized training command is:
+
+```powershell
+python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_qat_lora.yaml
+```
+
+Do not run that command for code-only setup or validation.
 
 This requires a GPU machine with the packages in
 `training/requirements-training.txt`. On CPU-only machines, use compile/tests only;

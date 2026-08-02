@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
+from ir_training.models.hf_loading import load_hf_model
+
 
 @dataclass(frozen=True)
 class ExportCapabilities:
@@ -33,14 +35,14 @@ class ModelAdapter(ABC):
         raise NotImplementedError
 
     def load_tokenizer(self):
-        from transformers import AutoTokenizer  # type: ignore
+        from transformers import AutoTokenizer, PreTrainedTokenizerFast  # type: ignore
 
         loader = str(self.config.get("tokenizer_loader", "auto_tokenizer")).strip().lower()
         if loader in {"auto_processor", "processor"}:
             tokenizer = self._load_tokenizer_from_processor()
-        else:
+        elif loader in {"pretrained_tokenizer_fast", "tokenizer_fast", "fast"}:
             try:
-                tokenizer = AutoTokenizer.from_pretrained(
+                tokenizer = PreTrainedTokenizerFast.from_pretrained(
                     self.model_id,
                     trust_remote_code=bool(self.config.get("trust_remote_code", False)),
                 )
@@ -48,8 +50,22 @@ class ModelAdapter(ABC):
                 if not bool(self.config.get("processor_fallback", False)):
                     raise
                 tokenizer = self._load_tokenizer_from_processor()
+        else:
+            try:
+                tokenizer = AutoTokenizer.from_pretrained(
+                    self.model_id,
+                    trust_remote_code=bool(self.config.get("trust_remote_code", False)),
+                    use_fast=bool(self.config.get("use_fast_tokenizer", True)),
+                )
+            except Exception:
+                if not bool(self.config.get("processor_fallback", False)):
+                    raise
+                tokenizer = self._load_tokenizer_from_processor()
         if getattr(tokenizer, "pad_token", None) is None and getattr(tokenizer, "eos_token", None) is not None:
             tokenizer.pad_token = tokenizer.eos_token
+        padding_side = str(self.config.get("padding_side", "right")).strip().lower()
+        if padding_side in {"left", "right"}:
+            tokenizer.padding_side = padding_side
         return tokenizer
 
     def _load_tokenizer_from_processor(self):
@@ -62,39 +78,19 @@ class ModelAdapter(ABC):
         return getattr(processor, "tokenizer", processor)
 
     def load_model(self):
-        from transformers import AutoModelForCausalLM, BitsAndBytesConfig  # type: ignore
-        import torch  # type: ignore
-
-        dtype_name = str(self.config.get("dtype", "bfloat16")).lower()
-        dtype = torch.bfloat16 if dtype_name == "bfloat16" else torch.float16 if dtype_name == "float16" else torch.float32
-        kwargs: dict[str, Any] = {
-            "trust_remote_code": bool(self.config.get("trust_remote_code", False)),
-            "torch_dtype": dtype,
-        }
-        device_map = self.config.get("device_map", "auto")
-        if not _device_map_disabled(device_map):
-            kwargs["device_map"] = device_map
-        attn_implementation = str(self.config.get("attn_implementation", "")).strip()
-        if attn_implementation:
-            kwargs["attn_implementation"] = attn_implementation
-        if bool(self.config.get("load_in_4bit", False)):
-            kwargs["quantization_config"] = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=dtype,
-            )
-        return AutoModelForCausalLM.from_pretrained(self.model_id, **kwargs)
+        return load_hf_model(self.model_id, self.config)
 
     def format_example(self, example: dict[str, Any], tokenizer: Any | None = None, include_assistant: bool = True) -> str:
         messages = list(example.get("messages") or [])
         if not include_assistant and messages and messages[-1].get("role") == "assistant":
             messages = messages[:-1]
         if tokenizer is not None and hasattr(tokenizer, "apply_chat_template"):
-            return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=not include_assistant)
+            template_kwargs = self.config.get("chat_template_kwargs")
+            extra_kwargs = dict(template_kwargs) if isinstance(template_kwargs, dict) else {}
+            return tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=not include_assistant,
+                **extra_kwargs,
+            )
         return "\n\n".join(f"{m.get('role', 'user').title()}:\n{m.get('content', '')}" for m in messages)
-
-
-def _device_map_disabled(value: Any) -> bool:
-    if value is None:
-        return True
-    return str(value).strip().lower() in {"", "none", "null", "false", "off", "ddp"}

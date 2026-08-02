@@ -9,6 +9,7 @@ from typing import Any, Callable
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.models.registry import create_adapter
+from ir_training.qat_mtp.workflow import validate_training_config
 from ir_training.train.callbacks import TrainingMetadataCallback, build_golden_set_eval_callback
 from ir_training.train.lora_config import build_lora_config
 
@@ -28,6 +29,9 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     training_cfg = config.get("training") if isinstance(config.get("training"), dict) else {}
     lora_cfg = config.get("lora") if isinstance(config.get("lora"), dict) else {}
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
+    qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
+    if qat_mtp_cfg:
+        _enforce_qat_mtp_training_guardrails(config)
     _enforce_cuda_requirement(model_cfg, training_cfg)
     _enforce_ddp_launch_requirement(training_cfg)
     _print_distributed_training_summary()
@@ -112,17 +116,29 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "output_dir": str(output_dir),
         "num_train_epochs": float(training_cfg.get("epochs", 2)),
         "learning_rate": float(training_cfg.get("learning_rate", 2e-4)),
+        "weight_decay": float(training_cfg.get("weight_decay", 0.0)),
         "per_device_train_batch_size": int(training_cfg.get("per_device_train_batch_size", 1)),
+        "per_device_eval_batch_size": int(
+            training_cfg.get(
+                "per_device_eval_batch_size",
+                training_cfg.get("per_device_train_batch_size", 1),
+            )
+        ),
         "gradient_accumulation_steps": int(training_cfg.get("gradient_accumulation_steps", 16)),
-        "warmup_ratio": float(training_cfg.get("warmup_ratio", 0.03)),
         "logging_steps": int(training_cfg.get("logging_steps", 20)),
         "save_steps": int(training_cfg.get("save_steps", 500)),
         "eval_steps": int(training_cfg.get("eval_steps", 500)),
         eval_strategy_name: "steps" if "validation" in dataset else "no",
-        "save_total_limit": 3,
+        "save_total_limit": int(training_cfg.get("save_total_limit", 3)),
+        "max_grad_norm": float(training_cfg.get("max_grad_norm", 1.0)),
+        "seed": int(training_cfg.get("seed", run_cfg.get("seed", 42))),
         **precision_flags,
-        "report_to": "none",
+        "report_to": training_cfg.get("report_to", "none"),
     }
+    if "warmup_steps" in training_cfg:
+        training_args_kwargs["warmup_steps"] = int(training_cfg.get("warmup_steps", 0))
+    else:
+        training_args_kwargs["warmup_ratio"] = float(training_cfg.get("warmup_ratio", 0.03))
     if "gradient_checkpointing" in args_params:
         training_args_kwargs["gradient_checkpointing"] = gradient_checkpointing
     if "ddp_find_unused_parameters" in args_params and "ddp_find_unused_parameters" in training_cfg:
@@ -235,6 +251,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         adapter=adapter,
         tokenizer=tokenizer,
         model_cfg=model_cfg,
+        training_cfg=training_cfg,
     )
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
@@ -247,10 +264,15 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "training": training_cfg,
         "lora": lora_cfg,
         "golden_eval": golden_eval_cfg,
+        "qat_mtp": qat_mtp_cfg,
         "dataset_dir": str(dataset_dir),
         "final_adapter": str(final_adapter),
         "git_commit": current_commit(repo_root()),
     }
+    if golden_callback is not None and hasattr(golden_callback, "summary"):
+        golden_summary = golden_callback.summary()
+        if golden_summary is not None:
+            metadata["best_golden_eval"] = golden_summary
     if config_path is not None:
         metadata["config_path"] = str(config_path)
     if _trainer_is_world_process_zero(trainer):
@@ -261,6 +283,16 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         TrainingMetadataCallback(output_dir, metadata).write()
     _barrier_if_distributed()
     return metadata
+
+
+def _enforce_qat_mtp_training_guardrails(config: dict[str, Any]) -> None:
+    issues = validate_training_config(config)
+    for issue in issues:
+        print(f"QAT/MTP preflight {issue.severity}: [{issue.code}] {issue.message}", flush=True)
+    errors = [issue for issue in issues if issue.severity == "error"]
+    if errors:
+        codes = ", ".join(issue.code for issue in errors)
+        raise ValueError(f"QAT/MTP training config failed preflight: {codes}")
 
 
 def _materialize_sft_text_dataset(
@@ -1824,6 +1856,7 @@ def _build_optional_golden_callback(
     adapter: Any,
     tokenizer: Any,
     model_cfg: dict[str, Any],
+    training_cfg: dict[str, Any],
 ) -> Any | None:
     if not bool(golden_eval_cfg.get("enabled", False)):
         return None
@@ -1840,6 +1873,23 @@ def _build_optional_golden_callback(
     )
     weights_config_path = golden_eval_cfg.get("weights_config")
     baseline_aggregate_path = golden_eval_cfg.get("baseline_aggregate")
+    best_checkpoint_dir_value = golden_eval_cfg.get("best_checkpoint_dir")
+    max_input_tokens = int(
+        golden_eval_cfg.get(
+            "max_input_tokens",
+            training_cfg.get("max_seq_length", model_cfg.get("max_context_tokens", 8192)),
+        )
+    )
+    max_new_tokens = int(golden_eval_cfg.get("max_new_tokens", model_cfg.get("max_output_tokens", 8192)))
+    model_context_tokens = int(model_cfg.get("max_context_tokens", 0) or 0)
+    if model_context_tokens > 0 and max_input_tokens + max_new_tokens > model_context_tokens:
+        bounded_max_new_tokens = max(1, model_context_tokens - max_input_tokens)
+        print(
+            "Golden eval token budget exceeds the model context; "
+            f"clamping max_new_tokens from {max_new_tokens} to {bounded_max_new_tokens}.",
+            flush=True,
+        )
+        max_new_tokens = bounded_max_new_tokens
     return build_golden_set_eval_callback(
         enabled=True,
         split_path=split_path,
@@ -1847,7 +1897,18 @@ def _build_optional_golden_callback(
         adapter=adapter,
         tokenizer=tokenizer,
         max_rows=int(golden_eval_cfg.get("max_rows", 50)),
-        max_new_tokens=int(golden_eval_cfg.get("max_new_tokens", model_cfg.get("max_output_tokens", 8192))),
+        max_input_tokens=max_input_tokens,
+        max_new_tokens=max_new_tokens,
         weights_config_path=resolve_path(weights_config_path, base) if weights_config_path else None,
         baseline_aggregate_path=resolve_path(baseline_aggregate_path, base) if baseline_aggregate_path else None,
+        trigger=str(golden_eval_cfg.get("trigger", "epoch")),
+        interval=int(golden_eval_cfg.get("interval", 1)),
+        metric_for_best_model=str(golden_eval_cfg.get("metric_for_best_model", "overall_score")),
+        greater_is_better=bool(golden_eval_cfg.get("greater_is_better", True)),
+        save_best_checkpoint=bool(golden_eval_cfg.get("save_best_checkpoint", True)),
+        best_checkpoint_dir=(
+            resolve_path(best_checkpoint_dir_value, base)
+            if best_checkpoint_dir_value
+            else output_dir / "best_golden_checkpoint"
+        ),
     )

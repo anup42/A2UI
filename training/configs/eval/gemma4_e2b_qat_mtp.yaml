@@ -1,0 +1,32 @@
+run:
+  id: gemma4_e2b_qat_mtp_reference
+  output_dir: outputs/eval/gemma4_e2b_qat_mtp_reference
+source:
+  # Local merged target created by merge_qat_lora.py.
+  target_model_id: runs/gemma4_e2b_ir_qat_lora/merged_hf
+  target_base_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+  assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
+  processor_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+  model_loader: auto_causal_lm
+  dtype: bfloat16
+  device_map: auto
+  trust_remote_code: false
+data:
+  split_path: outputs/datasets/golden50_stage3_eval/all.jsonl
+  max_rows: 50
+benchmark:
+  # This checks target drift and end-to-end speculative decoding in Transformers.
+  # It is not a packed-INT4 device benchmark.
+  mode: transformers_reference
+  packed_int4: false
+  final_runtime_validation_required: true
+  max_input_tokens: 4096
+  max_new_tokens: 4096
+  do_sample: false
+  warmup_rows: 1
+  repeats: 1
+  num_assistant_tokens: 4
+  num_assistant_tokens_schedule: heuristic
+evaluation:
+  enabled: true
+  weights_config: ../dataset/configs/run.yaml

@@ -8,6 +8,7 @@ model:
   family: gemma
   model_id: google/gemma-4-E2B-it
   trust_remote_code: false
+  tokenizer_loader: pretrained_tokenizer_fast
   processor_fallback: true
   load_in_4bit: false
   dtype: float16
@@ -15,10 +16,12 @@ model:
   max_context_tokens: 8192
   max_output_tokens: 8192
 training:
-  method: qlora_sft
+  method: lora_sft
   epochs: 2
   learning_rate: 0.0002
+  weight_decay: 0.01
   per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
   gradient_accumulation_steps: 4
   gradient_checkpointing: true
   mixed_precision: none
@@ -29,18 +32,28 @@ training:
   save_steps: 500
   eval_steps: 500
   logging_steps: 20
+  save_total_limit: 2
+  max_grad_norm: 1.0
+  seed: 42
   forward_smoke_check_rows: 16
   lora_diagnostics_steps: 12
 lora:
   r: 16
   alpha: 32
   dropout: 0.05
-  target_modules: auto
+  # Matches the supplied working Gemma 4 trainer while remaining overrideable.
+  target_modules: all-linear
 golden_eval:
   enabled: true
   dataset_dir: outputs/datasets/golden50_stage3_eval
   split: all
   max_rows: 50
-  max_new_tokens: 8192
+  max_input_tokens: 4096
+  max_new_tokens: 4096
+  trigger: evaluate
+  interval: 1
+  metric_for_best_model: overall_score
+  greater_is_better: true
+  save_best_checkpoint: true
   output_dir: outputs/eval/gemma4_e2b_ir_lora/golden50
   weights_config: ../dataset/configs/run.yaml

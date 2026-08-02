@@ -25,6 +25,10 @@ def main() -> None:
             base_model_id=str(source.get("base_model_id") or ""),
             adapter_dir=source.get("adapter_dir") or "",
             output_dir=source.get("merged_model_dir") or "",
+            model_loader=str(source.get("model_loader") or "auto_causal_lm"),
+            dtype=str(source.get("dtype") or "bfloat16"),
+            trust_remote_code=bool(source.get("trust_remote_code", False)),
+            processor_model_id=str(source.get("processor_model_id") or source.get("base_model_id") or ""),
         )
     manifest = export_litertlm_package(config)
     print(json.dumps(manifest, indent=2, ensure_ascii=False))

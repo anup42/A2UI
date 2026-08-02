@@ -1,0 +1,6 @@
+# Install this overlay for the Gemma 4 QAT-derived LoRA and MTP reference workflow.
+# Google's current Gemma 4 Hugging Face guide requires these newer APIs.
+-r requirements-training.txt
+transformers>=5.10.1
+peft>=0.19.0
+huggingface_hub>=0.23
