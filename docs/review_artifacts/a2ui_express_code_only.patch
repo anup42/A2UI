@@ -156,7 +156,7 @@ index 00000000..ac22d5f1
 +    private fun invalid(message: String) = ValidationResult(false, message)
 +}
 diff --git a/android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt b/android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt
-index c6fe5318..728353d9 100644
+index c6fe5318..e5fddf25 100644
 --- a/android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt
 +++ b/android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt
 @@ -23,7 +23,7 @@ internal object A2uiExpressCodec {
@@ -520,8 +520,8 @@ index c6fe5318..728353d9 100644
 +                    return out.toString()
 +                }
                  val ch = source[index++]
-+                if (!triple && !raw) {
-+                    require(ch != '\n' && ch != '\r') { "Standard Express strings may not contain newlines." }
++                if (!triple) {
++                    require(ch != '\n' && ch != '\r') { "Single-line Express strings may not contain newlines." }
 +                }
 +                if (raw) {
 +                    out.append(ch)
@@ -1633,7 +1633,7 @@ index 7a064318..77eac569 100644
              """.trimIndent(),
          )
 diff --git a/android/app/src/test/resources/a2ui_express_conformance_v1.json b/android/app/src/test/resources/a2ui_express_conformance_v1.json
-index c9ba1ad6..2d3585cf 100644
+index c9ba1ad6..013c8150 100644
 --- a/android/app/src/test/resources/a2ui_express_conformance_v1.json
 +++ b/android/app/src/test/resources/a2ui_express_conformance_v1.json
 @@ -6,10 +6,20 @@
@@ -1657,7 +1657,7 @@ index c9ba1ad6..2d3585cf 100644
      }
    ],
    "invalid": [
-@@ -17,7 +27,12 @@
+@@ -17,7 +27,13 @@
      {"name":"trailing_content","program":"<a2ui>\nroot=Text(\"Hello\")\n</a2ui>\nprose","error":"sentinel"},
      {"name":"unknown_property","program":"<a2ui>\nroot=Text(\"Hello\",unknown=\"x\")\n</a2ui>","error":"property"},
      {"name":"duplicate_property","program":"<a2ui>\nroot=Text(\"A\",text=\"B\")\n</a2ui>","error":"property"},
@@ -1668,7 +1668,8 @@ index c9ba1ad6..2d3585cf 100644
      {"name":"duplicate_id","program":"<a2ui>\nroot=Text(\"A\")\nroot=Text(\"B\")\n</a2ui>","error":"duplicate"},
 -    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"}
 +    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"},
-+    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"}
++    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"},
++    {"name":"raw_string_newline","program":"<a2ui>\nroot=Text(r\"line1\nline2\")\n</a2ui>","error":"newline"}
    ]
  }
 diff --git a/dataset/configs/run.yaml b/dataset/configs/run.yaml
@@ -8642,7 +8643,7 @@ index 2690bbcd..b884c24e 100644
    }
  }
 diff --git a/dataset/schema/genuicraft_ir_formats.manifest.json b/dataset/schema/genuicraft_ir_formats.manifest.json
-index 89ff95c5..0882b206 100644
+index 89ff95c5..88eadc3b 100644
 --- a/dataset/schema/genuicraft_ir_formats.manifest.json
 +++ b/dataset/schema/genuicraft_ir_formats.manifest.json
 @@ -2,13 +2,13 @@
@@ -8693,8 +8694,8 @@ index 89ff95c5..0882b206 100644
      "dataset/src/pipeline/ir_formats/express.py": {
 -      "sha256": "7328e459fb8934414d18aa11cd3a6243c48734bb5b64bb07a9547e02538dfd47",
 -      "bytes": 31661
-+      "sha256": "3186cba55ae7929a4784765644c0d5124e80818c31a2b56b378d03a5e062be59",
-+      "bytes": 32516
++      "sha256": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
++      "bytes": 32649
      },
      "dataset/src/pipeline/ir_formats/active.py": {
 -      "sha256": "ce2fde537dd0f976bcec3a7fda5ba86c8e537b62fc2cd2a861972af5a1343577",
@@ -8711,8 +8712,8 @@ index 89ff95c5..0882b206 100644
      "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
 -      "sha256": "705037dd444bc1bdd69821367cf3f78483672fd5ea524b123e67acb20c8509b8",
 -      "bytes": 30640
-+      "sha256": "690c4ed2f252f9a8f5daffb115e2d5d28598dabe1e335a6f75ec800dcac88709",
-+      "bytes": 37579
++      "sha256": "4974a9ff12544cf9f6f33c85a2917abbea4cf513ebef9dc2fbd10efa3b21f1ee",
++      "bytes": 37574
      },
      "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiWireCodec.kt": {
 -      "sha256": "40dec1ab7c9d3b55e380bead8367d2c1f56cbc74ac2672e19f6ddfeea31854df",
@@ -8733,8 +8734,8 @@ index 89ff95c5..0882b206 100644
      "dataset/tests/fixtures/a2ui_express_conformance_v1.json": {
 -      "sha256": "0eaa8b79ec3f50de61f6238421a3ce86d906c26766d2c215c33cf4606ebd3201",
 -      "bytes": 1696
-+      "sha256": "0175271fca7e2a07eeb2551c9eb1453ce09969ac6ecdb54c0c99e6f46e0ec62a",
-+      "bytes": 4367
++      "sha256": "3e0b3bbdbadc5c829e7befac0b807eb59c08f23ec92b3f1f206db42d2fe3261b",
++      "bytes": 4478
      },
      "specification/inference_formats/express/Express.g4": {
        "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",
@@ -10836,7 +10837,7 @@ index b4cf3bb1..5cb28105 100644
  
  def codec_identity() -> dict[str, Any]:
 diff --git a/dataset/src/pipeline/ir_formats/express.py b/dataset/src/pipeline/ir_formats/express.py
-index 31ac925f..7bca025e 100644
+index 31ac925f..7e89ba51 100644
 --- a/dataset/src/pipeline/ir_formats/express.py
 +++ b/dataset/src/pipeline/ir_formats/express.py
 @@ -206,7 +206,10 @@ def decode(text: Any) -> dict[str, Any]:
@@ -10919,6 +10920,15 @@ index 31ac925f..7bca025e 100644
      return deepcopy(value)
  
  
+@@ -691,6 +704,8 @@ class _Parser:
+                 return "".join(out)
+             ch = self.text[self.i]
+             self.i += 1
++            if not triple and ch in "\r\n":
++                raise ValueError("Single-line Express strings may not contain newlines")
+             if raw:
+                 out.append(ch)
+                 continue
 diff --git a/dataset/src/pipeline/metrics.py b/dataset/src/pipeline/metrics.py
 index c547fe37..2c80803b 100644
 --- a/dataset/src/pipeline/metrics.py
@@ -11533,7 +11543,7 @@ index 99f9c650..d99cca9e 100644
                  "image_path": str(image_path.relative_to(output_dir.parent)) if image_path else None,
                  "created_at": datetime.utcnow().isoformat() + "Z",
 diff --git a/dataset/tests/fixtures/a2ui_express_conformance_v1.json b/dataset/tests/fixtures/a2ui_express_conformance_v1.json
-index c9ba1ad6..2d3585cf 100644
+index c9ba1ad6..013c8150 100644
 --- a/dataset/tests/fixtures/a2ui_express_conformance_v1.json
 +++ b/dataset/tests/fixtures/a2ui_express_conformance_v1.json
 @@ -6,10 +6,20 @@
@@ -11557,7 +11567,7 @@ index c9ba1ad6..2d3585cf 100644
      }
    ],
    "invalid": [
-@@ -17,7 +27,12 @@
+@@ -17,7 +27,13 @@
      {"name":"trailing_content","program":"<a2ui>\nroot=Text(\"Hello\")\n</a2ui>\nprose","error":"sentinel"},
      {"name":"unknown_property","program":"<a2ui>\nroot=Text(\"Hello\",unknown=\"x\")\n</a2ui>","error":"property"},
      {"name":"duplicate_property","program":"<a2ui>\nroot=Text(\"A\",text=\"B\")\n</a2ui>","error":"property"},
@@ -11568,7 +11578,8 @@ index c9ba1ad6..2d3585cf 100644
      {"name":"duplicate_id","program":"<a2ui>\nroot=Text(\"A\")\nroot=Text(\"B\")\n</a2ui>","error":"duplicate"},
 -    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"}
 +    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"},
-+    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"}
++    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"},
++    {"name":"raw_string_newline","program":"<a2ui>\nroot=Text(r\"line1\nline2\")\n</a2ui>","error":"newline"}
    ]
  }
 diff --git a/dataset/tests/test_active_ir_policy.py b/dataset/tests/test_active_ir_policy.py
@@ -12011,7 +12022,7 @@ index 92ccfbbd..49383d33 100644
  `legacy_source_format` and `legacy_source_hash`; the active `completion` and
  `completion_targets.a2ui_express_v1` fields contain the Express completion.
 diff --git a/docs/review_artifacts/a2ui_express_python_kotlin_conformance.json b/docs/review_artifacts/a2ui_express_python_kotlin_conformance.json
-index 984d1b6d..26659247 100644
+index 984d1b6d..9d4ff1dc 100644
 --- a/docs/review_artifacts/a2ui_express_python_kotlin_conformance.json
 +++ b/docs/review_artifacts/a2ui_express_python_kotlin_conformance.json
 @@ -6,14 +6,14 @@
@@ -12038,11 +12049,11 @@ index 984d1b6d..26659247 100644
 -    "valid_cases": 2,
 -    "invalid_cases": 6
 +    "valid_cases": 4,
-+    "invalid_cases": 11
++    "invalid_cases": 12
    },
    "covered_strict_cases": [
      "sentinel closure",
-@@ -36,7 +36,11 @@
+@@ -36,7 +36,12 @@
      "invalid actions",
      "reference inventory and root rewriting",
      "sparse positional encoder output",
@@ -12051,7 +12062,8 @@ index 984d1b6d..26659247 100644
 +    "unknown action parameters and missing required action parameters",
 +    "unknown repeat/template fields",
 +    "unresolved bare variables",
-+    "pinned raw/triple strings and check expressions"
++    "pinned raw/triple strings and check expressions",
++    "raw single-line newline rejection"
    ],
    "limitation": "Python and Kotlin strict parsers are handwritten rather than generated from one parser artifact; the shared corpus proves acceptance/rejection parity for the covered cases but is not a proof of complete grammar equivalence."
  }

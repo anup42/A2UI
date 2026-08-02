@@ -48,8 +48,8 @@
         "bytes": 4762
       },
       "dataset/src/pipeline/ir_formats/express.py": {
-        "sha256": "3186cba55ae7929a4784765644c0d5124e80818c31a2b56b378d03a5e062be59",
-        "bytes": 32516
+        "sha256": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
+        "bytes": 32649
       },
       "dataset/src/pipeline/ir_formats/active.py": {
         "sha256": "7ea03b3e58bddc98661589495554af05d809a679da03d1645b2581751cb12382",
@@ -60,8 +60,8 @@
         "bytes": 15698
       },
       "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
-        "sha256": "690c4ed2f252f9a8f5daffb115e2d5d28598dabe1e335a6f75ec800dcac88709",
-        "bytes": 37579
+        "sha256": "4974a9ff12544cf9f6f33c85a2917abbea4cf513ebef9dc2fbd10efa3b21f1ee",
+        "bytes": 37574
       },
       "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiWireCodec.kt": {
         "sha256": "e01a43b6050246c93db381b57af83437ded91d2dfb1d131a32ec92641c2ef4f0",
@@ -76,8 +76,8 @@
         "bytes": 2686
       },
       "dataset/tests/fixtures/a2ui_express_conformance_v1.json": {
-        "sha256": "0175271fca7e2a07eeb2551c9eb1453ce09969ac6ecdb54c0c99e6f46e0ec62a",
-        "bytes": 4367
+        "sha256": "3e0b3bbdbadc5c829e7befac0b807eb59c08f23ec92b3f1f206db42d2fe3261b",
+        "bytes": 4478
       },
       "specification/inference_formats/express/Express.g4": {
         "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",
@@ -109,7 +109,7 @@
     "legacy_migration": "32 accepted, 0 rejected; deterministic resume pass",
     "url_masking": "Stage3 Python mask/restore test plus Android McpUrlShortener tests passed",
     "source_zip_denylist": "source-only archive scan: 0 credential/media/data/build/APK entries; device binaries and self-referential metadata excluded",
-    "express_conformance": "Python/Kotlin shared corpus: 4 valid and 11 invalid cases accepted/rejected equivalently"
+    "express_conformance": "Python/Kotlin shared corpus: 4 valid and 12 invalid cases accepted/rejected equivalently"
   },
   "external_blockers": [
     "Vertex Express smoke call reached Google but returned HTTP 403 because billing is disabled for the key's project.",
@@ -118,8 +118,8 @@
   "review_zip": {
     "path": "C:/Users/anupk/Downloads/A2UI-a2ui-express-review-20260803-r8.zip",
     "source_only": true,
-    "sha256": "81179ABF83372CEC6B0D27172BD08C6A635AEBFDE3B9B53C83EFDD6710FF9695",
-    "bytes": 8708724,
+    "sha256": "F47E10594EAA53FE4CC1FB50179B359EE0C063BEC8084477AEFA54460A0EC700",
+    "bytes": 8708815,
     "archive_entries": 2900,
     "hash_note": "SHA-256 is reported in the final handoff; the archive is generated from the audited source allowlist and excludes data, media, model, build, APK, credential, device-artifact, and self-referential review-metadata entries."
   },
