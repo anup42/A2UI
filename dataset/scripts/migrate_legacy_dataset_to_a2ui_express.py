@@ -3,7 +3,7 @@
 
 This is an explicit, offline migration boundary. Active Stage 3 generation and
 training never import the legacy decoder; every accepted record is compiled to
-Express, decoded again, compiled to standard A2UI v1 wire, and checked against
+Express, decoded again, compiled to standard A2UI v0.9 wire, and checked against
 one semantic hash before it is written.
 """
 
@@ -111,8 +111,32 @@ def _parse_text(value: Any) -> Any:
         return stripped
 
 
-def _decode_legacy(value: Any) -> tuple[str, dict[str, Any]]:
+def _decode_legacy(value: Any, *, input_format: str = "auto") -> tuple[str, dict[str, Any]]:
     parsed = _parse_text(value)
+    hint = str(input_format or "auto").strip().lower()
+    if hint in {"express", A2UI_EXPRESS_V1}:
+        if not isinstance(parsed, str):
+            raise ValueError("a2ui_express_v1 input must be an Express text completion")
+        return A2UI_EXPRESS_V1, decode_express_completion(parsed)
+    if hint in {"wire", A2UI_V1_WIRE}:
+        decoded = decode_to_flat_spec(parsed, format_hint=A2UI_V1_WIRE)
+        return A2UI_V1_WIRE, decoded.flat_spec
+    if hint in {"flat_spec", FLAT_SPEC_V1}:
+        decoded = decode_to_flat_spec(parsed, format_hint=FLAT_SPEC_V1)
+        return FLAT_SPEC_V1, decoded.flat_spec
+    if hint in {"compact", "compact_ir", "compact_ir_v2", "gci2"}:
+        if not isinstance(parsed, Mapping):
+            raise ValueError("compact_ir_v2 input must be an object")
+        flat = compact_ir_v2.decode(parsed)
+        result = coerce_and_validate(flat)
+        if not result.is_valid or result.spec is None:
+            raise ValueError(result.error or "Compact IR did not satisfy the canonical graph contract")
+        return "compact_ir_v2", result.spec
+    if hint != "auto":
+        raise ValueError(
+            "Unsupported --input-format; choose auto, flat_spec_v1, compact_ir_v2, "
+            "a2ui_express_v1, or a2ui_v1_wire"
+        )
     if isinstance(parsed, Mapping) and parsed.get("v") == compact_ir_v2.VERSION:
         legacy_format = "compact_ir_v2"
         flat = compact_ir_v2.decode(parsed)
@@ -133,9 +157,9 @@ def _decode_legacy(value: Any) -> tuple[str, dict[str, Any]]:
     return decoded.source_format, decoded.flat_spec
 
 
-def _migrate(record: Mapping[str, Any]) -> dict[str, Any]:
+def _migrate(record: Mapping[str, Any], *, input_format: str = "auto") -> dict[str, Any]:
     legacy = _raw_value(record)
-    legacy_format, flat = _decode_legacy(legacy)
+    legacy_format, flat = _decode_legacy(legacy, input_format=input_format)
     expected_hash = semantic_hash(flat)
     express = encode_express_completion(flat)
     express_flat = decode_express_completion(express)
@@ -176,6 +200,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", help="JSON/JSONL file, directory, or '-' for JSONL stdin")
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--input-format",
+        default="auto",
+        choices=("auto", "flat_spec_v1", "compact_ir_v2", "a2ui_express_v1", "a2ui_v1_wire"),
+        help="Override automatic source detection at the migration boundary.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--strict", action="store_true", help="Exit non-zero when any record is rejected")
@@ -204,7 +234,7 @@ def main() -> int:
             source_hash = _sha256(legacy)
             if source_hash in seen:
                 continue
-            migrated = _migrate(item.record)
+            migrated = _migrate(item.record, input_format=args.input_format)
             migrated["migration_source_path"] = item.source_path
             migrated["migration_source_row"] = item.row_number
             accepted.append(migrated)

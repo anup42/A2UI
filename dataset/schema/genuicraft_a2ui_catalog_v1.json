@@ -1,6 +1,6 @@
 {
   "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
-  "protocolVersion": "v1.0",
+  "protocolVersion": "v0.9",
   "expressVersion": "genuicraft-express-v1",
   "upstream": {
     "repository": "a2ui-project/a2ui",
@@ -73,46 +73,65 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "icon": {},
-          "itemTemplate": {},
-          "message": {},
-          "role": {},
-          "semanticRole": {},
-          "source": {},
-          "template": {},
-          "text": {},
-          "timestamp": {},
-          "title": {},
-          "tone": {},
+          "icon": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "message": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "timestamp": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tone": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -204,49 +223,74 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "description": {},
-          "flex": {},
+          "description": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "name": {},
-          "poster": {},
-          "posterUrl": {},
-          "role": {},
-          "semanticRole": {},
-          "source": {},
-          "src": {},
-          "template": {},
-          "thumbnail": {},
-          "thumbnailUrl": {},
-          "title": {},
-          "url": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "poster": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "posterUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnail": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnailUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -338,45 +382,62 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "actionLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "actionLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "icon": {},
-          "itemTemplate": {},
-          "label": {},
-          "onClickLabel": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
-          "text": {},
-          "variant": {},
+          "icon": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "onClickLabel": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "variant": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -466,48 +527,71 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "margin": {},
-          "marginHorizontal": {},
-          "marginVertical": {},
-          "padding": {},
-          "paddingHorizontal": {},
-          "paddingVertical": {},
-          "role": {},
-          "semanticRole": {},
-          "subtitle": {},
-          "template": {},
-          "title": {},
-          "tone": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subtitle": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tone": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -609,55 +693,78 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "chartType": {},
-          "child": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "chartType": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "columns": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "contentDescription": {},
-          "dataPath": {},
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "dataPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "role": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "rows": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "rowsPath": {},
-          "semanticRole": {},
-          "statePath": {},
-          "subtitle": {},
-          "template": {},
-          "title": {},
+          "rowsPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subtitle": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "xKey": {},
-          "yKey": {},
-          "yLabel": {}
+          "xKey": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "yKey": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "yLabel": {
+            "$ref": "#/$defs/dynamicString"
+          }
         }
       },
       "allowedProperties": [
@@ -746,49 +853,53 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "label": {},
-          "role": {},
-          "semanticRole": {},
-          "statePath": {},
-          "template": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "value": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicValue"
           },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -871,45 +982,56 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "disclaimer": {},
-          "flex": {},
+          "disclaimer": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "items": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "role": {},
-          "semanticRole": {},
-          "source": {},
-          "template": {},
-          "title": {},
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -994,52 +1116,56 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "label": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "options": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "role": {},
-          "semanticRole": {},
-          "statePath": {},
-          "template": {},
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "value": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicValue"
           },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1124,42 +1250,53 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "code": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "code": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "language": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
-          "title": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "language": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1244,42 +1381,53 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "code": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "code": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "language": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
-          "title": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "language": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1365,51 +1513,59 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "label": {},
-          "mode": {},
-          "placeholder": {},
-          "role": {},
-          "semanticRole": {},
-          "statePath": {},
-          "template": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "mode": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "placeholder": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "value": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicValue"
           },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1483,39 +1639,44 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1603,51 +1764,74 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "attachments": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "bcc": {},
-          "body": {},
-          "cc": {},
-          "child": {},
-          "contentDescription": {},
-          "date": {},
+          "bcc": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "body": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "cc": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "date": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
-          "from": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "from": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "role": {},
-          "semanticRole": {},
-          "subject": {},
-          "template": {},
-          "timestamp": {},
-          "title": {},
-          "to": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subject": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "timestamp": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "to": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1738,52 +1922,62 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "display": {},
-          "flex": {},
+          "display": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "latex": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "latex": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "result": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicValue"
           },
-          "role": {},
-          "semanticRole": {},
-          "subtitle": {},
-          "template": {},
-          "text": {},
-          "title": {},
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subtitle": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -1874,62 +2068,71 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "alt": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "alt": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "icon": {},
+          "icon": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "iconSize": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "name": {},
-          "role": {},
-          "semanticRole": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "size": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "source": {},
-          "src": {},
-          "template": {},
-          "tint": {},
-          "url": {},
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tint": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2029,55 +2232,88 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "alt": {},
-          "ariaLabel": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "alt": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "aspectRatio": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "child": {},
-          "contentDescription": {},
-          "contentScale": {},
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "contentScale": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "fallbackUrl": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "fit": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "contain",
+                  "cover",
+                  "fill",
+                  "none",
+                  "scale-down"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "fallbackUrl": {},
-          "fit": {},
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "name": {},
-          "role": {},
-          "semanticRole": {},
-          "source": {},
-          "src": {},
-          "template": {},
-          "url": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2160,42 +2396,47 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "items": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "role": {},
-          "semanticRole": {},
-          "template": {},
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2274,42 +2515,53 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "content": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "content": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
-          "title": {},
-          "trigger": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "trigger": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2397,73 +2649,62 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "label": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "max": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
           "min": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "role": {},
-          "semanticRole": {},
-          "statePath": {},
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "step": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "template": {},
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "value": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicValue"
           },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2565,53 +2806,164 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "align": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "align": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "direction": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "vertical",
+                  "horizontal"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "direction": {},
-          "flex": {},
-          "gap": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "gap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "sm",
+                  "md",
+                  "lg",
+                  "xl"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "justify": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch",
+                  "spaceAround",
+                  "spaceBetween",
+                  "spaceEvenly"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "itemTemplate": {},
-          "justify": {},
-          "margin": {},
-          "marginHorizontal": {},
-          "marginVertical": {},
-          "padding": {},
-          "paddingHorizontal": {},
-          "paddingVertical": {},
-          "role": {},
-          "semanticRole": {},
-          "space": {},
-          "spacing": {},
-          "template": {},
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "space": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "spacing": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "wrap": {}
+          "wrap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nowrap",
+                  "wrap"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          }
         }
       },
       "allowedProperties": [
@@ -2714,62 +3066,83 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "columns": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "contentDescription": {},
-          "dataPath": {},
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "dataPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "domain": {},
+          "domain": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "entityMedia": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
           "highlightColumns": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "itemTemplate": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
           "numericColumns": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "preferredPresentation": {},
-          "presentation": {},
-          "primaryColumn": {},
-          "role": {},
+          "preferredPresentation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "presentation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "primaryColumn": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "rows": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "rowsPath": {},
-          "semanticRole": {},
-          "statePath": {},
-          "template": {},
-          "title": {},
+          "rowsPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2857,43 +3230,50 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "activeTabId": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "activeTabId": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "role": {},
-          "semanticRole": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "tabs": {
-            "type": "array"
+            "$ref": "#/$defs/dynamicArray"
           },
-          "template": {},
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -2976,42 +3356,53 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
-          "heading": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "heading": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
-          "text": {},
-          "variant": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "variant": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -3095,50 +3486,56 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "flex": {},
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "label": {},
-          "placeholder": {},
-          "role": {},
-          "semanticRole": {},
-          "statePath": {},
-          "template": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "placeholder": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "value": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicValue"
           },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -3227,49 +3624,74 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicBoolean"
           },
-          "description": {},
-          "flex": {},
+          "description": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "itemTemplate": {},
-          "name": {},
-          "poster": {},
-          "posterUrl": {},
-          "role": {},
-          "semanticRole": {},
-          "source": {},
-          "src": {},
-          "template": {},
-          "thumbnail": {},
-          "thumbnailUrl": {},
-          "title": {},
-          "url": {},
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "poster": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "posterUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnail": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnailUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           }
         }
       },
@@ -3377,52 +3799,147 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "align": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "align": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "gap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "sm",
+                  "md",
+                  "lg",
+                  "xl"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "flex": {},
-          "gap": {},
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "justify": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch",
+                  "spaceAround",
+                  "spaceBetween",
+                  "spaceEvenly"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "itemTemplate": {},
-          "justify": {},
-          "margin": {},
-          "marginHorizontal": {},
-          "marginVertical": {},
-          "padding": {},
-          "paddingHorizontal": {},
-          "paddingVertical": {},
-          "role": {},
-          "semanticRole": {},
-          "space": {},
-          "spacing": {},
-          "template": {},
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "space": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "spacing": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "wrap": {}
+          "wrap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nowrap",
+                  "wrap"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          }
         }
       },
       "allowedProperties": [
@@ -3532,44 +4049,123 @@
           "watch": {
             "type": "object"
           },
-          "accessibility": {},
-          "accessibilityLabel": {},
-          "align": {},
-          "ariaLabel": {},
-          "child": {},
-          "contentDescription": {},
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "align": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "decorative": {
-            "type": [
-              "boolean",
-              "string",
-              "object",
-              "null"
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "gap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "sm",
+                  "md",
+                  "lg",
+                  "xl"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "flex": {},
-          "gap": {},
           "height": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "justify": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch",
+                  "spaceAround",
+                  "spaceBetween",
+                  "spaceEvenly"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
             ]
           },
-          "itemTemplate": {},
-          "justify": {},
-          "role": {},
-          "semanticRole": {},
-          "template": {},
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
           "width": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/dynamicNumber"
           },
-          "wrap": {}
+          "wrap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nowrap",
+                  "wrap"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          }
         }
       },
       "allowedProperties": [
@@ -3730,5 +4326,142 @@
   },
   "catalogIdentityHash": "2591971dff231d6452e76f53b0079b233b22742bd10c396873c84daa0ee0fe37",
   "catalogVersion": "genuicraft-a2ui-catalog-v1",
-  "profileVersion": "genuicraft-a2ui-express-profile-v1"
+  "profileVersion": "genuicraft-a2ui-express-profile-v1",
+  "$defs": {
+    "dataBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/.*$"
+        }
+      }
+    },
+    "functionCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "call"
+      ],
+      "properties": {
+        "call": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "object"
+        },
+        "returnType": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "object",
+            "any",
+            "void"
+          ]
+        }
+      }
+    },
+    "dynamicString": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicNumber": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicBoolean": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicArray": {
+      "oneOf": [
+        {
+          "type": "array"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicObject": {
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicValue": {
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array"
+        },
+        {
+          "type": "object"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"
 }

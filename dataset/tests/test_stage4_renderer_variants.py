@@ -12,6 +12,7 @@ if str(SRC) not in sys.path:
 
 from pipeline.stage4_render import run_stage4
 from pipeline.storage import iter_jsonl
+from pipeline.ir_formats import encode_express_completion
 
 
 class Stage4RendererVariantsTests(unittest.TestCase):
@@ -27,7 +28,11 @@ class Stage4RendererVariantsTests(unittest.TestCase):
                     "root": "root",
                     "state": {},
                     "elements": {
-                        "root": {"type": "Column", "props": {}, "children": ["t1"]},
+                        "root": {
+                            "type": "Stack",
+                            "props": {"direction": "vertical"},
+                            "children": ["t1"],
+                        },
                         "t1": {
                             "type": "Text",
                             "props": {"text": "Hello", "variant": "h2"},
@@ -36,6 +41,7 @@ class Stage4RendererVariantsTests(unittest.TestCase):
                     },
                 },
             }
+            row["a2ui_express"] = encode_express_completion(row["genui_json"])
             genui_path.write_text(json.dumps(row) + "\n", encoding="utf-8")
 
             logger = logging.getLogger("stage4_test")

@@ -348,7 +348,7 @@ def main() -> None:
                 max_attempts=int(run_cfg.get("max_attempts", 6)),
                 aggregates_path=run_paths.aggregates_path,
                 aggregate_weights=eval_cfg.get("weights", {}),
-                metric_version=eval_cfg.get("metric_version", "dual"),
+                metric_version=eval_cfg.get("metric_version", "v5_4"),
             )
             after = count_jsonl(run_paths.genui_path)
             logger.info("dataset_v1 progress stage3 genui=%s/%s created=%s", after, cycle_target, after - before)

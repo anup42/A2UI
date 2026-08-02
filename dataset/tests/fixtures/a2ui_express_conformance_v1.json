@@ -7,6 +7,11 @@
       "canonical": {"root":"root","state":{},"elements":{"root":{"type":"Text","props":{"text":"Hello"},"children":[]}}}
     },
     {
+      "name": "pinned_string_and_check_literals",
+      "program": "<a2ui>\nroot=Card(title=r\"raw\",subtitle=\"\"\"line1\nline2\"\"\",visible=?isVisible)\n</a2ui>",
+      "canonical": {"root":"root","state":{},"elements":{"root":{"type":"Card","props":{"title":"raw","subtitle":"line1\nline2"},"children":[],"visible":{"check":"isVisible","args":[]}}}}
+    },
+    {
       "name": "state_and_event",
       "program": "<a2ui>\n$/={selected:\"one\"}\nroot=Column([a,b],gap=\"md\")\na=Text(\"Hello\",\"h2\")\nb=Button(\"Go\",onPress=Event(\"go\",{selected:$/selected},true,\"/result\"))\n</a2ui>",
       "canonical": {"root":"root","state":{"selected":"one"},"elements":{"root":{"type":"Stack","props":{"direction":"vertical","gap":"md"},"children":["a","b"]},"a":{"type":"Text","props":{"text":"Hello","variant":"h2"},"children":[]},"b":{"type":"Button","props":{"label":"Go"},"children":[],"on":{"press":{"action":"emitEvent","params":{"name":"go","context":{"selected":"$/selected"},"wantResponse":true,"responsePath":"/result"}}}}}}
@@ -27,6 +32,7 @@
     {"name":"missing_action_parameter","program":"<a2ui>\nroot=Button(\"Open\",onPress=openUrl())\n</a2ui>","error":"required"},
     {"name":"unknown_repeat_field","program":"<a2ui>\nroot=List([item],repeat={statePath:\"/items\",unknown:\"nope\"})\nitem=Text(\"Item\")\n</a2ui>","error":"repeat"},
     {"name":"duplicate_id","program":"<a2ui>\nroot=Text(\"A\")\nroot=Text(\"B\")\n</a2ui>","error":"duplicate"},
-    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"}
+    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"},
+    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"}
   ]
 }

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
@@ -91,19 +92,372 @@ def _json_bytes(value: Any) -> bytes:
 
 
 def catalog_document() -> dict[str, Any]:
-    return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+    """Load the catalog and apply the generated strict property contract.
+
+    The checked-in catalog is the reviewable source of component names and
+    renderer property inventory.  The generated type definitions below keep
+    the standard catalog closed while still allowing the pinned A2UI dynamic
+    binding/function-call forms used by the native renderer.
+    """
+    catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+    catalog.setdefault("$schema", "https://json-schema.org/draft/2020-12/schema")
+    catalog.setdefault("$id", str(catalog.get("catalogId") or "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"))
+    catalog["$defs"] = _catalog_defs()
+    components = catalog.get("components")
+    if isinstance(components, dict):
+        for name, descriptor in components.items():
+            if not isinstance(descriptor, dict):
+                continue
+            descriptor["allowAdditionalProps"] = False
+            schema = descriptor.get("schema")
+            if not isinstance(schema, dict):
+                continue
+            schema["additionalProperties"] = False
+            properties = schema.setdefault("properties", {})
+            for property_name in list(properties):
+                if property_name in {"id", "component", "children", "repeat", "on", "watch", "visible"}:
+                    continue
+                properties[property_name] = _property_schema(str(property_name), str(name))
+    return catalog
+
+
+def _binding_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["path"],
+        "properties": {
+            "path": {
+                "type": "string",
+                "pattern": r"^/.*$",
+            }
+        },
+    }
+
+
+def _function_call_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["call"],
+        "properties": {
+            "call": {"type": "string", "minLength": 1},
+            "args": {"type": "object"},
+            "returnType": {
+                "type": "string",
+                "enum": ["string", "number", "boolean", "array", "object", "any", "void"],
+            },
+        },
+    }
+
+
+def _catalog_defs() -> dict[str, Any]:
+    return {
+        "dataBinding": _binding_schema(),
+        "functionCall": _function_call_schema(),
+        "dynamicString": {
+            "oneOf": [
+                {"type": "string"},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        },
+        "dynamicNumber": {
+            "oneOf": [
+                {"type": "number"},
+                {"type": "string"},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        },
+        "dynamicBoolean": {
+            "oneOf": [
+                {"type": "boolean"},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        },
+        "dynamicArray": {
+            "oneOf": [
+                {"type": "array"},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        },
+        "dynamicObject": {
+            "oneOf": [
+                {"type": "object"},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        },
+        "dynamicValue": {
+            "oneOf": [
+                {"type": ["string", "number", "boolean", "null"]},
+                {"type": "array"},
+                {"type": "object"},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        },
+    }
+
+
+_STRING_PROPERTIES = {
+    "accessibilityLabel", "actionLabel", "activeTabId", "align", "alt", "ariaLabel",
+    "contentDescription", "contentScale", "date", "description", "domain", "fit", "from",
+    "gap", "heading", "height", "icon", "iconSize", "justify", "label", "language", "latex",
+    "message", "mode", "name", "placeholder", "poster", "posterUrl", "preferredPresentation",
+    "presentation", "primaryColumn", "role", "semanticRole", "size", "source", "src", "statePath",
+    "subtitle", "subject", "template", "text", "thumbnail", "thumbnailUrl", "timestamp", "title",
+    "to", "tone", "url", "variant", "wrap", "xKey", "yKey", "yLabel",
+}
+_NUMBER_PROPERTIES = {"aspectRatio", "flex", "height", "iconSize", "max", "min", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical", "size", "step", "width"}
+_BOOLEAN_PROPERTIES = {"decorative", "display"}
+_ARRAY_PROPERTIES = {"attachments", "columns", "entityMedia", "highlightColumns", "items", "numericColumns", "options", "rows", "tabs"}
+_OBJECT_PROPERTIES = {"accessibility", "checks", "data", "style"}
+_ENUM_PROPERTIES = {
+    "direction": ("vertical", "horizontal"),
+    "fit": ("contain", "cover", "fill", "none", "scale-down"),
+    "gap": ("none", "sm", "md", "lg", "xl"),
+    "align": ("start", "center", "end", "stretch"),
+    "justify": ("start", "center", "end", "stretch", "spaceAround", "spaceBetween", "spaceEvenly"),
+    "wrap": ("nowrap", "wrap"),
+}
+
+
+def _property_schema(name: str, component: str | None = None) -> dict[str, Any]:
+    """Return a typed dynamic property schema for a catalog field."""
+    del component  # reserved for component-specific enum profiles
+    if name in _ENUM_PROPERTIES:
+        return {
+            "oneOf": [
+                {"type": "string", "enum": list(_ENUM_PROPERTIES[name])},
+                {"$ref": "#/$defs/dataBinding"},
+                {"$ref": "#/$defs/functionCall"},
+            ]
+        }
+    if name in _ARRAY_PROPERTIES:
+        ref = "dynamicArray"
+    elif name in _OBJECT_PROPERTIES:
+        ref = "dynamicObject"
+    elif name in _NUMBER_PROPERTIES:
+        ref = "dynamicNumber"
+    elif name in _BOOLEAN_PROPERTIES:
+        ref = "dynamicBoolean"
+    elif name in _STRING_PROPERTIES:
+        ref = "dynamicString"
+    else:
+        ref = "dynamicValue"
+    return {"$ref": f"#/$defs/{ref}"}
 
 
 def wire_schema() -> dict[str, Any]:
-    return json.loads(WIRE_SCHEMA_PATH.read_text(encoding="utf-8"))
+    # The wire schema is generated from the strict GenUICraft catalog while
+    # keeping the message envelopes identical to the vendored upstream v0.9
+    # server-to-client contract.  The catalog is the only project-specific
+    # part; no FlatSpec-shaped envelope is accepted here.
+    catalog = catalog_document()
+    components: dict[str, Any] = {}
+    for name, descriptor in catalog.get("components", {}).items():
+        schema = deepcopy(descriptor.get("schema"))
+        if not isinstance(schema, dict):
+            continue
+        properties = schema.setdefault("properties", {})
+        if "children" in properties:
+            properties["children"] = {"$ref": "#/$defs/childList"}
+        # Repeat metadata is lowered to the standard ChildList object.  The
+        # remaining renderer metadata is retained as catalog-defined fields,
+        # but action values use the upstream event/functionCall shape.
+        properties.pop("repeat", None)
+        for key in ("on", "watch"):
+            if key in properties:
+                properties[key] = {
+                    "type": "object",
+                    "additionalProperties": {"$ref": "#/$defs/action"},
+                }
+        components[str(name)] = schema
+
+    component_refs = [
+        {"$ref": f"#/$defs/components/{name}"}
+        for name in sorted(components)
+    ]
+    message_refs = [
+        {"$ref": "#/$defs/createSurface"},
+        {"$ref": "#/$defs/updateComponents"},
+        {"$ref": "#/$defs/updateDataModel"},
+        {"$ref": "#/$defs/deleteSurface"},
+    ]
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://a2ui.org/specification/v0_9/server_to_client.json",
+        "title": "GenUICraft A2UI v0.9 Server-to-Client Messages",
+        "description": (
+            "The pinned upstream A2UI v0.9 message envelope with the strict "
+            "GenUICraft catalog component definitions."
+        ),
+        "oneOf": message_refs + [
+            {
+                "type": "array",
+                "minItems": 1,
+                "items": {"$ref": "#/$defs/message"},
+            }
+        ],
+        "$defs": {
+            **deepcopy(catalog.get("$defs", {})),
+            "message": {"oneOf": message_refs},
+            "childList": {
+                "oneOf": [
+                    {
+                        "type": "array",
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["componentId", "path"],
+                        "properties": {
+                            "componentId": {"type": "string", "minLength": 1},
+                            "path": {"type": "string", "minLength": 1},
+                            "key": {"type": "string", "minLength": 1},
+                        },
+                    },
+                ]
+            },
+            "action": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["event"],
+                        "properties": {
+                            "event": {
+                                "type": "object",
+                                "additionalProperties": False,
+                                "required": ["name"],
+                                "properties": {
+                                    "name": {"type": "string", "minLength": 1},
+                                    "context": {"type": "object"},
+                                    "wantResponse": {"type": "boolean"},
+                                    "responsePath": {"type": "string"},
+                                },
+                            }
+                        },
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["functionCall"],
+                        "properties": {
+                            "functionCall": {
+                                "type": "object",
+                                "additionalProperties": False,
+                                "required": ["call"],
+                                "properties": {
+                                    "call": {"type": "string", "minLength": 1},
+                                    "args": {"type": "object"},
+                                    "returnType": {"type": "string"},
+                                },
+                            }
+                        },
+                    },
+                ]
+            },
+            "components": components,
+            "createSurface": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["version", "createSurface"],
+                "properties": {
+                    "version": {"const": A2UI_PROTOCOL_VERSION},
+                    "createSurface": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["surfaceId", "catalogId"],
+                        "properties": {
+                            "surfaceId": {"type": "string", "minLength": 1},
+                            "catalogId": {
+                                "const": GENUICRAFT_CATALOG_ID,
+                                "type": "string",
+                            },
+                            "theme": {"type": "object"},
+                            "sendDataModel": {"type": "boolean"},
+                        },
+                    },
+                },
+            },
+            "updateComponents": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["version", "updateComponents"],
+                "properties": {
+                    "version": {"const": A2UI_PROTOCOL_VERSION},
+                    "updateComponents": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["surfaceId", "components"],
+                        "properties": {
+                            "surfaceId": {"type": "string", "minLength": 1},
+                            "components": {
+                                "type": "array",
+                                "minItems": 1,
+                                "contains": {
+                                    "type": "object",
+                                    "required": ["id"],
+                                    "properties": {"id": {"const": "root"}},
+                                },
+                                "items": {"$ref": "#/$defs/anyComponent"},
+                            },
+                        },
+                    },
+                },
+            },
+            "updateDataModel": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["version", "updateDataModel"],
+                "properties": {
+                    "version": {"const": A2UI_PROTOCOL_VERSION},
+                    "updateDataModel": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["surfaceId"],
+                        "properties": {
+                            "surfaceId": {"type": "string", "minLength": 1},
+                            "path": {"type": "string"},
+                            "value": {},
+                        },
+                    },
+                },
+            },
+            "deleteSurface": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["version", "deleteSurface"],
+                "properties": {
+                    "version": {"const": A2UI_PROTOCOL_VERSION},
+                    "deleteSurface": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["surfaceId"],
+                        "properties": {
+                            "surfaceId": {"type": "string", "minLength": 1}
+                        },
+                    },
+                },
+            },
+            "anyComponent": {"oneOf": component_refs},
+        },
+    }
 
 
 def generated_files() -> dict[Path, bytes]:
+    catalog = catalog_document()
     return {
-        CATALOG_PATH: CATALOG_PATH.read_bytes(),
+        CATALOG_PATH: _json_bytes(catalog),
         PROFILE_PATH: PROFILE_PATH.read_bytes(),
         CANONICAL_GRAPH_PATH: CANONICAL_GRAPH_PATH.read_bytes(),
-        WIRE_SCHEMA_PATH: WIRE_SCHEMA_PATH.read_bytes(),
+        WIRE_SCHEMA_PATH: _json_bytes(wire_schema()),
         PROMPT_PATH: PROMPT_PATH.read_bytes(),
         PY_COMPILER_PATH: PY_COMPILER_PATH.read_bytes(),
         PY_ACTIVE_BOUNDARY_PATH: PY_ACTIVE_BOUNDARY_PATH.read_bytes(),
@@ -138,7 +492,7 @@ def manifest_for(files: dict[Path, bytes]) -> dict[str, Any]:
         "profileVersion": "genuicraft-a2ui-express-profile-v1",
         "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
         "catalogId": GENUICRAFT_CATALOG_ID,
-        "catalogIdentityHash": json.loads(CATALOG_PATH.read_text(encoding="utf-8")).get("catalogIdentityHash"),
+        "catalogIdentityHash": catalog_document().get("catalogIdentityHash"),
         "tokenizer": {
             "status": "blocked",
             "name": "deployed_gemma_tokenizer_unavailable",

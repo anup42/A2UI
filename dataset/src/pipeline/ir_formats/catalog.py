@@ -14,7 +14,9 @@ from typing import Any
 A2UI_UPSTREAM_REPOSITORY = "a2ui-project/a2ui"
 A2UI_UPSTREAM_COMMIT = "2276f8cc702eaeac25ffb05be85797b2a1205c74"
 A2UI_EXPRESS_GRAMMAR_GIT_BLOB_SHA = "4f2492ae4600598d8b10e68fcd9f4292529dd653"
-A2UI_PROTOCOL_VERSION = "v1.0"
+# The vendored upstream protocol under specification/v0_9 is the exact
+# standard envelope used by the internal compiler/transport boundary.
+A2UI_PROTOCOL_VERSION = "v0.9"
 A2UI_EXPRESS_VERSION = "genuicraft-express-v1"
 GENUICRAFT_CATALOG_ID = "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"
 

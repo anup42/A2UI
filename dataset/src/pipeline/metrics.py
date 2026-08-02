@@ -951,7 +951,12 @@ def _canonical_metric_payload(value: Any) -> Any:
 
         if isinstance(value, str):
             return decode_express_completion(value)
-        if isinstance(value, Mapping) and value.get("version") == "v1.0":
+        if isinstance(value, Mapping) and value.get("version") == "v0.9":
+            return decode_wire(value)
+        if isinstance(value, list) and value and all(
+            isinstance(item, Mapping) and item.get("version") == "v0.9"
+            for item in value
+        ):
             return decode_wire(value)
     except Exception:
         return value
@@ -1255,7 +1260,7 @@ def compute_media_score(aggregate: dict[str, Any]) -> float | None:
 def aggregate_metrics(
     rows: list[dict[str, Any]],
     render_rows_by_ui_id: dict[str, dict[str, Any]] | None = None,
-    metric_version: str = "dual",
+    metric_version: str = "v5_4",
     v4_config: RewardConfig | None = None,
     v5_config: RewardConfig | None = None,
     v5_1_config: RewardConfig | None = None,

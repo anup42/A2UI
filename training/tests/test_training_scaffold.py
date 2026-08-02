@@ -494,7 +494,7 @@ def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tm
             {
                 "id": "sample-1",
                 "response_id": "response-1",
-                "completion": '{"root":"expected","state":{},"elements":{}}',
+                "completion": '<a2ui>\nroot=Text("expected")\n</a2ui>',
                 "messages": [{"role": "user", "content": "Create this UI"}],
                 "metadata": {
                     "query_id": "query-1",
@@ -522,7 +522,7 @@ def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tm
         def decode(self, tokens, skip_special_tokens=True):
             assert tokens.tolist() == [3]
             assert skip_special_tokens is True
-            return '{"root":"generated","state":{},"elements":{}}'
+            return '<a2ui>\nroot=Text("generated")\n</a2ui>'
 
     class Adapter:
         def format_example(self, row, tokenizer, include_assistant):
@@ -574,8 +574,8 @@ def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tm
     prediction = json.loads(output_path.read_text(encoding="utf-8"))
     assert prediction["query_id"] == "query-1"
     assert prediction["ui_id"] == "ui-1"
-    assert prediction["expected"]["root"] == "expected"
-    assert prediction["generated_text"].startswith('{"root":"generated"')
+    assert prediction["expected"].startswith("<a2ui>")
+    assert prediction["generated_text"].startswith("<a2ui>")
 
 
 def test_sft_tokenizer_model_alignment_resizes_and_sets_special_ids():

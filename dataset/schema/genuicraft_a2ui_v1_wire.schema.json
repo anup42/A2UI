@@ -1,10 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://genui.samsung.com/specification/a2ui/v1/agent_to_renderer.json",
-  "title": "GenUICraft A2UI v1 Wire Messages",
+  "$id": "https://a2ui.org/specification/v0_9/server_to_client.json",
+  "title": "GenUICraft A2UI v0.9 Server-to-Client Messages",
+  "description": "The pinned upstream A2UI v0.9 message envelope with the strict GenUICraft catalog component definitions.",
   "oneOf": [
     {
-      "$ref": "#/$defs/create"
+      "$ref": "#/$defs/createSurface"
     },
     {
       "$ref": "#/$defs/updateComponents"
@@ -19,25 +20,2942 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "oneOf": [
-          {
-            "$ref": "#/$defs/create"
-          },
-          {
-            "$ref": "#/$defs/updateComponents"
-          },
-          {
-            "$ref": "#/$defs/updateDataModel"
-          },
-          {
-            "$ref": "#/$defs/deleteSurface"
-          }
-        ]
+        "$ref": "#/$defs/message"
       }
     }
   ],
   "$defs": {
-    "create": {
+    "dataBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/.*$"
+        }
+      }
+    },
+    "functionCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "call"
+      ],
+      "properties": {
+        "call": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "object"
+        },
+        "returnType": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "array",
+            "object",
+            "any",
+            "void"
+          ]
+        }
+      }
+    },
+    "dynamicString": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicNumber": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicBoolean": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicArray": {
+      "oneOf": [
+        {
+          "type": "array"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicObject": {
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "dynamicValue": {
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array"
+        },
+        {
+          "type": "object"
+        },
+        {
+          "$ref": "#/$defs/dataBinding"
+        },
+        {
+          "$ref": "#/$defs/functionCall"
+        }
+      ]
+    },
+    "message": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/createSurface"
+        },
+        {
+          "$ref": "#/$defs/updateComponents"
+        },
+        {
+          "$ref": "#/$defs/updateDataModel"
+        },
+        {
+          "$ref": "#/$defs/deleteSurface"
+        }
+      ]
+    },
+    "childList": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "componentId",
+            "path"
+          ],
+          "properties": {
+            "componentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "event"
+          ],
+          "properties": {
+            "event": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "context": {
+                  "type": "object"
+                },
+                "wantResponse": {
+                  "type": "boolean"
+                },
+                "responsePath": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "functionCall"
+          ],
+          "properties": {
+            "functionCall": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "call"
+              ],
+              "properties": {
+                "call": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "args": {
+                  "type": "object"
+                },
+                "returnType": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "components": {
+      "Alert": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Alert"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "icon": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "message": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "timestamp": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tone": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "AudioPlayer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "AudioPlayer"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "description": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "poster": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "posterUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnail": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnailUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Button": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Button"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "actionLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "icon": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "onClickLabel": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "variant": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Card": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Card"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subtitle": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tone": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Chart": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Chart"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "chartType": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "columns": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "dataPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "rows": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "rowsPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subtitle": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "xKey": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "yKey": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "yLabel": {
+            "$ref": "#/$defs/dynamicString"
+          }
+        }
+      },
+      "CheckBox": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "CheckBox"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "value": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Checklist": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Checklist"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "disclaimer": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "items": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "ChoicePicker": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "ChoicePicker"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "options": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "value": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "CodeBlock": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "CodeBlock"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "code": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "language": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "ConsoleLog": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "ConsoleLog"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "code": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "language": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "DateTimeInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "DateTimeInput"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "mode": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "placeholder": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "value": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Divider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Divider"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "EmailPreview": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "EmailPreview"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "attachments": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "bcc": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "body": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "cc": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "date": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "from": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subject": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "timestamp": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "to": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Formula": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Formula"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "display": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "latex": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "result": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "subtitle": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Icon": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Icon"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "alt": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "icon": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "iconSize": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "size": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tint": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Image": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Image"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "alt": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "aspectRatio": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "contentScale": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "fallbackUrl": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "fit": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "contain",
+                  "cover",
+                  "fill",
+                  "none",
+                  "scale-down"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "List": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "List"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "items": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Modal": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Modal"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "content": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "trigger": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Slider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Slider"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "max": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "min": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "step": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "value": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Stack": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Stack"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "align": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "direction": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "vertical",
+                  "horizontal"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "gap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "sm",
+                  "md",
+                  "lg",
+                  "xl"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "justify": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch",
+                  "spaceAround",
+                  "spaceBetween",
+                  "spaceEvenly"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "space": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "spacing": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "wrap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nowrap",
+                  "wrap"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          }
+        }
+      },
+      "Table": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Table"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "columns": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "dataPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "domain": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "entityMedia": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "highlightColumns": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "numericColumns": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "preferredPresentation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "presentation": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "primaryColumn": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "rows": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "rowsPath": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Tabs": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Tabs"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "activeTabId": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "tabs": {
+            "$ref": "#/$defs/dynamicArray"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Text": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Text"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "heading": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "text": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "variant": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "TextField": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "TextField"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "label": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "placeholder": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "statePath": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "value": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Video": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Video"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "description": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "name": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "poster": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "posterUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "source": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "src": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnail": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "thumbnailUrl": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "title": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "url": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          }
+        }
+      },
+      "Row": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Row"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "align": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "gap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "sm",
+                  "md",
+                  "lg",
+                  "xl"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "justify": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch",
+                  "spaceAround",
+                  "spaceBetween",
+                  "spaceEvenly"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "space": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "spacing": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "wrap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nowrap",
+                  "wrap"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          }
+        }
+      },
+      "Column": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "component"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "component": {
+            "const": "Column"
+          },
+          "children": {
+            "$ref": "#/$defs/childList"
+          },
+          "visible": {},
+          "on": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "watch": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/action"
+            }
+          },
+          "accessibility": {
+            "$ref": "#/$defs/dynamicObject"
+          },
+          "accessibilityLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "align": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "ariaLabel": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "child": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "contentDescription": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "decorative": {
+            "$ref": "#/$defs/dynamicBoolean"
+          },
+          "flex": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "gap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "sm",
+                  "md",
+                  "lg",
+                  "xl"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "height": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "itemTemplate": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "justify": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "start",
+                  "center",
+                  "end",
+                  "stretch",
+                  "spaceAround",
+                  "spaceBetween",
+                  "spaceEvenly"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          },
+          "role": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "semanticRole": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "template": {
+            "$ref": "#/$defs/dynamicString"
+          },
+          "width": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "wrap": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "nowrap",
+                  "wrap"
+                ]
+              },
+              {
+                "$ref": "#/$defs/dataBinding"
+              },
+              {
+                "$ref": "#/$defs/functionCall"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "createSurface": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -46,13 +2964,14 @@
       ],
       "properties": {
         "version": {
-          "const": "v1.0"
+          "const": "v0.9"
         },
         "createSurface": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "surfaceId"
+            "surfaceId",
+            "catalogId"
           ],
           "properties": {
             "surfaceId": {
@@ -60,69 +2979,11 @@
               "minLength": 1
             },
             "catalogId": {
-              "type": "string",
-              "const": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"
+              "const": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
+              "type": "string"
             },
-            "components": {
-              "type": "array",
-              "minItems": 1,
-              "contains": {
-                "type": "object",
-                "required": ["id"],
-                "properties": {
-                  "id": { "const": "root" }
-                }
-              },
-              "items": {
-                "type": "object",
-                "required": [
-                  "id",
-                  "component"
-                ],
-                "additionalProperties": true,
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "component": {
-                    "type": "string",
-                    "enum": [
-                      "Alert",
-                      "AudioPlayer",
-                      "Button",
-                      "Card",
-                      "Chart",
-                      "CheckBox",
-                      "Checklist",
-                      "ChoicePicker",
-                      "CodeBlock",
-                      "Column",
-                      "ConsoleLog",
-                      "DateTimeInput",
-                      "Divider",
-                      "EmailPreview",
-                      "Formula",
-                      "Icon",
-                      "Image",
-                      "List",
-                      "Modal",
-                      "Row",
-                      "Slider",
-                      "Stack",
-                      "Table",
-                      "Tabs",
-                      "Text",
-                      "TextField",
-                      "Video"
-                    ]
-                  }
-                }
-              }
-            },
-            "dataModel": {
-              "type": "object",
-              "additionalProperties": true
+            "theme": {
+              "type": "object"
             },
             "sendDataModel": {
               "type": "boolean"
@@ -140,7 +3001,7 @@
       ],
       "properties": {
         "version": {
-          "const": "v1.0"
+          "const": "v0.9"
         },
         "updateComponents": {
           "type": "object",
@@ -157,51 +3018,19 @@
             "components": {
               "type": "array",
               "minItems": 1,
-              "items": {
+              "contains": {
                 "type": "object",
                 "required": [
-                  "id",
-                  "component"
+                  "id"
                 ],
-                "additionalProperties": true,
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "component": {
-                    "type": "string",
-                    "enum": [
-                      "Alert",
-                      "AudioPlayer",
-                      "Button",
-                      "Card",
-                      "Chart",
-                      "CheckBox",
-                      "Checklist",
-                      "ChoicePicker",
-                      "CodeBlock",
-                      "Column",
-                      "ConsoleLog",
-                      "DateTimeInput",
-                      "Divider",
-                      "EmailPreview",
-                      "Formula",
-                      "Icon",
-                      "Image",
-                      "List",
-                      "Modal",
-                      "Row",
-                      "Slider",
-                      "Stack",
-                      "Table",
-                      "Tabs",
-                      "Text",
-                      "TextField",
-                      "Video"
-                    ]
+                    "const": "root"
                   }
                 }
+              },
+              "items": {
+                "$ref": "#/$defs/anyComponent"
               }
             }
           }
@@ -217,14 +3046,13 @@
       ],
       "properties": {
         "version": {
-          "const": "v1.0"
+          "const": "v0.9"
         },
         "updateDataModel": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "surfaceId",
-            "value"
+            "surfaceId"
           ],
           "properties": {
             "surfaceId": {
@@ -248,7 +3076,7 @@
       ],
       "properties": {
         "version": {
-          "const": "v1.0"
+          "const": "v0.9"
         },
         "deleteSurface": {
           "type": "object",
@@ -264,6 +3092,91 @@
           }
         }
       }
+    },
+    "anyComponent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/components/Alert"
+        },
+        {
+          "$ref": "#/$defs/components/AudioPlayer"
+        },
+        {
+          "$ref": "#/$defs/components/Button"
+        },
+        {
+          "$ref": "#/$defs/components/Card"
+        },
+        {
+          "$ref": "#/$defs/components/Chart"
+        },
+        {
+          "$ref": "#/$defs/components/CheckBox"
+        },
+        {
+          "$ref": "#/$defs/components/Checklist"
+        },
+        {
+          "$ref": "#/$defs/components/ChoicePicker"
+        },
+        {
+          "$ref": "#/$defs/components/CodeBlock"
+        },
+        {
+          "$ref": "#/$defs/components/Column"
+        },
+        {
+          "$ref": "#/$defs/components/ConsoleLog"
+        },
+        {
+          "$ref": "#/$defs/components/DateTimeInput"
+        },
+        {
+          "$ref": "#/$defs/components/Divider"
+        },
+        {
+          "$ref": "#/$defs/components/EmailPreview"
+        },
+        {
+          "$ref": "#/$defs/components/Formula"
+        },
+        {
+          "$ref": "#/$defs/components/Icon"
+        },
+        {
+          "$ref": "#/$defs/components/Image"
+        },
+        {
+          "$ref": "#/$defs/components/List"
+        },
+        {
+          "$ref": "#/$defs/components/Modal"
+        },
+        {
+          "$ref": "#/$defs/components/Row"
+        },
+        {
+          "$ref": "#/$defs/components/Slider"
+        },
+        {
+          "$ref": "#/$defs/components/Stack"
+        },
+        {
+          "$ref": "#/$defs/components/Table"
+        },
+        {
+          "$ref": "#/$defs/components/Tabs"
+        },
+        {
+          "$ref": "#/$defs/components/Text"
+        },
+        {
+          "$ref": "#/$defs/components/TextField"
+        },
+        {
+          "$ref": "#/$defs/components/Video"
+        }
+      ]
     }
   }
 }

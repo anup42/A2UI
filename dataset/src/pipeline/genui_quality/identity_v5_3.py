@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Mapping
 
-from ..flat_spec_semantics import (
+from ..renderer_semantics import (
     RENDERER_SEMANTICS_VERSION,
     renderer_reference_inventory_hash,
 )
@@ -73,8 +73,8 @@ _METRIC_SOURCE_FILES = (
     "matching_v5_2.py",
     "metrics_v5_2.py",
     "source_contract.py",
-    "../flat_spec_contract.py",
-    "../flat_spec_semantics.py",
+    "../renderer_capability.py",
+    "../renderer_semantics.py",
 )
 _REWARD_PIPELINE_FILES = (
     "grpo_reward.py",

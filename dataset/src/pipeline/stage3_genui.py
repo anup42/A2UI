@@ -892,7 +892,7 @@ def run_stage3(
     max_attempts: int = 3,
     aggregates_path: Path | None = None,
     aggregate_weights: dict[str, float] | None = None,
-    metric_version: str = "dual",
+    metric_version: str = "v5_4",
     ir_formats: list[str] | tuple[str, ...] | str | None = None,
     _active_ir_format: str | None = None,
 ) -> None:
@@ -2133,7 +2133,7 @@ def run_stage3(
                 config=v5_4_config,
             )
             artifact_v5_4 = render_artifact_quality_v5_4(
-                genui_json,
+                generation_completion,
                 response_text,
                 intent=intent_bucket,
                 assets=assets_list,

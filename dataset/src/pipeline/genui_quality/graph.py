@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from ..flat_spec_semantics import iter_renderer_references
+from ..renderer_semantics import iter_renderer_references
 from ._core import GraphAudit, audit_graph, resolve_json_pointer
 
 

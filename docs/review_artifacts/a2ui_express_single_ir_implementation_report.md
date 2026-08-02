@@ -3,7 +3,7 @@
 ## Outcome
 
 A2UI Express v1 is the only active model-output and training-target format. The
-standard A2UI v1 wire form remains an internal compiler/transport boundary.
+standard A2UI v0.9 wire form remains an internal compiler/transport boundary.
 FlatSpec is retained only for read-only legacy import, deterministic migration,
 semantic round-trip tests, and offline baselines. Compact IR v2 is isolated
 under migration-only modules and is rejected by active ingestion paths.
@@ -15,7 +15,7 @@ than one compact/legacy representation. The active path is now:
 
 ```text
 model -> strict A2UI Express parser -> catalog/profile validation
-      -> standard A2UI v1 compiler/schema validation
+      -> standard A2UI v0.9 compiler/schema validation
       -> canonical typed UI graph -> Android native renderer
 ```
 
@@ -33,7 +33,7 @@ silently parsed as FlatSpec/Compact IR and does not produce a hidden fallback UI
 
 - A2UI repository: `a2ui-project/a2ui`
 - pinned upstream commit: `2276f8cc702eaeac25ffb05be85797b2a1205c74`
-- protocol: `v1.0`
+- protocol: `v0.9` (vendored `specification/v0_9`)
 - Express profile: `genuicraft-express-v1`
 - pinned Express grammar blob: `4f2492ae4600598d8b10e68fcd9f4292529dd653`
 - catalog: `genuicraft-a2ui-catalog-v1`
@@ -63,8 +63,9 @@ IR artifacts verified: 15 files
 - `dataset/src/pipeline/ir_formats/catalog.py`,
   `dataset/schema/genuicraft_a2ui_catalog_v1.json`, and
   `dataset/schema/genuicraft_a2ui_express_profile_v1.json`: generated strict
-  catalog/profile contract, explicit renderer properties, required action
-  parameters, and shared reference/repeat metadata.
+  catalog/profile contract, closed typed component-property schemas, explicit
+  renderer properties, required action parameters, and shared
+  reference/repeat metadata.
 - `dataset/src/pipeline/ir_formats/canonical.py` and
   `android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiCanonicalGraph.kt`:
   strict canonical graph validation for root/state/elements, component and
@@ -114,15 +115,15 @@ diagnostic. The exact-token gate remains BLOCKED.
 
 ## Verification and known limitations
 
-Python dataset tests (419 passed separately), training tests (49 passed), and
+Python dataset tests (422 passed separately), training tests (49 passed), and
 the Android JVM suite (297 passed) are recorded in
 `a2ui_express_test_report.json`. The connected Flip smoke test passed on
 `R3CW408WE4J` (`SM-F731U`, Android 16), and the inspected screenshot shows the
 A2UI Express title, native Compose card, and Details/Ready state; the window
 hierarchy also contains the Table component. The screenshot SHA-256 is
-`5D2C00E222C7361D466F31A9779EB638F7D5406B8E4E2E7380B5D3687758D0D7` and the
+`4ACCAE7137BCA24A1658B40CFE7EEF81FE1F0C1980BECAB6FAB66A831001C0C9` and the
 window-dump SHA-256 is
-`CA675B23535A499802F620B6C0B481B02832A23DBC63A914FB17B82D66C2EF79`. The
+`953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09`. The
 device images remain outside the source-only archive.
 
 Python and Kotlin both consume the byte-identical fixture

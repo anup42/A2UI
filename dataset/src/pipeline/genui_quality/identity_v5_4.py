@@ -6,7 +6,7 @@ import hashlib
 from pathlib import Path
 from typing import Any, Mapping
 
-from ..flat_spec_semantics import (
+from ..renderer_semantics import (
     RENDERER_SEMANTICS_VERSION,
     renderer_reference_inventory_hash,
 )
@@ -113,8 +113,8 @@ _SCORE_FILES = (
     "../../../schema/genuicraft_a2ui_catalog_v1.json",
     "../../../schema/genuicraft_a2ui_express_profile_v1.json",
     "../../../tests/fixtures/a2ui_express_conformance_v1.json",
-    "../flat_spec_contract.py",
-    "../flat_spec_semantics.py",
+    "../renderer_capability.py",
+    "../renderer_semantics.py",
     "../renderer_effective_semantics_v5_4.py",
 )
 _REWARD_FILES = (

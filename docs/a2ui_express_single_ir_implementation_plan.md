@@ -14,7 +14,7 @@ This plan is the review checkpoint for the attached single-active-IR directive. 
 | Legacy dataset formats and source records | DONE | FlatSpec and Compact are recognized only at the migration boundary. |
 | Compact IR isolation/removal from active paths | DONE | Isolated migration decoder; active codec/prompt/config/static tests reject Compact. |
 | FlatSpec read-only migration/comparison isolation | DONE | Renderer compatibility is explicit and model-output fallback is rejected. |
-| Pinned A2UI protocol version and upstream commit | DONE | Manifest pins A2UI v1.0 and commit `2276f8cc702eaeac25ffb05be85797b2a1205c74`. |
+| Pinned A2UI protocol version and upstream commit | DONE | Manifest pins vendored A2UI `specification/v0_9` (`v0.9`) and upstream commit `2276f8cc702eaeac25ffb05be85797b2a1205c74`. |
 | Pinned Express grammar version/blob or commit | DONE | Manifest pins `genuicraft-express-v1` and grammar blob `4f2492ae4600598d8b10e68fcd9f4292529dd653`. |
 | Strict standard catalog | DONE | Generated catalog has closed schemas and explicit renderer properties. |
 | Express inference profile | DONE | `dataset/schema/genuicraft_a2ui_express_profile_v1.json`. |
@@ -31,7 +31,7 @@ This plan is the review checkpoint for the attached single-active-IR directive. 
 | Tokenizer-accurate benchmark and regression metrics | BLOCKED | 32-sample p50/p90/p95 lexical diagnostic is labeled non-exact; exact deployed Gemma tokenizer/checkpoint is unavailable. |
 | Android prompt, parser, compiler, renderer ingestion, telemetry | PARTIAL | Local/JVM/device Express render path passes; Vertex live call is externally blocked by billing and Gemma checkpoint is missing. |
 | Cross-language fixture corpus and conformance report | DONE | `dataset/tests/fixtures/a2ui_express_conformance_v1.json` and the byte-identical Android test resource are consumed by Python and Kotlin tests; report records the remaining handwritten-parser limitation. |
-| Dataset/training/Android/static cleanup tests | DONE | 419 dataset and 49 training tests passed separately, 297 Android JVM tests passed, and the Flip device Express smoke test passed; cleanup scan recorded. |
+| Dataset/training/Android/static cleanup tests | DONE | 422 dataset and 49 training tests passed separately, 297 Android JVM tests passed, and the Flip device Express smoke test passed; cleanup scan recorded. |
 | Release gates 1-20 | PARTIAL | Local gates pass; exact deployed-tokenizer and two external model gates are blocked and documented. |
 | Required reports, manifest, checksums, patch, and review ZIP | DONE | Final reports, staged patch, source-only ZIP (`A2UI-a2ui-express-review-20260803-r7.zip`), release manifest, and SHA-256 checksums were regenerated from the audited index. |
 

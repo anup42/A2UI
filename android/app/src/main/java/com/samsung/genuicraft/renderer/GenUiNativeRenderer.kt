@@ -156,7 +156,7 @@ object GenUiNativeRenderer {
 
     /**
      * Strict production renderer boundary. Only one A2UI Express completion or
-     * one standard A2UI v1 wire payload is accepted. Wrapper objects,
+     * one standard A2UI v0.9 wire payload is accepted. Wrapper objects,
      * JSONL/message arrays, FlatSpec, and Compact IR are migration/offline
      * inputs and are rejected here rather than silently normalized.
      */

@@ -22,7 +22,7 @@ from ._v5_3 import (
 from .candidate_normalization_v5_4 import (
     NORMALIZATION_POLICY_VERSION_V54,
     RAW_ENVELOPE_POLICY_VERSION,
-    normalize_and_validate_candidate_v5_4,
+    normalize_and_validate_legacy_candidate_v5_4,
     normalize_and_validate_express_candidate_v5_4,
 )
 from .config_v5_4 import (
@@ -249,7 +249,7 @@ def _score_one_v5_4(
     render_ok: bool | None,
     computed_registry: ComputedFunctionRegistryV54 | None,
     generation_mode: bool,
-    active_express: bool = False,
+    active_express: bool = True,
 ) -> RewardBreakdownV54:
     started = perf_counter()
     timings: dict[str, float | int | bool | None] = {
@@ -263,7 +263,7 @@ def _score_one_v5_4(
     normalization = (
         normalize_and_validate_express_candidate_v5_4(completion)
         if active_express
-        else normalize_and_validate_candidate_v5_4(completion)
+        else normalize_and_validate_legacy_candidate_v5_4(completion)
     )
     matching_times: dict[str, float] = {}
 
@@ -525,7 +525,7 @@ def score_completion_group_v5_4(
     render_results: Sequence[bool | None] | None = None,
     computed_registry: ComputedFunctionRegistryV54 | None = None,
     generation_mode: bool = False,
-    active_express: bool = False,
+    active_express: bool = True,
 ) -> tuple[RewardBreakdownV54, ...]:
     if (
         effective_registry_identity_v5_4(computed_registry)
@@ -575,7 +575,7 @@ def _score(
     config: RewardConfigV54 | None,
     computed_registry: ComputedFunctionRegistryV54 | None,
     generation_mode: bool,
-    active_express: bool = False,
+    active_express: bool = True,
 ) -> RewardBreakdownV54:
     prepared = prepare_source_context_v5_4(
         response_text,
@@ -607,6 +607,7 @@ def render_artifact_quality_v5_4(
     render_ok: bool | None = None,
     config: RewardConfigV54 | None = None,
     computed_registry: ComputedFunctionRegistryV54 | None = None,
+    legacy_comparison: bool = False,
 ) -> RewardBreakdownV54:
     return _score(
         completion,
@@ -619,6 +620,7 @@ def render_artifact_quality_v5_4(
         config=config,
         computed_registry=computed_registry,
         generation_mode=False,
+        active_express=not legacy_comparison,
     )
 
 
@@ -633,6 +635,7 @@ def generation_reward_v5_4(
     render_ok: bool | None = None,
     config: RewardConfigV54 | None = None,
     computed_registry: ComputedFunctionRegistryV54 | None = None,
+    legacy_comparison: bool = False,
 ) -> RewardBreakdownV54:
     return _score(
         completion,
@@ -645,6 +648,7 @@ def generation_reward_v5_4(
         config=config,
         computed_registry=computed_registry,
         generation_mode=True,
+        active_express=not legacy_comparison,
     )
 
 

@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
-from ..flat_spec_semantics import (
+from ..renderer_semantics import (
     RENDERER_SEMANTICS_VERSION,
     renderer_reference_inventory_hash,
 )

@@ -60,7 +60,7 @@ def load_v4_reward_config() -> RewardConfig:
     return load_reward_config(V4_CONFIG_PATH)
 
 
-def normalize_metric_mode(value: object, default: str = "dual") -> str:
+def normalize_metric_mode(value: object, default: str = "v5_4") -> str:
     mode = str(value or default).strip().casefold()
     if mode not in METRIC_MODES:
         raise ValueError(f"evaluation.metric_version must be one of {sorted(METRIC_MODES)}, got {value!r}")

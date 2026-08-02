@@ -1606,18 +1606,9 @@ def run_stage4(
             # render failures; they must not become placeholder UI.
             completion = row.get("a2ui_express") or row.get("completion") or row.get("model_completion_raw")
             try:
-                if completion is None and ("genui_json" in row or "a2ui_json" in row):
-                    # Historical rows are an explicit migration source, not an
-                    # active fallback.  They are accepted only when the legacy
-                    # graph itself validates; invalid rows still fail closed.
-                    legacy_value = row.get("genui_json", row.get("a2ui_json"))
-                    legacy_spec, _, legacy_error = _normalize_flat_spec(legacy_value, fallback_reason)
-                    if legacy_error:
-                        raise ValueError(f"legacy source rejected: {legacy_error}")
-                    messages = _flat_spec_to_legacy_messages(legacy_spec)
-                    active_wire = None
-                else:
-                    messages, active_wire = _compile_active_render_messages(completion)
+                # Active rendering is Express-only. Legacy graphs are accepted
+                # only by the explicit comparison payload mode above.
+                messages, active_wire = _compile_active_render_messages(completion)
             except Exception as exc:
                 logger.error("Stage4 rejected non-Express payload ui_id=%s: %s", ui_id, exc)
                 writer.append(

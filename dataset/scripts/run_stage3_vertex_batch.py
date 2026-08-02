@@ -414,7 +414,7 @@ def main() -> None:
         max_attempts=1,
         aggregates_path=run_paths.aggregates_path,
         aggregate_weights=eval_cfg.get("weights", {}),
-        metric_version=eval_cfg.get("metric_version", "dual"),
+        metric_version=eval_cfg.get("metric_version", "v5_4"),
     )
     after = count_jsonl(run_paths.genui_path)
     logger.info("Finished true Vertex Stage3 batch run run_id=%s before=%s after=%s created=%s", args.run_id, before, after, after - before)

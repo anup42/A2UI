@@ -7,10 +7,14 @@ python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <input> \
   --output-dir <output> --strict
 ```
 
+The input boundary also supports `--input-format auto|flat_spec_v1|compact_ir_v2`
+when automatic legacy detection is insufficient. The override is migration-only
+and cannot select a production training target.
+
 The tool accepts JSON, JSONL, directories, and stdin JSONL. Each eligible
 record is decoded through the isolated legacy boundary, validated into the
 canonical graph, encoded to Express, strictly decoded, compiled to standard
-A2UI v1 wire, decoded again, and admitted only when all semantic hashes match.
+A2UI v0.9 wire, decoded again, and admitted only when all semantic hashes match.
 The original completion is retained only as `legacy_completion` with
 `legacy_source_format` and `legacy_source_hash`; the active `completion` and
 `completion_targets.a2ui_express_v1` fields contain the Express completion.

@@ -6,7 +6,6 @@ from typing import Any, Mapping
 
 from ir_training.common.config import repo_root
 
-FLAT_SPEC_V1 = "flat_spec_v1"  # read-only legacy source
 A2UI_EXPRESS_V1 = "a2ui_express_v1"
 SUPPORTED_TARGETS = (A2UI_EXPRESS_V1,)
 
@@ -27,33 +26,23 @@ def canonical_graph_from_source(value: Any, source_format: str | None = None) ->
     hint = _normalize_source_format(source_format)
     if hint == A2UI_EXPRESS_V1 or (hint is None and isinstance(value, str)):
         return api["decode_express_completion"](value)
-    if hint in {FLAT_SPEC_V1, "compact_ir_v2", "compact_ir", "gci2"}:
-        # Explicit migration/import boundary only.  A mapping without an
-        # accompanying source format is deliberately ambiguous and must not
-        # silently become an active training target.
-        return api["decode_to_flat_spec"](value, format_hint=hint).flat_spec
     if hint is None:
         raise ValueError(
             "A structured UI source requires an explicit source_format; "
             "use a2ui_express_v1 for active records or flat_spec_v1 for migration"
         )
-    raise ValueError(f"Unsupported source format {source_format!r}")
+    raise ValueError(
+        "Legacy sources must be decoded by ir_training.data.legacy_targets "
+        "before entering the active Express target builder"
+    )
 
 
 def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[str, Any]:
-    """Compatibility alias for migration/offline callers.
+    """Compatibility shim; import the explicitly isolated legacy module."""
 
-    New training code must call :func:`canonical_graph_from_source`; keeping
-    this alias avoids breaking historical fixture tests without reintroducing
-    FlatSpec as an active target.
-    """
+    from .legacy_targets import canonical_flat_spec as _legacy_canonical_flat_spec
 
-    # Historical callers of this compatibility alias may omit the hint; keep
-    # that behavior explicitly in the legacy namespace while active callers
-    # use canonical_graph_from_source and must declare the source format.
-    if source_format is None and isinstance(value, str) and value.strip().startswith("<a2ui>"):
-        return canonical_graph_from_source(value, source_format=A2UI_EXPRESS_V1)
-    return canonical_graph_from_source(value, source_format=source_format or FLAT_SPEC_V1)
+    return _legacy_canonical_flat_spec(value, source_format=source_format)
 
 
 def materialize_completion_targets(canonical_graph: Mapping[str, Any]) -> dict[str, Any]:
@@ -114,21 +103,18 @@ def _codec_api() -> dict[str, Any]:
         sys.path.insert(0, str(dataset_src))
     from pipeline.ir_formats import (
         decode_express_completion,
-        decode_to_flat_spec,
         encode_express_completion,
         semantic_hash as codec_semantic_hash,
     )
 
     return {
         "decode_express_completion": decode_express_completion,
-        "decode_to_flat_spec": decode_to_flat_spec,
         "encode_express_completion": encode_express_completion,
         "semantic_hash": codec_semantic_hash,
     }
 
 
 __all__ = [
-    "FLAT_SPEC_V1",
     "A2UI_EXPRESS_V1",
     "SUPPORTED_TARGETS",
     "canonical_graph_from_source",

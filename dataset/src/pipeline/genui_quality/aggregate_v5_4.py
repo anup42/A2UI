@@ -19,7 +19,7 @@ from .aggregate import (
 )
 from .candidate_normalization_v5_4 import (
     normalize_and_validate_express_candidate_v5_4,
-    normalize_and_validate_candidate_v5_4,
+    normalize_and_validate_legacy_candidate_v5_4,
 )
 from .config_v5_4 import (
     REWARD_VERSION_V54,
@@ -91,10 +91,12 @@ def _score_record_variant(
         ),
     )
     active_express = _is_active_express_record(record, candidate)
+    if active_express:
+        candidate = _active_express_candidate(record)
     normalization = (
         normalize_and_validate_express_candidate_v5_4(candidate)
         if active_express
-        else normalize_and_validate_candidate_v5_4(candidate)
+        else normalize_and_validate_legacy_candidate_v5_4(candidate)
     )
     fingerprint = metric_fingerprint_v5_4(
         config, computed_registry=computed_registry
@@ -148,17 +150,18 @@ def _score_record_variant(
         scorer = generation_reward_a2ui_express_v1
     else:
         scorer = generation_reward_v5_4 if generation_mode else render_artifact_quality_v5_4
-    result = scorer(
-        candidate,
-        response_text,
-        intent=intent,
-        assets=assets,
-        expected_ui_contract=resolution.contract,
-        expected_ui_contract_source=resolution.source,
-        render_ok=render_ok if attempted else None,
-        config=config,
-        computed_registry=computed_registry,
-    )
+    score_kwargs = {
+        "intent": intent,
+        "assets": assets,
+        "expected_ui_contract": resolution.contract,
+        "expected_ui_contract_source": resolution.source,
+        "render_ok": render_ok if attempted else None,
+        "config": config,
+        "computed_registry": computed_registry,
+    }
+    if not active_express:
+        score_kwargs["legacy_comparison"] = True
+    result = scorer(candidate, response_text, **score_kwargs)
     result.evidence["score_reuse"] = {
         "reused": False,
         "stale_reasons": list(dict.fromkeys(stale)),
@@ -173,7 +176,28 @@ def _is_active_express_record(record: Mapping[str, Any], candidate: Any) -> bool
     source = str(record.get("source_format") or "").strip().lower()
     if source == "a2ui_express_v1":
         return True
-    return isinstance(candidate, str) and candidate.lstrip().startswith("<a2ui>")
+    if target in {"flat_spec_v1", "compact_ir_v2", "compact_ir", "gci2"}:
+        return False
+    if source in {"flat_spec_v1", "compact_ir_v2", "compact_ir", "gci2"}:
+        return False
+    # Active records are Express by contract.  A missing format tag must not
+    # silently re-open the legacy JSON normalizer.
+    return True
+
+
+def _active_express_candidate(record: Mapping[str, Any]) -> Any:
+    for key in (
+        "genui_raw_completion",
+        "a2ui_express",
+        "raw_completion",
+        "completion",
+    ):
+        value = record.get(key)
+        if isinstance(value, str) and value.strip():
+            return value
+    # A canonical graph without its source completion is not an active
+    # candidate; returning None makes the Express boundary fail closed.
+    return None
 
 
 def score_record_v5_4(

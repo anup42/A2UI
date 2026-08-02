@@ -3,7 +3,7 @@
   "$id": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/express-profile/v1",
   "profileVersion": "genuicraft-a2ui-express-profile-v1",
   "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
-  "protocolVersion": "v1.0",
+  "protocolVersion": "v0.9",
   "expressVersion": "genuicraft-express-v1",
   "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
   "rootVariable": "root",

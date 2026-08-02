@@ -237,8 +237,47 @@ def rewrite_element_ids(
 
 def semantic_hash(value: Mapping[str, Any]) -> str:
     canonical = rewrite_element_ids(value, shorten=True, reserve_root=True)
-    encoded = json.dumps(canonical, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    encoded = json.dumps(
+        _normalize_semantic_bindings(canonical),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _normalize_semantic_bindings(value: Any, *, field_name: str | None = None) -> Any:
+    """Treat Express path strings and standard binding objects as equivalent.
+
+    The canonical graph keeps the renderer's historical path-string shape for
+    compatibility, while the compiled wire uses the standard ``{"path": ...}``
+    binding object.  Semantic identity must not change at that transport
+    boundary.
+    """
+
+    if isinstance(value, Mapping):
+        return {
+            str(key): _normalize_semantic_bindings(item, field_name=str(key))
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_normalize_semantic_bindings(item) for item in value]
+    if isinstance(value, str) and field_name == "statePath":
+        return _normalize_pointer_string(value)
+    if isinstance(value, str) and (value.startswith("$/") or value.startswith("$state.")):
+        return {"path": _normalize_pointer_string(value)}
+    return value
+
+
+def _normalize_pointer_string(value: str) -> str:
+    if value == "$":
+        return "/"
+    if value.startswith("$/"):
+        return "/" + value[2:]
+    if value.startswith("$state."):
+        return "/" + value[7:].replace(".", "/")
+    return value
 
 
 def _catalog_and_actions() -> tuple[dict[str, Mapping[str, Any]], dict[str, Mapping[str, Any]]]:

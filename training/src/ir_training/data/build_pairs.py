@@ -12,13 +12,13 @@ from ir_training.data.chat_templates import build_messages, build_prompt
 from ir_training.data.filters import ExpressValidator, row_passes_express_filters
 from ir_training.data.ir_targets import (
     A2UI_EXPRESS_V1,
-    FLAT_SPEC_V1,
     canonical_graph_from_source,
     materialize_completion_targets,
     resolve_target_formats,
     semantic_hash,
     serialize_completion,
 )
+from ir_training.data.legacy_targets import FLAT_SPEC_V1, canonical_graph_from_legacy_source
 from ir_training.data.splits import stratified_split
 from ir_training.data.url_preprocess import preprocess_training_urls
 
@@ -89,7 +89,10 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 )
                 continue
             try:
-                canonical = canonical_graph_from_source(native_payload, source_format=source_format)
+                if str(source_format).strip().lower() == A2UI_EXPRESS_V1:
+                    canonical = canonical_graph_from_source(native_payload, source_format=source_format)
+                else:
+                    canonical = canonical_graph_from_legacy_source(native_payload, source_format=source_format)
             except (TypeError, ValueError) as exc:
                 rejected.append(
                     {
@@ -306,7 +309,7 @@ def _source_payload(genui: Mapping[str, Any]) -> Any:
 
     Express records carry their raw model text.  Historical records carry a
     FlatSpec graph under ``genui_json``/``a2ui_json`` and cross the explicit
-    migration boundary in ``canonical_graph_from_source``.
+    migration boundary in ``legacy_targets.canonical_graph_from_legacy_source``.
     """
     for key in ("a2ui_express", "model_completion_raw", "completion"):
         value = genui.get(key)

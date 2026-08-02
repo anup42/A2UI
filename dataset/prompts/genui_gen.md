@@ -2,7 +2,7 @@
 
 Convert the supplied response into exactly one `<a2ui>...</a2ui>` block and
 return no prose or markdown. A2UI Express is the only production model-output
-format; it compiles to the canonical graph and standard A2UI v1 wire message.
+format; it compiles to the canonical graph and standard A2UI v0.9 wire message.
 
 - Assign `root` to a component and make every child reference resolve.
 - Use explicit named component properties, `children`, `repeat`, `visible`,

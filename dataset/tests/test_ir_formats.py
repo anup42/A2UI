@@ -199,30 +199,25 @@ def test_wire_message_stream_and_unknown_prop_preservation() -> None:
     catalog_id = "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"
     stream = [
         {
-            "version": "v1.0",
+            "version": "v0.9",
             "createSurface": {
                 "surfaceId": "s",
                 "catalogId": catalog_id,
-                "components": [
-                    {"id": "root", "component": "Stack", "children": ["text"]},
-                    {
-                        "id": "text",
-                        "component": "Text",
-                        "text": "Before",
-                    },
-                ],
-                "dataModel": {"value": 1},
+                "sendDataModel": False,
             },
         },
         {
-            "version": "v1.0",
+            "version": "v0.9",
             "updateComponents": {
                 "surfaceId": "s",
-                "components": [{"id": "text", "component": "Text", "text": "After"}],
+                "components": [
+                    {"id": "root", "component": "Stack", "children": ["text"]},
+                    {"id": "text", "component": "Text", "text": "After"},
+                ],
             },
         },
         {
-            "version": "v1.0",
+            "version": "v0.9",
             "updateDataModel": {"surfaceId": "s", "path": "/nested/value", "value": 2},
         },
     ]

@@ -294,18 +294,10 @@ def _extract_expected_completion(row: dict[str, Any]) -> Any:
         targets = row.get("completion_targets")
         if isinstance(targets, dict):
             completion = targets.get("a2ui_express_v1")
-    text = str(completion or "")
-    # Historical callback fixtures may still carry a JSON baseline and are
-    # intentionally kept in the offline comparison path. Active rows are
-    # explicitly tagged a2ui_express_v1 and remain text.
-    if row.get("target_format") not in {None, "a2ui_express_v1"}:
-        return text
-    if row.get("target_format") is None and text.lstrip().startswith(("{", "[")):
-        try:
-            return json.loads(text)  # type: ignore[return-value]
-        except Exception:
-            pass
-    return text
+    # Checkpoint selection is an active Express evaluation path. Do not parse
+    # a legacy JSON/FlatSpec completion here; offline comparisons use a separate
+    # evaluator and must opt into their own source boundary.
+    return str(completion or "")
 
 
 def _extract_url_map(row: dict[str, Any]) -> dict[str, Any]:

@@ -103,7 +103,8 @@ def test_stage3_generates_only_express_and_disables_json_mode(tmp_path, monkeypa
     assert rows[0]["model_native_output_normalized"].startswith("<a2ui>")
     assert rows[0]["a2ui_express"].startswith("<a2ui>")
     assert rows[0]["canonical_graph"]["root"] == "root"
-    assert rows[0]["compiled_a2ui"]["version"] == "v1.0"
+    assert isinstance(rows[0]["compiled_a2ui"], list)
+    assert rows[0]["compiled_a2ui"][0]["version"] == "v0.9"
     assert "genui_json" not in rows[0]
     assert adapter.json_modes == [False]
 

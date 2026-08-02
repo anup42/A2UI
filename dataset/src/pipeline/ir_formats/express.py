@@ -206,7 +206,10 @@ def decode(text: Any) -> dict[str, Any]:
             if key == "children":
                 add_children(expression)
             else:
-                props[key] = _plain_value(expression)
+                props[key] = _plain_value(
+                    expression,
+                    allow_references=key in {"tabs", "trigger", "content", "child", "template", "itemTemplate"},
+                )
 
         kwargs = call.get("kwargs", {})
         if not isinstance(kwargs, Mapping):
@@ -236,7 +239,7 @@ def decode(text: Any) -> dict[str, Any]:
             if key in {"repeat", "visible", "watch"}:
                 if key in metadata:
                     raise ValueError(f"Duplicate component metadata property {key!r}")
-                metadata[key] = _plain_value(expression)
+                metadata[key] = _plain_value(expression, allow_references=key == "repeat")
                 metadata_expr[key] = expression
                 continue
             if not _allowed_property(descriptor, key):
@@ -244,7 +247,10 @@ def decode(text: Any) -> dict[str, Any]:
             if key in assigned:
                 raise ValueError(f"Duplicate component property {key!r} for {raw_component}")
             assigned.add(key)
-            props[key] = _plain_value(expression)
+            props[key] = _plain_value(
+                expression,
+                allow_references=key in {"tabs", "trigger", "content", "child", "template", "itemTemplate"},
+            )
 
         element: dict[str, Any] = {
             "type": canonical_type,
@@ -456,29 +462,34 @@ def _action_from_expression(expression: Any, actions: Any) -> Any | None:
     return {"action": action_name, "params": params}
 
 
-def _plain_value(value: Any) -> Any:
+def _plain_value(value: Any, *, allow_references: bool = False) -> Any:
     if _is_marker(value, _REF):
+        if not allow_references:
+            raise ValueError(f"Unresolved Express variable {value[_REF]!r}")
         return str(value[_REF])
     if _is_marker(value, _CHECK):
         return {
             "check": value[_CHECK],
-            "args": [_plain_value(item) for item in value.get("args", ())],
+            "args": [_plain_value(item, allow_references=allow_references) for item in value.get("args", ())],
         }
     if _is_marker(value, _CALL):
         return {
             "call": value[_CALL],
-            "args": [_plain_value(item) for item in value.get("args", ())],
+            "args": [_plain_value(item, allow_references=allow_references) for item in value.get("args", ())],
             "kwargs": {
-                str(key): _plain_value(item)
+                str(key): _plain_value(item, allow_references=allow_references)
                 for key, item in value.get("kwargs", {}).items()
             },
         }
     if _is_marker(value, _SKIPPED):
         return None
     if isinstance(value, list):
-        return [_plain_value(item) for item in value]
+        return [_plain_value(item, allow_references=allow_references) for item in value]
     if isinstance(value, Mapping):
-        return {str(key): _plain_value(item) for key, item in value.items()}
+        return {
+            str(key): _plain_value(item, allow_references=allow_references)
+            for key, item in value.items()
+        }
     return deepcopy(value)
 
 

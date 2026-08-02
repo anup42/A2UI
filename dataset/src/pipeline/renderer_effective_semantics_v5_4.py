@@ -14,7 +14,7 @@ import math
 import re
 from typing import Any, Mapping, Sequence
 
-from . import flat_spec_contract
+from .renderer_capability import supported_renderer_type_names
 from .genui_quality import _core
 from .genui_quality.evidence_v5_2 import resolve_renderer_path_v5_2
 
@@ -750,7 +750,7 @@ def renderer_effective_semantics_hash() -> str:
                 {"source": [{"uri": "https://example.invalid/a.png"}]},
             )
         ),
-        "allowed_types": sorted(flat_spec_contract._ALLOWED_TYPES),  # type: ignore[attr-defined]
+        "allowed_types": list(supported_renderer_type_names()),
     }
     return _sha256(probes)
 

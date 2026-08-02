@@ -67,7 +67,7 @@ def _build_prompt_cache(root: Path, run_cfg: dict) -> PromptCache:
     return PromptCache(root / run_cfg.get("cache_dir", "data/cache"), enabled=enabled)
 
 
-def _compute_aggregates(genui_path: Path, weights: dict, metric_version: str = "dual") -> dict:
+def _compute_aggregates(genui_path: Path, weights: dict, metric_version: str = "v5_4") -> dict:
     metric_mode = normalize_metric_mode(metric_version)
     rows = list(iter_jsonl(genui_path))
     render_rows_by_ui_id = _load_render_rows_by_ui_id(genui_path.parent)
@@ -118,7 +118,7 @@ def _compute_aggregates_with_backfill(
     genui_path: Path,
     responses_path: Path,
     weights: dict,
-    metric_version: str = "dual",
+    metric_version: str = "v5_4",
 ) -> dict:
     metric_mode = normalize_metric_mode(metric_version)
     rows = list(iter_jsonl(genui_path))

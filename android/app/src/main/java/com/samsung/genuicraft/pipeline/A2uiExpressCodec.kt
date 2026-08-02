@@ -162,7 +162,7 @@ internal object A2uiExpressCodec {
                         "Unknown property '$key' for A2UI Express component '$expressComponent'."
                     }
                     require(!props.has(key)) { "Duplicate property '$key' for $expressComponent." }
-                    props.add(key, expr.toJson())
+                    props.add(key, expressionJson(expr, allowReferences = key in REFERENCE_PROPERTIES))
                 }
             }
             call.kwargs.forEach { (key, expr) ->
@@ -191,7 +191,7 @@ internal object A2uiExpressCodec {
                         "Unknown property '$key' for A2UI Express component '$expressComponent'."
                     }
                     require(!props.has(key)) { "Duplicate property '$key' for $expressComponent." }
-                    props.add(key, expr.toJson())
+                    props.add(key, expressionJson(expr, allowReferences = key in REFERENCE_PROPERTIES))
                 }
             }
             val element = JsonObject().apply {
@@ -204,7 +204,8 @@ internal object A2uiExpressCodec {
                 val metadata = metadataValues[key] ?: return@forEach
                 when (key) {
                     "watch" -> element.add(key, actionMapFromExpr(metadata))
-                    else -> element.add(key, metadata.toJson())
+                    "repeat" -> element.add(key, expressionJson(metadata, allowReferences = true))
+                    else -> element.add(key, expressionJson(metadata))
                 }
             }
             validateStackProps(component, props)
@@ -218,7 +219,7 @@ internal object A2uiExpressCodec {
             val value = parser.parseValue()
             parser.requireComplete()
             if (lhs.startsWith("$")) {
-                val json = value.toJson()
+                val json = expressionJson(value)
                 if (lhs == "$" || lhs == "$/") {
                     require(json.isJsonObject) { "Root state assignment must be an object." }
                     json.asJsonObject.entrySet().forEach { (key, item) -> state.add(key, item.deepCopy()) }
@@ -264,7 +265,7 @@ internal object A2uiExpressCodec {
         value.isJsonNull -> "null"
         value.isJsonPrimitive && value.asJsonPrimitive.isString -> {
             val raw = value.asString
-            if (raw.matches(Regex("\\$(?:/[A-Za-z0-9_.-]+)+"))) raw else value.toString()
+            if (raw.matches(Regex("\\$[A-Za-z0-9_/]*"))) raw else value.toString()
         }
         value.isJsonArray -> value.asJsonArray.joinToString(separator = ",", prefix = "[", postfix = "]") { expressValue(it) }
         value.isJsonObject -> value.asJsonObject.entrySet().joinToString(separator = ",", prefix = "{", postfix = "}") { (key, item) ->
@@ -348,11 +349,11 @@ internal object A2uiExpressCodec {
             }
             require(!skippedPositional) { "Positional arguments cannot follow a skipped action argument." }
             require(!params.has(positional[index])) { "Duplicate action parameter '${positional[index]}'." }
-            params.add(positional[index], expr.toJson())
+            params.add(positional[index], expressionJson(expr))
         }
         call.kwargs.forEach { (key, expr) ->
             require(!params.has(key)) { "Duplicate action parameter '$key'." }
-            params.add(key, expr.toJson())
+            params.add(key, expressionJson(expr))
         }
         return JsonObject().apply {
             addProperty("action", action)
@@ -365,6 +366,39 @@ internal object A2uiExpressCodec {
         return JsonObject().apply {
             map.entries.forEach { (key, value) -> add(key, actionFromExpr(value)) }
         }
+    }
+
+    private val REFERENCE_PROPERTIES = setOf("tabs", "trigger", "content", "child", "template", "itemTemplate")
+
+    /** Convert an expression while rejecting unresolved bare variables. */
+    private fun expressionJson(expression: Expr, allowReferences: Boolean = false): JsonElement = when (expression) {
+        is Expr.Ref -> {
+            require(allowReferences) { "Unresolved Express variable '${expression.name}'." }
+            JsonPrimitive(expression.name)
+        }
+        is Expr.ArrayValue -> JsonArray().also { out ->
+            expression.items.forEach { out.add(expressionJson(it, allowReferences)) }
+        }
+        is Expr.ObjectValue -> JsonObject().also { out ->
+            expression.entries.forEach { (key, value) -> out.add(key, expressionJson(value, allowReferences)) }
+        }
+        is Expr.Call -> if (expression.name.startsWith("?")) {
+            JsonObject().apply {
+                addProperty("check", expression.name.removePrefix("?"))
+                add("args", JsonArray().also { out -> expression.args.forEach { out.add(expressionJson(it, allowReferences)) } })
+            }
+        } else {
+            JsonObject().apply {
+                addProperty("call", expression.name)
+                if (expression.args.isNotEmpty()) {
+                    add("args", JsonArray().also { out -> expression.args.forEach { out.add(expressionJson(it, allowReferences)) } })
+                }
+                if (expression.kwargs.isNotEmpty()) {
+                    add("kwargs", JsonObject().also { out -> expression.kwargs.forEach { (key, value) -> out.add(key, expressionJson(value, allowReferences)) } })
+                }
+            }
+        }
+        else -> expression.toJson()
     }
 
     private fun setStatePath(state: JsonObject, path: String, value: JsonElement) {
@@ -406,56 +440,147 @@ internal object A2uiExpressCodec {
         val out = mutableListOf<String>()
         val buffer = StringBuilder()
         var depth = 0
+        var index = 0
         var inString = false
+        var rawString = false
+        var tripleString = false
         var escaped = false
-        body.forEach { ch ->
+        fun flush() {
+            buffer.toString().trim().takeIf { it.isNotEmpty() }?.let(out::add)
+            buffer.clear()
+        }
+        while (index < body.length) {
             if (inString) {
-                buffer.append(ch)
-                when {
-                    escaped -> escaped = false
-                    ch == '\\' -> escaped = true
-                    ch == '"' -> inString = false
+                val delimiter = if (tripleString) "\"\"\"" else "\""
+                if (body.startsWith(delimiter, index) && (rawString || !escaped)) {
+                    buffer.append(delimiter)
+                    index += delimiter.length
+                    inString = false
+                    rawString = false
+                    tripleString = false
+                    escaped = false
+                    continue
                 }
-                return@forEach
+                val ch = body[index++]
+                buffer.append(ch)
+                if (!rawString) {
+                    if (escaped) escaped = false
+                    else if (ch == '\\') escaped = true
+                }
+                continue
             }
-            when (ch) {
-                '"' -> { inString = true; buffer.append(ch) }
-                '(', '[', '{' -> { depth += 1; buffer.append(ch) }
-                ')', ']', '}' -> {
+            when {
+                body.startsWith("/*", index) -> {
+                    val end = body.indexOf("*/", index + 2)
+                    require(end >= 0) { "Unterminated A2UI Express block comment." }
+                    index = end + 2
+                }
+                body.startsWith("//", index) || body[index] == '#' -> {
+                    val end = body.indexOf('\n', index)
+                    index = if (end < 0) body.length else end
+                }
+                body.startsWith("r\"\"\"", index, ignoreCase = true) -> {
+                    buffer.append(body, index, index + 4)
+                    index += 4
+                    inString = true
+                    rawString = true
+                    tripleString = true
+                }
+                body.startsWith("\"\"\"", index) -> {
+                    buffer.append("\"\"\"")
+                    index += 3
+                    inString = true
+                    tripleString = true
+                }
+                body.startsWith("r\"", index, ignoreCase = true) -> {
+                    buffer.append(body, index, index + 2)
+                    index += 2
+                    inString = true
+                    rawString = true
+                }
+                body[index] == '"' -> {
+                    buffer.append('"')
+                    index += 1
+                    inString = true
+                }
+                body[index] == '(' || body[index] == '[' || body[index] == '{' -> {
+                    depth += 1
+                    buffer.append(body[index++])
+                }
+                body[index] == ')' || body[index] == ']' || body[index] == '}' -> {
                     require(depth > 0) { "Unbalanced A2UI Express delimiter." }
                     depth -= 1
-                    buffer.append(ch)
+                    buffer.append(body[index++])
                 }
-                '\n', ';' -> if (depth == 0) {
-                    buffer.toString().trim().takeIf { it.isNotEmpty() && !it.startsWith("#") && !it.startsWith("//") }?.let(out::add)
-                    buffer.clear()
-                } else buffer.append(ch)
-                else -> buffer.append(ch)
+                (body[index] == '\n' || body[index] == ';') && depth == 0 -> {
+                    flush()
+                    index += 1
+                }
+                else -> buffer.append(body[index++])
             }
         }
         require(depth == 0 && !inString) { "Unclosed A2UI Express expression." }
-        buffer.toString().trim().takeIf { it.isNotEmpty() }?.let(out::add)
+        flush()
         return out
     }
 
     private fun splitAssignment(statement: String): Pair<String, String> {
         var depth = 0
+        var index = 0
         var inString = false
+        var rawString = false
+        var tripleString = false
         var escaped = false
-        statement.forEachIndexed { index, ch ->
+        while (index < statement.length) {
             if (inString) {
-                when {
-                    escaped -> escaped = false
-                    ch == '\\' -> escaped = true
-                    ch == '"' -> inString = false
+                val delimiter = if (tripleString) "\"\"\"" else "\""
+                if (statement.startsWith(delimiter, index) && (rawString || !escaped)) {
+                    index += delimiter.length
+                    inString = false
+                    rawString = false
+                    tripleString = false
+                    escaped = false
+                    continue
                 }
-            } else {
-                when (ch) {
-                    '"' -> inString = true
-                    '(', '[', '{' -> depth += 1
-                    ')', ']', '}' -> depth -= 1
-                    '=' -> if (depth == 0) return statement.substring(0, index).trim() to statement.substring(index + 1).trim()
+                val ch = statement[index++]
+                if (!rawString) {
+                    if (escaped) escaped = false
+                    else if (ch == '\\') escaped = true
                 }
+                continue
+            }
+            when {
+                statement.startsWith("r\"\"\"", index, ignoreCase = true) -> {
+                    index += 4
+                    inString = true
+                    rawString = true
+                    tripleString = true
+                }
+                statement.startsWith("\"\"\"", index) -> {
+                    index += 3
+                    inString = true
+                    tripleString = true
+                }
+                statement.startsWith("r\"", index, ignoreCase = true) -> {
+                    index += 2
+                    inString = true
+                    rawString = true
+                }
+                statement[index] == '"' -> {
+                    index += 1
+                    inString = true
+                }
+                statement[index] == '(' || statement[index] == '[' || statement[index] == '{' -> {
+                    depth += 1
+                    index += 1
+                }
+                statement[index] == ')' || statement[index] == ']' || statement[index] == '}' -> {
+                    depth -= 1
+                    index += 1
+                }
+                statement[index] == '=' && depth == 0 ->
+                    return statement.substring(0, index).trim() to statement.substring(index + 1).trim()
+                else -> index += 1
             }
         }
         error("A2UI Express statement is not an assignment: ${statement.take(80)}")
@@ -492,6 +617,11 @@ internal object A2uiExpressCodec {
             if (index >= source.length) error("Unexpected end of A2UI Express expression.")
             return when (source[index]) {
                 '"' -> Expr.Literal(JsonPrimitive(parseString()))
+                'r', 'R' -> if (source.getOrNull(index + 1) == '"') {
+                    Expr.Literal(JsonPrimitive(parseString()))
+                } else {
+                    parseIdentifierValue()
+                }
                 '[' -> parseArray()
                 '{' -> parseObject()
                 '$' -> Expr.Literal(JsonPrimitive(parsePath()))
@@ -512,7 +642,7 @@ internal object A2uiExpressCodec {
         private fun parseObject(): Expr.ObjectValue {
             consume('{'); val entries = linkedMapOf<String, Expr>(); skipWhitespace()
             if (peek() != '}') while (true) {
-                    val key = if (peek() == '"') parseString() else parseIdentifier()
+                    val key = if (peek() == '"' || isRawStringStart()) parseString() else parseIdentifier()
                 require(!entries.containsKey(key)) { "Duplicate map key '$key'." }
                 consume(':'); entries[key] = parseValue(); skipWhitespace()
                 if (peek() == ',') { consume(','); if (peek() == '}') break; continue }
@@ -575,23 +705,59 @@ internal object A2uiExpressCodec {
             consume(')'); return Expr.Call(name, args, kwargs)
         }
         private fun parseString(): String {
-            skipWhitespace(); val start = index
-            index = start + 1; val out = StringBuilder(); var escaped = false
+            skipWhitespace()
+            var raw = false
+            if (source.getOrNull(index)?.lowercaseChar() == 'r' && source.getOrNull(index + 1) == '"') {
+                raw = true
+                index += 1
+            }
+            val triple = source.startsWith("\"\"\"", index)
+            val delimiter = if (triple) "\"\"\"" else "\""
+            require(source.startsWith(delimiter, index)) { "Expected string at $index." }
+            index += delimiter.length
+            val out = StringBuilder()
+            var escaped = false
             while (index < source.length) {
+                if (source.startsWith(delimiter, index) && (raw || !escaped)) {
+                    index += delimiter.length
+                    return out.toString()
+                }
                 val ch = source[index++]
+                if (!triple && !raw) {
+                    require(ch != '\n' && ch != '\r') { "Standard Express strings may not contain newlines." }
+                }
+                if (raw) {
+                    out.append(ch)
+                    continue
+                }
                 if (escaped) {
-                    out.append(when (ch) { 'n' -> '\n'; 'r' -> '\r'; 't' -> '\t'; else -> ch }); escaped = false
-                } else if (ch == '\\') escaped = true
-                else if (ch == '"') return out.toString()
-                else out.append(ch)
+                    out.append(when (ch) {
+                        'n' -> '\n'
+                        'r' -> '\r'
+                        't' -> '\t'
+                        'b' -> '\b'
+                        'f' -> '\u000C'
+                        '"' -> '"'
+                        '\\' -> '\\'
+                        '/' -> '/'
+                        else -> ch
+                    })
+                    escaped = false
+                } else if (ch == '\\') {
+                    escaped = true
+                } else {
+                    out.append(ch)
+                }
             }
             error("Unterminated A2UI Express string.")
         }
         private fun parsePath(): String {
             skipWhitespace(); val start = index; index += 1
-            while (index < source.length && (source[index].isLetterOrDigit() || source[index] in "_/.-")) index += 1
+            while (index < source.length && (source[index].isLetterOrDigit() || source[index] in "_/")) index += 1
             return source.substring(start, index)
         }
+        private fun isRawStringStart(): Boolean =
+            source.getOrNull(index)?.lowercaseChar() == 'r' && source.getOrNull(index + 1) == '"'
         private fun parseIdentifier(): String {
             skipWhitespace(); val start = index
             require(index < source.length && (source[index].isLetter() || source[index] == '_')) { "Expected identifier at $index." }

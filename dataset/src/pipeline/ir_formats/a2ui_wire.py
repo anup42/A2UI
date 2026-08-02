@@ -1,7 +1,10 @@
-"""Standard pinned A2UI v1 wire codec.
+"""Standard pinned A2UI v0.9 wire codec.
 
-The decoder accepts a create-surface envelope or an ordered v1 message stream.
-All messages normalize into the same canonical FlatSpec graph used by Android.
+The model-facing representation is A2UI Express.  This module is only the
+internal compiler/transport boundary: it emits the upstream v0.9 message
+envelopes (``createSurface``, ``updateComponents`` and optional
+``updateDataModel``) and lowers canonical graph values to standard data
+bindings, child lists, and action structures.
 """
 from __future__ import annotations
 
@@ -10,11 +13,12 @@ from typing import Any, Iterable, Mapping
 
 from .common import load_catalog, load_manifest, rewrite_element_ids
 
-VERSION = "v1.0"
+VERSION = "v0.9"
 DEFAULT_SURFACE_ID = "default_surface"
+_MISSING = object()
 
 
-def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> dict[str, Any]:
+def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> list[dict[str, Any]]:
     source = rewrite_element_ids(spec, shorten=shorten_ids)
     manifest = load_manifest()
     components: list[dict[str, Any]] = []
@@ -24,23 +28,50 @@ def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> dict[str, An
             "component": raw["type"],
         }
         props = raw.get("props") if isinstance(raw.get("props"), dict) else {}
-        component.update(deepcopy(props))
-        for key in ("children", "repeat", "visible", "on", "watch"):
+        component.update(_lower_bindings(deepcopy(props)))
+        children = raw.get("children") if isinstance(raw.get("children"), list) else []
+        repeat = raw.get("repeat") if isinstance(raw.get("repeat"), Mapping) else None
+        child_list = _lower_child_list(children, repeat)
+        if child_list:
+            component["children"] = child_list
+        for key in ("visible", "on", "watch"):
             value = raw.get(key)
             if value not in (None, {}, []):
-                component[key] = deepcopy(value)
+                component[key] = _lower_bindings(deepcopy(value), action_map=key in {"on", "watch"})
         components.append(component)
 
     if source["root"] != "root":
         raise ValueError("Compiled A2UI root must be deterministically rewritten to id 'root'")
-    create: dict[str, Any] = {
-        "surfaceId": DEFAULT_SURFACE_ID,
-        "catalogId": manifest["catalogId"],
-        "components": components,
-    }
+    surface_id = DEFAULT_SURFACE_ID
+    messages: list[dict[str, Any]] = [
+        {
+            "version": VERSION,
+            "createSurface": {
+                "surfaceId": surface_id,
+                "catalogId": manifest["catalogId"],
+                "sendDataModel": False,
+            },
+        },
+        {
+            "version": VERSION,
+            "updateComponents": {
+                "surfaceId": surface_id,
+                "components": components,
+            },
+        },
+    ]
     if source.get("state"):
-        create["dataModel"] = deepcopy(source["state"])
-    return {"version": VERSION, "createSurface": create}
+        messages.append(
+            {
+                "version": VERSION,
+                "updateDataModel": {
+                    "surfaceId": surface_id,
+                    "path": "/",
+                    "value": _lower_bindings(deepcopy(source["state"])),
+                },
+            }
+        )
+    return messages
 
 
 def decode(payload: Any) -> dict[str, Any]:
@@ -60,13 +91,8 @@ def decode(payload: Any) -> dict[str, Any]:
             _validate_catalog(create.get("catalogId"))
             if "rootId" in create:
                 raise ValueError("Non-standard createSurface.rootId is not allowed; the root component id is 'root'")
-            raw_state = create.get("dataModel", {})
-            if not isinstance(raw_state, Mapping):
-                raise ValueError("A2UI createSurface.dataModel must be an object")
-            state = deepcopy(dict(raw_state))
-            if "components" in create:
-                for element_id, element in _decode_components(create["components"]):
-                    elements[element_id] = element
+            if any(key in create for key in ("rootId", "components", "dataModel")):
+                raise ValueError("A2UI v0.9 createSurface may not contain components, dataModel, or rootId")
             deleted = False
             continue
 
@@ -74,15 +100,15 @@ def decode(payload: Any) -> dict[str, Any]:
             update = _mapping(message["updateComponents"], "updateComponents")
             surface_id = _surface_id(update, surface_id)
             for element_id, element in _decode_components(update.get("components")):
+                if element_id in elements:
+                    raise ValueError(f"Duplicate A2UI component id {element_id!r} across updates")
                 elements[element_id] = element
             continue
 
         if "updateDataModel" in message:
             update = _mapping(message["updateDataModel"], "updateDataModel")
             surface_id = _surface_id(update, surface_id)
-            if "value" not in update:
-                raise ValueError("A2UI updateDataModel requires value")
-            _set_data_path(state, update.get("path"), deepcopy(update["value"]))
+            _set_data_path(state, update.get("path"), deepcopy(update["value"]) if "value" in update else _MISSING)
             continue
 
         if "deleteSurface" in message:
@@ -93,7 +119,7 @@ def decode(payload: Any) -> dict[str, Any]:
             state.clear()
             continue
 
-        raise ValueError("Unsupported A2UI v1 wire message")
+        raise ValueError("Unsupported A2UI v0.9 wire message")
 
     if deleted:
         raise ValueError("A2UI surface was deleted before conversion")
@@ -134,8 +160,6 @@ def _surface_id(message: Mapping[str, Any], current: str | None) -> str:
 
 
 def _validate_catalog(value: Any) -> None:
-    if value is None:
-        return
     expected = str(load_manifest()["catalogId"])
     if not isinstance(value, str) or value != expected:
         raise ValueError(f"A2UI createSurface.catalogId must be {expected!r}")
@@ -159,7 +183,7 @@ def _decode_components(value: Any) -> Iterable[tuple[str, dict[str, Any]]]:
         if not isinstance(component_type, str) or component_type not in allowed:
             raise ValueError(f"Unsupported A2UI component {component_type!r}")
 
-        metadata = {"id", "component", "children", "repeat", "visible", "on", "watch"}
+        metadata = {"id", "component", "children", "visible", "on", "watch"}
         descriptor = load_catalog().get("components", {}).get(component_type, {})
         allowed_props = set(descriptor.get("allowedProperties", ()))
         if not allowed_props:
@@ -170,31 +194,32 @@ def _decode_components(value: Any) -> Iterable[tuple[str, dict[str, Any]]]:
                 f"A2UI component {element_id!r} has unsupported properties: {', '.join(map(str, unknown))}"
             )
         props = {key: deepcopy(item) for key, item in raw.items() if key not in metadata}
-        children = raw.get("children", [])
-        if not isinstance(children, list) or any(not isinstance(item, str) or not item for item in children):
-            raise ValueError(f"A2UI component {element_id!r} children must be non-empty strings")
+        children, repeat = _decode_child_list(raw.get("children", []), element_id)
         element: dict[str, Any] = {
             "type": component_type,
-            "props": props,
+            "props": _raise_bindings(props),
             "children": deepcopy(children),
         }
-        for key in ("repeat", "on", "watch"):
+        if repeat is not None:
+            element["repeat"] = repeat
+        for key in ("on", "watch"):
             if key in raw:
                 item = raw[key]
                 if not isinstance(item, Mapping):
                     raise ValueError(f"A2UI component {element_id!r} {key} must be an object")
-                element[key] = deepcopy(dict(item))
+                element[key] = _raise_bindings(deepcopy(dict(item)), action_map=key in {"on", "watch"})
         if "visible" in raw:
-            element["visible"] = deepcopy(raw["visible"])
+            element["visible"] = _raise_bindings(deepcopy(raw["visible"]))
         yield element_id, element
 
 
 def _set_data_path(state: dict[str, Any], raw_path: Any, value: Any) -> None:
     if raw_path in (None, "", "/"):
-        if not isinstance(value, Mapping):
-            raise ValueError("Root A2UI data-model update must be an object")
         state.clear()
-        state.update(deepcopy(dict(value)))
+        if value is not _MISSING:
+            if not isinstance(value, Mapping):
+                raise ValueError("Root A2UI data-model update must be an object")
+            state.update(_raise_bindings(deepcopy(dict(value))))
         return
     if not isinstance(raw_path, str) or not raw_path.startswith("/"):
         raise ValueError("A2UI updateDataModel.path must be a JSON pointer")
@@ -209,4 +234,131 @@ def _set_data_path(state: dict[str, Any], raw_path: Any, value: Any) -> None:
             child = {}
             current[part] = child
         current = child
-    current[parts[-1]] = value
+    if value is _MISSING:
+        current.pop(parts[-1], None)
+    else:
+        current[parts[-1]] = _raise_bindings(value)
+
+
+def _json_pointer_path(value: Any) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("A2UI dynamic path must be a non-empty string")
+    path = value.strip()
+    if path == "$":
+        return "/"
+    if path.startswith("$/"):
+        return "/" + path[2:]
+    if path.startswith("$state."):
+        return "/" + path[7:].replace(".", "/")
+    if path.startswith("/"):
+        return path
+    if path.startswith("$"):
+        return "/" + path[1:].lstrip("/").replace(".", "/")
+    return path
+
+
+def _lower_child_list(children: list[Any], repeat: Mapping[str, Any] | None) -> Any:
+    if repeat:
+        template = (
+            repeat.get("template")
+            or repeat.get("itemTemplate")
+            or repeat.get("child")
+            or (children[0] if children else None)
+        )
+        path = repeat.get("statePath") or repeat.get("path")
+        if not isinstance(template, str) or not template.strip():
+            raise ValueError("A2UI repeat requires template/itemTemplate/child")
+        child_list = {"componentId": template, "path": _json_pointer_path(path)}
+        if isinstance(repeat.get("key"), str) and repeat["key"].strip():
+            child_list["key"] = repeat["key"]
+        return child_list
+    return _lower_bindings(deepcopy(children)) if children else []
+
+
+def _decode_child_list(value: Any, element_id: str) -> tuple[list[str], dict[str, Any] | None]:
+    if value in (None, []):
+        return [], None
+    if isinstance(value, list):
+        if any(not isinstance(item, str) or not item for item in value):
+            raise ValueError(f"A2UI component {element_id!r} children must be non-empty strings")
+        return list(value), None
+    if isinstance(value, Mapping):
+        allowed = {"componentId", "path", "key"}
+        if not set(value).issubset(allowed) or not isinstance(value.get("componentId"), str) or not isinstance(value.get("path"), str):
+            raise ValueError(f"A2UI component {element_id!r} dynamic children must contain componentId and path")
+        repeat = {"statePath": _json_pointer_path(value["path"]), "template": str(value["componentId"])}
+        if isinstance(value.get("key"), str) and value["key"].strip():
+            repeat["key"] = value["key"]
+        return [str(value["componentId"])], repeat
+    raise ValueError(f"A2UI component {element_id!r} children must be a ChildList")
+
+
+def _lower_bindings(value: Any, *, action_map: bool = False) -> Any:
+    if isinstance(value, str) and _is_binding_string(value):
+        return {"path": _json_pointer_path(value)}
+    if isinstance(value, list):
+        return [_lower_bindings(item, action_map=action_map) for item in value]
+    if isinstance(value, Mapping):
+        if action_map and "action" in value and isinstance(value.get("action"), str):
+            return _lower_action(value)
+        return {str(key): _lower_bindings(item, action_map=action_map) for key, item in value.items()}
+    return value
+
+
+def _is_binding_string(value: str) -> bool:
+    """Recognize only Express data-path forms; dollar-prefixed literals stay literal."""
+
+    return value == "$" or value.startswith("$/") or value.startswith("$state.")
+
+
+def _lower_action(value: Mapping[str, Any]) -> dict[str, Any]:
+    action = str(value.get("action"))
+    params = value.get("params") if isinstance(value.get("params"), Mapping) else {}
+    if action == "emitEvent":
+        name = params.get("name")
+        if not isinstance(name, str) or not name:
+            raise ValueError("emitEvent requires name")
+        raw_context = params.get("context") if isinstance(params.get("context"), Mapping) else {}
+        context = {str(key): _lower_bindings(item) for key, item in raw_context.items()}
+        event: dict[str, Any] = {"name": name}
+        if context:
+            event["context"] = context
+        for key in ("wantResponse", "responsePath"):
+            if key in params:
+                event[key] = _lower_bindings(params[key])
+        return {"event": event}
+    args = {str(key): _lower_bindings(item) for key, item in params.items()}
+    function_call: dict[str, Any] = {"call": action}
+    if args:
+        function_call["args"] = args
+    return {"functionCall": function_call}
+
+
+def _raise_bindings(value: Any, *, action_map: bool = False) -> Any:
+    if isinstance(value, Mapping):
+        if set(value) == {"path"} and isinstance(value.get("path"), str):
+            return {"path": _json_pointer_path(value["path"])}
+        if action_map and ("event" in value or "functionCall" in value):
+            return _raise_action(value)
+        return {str(key): _raise_bindings(item, action_map=action_map) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_raise_bindings(item, action_map=action_map) for item in value]
+    return value
+
+
+def _raise_action(value: Mapping[str, Any]) -> dict[str, Any]:
+    if isinstance(value.get("event"), Mapping):
+        event = value["event"]
+        params: dict[str, Any] = {"name": event.get("name")}
+        raw_context = event.get("context") if isinstance(event.get("context"), Mapping) else None
+        if raw_context is not None:
+            params["context"] = {str(key): _raise_bindings(item) for key, item in raw_context.items()}
+        for key in ("wantResponse", "responsePath"):
+            if key in event:
+                params[key] = _raise_bindings(event[key])
+        return {"action": "emitEvent", "params": params}
+    function_call = value.get("functionCall")
+    if not isinstance(function_call, Mapping) or not isinstance(function_call.get("call"), str):
+        raise ValueError("A2UI action must be an event or functionCall")
+    params = function_call.get("args") if isinstance(function_call.get("args"), Mapping) else {}
+    return {"action": str(function_call["call"]), "params": {str(key): _raise_bindings(item) for key, item in params.items()}}

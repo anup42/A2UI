@@ -4,22 +4,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+from pathlib import Path
 from typing import Any, Mapping
 
 from ._core import completion_to_text
-from .candidate_normalization import (
-    CandidateNormalizationResult,
-    RENDERER_V2_CANONICALIZATION,
-    _canonical_json,
-    _hash_text,
-    _strict_validate,
-    normalize_and_validate_candidate,
-)
+from .candidate_normalization import CandidateNormalizationResult, _canonical_json, _hash_text
 from .graph import audit_renderer_graph
+from ..ir_formats.canonical import validate_canonical_graph
 
 
 NORMALIZATION_POLICY_VERSION_V54 = "2.0.0"
 RAW_ENVELOPE_POLICY_VERSION = "1.0.0"
+CANONICAL_SCHEMA_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "schema"
+    / "canonical_ui_graph_v1.schema.json"
+)
 
 
 @dataclass(frozen=True)
@@ -132,7 +132,7 @@ def normalize_and_validate_express_candidate_v5_4(
         if audit.cycle_edges:
             standard_valid = False
             errors.extend(f"renderer_reference.cycle:{source}->{target}" for source, target in sorted(audit.cycle_edges))
-    strict_valid, strict_errors = _strict_validate(canonical, strict_schema)
+    strict_valid, strict_errors = _strict_validate_express(canonical, strict_schema)
     errors.extend(strict_errors)
     production_valid = bool(validation.raw_valid and standard_valid and strict_valid)
     canonical_hash = _hash_text(_canonical_json(canonical)) if canonical is not None else None
@@ -234,11 +234,59 @@ def raw_json_envelope_evidence(completion: Any) -> RawJsonEnvelopeEvidence:
     )
 
 
-def normalize_and_validate_candidate_v5_4(
+def _strict_validate_express(
+    value: Any,
+    schema: Mapping[str, Any] | None,
+) -> tuple[bool, list[str]]:
+    """Validate Express against the canonical graph schema only.
+
+    The legacy FlatSpec schema is deliberately not accepted at this active
+    metric boundary.  Callers that need historical comparison must opt into
+    ``normalize_and_validate_legacy_candidate_v5_4`` below.
+    """
+
+    if not isinstance(value, Mapping):
+        return False, ["strict_schema.non_object"]
+    selected = dict(schema) if schema is not None else None
+    if selected is not None:
+        schema_id = str(selected.get("$id") or "").lower()
+        if "flat_spec" in schema_id or "flatspec" in schema_id:
+            raise ValueError("Express metrics cannot use the legacy FlatSpec schema")
+    if selected is None:
+        import json
+
+        selected = json.loads(CANONICAL_SCHEMA_PATH.read_text(encoding="utf-8"))
+    try:
+        import jsonschema  # type: ignore
+    except ImportError:
+        validation = validate_canonical_graph(value)
+        return validation.is_valid, ([] if validation.is_valid else [f"strict_schema:{validation.error}"])
+    failures = sorted(
+        jsonschema.Draft202012Validator(selected).iter_errors(dict(value)),
+        key=lambda item: list(item.path),
+    )
+    return (
+        not failures,
+        [
+            "strict_schema."
+            + (".".join(str(part) for part in failure.path) or "root")
+            + ":"
+            + failure.validator
+            for failure in failures
+        ],
+    )
+
+
+def normalize_and_validate_legacy_candidate_v5_4(
     completion: Any,
     *,
     strict_schema: Mapping[str, Any] | None = None,
 ) -> CandidateNormalizationResultV54:
+    """Explicit offline-only legacy comparison boundary."""
+    from .candidate_normalization import (
+        RENDERER_V2_CANONICALIZATION,
+        normalize_and_validate_candidate,
+    )
     return CandidateNormalizationResultV54(
         boundary=normalize_and_validate_candidate(
             completion,
@@ -246,6 +294,19 @@ def normalize_and_validate_candidate_v5_4(
             canonicalization_profile=RENDERER_V2_CANONICALIZATION,
         ),
         raw_envelope=raw_json_envelope_evidence(completion),
+    )
+
+
+def normalize_and_validate_candidate_v5_4(
+    completion: Any,
+    *,
+    strict_schema: Mapping[str, Any] | None = None,
+) -> CandidateNormalizationResultV54:
+    """Active v5.4 alias: every candidate is an Express completion."""
+
+    return normalize_and_validate_express_candidate_v5_4(
+        completion,
+        strict_schema=strict_schema,
     )
 
 
@@ -257,6 +318,7 @@ __all__ = [
     "RawExpressEnvelopeEvidence",
     "normalize_and_validate_express_candidate_v5_4",
     "normalize_and_validate_candidate_v5_4",
+    "normalize_and_validate_legacy_candidate_v5_4",
     "raw_json_envelope_evidence",
     "raw_express_envelope_evidence",
 ]

@@ -7,7 +7,7 @@ from dataclasses import dataclass, replace
 import re
 from typing import Any, Mapping
 
-from ..flat_spec_semantics import iter_renderer_references
+from ..renderer_semantics import iter_renderer_references
 from . import _core
 from .applicability_v5_3 import classify_action, classify_media
 from .config_v5_3 import RewardConfigV53

@@ -11,7 +11,7 @@
   "codec_identity": {
     "manifestVersion": "1.1.0",
     "upstreamCommit": "2276f8cc702eaeac25ffb05be85797b2a1205c74",
-    "protocolVersion": "v1.0",
+    "protocolVersion": "v0.9",
     "compactIrVersion": "gci2",
     "expressVersion": "genuicraft-express-v1",
     "catalogIdentityHash": "42806ada6b3bc72f55584481cd5106a52fed51bf1878288a9e373402a85ce5b5",

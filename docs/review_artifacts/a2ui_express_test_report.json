@@ -10,7 +10,7 @@
   "passed": [
     {
       "command": "python -m pytest dataset/tests -q; python -m pytest training/tests -q",
-      "result": "419 dataset tests + 49 training tests passed in separate suites; 7 dataset deprecation warnings"
+      "result": "422 dataset tests + 49 training tests passed in separate suites; 7 dataset deprecation warnings"
     },
     {
       "command": "./gradlew :app:testDebugUnitTest --no-daemon",
@@ -45,8 +45,8 @@
     "test": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip",
     "visual_result": "A2UI Express title, native Compose card, and Details/Ready state rendered correctly; the window hierarchy contains the Table component",
     "screenshot_path": "C:/Users/anupk/Documents/git/A2UI/docs/review_artifacts/a2ui_express_device_smoke/screenshot_flip.png",
-    "screenshot_sha256": "5D2C00E222C7361D466F31A9779EB638F7D5406B8E4E2E7380B5D3687758D0D7",
-    "window_dump_sha256": "CA675B23535A499802F620B6C0B481B02832A23DBC63A914FB17B82D66C2EF79",
+    "screenshot_sha256": "4ACCAE7137BCA24A1658B40CFE7EEF81FE1F0C1980BECAB6FAB66A831001C0C9",
+    "window_dump_sha256": "953DAD724A6C96EB91A307D8987BEB2441E547362AEC947B71748711DC928D09",
     "note": "The screenshot and window hierarchy were copied from the test process result directory after the Flip test; the screenshot shows the A2UI Express title, native Compose card, and Details/Ready state, while the hierarchy contains the Table component. Device binaries remain outside the source-only review ZIP."
   },
   "blocked": [

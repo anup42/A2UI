@@ -144,11 +144,12 @@ class GenUiIrCodecTest {
         val stream = JsonParser.parseString(
             """
             [
-              {"version":"v1.0","createSurface":{"surfaceId":"s","catalogId":"${GenUiA2uiCatalog.CATALOG_ID}","components":[
+              {"version":"v0.9","createSurface":{"surfaceId":"s","catalogId":"${GenUiA2uiCatalog.CATALOG_ID}","sendDataModel":false}},
+              {"version":"v0.9","updateComponents":{"surfaceId":"s","components":[
                 {"id":"root","component":"Column","children":["label"]},
                 {"id":"label","component":"Text","text":"Ready"}
-              ],"dataModel":{"status":"pending"}}},
-              {"version":"v1.0","updateDataModel":{"surfaceId":"s","path":"/status","value":"ready"}}
+              ]}},
+              {"version":"v0.9","updateDataModel":{"surfaceId":"s","path":"/status","value":"ready"}}
             ]
             """.trimIndent(),
         )

@@ -24,8 +24,17 @@ from pipeline.genui_quality import (  # noqa: E402
 )
 
 
+def legacy_render(candidate: object, source: str):
+    """Keep these historical metric-shape tests explicitly offline-only."""
+    return render_artifact_quality_v5_4(candidate, source, legacy_comparison=True)
+
+
+def legacy_generation(candidate: object, source: str):
+    return generation_reward_v5_4(candidate, source, legacy_comparison=True)
+
+
 def test_public_formula_identity_and_weight_invariants() -> None:
-    result = render_artifact_quality_v5_4(
+    result = legacy_render(
         root_spec({"text": text("Hello world")}, ["text"]),
         "Hello world",
     )
@@ -71,8 +80,8 @@ def test_table_and_code_duplication_cannot_improve_score() -> None:
         },
         ["table", "duplicate"],
     )
-    before = render_artifact_quality_v5_4(table_only, TABLE_SOURCE)
-    after = render_artifact_quality_v5_4(table_duplicate, TABLE_SOURCE)
+    before = legacy_render(table_only, TABLE_SOURCE)
+    after = legacy_render(table_duplicate, TABLE_SOURCE)
     assert after.quality_0_1 <= before.quality_0_1
     assert after.evidence_ownership["redundant_generic_unit_ids"]
 
@@ -82,10 +91,10 @@ def test_table_and_code_duplication_cannot_improve_score() -> None:
         "props": {"code": "print(42)", "language": "python"},
         "children": [],
     }
-    before = render_artifact_quality_v5_4(
+    before = legacy_render(
         root_spec({"code": code}, ["code"]), source
     )
-    after = render_artifact_quality_v5_4(
+    after = legacy_render(
         root_spec(
             {"code": code, "duplicate": text("print(42)")},
             ["code", "duplicate"],
@@ -97,17 +106,17 @@ def test_table_and_code_duplication_cannot_improve_score() -> None:
 
 
 def test_structured_values_are_not_generic_but_requested_summary_is() -> None:
-    table_only = render_artifact_quality_v5_4(
+    table_only = legacy_render(
         root_spec({"table": table()}, ["table"]),
         TABLE_SOURCE,
     )
     assert table_only.evidence_ownership["required_generic_count"] == 0
 
     source = TABLE_SOURCE + "\n\nSummary: Paris is cooler than Rome."
-    missing_summary = render_artifact_quality_v5_4(
+    missing_summary = legacy_render(
         root_spec({"table": table()}, ["table"]), source
     )
-    represented_summary = render_artifact_quality_v5_4(
+    represented_summary = legacy_render(
         root_spec(
             {
                 "table": table(),
@@ -149,15 +158,15 @@ def test_accessibility_is_penalty_only_and_candidate_created() -> None:
         },
         "children": [],
     }
-    base_score = render_artifact_quality_v5_4(baseline, "Hello")
-    labeled_score = render_artifact_quality_v5_4(
+    base_score = legacy_render(baseline, "Hello")
+    labeled_score = legacy_render(
         root_spec(
             {"text": text("Hello"), "button": labeled_button},
             ["text", "button"],
         ),
         "Hello",
     )
-    unlabeled_score = render_artifact_quality_v5_4(
+    unlabeled_score = legacy_render(
         root_spec(
             {"text": text("Hello"), "button": unlabeled_button},
             ["text", "button"],
@@ -173,7 +182,7 @@ def test_accessibility_is_penalty_only_and_candidate_created() -> None:
         "props": {"label": "Irrelevant local field"},
         "children": [],
     }
-    field_score = render_artifact_quality_v5_4(
+    field_score = legacy_render(
         root_spec(
             {"text": text("Hello"), "field": labeled_field},
             ["text", "field"],
@@ -187,10 +196,10 @@ def test_raw_format_penalty_is_generation_only() -> None:
     candidate = root_spec({"text": text("Hello")}, ["text"])
     raw = json.dumps(candidate, separators=(",", ":"))
     wrapped = f"Here is the JSON:\n```json\n{raw}\n```"
-    strict_generation = generation_reward_v5_4(raw, "Hello")
-    wrapped_generation = generation_reward_v5_4(wrapped, "Hello")
-    strict_artifact = render_artifact_quality_v5_4(raw, "Hello")
-    wrapped_artifact = render_artifact_quality_v5_4(wrapped, "Hello")
+    strict_generation = legacy_generation(raw, "Hello")
+    wrapped_generation = legacy_generation(wrapped, "Hello")
+    strict_artifact = legacy_render(raw, "Hello")
+    wrapped_artifact = legacy_render(wrapped, "Hello")
     assert wrapped_generation.quality_0_1 < strict_generation.quality_0_1
     assert wrapped_artifact.quality_0_1 == pytest.approx(
         strict_artifact.quality_0_1, abs=1e-12
@@ -199,7 +208,7 @@ def test_raw_format_penalty_is_generation_only() -> None:
         "exact_single_json_value"
     ]
     assert wrapped_generation.raw_json_envelope["utility"] < 1.0
-    multiple = generation_reward_v5_4(f"{raw}\n{{}}", "Hello")
+    multiple = legacy_generation(f"{raw}\n{{}}", "Hello")
     assert multiple.raw_json_envelope["extra_json_value_present"]
     assert multiple.raw_json_envelope["utility"] < 1.0
 

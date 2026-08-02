@@ -14,7 +14,7 @@ import re
 from typing import Any, Mapping
 from urllib.parse import urlparse
 
-from .flat_spec_semantics import iter_renderer_references
+from .renderer_semantics import iter_renderer_references
 
 _MANIFEST_PATH = Path(__file__).resolve().parents[2] / "schema" / "renderer_capabilities.json"
 
@@ -33,6 +33,12 @@ def _load_shared_manifest() -> dict[str, Any]:
 
 _MANIFEST = _load_shared_manifest()
 RENDERER_CAPABILITY_VERSION = str(_MANIFEST["version"])
+
+
+def supported_renderer_type_names() -> tuple[str, ...]:
+    """Return canonical renderer types without importing the legacy contract."""
+
+    return tuple(sorted(str(entry["canonical"]) for entry in _MANIFEST["types"]))
 
 
 class _Type:

@@ -62,11 +62,14 @@ def test_computed_global_dependency_changes_metric_fingerprint() -> None:
 
 def test_stored_score_reuse_requires_exact_payload_identity() -> None:
     first_candidate = root_spec({"text": text("Hello")}, ["text"])
-    first = render_artifact_quality_v5_4(first_candidate, "Hello")
+    first = render_artifact_quality_v5_4(
+        first_candidate, "Hello", legacy_comparison=True
+    )
     record = {
         "ui_id": "sample",
         "response_text": "Hello",
         "genui_json": first_candidate,
+        "target_format": "flat_spec_v1",
         "render_artifact_quality_v5_4": breakdown_to_mapping(first),
     }
     reused = score_record_v5_4(record)
