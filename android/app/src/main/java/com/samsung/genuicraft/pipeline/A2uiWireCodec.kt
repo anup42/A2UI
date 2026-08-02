@@ -4,7 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
-/** Custom-catalog A2UI v1 wire conversion for the native renderer graph. */
+/** Standard pinned A2UI v1 wire conversion for the native renderer graph. */
 internal object A2uiWireCodec {
     private const val VERSION = "v1.0"
 
@@ -28,7 +28,6 @@ internal object A2uiWireCodec {
         val elements = JsonObject()
         var state = JsonObject()
         var surfaceId: String? = null
-        var rootId: String? = null
         var deleted = false
 
         messages.forEach { message ->
@@ -42,10 +41,7 @@ internal object A2uiWireCodec {
                             "A2UI createSurface.catalogId must be ${GenUiA2uiCatalog.CATALOG_ID}."
                         }
                     }
-                    create.string("rootId")?.let {
-                        require(it.isNotBlank()) { "A2UI createSurface.rootId must be non-empty." }
-                        rootId = it
-                    }
+                    require(!create.has("rootId")) { "Non-standard createSurface.rootId is not allowed; the root component id is 'root'." }
                     create.get("dataModel")?.let {
                         require(it.isJsonObject) { "A2UI createSurface.dataModel must be an object." }
                         state = it.asJsonObject.deepCopy()
@@ -76,8 +72,8 @@ internal object A2uiWireCodec {
         }
         require(!deleted) { "A2UI surface was deleted before conversion." }
         require(elements.size() > 0) { "A2UI wire payload did not produce any components." }
-        val resolvedRoot = rootId ?: if (elements.has("root")) "root" else elements.entrySet().first().key
-        require(elements.has(resolvedRoot)) { "A2UI rootId '$resolvedRoot' does not exist in components." }
+        val resolvedRoot = "root"
+        require(elements.has(resolvedRoot)) { "A2UI payload must contain a component with id 'root'." }
         return JsonObject().apply {
             addProperty("root", resolvedRoot)
             add("state", state)
@@ -109,7 +105,10 @@ internal object A2uiWireCodec {
         val create = JsonObject().apply {
             addProperty("surfaceId", "default_surface")
             addProperty("catalogId", GenUiA2uiCatalog.CATALOG_ID)
-            addProperty("rootId", source.string("root") ?: "root")
+            // Standard A2UI identifies the root through the reserved component id.
+            require((source.string("root") ?: "root") == "root") {
+                "Compiled A2UI root must be deterministically rewritten to id 'root'."
+            }
             add("components", components)
             source.get("state")?.takeIf { it.isJsonObject && it.asJsonObject.size() > 0 }
                 ?.let { add("dataModel", it.deepCopy()) }
@@ -142,6 +141,9 @@ internal object A2uiWireCodec {
             val metadata = setOf("id", "component", "children", "repeat", "visible", "on", "watch")
             val props = JsonObject()
             component.entrySet().filter { it.key !in metadata }.forEach { (key, value) ->
+                require(GenUiA2uiCatalog.isAllowedProperty(type, key)) {
+                    "A2UI component '$id' has unsupported property '$key'."
+                }
                 props.add(key, value.deepCopy())
             }
             val canonicalType = when (type) {

@@ -255,8 +255,9 @@ class FlatSpecContractTests(unittest.TestCase):
         type_enum = schema["$defs"]["element"]["properties"]["type"]["enum"]
         self.assertIn("Chart", type_enum)
 
-        prompt = (ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md").read_text(encoding="utf-8")
-        self.assertIn("`Chart` props", prompt)
+        prompt = (ROOT / "prompts" / "genui_gen_mobile_a2ui_express_v1.md").read_text(encoding="utf-8")
+        self.assertIn("Chart", prompt)
+        self.assertIn("<a2ui>", prompt)
 
         renderer_registry = (
             ROOT.parent

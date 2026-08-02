@@ -10,8 +10,9 @@ Inside it, use one assignment per line:
 - Child lists contain unquoted component identifiers, for example
   `root=Column([title,card],gap="md")`.
 - Optional state uses `$={...}` or `$/path=value`.
-- Use `_props`, `_children`, `_repeat`, `_visible`, `_on`, and `_watch` only
-  for native-renderer semantics that do not fit normal arguments.
+- Use explicit named `children`, `repeat`, `visible`, `watch`, and event/action
+  arguments. Opaque `_props`, `_children`, `_repeat`, `_visible`, `_on`, and
+  `_watch` bags are forbidden.
 - Every `onPress`, `onClick`, `onChange`, or other event value must be an
   action call. Use `Event("name",{})` for an app event or
   `openUrl("https://www.samsung.com/support/")` for a link. A quoted URL or
@@ -29,6 +30,8 @@ Inside it, use one assignment per line:
 - Final identifier audit: every child name must exactly match an assignment.
   If the Button is assigned as `button`, reference `button`; never leave an
   unassigned generic child such as `action`.
+- Once a named argument is used, do not add positional arguments. `_` may skip
+  an optional positional argument only when it is the final positional slot.
 
 Never emit a JSON object such as `{"a2ui":...}`. Never emit `type`, `props`,
 HTML tags, lowercase web elements, CSS, or a FlatSpec object.
@@ -39,7 +42,7 @@ root=Column([title,card,details,action,link],gap="md")
 title=Text("Example title","h2")
 status=Text("Example status","body")
 card=Card([status],"Summary")
-details=Table(["Detail","Value"],_,[["Example key","Example value"]],"Details","status","table")
+details=Table(["Detail","Value"],rows=[["Example key","Example value"]],title="Details",domain="status",preferredPresentation="table")
 action=Button("Continue","primary",onPress=Event("continue",{},true,"/continueResult"))
 link=Button("Open support","primary",onPress=openUrl("https://www.samsung.com/support/"))
 </a2ui>

@@ -17,8 +17,9 @@ Response:
 - Every useful assignment must be reachable from `root`. If the response has
   table rows, include a reachable `Table` and preserve every row.
 - Use positional catalog arguments where clear and named arguments otherwise.
-- Preserve non-positional renderer semantics with `_props`, `_children`,
-  `_repeat`, `_visible`, `_on`, and `_watch`.
+- Preserve non-positional renderer semantics with explicit named `children`,
+  `repeat`, `visible`, `watch`, and event/action arguments. Opaque `_props`,
+  `_children`, `_repeat`, `_visible`, `_on`, and `_watch` bags are forbidden.
 - Every `onPress`, `onClick`, `onChange`, or other event value must be an
   action call. Use `Event("name",{})` for an app event or
   `openUrl("https://www.samsung.com/support/")` for a link. A quoted URL or
@@ -36,10 +37,11 @@ Response:
 - Final identifier audit: every child name must exactly match an assignment.
   If the Button is assigned as `button`, reference `button`; never leave an
   unassigned generic child such as `action`.
-- Use `$ = {...}` or `$/path = value` for state. Bindings may use state paths,
-  item paths, conditionals, maps, arrays, validation expressions, and skipped
-  positional arguments.
-- Never return JSON FlatSpec or Compact IR.
+- Use `$={...}` or `$/path=value` for state. Bindings may use state paths,
+  item paths, conditionals, maps, arrays, and validation expressions.
+- Once a named argument is used, do not add positional arguments. `_` may skip
+  an optional positional argument only when it is the final positional slot.
+- Never return a JSON object or a legacy graph payload.
 
 Valid syntax example (syntax only; never copy its example facts):
 
@@ -48,7 +50,7 @@ root=Column([title,card,details,action,link],gap="md")
 title=Text("Example title","h2")
 status=Text("Example status","body")
 card=Card([status],"Summary")
-details=Table(["Detail","Value"],_,[["Example key","Example value"]],"Details","status","table")
+details=Table(["Detail","Value"],rows=[["Example key","Example value"]],title="Details",domain="status",preferredPresentation="table")
 action=Button("Continue","primary",onPress=Event("continue",{},true,"/continueResult"))
 link=Button("Open support","primary",onPress=openUrl("https://www.samsung.com/support/"))
 </a2ui>
@@ -62,8 +64,8 @@ Table, Tabs, Text, TextField, and Video.
 
 Allowed direct actions: openUrl, setState, pushState, removeState,
 validateForm, and `Event(name, context, wantResponse, responsePath)`. `Event`
-compiles to renderer action `emitEvent`. Preserve arbitrary event maps via
-`_on` and state watches via `_watch`.
+compiles to renderer action `emitEvent`. Use explicit event properties and
+action calls; arbitrary event bags are not part of the production contract.
 
 ## Quality rules
 

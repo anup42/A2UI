@@ -164,6 +164,9 @@ def _strict_legacy_candidate(value: Any) -> Any:
         if not isinstance(element, dict):
             continue
         raw_type = element.get("type") or element.get("component")
+        # Preserve the historical metric contract for the explicit legacy
+        # `Row`/`Column` aliases, while lower-case DSL/web aliases remain a
+        # strict-format failure.
         if raw_type not in {"Row", "Column"}:
             continue
         token = _layout_alias_token(raw_type)
@@ -223,6 +226,18 @@ def _parse_completion(completion: Any, raw_text: str) -> tuple[Any, bool, str | 
         candidate: Any = completion
         if isinstance(completion, tuple):
             candidate = list(completion)
+        # Preserve the original canonical graph for strict validation. In
+        # particular, do not let a decoder silently drop unknown top-level
+        # fields or aliases before the strict gate sees them.
+        if isinstance(candidate, Mapping) and {
+            "root",
+            "elements",
+        }.issubset(candidate):
+            return dict(candidate), True, None
+        if isinstance(candidate, str) and candidate.lstrip().startswith(("{", "[")):
+            parsed_json = extract_json_element(candidate)
+            if isinstance(parsed_json, Mapping) and {"root", "elements"}.issubset(parsed_json):
+                return dict(parsed_json), True, None
         decoded = decode_to_flat_spec(candidate)
         return decoded.flat_spec, True, None
     except Exception:
@@ -233,6 +248,8 @@ def _parse_completion(completion: Any, raw_text: str) -> tuple[Any, bool, str | 
         return list(completion), True, None
     try:
         parsed = extract_json_element(raw_text)
+        if isinstance(parsed, Mapping) and {"root", "elements"}.issubset(parsed):
+            return dict(parsed), True, None
         try:
             return decode_to_flat_spec(parsed).flat_spec, True, None
         except Exception:

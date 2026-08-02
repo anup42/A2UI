@@ -1,12 +1,15 @@
 ﻿# Response-to-IR Training
 
-This folder trains local Stage 3 models that convert Stage 2 response text into the Android flat-spec GenUI IR:
+This folder trains local Stage 3 models that convert Stage 2 response text into the Android A2UI Express v1 IR:
 
-```json
-{"root":"...","state":{},"elements":{}}
+```text
+<a2ui>
+root=Column([content])
+content=Text("...","body")
+</a2ui>
 ```
 
-`dataset/` remains responsible for generating queries, responses, assets, and cloud IR. `training/` consumes completed dataset runs and provides a model-agnostic path for data preparation, SFT training, evaluation, export, and Android packaging.
+`dataset/` remains responsible for generating queries, responses, assets, and cloud IR. `training/` consumes completed dataset runs and provides a model-agnostic path for data preparation, SFT training, evaluation, export, and Android packaging. FlatSpec is accepted only as a read-only legacy source; Compact IR v2 is migration-only and is never a training target.
 
 ## Main Flow
 

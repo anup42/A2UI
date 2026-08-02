@@ -1,0 +1,12 @@
+run:
+  id: eval_a2ui_express_v1
+  split: outputs/datasets/golden50_stage3_eval/all.jsonl
+  output_dir: outputs/eval/a2ui_express_v1
+  weights_config: dataset/configs/run.yaml
+  target_format: a2ui_express_v1
+  schema_path: dataset/schema/genuicraft_a2ui_express_profile_v1.json
+contract:
+  compare_after_restore: true
+  require_semantic_hash_match: true
+  legacy_baseline: flat_spec_v1
+  forbidden_targets: [compact_ir_v2, gci2]

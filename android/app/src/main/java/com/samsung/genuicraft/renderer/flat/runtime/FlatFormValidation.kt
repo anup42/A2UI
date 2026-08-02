@@ -11,7 +11,7 @@ import com.samsung.genuicraft.renderer.flat.model.*
  *
  * `FlatActionRuntime` previously wrote a hardcoded
  * `{"valid": true, "errors": {}}` regardless of input, while
- * `assets/pipeline_prompts/genui_gen.md` instructs the model to emit
+ * `assets/pipeline_prompts/genui_gen_a2ui_express_v1.md` instructs the model to emit
  * `validateForm`. Every generated form therefore reported success.
  *
  * Rules are derived from the input controls themselves, so **no IR change is

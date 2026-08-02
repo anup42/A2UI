@@ -212,9 +212,6 @@ class GeminiBackend(
                 }
                 if (request.jsonMode) {
                     addProperty("responseMimeType", "application/json")
-                    if (request.structuredOutput) {
-                        add("responseSchema", buildStage3ResponseSchema())
-                    }
                 }
             })
 
@@ -237,28 +234,6 @@ class GeminiBackend(
             }
         }
         return gson.toJson(body)
-    }
-
-    internal fun buildStage3ResponseSchema(): JsonObject {
-        // Structured output is used only for Compact IR v2. A2UI Express is
-        // grammar-oriented text and explicitly disables responseSchema.
-        return JsonObject().apply {
-            addProperty("type", "OBJECT")
-            add("properties", JsonObject().apply {
-                add("v", JsonObject().apply {
-                    addProperty("type", "STRING")
-                    add("enum", JsonArray().apply { add("gci2") })
-                })
-                add("r", JsonObject().apply { addProperty("type", "STRING") })
-                add("s", JsonObject().apply { addProperty("type", "OBJECT") })
-                add("e", JsonObject().apply { addProperty("type", "OBJECT") })
-            })
-            add("required", JsonArray().apply {
-                add("v")
-                add("r")
-                add("e")
-            })
-        }
     }
 
     // ── response parsing ───────────────────────────────────────────────

@@ -8,7 +8,7 @@ param(
   [int]$ResponseIrChunk = 1,
   [string]$Model = "azure_gpt54_benchmark",
   [string]$Stage1Prompt = "prompts/query_gen_gemma_v3_diverse_openings.md",
-  [string]$Stage3Prompt = "prompts/genui_gen_gemma_v12_structure_preserve.md",
+  [string]$Stage3Prompt = "prompts/genui_gen_mobile_a2ui_express_v1.md",
   [double]$RateLimitQps = 0.5,
   [int]$Stage1BatchSize = 16,
   [int]$Stage2QueryBatchSize = 16,

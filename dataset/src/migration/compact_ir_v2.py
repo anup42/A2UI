@@ -1,4 +1,4 @@
-"""Compact IR v2 (gci2) codec.
+"""One-time Compact IR v2 (gci2) migration decoder.
 
 The codec reduces syntax only. It never removes a semantic component or an
 interaction. Empty/default fields are reconstructed by the decoder before the
@@ -8,7 +8,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any, Mapping
 
-from .common import rewrite_element_ids
+from pipeline.ir_formats.common import rewrite_element_ids
 
 VERSION = "gci2"
 

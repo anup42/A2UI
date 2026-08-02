@@ -223,12 +223,12 @@ def main() -> None:
     cache = PromptCache(run_paths.run_dir / ".prompt_cache.jsonl")
 
     prompts_dir = DATASET_ROOT / "prompts"
-    schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json")
+    schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/canonical_ui_graph_v1.schema.json")
     if not schema_path.exists():
-        schema_path = DATASET_ROOT / "schema" / "genui_flatspec.schema.json"
-    stage3_prompt_path = DATASET_ROOT / run_cfg.get("stage3_prompt_file", "prompts/genui_gen_mobile_flatspec_v11.md")
+        schema_path = DATASET_ROOT / "schema" / "canonical_ui_graph_v1.schema.json"
+    stage3_prompt_path = DATASET_ROOT / run_cfg.get("stage3_prompt_file", "prompts/genui_gen_mobile_a2ui_express_v1.md")
     if not stage3_prompt_path.exists():
-        stage3_prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
+        stage3_prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_a2ui_express_v1.md"
 
     max_cycles = args.max_cycles
     cycle = 0

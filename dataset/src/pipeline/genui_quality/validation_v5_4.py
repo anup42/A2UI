@@ -51,7 +51,7 @@ def ensure_v5_4_validation_ready() -> None:
             android,
             dataset / "schema" / "genui_flatspec.schema.json",
             dataset / "schema" / "expected_ui_contract.schema.json",
-            dataset / "prompts" / "genui_gen_mobile_flatspec_v11.md",
+            dataset / "prompts" / "genui_gen_mobile_a2ui_express_v1.md",
             dataset / "scripts" / "capture_android_run_screenshots.py",
         ]
         missing = [str(path) for path in required if not path.exists()]

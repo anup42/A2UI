@@ -4,7 +4,7 @@ param(
   [string]$Genui001ApiKey = $env:AZURE_OPENAI_GENUI001_API_KEY,
   [string]$ProApiKey = $env:AZURE_OPENAI_PRO_API_KEY,
   [string]$Stage1Prompt = "prompts/query_gen_gemma_v3_diverse_openings.md",
-  [string]$Stage3Prompt = "prompts/genui_gen_gemma_v12_structure_preserve.md"
+  [string]$Stage3Prompt = "prompts/genui_gen_mobile_a2ui_express_v1.md"
 )
 
 $ErrorActionPreference = "Stop"

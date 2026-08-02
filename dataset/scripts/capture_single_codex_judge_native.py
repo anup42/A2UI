@@ -618,7 +618,7 @@ def _write_provenance(
     )
     local_hash = _hash_file(apk_path)
     schemas = [
-        REPO_ROOT / "dataset" / "schema" / "genui_flatspec.schema.json",
+        REPO_ROOT / "dataset" / "schema" / "canonical_ui_graph_v1.schema.json",
         REPO_ROOT
         / "dataset"
         / "schema"

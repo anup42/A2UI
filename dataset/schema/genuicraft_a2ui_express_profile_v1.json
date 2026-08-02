@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/express-profile/v1",
+  "profileVersion": "genuicraft-a2ui-express-profile-v1",
+  "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
+  "protocolVersion": "v1.0",
+  "expressVersion": "genuicraft-express-v1",
+  "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
+  "rootVariable": "root",
+  "sentinels": { "open": "<a2ui>", "close": "</a2ui>" },
+  "opaqueMetadataForbidden": ["_props", "_children", "_repeat", "_visible", "_on", "_watch"],
+  "commonProperties": ["width", "height", "flex", "accessibility", "accessibilityLabel", "contentDescription", "decorative", "role", "semanticRole", "ariaLabel"],
+  "aliases": {
+    "Row": { "canonical": "Stack", "implicitProps": { "direction": "horizontal" } },
+    "Column": { "canonical": "Stack", "implicitProps": { "direction": "vertical" } }
+  },
+  "components": {
+    "Alert": { "positional": ["message", "title", "tone", "timestamp"], "properties": ["message", "text", "title", "tone", "timestamp", "source", "icon"] },
+    "AudioPlayer": { "positional": ["url", "description", "posterUrl", "title"], "properties": ["url", "src", "source", "name", "poster", "posterUrl", "thumbnail", "thumbnailUrl", "description", "title"] },
+    "Button": { "positional": ["label", "variant", "icon"], "properties": ["label", "text", "variant", "icon", "accessibilityLabel", "contentDescription", "onClickLabel", "actionLabel"] },
+    "Card": { "positional": ["children", "title", "subtitle", "tone"], "properties": ["title", "subtitle", "tone", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"], "childProperties": ["children"] },
+    "Chart": { "positional": ["chartType", "columns", "statePath", "rows", "title", "subtitle"], "defaults": { "chartType": "bar" }, "properties": ["chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey"] },
+    "CheckBox": { "positional": ["label", "value", "statePath"], "properties": ["label", "value", "statePath", "accessibilityLabel", "contentDescription"] },
+    "Checklist": { "positional": ["items", "title", "disclaimer", "source"], "properties": ["title", "items", "disclaimer", "source"] },
+    "ChoicePicker": { "positional": ["label", "options", "value", "statePath"], "properties": ["label", "value", "statePath", "options", "accessibilityLabel", "contentDescription"] },
+    "CodeBlock": { "positional": ["code", "language", "title"], "properties": ["code", "language", "title"] },
+    "ConsoleLog": { "positional": ["code", "language", "title"], "properties": ["code", "language", "title"] },
+    "DateTimeInput": { "positional": ["label", "value", "mode", "placeholder", "statePath"], "properties": ["label", "value", "statePath", "mode", "placeholder", "accessibilityLabel", "contentDescription"] },
+    "Divider": { "positional": [], "properties": [] },
+    "EmailPreview": { "positional": ["subject", "body", "from", "to", "date", "title"], "properties": ["from", "to", "cc", "bcc", "subject", "body", "date", "timestamp", "attachments", "title"] },
+    "Formula": { "positional": ["latex", "title", "result", "display"], "properties": ["latex", "text", "title", "subtitle", "result", "display"] },
+    "Icon": { "positional": ["name", "size", "tint"], "properties": ["name", "icon", "source", "url", "src", "size", "iconSize", "tint", "alt", "accessibilityLabel", "contentDescription", "decorative"] },
+    "Image": { "positional": ["url", "alt", "fit", "width", "height"], "defaults": { "fit": "fill" }, "properties": ["url", "src", "source", "name", "fit", "contentScale", "alt", "fallbackUrl", "height", "width", "aspectRatio", "accessibilityLabel", "contentDescription", "decorative"] },
+    "List": { "positional": ["children", "items"], "properties": ["items"], "childProperties": ["children"] },
+    "Modal": { "positional": ["trigger", "content", "title"], "properties": ["trigger", "content", "title"], "referenceProperties": ["trigger", "content"] },
+    "Row": { "positional": ["children", "gap", "align", "justify", "wrap"], "properties": ["gap", "spacing", "space", "align", "justify", "wrap", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"], "childProperties": ["children"] },
+    "Slider": { "positional": ["label", "value", "min", "max", "step", "statePath"], "properties": ["label", "value", "statePath", "min", "max", "step", "accessibilityLabel", "contentDescription"] },
+    "Stack": { "positional": ["children", "direction", "gap", "align", "justify", "wrap"], "defaults": { "direction": "vertical", "gap": "md", "align": "start", "justify": "start", "wrap": "nowrap" }, "properties": ["direction", "gap", "spacing", "space", "align", "justify", "wrap", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"], "childProperties": ["children"] },
+    "Table": { "positional": ["columns", "statePath", "rows", "title", "domain", "preferredPresentation"], "properties": ["title", "domain", "preferredPresentation", "presentation", "columns", "rows", "statePath", "rowsPath", "dataPath", "primaryColumn", "highlightColumns", "numericColumns", "entityMedia"] },
+    "Tabs": { "positional": ["tabs", "activeTabId"], "properties": ["tabs", "activeTabId"], "referenceProperties": ["tabs[].child", "tabs[].content", "tabs[].id", "tabs[].element"] },
+    "Text": { "positional": ["text", "variant"], "defaults": { "variant": "body" }, "properties": ["text", "variant", "heading", "accessibilityLabel", "contentDescription", "decorative"] },
+    "TextField": { "positional": ["label", "value", "statePath", "placeholder"], "properties": ["label", "value", "statePath", "placeholder", "accessibilityLabel", "contentDescription"] },
+    "Video": { "positional": ["url", "posterUrl", "description", "title"], "properties": ["url", "src", "source", "name", "poster", "posterUrl", "thumbnail", "thumbnailUrl", "description", "title"] }
+  },
+  "metadata": { "properties": ["children", "repeat", "visible", "watch"], "events": "on<EventName> action calls" },
+  "actions": {
+    "openUrl": { "positional": ["url"], "required": ["url"], "properties": { "url": { "type": "string", "format": "uri-reference" } } },
+    "setState": { "positional": ["statePath", "value"], "required": ["statePath", "value"] },
+    "pushState": { "positional": ["statePath", "value", "clearStatePath"], "required": ["statePath", "value"] },
+    "removeState": { "positional": ["statePath", "index"], "required": ["statePath", "index"] },
+    "validateForm": { "positional": ["statePath", "resultStatePath"], "required": [] },
+    "Event": { "aliasFor": "emitEvent", "positional": ["name", "context", "wantResponse", "responsePath"], "required": ["name"] }
+  },
+  "optimizations": {
+    "omitTrailingDefaults": true,
+    "namedWhenSkippingMiddle": true,
+    "inlineSingleUseComponents": true,
+    "preserveSharedReferences": true,
+    "deterministicIds": true,
+    "stableMapOrdering": true,
+    "emptyValuesOmitted": true
+  }
+}

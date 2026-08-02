@@ -1,0 +1,34 @@
+kind,name,canonical,native_renderer,positional_signature,optional_or_consumed_properties,reference_metadata,metadata,coverage_status
+component,Alert,Alert,yes,message|title|tone|timestamp,message|text|title|tone|timestamp|source|icon,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,AudioPlayer,AudioPlayer,yes,url|description|posterUrl|title,url|src|source|name|poster|posterUrl|thumbnail|thumbnailUrl|description|title,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Button,Button,yes,label|variant|icon,label|text|variant|icon|accessibilityLabel|contentDescription|onClickLabel|actionLabel,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Card,Card,yes,children|title|subtitle|tone,title|subtitle|tone|padding|paddingHorizontal|paddingVertical|margin|marginHorizontal|marginVertical,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Chart,Chart,yes,chartType|columns|statePath|rows|title|subtitle,chartType|title|subtitle|yLabel|columns|rows|statePath|rowsPath|dataPath|xKey|yKey,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,CheckBox,CheckBox,yes,label|value|statePath,label|value|statePath|accessibilityLabel|contentDescription,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Checklist,Checklist,yes,items|title|disclaimer|source,title|items|disclaimer|source,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,ChoicePicker,ChoicePicker,yes,label|options|value|statePath,label|value|statePath|options|accessibilityLabel|contentDescription,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,CodeBlock,CodeBlock,yes,code|language|title,code|language|title,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,ConsoleLog,ConsoleLog,yes,code|language|title,code|language|title,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,DateTimeInput,DateTimeInput,yes,label|value|mode|placeholder|statePath,label|value|statePath|mode|placeholder|accessibilityLabel|contentDescription,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Divider,Divider,yes,,,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,EmailPreview,EmailPreview,yes,subject|body|from|to|date|title,from|to|cc|bcc|subject|body|date|timestamp|attachments|title,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Formula,Formula,yes,latex|title|result|display,latex|text|title|subtitle|result|display,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Icon,Icon,yes,name|size|tint,name|icon|source|url|src|size|iconSize|tint|accessibilityLabel|contentDescription|decorative,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Image,Image,yes,url|alt|fit|width|height,url|src|source|name|fit|contentScale|alt|fallbackUrl|height|width|accessibilityLabel|contentDescription|decorative,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,List,List,yes,children|items,items,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Modal,Modal,yes,trigger|content|title,trigger|content|title,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Slider,Slider,yes,label|value|min|max|step|statePath,label|value|statePath|min|max|step|accessibilityLabel|contentDescription,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Stack,Stack,yes,children|direction|gap|align|justify|wrap,direction|gap|spacing|space|align|justify|wrap|padding|paddingHorizontal|paddingVertical|margin|marginHorizontal|marginVertical,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Table,Table,yes,columns|statePath|rows|title|domain|preferredPresentation,title|domain|preferredPresentation|presentation|columns|rows|statePath|rowsPath|dataPath|primaryColumn|highlightColumns|numericColumns|entityMedia,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Tabs,Tabs,yes,tabs|activeTabId,tabs|activeTabId,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Text,Text,yes,text|variant,text|variant|heading|accessibilityLabel|contentDescription|decorative,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,TextField,TextField,yes,label|value|statePath|placeholder,label|value|statePath|placeholder|accessibilityLabel|contentDescription,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Video,Video,yes,url|posterUrl|description|title,url|src|source|name|poster|posterUrl|thumbnail|thumbnailUrl|description|title,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Row,Row,yes,children|gap|align|justify|wrap,direction|gap|spacing|space|align|justify|wrap|padding|paddingHorizontal|paddingVertical|margin|marginHorizontal|marginVertical,,children|repeat|visible|on|watch,covered by catalog + native registry
+component,Column,Column,yes,children|gap|align|justify|wrap,direction|gap|spacing|space|align|justify|wrap|padding|paddingHorizontal|paddingVertical|margin|marginHorizontal|marginVertical,,children|repeat|visible|on|watch,covered by catalog + native registry
+action,openUrl,,yes,url,,,,covered by strict action validator
+action,setState,,yes,statePath|value,,,,covered by strict action validator
+action,pushState,,yes,statePath|value|clearStatePath,,,,covered by strict action validator
+action,removeState,,yes,statePath|index,,,,covered by strict action validator
+action,validateForm,,yes,statePath|resultStatePath,,,,covered by strict action validator
+action,emitEvent,,yes,name|context|wantResponse|responsePath,,,,covered by strict action validator

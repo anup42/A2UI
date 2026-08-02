@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -10,7 +11,6 @@ sys.path.insert(0, str(ROOT / "src"))
 from ir_training.data.build_pairs import prepare_dataset
 from ir_training.data.ir_targets import (
     A2UI_EXPRESS_V1,
-    COMPACT_IR_V2,
     canonical_flat_spec,
     materialize_completion_targets,
     resolve_target_formats,
@@ -38,20 +38,20 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
 
 def test_materialized_targets_round_trip_to_same_graph() -> None:
     targets = materialize_completion_targets(_spec())
-    assert set(targets) == {COMPACT_IR_V2, A2UI_EXPRESS_V1}
-    assert targets[COMPACT_IR_V2]["v"] == "gci2"
+    assert set(targets) == {A2UI_EXPRESS_V1}
     assert targets[A2UI_EXPRESS_V1].startswith("<a2ui>")
     for target in targets.values():
         assert canonical_flat_spec(target)["elements"]["root"]["type"] == "Stack"
 
 
 def test_target_policy_preserves_native_format_and_does_not_double_history() -> None:
-    assert resolve_target_formats({}, {}) == [COMPACT_IR_V2]
+    assert resolve_target_formats({}, {}) == [A2UI_EXPRESS_V1]
     assert resolve_target_formats({}, {"source_format": A2UI_EXPRESS_V1}) == [A2UI_EXPRESS_V1]
-    assert resolve_target_formats({"target_formats": ["both"]}, {}) == [COMPACT_IR_V2, A2UI_EXPRESS_V1]
+    with pytest.raises(ValueError, match="Only a2ui_express_v1"):
+        resolve_target_formats({"target_formats": ["both"]}, {})
 
 
-def test_prepare_dataset_can_emit_both_native_targets(tmp_path: Path) -> None:
+def test_prepare_dataset_emits_only_express_target(tmp_path: Path) -> None:
     run_dir = tmp_path / "run"
     _write_jsonl(
         run_dir / "responses.jsonl",
@@ -67,7 +67,7 @@ def test_prepare_dataset_can_emit_both_native_targets(tmp_path: Path) -> None:
             "run": {
                 "source_run_dir": str(run_dir),
                 "output_dir": str(output_dir),
-                "target_formats": [COMPACT_IR_V2, A2UI_EXPRESS_V1],
+                "target_formats": [A2UI_EXPRESS_V1],
             },
             "filters": {
                 "require_strict_flat_spec": True,
@@ -77,9 +77,9 @@ def test_prepare_dataset_can_emit_both_native_targets(tmp_path: Path) -> None:
             "split": {"train": 1, "val": 0, "test": 0, "stratify_by": "intent_bucket"},
         }
     )
-    assert manifest["counts"]["accepted"] == 2
+    assert manifest["counts"]["accepted"] == 1
     rows = [json.loads(line) for line in (output_dir / "all.jsonl").read_text(encoding="utf-8").splitlines()]
-    assert {row["target_format"] for row in rows} == {COMPACT_IR_V2, A2UI_EXPRESS_V1}
+    assert {row["target_format"] for row in rows} == {A2UI_EXPRESS_V1}
     for row in rows:
-        assert set(row["completion_targets"]) == {COMPACT_IR_V2, A2UI_EXPRESS_V1}
+        assert set(row["completion_targets"]) == {A2UI_EXPRESS_V1}
         assert row["messages"][-1]["content"] == row["completion"]

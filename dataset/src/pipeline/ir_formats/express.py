@@ -1,7 +1,7 @@
 """Pinned GenUICraft A2UI Express codec.
 
-This dependency-free parser follows the vendored Express grammar and adds the
-small GenUICraft metadata surface required to preserve FlatSpec behavior.
+This dependency-free parser follows the pinned Express grammar and the strict
+GenUICraft catalog/profile. Legacy graph conversion happens outside this codec.
 """
 from __future__ import annotations
 
@@ -72,42 +72,59 @@ def encode(
 
         args: list[str] = []
         consumed: set[str] = set()
-        for index in range(last + 1):
-            key = positional[index]
-            value = values[index]
-            if value is None or value == defaults.get(key) or value == []:
-                args.append("_")
-                continue
-            if key == "children":
-                args.append(_component_reference_array(value))
-            else:
-                args.append(_express_value(value))
-            consumed.add(key)
+        first_missing = next(
+            (index for index, value in enumerate(values)
+             if value is None or value == defaults.get(positional[index]) or value == []),
+            -1,
+        )
+        has_positional_gap = first_missing >= 0 and any(
+            value is not None and value != defaults.get(positional[index]) and value != []
+            for index, value in enumerate(values[first_missing + 1:], first_missing + 1)
+        )
+        if has_positional_gap:
+            # A skipped positional slot may not be followed by another
+            # positional value. Emit all populated slots as named args.
+            for index, (key, value) in enumerate(zip(positional, values)):
+                if value is None or value == defaults.get(key) or value == []:
+                    continue
+                rendered = _component_reference_array(value) if key == "children" else _express_value(value)
+                args.append(f"{key}={rendered}")
+                consumed.add(key)
+        else:
+            for index in range(last + 1):
+                key = positional[index]
+                value = values[index]
+                if value is None or value == defaults.get(key) or value == []:
+                    args.append("_")
+                    continue
+                if key == "children":
+                    args.append(_component_reference_array(value))
+                else:
+                    args.append(_express_value(value))
+                consumed.add(key)
 
         named: list[str] = []
         leftover = {key: value for key, value in props.items() if key not in consumed}
-        if leftover:
-            named.append(f"_props={_express_value(leftover)}")
+        for key, value in leftover.items():
+            if not _allowed_property(descriptor, key):
+                raise ValueError(f"Property {key!r} is not supported by component {output_type!r}")
+            named.append(f"{key}={_express_value(value)}")
         if children and "children" not in consumed:
-            named.append(f"_children={_component_reference_array(children)}")
+            named.append(f"children={_component_reference_array(children)}")
 
-        fallback_events: dict[str, Any] = {}
         raw_events = raw.get("on")
         if isinstance(raw_events, Mapping):
             for event_name, action_value in raw_events.items():
                 keyword = _event_keyword(str(event_name))
                 expression = _action_expression(action_value)
-                if keyword and expression is not None:
-                    named.append(f"{keyword}={expression}")
-                else:
-                    fallback_events[str(event_name)] = deepcopy(action_value)
-        if fallback_events:
-            named.append(f"_on={_express_value(fallback_events)}")
+                if not keyword or expression is None:
+                    raise ValueError(f"Event {event_name!r} cannot be represented by explicit Express syntax")
+                named.append(f"{keyword}={expression}")
 
         for field, name in (
-            ("repeat", "_repeat"),
-            ("visible", "_visible"),
-            ("watch", "_watch"),
+            ("repeat", "repeat"),
+            ("visible", "visible"),
+            ("watch", "watch"),
         ):
             if field in raw and raw[field] not in ({}, [], None):
                 named.append(f"{name}={_express_value(raw[field])}")
@@ -169,12 +186,23 @@ def decode(text: Any) -> dict[str, Any]:
                     raise ValueError(f"{raw_component}.children contains an empty reference")
                 children.append(child_id)
 
+        assigned: set[str] = set()
+        skipped_positional = False
         for index, expression in enumerate(call.get("args", ())):
             if _is_marker(expression, _SKIPPED):
+                skipped_positional = True
                 continue
+            if skipped_positional:
+                raise ValueError(
+                    f"Positional argument follows a skipped argument for {raw_component}; "
+                    "use a named property instead"
+                )
             if index >= len(positional):
                 raise ValueError(f"Too many positional args for {raw_component}")
             key = positional[index]
+            if key in assigned:
+                raise ValueError(f"Duplicate component property {key!r} for {raw_component}")
+            assigned.add(key)
             if key == "children":
                 add_children(expression)
             else:
@@ -183,50 +211,40 @@ def decode(text: Any) -> dict[str, Any]:
         kwargs = call.get("kwargs", {})
         if not isinstance(kwargs, Mapping):
             raise ValueError("Express call kwargs must be an object")
-        metadata_keys = {
-            "_props",
-            "_children",
-            "_repeat",
-            "_visible",
-            "_on",
-            "_watch",
-        }
         metadata: dict[str, Any] = {}
-        for key, expression in kwargs.items():
-            if key in metadata_keys:
-                metadata[key] = expression
-                continue
+        metadata_expr: dict[str, Any] = {}
+        for raw_key, expression in kwargs.items():
+            key = str(raw_key)
+            if key.startswith("_"):
+                raise ValueError(
+                    f"Opaque Express metadata parameter {key!r} is forbidden; "
+                    "use explicit named properties"
+                )
             action = _action_from_expression(expression, actions)
-            event_name = _event_name_from_keyword(str(key)) if action is not None else None
+            event_name = _event_name_from_keyword(key) if action is not None else None
             if event_name:
+                if event_name in on:
+                    raise ValueError(f"Duplicate component event {event_name!r}")
                 on[event_name] = action
                 continue
             if key == "children":
+                if key in assigned:
+                    raise ValueError(f"Duplicate component property {key!r} for {raw_component}")
+                assigned.add(key)
                 add_children(expression)
                 continue
-            if str(key).startswith("_"):
-                raise ValueError(f"Unknown Express metadata parameter {key!r}")
-            if not descriptor.get("allowAdditionalProps", True) and key not in positional:
+            if key in {"repeat", "visible", "watch"}:
+                if key in metadata:
+                    raise ValueError(f"Duplicate component metadata property {key!r}")
+                metadata[key] = _plain_value(expression)
+                metadata_expr[key] = expression
+                continue
+            if not _allowed_property(descriptor, key):
                 raise ValueError(f"Unknown named property {key!r} for {raw_component}")
-            props[str(key)] = _plain_value(expression)
-
-        if "_props" in metadata:
-            extra = _plain_value(metadata["_props"])
-            if not isinstance(extra, dict):
-                raise ValueError("_props must be a map")
-            props.update(deepcopy(extra))
-        if "_children" in metadata:
-            children.clear()
-            add_children(metadata["_children"])
-        if "_on" in metadata:
-            raw_on = metadata["_on"]
-            if not isinstance(raw_on, Mapping):
-                raise ValueError("_on must be a map")
-            for event_name, expression in raw_on.items():
-                action = _action_from_expression(expression, actions)
-                if action is None:
-                    raise ValueError(f"_on.{event_name} is not an action")
-                on[str(event_name)] = action
+            if key in assigned:
+                raise ValueError(f"Duplicate component property {key!r} for {raw_component}")
+            assigned.add(key)
+            props[key] = _plain_value(expression)
 
         element: dict[str, Any] = {
             "type": canonical_type,
@@ -235,25 +253,24 @@ def decode(text: Any) -> dict[str, Any]:
         }
         if on:
             element["on"] = on
-        for short, full in (
-            ("_repeat", "repeat"),
-            ("_visible", "visible"),
-            ("_watch", "watch"),
-        ):
-            if short not in metadata:
+        for name in ("repeat", "visible", "watch"):
+            if name not in metadata:
                 continue
-            value = _plain_value(metadata[short])
-            if short in {"_repeat", "_watch"} and not isinstance(value, dict):
-                raise ValueError(f"{short} must be a map")
-            if short == "_watch":
+            value = metadata[name]
+            if name in {"repeat", "watch"} and not isinstance(value, dict):
+                raise ValueError(f"{name} must be a map")
+            if name == "watch":
                 normalized_watch: dict[str, Any] = {}
-                for path, expression in metadata[short].items():
+                raw_watch = metadata_expr[name]
+                if not isinstance(raw_watch, Mapping):
+                    raise ValueError("watch must be a map")
+                for path, expression in raw_watch.items():
                     action = _action_from_expression(expression, actions)
                     if action is None:
-                        raise ValueError(f"_watch.{path} is not an action")
+                        raise ValueError(f"watch.{path} is not an action")
                     normalized_watch[str(path)] = action
                 value = normalized_watch
-            element[full] = deepcopy(value)
+            element[name] = deepcopy(value)
 
         elements[element_id] = element
         return element_id
@@ -293,6 +310,18 @@ def _component_alias_map(components: Any) -> dict[str, str]:
             for alias in descriptor.get("aliases", ()):
                 out[str(alias).casefold()] = str(name)
     return out
+
+
+def _allowed_property(descriptor: Mapping[str, Any], key: str) -> bool:
+    """Return whether an explicit named property is in the pinned catalog."""
+    allowed = descriptor.get("allowedProperties")
+    if isinstance(allowed, (list, tuple, set)):
+        return key in {str(value) for value in allowed}
+    positional = descriptor.get("positional")
+    if isinstance(positional, (list, tuple, set)) and key in {str(value) for value in positional}:
+        return True
+    consumed = descriptor.get("consumedProps")
+    return isinstance(consumed, (list, tuple, set)) and key in {str(value) for value in consumed}
 
 
 def _component_reference_array(value: Any) -> str:
@@ -403,11 +432,20 @@ def _action_from_expression(expression: Any, actions: Any) -> Any | None:
     descriptor = actions.get(action_name, {}) if isinstance(actions, Mapping) else {}
     positional = [str(item) for item in descriptor.get("positional", ())]
     params: dict[str, Any] = {}
+    skipped_positional = False
     for index, item in enumerate(expression.get("args", ())):
         if _is_marker(item, _SKIPPED):
+            skipped_positional = True
             continue
+        if skipped_positional:
+            raise ValueError(
+                f"Positional parameter follows a skipped parameter for action {raw_name}; "
+                "use a named parameter instead"
+            )
         if index >= len(positional):
             raise ValueError(f"Too many positional parameters for action {raw_name}")
+        if positional[index] in params:
+            raise ValueError(f"Duplicate action parameter {positional[index]!r}")
         params[positional[index]] = _plain_value(item)
     for key, item in expression.get("kwargs", {}).items():
         if key in params:
@@ -466,16 +504,14 @@ def _set_state_path(state: dict[str, Any], lhs: str, value: Any) -> None:
 
 
 def _statements(text: str) -> list[str]:
-    body = text
-    if SENTINEL_OPEN in body:
-        before, body = body.split(SENTINEL_OPEN, 1)
-        if before.strip():
-            raise ValueError("Unexpected text before <a2ui> sentinel")
-        if SENTINEL_CLOSE not in body:
-            raise ValueError("A2UI Express sentinel is not closed")
-        body, after = body.split(SENTINEL_CLOSE, 1)
-        if after.strip():
-            raise ValueError("Unexpected text after </a2ui> sentinel")
+    if not isinstance(text, str):
+        raise ValueError("A2UI Express payload must be text")
+    stripped = text.strip()
+    if not stripped.startswith(SENTINEL_OPEN) or not stripped.endswith(SENTINEL_CLOSE):
+        raise ValueError("A2UI Express payload must contain exactly one <a2ui> block")
+    if stripped.count(SENTINEL_OPEN) != 1 or stripped.count(SENTINEL_CLOSE) != 1:
+        raise ValueError("A2UI Express payload must contain exactly one <a2ui> block")
+    body = stripped[len(SENTINEL_OPEN):-len(SENTINEL_CLOSE)]
 
     out: list[str] = []
     buffer: list[str] = []
@@ -743,6 +779,8 @@ class _Parser:
                     or self.text[self.i:self.i + 4].lower() == 'r"""'
                 ) else self.ident()
                 self.consume(":")
+                if key in out:
+                    raise ValueError(f"Duplicate Express map key {key!r}")
                 out[key] = self.value()
                 if self.peek() != ",":
                     break
@@ -756,20 +794,27 @@ class _Parser:
         self.consume("(")
         args: list[Any] = []
         kwargs: dict[str, Any] = {}
+        seen_named = False
         if self.peek() != ")":
             while True:
                 saved = self.i
-                try:
-                    candidate = self.ident()
+                self.ws()
+                candidate_match = re.match(r"[A-Za-z_][A-Za-z0-9_]*", self.text[self.i:])
+                candidate = candidate_match.group(0) if candidate_match else None
+                if candidate is not None:
+                    self.i += len(candidate)
                     if self.peek() == "=":
                         self.consume("=")
                         if candidate in kwargs:
                             raise ValueError(f"Duplicate named argument {candidate!r}")
                         kwargs[candidate] = self.value()
+                        seen_named = True
                     else:
                         self.i = saved
+                        if seen_named:
+                            raise ValueError("Positional argument cannot follow a named argument")
                         args.append(self.value())
-                except ValueError:
+                else:
                     self.i = saved
                     args.append(self.value())
                 if self.peek() != ",":

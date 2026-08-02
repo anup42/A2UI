@@ -1,0 +1,73 @@
+{
+  "report_version": "a2ui_express_test_report.v1",
+  "environment": {
+    "host_date": "2026-08-02",
+    "device_serial": "R3CW408WE4J",
+    "device_model": "SM-F731U",
+    "device_os": "Android 16",
+    "install_policy": "update install only; no uninstall, clear-data, model deletion, or reindex"
+  },
+  "passed": [
+    {
+      "command": "python -m pytest dataset/tests training/tests",
+      "result": "458 passed, 5 deprecation warnings"
+    },
+    {
+      "command": "./gradlew.bat :app:testDebugUnitTest --no-daemon",
+      "result": "294 tests passed"
+    },
+    {
+      "command": "python dataset/scripts/generate_ir_specs.py --check",
+      "result": "10 generated artifacts verified"
+    },
+    {
+      "command": "python -m py_compile dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py dataset/tests/test_stage3_a2ui_express.py",
+      "result": "passed"
+    },
+    {
+      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --strict",
+      "result": "32 accepted, 0 rejected"
+    },
+    {
+      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --resume --strict",
+      "result": "0 new, 0 rejected; deterministic resume pass"
+    },
+    {
+      "command": "./gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.samsung.genuicraft.A2uiExpressRenderOnDeviceTest --no-daemon",
+      "result": "1 device test passed on the connected Flip"
+    },
+    {
+      "command": "powershell ... build_install_android.ps1 -Root android -Module :app -Variant Debug -Serial R3CW408WE4J",
+      "result": "Debug APK built and installed as an update"
+    },
+    {
+      "command": "android_diagnostics.py --serial R3CW408WE4J --package com.samsung.genuicraft --minutes 5 --screenshot",
+      "result": "diagnostics collected; no app crash was attributed"
+    }
+  ],
+  "device_render_evidence": {
+    "test": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip",
+    "visual_result": "A2UI Express title, native Compose card, and table rendered correctly",
+    "screenshot_path": "C:/Users/anupk/AppData/Local/Temp/a2ui_express_device_smoke_20260802_r2/a2ui_express_device_smoke/screenshot.png",
+    "screenshot_sha256": "A548C6CC66A13E73B5B3F1AF1C78BB92F20CE3D9B3C44DA2A7C934DEC4B808E3",
+    "window_dump_sha256": "2A09B815E8E3A0A8A291091ABA37828BB696EDB1C82031FAEE48DD603FE1BBF6",
+    "note": "The screenshot is intentionally outside the source repository and source-only review ZIP."
+  },
+  "blocked": [
+    {
+      "test": "VertexApiSmokeTest",
+      "result": "HTTP 403",
+      "reason": "Google reached the endpoint but the project associated with the Vertex Express key has billing disabled; this is an external project configuration blocker, not a parser or URL failure."
+    },
+    {
+      "test": "Gemma4E2bPretrainedMtpOnDeviceTest",
+      "result": "blocked before generation",
+      "reason": "The requested Gemma 4 E2B .litertlm checkpoint is absent from both documented app model directories on the connected device. No model or app data was removed."
+    }
+  ],
+  "not_run": [
+    "Exact deployed Gemma tokenizer benchmark: tokenizer/checkpoint unavailable; lexical diagnostic is labeled non-exact.",
+    "Successful live Vertex response generation: billing must be enabled or a working project key supplied."
+  ],
+  "interpretation": "Blocked external model tests are not counted as passes. All local parser/compiler/training/renderer tests and the connected-device Express rendering smoke test passed."
+}

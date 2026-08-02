@@ -81,6 +81,7 @@ import com.google.gson.JsonPrimitive
 import com.samsung.genuicraft.renderer.FlatSpecContent
 import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
 import com.samsung.genuicraft.pipeline.FlatSpecIngestor
+import com.samsung.genuicraft.pipeline.FlatSpecContract
 import com.samsung.genuicraft.pipeline.GenUiIrCodec
 import com.samsung.genuicraft.pipeline.GenUiIrFormat
 import com.samsung.genuicraft.renderer.native.NativeActionParsing
@@ -228,6 +229,21 @@ object GenUiNativeRenderer {
     ): JsonElement? {
         if (element == null || element.isJsonNull || depth > 4) {
             return null
+        }
+        // FlatSpec is retained as a read-only canonical graph for renderer
+        // compatibility and explicit migration. It is not a model-output
+        // format, so do not route its discovery through the production codec
+        // detector (which intentionally rejects legacy inference payloads).
+        if (FlatSpecContract.looksLikeFlatSpec(element)) {
+            return element
+        }
+        if (element.isJsonPrimitive && element.asJsonPrimitive.isString) {
+            val encoded = element.asString.trim()
+            if (encoded.startsWith("{") || encoded.startsWith("[")) {
+                runCatching { JsonParser.parseString(encoded) }
+                    .getOrNull()
+                    ?.let { nested -> findEmbeddedIr(nested, depth + 1)?.let { return it } }
+            }
         }
         if (runCatching { GenUiIrCodec.detect(element) }.isSuccess) {
             return element

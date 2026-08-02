@@ -6,15 +6,11 @@ from typing import Any, Mapping
 
 from ir_training.common.config import repo_root
 
-FLAT_SPEC_V1 = "flat_spec_v1"
-COMPACT_IR_V2 = "compact_ir_v2"
+FLAT_SPEC_V1 = "flat_spec_v1"  # read-only legacy source
 A2UI_EXPRESS_V1 = "a2ui_express_v1"
-SUPPORTED_TARGETS = (COMPACT_IR_V2, A2UI_EXPRESS_V1)
+SUPPORTED_TARGETS = (A2UI_EXPRESS_V1,)
 
 _ALIASES = {
-    "compact": COMPACT_IR_V2,
-    "compact_ir": COMPACT_IR_V2,
-    "gci2": COMPACT_IR_V2,
     "express": A2UI_EXPRESS_V1,
     "a2ui_express": A2UI_EXPRESS_V1,
 }
@@ -37,21 +33,18 @@ def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[st
 def materialize_completion_targets(flat_spec: Mapping[str, Any]) -> dict[str, Any]:
     api = _codec_api()
     expected = api["semantic_hash"](flat_spec)
-    targets: dict[str, Any] = {}
-    for target_format in SUPPORTED_TARGETS:
-        payload = api["encode_from_flat_spec"](
-            flat_spec,
-            target_format,
-            shorten_ids=True,
-        )
-        decoded = api["decode_to_flat_spec"](
-            payload,
-            format_hint=target_format,
-        ).flat_spec
-        if api["semantic_hash"](decoded) != expected:
-            raise ValueError(f"Semantic target mismatch for {target_format}")
-        targets[target_format] = payload
-    return targets
+    payload = api["encode_from_flat_spec"](
+        flat_spec,
+        A2UI_EXPRESS_V1,
+        shorten_ids=True,
+    )
+    decoded = api["decode_to_flat_spec"](
+        payload,
+        format_hint=A2UI_EXPRESS_V1,
+    ).flat_spec
+    if api["semantic_hash"](decoded) != expected:
+        raise ValueError("Semantic target mismatch for a2ui_express_v1")
+    return {A2UI_EXPRESS_V1: payload}
 
 
 def resolve_target_formats(run_cfg: Mapping[str, Any], row: Mapping[str, Any]) -> list[str]:
@@ -63,11 +56,8 @@ def resolve_target_formats(run_cfg: Mapping[str, Any], row: Mapping[str, Any]) -
         normalized: list[str] = []
         for value in raw_values:
             token = str(value).strip().lower()
-            if token in {"both", "dual"}:
-                for target in SUPPORTED_TARGETS:
-                    if target not in normalized:
-                        normalized.append(target)
-                continue
+            if token in {"both", "dual", "compact", "compact_ir", "gci2", "flat_spec", "flat_spec_v1"}:
+                raise ValueError("Only a2ui_express_v1 is an active training target")
             resolved = _ALIASES.get(token, token)
             if resolved not in SUPPORTED_TARGETS:
                 raise ValueError(
@@ -77,20 +67,15 @@ def resolve_target_formats(run_cfg: Mapping[str, Any], row: Mapping[str, Any]) -
                 normalized.append(resolved)
         return normalized
 
-    source_format = str(row.get("source_format") or "").strip()
-    if source_format in SUPPORTED_TARGETS:
-        return [source_format]
-    # Historical FlatSpec rows produce one Compact IR example by default so
-    # importing an old run never silently doubles the dataset.
-    return [COMPACT_IR_V2]
+    return [A2UI_EXPRESS_V1]
 
 
 def serialize_completion(payload: Any, target_format: str) -> str:
-    if target_format == A2UI_EXPRESS_V1:
-        if not isinstance(payload, str):
-            raise ValueError("Express completion target must be text")
-        return payload.strip()
-    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    if target_format != A2UI_EXPRESS_V1:
+        raise ValueError("Only a2ui_express_v1 completion targets are supported")
+    if not isinstance(payload, str):
+        raise ValueError("Express completion target must be text")
+    return payload.strip()
 
 
 def semantic_hash(flat_spec: Mapping[str, Any]) -> str:
@@ -125,7 +110,6 @@ def _codec_api() -> dict[str, Any]:
 
 __all__ = [
     "FLAT_SPEC_V1",
-    "COMPACT_IR_V2",
     "A2UI_EXPRESS_V1",
     "SUPPORTED_TARGETS",
     "canonical_flat_spec",

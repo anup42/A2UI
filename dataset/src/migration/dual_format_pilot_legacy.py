@@ -1,4 +1,4 @@
-"""Deterministic quality-first selection for the Stage 3 dual-format pilot."""
+"""Archived dual-format pilot helpers; never imported by active generation."""
 from __future__ import annotations
 
 from datetime import datetime, timezone

@@ -1,0 +1,35 @@
+{
+  "report_version": "a2ui_express_python_kotlin_conformance.v1",
+  "status": "partial",
+  "python": {
+    "tests": [
+      "dataset/tests/test_ir_formats.py",
+      "dataset/tests/test_stage3_a2ui_express.py"
+    ],
+    "result": "23 targeted codec/stage tests passed"
+  },
+  "kotlin": {
+    "tests": [
+      "./gradlew.bat :app:testDebugUnitTest --no-daemon",
+      "android/app/src/test/java/com/samsung/genuicraft/pipeline/GenUiIrCodecTest.kt"
+    ],
+    "result": "294 Android JVM tests passed"
+  },
+  "shared_contract": {
+    "catalog": "dataset/schema/genuicraft_a2ui_catalog_v1.json",
+    "profile": "dataset/schema/genuicraft_a2ui_express_profile_v1.json",
+    "grammar_blob_sha": "4f2492ae4600598d8b10e68fcd9f4292529dd653",
+    "canonical_graph_schema": "canonical-ui-graph-v1",
+    "semantic_hash_policy": "decode(encode(graph)) equals canonical semantic hash"
+  },
+  "covered_strict_cases": [
+    "sentinel closure",
+    "unknown component/property",
+    "duplicate definitions and arguments",
+    "invalid actions",
+    "reference inventory and root rewriting",
+    "sparse positional encoder output",
+    "FlatSpec and Compact migration-only rejection in active codec"
+  ],
+  "limitation": "The repository does not yet contain one generated shared valid/invalid fixture corpus consumed by both runtimes; a future parity gate should add it. The shared catalog/profile and semantic-hash fixtures are nevertheless used by both implementations."
+}

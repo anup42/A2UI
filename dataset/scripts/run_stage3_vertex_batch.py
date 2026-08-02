@@ -357,12 +357,12 @@ def main() -> None:
     run_paths = get_run_paths(output_dir, args.run_id, run_cfg.get("artifact_dir", "artifacts"))
     logger = setup_logger(run_paths.run_dir)
 
-    prompt_path = DATASET_ROOT / (args.prompt_file or run_cfg.get("stage3_prompt_file", "prompts/genui_gen_mobile_flatspec_v11.md"))
-    schema_path = DATASET_ROOT / (args.schema_file or run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json"))
+    prompt_path = DATASET_ROOT / (args.prompt_file or run_cfg.get("stage3_prompt_file", "prompts/genui_gen_mobile_a2ui_express_v1.md"))
+    schema_path = DATASET_ROOT / (args.schema_file or run_cfg.get("stage3_schema_file", "schema/canonical_ui_graph_v1.schema.json"))
     if not prompt_path.exists():
-        prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
+        prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_a2ui_express_v1.md"
     if not schema_path.exists():
-        schema_path = DATASET_ROOT / "schema" / "genui_flatspec.schema.json"
+        schema_path = DATASET_ROOT / "schema" / "canonical_ui_graph_v1.schema.json"
 
     model_spec = ModelSpec(
         name="vertex_batch_gemini_2_5_flash",

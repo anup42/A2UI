@@ -1,8 +1,9 @@
-package com.samsung.genuicraft.pipeline
+﻿package com.samsung.genuicraft.pipeline.migration
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.samsung.genuicraft.pipeline.FlatSpecIdRewriter
 
 /** Lossless Compact IR v2 codec. Empty/default syntax is restored on decode. */
 internal object CompactIrCodec {

@@ -138,7 +138,6 @@ def codec_identity() -> dict[str, Any]:
         "manifestVersion": manifest.get("manifestVersion"),
         "upstreamCommit": manifest.get("upstreamCommit"),
         "protocolVersion": manifest.get("protocolVersion"),
-        "compactIrVersion": manifest.get("compactIrVersion"),
         "expressVersion": manifest.get("expressVersion"),
         "catalogIdentityHash": manifest.get("catalogIdentityHash"),
         "rendererReferenceInventoryHash": renderer_reference_inventory_hash(),

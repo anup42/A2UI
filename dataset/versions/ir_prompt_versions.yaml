@@ -1,5 +1,5 @@
 ir_prompt_versions:
-  default: step5_v7_essential
+  default: a2ui_express_v1
   steps:
     - id: step1_v3_baseline
       label: Step 1 - v3 baseline
@@ -26,3 +26,8 @@ ir_prompt_versions:
       prompt_path: prompts/genui_gen_v7_essential.md
       app_asset_path: pipeline_prompts/genui_gen.md
       change_summary: "Tightens message contract for app runtime with explicit interaction constraints and production-oriented rendering rules."
+    - id: a2ui_express_v1
+      label: A2UI Express v1 (production)
+      prompt_path: prompts/genui_gen_mobile_a2ui_express_v1.md
+      app_asset_path: pipeline_prompts/genui_gen_a2ui_express_v1.md
+      change_summary: "Pinned single production model-output DSL with strict catalog, explicit properties, and standard A2UI wire compilation."

@@ -4,8 +4,8 @@ import json
 from typing import Any
 
 DEFAULT_SYSTEM_PROMPT = (
-    "You convert response text into compact Android GenUI IR without removing "
-    "meaningful components or interactions. Return only the requested format."
+    "You convert response text into A2UI Express v1 without removing meaningful "
+    "components or interactions. Return only one strict <a2ui> block."
 )
 
 
@@ -16,9 +16,9 @@ def minify_json(value: Any) -> str:
 def _target_instruction(target_format: str | None) -> str:
     if target_format == "a2ui_express_v1":
         return "Create A2UI Express v1 GenUI IR for this response:"
-    if target_format == "compact_ir_v2":
-        return "Create Compact IR v2 JSON for this response:"
-    return "Create GenUI IR for this response:"
+    if target_format not in {None, "a2ui_express_v1"}:
+        raise ValueError("Only a2ui_express_v1 is an active training target")
+    return "Create A2UI Express v1 GenUI IR for this response:"
 
 
 def build_messages(

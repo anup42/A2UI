@@ -1,6 +1,7 @@
 package com.samsung.genuicraft.pipeline
 
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import com.samsung.genuicraft.GenUiNativeRenderer
 import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 import org.junit.Assert.assertEquals
@@ -84,7 +85,7 @@ class Gemma4E2bTrainedProfileTest {
     }
 
     @Test
-    fun compactGpuGeneratedIrPassesContractAndRenderer() {
+    fun expressGpuGeneratedIrPassesContractAndRenderer() {
         val generatedIr = """
             {
               "root": "main_stack",
@@ -114,13 +115,18 @@ class Gemma4E2bTrainedProfileTest {
             }
         """.trimIndent()
 
-        val contract = FlatSpecContract.coerceAndValidate(JsonParser.parseString(generatedIr))
-        assertTrue(contract.error.orEmpty(), contract.isValid)
+        val express = A2uiExpressCodec.encode(JsonParser.parseString(generatedIr).asJsonObject)
+        val ingested = FlatSpecIngestor.ingest(JsonPrimitive(express), FlatSpecIngestMode.STRICT)
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
 
-        val rendered = GenUiNativeRenderer.render(contract.spec.toString(), sourceDir = null)
+        val rendered = GenUiNativeRenderer.render(express, sourceDir = null)
         assertNull(rendered.errorMessage)
         assertEquals(1, rendered.surfaces.size)
-        assertEquals("main_stack", rendered.surfaces.single().rootId)
-        assertTrue(rendered.surfaces.single().flatSpec?.elements?.containsKey("status_text") == true)
+        assertEquals("root", rendered.surfaces.single().rootId)
+        assertTrue(
+            rendered.surfaces.single().flatSpec?.elements?.values?.any { element ->
+                (element.props["text"] as? String)?.contains("checkout service", ignoreCase = true) == true
+            } == true,
+        )
     }
 }

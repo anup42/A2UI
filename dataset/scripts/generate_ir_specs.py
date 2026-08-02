@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate pinned Compact IR/A2UI catalog, schemas, and manifest."""
+"""Regenerate pinned A2UI Express catalog, wire schema, grammar, and manifest."""
 
 from __future__ import annotations
 
@@ -23,7 +23,6 @@ from pipeline.ir_formats.catalog import (  # noqa: E402
     A2UI_PROTOCOL_VERSION,
     A2UI_UPSTREAM_COMMIT,
     A2UI_UPSTREAM_REPOSITORY,
-    COMPACT_IR_VERSION,
     COMPONENTS,
     GENUICRAFT_CATALOG_ID,
     catalog_identity_hash,
@@ -32,6 +31,14 @@ from pipeline.ir_formats.catalog import (  # noqa: E402
 
 SCHEMA_DIR = ROOT / "dataset" / "schema"
 GRAMMAR_PATH = ROOT / "specification" / "inference_formats" / "express" / "Express.g4"
+PROFILE_PATH = SCHEMA_DIR / "genuicraft_a2ui_express_profile_v1.json"
+CANONICAL_GRAPH_PATH = SCHEMA_DIR / "canonical_ui_graph_v1.schema.json"
+WIRE_SCHEMA_PATH = SCHEMA_DIR / "genuicraft_a2ui_v1_wire.schema.json"
+CATALOG_PATH = SCHEMA_DIR / "genuicraft_a2ui_catalog_v1.json"
+PROMPT_PATH = ROOT / "dataset" / "prompts" / "genui_gen_mobile_a2ui_express_v1.md"
+PY_COMPILER_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "express.py"
+KOTLIN_COMPILER_PATH = ROOT / "android" / "app" / "src" / "main" / "java" / "com" / "samsung" / "genuicraft" / "pipeline" / "A2uiExpressCodec.kt"
+MIGRATION_PATH = ROOT / "dataset" / "scripts" / "migrate_legacy_dataset_to_a2ui_express.py"
 
 PINNED_GRAMMAR = r'''/**
  * ANTLR4 grammar for the A2UI Express language.
@@ -78,184 +85,24 @@ def _json_bytes(value: Any) -> bytes:
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
-def compact_schema() -> dict[str, Any]:
-    component_names = sorted({*COMPONENTS, "Row", "Column"})
-    action_names = sorted(ACTIONS)
-    return {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://genui.samsung.com/specification/compact-ir/v2/schema.json",
-        "title": "GenUICraft Compact IR v2",
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["v", "r", "e"],
-        "properties": {
-            "v": {"const": COMPACT_IR_VERSION},
-            "r": {"type": "string", "minLength": 1},
-            "s": {"type": "object", "additionalProperties": True},
-            "e": {
-                "type": "object",
-                "minProperties": 1,
-                "additionalProperties": {"$ref": "#/$defs/element"},
-            },
-        },
-        "$defs": {
-            "action": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["action"],
-                "properties": {
-                    "action": {"type": "string", "enum": action_names},
-                    "params": {"type": "object", "additionalProperties": True},
-                },
-            },
-            "actionOrList": {
-                "oneOf": [
-                    {"$ref": "#/$defs/action"},
-                    {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/action"}},
-                ]
-            },
-            "element": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["t"],
-                "properties": {
-                    "t": {"type": "string", "enum": component_names},
-                    "p": {"type": "object", "additionalProperties": True},
-                    "c": {"type": "array", "items": {"type": "string", "minLength": 1}},
-                    "x": {
-                        "type": "object",
-                        "additionalProperties": True,
-                        "properties": {
-                            "statePath": {"type": "string", "minLength": 1},
-                            "path": {"type": "string", "minLength": 1},
-                            "key": {"type": "string"},
-                            "template": {"type": "string"},
-                            "itemTemplate": {"type": "string"},
-                            "child": {"type": "string"},
-                        },
-                        "anyOf": [
-                            {"required": ["statePath"]},
-                            {"required": ["path"]},
-                            {"required": ["template"]},
-                            {"required": ["itemTemplate"]},
-                            {"required": ["child"]},
-                        ],
-                    },
-                    "z": {},
-                    "o": {"type": "object", "additionalProperties": {"$ref": "#/$defs/actionOrList"}},
-                    "w": {"type": "object", "additionalProperties": {"$ref": "#/$defs/actionOrList"}},
-                },
-            },
-        },
-    }
-
-
 def catalog_document() -> dict[str, Any]:
-    payload = catalog_payload()
-    payload["components"] = {
-        name: {
-            **descriptor,
-            "schema": {
-                "type": "object",
-                "additionalProperties": True,
-                "required": ["id", "component"],
-                "properties": {
-                    "id": {"type": "string", "minLength": 1},
-                    "component": {"const": name},
-                    "children": {"type": "array", "items": {"type": "string"}},
-                    "repeat": {"type": "object", "additionalProperties": True},
-                    "visible": {},
-                    "on": {"type": "object", "additionalProperties": True},
-                    "watch": {"type": "object", "additionalProperties": True},
-                },
-            },
-        }
-        for name, descriptor in payload["components"].items()
-    }
-    payload["catalogIdentityHash"] = catalog_identity_hash()
-    return payload
+    return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
 def wire_schema() -> dict[str, Any]:
-    component = {
-        "type": "object",
-        "required": ["id", "component"],
-        "additionalProperties": True,
-        "properties": {
-            "id": {"type": "string", "minLength": 1},
-            "component": {"type": "string", "enum": sorted(COMPONENTS)},
-        },
-    }
-    message_properties = {"version": {"const": A2UI_PROTOCOL_VERSION}}
-    create = {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["surfaceId"],
-        "properties": {
-            "surfaceId": {"type": "string", "minLength": 1},
-            "catalogId": {"type": "string", "const": GENUICRAFT_CATALOG_ID},
-            "rootId": {"type": "string", "minLength": 1},
-            "components": {"type": "array", "minItems": 1, "items": component},
-            "dataModel": {"type": "object", "additionalProperties": True},
-            "sendDataModel": {"type": "boolean"},
-        },
-    }
-    update_components = {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["surfaceId", "components"],
-        "properties": {
-            "surfaceId": {"type": "string", "minLength": 1},
-            "components": {"type": "array", "minItems": 1, "items": component},
-        },
-    }
-    update_data = {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["surfaceId", "value"],
-        "properties": {
-            "surfaceId": {"type": "string", "minLength": 1},
-            "path": {"type": "string"},
-            "value": {},
-        },
-    }
-    delete = {
-        "type": "object",
-        "additionalProperties": False,
-        "required": ["surfaceId"],
-        "properties": {"surfaceId": {"type": "string", "minLength": 1}},
-    }
-    defs = {
-        "create": {"type": "object", "additionalProperties": False, "required": ["version", "createSurface"], "properties": {**message_properties, "createSurface": create}},
-        "updateComponents": {"type": "object", "additionalProperties": False, "required": ["version", "updateComponents"], "properties": {**message_properties, "updateComponents": update_components}},
-        "updateDataModel": {"type": "object", "additionalProperties": False, "required": ["version", "updateDataModel"], "properties": {**message_properties, "updateDataModel": update_data}},
-        "deleteSurface": {"type": "object", "additionalProperties": False, "required": ["version", "deleteSurface"], "properties": {**message_properties, "deleteSurface": delete}},
-    }
-    return {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "$id": "https://genui.samsung.com/specification/a2ui/v1/agent_to_renderer.json",
-        "title": "GenUICraft A2UI v1 Wire Messages",
-        "oneOf": [
-            {"$ref": "#/$defs/create"},
-            {"$ref": "#/$defs/updateComponents"},
-            {"$ref": "#/$defs/updateDataModel"},
-            {"$ref": "#/$defs/deleteSurface"},
-            {"type": "array", "minItems": 1, "items": {"oneOf": [
-                {"$ref": "#/$defs/create"},
-                {"$ref": "#/$defs/updateComponents"},
-                {"$ref": "#/$defs/updateDataModel"},
-                {"$ref": "#/$defs/deleteSurface"},
-            ]}},
-        ],
-        "$defs": defs,
-    }
+    return json.loads(WIRE_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
 def generated_files() -> dict[Path, bytes]:
     return {
-        SCHEMA_DIR / "genui_compact_ir_v2.schema.json": _json_bytes(compact_schema()),
-        SCHEMA_DIR / "genuicraft_a2ui_catalog_v1.json": _json_bytes(catalog_document()),
-        SCHEMA_DIR / "genuicraft_a2ui_v1_wire.schema.json": _json_bytes(wire_schema()),
+        CATALOG_PATH: CATALOG_PATH.read_bytes(),
+        PROFILE_PATH: PROFILE_PATH.read_bytes(),
+        CANONICAL_GRAPH_PATH: CANONICAL_GRAPH_PATH.read_bytes(),
+        WIRE_SCHEMA_PATH: WIRE_SCHEMA_PATH.read_bytes(),
+        PROMPT_PATH: PROMPT_PATH.read_bytes(),
+        PY_COMPILER_PATH: PY_COMPILER_PATH.read_bytes(),
+        KOTLIN_COMPILER_PATH: KOTLIN_COMPILER_PATH.read_bytes(),
+        MIGRATION_PATH: MIGRATION_PATH.read_bytes(),
         GRAMMAR_PATH: PINNED_GRAMMAR.encode("utf-8"),
     }
 
@@ -272,14 +119,16 @@ def manifest_for(files: dict[Path, bytes]) -> dict[str, Any]:
             entry["upstreamGitBlobSha"] = A2UI_EXPRESS_GRAMMAR_GIT_BLOB_SHA
         details[rel] = entry
     return {
-        "manifestVersion": "1.1.0",
+        "manifestVersion": "2.0.0",
         "upstreamRepository": A2UI_UPSTREAM_REPOSITORY,
         "upstreamCommit": A2UI_UPSTREAM_COMMIT,
         "protocolVersion": A2UI_PROTOCOL_VERSION,
-        "compactIrVersion": COMPACT_IR_VERSION,
         "expressVersion": A2UI_EXPRESS_VERSION,
+        "catalogVersion": "genuicraft-a2ui-catalog-v1",
+        "profileVersion": "genuicraft-a2ui-express-profile-v1",
+        "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
         "catalogId": GENUICRAFT_CATALOG_ID,
-        "catalogIdentityHash": catalog_identity_hash(),
+        "catalogIdentityHash": json.loads(CATALOG_PATH.read_text(encoding="utf-8")).get("catalogIdentityHash"),
         "files": details,
     }
 

@@ -155,29 +155,25 @@ def _count_jsonl_rows(path: Path) -> int:
 
 
 def _stage3_id_suffixes(ir_formats: object) -> tuple[str, ...]:
+    """Return the active Stage 3 id suffixes.
+
+    A2UI Express is the single production format, so generated rows use the
+    canonical id without a format suffix. Historical suffixed ids remain
+    readable in old run folders but are never scheduled by the active path.
+    """
     if ir_formats is None:
-        raw_values = ["compact_ir_v2", "a2ui_express_v1"]
-    elif isinstance(ir_formats, str):
-        raw_values = [part.strip() for part in ir_formats.split(",") if part.strip()]
+        return ("",)
+    if isinstance(ir_formats, str):
+        values = [part.strip().lower() for part in ir_formats.split(",") if part.strip()]
     elif isinstance(ir_formats, (list, tuple)):
-        raw_values = [str(part).strip() for part in ir_formats if str(part).strip()]
+        values = [str(part).strip().lower() for part in ir_formats if str(part).strip()]
     else:
-        raw_values = [str(ir_formats).strip()]
-    aliases = {
-        "compact": "_cir2",
-        "compact_ir": "_cir2",
-        "compact_ir_v2": "_cir2",
-        "gci2": "_cir2",
-        "express": "_exp1",
-        "a2ui_express": "_exp1",
-        "a2ui_express_v1": "_exp1",
-        "legacy": "",
-        "flat": "",
-        "flat_spec": "",
-        "flat_spec_v1": "",
-    }
-    suffixes = tuple(dict.fromkeys(aliases.get(value.lower(), "") for value in raw_values))
-    return suffixes or ("",)
+        values = [str(ir_formats).strip().lower()]
+    allowed = {"express", "a2ui_express", "a2ui_express_v1"}
+    unsupported = [value for value in values if value not in allowed]
+    if unsupported:
+        raise ValueError(f"Unsupported active Stage 3 format(s): {unsupported}")
+    return ("",)
 
 
 def _expected_stage3_ui_ids(
@@ -671,7 +667,7 @@ def main() -> None:
     stage3_prompt_path = _resolve_cfg_path(
         root,
         os.environ.get("A2UI_STAGE3_PROMPT_FILE") or run_cfg.get("stage3_prompt_file"),
-        "prompts/genui_gen.md",
+        "prompts/genui_gen_mobile_a2ui_express_v1.md",
     )
     stage1_prompt_path = _resolve_cfg_path(
         root,

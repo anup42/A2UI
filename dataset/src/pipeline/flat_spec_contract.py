@@ -780,7 +780,7 @@ def _is_safe_action_url(raw: Any) -> bool:
     value = raw.strip()
     # Training URL preprocessing replaces real, already-validated URLs with
     # typed symbolic tokens. Treat only the exact action/source token shape as
-    # safe so native Compact/Express targets can still be contract-validated.
+    # safe so the canonical graph can be validated before Express compilation.
     if re.fullmatch(r"\[(?:ACTION|SOURCE|URL)_URL_\d+\]", value):
         return True
     if value.lower().startswith("tel:"):

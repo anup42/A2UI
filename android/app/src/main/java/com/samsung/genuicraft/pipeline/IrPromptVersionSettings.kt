@@ -2,7 +2,7 @@ package com.samsung.genuicraft.pipeline
 
 import android.content.Context
 
-/** Model-output format selection. Legacy FlatSpec assets remain in the repo for migration only. */
+/** The production model-output contract. Legacy formats have no production setting. */
 internal object IrPromptVersionSettings {
     private const val PREFS_NAME = "ir_prompt_version_settings"
     private const val KEY_SELECTED_VERSION_ID = "selected_version_id"
@@ -20,16 +20,9 @@ internal object IrPromptVersionSettings {
         Option(
             id = "a2ui_express_v1",
             title = "A2UI Express v1",
-            description = "Default compact DSL with the strongest measured token reduction.",
+            description = "The only supported model-output DSL; it compiles to standard A2UI.",
             stage3PromptAssetPath = "pipeline_prompts/genui_gen_a2ui_express_v1.md",
             outputFormat = GenUiIrFormat.A2UI_EXPRESS_V1,
-        ),
-        Option(
-            id = "compact_ir_v2",
-            title = "Compact IR v2",
-            description = "JSON-constrained format that preserves full UI richness while omitting empty/default syntax.",
-            stage3PromptAssetPath = "pipeline_prompts/genui_gen_compact_ir_v2.md",
-            outputFormat = GenUiIrFormat.COMPACT_IR_V2,
         ),
     )
 

@@ -16,17 +16,10 @@ from urllib.request import Request
 
 from pipeline.cache import PromptCache
 from pipeline.common import extract_json, load_prompt, render_prompt
-from pipeline.flat_spec_contract import (
-    build_fallback_flat_spec,
-    build_flat_spec_repair_prompt,
-    coerce_and_validate,
-    extract_json_element,
-)
+from pipeline.flat_spec_contract import coerce_and_validate, extract_json_element
 from pipeline.image_resolver import repair_flat_spec_images
-from pipeline.dual_format_pilot import FORMAT_SUFFIXES, finalize_dual_format_pilot
 from pipeline.ir_formats import (
     A2UI_EXPRESS_V1,
-    COMPACT_IR_V2,
     codec_identity,
     decode_to_flat_spec,
     encode_from_flat_spec,
@@ -321,19 +314,13 @@ def _make_ui_id(
         base = f"u_{suffix}_{n_idx:02d}"
     else:
         base = f"u_{suffix}_{n_idx:02d}_{candidate_idx:02d}"
-    return base + FORMAT_SUFFIXES.get(source_format or "", "")
+    return base
 
 
 def _normalize_stage3_ir_formats(values: Any) -> tuple[str, ...]:
-    aliases = {
-        "compact": COMPACT_IR_V2,
-        "compact_ir": COMPACT_IR_V2,
-        "gci2": COMPACT_IR_V2,
-        "express": A2UI_EXPRESS_V1,
-        "a2ui_express": A2UI_EXPRESS_V1,
-    }
+    aliases = {"express": A2UI_EXPRESS_V1, "a2ui_express": A2UI_EXPRESS_V1}
     if values is None:
-        raw = os.getenv("A2UI_STAGE3_IR_FORMATS", "compact_ir_v2,a2ui_express_v1")
+        raw = os.getenv("A2UI_STAGE3_IR_FORMATS", A2UI_EXPRESS_V1)
         values = [part for part in raw.split(",") if part.strip()]
     elif isinstance(values, str):
         values = [part for part in values.split(",") if part.strip()]
@@ -342,12 +329,11 @@ def _normalize_stage3_ir_formats(values: Any) -> tuple[str, ...]:
     normalized: list[str] = []
     for value in values:
         token = str(value).strip().lower()
-        if token in {"legacy", "flat", "flat_spec", "flat_spec_v1"}:
-            resolved = "flat_spec_v1"
-        else:
-            resolved = aliases.get(token, token)
-        if resolved not in {"flat_spec_v1", COMPACT_IR_V2, A2UI_EXPRESS_V1}:
-            raise ValueError(f"Unsupported Stage 3 IR format: {value!r}")
+        resolved = aliases.get(token, token)
+        if resolved != A2UI_EXPRESS_V1:
+            raise ValueError(
+                f"Unsupported Stage 3 IR format {value!r}; Stage 3 is Express-only"
+            )
         if resolved not in normalized:
             normalized.append(resolved)
     if not normalized:
@@ -361,15 +347,10 @@ def _native_stage3_paths(
     fallback_schema: Path,
 ) -> tuple[Path, Path]:
     dataset_root = Path(__file__).resolve().parents[2]
-    if source_format == COMPACT_IR_V2:
-        return (
-            dataset_root / "prompts" / "genui_gen_mobile_compact_ir_v2.md",
-            dataset_root / "schema" / "genui_compact_ir_v2.schema.json",
-        )
     if source_format == A2UI_EXPRESS_V1:
         return (
             dataset_root / "prompts" / "genui_gen_mobile_a2ui_express_v1.md",
-            dataset_root / "schema" / "genui_flatspec.schema.json",
+            dataset_root / "schema" / "canonical_ui_graph_v1.schema.json",
         )
     return fallback_prompt, fallback_schema
 
@@ -731,51 +712,6 @@ def _normalize_flat_spec_text_content(genui_json: Any) -> Any:
 
     return genui_json
 
-
-
-
-def _maybe_compact_prompt_template(template: str, adapter: BaseLLMAdapter, logger) -> str:
-    provider = (adapter.spec.provider or "").lower()
-    model = (adapter.spec.model or "").lower()
-    compact_enabled = os.getenv("GENUI_COMPACT_PROMPT_FOR_GEMMA", "0").strip().lower()
-    if compact_enabled in {"0", "false", "no", "off"}:
-        return template
-    if provider != "gemini" or not (model.startswith("gemma-") or "/gemma-" in model):
-        return template
-
-    compact = template
-    marker = "\nSchema ("
-    if marker in template:
-        compact = template.split(marker, 1)[0].rstrip()
-    if "flat-spec" in template.lower() or "\"root\"" in template:
-        compact = (
-            f"{compact}\n\n"
-            "Additional strict requirements:\n"
-            "- Output MUST be one JSON object with top-level root/state/elements.\n"
-            "- Do not output legacy message arrays.\n"
-            "- root must reference an existing id in elements.\n"
-            "- Every element must contain type, props, and children.\n"
-            "- Output ONLY JSON.\n"
-        )
-    else:
-        compact = (
-            f"{compact}\n\n"
-            "Additional strict requirements:\n"
-            "- Use message types: createSurface, updateComponents, updateDataModel, deleteSurface.\n"
-            "- Set version to v0.9.\n"
-            "- Include createSurface before updates.\n"
-            "- In updateComponents, include exactly one root component with id 'root'.\n"
-            "- Output ONLY a JSON array of messages.\n"
-        )
-    before = count_tokens(template)
-    after = count_tokens(compact)
-    logger.info(
-        "Stage3 compact prompt enabled for model=%s tokens=%s->%s",
-        adapter.spec.model,
-        before,
-        after,
-    )
-    return compact
 def _extract_prompt_version(template: str, prompt_path: Path) -> str:
     """Extract prompt version from first Markdown heading; fallback to filename stem."""
     try:
@@ -856,47 +792,11 @@ def run_stage3(
 ) -> None:
     if _active_ir_format is None:
         resolved_formats = _normalize_stage3_ir_formats(ir_formats)
-        for source_format in resolved_formats:
-            run_stage3(
-                queries_path=queries_path,
-                responses_path=responses_path,
-                prompt_path=prompt_path,
-                adapter=adapter,
-                genui_path=genui_path,
-                schema_path=schema_path,
-                artifacts_dir=artifacts_dir / source_format,
-                candidates_per_response=candidates_per_response,
-                max_repair_attempts=max_repair_attempts,
-                max_tokens=max_tokens,
-                prompt_max_tokens=prompt_max_tokens,
-                seed=seed,
-                rate_limiter=rate_limiter,
-                cache=cache,
-                logger=logger,
-                batch_size=batch_size,
-                max_total=max_total,
-                max_attempts=max_attempts,
-                aggregates_path=aggregates_path,
-                aggregate_weights=aggregate_weights,
-                metric_version=metric_version,
-                ir_formats=(source_format,),
-                _active_ir_format=source_format,
-            )
-        if {COMPACT_IR_V2, A2UI_EXPRESS_V1}.issubset(resolved_formats):
-            tolerance = _env_float("A2UI_DUAL_FORMAT_QUALITY_TOLERANCE", 1.0)
-            report = finalize_dual_format_pilot(
-                genui_path,
-                genui_path.parent / "dual_format_pilot_report.json",
-                quality_tolerance=tolerance,
-            )
-            logger.info(
-                "Stage3 dual-format pilot finalized pairs=%s comparable=%s",
-                report["complete_pair_count"],
-                report["comparable_pair_count"],
-            )
-        return
-
-    active_ir_format = _normalize_stage3_ir_formats((_active_ir_format,))[0]
+        if resolved_formats != (A2UI_EXPRESS_V1,):
+            raise ValueError("Stage 3 accepts exactly one active format: a2ui_express_v1")
+        active_ir_format = A2UI_EXPRESS_V1
+    else:
+        active_ir_format = _normalize_stage3_ir_formats((_active_ir_format,))[0]
     prompt_path, schema_path = _native_stage3_paths(
         active_ir_format,
         prompt_path,
@@ -906,17 +806,19 @@ def run_stage3(
         raise FileNotFoundError(f"Missing Stage 3 prompt for {active_ir_format}: {prompt_path}")
     if not schema_path.exists():
         raise FileNotFoundError(f"Missing Stage 3 schema for {active_ir_format}: {schema_path}")
-    prompt_template = _maybe_compact_prompt_template(load_prompt(prompt_path), adapter, logger)
+    prompt_template = load_prompt(prompt_path)
     prompt_version = _extract_prompt_version(prompt_template, prompt_path)
     system_prompt, user_prompt_template = _prepare_prompt_context(prompt_template, adapter, logger)
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    native_ir_mode = active_ir_format in {COMPACT_IR_V2, A2UI_EXPRESS_V1}
-    express_mode = active_ir_format == A2UI_EXPRESS_V1
-    flat_spec_mode = _is_flat_spec_schema(schema) or native_ir_mode
+    native_ir_mode = True
+    express_mode = True
+    # The schema is the canonical graph contract used after strict Express
+    # parsing; it is never supplied to the model as a FlatSpec response schema.
+    canonical_graph_mode = True
     logger.info(
         "Stage3 format=%s schema_mode=%s",
         active_ir_format,
-        "native_ir" if native_ir_mode else ("flat_spec" if flat_spec_mode else "legacy_messages"),
+        "native_ir" if native_ir_mode else ("canonical_graph" if canonical_graph_mode else "legacy_messages"),
     )
     generation_temperature = _env_float("A2UI_GENUI_TEMPERATURE", 0.2)
     repair_temperature = _env_float("A2UI_GENUI_REPAIR_TEMPERATURE", 0.2)
@@ -1243,56 +1145,25 @@ def run_stage3(
 
     def _parse_completion(text: str) -> tuple[Any, Any, bool]:
         """Return native payload, canonical graph, and legacy-conversion flag."""
-        if active_ir_format == COMPACT_IR_V2:
-            try:
-                native_payload = json.loads(text.strip())
-            except Exception:
-                native_payload = extract_json_element(text)
-            decoded = decode_to_flat_spec(native_payload, format_hint=COMPACT_IR_V2)
-            return native_payload, decoded.flat_spec, False
-        if active_ir_format == A2UI_EXPRESS_V1:
-            native_payload = text.strip()
-            decoded = decode_to_flat_spec(native_payload, format_hint=A2UI_EXPRESS_V1)
-            return native_payload, decoded.flat_spec, False
-        parsed = extract_json_element(text) if flat_spec_mode else extract_json(text)
-        if flat_spec_mode:
-            result = coerce_and_validate(parsed)
-            if not result.is_valid or result.spec is None:
-                raise ValueError(result.error or "Invalid FlatSpec")
-            return parsed, result.spec, bool(result.converted_from_legacy)
-        return parsed, parsed, False
+        native_payload = text.strip()
+        if not native_payload.startswith("<a2ui>") or not native_payload.endswith("</a2ui>"):
+            raise ValueError("A2UI Express completion must contain exactly one complete sentinel block")
+        decoded = decode_to_flat_spec(native_payload, format_hint=A2UI_EXPRESS_V1)
+        return native_payload, decoded.flat_spec, False
 
     def _validate_completion(native_payload: Any, canonical: Any) -> tuple[bool, list[str], bool]:
-        validation_payload = native_payload if active_ir_format == COMPACT_IR_V2 else canonical
-        return _validate_schema(schema, validation_payload, schema_path.parent)
+        return _validate_schema(schema, canonical, schema_path.parent)
 
     def _repair_instructions(raw_text: str, errors: list[str]) -> str:
         failure_reason = "; ".join(errors[-5:]) if errors else "format validation failed"
-        if active_ir_format == COMPACT_IR_V2:
-            return (
-                "Repair the malformed GenUICraft Compact IR v2 completion. "
-                "Return ONLY one JSON object with v='gci2', r, optional s, and e. "
-                "Do not return FlatSpec or prose. Preserve the full UI semantics.\n"
-                f"Errors: {failure_reason}\n\nOriginal:\n{raw_text}"
-            )
-        if active_ir_format == A2UI_EXPRESS_V1:
-            return (
-                "Repair the malformed GenUICraft A2UI Express v1 completion. "
-                "Return ONLY one <a2ui>...</a2ui> block. Do not return JSON, "
-                "FlatSpec, or prose. Preserve the full UI semantics.\n"
-                f"Errors: {failure_reason}\n\nOriginal:\n{raw_text}"
-            )
-        if flat_spec_mode:
-            return build_flat_spec_repair_prompt(raw_text, failure_reason=failure_reason)
         return (
-            "The previous output was not valid JSON or failed schema validation. "
-            f"Fix it to satisfy the schema. Errors: {errors}. Return ONLY corrected JSON."
-            f"\n\nOriginal:\n{raw_text}"
+            "Repair the malformed GenUICraft A2UI Express v1 completion. "
+            "Return ONLY one complete <a2ui>...</a2ui> block. Do not return JSON, "
+            "legacy FlatSpec or prose. Preserve the full UI semantics while emitting only A2UI Express. "
+            f"Errors: {failure_reason}\n\nOriginal:\n{raw_text}"
         )
 
     def _normalized_native_output(canonical: dict[str, Any]) -> Any:
-        if not native_ir_mode:
-            return canonical
         return encode_from_flat_spec(canonical, active_ir_format, shorten_ids=True)
 
     def _append_format_rejection(
@@ -1569,17 +1440,12 @@ def run_stage3(
         regen_attempt = 0
         while (
             (not parsed_ok or genui_json is None or not schema_valid_strict)
-            and flat_spec_mode
+            and canonical_graph_mode
             and regen_attempt < final_regen_attempts
         ):
             regen_attempt += 1
             repair_needed = True
-            if active_ir_format == COMPACT_IR_V2:
-                output_instruction = "Return ONLY one valid Compact IR v2 gci2 JSON object."
-            elif active_ir_format == A2UI_EXPRESS_V1:
-                output_instruction = "Return ONLY one valid <a2ui>...</a2ui> Express block."
-            else:
-                output_instruction = "Return ONLY one valid JSON object with root/state/elements."
+            output_instruction = "Return ONLY one valid complete <a2ui>...</a2ui> Express block."
             regen_instructions = (
                 "Previous output was invalid or incomplete.\n"
                 f"Regenerate the full {active_ir_format} UI from the source response.\n"
@@ -1660,7 +1526,7 @@ def run_stage3(
         if (
             parsed_ok
             and genui_json is not None
-            and flat_spec_mode
+            and canonical_graph_mode
             and isinstance(genui_json.get("elements"), dict)
             and len(genui_json["elements"]) < 5
             and not _has_substantial_compact_table(genui_json)
@@ -1669,76 +1535,24 @@ def run_stage3(
             parsed_ok = False
 
         if not parsed_ok or genui_json is None or not schema_valid_strict:
-            if native_ir_mode:
-                _append_format_rejection(
-                    task,
-                    raw_text=raw_text,
-                    raw_payload=parsed_native_payload,
-                    errors=errors,
-                    repair_attempts=repair_attempts + regen_attempt,
-                    latency_ms=latency_ms,
-                    input_tokens=input_tokens,
-                    output_tokens=output_tokens,
-                    provider=provider,
-                    model=model,
-                    error=error,
-                )
-                return
-            # Final fallback: build a minimal valid output matching the configured schema mode.
-            fallback_text = _apply_asset_replacements(response_text, assets_list)
-            if flat_spec_mode:
-                genui_json = build_fallback_flat_spec(fallback_text)
-            else:
-                surface_id = f"surface_{query_id}"
-                catalog_id = "https://genui.local/specification/v0_9/standard_catalog.json"
-                genui_json = [
-                    {
-                        "version": "v0.9",
-                        "createSurface": {
-                            "surfaceId": surface_id,
-                            "catalogId": catalog_id,
-                        },
-                    },
-                    {
-                        "version": "v0.9",
-                        "updateComponents": {
-                            "surfaceId": surface_id,
-                            "components": [
-                                {
-                                    "id": "root",
-                                    "component": "Column",
-                                    "children": ["text_1"],
-                                },
-                                {
-                                    "id": "text_1",
-                                    "component": "Text",
-                                    "text": fallback_text,
-                                    "variant": "body",
-                                },
-                            ],
-                        },
-                    },
-                ]
-            # Re-validate schema for fallback.
-            accepted_reasoning_text = None
-            accepted_reasoning_source = None
-            accepted_reasoning_tokens = None
-            accepted_reasoning_attempt = None
-            parsed_ok = True
-            errors = ["fallback_generated"]
-            schema_valid_strict, schema_errors, validator_ok = _validate_completion(
-                genui_json, genui_json
+            _append_format_rejection(
+                task,
+                raw_text=raw_text,
+                raw_payload=parsed_native_payload,
+                errors=errors,
+                repair_attempts=repair_attempts + regen_attempt,
+                latency_ms=latency_ms,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                provider=provider,
+                model=model,
+                error=error,
             )
-            if schema_valid_strict:
-                schema_valid_lenient = True
-            else:
-                errors.extend(schema_errors)
-                if not validator_ok:
-                    schema_valid_lenient = True
+            return
 
         generation_completion = raw_text
         genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
-        if flat_spec_mode:
+        if canonical_graph_mode:
             genui_json = _normalize_flat_spec_text_content(genui_json)
             genui_json, resolved_images = repair_flat_spec_images(
                 genui_json,
@@ -1771,7 +1585,7 @@ def run_stage3(
         metrics.update(intent_metrics)
         quality_warnings = (
             _stage3_quality_warnings(response_text, genui_json, metrics)
-            if flat_spec_mode
+            if canonical_graph_mode
             else []
         )
         if quality_warnings:

@@ -90,7 +90,7 @@ class Gemma4E2bPretrainedMtpOnDeviceTest {
                 InferenceBackendSettings.Provider.ON_DEVICE_LITERT,
             )
             InferenceBackendSettings.setOnDeviceModelPath(context, modelFile.absolutePath)
-            for (formatId in listOf("a2ui_express_v1", "compact_ir_v2")) {
+            for (formatId in listOf("a2ui_express_v1")) {
                 IrPromptVersionSettings.setSelectedVersionId(context, formatId)
                 val formatDir = File(resultRoot, formatId).apply { mkdirs() }
                 val updates = mutableListOf<String>()

@@ -201,7 +201,7 @@ def metric_fingerprint_v5_4(
     prompt = (
         _DATASET_DIR
         / "prompts"
-        / "genui_gen_mobile_flatspec_v11.md"
+        / "genui_gen_mobile_a2ui_express_v1.md"
     )
     payload = {
         "algorithm_version": ALGORITHM_VERSION,

@@ -1,14 +1,16 @@
-"""Unified detection, conversion, and semantic comparison for GenUICraft IR."""
+"""Production A2UI Express boundary plus read-only legacy graph conversion."""
 from __future__ import annotations
 from dataclasses import dataclass
 import json
 from typing import Any, Mapping
 
 from ..flat_spec_contract import coerce_and_validate, looks_like_flat_spec
-from . import compact_ir, express, a2ui_wire
+from . import express, a2ui_wire
 from .common import codec_identity, semantic_hash
 
-FLAT_SPEC_V1='flat_spec_v1'; COMPACT_IR_V2='compact_ir_v2'; A2UI_EXPRESS_V1='a2ui_express_v1'; A2UI_V1_WIRE='a2ui_v1_wire'
+FLAT_SPEC_V1='flat_spec_v1'  # read-only migration source
+A2UI_EXPRESS_V1='a2ui_express_v1'
+A2UI_V1_WIRE='a2ui_v1_wire'
 
 @dataclass(frozen=True)
 class DecodedIr:
@@ -27,7 +29,8 @@ def detect_format(value: Any) -> str:
         if isinstance(value, str):
             return detect_format(value)
     if looks_like_flat_spec(value): return FLAT_SPEC_V1
-    if isinstance(value,Mapping) and value.get('v')=='gci2': return COMPACT_IR_V2
+    if isinstance(value,Mapping) and value.get('v')=='gci2':
+        raise ValueError('Compact IR is migration-only and is not an active format')
     if isinstance(value,Mapping) and value.get('version')=='v1.0' and 'createSurface' in value: return A2UI_V1_WIRE
     if isinstance(value,list) and value and all(isinstance(item,Mapping) and item.get('version')=='v1.0' for item in value):
         return A2UI_V1_WIRE
@@ -48,10 +51,7 @@ def decode_to_flat_spec(value: Any, *, format_hint: str|None=None) -> DecodedIr:
         result=coerce_and_validate(value)
         if not result.is_valid or result.spec is None: raise ValueError(result.error or 'Invalid FlatSpec')
         return DecodedIr(format_id,result.spec)
-    if format_id==COMPACT_IR_V2:
-        if isinstance(value,str): value=json.loads(value)
-        raw=compact_ir.decode(value)
-    elif format_id==A2UI_EXPRESS_V1:
+    if format_id==A2UI_EXPRESS_V1:
         if isinstance(value, str):
             stripped = value.strip()
             if stripped.startswith('"'):
@@ -62,7 +62,7 @@ def decode_to_flat_spec(value: Any, *, format_hint: str|None=None) -> DecodedIr:
     elif format_id==A2UI_V1_WIRE:
         if isinstance(value,str): value=json.loads(value)
         raw=a2ui_wire.decode(value)
-    else: raise ValueError(f'Unsupported format {format_id}')
+    else: raise ValueError(f'Unsupported production format {format_id}')
     result=coerce_and_validate(raw)
     if not result.is_valid or result.spec is None: raise ValueError(result.error or f'{format_id} decoded to invalid FlatSpec')
     return DecodedIr(format_id,result.spec)
@@ -72,10 +72,11 @@ def encode_from_flat_spec(spec: Mapping[str,Any], target_format: str, *, shorten
     result=coerce_and_validate(dict(spec))
     if not result.is_valid or result.spec is None: raise ValueError(result.error or 'Invalid FlatSpec')
     if target_format==FLAT_SPEC_V1: return result.spec
-    if target_format==COMPACT_IR_V2: return compact_ir.encode(result.spec,shorten_ids=shorten_ids)
     if target_format==A2UI_EXPRESS_V1: return express.encode(result.spec,shorten_ids=shorten_ids,pretty=pretty)
     if target_format==A2UI_V1_WIRE: return a2ui_wire.encode(result.spec,shorten_ids=shorten_ids)
-    raise ValueError(f'Unsupported format {target_format}')
+    if target_format == 'compact_ir_v2':
+        raise ValueError('Compact IR is migration-only and cannot be generated')
+    raise ValueError(f'Unsupported production format {target_format}')
 
 
 def semantic_equivalent(left: Any,right: Any) -> bool:

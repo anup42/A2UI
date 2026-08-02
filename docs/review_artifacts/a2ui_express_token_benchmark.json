@@ -1,0 +1,155 @@
+{
+  "report_version": "genuicraft_ir_benchmark.v1",
+  "corpus_samples_discovered": 32,
+  "corpus_samples_benchmarked": 32,
+  "failures": [],
+  "tokenizer": {
+    "name": "regex_lexical_estimate_v1",
+    "exact_for_deployed_model": false,
+    "note": "Deterministic estimate; rerun with the deployed Gemma tokenizer for production token counts."
+  },
+  "codec_identity": {
+    "manifestVersion": "2.0.0",
+    "upstreamCommit": "2276f8cc702eaeac25ffb05be85797b2a1205c74",
+    "protocolVersion": "v1.0",
+    "expressVersion": "genuicraft-express-v1",
+    "catalogIdentityHash": "dd9c6aa7d1441f6a03fc2ad10e379a355ba42911292651d8825d090571f47c20",
+    "rendererReferenceInventoryHash": "beb3b18e18ea7322edb9d33d3fce66d133994473ad05a09af656d66439ea19b7"
+  },
+  "formats": {
+    "flat_spec_v1": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 10889.0,
+        "mean": 340.28125,
+        "median": 343.5,
+        "p95": 469.0,
+        "min": 153.0,
+        "max": 582.0
+      },
+      "utf8_bytes": {
+        "total": 10924.0,
+        "mean": 341.375,
+        "median": 344.0,
+        "p95": 471.0,
+        "min": 155.0,
+        "max": 584.0
+      },
+      "tokens": {
+        "total": 5125.0,
+        "mean": 160.15625,
+        "median": 163.5,
+        "p95": 226.0,
+        "min": 77.0,
+        "max": 289.0
+      },
+      "character_reduction_vs_flat": {
+        "total": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "token_reduction_vs_flat": {
+        "total": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "p95": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "a2ui_express_v1": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 8034.0,
+        "mean": 251.0625,
+        "median": 261.5,
+        "p95": 374.0,
+        "min": 67.0,
+        "max": 475.0
+      },
+      "utf8_bytes": {
+        "total": 8069.0,
+        "mean": 252.15625,
+        "median": 261.5,
+        "p95": 376.0,
+        "min": 69.0,
+        "max": 477.0
+      },
+      "tokens": {
+        "total": 3136.0,
+        "mean": 98.0,
+        "median": 102.5,
+        "p95": 153.0,
+        "min": 30.0,
+        "max": 204.0
+      },
+      "character_reduction_vs_flat": {
+        "total": 9.13174306142032,
+        "mean": 0.285366970669385,
+        "median": 0.24962914051051976,
+        "p95": 0.5087719298245614,
+        "min": 0.18384879725085912,
+        "max": 0.5620915032679739
+      },
+      "token_reduction_vs_flat": {
+        "total": 13.27145262586894,
+        "mean": 0.4147328945584044,
+        "median": 0.3730993933038724,
+        "p95": 0.617283950617284,
+        "min": 0.2941176470588235,
+        "max": 0.625
+      }
+    },
+    "a2ui_v1_wire": {
+      "samples": 32,
+      "roundtrip_passed": 32,
+      "characters": {
+        "total": 14464.0,
+        "mean": 452.0,
+        "median": 461.5,
+        "p95": 587.0,
+        "min": 256.0,
+        "max": 700.0
+      },
+      "utf8_bytes": {
+        "total": 14499.0,
+        "mean": 453.09375,
+        "median": 462.0,
+        "p95": 589.0,
+        "min": 258.0,
+        "max": 702.0
+      },
+      "tokens": {
+        "total": 6088.0,
+        "mean": 190.25,
+        "median": 196.5,
+        "p95": 259.0,
+        "min": 103.0,
+        "max": 322.0
+      },
+      "character_reduction_vs_flat": {
+        "total": -11.459654541886659,
+        "mean": -0.3581142044339581,
+        "median": -0.32837657914292795,
+        "p95": -0.2515991471215351,
+        "min": -0.673202614379085,
+        "max": -0.20274914089347074
+      },
+      "token_reduction_vs_flat": {
+        "total": -6.499635152781971,
+        "mean": -0.20311359852443658,
+        "median": -0.1838569880823402,
+        "p95": -0.14601769911504414,
+        "min": -0.33766233766233755,
+        "max": -0.11418685121107264
+      }
+    }
+  },
+  "preferred_production_format_by_token_total": "a2ui_express_v1",
+  "selection_guard": "Only formats with 100% semantic round-trip pass are eligible; UI component count is unchanged."
+}

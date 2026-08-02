@@ -19,6 +19,7 @@ import com.samsung.genuicraft.pipeline.FlatSpecContract
 import com.samsung.genuicraft.pipeline.FlatSpecIngestMode
 import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
 import com.samsung.genuicraft.pipeline.FlatSpecIngestor
+import com.samsung.genuicraft.pipeline.A2uiWireCodec
 import com.samsung.genuicraft.pipeline.GenUiIrCodec
 import com.samsung.genuicraft.pipeline.GenUiIrFormat
 import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
@@ -98,8 +99,8 @@ class GenUiStagePipeline(private val appContext: Context) {
     private val cacheManager = PipelineCacheManager(appContext)
 
     private fun loadStage3PromptTemplate(provider: InferenceBackendSettings.Provider): String {
-        // Both new formats are first-class. Legacy FlatSpec prompt assets are retained
-        // for migration/audit only and are not a generation fallback.
+        // Express is the only production model-output prompt. Legacy assets are
+        // never selected by inference.
         return PipelinePromptBuilder.loadPromptAsset(
             appContext.assets,
             IrPromptVersionSettings.stage3PromptAssetPath(appContext)
@@ -127,8 +128,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             "Authoritative response facts (preserve every fact and action even when the invalid IR omitted one):\n" +
                 "<response>\n$sourceContext\n</response>\n\n"
         }
-        return if (currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
-            authoritativeSource +
+        return authoritativeSource +
                 "Rewrite the following invalid output as A2UI Express assignment DSL. " +
                 "Return only one <a2ui>...</a2ui> block with one component assignment per line. " +
                 "The required shape is root=Column([child]) followed by assignments such as " +
@@ -152,41 +152,6 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "match an assignment. For example, if the Button assignment is named button, use button in " +
                 "the child list; never leave an unassigned generic child such as action. " +
                 "Failure: $failureReason\n\n<invalid>\n$rawText\n</invalid>"
-        } else {
-            authoritativeSource +
-                "Invalid Compact IR output:\n<invalid>\n$rawText\n</invalid>\n" +
-                "Failure: $failureReason\n\n" +
-                "Discard the invalid structure and rebuild it. Return exactly one JSON object, no fences. " +
-                "Use one e object with unique lowercase ids. Use only catalog t values such as Column, Card, " +
-                "Text, Table, and Button; never use visible labels as t or ids. Every c value must name an " +
-                "existing id and every useful element must be reachable from r. Preserve every source fact, " +
-                "table row, and action. Follow this exact structural pattern and replace placeholders with " +
-                "content from <invalid>:\n" +
-                "{\"v\":\"gci2\",\"r\":\"root\",\"e\":{" +
-                "\"root\":{\"t\":\"Column\",\"c\":[\"title\",\"order_id\",\"summary\",\"details\",\"action\"]}," +
-                "\"title\":{\"t\":\"Text\",\"p\":{\"text\":\"<title>\",\"variant\":\"h2\"}}," +
-                "\"order_id\":{\"t\":\"Text\",\"p\":{\"text\":\"<exact identifier>\",\"variant\":\"body\"}}," +
-                "\"summary\":{\"t\":\"Card\",\"c\":[\"summary_text\"]}," +
-                "\"summary_text\":{\"t\":\"Text\",\"p\":{\"text\":\"<summary>\",\"variant\":\"body\"}}," +
-                "\"details\":{\"t\":\"Table\",\"p\":{\"columns\":[\"Detail\",\"Value\"]," +
-                "\"rows\":[[\"Status\",\"<status>\"],[\"Carrier\",\"<carrier>\"],[\"ETA\",\"<eta>\"]]," +
-                "\"domain\":\"status\",\"preferredPresentation\":\"cards\"}}," +
-                "\"action\":{\"t\":\"Button\",\"p\":{\"label\":\"<action>\",\"variant\":\"primary\"}," +
-                "\"o\":{\"press\":{\"action\":\"emitEvent\",\"params\":{\"name\":\"action\"}}}}}}\n" +
-                "Final check: each element may contain only t,p,c,x,z,o,w. In details, columns, rows, " +
-                "domain, and preferredPresentation must all be inside the same p object; never place domain " +
-                "or preferredPresentation beside p. Preserve exact identifiers such as order numbers in " +
-                "order_id.p.text. Preserve every fact from <invalid>: count them before and after repair, " +
-                "add as many detail rows or text elements as needed, and never drop carrier, ETA, dates, " +
-                "amounts, or units just because the pattern shows three rows. In action, o must be beside p " +
-                "at element level, never inside p. If <invalid> contains a URL action, use openUrl with its " +
-                "exact absolute http:// or https:// URL. If <invalid> has no absolute URL, keep emitEvent " +
-                "with the original event name in params.name. For example, an original event named " +
-                "track_package_button becomes {\"action\":\"emitEvent\",\"params\":{\"name\":" +
-                "\"track_package_button\"}}; never put the event name in the action field. Never invent " +
-                "a URL, relative path, placeholder, or domain. " +
-                "Start the response with {\"v\":\"gci2\" and return only the corrected object."
-        }
     }
 
     private fun stage3MaxOutputTokensFor(
@@ -2428,15 +2393,19 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
         return when (val validation = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)) {
-            is FlatSpecIngestResult.CanonicalFlatSpec -> FinalStage3SafetyResult(
-                jsonText = gson.toJson(validation.canonicalJson),
-                error = null
-            )
-            is FlatSpecIngestResult.GenuineLegacyPayload -> validation.migratedFlatSpec?.let { migrated ->
-                FinalStage3SafetyResult(jsonText = gson.toJson(migrated), error = null)
-            } ?: FinalStage3SafetyResult(
+            is FlatSpecIngestResult.CanonicalFlatSpec -> {
+                val wire = runCatching { A2uiWireCodec.encode(validation.canonicalJson) }
+                    .getOrElse { error ->
+                        return FinalStage3SafetyResult(
+                            jsonText = null,
+                            error = "Standard A2UI compilation failed: ${error.message.orEmpty()}"
+                        )
+                    }
+                FinalStage3SafetyResult(jsonText = gson.toJson(wire), error = null)
+            }
+            is FlatSpecIngestResult.GenuineLegacyPayload -> FinalStage3SafetyResult(
                 jsonText = null,
-                error = "Stage 3 safe legacy IR could not be migrated."
+                error = "Legacy FlatSpec is not accepted in the production Stage 3 path."
             )
             is FlatSpecIngestResult.RejectedPayload -> FinalStage3SafetyResult(
                 jsonText = null,

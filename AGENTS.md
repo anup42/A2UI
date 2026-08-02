@@ -7,8 +7,8 @@
   - Stage 3: flat-spec GenUI IR generation.
   - Stage 4: render/metrics/dashboard artifacts.
 - Android uses the flat-spec contract shape: `{"root": "...", "state": {...}, "elements": {...}}`.
-- Current preferred dataset Stage 3 prompt is `dataset/prompts/genui_gen_mobile_flatspec_v11.md`.
-- Android runtime prompt copy is `android/app/src/main/assets/pipeline_prompts/genui_gen.md`.
+- Current preferred dataset Stage 3 prompt is `dataset/prompts/genui_gen_mobile_a2ui_express_v1.md`.
+- Android runtime prompt copy is `android/app/src/main/assets/pipeline_prompts/genui_gen_a2ui_express_v1.md`.
 - When fixing a generated sample, do not manually rewrite the IR JSON. Fix the prompt/pipeline/renderer, regenerate the IR through Stage 3, then merge the generated record.
 
 ## Training

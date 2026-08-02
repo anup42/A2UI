@@ -103,7 +103,7 @@ internal object PipelinePromptBuilder {
         stage2Response: String,
         catalogId: String,
         assets: List<AssetMapping>,
-        outputFormat: GenUiIrFormat = GenUiIrFormat.COMPACT_IR_V2,
+        outputFormat: GenUiIrFormat = GenUiIrFormat.A2UI_EXPRESS_V1,
         appendRequestPolicies: Boolean = true,
     ): String {
         if (!appendRequestPolicies) {
@@ -116,12 +116,12 @@ internal object PipelinePromptBuilder {
             "Asset URL policy for this request:\n" +
                 "- No local asset mapping is provided.\n" +
                 "- Preserve reference placeholders from the response exactly as written.\n" +
-                "- Compact placeholders like {{u1}}, {{u2}} can represent URLs or local asset paths. Preserve them exactly in media/action/source fields; they will be restored after JSON generation.\n" +
+                "- Placeholders like {{u1}}, {{u2}} can represent URLs or local asset paths. Preserve them exactly in media/action/source fields; they will be restored after compilation.\n" +
                 "- Do not invent local media paths that are absent from the response."
         } else {
             "Asset URL policy for this request:\n" +
                 "- Use only local media paths from the provided Assets mapping.\n" +
-                "- Compact placeholders like {{u1}}, {{u2}} can represent URLs or local asset paths. Preserve them exactly in media/action/source fields; they will be restored after JSON generation.\n" +
+                "- Placeholders like {{u1}}, {{u2}} can represent URLs or local asset paths. Preserve them exactly in media/action/source fields; they will be restored after compilation.\n" +
                 "- Do not emit remote media URLs for images/icons.\n" +
                 "- Do not invent local placeholder paths not present in the mapping."
         }
@@ -138,7 +138,7 @@ internal object PipelinePromptBuilder {
                 "- Return one <a2ui>...</a2ui> block and no prose.\n" +
                 "- Assign the root component to reserved variable root.\n" +
                 "- Preserve rich UI structure and all requested interactions.\n" +
-                "- Use _props/_children/_repeat/_visible/_on/_watch when required.\n" +
+                "- Use explicit named properties, children, repeat, visible, watch, and action arguments; opaque _props/_children/_repeat/_visible/_on/_watch bags are forbidden.\n" +
                 "- Table positional signature is Table(columns,statePath,rows,title,domain,preferredPresentation); use _ for statePath with inline rows, for example Table([\"Detail\",\"Value\"],_,[[\"Status\",\"Ready\"]],\"Details\",\"status\",\"table\").\n" +
                 "- Event values must be action calls: use Event(\"name\",{}) for app events or openUrl(\"https://...\") for links; never use a quoted URL or event name directly as onPress/onClick.\n" +
                 "- In child lists, inline components require call syntax such as Icon(\"local_shipping\"); a bare component type such as Icon is an unresolved reference.\n" +
@@ -146,14 +146,7 @@ internal object PipelinePromptBuilder {
                 "- Audit every response value before returning: every carrier, status, ETA, date, time, amount, unit, and identifier must appear in visible Text, Card, or Table content; appearing only in an action URL does not count.\n" +
                 "- Final identifier audit: every child name must exactly match an assignment; if the Button is assigned as button, reference button and never an unassigned generic name such as action.\n" +
                 "- Every component reference must resolve and every useful component must be reachable from root."
-            else -> "Compact IR v2 policy for this request:\n" +
-                "- Return ONE JSON object with v=\"gci2\", r, optional s, and e.\n" +
-                "- e occurs once and is an id-keyed object map; r is an id in e.\n" +
-                "- c contains only string ids in e, never inline element objects.\n" +
-                "- Elements use t and optional p/c/x/z/o/w.\n" +
-                "- Omit empty fields but preserve all semantic UI components.\n" +
-                "- Every referenced id must exist in e and every useful element must be reachable from r.\n" +
-                "- Return JSON only (no prose, markdown, or fences)."
+            else -> error("Only A2UI Express is a production model-output format.")
         }
         val responseWithPolicy = "${stage2Response.trim()}\n\n$formatPolicy\n\n$assetPolicy"
         val responseText = if (assetContext.isBlank()) {

@@ -1413,7 +1413,7 @@ private fun GenUiAssistantLandingCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "GenUI Demo turns live answers into compact flat-spec IR and renders the result as native Compose cards, tables, and actions.",
+                        text = "GenUI Demo turns live answers into A2UI Express IR and renders the result as native Compose cards, tables, and actions.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

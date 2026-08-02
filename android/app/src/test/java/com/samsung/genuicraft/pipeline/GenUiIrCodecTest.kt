@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -25,19 +26,16 @@ class GenUiIrCodecTest {
     }
 
     @Test
-    fun allNativeFormatsRoundTripOneRendererGraph() {
+    fun productionFormatsRoundTripOneRendererGraph() {
         val original = richSpec()
         val expected = FlatSpecIdRewriter.rewrite(original, shorten = true)
 
-        val compact = CompactIrCodec.decode(CompactIrCodec.encode(original))
         val encodedExpress = A2uiExpressCodec.encode(original)
         val express = A2uiExpressCodec.decode(encodedExpress)
         val wire = A2uiWireCodec.decode(A2uiWireCodec.encode(original))
 
-        assertEquals(expected, compact)
         assertEquals(expected, express)
         assertEquals(expected, wire)
-        assertTrue(FlatSpecIngestor.ingest(CompactIrCodec.encode(original)) is FlatSpecIngestResult.CanonicalFlatSpec)
         assertTrue(
             FlatSpecIngestor.ingest(JsonPrimitive(A2uiExpressCodec.encode(original)))
                 is FlatSpecIngestResult.CanonicalFlatSpec,
@@ -78,7 +76,7 @@ class GenUiIrCodecTest {
             title=Text("Example title","h2")
             status=Text("Example status","body")
             card=Card([status],"Summary")
-            details=Table(["Detail","Value"],_,[["Example key","Example value"]],"Details","status","table")
+            details=Table(["Detail","Value"],rows=[["Example key","Example value"]],title="Details",domain="status",preferredPresentation="table")
             action=Button("Continue","primary",onPress=Event("continue",{},true,"/continueResult"))
             link=Button("Open support","primary",onPress=openUrl("https://www.samsung.com/support/"))
             </a2ui>
@@ -96,21 +94,16 @@ class GenUiIrCodecTest {
     }
 
     @Test
-    fun expressDecoderRepairsBoundedMissingCloserAndTrailingIconUrlAssignment() {
+    fun expressDecoderRejectsUnclosedExpression() {
         val generated = """
             <a2ui>
-            root=Column([Text("Order A1042"),Text("Carrier: SwiftShip"),Text("ETA: Today by 4:30 PM"),Button("Track Package","primary",onPress=Event("track_package",{},true,"/track/A1042"))]
-            icon=Icon("star")="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg"
-            </a2ui>
+            root=Column([title])
+            title=Text("Order A1042")
         """.trimIndent()
 
-        val decoded = A2uiExpressCodec.decode(generated)
-        val text = decoded.toString()
-
-        assertTrue(text.contains("SwiftShip"))
-        assertTrue(text.contains("Today by 4:30 PM"))
-        assertTrue(text.contains("emitEvent"))
-        assertTrue(FlatSpecIngestor.ingest(JsonPrimitive(generated), FlatSpecIngestMode.STRICT) is FlatSpecIngestResult.CanonicalFlatSpec)
+        assertThrows(IllegalArgumentException::class.java) {
+            A2uiExpressCodec.decode(generated)
+        }
     }
 
     @Test
@@ -131,31 +124,12 @@ class GenUiIrCodecTest {
     }
 
     @Test
-    fun compactPromptExampleIsValidSelectedFormatPayload() {
-        val example = JsonParser.parseString(
-            """
-            {"v":"gci2","r":"root","e":{"root":{"t":"Column","p":{"gap":"md"},"c":["title","card","details","action"]},"title":{"t":"Text","p":{"text":"Example title","variant":"h2"}},"status":{"t":"Text","p":{"text":"Example status","variant":"body"}},"card":{"t":"Card","p":{"title":"Summary"},"c":["status"]},"details":{"t":"Table","p":{"columns":["Detail","Value"],"rows":[["Example key","Example value"]],"title":"Details","domain":"status","preferredPresentation":"table"}},"action":{"t":"Button","p":{"label":"Continue","variant":"primary"},"o":{"press":{"action":"emitEvent","params":{"name":"continue"}}}}}}
-            """.trimIndent()
-        )
-
-        val decoded = CompactIrCodec.decode(example)
-        val ingested = FlatSpecIngestor.ingest(example, FlatSpecIngestMode.STRICT)
-
-        assertEquals("root", decoded.get("root").asString)
-        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
-        assertEquals(
-            GenUiIrFormat.COMPACT_IR_V2,
-            (ingested as FlatSpecIngestResult.CanonicalFlatSpec).sourceFormat,
-        )
-    }
-
-    @Test
     fun wireMessageStreamHonorsRootAndDataUpdates() {
         val stream = JsonParser.parseString(
             """
             [
-              {"version":"v1.0","createSurface":{"surfaceId":"s","catalogId":"${GenUiA2uiCatalog.CATALOG_ID}","rootId":"screen","components":[
-                {"id":"screen","component":"Column","children":["label"],"accessibility":{"label":"Screen"}},
+              {"version":"v1.0","createSurface":{"surfaceId":"s","catalogId":"${GenUiA2uiCatalog.CATALOG_ID}","components":[
+                {"id":"root","component":"Column","children":["label"]},
                 {"id":"label","component":"Text","text":"Ready"}
               ],"dataModel":{"status":"pending"}}},
               {"version":"v1.0","updateDataModel":{"surfaceId":"s","path":"/status","value":"ready"}}
@@ -163,11 +137,10 @@ class GenUiIrCodecTest {
             """.trimIndent(),
         )
         val decoded = A2uiWireCodec.decode(stream)
-        assertEquals("screen", decoded.get("root").asString)
+        assertEquals("root", decoded.get("root").asString)
         assertEquals("ready", decoded.getAsJsonObject("state").get("status").asString)
-        val screen = decoded.getAsJsonObject("elements").getAsJsonObject("screen")
+        val screen = decoded.getAsJsonObject("elements").getAsJsonObject("root")
         assertEquals("Stack", screen.get("type").asString)
-        assertTrue(screen.getAsJsonObject("props").has("accessibility"))
     }
 
     private fun richSpec(): JsonObject = JsonParser.parseString(

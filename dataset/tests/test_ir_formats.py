@@ -5,7 +5,6 @@ from pathlib import Path
 import subprocess
 import sys
 
-import jsonschema
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,7 +21,6 @@ from pipeline.genui_quality.candidate_normalization import (
 from pipeline.ir_formats import (
     A2UI_EXPRESS_V1,
     A2UI_V1_WIRE,
-    COMPACT_IR_V2,
     FLAT_SPEC_V1,
     decode_to_flat_spec,
     detect_format,
@@ -30,8 +28,6 @@ from pipeline.ir_formats import (
     semantic_equivalent,
     semantic_hash,
 )
-from pipeline.ir_formats import compact_ir
-from pipeline.ir_formats.common import rewrite_element_ids
 from pipeline.metrics import compute_ui_metrics
 
 
@@ -133,7 +129,7 @@ def test_reference_inventory_fixture() -> None:
 def test_all_formats_round_trip_reference_graph() -> None:
     spec = reference_spec()
     expected = semantic_hash(spec)
-    for format_id in (FLAT_SPEC_V1, COMPACT_IR_V2, A2UI_EXPRESS_V1, A2UI_V1_WIRE):
+    for format_id in (FLAT_SPEC_V1, A2UI_EXPRESS_V1, A2UI_V1_WIRE):
         encoded = encode_from_flat_spec(spec, format_id, shorten_ids=True)
         decoded = decode_to_flat_spec(encoded, format_hint=format_id).flat_spec
         assert semantic_hash(decoded) == expected, format_id
@@ -160,53 +156,14 @@ def test_catalog_covers_every_renderer_component() -> None:
             "props": {},
             "children": [],
         }
-    for format_id in (COMPACT_IR_V2, A2UI_EXPRESS_V1, A2UI_V1_WIRE):
+    for format_id in (A2UI_EXPRESS_V1, A2UI_V1_WIRE):
         encoded = encode_from_flat_spec(spec, format_id)
         assert semantic_equivalent(spec, encoded), format_id
 
 
-def test_compact_keep_ids_and_props_repeat_rewrite() -> None:
-    spec = reference_spec()
-    encoded = compact_ir.encode(spec, shorten_ids=False)
-    assert encoded["r"] == "layout"
-    assert set(encoded["e"]) == set(spec["elements"])
-
-    props_repeat = {
-        "root": "container",
-        "state": {"items": []},
-        "elements": {
-            "container": {
-                "type": "List",
-                "props": {"repeat": {"statePath": "/items", "template": "template"}},
-                "children": [],
-            },
-            "template": {"type": "Text", "props": {"text": "Row"}, "children": []},
-        },
-    }
-    rewritten = rewrite_element_ids(props_repeat, shorten=True)
-    assert rewritten["elements"]["root"]["props"]["repeat"]["template"] == "a"
-
-
-@pytest.mark.parametrize(
-    "payload",
-    [
-        {"v": "gci2", "r": "r", "s": [], "e": {"r": {"t": "Text"}}},
-        {"v": "gci2", "r": "r", "e": {"r": {"t": "Text", "p": []}}},
-        {"v": "gci2", "r": "r", "e": {"r": {"t": "Text", "c": {}}}},
-        {"v": "gci2", "r": "r", "e": {"r": {"t": "Text", "c": [""]}}},
-        {"v": "gci2", "r": "r", "e": {"r": {"t": "Text", "q": {}}}},
-    ],
-)
-def test_compact_rejects_malformed_field_types(payload: dict) -> None:
-    with pytest.raises(ValueError):
-        compact_ir.decode(payload)
-
-
-def test_compact_json_schema_matches_codec() -> None:
-    schema = json.loads((ROOT / "schema" / "genui_compact_ir_v2.schema.json").read_text(encoding="utf-8"))
-    encoded = encode_from_flat_spec(reference_spec(), COMPACT_IR_V2)
-    jsonschema.Draft202012Validator(schema).validate(encoded)
-    assert set(schema["$defs"]["element"]["properties"]) == {"t", "p", "c", "x", "z", "o", "w"}
+def test_compact_payload_is_rejected_by_active_codec() -> None:
+    with pytest.raises(ValueError, match="migration-only"):
+        detect_format({"v": "gci2", "r": "root", "e": {"root": {"t": "Text"}}})
 
 
 def test_express_advanced_syntax_inline_components_and_event() -> None:
@@ -222,7 +179,7 @@ modal=Modal(open,dialog,"Review")
 open=Button("Open")
 dialog=Card([dialog_text])
 dialog_text=Text("Dialog")
-list=List([row_template],_repeat={statePath:"/items",key:"id",template:"row_template"})
+list=List([row_template],repeat={statePath:"/items",key:"id",template:"row_template"})
 row_template=Text("Row")
 action=Button("Continue",onPress=Event("continue",{selectedId:$/selectedId},true,$/eventResponse))
 inline=Card([Text("Inline one"),Text("Inline two"),],)
@@ -246,14 +203,12 @@ def test_wire_message_stream_and_unknown_prop_preservation() -> None:
             "createSurface": {
                 "surfaceId": "s",
                 "catalogId": catalog_id,
-                "rootId": "layout",
                 "components": [
-                    {"id": "layout", "component": "Stack", "children": ["text"]},
+                    {"id": "root", "component": "Stack", "children": ["text"]},
                     {
                         "id": "text",
                         "component": "Text",
                         "text": "Before",
-                        "accessibility": {"label": "Greeting"},
                     },
                 ],
                 "dataModel": {"value": 1},
@@ -272,7 +227,7 @@ def test_wire_message_stream_and_unknown_prop_preservation() -> None:
         },
     ]
     decoded = decode_to_flat_spec(stream, format_hint=A2UI_V1_WIRE).flat_spec
-    assert decoded["root"] == "layout"
+    assert decoded["root"] == "root"
     assert decoded["elements"]["text"]["props"]["text"] == "After"
     assert decoded["state"]["nested"]["value"] == 2
 
@@ -294,7 +249,7 @@ def test_metrics_are_format_invariant_and_raw_express_is_normalized() -> None:
     response_text = "# Review\nContinue with the selected item."
     expected_metrics = compute_ui_metrics(response_text, spec)
 
-    for format_id in (COMPACT_IR_V2, A2UI_EXPRESS_V1, A2UI_V1_WIRE):
+    for format_id in (A2UI_EXPRESS_V1, A2UI_V1_WIRE):
         encoded = encode_from_flat_spec(spec, format_id, shorten_ids=True)
         assert compute_ui_metrics(response_text, encoded) == expected_metrics
 
@@ -309,7 +264,7 @@ def test_metrics_are_format_invariant_and_raw_express_is_normalized() -> None:
     assert semantic_hash(normalized.canonical_spec) == semantic_hash(spec)
 
 
-def test_conversion_cli_emits_both_compact_formats(tmp_path: Path) -> None:
+def test_conversion_cli_emits_production_formats(tmp_path: Path) -> None:
     input_path = tmp_path / "input.json"
     output_dir = tmp_path / "converted"
     input_path.write_text(json.dumps(reference_spec()), encoding="utf-8")
@@ -319,7 +274,7 @@ def test_conversion_cli_emits_both_compact_formats(tmp_path: Path) -> None:
             sys.executable,
             str(ROOT / "scripts" / "convert_ir.py"),
             str(input_path),
-            "--both-compact",
+            "--all-formats",
             "--output",
             str(output_dir),
         ],
@@ -330,12 +285,12 @@ def test_conversion_cli_emits_both_compact_formats(tmp_path: Path) -> None:
     )
 
     assert completed.returncode == 0, completed.stderr
-    compact_payload = json.loads((output_dir / "output.compact.json").read_text(encoding="utf-8"))
     express_payload = (output_dir / "output.express.a2ui").read_text(encoding="utf-8")
+    wire_payload = json.loads((output_dir / "output.a2ui.json").read_text(encoding="utf-8"))
     report = json.loads((output_dir / "conversion_report.json").read_text(encoding="utf-8"))
-    assert semantic_equivalent(reference_spec(), compact_payload)
     assert semantic_equivalent(reference_spec(), express_payload)
-    assert set(report) == {COMPACT_IR_V2, A2UI_EXPRESS_V1}
+    assert semantic_equivalent(reference_spec(), wire_payload)
+    assert set(report) == {FLAT_SPEC_V1, A2UI_EXPRESS_V1, A2UI_V1_WIRE}
 
 
 def test_benchmark_cli_reports_semantic_roundtrip(tmp_path: Path) -> None:

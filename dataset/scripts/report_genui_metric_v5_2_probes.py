@@ -322,7 +322,7 @@ def _reproducibility_probe() -> dict[str, Any]:
         REPO_ROOT
         / "dataset"
         / "prompts"
-        / "genui_gen_mobile_flatspec_v11.md"
+        / "genui_gen_mobile_a2ui_express_v1.md"
     )
     screenshot_helper = (
         REPO_ROOT

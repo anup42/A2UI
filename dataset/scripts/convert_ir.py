@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert GenUICraft FlatSpec/Compact IR/Express/A2UI wire losslessly."""
+"""Convert read-only legacy FlatSpec or A2UI Express to production wire formats."""
 
 from __future__ import annotations
 
@@ -18,7 +18,6 @@ from pipeline.flat_spec_contract import coerce_and_validate  # noqa: E402
 from pipeline.ir_formats import (  # noqa: E402
     A2UI_EXPRESS_V1,
     A2UI_V1_WIRE,
-    COMPACT_IR_V2,
     FLAT_SPEC_V1,
     decode_to_flat_spec,
     detect_format,
@@ -28,11 +27,8 @@ from pipeline.ir_formats import (  # noqa: E402
     serialized_text,
 )
 
-TARGETS = (COMPACT_IR_V2, A2UI_EXPRESS_V1, A2UI_V1_WIRE, FLAT_SPEC_V1)
+TARGETS = (A2UI_EXPRESS_V1, A2UI_V1_WIRE, FLAT_SPEC_V1)
 ALIASES = {
-    "compact": COMPACT_IR_V2,
-    "compact_ir": COMPACT_IR_V2,
-    "gci2": COMPACT_IR_V2,
     "express": A2UI_EXPRESS_V1,
     "a2ui_express": A2UI_EXPRESS_V1,
     "a2ui": A2UI_V1_WIRE,
@@ -150,7 +146,6 @@ def main() -> int:
     parser.add_argument("input", nargs="?", help="Input file, JSON/Express text, or '-' for stdin")
     parser.add_argument("--source", default="auto", help="Source format or auto")
     parser.add_argument("--target", action="append", help="Target format; repeat for multiple")
-    parser.add_argument("--both-compact", action="store_true", help="Emit Compact IR v2 and A2UI Express v1")
     parser.add_argument("--all-formats", action="store_true")
     parser.add_argument("--output")
     parser.add_argument("--pretty", action="store_true")
@@ -163,10 +158,8 @@ def main() -> int:
     source_hint = resolve_format(args.source)
     if args.all_formats:
         targets = list(TARGETS)
-    elif args.both_compact:
-        targets = [COMPACT_IR_V2, A2UI_EXPRESS_V1]
     else:
-        targets = [resolve_format(value) for value in (args.target or [COMPACT_IR_V2])]
+        targets = [resolve_format(value) for value in (args.target or [A2UI_EXPRESS_V1])]
     targets = [target for target in targets if target is not None]
 
     if args.jsonl:
@@ -189,7 +182,7 @@ def main() -> int:
     output_dir = Path(args.output) if args.output else Path.cwd() / "ir_converted"
     output_dir.mkdir(parents=True, exist_ok=True)
     metadata = {}
-    extensions = {COMPACT_IR_V2: ".compact.json", A2UI_EXPRESS_V1: ".express.a2ui", A2UI_V1_WIRE: ".a2ui.json", FLAT_SPEC_V1: ".flat.json"}
+    extensions = {A2UI_EXPRESS_V1: ".express.a2ui", A2UI_V1_WIRE: ".a2ui.json", FLAT_SPEC_V1: ".flat.json"}
     for target in targets:
         converted, meta = convert_one(value, source_hint, target, pretty=args.pretty, shorten_ids=not args.keep_ids)
         write_value(output_dir / ("output" + extensions[target]), converted, args.pretty)

@@ -1,0 +1,93 @@
+{
+  "release_manifest_version": "a2ui_express_release_manifest.v1",
+  "baseline_commit": "69c46488b74a9d475e9ff28e33413631563f1aac",
+  "branch": "new_ir_changes_20260331",
+  "active_model_output": {
+    "format": "A2UI Express",
+    "format_id": "a2ui_express_v1",
+    "standard_wire": "a2ui_v1_wire",
+    "default": true,
+    "legacy_policy": "FlatSpec import/offline comparison only; Compact IR v2 migration decoder only"
+  },
+  "pinned_identity_manifest": "dataset/schema/genuicraft_ir_formats.manifest.json",
+  "pinned_identity": {
+    "manifestVersion": "2.0.0",
+    "upstreamRepository": "a2ui-project/a2ui",
+    "upstreamCommit": "2276f8cc702eaeac25ffb05be85797b2a1205c74",
+    "protocolVersion": "v1.0",
+    "expressVersion": "genuicraft-express-v1",
+    "catalogVersion": "genuicraft-a2ui-catalog-v1",
+    "profileVersion": "genuicraft-a2ui-express-profile-v1",
+    "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
+    "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
+    "catalogIdentityHash": "dd9c6aa7d1441f6a03fc2ad10e379a355ba42911292651d8825d090571f47c20",
+    "files": {
+      "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
+        "sha256": "8beaa6a987c955668d7028403ed114732a627a783e7bf8b0ffb7e1bc26a99e69",
+        "bytes": 77948
+      },
+      "dataset/schema/genuicraft_a2ui_express_profile_v1.json": {
+        "sha256": "cb42626135ea3d8c68082f1b355baee20a69e2d425fca461476b1ef89f162bf4",
+        "bytes": 7155
+      },
+      "dataset/schema/canonical_ui_graph_v1.schema.json": {
+        "sha256": "0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83",
+        "bytes": 967
+      },
+      "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": {
+        "sha256": "0af5e409dee9bbb90ba486470f32dbeb4072e2c6e2b81ee33521d94169634993",
+        "bytes": 6806
+      },
+      "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md": {
+        "sha256": "7a14b63bfe27ad3810221521dcff1660bb239bff3621f77348f0d189e4ba366b",
+        "bytes": 4762
+      },
+      "dataset/src/pipeline/ir_formats/express.py": {
+        "sha256": "7328e459fb8934414d18aa11cd3a6243c48734bb5b64bb07a9547e02538dfd47",
+        "bytes": 31661
+      },
+      "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
+        "sha256": "705037dd444bc1bdd69821367cf3f78483672fd5ea524b123e67acb20c8509b8",
+        "bytes": 30640
+      },
+      "dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py": {
+        "sha256": "8b739d8bdc360597b2f76730d93e4de45de057458aa535d941927997212fa361",
+        "bytes": 10111
+      },
+      "specification/inference_formats/express/Express.g4": {
+        "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",
+        "bytes": 1451,
+        "upstreamGitBlobSha": "4f2492ae4600598d8b10e68fcd9f4292529dd653"
+      }
+    }
+  },
+  "review_evidence": {
+    "implementation_plan": "docs/a2ui_express_single_ir_implementation_plan.md",
+    "implementation_report": "docs/review_artifacts/a2ui_express_single_ir_implementation_report.md",
+    "migration_report": "docs/review_artifacts/a2ui_express_legacy_migration_report.md",
+    "test_report": "docs/review_artifacts/a2ui_express_test_report.json",
+    "python_kotlin_conformance": "docs/review_artifacts/a2ui_express_python_kotlin_conformance.json",
+    "component_action_coverage": "docs/review_artifacts/a2ui_express_component_action_coverage.csv",
+    "token_benchmark": "docs/review_artifacts/a2ui_express_token_benchmark.json",
+    "changed_files": "docs/review_artifacts/a2ui_express_changed_files.txt",
+    "code_only_patch": "docs/review_artifacts/a2ui_express_code_only.patch"
+  },
+  "validation": {
+    "python_tests": "python -m pytest dataset/tests training/tests: 458 passed, 5 deprecation warnings",
+    "android_jvm_tests": "./gradlew.bat :app:testDebugUnitTest --no-daemon: BUILD SUCCESSFUL",
+    "pinned_artifact_check": "python dataset/scripts/generate_ir_specs.py --check: 10 generated artifacts verified",
+    "device_express_render": "A2uiExpressRenderOnDeviceTest: 1 passed on SM-F731U / Android 16",
+    "legacy_migration": "32 accepted, 0 rejected; deterministic resume pass",
+        "source_zip_denylist": "repo-zip-export --check: 3715 entries, 0 denied"
+  },
+  "external_blockers": [
+    "Vertex Express smoke call reached Google but returned HTTP 403 because billing is disabled for the key's project.",
+    "Gemma 4 E2B .litertlm checkpoint was absent from both documented app model directories on the connected device."
+  ],
+  "review_zip": {
+    "path": "C:/Users/anupk/Downloads/A2UI-a2ui-express-review-20260802.zip",
+    "source_only": true,
+    "hash_note": "SHA-256 is reported in the final handoff; the archive is generated from the final staged source allowlist."
+  },
+  "secret_policy": "No API keys, service-account credentials, APKs, datasets, media, or device screenshots are included in the source-only release artifact."
+}

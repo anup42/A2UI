@@ -1,4 +1,4 @@
-"""Pinned source definitions for GenUICraft compact IR and A2UI formats.
+"""Pinned source definitions for the GenUICraft A2UI Express profile.
 
 Generated schemas and catalogs are derived from this module. Keep protocol,
 grammar, catalog, and renderer identities explicit so upstream changes cannot
@@ -16,7 +16,6 @@ A2UI_UPSTREAM_COMMIT = "2276f8cc702eaeac25ffb05be85797b2a1205c74"
 A2UI_EXPRESS_GRAMMAR_GIT_BLOB_SHA = "4f2492ae4600598d8b10e68fcd9f4292529dd653"
 A2UI_PROTOCOL_VERSION = "v1.0"
 A2UI_EXPRESS_VERSION = "genuicraft-express-v1"
-COMPACT_IR_VERSION = "gci2"
 GENUICRAFT_CATALOG_ID = "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1"
 
 COMPONENTS: dict[str, dict[str, Any]] = json.loads(r'''{
@@ -919,7 +918,6 @@ __all__ = [
     "A2UI_EXPRESS_GRAMMAR_GIT_BLOB_SHA",
     "A2UI_PROTOCOL_VERSION",
     "A2UI_EXPRESS_VERSION",
-    "COMPACT_IR_VERSION",
     "GENUICRAFT_CATALOG_ID",
     "COMPONENTS",
     "ACTIONS",

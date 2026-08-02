@@ -2,14 +2,10 @@
   run_id: test_sample_1000
   intents_file: intents.info
   output_dir: data/runs
-  stage3_prompt_file: prompts/genui_gen_mobile_flatspec_v11.md
-  stage3_schema_file: schema/genui_flatspec.schema.json
-  # The pilot generates and validates both native formats independently.
+  stage3_prompt_file: prompts/genui_gen_mobile_a2ui_express_v1.md
+  stage3_schema_file: schema/canonical_ui_graph_v1.schema.json
   stage3_ir_formats:
-  - compact_ir_v2
   - a2ui_express_v1
-  stage3_legacy_prompt_file: prompts/genui_gen.md
-  stage3_legacy_schema_file: schema/genui.schema.json
   k_queries_per_intent: 400
   n_responses_per_query: 1
   genui_candidates_per_response: 1
@@ -50,7 +46,10 @@ render:
     json_render:
       output_dir: rendered
       assets_dir: renderer/json_render
-      payload_format: flat_spec
+      # Production/evaluation rendering consumes the standard A2UI messages
+      # compiled from the active Express completion. FlatSpec remains available
+      # only to explicit offline migration/comparison tests.
+      payload_format: messages
       render_log: render.jsonl
     lit:
       output_dir: rendered_lit

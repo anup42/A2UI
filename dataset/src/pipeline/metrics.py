@@ -939,7 +939,7 @@ def compute_intent_metrics(
 
 
 def _canonical_metric_payload(value: Any) -> Any:
-    """Decode Compact IR/Express/A2UI wire before all structural metrics."""
+    """Decode the production Express/wire formats before structural metrics."""
     try:
         from pipeline.ir_formats import decode_to_flat_spec
         return decode_to_flat_spec(value).flat_spec
@@ -1499,5 +1499,4 @@ def aggregate_metrics(
             config=v5_4_config,
         )
     return aggregate
-
 

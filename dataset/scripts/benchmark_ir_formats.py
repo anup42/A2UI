@@ -30,7 +30,6 @@ from pipeline.flat_spec_contract import coerce_and_validate  # noqa: E402
 from pipeline.ir_formats import (  # noqa: E402
     A2UI_EXPRESS_V1,
     A2UI_V1_WIRE,
-    COMPACT_IR_V2,
     FLAT_SPEC_V1,
     codec_identity,
     decode_to_flat_spec,
@@ -39,7 +38,7 @@ from pipeline.ir_formats import (  # noqa: E402
     serialized_text,
 )
 
-FORMATS = (FLAT_SPEC_V1, COMPACT_IR_V2, A2UI_EXPRESS_V1, A2UI_V1_WIRE)
+FORMATS = (FLAT_SPEC_V1, A2UI_EXPRESS_V1, A2UI_V1_WIRE)
 DEFAULT_CORPUS = ROOT / "dataset" / "tests" / "fixtures" / "intent_flat_specs_v2.json"
 
 
@@ -235,13 +234,13 @@ def benchmark(
             "token_reduction_vs_flat": _summarize(token_reductions),
         }
 
-    valid_compact_formats = [
+    valid_production_formats = [
         format_id
-        for format_id in (COMPACT_IR_V2, A2UI_EXPRESS_V1)
+        for format_id in (A2UI_EXPRESS_V1, A2UI_V1_WIRE)
         if by_format[format_id]["roundtrip_passed"] == by_format[format_id]["samples"]
     ]
     preferred = min(
-        valid_compact_formats,
+        valid_production_formats,
         key=lambda item: by_format[item]["tokens"]["total"],
         default=None,
     )
@@ -261,7 +260,7 @@ def benchmark(
         },
         "codec_identity": codec_identity(),
         "formats": by_format,
-        "preferred_compact_format_by_token_total": preferred,
+        "preferred_production_format_by_token_total": preferred,
         "selection_guard": "Only formats with 100% semantic round-trip pass are eligible; UI component count is unchanged.",
     }
     return report, rows

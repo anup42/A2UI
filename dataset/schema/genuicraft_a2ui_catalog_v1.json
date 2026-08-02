@@ -33,7 +33,7 @@
         "icon"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -43,7 +43,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -59,24 +59,79 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "icon": {},
+          "message": {},
+          "role": {},
+          "semanticRole": {},
+          "source": {},
+          "text": {},
+          "timestamp": {},
+          "title": {},
+          "tone": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "icon",
+        "message",
+        "role",
+        "semanticRole",
+        "source",
+        "text",
+        "timestamp",
+        "title",
+        "tone",
+        "width"
+      ]
     },
     "AudioPlayer": {
       "aliases": [
@@ -103,7 +158,7 @@
         "title"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -113,7 +168,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -129,24 +184,85 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "description": {},
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {},
+          "poster": {},
+          "posterUrl": {},
+          "role": {},
+          "semanticRole": {},
+          "source": {},
+          "src": {},
+          "thumbnail": {},
+          "thumbnailUrl": {},
+          "title": {},
+          "url": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "description",
+        "flex",
+        "height",
+        "name",
+        "poster",
+        "posterUrl",
+        "role",
+        "semanticRole",
+        "source",
+        "src",
+        "thumbnail",
+        "thumbnailUrl",
+        "title",
+        "url",
+        "width"
+      ]
     },
     "Button": {
       "aliases": [
@@ -170,7 +286,7 @@
         "actionLabel"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -180,7 +296,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -196,24 +312,77 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "actionLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "icon": {},
+          "label": {},
+          "onClickLabel": {},
+          "role": {},
+          "semanticRole": {},
+          "text": {},
+          "variant": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "actionLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "icon",
+        "label",
+        "onClickLabel",
+        "role",
+        "semanticRole",
+        "text",
+        "variant",
+        "width"
+      ]
     },
     "Card": {
       "aliases": [
@@ -239,7 +408,7 @@
         "marginVertical"
       ],
       "container": true,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -249,7 +418,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -265,24 +434,84 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "margin": {},
+          "marginHorizontal": {},
+          "marginVertical": {},
+          "padding": {},
+          "paddingHorizontal": {},
+          "paddingVertical": {},
+          "role": {},
+          "semanticRole": {},
+          "subtitle": {},
+          "title": {},
+          "tone": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "children",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "margin",
+        "marginHorizontal",
+        "marginVertical",
+        "padding",
+        "paddingHorizontal",
+        "paddingVertical",
+        "role",
+        "semanticRole",
+        "subtitle",
+        "title",
+        "tone",
+        "width"
+      ]
     },
     "Chart": {
       "aliases": [
@@ -316,7 +545,7 @@
         "yKey"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -326,7 +555,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -342,24 +571,91 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
-          }
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "chartType": {},
+          "columns": {
+            "type": "array"
+          },
+          "contentDescription": {},
+          "dataPath": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "rows": {
+            "type": "array"
+          },
+          "rowsPath": {},
+          "semanticRole": {},
+          "statePath": {},
+          "subtitle": {},
+          "title": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "xKey": {},
+          "yKey": {},
+          "yLabel": {}
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "chartType",
+        "columns",
+        "contentDescription",
+        "dataPath",
+        "decorative",
+        "flex",
+        "height",
+        "role",
+        "rows",
+        "rowsPath",
+        "semanticRole",
+        "statePath",
+        "subtitle",
+        "title",
+        "width",
+        "xKey",
+        "yKey",
+        "yLabel"
+      ]
     },
     "CheckBox": {
       "aliases": [
@@ -380,7 +676,7 @@
         "contentDescription"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -390,7 +686,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -406,24 +702,78 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "label": {},
+          "role": {},
+          "semanticRole": {},
+          "statePath": {},
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "label",
+        "role",
+        "semanticRole",
+        "statePath",
+        "value",
+        "width"
+      ]
     },
     "Checklist": {
       "aliases": [
@@ -445,7 +795,7 @@
         "source"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -455,7 +805,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -471,24 +821,75 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "disclaimer": {},
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "items": {
+            "type": "array"
+          },
+          "role": {},
+          "semanticRole": {},
+          "source": {},
+          "title": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "disclaimer",
+        "flex",
+        "height",
+        "items",
+        "role",
+        "semanticRole",
+        "source",
+        "title",
+        "width"
+      ]
     },
     "ChoicePicker": {
       "aliases": [
@@ -511,7 +912,7 @@
         "contentDescription"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -521,7 +922,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -537,24 +938,82 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "label": {},
+          "options": {
+            "type": "array"
+          },
+          "role": {},
+          "semanticRole": {},
+          "statePath": {},
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "label",
+        "options",
+        "role",
+        "semanticRole",
+        "statePath",
+        "value",
+        "width"
+      ]
     },
     "CodeBlock": {
       "aliases": [
@@ -577,7 +1036,7 @@
         "title"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -587,7 +1046,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -603,24 +1062,71 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "code": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "language": {},
+          "role": {},
+          "semanticRole": {},
+          "title": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "code",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "language",
+        "role",
+        "semanticRole",
+        "title",
+        "width"
+      ]
     },
     "ConsoleLog": {
       "aliases": [
@@ -644,7 +1150,7 @@
         "title"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -654,7 +1160,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -670,24 +1176,71 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "code": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "language": {},
+          "role": {},
+          "semanticRole": {},
+          "title": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "code",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "language",
+        "role",
+        "semanticRole",
+        "title",
+        "width"
+      ]
     },
     "DateTimeInput": {
       "aliases": [
@@ -712,7 +1265,7 @@
         "contentDescription"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -722,7 +1275,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -738,24 +1291,82 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "label": {},
+          "mode": {},
+          "placeholder": {},
+          "role": {},
+          "semanticRole": {},
+          "statePath": {},
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "label",
+        "mode",
+        "placeholder",
+        "role",
+        "semanticRole",
+        "statePath",
+        "value",
+        "width"
+      ]
     },
     "Divider": {
       "aliases": [
@@ -766,7 +1377,7 @@
       "defaults": {},
       "consumedProps": [],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -776,7 +1387,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -792,24 +1403,65 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "role",
+        "semanticRole",
+        "width"
+      ]
     },
     "EmailPreview": {
       "aliases": [
@@ -839,7 +1491,7 @@
         "title"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -849,7 +1501,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -865,24 +1517,87 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "attachments": {
+            "type": "array"
+          },
+          "bcc": {},
+          "body": {},
+          "cc": {},
+          "contentDescription": {},
+          "date": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "from": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "subject": {},
+          "timestamp": {},
+          "title": {},
+          "to": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "attachments",
+        "bcc",
+        "body",
+        "cc",
+        "contentDescription",
+        "date",
+        "decorative",
+        "flex",
+        "from",
+        "height",
+        "role",
+        "semanticRole",
+        "subject",
+        "timestamp",
+        "title",
+        "to",
+        "width"
+      ]
     },
     "Formula": {
       "aliases": [
@@ -905,7 +1620,7 @@
         "display"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -915,7 +1630,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -931,24 +1646,84 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "display": {},
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "latex": {},
+          "result": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "subtitle": {},
+          "text": {},
+          "title": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "display",
+        "flex",
+        "height",
+        "latex",
+        "result",
+        "role",
+        "semanticRole",
+        "subtitle",
+        "text",
+        "title",
+        "width"
+      ]
     },
     "Icon": {
       "aliases": [
@@ -975,7 +1750,7 @@
         "decorative"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -985,7 +1760,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1001,24 +1776,97 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "alt": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "icon": {},
+          "iconSize": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {},
+          "role": {},
+          "semanticRole": {},
+          "size": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "source": {},
+          "src": {},
+          "tint": {},
+          "url": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "alt",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "icon",
+        "iconSize",
+        "name",
+        "role",
+        "semanticRole",
+        "size",
+        "source",
+        "src",
+        "tint",
+        "url",
+        "width"
+      ]
     },
     "Image": {
       "aliases": [
@@ -1051,7 +1899,7 @@
         "decorative"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1061,7 +1909,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1077,24 +1925,90 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "alt": {},
+          "ariaLabel": {},
+          "aspectRatio": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "contentDescription": {},
+          "contentScale": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "fallbackUrl": {},
+          "fit": {},
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {},
+          "role": {},
+          "semanticRole": {},
+          "source": {},
+          "src": {},
+          "url": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "alt",
+        "ariaLabel",
+        "aspectRatio",
+        "contentDescription",
+        "contentScale",
+        "decorative",
+        "fallbackUrl",
+        "fit",
+        "flex",
+        "height",
+        "name",
+        "role",
+        "semanticRole",
+        "source",
+        "src",
+        "url",
+        "width"
+      ]
     },
     "List": {
       "aliases": [
@@ -1110,7 +2024,7 @@
         "items"
       ],
       "container": true,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1120,7 +2034,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1136,24 +2050,70 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "items": {
+            "type": "array"
+          },
+          "role": {},
+          "semanticRole": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "children",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "items",
+        "role",
+        "semanticRole",
+        "width"
+      ]
     },
     "Modal": {
       "aliases": [
@@ -1172,7 +2132,7 @@
         "title"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1182,7 +2142,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1198,24 +2158,71 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "content": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "title": {},
+          "trigger": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "content",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "role",
+        "semanticRole",
+        "title",
+        "trigger",
+        "width"
+      ]
     },
     "Slider": {
       "aliases": [
@@ -1242,7 +2249,7 @@
         "contentDescription"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1252,7 +2259,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1268,24 +2275,105 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "label": {},
+          "max": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "min": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "statePath": {},
+          "step": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "label",
+        "max",
+        "min",
+        "role",
+        "semanticRole",
+        "statePath",
+        "step",
+        "value",
+        "width"
+      ]
     },
     "Stack": {
       "aliases": [
@@ -1323,7 +2411,7 @@
         "marginVertical"
       ],
       "container": true,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1333,7 +2421,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1349,24 +2437,92 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
-          }
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "align": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "direction": {},
+          "flex": {},
+          "gap": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "justify": {},
+          "margin": {},
+          "marginHorizontal": {},
+          "marginVertical": {},
+          "padding": {},
+          "paddingHorizontal": {},
+          "paddingVertical": {},
+          "role": {},
+          "semanticRole": {},
+          "space": {},
+          "spacing": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "wrap": {}
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "align",
+        "ariaLabel",
+        "children",
+        "contentDescription",
+        "decorative",
+        "direction",
+        "flex",
+        "gap",
+        "height",
+        "justify",
+        "margin",
+        "marginHorizontal",
+        "marginVertical",
+        "padding",
+        "paddingHorizontal",
+        "paddingVertical",
+        "role",
+        "semanticRole",
+        "space",
+        "spacing",
+        "width",
+        "wrap"
+      ]
     },
     "Table": {
       "aliases": [
@@ -1398,7 +2554,7 @@
         "entityMedia"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1408,7 +2564,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1424,24 +2580,101 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "columns": {
+            "type": "array"
+          },
+          "contentDescription": {},
+          "dataPath": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "domain": {},
+          "entityMedia": {
+            "type": "array"
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "highlightColumns": {
+            "type": "array"
+          },
+          "numericColumns": {
+            "type": "array"
+          },
+          "preferredPresentation": {},
+          "presentation": {},
+          "primaryColumn": {},
+          "role": {},
+          "rows": {
+            "type": "array"
+          },
+          "rowsPath": {},
+          "semanticRole": {},
+          "statePath": {},
+          "title": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "columns",
+        "contentDescription",
+        "dataPath",
+        "decorative",
+        "domain",
+        "entityMedia",
+        "flex",
+        "height",
+        "highlightColumns",
+        "numericColumns",
+        "preferredPresentation",
+        "presentation",
+        "primaryColumn",
+        "role",
+        "rows",
+        "rowsPath",
+        "semanticRole",
+        "statePath",
+        "title",
+        "width"
+      ]
     },
     "Tabs": {
       "aliases": [
@@ -1458,7 +2691,7 @@
         "activeTabId"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1468,7 +2701,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1484,24 +2717,71 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "activeTabId": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "tabs": {
+            "type": "array"
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "activeTabId",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "role",
+        "semanticRole",
+        "tabs",
+        "width"
+      ]
     },
     "Text": {
       "aliases": [
@@ -1524,7 +2804,7 @@
         "decorative"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1534,7 +2814,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1550,24 +2830,71 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "heading": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "role": {},
+          "semanticRole": {},
+          "text": {},
+          "variant": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "heading",
+        "height",
+        "role",
+        "semanticRole",
+        "text",
+        "variant",
+        "width"
+      ]
     },
     "TextField": {
       "aliases": [
@@ -1590,7 +2917,7 @@
         "contentDescription"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1600,7 +2927,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1616,24 +2943,80 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "label": {},
+          "placeholder": {},
+          "role": {},
+          "semanticRole": {},
+          "statePath": {},
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "height",
+        "label",
+        "placeholder",
+        "role",
+        "semanticRole",
+        "statePath",
+        "value",
+        "width"
+      ]
     },
     "Video": {
       "aliases": [
@@ -1660,7 +3043,7 @@
         "title"
       ],
       "container": false,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1670,7 +3053,7 @@
       ],
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1686,24 +3069,85 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "description": {},
+          "flex": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "name": {},
+          "poster": {},
+          "posterUrl": {},
+          "role": {},
+          "semanticRole": {},
+          "source": {},
+          "src": {},
+          "thumbnail": {},
+          "thumbnailUrl": {},
+          "title": {},
+          "url": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "ariaLabel",
+        "contentDescription",
+        "decorative",
+        "description",
+        "flex",
+        "height",
+        "name",
+        "poster",
+        "posterUrl",
+        "role",
+        "semanticRole",
+        "source",
+        "src",
+        "thumbnail",
+        "thumbnailUrl",
+        "title",
+        "url",
+        "width"
+      ]
     },
     "Row": {
       "aliases": [
@@ -1739,7 +3183,7 @@
         "marginVertical"
       ],
       "container": true,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1753,7 +3197,7 @@
       },
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1769,24 +3213,90 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
-          }
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "align": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "gap": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "justify": {},
+          "margin": {},
+          "marginHorizontal": {},
+          "marginVertical": {},
+          "padding": {},
+          "paddingHorizontal": {},
+          "paddingVertical": {},
+          "role": {},
+          "semanticRole": {},
+          "space": {},
+          "spacing": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "wrap": {}
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "align",
+        "ariaLabel",
+        "children",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "gap",
+        "height",
+        "justify",
+        "margin",
+        "marginHorizontal",
+        "marginVertical",
+        "padding",
+        "paddingHorizontal",
+        "paddingVertical",
+        "role",
+        "semanticRole",
+        "space",
+        "spacing",
+        "width",
+        "wrap"
+      ]
     },
     "Column": {
       "aliases": [
@@ -1822,7 +3332,7 @@
         "marginVertical"
       ],
       "container": true,
-      "allowAdditionalProps": true,
+      "allowAdditionalProps": false,
       "metadata": [
         "children",
         "repeat",
@@ -1836,7 +3346,7 @@
       },
       "schema": {
         "type": "object",
-        "additionalProperties": true,
+        "additionalProperties": false,
         "required": [
           "id",
           "component"
@@ -1852,24 +3362,74 @@
           "children": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             }
           },
           "repeat": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "visible": {},
           "on": {
-            "type": "object",
-            "additionalProperties": true
+            "type": "object"
           },
           "watch": {
-            "type": "object",
-            "additionalProperties": true
-          }
+            "type": "object"
+          },
+          "accessibility": {},
+          "accessibilityLabel": {},
+          "align": {},
+          "ariaLabel": {},
+          "contentDescription": {},
+          "decorative": {
+            "type": [
+              "boolean",
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "flex": {},
+          "gap": {},
+          "height": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "justify": {},
+          "role": {},
+          "semanticRole": {},
+          "width": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          },
+          "wrap": {}
         }
-      }
+      },
+      "allowedProperties": [
+        "accessibility",
+        "accessibilityLabel",
+        "align",
+        "ariaLabel",
+        "children",
+        "contentDescription",
+        "decorative",
+        "flex",
+        "gap",
+        "height",
+        "justify",
+        "role",
+        "semanticRole",
+        "width",
+        "wrap"
+      ]
     }
   },
   "actions": {
@@ -1877,14 +3437,31 @@
       "positional": [
         "url"
       ],
-      "allowAdditionalParams": true
+      "allowAdditionalParams": false,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "url": {}
+        }
+      }
     },
     "setState": {
       "positional": [
         "statePath",
         "value"
       ],
-      "allowAdditionalParams": true
+      "allowAdditionalParams": false,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "statePath": {},
+          "value": {}
+        }
+      }
     },
     "pushState": {
       "positional": [
@@ -1892,21 +3469,49 @@
         "value",
         "clearStatePath"
       ],
-      "allowAdditionalParams": true
+      "allowAdditionalParams": false,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "statePath": {},
+          "value": {},
+          "clearStatePath": {}
+        }
+      }
     },
     "removeState": {
       "positional": [
         "statePath",
         "index"
       ],
-      "allowAdditionalParams": true
+      "allowAdditionalParams": false,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "statePath": {},
+          "index": {}
+        }
+      }
     },
     "validateForm": {
       "positional": [
         "statePath",
         "resultStatePath"
       ],
-      "allowAdditionalParams": true
+      "allowAdditionalParams": false,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "statePath": {},
+          "resultStatePath": {}
+        }
+      }
     },
     "emitEvent": {
       "positional": [
@@ -1915,8 +3520,21 @@
         "wantResponse",
         "responsePath"
       ],
-      "allowAdditionalParams": true
+      "allowAdditionalParams": false,
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "name": {},
+          "context": {},
+          "wantResponse": {},
+          "responsePath": {}
+        }
+      }
     }
   },
-  "catalogIdentityHash": "42806ada6b3bc72f55584481cd5106a52fed51bf1878288a9e373402a85ce5b5"
+  "catalogIdentityHash": "dd9c6aa7d1441f6a03fc2ad10e379a355ba42911292651d8825d090571f47c20",
+  "catalogVersion": "genuicraft-a2ui-catalog-v1",
+  "profileVersion": "genuicraft-a2ui-express-profile-v1"
 }

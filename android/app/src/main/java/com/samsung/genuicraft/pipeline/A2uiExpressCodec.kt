@@ -8,8 +8,10 @@ import com.google.gson.JsonPrimitive
 
 /**
  * Dependency-free implementation of the pinned A2UI Express grammar subset
- * used by GenUICraft. It preserves custom component props and metadata through
- * `_props`, `_children`, `_repeat`, `_visible`, `_on`, and `_watch`.
+ * used by GenUICraft. The model-facing syntax is explicit: component
+ * properties, children, repeat/visible/watch metadata, and actions are named
+ * directly. Opaque property bags are intentionally not part of production
+ * Express.
  */
 internal object A2uiExpressCodec {
     private const val OPEN = "<a2ui>"
@@ -50,31 +52,52 @@ internal object A2uiExpressCodec {
             values.forEachIndexed { index, value -> if (value != null && !value.isJsonNull && !(value.isJsonArray && value.asJsonArray.size() == 0)) last = index }
             val args = mutableListOf<String>()
             val consumed = mutableSetOf<String>()
-            for (index in 0..last) {
-                val key = positional[index]
-                val value = values[index]
-                if (value == null || value.isJsonNull || (value.isJsonArray && value.asJsonArray.size() == 0)) {
-                    args += "_"
-                } else {
-                    args += if (key == "children") componentReferences(value.asJsonArray) else expressValue(value)
+            val firstMissing = values.indexOfFirst { value ->
+                value == null || value.isJsonNull || (value.isJsonArray && value.asJsonArray.size() == 0)
+            }
+            val hasPositionalGap = firstMissing >= 0 &&
+                values.drop(firstMissing + 1).any { value ->
+                    value != null && !value.isJsonNull && !(value.isJsonArray && value.asJsonArray.size() == 0)
+                }
+            if (hasPositionalGap) {
+                // A skipped positional slot may not be followed by another
+                // positional value. Emit all populated slots as named args.
+                values.forEachIndexed { index, value ->
+                    if (value == null || value.isJsonNull || (value.isJsonArray && value.asJsonArray.size() == 0)) return@forEachIndexed
+                    val key = positional[index]
+                    args += "$key=${if (key == "children") componentReferences(value.asJsonArray) else expressValue(value)}"
                     consumed += key
                 }
+            } else {
+                for (index in 0..last) {
+                    val key = positional[index]
+                    val value = values[index]
+                    if (value == null || value.isJsonNull || (value.isJsonArray && value.asJsonArray.size() == 0)) {
+                        args += "_"
+                    } else {
+                        args += if (key == "children") componentReferences(value.asJsonArray) else expressValue(value)
+                        consumed += key
+                    }
+                }
             }
-            val leftover = JsonObject()
-            props.entrySet().filter { it.key !in consumed }.forEach { (key, value) -> leftover.add(key, value.deepCopy()) }
-            if (leftover.size() > 0) args += "_props=$leftover"
-            if (children.size() > 0 && "children" !in consumed) args += "_children=$children"
-            val remainingEvents = JsonObject()
+            props.entrySet().filter { it.key !in consumed }.forEach { (key, value) ->
+                require(GenUiA2uiCatalog.isAllowedProperty(type, key)) {
+                    "Property '$key' is not supported by the A2UI Express catalog component '$type'."
+                }
+                args += "$key=${expressValue(value)}"
+            }
+            if (children.size() > 0 && "children" !in consumed) args += "children=${componentReferences(children)}"
             element.get("on")?.takeIf { it.isJsonObject }?.asJsonObject?.entrySet()?.forEach { (event, action) ->
                 val keyword = eventKeyword(event)
                 val expression = actionExpression(action)
-                if (keyword != null && expression != null) args += "$keyword=$expression"
-                else remainingEvents.add(event, action.deepCopy())
+                require(keyword != null && expression != null) {
+                    "Event '$event' cannot be represented by the explicit Express action syntax."
+                }
+                args += "$keyword=$expression"
             }
-            if (remainingEvents.size() > 0) args += "_on=$remainingEvents"
-            listOf("repeat" to "_repeat", "visible" to "_visible", "watch" to "_watch").forEach { (full, short) ->
+            listOf("repeat", "visible", "watch").forEach { full ->
                 element.get(full)?.takeUnless { it.isJsonNull || (it.isJsonObject && it.asJsonObject.size() == 0) }
-                    ?.let { args += "$short=$it" }
+                    ?.let { args += "$full=${expressValue(it)}" }
             }
             lines += "$id=$type(${args.joinToString(",")})"
         }
@@ -88,6 +111,7 @@ internal object A2uiExpressCodec {
         var inlineCounter = 0
 
         fun materialize(id: String, call: Expr.Call): String {
+            require(!elements.has(id)) { "Duplicate A2UI Express component id '$id'." }
             val expressComponent = call.name
             val positional = GenUiA2uiCatalog.positional[expressComponent]
                 ?: error("Unknown A2UI Express component '$expressComponent'.")
@@ -101,10 +125,18 @@ internal object A2uiExpressCodec {
             if (expressComponent == "Column") props.addProperty("direction", "vertical")
             val children = JsonArray()
             val directEvents = JsonObject()
+            val metadataValues = linkedMapOf<String, Expr>()
+            val assignedProperties = mutableSetOf<String>()
+            var skippedPositional = false
             call.args.forEachIndexed { index, expr ->
-                if (expr === Expr.Skipped) return@forEachIndexed
+                if (expr === Expr.Skipped) {
+                    skippedPositional = true
+                    return@forEachIndexed
+                }
+                require(!skippedPositional) { "Positional arguments cannot follow a skipped argument for $expressComponent." }
                 require(index < positional.size) { "Too many positional args for $expressComponent." }
                 val key = positional[index]
+                require(assignedProperties.add(key)) { "Duplicate property '$key' for $expressComponent." }
                 if (key == "children") {
                     val array = expr as? Expr.ArrayValue ?: error("$expressComponent.children must be an array.")
                     array.items.forEach { child ->
@@ -126,34 +158,39 @@ internal object A2uiExpressCodec {
                         }
                     }
                 } else {
+                    require(GenUiA2uiCatalog.isAllowedProperty(expressComponent, key)) {
+                        "Unknown property '$key' for A2UI Express component '$expressComponent'."
+                    }
+                    require(!props.has(key)) { "Duplicate property '$key' for $expressComponent." }
                     props.add(key, expr.toJson())
                 }
             }
-            val metadataKeys = setOf("_props", "_children", "_repeat", "_visible", "_on", "_watch")
-            call.kwargs["_props"]?.let { expr ->
-                val extra = expr.toJson()
-                require(extra.isJsonObject) { "_props must be an object." }
-                extra.asJsonObject.entrySet().forEach { (key, value) -> props.add(key, value.deepCopy()) }
-            }
-            call.kwargs["_children"]?.let { expr ->
-                val value = expr.toJson()
-                require(value.isJsonArray) { "_children must be an array." }
-                while (children.size() > 0) children.remove(0)
-                value.asJsonArray.forEach { child ->
-                    require(child.isJsonPrimitive && child.asJsonPrimitive.isString) { "_children values must be strings." }
-                    children.add(child.asString)
+            call.kwargs.forEach { (key, expr) ->
+                require(!key.startsWith("_")) {
+                    "Opaque Express metadata '$key' is not allowed; use explicit named fields."
                 }
-            }
-            call.kwargs.filterKeys { it !in metadataKeys }.forEach { (key, expr) ->
-                val eventName = eventName(key)
+                val eventName = eventName(key).takeIf { isActionExpression(expr) }
                 if (eventName != null) {
+                    require(!directEvents.has(eventName)) { "Duplicate event '$eventName' for $expressComponent." }
                     directEvents.add(eventName, actionFromExpr(expr))
                 } else if (key == "children") {
                     val value = expr.toJson()
+                    require(assignedProperties.add(key)) { "Duplicate property '$key' for $expressComponent." }
                     require(value.isJsonArray) { "children must be an array." }
                     while (children.size() > 0) children.remove(0)
-                    value.asJsonArray.forEach { child -> children.add(child.asString) }
+                    value.asJsonArray.forEach { child ->
+                        require(child.isJsonPrimitive && child.asJsonPrimitive.isString && child.asString.isNotBlank()) {
+                            "children must contain non-empty component references."
+                        }
+                        children.add(child.asString)
+                    }
+                } else if (key == "repeat" || key == "visible" || key == "watch") {
+                    require(metadataValues.put(key, expr) == null) { "Duplicate metadata '$key' for $expressComponent." }
                 } else {
+                    require(GenUiA2uiCatalog.isAllowedProperty(expressComponent, key)) {
+                        "Unknown property '$key' for A2UI Express component '$expressComponent'."
+                    }
+                    require(!props.has(key)) { "Duplicate property '$key' for $expressComponent." }
                     props.add(key, expr.toJson())
                 }
             }
@@ -163,15 +200,13 @@ internal object A2uiExpressCodec {
                 add("children", children)
             }
             if (directEvents.size() > 0) element.add("on", directEvents)
-            call.kwargs["_repeat"]?.let { element.add("repeat", it.toJson()) }
-            call.kwargs["_visible"]?.let { element.add("visible", it.toJson()) }
-            call.kwargs["_on"]?.let { expression ->
-                val normalized = actionMapFromExpr(expression)
-                val on = element.get("on")?.takeIf { it.isJsonObject }?.asJsonObject ?: JsonObject()
-                normalized.entrySet().forEach { (key, value) -> on.add(key, value) }
-                element.add("on", on)
+            listOf("repeat", "visible", "watch").forEach { key ->
+                val metadata = metadataValues[key] ?: return@forEach
+                when (key) {
+                    "watch" -> element.add(key, actionMapFromExpr(metadata))
+                    else -> element.add(key, metadata.toJson())
+                }
             }
-            call.kwargs["_watch"]?.let { element.add("watch", actionMapFromExpr(it)) }
             normalizeStackProps(component, props)
             elements.add(id, element)
             return id
@@ -251,6 +286,14 @@ internal object A2uiExpressCodec {
         ?.substring(2)
         ?.replaceFirstChar(Char::lowercaseChar)
 
+    private fun isActionExpression(expression: Expr): Boolean = when (expression) {
+        is Expr.Call -> expression.name.equals("Event", ignoreCase = true) ||
+            actionPositional.keys.any { it.equals(expression.name, ignoreCase = true) }
+        is Expr.ArrayValue -> expression.items.isNotEmpty() && expression.items.all(::isActionExpression)
+        is Expr.Literal -> expression.value.isJsonObject && expression.value.asJsonObject.string("action") != null
+        else -> false
+    }
+
     private fun actionExpression(value: JsonElement): String? {
         if (value.isJsonArray) {
             val expressions = value.asJsonArray.map { actionExpression(it) ?: return null }
@@ -297,8 +340,15 @@ internal object A2uiExpressCodec {
         val positional = actionPositional.getValue(action)
         require(call.args.size <= positional.size) { "Too many positional parameters for action ${call.name}." }
         val params = JsonObject()
+        var skippedPositional = false
         call.args.forEachIndexed { index, expr ->
-            if (expr !== Expr.Skipped) params.add(positional[index], expr.toJson())
+            if (expr === Expr.Skipped) {
+                skippedPositional = true
+                return@forEachIndexed
+            }
+            require(!skippedPositional) { "Positional arguments cannot follow a skipped action argument." }
+            require(!params.has(positional[index])) { "Duplicate action parameter '${positional[index]}'." }
+            params.add(positional[index], expr.toJson())
         }
         call.kwargs.forEach { (key, expr) ->
             require(!params.has(key)) { "Duplicate action parameter '$key'." }
@@ -346,22 +396,16 @@ internal object A2uiExpressCodec {
     }
 
     private fun statements(text: String): List<String> {
-        val rawBody = if (text.contains(OPEN)) text.substringAfter(OPEN).substringBefore(CLOSE) else text
-        val rawLines = rawBody.lines()
-        val body = rawLines.mapIndexed { index, rawLine ->
-            val line = normalizeTrailingIconUrlAssignment(rawLine)
-            val nextMeaningful = rawLines.drop(index + 1).firstOrNull { candidate ->
-                candidate.isNotBlank() &&
-                    !candidate.trimStart().startsWith("#") &&
-                    !candidate.trimStart().startsWith("//")
-            }
-            val closesAtBoundary = nextMeaningful == null || ASSIGNMENT_LINE.matches(nextMeaningful.trim())
-            if (closesAtBoundary && ASSIGNMENT_LINE.matches(line.trim())) {
-                closeMissingLineDelimiters(line)
-            } else {
-                line
-            }
-        }.joinToString("\n")
+        val trimmed = text.trim()
+        require(trimmed.startsWith(OPEN) && trimmed.endsWith(CLOSE)) {
+            "A2UI Express payload must contain exactly one complete <a2ui>...</a2ui> block."
+        }
+        require(trimmed.windowed(OPEN.length).count { it == OPEN } == 1 &&
+            trimmed.windowed(CLOSE.length).count { it == CLOSE } == 1 &&
+            trimmed.indexOf(OPEN) == 0 && trimmed.lastIndexOf(CLOSE) == trimmed.length - CLOSE.length) {
+            "Unexpected content outside the A2UI Express block."
+        }
+        val body = trimmed.substring(OPEN.length, trimmed.length - CLOSE.length)
         val out = mutableListOf<String>()
         val buffer = StringBuilder()
         var depth = 0
@@ -380,7 +424,11 @@ internal object A2uiExpressCodec {
             when (ch) {
                 '"' -> { inString = true; buffer.append(ch) }
                 '(', '[', '{' -> { depth += 1; buffer.append(ch) }
-                ')', ']', '}' -> { depth -= 1; buffer.append(ch) }
+                ')', ']', '}' -> {
+                    require(depth > 0) { "Unbalanced A2UI Express delimiter." }
+                    depth -= 1
+                    buffer.append(ch)
+                }
                 '\n', ';' -> if (depth == 0) {
                     buffer.toString().trim().takeIf { it.isNotEmpty() && !it.startsWith("#") && !it.startsWith("//") }?.let(out::add)
                     buffer.clear()
@@ -388,48 +436,10 @@ internal object A2uiExpressCodec {
                 else -> buffer.append(ch)
             }
         }
+        require(depth == 0 && !inString) { "Unclosed A2UI Express expression." }
         buffer.toString().trim().takeIf { it.isNotEmpty() }?.let(out::add)
         return out
     }
-
-    /**
-     * Gemma sometimes emits one assignment per line but misses the final
-     * Column/Row closer before starting the next assignment. Repair only a
-     * bounded suffix at that assignment boundary; genuine multiline calls are
-     * left untouched.
-     */
-    private fun closeMissingLineDelimiters(line: String): String {
-        val stack = mutableListOf<Char>()
-        var inString = false
-        var escaped = false
-        line.forEach { ch ->
-            if (inString) {
-                when {
-                    escaped -> escaped = false
-                    ch == '\\' -> escaped = true
-                    ch == '"' -> inString = false
-                }
-                return@forEach
-            }
-            when (ch) {
-                '"' -> inString = true
-                '(', '[', '{' -> stack += ch
-                ')' -> if (stack.lastOrNull() == '(') stack.removeAt(stack.lastIndex) else return line
-                ']' -> if (stack.lastOrNull() == '[') stack.removeAt(stack.lastIndex) else return line
-                '}' -> if (stack.lastOrNull() == '{') stack.removeAt(stack.lastIndex) else return line
-            }
-        }
-        if (inString || stack.isEmpty() || stack.size > MAX_LINE_SUFFIX_CLOSERS) return line
-        return buildString(line.length + stack.size) {
-            append(line)
-            stack.asReversed().forEach { open ->
-                append(when (open) { '(' -> ')'; '[' -> ']'; else -> '}' })
-            }
-        }
-    }
-
-    private fun normalizeTrailingIconUrlAssignment(line: String): String =
-        TRAILING_ICON_URL_ASSIGNMENT.replace(line) { match -> match.groupValues[1] }
 
     private fun splitAssignment(statement: String): Pair<String, String> {
         var depth = 0
@@ -454,12 +464,6 @@ internal object A2uiExpressCodec {
         error("A2UI Express statement is not an assignment: ${statement.take(80)}")
     }
 
-    private val ASSIGNMENT_LINE = Regex("^[A-Za-z_$][A-Za-z0-9_/$.-]*\\s*=.+$")
-    private val TRAILING_ICON_URL_ASSIGNMENT = Regex(
-        "^(\\s*[A-Za-z_][A-Za-z0-9_]*\\s*=\\s*Icon\\([^\\r\\n]*?\\))\\s*=\\s*\"https?://[^\"]+\"\\s*$",
-        RegexOption.IGNORE_CASE,
-    )
-    private const val MAX_LINE_SUFFIX_CLOSERS = 2
     private val STACK_GAP_TOKENS = setOf("none", "sm", "md", "lg", "xl")
 
     private sealed interface Expr {
@@ -503,7 +507,7 @@ internal object A2uiExpressCodec {
             consume('['); val items = mutableListOf<Expr>(); skipWhitespace()
             if (peek() != ']') while (true) {
                 items += parseValue(); skipWhitespace()
-                if (peek() == ',') { consume(','); continue }
+                if (peek() == ',') { consume(','); if (peek() == ']') break; continue }
                 break
             }
             consume(']'); return Expr.ArrayValue(items)
@@ -511,9 +515,10 @@ internal object A2uiExpressCodec {
         private fun parseObject(): Expr.ObjectValue {
             consume('{'); val entries = linkedMapOf<String, Expr>(); skipWhitespace()
             if (peek() != '}') while (true) {
-                val key = if (peek() == '"') parseString() else parseIdentifier()
+                    val key = if (peek() == '"') parseString() else parseIdentifier()
+                require(!entries.containsKey(key)) { "Duplicate map key '$key'." }
                 consume(':'); entries[key] = parseValue(); skipWhitespace()
-                if (peek() == ',') { consume(','); continue }
+                if (peek() == ',') { consume(','); if (peek() == '}') break; continue }
                 break
             }
             consume('}'); return Expr.ObjectValue(entries)
@@ -524,7 +529,7 @@ internal object A2uiExpressCodec {
                 consume('('); skipWhitespace()
                 if (peek() != ')') while (true) {
                     args += parseValue(); skipWhitespace()
-                    if (peek() == ',') { consume(','); continue }
+                    if (peek() == ',') { consume(','); if (peek() == ')') break; continue }
                     break
                 }
                 consume(')')
@@ -555,7 +560,7 @@ internal object A2uiExpressCodec {
             }
         }
         private fun parseCall(name: String): Expr.Call {
-            consume('('); val args = mutableListOf<Expr>(); val kwargs = linkedMapOf<String, Expr>(); skipWhitespace()
+            consume('('); val args = mutableListOf<Expr>(); val kwargs = linkedMapOf<String, Expr>(); var seenNamed = false; skipWhitespace()
             if (peek() != ')') while (true) {
                 val saved = index
                 val named = runCatching {
@@ -563,11 +568,11 @@ internal object A2uiExpressCodec {
                     if (peek() == '=') candidate else null
                 }.getOrNull()
                 if (named != null) {
-                    consume('='); kwargs[named] = parseValue()
+                    consume('='); require(!kwargs.containsKey(named)) { "Duplicate named argument '$named'." }; kwargs[named] = parseValue(); seenNamed = true
                 } else {
-                    index = saved; args += parseValue()
+                    index = saved; require(!seenNamed) { "Positional argument cannot follow a named argument." }; args += parseValue()
                 }
-                skipWhitespace(); if (peek() == ',') { consume(','); continue }
+                skipWhitespace(); if (peek() == ',') { consume(','); if (peek() == ')') break; continue }
                 break
             }
             consume(')'); return Expr.Call(name, args, kwargs)

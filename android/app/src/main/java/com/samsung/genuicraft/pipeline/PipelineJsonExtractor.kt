@@ -5,7 +5,8 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
 internal object PipelineJsonExtractor {
-    enum class FlatSpecRepairMode {
+    /** Legacy JSON extraction used only for debug/import compatibility. */
+    enum class ExpressRepairMode {
         GENERAL,
         ON_DEVICE_LITERT
     }
@@ -15,18 +16,6 @@ internal object PipelineJsonExtractor {
         if (cleaned.isEmpty()) {
             return null
         }
-
-        // A complete Compact IR envelope must outrank any nested arrays or
-        // element objects, even when its graph still needs strict repair.
-        runCatching { JsonParser.parseString(cleaned) }.getOrNull()
-            ?.takeIf(CompactIrCodec::looksLike)
-            ?.let(::normalizeCompactEnvelope)
-            ?.let { return it }
-        extractFencedBlock(cleaned)
-            ?.let { runCatching { JsonParser.parseString(it) }.getOrNull() }
-            ?.takeIf(CompactIrCodec::looksLike)
-            ?.let(::normalizeCompactEnvelope)
-            ?.let { return it }
 
         val candidates = linkedSetOf<String>()
         extractFencedBlock(cleaned)?.let { candidates += it }
@@ -47,7 +36,7 @@ internal object PipelineJsonExtractor {
 
         val parsedCandidates = candidates.mapNotNull { candidate ->
             runCatching { JsonParser.parseString(candidate) }.getOrNull()
-        }.map(::normalizeCompactEnvelope)
+        }
         if (parsedCandidates.isEmpty()) {
             return null
         }
@@ -204,64 +193,12 @@ internal object PipelineJsonExtractor {
         }
     }
 
-    /**
-     * Small on-device models occasionally close `e` before emitting a final
-     * referenced element, most often `action`. Preserve the generated graph by
-     * moving only unmistakable Compact element objects into `e`; leave every
-     * other unknown key untouched so strict validation can still reject it.
-     */
-    private fun normalizeCompactEnvelope(element: JsonElement): JsonElement {
-        if (!CompactIrCodec.looksLike(element)) return element
-        val source = element.asJsonObject
-        source.get("e")?.takeIf { it.isJsonObject }?.asJsonObject
-            ?: return element
-        val normalized = source.deepCopy()
-        val normalizedElements = normalized.getAsJsonObject("e")
-        var changed = false
-
-        normalized.entrySet()
-            .filter { (key, value) ->
-                key !in COMPACT_TOP_LEVEL_KEYS &&
-                    value.isJsonObject &&
-                    value.asJsonObject.get("t")?.let { it.isJsonPrimitive && it.asString.isNotBlank() } == true &&
-                    !normalizedElements.has(key)
-            }
-            .toList()
-            .forEach { (key, value) ->
-            normalizedElements.add(key, value.deepCopy())
-            normalized.remove(key)
-            changed = true
-        }
-
-        normalizedElements.entrySet().forEach { (_, raw) ->
-            if (!raw.isJsonObject) return@forEach
-            val item = raw.asJsonObject
-            COMPACT_MISPLACED_PROP_KEYS.forEach { key ->
-                val misplaced = item.get(key) ?: return@forEach
-                val props = item.get("p")?.takeIf { it.isJsonObject }?.asJsonObject
-                    ?: JsonObject().also { item.add("p", it) }
-                if (!props.has(key)) props.add(key, misplaced.deepCopy())
-                item.remove(key)
-                changed = true
-            }
-            val props = item.get("p")?.takeIf { it.isJsonObject }?.asJsonObject
-            val misplacedAction = props?.get("o")
-            if (!item.has("o") && misplacedAction?.isJsonObject == true) {
-                item.add("o", misplacedAction.deepCopy())
-                props.remove("o")
-                changed = true
-            }
-        }
-        return if (changed) normalized else element
-    }
-
     private fun flatSpecShapePriority(element: JsonElement): Int {
         if (!element.isJsonObject) {
             return 0
         }
         val obj = element.asJsonObject
         return when {
-            CompactIrCodec.looksLike(element) -> 4
             FlatSpecContract.looksLikeFlatSpec(element) -> 3
             obj.has("genui_json") || obj.has("payload") -> 2
             obj.has("messages") -> 1
@@ -329,87 +266,32 @@ internal object PipelineJsonExtractor {
     private val CHILDREN_EMPTY_ARRAY_TRAILING_QUOTE = Regex(
         "(\"children\"\\s*:\\s*\\[\\])\"(?=\\s*[,}])"
     )
-    private val COMPACT_TOP_LEVEL_KEYS = setOf("v", "r", "s", "e")
-    private val COMPACT_MISPLACED_PROP_KEYS = setOf(
-        "columns",
-        "rows",
-        "statePath",
-        "domain",
-        "preferredPresentation",
-        "presentation",
-        "primaryColumn",
-        "highlightColumns",
-        "variant",
-    )
     private const val MAX_JSON_SUFFIX_CLOSERS = 4
 
-    fun buildFlatSpecRepairPrompt(
+    fun buildExpressRepairPrompt(
         rawText: String,
         failureReason: String? = null,
-        mode: FlatSpecRepairMode = FlatSpecRepairMode.GENERAL
+        mode: ExpressRepairMode = ExpressRepairMode.GENERAL
     ): String {
-        if (mode == FlatSpecRepairMode.ON_DEVICE_LITERT) {
-            return buildOnDeviceFlatSpecRepairPrompt(rawText, failureReason)
-        }
         val reasonLine = failureReason?.trim()?.takeIf { it.isNotEmpty() }?.let {
             "Failure reason: $it\n"
         }.orEmpty()
         return (
-            "The previous output does not satisfy the required flat-spec contract.\n" +
-                reasonLine +
-                "Return ONLY one valid JSON object with this shape:\n" +
-                "{\"root\":\"<id>\",\"state\":{...},\"elements\":{...}}\n\n" +
+            "The previous output does not satisfy the required A2UI Express contract.\n" +
+            reasonLine +
+                "Return ONLY one complete <a2ui>...</a2ui> block with one assignment per line.\n" +
+                "Use the pinned catalog/profile and preserve the complete rich UI.\n\n" +
                 "Rules:\n" +
-                "- `root` must reference an existing key in `elements`.\n" +
-                "- `elements` must be a non-empty object with at least 2 entries (root container + content).\n" +
-                "- Do NOT return `{}` and do NOT return `\"elements\": {}`.\n" +
-                "- Every element must contain `type`, `props`, and `children`.\n" +
-                "- Every id in `children` must exist in `elements`.\n" +
-                "- For table data, prefer a compact `Table` element with empty `children`.\n" +
-                "- Set `Table.props.columns` and `Table.props.statePath` (or inline `rows` when needed).\n" +
-                "- Keep row data in state arrays; do not expand to one element id per row/cell.\n" +
-                "- Set `Table.props.domain` (`weather|flight|generic`) and `Table.props.preferredPresentation` (`cards|table`).\n" +
-                "- Weather/climate outputs must include a dedicated metrics table section.\n" +
-                "- Prefer a Stack root container with direction set.\n" +
-                "- Return a complete, renderable flat-spec even when source content is brief.\n" +
-                "- Return JSON only, no markdown.\n\n" +
-                "Required minimum skeleton (adapt ids/content as needed):\n" +
-                "{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Stack\",\"props\":{\"direction\":\"vertical\"},\"children\":[\"content\"]},\"content\":{\"type\":\"Text\",\"props\":{\"text\":\"...\"},\"children\":[]}}}\n\n" +
+                "- Use `root=Column([content])` or another catalog container.\n" +
+                "- Every child reference must resolve to an assignment or inline component.\n" +
+                "- Use explicit named properties for sparse/ambiguous values; never use opaque bags.\n" +
+                "- For tables, preserve all columns/rows with the pinned Table signature and domain metadata.\n" +
+                "- Every event value must be an action call such as `openUrl(...)` or `Event(...)`.\n" +
+                "- Never return JSON, HTML, CSS, type/props objects, or markdown fences.\n\n" +
+                "Example skeleton:\n" +
+                "<a2ui>\nroot=Column([content])\ncontent=Text(\"Result\",\"h2\")\n</a2ui>\n\n" +
+                "Repair mode: ${mode.name}.\n" +
                 "Original output:\n${rawText.trim()}"
-            )
-    }
-
-    private fun buildOnDeviceFlatSpecRepairPrompt(rawText: String, failureReason: String?): String {
-        val reasonLine = failureReason?.trim()?.takeIf { it.isNotEmpty() }?.let {
-            "Failure reason: $it\n"
-        }.orEmpty()
-        return (
-            "Repair the previous on-device Gemma output into ONE valid GenUICraft flat-spec JSON object.\n" +
-                reasonLine +
-                "Return JSON only. No markdown, no explanations.\n\n" +
-                "Required top-level shape exactly:\n" +
-                "{\"root\":\"root\",\"state\":{\"rows\":[]},\"elements\":{...}}\n\n" +
-                "Hard repair rules:\n" +
-                "- Top-level keys must be only root, state, elements.\n" +
-                "- Move element-like top-level objects into elements, or drop them if not referenced.\n" +
-                "- root must exist in elements.\n" +
-                "- Every child id must exist in elements; remove missing child references instead of preserving them.\n" +
-                "- Use only these element ids for data screens: root, title, summary, summaryText, table.\n" +
-                "- root children must be exactly [\"title\",\"summary\",\"table\"] for data screens.\n" +
-                "- Drop actions, sources, icons, images, buttons, currentWeather, nextDays, and forecast section ids.\n" +
-                "- Normalize id mismatches such as Table/ForecastTable/forecastTable/nextDays to one child id named table.\n" +
-                "- Every element must include type, props object, and children array.\n" +
-                "- Put children only in the element-level children array. Do not put child lists inside props.\n" +
-                "- JSON syntax must be strict: no comma-only lines, no duplicate commas, no trailing commas, and no quote after an empty children array.\n" +
-                "- Allowed types in on-device repair: Stack, Card, Text, Table.\n" +
-                "- For weather, flight, booking, schedule, and status data: use one compact Table backed by state.rows.\n" +
-                "- Row keys must be unique inside each row; do not repeat label/value keys.\n" +
-                "- Every Table column key must exist in every row object; normalize rain/rainChance and label/value mismatches.\n" +
-                "- Do not expand table rows/cells into forecastRow, dayRow, cell, or per-column element trees.\n" +
-                "- Preserve numbers, dates, units, and labels from the source as much as possible.\n\n" +
-                "Minimum valid compact output pattern:\n" +
-                "{\"root\":\"root\",\"state\":{\"rows\":[{\"label\":\"Example\",\"value\":\"Value\"}]},\"elements\":{\"root\":{\"type\":\"Stack\",\"props\":{\"direction\":\"vertical\",\"gap\":\"md\"},\"children\":[\"title\",\"summary\",\"table\"]},\"title\":{\"type\":\"Text\",\"props\":{\"text\":\"Result\",\"variant\":\"h2\"},\"children\":[]},\"summary\":{\"type\":\"Card\",\"props\":{},\"children\":[\"summaryText\"]},\"summaryText\":{\"type\":\"Text\",\"props\":{\"text\":\"Short summary.\"},\"children\":[]},\"table\":{\"type\":\"Table\",\"props\":{\"columns\":[{\"key\":\"label\",\"label\":\"Label\"},{\"key\":\"value\",\"label\":\"Value\"}],\"statePath\":\"/rows\",\"domain\":\"generic\",\"preferredPresentation\":\"cards\",\"primaryColumn\":\"label\",\"highlightColumns\":[\"value\"]},\"children\":[]}}}\n\n" +
-                "Previous output:\n${rawText.trim()}"
             )
     }
 }

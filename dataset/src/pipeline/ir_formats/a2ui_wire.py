@@ -1,4 +1,4 @@
-"""GenUICraft custom-catalog A2UI v1 wire codec.
+"""Standard pinned A2UI v1 wire codec.
 
 The decoder accepts a create-surface envelope or an ordered v1 message stream.
 All messages normalize into the same canonical FlatSpec graph used by Android.
@@ -31,10 +31,11 @@ def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> dict[str, An
                 component[key] = deepcopy(value)
         components.append(component)
 
+    if source["root"] != "root":
+        raise ValueError("Compiled A2UI root must be deterministically rewritten to id 'root'")
     create: dict[str, Any] = {
         "surfaceId": DEFAULT_SURFACE_ID,
         "catalogId": manifest["catalogId"],
-        "rootId": source["root"],
         "components": components,
     }
     if source.get("state"):
@@ -47,7 +48,6 @@ def decode(payload: Any) -> dict[str, Any]:
     elements: dict[str, dict[str, Any]] = {}
     state: dict[str, Any] = {}
     surface_id: str | None = None
-    root_id: str | None = None
     deleted = False
 
     for message in messages:
@@ -58,11 +58,8 @@ def decode(payload: Any) -> dict[str, Any]:
             create = _mapping(message["createSurface"], "createSurface")
             surface_id = _surface_id(create, surface_id)
             _validate_catalog(create.get("catalogId"))
-            root_candidate = create.get("rootId")
-            if root_candidate is not None:
-                if not isinstance(root_candidate, str) or not root_candidate.strip():
-                    raise ValueError("A2UI createSurface.rootId must be a non-empty string")
-                root_id = root_candidate
+            if "rootId" in create:
+                raise ValueError("Non-standard createSurface.rootId is not allowed; the root component id is 'root'")
             raw_state = create.get("dataModel", {})
             if not isinstance(raw_state, Mapping):
                 raise ValueError("A2UI createSurface.dataModel must be an object")
@@ -102,9 +99,9 @@ def decode(payload: Any) -> dict[str, Any]:
         raise ValueError("A2UI surface was deleted before conversion")
     if not elements:
         raise ValueError("A2UI wire payload did not produce any components")
-    resolved_root = root_id or ("root" if "root" in elements else next(iter(elements)))
+    resolved_root = "root"
     if resolved_root not in elements:
-        raise ValueError(f"A2UI rootId {resolved_root!r} does not exist in components")
+        raise ValueError("A2UI payload must contain a component with id 'root'")
     return {
         "root": resolved_root,
         "state": state,
@@ -163,6 +160,15 @@ def _decode_components(value: Any) -> Iterable[tuple[str, dict[str, Any]]]:
             raise ValueError(f"Unsupported A2UI component {component_type!r}")
 
         metadata = {"id", "component", "children", "repeat", "visible", "on", "watch"}
+        descriptor = load_catalog().get("components", {}).get(component_type, {})
+        allowed_props = set(descriptor.get("allowedProperties", ()))
+        if not allowed_props:
+            allowed_props = set(descriptor.get("consumedProps", ())) | set(descriptor.get("positional", ()))
+        unknown = [key for key in raw if key not in metadata and key not in allowed_props]
+        if unknown:
+            raise ValueError(
+                f"A2UI component {element_id!r} has unsupported properties: {', '.join(map(str, unknown))}"
+            )
         props = {key: deepcopy(item) for key, item in raw.items() if key not in metadata}
         children = raw.get("children", [])
         if not isinstance(children, list) or any(not isinstance(item, str) or not item for item in children):

@@ -171,16 +171,16 @@ def main() -> None:
         progress_path = run_paths.run_dir / f"progress_stage3_worker_{args.worker_index}.json"
     shard_responses_path = run_paths.run_dir / f".stage3_worker_{args.worker_index}_responses.jsonl"
 
-    schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/genui_flatspec.schema.json")
+    schema_path = DATASET_ROOT / run_cfg.get("stage3_schema_file", "schema/canonical_ui_graph_v1.schema.json")
     if not schema_path.exists():
-        schema_path = DATASET_ROOT / "schema" / "genui_flatspec.schema.json"
+        schema_path = DATASET_ROOT / "schema" / "canonical_ui_graph_v1.schema.json"
     prompt_file = os.environ.get("A2UI_STAGE3_PROMPT_FILE") or run_cfg.get(
         "stage3_prompt_file",
-        "prompts/genui_gen_mobile_flatspec_v11.md",
+        "prompts/genui_gen_mobile_a2ui_express_v1.md",
     )
     prompt_path = DATASET_ROOT / prompt_file
     if not prompt_path.exists():
-        prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_flatspec_v11.md"
+        prompt_path = DATASET_ROOT / "prompts" / "genui_gen_mobile_a2ui_express_v1.md"
     stage3_batch_size = env_int(
         "STAGE3_BATCH_SIZE",
         env_int("A2UI_STAGE3_BATCH_SIZE", int(run_cfg.get("genui_batch_size", 1))),

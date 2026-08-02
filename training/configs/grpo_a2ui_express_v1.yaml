@@ -1,0 +1,24 @@
+# Reference GRPO launch profile. train_grpo.py consumes the equivalent values
+# as CLI flags; this file keeps the production target and source isolation
+# explicit for reproducible launch wrappers.
+run:
+  id: grpo_a2ui_express_v1
+  dataset: outputs/datasets/dataset_v1_stage3/train.jsonl
+  prompt_template: dataset/prompts/genui_gen_mobile_a2ui_express_v1.md
+  output_dir: runs/grpo_a2ui_express_v1
+  target_format: a2ui_express_v1
+  reward_config: dataset/configs/genui_metric_v5_4.yaml
+training:
+  num_generations: 8
+  per_device_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 0.000005
+  epochs: 1
+  max_completion_length: 4096
+  loss_type: dapo
+  scale_rewards: batch
+  bf16: true
+contract:
+  production_target_format: a2ui_express_v1
+  source_group_key: source_id
+  forbidden_targets: [compact_ir_v2, gci2]
