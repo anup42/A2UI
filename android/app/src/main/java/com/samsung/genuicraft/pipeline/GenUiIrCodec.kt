@@ -12,12 +12,12 @@ internal object GenUiIrCodec {
         require(payload != null && !payload.isJsonNull) { "IR payload is null." }
         if (payload.isJsonPrimitive && payload.asJsonPrimitive.isString) {
             val text = payload.asString.trim()
-            if (A2uiExpressCodec.looksLike(text)) return GenUiIrFormat.A2UI_EXPRESS_V1
             runCatching { JsonParser.parseString(text) }.getOrNull()?.let { parsed ->
                 if (!(parsed.isJsonPrimitive && parsed.asJsonPrimitive.isString && parsed.asString == text)) {
                     return detect(parsed)
                 }
             }
+            if (A2uiExpressCodec.looksLike(text)) return GenUiIrFormat.A2UI_EXPRESS_V1
         }
         if (CompactIrCodec.looksLike(payload)) return GenUiIrFormat.COMPACT_IR_V2
         if (A2uiWireCodec.looksLike(payload)) return GenUiIrFormat.A2UI_V1_WIRE

@@ -3,6 +3,9 @@ package com.samsung.genuicraft
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.samsung.genuicraft.pipeline.A2uiExpressCodec
+import com.samsung.genuicraft.pipeline.A2uiWireCodec
+import com.samsung.genuicraft.pipeline.CompactIrCodec
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -104,6 +107,53 @@ class GenUiNativeRendererFlatSpecTest {
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
+        assertNotNull(result.surfaces.single().flatSpec)
+    }
+
+    @Test
+    fun render_acceptsCompactIrWrappedInGenUiJsonObject() {
+        val flatSpec = JsonParser.parseString(flatSpecJson).asJsonObject
+        val wrapper = JsonObject().apply {
+            addProperty("ui_id", "u_compact")
+            add("genui_json", CompactIrCodec.encode(flatSpec))
+        }
+
+        val result = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+
+        assertNull(result.errorMessage)
+        assertEquals("root", result.surfaces.single().rootId)
+        assertNotNull(result.surfaces.single().flatSpec)
+    }
+
+    @Test
+    fun render_acceptsExpressAsDirectTextAndWrappedString() {
+        val express = A2uiExpressCodec.encode(JsonParser.parseString(flatSpecJson).asJsonObject)
+        val direct = GenUiNativeRenderer.render(express, sourceDir = null)
+        val wrapper = JsonObject().apply {
+            addProperty("ui_id", "u_express")
+            addProperty("genui_json", express)
+        }
+        val wrapped = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+
+        listOf("direct" to direct, "wrapped" to wrapped).forEach { (label, result) ->
+            assertNull("$label warnings=${result.warnings}", result.errorMessage)
+            assertEquals("root", result.surfaces.single().rootId)
+            assertNotNull(result.surfaces.single().flatSpec)
+        }
+    }
+
+    @Test
+    fun render_acceptsA2uiV1WireWrappedInGenUiJsonObject() {
+        val flatSpec = JsonParser.parseString(flatSpecJson).asJsonObject
+        val wrapper = JsonObject().apply {
+            addProperty("ui_id", "u_wire")
+            add("genui_json", A2uiWireCodec.encode(flatSpec))
+        }
+
+        val result = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+
+        assertNull(result.errorMessage)
+        assertEquals("root", result.surfaces.single().rootId)
         assertNotNull(result.surfaces.single().flatSpec)
     }
 

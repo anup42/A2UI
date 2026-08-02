@@ -77,9 +77,12 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import com.samsung.genuicraft.renderer.FlatSpecContent
 import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
 import com.samsung.genuicraft.pipeline.FlatSpecIngestor
+import com.samsung.genuicraft.pipeline.GenUiIrCodec
+import com.samsung.genuicraft.pipeline.GenUiIrFormat
 import com.samsung.genuicraft.renderer.native.NativeActionParsing
 import com.samsung.genuicraft.renderer.native.NativeFormComponents
 import com.samsung.genuicraft.renderer.native.NativePayloadParser
@@ -149,7 +152,14 @@ object GenUiNativeRenderer {
     fun render(rawInput: String, sourceDir: File?): RenderResult {
         val warnings = mutableListOf<String>()
         val parsed = try {
-            NativePayloadParser.parseJsonOrJsonl(rawInput, warnings)
+            val trimmed = rawInput.trim()
+            val directText = JsonPrimitive(trimmed)
+            val directFormat = runCatching { GenUiIrCodec.detect(directText) }.getOrNull()
+            if (directFormat == GenUiIrFormat.A2UI_EXPRESS_V1) {
+                directText
+            } else {
+                NativePayloadParser.parseJsonOrJsonl(rawInput, warnings)
+            }
         } catch (exc: Exception) {
             return RenderResult(emptyList(), warnings, "Invalid payload: ${exc.message ?: exc.javaClass.simpleName}")
         }
@@ -182,11 +192,7 @@ object GenUiNativeRenderer {
         warnings: MutableList<String>,
         assetUrlMap: Map<String, String>
     ): SurfaceState? {
-        if (FlatSpecParser.isFlatSpec(parsed)) {
-            return buildFlatSpecSurface(parsed, warnings, assetUrlMap)
-        }
-
-        val embedded = findEmbeddedFlatSpec(parsed) ?: return null
+        val embedded = findEmbeddedIr(parsed) ?: return null
         return buildFlatSpecSurface(embedded, warnings, assetUrlMap)
     }
 
@@ -216,20 +222,20 @@ object GenUiNativeRenderer {
         )
     }
 
-    private fun findEmbeddedFlatSpec(
+    private fun findEmbeddedIr(
         element: JsonElement?,
         depth: Int = 0
     ): JsonElement? {
         if (element == null || element.isJsonNull || depth > 4) {
             return null
         }
-        if (FlatSpecParser.isFlatSpec(element)) {
+        if (runCatching { GenUiIrCodec.detect(element) }.isSuccess) {
             return element
         }
 
         if (element.isJsonArray) {
             element.asJsonArray.forEach { child ->
-                findEmbeddedFlatSpec(coerceEmbeddedJsonElement(child), depth + 1)?.let { return it }
+                findEmbeddedIr(child, depth + 1)?.let { return it }
             }
             return null
         }
@@ -240,23 +246,9 @@ object GenUiNativeRenderer {
 
         val obj = element.asJsonObject
         flatSpecWrapperKeys.forEach { key ->
-            findEmbeddedFlatSpec(coerceEmbeddedJsonElement(obj.get(key)), depth + 1)?.let { return it }
+            findEmbeddedIr(obj.get(key), depth + 1)?.let { return it }
         }
         return null
-    }
-
-    private fun coerceEmbeddedJsonElement(element: JsonElement?): JsonElement? {
-        if (element == null || element.isJsonNull) {
-            return null
-        }
-        if (!element.isJsonPrimitive || !element.asJsonPrimitive.isString) {
-            return element
-        }
-        val raw = element.asString.trim()
-        if (raw.isEmpty() || (!raw.startsWith("{") && !raw.startsWith("["))) {
-            return null
-        }
-        return runCatching { JsonParser.parseString(raw) }.getOrNull()
     }
 
     @Composable
