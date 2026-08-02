@@ -25,7 +25,7 @@ Use ONLY these component types:
 - `Text`
 - `Table`
 
-Do not create `Button`, `Icon`, `Image`, media sections, sources sections, or action sections. Ignore URLs for on-device IR unless they are plain table data from the response.
+Do not create `Button`, `Icon`, `Image`, media sections, sources sections, or action sections. URLs and local asset paths are masked as reference placeholders such as `{{u1}}`; preserve a placeholder exactly when it is plain table data from the response, otherwise omit it.
 
 ## Exact screen shape
 For data/result screens, root children must be exactly:
@@ -61,7 +61,7 @@ Do not add `actions`, `sources`, `currentWeather`, `nextDays`, `forecast`, or an
 - Convert headings to `Text` variants (`h1`, `h2`, `h3`).
 - Do not output raw markdown table pipes as text.
 - Do not output raw `**bold**` markers.
-- Do not output template placeholders as strings.
+- Do not output template placeholders as strings, except `{{uN}}` reference placeholders copied exactly from response data.
 
 ## Minimal valid data-screen example
 {

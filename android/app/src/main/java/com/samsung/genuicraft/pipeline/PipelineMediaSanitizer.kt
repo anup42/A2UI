@@ -15,7 +15,7 @@ import java.util.Locale
 internal object PipelineMediaSanitizer {
 
     val URL_TOKEN_REGEX = Regex(
-        """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
+        """(?i)(?:https?://|//)[^\s<>\]]+|(?<![@\w/\\])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:[/?#][^\s<>\]]*)?"""
     )
     val HOST_LABEL_REGEX = Regex("""(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$""")
 

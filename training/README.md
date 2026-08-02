@@ -27,6 +27,11 @@ The folder reader is recursive by default (`**/genui.jsonl`). It writes
 `train.jsonl`, `val.jsonl`, `test.jsonl`, and `all.jsonl`; `all.jsonl` is used for
 fixed-set evaluation jobs.
 
+When `url_preprocessing.enabled` is true, preparation replaces every URL/URI and
+local asset reference in both the response prompt and IR target with typed
+placeholders. The exact placeholder map is stored in row metadata and evaluation
+restores the original references before comparison or exported prediction review.
+
 Prepare the golden50 set once before training:
 
 ```powershell

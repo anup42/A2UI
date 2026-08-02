@@ -125,6 +125,16 @@ class PipelineMediaSanitizerTest {
     }
 
     @Test
+    fun normalizeUrlTokensForDisplay_preservesLocalAssetFilenames() {
+        val response = "Receipt=../assets/orders/A-1042/receipt.json " +
+            "Photo=C:\\GenUI\\media\\arrival.webp"
+
+        val transformed = PipelineMediaSanitizer.normalizeUrlTokensForDisplay(response)
+
+        assertEquals(response, transformed)
+    }
+
+    @Test
     fun enforceSafeGenUiContent_removesUnsafeMediaAndOpenUrlActions() {
         val json = """
             {

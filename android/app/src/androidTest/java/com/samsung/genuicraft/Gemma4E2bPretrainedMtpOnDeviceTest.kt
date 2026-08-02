@@ -5,7 +5,9 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import com.google.gson.JsonParser
 import com.samsung.genuicraft.inference.OnDeviceModelCatalog
+import com.samsung.genuicraft.mcp.McpUrlShortener
 import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -54,9 +56,33 @@ class Gemma4E2bPretrainedMtpOnDeviceTest {
             | Carrier | SwiftShip |
             | Current status | Out for delivery |
             | Estimated arrival | Today, 4:30 PM |
+            | Receipt asset | ../assets/orders/A-1042/receipt.json |
 
-            Action: [Button: Track package] <<https://example.com/orders/A-1042>>
+            Action: [Button: Track package] <<https://www.samsung.com/support/orders/A-1042>>
         """.trimIndent()
+
+        val runtimeMaskProbe =
+            "Action=https://www.samsung.com/support/orders/A-1042 Asset=../assets/orders/A-1042/receipt.json"
+        val runtimeMaskResult = McpUrlShortener.shorten(runtimeMaskProbe)
+        assertFalse("Android runtime leaked a URL into masked text", runtimeMaskResult.shortenedText.contains("https://"))
+        assertFalse("Android runtime leaked an asset path into masked text", runtimeMaskResult.shortenedText.contains("../assets/"))
+        assertTrue("Android runtime did not create both placeholders", runtimeMaskResult.urlMap.size == 2)
+        assertTrue(
+            "Android runtime did not restore references exactly",
+            McpUrlShortener.restore(runtimeMaskResult.shortenedText, runtimeMaskResult.urlMap) == runtimeMaskProbe,
+        )
+        val runtimeJsonRestore = McpUrlShortener.restoreJsonReferences(
+            JsonParser.parseString("""{"action":"{{u1}}","asset":"{{u2}}"}"""),
+            runtimeMaskResult.urlMap,
+        ).jsonElement.asJsonObject
+        assertTrue(
+            "Android JSON restoration lost the URL",
+            runtimeJsonRestore.get("action").asString == "https://www.samsung.com/support/orders/A-1042",
+        )
+        assertTrue(
+            "Android JSON restoration lost the asset path",
+            runtimeJsonRestore.get("asset").asString == "../assets/orders/A-1042/receipt.json",
+        )
 
         try {
             InferenceBackendSettings.setIrProvider(
@@ -106,11 +132,34 @@ class Gemma4E2bPretrainedMtpOnDeviceTest {
                     "MTP enablement was not reported for $formatId: ${result.warnings}",
                     result.warnings.any { it == "On-device Gemma MTP: enabled" },
                 )
+                assertTrue(
+                    "Reference masking was not reported for $formatId: ${result.warnings}",
+                    result.warnings.any { it.contains("URL/asset reference") },
+                )
+                assertFalse(
+                    "Raw action URL was sent to the IR model for $formatId",
+                    result.stage3Prompt.contains("https://www.samsung.com/support/orders/A-1042"),
+                )
+                assertFalse(
+                    "Raw local asset path was sent to the IR model for $formatId",
+                    result.stage3Prompt.contains("../assets/orders/A-1042/receipt.json"),
+                )
+                assertFalse(
+                    "A partial local asset path was sent to the IR model for $formatId",
+                    result.stage3Prompt.contains("../assets/"),
+                )
+                assertTrue(
+                    "Masked reference placeholder was not sent for $formatId",
+                    result.stage3Prompt.contains("{{u1}}") &&
+                        result.stage3Prompt.contains("{{u2}}") &&
+                        result.stage3Prompt.contains("{{u3}}"),
+                )
                 assertTrue("Rendered output lost the order id for $formatId", result.stage3Json.contains("A-1042"))
                 assertTrue("Rendered output lost the carrier for $formatId", result.stage3Json.contains("SwiftShip"))
                 assertTrue("Rendered output lost the ETA for $formatId", result.stage3Json.contains("Today, 4:30 PM"))
                 assertTrue("Rendered output lost the action for $formatId", result.stage3Json.contains("emitEvent"))
                 assertTrue("Rendered output action is not wired for $formatId", result.stage3Json.contains("\"on\":"))
+                assertFalse("Unresolved reference placeholder remained for $formatId", result.stage3Json.contains("{{u"))
                 assertTrue(
                     "Rendered output lost grouped order details for $formatId",
                     result.stage3Json.contains("\"type\":\"Table\"") ||

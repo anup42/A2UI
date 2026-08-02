@@ -149,6 +149,14 @@ internal object PipelineJsonExtractor {
         out = MISSING_KEY_PROP_COLON.replace(out) { match ->
             "\"key\":\"${match.groupValues[1]}\",\"label\""
         }
+        out = MISSING_TABLE_ROWS_ARRAY_CLOSE_BEFORE_PROP.replace(out) { match ->
+            val rowsPrefix = match.groupValues[1] + match.groupValues[2]
+            if (rowsPrefix.trimEnd().endsWith("]")) {
+                match.value
+            } else {
+                "$rowsPrefix]],${match.groupValues[3]}"
+            }
+        }
         repeat(6) {
             val next = MISSING_COMMA_BETWEEN_STRING_PROPS.replace(out) { match ->
                 "${match.groupValues[1]},${match.groupValues[2]}"
@@ -236,6 +244,13 @@ internal object PipelineJsonExtractor {
                 item.remove(key)
                 changed = true
             }
+            val props = item.get("p")?.takeIf { it.isJsonObject }?.asJsonObject
+            val misplacedAction = props?.get("o")
+            if (!item.has("o") && misplacedAction?.isJsonObject == true) {
+                item.add("o", misplacedAction.deepCopy())
+                props.remove("o")
+                changed = true
+            }
         }
         return if (changed) normalized else element
     }
@@ -307,12 +322,25 @@ internal object PipelineJsonExtractor {
     private val MISSING_COMMA_BETWEEN_STRING_PROPS = Regex(
         "(\"[^\"]+\"\\s*:\\s*\"[^\"]*\")\\s*:\\s*(\"[^\"]+\"\\s*:)"
     )
+    private val MISSING_TABLE_ROWS_ARRAY_CLOSE_BEFORE_PROP = Regex(
+        """("rows"\s*:\s*\[\s*\[[\s\S]*?)(.)\u005D\s*\}\s*,\s*("(?:domain|preferredPresentation|presentation|primaryColumn|highlightColumns)"\s*:)"""
+    )
     private val STRAY_COMMA_TOKEN = Regex(",\\s*,")
     private val CHILDREN_EMPTY_ARRAY_TRAILING_QUOTE = Regex(
         "(\"children\"\\s*:\\s*\\[\\])\"(?=\\s*[,}])"
     )
     private val COMPACT_TOP_LEVEL_KEYS = setOf("v", "r", "s", "e")
-    private val COMPACT_MISPLACED_PROP_KEYS = setOf("domain", "preferredPresentation", "presentation", "variant")
+    private val COMPACT_MISPLACED_PROP_KEYS = setOf(
+        "columns",
+        "rows",
+        "statePath",
+        "domain",
+        "preferredPresentation",
+        "presentation",
+        "primaryColumn",
+        "highlightColumns",
+        "variant",
+    )
     private const val MAX_JSON_SUFFIX_CLOSERS = 4
 
     fun buildFlatSpecRepairPrompt(

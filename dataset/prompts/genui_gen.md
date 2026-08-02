@@ -96,10 +96,10 @@ Valid (flat-spec):
 
 ## Asset URL policy
 - If no Assets mapping is provided, preserve media URLs exactly as given.
-- Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
-- Action/source URLs for Buttons, `openUrl`, `url`, `bookingUrl`, `actionUrl`, `href`, and `link` fields must be `https://` public-domain URLs only, or compact verified URL placeholders such as `{{u1}}`/`{{u2}}` when the response uses them. Preserve `{{uN}}` placeholders exactly; they will be restored to real URLs after JSON generation.
+- Never invent local media paths that are absent from the response.
+- Action/source references for Buttons, `openUrl`, `url`, `bookingUrl`, `actionUrl`, `href`, and `link` fields must use compact placeholders such as `{{u1}}`/`{{u2}}` when provided in the response. A placeholder can represent a verified URL or local asset path. Preserve it exactly; it will be restored after JSON generation.
 - Do not emit `http://`, `javascript:`, `data:`, `file:`, `content:`, `intent:`, localhost, private IP ranges, `.local`, `.test`, `.example`, malformed hosts, placeholder hosts, or fake/test domains.
-- Preserve direct HTTPS media URLs from the response exactly for `Image`, `Icon`, and table media fields. Do not drop unknown public HTTPS image hosts just because they are not in a curated allowlist. Compact verified URL placeholders such as `{{u1}}` must also be preserved exactly.
+- Preserve compact reference placeholders such as `{{u1}}` exactly for `Image`, `Icon`, and table media fields. They will be restored to the original URL or local asset path after JSON generation.
 
 ## Media preservation rules (compact)
 - Treat standalone media sections as metadata, not content sections. Headings such as `Images:`, `Icons:`, `Visual Guide`, `Key Feature Icons`, `Trip Imagery`, `Weather Icons`, or `Related Icons` MUST NOT become standalone Cards or trailing sections.
@@ -153,7 +153,7 @@ Allowed dynamic value expressions in props:
     - optional `primaryColumn`: key/label used as the row title in portrait card layouts
     - optional `highlightColumns`: 1-2 key/label values to surface as chips or badges in portrait
     - optional `numericColumns`: keys/labels for numeric, currency, score, or unit columns
-    - optional `entityMedia`: map of compared column keys/labels to `{ "image": "../assets/...", "alt": "..." }`; use only verified/local media and keep it attached to the `Table`
+    - optional `entityMedia`: map of compared column keys/labels to `{ "image": "{{u1}}", "alt": "..." }`; use only a reference placeholder supplied by the response and keep it attached to the `Table`
     - optional playlist-only `title`, `subtitle`, `mood`, `genre` for renderer-generated playlist hero metadata
     - optional `sourceFormat`: `markdown | csv | tsv | html | plain`
     - optional `sourceText`: raw table text from source response, only when rows/columns cannot preserve the data
@@ -253,7 +253,7 @@ Content:
   - `primaryColumn` optional (key/label for portrait card title)
   - `highlightColumns` optional (list/string of 1-2 important key/label values)
   - `numericColumns` optional (list/string of numeric/currency/score/unit columns)
-  - `entityMedia` optional for comparison/feature-matrix tables: map entity column key/label to `{ "image": "../assets/...", "alt": "..." }`; renderer shows these inside entity cards
+  - `entityMedia` optional for comparison/feature-matrix tables: map entity column key/label to `{ "image": "{{u1}}", "alt": "..." }`; renderer shows these inside entity cards after reference restoration
   - `title`, `subtitle`, `mood`, `genre` optional for playlist/music table hero metadata
   - `sourceFormat` optional (`markdown|csv|tsv|html|plain`)
   - `sourceText` optional raw table text

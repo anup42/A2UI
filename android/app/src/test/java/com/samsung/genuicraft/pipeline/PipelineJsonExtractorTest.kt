@@ -91,6 +91,60 @@ class PipelineJsonExtractorTest {
     }
 
     @Test
+    fun extractJsonElement_movesMisplacedCompactTableRowsIntoProps() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Column","c":["details"]},"details":{"t":"Table","p":{"columns":["Detail","Value"]},"rows":[["Carrier","SwiftShip"],["ETA","Today, 4:30 PM"]],"domain":"status","preferredPresentation":"table"}}}
+        """.trimIndent()
+
+        val parsed = requireNotNull(PipelineJsonExtractor.extractJsonElement(text))
+        val details = parsed.asJsonObject.getAsJsonObject("e").getAsJsonObject("details")
+        val props = details.getAsJsonObject("p")
+        val ingested = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)
+
+        assertFalse(details.has("rows"))
+        assertEquals(2, props.getAsJsonArray("rows").size())
+        assertEquals("SwiftShip", props.getAsJsonArray("rows")[0].asJsonArray[1].asString)
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
+    }
+
+    @Test
+    fun extractJsonElement_repairsMissingCompactRowsArrayCloseBeforeDomain() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Column","c":["details"]},"details":{"t":"Table","p":{"columns":["Detail","Value"]},"rows":[["Carrier","SwiftShip"],["ETA","Today, 4:30 PM"]},"domain":"status","preferredPresentation":"table"}}}
+        """.trimIndent()
+
+        val parsed = requireNotNull(PipelineJsonExtractor.extractJsonElement(text))
+        val props = parsed.asJsonObject.getAsJsonObject("e")
+            .getAsJsonObject("details")
+            .getAsJsonObject("p")
+        val ingested = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)
+
+        assertEquals(2, props.getAsJsonArray("rows").size())
+        assertEquals("Today, 4:30 PM", props.getAsJsonArray("rows")[1].asJsonArray[1].asString)
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
+    }
+
+    @Test
+    fun extractJsonElement_hoistsCompactActionBindingOutOfProps() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Column","c":["action"]},"action":{"t":"Button","p":{"label":"Track package","o":{"press":{"action":"emitEvent","params":{"name":"track_package"}}}}}}}
+        """.trimIndent()
+
+        val parsed = requireNotNull(PipelineJsonExtractor.extractJsonElement(text))
+        val action = parsed.asJsonObject.getAsJsonObject("e").getAsJsonObject("action")
+        val ingested = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)
+
+        assertFalse(action.getAsJsonObject("p").has("o"))
+        assertEquals("emitEvent", action.getAsJsonObject("o")
+            .getAsJsonObject("press").get("action").asString)
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
+        val canonical = (ingested as FlatSpecIngestResult.CanonicalFlatSpec).canonicalJson
+        assertEquals("emitEvent", canonical.getAsJsonObject("elements")
+            .getAsJsonObject("action").getAsJsonObject("on")
+            .getAsJsonObject("press").get("action").asString)
+    }
+
+    @Test
     fun extractJsonElement_prefersFlatSpecObjectOverNestedArray() {
         val text = """
             noisy prefix ["title", null, "summary"]

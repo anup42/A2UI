@@ -7,9 +7,21 @@ from typing import Any
 from urllib.parse import urlparse
 
 
-_HTTP_URL_RE = re.compile(r"https?://[^\s\]\)\"'<>]+", re.IGNORECASE)
-_LOCAL_ASSET_RE = re.compile(
-    r"(?<![\w/\\])(?:(?:\.\.[/\\]assets[/\\])|(?:\.[/\\]assets[/\\])|(?:[/\\]assets[/\\])|(?:assets[/\\]))[^\s\]\)\"'<>]+"
+_LOCAL_ASSET_PREFIX = (
+    r"(?:[a-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|"
+    r"\.{1,2}[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\])"
+)
+_LOCAL_ASSET_TAIL = r"[^\s<>\"'|]*[-\w._~/#%+&=\\]"
+_REFERENCE_RE = re.compile(
+    rf"(?:(?P<quote>[\"'])(?P<quoted_local>{_LOCAL_ASSET_PREFIX}[^\"']*[-\w._~/#%+&=\\])(?P=quote)|"
+    rf"(?P<reference>\b[a-z][a-z0-9+.-]*://[^\s<>\"']*[\w/#=&%+~_-]|"
+    rf"\b(?:mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):[^\s<>\"']*[\w/#=&%+~_-]|"
+    rf"(?<![\w]){_LOCAL_ASSET_PREFIX}{_LOCAL_ASSET_TAIL}|@[a-z][a-z0-9_.-]*/[a-z0-9_.-]+))",
+    re.IGNORECASE,
+)
+_LOCAL_ASSET_START_RE = re.compile(
+    rf"^(?:{_LOCAL_ASSET_PREFIX}|@[a-z][a-z0-9_.-]*/)",
+    re.IGNORECASE,
 )
 _PLACEHOLDER_RE = re.compile(
     r"\[(?:IMAGE_URL|ICON_URL|ACTION_URL|SOURCE_URL|MEDIA_URL|URL|IMAGE_ASSET|ICON_ASSET|MEDIA_ASSET)_\d+\]"
@@ -49,12 +61,13 @@ class _UrlRegistry:
         placeholder_prefix = _placeholder_prefix(role)
         self._counters[placeholder_prefix] = self._counters.get(placeholder_prefix, 0) + 1
         token = f"[{placeholder_prefix}_{self._counters[placeholder_prefix]}]"
-        parsed = urlparse(raw_url if raw_url.lower().startswith(("http://", "https://")) else "")
+        parsed = urlparse(raw_url if not _is_local_asset_reference(raw_url) else "")
         self._by_role_url[key] = token
         self.url_map[token] = {
             "url": raw_url,
             "role": role,
             "host": parsed.netloc.lower(),
+            "kind": "local_asset" if _is_local_asset_reference(raw_url) else "url",
         }
         return token
 
@@ -158,8 +171,25 @@ def _replace_urls_in_text(
     action_context: bool = False,
     in_response: bool,
 ) -> str:
+    stripped_text = text.strip()
+    if "\n" not in text and "\r" not in text and _is_local_asset_reference(stripped_text):
+        role = _classify_url(
+            stripped_text,
+            key=key,
+            component_type=component_type,
+            action_context=action_context,
+            context=text,
+        )
+        if in_response:
+            registry.response_url_count += 1
+        else:
+            registry.target_url_count += 1
+        start = len(text) - len(text.lstrip())
+        end = len(text.rstrip())
+        return text[:start] + registry.placeholder(stripped_text, role) + text[end:]
+
     def replace_match(match: re.Match[str]) -> str:
-        raw = match.group(0)
+        raw = match.group("quoted_local") or match.group("reference") or match.group(0)
         stripped, suffix = _strip_trailing_punct(raw)
         role = _classify_url(
             stripped,
@@ -172,16 +202,17 @@ def _replace_urls_in_text(
             registry.response_url_count += 1
         else:
             registry.target_url_count += 1
-        return registry.placeholder(stripped, role) + suffix
+        placeholder = registry.placeholder(stripped, role) + suffix
+        quote = match.group("quote")
+        return f"{quote}{placeholder}{quote}" if quote else placeholder
 
-    output = _HTTP_URL_RE.sub(replace_match, text)
-    output = _LOCAL_ASSET_RE.sub(replace_match, output)
-    return output
+    return _REFERENCE_RE.sub(replace_match, text)
 
 
 def _find_url_like_values(text: str) -> list[str]:
-    return [match.group(0) for match in _HTTP_URL_RE.finditer(text)] + [
-        match.group(0) for match in _LOCAL_ASSET_RE.finditer(text)
+    return [
+        match.group("quoted_local") or match.group("reference") or match.group(0)
+        for match in _REFERENCE_RE.finditer(text)
     ]
 
 
@@ -198,10 +229,21 @@ def _classify_url(
     context_l = context.lower()
     url_l = url.lower()
     url_norm = url_l.replace("\\", "/")
-    if url_norm.startswith(("../assets/", "./assets/", "/assets/", "assets/")):
-        if url_norm.endswith(_ICON_EXTENSIONS) or key_l in _ICON_KEYS or type_l == "icon":
+    if _is_local_asset_reference(url):
+        if (
+            url_norm.endswith(_ICON_EXTENSIONS)
+            or key_l in _ICON_KEYS
+            or type_l == "icon"
+            or "media: icon" in context_l
+            or re.search(r"\bicons?\s*:", context_l)
+        ):
             return "ICON_ASSET"
-        if url_norm.endswith(_IMAGE_EXTENSIONS) or type_l == "image":
+        if (
+            url_norm.endswith(_IMAGE_EXTENSIONS)
+            or type_l == "image"
+            or "media: image" in context_l
+            or re.search(r"\bimages?\s*:", context_l)
+        ):
             return "IMAGE_ASSET"
         return "MEDIA_ASSET"
     if action_context or key_l in {"bookingurl", "actionurl", "href", "link"}:
@@ -231,7 +273,7 @@ def _normalize_role(role: str, url: str) -> str:
     role = role.upper()
     if role in {"IMAGE", "ICON", "ACTION", "SOURCE", "MEDIA", "URL", "IMAGE_ASSET", "ICON_ASSET", "MEDIA_ASSET"}:
         return role
-    if url.lower().startswith(("http://", "https://")):
+    if not _is_local_asset_reference(url):
         return "URL"
     return "MEDIA_ASSET"
 
@@ -248,6 +290,10 @@ def _looks_like_image(url_l: str) -> bool:
 
 def _looks_like_icon(url_l: str) -> bool:
     return url_l.endswith(_ICON_EXTENSIONS) or "/icons/" in url_l or "cdn.jsdelivr.net/npm/bootstrap-icons" in url_l
+
+
+def _is_local_asset_reference(value: str) -> bool:
+    return bool(_LOCAL_ASSET_START_RE.match(value.strip()))
 
 
 def _strip_trailing_punct(raw: str) -> tuple[str, str]:

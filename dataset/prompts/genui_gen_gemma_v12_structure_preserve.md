@@ -94,8 +94,8 @@ Local image usage example:
 - Treat local paths ending in `.jpg`, `.jpeg`, `.png`, or `.webp` as real image assets. If such image assets exist, include at least one relevant `Image` element unless the response domain is email/message, code/console, or formula/calculation.
 - Attach image assets near the matching section/entity/day/place/product/card. Do not collect them into a top/bottom gallery, "Visual Guide", "Images", or "Related media" section.
 - Treat `.svg` assets, Bootstrap icon URLs, and `/icons/` URLs as `Icon` only, never as `Image`.
-- Never invent placeholder paths like `/image.jpg` or `/asset/foo.png`.
-- Action/source URLs for Buttons, `openUrl`, `url`, `bookingUrl`, `actionUrl`, `href`, and `link` fields must be `https://` public-domain URLs only, or compact verified URL placeholders such as `{{u1}}`/`{{u2}}` when the response uses them. Preserve `{{uN}}` placeholders exactly; they will be restored to real URLs after JSON generation.
+- Never invent local media paths that are absent from the response.
+- Action/source references for Buttons, `openUrl`, `url`, `bookingUrl`, `actionUrl`, `href`, and `link` fields must use compact placeholders such as `{{u1}}`/`{{u2}}` when provided in the response. A placeholder can represent a verified URL or local asset path. Preserve it exactly; it will be restored after JSON generation.
 - Do not emit `http://`, `javascript:`, `data:`, `file:`, `content:`, `intent:`, localhost, private IP ranges, `.local`, `.test`, `.example`, malformed hosts, placeholder hosts, or fake/test domains.
 - Preserve direct HTTPS media URLs from the response exactly for `Image`, `Icon`, and table media fields. Do not drop unknown public HTTPS image hosts just because they are not in a curated allowlist. Compact verified URL placeholders such as `{{u1}}` must also be preserved exactly.
 

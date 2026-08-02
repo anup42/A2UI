@@ -145,6 +145,9 @@ class GenUiStagePipeline(private val appContext: Context) {
                 "Before returning, audit every authoritative response value against visible component props. " +
                 "Include every carrier, status, ETA, date, time, amount, unit, and identifier in Text, Card, " +
                 "or Table content; a value appearing only inside an action URL does not count as visible. " +
+                "For Table, the exact positional signature is Table(columns,statePath,rows,title,domain," +
+                "preferredPresentation). Use _ as statePath when rows are inline, for example " +
+                "Table([\"Detail\",\"Value\"],_,[[\"Carrier\",\"SwiftShip\"]],\"Details\",\"status\",\"table\"). " +
                 "Finally, list every assigned identifier and every child reference. Each child must exactly " +
                 "match an assignment. For example, if the Button assignment is named button, use button in " +
                 "the child list; never leave an unassigned generic child such as action. " +
@@ -732,6 +735,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2Response = McpResponseFormatter.normalizeForStage3(
             PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
         )
+        val responseReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(stage2Response)
+        val stage3InputResponse = responseReferenceMask.shortenedText
         val injectedFlightList = stage2WithFlightList != stage2ResponseRaw
         val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
@@ -748,14 +753,17 @@ class GenUiStagePipeline(private val appContext: Context) {
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, Context.MODE_PRIVATE)
         )
-        val stage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
+        val rawStage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
-            stage2Response = stage2Response,
+            stage2Response = stage3InputResponse,
             catalogId = catalogId,
             assets = emptyList(),
             outputFormat = currentStage3Format(),
             appendRequestPolicies = !useRawStage3ResponseProfile,
         )
+        val promptReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(rawStage3Prompt)
+        val stage3Prompt = promptReferenceMask.shortenedText
+        val referenceMap = responseReferenceMask.urlMap + promptReferenceMask.urlMap
         if (irProvider == InferenceBackendSettings.Provider.LOCAL_SERVER &&
             responseProvider != InferenceBackendSettings.Provider.LOCAL_SERVER
         ) {
@@ -779,6 +787,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             null
         }
         val warnings = mutableListOf<String>()
+        if (referenceMap.isNotEmpty()) {
+            warnings += "Masked ${referenceMap.size} URL/asset reference(s) before Stage 3."
+        }
         warnings += "Response backend: ${responseProvider.rawValue}"
         warnings += "IR backend: ${irProvider.rawValue}"
         warnings += "IR output format: ${IrPromptVersionSettings.getSelectedOption(appContext).title}"
@@ -953,7 +964,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
-            sourceResponseText = stage2Response,
+            sourceResponseText = stage3InputResponse,
             backend = irBackend,
             provider = irProvider,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
@@ -989,7 +1000,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
-        var stage3Json = gson.toJson(normalizedGenUi)
+        val referenceRestore = com.samsung.genuicraft.mcp.McpUrlShortener.restoreJsonReferences(
+            normalizedGenUi,
+            referenceMap,
+        )
+        var stage3Json = gson.toJson(referenceRestore.jsonElement)
+        if (referenceRestore.removedUnmappedReferenceCount > 0) {
+            warnings += "Removed ${referenceRestore.removedUnmappedReferenceCount} unmapped URL/asset reference(s) from Stage 3 output."
+        }
         // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json,
@@ -1363,13 +1381,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2Response = McpResponseFormatter.normalizeForStage3(
             PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
         )
-        // Keep the demo/test-app path on the same compact Stage 3 input path as
-        // the live MCP flow. Long Places/Maps/media URLs are restored only after
-        // the selected IR has been decoded, so they do not consume generation
-        // tokens while preserving the original response for rendering checks.
-        val urlShortenResult = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(stage2Response)
-        val stage3InputResponse = urlShortenResult.shortenedText
-        val urlMap = urlShortenResult.urlMap
+        // Keep the demo/test-app path on the same masked Stage 3 input path as
+        // the live flow. URLs and local assets are restored only after the
+        // selected IR has been decoded.
+        val responseReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(stage2Response)
+        val stage3InputResponse = responseReferenceMask.shortenedText
         val injectedFlightList = stage2WithFlightList != normalizedResponseRaw
         val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
@@ -1385,7 +1401,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, Context.MODE_PRIVATE)
         )
-        val stage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
+        val rawStage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
             stage2Response = stage3InputResponse,
             catalogId = catalogId,
@@ -1393,6 +1409,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             outputFormat = currentStage3Format(),
             appendRequestPolicies = !useRawStage3ResponseProfile,
         )
+        val promptReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(rawStage3Prompt)
+        val stage3Prompt = promptReferenceMask.shortenedText
+        val referenceMap = responseReferenceMask.urlMap + promptReferenceMask.urlMap
         val localStage3SystemPromptCacheKey = if (provider == InferenceBackendSettings.Provider.LOCAL_SERVER) {
             cacheManager.buildLocalSystemPromptCacheKey(
                 systemPrompt = promptContext.systemPrompt
@@ -1402,8 +1421,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val warnings = mutableListOf<String>()
         warnings += "Using preloaded IR demo response (stage 2 skipped)."
-        if (urlMap.isNotEmpty()) {
-            warnings += "Shortened ${urlMap.size} URL(s) for Stage 3 token efficiency."
+        if (referenceMap.isNotEmpty()) {
+            warnings += "Masked ${referenceMap.size} URL/asset reference(s) before Stage 3."
         }
         warnings += "IR output format: ${IrPromptVersionSettings.getSelectedOption(appContext).title}"
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
@@ -1595,10 +1614,14 @@ class GenUiStagePipeline(private val appContext: Context) {
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
         // Restore placeholders before media/link preservation and native render.
-        var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(
-            gson.toJson(normalizedGenUi),
-            urlMap,
+        val referenceRestore = com.samsung.genuicraft.mcp.McpUrlShortener.restoreJsonReferences(
+            normalizedGenUi,
+            referenceMap,
         )
+        var stage3Json = gson.toJson(referenceRestore.jsonElement)
+        if (referenceRestore.removedUnmappedReferenceCount > 0) {
+            warnings += "Removed ${referenceRestore.removedUnmappedReferenceCount} unmapped URL/asset reference(s) from Stage 3 output."
+        }
         // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json,
@@ -1813,10 +1836,9 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = sanitizedResponse
         )
 
-        // Shorten long URLs to compact tokens before sending to Stage 3 LLM
-        val urlShortenResult = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(sanitizedResponse)
-        val stage3InputResponse = urlShortenResult.shortenedText
-        val urlMap = urlShortenResult.urlMap
+        // Mask every URL and local asset path before sending response data to Stage 3.
+        val responseReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(sanitizedResponse)
+        val stage3InputResponse = responseReferenceMask.shortenedText
 
         val warnings = extraWarnings.toMutableList()
 
@@ -1842,7 +1864,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             rawResponseOnly = useRawStage3ResponseProfile,
             rawResponsePrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
         )
-        val stage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
+        val rawStage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
             stage2Response = stage3InputResponse,
             catalogId = catalogId,
@@ -1850,6 +1872,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             outputFormat = currentStage3Format(),
             appendRequestPolicies = !useRawStage3ResponseProfile,
         )
+        val promptReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(rawStage3Prompt)
+        val stage3Prompt = promptReferenceMask.shortenedText
+        val referenceMap = responseReferenceMask.urlMap + promptReferenceMask.urlMap
+        if (referenceMap.isNotEmpty()) {
+            warnings += "Masked ${referenceMap.size} URL/asset reference(s) before Stage 3."
+        }
 
         val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI) {
             async(Dispatchers.IO) {
@@ -1970,7 +1998,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
-            sourceResponseText = sanitizedResponse,
+            sourceResponseText = stage3InputResponse,
             backend = irBackend,
             provider = irProvider,
             systemPrompt = promptContext.systemPrompt,
@@ -2006,8 +2034,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
-        // Restore shortened URL placeholders back to real URLs
-        var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(gson.toJson(normalizedGenUi), urlMap)
+        // Restore reference placeholders before media/link preservation and native render.
+        val referenceRestore = com.samsung.genuicraft.mcp.McpUrlShortener.restoreJsonReferences(
+            normalizedGenUi,
+            referenceMap,
+        )
+        var stage3Json = gson.toJson(referenceRestore.jsonElement)
+        if (referenceRestore.removedUnmappedReferenceCount > 0) {
+            warnings += "Removed ${referenceRestore.removedUnmappedReferenceCount} unmapped URL/asset reference(s) from Stage 3 output."
+        }
         // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json, queryText = normalizedQuery, stage2Response = sanitizedResponse

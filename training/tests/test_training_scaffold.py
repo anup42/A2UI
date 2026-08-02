@@ -161,6 +161,39 @@ def test_url_preprocessing_placeholderizes_and_restores_roles():
     assert restore_url_placeholders(result.genui_json, result.url_map) == spec
 
 
+def test_url_preprocessing_masks_all_uri_schemes_and_local_asset_paths():
+    response = (
+        "Source=content://media/external/images/media/42\n"
+        "Reference=data:image/png;base64,AAAA\n"
+        "Media: Image=../assets/cards/flight.png\n"
+        'Media: Image="C:\\GenUI Assets\\arrival photo.webp"\n'
+        "Media: Asset=assets/models/gemma\n"
+        "Media: Icon=@drawable/ic_plane"
+    )
+    spec = {
+        "root": "root",
+        "state": {
+            "content": "content://media/external/images/media/42",
+            "inline": "data:image/png;base64,AAAA",
+            "asset": "../assets/cards/flight.png",
+            "quoted": "C:\\GenUI Assets\\arrival photo.webp",
+            "model": "assets/models/gemma",
+            "icon": "@drawable/ic_plane",
+        },
+        "elements": {"root": {"type": "Stack", "props": {}, "children": []}},
+    }
+
+    result = preprocess_training_urls(response, spec)
+
+    for raw_reference in spec["state"].values():
+        assert raw_reference not in result.response_text
+        assert raw_reference not in json.dumps(result.genui_json)
+    assert len(result.url_map) == 6, json.dumps(result.url_map, sort_keys=True)
+    assert {entry["kind"] for entry in result.url_map.values()} == {"url", "local_asset"}
+    assert restore_url_placeholders(result.response_text, result.url_map) == response
+    assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
 def test_cuda_visible_devices_uses_all_detected_healthy_gpus():
     env = {"CUDA_VISIBLE_DEVICES": "0,1,2,3"}
     old_detector = normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"]

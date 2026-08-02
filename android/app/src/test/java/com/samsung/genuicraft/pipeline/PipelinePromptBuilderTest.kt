@@ -1,5 +1,7 @@
 package com.samsung.genuicraft.pipeline
 
+import com.samsung.genuicraft.mcp.McpUrlShortener
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -27,5 +29,27 @@ class PipelinePromptBuilderTest {
         assertTrue(prompt.contains("never expose assignment ids or snake_case names"))
         assertTrue(prompt.contains("every carrier, status, ETA"))
         assertTrue(prompt.contains("never an unassigned generic name such as action"))
+        assertTrue(prompt.contains("Table(columns,statePath,rows,title,domain,preferredPresentation)"))
+        assertTrue(prompt.contains("Table([\"Detail\",\"Value\"],_,[[\"Status\",\"Ready\"]]"))
+    }
+
+    @Test
+    fun stage3PromptReferencesCanBeFullyMaskedAndRestored() {
+        val remoteUrl = "https://example.org/media/icon.svg"
+        val localPath = "../assets/icon.svg"
+        val rawPrompt = PipelinePromptBuilder.buildStage3UserPrompt(
+            userTemplate = "Response:\n{response_text}",
+            stage2Response = "Media: Icon=$remoteUrl Local=$localPath",
+            catalogId = "unused",
+            assets = listOf(PipelinePromptBuilder.AssetMapping(remoteUrl, localPath)),
+        )
+
+        val masked = McpUrlShortener.shorten(rawPrompt)
+
+        assertFalse(masked.shortenedText.contains(remoteUrl))
+        assertFalse(masked.shortenedText.contains(localPath))
+        assertTrue(masked.shortenedText.contains("{{u1}}"))
+        assertTrue(masked.shortenedText.contains("{{u2}}"))
+        assertEquals(rawPrompt, McpUrlShortener.restore(masked.shortenedText, masked.urlMap))
     }
 }

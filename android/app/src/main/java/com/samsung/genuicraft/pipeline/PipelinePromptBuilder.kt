@@ -115,13 +115,13 @@ internal object PipelinePromptBuilder {
         val assetPolicy = if (assets.isEmpty()) {
             "Asset URL policy for this request:\n" +
                 "- No local asset mapping is provided.\n" +
-                "- Preserve media URLs from the response exactly as written.\n" +
-                "- If the response contains compact URL placeholders like {{u1}}, {{u2}}, preserve them exactly in media/action/source fields; they represent verified URLs and will be restored after JSON generation.\n" +
-                "- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png."
+                "- Preserve reference placeholders from the response exactly as written.\n" +
+                "- Compact placeholders like {{u1}}, {{u2}} can represent URLs or local asset paths. Preserve them exactly in media/action/source fields; they will be restored after JSON generation.\n" +
+                "- Do not invent local media paths that are absent from the response."
         } else {
             "Asset URL policy for this request:\n" +
                 "- Use only local media paths from the provided Assets mapping.\n" +
-                "- If the response contains compact URL placeholders like {{u1}}, {{u2}}, preserve them exactly in action/source fields; they represent verified URLs and will be restored after JSON generation.\n" +
+                "- Compact placeholders like {{u1}}, {{u2}} can represent URLs or local asset paths. Preserve them exactly in media/action/source fields; they will be restored after JSON generation.\n" +
                 "- Do not emit remote media URLs for images/icons.\n" +
                 "- Do not invent local placeholder paths not present in the mapping."
         }
@@ -139,6 +139,7 @@ internal object PipelinePromptBuilder {
                 "- Assign the root component to reserved variable root.\n" +
                 "- Preserve rich UI structure and all requested interactions.\n" +
                 "- Use _props/_children/_repeat/_visible/_on/_watch when required.\n" +
+                "- Table positional signature is Table(columns,statePath,rows,title,domain,preferredPresentation); use _ for statePath with inline rows, for example Table([\"Detail\",\"Value\"],_,[[\"Status\",\"Ready\"]],\"Details\",\"status\",\"table\").\n" +
                 "- Event values must be action calls: use Event(\"name\",{}) for app events or openUrl(\"https://...\") for links; never use a quoted URL or event name directly as onPress/onClick.\n" +
                 "- In child lists, inline components require call syntax such as Icon(\"local_shipping\"); a bare component type such as Icon is an unresolved reference.\n" +
                 "- Visible text, Card titles, and button labels must be natural user-facing copy; never expose assignment ids or snake_case names such as status_card.\n" +
