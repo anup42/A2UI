@@ -33,6 +33,7 @@
     {"name":"unknown_repeat_field","program":"<a2ui>\nroot=List([item],repeat={statePath:\"/items\",unknown:\"nope\"})\nitem=Text(\"Item\")\n</a2ui>","error":"repeat"},
     {"name":"duplicate_id","program":"<a2ui>\nroot=Text(\"A\")\nroot=Text(\"B\")\n</a2ui>","error":"duplicate"},
     {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"},
-    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"}
+    {"name":"unresolved_variable","program":"<a2ui>\nroot=Text(unresolved)\n</a2ui>","error":"variable"},
+    {"name":"raw_string_newline","program":"<a2ui>\nroot=Text(r\"line1\nline2\")\n</a2ui>","error":"newline"}
   ]
 }

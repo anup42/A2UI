@@ -704,6 +704,8 @@ class _Parser:
                 return "".join(out)
             ch = self.text[self.i]
             self.i += 1
+            if not triple and ch in "\r\n":
+                raise ValueError("Single-line Express strings may not contain newlines")
             if raw:
                 out.append(ch)
                 continue

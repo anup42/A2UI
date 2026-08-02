@@ -27,7 +27,7 @@
     "kotlin": "android/app/src/test/resources/a2ui_express_conformance_v1.json",
     "byte_identical": true,
     "valid_cases": 4,
-    "invalid_cases": 11
+    "invalid_cases": 12
   },
   "covered_strict_cases": [
     "sentinel closure",
@@ -40,7 +40,8 @@
     "unknown action parameters and missing required action parameters",
     "unknown repeat/template fields",
     "unresolved bare variables",
-    "pinned raw/triple strings and check expressions"
+    "pinned raw/triple strings and check expressions",
+    "raw single-line newline rejection"
   ],
   "limitation": "Python and Kotlin strict parsers are handwritten rather than generated from one parser artifact; the shared corpus proves acceptance/rejection parity for the covered cases but is not a proof of complete grammar equivalence."
 }

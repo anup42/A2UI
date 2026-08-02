@@ -723,8 +723,8 @@ internal object A2uiExpressCodec {
                     return out.toString()
                 }
                 val ch = source[index++]
-                if (!triple && !raw) {
-                    require(ch != '\n' && ch != '\r') { "Standard Express strings may not contain newlines." }
+                if (!triple) {
+                    require(ch != '\n' && ch != '\r') { "Single-line Express strings may not contain newlines." }
                 }
                 if (raw) {
                     out.append(ch)
