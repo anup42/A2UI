@@ -92,6 +92,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -124,6 +126,17 @@ private data class StarterPrompt(
     val icon: ImageVector
 )
 
+private const val FLIGHT_STARTER_DAYS_AHEAD = 15L
+private val FLIGHT_STARTER_DATE_FORMATTER =
+    DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
+
+internal fun flightStarterPrompt(currentDate: LocalDate = LocalDate.now()): String {
+    val travelDate = currentDate
+        .plusDays(FLIGHT_STARTER_DAYS_AHEAD)
+        .format(FLIGHT_STARTER_DATE_FORMATTER)
+    return "Show flights from BLR to LKO on $travelDate"
+}
+
 private val GenUiStarterPrompts = listOf(
     StarterPrompt(
         label = "Weather in Bengaluru",
@@ -134,7 +147,7 @@ private val GenUiStarterPrompts = listOf(
     StarterPrompt(
         label = "Flights BLR to LKO",
         description = "Flight cards with price and timing.",
-        prompt = "Show flights from BLR to LKO on 15 June 2026",
+        prompt = flightStarterPrompt(),
         icon = Icons.Filled.FlightTakeoff
     )
 )
