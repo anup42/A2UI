@@ -581,8 +581,8 @@ internal fun RenderAdaptiveTableGrid(
                 } else {
                     val contentModifier = if (horizontalScrollEnabled) {
                         Modifier
-                            .widthIn(min = minTableWidth)
                             .horizontalScroll(scrollState)
+                            .widthIn(min = minTableWidth)
                     } else {
                         Modifier.fillMaxWidth()
                     }

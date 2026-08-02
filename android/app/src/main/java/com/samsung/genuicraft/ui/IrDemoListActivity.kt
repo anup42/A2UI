@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,10 +45,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
 
 class IrDemoListActivity : AppCompatActivity() {
     private var session by mutableStateOf<IrDemoSessionStore.Session?>(null)
     private var errorMessage by mutableStateOf<String?>(null)
+    private var selectedIrFormatId by mutableStateOf(IrPromptVersionSettings.defaultOption().id)
 
     private val scenarioBundleImporter =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -59,6 +62,7 @@ class IrDemoListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applyOneUiWindowBlur()
+        selectedIrFormatId = IrPromptVersionSettings.getSelectedVersionId(this)
         loadDefaultIrDemo()
 
         setContent {
@@ -66,6 +70,9 @@ class IrDemoListActivity : AppCompatActivity() {
                 IrDemoListScreen(
                     session = session,
                     errorMessage = errorMessage,
+                    irFormatOptions = IrPromptVersionSettings.options(),
+                    selectedIrFormatId = selectedIrFormatId,
+                    onIrFormatSelected = ::selectIrFormat,
                     onItemClick = { index ->
                         startActivity(
                             Intent(this, IrDemoRenderActivity::class.java)
@@ -86,7 +93,13 @@ class IrDemoListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        selectedIrFormatId = IrPromptVersionSettings.getSelectedVersionId(this)
         refreshFromRepository()
+    }
+
+    private fun selectIrFormat(versionId: String) {
+        IrPromptVersionSettings.setSelectedVersionId(this, versionId)
+        selectedIrFormatId = IrPromptVersionSettings.getSelectedVersionId(this)
     }
 
     private fun loadDefaultIrDemo() {
@@ -162,6 +175,9 @@ class IrDemoListActivity : AppCompatActivity() {
 private fun IrDemoListScreen(
     session: IrDemoSessionStore.Session?,
     errorMessage: String?,
+    irFormatOptions: List<IrPromptVersionSettings.Option>,
+    selectedIrFormatId: String,
+    onIrFormatSelected: (String) -> Unit,
     onItemClick: (Int) -> Unit,
     onDeleteItem: (Int) -> Unit,
     onImportScenario: () -> Unit
@@ -216,6 +232,12 @@ private fun IrDemoListScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
+                IrDemoFormatSelectorCard(
+                    options = irFormatOptions,
+                    selectedFormatId = selectedIrFormatId,
+                    onFormatSelected = onIrFormatSelected
+                )
+
                 if (!errorMessage.isNullOrBlank()) {
                     Text(
                         text = errorMessage,
@@ -250,6 +272,68 @@ private fun IrDemoListScreen(
                             record = item,
                             onClick = { onItemClick(index) },
                             onDeleteClick = { onDeleteItem(index) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IrDemoFormatSelectorCard(
+    options: List<IrPromptVersionSettings.Option>,
+    selectedFormatId: String,
+    onFormatSelected: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+        colors = genUiCardColors(GenUiCardTone.Neutral),
+        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.ir_demo_format_title),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = stringResource(id = R.string.ir_demo_format_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            options.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onFormatSelected(option.id) }
+                        .padding(vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = selectedFormatId == option.id,
+                        onClick = { onFormatSelected(option.id) }
+                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text = option.title,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = option.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
