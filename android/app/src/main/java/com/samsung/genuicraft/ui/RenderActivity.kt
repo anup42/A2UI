@@ -310,7 +310,7 @@ private fun RenderScreen(
 
                     RenderMode.NATIVE -> {
                         val nativeResult = remember(record.rawJson, record.sourceDir) {
-                            GenUiNativeRenderer.render(rawInput = record.rawJson, sourceDir = record.sourceDir)
+                            GenUiNativeRenderer.renderLegacyForComparison(rawInput = record.rawJson, sourceDir = record.sourceDir)
                         }
 
                         GenUiNativeRenderer.Render(

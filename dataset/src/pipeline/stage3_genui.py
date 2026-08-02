@@ -16,7 +16,7 @@ from urllib.request import Request
 
 from pipeline.cache import PromptCache
 from pipeline.common import load_prompt, render_prompt
-from pipeline.image_resolver import repair_flat_spec_images
+from pipeline.image_resolver import repair_canonical_graph_images
 from pipeline.ir_formats import (
     A2UI_EXPRESS_V1,
     codec_identity,
@@ -55,7 +55,7 @@ from pipeline.metrics import (
     content_coverage,
     dup_rate,
     lint_score,
-    count_tokens,
+    lexical_token_estimate,
     count_characters,
     aggregate_metrics,
     compute_overall_score,
@@ -77,9 +77,9 @@ from utils.retry import with_retry
 # provider prompt and restores them only after strict Express parsing.
 _MODEL_REFERENCE_RE = re.compile(
     r"(?:"
-    r"(?P<quote>[\"'])(?P<quoted_local>(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\])[^\"']+)(?P=quote)|"
+    r"(?P<quote>[\"'])(?P<quoted_local>(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\]|@[a-z][a-z0-9_.-]*/)[^\"']+)(?P=quote)|"
     r"\b(?:https?|ftp)://[^\s<>\"']+|\b(?:mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):[^\s<>\"']+|"
-    r"(?<![\w])(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\])[^\s<>\"']+"
+    r"(?<![\w])(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\]|@[a-z][a-z0-9_.-]*/)[^\s<>\"']+"
     r")",
     re.IGNORECASE,
 )
@@ -779,7 +779,7 @@ def _normalize_text_markdown_for_ir(raw: str) -> tuple[str, str | None]:
     return normalized, heading_variant
 
 
-def _normalize_flat_spec_text_content(genui_json: Any) -> Any:
+def _normalize_canonical_graph_text_content(genui_json: Any) -> Any:
     if not isinstance(genui_json, dict):
         return genui_json
     elements = genui_json.get("elements")
@@ -812,6 +812,11 @@ def _normalize_flat_spec_text_content(genui_json: Any) -> Any:
                 normalized_variant = inferred_heading
 
     return genui_json
+
+
+# Explicit compatibility alias for historical offline scripts.  Stage 3
+# calls the canonical-graph name after Express parsing.
+_normalize_flat_spec_text_content = _normalize_canonical_graph_text_content
 
 def _extract_prompt_version(template: str, prompt_path: Path) -> str:
     """Extract prompt version from first Markdown heading; fallback to filename stem."""
@@ -860,8 +865,8 @@ def _prepare_prompt_context(
     logger.info(
         "Stage3 prompt mode=system_prefix provider=%s system_tokens=%s user_template_tokens=%s",
         provider,
-        count_tokens(system_prompt),
-        count_tokens(user_template),
+        lexical_token_estimate(system_prompt),
+        lexical_token_estimate(user_template),
     )
     return system_prompt, user_template
 
@@ -983,7 +988,7 @@ def run_stage3(
     )
 
     def _estimated_prompt_tokens(text: str) -> int:
-        return int(math.ceil(count_tokens(text) * prompt_token_multiplier))
+        return int(math.ceil(lexical_token_estimate(text) * prompt_token_multiplier))
 
     def _resolve_context_limited_prompt_max() -> int | None:
         configured_prompt_max = int(prompt_max_tokens) if prompt_max_tokens else None
@@ -1222,7 +1227,7 @@ def run_stage3(
 
         prompt = render_prompt(user_prompt_template, response_text=prompt_response_text)
         if effective_prompt_max_tokens:
-            system_tokens = count_tokens(system_prompt) if system_prompt else 0
+            system_tokens = lexical_token_estimate(system_prompt) if system_prompt else 0
             system_tokens_est = int(math.ceil(system_tokens * prompt_token_multiplier))
             prompt_tokens = _estimated_prompt_tokens(prompt) + system_tokens_est
             if prompt_tokens > effective_prompt_max_tokens:
@@ -1313,7 +1318,7 @@ def run_stage3(
             "format_metrics": {
                 "characters": len(raw_text),
                 "utf8_bytes": len(raw_text.encode("utf-8")),
-                "estimated_tokens": count_tokens(raw_text),
+                "estimated_tokens": lexical_token_estimate(raw_text),
                 "completion_tokens": output_tokens if output_tokens > 0 else None,
                 "token_measurement_source": "provider_reported" if output_tokens > 0 else "lexical_diagnostic",
                 "reported_output_tokens": output_tokens,
@@ -1692,8 +1697,8 @@ def run_stage3(
         )
         genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
         if canonical_graph_mode:
-            genui_json = _normalize_flat_spec_text_content(genui_json)
-            genui_json, resolved_images = repair_flat_spec_images(
+            genui_json = _normalize_canonical_graph_text_content(genui_json)
+            genui_json, resolved_images = repair_canonical_graph_images(
                 genui_json,
                 query_text,
                 response_text,
@@ -1701,8 +1706,11 @@ def run_stage3(
             if resolved_images:
                 errors.append(f"dataset_image_resolver_added={resolved_images}")
 
+        # The model-facing completion remains the raw/normalized Express text;
+        # the graph and compiled wire payload are explicit post-parse artifacts.
         normalized_native_output = _normalized_native_output(genui_json)
         normalized_native_text = serialized_text(normalized_native_output)
+        compiled_a2ui = compile_express_to_wire(genui_json)
 
         toon = encode_toon(genui_json)
         toon_ok = roundtrip_ok(genui_json, toon)
@@ -1748,18 +1756,26 @@ def run_stage3(
             "target_format": A2UI_EXPRESS_V1,
             "codec_identity": codec_identity(),
             "semantic_hash": semantic_hash(genui_json),
+            "canonical_graph_hash": semantic_hash(genui_json),
             "model_completion_raw": generation_completion,
             "model_payload_raw": parsed_native_payload,
             "model_native_output_normalized": normalized_native_output,
-            "genui_json": genui_json,
+            "a2ui_express": generation_completion,
+            "completion": generation_completion,
+            "canonical_graph": genui_json,
+            "compiled_a2ui": compiled_a2ui,
             "assets": assets_list,
             "toon": toon,
             "validation": {
                 "json_parse_ok": parsed_ok,
                 "native_syntax_valid": initial_native_syntax_valid,
                 "native_catalog_valid": initial_native_catalog_valid,
+                "raw_schema_valid_strict": bool(initial_native_catalog_valid),
+                "raw_standard_a2ui_valid": bool(initial_standard_a2ui_valid),
                 "repaired_syntax_valid": bool(repair_attempts > 0 and parsed_ok),
                 "repaired_catalog_valid": bool(repair_attempts > 0 and schema_valid_strict),
+                "repaired_standard_a2ui_valid": bool(repair_attempts > 0 and final_standard_a2ui_valid),
+                "canonical_semantic_valid": True,
                 "standard_a2ui_valid": final_standard_a2ui_valid,
                 "repair_applied": bool(repair_attempts > 0),
                 "schema_valid_strict": schema_valid_strict,
@@ -1775,7 +1791,7 @@ def run_stage3(
             "format_metrics": {
                 "characters": len(normalized_native_text),
                 "utf8_bytes": len(normalized_native_text.encode("utf-8")),
-                "estimated_tokens": count_tokens(normalized_native_text),
+            "estimated_tokens": lexical_token_estimate(normalized_native_text),
                 "completion_tokens": output_tokens if output_tokens > 0 else None,
                 "token_measurement_source": "provider_reported" if output_tokens > 0 else "lexical_diagnostic",
                 "reported_output_tokens": output_tokens,

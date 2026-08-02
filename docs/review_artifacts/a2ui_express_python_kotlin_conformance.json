@@ -6,14 +6,14 @@
       "dataset/tests/test_ir_formats.py",
       "dataset/tests/test_stage3_a2ui_express.py"
     ],
-      "result": "414 dataset tests passed separately; shared corpus acceptance/rejection cases passed"
+      "result": "419 dataset tests passed separately; shared corpus acceptance/rejection cases passed"
   },
   "kotlin": {
     "tests": [
       "./gradlew.bat :app:testDebugUnitTest --no-daemon",
       "android/app/src/test/java/com/samsung/genuicraft/pipeline/GenUiIrCodecTest.kt"
     ],
-      "result": "295 Android JVM tests passed; shared corpus acceptance/rejection cases passed"
+      "result": "297 Android JVM tests passed; shared corpus acceptance/rejection cases passed"
   },
   "shared_contract": {
     "catalog": "dataset/schema/genuicraft_a2ui_catalog_v1.json",
@@ -26,8 +26,8 @@
     "python": "dataset/tests/fixtures/a2ui_express_conformance_v1.json",
     "kotlin": "android/app/src/test/resources/a2ui_express_conformance_v1.json",
     "byte_identical": true,
-    "valid_cases": 2,
-    "invalid_cases": 6
+    "valid_cases": 3,
+    "invalid_cases": 10
   },
   "covered_strict_cases": [
     "sentinel closure",
@@ -36,7 +36,9 @@
     "invalid actions",
     "reference inventory and root rewriting",
     "sparse positional encoder output",
-    "FlatSpec and Compact migration-only rejection in active codec"
+    "FlatSpec and Compact migration-only rejection in active codec",
+    "unknown action parameters and missing required action parameters",
+    "unknown repeat/template fields"
   ],
   "limitation": "Python and Kotlin strict parsers are handwritten rather than generated from one parser artifact; the shared corpus proves acceptance/rejection parity for the covered cases but is not a proof of complete grammar equivalence."
 }

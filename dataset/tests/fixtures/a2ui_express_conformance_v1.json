@@ -10,6 +10,11 @@
       "name": "state_and_event",
       "program": "<a2ui>\n$/={selected:\"one\"}\nroot=Column([a,b],gap=\"md\")\na=Text(\"Hello\",\"h2\")\nb=Button(\"Go\",onPress=Event(\"go\",{selected:$/selected},true,\"/result\"))\n</a2ui>",
       "canonical": {"root":"root","state":{"selected":"one"},"elements":{"root":{"type":"Stack","props":{"direction":"vertical","gap":"md"},"children":["a","b"]},"a":{"type":"Text","props":{"text":"Hello","variant":"h2"},"children":[]},"b":{"type":"Button","props":{"label":"Go"},"children":[],"on":{"press":{"action":"emitEvent","params":{"name":"go","context":{"selected":"$/selected"},"wantResponse":true,"responsePath":"/result"}}}}}}
+    },
+    {
+      "name": "rich_references_repeat_tabs_modal",
+      "program": "<a2ui>\nroot=Stack([tabs,modal,items])\ntabs=Tabs([{child:tab1},{content:tab2},{id:tab3},{element:tab4}])\ntab1=Text(\"One\")\ntab2=Text(\"Two\")\ntab3=Text(\"Three\")\ntab4=Text(\"Four\")\nmodal=Modal(trigger=trigger,content=modalContent)\ntrigger=Button(\"Open\")\nmodalContent=Card([modalText],\"Details\")\nmodalText=Text(\"Modal body\")\nitems=List([item],repeat={statePath:\"/items\",template:item})\nitem=Card([itemText])\nitemText=Text(\"Item\")\n</a2ui>",
+      "canonical": {"root":"root","state":{},"elements":{"root":{"type":"Stack","props":{},"children":["tabs","modal","items"]},"tabs":{"type":"Tabs","props":{"tabs":[{"child":"tab1"},{"content":"tab2"},{"id":"tab3"},{"element":"tab4"}]},"children":[]},"tab1":{"type":"Text","props":{"text":"One"},"children":[]},"tab2":{"type":"Text","props":{"text":"Two"},"children":[]},"tab3":{"type":"Text","props":{"text":"Three"},"children":[]},"tab4":{"type":"Text","props":{"text":"Four"},"children":[]},"modal":{"type":"Modal","props":{"trigger":"trigger","content":"modalContent"},"children":[]},"trigger":{"type":"Button","props":{"label":"Open"},"children":[]},"modalContent":{"type":"Card","props":{"title":"Details"},"children":["modalText"]},"modalText":{"type":"Text","props":{"text":"Modal body"},"children":[]},"items":{"type":"List","props":{},"children":["item"],"repeat":{"statePath":"/items","template":"item"}},"item":{"type":"Card","props":{},"children":["itemText"]},"itemText":{"type":"Text","props":{"text":"Item"},"children":[]}}}
     }
   ],
   "invalid": [
@@ -17,6 +22,10 @@
     {"name":"trailing_content","program":"<a2ui>\nroot=Text(\"Hello\")\n</a2ui>\nprose","error":"sentinel"},
     {"name":"unknown_property","program":"<a2ui>\nroot=Text(\"Hello\",unknown=\"x\")\n</a2ui>","error":"property"},
     {"name":"duplicate_property","program":"<a2ui>\nroot=Text(\"A\",text=\"B\")\n</a2ui>","error":"property"},
+    {"name":"invalid_stack_gap","program":"<a2ui>\nroot=Column([text],gap=\"tracking link\")\ntext=Text(\"Hello\")\n</a2ui>","error":"gap"},
+    {"name":"unknown_action_parameter","program":"<a2ui>\nroot=Button(\"Open\",onPress=openUrl(url=\"https://example.com\",extra=\"nope\"))\n</a2ui>","error":"action"},
+    {"name":"missing_action_parameter","program":"<a2ui>\nroot=Button(\"Open\",onPress=openUrl())\n</a2ui>","error":"required"},
+    {"name":"unknown_repeat_field","program":"<a2ui>\nroot=List([item],repeat={statePath:\"/items\",unknown:\"nope\"})\nitem=Text(\"Item\")\n</a2ui>","error":"repeat"},
     {"name":"duplicate_id","program":"<a2ui>\nroot=Text(\"A\")\nroot=Text(\"B\")\n</a2ui>","error":"duplicate"},
     {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"}
   ]

@@ -160,7 +160,7 @@ class GenUiHtmlRendererTest {
         var rendered = 0
         var unsafeRejected = 0
         lines.forEachIndexed { index, line ->
-            val result = GenUiNativeRenderer.render(line, sourceDir = sampleFile.parentFile)
+            val result = GenUiNativeRenderer.renderLegacyForComparison(line, sourceDir = sampleFile.parentFile)
             if (result.errorMessage == null) {
                 rendered += 1
                 assertTrue("Sample ${index + 1} missing native surface output", result.surfaces.isNotEmpty())

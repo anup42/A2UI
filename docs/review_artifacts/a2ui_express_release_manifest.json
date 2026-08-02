@@ -1,6 +1,6 @@
 {
   "release_manifest_version": "a2ui_express_release_manifest.v1",
-  "baseline_commit": "7c32d84e64aff26cefca0b4a82759ed44dbef33c",
+  "baseline_commit": "b2f138bd3554bc0a671748bda38e6b9089ec2aa0",
   "branch": "new_ir_changes_20260331",
   "active_model_output": {
     "format": "A2UI Express",
@@ -20,7 +20,7 @@
     "profileVersion": "genuicraft-a2ui-express-profile-v1",
     "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
     "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
-    "catalogIdentityHash": "dd9c6aa7d1441f6a03fc2ad10e379a355ba42911292651d8825d090571f47c20",
+    "catalogIdentityHash": "2591971dff231d6452e76f53b0079b233b22742bd10c396873c84daa0ee0fe37",
     "tokenizer": {
       "status": "blocked",
       "name": "deployed_gemma_tokenizer_unavailable",
@@ -28,12 +28,12 @@
     },
     "files": {
       "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
-        "sha256": "8beaa6a987c955668d7028403ed114732a627a783e7bf8b0ffb7e1bc26a99e69",
-        "bytes": 77948
+        "sha256": "544751dc3eb5c3828d974bc0dc1645844e32d092ae9895eb26ec04115ac69f86",
+        "bytes": 82430
       },
       "dataset/schema/genuicraft_a2ui_express_profile_v1.json": {
-        "sha256": "cb42626135ea3d8c68082f1b355baee20a69e2d425fca461476b1ef89f162bf4",
-        "bytes": 7155
+        "sha256": "6916622bf20956b19c1f52cffca8c8589f6a1dbe9ff76717f446c2812b5b1b92",
+        "bytes": 7335
       },
       "dataset/schema/canonical_ui_graph_v1.schema.json": {
         "sha256": "0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83",
@@ -48,24 +48,24 @@
         "bytes": 4762
       },
       "dataset/src/pipeline/ir_formats/express.py": {
-        "sha256": "7328e459fb8934414d18aa11cd3a6243c48734bb5b64bb07a9547e02538dfd47",
-        "bytes": 31661
+        "sha256": "80ed5fcdd909f95c2a83ffd1c6dfece720b41762db1ac07ec7a11f2f2f3a90c0",
+        "bytes": 31836
       },
       "dataset/src/pipeline/ir_formats/active.py": {
-        "sha256": "ce2fde537dd0f976bcec3a7fda5ba86c8e537b62fc2cd2a861972af5a1343577",
-        "bytes": 4968
+        "sha256": "7ea03b3e58bddc98661589495554af05d809a679da03d1645b2581751cb12382",
+        "bytes": 4470
       },
       "dataset/src/pipeline/ir_formats/a2ui_wire.py": {
         "sha256": "c5802f5c4261ae74297634b61df88707589f1f8ffeb4891a0362cabcb0507821",
         "bytes": 8741
       },
       "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
-        "sha256": "705037dd444bc1bdd69821367cf3f78483672fd5ea524b123e67acb20c8509b8",
-        "bytes": 30640
+        "sha256": "6c6c7ba94fd10815e023a6531adf9d83113cbc71abb8cd1043d5965495cbee06",
+        "bytes": 30475
       },
       "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiWireCodec.kt": {
-        "sha256": "40dec1ab7c9d3b55e380bead8367d2c1f56cbc74ac2672e19f6ddfeea31854df",
-        "bytes": 10461
+        "sha256": "1ec37a5168d8735e5141b9b3d4d13112f9248c5f6ce3391cc8a8218a25ffac5c",
+        "bytes": 10467
       },
       "dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py": {
         "sha256": "3c2f60325a48c923d4b6d5caddc439649a78e4afa81557236d2a0b2bfd366214",
@@ -76,8 +76,8 @@
         "bytes": 2686
       },
       "dataset/tests/fixtures/a2ui_express_conformance_v1.json": {
-        "sha256": "0eaa8b79ec3f50de61f6238421a3ce86d906c26766d2c215c33cf4606ebd3201",
-        "bytes": 1696
+        "sha256": "fa4814d3968d34f5dcc5191cb04ab7086dcf798da74a202cce282258a2c0ac50",
+        "bytes": 3894
       },
       "specification/inference_formats/express/Express.g4": {
         "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",
@@ -96,26 +96,30 @@
     "token_benchmark": "docs/review_artifacts/a2ui_express_token_benchmark.json",
     "changed_files": "docs/review_artifacts/a2ui_express_changed_files.txt",
     "code_only_patch": "docs/review_artifacts/a2ui_express_code_only.patch",
+    "sha256sums": "docs/review_artifacts/a2ui_express_sha256sums.txt",
     "device_render_screenshot": "docs/review_artifacts/a2ui_express_device_smoke/screenshot_flip.png"
   },
   "validation": {
-    "python_dataset_tests": "python -m pytest dataset/tests -q: 414 passed, 5 deprecation warnings",
+    "python_dataset_tests": "python -m pytest dataset/tests -q: 419 passed, 7 deprecation warnings",
     "python_training_tests": "python -m pytest training/tests -q: 49 passed",
-    "android_jvm_tests": "./gradlew.bat :app:testDebugUnitTest --no-daemon: BUILD SUCCESSFUL (295 tests)",
+    "android_jvm_tests": "./gradlew :app:testDebugUnitTest --no-daemon: BUILD SUCCESSFUL (297 tests; 0 failures, 0 errors)",
     "pinned_artifact_check": "python dataset/scripts/generate_ir_specs.py --check: 15 generated artifacts verified",
-    "device_express_render": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip: 1 passed on SM-F731U / Android 16; secondary SM-F966B install incompatible",
+    "device_express_render": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip: 1/1 passed on SM-F731U / Android 16; screenshot and window hierarchy verified; secondary SM-F966B install incompatible",
     "legacy_migration": "32 accepted, 0 rejected; deterministic resume pass",
     "url_masking": "Stage3 Python mask/restore test plus Android McpUrlShortener tests passed",
-    "source_zip_denylist": "source-only archive scan: 0 credential/media/data/build/APK entries"
+    "source_zip_denylist": "source-only archive scan: 0 credential/media/data/build/APK entries; device binaries excluded"
   },
   "external_blockers": [
     "Vertex Express smoke call reached Google but returned HTTP 403 because billing is disabled for the key's project.",
     "Gemma 4 E2B .litertlm checkpoint was absent from both documented app model directories on the connected device."
   ],
   "review_zip": {
-    "path": "C:/Users/anupk/Downloads/A2UI-a2ui-express-review-20260802-r6.zip",
+    "path": "C:/Users/anupk/Downloads/A2UI-a2ui-express-review-20260803-r7.zip",
     "source_only": true,
-    "hash_note": "SHA-256 is reported in the final handoff; the archive is generated from the final staged source allowlist."
+    "sha256": "847CECD1F9E37BA4733C557102EC5AE00D1C26C292511AB7E295444AA9683B87",
+    "bytes": 10408251,
+    "archive_entries": 3044,
+    "hash_note": "SHA-256 is reported in the final handoff; the archive is generated from the final staged source allowlist and excludes data, media, model, build, APK, credential, device-artifact, and self-referential review-metadata entries."
   },
   "secret_policy": "No API keys, service-account credentials, APKs, datasets, media, or device screenshots are included in the source-only release artifact."
 }

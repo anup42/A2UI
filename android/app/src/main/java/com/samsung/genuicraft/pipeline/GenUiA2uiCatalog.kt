@@ -64,6 +64,8 @@ internal object GenUiA2uiCatalog {
     private val commonProperties = setOf(
         "width", "height", "flex", "accessibility", "accessibilityLabel",
         "contentDescription", "decorative", "role", "semanticRole", "ariaLabel",
+        // Explicit renderer reference properties from the pinned Express profile.
+        "child", "template", "itemTemplate",
     )
 
     fun isAllowedProperty(component: String, property: String): Boolean {

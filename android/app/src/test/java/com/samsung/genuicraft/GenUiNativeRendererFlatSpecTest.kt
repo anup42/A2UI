@@ -50,7 +50,7 @@ class GenUiNativeRendererFlatSpecTest {
 
     @Test
     fun render_acceptsTopLevelFlatSpec() {
-        val result = GenUiNativeRenderer.render(flatSpecJson, sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(flatSpecJson, sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
@@ -70,7 +70,7 @@ class GenUiNativeRendererFlatSpecTest {
             add("genui_json", JsonParser.parseString(flatSpecJson))
         }
 
-        val result = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(wrapper.toString(), sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
@@ -89,7 +89,7 @@ class GenUiNativeRendererFlatSpecTest {
             )
         }
 
-        val result = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(wrapper.toString(), sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
@@ -102,7 +102,7 @@ class GenUiNativeRendererFlatSpecTest {
             addProperty("stage3_json", flatSpecJson)
         }
 
-        val result = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(wrapper.toString(), sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
@@ -117,7 +117,7 @@ class GenUiNativeRendererFlatSpecTest {
             addProperty("ui_id", "u_express")
             addProperty("genui_json", express)
         }
-        val wrapped = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+        val wrapped = GenUiNativeRenderer.renderLegacyForComparison(wrapper.toString(), sourceDir = null)
 
         listOf("direct" to direct, "wrapped" to wrapped).forEach { (label, result) ->
             assertNull("$label warnings=${result.warnings}", result.errorMessage)
@@ -134,7 +134,7 @@ class GenUiNativeRendererFlatSpecTest {
             add("genui_json", A2uiWireCodec.encode(flatSpec))
         }
 
-        val result = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(wrapper.toString(), sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals("root", result.surfaces.single().rootId)
@@ -188,7 +188,7 @@ class GenUiNativeRendererFlatSpecTest {
             )
         }
 
-        val result = GenUiNativeRenderer.render(payload.toString(), sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(payload.toString(), sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
@@ -213,12 +213,31 @@ class GenUiNativeRendererFlatSpecTest {
             }
         """.trimIndent()
 
-        val result = GenUiNativeRenderer.render(payload, sourceDir = null)
+        val result = GenUiNativeRenderer.renderLegacyForComparison(payload, sourceDir = null)
 
         assertNull(result.errorMessage)
         assertEquals(1, result.surfaces.size)
         assertNotNull(result.surfaces.single().flatSpec)
         assertTrue(result.surfaces.single().components.isEmpty())
         assertTrue(result.warnings.none { it.contains("legacy", ignoreCase = true) })
+    }
+
+    @Test
+    fun productionRenderRejectsLegacyFlatSpecAndWrappers() {
+        val direct = GenUiNativeRenderer.render(flatSpecJson, sourceDir = null)
+        assertNotNull(direct.errorMessage)
+        val wrapper = JsonObject().apply { add("genui_json", JsonParser.parseString(flatSpecJson)) }
+        val wrapped = GenUiNativeRenderer.render(wrapper.toString(), sourceDir = null)
+        assertNotNull(wrapped.errorMessage)
+    }
+
+    @Test
+    fun productionRenderAcceptsStandardWirePayload() {
+        val express = A2uiExpressCodec.encode(JsonParser.parseString(flatSpecJson).asJsonObject)
+        val wire = A2uiWireCodec.encode(JsonParser.parseString(A2uiExpressCodec.decode(express).toString()).asJsonObject)
+        val result = GenUiNativeRenderer.render(wire.toString(), sourceDir = null)
+        assertNull(result.errorMessage)
+        assertEquals("root", result.surfaces.single().rootId)
+        assertNotNull(result.surfaces.single().canonicalSpec)
     }
 }

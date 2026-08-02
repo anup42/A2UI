@@ -10,6 +10,7 @@
   "sentinels": { "open": "<a2ui>", "close": "</a2ui>" },
   "opaqueMetadataForbidden": ["_props", "_children", "_repeat", "_visible", "_on", "_watch"],
   "commonProperties": ["width", "height", "flex", "accessibility", "accessibilityLabel", "contentDescription", "decorative", "role", "semanticRole", "ariaLabel"],
+  "commonReferenceProperties": ["child", "template", "itemTemplate"],
   "aliases": {
     "Row": { "canonical": "Stack", "implicitProps": { "direction": "horizontal" } },
     "Column": { "canonical": "Stack", "implicitProps": { "direction": "vertical" } }
@@ -49,6 +50,7 @@
     "pushState": { "positional": ["statePath", "value", "clearStatePath"], "required": ["statePath", "value"] },
     "removeState": { "positional": ["statePath", "index"], "required": ["statePath", "index"] },
     "validateForm": { "positional": ["statePath", "resultStatePath"], "required": [] },
+    "emitEvent": { "positional": ["name", "context", "wantResponse", "responsePath"], "required": ["name"] },
     "Event": { "aliasFor": "emitEvent", "positional": ["name", "context", "wantResponse", "responsePath"], "required": ["name"] }
   },
   "optimizations": {

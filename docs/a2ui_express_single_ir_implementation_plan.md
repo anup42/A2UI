@@ -31,9 +31,9 @@ This plan is the review checkpoint for the attached single-active-IR directive. 
 | Tokenizer-accurate benchmark and regression metrics | BLOCKED | 32-sample p50/p90/p95 lexical diagnostic is labeled non-exact; exact deployed Gemma tokenizer/checkpoint is unavailable. |
 | Android prompt, parser, compiler, renderer ingestion, telemetry | PARTIAL | Local/JVM/device Express render path passes; Vertex live call is externally blocked by billing and Gemma checkpoint is missing. |
 | Cross-language fixture corpus and conformance report | DONE | `dataset/tests/fixtures/a2ui_express_conformance_v1.json` and the byte-identical Android test resource are consumed by Python and Kotlin tests; report records the remaining handwritten-parser limitation. |
-| Dataset/training/Android/static cleanup tests | DONE | 414 dataset and 49 training tests passed separately, 295 Android JVM tests passed, and the Flip device Express smoke test passed; cleanup scan recorded. |
+| Dataset/training/Android/static cleanup tests | DONE | 419 dataset and 49 training tests passed separately, 297 Android JVM tests passed, and the Flip device Express smoke test passed; cleanup scan recorded. |
 | Release gates 1-20 | PARTIAL | Local gates pass; exact deployed-tokenizer and two external model gates are blocked and documented. |
-| Required reports, manifest, checksums, patch, and review ZIP | DONE | Reports, benchmark, coverage, and conformance artifacts are updated; the final staged patch, source-only ZIP, manifest, and checksums are available for review. |
+| Required reports, manifest, checksums, patch, and review ZIP | DONE | Final reports, staged patch, source-only ZIP (`A2UI-a2ui-express-review-20260803-r7.zip`), release manifest, and SHA-256 checksums were regenerated from the audited index. |
 
 ## Working constraints
 

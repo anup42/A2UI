@@ -27,15 +27,17 @@ def canonical_graph_from_source(value: Any, source_format: str | None = None) ->
     hint = _normalize_source_format(source_format)
     if hint == A2UI_EXPRESS_V1 or (hint is None and isinstance(value, str)):
         return api["decode_express_completion"](value)
-    try:
+    if hint in {FLAT_SPEC_V1, "compact_ir_v2", "compact_ir", "gci2"}:
+        # Explicit migration/import boundary only.  A mapping without an
+        # accompanying source format is deliberately ambiguous and must not
+        # silently become an active training target.
         return api["decode_to_flat_spec"](value, format_hint=hint).flat_spec
-    except ValueError:
-        if hint is not None:
-            raise
-        result = api["coerce_and_validate"](value)
-        if not result.is_valid or result.spec is None:
-            raise ValueError(result.error or "Invalid renderer graph")
-        return result.spec
+    if hint is None:
+        raise ValueError(
+            "A structured UI source requires an explicit source_format; "
+            "use a2ui_express_v1 for active records or flat_spec_v1 for migration"
+        )
+    raise ValueError(f"Unsupported source format {source_format!r}")
 
 
 def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[str, Any]:
@@ -46,7 +48,12 @@ def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[st
     FlatSpec as an active target.
     """
 
-    return canonical_graph_from_source(value, source_format=source_format)
+    # Historical callers of this compatibility alias may omit the hint; keep
+    # that behavior explicitly in the legacy namespace while active callers
+    # use canonical_graph_from_source and must declare the source format.
+    if source_format is None and isinstance(value, str) and value.strip().startswith("<a2ui>"):
+        return canonical_graph_from_source(value, source_format=A2UI_EXPRESS_V1)
+    return canonical_graph_from_source(value, source_format=source_format or FLAT_SPEC_V1)
 
 
 def materialize_completion_targets(canonical_graph: Mapping[str, Any]) -> dict[str, Any]:
@@ -105,7 +112,6 @@ def _codec_api() -> dict[str, Any]:
     dataset_src = repo_root() / "dataset" / "src"
     if str(dataset_src) not in sys.path:
         sys.path.insert(0, str(dataset_src))
-    from pipeline.flat_spec_contract import coerce_and_validate
     from pipeline.ir_formats import (
         decode_express_completion,
         decode_to_flat_spec,
@@ -114,7 +120,6 @@ def _codec_api() -> dict[str, Any]:
     )
 
     return {
-        "coerce_and_validate": coerce_and_validate,
         "decode_express_completion": decode_express_completion,
         "decode_to_flat_spec": decode_to_flat_spec,
         "encode_express_completion": encode_express_completion,

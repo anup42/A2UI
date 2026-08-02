@@ -41,8 +41,20 @@ internal object GenUiIrCodec {
             else runCatching { JsonParser.parseString(text) }.getOrDefault(payload)
         } else payload
         return when (val format = detect(normalized)) {
-            GenUiIrFormat.A2UI_EXPRESS_V1 -> Decoded(format, A2uiExpressCodec.decode(normalized.asString))
-            GenUiIrFormat.A2UI_V1_WIRE -> Decoded(format, A2uiWireCodec.decode(normalized))
+            GenUiIrFormat.A2UI_EXPRESS_V1 -> {
+                val graph = A2uiExpressCodec.decode(normalized.asString)
+                require(A2uiCanonicalGraph.validate(graph).isValid) {
+                    A2uiCanonicalGraph.validate(graph).error ?: "Invalid canonical A2UI Express graph."
+                }
+                Decoded(format, graph)
+            }
+            GenUiIrFormat.A2UI_V1_WIRE -> {
+                val graph = A2uiWireCodec.decode(normalized)
+                require(A2uiCanonicalGraph.validate(graph).isValid) {
+                    A2uiCanonicalGraph.validate(graph).error ?: "Invalid canonical A2UI wire graph."
+                }
+                Decoded(format, graph)
+            }
             else -> error("Non-production IR format reached the production decoder.")
         }
     }

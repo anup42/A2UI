@@ -958,6 +958,33 @@ def _canonical_metric_payload(value: Any) -> Any:
     return value
 
 
+def _metric_payload_from_record(record: Mapping[str, Any]) -> Any:
+    """Select the active Express artifact before any offline legacy field.
+
+    A present Express completion is authoritative: malformed active output is
+    not replaced with a FlatSpec/placeholder candidate.  ``genui_json`` and
+    ``a2ui_json`` are retained only as explicit historical comparison fields.
+    """
+
+    for key in ("a2ui_express", "completion", "model_completion_raw"):
+        candidate = record.get(key)
+        if isinstance(candidate, str) and candidate.strip():
+            try:
+                return _canonical_metric_payload(candidate)
+            except Exception:
+                return None
+    canonical = record.get("canonical_graph")
+    if isinstance(canonical, Mapping):
+        return canonical
+    if record.get("source_format") in {"flat_spec_v1", "compact_ir_v2", "compact_ir", "gci2"}:
+        return record.get("genui_json", record.get("a2ui_json"))
+    # Historical metric fixtures use the legacy key itself as an explicit
+    # migration marker; do not infer this from arbitrary mappings.
+    if "genui_json" in record or "a2ui_json" in record:
+        return record.get("genui_json", record.get("a2ui_json"))
+    return None
+
+
 def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
     genui_json = _canonical_metric_payload(genui_json)
     components = _iter_components(genui_json)
@@ -1122,7 +1149,8 @@ def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
     }
 
 
-def count_tokens(text: str) -> int:
+def lexical_token_estimate(text: str) -> int:
+    """Diagnostic-only fallback; never use for format/model selection."""
     return len(text.split())
 
 
@@ -1255,9 +1283,7 @@ def aggregate_metrics(
     computed_rows: list[dict[str, Any]] = []
     for row in rows:
         row_metrics = dict(row.get("metrics", {}))
-        genui_json = row.get("genui_json")
-        if genui_json is None:
-            genui_json = row.get("a2ui_json")
+        genui_json = _metric_payload_from_record(row)
         response_text = row.get("response_text", "") or ""
         row_render = row.get("render") if isinstance(row.get("render"), dict) else None
         if row_render is None and render_rows_by_ui_id:

@@ -13,7 +13,8 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
-from ..flat_spec_contract import coerce_and_validate
+from .canonical import canonical_graph, semantic_hash as canonical_semantic_hash
+from .canonical import validate_canonical_graph
 from . import a2ui_wire, express
 
 
@@ -46,19 +47,13 @@ def decode_express_completion(value: Any) -> dict[str, Any]:
     if not text.startswith(express.SENTINEL_OPEN) or not text.endswith(express.SENTINEL_CLOSE):
         raise ValueError("A2UI Express completion must contain exactly one <a2ui> block")
     graph = express.decode(text)
-    validation = coerce_and_validate(graph)
-    if not validation.is_valid or validation.spec is None:
-        raise ValueError(validation.error or "Decoded A2UI Express graph is invalid")
-    return validation.spec
+    return canonical_graph(graph)
 
 
 def encode_express_completion(graph: Mapping[str, Any]) -> str:
     """Encode the canonical graph as the only active completion format."""
 
-    validation = coerce_and_validate(dict(graph))
-    if not validation.is_valid or validation.spec is None:
-        raise ValueError(validation.error or "Canonical UI graph is invalid")
-    return express.encode(validation.spec, shorten_ids=True)
+    return express.encode(canonical_graph(dict(graph), require_root=False), shorten_ids=True)
 
 
 def validate_express_completion(
@@ -87,17 +82,7 @@ def validate_express_completion(
         except Exception as exc:
             errors.append(f"repaired:{type(exc).__name__}:{exc}")
 
-    semantic = None
-    if graph is not None:
-        semantic = hashlib.sha256(
-            json.dumps(
-                graph,
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-                allow_nan=False,
-            ).encode("utf-8")
-        ).hexdigest()
+    semantic = canonical_semantic_hash(graph) if graph is not None else None
     return ActiveValidation(
         raw_valid=raw_valid,
         repaired_valid=repaired_valid,
@@ -119,7 +104,7 @@ def compile_express_to_wire(graph_or_completion: Mapping[str, Any] | str) -> Any
     payload = a2ui_wire.encode(graph, shorten_ids=True)
     _validate_standard_wire_schema(payload)
     decoded = a2ui_wire.decode(payload)
-    validation = coerce_and_validate(decoded)
+    validation = validate_canonical_graph(decoded)
     if not validation.is_valid:
         raise ValueError(validation.error or "Compiled A2UI wire payload is invalid")
     return payload

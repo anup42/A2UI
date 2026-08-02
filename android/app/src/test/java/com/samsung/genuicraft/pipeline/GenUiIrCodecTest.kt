@@ -28,7 +28,7 @@ class GenUiIrCodecTest {
     @Test
     fun productionFormatsRoundTripOneRendererGraph() {
         val original = richSpec()
-        val expected = FlatSpecIdRewriter.rewrite(original, shorten = true)
+        val expected = CanonicalGraphIdRewriter.rewrite(original, shorten = true)
 
         val encodedExpress = A2uiExpressCodec.encode(original)
         val express = A2uiExpressCodec.decode(encodedExpress)
@@ -107,7 +107,7 @@ class GenUiIrCodecTest {
     }
 
     @Test
-    fun expressDecoderNormalizesHumanLabelUsedAsStackGap() {
+    fun expressDecoderRejectsHumanLabelUsedAsStackGap() {
         val generated = """
             <a2ui>
             root=Column([status,action],gap="tracking link")
@@ -116,11 +116,9 @@ class GenUiIrCodecTest {
             </a2ui>
         """.trimIndent()
 
-        val decoded = A2uiExpressCodec.decode(generated)
-        val root = decoded.getAsJsonObject("elements").getAsJsonObject("root")
-
-        assertEquals("md", root.getAsJsonObject("props").get("gap").asString)
-        assertTrue(FlatSpecIngestor.ingest(JsonPrimitive(generated), FlatSpecIngestMode.STRICT) is FlatSpecIngestResult.CanonicalFlatSpec)
+        assertThrows(IllegalArgumentException::class.java) {
+            A2uiExpressCodec.decode(generated)
+        }
     }
 
     @Test

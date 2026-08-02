@@ -5,13 +5,13 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 
-/** Deterministic element-id rewrite driven by the renderer reference inventory. */
-internal object FlatSpecIdRewriter {
-    fun rewrite(flatSpec: JsonObject, shorten: Boolean = true, reserveRoot: Boolean = false): JsonObject {
-        val elements = flatSpec.get("elements")?.takeIf { it.isJsonObject }?.asJsonObject
-            ?: return flatSpec.deepCopy()
-        val rootId = flatSpec.get("root")?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
-        if (rootId.isBlank() || !elements.has(rootId)) return flatSpec.deepCopy()
+/** Deterministic canonical-graph ID rewrite driven by the renderer inventory. */
+internal object CanonicalGraphIdRewriter {
+    fun rewrite(canonicalGraph: JsonObject, shorten: Boolean = true, reserveRoot: Boolean = false): JsonObject {
+        val elements = canonicalGraph.get("elements")?.takeIf { it.isJsonObject }?.asJsonObject
+            ?: return canonicalGraph.deepCopy()
+        val rootId = canonicalGraph.get("root")?.takeIf { it.isJsonPrimitive }?.asString.orEmpty()
+        if (rootId.isBlank() || !elements.has(rootId)) return canonicalGraph.deepCopy()
 
         val order = mutableListOf<String>()
         val seen = mutableSetOf<String>()
@@ -19,7 +19,7 @@ internal object FlatSpecIdRewriter {
             if (!elements.has(id) || !seen.add(id)) return
             order += id
             elements.get(id)?.takeIf { it.isJsonObject }?.asJsonObject?.let { element ->
-                FlatSpecReferenceSemantics.references(element).forEach { walk(it.targetId) }
+                RendererReferenceSemantics.references(element).forEach { walk(it.targetId) }
             }
         }
         walk(rootId)
@@ -49,7 +49,7 @@ internal object FlatSpecIdRewriter {
         order.forEach { oldId ->
             val element = elements.get(oldId)?.takeIf { it.isJsonObject }?.asJsonObject?.deepCopy()
                 ?: return@forEach
-            FlatSpecReferenceSemantics.references(element).forEach { reference ->
+            RendererReferenceSemantics.references(element).forEach { reference ->
                 mapping[reference.targetId]?.let { replacement ->
                     setReference(element, reference.sourcePath, replacement)
                 }
@@ -60,7 +60,7 @@ internal object FlatSpecIdRewriter {
             addProperty("root", mapping.getValue(rootId))
             add(
                 "state",
-                flatSpec.get("state")?.takeIf { it.isJsonObject }?.deepCopy() ?: JsonObject(),
+                canonicalGraph.get("state")?.takeIf { it.isJsonObject }?.deepCopy() ?: JsonObject(),
             )
             add("elements", rewritten)
         }
@@ -129,4 +129,11 @@ internal object FlatSpecIdRewriter {
         data class Key(val value: String) : PathToken
         data class Index(val value: Int) : PathToken
     }
+}
+
+/** Explicit migration-only compatibility name for historical callers. */
+@Deprecated("Use CanonicalGraphIdRewriter; FlatSpec is migration-only terminology.")
+internal object FlatSpecIdRewriter {
+    fun rewrite(flatSpec: JsonObject, shorten: Boolean = true, reserveRoot: Boolean = false): JsonObject =
+        CanonicalGraphIdRewriter.rewrite(flatSpec, shorten, reserveRoot)
 }

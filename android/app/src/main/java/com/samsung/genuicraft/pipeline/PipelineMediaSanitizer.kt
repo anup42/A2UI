@@ -1,4 +1,4 @@
-﻿package com.samsung.genuicraft.pipeline
+package com.samsung.genuicraft.pipeline
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -1147,8 +1147,8 @@ internal object PipelineMediaSanitizer {
 
     fun genUiPreservesInlineImages(jsonText: String): Boolean {
         runCatching { JsonParser.parseString(jsonText) }.getOrNull()?.let { parsed ->
-            val payload = normalizeGenUiPayload(parsed)
-            if (payload.isJsonObject && FlatSpecContract.looksLikeFlatSpec(payload)) {
+            val payload = normalizeCanonicalGraphPayload(parsed)
+            if (payload.isJsonObject && A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) {
                 val elements = payload.asJsonObject.getAsJsonObject("elements")
                 if (elements != null && elements.entrySet().any { (_, node) ->
                         if (!node.isJsonObject) return@any false
@@ -1481,8 +1481,8 @@ internal object PipelineMediaSanitizer {
         queryText: String
     ): String {
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
-        val payload = normalizeGenUiPayload(parsed)
-        if (payload.isJsonObject && FlatSpecContract.looksLikeFlatSpec(payload)) {
+        val payload = normalizeCanonicalGraphPayload(parsed)
+        if (payload.isJsonObject && A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) {
             val changed = ensureFlatSpecHasImageComponent(
                 payload = payload.asJsonObject,
                 stage2Response = stage2Response,
@@ -1754,8 +1754,8 @@ internal object PipelineMediaSanitizer {
         if (photosByName.isEmpty() && phonesByName.isEmpty()) return jsonText
 
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
-        val payload = normalizeGenUiPayload(parsed)
-        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) return jsonText
+        val payload = normalizeCanonicalGraphPayload(parsed)
+        if (!payload.isJsonObject || !A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) return jsonText
 
         val spec = payload.asJsonObject
         val state = spec.get("state")?.takeIf { it.isJsonObject }?.asJsonObject ?: return jsonText
@@ -1827,8 +1827,8 @@ internal object PipelineMediaSanitizer {
         if (mediaByArticle.isEmpty()) return jsonText
 
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
-        val payload = normalizeGenUiPayload(parsed)
-        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) return jsonText
+        val payload = normalizeCanonicalGraphPayload(parsed)
+        if (!payload.isJsonObject || !A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) return jsonText
 
         val spec = payload.asJsonObject
         val state = spec.get("state")?.takeIf { it.isJsonObject }?.asJsonObject ?: return jsonText
@@ -2156,8 +2156,8 @@ internal object PipelineMediaSanitizer {
     fun enforceSafeGenUiContent(jsonText: String): SafeGenUiResult {
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull()
             ?: return SafeGenUiResult(jsonText, 0, 0)
-        val payload = normalizeGenUiPayload(parsed)
-        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) {
+        val payload = normalizeCanonicalGraphPayload(parsed)
+        if (!payload.isJsonObject || !A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) {
             return SafeGenUiResult(jsonText, 0, 0)
         }
         val spec = payload.asJsonObject
@@ -2363,8 +2363,8 @@ internal object PipelineMediaSanitizer {
         queryText: String
     ): String {
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull() ?: return jsonText
-        val payload = normalizeGenUiPayload(parsed)
-        if (payload.isJsonObject && FlatSpecContract.looksLikeFlatSpec(payload)) {
+        val payload = normalizeCanonicalGraphPayload(parsed)
+        if (payload.isJsonObject && A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) {
             val changed = ensureFlatSpecHasInlineTextMedia(payload.asJsonObject, queryText)
             return if (changed) payload.toString() else jsonText
         }
@@ -2453,53 +2453,8 @@ internal object PipelineMediaSanitizer {
 
     // -- Payload ------------------------------------------------------------
 
-    fun normalizeGenUiPayload(json: JsonElement): JsonElement {
-        FlatSpecContract.normalizeToFlatSpec(json).spec?.let { return it }
-        return json
-    }
-
-    fun buildFallbackFlatSpec(stage2Response: String, catalogId: String): JsonObject {
-        return FlatSpecContract.buildFallbackFlatSpec(stage2Response)
-    }
-
-    fun buildFallbackGenUi(stage2Response: String, catalogId: String): JsonArray {
-        val textValue = stage2Response.trim().ifBlank { "No content generated." }
-        val surfaceId = "surface_live"
-        return JsonArray().apply {
-            add(
-                JsonObject().apply {
-                    addProperty("version", "v0.9")
-                    add("createSurface", JsonObject().apply {
-                        addProperty("surfaceId", surfaceId)
-                        addProperty("catalogId", catalogId)
-                    })
-                }
-            )
-            add(
-                JsonObject().apply {
-                    addProperty("version", "v0.9")
-                    add("updateComponents", JsonObject().apply {
-                        addProperty("surfaceId", surfaceId)
-                        add("components", JsonArray().apply {
-                            add(JsonObject().apply {
-                                addProperty("id", "root")
-                                addProperty("component", "Column")
-                                add("children", JsonArray().apply {
-                                    add("text_1")
-                                })
-                            })
-                            add(JsonObject().apply {
-                                addProperty("id", "text_1")
-                                addProperty("component", "Text")
-                                addProperty("variant", "body")
-                                addProperty("text", textValue)
-                            })
-                        })
-                    })
-                }
-            )
-        }
-    }
+    /** Preserve the already-decoded canonical graph without legacy coercion. */
+    fun normalizeCanonicalGraphPayload(json: JsonElement): JsonElement = json.deepCopy()
 
     private fun buildUniqueFlatElementId(elements: JsonObject, base: String): String {
         var index = 1

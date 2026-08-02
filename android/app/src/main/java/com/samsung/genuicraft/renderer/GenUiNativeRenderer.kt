@@ -139,18 +139,57 @@ object GenUiNativeRenderer {
         val surfaceId: String,
         val rootId: String,
         val components: Map<String, JsonObject>,
-        /** Non-null when this surface uses the Phase 2+ flat-spec format. */
-        val flatSpec: FlatSpec? = null,
+        /** Canonical graph lowered from an accepted Express or v1 wire payload. */
+        val canonicalSpec: FlatSpec? = null,
         /** Optional mapping from local asset-style paths (assets/..., ../assets/...) to remote URLs. */
         val assetUrlMap: Map<String, String> = emptyMap()
-    )
+    ) {
+        /** Migration/offline compatibility alias; production callers use canonicalSpec. */
+        @Deprecated("Use canonicalSpec; legacy terminology is migration-only.")
+        val flatSpec: FlatSpec? get() = canonicalSpec
+    }
 
     private enum class IconFallbackKind {
         Generic,
         Weather
     }
 
+    /**
+     * Strict production renderer boundary. Only one A2UI Express completion or
+     * one standard A2UI v1 wire payload is accepted. Wrapper objects,
+     * JSONL/message arrays, FlatSpec, and Compact IR are migration/offline
+     * inputs and are rejected here rather than silently normalized.
+     */
     fun render(rawInput: String, sourceDir: File?): RenderResult {
+        val warnings = mutableListOf<String>()
+        return try {
+            val text = rawInput.trim()
+            require(text.isNotEmpty()) { "Empty A2UI Express/wire payload." }
+            val decoded = GenUiIrCodec.decode(JsonPrimitive(text))
+            val spec = FlatSpecParser.parse(decoded.canonicalGraph)
+                ?: error("Accepted A2UI payload could not be lowered to the native renderer graph.")
+            RenderResult(
+                surfaces = listOf(
+                    SurfaceState(
+                        surfaceId = "default_surface",
+                        rootId = spec.root,
+                        components = emptyMap(),
+                        canonicalSpec = spec,
+                    )
+                ),
+                warnings = warnings,
+            )
+        } catch (exc: Exception) {
+            RenderResult(
+                emptyList(),
+                warnings,
+                "Invalid A2UI Express/wire payload: ${exc.message ?: exc.javaClass.simpleName}",
+            )
+        }
+    }
+
+    /** Explicit offline/migration renderer for historical wrappers and messages. */
+    fun renderLegacyForComparison(rawInput: String, sourceDir: File?): RenderResult {
         val warnings = mutableListOf<String>()
         val parsed = try {
             val trimmed = rawInput.trim()
@@ -218,7 +257,7 @@ object GenUiNativeRenderer {
             surfaceId = "flat_surface",
             rootId = flatSpec.root,
             components = emptyMap(),
-            flatSpec = flatSpec,
+            canonicalSpec = flatSpec,
             assetUrlMap = assetUrlMap
         )
     }
@@ -476,10 +515,10 @@ object GenUiNativeRenderer {
         useOuterCard: Boolean
     ) {
         // Phase 2+: flat spec format — use new renderer
-        if (surface.flatSpec != null) {
+        if (surface.canonicalSpec != null) {
             SelectionContainer {
                 FlatSpecContent(
-                    spec = surface.flatSpec,
+                    spec = surface.canonicalSpec,
                     resolveAssetUrl = { raw -> resolveSurfaceAssetUrl(raw, sourceDir, surface.assetUrlMap) },
                     collapseRootHorizontalPadding = true,
                     modifier = Modifier.fillMaxWidth()

@@ -515,7 +515,7 @@ private fun GenUiAssistantScreen(
                 monospace = true
             )
         }
-        val restored = GenUiNativeRenderer.render(rawInput = item.genUiJson, sourceDir = null)
+        val restored = GenUiNativeRenderer.renderLegacyForComparison(rawInput = item.genUiJson, sourceDir = null)
         renderResult = restored.takeIf { it.errorMessage == null }
         if (restored.errorMessage != null) {
             errorText = "History render failed: ${restored.errorMessage}"

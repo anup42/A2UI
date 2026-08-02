@@ -35,13 +35,18 @@ def main() -> None:
     catalog["profileVersion"] = profile["profileVersion"]
     components = catalog.get("components", {})
     profile_components = profile.get("components", {})
+    profile_actions = profile.get("actions", {})
     common_properties = {str(value) for value in profile.get("commonProperties", ())}
+    common_reference_properties = {
+        str(value) for value in profile.get("commonReferenceProperties", ())
+    }
     for name, descriptor in components.items():
         p = profile_components.get(name, {})
         allowed = set(descriptor.get("positional", ()))
         allowed.update(p.get("properties", ()))
         allowed.update(p.get("childProperties", ()))
         allowed.update(common_properties)
+        allowed.update(common_reference_properties)
         allowed.discard("children[]")
         schema_properties: dict[str, Any] = {
             "id": {"type": "string", "minLength": 1},
@@ -65,10 +70,11 @@ def main() -> None:
         }
     for name, descriptor in (catalog.get("actions", {}) or {}).items():
         descriptor["allowAdditionalParams"] = False
+        descriptor["required"] = list(profile_actions.get(name, {}).get("required", ()))
         descriptor["schema"] = {
             "type": "object",
             "additionalProperties": False,
-            "required": list(descriptor.get("positional", ())[:0]),
+            "required": descriptor["required"],
             "properties": {str(key): {} for key in descriptor.get("positional", ())},
         }
     payload = {key: value for key, value in catalog.items() if key != "catalogIdentityHash"}

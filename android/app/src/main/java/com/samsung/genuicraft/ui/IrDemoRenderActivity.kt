@@ -304,7 +304,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
             return
         }
 
-        val renderResult = GenUiNativeRenderer.render(
+        val renderResult = GenUiNativeRenderer.renderLegacyForComparison(
             rawInput = payload,
             sourceDir = record.savedSourceDir()
         )

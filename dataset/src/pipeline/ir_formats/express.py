@@ -450,6 +450,8 @@ def _action_from_expression(expression: Any, actions: Any) -> Any | None:
     for key, item in expression.get("kwargs", {}).items():
         if key in params:
             raise ValueError(f"Duplicate action parameter {key!r}")
+        if not descriptor.get("allowAdditionalParams", False) and str(key) not in positional:
+            raise ValueError(f"Unknown action parameter {key!r} for {raw_name}")
         params[str(key)] = _plain_value(item)
     return {"action": action_name, "params": params}
 

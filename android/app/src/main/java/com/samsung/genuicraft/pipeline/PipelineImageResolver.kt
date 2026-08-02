@@ -34,8 +34,8 @@ internal object PipelineImageResolver {
     ): Result {
         val parsed = runCatching { JsonParser.parseString(jsonText) }.getOrNull()
             ?: return Result(jsonText, resolvedCount = 0, replacedCount = 0)
-        val payload = PipelineMediaSanitizer.normalizeGenUiPayload(parsed)
-        if (!payload.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(payload)) {
+        val payload = PipelineMediaSanitizer.normalizeCanonicalGraphPayload(parsed)
+        if (!payload.isJsonObject || !A2uiCanonicalGraph.validate(payload.asJsonObject, requireReservedRoot = false).isValid) {
             return Result(jsonText, resolvedCount = 0, replacedCount = 0)
         }
 

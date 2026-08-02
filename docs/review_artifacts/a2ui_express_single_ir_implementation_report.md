@@ -63,7 +63,14 @@ IR artifacts verified: 15 files
 - `dataset/src/pipeline/ir_formats/catalog.py`,
   `dataset/schema/genuicraft_a2ui_catalog_v1.json`, and
   `dataset/schema/genuicraft_a2ui_express_profile_v1.json`: generated strict
-  catalog/profile contract and explicit renderer properties.
+  catalog/profile contract, explicit renderer properties, required action
+  parameters, and shared reference/repeat metadata.
+- `dataset/src/pipeline/ir_formats/canonical.py` and
+  `android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiCanonicalGraph.kt`:
+  strict canonical graph validation for root/state/elements, component and
+  property allowlists, action parameter schemas, repeat/template fields,
+  references, cycles, and renderer-safe values. Raw parse validity is kept
+  separate from any explicit repair result.
 - `dataset/src/pipeline/stage3_genui.py` and Android Stage 3 pipeline/prompt
   builders: Express-only generation with no Compact/FlatSpec fallback. URL and
   local-asset references are masked before provider prompts and restored only
@@ -73,8 +80,9 @@ IR artifacts verified: 15 files
   source preservation, strict rejects, deterministic output, and resume mode.
 - `training/src/ir_training/data/`, `training/scripts/train_grpo.py`, and the
   three Express configs: Express-only target materialization, masked URL/path
-  metadata, tokenizer-based completion sizing, and source-group split
-  isolation. GRPO rewards validate raw Express directly.
+  metadata (including local asset paths), tokenizer-based completion sizing,
+  and source-group split isolation. GRPO rewards validate raw Express
+  directly.
 - `android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiNativeRenderer.kt`:
   read-only FlatSpec compatibility is explicitly separated from production
   Express ingestion.
@@ -106,12 +114,16 @@ diagnostic. The exact-token gate remains BLOCKED.
 
 ## Verification and known limitations
 
-Python dataset tests (414 passed separately), training tests (49 passed), and
-the Android JVM suite (295 passed) are recorded in
-`a2ui_express_test_report.json`. The connected Flip smoke test passed and the
-inspected screenshot shows the title, card, and table rendered through the
-native Compose path. The exact capture hash and test command are recorded in
-that report; the image is intentionally kept outside the source-only archive.
+Python dataset tests (419 passed separately), training tests (49 passed), and
+the Android JVM suite (297 passed) are recorded in
+`a2ui_express_test_report.json`. The connected Flip smoke test passed on
+`R3CW408WE4J` (`SM-F731U`, Android 16), and the inspected screenshot shows the
+A2UI Express title, native Compose card, and Details/Ready state; the window
+hierarchy also contains the Table component. The screenshot SHA-256 is
+`5D2C00E222C7361D466F31A9779EB638F7D5406B8E4E2E7380B5D3687758D0D7` and the
+window-dump SHA-256 is
+`CA675B23535A499802F620B6C0B481B02832A23DBC63A914FB17B82D66C2EF79`. The
+device images remain outside the source-only archive.
 
 Python and Kotlin both consume the byte-identical fixture
 `a2ui_express_conformance_v1.json`; the conformance report is now PASS for the
@@ -135,6 +147,7 @@ the Flip result is independently PASS.
 
 The final cleanup scan found no Compact/dual-format imports in the active Stage
 3, active codec, training target, or Android inference modules. The only
-`decode_to_flat_spec` hits are the explicit legacy-source boundary in training;
-the only Android FlatSpec references are read-only renderer compatibility and
-negative rejection checks.
+`decode_to_flat_spec` hits are explicit legacy-source/migration boundaries; the
+only Android FlatSpec references are read-only renderer compatibility,
+diagnostics, and negative rejection checks. A static policy test now guards
+these boundaries and prevents a second active IR from being reintroduced.

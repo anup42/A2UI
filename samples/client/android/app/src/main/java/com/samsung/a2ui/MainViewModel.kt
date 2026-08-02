@@ -44,8 +44,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
   var rendererMode by mutableStateOf(RendererMode.LIT_WEBVIEW)
     private set
 
-  //var geminiApiKey by mutableStateOf("AIzaSyCUEwWrG53t0TSKc23l59DsK-kLDN8rBYU")
-  var geminiApiKey by mutableStateOf("AIzaSyCUEwWrG53t0TSKc23l59DsK-kLDN8rBYU")
+  // Supply the provider key at runtime; never commit credentials in the sample app.
+  var geminiApiKey by mutableStateOf("")
     private set
 
   var geminiModel by mutableStateOf("gemini-2.5-flash-lite")

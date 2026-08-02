@@ -13,10 +13,8 @@ from pathlib import Path
 from typing import Any, Optional
 import re
 
-from pipeline.flat_spec_contract import (
-    build_fallback_flat_spec,
-    coerce_and_validate,
-)
+from pipeline.ir_formats import compile_express_to_wire
+from pipeline.ir_formats import a2ui_wire
 from pipeline.storage import JsonlWriter, iter_jsonl, load_existing_ids, load_jsonl_by_key
 
 
@@ -1291,6 +1289,8 @@ def _flat_spec_to_legacy_messages(spec: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _normalize_flat_spec(value: Any, fallback_text: str) -> tuple[dict[str, Any], bool, str | None]:
+    from pipeline.flat_spec_contract import build_fallback_flat_spec, coerce_and_validate
+
     coerce_result = coerce_and_validate(value)
     if coerce_result.is_valid and isinstance(coerce_result.spec, dict):
         return coerce_result.spec, bool(coerce_result.converted_from_legacy), None
@@ -1298,6 +1298,22 @@ def _normalize_flat_spec(value: Any, fallback_text: str) -> tuple[dict[str, Any]
     fallback = build_fallback_flat_spec(fallback_text)
     reason = coerce_result.error or "invalid flat spec"
     return fallback, False, reason
+
+
+def _compile_active_render_messages(completion: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Compile strict Express to standard wire, then adapt for the Lit v0.8 host.
+
+    The adapter is renderer-facing only: the active source is always an
+    Express completion and the wire codec performs the canonical validation.
+    It never imports or coerces the legacy FlatSpec contract.
+    """
+
+    wire = compile_express_to_wire(completion)
+    canonical = a2ui_wire.decode(wire)
+    messages = _flat_spec_to_legacy_messages(canonical)
+    if not messages or not _has_message_content(messages):
+        raise ValueError("Compiled A2UI wire payload has no renderable components")
+    return messages, wire
 
 
 def _rewrite_local_asset_urls(value: Any) -> Any:
@@ -1555,10 +1571,6 @@ def run_stage4(
             logger.info("Stage4 reached max_total=%s", max_total)
             break
 
-        genui_json = row.get("genui_json")
-        if genui_json is None:
-            genui_json = row.get("a2ui_json")
-
         validation = row.get("validation") if isinstance(row, dict) else None
         validation_errors = validation.get("errors") if isinstance(validation, dict) else None
         fallback_reason = "No renderable GenUICraft content."
@@ -1566,7 +1578,13 @@ def run_stage4(
             fallback_reason = f"No renderable GenUICraft content. First error: {validation_errors[0][:160]}"
 
         payload_mode = str(payload_format or "messages").strip().lower()
-        if payload_mode == "flat_spec":
+        active_wire: dict[str, Any] | None = None
+        if payload_mode in {"flat_spec", "legacy_flat_spec", "comparison"}:
+            # Explicit offline comparison/migration renderer only.  This path
+            # is never selected by the active Stage 3 renderer configuration.
+            genui_json = row.get("genui_json")
+            if genui_json is None:
+                genui_json = row.get("a2ui_json")
             spec, _, flat_error = _normalize_flat_spec(genui_json, fallback_reason)
             spec = _rewrite_local_asset_urls(spec)
             spec_json = _safe_json_dumps(spec)
@@ -1583,13 +1601,47 @@ def run_stage4(
                     flat_error,
                 )
         else:
-            if isinstance(genui_json, dict) and isinstance(genui_json.get("elements"), dict):
-                messages = _flat_spec_to_legacy_messages(genui_json)
-            else:
-                messages = _normalize_messages(genui_json)
+            # Active rendering accepts Express text (or the already compiled
+            # wire artifact) only.  Invalid/missing completions are recorded as
+            # render failures; they must not become placeholder UI.
+            completion = row.get("a2ui_express") or row.get("completion") or row.get("model_completion_raw")
+            try:
+                if completion is None and ("genui_json" in row or "a2ui_json" in row):
+                    # Historical rows are an explicit migration source, not an
+                    # active fallback.  They are accepted only when the legacy
+                    # graph itself validates; invalid rows still fail closed.
+                    legacy_value = row.get("genui_json", row.get("a2ui_json"))
+                    legacy_spec, _, legacy_error = _normalize_flat_spec(legacy_value, fallback_reason)
+                    if legacy_error:
+                        raise ValueError(f"legacy source rejected: {legacy_error}")
+                    messages = _flat_spec_to_legacy_messages(legacy_spec)
+                    active_wire = None
+                else:
+                    messages, active_wire = _compile_active_render_messages(completion)
+            except Exception as exc:
+                logger.error("Stage4 rejected non-Express payload ui_id=%s: %s", ui_id, exc)
+                writer.append(
+                    {
+                        "ui_id": ui_id,
+                        "response_id": row.get("response_id"),
+                        "query_id": row.get("query_id"),
+                        "renderer": renderer_name,
+                        "payload_format": "a2ui_express_v1",
+                        "html_path": None,
+                        "image_path": None,
+                        "created_at": datetime.utcnow().isoformat() + "Z",
+                        "render": {
+                            "image_ok": False,
+                            "error": f"express_payload_rejected: {exc}",
+                            "renderer_assets_hash": renderer_assets_hash,
+                            "renderer_name": renderer_name,
+                        },
+                    }
+                )
+                existing.add(ui_id)
+                created += 1
+                continue
             messages = _rewrite_local_asset_urls(messages)
-            if not messages or not _has_message_content(messages):
-                messages = _fallback_messages(fallback_reason)
             messages_json = _safe_json_dumps(messages)
             html_text = (
                 template.replace("__GenUICraft_MESSAGES_JSON__", messages_json)
@@ -1619,6 +1671,7 @@ def run_stage4(
                         "response_id": row.get("response_id"),
                         "query_id": row.get("query_id"),
                         "renderer": renderer_name,
+                        "payload_format": "a2ui_v1_wire" if active_wire is not None else "legacy_flat_spec",
                         "html_path": str(html_path.relative_to(output_dir.parent)),
                         "image_path": str(image_path.relative_to(output_dir.parent)),
                     }
@@ -1634,6 +1687,7 @@ def run_stage4(
                 "response_id": row.get("response_id"),
                 "query_id": row.get("query_id"),
                 "renderer": renderer_name,
+                "payload_format": "a2ui_v1_wire" if active_wire is not None else "legacy_flat_spec",
                 "html_path": str(html_path.relative_to(output_dir.parent)),
                 "image_path": str(image_path.relative_to(output_dir.parent)) if image_path else None,
                 "created_at": datetime.utcnow().isoformat() + "Z",

@@ -55,8 +55,13 @@ def enrich_response_with_commons_media(
     return "\n".join(out)
 
 
-def repair_flat_spec_images(genui_json: Any, query_text: str, response_text: str) -> tuple[Any, int]:
-    """Mirror Android table-row image repair for dataset-generated flat-spec IR."""
+def repair_canonical_graph_images(genui_json: Any, query_text: str, response_text: str) -> tuple[Any, int]:
+    """Repair media references in the already-parsed canonical graph.
+
+    This operates after strict A2UI Express parsing and is not a FlatSpec
+    importer.  The legacy name remains as an explicit compatibility alias for
+    offline migration scripts.
+    """
     if not isinstance(genui_json, dict):
         return genui_json, 0
     elements = genui_json.get("elements")
@@ -141,6 +146,12 @@ def repair_flat_spec_images(genui_json: Any, query_text: str, response_text: str
             table_images_added += 1
             resolved_count += 1
     return genui_json, resolved_count
+
+
+# Explicit offline/migration compatibility alias.  Active Stage 3 code uses
+# repair_canonical_graph_images so a legacy FlatSpec path cannot be mistaken
+# for the production representation.
+repair_flat_spec_images = repair_canonical_graph_images
 
 
 def looks_like_travel(

@@ -23,7 +23,7 @@ internal object A2uiExpressCodec {
     }
 
     fun encode(flatSpec: JsonObject): String {
-        val source = FlatSpecIdRewriter.rewrite(flatSpec, shorten = true, reserveRoot = true)
+        val source = CanonicalGraphIdRewriter.rewrite(flatSpec, shorten = true, reserveRoot = true)
         val lines = mutableListOf(OPEN)
         source.get("state")?.takeIf { it.isJsonObject && it.asJsonObject.size() > 0 }
             ?.let { lines += "$/=${it}" }
@@ -207,7 +207,7 @@ internal object A2uiExpressCodec {
                     else -> element.add(key, metadata.toJson())
                 }
             }
-            normalizeStackProps(component, props)
+            validateStackProps(component, props)
             elements.add(id, element)
             return id
         }
@@ -378,13 +378,8 @@ internal object A2uiExpressCodec {
         current.add(parts.last(), value.deepCopy())
     }
 
-    /**
-     * A2UI Express models occasionally copy a human label into a constrained
-     * spacing token (for example, `gap="tracking link"`). Keep the bounded
-     * grammar repair local to Stack layout props and fall back to the pinned
-     * default spacing instead of rejecting an otherwise renderable graph.
-     */
-    private fun normalizeStackProps(component: String, props: JsonObject) {
+    /** Validate constrained layout values; repairs belong to an explicit repair layer. */
+    private fun validateStackProps(component: String, props: JsonObject) {
         if (component != "Stack") return
         val gap = props.get("gap")
             ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
@@ -392,7 +387,9 @@ internal object A2uiExpressCodec {
             ?.trim()
             ?.lowercase()
             ?: return
-        if (gap !in STACK_GAP_TOKENS) props.addProperty("gap", "md")
+        require(gap in STACK_GAP_TOKENS) {
+            "Stack.gap must be one of ${STACK_GAP_TOKENS.joinToString(", ")}."
+        }
     }
 
     private fun statements(text: String): List<String> {

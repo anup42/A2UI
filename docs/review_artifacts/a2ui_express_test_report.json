@@ -1,7 +1,7 @@
 {
   "report_version": "a2ui_express_test_report.v1",
   "environment": {
-    "host_date": "2026-08-02",
+    "host_date": "2026-08-03",
     "device_serial": "R3CW408WE4J",
     "device_model": "SM-F731U",
     "device_os": "Android 16",
@@ -10,26 +10,22 @@
   "passed": [
     {
       "command": "python -m pytest dataset/tests -q; python -m pytest training/tests -q",
-      "result": "414 dataset tests + 49 training tests passed in separate suites; 5 deprecation warnings"
+      "result": "419 dataset tests + 49 training tests passed in separate suites; 7 dataset deprecation warnings"
     },
     {
-      "command": "./gradlew.bat :app:testDebugUnitTest --no-daemon",
-      "result": "295 tests passed"
+      "command": "./gradlew :app:testDebugUnitTest --no-daemon",
+      "result": "BUILD SUCCESSFUL; 297 tests passed across 39 XML suites with 0 failures and 0 errors"
     },
     {
       "command": "python dataset/scripts/generate_ir_specs.py --check",
       "result": "15 generated artifacts verified"
     },
     {
-      "command": "python -m py_compile dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py dataset/src/pipeline/stage3_genui.py dataset/tests/test_stage3_a2ui_express.py",
-      "result": "passed"
+      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --output-dir <temporary-output> --strict",
+      "result": "32 accepted, 0 rejected; Express and standard-wire semantic hashes matched"
     },
     {
-      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --strict",
-      "result": "32 accepted, 0 rejected"
-    },
-    {
-      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --resume --strict",
+      "command": "python dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py <32-fixture-jsonl> --output-dir <same-temporary-output> --resume --strict",
       "result": "0 new, 0 rejected; deterministic resume pass"
     },
     {
@@ -41,17 +37,17 @@
       "result": "Debug APK built and installed as an update"
     },
     {
-      "command": "android_diagnostics.py --serial R3CW408WE4J --package com.samsung.genuicraft --minutes 5 --screenshot",
-      "result": "diagnostics collected; no app crash was attributed"
+      "command": "adb shell am instrument -w -e class com.samsung.genuicraft.A2uiExpressRenderOnDeviceTest com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner",
+      "result": "1/1 device test passed after update install; result screenshot and window hierarchy pulled from the test process"
     }
   ],
   "device_render_evidence": {
     "test": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip",
-    "visual_result": "A2UI Express title, native Compose card, and table rendered correctly",
+    "visual_result": "A2UI Express title, native Compose card, and Details/Ready state rendered correctly; the window hierarchy contains the Table component",
     "screenshot_path": "C:/Users/anupk/Documents/git/A2UI/docs/review_artifacts/a2ui_express_device_smoke/screenshot_flip.png",
-    "screenshot_sha256": "A1C36387869E69EF460FB571B8B5FDA14E5BAE00486EC7D1FC7E649DAE71E0CE",
-    "window_dump_sha256": null,
-    "note": "The screenshot was pulled from /sdcard/Download/a2ui_express_device_smoke after the Flip test and is intentionally outside the source-only review ZIP; the device-side hierarchy assertion passed."
+    "screenshot_sha256": "5D2C00E222C7361D466F31A9779EB638F7D5406B8E4E2E7380B5D3687758D0D7",
+    "window_dump_sha256": "CA675B23535A499802F620B6C0B481B02832A23DBC63A914FB17B82D66C2EF79",
+    "note": "The screenshot and window hierarchy were copied from the test process result directory after the Flip test; the screenshot shows the A2UI Express title, native Compose card, and Details/Ready state, while the hierarchy contains the Table component. Device binaries remain outside the source-only review ZIP."
   },
   "blocked": [
     {
@@ -66,7 +62,6 @@
     }
   ],
   "not_run": [
-    "Combined dataset+training pytest invocation: a 120-second shell timeout occurred before output; the suites were rerun separately and passed.",
     "Exact deployed Gemma tokenizer benchmark: tokenizer/checkpoint unavailable; lexical diagnostic is labeled non-exact.",
     "Successful live Vertex response generation: billing must be enabled or a working project key supplied."
   ],

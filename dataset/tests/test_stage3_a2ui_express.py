@@ -101,6 +101,10 @@ def test_stage3_generates_only_express_and_disables_json_mode(tmp_path, monkeypa
     assert rows[0]["semantic_hash"]
     assert rows[0]["model_completion_raw"]
     assert rows[0]["model_native_output_normalized"].startswith("<a2ui>")
+    assert rows[0]["a2ui_express"].startswith("<a2ui>")
+    assert rows[0]["canonical_graph"]["root"] == "root"
+    assert rows[0]["compiled_a2ui"]["version"] == "v1.0"
+    assert "genui_json" not in rows[0]
     assert adapter.json_modes == [False]
 
 
@@ -117,7 +121,7 @@ def test_stage3_masks_and_restores_urls_and_local_asset_paths():
     response = (
         "Use https://example.test/images/flight.png and "
         "'assets/icons/flight.svg'; open https://example.test/ticket/123. "
-        "Also load 'C:/device assets/boarding pass.png'."
+        "Also load 'C:/device assets/boarding pass.png' and @drawable/boarding_pass."
     )
     masked, raw_to_placeholder, placeholder_to_raw = _mask_model_references(
         response,
@@ -136,5 +140,6 @@ def test_stage3_masks_and_restores_urls_and_local_asset_paths():
 
     assert "https://example.test" not in masked
     assert "assets/" not in masked
+    assert "@drawable/" not in masked
     assert raw_to_placeholder["https://example.test/images/flight.png"].startswith("[IMAGE_URL_")
     assert _restore_model_references(masked, placeholder_to_raw) == response

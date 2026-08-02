@@ -626,7 +626,7 @@ private fun DatasetCaptureRenderScreen(
     modifier: Modifier = Modifier
 ) {
     val result = remember(record?.rawJson, record?.sourceDir) {
-        record?.let { GenUiNativeRenderer.render(rawInput = it.rawJson, sourceDir = it.sourceDir) }
+        record?.let { GenUiNativeRenderer.renderLegacyForComparison(rawInput = it.rawJson, sourceDir = it.sourceDir) }
     }
     val scrollState = rememberScrollState()
     val deviceConfig = rememberDeviceUiConfig()

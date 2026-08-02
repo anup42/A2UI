@@ -17,6 +17,7 @@ import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
 import com.samsung.genuicraft.pipeline.FlatSpecContract
 import com.samsung.genuicraft.pipeline.A2uiWireCodec
+import com.samsung.genuicraft.pipeline.A2uiCanonicalGraph
 import com.samsung.genuicraft.pipeline.GenUiIrCodec
 import com.samsung.genuicraft.pipeline.GenUiIrFormat
 import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
@@ -960,7 +961,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
+        val normalizedGenUi = PipelineMediaSanitizer.normalizeCanonicalGraphPayload(stage3JsonElement)
         val referenceRestore = com.samsung.genuicraft.mcp.McpUrlShortener.restoreJsonReferences(
             normalizedGenUi,
             referenceMap,
@@ -1573,7 +1574,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
+        val normalizedGenUi = PipelineMediaSanitizer.normalizeCanonicalGraphPayload(stage3JsonElement)
         // Restore placeholders before media/link preservation and native render.
         val referenceRestore = com.samsung.genuicraft.mcp.McpUrlShortener.restoreJsonReferences(
             normalizedGenUi,
@@ -1994,7 +1995,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
 
-        val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
+        val normalizedGenUi = PipelineMediaSanitizer.normalizeCanonicalGraphPayload(stage3JsonElement)
         // Restore reference placeholders before media/link preservation and native render.
         val referenceRestore = com.samsung.genuicraft.mcp.McpUrlShortener.restoreJsonReferences(
             normalizedGenUi,
@@ -2192,11 +2193,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                     sourceResponseText = sourceResponseText,
                     canonicalJson = initialDecoded.canonicalGraph,
                 )
-                if (coverageError == null) {
-                    warnings += "A2UI Express parsed natively; legacy FlatSpec fallback is disabled."
+                val canonicalError = A2uiCanonicalGraph.validate(initialDecoded.canonicalGraph).error
+                if (coverageError == null && canonicalError == null) {
+                    warnings += "A2UI Express parsed natively; no legacy fallback is available."
                     return initialDecoded.canonicalGraph
                 }
-                coverageError
+                coverageError ?: canonicalError
             }
         }
 
@@ -2266,11 +2268,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                         sourceResponseText = sourceResponseText,
                         canonicalJson = repairedDecoded.canonicalGraph,
                     )
-                    if (coverageError == null) {
+                    val canonicalError = A2uiCanonicalGraph.validate(repairedDecoded.canonicalGraph).error
+                    if (coverageError == null && canonicalError == null) {
                         warnings += "A2UI Express repair parsed natively; no legacy fallback was attempted."
                         return repairedDecoded.canonicalGraph
                     }
-                    coverageError
+                    coverageError ?: canonicalError
                 }
             }
 
@@ -2376,13 +2379,13 @@ class GenUiStagePipeline(private val appContext: Context) {
                 error = "Stage 3 safe IR is not valid JSON: ${error.message.orEmpty()}"
             )
         }
-        if (!parsed.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(parsed)) {
+        if (!parsed.isJsonObject) {
             return FinalStage3SafetyResult(
                 jsonText = null,
-                error = "Internal Stage 3 graph is not a canonical renderer graph."
+                error = "Internal Stage 3 payload is not a canonical renderer graph."
             )
         }
-        val validation = FlatSpecContract.validateFlatSpec(parsed.asJsonObject)
+        val validation = A2uiCanonicalGraph.validate(parsed.asJsonObject)
         if (!validation.isValid) {
             return FinalStage3SafetyResult(
                 jsonText = null,
@@ -2396,6 +2399,19 @@ class GenUiStagePipeline(private val appContext: Context) {
                     error = "Standard A2UI compilation failed: ${error.message.orEmpty()}"
                 )
             }
+        val wireGraph = runCatching { A2uiWireCodec.decode(wire) }.getOrElse { error ->
+            return FinalStage3SafetyResult(
+                jsonText = null,
+                error = "Compiled A2UI wire payload failed strict decode: ${error.message.orEmpty()}"
+            )
+        }
+        val wireValidation = A2uiCanonicalGraph.validate(wireGraph)
+        if (!wireValidation.isValid) {
+            return FinalStage3SafetyResult(
+                jsonText = null,
+                error = wireValidation.error ?: "Compiled A2UI wire graph validation failed."
+            )
+        }
         return FinalStage3SafetyResult(jsonText = gson.toJson(wire), error = null)
     }
 

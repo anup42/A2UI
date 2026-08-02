@@ -822,14 +822,14 @@ ACTIONS: dict[str, dict[str, Any]] = json.loads(r'''{
     "positional": [
       "url"
     ],
-    "allowAdditionalParams": true
+    "allowAdditionalParams": false
   },
   "setState": {
     "positional": [
       "statePath",
       "value"
     ],
-    "allowAdditionalParams": true
+    "allowAdditionalParams": false
   },
   "pushState": {
     "positional": [
@@ -837,21 +837,21 @@ ACTIONS: dict[str, dict[str, Any]] = json.loads(r'''{
       "value",
       "clearStatePath"
     ],
-    "allowAdditionalParams": true
+    "allowAdditionalParams": false
   },
   "removeState": {
     "positional": [
       "statePath",
       "index"
     ],
-    "allowAdditionalParams": true
+    "allowAdditionalParams": false
   },
   "validateForm": {
     "positional": [
       "statePath",
       "resultStatePath"
     ],
-    "allowAdditionalParams": true
+    "allowAdditionalParams": false
   },
   "emitEvent": {
     "positional": [
@@ -860,7 +860,7 @@ ACTIONS: dict[str, dict[str, Any]] = json.loads(r'''{
       "wantResponse",
       "responsePath"
     ],
-    "allowAdditionalParams": true
+    "allowAdditionalParams": false
   }
 }''')
 

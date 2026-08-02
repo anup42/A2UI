@@ -82,7 +82,7 @@ internal object A2uiWireCodec {
     }
 
     fun encode(flatSpec: JsonObject): JsonObject {
-        val source = FlatSpecIdRewriter.rewrite(flatSpec, shorten = true)
+        val source = CanonicalGraphIdRewriter.rewrite(flatSpec, shorten = true)
         val components = JsonArray()
         source.get("elements")?.takeIf { it.isJsonObject }?.asJsonObject?.entrySet()?.forEach { (id, raw) ->
             if (!raw.isJsonObject) return@forEach

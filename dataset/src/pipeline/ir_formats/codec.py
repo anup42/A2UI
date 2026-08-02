@@ -6,6 +6,7 @@ from typing import Any, Mapping
 
 from ..flat_spec_contract import coerce_and_validate, looks_like_flat_spec
 from . import express, a2ui_wire
+from .canonical import canonical_graph
 from .common import codec_identity, semantic_hash
 
 FLAT_SPEC_V1='flat_spec_v1'  # read-only migration source
@@ -63,9 +64,10 @@ def decode_to_flat_spec(value: Any, *, format_hint: str|None=None) -> DecodedIr:
         if isinstance(value,str): value=json.loads(value)
         raw=a2ui_wire.decode(value)
     else: raise ValueError(f'Unsupported production format {format_id}')
-    result=coerce_and_validate(raw)
-    if not result.is_valid or result.spec is None: raise ValueError(result.error or f'{format_id} decoded to invalid FlatSpec')
-    return DecodedIr(format_id,result.spec)
+    # Active formats must be checked by the strict canonical graph contract.
+    # Do not pass model output through the legacy FlatSpec coercer, which can
+    # normalize malformed values (for example, invalid Stack gap enums).
+    return DecodedIr(format_id, canonical_graph(raw))
 
 
 def encode_from_flat_spec(spec: Mapping[str,Any], target_format: str, *, shorten_ids: bool=True, pretty: bool=False) -> Any:
