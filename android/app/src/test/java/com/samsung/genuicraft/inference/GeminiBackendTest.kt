@@ -10,8 +10,21 @@ import java.net.URL
 
 class GeminiBackendTest {
     @Test
-    fun gemmaModelsUseGeminiApiEndpoint() {
+    fun vertexExpressModeIsHonoredForGemmaModelNames() {
         val endpoint = buildEndpointFor(model = "gemma-4-31b-it")
+
+        assertEquals("aiplatform.googleapis.com", endpoint.host)
+        assertTrue(endpoint.path.endsWith("/v1/publishers/google/models/gemma-4-31b-it:generateContent"))
+        assertTrue(endpoint.query.contains("vertex-key"))
+        assertFalse(endpoint.query.contains("gemini-key"))
+    }
+
+    @Test
+    fun aiStudioModeUsesGeminiApiEndpointForGemma() {
+        val endpoint = buildEndpointFor(
+            model = "gemma-4-31b-it",
+            apiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
+        )
 
         assertEquals("generativelanguage.googleapis.com", endpoint.host)
         assertTrue(endpoint.path.endsWith("/v1beta/models/gemma-4-31b-it:generateContent"))
@@ -46,7 +59,10 @@ class GeminiBackendTest {
             }
         """.trimIndent()
 
-        val backend = backend(model = "gemma-4-31b-it")
+        val backend = backend(
+            model = "gemma-4-31b-it",
+            apiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
+        )
         val method = GeminiBackend::class.java.getDeclaredMethod("extractGeminiText", String::class.java)
         method.isAccessible = true
         val extraction = method.invoke(backend, raw)
@@ -59,7 +75,10 @@ class GeminiBackendTest {
 
     @Test
     fun gemmaRequestDisablesThoughtSummaries() {
-        val backend = backend(model = "gemma-4-31b-it")
+        val backend = backend(
+            model = "gemma-4-31b-it",
+            apiMode = InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT,
+        )
         val method = GeminiBackend::class.java.getDeclaredMethod(
             "buildRequestPayload",
             InferenceBackend.GenerateRequest::class.java
@@ -87,18 +106,39 @@ class GeminiBackendTest {
         assertEquals(false, thinkingConfig.get("includeThoughts").asBoolean)
     }
 
-    private fun buildEndpointFor(model: String): URL {
-        val backend = backend(model)
+    @Test
+    fun billingFailureGetsActionableVertexExpressHint() {
+        val backend = backend(model = "gemini-2.5-flash-lite")
+
+        val hint = backend.buildHttpErrorHint(
+            code = 403,
+            responseBody = "This API method requires billing to be enabled.",
+        )
+
+        assertTrue(hint.contains("billing is disabled", ignoreCase = true))
+        assertTrue(hint.contains("active Vertex Express trial/project"))
+    }
+
+    private fun buildEndpointFor(
+        model: String,
+        apiMode: InferenceBackendSettings.GeminiApiMode =
+            InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY,
+    ): URL {
+        val backend = backend(model, apiMode)
         val method = GeminiBackend::class.java.getDeclaredMethod("buildGenerateEndpoint")
         method.isAccessible = true
         return method.invoke(backend) as URL
     }
 
-    private fun backend(model: String): GeminiBackend {
+    private fun backend(
+        model: String,
+        apiMode: InferenceBackendSettings.GeminiApiMode =
+            InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY,
+    ): GeminiBackend {
         return GeminiBackend(
             apiKey = "gemini-key",
             model = model,
-            apiMode = InferenceBackendSettings.GeminiApiMode.VERTEX_AI_EXPRESS_API_KEY,
+            apiMode = apiMode,
             vertexProjectId = "project-id",
             vertexLocation = "us-central1",
             vertexAccessToken = "",

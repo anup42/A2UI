@@ -60,7 +60,7 @@
     <string name="settings_model_loading">Fetching available Gemini models...</string>
     <string name="settings_model_fetch_failed">Could not fetch Gemini models.</string>
     <string name="settings_model_api_key_missing">Gemini API key is missing. Showing default model options.</string>
-    <string name="settings_model_vertex_catalog_note">Vertex AI mode is active. Using default model list.</string>
+    <string name="settings_model_vertex_catalog_note">Vertex AI Express is active. Only compatible Gemini models are available.</string>
     <string name="settings_model_not_used_local">This stage uses a non-Gemini backend. Gemini model selection is not used.</string>
     <string name="settings_refresh_models">Refresh model list</string>
     <string name="settings_rendering_title">Rendering</string>

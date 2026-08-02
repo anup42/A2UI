@@ -1009,7 +1009,10 @@ private fun SettingsScreen(
                     }
 
                     if (selectedResponseProvider == InferenceBackendSettings.Provider.GEMINI) {
-                        items(availableModels, key = { "response_$it" }) { model ->
+                        items(
+                            availableModels.filter(GeminiModelSettings::isVertexExpressCompatibleModel),
+                            key = { "response_$it" },
+                        ) { model ->
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -1077,7 +1080,10 @@ private fun SettingsScreen(
                     }
 
                     if (selectedIrProvider == InferenceBackendSettings.Provider.GEMINI) {
-                        items(availableModels, key = { "ir_$it" }) { model ->
+                        items(
+                            availableModels.filter(GeminiModelSettings::isVertexExpressCompatibleModel),
+                            key = { "ir_$it" },
+                        ) { model ->
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -1238,10 +1244,9 @@ private fun SettingsScreen(
 
 private fun defaultModelOptions(selectedResponseModel: String, selectedIrModel: String): List<String> {
     val defaults = listOf(
-        "gemini-2.5-pro",
-        "gemini-2.5-flash",
         "gemini-2.5-flash-lite",
-        GeminiModelSettings.GEMMA_4_31B_IT_MODEL,
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
         "gemini-2.0-flash",
         "gemini-2.0-flash-lite",
         "gemini-pro-latest",

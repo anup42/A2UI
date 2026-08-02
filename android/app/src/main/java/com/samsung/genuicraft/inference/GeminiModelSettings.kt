@@ -1,13 +1,14 @@
 package com.samsung.genuicraft
 
 import android.content.Context
+import java.util.Locale
 
 object GeminiModelSettings {
     private const val PREFS_NAME = "gemini_model_settings"
     private const val KEY_SELECTED_MODEL = "selected_model"
     private const val KEY_RESPONSE_MODEL = "selected_response_model"
     private const val KEY_IR_MODEL = "selected_ir_model"
-    const val DEFAULT_RESPONSE_MODEL = "gemini-2.5-pro"
+    const val DEFAULT_RESPONSE_MODEL = "gemini-2.5-flash-lite"
     const val DEFAULT_IR_MODEL = "gemini-2.5-flash"
     const val GEMMA_4_31B_IT_MODEL = "gemma-4-31b-it"
     const val DEFAULT_MODEL = DEFAULT_RESPONSE_MODEL
@@ -20,8 +21,12 @@ object GeminiModelSettings {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val stored = prefs.getString(KEY_RESPONSE_MODEL, null)
             ?: prefs.getString(KEY_SELECTED_MODEL, DEFAULT_RESPONSE_MODEL)
-        val normalized = normalizeModelName(stored.orEmpty().trim())
-        return normalized.ifBlank { DEFAULT_RESPONSE_MODEL }
+        val storedModel = normalizeModelName(stored.orEmpty().trim())
+        val resolvedModel = normalizeVertexExpressResponseModel(storedModel)
+        if (resolvedModel != storedModel) {
+            prefs.edit().putString(KEY_RESPONSE_MODEL, resolvedModel).apply()
+        }
+        return resolvedModel
     }
 
     fun getIrModel(context: Context): String {
@@ -33,7 +38,7 @@ object GeminiModelSettings {
     }
 
     fun setResponseModel(context: Context, model: String) {
-        val normalized = normalizeModelName(model).ifBlank { DEFAULT_RESPONSE_MODEL }
+        val normalized = normalizeVertexExpressResponseModel(model)
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_RESPONSE_MODEL, normalized)
@@ -49,7 +54,7 @@ object GeminiModelSettings {
     }
 
     fun setSelectedModel(context: Context, model: String) {
-        val normalized = normalizeModelName(model).ifBlank { DEFAULT_MODEL }
+        val normalized = normalizeVertexExpressResponseModel(model)
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_SELECTED_MODEL, normalized)
@@ -79,5 +84,16 @@ object GeminiModelSettings {
                 trimmed.removePrefix("models/").trim()
             else -> trimmed
         }
+    }
+
+    internal fun normalizeVertexExpressResponseModel(value: String): String {
+        val normalized = normalizeModelName(value)
+        return normalized.takeIf(::isVertexExpressCompatibleModel) ?: DEFAULT_RESPONSE_MODEL
+    }
+
+    fun isVertexExpressCompatibleModel(value: String): Boolean {
+        return normalizeModelName(value)
+            .lowercase(Locale.US)
+            .startsWith("gemini-")
     }
 }

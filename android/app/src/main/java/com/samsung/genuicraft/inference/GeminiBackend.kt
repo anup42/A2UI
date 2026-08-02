@@ -68,22 +68,11 @@ class GeminiBackend(
 
             if (code !in 200..299) {
                 val short = raw.trim().ifBlank { "HTTP $code" }
-                val lower = short.lowercase(Locale.US)
-                val authHint = if (
-                    code == 401 &&
-                    (lower.contains("api keys are not supported") ||
-                        lower.contains("access_token_type_unsupported") ||
-                        lower.contains("unauthenticated") ||
-                        lower.contains("invalid authentication credentials"))
-                ) {
-                    " Vertex Express rejected this credential. Use a valid Vertex AI Express API key for aiplatform.googleapis.com."
-                } else {
-                    ""
-                }
+                val serviceHint = buildHttpErrorHint(code, short)
                 return InferenceBackend.GenerateResponse(
                     text = "",
                     rawResponse = raw,
-                    error = "HTTP $code: ${short.take(320)}$authHint [mode=${endpointModeLabel()} endpoint=$endpointLabel model=${normalizeModelName(model)}]",
+                    error = "HTTP $code: ${short.take(320)}$serviceHint [mode=${endpointModeLabel()} endpoint=$endpointLabel model=${normalizeModelName(model)}]",
                     streamDurationMs = streamRead.streamDurationMs,
                     inputTokens = usage.inputTokens,
                     outputTokens = usage.outputTokens
@@ -145,13 +134,29 @@ class GeminiBackend(
     }
 
     private fun usesGeminiApiEndpoint(): Boolean {
-        val normalized = normalizeModelName(model).lowercase(Locale.US)
-        return apiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT ||
-            normalized.startsWith("gemma-")
+        return apiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT
     }
 
     private fun endpointModeLabel(): String {
         return if (usesGeminiApiEndpoint()) "gemini_api_key" else "vertex_ai_express_api_key"
+    }
+
+    internal fun buildHttpErrorHint(code: Int, responseBody: String): String {
+        val lower = responseBody.lowercase(Locale.US)
+        return when {
+            code == 403 &&
+                (lower.contains("requires billing to be enabled") ||
+                    lower.contains("billing is disabled") ||
+                    lower.contains("enable billing")) ->
+                " Vertex AI billing is disabled for the project linked to this Express key. Enable billing or replace the key with one from an active Vertex Express trial/project."
+            code == 401 &&
+                (lower.contains("api keys are not supported") ||
+                    lower.contains("access_token_type_unsupported") ||
+                    lower.contains("unauthenticated") ||
+                    lower.contains("invalid authentication credentials")) ->
+                " Vertex Express rejected this credential. Use a valid Vertex AI Express API key for aiplatform.googleapis.com."
+            else -> ""
+        }
     }
 
     private fun normalizeModelName(rawModel: String): String {
