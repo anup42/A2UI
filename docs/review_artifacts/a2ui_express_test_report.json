@@ -9,19 +9,19 @@
   },
   "passed": [
     {
-      "command": "python -m pytest dataset/tests training/tests",
-      "result": "458 passed, 5 deprecation warnings"
+      "command": "python -m pytest dataset/tests -q; python -m pytest training/tests -q",
+      "result": "414 dataset tests + 49 training tests passed in separate suites; 5 deprecation warnings"
     },
     {
       "command": "./gradlew.bat :app:testDebugUnitTest --no-daemon",
-      "result": "294 tests passed"
+      "result": "295 tests passed"
     },
     {
       "command": "python dataset/scripts/generate_ir_specs.py --check",
-      "result": "10 generated artifacts verified"
+      "result": "15 generated artifacts verified"
     },
     {
-      "command": "python -m py_compile dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py dataset/tests/test_stage3_a2ui_express.py",
+      "command": "python -m py_compile dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py dataset/src/pipeline/stage3_genui.py dataset/tests/test_stage3_a2ui_express.py",
       "result": "passed"
     },
     {
@@ -33,8 +33,8 @@
       "result": "0 new, 0 rejected; deterministic resume pass"
     },
     {
-      "command": "./gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.samsung.genuicraft.A2uiExpressRenderOnDeviceTest --no-daemon",
-      "result": "1 device test passed on the connected Flip"
+      "command": "./gradlew.bat :app:connectedDebugAndroidTest \"-Pandroid.testInstrumentationRunnerArguments.class=com.samsung.genuicraft.A2uiExpressRenderOnDeviceTest\" --no-daemon",
+      "result": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip passed on R3CW408WE4J (SM-F731U, Android 16); the secondary SM-F966B target was not runnable because its existing package signature differs"
     },
     {
       "command": "powershell ... build_install_android.ps1 -Root android -Module :app -Variant Debug -Serial R3CW408WE4J",
@@ -48,10 +48,10 @@
   "device_render_evidence": {
     "test": "A2uiExpressRenderOnDeviceTest.expressFixtureRendersOnFlip",
     "visual_result": "A2UI Express title, native Compose card, and table rendered correctly",
-    "screenshot_path": "C:/Users/anupk/AppData/Local/Temp/a2ui_express_device_smoke_20260802_r2/a2ui_express_device_smoke/screenshot.png",
-    "screenshot_sha256": "A548C6CC66A13E73B5B3F1AF1C78BB92F20CE3D9B3C44DA2A7C934DEC4B808E3",
-    "window_dump_sha256": "2A09B815E8E3A0A8A291091ABA37828BB696EDB1C82031FAEE48DD603FE1BBF6",
-    "note": "The screenshot is intentionally outside the source repository and source-only review ZIP."
+    "screenshot_path": "C:/Users/anupk/Documents/git/A2UI/docs/review_artifacts/a2ui_express_device_smoke/screenshot_flip.png",
+    "screenshot_sha256": "A1C36387869E69EF460FB571B8B5FDA14E5BAE00486EC7D1FC7E649DAE71E0CE",
+    "window_dump_sha256": null,
+    "note": "The screenshot was pulled from /sdcard/Download/a2ui_express_device_smoke after the Flip test and is intentionally outside the source-only review ZIP; the device-side hierarchy assertion passed."
   },
   "blocked": [
     {
@@ -66,6 +66,7 @@
     }
   ],
   "not_run": [
+    "Combined dataset+training pytest invocation: a 120-second shell timeout occurred before output; the suites were rerun separately and passed.",
     "Exact deployed Gemma tokenizer benchmark: tokenizer/checkpoint unavailable; lexical diagnostic is labeled non-exact.",
     "Successful live Vertex response generation: billing must be enabled or a working project key supplied."
   ],

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reference GRPO + LoRA entry point for text -> GenUI FlatSpec.
+"""Reference GRPO + LoRA entry point for text -> A2UI Express v1.
 
 Dataset columns
 ---------------
@@ -8,8 +8,8 @@ Required:
 Recommended:
   expected_ui_contract: persisted source-side contract, independent of candidate.
   intent_bucket, assets, query_id/source_id/response_id.
-Optional:
-  genui_json: accepted reference output used only to estimate completion length.
+Required for active training:
+  completion: strict A2UI Express v1 reference completion.
 
 The reward never judges the factual or writing quality of response_text.  It
 scores the completion as a renderer-facing representation of that source.
@@ -89,19 +89,32 @@ def build_asset_context(assets: Any) -> str:
     if not isinstance(assets, Sequence) or isinstance(assets, (str, bytes, bytearray)):
         return ""
     lines: list[str] = []
-    for item in assets:
+    for index, item in enumerate(assets, start=1):
         if not isinstance(item, Mapping):
             continue
-        url = str(item.get("url") or "").strip()
-        local_path = _to_render_asset_path(str(item.get("path") or ""))
-        if not local_path:
+        raw_path = str(item.get("path") or "")
+        raw_url = str(item.get("url") or "")
+        local_path = _to_render_asset_path(raw_path)
+        if not local_path and not raw_url:
             continue
-        kind = _asset_kind(local_path, url)
-        lines.append(f"- [{kind}] {url} -> {local_path}" if url else f"- [{kind}] {local_path}")
+        kind = _asset_kind(local_path, raw_url)
+        # Asset metadata is a model-facing input too. Never put a remote URL
+        # or machine-local path in the prompt; build_pairs normally supplies
+        # these deterministic placeholders and this fallback protects direct
+        # GRPO callers as well.
+        placeholder = next(
+            (
+                token
+                for token in (raw_path, raw_url)
+                if token.startswith("[") and token.endswith("]")
+            ),
+            f"[{kind.upper()}_ASSET_{index}]",
+        )
+        lines.append(f"- [{kind}] {placeholder}")
     if not lines:
         return ""
     return (
-        "Assets (use only mapped local paths on the right; do not invent paths):\n"
+        "Assets (use only the supplied placeholders; do not invent URLs or local paths):\n"
         + "\n".join(lines)
     )
 
@@ -115,16 +128,16 @@ def build_prompt(template: str, response_text: str, assets: Any) -> str:
     if has_assets:
         asset_policy = (
             "Asset policy:\n"
-            "- Use only local media paths from the supplied mapping.\n"
-            "- Do not emit remote URLs for mapped images or icons.\n"
-            "- Do not invent local placeholder paths."
+            "- Use only the supplied asset placeholders.\n"
+            "- Do not emit remote URLs or machine-local paths.\n"
+            "- Do not invent asset placeholders."
         )
     else:
         asset_policy = (
             "Asset policy:\n"
             "- No local asset mapping is supplied.\n"
-            "- Preserve required source media URLs exactly.\n"
-            "- Do not invent local placeholder paths."
+            "- Preserve required source media placeholders exactly.\n"
+            "- Do not invent URLs or local paths."
         )
     source = f"{response_text}\n\n{asset_policy}"
     context = build_asset_context(assets)
@@ -159,6 +172,29 @@ def _source_timestamp(row: Mapping[str, Any]) -> str:
     return str(value or "")
 
 
+def _express_completion_from_row(row: Mapping[str, Any]) -> str:
+    """Read the sole training target and reject legacy graph targets."""
+    target_format = str(row.get("target_format") or "a2ui_express_v1").strip().lower()
+    if target_format != "a2ui_express_v1":
+        raise ValueError(f"Active GRPO requires a2ui_express_v1, got {target_format!r}")
+    completion = row.get("completion")
+    if not isinstance(completion, str) or not completion.strip():
+        targets = row.get("completion_targets")
+        if isinstance(targets, Mapping):
+            completion = targets.get("a2ui_express_v1")
+    if not isinstance(completion, str) or not completion.strip():
+        raise ValueError("Training row is missing a strict A2UI Express completion")
+    # Validate the target at the data-loader boundary so a legacy JSON graph
+    # can never silently enter GRPO as a completion.
+    from pipeline.ir_formats import validate_express_completion
+
+    result = validate_express_completion(completion)
+    if not result.raw_valid:
+        detail = result.errors[0] if result.errors else "invalid_express_completion"
+        raise ValueError(f"Invalid A2UI Express training completion: {detail}")
+    return completion
+
+
 def load_training_dataset(path: str, template: str) -> Dataset:
     if Path(path).suffix.lower() not in {".json", ".jsonl"}:
         raise ValueError("The reference loader supports .json and .jsonl")
@@ -177,8 +213,8 @@ def load_training_dataset(path: str, template: str) -> Dataset:
             "expected_ui_contract": row.get("expected_ui_contract"),
             "source_model_family": _source_model_family(row),
             "source_created_at": _source_timestamp(row),
-            # Used only for generation-length estimation, never as reward truth.
-            "genui_json": row.get("genui_json"),
+            "completion": _express_completion_from_row(row),
+            "target_format": "a2ui_express_v1",
         }
 
     return dataset.map(prepare, remove_columns=dataset.column_names)
@@ -265,13 +301,12 @@ def _percentile(values: Sequence[int], p: float) -> int:
 
 
 def estimate_completion_length(dataset: Dataset, tokenizer: Any) -> int | None:
-    if "genui_json" not in dataset.column_names:
+    if "completion" not in dataset.column_names:
         return None
     lengths: list[int] = []
-    for spec in dataset["genui_json"]:
-        if isinstance(spec, Mapping):
-            text = json.dumps(spec, ensure_ascii=False, separators=(",", ":"))
-            lengths.append(len(tokenizer(text, add_special_tokens=False)["input_ids"]))
+    for completion in dataset["completion"]:
+        if isinstance(completion, str) and completion.strip():
+            lengths.append(len(tokenizer(completion, add_special_tokens=False)["input_ids"]))
     if not lengths:
         return None
     p99 = _percentile(lengths, 0.99)
@@ -374,8 +409,8 @@ def main() -> None:
     )
     if max_completion_length is None:
         raise ValueError(
-            "Pass --max-completion-length because no accepted genui_json values are available "
-            "for p99 estimation. Do not guess a small limit that truncates valid FlatSpec."
+            "Pass --max-completion-length because no accepted A2UI Express completions are available "
+            "for p99 estimation. Do not guess a small limit that truncates valid Express output."
         )
 
     prompt_lengths = [

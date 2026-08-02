@@ -6,8 +6,12 @@ import com.google.gson.JsonParser
 
 /** Production detection/decoding boundary: Express in, standard A2UI out. */
 internal object GenUiIrCodec {
-    /** Canonical graph payload; the legacy property name is retained for migration callers. */
-    data class Decoded(val sourceFormat: GenUiIrFormat, val flatSpec: JsonObject)
+    /** Canonical typed graph lowered for the native renderer. */
+    data class Decoded(val sourceFormat: GenUiIrFormat, val canonicalGraph: JsonObject) {
+        /** Migration-only compatibility alias; production callers use canonicalGraph. */
+        @Deprecated("Use canonicalGraph; FlatSpec is read-only migration terminology.")
+        val flatSpec: JsonObject get() = canonicalGraph
+    }
 
     fun detect(payload: JsonElement?): GenUiIrFormat {
         require(payload != null && !payload.isJsonNull) { "IR payload is null." }

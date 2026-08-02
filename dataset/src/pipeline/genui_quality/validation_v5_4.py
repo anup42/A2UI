@@ -46,6 +46,8 @@ def ensure_v5_4_validation_ready() -> None:
             / "resources"
             / "flat_expr_parity_vectors_v5_4.json"
         )
+        express_fixture = dataset / "tests" / "fixtures" / "a2ui_express_conformance_v1.json"
+        express_android = repo / "android" / "app" / "src" / "test" / "resources" / "a2ui_express_conformance_v1.json"
         required = [
             fixture,
             android,
@@ -53,6 +55,8 @@ def ensure_v5_4_validation_ready() -> None:
             dataset / "schema" / "expected_ui_contract.schema.json",
             dataset / "prompts" / "genui_gen_mobile_a2ui_express_v1.md",
             dataset / "scripts" / "capture_android_run_screenshots.py",
+            express_fixture,
+            express_android,
         ]
         missing = [str(path) for path in required if not path.exists()]
         if missing:
@@ -62,6 +66,15 @@ def ensure_v5_4_validation_ready() -> None:
         if fixture.read_bytes() != android.read_bytes():
             raise MetricV54InitializationError(
                 "Python and Android v5.4 parity corpora differ"
+            )
+        if express_fixture.read_bytes() != express_android.read_bytes():
+            raise MetricV54InitializationError(
+                "Python and Android A2UI Express conformance corpora differ"
+            )
+        express = json.loads(express_fixture.read_text(encoding="utf-8"))
+        if express.get("version") != "a2ui-express-conformance-v1":
+            raise MetricV54InitializationError(
+                "A2UI Express conformance corpus version mismatch"
             )
         left = json.loads(fixture.read_text(encoding="utf-8"))
         if left.get("version") != DYNAMIC_PARITY_VECTOR_VERSION:

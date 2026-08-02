@@ -38,9 +38,14 @@ _TEXT_KEYS = {"text", "label", "description", "subtitle", "title", "caption", "s
 @dataclass(frozen=True)
 class UrlPreprocessResult:
     response_text: str
-    genui_json: Any
+    canonical_graph: Any
     url_map: dict[str, dict[str, str]]
     metrics: dict[str, int]
+
+    @property
+    def genui_json(self) -> Any:
+        """Legacy test/import alias; active callers use canonical_graph."""
+        return self.canonical_graph
 
 
 class _UrlRegistry:
@@ -72,11 +77,11 @@ class _UrlRegistry:
         return token
 
 
-def preprocess_training_urls(response_text: str, genui_json: Any, *, enabled: bool = True) -> UrlPreprocessResult:
+def preprocess_training_urls(response_text: str, canonical_graph: Any, *, enabled: bool = True) -> UrlPreprocessResult:
     if not enabled:
         return UrlPreprocessResult(
             response_text=response_text,
-            genui_json=copy.deepcopy(genui_json),
+            canonical_graph=copy.deepcopy(canonical_graph),
             url_map={},
             metrics={
                 "url_placeholder_count": 0,
@@ -87,10 +92,10 @@ def preprocess_training_urls(response_text: str, genui_json: Any, *, enabled: bo
         )
     registry = _UrlRegistry()
     processed_response = _replace_urls_in_text(response_text, registry, key=None, component_type=None, in_response=True)
-    processed_genui = _replace_urls_in_value(genui_json, registry, key=None, component_type=None, action_context=False)
+    processed_graph = _replace_urls_in_value(canonical_graph, registry, key=None, component_type=None, action_context=False)
     return UrlPreprocessResult(
         response_text=processed_response,
-        genui_json=processed_genui,
+        canonical_graph=processed_graph,
         url_map=registry.url_map,
         metrics={
             "url_placeholder_count": len(registry.url_map),

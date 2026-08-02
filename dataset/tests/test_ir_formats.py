@@ -293,6 +293,22 @@ def test_conversion_cli_emits_production_formats(tmp_path: Path) -> None:
     assert set(report) == {FLAT_SPEC_V1, A2UI_EXPRESS_V1, A2UI_V1_WIRE}
 
 
+def test_shared_express_conformance_corpus() -> None:
+    corpus = json.loads(
+        (ROOT / "tests" / "fixtures" / "a2ui_express_conformance_v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert corpus["version"] == "a2ui-express-conformance-v1"
+    for case in corpus["valid"]:
+        decoded = decode_to_flat_spec(case["program"], format_hint=A2UI_EXPRESS_V1).flat_spec
+        assert decoded == case["canonical"], case["name"]
+        assert semantic_hash(decoded) == semantic_hash(case["canonical"])
+    for case in corpus["invalid"]:
+        with pytest.raises(ValueError):
+            decode_to_flat_spec(case["program"], format_hint=A2UI_EXPRESS_V1)
+
+
 def test_benchmark_cli_reports_semantic_roundtrip(tmp_path: Path) -> None:
     corpus_path = tmp_path / "corpus.json"
     output_json = tmp_path / "benchmark.json"

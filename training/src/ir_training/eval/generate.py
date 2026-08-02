@@ -1,6 +1,5 @@
 ﻿from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +40,7 @@ def generate_predictions(config: dict[str, Any], split_path: str | Path, output_
                 "id": row.get("id"),
                 "response_id": row.get("response_id"),
                 "response_text": restore_url_placeholders(_extract_user_text(row), url_map),
-                "expected": restore_url_placeholders(_safe_load_json(row.get("completion")), url_map),
+                "expected": restore_url_placeholders(_extract_expected_completion(row), url_map),
                 "generated_text": generated,
                 "url_map": url_map,
             }
@@ -53,18 +52,18 @@ def _extract_user_text(row: dict[str, Any]) -> str:
     for message in row.get("messages") or []:
         if isinstance(message, dict) and message.get("role") == "user":
             content = str(message.get("content") or "")
-            marker = "Create GenUI flat-spec IR for this response:\n\n"
+            marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
             return content.split(marker, 1)[-1]
     return str(row.get("prompt") or "")
 
 
-def _safe_load_json(value: Any) -> Any | None:
-    if not isinstance(value, str):
-        return None
-    try:
-        return json.loads(value)
-    except Exception:
-        return None
+def _extract_expected_completion(row: dict[str, Any]) -> str:
+    completion = row.get("completion")
+    if not isinstance(completion, str) or not completion.strip():
+        targets = row.get("completion_targets")
+        if isinstance(targets, dict):
+            completion = targets.get("a2ui_express_v1")
+    return str(completion or "")
 
 
 def _extract_url_map(row: dict[str, Any]) -> dict[str, Any]:

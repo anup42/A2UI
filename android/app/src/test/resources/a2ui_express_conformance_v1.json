@@ -1,0 +1,23 @@
+{
+  "version": "a2ui-express-conformance-v1",
+  "valid": [
+    {
+      "name": "simple_text",
+      "program": "<a2ui>\nroot=Text(\"Hello\")\n</a2ui>",
+      "canonical": {"root":"root","state":{},"elements":{"root":{"type":"Text","props":{"text":"Hello"},"children":[]}}}
+    },
+    {
+      "name": "state_and_event",
+      "program": "<a2ui>\n$/={selected:\"one\"}\nroot=Column([a,b],gap=\"md\")\na=Text(\"Hello\",\"h2\")\nb=Button(\"Go\",onPress=Event(\"go\",{selected:$/selected},true,\"/result\"))\n</a2ui>",
+      "canonical": {"root":"root","state":{"selected":"one"},"elements":{"root":{"type":"Stack","props":{"direction":"vertical","gap":"md"},"children":["a","b"]},"a":{"type":"Text","props":{"text":"Hello","variant":"h2"},"children":[]},"b":{"type":"Button","props":{"label":"Go"},"children":[],"on":{"press":{"action":"emitEvent","params":{"name":"go","context":{"selected":"$/selected"},"wantResponse":true,"responsePath":"/result"}}}}}}
+    }
+  ],
+  "invalid": [
+    {"name":"missing_close","program":"<a2ui>\nroot=Text(\"Hello\")","error":"sentinel"},
+    {"name":"trailing_content","program":"<a2ui>\nroot=Text(\"Hello\")\n</a2ui>\nprose","error":"sentinel"},
+    {"name":"unknown_property","program":"<a2ui>\nroot=Text(\"Hello\",unknown=\"x\")\n</a2ui>","error":"property"},
+    {"name":"duplicate_property","program":"<a2ui>\nroot=Text(\"A\",text=\"B\")\n</a2ui>","error":"property"},
+    {"name":"duplicate_id","program":"<a2ui>\nroot=Text(\"A\")\nroot=Text(\"B\")\n</a2ui>","error":"duplicate"},
+    {"name":"legacy_json_rejected","program":"{\"root\":\"root\",\"state\":{},\"elements\":{\"root\":{\"type\":\"Text\",\"props\":{},\"children\":[]}}}","error":"Express"}
+  ]
+}

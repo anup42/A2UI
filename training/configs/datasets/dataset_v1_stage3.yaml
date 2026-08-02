@@ -11,7 +11,7 @@
     Return exactly one <a2ui>...</a2ui> block and no prose or markdown fences.
     Use explicit named properties and action calls; opaque metadata bags are forbidden.
 filters:
-  require_strict_flat_spec: true # validates the canonical graph after legacy import
+  require_strict_express: true # legacy graphs are converted before this native check
   max_input_chars: 60000
   max_output_chars: 60000
   deduplicate: true

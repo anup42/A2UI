@@ -14,7 +14,7 @@ run:
     Return exactly one <a2ui>...</a2ui> block and no prose or markdown fences.
     Use explicit named properties and action calls; opaque metadata bags are forbidden.
 filters:
-  require_strict_flat_spec: true
+  require_strict_express: true
   max_input_chars: 60000
   max_output_chars: 60000
   deduplicate: true

@@ -124,6 +124,24 @@ class GenUiIrCodecTest {
     }
 
     @Test
+    fun sharedExpressConformanceCorpusMatchesPythonContract() {
+        val resource = requireNotNull(javaClass.classLoader?.getResourceAsStream("a2ui_express_conformance_v1.json"))
+        val corpus = resource.reader(Charsets.UTF_8).use { JsonParser.parseReader(it).asJsonObject }
+        assertEquals("a2ui-express-conformance-v1", corpus.get("version").asString)
+        corpus.getAsJsonArray("valid").forEach { rawCase ->
+            val case = rawCase.asJsonObject
+            val actual = A2uiExpressCodec.decode(case.get("program").asString)
+            assertEquals(case.get("name").asString, case.getAsJsonObject("canonical"), actual)
+        }
+        corpus.getAsJsonArray("invalid").forEach { rawCase ->
+            val case = rawCase.asJsonObject
+            assertThrows(RuntimeException::class.java) {
+                GenUiIrCodec.decode(JsonPrimitive(case.get("program").asString))
+            }
+        }
+    }
+
+    @Test
     fun wireMessageStreamHonorsRootAndDataUpdates() {
         val stream = JsonParser.parseString(
             """

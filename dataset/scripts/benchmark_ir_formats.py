@@ -61,7 +61,7 @@ def _build_token_counter(args: argparse.Namespace) -> TokenCounter:
         processor = spm.SentencePieceProcessor(model_file=str(Path(args.sentencepiece_model)))
         return TokenCounter(
             name=f"sentencepiece:{Path(args.sentencepiece_model).name}",
-            exact_for_deployed_model=True,
+            exact_for_deployed_model=bool(args.tokenizer_is_deployed),
             count=lambda text: len(processor.encode(text, out_type=int)),
         )
 
@@ -77,7 +77,7 @@ def _build_token_counter(args: argparse.Namespace) -> TokenCounter:
         )
         return TokenCounter(
             name=f"huggingface:{args.hf_tokenizer}",
-            exact_for_deployed_model=True,
+            exact_for_deployed_model=bool(args.tokenizer_is_deployed),
             count=lambda text: len(tokenizer.encode(text, add_special_tokens=False)),
         )
 
@@ -155,6 +155,8 @@ def _summarize(values: list[float]) -> dict[str, float]:
         "total": float(sum(values)),
         "mean": float(statistics.mean(values)) if values else 0.0,
         "median": float(statistics.median(values)) if values else 0.0,
+        "p50": _pct(values, 50),
+        "p90": _pct(values, 90),
         "p95": _pct(values, 95),
         "min": float(min(values)) if values else 0.0,
         "max": float(max(values)) if values else 0.0,
@@ -258,6 +260,14 @@ def benchmark(
                 else "Deterministic estimate; rerun with the deployed Gemma tokenizer for production token counts."
             ),
         },
+        "token_gate": {
+            "status": "PASS" if token_counter.exact_for_deployed_model else "BLOCKED",
+            "reason": (
+                "Exact deployed tokenizer supplied."
+                if token_counter.exact_for_deployed_model
+                else "Exact deployed Gemma tokenizer was not supplied; token figures are diagnostics only."
+            ),
+        },
         "codec_identity": codec_identity(),
         "formats": by_format,
         "preferred_production_format_by_token_total": preferred,
@@ -275,6 +285,11 @@ def main() -> int:
     parser.add_argument("--hf-tokenizer")
     parser.add_argument("--allow-tokenizer-download", action="store_true")
     parser.add_argument("--tiktoken-encoding")
+    parser.add_argument(
+        "--tokenizer-is-deployed",
+        action="store_true",
+        help="Assert that the supplied tokenizer is the deployed model tokenizer.",
+    )
     args = parser.parse_args()
 
     corpus: list[tuple[str, Mapping[str, Any]]] = []

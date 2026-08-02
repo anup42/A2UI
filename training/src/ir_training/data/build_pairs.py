@@ -3,15 +3,17 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.common.jsonl import load_by_key, read_jsonl, write_jsonl
 from ir_training.data.chat_templates import build_messages, build_prompt
-from ir_training.data.filters import FlatSpecValidator, row_passes_basic_filters
+from ir_training.data.filters import ExpressValidator, row_passes_express_filters
 from ir_training.data.ir_targets import (
-    canonical_flat_spec,
+    A2UI_EXPRESS_V1,
+    FLAT_SPEC_V1,
+    canonical_graph_from_source,
     materialize_completion_targets,
     resolve_target_formats,
     semantic_hash,
@@ -31,7 +33,9 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
     output_dir = resolve_path(run_cfg.get("output_dir", "outputs/datasets/dataset_v1_stage3"), base)
     genui_paths = _collect_stage3_genui_paths(run_cfg, base)
     response_lookups = {path: _load_response_lookup(path) for path in genui_paths}
-    validator = FlatSpecValidator(require_strict=bool(filter_cfg.get("require_strict_flat_spec", True)))
+    # Legacy graph validation is performed only while importing a legacy row;
+    # the active target is validated as native Express text after encoding.
+    validator = ExpressValidator()
     max_input_chars = int(filter_cfg.get("max_input_chars", 60000))
     max_output_chars = int(filter_cfg.get("max_output_chars", 60000))
     deduplicate = bool(filter_cfg.get("deduplicate", True))
@@ -66,7 +70,14 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     }
                 )
                 continue
-            genui_json = genui.get("genui_json") if genui.get("genui_json") is not None else genui.get("a2ui_json")
+            source_format = genui.get("source_format")
+            native_payload = _source_payload(genui)
+            if source_format is None:
+                source_format = (
+                    A2UI_EXPRESS_V1
+                    if isinstance(native_payload, str) and native_payload.strip().startswith("<a2ui>")
+                    else FLAT_SPEC_V1
+                )
             response_text = str(genui.get("response_text") or response.get("response_text") or "")
             if not response_text.strip():
                 rejected.append(
@@ -78,7 +89,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 )
                 continue
             try:
-                canonical = canonical_flat_spec(genui_json)
+                canonical = canonical_graph_from_source(native_payload, source_format=source_format)
             except (TypeError, ValueError) as exc:
                 rejected.append(
                     {
@@ -89,29 +100,52 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     }
                 )
                 continue
-            validation = row_passes_basic_filters(
-                response_text=response_text,
-                genui_json=canonical,
+            assets = genui.get("assets") or response.get("assets") or []
+            # Process the response, canonical graph, and asset metadata in one
+            # registry so no raw URL/local path is exposed to the model and
+            # every placeholder has one deterministic restoration entry.
+            url_processed = preprocess_training_urls(
+                response_text,
+                {"graph": canonical, "assets": assets},
+                enabled=url_preprocessing_enabled,
+            )
+            processed_bundle = url_processed.canonical_graph
+            processed_graph = (
+                processed_bundle.get("graph")
+                if isinstance(processed_bundle, dict)
+                else canonical
+            )
+            masked_assets = (
+                processed_bundle.get("assets")
+                if isinstance(processed_bundle, dict)
+                else assets
+            )
+            completion_targets = materialize_completion_targets(processed_graph)
+            selected_target_formats = resolve_target_formats(run_cfg, genui)
+            # Validate the serialized target, never the legacy graph, as the
+            # production training contract.
+            completion_check = row_passes_express_filters(
+                response_text=url_processed.response_text,
+                completion=completion_targets[A2UI_EXPRESS_V1],
                 validator=validator,
                 max_input_chars=max_input_chars,
                 max_output_chars=max_output_chars,
             )
-            if not validation.valid:
-                rejected.append({"response_id": response_id, "source_path": source_key, "reason": validation.reason})
+            if not completion_check.valid:
+                rejected.append(
+                    {
+                        "response_id": response_id,
+                        "source_path": source_key,
+                        "reason": completion_check.reason or "express_invalid",
+                        "source_format": source_format,
+                    }
+                )
                 continue
-            url_processed = preprocess_training_urls(
-                response_text,
-                canonical,
-                enabled=url_preprocessing_enabled,
-            )
-            completion_targets = materialize_completion_targets(url_processed.genui_json)
-            selected_target_formats = resolve_target_formats(run_cfg, genui)
 
             query_id = genui.get("query_id") or response.get("query_id")
             intent = genui.get("intent") or response.get("intent")
             tags = genui.get("tags") or response.get("tags") or []
             intent_bucket = genui.get("intent_bucket") or response.get("intent_bucket") or intent
-            assets = genui.get("assets") or response.get("assets") or []
             expected_ui_contract = (
                 genui.get("expected_ui_contract")
                 or response.get("expected_ui_contract")
@@ -155,13 +189,13 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                         "completion": completion,
                         "completion_targets": completion_targets,
                         "target_format": target_format,
-                        "source_format": genui.get("source_format") or "flat_spec_v1",
-                        "semantic_hash": semantic_hash(url_processed.genui_json),
+                        "source_format": source_format,
+                        "semantic_hash": semantic_hash(processed_graph),
                         # Preserve candidate-independent reward columns for an SFT -> GRPO handoff.
                         "source_id": str(query_id or response_id),
                         "response_text": url_processed.response_text,
                         "intent_bucket": intent_bucket,
-                        "assets": assets,
+                        "assets": masked_assets,
                         "expected_ui_contract": expected_ui_contract,
                         "source_model_family": str(
                             ir_generation.get("model")
@@ -180,7 +214,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                             "source_path": source_key,
                             "source_row_index": row_index,
                             "target_format": target_format,
-                            "source_format": genui.get("source_format") or "flat_spec_v1",
+                            "source_format": source_format,
                             "input_chars": len(url_processed.response_text),
                             "output_chars": len(completion),
                             "response_generation": response_generation,
@@ -263,6 +297,24 @@ def _load_response_lookup(genui_path: Path) -> dict[str, dict[str, Any]]:
     if not responses_path.exists():
         return {}
     return load_by_key(responses_path, "response_id")
+
+
+def _source_payload(genui: Mapping[str, Any]) -> Any:
+    """Select the source completion without making a legacy graph active.
+
+    Express records carry their raw model text.  Historical records carry a
+    FlatSpec graph under ``genui_json``/``a2ui_json`` and cross the explicit
+    migration boundary in ``canonical_graph_from_source``.
+    """
+    for key in ("a2ui_express", "model_completion_raw", "completion"):
+        value = genui.get(key)
+        if isinstance(value, str) and value.strip():
+            return value
+    for key in ("genui_json", "a2ui_json", "canonical_graph"):
+        value = genui.get(key)
+        if value is not None:
+            return value
+    return None
 
 
 def _stable_source_key(path: Path, base: Path) -> str:

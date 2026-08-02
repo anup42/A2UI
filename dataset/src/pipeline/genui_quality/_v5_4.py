@@ -23,6 +23,7 @@ from .candidate_normalization_v5_4 import (
     NORMALIZATION_POLICY_VERSION_V54,
     RAW_ENVELOPE_POLICY_VERSION,
     normalize_and_validate_candidate_v5_4,
+    normalize_and_validate_express_candidate_v5_4,
 )
 from .config_v5_4 import (
     REWARD_VERSION_V54,
@@ -248,6 +249,7 @@ def _score_one_v5_4(
     render_ok: bool | None,
     computed_registry: ComputedFunctionRegistryV54 | None,
     generation_mode: bool,
+    active_express: bool = False,
 ) -> RewardBreakdownV54:
     started = perf_counter()
     timings: dict[str, float | int | bool | None] = {
@@ -258,7 +260,11 @@ def _score_one_v5_4(
         ),
     }
     ownership_detail: dict[str, Any] = {}
-    normalization = normalize_and_validate_candidate_v5_4(completion)
+    normalization = (
+        normalize_and_validate_express_candidate_v5_4(completion)
+        if active_express
+        else normalize_and_validate_candidate_v5_4(completion)
+    )
     matching_times: dict[str, float] = {}
 
     def collect(*args: Any, **kwargs: Any) -> Any:
@@ -388,6 +394,7 @@ def _score_one_v5_4(
     }
     evidence["evidence_ownership"] = ownership_detail
     evidence["accessibility_conformance"] = accessibility
+    evidence["raw_express_envelope"] = envelope
     evidence["raw_json_envelope"] = envelope
     evidence["base_quality_before_caps"] = base.base_quality_before_caps
     evidence["quality_after_accessibility_before_caps"] = artifact_base
@@ -426,6 +433,16 @@ def _score_one_v5_4(
         accessibility["conformance"]
     )
     normalization_payload = dict(base.normalization)
+    normalization_payload.update(
+        {
+            "native_syntax_valid": bool(normalization.raw_valid) if active_express else bool(normalization.raw_parse_ok),
+            "native_catalog_valid": bool(normalization.production_valid) if active_express else bool(normalization.production_valid),
+            "repaired_syntax_valid": False,
+            "repair_applied": False,
+            "standard_a2ui_valid": bool(normalization.production_valid) if active_express else None,
+        }
+    )
+    normalization_payload["raw_express_envelope"] = envelope
     normalization_payload["raw_json_envelope"] = envelope
     identity = {
         **dict(base.identity),
@@ -508,6 +525,7 @@ def score_completion_group_v5_4(
     render_results: Sequence[bool | None] | None = None,
     computed_registry: ComputedFunctionRegistryV54 | None = None,
     generation_mode: bool = False,
+    active_express: bool = False,
 ) -> tuple[RewardBreakdownV54, ...]:
     if (
         effective_registry_identity_v5_4(computed_registry)
@@ -531,6 +549,7 @@ def score_completion_group_v5_4(
             render_ok=renders[index],
             computed_registry=computed_registry,
             generation_mode=generation_mode,
+            active_express=active_express,
         )
         for index, completion in enumerate(completions)
     )
@@ -556,6 +575,7 @@ def _score(
     config: RewardConfigV54 | None,
     computed_registry: ComputedFunctionRegistryV54 | None,
     generation_mode: bool,
+    active_express: bool = False,
 ) -> RewardBreakdownV54:
     prepared = prepare_source_context_v5_4(
         response_text,
@@ -572,6 +592,7 @@ def _score(
         render_results=[render_ok],
         computed_registry=computed_registry,
         generation_mode=generation_mode,
+        active_express=active_express,
     )[0]
 
 
@@ -627,6 +648,27 @@ def generation_reward_v5_4(
     )
 
 
+def generation_reward_a2ui_express_v1(
+    completion: Any,
+    response_text: str,
+    **kwargs: Any,
+) -> RewardBreakdownV54:
+    """Strict generation reward used by active GRPO/inference evaluation."""
+    return _score(
+        completion,
+        response_text,
+        intent=kwargs.pop("intent", None),
+        assets=kwargs.pop("assets", None),
+        expected_ui_contract=kwargs.pop("expected_ui_contract", None),
+        expected_ui_contract_source=kwargs.pop("expected_ui_contract_source", None),
+        render_ok=kwargs.pop("render_ok", None),
+        config=kwargs.pop("config", None),
+        computed_registry=kwargs.pop("computed_registry", None),
+        generation_mode=True,
+        active_express=True,
+    )
+
+
 score_genui_completion_v5_4 = render_artifact_quality_v5_4
 genui_quality_v5_4 = render_artifact_quality_v5_4
 
@@ -636,6 +678,7 @@ __all__ = [
     "FORMAT_APPLICATION_POLICY_VERSION",
     "PreparedSourceContextV54",
     "generation_reward_v5_4",
+    "generation_reward_a2ui_express_v1",
     "genui_quality_v5_4",
     "prepare_source_context_v5_4",
     "render_artifact_quality_v5_4",

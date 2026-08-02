@@ -37,8 +37,13 @@ WIRE_SCHEMA_PATH = SCHEMA_DIR / "genuicraft_a2ui_v1_wire.schema.json"
 CATALOG_PATH = SCHEMA_DIR / "genuicraft_a2ui_catalog_v1.json"
 PROMPT_PATH = ROOT / "dataset" / "prompts" / "genui_gen_mobile_a2ui_express_v1.md"
 PY_COMPILER_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "express.py"
+PY_ACTIVE_BOUNDARY_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "active.py"
+PY_WIRE_COMPILER_PATH = ROOT / "dataset" / "src" / "pipeline" / "ir_formats" / "a2ui_wire.py"
 KOTLIN_COMPILER_PATH = ROOT / "android" / "app" / "src" / "main" / "java" / "com" / "samsung" / "genuicraft" / "pipeline" / "A2uiExpressCodec.kt"
+KOTLIN_WIRE_COMPILER_PATH = ROOT / "android" / "app" / "src" / "main" / "java" / "com" / "samsung" / "genuicraft" / "pipeline" / "A2uiWireCodec.kt"
 MIGRATION_PATH = ROOT / "dataset" / "scripts" / "migrate_legacy_dataset_to_a2ui_express.py"
+REFERENCE_INVENTORY_PATH = ROOT / "dataset" / "tests" / "fixtures" / "flat_spec_reference_inventory_v1.json"
+CONFORMANCE_CORPUS_PATH = ROOT / "dataset" / "tests" / "fixtures" / "a2ui_express_conformance_v1.json"
 
 PINNED_GRAMMAR = r'''/**
  * ANTLR4 grammar for the A2UI Express language.
@@ -101,8 +106,13 @@ def generated_files() -> dict[Path, bytes]:
         WIRE_SCHEMA_PATH: WIRE_SCHEMA_PATH.read_bytes(),
         PROMPT_PATH: PROMPT_PATH.read_bytes(),
         PY_COMPILER_PATH: PY_COMPILER_PATH.read_bytes(),
+        PY_ACTIVE_BOUNDARY_PATH: PY_ACTIVE_BOUNDARY_PATH.read_bytes(),
+        PY_WIRE_COMPILER_PATH: PY_WIRE_COMPILER_PATH.read_bytes(),
         KOTLIN_COMPILER_PATH: KOTLIN_COMPILER_PATH.read_bytes(),
+        KOTLIN_WIRE_COMPILER_PATH: KOTLIN_WIRE_COMPILER_PATH.read_bytes(),
         MIGRATION_PATH: MIGRATION_PATH.read_bytes(),
+        REFERENCE_INVENTORY_PATH: REFERENCE_INVENTORY_PATH.read_bytes(),
+        CONFORMANCE_CORPUS_PATH: CONFORMANCE_CORPUS_PATH.read_bytes(),
         GRAMMAR_PATH: PINNED_GRAMMAR.encode("utf-8"),
     }
 
@@ -129,6 +139,11 @@ def manifest_for(files: dict[Path, bytes]) -> dict[str, Any]:
         "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
         "catalogId": GENUICRAFT_CATALOG_ID,
         "catalogIdentityHash": json.loads(CATALOG_PATH.read_text(encoding="utf-8")).get("catalogIdentityHash"),
+        "tokenizer": {
+            "status": "blocked",
+            "name": "deployed_gemma_tokenizer_unavailable",
+            "benchmarkFallback": "regex_lexical_estimate_v1",
+        },
         "files": details,
     }
 

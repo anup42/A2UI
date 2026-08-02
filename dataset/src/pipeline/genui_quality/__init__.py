@@ -50,6 +50,7 @@ from ._v5_3 import (
 )
 from ._v5_4 import (
     PreparedSourceContextV54,
+    generation_reward_a2ui_express_v1,
     generation_reward_v5_4,
     genui_quality_v5_4,
     prepare_source_context_v5_4,
@@ -218,6 +219,7 @@ __all__ = [
     "extract_expected_ui_contract_v5_3",
     "extract_expected_ui_contract_v5_4",
     "generation_reward_v5_4",
+    "generation_reward_a2ui_express_v1",
     "genui_quality_v5_4",
     "genui_grpo_reward",
     "genui_grpo_reward_v5_2",

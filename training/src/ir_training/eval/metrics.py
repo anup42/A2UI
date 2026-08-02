@@ -1,46 +1,77 @@
 ﻿from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
 
-from ir_training.data.filters import FlatSpecValidator
-
-_FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE | re.MULTILINE)
 OVERALL_SCORE_RAW_MIN = -2.0
 OVERALL_SCORE_RAW_MAX = 41.1
 
 
 def extract_json_text(text: str) -> str:
-    cleaned = _FENCE_RE.sub("", text.strip()).strip()
-    if cleaned.startswith("{"):
-        return cleaned
-    start = cleaned.find("{")
-    end = cleaned.rfind("}")
-    if start >= 0 and end > start:
-        return cleaned[start:end + 1]
-    return cleaned
+    """Compatibility helper for offline legacy reports only.
+
+    Active scoring never calls this function: JSON/FlatSpec is not an
+    accepted model completion.
+    """
+    return str(text or "").strip()
 
 
-def score_prediction(response_text: str, expected: Any | None, generated_text: str) -> dict[str, Any]:
-    validator = FlatSpecValidator(require_strict=True)
-    json_text = extract_json_text(generated_text)
-    parsed = None
-    parse_error = None
-    try:
-        parsed = json.loads(json_text)
-    except Exception as exc:
-        parse_error = str(exc)
-    validation = validator.validate(parsed) if parsed is not None else None
+def score_prediction(
+    response_text: str,
+    expected: Any | None,
+    generated_text: str,
+    repaired_generated_text: str | None = None,
+) -> dict[str, Any]:
+    dataset_src = Path(__file__).resolve().parents[4] / "dataset" / "src"
+    if str(dataset_src) not in sys.path:
+        sys.path.insert(0, str(dataset_src))
+    from pipeline.ir_formats import (  # type: ignore
+        compile_express_to_wire,
+        encode_express_completion,
+        validate_express_completion,
+    )
+
+    validation = validate_express_completion(generated_text, repaired_generated_text)
+    parsed = validation.canonical_graph if validation.raw_valid else None
+    wire_valid = False
+    wire_error = None
+    if parsed is not None:
+        try:
+            compile_express_to_wire(parsed)
+            wire_valid = True
+        except Exception as exc:
+            wire_error = f"{type(exc).__name__}:{exc}"
+    expected_graph = None
+    expected_hash = None
+    if expected is not None:
+        try:
+            expected_text = expected if isinstance(expected, str) else encode_express_completion(expected)
+            expected_validation = validate_express_completion(expected_text)
+            if expected_validation.raw_valid:
+                expected_graph = expected_validation.canonical_graph
+                expected_hash = expected_validation.semantic_hash
+        except Exception:
+            expected_graph = None
     metrics: dict[str, Any] = {
-        "json_parse_ok": parsed is not None,
-        "json_parse_error": parse_error,
-        "schema_valid_strict": bool(validation and validation.valid),
-        "schema_error": None if validation is None else validation.reason,
+        "express_parse_ok": validation.raw_valid,
+        "native_syntax_valid": validation.raw_valid,
+        "native_catalog_valid": validation.raw_valid,
+        "repaired_syntax_valid": validation.repaired_valid,
+        "repair_applied": validation.repair_applied,
+        "schema_valid_strict": validation.raw_valid,
+        "schema_error": None if validation.raw_valid else (validation.errors[0] if validation.errors else "express_invalid"),
+        "standard_a2ui_valid": wire_valid,
+        "standard_a2ui_error": wire_error,
+        "canonical_semantic_valid": parsed is not None,
+        "semantic_hash": validation.semantic_hash,
         "markdown_fence_leakage": "```" in generated_text,
-        "top_level_keys_ok": isinstance(parsed, dict) and {"root", "elements"}.issubset(parsed.keys()),
+        "top_level_keys_ok": False,
+        # Retain legacy metric names as explicit false aliases so old reports
+        # cannot accidentally be interpreted as JSON-native validity.
+        "json_parse_ok": False,
+        "json_parse_error": "active_format_is_a2ui_express",
         "output_chars": len(generated_text),
     }
     if parsed is not None:
@@ -52,8 +83,12 @@ def score_prediction(response_text: str, expected: Any | None, generated_text: s
             metrics["lint_score"] = lint_score(parsed)
         except Exception:
             pass
-    if expected is not None and parsed is not None:
-        metrics["exact_match"] = parsed == expected
+    if expected_graph is not None and parsed is not None:
+        metrics["exact_match"] = validation.semantic_hash == expected_hash
+        metrics["semantic_match"] = validation.semantic_hash == expected_hash
+    elif expected is not None:
+        metrics["exact_match"] = False
+        metrics["semantic_match"] = False
     return metrics
 
 

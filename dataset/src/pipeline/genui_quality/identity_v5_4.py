@@ -66,6 +66,9 @@ DEFAULT_PARITY_VECTOR_PATH_V54 = (
     / "fixtures"
     / "flat_expr_parity_vectors_v5_4.json"
 )
+DEFAULT_EXPRESS_CONFORMANCE_PATH = (
+    _DATASET_DIR / "tests" / "fixtures" / "a2ui_express_conformance_v1.json"
+)
 ANDROID_RENDERER_DIR = (
     _REPO_ROOT
     / "android"
@@ -104,6 +107,12 @@ _SCORE_FILES = (
     "source_contract_v5_4.py",
     "structure_v5_1.py",
     "validation_v5_3.py",
+    "../ir_formats/active.py",
+    "../ir_formats/express.py",
+    "../ir_formats/a2ui_wire.py",
+    "../../../schema/genuicraft_a2ui_catalog_v1.json",
+    "../../../schema/genuicraft_a2ui_express_profile_v1.json",
+    "../../../tests/fixtures/a2ui_express_conformance_v1.json",
     "../flat_spec_contract.py",
     "../flat_spec_semantics.py",
     "../renderer_effective_semantics_v5_4.py",

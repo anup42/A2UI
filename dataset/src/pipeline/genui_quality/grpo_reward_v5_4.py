@@ -101,6 +101,7 @@ def genui_grpo_reward_v5_4(
             prepared,
             computed_registry=computed_registry,
             generation_mode=True,
+            active_express=True,
         )
         elapsed = (time.perf_counter() - started) * 1000.0
         group_latencies.append(elapsed)
@@ -124,6 +125,17 @@ def genui_grpo_reward_v5_4(
             "genui_raw_envelope_exact",
             [
                 bool(item.raw_json_envelope.get("exact_single_json_value"))
+                for item in results
+            ],
+        )
+        log_extra(
+            "genui_raw_express_envelope_exact",
+            [
+                bool(
+                    item.evidence.get("raw_express_envelope", {}).get(
+                        "exact_single_express_block"
+                    )
+                )
                 for item in results
             ],
         )
@@ -162,6 +174,17 @@ def genui_grpo_reward_v5_4(
                 not bool(
                     item.raw_json_envelope.get(
                         "exact_single_json_value"
+                    )
+                )
+                for item in results
+            ),
+        )
+        log_metric(
+            "genui/raw_express_envelope_violation_rate",
+            statistics.fmean(
+                not bool(
+                    item.evidence.get("raw_express_envelope", {}).get(
+                        "exact_single_express_block"
                     )
                 )
                 for item in results

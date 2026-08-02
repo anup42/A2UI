@@ -16,9 +16,17 @@ _ALIASES = {
 }
 
 
-def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[str, Any]:
+def canonical_graph_from_source(value: Any, source_format: str | None = None) -> dict[str, Any]:
+    """Return the internal graph after an explicit source-format boundary.
+
+    Active training records are decoded as A2UI Express text.  A legacy
+    FlatSpec/Compact record is accepted only when its source format is marked
+    for migration; it is never treated as a completion target.
+    """
     api = _codec_api()
     hint = _normalize_source_format(source_format)
+    if hint == A2UI_EXPRESS_V1 or (hint is None and isinstance(value, str)):
+        return api["decode_express_completion"](value)
     try:
         return api["decode_to_flat_spec"](value, format_hint=hint).flat_spec
     except ValueError:
@@ -30,18 +38,22 @@ def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[st
         return result.spec
 
 
-def materialize_completion_targets(flat_spec: Mapping[str, Any]) -> dict[str, Any]:
+def canonical_flat_spec(value: Any, source_format: str | None = None) -> dict[str, Any]:
+    """Compatibility alias for migration/offline callers.
+
+    New training code must call :func:`canonical_graph_from_source`; keeping
+    this alias avoids breaking historical fixture tests without reintroducing
+    FlatSpec as an active target.
+    """
+
+    return canonical_graph_from_source(value, source_format=source_format)
+
+
+def materialize_completion_targets(canonical_graph: Mapping[str, Any]) -> dict[str, Any]:
     api = _codec_api()
-    expected = api["semantic_hash"](flat_spec)
-    payload = api["encode_from_flat_spec"](
-        flat_spec,
-        A2UI_EXPRESS_V1,
-        shorten_ids=True,
-    )
-    decoded = api["decode_to_flat_spec"](
-        payload,
-        format_hint=A2UI_EXPRESS_V1,
-    ).flat_spec
+    expected = api["semantic_hash"](canonical_graph)
+    payload = api["encode_express_completion"](canonical_graph)
+    decoded = api["decode_express_completion"](payload)
     if api["semantic_hash"](decoded) != expected:
         raise ValueError("Semantic target mismatch for a2ui_express_v1")
     return {A2UI_EXPRESS_V1: payload}
@@ -78,8 +90,8 @@ def serialize_completion(payload: Any, target_format: str) -> str:
     return payload.strip()
 
 
-def semantic_hash(flat_spec: Mapping[str, Any]) -> str:
-    return str(_codec_api()["semantic_hash"](flat_spec))
+def semantic_hash(canonical_graph: Mapping[str, Any]) -> str:
+    return str(_codec_api()["semantic_hash"](canonical_graph))
 
 
 def _normalize_source_format(value: str | None) -> str | None:
@@ -95,15 +107,17 @@ def _codec_api() -> dict[str, Any]:
         sys.path.insert(0, str(dataset_src))
     from pipeline.flat_spec_contract import coerce_and_validate
     from pipeline.ir_formats import (
+        decode_express_completion,
         decode_to_flat_spec,
-        encode_from_flat_spec,
+        encode_express_completion,
         semantic_hash as codec_semantic_hash,
     )
 
     return {
         "coerce_and_validate": coerce_and_validate,
+        "decode_express_completion": decode_express_completion,
         "decode_to_flat_spec": decode_to_flat_spec,
-        "encode_from_flat_spec": encode_from_flat_spec,
+        "encode_express_completion": encode_express_completion,
         "semantic_hash": codec_semantic_hash,
     }
 
@@ -112,6 +126,7 @@ __all__ = [
     "FLAT_SPEC_V1",
     "A2UI_EXPRESS_V1",
     "SUPPORTED_TARGETS",
+    "canonical_graph_from_source",
     "canonical_flat_spec",
     "materialize_completion_targets",
     "resolve_target_formats",

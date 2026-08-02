@@ -31,6 +31,9 @@ from pipeline.ir_formats import (  # noqa: E402
     encode_from_flat_spec,
     semantic_hash,
     serialized_text,
+    compile_express_to_wire,
+    decode_express_completion,
+    encode_express_completion,
 )
 from migration import compact_ir_v2  # noqa: E402
 
@@ -134,12 +137,12 @@ def _migrate(record: Mapping[str, Any]) -> dict[str, Any]:
     legacy = _raw_value(record)
     legacy_format, flat = _decode_legacy(legacy)
     expected_hash = semantic_hash(flat)
-    express = encode_from_flat_spec(flat, A2UI_EXPRESS_V1, shorten_ids=True)
-    express_flat = decode_to_flat_spec(express, format_hint=A2UI_EXPRESS_V1).flat_spec
+    express = encode_express_completion(flat)
+    express_flat = decode_express_completion(express)
     express_hash = semantic_hash(express_flat)
     if express_hash != expected_hash:
         raise ValueError("Express migration changed semantic hash")
-    wire = encode_from_flat_spec(express_flat, A2UI_V1_WIRE, shorten_ids=True)
+    wire = compile_express_to_wire(express_flat)
     wire_flat = decode_to_flat_spec(wire, format_hint=A2UI_V1_WIRE).flat_spec
     wire_hash = semantic_hash(wire_flat)
     if wire_hash != expected_hash:
@@ -148,9 +151,16 @@ def _migrate(record: Mapping[str, Any]) -> dict[str, Any]:
     updated["legacy_completion"] = legacy
     updated["legacy_source_format"] = legacy_format
     updated["legacy_source_hash"] = _sha256(legacy)
-    updated["genui_json"] = express
+    # ``completion`` is the only active training target.  Keep the source
+    # graph exclusively in the audit field above; do not overwrite it into a
+    # legacy-looking active column.
+    updated.pop("genui_json", None)
+    updated.pop("a2ui_json", None)
+    updated["completion"] = express
+    updated["completion_targets"] = {A2UI_EXPRESS_V1: express}
     updated["a2ui_wire"] = wire
     updated["source_format"] = A2UI_EXPRESS_V1
+    updated["target_format"] = A2UI_EXPRESS_V1
     updated["semantic_hash"] = expected_hash
     updated["migration_status"] = "accepted"
     updated["migration_codec_identity"] = {
@@ -215,6 +225,29 @@ def main() -> int:
                 }
             )
 
+    component_coverage: dict[str, int] = {}
+    action_coverage: dict[str, int] = {}
+    before_chars = 0
+    after_chars = 0
+    for row in accepted:
+        legacy = row.get("legacy_completion")
+        completion = row.get("completion")
+        before_chars += len(serialized_text(legacy))
+        after_chars += len(str(completion or ""))
+        try:
+            graph = decode_express_completion(str(completion))
+            for element in graph.get("elements", {}).values():
+                if isinstance(element, Mapping):
+                    name = str(element.get("type") or "unknown")
+                    component_coverage[name] = component_coverage.get(name, 0) + 1
+                    events = element.get("on")
+                    if isinstance(events, Mapping):
+                        for action in events.values():
+                            if isinstance(action, Mapping):
+                                action_name = str(action.get("action") or "unknown")
+                                action_coverage[action_name] = action_coverage.get(action_name, 0) + 1
+        except Exception:
+            pass
     manifest = {
         "manifest_version": "a2ui_express_legacy_migration_v1",
         "input": args.input,
@@ -224,6 +257,19 @@ def main() -> int:
         "resume": bool(args.resume),
         "accepted": len(accepted),
         "rejected": len(rejected),
+        "eligible": len(accepted) + len(rejected),
+        "rejection_categories": {
+            str(reason): sum(1 for row in rejected if str(row.get("reason")) == reason)
+            for reason in sorted({str(row.get("reason")) for row in rejected})
+        },
+        "component_coverage": dict(sorted(component_coverage.items())),
+        "action_coverage": dict(sorted(action_coverage.items())),
+        "reference_coverage": "validated by canonical graph and standard A2UI wire round-trip",
+        "before_after_character_counts": {"legacy": before_chars, "a2ui_express": after_chars},
+        "token_counts": {
+            "status": "BLOCKED",
+            "reason": "Exact deployed tokenizer is not available in this environment; character counts are diagnostics only.",
+        },
         "rejection_policy": "strict" if args.strict else ("allow" if args.allow_rejects else "report"),
         "semantic_hash_policy": "Express decode and standard A2UI wire decode must equal legacy canonical hash",
     }

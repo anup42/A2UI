@@ -260,7 +260,7 @@ def _generate_predictions_with_model(
                     "intent_bucket": row.get("intent_bucket") or metadata.get("intent_bucket"),
                     "tags": row.get("tags") or metadata.get("tags"),
                     "response_text": restore_url_placeholders(_extract_user_text(row), url_map),
-                    "expected": restore_url_placeholders(_safe_load_json(row.get("completion")), url_map),
+                    "expected": restore_url_placeholders(_extract_expected_completion(row), url_map),
                     "generated_text": generated,
                     "url_map": url_map,
                     "_golden_index": idx,
@@ -283,20 +283,29 @@ def _extract_user_text(row: dict[str, Any]) -> str:
     for message in row.get("messages") or []:
         if isinstance(message, dict) and message.get("role") == "user":
             content = str(message.get("content") or "")
-            marker = "Create GenUI flat-spec IR for this response:\n\n"
+            marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
             return content.split(marker, 1)[-1]
     return str(row.get("prompt") or "")
 
 
-def _safe_load_json(value: Any) -> Any | None:
-    if isinstance(value, (dict, list)):
-        return value
-    if not isinstance(value, str):
-        return None
-    try:
-        return json.loads(value)
-    except Exception:
-        return None
+def _extract_expected_completion(row: dict[str, Any]) -> Any:
+    completion = row.get("completion")
+    if not isinstance(completion, str) or not completion.strip():
+        targets = row.get("completion_targets")
+        if isinstance(targets, dict):
+            completion = targets.get("a2ui_express_v1")
+    text = str(completion or "")
+    # Historical callback fixtures may still carry a JSON baseline and are
+    # intentionally kept in the offline comparison path. Active rows are
+    # explicitly tagged a2ui_express_v1 and remain text.
+    if row.get("target_format") not in {None, "a2ui_express_v1"}:
+        return text
+    if row.get("target_format") is None and text.lstrip().startswith(("{", "[")):
+        try:
+            return json.loads(text)  # type: ignore[return-value]
+        except Exception:
+            pass
+    return text
 
 
 def _extract_url_map(row: dict[str, Any]) -> dict[str, Any]:

@@ -38,7 +38,7 @@ from .matching_v5_1 import PreparedTextBlock, prepare_text_block
 
 
 EVIDENCE_POLICY_VERSION = "5.4.0"
-DYNAMIC_SEMANTICS_VERSION = "android-flat-expr-5.4.0"
+DYNAMIC_SEMANTICS_VERSION = "a2ui-express-native-semantics-5.4.0"
 DYNAMIC_PARITY_VECTOR_VERSION = "3.0.0"
 COMPUTED_REGISTRY_IDENTITY_VERSION = "2.0.0"
 
@@ -233,7 +233,7 @@ BUILTIN_COMPUTED_MANIFEST = {
 }
 BUILTIN_COMPUTED_MANIFEST_HASH = _sha256_json(BUILTIN_COMPUTED_MANIFEST)
 DEFAULT_COMPUTED_REGISTRY_V54 = ComputedFunctionRegistryV54(
-    registry_id="android-flat-spec-builtins",
+    registry_id="a2ui-express-native-builtins",
     registry_version="3.0.0",
     functions=_BUILTINS,
     manifest_hash=BUILTIN_COMPUTED_MANIFEST_HASH,

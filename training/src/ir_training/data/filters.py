@@ -16,6 +16,11 @@ class ValidationOutcome:
 
 
 class FlatSpecValidator:
+    """Legacy graph validator used only at import/migration boundaries.
+
+    This class is intentionally retained for historical fixtures.  Active
+    training targets must use :class:`ExpressValidator` below.
+    """
     def __init__(self, require_strict: bool = True) -> None:
         self.require_strict = require_strict
         self._dataset_contract = self._load_dataset_contract()
@@ -65,6 +70,33 @@ class FlatSpecValidator:
             return None
 
 
+class ExpressValidator:
+    """Strict validator for the sole active model-facing completion format."""
+
+    def validate(self, value: Any) -> ValidationOutcome:
+        if not isinstance(value, str) or not value.strip():
+            return ValidationOutcome(False, "missing_express_completion")
+        dataset_src = repo_root() / "dataset" / "src"
+        if str(dataset_src) not in sys.path:
+            sys.path.insert(0, str(dataset_src))
+        try:
+            from pipeline.ir_formats import validate_express_completion  # type: ignore
+
+            result = validate_express_completion(value)
+        except Exception as exc:
+            return ValidationOutcome(False, f"express_validator_error:{type(exc).__name__}")
+        if not result.raw_valid:
+            detail = result.errors[0] if result.errors else "express_invalid"
+            return ValidationOutcome(False, detail)
+        return ValidationOutcome(True)
+
+    @staticmethod
+    def output_size(value: Any) -> int:
+        if not isinstance(value, str):
+            return 0
+        return len(value)
+
+
 def row_passes_basic_filters(
     response_text: str,
     genui_json: Any,
@@ -80,3 +112,20 @@ def row_passes_basic_filters(
     if output_size > max_output_chars:
         return ValidationOutcome(False, "output_too_large")
     return validator.validate(genui_json)
+
+
+def row_passes_express_filters(
+    response_text: str,
+    completion: str,
+    validator: ExpressValidator,
+    max_input_chars: int,
+    max_output_chars: int,
+) -> ValidationOutcome:
+    """Apply size and strict-native checks to an Express completion."""
+    if not response_text.strip():
+        return ValidationOutcome(False, "missing_response_text")
+    if len(response_text) > max_input_chars:
+        return ValidationOutcome(False, "input_too_large")
+    if ExpressValidator.output_size(completion) > max_output_chars:
+        return ValidationOutcome(False, "output_too_large")
+    return validator.validate(completion)

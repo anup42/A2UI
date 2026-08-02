@@ -13,7 +13,11 @@ if str(SRC) not in sys.path:
 from llm.base import BaseLLMAdapter, LLMResult, ModelSpec
 from pipeline.cache import PromptCache
 from pipeline.ir_formats import A2UI_EXPRESS_V1, encode_from_flat_spec
-from pipeline.stage3_genui import run_stage3
+from pipeline.stage3_genui import (
+    _mask_model_references,
+    _restore_model_references,
+    run_stage3,
+)
 from utils.rate_limit import RateLimiter
 
 
@@ -107,3 +111,30 @@ def test_wrong_native_format_is_rejected_without_fallback(tmp_path, monkeypatch)
     assert rows[0]["record_status"] == "format_rejected"
     assert "genui_json" not in rows[0]
     assert not rows[0]["validation"]["schema_valid_strict"]
+
+
+def test_stage3_masks_and_restores_urls_and_local_asset_paths():
+    response = (
+        "Use https://example.test/images/flight.png and "
+        "'assets/icons/flight.svg'; open https://example.test/ticket/123. "
+        "Also load 'C:/device assets/boarding pass.png'."
+    )
+    masked, raw_to_placeholder, placeholder_to_raw = _mask_model_references(
+        response,
+        [
+            {
+                "url": "https://example.test/images/flight.png",
+                "path": "assets/flight.png",
+            },
+            {
+                "url": "https://example.test/icons/flight.svg",
+                "path": "assets/icons/flight.svg",
+            },
+            {"path": "C:/device assets/boarding pass.png"},
+        ],
+    )
+
+    assert "https://example.test" not in masked
+    assert "assets/" not in masked
+    assert raw_to_placeholder["https://example.test/images/flight.png"].startswith("[IMAGE_URL_")
+    assert _restore_model_references(masked, placeholder_to_raw) == response

@@ -7,6 +7,7 @@ from dataclasses import MISSING, fields
 from typing import Any, Mapping, Sequence
 
 from ._v5_4 import (
+    generation_reward_a2ui_express_v1,
     generation_reward_v5_4,
     render_artifact_quality_v5_4,
 )
@@ -17,6 +18,7 @@ from .aggregate import (
     _record_final_candidate,
 )
 from .candidate_normalization_v5_4 import (
+    normalize_and_validate_express_candidate_v5_4,
     normalize_and_validate_candidate_v5_4,
 )
 from .config_v5_4 import (
@@ -88,7 +90,12 @@ def _score_record_variant(
             str(persisted_source) if persisted_source else None
         ),
     )
-    normalization = normalize_and_validate_candidate_v5_4(candidate)
+    active_express = _is_active_express_record(record, candidate)
+    normalization = (
+        normalize_and_validate_express_candidate_v5_4(candidate)
+        if active_express
+        else normalize_and_validate_candidate_v5_4(candidate)
+    )
     fingerprint = metric_fingerprint_v5_4(
         config, computed_registry=computed_registry
     )
@@ -137,7 +144,10 @@ def _score_record_variant(
             "stale_reasons": [],
         }
         return stored
-    scorer = generation_reward_v5_4 if generation_mode else render_artifact_quality_v5_4
+    if generation_mode and active_express:
+        scorer = generation_reward_a2ui_express_v1
+    else:
+        scorer = generation_reward_v5_4 if generation_mode else render_artifact_quality_v5_4
     result = scorer(
         candidate,
         response_text,
@@ -154,6 +164,16 @@ def _score_record_variant(
         "stale_reasons": list(dict.fromkeys(stale)),
     }
     return result
+
+
+def _is_active_express_record(record: Mapping[str, Any], candidate: Any) -> bool:
+    target = str(record.get("target_format") or "").strip().lower()
+    if target == "a2ui_express_v1":
+        return True
+    source = str(record.get("source_format") or "").strip().lower()
+    if source == "a2ui_express_v1":
+        return True
+    return isinstance(candidate, str) and candidate.lstrip().startswith("<a2ui>")
 
 
 def score_record_v5_4(

@@ -46,12 +46,12 @@ manifest hashes:
 
 ```text
 python dataset/scripts/generate_ir_specs.py --check
-IR artifacts verified: 10 files
+IR artifacts verified: 15 files
 ```
 
 ## Main implementation areas
 
-- `dataset/src/pipeline/ir_formats/express.py` and
+- `dataset/src/pipeline/ir_formats/active.py`, `express.py`, and
   `android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt`:
   strict sentinels, assignments, positional/named arguments, references,
   arrays/maps, actions, duplicate/unknown/invalid-value rejection, and
@@ -65,12 +65,16 @@ IR artifacts verified: 10 files
   `dataset/schema/genuicraft_a2ui_express_profile_v1.json`: generated strict
   catalog/profile contract and explicit renderer properties.
 - `dataset/src/pipeline/stage3_genui.py` and Android Stage 3 pipeline/prompt
-  builders: Express-only generation with no Compact/FlatSpec fallback.
+  builders: Express-only generation with no Compact/FlatSpec fallback. URL and
+  local-asset references are masked before provider prompts and restored only
+  after strict parsing.
 - `dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py` and the isolated
   `dataset/src/migration/` package: one-time migration boundary with hashes,
   source preservation, strict rejects, deterministic output, and resume mode.
-- `training/src/ir_training/data/` and the three Express configs: Express-only
-  target materialization and source-group split isolation.
+- `training/src/ir_training/data/`, `training/scripts/train_grpo.py`, and the
+  three Express configs: Express-only target materialization, masked URL/path
+  metadata, tokenizer-based completion sizing, and source-group split
+  isolation. GRPO rewards validate raw Express directly.
 - `android/app/src/main/java/com/samsung/genuicraft/renderer/GenUiNativeRenderer.kt`:
   read-only FlatSpec compatibility is explicitly separated from production
   Express ingestion.
@@ -93,20 +97,26 @@ the canonical semantic hash; they do not remove meaningful UI components.
 
 The benchmark report compares the retained FlatSpec baseline, Express, and
 standard wire forms. It used a deterministic lexical tokenizer because the
-deployed Gemma tokenizer was not present; the report is explicitly marked
-`exact_for_deployed_model: false` and must not be read as provider token
-counts. On 32 representative fixtures, Express round-tripped 32/32 and had a
-41.5% mean lexical-token reduction versus FlatSpec; the wire form is an
-internal representation and was larger in this diagnostic.
+deployed Gemma tokenizer/checkpoint was not present; the report is explicitly
+marked `exact_for_deployed_model: false`, includes p50/p90/p95, and must not be
+read as provider token counts. On 32 representative fixtures, Express
+round-tripped 32/32 and had a 41.5% mean lexical-token reduction versus
+FlatSpec; the wire form is an internal representation and was larger in this
+diagnostic. The exact-token gate remains BLOCKED.
 
 ## Verification and known limitations
 
-Python dataset tests (410 passed), training tests (48 passed), and the Android
-JVM suite (294 passed) are recorded in `a2ui_express_test_report.json`. The
-connected Flip smoke test passed and the inspected screenshot shows the title,
-card, and table rendered through the native Compose path. The exact capture
-hash and test command are recorded in that report; the image is intentionally
-kept outside the source-only archive.
+Python dataset tests (414 passed separately), training tests (49 passed), and
+the Android JVM suite (295 passed) are recorded in
+`a2ui_express_test_report.json`. The connected Flip smoke test passed and the
+inspected screenshot shows the title, card, and table rendered through the
+native Compose path. The exact capture hash and test command are recorded in
+that report; the image is intentionally kept outside the source-only archive.
+
+Python and Kotlin both consume the byte-identical fixture
+`a2ui_express_conformance_v1.json`; the conformance report is now PASS for the
+shared acceptance/rejection corpus. The remaining limitation is that the two
+strict parsers are handwritten rather than generated from one parser artifact.
 
 Two end-to-end model calls remain environment-blocked, not code-passing:
 
@@ -118,4 +128,13 @@ Two end-to-end model calls remain environment-blocked, not code-passing:
    precise missing-model diagnostic without downloading, deleting, or resetting
    app data.
 
-These limitations are not reported as successful model-generation tests.
+These limitations are not reported as successful model-generation tests. A
+second connected device was present during the instrumentation invocation but
+could not install the test APK because its existing package signature differs;
+the Flip result is independently PASS.
+
+The final cleanup scan found no Compact/dual-format imports in the active Stage
+3, active codec, training target, or Android inference modules. The only
+`decode_to_flat_spec` hits are the explicit legacy-source boundary in training;
+the only Android FlatSpec references are read-only renderer compatibility and
+negative rejection checks.

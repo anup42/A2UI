@@ -4,7 +4,7 @@ import json
 import math
 import re
 from collections import Counter
-from typing import Any
+from typing import Any, Mapping
 
 from pipeline.genui_quality.aggregate import (
     aggregate_v4_records,
@@ -939,12 +939,23 @@ def compute_intent_metrics(
 
 
 def _canonical_metric_payload(value: Any) -> Any:
-    """Decode the production Express/wire formats before structural metrics."""
+    """Decode only active Express or internal standard-wire values for metrics.
+
+    A canonical graph is already the renderer-facing internal value.  Legacy
+    FlatSpec auto-detection is intentionally not used here because metrics must
+    never turn a malformed model completion into a valid legacy candidate.
+    """
     try:
-        from pipeline.ir_formats import decode_to_flat_spec
-        return decode_to_flat_spec(value).flat_spec
+        from pipeline.ir_formats import decode_express_completion
+        from pipeline.ir_formats.a2ui_wire import decode as decode_wire
+
+        if isinstance(value, str):
+            return decode_express_completion(value)
+        if isinstance(value, Mapping) and value.get("version") == "v1.0":
+            return decode_wire(value)
     except Exception:
         return value
+    return value
 
 
 def compute_ui_metrics(response_text: str, genui_json: Any) -> dict[str, float]:
@@ -1499,4 +1510,3 @@ def aggregate_metrics(
             config=v5_4_config,
         )
     return aggregate
-

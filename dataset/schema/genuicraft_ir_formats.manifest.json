@@ -9,6 +9,11 @@
   "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
   "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
   "catalogIdentityHash": "dd9c6aa7d1441f6a03fc2ad10e379a355ba42911292651d8825d090571f47c20",
+  "tokenizer": {
+    "status": "blocked",
+    "name": "deployed_gemma_tokenizer_unavailable",
+    "benchmarkFallback": "regex_lexical_estimate_v1"
+  },
   "files": {
     "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
       "sha256": "8beaa6a987c955668d7028403ed114732a627a783e7bf8b0ffb7e1bc26a99e69",
@@ -34,13 +39,33 @@
       "sha256": "7328e459fb8934414d18aa11cd3a6243c48734bb5b64bb07a9547e02538dfd47",
       "bytes": 31661
     },
+    "dataset/src/pipeline/ir_formats/active.py": {
+      "sha256": "ce2fde537dd0f976bcec3a7fda5ba86c8e537b62fc2cd2a861972af5a1343577",
+      "bytes": 4968
+    },
+    "dataset/src/pipeline/ir_formats/a2ui_wire.py": {
+      "sha256": "c5802f5c4261ae74297634b61df88707589f1f8ffeb4891a0362cabcb0507821",
+      "bytes": 8741
+    },
     "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
       "sha256": "705037dd444bc1bdd69821367cf3f78483672fd5ea524b123e67acb20c8509b8",
       "bytes": 30640
     },
+    "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiWireCodec.kt": {
+      "sha256": "40dec1ab7c9d3b55e380bead8367d2c1f56cbc74ac2672e19f6ddfeea31854df",
+      "bytes": 10461
+    },
     "dataset/scripts/migrate_legacy_dataset_to_a2ui_express.py": {
-      "sha256": "8b739d8bdc360597b2f76730d93e4de45de057458aa535d941927997212fa361",
-      "bytes": 10111
+      "sha256": "3c2f60325a48c923d4b6d5caddc439649a78e4afa81557236d2a0b2bfd366214",
+      "bytes": 12390
+    },
+    "dataset/tests/fixtures/flat_spec_reference_inventory_v1.json": {
+      "sha256": "d944a4d092b4d7cd7a729027f3706b261b187ba68ecf1250951924a723be921d",
+      "bytes": 2686
+    },
+    "dataset/tests/fixtures/a2ui_express_conformance_v1.json": {
+      "sha256": "0eaa8b79ec3f50de61f6238421a3ce86d906c26766d2c215c33cf4606ebd3201",
+      "bytes": 1696
     },
     "specification/inference_formats/express/Express.g4": {
       "sha256": "37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42",

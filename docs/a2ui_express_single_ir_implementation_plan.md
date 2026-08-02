@@ -18,22 +18,22 @@ This plan is the review checkpoint for the attached single-active-IR directive. 
 | Pinned Express grammar version/blob or commit | DONE | Manifest pins `genuicraft-express-v1` and grammar blob `4f2492ae4600598d8b10e68fcd9f4292529dd653`. |
 | Strict standard catalog | DONE | Generated catalog has closed schemas and explicit renderer properties. |
 | Express inference profile | DONE | `dataset/schema/genuicraft_a2ui_express_profile_v1.json`. |
-| Python/Kotlin parser strategy and equivalence | PARTIAL | Both strict codecs pass local suites; generated shared cross-language corpus remains a follow-up (conformance report). |
+| Python/Kotlin parser strategy and equivalence | PARTIAL | Both strict codecs pass local suites and consume the shared conformance corpus; handwritten implementations still need a generated parser/equivalence gate. |
 | Canonical graph and semantic hash | DONE | Canonical schema and round-trip hash checks in Python/Kotlin/migration tests. |
 | Standard A2UI compiler and schema validation | DONE | Wire codec requires standard `root` component and validates schema-facing payloads. |
-| Explicit shared repair layer and validity separation | PARTIAL | Raw/native/repaired fields are separated; full shared repair-rule corpus is not yet available. |
+| Explicit shared repair layer and validity separation | PARTIAL | Raw/native/repaired fields are separated and invalid raw cases are covered; the repair rule implementation is not yet generated from one shared rule file. |
 | Shared prompt generation and drift check | PARTIAL | Express mirrors and prompt verification pass; a fully generated signature template is a follow-up. |
 | Lossless Express encoder/decoder and optimization rules | DONE | Strict codec tests, sparse positional fix, deterministic/default-elision rules, and benchmark round-trips. |
 | Legacy dataset migration command, resume, manifests, rejects | DONE | 32/32 strict conversion and deterministic resume pass; migration report. |
 | Stage 3 generation pipeline Express-only | DONE | Express-only prompt/format and wrong-native-format rejection tests. |
-| SFT/GRPO/preference/MTP/evaluation Express-only targets | DONE | Express configs/target guards; training test suite passes. Live MTP model execution is separately blocked by device state. |
+| SFT/GRPO/preference/MTP/evaluation Express-only targets | DONE | Express configs/target guards, strict GRPO reward, generation/MTP evaluators, and training tests pass. Live MTP model execution is separately blocked by device state. |
 | Immutable source-group split isolation | DONE | `test_source_group_splits.py` passes with zero group leakage. |
-| Tokenizer-accurate benchmark and regression metrics | PARTIAL | 32-sample lexical diagnostic is labeled non-exact; deployed Gemma tokenizer is unavailable. |
+| Tokenizer-accurate benchmark and regression metrics | BLOCKED | 32-sample p50/p90/p95 lexical diagnostic is labeled non-exact; exact deployed Gemma tokenizer/checkpoint is unavailable. |
 | Android prompt, parser, compiler, renderer ingestion, telemetry | PARTIAL | Local/JVM/device Express render path passes; Vertex live call is externally blocked by billing and Gemma checkpoint is missing. |
-| Cross-language fixture corpus and conformance report | PARTIAL | Current shared catalog/reference fixtures pass; one generated valid/invalid corpus consumed by both runtimes is still needed. |
-| Dataset/training/Android/static cleanup tests | DONE | 410 dataset, 48 training, 294 Android JVM, and 1 device smoke test passed; cleanup scan recorded. |
+| Cross-language fixture corpus and conformance report | DONE | `dataset/tests/fixtures/a2ui_express_conformance_v1.json` and the byte-identical Android test resource are consumed by Python and Kotlin tests; report records the remaining handwritten-parser limitation. |
+| Dataset/training/Android/static cleanup tests | DONE | 414 dataset and 49 training tests passed separately, 295 Android JVM tests passed, and the Flip device Express smoke test passed; cleanup scan recorded. |
 | Release gates 1-20 | PARTIAL | Local gates pass; exact deployed-tokenizer and two external model gates are blocked and documented. |
-| Required reports, manifest, checksums, patch, and review ZIP | PARTIAL | Reports/benchmark/coverage are present; final manifest/checksums/patch/ZIP are generated at release packaging. |
+| Required reports, manifest, checksums, patch, and review ZIP | DONE | Reports, benchmark, coverage, and conformance artifacts are updated; the final staged patch, source-only ZIP, manifest, and checksums are available for review. |
 
 ## Working constraints
 

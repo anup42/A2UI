@@ -12,8 +12,9 @@ record is decoded through the isolated legacy boundary, validated into the
 canonical graph, encoded to Express, strictly decoded, compiled to standard
 A2UI v1 wire, decoded again, and admitted only when all semantic hashes match.
 The original completion is retained only as `legacy_completion` with
-`legacy_source_format` and `legacy_source_hash`; `genui_json` is the Express
-completion.
+`legacy_source_format` and `legacy_source_hash`; the active `completion` and
+`completion_targets.a2ui_express_v1` fields contain the Express completion.
+Legacy `genui_json`/`a2ui_json` target fields are not emitted by the migration.
 
 Evidence run: a temporary JSONL projection of the repository's
 `dataset/tests/fixtures/intent_flat_specs_v2.json` (32 FlatSpec fixtures).

@@ -1,19 +1,19 @@
 {
   "report_version": "a2ui_express_python_kotlin_conformance.v1",
-  "status": "partial",
+  "status": "pass",
   "python": {
     "tests": [
       "dataset/tests/test_ir_formats.py",
       "dataset/tests/test_stage3_a2ui_express.py"
     ],
-    "result": "23 targeted codec/stage tests passed"
+      "result": "414 dataset tests passed separately; shared corpus acceptance/rejection cases passed"
   },
   "kotlin": {
     "tests": [
       "./gradlew.bat :app:testDebugUnitTest --no-daemon",
       "android/app/src/test/java/com/samsung/genuicraft/pipeline/GenUiIrCodecTest.kt"
     ],
-    "result": "294 Android JVM tests passed"
+      "result": "295 Android JVM tests passed; shared corpus acceptance/rejection cases passed"
   },
   "shared_contract": {
     "catalog": "dataset/schema/genuicraft_a2ui_catalog_v1.json",
@@ -21,6 +21,13 @@
     "grammar_blob_sha": "4f2492ae4600598d8b10e68fcd9f4292529dd653",
     "canonical_graph_schema": "canonical-ui-graph-v1",
     "semantic_hash_policy": "decode(encode(graph)) equals canonical semantic hash"
+  },
+  "shared_fixture": {
+    "python": "dataset/tests/fixtures/a2ui_express_conformance_v1.json",
+    "kotlin": "android/app/src/test/resources/a2ui_express_conformance_v1.json",
+    "byte_identical": true,
+    "valid_cases": 2,
+    "invalid_cases": 6
   },
   "covered_strict_cases": [
     "sentinel closure",
@@ -31,5 +38,5 @@
     "sparse positional encoder output",
     "FlatSpec and Compact migration-only rejection in active codec"
   ],
-  "limitation": "The repository does not yet contain one generated shared valid/invalid fixture corpus consumed by both runtimes; a future parity gate should add it. The shared catalog/profile and semantic-hash fixtures are nevertheless used by both implementations."
+  "limitation": "Python and Kotlin strict parsers are handwritten rather than generated from one parser artifact; the shared corpus proves acceptance/rejection parity for the covered cases but is not a proof of complete grammar equivalence."
 }

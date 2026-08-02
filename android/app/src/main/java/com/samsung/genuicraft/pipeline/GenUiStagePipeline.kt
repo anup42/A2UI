@@ -16,15 +16,11 @@ import com.samsung.genuicraft.mcp.McpResponseFormatter
 import com.samsung.genuicraft.mcp.McpSettings
 import com.samsung.genuicraft.pipeline.PipelineCacheManager
 import com.samsung.genuicraft.pipeline.FlatSpecContract
-import com.samsung.genuicraft.pipeline.FlatSpecIngestMode
-import com.samsung.genuicraft.pipeline.FlatSpecIngestResult
-import com.samsung.genuicraft.pipeline.FlatSpecIngestor
 import com.samsung.genuicraft.pipeline.A2uiWireCodec
 import com.samsung.genuicraft.pipeline.GenUiIrCodec
 import com.samsung.genuicraft.pipeline.GenUiIrFormat
 import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
 import com.samsung.genuicraft.pipeline.PipelineImageResolver
-import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
 import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
 import com.samsung.genuicraft.pipeline.ResponseFactCoverage
@@ -109,12 +105,12 @@ class GenUiStagePipeline(private val appContext: Context) {
 
     private fun currentStage3Format(): GenUiIrFormat = IrPromptVersionSettings.outputFormat(appContext)
 
-    private fun extractStage3Candidate(text: String): JsonElement? =
-        if (currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
-            com.google.gson.JsonPrimitive(text.trim())
-        } else {
-            PipelineJsonExtractor.extractJsonElement(text)
+    private fun extractStage3Candidate(text: String): JsonElement? {
+        check(currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
+            "Production inference has exactly one model-output format: a2ui_express_v1"
         }
+        return com.google.gson.JsonPrimitive(text.trim())
+    }
 
     private fun buildStage3RepairPrompt(
         rawText: String,
@@ -926,7 +922,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
         )
-        val stage3JsonElement = repairAndValidateFlatSpec(
+        val stage3JsonElement = repairAndValidateExpress(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
             sourceResponseText = stage3InputResponse,
@@ -1539,7 +1535,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
         )
-        val stage3JsonElement = repairAndValidateFlatSpec(
+        val stage3JsonElement = repairAndValidateExpress(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
             sourceResponseText = stage3InputResponse,
@@ -1960,7 +1956,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             rawStage3Text = stage3ResponseText,
             selectedJsonCandidateText = stage3InitialCandidate?.toString()
         )
-        val stage3JsonElement = repairAndValidateFlatSpec(
+        val stage3JsonElement = repairAndValidateExpress(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
             sourceResponseText = stage3InputResponse,
@@ -2165,7 +2161,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
     }
 
-    private suspend fun repairAndValidateFlatSpec(
+    private suspend fun repairAndValidateExpress(
         stage3RawText: String,
         initialJsonElement: JsonElement?,
         sourceResponseText: String,
@@ -2184,30 +2180,24 @@ class GenUiStagePipeline(private val appContext: Context) {
         warnings: MutableList<String>,
         diagnostics: Stage3RepairDiagnostics
     ): JsonElement? {
-        val initialIngest = FlatSpecIngestor.ingest(initialJsonElement, FlatSpecIngestMode.STRICT)
-        val initialError = when (initialIngest) {
-            is FlatSpecIngestResult.CanonicalFlatSpec -> {
-                if (initialIngest.sourceFormat != currentStage3Format()) {
-                    "Stage 3 returned ${initialIngest.sourceFormat.wireId}; expected ${currentStage3Format().wireId}."
-                } else {
-                    val coverageError = ResponseFactCoverage.failureReason(
-                        sourceResponseText = sourceResponseText,
-                        canonicalJson = initialIngest.canonicalJson,
-                    )
-                    if (coverageError != null) {
-                        coverageError
-                    } else {
-                        warnings += initialIngest.warnings
-                        diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
-                        return initialIngest.canonicalJson
-                    }
+        val initialDecoded = runCatching {
+            initialJsonElement?.let { GenUiIrCodec.decode(it) }
+        }.getOrNull()
+        val initialError = when {
+            initialDecoded == null -> "Stage 3 output is not a valid A2UI Express completion."
+            initialDecoded.sourceFormat != GenUiIrFormat.A2UI_EXPRESS_V1 ->
+                "Stage 3 returned ${initialDecoded.sourceFormat.wireId}; expected a2ui_express_v1."
+            else -> {
+                val coverageError = ResponseFactCoverage.failureReason(
+                    sourceResponseText = sourceResponseText,
+                    canonicalJson = initialDecoded.canonicalGraph,
+                )
+                if (coverageError == null) {
+                    warnings += "A2UI Express parsed natively; legacy FlatSpec fallback is disabled."
+                    return initialDecoded.canonicalGraph
                 }
+                coverageError
             }
-            is FlatSpecIngestResult.GenuineLegacyPayload -> {
-                "Stage 3 returned legacy content; expected ${currentStage3Format().wireId}."
-            }
-            is FlatSpecIngestResult.RejectedPayload ->
-                initialIngest.diagnostics.joinToString("; ") { it.message }
         }
 
         val initialReason = flatSpecValidationFailureReason(
@@ -2264,30 +2254,24 @@ class GenUiStagePipeline(private val appContext: Context) {
             diagnostics.repairOutputTexts += repairCall.text
             val repairedElement = extractStage3Candidate(repairCall.text)
             diagnostics.repairSelectedCandidateTexts += repairedElement?.toString()
-            val repairedIngest = FlatSpecIngestor.ingest(repairedElement, FlatSpecIngestMode.STRICT)
-            val repairedError = when (repairedIngest) {
-                is FlatSpecIngestResult.CanonicalFlatSpec -> {
-                    if (repairedIngest.sourceFormat != currentStage3Format()) {
-                        "Repair returned ${repairedIngest.sourceFormat.wireId}; expected ${currentStage3Format().wireId}."
-                    } else {
-                        val coverageError = ResponseFactCoverage.failureReason(
-                            sourceResponseText = sourceResponseText,
-                            canonicalJson = repairedIngest.canonicalJson,
-                        )
-                        if (coverageError != null) {
-                            coverageError
-                        } else {
-                            warnings += repairedIngest.warnings
-                            diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
-                            return repairedIngest.canonicalJson
-                        }
+            val repairedDecoded = runCatching {
+                repairedElement?.let { GenUiIrCodec.decode(it) }
+            }.getOrNull()
+            val repairedError = when {
+                repairedDecoded == null -> "Repair attempt $attempt did not produce valid A2UI Express text."
+                repairedDecoded.sourceFormat != GenUiIrFormat.A2UI_EXPRESS_V1 ->
+                    "Repair returned ${repairedDecoded.sourceFormat.wireId}; expected a2ui_express_v1."
+                else -> {
+                    val coverageError = ResponseFactCoverage.failureReason(
+                        sourceResponseText = sourceResponseText,
+                        canonicalJson = repairedDecoded.canonicalGraph,
+                    )
+                    if (coverageError == null) {
+                        warnings += "A2UI Express repair parsed natively; no legacy fallback was attempted."
+                        return repairedDecoded.canonicalGraph
                     }
+                    coverageError
                 }
-                is FlatSpecIngestResult.GenuineLegacyPayload -> {
-                    "Repair returned legacy content; expected ${currentStage3Format().wireId}."
-                }
-                is FlatSpecIngestResult.RejectedPayload ->
-                    repairedIngest.diagnostics.joinToString("; ") { it.message }
             }
 
             val repairedReason = flatSpecValidationFailureReason(
@@ -2392,26 +2376,27 @@ class GenUiStagePipeline(private val appContext: Context) {
                 error = "Stage 3 safe IR is not valid JSON: ${error.message.orEmpty()}"
             )
         }
-        return when (val validation = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)) {
-            is FlatSpecIngestResult.CanonicalFlatSpec -> {
-                val wire = runCatching { A2uiWireCodec.encode(validation.canonicalJson) }
-                    .getOrElse { error ->
-                        return FinalStage3SafetyResult(
-                            jsonText = null,
-                            error = "Standard A2UI compilation failed: ${error.message.orEmpty()}"
-                        )
-                    }
-                FinalStage3SafetyResult(jsonText = gson.toJson(wire), error = null)
-            }
-            is FlatSpecIngestResult.GenuineLegacyPayload -> FinalStage3SafetyResult(
+        if (!parsed.isJsonObject || !FlatSpecContract.looksLikeFlatSpec(parsed)) {
+            return FinalStage3SafetyResult(
                 jsonText = null,
-                error = "Legacy FlatSpec is not accepted in the production Stage 3 path."
-            )
-            is FlatSpecIngestResult.RejectedPayload -> FinalStage3SafetyResult(
-                jsonText = null,
-                error = validation.diagnostics.joinToString("; ") { it.message }
+                error = "Internal Stage 3 graph is not a canonical renderer graph."
             )
         }
+        val validation = FlatSpecContract.validateFlatSpec(parsed.asJsonObject)
+        if (!validation.isValid) {
+            return FinalStage3SafetyResult(
+                jsonText = null,
+                error = validation.error ?: "Canonical renderer graph validation failed."
+            )
+        }
+        val wire = runCatching { A2uiWireCodec.encode(parsed.asJsonObject) }
+            .getOrElse { error ->
+                return FinalStage3SafetyResult(
+                    jsonText = null,
+                    error = "Standard A2UI compilation failed: ${error.message.orEmpty()}"
+                )
+            }
+        return FinalStage3SafetyResult(jsonText = gson.toJson(wire), error = null)
     }
 
     private fun buildStrictStage3FailureDebugLog(diagnostics: Stage3RepairDiagnostics): String {

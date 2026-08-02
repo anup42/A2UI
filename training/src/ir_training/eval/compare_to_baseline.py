@@ -25,7 +25,10 @@ def evaluate_predictions(
         url_map = row.get("url_map") if isinstance(row.get("url_map"), dict) else {}
         response_text = str(restore_url_placeholders(row.get("response_text") or row.get("input") or "", url_map))
         generated_text = str(row.get("generated_text") or row.get("prediction") or "")
-        expected = restore_url_placeholders(row.get("expected") or row.get("expected_json"), url_map)
+        expected = restore_url_placeholders(
+            row.get("expected") or row.get("completion") or row.get("expected_json"),
+            url_map,
+        )
         restored_generated_text = str(restore_url_placeholders(generated_text, url_map))
         metrics = score_prediction(response_text, expected, restored_generated_text)
         out = dict(row)

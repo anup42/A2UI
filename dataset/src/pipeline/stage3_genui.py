@@ -15,14 +15,14 @@ from urllib.parse import urlparse
 from urllib.request import Request
 
 from pipeline.cache import PromptCache
-from pipeline.common import extract_json, load_prompt, render_prompt
-from pipeline.flat_spec_contract import coerce_and_validate, extract_json_element
+from pipeline.common import load_prompt, render_prompt
 from pipeline.image_resolver import repair_flat_spec_images
 from pipeline.ir_formats import (
     A2UI_EXPRESS_V1,
     codec_identity,
-    decode_to_flat_spec,
-    encode_from_flat_spec,
+    decode_express_completion,
+    encode_express_completion,
+    compile_express_to_wire,
     semantic_hash,
     serialized_text,
 )
@@ -43,7 +43,7 @@ from pipeline.genui_quality import (
     resolve_expected_ui_contract_v5_2,
     resolve_expected_ui_contract_v5_3,
     resolve_expected_ui_contract_v5_4,
-    generation_reward_v5_4,
+    generation_reward_a2ui_express_v1,
     render_artifact_quality_v5_4,
     score_genui_completion,
     score_genui_completion_v5_1,
@@ -70,6 +70,23 @@ from llm.http_transport import urlopen
 from utils.hashing import hash_text
 from utils.rate_limit import RateLimiter
 from utils.retry import with_retry
+
+
+# URLs and machine-local asset paths are data, not model instructions.  Stage 3
+# replaces them with deterministic role placeholders before constructing a
+# provider prompt and restores them only after strict Express parsing.
+_MODEL_REFERENCE_RE = re.compile(
+    r"(?:"
+    r"(?P<quote>[\"'])(?P<quoted_local>(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\])[^\"']+)(?P=quote)|"
+    r"\b(?:https?|ftp)://[^\s<>\"']+|\b(?:mailto|tel|geo|intent|genuicraft|data|javascript|blob|urn|sms|market):[^\s<>\"']+|"
+    r"(?<![\w])(?:[A-Za-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|\.\.?[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\])[^\s<>\"']+"
+    r")",
+    re.IGNORECASE,
+)
+_MODEL_REFERENCE_TRAILING = ".,;:!?)]}"
+_MODEL_PLACEHOLDER_RE = re.compile(
+    r"\[(?:IMAGE_URL|ICON_URL|MEDIA_URL|ACTION_URL|SOURCE_URL|URL|IMAGE_ASSET|ICON_ASSET|MEDIA_ASSET)_\d+\]"
+)
 
 
 def _validate_schema(schema: dict[str, Any], data: Any, schema_dir: Path) -> tuple[bool, list[str], bool]:
@@ -504,43 +521,127 @@ def _auto_download_response_assets(
     return downloaded
 
 
-def _build_asset_context(assets: list[dict]) -> str:
-    if not assets:
-        return ""
+def _asset_kind(path: str, url: str) -> str:
+    ext = Path((path or url).split("?", 1)[0]).suffix.lower()
+    if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".bmp", ".tiff"}:
+        return "image"
+    if ext == ".svg" or "bootstrap-icons" in url.lower() or "/icons/" in url.lower():
+        return "icon"
+    if ext in {".pdf", ".zip"}:
+        return "document"
+    return "asset"
 
-    def _asset_kind(path: str, url: str) -> str:
-        ext = Path((path or url).split("?", 1)[0]).suffix.lower()
-        if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
-            return "image"
-        if ext == ".svg" or "bootstrap-icons" in url.lower() or "/icons/" in url.lower():
-            return "icon"
-        if ext in {".pdf", ".zip"}:
-            return "document"
-        return "asset"
 
-    lines: list[str] = []
+def _placeholder_prefix(kind: str, raw: str) -> str:
+    lowered = raw.lower()
+    if kind == "image" or Path(lowered.split("?", 1)[0]).suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".bmp", ".tiff"}:
+        return "IMAGE_URL"
+    if kind == "icon" or lowered.endswith(".svg"):
+        return "ICON_URL"
+    if kind == "document":
+        return "MEDIA_URL"
+    return "URL"
+
+
+def _mask_model_references(
+    response_text: str,
+    assets: list[dict],
+) -> tuple[str, dict[str, str], dict[str, str]]:
+    """Mask URLs/local paths and return (text, raw->placeholder, placeholder->raw)."""
+
+    raw_to_placeholder: dict[str, str] = {}
+    placeholder_to_raw: dict[str, str] = {}
+    counters: dict[str, int] = {}
+
+    def add(raw: str, kind: str) -> str:
+        raw = str(raw or "").strip()
+        if not raw:
+            return raw
+        existing = raw_to_placeholder.get(raw)
+        if existing:
+            return existing
+        prefix = _placeholder_prefix(kind, raw)
+        counters[prefix] = counters.get(prefix, 0) + 1
+        token = f"[{prefix}_{counters[prefix]}]"
+        raw_to_placeholder[raw] = token
+        placeholder_to_raw[token] = raw
+        return token
+
+    # Seed the registry from downloaded/provided assets so URL and local path
+    # variants resolve to the same placeholder and later restore deterministically.
     for item in assets:
         if not isinstance(item, dict):
             continue
         url = str(item.get("url") or "").strip()
         path = str(item.get("path") or "").strip()
-        if not path:
-            continue
-        local_path = _to_render_asset_path(path)
-        if not local_path:
-            continue
-        kind = _asset_kind(local_path, url)
+        kind = _asset_kind(path, url)
         if url:
-            lines.append(f"- [{kind}] {url} -> {local_path}")
-        else:
-            lines.append(f"- [{kind}] {local_path}")
+            add(url, kind)
+        if path:
+            path_token = add(path, kind)
+            raw_to_placeholder[_to_render_asset_path(path)] = path_token
+
+    def replace_match(match: re.Match[str]) -> str:
+        quote = match.group("quote") or ""
+        raw = match.group("quoted_local") or match.group(0)
+        trailing = ""
+        while raw and raw[-1] in _MODEL_REFERENCE_TRAILING:
+            trailing = raw[-1] + trailing
+            raw = raw[:-1]
+        if not raw:
+            return match.group(0)
+        token = raw_to_placeholder.get(raw)
+        if token is None:
+            token = add(raw, "asset" if _asset_kind("", raw) == "asset" else _asset_kind("", raw))
+        return f"{quote}{token}{trailing}{quote}" if quote else token + trailing
+
+    masked = _MODEL_REFERENCE_RE.sub(replace_match, str(response_text or ""))
+    return masked, raw_to_placeholder, placeholder_to_raw
+
+
+def _build_asset_context(assets: list[dict], raw_to_placeholder: dict[str, str]) -> str:
+    if not assets:
+        return ""
+
+    lines: list[str] = []
+    seen: set[str] = set()
+    for item in assets:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        path = str(item.get("path") or "").strip()
+        token = raw_to_placeholder.get(url) or raw_to_placeholder.get(path)
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        kind = _asset_kind(path, url)
+        lines.append(f"- [{kind}] {token} (preserve this placeholder exactly)")
     if not lines:
         return ""
     return (
-        "Assets (local copies of URLs in the response; use ONLY local paths on the right side; "
-        "[image] paths are for Image, [icon] paths are for Icon):\n"
+        "Assets are represented only by opaque placeholders. Preserve the supplied "
+        "placeholder in Image/Icon/media/action values; never emit a URL or local path:\n"
         + "\n".join(lines)
     )
+
+
+def _restore_model_references(value: Any, placeholder_to_raw: dict[str, str]) -> Any:
+    if not placeholder_to_raw:
+        return value
+
+    def restore(text: str) -> str:
+        return _MODEL_PLACEHOLDER_RE.sub(
+            lambda match: placeholder_to_raw.get(match.group(0), match.group(0)),
+            text,
+        )
+
+    if isinstance(value, str):
+        return restore(value)
+    if isinstance(value, list):
+        return [_restore_model_references(item, placeholder_to_raw) for item in value]
+    if isinstance(value, dict):
+        return {key: _restore_model_references(item, placeholder_to_raw) for key, item in value.items()}
+    return value
 
 
 def _apply_asset_replacements(text: str, assets: list[dict]) -> str:
@@ -752,8 +853,8 @@ def _prepare_prompt_context(
         f"{before}[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]{after}".strip()
     )
     user_template = (
-        "Convert the response text into valid GenUICraft JSON.\n"
-        "Return ONLY JSON.\n\n"
+        "Convert the response text into a rich, lossless GenUICraft A2UI Express v1 program.\n"
+        "Return ONLY one complete <a2ui>...</a2ui> block; never return JSON, FlatSpec, Compact IR, or prose.\n\n"
         "Response:\n{response_text}"
     )
     logger.info(
@@ -1089,24 +1190,32 @@ def run_stage3(
         )
     stop = False
 
-    def _build_prompt_for(response_id: str, response_text: str, assets_list: list[dict]) -> str:
-        asset_context = _build_asset_context(assets_list)
+    def _build_prompt_for(
+        response_id: str,
+        response_text: str,
+        assets_list: list[dict],
+        *,
+        masked_response_text: str | None = None,
+        raw_to_placeholder: dict[str, str] | None = None,
+    ) -> str:
+        masked_response_text = response_text if masked_response_text is None else masked_response_text
+        raw_to_placeholder = raw_to_placeholder or {}
+        asset_context = _build_asset_context(assets_list, raw_to_placeholder)
         if assets_list:
             asset_policy = (
-                "Asset URL policy for this request:\n"
-                "- Use only local media paths from the provided Assets mapping.\n"
-                "- Do not emit remote media URLs for images/icons.\n"
-                "- Do not invent local placeholder paths not present in the mapping."
+                "Asset reference policy for this request:\n"
+                "- Use only the opaque placeholders supplied in the Assets mapping.\n"
+                "- Do not emit remote URLs or machine-local paths.\n"
+                "- Preserve every placeholder exactly; the pipeline restores it after parsing."
             )
         else:
             asset_policy = (
-                "Asset URL policy for this request:\n"
-                "- No local asset mapping is provided.\n"
-                "- Preserve media URLs from the response exactly as written.\n"
-                "- Do not invent local placeholder paths such as /image.jpg or /asset/foo.png."
+                "Asset reference policy for this request:\n"
+                "- URL-like and local asset references in the response are opaque placeholders.\n"
+                "- Preserve supplied placeholders exactly and never emit a raw URL or local path."
             )
 
-        response_with_policy = f"{response_text}\n\n{asset_policy}"
+        response_with_policy = f"{masked_response_text}\n\n{asset_policy}"
         prompt_response_text = response_with_policy
         if asset_context:
             prompt_response_text = f"{response_with_policy}\n\n{asset_context}"
@@ -1148,8 +1257,7 @@ def run_stage3(
         native_payload = text.strip()
         if not native_payload.startswith("<a2ui>") or not native_payload.endswith("</a2ui>"):
             raise ValueError("A2UI Express completion must contain exactly one complete sentinel block")
-        decoded = decode_to_flat_spec(native_payload, format_hint=A2UI_EXPRESS_V1)
-        return native_payload, decoded.flat_spec, False
+        return native_payload, decode_express_completion(native_payload), False
 
     def _validate_completion(native_payload: Any, canonical: Any) -> tuple[bool, list[str], bool]:
         return _validate_schema(schema, canonical, schema_path.parent)
@@ -1164,7 +1272,7 @@ def run_stage3(
         )
 
     def _normalized_native_output(canonical: dict[str, Any]) -> Any:
-        return encode_from_flat_spec(canonical, active_ir_format, shorten_ids=True)
+        return encode_express_completion(canonical)
 
     def _append_format_rejection(
         task: dict[str, Any],
@@ -1206,6 +1314,8 @@ def run_stage3(
                 "characters": len(raw_text),
                 "utf8_bytes": len(raw_text.encode("utf-8")),
                 "estimated_tokens": count_tokens(raw_text),
+                "completion_tokens": output_tokens if output_tokens > 0 else None,
+                "token_measurement_source": "provider_reported" if output_tokens > 0 else "lexical_diagnostic",
                 "reported_output_tokens": output_tokens,
                 "latency_ms": latency_ms,
             },
@@ -1341,12 +1451,24 @@ def run_stage3(
 
         schema_valid_strict = False
         schema_valid_lenient = False
+        initial_native_syntax_valid = False
+        initial_native_catalog_valid = False
+        initial_standard_a2ui_valid = False
         repair_needed = False
 
         if parsed_ok and genui_json is not None:
+            initial_native_syntax_valid = True
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
                 parsed_native_payload, genui_json
             )
+            initial_native_catalog_valid = schema_valid_strict
+            if schema_valid_strict:
+                try:
+                    compile_express_to_wire(parsed_native_payload)
+                    initial_standard_a2ui_valid = True
+                except Exception as exc:
+                    errors.append(f"standard_a2ui_compile_error: {exc}")
+                    schema_valid_strict = False
             if schema_valid_strict:
                 schema_valid_lenient = True
             else:
@@ -1551,6 +1673,23 @@ def run_stage3(
             return
 
         generation_completion = raw_text
+        final_standard_a2ui_valid = initial_standard_a2ui_valid
+        if repair_attempts > 0:
+            try:
+                compile_express_to_wire(parsed_native_payload)
+                final_standard_a2ui_valid = True
+            except Exception as exc:
+                errors.append(f"repaired_standard_a2ui_compile_error: {exc}")
+                final_standard_a2ui_valid = False
+        # Restore only after the raw Express completion has parsed and passed
+        # catalog/schema checks.  Model-facing prompts never contain these
+        # raw URL or local-path values.
+        genui_json = _restore_model_references(
+            genui_json,
+            task.get("asset_placeholder_map")
+            if isinstance(task.get("asset_placeholder_map"), dict)
+            else {},
+        )
         genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
         if canonical_graph_mode:
             genui_json = _normalize_flat_spec_text_content(genui_json)
@@ -1606,6 +1745,7 @@ def run_stage3(
             "expected_ui_contract_cache_hit": contract_resolution.cache_hit,
             "record_status": "accepted",
             "source_format": active_ir_format,
+            "target_format": A2UI_EXPRESS_V1,
             "codec_identity": codec_identity(),
             "semantic_hash": semantic_hash(genui_json),
             "model_completion_raw": generation_completion,
@@ -1616,6 +1756,12 @@ def run_stage3(
             "toon": toon,
             "validation": {
                 "json_parse_ok": parsed_ok,
+                "native_syntax_valid": initial_native_syntax_valid,
+                "native_catalog_valid": initial_native_catalog_valid,
+                "repaired_syntax_valid": bool(repair_attempts > 0 and parsed_ok),
+                "repaired_catalog_valid": bool(repair_attempts > 0 and schema_valid_strict),
+                "standard_a2ui_valid": final_standard_a2ui_valid,
+                "repair_applied": bool(repair_attempts > 0),
                 "schema_valid_strict": schema_valid_strict,
                 "schema_valid_lenient": schema_valid_lenient,
                 "toon_roundtrip_ok": toon_ok,
@@ -1630,6 +1776,8 @@ def run_stage3(
                 "characters": len(normalized_native_text),
                 "utf8_bytes": len(normalized_native_text.encode("utf-8")),
                 "estimated_tokens": count_tokens(normalized_native_text),
+                "completion_tokens": output_tokens if output_tokens > 0 else None,
+                "token_measurement_source": "provider_reported" if output_tokens > 0 else "lexical_diagnostic",
                 "reported_output_tokens": output_tokens,
                 "latency_ms": latency_ms,
             },
@@ -1958,7 +2106,7 @@ def run_stage3(
             record["expected_ui_contract_v5_4_source"] = (
                 contract_resolution_v5_4.source
             )
-            generation_v5_4 = generation_reward_v5_4(
+            generation_v5_4 = generation_reward_a2ui_express_v1(
                 generation_completion,
                 response_text,
                 intent=intent_bucket,
@@ -2404,7 +2552,17 @@ def run_stage3(
                 if ui_id in existing_ids:
                     continue
 
-                prompt = _build_prompt_for(response_id, response_text, assets_list)
+                masked_response_text, raw_to_placeholder, placeholder_to_raw = _mask_model_references(
+                    response_text,
+                    assets_list,
+                )
+                prompt = _build_prompt_for(
+                    response_id,
+                    response_text,
+                    assets_list,
+                    masked_response_text=masked_response_text,
+                    raw_to_placeholder=raw_to_placeholder,
+                )
                 prompt_hash = hash_text(
                     f"{adapter.spec.name}:{system_prompt or ''}\n---\n{prompt}"
                 )
@@ -2414,7 +2572,9 @@ def run_stage3(
                     "response_id": response_id,
                     "query_id": query_id,
                     "response_text": response_text,
+                    "masked_response_text": masked_response_text,
                     "assets_list": assets_list,
+                    "asset_placeholder_map": placeholder_to_raw,
                     "expected_ui_contract": persisted_contract,
                     "expected_ui_contract_source": persisted_contract_source,
                     "intent": intent_info.get("intent"),

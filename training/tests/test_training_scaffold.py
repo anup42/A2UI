@@ -336,6 +336,36 @@ def test_prepare_dataset_writes_url_map_metadata(tmp_path):
     assert url_map["[ACTION_URL_1]"]["url"] == "https://example.org/details"
 
 
+def test_prepare_dataset_masks_asset_metadata_before_training_prompt(tmp_path):
+    run_dir = tmp_path / "run_assets"
+    response = {"response_id": "r1", "response_text": "Show the image"}
+    spec = {
+        "root": "root",
+        "state": {},
+        "elements": {
+            "root": {"type": "Image", "props": {"url": "https://example.org/a.png"}, "children": []}
+        },
+    }
+    _write_jsonl(run_dir / "responses.jsonl", [response])
+    _write_jsonl(
+        run_dir / "genui.jsonl",
+        [{"response_id": "r1", "genui_json": spec, "assets": [{"url": "https://example.org/a.png", "path": "C:/private/a.png"}]}],
+    )
+    out_dir = tmp_path / "prepared_assets"
+    prepare_dataset(
+        {
+            "run": {"source_run_dir": str(run_dir), "output_dir": str(out_dir)},
+            "filters": {"max_input_chars": 1000, "max_output_chars": 1000},
+            "split": {"train": 1, "val": 0, "test": 0},
+        }
+    )
+    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    serialized = json.dumps(row["prompt"], ensure_ascii=False)
+    assert "https://example.org" not in serialized
+    assert "C:/private" not in serialized
+    assert row["assets"][0]["url"].startswith("[")
+
+
 def test_model_registry_formats_example():
     adapter = create_adapter({"family": "gemma", "model_id": "google/gemma-4-E2B-it"})
     text = adapter.format_example({"messages": [{"role": "user", "content": "Hello"}]})

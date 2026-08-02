@@ -10,8 +10,12 @@ from ._core import completion_to_text
 from .candidate_normalization import (
     CandidateNormalizationResult,
     RENDERER_V2_CANONICALIZATION,
+    _canonical_json,
+    _hash_text,
+    _strict_validate,
     normalize_and_validate_candidate,
 )
+from .graph import audit_renderer_graph
 
 
 NORMALIZATION_POLICY_VERSION_V54 = "2.0.0"
@@ -30,12 +34,124 @@ class RawJsonEnvelopeEvidence:
 
 
 @dataclass(frozen=True)
+class RawExpressEnvelopeEvidence:
+    exact_single_express_block: bool
+    consumed_start: int
+    consumed_end: int
+    leading_non_whitespace: bool
+    trailing_non_whitespace: bool
+    markdown_fence_present: bool
+    extra_express_block_present: bool
+
+    @property
+    def exact_single_json_value(self) -> bool:
+        # Compatibility field for older dashboards; active code uses the
+        # explicit Express field above.
+        return self.exact_single_express_block
+
+    @property
+    def extra_json_value_present(self) -> bool:
+        return self.extra_express_block_present
+
+
+@dataclass(frozen=True)
 class CandidateNormalizationResultV54:
     boundary: CandidateNormalizationResult
     raw_envelope: RawJsonEnvelopeEvidence
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.boundary, name)
+
+    @property
+    def raw_valid(self) -> bool:
+        return bool(self.boundary.raw_parse_ok)
+
+    @property
+    def repaired_valid(self) -> bool:
+        # Repair is an explicit caller-owned second pass; normalization never
+        # silently repairs a candidate.
+        return False
+
+
+def raw_express_envelope_evidence(completion: Any) -> RawExpressEnvelopeEvidence:
+    text = completion_to_text(completion)
+    open_token = "<a2ui>"
+    close_token = "</a2ui>"
+    start = text.find(open_token)
+    close_start = text.find(close_token, start + len(open_token)) if start >= 0 else -1
+    end = close_start + len(close_token) if close_start >= 0 else -1
+    leading = bool(text[:start].strip()) if start >= 0 else bool(text.strip())
+    trailing = bool(text[end:].strip()) if end >= 0 else False
+    remainder = (text[:start] + text[end:]) if start >= 0 and end >= 0 else ""
+    extra = open_token in remainder or close_token in remainder
+    fenced = "```" in text
+    exact = (
+        isinstance(completion, str)
+        and start == 0
+        and end == len(text)
+        and not leading
+        and not trailing
+        and not fenced
+        and not extra
+    )
+    return RawExpressEnvelopeEvidence(
+        exact_single_express_block=exact,
+        consumed_start=start,
+        consumed_end=end,
+        leading_non_whitespace=leading,
+        trailing_non_whitespace=trailing,
+        markdown_fence_present=fenced,
+        extra_express_block_present=extra,
+    )
+
+
+def normalize_and_validate_express_candidate_v5_4(
+    completion: Any,
+    *,
+    strict_schema: Mapping[str, Any] | None = None,
+) -> CandidateNormalizationResultV54:
+    """Strict active Express scoring boundary (no JSON extraction/fallback)."""
+    from ..ir_formats import compile_express_to_wire, validate_express_completion
+
+    raw_text = completion_to_text(completion)
+    validation = validate_express_completion(completion)
+    envelope = raw_express_envelope_evidence(completion)
+    errors = list(validation.errors)
+    canonical = validation.canonical_graph if validation.raw_valid else None
+    standard_valid = False
+    if canonical is not None:
+        try:
+            compile_express_to_wire(completion)
+            standard_valid = True
+        except Exception as exc:
+            errors.append(f"standard_a2ui:{type(exc).__name__}:{exc}")
+        audit = audit_renderer_graph(canonical)
+        if audit.missing_references:
+            standard_valid = False
+            errors.extend(f"renderer_reference.missing:{item}" for item in sorted(audit.missing_references))
+        if audit.cycle_edges:
+            standard_valid = False
+            errors.extend(f"renderer_reference.cycle:{source}->{target}" for source, target in sorted(audit.cycle_edges))
+    strict_valid, strict_errors = _strict_validate(canonical, strict_schema)
+    errors.extend(strict_errors)
+    production_valid = bool(validation.raw_valid and standard_valid and strict_valid)
+    canonical_hash = _hash_text(_canonical_json(canonical)) if canonical is not None else None
+    if not production_valid and not errors:
+        errors.append("express.production_invalid")
+    return CandidateNormalizationResultV54(
+        boundary=CandidateNormalizationResult(
+            raw_parse_ok=validation.raw_valid,
+            canonical_spec=canonical,
+            production_valid=production_valid,
+            strict_schema_valid=strict_valid,
+            converted_from_legacy=False,
+            raw_format_utility=1.0 if envelope.exact_single_express_block and production_valid else 0.0,
+            errors=tuple(dict.fromkeys(errors)),
+            raw_hash=_hash_text(raw_text),
+            canonical_hash=canonical_hash,
+        ),
+        raw_envelope=envelope,
+    )
 
 
 def _json_values(text: str) -> list[tuple[int, int, Any]]:
@@ -138,6 +254,9 @@ __all__ = [
     "NORMALIZATION_POLICY_VERSION_V54",
     "RAW_ENVELOPE_POLICY_VERSION",
     "RawJsonEnvelopeEvidence",
+    "RawExpressEnvelopeEvidence",
+    "normalize_and_validate_express_candidate_v5_4",
     "normalize_and_validate_candidate_v5_4",
     "raw_json_envelope_evidence",
+    "raw_express_envelope_evidence",
 ]
