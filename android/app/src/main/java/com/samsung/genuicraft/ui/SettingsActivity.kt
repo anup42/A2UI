@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.samsung.genuicraft.inference.OnDeviceModelCatalog
 import com.samsung.genuicraft.inference.OnDeviceModelDownloader
+import com.samsung.genuicraft.pipeline.IrPromptVersionSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -104,6 +105,9 @@ private fun SettingsScreen(
     }
     var selectedIrModel by remember {
         mutableStateOf(GeminiModelSettings.getIrModel(context))
+    }
+    var selectedIrFormatId by remember {
+        mutableStateOf(IrPromptVersionSettings.getSelectedVersionId(context))
     }
     var selectedGeminiApiMode by remember {
         mutableStateOf(InferenceBackendSettings.getGeminiApiMode(context))
@@ -401,6 +405,70 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(GenUiTokens.RadiusXl),
+                        colors = genUiCardColors(GenUiCardTone.Neutral),
+                        elevation = CardDefaults.cardElevation(defaultElevation = GenUiTokens.ElevationSm),
+                        border = BorderStroke(GenUiTokens.BorderMd, genUiCardBorderColor())
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.settings_ir_format_title),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = stringResource(id = R.string.settings_ir_format_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            IrPromptVersionSettings.options().forEach { option ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            IrPromptVersionSettings.setSelectedVersionId(context, option.id)
+                                            selectedIrFormatId = IrPromptVersionSettings.getSelectedVersionId(context)
+                                        }
+                                        .padding(vertical = 2.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = selectedIrFormatId == option.id,
+                                        onClick = {
+                                            IrPromptVersionSettings.setSelectedVersionId(context, option.id)
+                                            selectedIrFormatId = IrPromptVersionSettings.getSelectedVersionId(context)
+                                        }
+                                    )
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        Text(
+                                            text = option.title,
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = option.description,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

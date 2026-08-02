@@ -26,6 +26,7 @@ import com.samsung.genuicraft.pipeline.PipelineImageResolver
 import com.samsung.genuicraft.pipeline.PipelineJsonExtractor
 import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
 import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
+import com.samsung.genuicraft.pipeline.ResponseFactCoverage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -114,16 +115,76 @@ class GenUiStagePipeline(private val appContext: Context) {
             PipelineJsonExtractor.extractJsonElement(text)
         }
 
-    private fun buildStage3RepairPrompt(rawText: String, failureReason: String): String =
-        if (currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
-            "Repair the following A2UI Express output. Return only one <a2ui>...</a2ui> block. " +
-                "Preserve all semantic components and interactions; do not simplify the UI. " +
-                "Every reference must resolve. Failure: $failureReason\n\n$rawText"
+    private fun buildStage3RepairPrompt(
+        rawText: String,
+        failureReason: String,
+        sourceResponseText: String,
+    ): String {
+        val sourceContext = sourceResponseText.trim().take(REPAIR_SOURCE_CONTEXT_MAX_CHARS)
+        val authoritativeSource = if (sourceContext.isBlank()) {
+            ""
         } else {
-            "Repair the following Compact IR v2 output. Return one JSON object with v=\"gci2\", r, optional s, and e. " +
-                "Preserve all semantic components and interactions; do not simplify the UI. " +
-                "Every reference must resolve. Failure: $failureReason\n\n$rawText"
+            "Authoritative response facts (preserve every fact and action even when the invalid IR omitted one):\n" +
+                "<response>\n$sourceContext\n</response>\n\n"
         }
+        return if (currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
+            authoritativeSource +
+                "Rewrite the following invalid output as A2UI Express assignment DSL. " +
+                "Return only one <a2ui>...</a2ui> block with one component assignment per line. " +
+                "The required shape is root=Column([child]) followed by assignments such as " +
+                "child=Text(\"content\",\"body\"). Do not return JSON, HTML, CSS, type/props objects, " +
+                "or markdown fences. If the input uses the wrong dialect, preserve its semantic content " +
+                "but discard its syntax. Every reference must resolve. Never put a bare component type " +
+                "such as Icon in a child list: instantiate it inline, for example Icon(\"local_shipping\"), " +
+                "or assign it to an identifier. Every event value must be an action call. In particular, " +
+                "rewrite onPress=\"https://www.samsung.com/support/\" as " +
+                "onPress=openUrl(\"https://www.samsung.com/support/\"), or " +
+                "use Event(\"event_name\",{}). A quoted URL or event name is not a valid event value. " +
+                "Visible Text, Card title, and Button label values must be natural user-facing copy; " +
+                "never expose assignment ids or snake_case names such as status_card. " +
+                "Before returning, audit every authoritative response value against visible component props. " +
+                "Include every carrier, status, ETA, date, time, amount, unit, and identifier in Text, Card, " +
+                "or Table content; a value appearing only inside an action URL does not count as visible. " +
+                "Finally, list every assigned identifier and every child reference. Each child must exactly " +
+                "match an assignment. For example, if the Button assignment is named button, use button in " +
+                "the child list; never leave an unassigned generic child such as action. " +
+                "Failure: $failureReason\n\n<invalid>\n$rawText\n</invalid>"
+        } else {
+            authoritativeSource +
+                "Invalid Compact IR output:\n<invalid>\n$rawText\n</invalid>\n" +
+                "Failure: $failureReason\n\n" +
+                "Discard the invalid structure and rebuild it. Return exactly one JSON object, no fences. " +
+                "Use one e object with unique lowercase ids. Use only catalog t values such as Column, Card, " +
+                "Text, Table, and Button; never use visible labels as t or ids. Every c value must name an " +
+                "existing id and every useful element must be reachable from r. Preserve every source fact, " +
+                "table row, and action. Follow this exact structural pattern and replace placeholders with " +
+                "content from <invalid>:\n" +
+                "{\"v\":\"gci2\",\"r\":\"root\",\"e\":{" +
+                "\"root\":{\"t\":\"Column\",\"c\":[\"title\",\"order_id\",\"summary\",\"details\",\"action\"]}," +
+                "\"title\":{\"t\":\"Text\",\"p\":{\"text\":\"<title>\",\"variant\":\"h2\"}}," +
+                "\"order_id\":{\"t\":\"Text\",\"p\":{\"text\":\"<exact identifier>\",\"variant\":\"body\"}}," +
+                "\"summary\":{\"t\":\"Card\",\"c\":[\"summary_text\"]}," +
+                "\"summary_text\":{\"t\":\"Text\",\"p\":{\"text\":\"<summary>\",\"variant\":\"body\"}}," +
+                "\"details\":{\"t\":\"Table\",\"p\":{\"columns\":[\"Detail\",\"Value\"]," +
+                "\"rows\":[[\"Status\",\"<status>\"],[\"Carrier\",\"<carrier>\"],[\"ETA\",\"<eta>\"]]," +
+                "\"domain\":\"status\",\"preferredPresentation\":\"cards\"}}," +
+                "\"action\":{\"t\":\"Button\",\"p\":{\"label\":\"<action>\",\"variant\":\"primary\"}," +
+                "\"o\":{\"press\":{\"action\":\"emitEvent\",\"params\":{\"name\":\"action\"}}}}}}\n" +
+                "Final check: each element may contain only t,p,c,x,z,o,w. In details, columns, rows, " +
+                "domain, and preferredPresentation must all be inside the same p object; never place domain " +
+                "or preferredPresentation beside p. Preserve exact identifiers such as order numbers in " +
+                "order_id.p.text. Preserve every fact from <invalid>: count them before and after repair, " +
+                "add as many detail rows or text elements as needed, and never drop carrier, ETA, dates, " +
+                "amounts, or units just because the pattern shows three rows. In action, o must be beside p " +
+                "at element level, never inside p. If <invalid> contains a URL action, use openUrl with its " +
+                "exact absolute http:// or https:// URL. If <invalid> has no absolute URL, keep emitEvent " +
+                "with the original event name in params.name. For example, an original event named " +
+                "track_package_button becomes {\"action\":\"emitEvent\",\"params\":{\"name\":" +
+                "\"track_package_button\"}}; never put the event name in the action field. Never invent " +
+                "a URL, relative path, placeholder, or domain. " +
+                "Start the response with {\"v\":\"gci2\" and return only the corrected object."
+        }
+    }
 
     private fun stage3MaxOutputTokensFor(
         provider: InferenceBackendSettings.Provider,
@@ -720,6 +781,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val warnings = mutableListOf<String>()
         warnings += "Response backend: ${responseProvider.rawValue}"
         warnings += "IR backend: ${irProvider.rawValue}"
+        warnings += "IR output format: ${IrPromptVersionSettings.getSelectedOption(appContext).title}"
         if (responseProvider == InferenceBackendSettings.Provider.GEMINI ||
             irProvider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini route: ${geminiApiMode.rawValue}"
@@ -749,7 +811,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Azure OpenAI IR deployment: $azureOpenAiDeployment"
             warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
         } else if (irProvider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            val onDeviceProfile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
+                .entryForModelPath(onDeviceModelPath)
             warnings += "On-device Gemma IR model: $onDeviceModelPath"
+            warnings += if (onDeviceProfile?.enableSpeculativeDecoding == true) {
+                "On-device Gemma MTP: enabled"
+            } else {
+                "On-device Gemma MTP: disabled"
+            }
             warnings += "On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}"
             warnings += "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
         } else {
@@ -884,6 +953,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
+            sourceResponseText = stage2Response,
             backend = irBackend,
             provider = irProvider,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
@@ -1325,6 +1395,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val warnings = mutableListOf<String>()
         warnings += "Using preloaded IR demo response (stage 2 skipped)."
+        warnings += "IR output format: ${IrPromptVersionSettings.getSelectedOption(appContext).title}"
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini route: ${geminiApiMode.rawValue}"
             warnings += "Gemini IR model: $irModel"
@@ -1332,7 +1403,14 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Azure OpenAI IR deployment: $azureOpenAiDeployment"
             warnings += "Azure OpenAI endpoint: $azureOpenAiResponsesEndpoint"
         } else if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            val onDeviceProfile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
+                .entryForModelPath(onDeviceModelPath)
             warnings += "On-device Gemma IR model: $onDeviceModelPath"
+            warnings += if (onDeviceProfile?.enableSpeculativeDecoding == true) {
+                "On-device Gemma MTP: enabled"
+            } else {
+                "On-device Gemma MTP: disabled"
+            }
             warnings += "On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}"
             warnings += "On-device token cap: stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
         } else {
@@ -1470,6 +1548,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
+            sourceResponseText = stage2Response,
             backend = backend,
             provider = provider,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
@@ -1801,6 +1880,42 @@ class GenUiStagePipeline(private val appContext: Context) {
             warnings += "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs)."
         }
 
+        fun addWarningOnce(message: String) {
+            if (warnings.none { it == message }) warnings += message
+        }
+
+        addWarningOnce("IR output format: ${IrPromptVersionSettings.getSelectedOption(appContext).title}")
+        val responseProviderForWarnings = InferenceBackendSettings.getResponseProvider(appContext)
+        if (responseProviderForWarnings == InferenceBackendSettings.Provider.GEMINI) {
+            addWarningOnce("Gemini response model: ${GeminiModelSettings.getResponseModel(appContext)}")
+        }
+        if (responseProviderForWarnings == InferenceBackendSettings.Provider.GEMINI ||
+            irProvider == InferenceBackendSettings.Provider.GEMINI
+        ) {
+            addWarningOnce("Gemini route: ${InferenceBackendSettings.getGeminiApiMode(appContext).rawValue}")
+        }
+        when (irProvider) {
+            InferenceBackendSettings.Provider.GEMINI ->
+                addWarningOnce("Gemini IR model: $irModel")
+            InferenceBackendSettings.Provider.ON_DEVICE_LITERT -> {
+                val onDeviceProfile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
+                    .entryForModelPath(onDeviceModelPath)
+                addWarningOnce("On-device Gemma IR model: $onDeviceModelPath")
+                addWarningOnce(
+                    if (onDeviceProfile?.enableSpeculativeDecoding == true) {
+                        "On-device Gemma MTP: enabled"
+                    } else {
+                        "On-device Gemma MTP: disabled"
+                    }
+                )
+                addWarningOnce("On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}")
+                addWarningOnce(
+                    "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
+                )
+            }
+            else -> Unit
+        }
+
         postUpdate(onStageUpdate, Stage.STAGE3, "Converting response into selected GenUICraft IR")
         val stage3StartedAtMs = System.currentTimeMillis()
         val stage3Call = generateWithRetry(
@@ -1841,6 +1956,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
+            sourceResponseText = sanitizedResponse,
             backend = irBackend,
             provider = irProvider,
             systemPrompt = promptContext.systemPrompt,
@@ -2038,6 +2154,7 @@ class GenUiStagePipeline(private val appContext: Context) {
     private suspend fun repairAndValidateFlatSpec(
         stage3RawText: String,
         initialJsonElement: JsonElement?,
+        sourceResponseText: String,
         backend: InferenceBackend,
         provider: InferenceBackendSettings.Provider,
         systemPrompt: String?,
@@ -2059,9 +2176,17 @@ class GenUiStagePipeline(private val appContext: Context) {
                 if (initialIngest.sourceFormat != currentStage3Format()) {
                     "Stage 3 returned ${initialIngest.sourceFormat.wireId}; expected ${currentStage3Format().wireId}."
                 } else {
-                    warnings += initialIngest.warnings
-                    diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
-                    return initialIngest.canonicalJson
+                    val coverageError = ResponseFactCoverage.failureReason(
+                        sourceResponseText = sourceResponseText,
+                        canonicalJson = initialIngest.canonicalJson,
+                    )
+                    if (coverageError != null) {
+                        coverageError
+                    } else {
+                        warnings += initialIngest.warnings
+                        diagnostics.tableDiagnostics = initialIngest.tableDiagnostics
+                        return initialIngest.canonicalJson
+                    }
                 }
             }
             is FlatSpecIngestResult.GenuineLegacyPayload -> {
@@ -2099,6 +2224,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 prompt = buildStage3RepairPrompt(
                     rawText = rawForRepair,
                     failureReason = escalatedReason,
+                    sourceResponseText = sourceResponseText,
                 ),
                 systemPrompt = systemPrompt,
                 temperature = stage3TemperatureFor(provider),
@@ -2130,9 +2256,17 @@ class GenUiStagePipeline(private val appContext: Context) {
                     if (repairedIngest.sourceFormat != currentStage3Format()) {
                         "Repair returned ${repairedIngest.sourceFormat.wireId}; expected ${currentStage3Format().wireId}."
                     } else {
-                        warnings += repairedIngest.warnings
-                        diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
-                        return repairedIngest.canonicalJson
+                        val coverageError = ResponseFactCoverage.failureReason(
+                            sourceResponseText = sourceResponseText,
+                            canonicalJson = repairedIngest.canonicalJson,
+                        )
+                        if (coverageError != null) {
+                            coverageError
+                        } else {
+                            warnings += repairedIngest.warnings
+                            diagnostics.tableDiagnostics = repairedIngest.tableDiagnostics
+                            return repairedIngest.canonicalJson
+                        }
                     }
                 }
                 is FlatSpecIngestResult.GenuineLegacyPayload -> {
@@ -2704,7 +2838,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val STAGE3_MAX_OUTPUT_TOKENS = 8192
         const val GEMMA_STAGE3_MAX_OUTPUT_TOKENS = 4096
         const val ON_DEVICE_STAGE3_MAX_OUTPUT_TOKENS = 3072
-        const val ON_DEVICE_STAGE3_REPAIR_ATTEMPTS = 1
+        const val ON_DEVICE_STAGE3_REPAIR_ATTEMPTS = 2
+        const val REPAIR_SOURCE_CONTEXT_MAX_CHARS = 6000
         const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 2048
         const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 15000
         const val LOG_TAG = "GenUiStagePipeline"

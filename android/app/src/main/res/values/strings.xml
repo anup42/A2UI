@@ -13,6 +13,8 @@
     <string name="settings_provider_description">Choose backend separately for response generation and GenUI IR conversion.</string>
     <string name="settings_provider_response_title">Response backend</string>
     <string name="settings_provider_ir_title">IR generation backend</string>
+    <string name="settings_ir_format_title">IR output format</string>
+    <string name="settings_ir_format_description">Choose the Stage 3 syntax used by cloud and pretrained on-device models. A2UI Express is the default.</string>
     <string name="settings_provider_azure_openai">Azure OpenAI</string>
     <string name="settings_provider_gemini">Gemini API</string>
     <string name="settings_provider_local_server">Local Server</string>

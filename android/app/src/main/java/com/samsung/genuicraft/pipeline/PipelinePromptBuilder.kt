@@ -65,8 +65,9 @@ internal object PipelinePromptBuilder {
             placeholder = "{response_text}",
             sentinel = "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]",
             fallbackUserTemplate =
-                "Convert the response text into a GenUICraft flat-spec JSON object.\n" +
-                    "Return ONLY the JSON object (no prose, no fences).\n\n" +
+                "Convert the response text into the selected GenUICraft IR format described " +
+                    "by the system instructions.\n" +
+                    "Return ONLY the requested payload (no prose and no markdown fences).\n\n" +
                     "Response:\n{response_text}"
         ).let { context ->
             Stage3PromptContext(
@@ -138,12 +139,19 @@ internal object PipelinePromptBuilder {
                 "- Assign the root component to reserved variable root.\n" +
                 "- Preserve rich UI structure and all requested interactions.\n" +
                 "- Use _props/_children/_repeat/_visible/_on/_watch when required.\n" +
-                "- Every component reference must resolve."
+                "- Event values must be action calls: use Event(\"name\",{}) for app events or openUrl(\"https://...\") for links; never use a quoted URL or event name directly as onPress/onClick.\n" +
+                "- In child lists, inline components require call syntax such as Icon(\"local_shipping\"); a bare component type such as Icon is an unresolved reference.\n" +
+                "- Visible text, Card titles, and button labels must be natural user-facing copy; never expose assignment ids or snake_case names such as status_card.\n" +
+                "- Audit every response value before returning: every carrier, status, ETA, date, time, amount, unit, and identifier must appear in visible Text, Card, or Table content; appearing only in an action URL does not count.\n" +
+                "- Final identifier audit: every child name must exactly match an assignment; if the Button is assigned as button, reference button and never an unassigned generic name such as action.\n" +
+                "- Every component reference must resolve and every useful component must be reachable from root."
             else -> "Compact IR v2 policy for this request:\n" +
                 "- Return ONE JSON object with v=\"gci2\", r, optional s, and e.\n" +
+                "- e occurs once and is an id-keyed object map; r is an id in e.\n" +
+                "- c contains only string ids in e, never inline element objects.\n" +
                 "- Elements use t and optional p/c/x/z/o/w.\n" +
                 "- Omit empty fields but preserve all semantic UI components.\n" +
-                "- Every referenced id must exist in e.\n" +
+                "- Every referenced id must exist in e and every useful element must be reachable from r.\n" +
                 "- Return JSON only (no prose, markdown, or fences)."
         }
         val responseWithPolicy = "${stage2Response.trim()}\n\n$formatPolicy\n\n$assetPolicy"

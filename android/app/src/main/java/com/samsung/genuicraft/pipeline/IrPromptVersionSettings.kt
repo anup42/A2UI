@@ -6,6 +6,7 @@ import android.content.Context
 internal object IrPromptVersionSettings {
     private const val PREFS_NAME = "ir_prompt_version_settings"
     private const val KEY_SELECTED_VERSION_ID = "selected_version_id"
+    private const val DEFAULT_VERSION_ID = "a2ui_express_v1"
 
     data class Option(
         val id: String,
@@ -17,24 +18,24 @@ internal object IrPromptVersionSettings {
 
     private val options: List<Option> = listOf(
         Option(
-            id = "compact_ir_v2",
-            title = "Compact IR v2",
-            description = "Default JSON-constrained format. Preserves full UI richness while omitting empty/default syntax.",
-            stage3PromptAssetPath = "pipeline_prompts/genui_gen_compact_ir_v2.md",
-            outputFormat = GenUiIrFormat.COMPACT_IR_V2,
-        ),
-        Option(
             id = "a2ui_express_v1",
             title = "A2UI Express v1",
-            description = "Pinned compact DSL with the strongest measured token reduction.",
+            description = "Default compact DSL with the strongest measured token reduction.",
             stage3PromptAssetPath = "pipeline_prompts/genui_gen_a2ui_express_v1.md",
             outputFormat = GenUiIrFormat.A2UI_EXPRESS_V1,
+        ),
+        Option(
+            id = "compact_ir_v2",
+            title = "Compact IR v2",
+            description = "JSON-constrained format that preserves full UI richness while omitting empty/default syntax.",
+            stage3PromptAssetPath = "pipeline_prompts/genui_gen_compact_ir_v2.md",
+            outputFormat = GenUiIrFormat.COMPACT_IR_V2,
         ),
     )
 
     private val optionById: Map<String, Option> = options.associateBy { it.id }
     fun options(): List<Option> = options
-    fun defaultOption(): Option = options.first()
+    fun defaultOption(): Option = requireNotNull(optionById[DEFAULT_VERSION_ID])
 
     fun getSelectedVersionId(context: Context): String {
         val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

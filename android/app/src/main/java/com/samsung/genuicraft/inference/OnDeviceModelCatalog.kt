@@ -16,6 +16,7 @@ object OnDeviceModelCatalog {
         val maxContextTokens: Int = 12_288,
         val maxOutputTokens: Int = 3_072,
         val requireGpu: Boolean = false,
+        val enableSpeculativeDecoding: Boolean = false,
         val rawStage3Response: Boolean = false,
         val useRawTrainingWrapper: Boolean = false,
         val stage3TrainingPromptPrefix: String? = null,
@@ -73,12 +74,13 @@ object OnDeviceModelCatalog {
         Entry(
             id = "gemma4_e2b_it_litert",
             displayName = "Gemma 4 E2B IT",
-            subtitle = "Smaller LiteRT IR model. Prefer this for faster on-device Stage 3.",
+            subtitle = "Pretrained LiteRT IR model with Gemma 4 MTP speculative decoding.",
             repoId = "litert-community/gemma-4-E2B-it-litert-lm",
             fileName = "gemma-4-E2B-it.litertlm",
             downloadUrl = "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm",
             approximateSize = "2.58 GB",
             quantization = "INT4 per-channel",
+            enableSpeculativeDecoding = true,
         ),
         Entry(
             id = "gemma4_e4b_it_litert",
@@ -89,6 +91,7 @@ object OnDeviceModelCatalog {
             downloadUrl = "https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it.litertlm",
             approximateSize = "3.66 GB",
             quantization = "INT4 per-channel",
+            enableSpeculativeDecoding = true,
         )
     )
 

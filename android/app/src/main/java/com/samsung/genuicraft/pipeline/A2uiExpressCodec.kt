@@ -172,6 +172,7 @@ internal object A2uiExpressCodec {
                 element.add("on", on)
             }
             call.kwargs["_watch"]?.let { element.add("watch", actionMapFromExpr(it)) }
+            normalizeStackProps(component, props)
             elements.add(id, element)
             return id
         }
@@ -327,8 +328,40 @@ internal object A2uiExpressCodec {
         current.add(parts.last(), value.deepCopy())
     }
 
+    /**
+     * A2UI Express models occasionally copy a human label into a constrained
+     * spacing token (for example, `gap="tracking link"`). Keep the bounded
+     * grammar repair local to Stack layout props and fall back to the pinned
+     * default spacing instead of rejecting an otherwise renderable graph.
+     */
+    private fun normalizeStackProps(component: String, props: JsonObject) {
+        if (component != "Stack") return
+        val gap = props.get("gap")
+            ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+            ?.asString
+            ?.trim()
+            ?.lowercase()
+            ?: return
+        if (gap !in STACK_GAP_TOKENS) props.addProperty("gap", "md")
+    }
+
     private fun statements(text: String): List<String> {
-        val body = if (text.contains(OPEN)) text.substringAfter(OPEN).substringBefore(CLOSE) else text
+        val rawBody = if (text.contains(OPEN)) text.substringAfter(OPEN).substringBefore(CLOSE) else text
+        val rawLines = rawBody.lines()
+        val body = rawLines.mapIndexed { index, rawLine ->
+            val line = normalizeTrailingIconUrlAssignment(rawLine)
+            val nextMeaningful = rawLines.drop(index + 1).firstOrNull { candidate ->
+                candidate.isNotBlank() &&
+                    !candidate.trimStart().startsWith("#") &&
+                    !candidate.trimStart().startsWith("//")
+            }
+            val closesAtBoundary = nextMeaningful == null || ASSIGNMENT_LINE.matches(nextMeaningful.trim())
+            if (closesAtBoundary && ASSIGNMENT_LINE.matches(line.trim())) {
+                closeMissingLineDelimiters(line)
+            } else {
+                line
+            }
+        }.joinToString("\n")
         val out = mutableListOf<String>()
         val buffer = StringBuilder()
         var depth = 0
@@ -359,6 +392,45 @@ internal object A2uiExpressCodec {
         return out
     }
 
+    /**
+     * Gemma sometimes emits one assignment per line but misses the final
+     * Column/Row closer before starting the next assignment. Repair only a
+     * bounded suffix at that assignment boundary; genuine multiline calls are
+     * left untouched.
+     */
+    private fun closeMissingLineDelimiters(line: String): String {
+        val stack = mutableListOf<Char>()
+        var inString = false
+        var escaped = false
+        line.forEach { ch ->
+            if (inString) {
+                when {
+                    escaped -> escaped = false
+                    ch == '\\' -> escaped = true
+                    ch == '"' -> inString = false
+                }
+                return@forEach
+            }
+            when (ch) {
+                '"' -> inString = true
+                '(', '[', '{' -> stack += ch
+                ')' -> if (stack.lastOrNull() == '(') stack.removeAt(stack.lastIndex) else return line
+                ']' -> if (stack.lastOrNull() == '[') stack.removeAt(stack.lastIndex) else return line
+                '}' -> if (stack.lastOrNull() == '{') stack.removeAt(stack.lastIndex) else return line
+            }
+        }
+        if (inString || stack.isEmpty() || stack.size > MAX_LINE_SUFFIX_CLOSERS) return line
+        return buildString(line.length + stack.size) {
+            append(line)
+            stack.asReversed().forEach { open ->
+                append(when (open) { '(' -> ')'; '[' -> ']'; else -> '}' })
+            }
+        }
+    }
+
+    private fun normalizeTrailingIconUrlAssignment(line: String): String =
+        TRAILING_ICON_URL_ASSIGNMENT.replace(line) { match -> match.groupValues[1] }
+
     private fun splitAssignment(statement: String): Pair<String, String> {
         var depth = 0
         var inString = false
@@ -381,6 +453,14 @@ internal object A2uiExpressCodec {
         }
         error("A2UI Express statement is not an assignment: ${statement.take(80)}")
     }
+
+    private val ASSIGNMENT_LINE = Regex("^[A-Za-z_$][A-Za-z0-9_/$.-]*\\s*=.+$")
+    private val TRAILING_ICON_URL_ASSIGNMENT = Regex(
+        "^(\\s*[A-Za-z_][A-Za-z0-9_]*\\s*=\\s*Icon\\([^\\r\\n]*?\\))\\s*=\\s*\"https?://[^\"]+\"\\s*$",
+        RegexOption.IGNORE_CASE,
+    )
+    private const val MAX_LINE_SUFFIX_CLOSERS = 2
+    private val STACK_GAP_TOKENS = setOf("none", "sm", "md", "lg", "xl")
 
     private sealed interface Expr {
         fun toJson(): JsonElement

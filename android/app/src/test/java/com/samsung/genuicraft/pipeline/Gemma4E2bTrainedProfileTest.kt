@@ -22,6 +22,7 @@ class Gemma4E2bTrainedProfileTest {
         assertEquals(4_096, entry.maxContextTokens)
         assertEquals(2_048, entry.maxOutputTokens)
         assertTrue(entry.requireGpu)
+        assertFalse(entry.enableSpeculativeDecoding)
         assertTrue(entry.rawStage3Response)
         assertFalse(entry.useRawTrainingWrapper)
         assertEquals(
@@ -29,6 +30,18 @@ class Gemma4E2bTrainedProfileTest {
             entry.stage3TrainingPromptPrefix,
         )
         assertFalse(entry.isDownloadable)
+    }
+
+    @Test
+    fun pretrainedGemma4E2bEnablesMtpSpeculativeDecoding() {
+        val entry = requireNotNull(
+            OnDeviceModelCatalog.entryForModelPath("/tmp/gemma-4-E2B-it.litertlm")
+        )
+
+        assertEquals("gemma4_e2b_it_litert", entry.id)
+        assertTrue(entry.enableSpeculativeDecoding)
+        assertFalse(entry.rawStage3Response)
+        assertNull(entry.stage3TrainingPromptPrefix)
     }
 
     @Test

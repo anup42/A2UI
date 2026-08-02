@@ -11,14 +11,14 @@ class IrPromptVersionSettingsTest {
         val options = IrPromptVersionSettings.options()
 
         assertEquals(
-            listOf("compact_ir_v2", "a2ui_express_v1"),
+            listOf("a2ui_express_v1", "compact_ir_v2"),
             options.map { it.id }
         )
         assertEquals(
-            listOf(GenUiIrFormat.COMPACT_IR_V2, GenUiIrFormat.A2UI_EXPRESS_V1),
+            listOf(GenUiIrFormat.A2UI_EXPRESS_V1, GenUiIrFormat.COMPACT_IR_V2),
             options.map { it.outputFormat }
         )
-        assertEquals("compact_ir_v2", IrPromptVersionSettings.defaultOption().id)
+        assertEquals("a2ui_express_v1", IrPromptVersionSettings.defaultOption().id)
         assertTrue(options.all { it.title.isNotBlank() && it.description.isNotBlank() })
     }
 }

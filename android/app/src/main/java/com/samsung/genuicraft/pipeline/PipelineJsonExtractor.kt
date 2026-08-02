@@ -1,6 +1,7 @@
 package com.samsung.genuicraft.pipeline
 
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
 internal object PipelineJsonExtractor {
@@ -14,6 +15,18 @@ internal object PipelineJsonExtractor {
         if (cleaned.isEmpty()) {
             return null
         }
+
+        // A complete Compact IR envelope must outrank any nested arrays or
+        // element objects, even when its graph still needs strict repair.
+        runCatching { JsonParser.parseString(cleaned) }.getOrNull()
+            ?.takeIf(CompactIrCodec::looksLike)
+            ?.let(::normalizeCompactEnvelope)
+            ?.let { return it }
+        extractFencedBlock(cleaned)
+            ?.let { runCatching { JsonParser.parseString(it) }.getOrNull() }
+            ?.takeIf(CompactIrCodec::looksLike)
+            ?.let(::normalizeCompactEnvelope)
+            ?.let { return it }
 
         val candidates = linkedSetOf<String>()
         extractFencedBlock(cleaned)?.let { candidates += it }
@@ -34,7 +47,7 @@ internal object PipelineJsonExtractor {
 
         val parsedCandidates = candidates.mapNotNull { candidate ->
             runCatching { JsonParser.parseString(candidate) }.getOrNull()
-        }
+        }.map(::normalizeCompactEnvelope)
         if (parsedCandidates.isEmpty()) {
             return null
         }
@@ -141,11 +154,90 @@ internal object PipelineJsonExtractor {
                 "${match.groupValues[1]},${match.groupValues[2]}"
             }
             if (next == out) {
-                return out
+                return@repeat
             }
             out = next
         }
-        return out
+        return closeUnbalancedJsonSuffix(out)
+    }
+
+    private fun closeUnbalancedJsonSuffix(text: String): String {
+        val trimmed = text.trim()
+        if (trimmed.firstOrNull() !in setOf('{', '[')) return text
+        val stack = mutableListOf<Char>()
+        var inString = false
+        var escaped = false
+        trimmed.forEach { ch ->
+            if (inString) {
+                when {
+                    escaped -> escaped = false
+                    ch == '\\' -> escaped = true
+                    ch == '"' -> inString = false
+                }
+                return@forEach
+            }
+            when (ch) {
+                '"' -> inString = true
+                '{', '[' -> stack += ch
+                '}' -> {
+                    if (stack.lastOrNull() != '{') return text
+                    stack.removeAt(stack.lastIndex)
+                }
+                ']' -> {
+                    if (stack.lastOrNull() != '[') return text
+                    stack.removeAt(stack.lastIndex)
+                }
+            }
+        }
+        if (inString || stack.isEmpty() || stack.size > MAX_JSON_SUFFIX_CLOSERS) return text
+        return buildString(trimmed.length + stack.size) {
+            append(trimmed)
+            stack.asReversed().forEach { open -> append(if (open == '{') '}' else ']') }
+        }
+    }
+
+    /**
+     * Small on-device models occasionally close `e` before emitting a final
+     * referenced element, most often `action`. Preserve the generated graph by
+     * moving only unmistakable Compact element objects into `e`; leave every
+     * other unknown key untouched so strict validation can still reject it.
+     */
+    private fun normalizeCompactEnvelope(element: JsonElement): JsonElement {
+        if (!CompactIrCodec.looksLike(element)) return element
+        val source = element.asJsonObject
+        source.get("e")?.takeIf { it.isJsonObject }?.asJsonObject
+            ?: return element
+        val normalized = source.deepCopy()
+        val normalizedElements = normalized.getAsJsonObject("e")
+        var changed = false
+
+        normalized.entrySet()
+            .filter { (key, value) ->
+                key !in COMPACT_TOP_LEVEL_KEYS &&
+                    value.isJsonObject &&
+                    value.asJsonObject.get("t")?.let { it.isJsonPrimitive && it.asString.isNotBlank() } == true &&
+                    !normalizedElements.has(key)
+            }
+            .toList()
+            .forEach { (key, value) ->
+            normalizedElements.add(key, value.deepCopy())
+            normalized.remove(key)
+            changed = true
+        }
+
+        normalizedElements.entrySet().forEach { (_, raw) ->
+            if (!raw.isJsonObject) return@forEach
+            val item = raw.asJsonObject
+            COMPACT_MISPLACED_PROP_KEYS.forEach { key ->
+                val misplaced = item.get(key) ?: return@forEach
+                val props = item.get("p")?.takeIf { it.isJsonObject }?.asJsonObject
+                    ?: JsonObject().also { item.add("p", it) }
+                if (!props.has(key)) props.add(key, misplaced.deepCopy())
+                item.remove(key)
+                changed = true
+            }
+        }
+        return if (changed) normalized else element
     }
 
     private fun flatSpecShapePriority(element: JsonElement): Int {
@@ -154,6 +246,7 @@ internal object PipelineJsonExtractor {
         }
         val obj = element.asJsonObject
         return when {
+            CompactIrCodec.looksLike(element) -> 4
             FlatSpecContract.looksLikeFlatSpec(element) -> 3
             obj.has("genui_json") || obj.has("payload") -> 2
             obj.has("messages") -> 1
@@ -218,6 +311,9 @@ internal object PipelineJsonExtractor {
     private val CHILDREN_EMPTY_ARRAY_TRAILING_QUOTE = Regex(
         "(\"children\"\\s*:\\s*\\[\\])\"(?=\\s*[,}])"
     )
+    private val COMPACT_TOP_LEVEL_KEYS = setOf("v", "r", "s", "e")
+    private val COMPACT_MISPLACED_PROP_KEYS = setOf("domain", "preferredPresentation", "presentation", "variant")
+    private const val MAX_JSON_SUFFIX_CLOSERS = 4
 
     fun buildFlatSpecRepairPrompt(
         rawText: String,

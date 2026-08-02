@@ -22,6 +22,12 @@ class OnDeviceLitertBackendPolicyTest {
     }
 
     @Test
+    fun `runtime label makes MTP observable`() {
+        assertEquals("GPU+MTP", liteRtRuntimeBackendLabel("GPU", speculativeDecodingEnabled = true))
+        assertEquals("CPU", liteRtRuntimeBackendLabel("CPU", speculativeDecodingEnabled = false))
+    }
+
+    @Test
     fun `stream text accepts incremental and cumulative callbacks`() {
         val incremental = mergeLiteRtStreamText("{\"root\"", ": \"screen\"}")
         val cumulative = mergeLiteRtStreamText("{\"root\"", "{\"root\": \"screen\"}")

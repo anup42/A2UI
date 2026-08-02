@@ -7,6 +7,8 @@ import com.google.ai.edge.litertlm.Contents
 import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
+import com.google.ai.edge.litertlm.ExperimentalApi
+import com.google.ai.edge.litertlm.ExperimentalFlags
 import com.google.ai.edge.litertlm.Message
 import com.google.ai.edge.litertlm.MessageCallback
 import com.google.ai.edge.litertlm.SamplerConfig
@@ -51,11 +53,13 @@ class OnDeviceLitertBackend(
                 modelMaxOutputTokens = runtimeProfile?.maxOutputTokens ?: ON_DEVICE_MAX_OUTPUT_TOKENS,
             )
             val requireGpu = runtimeProfile?.requireGpu == true
+            val enableSpeculativeDecoding = runtimeProfile?.enableSpeculativeDecoding == true
             val holder = getOrCreateEngine(
                 modelFile = modelFile,
                 maxContextTokens = maxContextTokens,
                 forceCpu = false,
                 requireGpu = requireGpu,
+                enableSpeculativeDecoding = enableSpeculativeDecoding,
             )
             val generation = try {
                 generateWithEngine(holder, promptParts, request.temperature, request.onStreamUpdate)
@@ -70,6 +74,7 @@ class OnDeviceLitertBackend(
                     maxContextTokens = maxContextTokens,
                     forceCpu = true,
                     requireGpu = false,
+                    enableSpeculativeDecoding = enableSpeculativeDecoding,
                 )
                 generateWithEngine(cpuHolder, promptParts, request.temperature, request.onStreamUpdate)
             }
@@ -180,7 +185,12 @@ class OnDeviceLitertBackend(
         Log.i(
             LOG_TAG,
             "LiteRT IR generation start backend=${holder.backendName} context=${holder.maxContextTokens} " +
+                "mtp=${holder.speculativeDecodingEnabled} " +
                 "inputTokensApprox=${estimateTokens(promptParts.combinedForEstimates)}"
+        )
+        val runtimeBackendLabel = liteRtRuntimeBackendLabel(
+            backendName = holder.backendName,
+            speculativeDecodingEnabled = holder.speculativeDecodingEnabled,
         )
         val deterministic = temperature <= 0.0
         val conversationConfig = ConversationConfig(
@@ -196,7 +206,7 @@ class OnDeviceLitertBackend(
                 text = "",
                 outputTokens = 0,
                 outputTokensPerSecond = null,
-                runtimeBackend = holder.backendName,
+                runtimeBackend = runtimeBackendLabel,
                 metricsAreEstimated = true,
                 complete = false,
             )
@@ -237,7 +247,7 @@ class OnDeviceLitertBackend(
                                         firstTokenAtMs = firstTokenAtMs,
                                         nowMs = nowMs,
                                     ),
-                                    runtimeBackend = holder.backendName,
+                                    runtimeBackend = runtimeBackendLabel,
                                     metricsAreEstimated = true,
                                     complete = false,
                                 )
@@ -273,7 +283,7 @@ class OnDeviceLitertBackend(
                     text = text,
                     outputTokens = outputTokens,
                     outputTokensPerSecond = outputTokensPerSecond,
-                    runtimeBackend = holder.backendName,
+                    runtimeBackend = runtimeBackendLabel,
                     metricsAreEstimated = benchmarkOutputTokens == null || benchmarkRate == null,
                     complete = true,
                 )
@@ -283,12 +293,12 @@ class OnDeviceLitertBackend(
                 inputTokens = benchmark?.inputTokens?.takeIf { it > 0 },
                 outputTokens = outputTokens,
                 outputTokensPerSecond = outputTokensPerSecond,
-                backendName = holder.backendName,
+                backendName = runtimeBackendLabel,
             )
         }
         Log.i(
             LOG_TAG,
-            "LiteRT IR generation complete backend=${holder.backendName} elapsedMs=${System.currentTimeMillis() - startedAt} " +
+            "LiteRT IR generation complete backend=$runtimeBackendLabel elapsedMs=${System.currentTimeMillis() - startedAt} " +
                 "outputTokens=${generation.outputTokens} decodeTokensPerSecond=${generation.outputTokensPerSecond}"
         )
         return generation
@@ -382,19 +392,23 @@ class OnDeviceLitertBackend(
         private var cachedPath: String? = null
         private var cachedMaxContextTokens: Int? = null
         private var cachedBackendName: String? = null
+        private var cachedSpeculativeDecoding: Boolean? = null
         private var cachedEngine: EngineHolder? = null
 
         private data class EngineHolder(
             val engine: Engine,
             val backendName: String,
             val maxContextTokens: Int,
+            val speculativeDecodingEnabled: Boolean,
         )
 
+        @OptIn(ExperimentalApi::class)
         private fun getOrCreateEngine(
             modelFile: File,
             maxContextTokens: Int,
             forceCpu: Boolean,
             requireGpu: Boolean,
+            enableSpeculativeDecoding: Boolean,
         ): EngineHolder {
             val canonicalPath = modelFile.canonicalPath
             synchronized(engineLock) {
@@ -402,13 +416,15 @@ class OnDeviceLitertBackend(
                     val cacheCanServeRequest = cachedPath == canonicalPath &&
                         (cachedMaxContextTokens ?: 0) >= maxContextTokens &&
                         (!forceCpu || cachedBackendName == BACKEND_CPU) &&
-                        (!requireGpu || cachedBackendName == BACKEND_GPU)
+                        (!requireGpu || cachedBackendName == BACKEND_GPU) &&
+                        cachedSpeculativeDecoding == enableSpeculativeDecoding
                     if (cacheCanServeRequest) {
                         return existing
                     }
                     closeCachedEngineLocked()
                 }
                 val cacheDir = cacheDirFor(canonicalPath, modelFile)
+                ExperimentalFlags.enableSpeculativeDecoding = enableSpeculativeDecoding
 
                 val backendCandidates = liteRtBackendOrder(forceCpu, requireGpu).map { backendName ->
                     when (backendName) {
@@ -421,7 +437,8 @@ class OnDeviceLitertBackend(
                     try {
                         Log.i(
                             LOG_TAG,
-                            "Initializing LiteRT engine backend=$backendName context=$maxContextTokens model=$canonicalPath"
+                            "Initializing LiteRT engine backend=$backendName context=$maxContextTokens " +
+                                "mtp=$enableSpeculativeDecoding model=$canonicalPath"
                         )
                         val engine = Engine(
                             EngineConfig(
@@ -436,11 +453,13 @@ class OnDeviceLitertBackend(
                             engine = engine,
                             backendName = backendName,
                             maxContextTokens = maxContextTokens,
+                            speculativeDecodingEnabled = enableSpeculativeDecoding,
                         )
                         cachedEngine = holder
                         cachedPath = canonicalPath
                         cachedMaxContextTokens = maxContextTokens
                         cachedBackendName = backendName
+                        cachedSpeculativeDecoding = enableSpeculativeDecoding
                         return holder
                     } catch (t: Throwable) {
                         lastError = t
@@ -463,6 +482,7 @@ class OnDeviceLitertBackend(
             cachedPath = null
             cachedMaxContextTokens = null
             cachedBackendName = null
+            cachedSpeculativeDecoding = null
         }
 
         private fun cpuBackend(): Backend.CPU {
@@ -480,6 +500,11 @@ class OnDeviceLitertBackend(
         }
     }
 }
+
+internal fun liteRtRuntimeBackendLabel(
+    backendName: String,
+    speculativeDecodingEnabled: Boolean,
+): String = if (speculativeDecodingEnabled) "$backendName+MTP" else backendName
 
 internal fun liteRtBackendOrder(forceCpu: Boolean, requireGpu: Boolean): List<String> {
     return when {

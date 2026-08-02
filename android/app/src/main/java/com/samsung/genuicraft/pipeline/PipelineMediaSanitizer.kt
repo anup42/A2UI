@@ -1247,7 +1247,12 @@ internal object PipelineMediaSanitizer {
         if (Regex("""(?i)"call"\s*:\s*"(?:openUrl|setState)"""").containsMatchIn(jsonText)) return true
         // Phase 2+ flat spec: Button type with action
         if (Regex("""(?i)"type"\s*:\s*"Button"""").containsMatchIn(jsonText) &&
-            Regex("""(?i)"action"\s*:\s*\{""").containsMatchIn(jsonText)) return true
+            (
+                Regex("""(?i)"action"\s*:\s*\{""").containsMatchIn(jsonText) ||
+                    Regex("""(?i)"action"\s*:\s*"(?:openUrl|setState|pushState|removeState|validateForm|emitEvent)"""")
+                        .containsMatchIn(jsonText)
+                )
+        ) return true
         // Legacy format
         return Regex("""(?i)"call"\s*:\s*"openUrl"""").containsMatchIn(jsonText) ||
             (

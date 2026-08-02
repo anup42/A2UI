@@ -9,6 +9,15 @@ import com.samsung.genuicraft.renderer.flat.runtime.*
 
 class PipelineMediaSanitizerTest {
     @Test
+    fun genUiPreservesActionButtons_recognizesCanonicalActionBinding() {
+        val json = """
+            {"root":"root","state":{},"elements":{"root":{"type":"Stack","props":{},"children":["track"]},"track":{"type":"Button","props":{"label":"Track Package"},"children":[],"on":{"press":{"action":"openUrl","params":{"url":"https://www.samsung.com/support/"}}}}}}
+        """.trimIndent()
+
+        assertTrue(PipelineMediaSanitizer.genUiPreservesActionButtons(json))
+    }
+
+    @Test
     fun ensureFlightListContent_injectsComparisonTable_whenMissing() {
         val response = """
             Flights from BLR to LKO on March 15 include options from IndiGo and Air India.

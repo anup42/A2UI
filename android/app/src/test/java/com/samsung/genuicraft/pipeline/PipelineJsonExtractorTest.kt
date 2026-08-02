@@ -13,6 +13,84 @@ import com.samsung.genuicraft.renderer.flat.runtime.*
 class PipelineJsonExtractorTest {
 
     @Test
+    fun extractJsonElement_prefersCompactEnvelopeOverNestedIdArray() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Order Details","c":["order_id","missing"]},"order_id":{"t":"Order ID","p":{"text":"A-1042"}}}}
+        """.trimIndent()
+
+        val parsed = PipelineJsonExtractor.extractJsonElement(text)
+
+        requireNotNull(parsed)
+        assertTrue(parsed.isJsonObject)
+        assertEquals("gci2", parsed.asJsonObject.get("v").asString)
+        assertTrue(parsed.asJsonObject.get("e").isJsonObject)
+    }
+
+    @Test
+    fun extractJsonElement_prefersCompleteCompactEnvelopeWithDuplicateElementIds() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Container"},"Text":{"t":"Order ID","p":{"text":"A-1042"}},"Text":{"t":"Delivery Status","p":{"text":"Out for delivery"}},"Table":{"t":"Table","p":{"columns":["Detail","Value"]}}}}
+        """.trimIndent()
+
+        val parsed = PipelineJsonExtractor.extractJsonElement(text)
+
+        requireNotNull(parsed)
+        assertTrue(parsed.isJsonObject)
+        assertEquals("gci2", parsed.asJsonObject.get("v").asString)
+        assertTrue(parsed.asJsonObject.getAsJsonObject("e").has("root"))
+    }
+
+    @Test
+    fun extractJsonElement_closesTruncatedCompactEnvelopeBeforeScoringNestedValues() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Column","c":["title"]},"title":{"t":"Text","p":{"text":"Ready"}}}
+        """.trimIndent()
+
+        val parsed = requireNotNull(PipelineJsonExtractor.extractJsonElement(text))
+        val ingested = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)
+
+        assertEquals("gci2", parsed.asJsonObject.get("v").asString)
+        assertTrue(parsed.asJsonObject.get("e").isJsonObject)
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
+    }
+
+    @Test
+    fun extractJsonElement_movesTopLevelCompactElementWithoutLosingFactsOrAction() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Column","c":["title","details","action"]},"title":{"t":"Text","p":{"text":"Order A1042","variant":"h2"}},"details":{"t":"Table","p":{"columns":["Detail","Value"],"rows":[["Status","Out for Delivery"],["Carrier","SwiftShip"],["ETA","Today at 4:30 PM"]],"domain":"status","preferredPresentation":"cards"}}},"action":{"t":"Button","p":{"label":"Track Package","variant":"primary"},"o":{"press":{"action":"openUrl","params":{"url":"https://www.samsung.com/support/"}}}}}
+        """.trimIndent()
+
+        val parsed = requireNotNull(PipelineJsonExtractor.extractJsonElement(text))
+        val compact = parsed.asJsonObject
+        val ingested = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)
+
+        assertFalse(compact.has("action"))
+        assertTrue(compact.getAsJsonObject("e").has("action"))
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
+        val canonical = (ingested as FlatSpecIngestResult.CanonicalFlatSpec).canonicalJson.toString()
+        assertTrue(canonical.contains("SwiftShip"))
+        assertTrue(canonical.contains("Today at 4:30 PM"))
+        assertTrue(canonical.contains("\"action\":\"openUrl\""))
+    }
+
+    @Test
+    fun extractJsonElement_movesMisplacedCompactTablePresentationIntoProps() {
+        val text = """
+            {"v":"gci2","r":"root","e":{"root":{"t":"Column","c":["details"]},"details":{"t":"Table","p":{"columns":["Detail","Value"],"rows":[["Carrier","SwiftShip"],["ETA","Today, 4:30 PM"]]},"domain":"status","preferredPresentation":"table"}}}
+        """.trimIndent()
+
+        val parsed = requireNotNull(PipelineJsonExtractor.extractJsonElement(text))
+        val details = parsed.asJsonObject.getAsJsonObject("e").getAsJsonObject("details")
+        val ingested = FlatSpecIngestor.ingest(parsed, FlatSpecIngestMode.STRICT)
+
+        assertFalse(details.has("domain"))
+        assertFalse(details.has("preferredPresentation"))
+        assertEquals("status", details.getAsJsonObject("p").get("domain").asString)
+        assertEquals("table", details.getAsJsonObject("p").get("preferredPresentation").asString)
+        assertTrue(ingested is FlatSpecIngestResult.CanonicalFlatSpec)
+    }
+
+    @Test
     fun extractJsonElement_prefersFlatSpecObjectOverNestedArray() {
         val text = """
             noisy prefix ["title", null, "summary"]
