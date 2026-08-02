@@ -1363,6 +1363,13 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage2Response = McpResponseFormatter.normalizeForStage3(
             PipelineMediaSanitizer.normalizeUrlTokensForDisplay(stage2WithGeneralMedia)
         )
+        // Keep the demo/test-app path on the same compact Stage 3 input path as
+        // the live MCP flow. Long Places/Maps/media URLs are restored only after
+        // the selected IR has been decoded, so they do not consume generation
+        // tokens while preserving the original response for rendering checks.
+        val urlShortenResult = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(stage2Response)
+        val stage3InputResponse = urlShortenResult.shortenedText
+        val urlMap = urlShortenResult.urlMap
         val injectedFlightList = stage2WithFlightList != normalizedResponseRaw
         val normalizedBareDomains = stage2Response != stage2WithGeneralMedia
         val removedFlightMedia = stage2WithFlightMedia != stage2WithActions
@@ -1380,7 +1387,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
         val stage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
-            stage2Response = stage2Response,
+            stage2Response = stage3InputResponse,
             catalogId = catalogId,
             assets = emptyList(),
             outputFormat = currentStage3Format(),
@@ -1395,6 +1402,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
         val warnings = mutableListOf<String>()
         warnings += "Using preloaded IR demo response (stage 2 skipped)."
+        if (urlMap.isNotEmpty()) {
+            warnings += "Shortened ${urlMap.size} URL(s) for Stage 3 token efficiency."
+        }
         warnings += "IR output format: ${IrPromptVersionSettings.getSelectedOption(appContext).title}"
         if (provider == InferenceBackendSettings.Provider.GEMINI) {
             warnings += "Gemini route: ${geminiApiMode.rawValue}"
@@ -1548,7 +1558,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         val stage3JsonElement = repairAndValidateFlatSpec(
             stage3RawText = stage3ResponseText,
             initialJsonElement = stage3InitialCandidate,
-            sourceResponseText = stage2Response,
+            sourceResponseText = stage3InputResponse,
             backend = backend,
             provider = provider,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
@@ -1584,7 +1594,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val normalizedGenUi = PipelineMediaSanitizer.normalizeGenUiPayload(stage3JsonElement)
-        var stage3Json = gson.toJson(normalizedGenUi)
+        // Restore placeholders before media/link preservation and native render.
+        var stage3Json = com.samsung.genuicraft.mcp.McpUrlShortener.restore(
+            gson.toJson(normalizedGenUi),
+            urlMap,
+        )
         // Preserve real Stage 2 image media when Stage 3 drops it.
         val stage3WithFlightMediaNormalized = PipelineMediaSanitizer.normalizeFlightMediaInGenUi(
             jsonText = stage3Json,

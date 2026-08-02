@@ -8,6 +8,9 @@ package com.samsung.genuicraft.mcp
 object McpUrlShortener {
 
     private val URL_REGEX = Regex("""https?://\S+""")
+    // Keep short, human-readable icon/action URLs intact. The token-saving
+    // target is the much longer Places/Maps/photo URL class.
+    private const val MIN_URL_LENGTH = 80
 
     data class ShortenResult(
         val shortenedText: String,
@@ -15,7 +18,7 @@ object McpUrlShortener {
     )
 
     /**
-     * Scans [text] for URLs ≥60 chars and replaces each unique URL with a short
+     * Scans [text] for URLs at least 80 chars long and replaces each unique URL with a short
      * placeholder token `{{u1}}`, `{{u2}}`, etc.
      * Returns the shortened text and the mapping for later restoration.
      */
@@ -24,6 +27,7 @@ object McpUrlShortener {
         var counter = 1
         val shortened = URL_REGEX.replace(text) { match ->
             val url = match.value
+            if (url.length < MIN_URL_LENGTH) return@replace url
             seen.getOrPut(url) { "{{u${counter++}}}" }
         }
         // Invert: placeholder → realUrl
