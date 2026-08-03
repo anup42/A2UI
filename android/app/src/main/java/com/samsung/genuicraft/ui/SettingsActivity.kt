@@ -123,6 +123,9 @@ private fun SettingsScreen(
     var onDeviceModelPath by remember {
         mutableStateOf(InferenceBackendSettings.getOnDeviceModelPath(context))
     }
+    var onDeviceAccelerator by remember {
+        mutableStateOf(InferenceBackendSettings.getOnDeviceAccelerator(context))
+    }
     var onDeviceModelRefreshKey by remember { mutableIntStateOf(0) }
     var onDeviceDownloadError by remember { mutableStateOf<String?>(null) }
     val onDeviceDownloadProgress = remember { mutableStateMapOf<String, Float?>() }
@@ -692,6 +695,47 @@ private fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                Text(
+                                    text = stringResource(id = R.string.settings_on_device_accelerator_title),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.settings_on_device_accelerator_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                InferenceBackendSettings.Accelerator.entries.forEach { accelerator ->
+                                    val label = when (accelerator) {
+                                        InferenceBackendSettings.Accelerator.AUTO -> stringResource(id = R.string.settings_on_device_accelerator_auto)
+                                        InferenceBackendSettings.Accelerator.GPU -> stringResource(id = R.string.settings_on_device_accelerator_gpu)
+                                        InferenceBackendSettings.Accelerator.CPU -> stringResource(id = R.string.settings_on_device_accelerator_cpu)
+                                        InferenceBackendSettings.Accelerator.NPU -> stringResource(id = R.string.settings_on_device_accelerator_npu)
+                                    }
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                onDeviceAccelerator = accelerator
+                                                InferenceBackendSettings.setOnDeviceAccelerator(context, accelerator)
+                                            },
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        RadioButton(
+                                            selected = onDeviceAccelerator == accelerator,
+                                            onClick = {
+                                                onDeviceAccelerator = accelerator
+                                                InferenceBackendSettings.setOnDeviceAccelerator(context, accelerator)
+                                            }
+                                        )
+                                        Text(
+                                            text = label,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
                                 OnDeviceModelCatalog.entries.forEach { entry ->
                                     val downloaded = onDeviceModelRefreshKey.let { entry.isDownloaded(context) }
                                     val selected = downloaded && onDeviceModelPath == entry.localPath(context)

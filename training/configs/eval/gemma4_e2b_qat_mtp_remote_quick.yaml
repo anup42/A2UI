@@ -1,0 +1,31 @@
+run:
+  id: gemma4_e2b_qat_mtp_remote_quick
+  output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/mtp_benchmark_quick
+source:
+  target_model_id: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/full_qat_lora/merged_hf
+  target_base_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+  assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
+  processor_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+  model_loader: auto_causal_lm
+  dtype: bfloat16
+  # Keep both reference models on one A6000; automatic splitting hit cuBLAS.
+  device_map:
+    "": 0
+  trust_remote_code: false
+data:
+  split_path: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/prepared_golden/all.jsonl
+  max_rows: 5
+benchmark:
+  mode: transformers_reference
+  packed_int4: false
+  final_runtime_validation_required: true
+  max_input_tokens: 4096
+  max_new_tokens: 1024
+  do_sample: false
+  warmup_rows: 1
+  repeats: 1
+  num_assistant_tokens: 4
+  num_assistant_tokens_schedule: heuristic
+evaluation:
+  enabled: true
+  weights_config: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/repo/dataset/configs/run.yaml

@@ -21,6 +21,7 @@ from ir_training.train.callbacks import build_golden_set_eval_callback
 from ir_training.train.sft import (
     _CausalLMDataCollator,
     _checked_shifted_causal_lm_loss,
+    _disable_peft_vocab_probe,
     _align_tokenizer_and_model,
     _enforce_cuda_requirement,
     _effective_max_seq_length,
@@ -34,6 +35,26 @@ from ir_training.train.sft import (
     _validate_sft_token_ids,
     _validate_tokenized_sft_dataset,
 )
+
+
+def test_disable_peft_vocab_probe_preserves_adapter_origin_and_forces_save_flag(tmp_path):
+    calls = []
+
+    class Config:
+        base_model_name_or_path = "google/gemma-4-E2B-it"
+
+    class Model:
+        peft_config = {"default": Config()}
+
+        def save_pretrained(self, output, *args, **kwargs):
+            calls.append((output, args, kwargs))
+
+    model = Model()
+    _disable_peft_vocab_probe(model)
+    model.save_pretrained(tmp_path, safe_serialization=True)
+
+    assert model.peft_config["default"].base_model_name_or_path == "google/gemma-4-E2B-it"
+    assert calls == [(tmp_path, (), {"safe_serialization": True, "save_embedding_layers": False})]
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:

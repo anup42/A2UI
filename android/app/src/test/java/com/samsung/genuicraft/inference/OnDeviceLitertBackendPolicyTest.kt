@@ -1,5 +1,6 @@
 package com.samsung.genuicraft.inference
 
+import com.samsung.genuicraft.InferenceBackendSettings
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -18,6 +19,26 @@ class OnDeviceLitertBackendPolicyTest {
         assertEquals(
             listOf("GPU"),
             liteRtBackendOrder(forceCpu = false, requireGpu = true),
+        )
+    }
+
+    @Test
+    fun `explicit accelerator selections are never relabeled as automatic fallback`() {
+        assertEquals(
+            listOf("GPU"),
+            liteRtBackendOrder(
+                forceCpu = false,
+                requireGpu = false,
+                accelerator = InferenceBackendSettings.Accelerator.GPU,
+            ),
+        )
+        assertEquals(
+            listOf("NPU"),
+            liteRtBackendOrder(
+                forceCpu = false,
+                requireGpu = true,
+                accelerator = InferenceBackendSettings.Accelerator.NPU,
+            ),
         )
     }
 

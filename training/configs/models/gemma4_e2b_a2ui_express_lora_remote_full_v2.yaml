@@ -1,0 +1,62 @@
+run:
+  id: gemma4_e2b_a2ui_express_lora_remote_full_v2
+  dataset_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/prepared_v10_express_v2
+  output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/full_a2ui_express_lora_v2
+runtime:
+  distributed: ddp
+model:
+  family: gemma
+  model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+  model_loader: auto_causal_lm
+  trust_remote_code: false
+  tokenizer_loader: auto_tokenizer
+  processor_fallback: true
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  attn_implementation: sdpa
+  max_context_tokens: 8192
+  max_output_tokens: 4096
+  chat_template_kwargs:
+    enable_thinking: false
+training:
+  method: lora_sft
+  epochs: 2
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  mixed_precision: auto
+  trainer_backend: hf
+  require_ddp_for_multi_gpu: true
+  ddp_find_unused_parameters: false
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  save_steps: 250
+  eval_steps: 250
+  logging_steps: 20
+  save_total_limit: 2
+  max_grad_norm: 1.0
+  seed: 42
+  preflight_token_check_rows: 64
+  forward_smoke_check_rows: 8
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.05
+  target_modules: peft-default
+  modules_to_save: []
+qat_mtp:
+  support_level: experimental_qat_derived_target_tuning
+  continued_qat: false
+  final_quantization: q4_0
+  merge_adapter_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/full_a2ui_express_lora_v2/final_adapter
+  merged_model_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/full_a2ui_express_lora_v2/merged_hf
+  assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
+  train_assistant: false
+  require_matching_precision: true
+  final_runtime_validation_required: true
+golden_eval:
+  enabled: false

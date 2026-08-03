@@ -62,6 +62,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             use_gradient_checkpointing=gradient_checkpointing,
         )
     model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
+    _disable_peft_vocab_probe(model)
     _disable_model_cache_for_training(model)
     _enable_input_grads_for_kbit_lora(model)
     _align_tokenizer_and_model(tokenizer, model)
@@ -293,6 +294,36 @@ def _enforce_qat_mtp_training_guardrails(config: dict[str, Any]) -> None:
     if errors:
         codes = ", ".join(issue.code for issue in errors)
         raise ValueError(f"QAT/MTP training config failed preflight: {codes}")
+
+
+def _disable_peft_vocab_probe(model: Any) -> None:
+    """Avoid PEFT's remote vocab probe for Gemma 4's nested text config.
+
+    Gemma4Config exposes the vocabulary through its nested text config, while
+    PEFT's ``save_embedding_layers='auto'`` path assumes every config has a
+    top-level ``vocab_size`` and reloads the base config to compare it. This
+    workflow freezes embeddings/LM head and already validates the tokenizer and
+    model vocabulary directly, so the remote probe is both unnecessary and
+    incompatible with Gemma 4.
+    """
+    if not callable(getattr(model, "save_pretrained", None)):
+        return
+
+    # Transformers' Trainer calls ``model.save_pretrained`` without exposing
+    # PEFT's ``save_embedding_layers`` argument.  Wrap the bound method so
+    # every Trainer checkpoint explicitly skips the same remote vocab probe.
+    # Preserve base_model_name_or_path so the saved adapter remains loadable.
+    original_save_pretrained = model.save_pretrained
+
+    def save_pretrained_without_vocab_probe(
+        save_directory: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        kwargs["save_embedding_layers"] = False
+        return original_save_pretrained(save_directory, *args, **kwargs)
+
+    model.save_pretrained = save_pretrained_without_vocab_probe
 
 
 def _materialize_sft_text_dataset(

@@ -4,6 +4,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -16,6 +17,34 @@ from pipeline.ir_formats import encode_express_completion
 
 
 class Stage4RendererVariantsTests(unittest.TestCase):
+    def test_stage4_uses_file_uri_when_assets_are_on_another_windows_drive(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            run_dir = Path(tmp_dir)
+            express = '<a2ui>\nroot=Text("Cross-drive")\n</a2ui>'
+            genui_path = run_dir / "genui.jsonl"
+            genui_path.write_text(
+                json.dumps({"ui_id": "u_cross_drive", "a2ui_express": express}) + "\n",
+                encoding="utf-8",
+            )
+            assets_dir = ROOT / "renderer" / "lit"
+            output_dir = run_dir / "rendered"
+
+            with mock.patch("pipeline.stage4_render.os.path.relpath", side_effect=ValueError("drive")):
+                run_stage4(
+                    genui_path=genui_path,
+                    output_dir=output_dir,
+                    assets_dir=assets_dir,
+                    server_root=ROOT,
+                    logger=logging.getLogger("stage4_cross_drive_test"),
+                    render_images=False,
+                    renderer_name="lit",
+                    payload_format="messages",
+                    render_log_filename="render.jsonl",
+                )
+
+            html = (output_dir / "u_cross_drive.html").read_text(encoding="utf-8")
+            self.assertIn(assets_dir.resolve().as_uri(), html)
+
     def test_stage4_generates_primary_and_lit_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             run_dir = Path(tmp_dir)

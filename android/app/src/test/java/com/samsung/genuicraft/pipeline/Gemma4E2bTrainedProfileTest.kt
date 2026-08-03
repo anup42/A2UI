@@ -46,6 +46,25 @@ class Gemma4E2bTrainedProfileTest {
     }
 
     @Test
+    fun v6A2uiExpressEntryMatchesThePackagedAndroidArtifact() {
+        val entry = requireNotNull(
+            OnDeviceModelCatalog.entryForModelPath(
+                "/sdcard/Android/data/com.samsung.genuicraft/files/on_device_models/gemma-4-e2b-a2ui-express-v6.litertlm"
+            )
+        )
+
+        assertEquals("gemma4_e2b_a2ui_express_v6_litert", entry.id)
+        assertEquals("INT4 weights / FP32 activations, blockwise-32", entry.quantization)
+        assertEquals(4_096, entry.maxContextTokens)
+        assertEquals(2_048, entry.maxOutputTokens)
+        assertTrue(entry.requireGpu)
+        assertFalse(entry.enableSpeculativeDecoding)
+        assertTrue(entry.rawStage3Response)
+        assertEquals(2_500_000_000L, entry.minimumFileSizeBytes)
+        assertFalse(entry.isDownloadable)
+    }
+
+    @Test
     fun stage3PromptMatchesTrainingInferenceFormat() {
         val entry = requireNotNull(
             OnDeviceModelCatalog.entryForModelPath("/tmp/gemma-4-e2b-ir-trained-int4.litertlm")

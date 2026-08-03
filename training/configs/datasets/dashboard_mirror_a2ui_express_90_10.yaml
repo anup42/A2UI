@@ -1,0 +1,22 @@
+run:
+  id: dashboard_mirror_a2ui_express_90_10
+  source_genui_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_v10
+  output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/prepared_v10_express
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1
+  schema_path: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/repo/dataset/schema/genuicraft_a2ui_v1_wire.schema.json
+  system_prompt: |
+    Convert the response into A2UI Express v1 using the pinned GenUICraft catalog.
+    Return ONLY one <a2ui>...</a2ui> block. Do not return JSON, markdown fences, or prose.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 0.90
+  val: 0.10
+  test: 0.0
+  stratify_by: intent_bucket

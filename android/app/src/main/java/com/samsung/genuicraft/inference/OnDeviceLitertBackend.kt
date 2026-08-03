@@ -12,6 +12,7 @@ import com.google.ai.edge.litertlm.ExperimentalFlags
 import com.google.ai.edge.litertlm.Message
 import com.google.ai.edge.litertlm.MessageCallback
 import com.google.ai.edge.litertlm.SamplerConfig
+import com.samsung.genuicraft.InferenceBackendSettings
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
@@ -24,7 +25,10 @@ import kotlin.math.roundToInt
  * Stage-3 on-device backend for exported LiteRT-LM/Gemma IR models.
  */
 class OnDeviceLitertBackend(
-    private val modelPath: String
+    private val modelPath: String,
+    private val acceleratorPreference: InferenceBackendSettings.Accelerator =
+        InferenceBackendSettings.DEFAULT_ON_DEVICE_ACCELERATOR,
+    private val npuNativeLibraryDir: String = "",
 ) : InferenceBackend {
 
     override fun generate(request: InferenceBackend.GenerateRequest): InferenceBackend.GenerateResponse {
@@ -60,11 +64,17 @@ class OnDeviceLitertBackend(
                 forceCpu = false,
                 requireGpu = requireGpu,
                 enableSpeculativeDecoding = enableSpeculativeDecoding,
+                acceleratorPreference = acceleratorPreference,
+                npuNativeLibraryDir = npuNativeLibraryDir,
             )
             val generation = try {
                 generateWithEngine(holder, promptParts, request.temperature, request.onStreamUpdate)
             } catch (gpuFailure: Throwable) {
-                if (holder.backendName != BACKEND_GPU || requireGpu) {
+                if (
+                    holder.backendName != BACKEND_GPU ||
+                    requireGpu ||
+                    acceleratorPreference != InferenceBackendSettings.Accelerator.AUTO
+                ) {
                     throw gpuFailure
                 }
                 Log.w(LOG_TAG, "LiteRT GPU generation failed; retrying on CPU: ${gpuFailure.message}")
@@ -75,6 +85,8 @@ class OnDeviceLitertBackend(
                     forceCpu = true,
                     requireGpu = false,
                     enableSpeculativeDecoding = enableSpeculativeDecoding,
+                    acceleratorPreference = InferenceBackendSettings.Accelerator.CPU,
+                    npuNativeLibraryDir = npuNativeLibraryDir,
                 )
                 generateWithEngine(cpuHolder, promptParts, request.temperature, request.onStreamUpdate)
             }
@@ -119,11 +131,26 @@ class OnDeviceLitertBackend(
                 errorMessage = "On-device IR model path must be a .litertlm file: $normalized"
             )
         }
+        if (!normalized.lowercase(Locale.US).endsWith(".litertlm")) {
+            return InferenceBackend.HealthCheckResult(
+                healthy = false,
+                errorMessage = "On-device IR model path must use the .litertlm format: $normalized"
+            )
+        }
         if (file.length() <= 0L) {
             return InferenceBackend.HealthCheckResult(
                 healthy = false,
                 errorMessage = "On-device IR model file is empty: $normalized"
             )
+        }
+        OnDeviceModelCatalog.entryForModelPath(normalized)?.let { entry ->
+            if (file.length() < entry.minimumFileSizeBytes) {
+                return InferenceBackend.HealthCheckResult(
+                    healthy = false,
+                    errorMessage = "On-device model is incomplete: ${file.length()} bytes; expected at least " +
+                        "${entry.minimumFileSizeBytes} bytes for ${entry.displayName}."
+                )
+            }
         }
         return InferenceBackend.HealthCheckResult(healthy = true)
     }
@@ -383,6 +410,7 @@ class OnDeviceLitertBackend(
         private const val LOG_TAG = "OnDeviceLitertBackend"
         private const val BACKEND_GPU = "GPU"
         private const val BACKEND_CPU = "CPU"
+        private const val BACKEND_NPU = "NPU"
         private const val STREAM_UI_INTERVAL_MS = 80L
         private const val MIN_RATE_SAMPLE_MS = 100L
         private const val ON_DEVICE_MIN_CONTEXT_TOKENS = 8192
@@ -393,6 +421,7 @@ class OnDeviceLitertBackend(
         private var cachedMaxContextTokens: Int? = null
         private var cachedBackendName: String? = null
         private var cachedSpeculativeDecoding: Boolean? = null
+        private var cachedAcceleratorPreference: InferenceBackendSettings.Accelerator? = null
         private var cachedEngine: EngineHolder? = null
 
         private data class EngineHolder(
@@ -409,6 +438,8 @@ class OnDeviceLitertBackend(
             forceCpu: Boolean,
             requireGpu: Boolean,
             enableSpeculativeDecoding: Boolean,
+            acceleratorPreference: InferenceBackendSettings.Accelerator,
+            npuNativeLibraryDir: String,
         ): EngineHolder {
             val canonicalPath = modelFile.canonicalPath
             synchronized(engineLock) {
@@ -417,7 +448,8 @@ class OnDeviceLitertBackend(
                         (cachedMaxContextTokens ?: 0) >= maxContextTokens &&
                         (!forceCpu || cachedBackendName == BACKEND_CPU) &&
                         (!requireGpu || cachedBackendName == BACKEND_GPU) &&
-                        cachedSpeculativeDecoding == enableSpeculativeDecoding
+                        cachedSpeculativeDecoding == enableSpeculativeDecoding &&
+                        cachedAcceleratorPreference == acceleratorPreference
                     if (cacheCanServeRequest) {
                         return existing
                     }
@@ -426,9 +458,16 @@ class OnDeviceLitertBackend(
                 val cacheDir = cacheDirFor(canonicalPath, modelFile)
                 ExperimentalFlags.enableSpeculativeDecoding = enableSpeculativeDecoding
 
-                val backendCandidates = liteRtBackendOrder(forceCpu, requireGpu).map { backendName ->
+                val backendCandidates = liteRtBackendOrder(
+                    forceCpu = forceCpu,
+                    requireGpu = requireGpu,
+                    accelerator = acceleratorPreference,
+                ).map { backendName ->
                     when (backendName) {
                         BACKEND_GPU -> backendName to Backend.GPU()
+                        BACKEND_NPU -> backendName to Backend.NPU(
+                            nativeLibraryDir = npuNativeLibraryDir,
+                        )
                         else -> backendName to cpuBackend()
                     }
                 }
@@ -460,6 +499,7 @@ class OnDeviceLitertBackend(
                         cachedMaxContextTokens = maxContextTokens
                         cachedBackendName = backendName
                         cachedSpeculativeDecoding = enableSpeculativeDecoding
+                        cachedAcceleratorPreference = acceleratorPreference
                         return holder
                     } catch (t: Throwable) {
                         lastError = t
@@ -483,6 +523,7 @@ class OnDeviceLitertBackend(
             cachedMaxContextTokens = null
             cachedBackendName = null
             cachedSpeculativeDecoding = null
+            cachedAcceleratorPreference = null
         }
 
         private fun cpuBackend(): Backend.CPU {
@@ -506,9 +547,21 @@ internal fun liteRtRuntimeBackendLabel(
     speculativeDecodingEnabled: Boolean,
 ): String = if (speculativeDecodingEnabled) "$backendName+MTP" else backendName
 
-internal fun liteRtBackendOrder(forceCpu: Boolean, requireGpu: Boolean): List<String> {
+internal fun liteRtBackendOrder(
+    forceCpu: Boolean,
+    requireGpu: Boolean,
+    accelerator: InferenceBackendSettings.Accelerator = InferenceBackendSettings.Accelerator.AUTO,
+): List<String> {
+    if (forceCpu || accelerator == InferenceBackendSettings.Accelerator.CPU) {
+        return listOf("CPU")
+    }
+    when (accelerator) {
+        InferenceBackendSettings.Accelerator.GPU -> return listOf("GPU")
+        InferenceBackendSettings.Accelerator.NPU -> return listOf("NPU")
+        InferenceBackendSettings.Accelerator.AUTO -> Unit
+        InferenceBackendSettings.Accelerator.CPU -> return listOf("CPU")
+    }
     return when {
-        forceCpu -> listOf("CPU")
         requireGpu -> listOf("GPU")
         else -> listOf("GPU", "CPU")
     }

@@ -1,0 +1,47 @@
+run:
+  id: dashboard_mirror_a2ui_express_90_10_v2
+  source_genui_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_v10
+  output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/prepared_v10_express_v2
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1_full_contract
+  schema_path: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/repo/dataset/schema/genuicraft_a2ui_v1_wire.schema.json
+  system_prompt: |
+    You are a GenUICraft mobile UI generator. Convert the response into rich,
+    lossless A2UI Express v1 using the pinned GenUICraft catalog. Token savings
+    must come from syntax, never from fewer useful components or omitted facts.
+
+    ## Output contract
+    - Return ONLY one <a2ui>...</a2ui> block; no prose or markdown fences.
+    - Assign the root component to reserved variable root.
+    - Use component assignments and references; every reference must resolve.
+    - Use positional catalog arguments where clear and named arguments otherwise.
+    - Preserve renderer semantics with _props, _children, _repeat, _visible, _on, and _watch.
+    - Use $ = {...} or $/path = value for state and bindings.
+    - Never return HTML, JSON FlatSpec, Compact IR, or XML-like UI markup inside the block.
+
+    ## Catalog and actions
+    Allowed components: Alert, AudioPlayer, Button, Card, Chart, CheckBox,
+    Checklist, ChoicePicker, CodeBlock, ConsoleLog, DateTimeInput, Divider,
+    EmailPreview, Formula, Icon, Image, List, Modal, Row, Column, Slider, Stack,
+    Table, Tabs, Text, TextField, and Video.
+    Allowed direct actions: openUrl, setState, pushState, removeState,
+    validateForm, and Event(name, context, wantResponse, responsePath).
+
+    ## Quality rules
+    - Build an app-like mobile hierarchy with meaningful sections and specialist components.
+    - Preserve all facts, numbers, units, dates, times, currency, code, formulas, media, tables, actions, bindings, repeats, visibility, and watches.
+    - Use compact Table rows for comparative, schedule, status, formula, and matrix data.
+    - Convert headings to Text variants, code to CodeBlock, console output to ConsoleLog, formulas to Formula, and email drafts to EmailPreview.
+    - Keep verified media attached to related content. Never invent URLs or expose raw action URLs as visible body text.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 0.90
+  val: 0.10
+  test: 0.0
+  stratify_by: intent_bucket

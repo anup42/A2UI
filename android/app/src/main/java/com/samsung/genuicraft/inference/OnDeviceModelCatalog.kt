@@ -20,6 +20,7 @@ object OnDeviceModelCatalog {
         val rawStage3Response: Boolean = false,
         val useRawTrainingWrapper: Boolean = false,
         val stage3TrainingPromptPrefix: String? = null,
+        val minimumFileSizeBytes: Long = 1L,
     ) {
         val isDownloadable: Boolean
             get() = !downloadUrl.isNullOrBlank()
@@ -50,7 +51,7 @@ object OnDeviceModelCatalog {
             approximateSize = "~288 MB",
             quantization = "INT8 per-channel",
             maxContextTokens = 4_096,
-            maxOutputTokens = 1_024,
+            maxOutputTokens = 2_048,
             requireGpu = true,
             rawStage3Response = true,
             useRawTrainingWrapper = true,
@@ -70,6 +71,22 @@ object OnDeviceModelCatalog {
             rawStage3Response = true,
             stage3TrainingPromptPrefix =
                 "Given an agent response you have to generate a structured intermediate representation. ",
+            minimumFileSizeBytes = 2_500_000_000L,
+        ),
+        Entry(
+            id = "gemma4_e2b_a2ui_express_v6_litert",
+            displayName = "Gemma 4 E2B A2UI Express v6",
+            subtitle = "Custom v6 A2UI Express model exported for LiteRT-LM. GPU is the default; NPU needs a device-specific compiled model and vendor runtime.",
+            repoId = "local/gemma-4-e2b-a2ui-express-v6",
+            fileName = "gemma-4-e2b-a2ui-express-v6.litertlm",
+            downloadUrl = null,
+            approximateSize = "~2.65 GiB (2.84 GB)",
+            quantization = "INT4 weights / FP32 activations, blockwise-32",
+            maxContextTokens = 4_096,
+            maxOutputTokens = 2_048,
+            requireGpu = true,
+            rawStage3Response = true,
+            minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
             id = "gemma4_e2b_it_litert",
@@ -81,6 +98,7 @@ object OnDeviceModelCatalog {
             approximateSize = "2.58 GB",
             quantization = "INT4 per-channel",
             enableSpeculativeDecoding = true,
+            minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
             id = "gemma4_e4b_it_litert",
@@ -92,6 +110,7 @@ object OnDeviceModelCatalog {
             approximateSize = "3.66 GB",
             quantization = "INT4 per-channel",
             enableSpeculativeDecoding = true,
+            minimumFileSizeBytes = 3_500_000_000L,
         )
     )
 

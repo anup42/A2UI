@@ -11,15 +11,26 @@ export:
   litert_output_dir: outputs/export/gemma4_e2b_ir_edge_gallery/litertlm
   command: litert-torch
   min_app_version: 1.1.0
-  max_input_tokens: 8192
-  max_output_tokens: 8192
+  max_input_tokens: 4096
+  max_output_tokens: 2048
   # Google documents this Gemma 4 flag combination for LiteRT-LM export.
   externalize_embedder: true
-  jinja_chat_template_override: litert-community/gemma-4-E2B-it-litert-lm
-  # Leave blank to use litert-torch's default dynamic_wi8_afp32 recipe.
-  quantization_recipe: ""
-  extra_flags: []
+  # MiniJinja-safe subset of the tokenizer template used by train_gemma.py.
+  # It is token-identical for the text-only user messages used by Stage 3.
+  jinja_chat_template_override: training/configs/export/gemma4_e2b_training_minijinja.jinja
+  # Gemma 4's supported mixed recipe uses blockwise-32 INT4 for the main
+  # weights and channelwise INT8 for sensitive projections. The deployed
+  # artifact additionally protects q/k/v/o attention projections and lm_head
+  # at INT8; this fixed JSON corruption in the 1024-token mobile quality suite.
+  # Pure INT4 and unprotected mixed INT4 corrupt structured IR generations.
+  quantization_recipe: gemma4_mixed48_b32
+  # GPU dynamic cache/prefill values are translated to the Gemma 4 magic-number
+  # variants by litert-torch. Its typed default supplies prefill length 128.
+  extra_flags:
+    - --cache_length=4096
+    - --enable_gpu_dynamic_prefill=True
+    - --enable_gpu_dynamic_cache=True
 android:
-  package_name: gemma4_e2b_ir
-  display_name: Gemma 4 E2B IR Generator
+  package_name: gemma4_e2b_ir_trained_int4
+  display_name: Gemma 4 E2B Trained IR
   stage: stage3_ir

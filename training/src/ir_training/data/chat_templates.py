@@ -41,6 +41,36 @@ def _target_instruction(target_format: str | None) -> str:
     return "Create A2UI Express v1 GenUI IR for this response:"
 
 
+def _express_few_shot_messages() -> list[dict[str, str]]:
+    """Give the model one unambiguous native Express example.
+
+    The source responses frequently contain HTML-like prose.  A negative
+    instruction alone leaves Gemma's pretrained markup prior active, so the
+    active training and inference prompts include this small positive example.
+    """
+    return [
+        {
+            "role": "user",
+            "content": (
+                "Create A2UI Express v1 GenUI IR for this response:\n\n"
+                "A small travel checklist with a title and two items."
+            ),
+        },
+        {
+            "role": "assistant",
+            "content": (
+                '<a2ui>\n'
+                'root=Column([a,b])\n'
+                'a=Text("Travel Checklist","h1")\n'
+                'b=List([c,d])\n'
+                'c=Text("Passport")\n'
+                'd=Text("Charger")\n'
+                '</a2ui>'
+            ),
+        },
+    ]
+
+
 def build_messages(
     system_prompt: str,
     response_text: str,
@@ -50,8 +80,11 @@ def build_messages(
 ) -> list[dict[str, str]]:
     messages = [
         {"role": "system", "content": system_prompt.strip() or DEFAULT_SYSTEM_PROMPT},
-        {"role": "user", "content": _target_instruction(target_format) + "\n\n" + response_text.strip()},
     ]
+    messages.extend(_express_few_shot_messages())
+    messages.append(
+        {"role": "user", "content": _target_instruction(target_format) + "\n\n" + response_text.strip()}
+    )
     if completion_json is not None:
         completion = completion_json if isinstance(completion_json, str) else minify_json(completion_json)
         messages.append({"role": "assistant", "content": completion})
@@ -64,8 +97,10 @@ def build_prompt(
     *,
     target_format: str | None = None,
 ) -> str:
+    demo = _express_few_shot_messages()
     return (
         f"System:\n{system_prompt.strip() or DEFAULT_SYSTEM_PROMPT}\n\n"
+        f"User:\n{demo[0]['content']}\n\nAssistant:\n{demo[1]['content']}\n\n"
         f"User:\n{_target_instruction(target_format)}\n\n"
         f"{response_text.strip()}\n\nAssistant:\n"
     )

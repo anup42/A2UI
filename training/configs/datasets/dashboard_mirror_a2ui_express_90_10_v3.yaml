@@ -1,0 +1,26 @@
+run:
+  id: dashboard_mirror_a2ui_express_90_10_v3
+  source_genui_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_v10
+  output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/prepared_v10_express_v3
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1_few_shot
+  schema_path: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/repo/dataset/schema/genuicraft_a2ui_v1_wire.schema.json
+  system_prompt: |
+    You are a GenUICraft mobile UI generator. Convert the response into rich,
+    lossless A2UI Express v1 using the pinned GenUICraft catalog.
+    Return ONLY one native Express program enclosed by <a2ui> and </a2ui>.
+    Use assignments such as root=Column([a,b]) and component references.
+    This is an assignment DSL, never HTML, XML, JSX, JSON, FlatSpec, or Compact IR.
+    Preserve all useful facts, tables, actions, media, and semantics.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 0.90
+  val: 0.10
+  test: 0.0
+  stratify_by: intent_bucket

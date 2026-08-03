@@ -1534,7 +1534,15 @@ def run_stage4(
         server.start()
         logger.info("Stage4 HTTP server started on port %s", server.port)
 
-    relative_base = Path(os.path.relpath(assets_dir, output_dir)).as_posix()
+    # Temporary output directories may be created on a different Windows
+    # drive than the checked-in renderer assets.  ``os.path.relpath`` raises
+    # in that case; an absolute file URI keeps the generated HTML usable and
+    # lets the non-image test path continue without a platform-specific
+    # failure.
+    try:
+        relative_base = Path(os.path.relpath(assets_dir, output_dir)).as_posix()
+    except ValueError:
+        relative_base = assets_dir.resolve().as_uri()
     asset_base = _ensure_trailing_slash(relative_base)
     viewport = viewport or {"width": 1280, "height": 720}
     parallel_workers = max(1, int(parallel_workers))
@@ -1728,7 +1736,6 @@ def run_stage4(
         renderer.stop()
     if server:
         server.stop()
-
 
 
 

@@ -19,6 +19,7 @@ object InferenceBackendSettings {
     private const val KEY_LOCAL_SERVER_BASE_URL = "local_server_base_url"
     private const val KEY_LOCAL_MODEL_PATH = "local_model_path"
     private const val KEY_ON_DEVICE_MODEL_PATH = "on_device_model_path"
+    private const val KEY_ON_DEVICE_ACCELERATOR = "on_device_accelerator"
     private const val KEY_RENDER_WITHOUT_OUTER_CARD = "render_without_outer_card"
     private const val KEY_RENDER_CARD_TRANSPARENCY = "render_card_transparency"
     private const val KEY_RENDER_BACKGROUND_TRANSPARENCY = "render_background_transparency"
@@ -29,6 +30,7 @@ object InferenceBackendSettings {
     const val DEFAULT_LOCAL_SERVER_BASE_URL = "http://10.0.2.2:8000"
     const val DEFAULT_LOCAL_MODEL_PATH = "Qwen/Qwen2.5-Coder-7B-Instruct"
     const val DEFAULT_ON_DEVICE_MODEL_PATH = ""
+    val DEFAULT_ON_DEVICE_ACCELERATOR = Accelerator.AUTO
     const val DEFAULT_RENDER_WITHOUT_OUTER_CARD = true
     const val DEFAULT_RENDER_CARD_TRANSPARENCY = 0.22f
     const val MIN_RENDER_CARD_TRANSPARENCY = 0.08f
@@ -50,6 +52,21 @@ object InferenceBackendSettings {
                 val normalized = value?.trim().orEmpty()
                 return entries.firstOrNull { it.rawValue.equals(normalized, ignoreCase = true) }
                     ?: AZURE_OPENAI
+            }
+        }
+    }
+
+    enum class Accelerator(val rawValue: String) {
+        AUTO("auto"),
+        GPU("gpu"),
+        CPU("cpu"),
+        NPU("npu");
+
+        companion object {
+            fun fromRawValue(value: String?): Accelerator {
+                val normalized = value?.trim().orEmpty()
+                return entries.firstOrNull { it.rawValue.equals(normalized, ignoreCase = true) }
+                    ?: AUTO
             }
         }
     }
@@ -277,6 +294,20 @@ object InferenceBackendSettings {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString(KEY_ON_DEVICE_MODEL_PATH, value.trim())
+            .apply()
+    }
+
+    fun getOnDeviceAccelerator(context: Context): Accelerator {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return Accelerator.fromRawValue(
+            prefs.getString(KEY_ON_DEVICE_ACCELERATOR, DEFAULT_ON_DEVICE_ACCELERATOR.rawValue)
+        )
+    }
+
+    fun setOnDeviceAccelerator(context: Context, accelerator: Accelerator) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_ON_DEVICE_ACCELERATOR, accelerator.rawValue)
             .apply()
     }
 

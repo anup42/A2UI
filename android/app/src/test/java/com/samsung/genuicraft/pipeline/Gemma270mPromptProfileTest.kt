@@ -18,7 +18,7 @@ class Gemma270mPromptProfileTest {
         assertEquals("gemma3_270m_ir_int8", entry.id)
         assertEquals("INT8 per-channel", entry.quantization)
         assertEquals(4_096, entry.maxContextTokens)
-        assertEquals(1_024, entry.maxOutputTokens)
+        assertEquals(2_048, entry.maxOutputTokens)
         assertTrue(entry.requireGpu)
         assertTrue(entry.rawStage3Response)
         assertTrue(entry.useRawTrainingWrapper)

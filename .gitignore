@@ -8,7 +8,10 @@ dist
 .idea
 __pycache__
 outputs/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.pytest_tmp_*/
+.mypy_cache/
 .angular
 
 # Local generated dataset artifacts
@@ -53,6 +56,7 @@ site/
 
 # Python virtual environment
 .venv/
+.venv-*/
 dataset/.dataset_auto_commit.log
 dataset/.dataset_worker_watchdog.log
 dataset/.dataset_v0_stage3_vertex_batch_*
@@ -65,3 +69,16 @@ dataset/data/runs/*/.prompt_cache_stage1_producer.jsonl
 dataset/data/runs/*/progress_stage1_producer.json
 
 ppt/
+
+# Android local/generated files
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/**/build/
+android/tmp/
+
+# Training logs
+training/logs/
+dpo/runs/
+dpo/src/plots/
+llm_as_judge/model_comparison_charts/

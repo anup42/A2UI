@@ -2,3 +2,7 @@
 *.sh text eol=lf
 *.bash text eol=lf
 *.sbatch text eol=lf
+
+# Kotlin sources feed the GenUI metric renderer manifest hash. Pin LF so the
+# hash is identical regardless of a contributor's core.autocrlf setting.
+*.kt text eol=lf

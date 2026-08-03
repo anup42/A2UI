@@ -362,7 +362,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
-            onDeviceModelPath = onDeviceModelPath
+            onDeviceModelPath = onDeviceModelPath,
+            appContext = appContext,
         )
         val irBackend = InferenceBackendFactory.create(
             provider = irProvider,
@@ -378,7 +379,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
-            onDeviceModelPath = onDeviceModelPath
+            onDeviceModelPath = onDeviceModelPath,
+            appContext = appContext,
         )
 
         // -- MCP path: LLM routes query -> optional live data fetch ----------
@@ -1276,7 +1278,8 @@ class GenUiStagePipeline(private val appContext: Context) {
             azureOpenAiDeployment = azureOpenAiDeployment,
             localServerBaseUrl = localServerBaseUrl,
             localModelPath = localModelPath,
-            onDeviceModelPath = onDeviceModelPath
+            onDeviceModelPath = onDeviceModelPath,
+            appContext = appContext,
         )
 
         val genUiTemplate = runCatching {

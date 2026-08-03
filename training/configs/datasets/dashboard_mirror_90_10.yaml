@@ -1,0 +1,23 @@
+run:
+  id: dashboard_mirror_90_10
+  source_genui_dir: data/source
+  output_dir: outputs/datasets/dashboard_mirror_90_10
+  target_format: compact_ir_v2
+  prompt_version: genui_gen_mobile_compact_ir_v2
+  schema_path: ../dataset/schema/genui_compact_ir_v2.schema.json
+  system_prompt: |
+    You convert response text into Compact IR v2 for the Android GenUI renderer.
+    Return JSON only with v, r, optional s, and e.
+    Keep tables compact as Table props plus state rows. Do not output markdown fences or prose.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 0.90
+  val: 0.10
+  test: 0.0
+  stratify_by: intent_bucket

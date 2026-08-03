@@ -1,5 +1,6 @@
 package com.samsung.genuicraft.inference
 
+import android.content.Context
 import com.samsung.genuicraft.InferenceBackendSettings
 
 object InferenceBackendFactory {
@@ -18,7 +19,8 @@ object InferenceBackendFactory {
         azureOpenAiDeployment: String,
         localServerBaseUrl: String,
         localModelPath: String,
-        onDeviceModelPath: String
+        onDeviceModelPath: String,
+        appContext: Context? = null,
     ): InferenceBackend {
         return when (provider) {
             InferenceBackendSettings.Provider.AZURE_OPENAI ->
@@ -40,7 +42,13 @@ object InferenceBackendFactory {
             InferenceBackendSettings.Provider.LOCAL_SERVER ->
                 LocalServerBackend(localServerBaseUrl, localModelPath)
             InferenceBackendSettings.Provider.ON_DEVICE_LITERT ->
-                OnDeviceLitertBackend(onDeviceModelPath)
+                OnDeviceLitertBackend(
+                    modelPath = onDeviceModelPath,
+                    acceleratorPreference = appContext?.let {
+                        InferenceBackendSettings.getOnDeviceAccelerator(it)
+                    } ?: InferenceBackendSettings.DEFAULT_ON_DEVICE_ACCELERATOR,
+                    npuNativeLibraryDir = appContext?.applicationInfo?.nativeLibraryDir.orEmpty(),
+                )
         }
     }
 }

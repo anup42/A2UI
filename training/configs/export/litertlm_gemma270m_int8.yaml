@@ -1,0 +1,28 @@
+run:
+  id: gemma270m_ir_int8
+  output_dir: outputs/export/gemma270m_ir_int8
+source:
+  base_model_id: D:/working_dir/gemma_270b/gemma-3-270m
+  adapter_dir: D:/working_dir/gemma_270b/checkpoint-9660
+  merged_model_dir: runs/gemma270m_ir_lora/merged_hf
+export:
+  runtime: litertlm
+  format: litertlm
+  litert_output_dir: outputs/export/gemma270m_ir_int8/litertlm
+  command: litert-torch
+  min_app_version: 1.1.0
+  max_input_tokens: 3072
+  max_output_tokens: 1024
+  quantization_recipe: dynamic_wi8_afp32
+  externalize_embedder: false
+  # The fine-tuning job used a raw prompt wrapper rather than a tokenizer chat template.
+  extra_flags:
+    - --cache_length=4096
+    - --prefill_lengths=128
+    - --use_jinja_template=False
+    - --enable_gpu_dynamic_prefill=True
+    - --enable_gpu_dynamic_cache=True
+android:
+  package_name: gemma3_270m_ir_int8
+  display_name: Gemma 3 270M IR INT8
+  stage: stage3_ir
