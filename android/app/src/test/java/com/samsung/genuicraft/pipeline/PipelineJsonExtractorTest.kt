@@ -82,8 +82,9 @@ class PipelineJsonExtractorTest {
 
         assertTrue(prompt.contains("A2UI Express"))
         assertTrue(prompt.contains("<a2ui>"))
-        assertTrue(prompt.contains("explicit named properties"))
-        assertTrue(prompt.contains("_props"))
+        assertTrue(prompt.contains("first assignment must be `root=...`"))
+        assertTrue(prompt.contains("small mobile runtime"))
+        assertFalse(prompt.contains("_props"))
         assertFalse(prompt.contains("Top-level keys must be only: `root`, `state`, `elements`"))
     }
 

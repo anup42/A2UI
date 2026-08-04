@@ -363,6 +363,74 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun buildFallbackFlatSpec_preservesIconTableAndAction() {
+        val fallback = FlatSpecContract.buildFallbackFlatSpec(
+            "Media: Icon={{u2}}\n" +
+                "| Detail | Value |\n" +
+                "| --- | --- |\n" +
+                "| Carrier | SwiftShip |\n" +
+                "| Status | Out for delivery |\n" +
+                "Action: [Button: Track package] <<{{u3}}>>"
+        )
+        val elements = fallback.getAsJsonObject("elements")
+        assertEquals("Icon", elements.getAsJsonObject("fallback_icon_1").get("type").asString)
+        assertEquals(
+            "{{u2}}",
+            elements.getAsJsonObject("fallback_icon_1").getAsJsonObject("props").get("url").asString,
+        )
+        assertEquals("Table", elements.getAsJsonObject("fallback_table_1").get("type").asString)
+        val action = elements.getAsJsonObject("fallback_action_1")
+            .getAsJsonObject("on")
+            .getAsJsonObject("press")
+        assertEquals("emitEvent", action.get("action").asString)
+        assertEquals("track_package", action.getAsJsonObject("params").get("name").asString)
+        assertEquals(
+            "{{u3}}",
+            action.getAsJsonObject("params").getAsJsonObject("context").get("url").asString,
+        )
+        assertTrue(A2uiCanonicalGraph.validate(fallback).isValid)
+    }
+
+    @Test
+    fun buildFallbackFlatSpec_removesStructuredMarkupFromText() {
+        val fallback = FlatSpecContract.buildFallbackFlatSpec(
+            """
+            ## Delivery Status
+            Media: Icon={{u1}}
+
+            Carrier: SwiftShip
+
+            Detail | Value
+            Carrier | SwiftShip
+            Status | Out for delivery
+
+            Quick Actions
+            Track package: {{u2}}
+
+            Sources
+            Carrier site: {{u3}}
+
+            Camera:
+            """.trimIndent()
+        )
+        val elements = fallback.getAsJsonObject("elements")
+        val text = elements.getAsJsonObject("text_1")
+            .getAsJsonObject("props")
+            .get("text")
+            .asString
+
+        assertTrue(text.contains("Delivery Status"))
+        assertTrue(text.contains("Carrier: SwiftShip"))
+        assertTrue(!text.contains("Media: Icon"))
+        assertTrue(!text.contains("Detail | Value"))
+        assertTrue(!text.contains("{{u2}}"))
+        assertTrue(!text.contains("Camera:"))
+        assertTrue(elements.has("fallback_table_1"))
+        assertTrue(elements.entrySet().any { it.value.asJsonObject.get("type")?.asString == "Button" })
+        assertTrue(A2uiCanonicalGraph.validate(fallback).isValid)
+    }
+
+    @Test
     fun coerceAndValidate_acceptsJsonRenderOnBindings() {
         val payload = JsonParser.parseString(
             """

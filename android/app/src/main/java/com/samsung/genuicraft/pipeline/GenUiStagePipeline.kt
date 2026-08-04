@@ -97,12 +97,32 @@ class GenUiStagePipeline(private val appContext: Context) {
 
     private val cacheManager = PipelineCacheManager(appContext)
 
-    private fun loadStage3PromptTemplate(provider: InferenceBackendSettings.Provider): String {
-        // Express is the only production model-output prompt. Legacy assets are
-        // never selected by inference.
+    private fun stage3PromptProfilePath(
+        provider: InferenceBackendSettings.Provider,
+        onDeviceModelPath: String,
+    ): String {
+        if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            val profile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
+                .entryForModelPath(onDeviceModelPath)
+            // Raw trained exports use their training wrapper below. The official
+            // pretrained Gemma target needs a mobile-specific instruction profile,
+            // rather than the cloud prompt copied into the generic route.
+            return if (profile?.rawStage3Response == true) {
+                IrPromptVersionSettings.stage3PromptAssetPath(appContext)
+            } else {
+                PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET
+            }
+        }
+        return IrPromptVersionSettings.stage3PromptAssetPath(appContext)
+    }
+
+    private fun loadStage3PromptTemplate(
+        provider: InferenceBackendSettings.Provider,
+        onDeviceModelPath: String,
+    ): String {
         return PipelinePromptBuilder.loadPromptAsset(
             appContext.assets,
-            IrPromptVersionSettings.stage3PromptAssetPath(appContext)
+            stage3PromptProfilePath(provider, onDeviceModelPath),
         )
     }
 
@@ -112,7 +132,33 @@ class GenUiStagePipeline(private val appContext: Context) {
         check(currentStage3Format() == GenUiIrFormat.A2UI_EXPRESS_V1) {
             "Production inference has exactly one model-output format: a2ui_express_v1"
         }
-        return com.google.gson.JsonPrimitive(text.trim())
+        val trimmed = text.trim()
+        if (trimmed.isBlank()) {
+            return JsonPrimitive("")
+        }
+        // LiteRT may return a provider-style text envelope instead of the raw
+        // assistant string. Unwrap only an unambiguous text field; Express
+        // validation still remains the authority for the inner payload.
+        val unwrapped = runCatching {
+            val parsed = JsonParser.parseString(trimmed)
+            when {
+                parsed.isJsonArray -> parsed.asJsonArray
+                    .firstOrNull { item ->
+                        item.isJsonObject && item.asJsonObject.get("text")
+                            ?.let { it.isJsonPrimitive && it.asJsonPrimitive.isString } == true
+                    }
+                    ?.asJsonObject
+                    ?.get("text")
+                    ?.asString
+                parsed.isJsonObject -> parsed.asJsonObject
+                    .get("text")
+                    ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+                    ?.asString
+                parsed.isJsonPrimitive && parsed.asJsonPrimitive.isString -> parsed.asString
+                else -> null
+            }
+        }.getOrNull()?.trim()?.takeIf { it.isNotBlank() } ?: trimmed
+        return JsonPrimitive(unwrapped)
     }
 
     private fun buildStage3RepairPrompt(
@@ -175,6 +221,19 @@ class GenUiStagePipeline(private val appContext: Context) {
         return provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT &&
             com.samsung.genuicraft.inference.OnDeviceModelCatalog
                 .entryForModelPath(onDeviceModelPath)?.rawStage3Response == true
+    }
+
+    private fun shouldUseOfficialGemmaResponseFallback(
+        provider: InferenceBackendSettings.Provider,
+        onDeviceModelPath: String,
+    ): Boolean {
+        if (provider != InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+            return false
+        }
+        val entry = com.samsung.genuicraft.inference.OnDeviceModelCatalog
+            .entryForModelPath(onDeviceModelPath)
+            ?: return false
+        return entry.repoId.startsWith("litert-community/") && !entry.rawStage3Response
     }
 
     private fun rawStage3ResponsePrefix(
@@ -582,7 +641,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         val genUiTemplate = runCatching {
-            loadStage3PromptTemplate(irProvider)
+            loadStage3PromptTemplate(irProvider, onDeviceModelPath)
         }
             .getOrElse {
                 return@withContext Outcome.Failure(
@@ -786,8 +845,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             } else {
                 "On-device Gemma MTP: disabled"
             }
-            warnings += "On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}"
-            warnings += "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
+            warnings += "On-device Gemma prompt: ${stage3PromptProfilePath(irProvider, onDeviceModelPath)}"
+            warnings += "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=" +
+                if (shouldUseOfficialGemmaResponseFallback(irProvider, onDeviceModelPath)) 0
+                else ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
         } else {
             warnings += "Local server (IR): $localServerBaseUrl"
             warnings += "Local model path (IR): $localModelPath"
@@ -923,6 +984,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             sourceResponseText = stage3InputResponse,
             backend = irBackend,
             provider = irProvider,
+            allowOfficialPretrainedFallback = shouldUseOfficialGemmaResponseFallback(
+                irProvider,
+                onDeviceModelPath,
+            ),
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             stage3RepairMaxOutputTokens = stage3RepairMaxOutputTokens,
             cachedContentName = stage3Cache.name,
@@ -1106,7 +1171,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3OutputTokens = stage3Call.outputTokens,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
-                usedFallback = false,
+                usedFallback = warnings.any { it.contains("safe response fallback", ignoreCase = true) },
                 warnings = warnings,
                 renderResult = renderResult,
                 stage3OutputTokensPerSecond = stage3Call.outputTokensPerSecond,
@@ -1283,7 +1348,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         )
 
         val genUiTemplate = runCatching {
-            loadStage3PromptTemplate(provider)
+            loadStage3PromptTemplate(provider, onDeviceModelPath)
         }
             .getOrElse {
                 return@withContext Outcome.Failure(
@@ -1398,8 +1463,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             } else {
                 "On-device Gemma MTP: disabled"
             }
-            warnings += "On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}"
-            warnings += "On-device token cap: stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
+            warnings += "On-device Gemma prompt: ${stage3PromptProfilePath(provider, onDeviceModelPath)}"
+            warnings += "On-device token cap: stage3=$stage3MaxOutputTokens repairAttempts=" +
+                if (shouldUseOfficialGemmaResponseFallback(provider, onDeviceModelPath)) 0
+                else ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
         } else {
             warnings += "Using local server: $localServerBaseUrl"
             warnings += "Local model path: $localModelPath"
@@ -1538,6 +1605,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             sourceResponseText = stage3InputResponse,
             backend = backend,
             provider = provider,
+            allowOfficialPretrainedFallback = shouldUseOfficialGemmaResponseFallback(
+                provider,
+                onDeviceModelPath,
+            ),
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
             stage3RepairMaxOutputTokens = stage3RepairMaxOutputTokens,
             cachedContentName = stage3Cache.name,
@@ -1722,7 +1793,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3OutputTokens = stage3Call.outputTokens,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
-                usedFallback = false,
+                usedFallback = warnings.any { it.contains("safe response fallback", ignoreCase = true) },
                 warnings = warnings,
                 renderResult = renderResult,
                 stage3OutputTokensPerSecond = stage3Call.outputTokensPerSecond,
@@ -1804,9 +1875,10 @@ class GenUiStagePipeline(private val appContext: Context) {
         val catalogId = PipelineMediaSanitizer.resolveStage3CatalogId(
             appContext.getSharedPreferences(PipelineMediaSanitizer.APP_PREFS_NAME, android.content.Context.MODE_PRIVATE)
         )
+        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
 
         val genUiTemplate = runCatching {
-            loadStage3PromptTemplate(irProvider)
+            loadStage3PromptTemplate(irProvider, onDeviceModelPath)
         }.getOrElse {
             return Outcome.Failure(
                 stage = Stage.STAGE3,
@@ -1816,7 +1888,6 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap()
             )
         }
-        val onDeviceModelPath = InferenceBackendSettings.getOnDeviceModelPath(appContext)
         val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(irProvider, onDeviceModelPath)
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
             genUiTemplate,
@@ -1909,9 +1980,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                         "On-device Gemma MTP: disabled"
                     }
                 )
-                addWarningOnce("On-device Gemma prompt: ${PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET}")
+                addWarningOnce("On-device Gemma prompt: ${stage3PromptProfilePath(irProvider, onDeviceModelPath)}")
                 addWarningOnce(
-                    "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=$ON_DEVICE_STAGE3_REPAIR_ATTEMPTS"
+                    "On-device token cap (IR): stage3=$stage3MaxOutputTokens repairAttempts=" +
+                        if (shouldUseOfficialGemmaResponseFallback(irProvider, onDeviceModelPath)) 0
+                        else ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
                 )
             }
             else -> Unit
@@ -1960,6 +2033,10 @@ class GenUiStagePipeline(private val appContext: Context) {
             sourceResponseText = stage3InputResponse,
             backend = irBackend,
             provider = irProvider,
+            allowOfficialPretrainedFallback = shouldUseOfficialGemmaResponseFallback(
+                irProvider,
+                onDeviceModelPath,
+            ),
             systemPrompt = promptContext.systemPrompt,
             stage3RepairMaxOutputTokens = stage3MaxOutputTokens,
             cachedContentName = null,
@@ -2153,7 +2230,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 stage3OutputTokens = stage3Call.outputTokens,
                 stageDurationsMs = stageDurationsMs.toMap(),
                 stageStreamDurationsMs = stageStreamDurationsMs.toMap(),
-                usedFallback = false,
+                usedFallback = warnings.any { it.contains("safe response fallback", ignoreCase = true) },
                 warnings = warnings,
                 renderResult = renderResult
             )
@@ -2166,6 +2243,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         sourceResponseText: String,
         backend: InferenceBackend,
         provider: InferenceBackendSettings.Provider,
+        allowOfficialPretrainedFallback: Boolean,
         systemPrompt: String?,
         stage3RepairMaxOutputTokens: Int,
         cachedContentName: String?,
@@ -2206,11 +2284,17 @@ class GenUiStagePipeline(private val appContext: Context) {
             parseFailureReason = "Stage 3 JSON parse failed."
         )
         diagnostics.initialValidationError = initialReason
-        warnings += "$initialReason Running strict selected-format repair."
+        if (allowOfficialPretrainedFallback) {
+            warnings += "$initialReason Official pretrained Gemma output is not trusted as IR; a safe response fallback will be used."
+        } else {
+            warnings += "$initialReason Running strict selected-format repair."
+        }
 
         var rawForRepair = stage3RawText
         var reasonForRepair = initialReason
-        val repairAttempts = if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
+        val repairAttempts = if (allowOfficialPretrainedFallback) {
+            0
+        } else if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
             ON_DEVICE_STAGE3_REPAIR_ATTEMPTS
         } else {
             3
@@ -2286,7 +2370,20 @@ class GenUiStagePipeline(private val appContext: Context) {
             rawForRepair = repairCall.text
         }
 
-        warnings += "Stage 3 repaired output is still invalid after $repairAttempts attempts."
+        if (allowOfficialPretrainedFallback) {
+            val fallback = FlatSpecContract.buildFallbackFlatSpec(sourceResponseText)
+            val validation = A2uiCanonicalGraph.validate(fallback)
+            if (validation.isValid) {
+                warnings += "Official pretrained Gemma output did not satisfy Express validation; rendered the authoritative response as a safe response fallback."
+                diagnostics.repairValidationErrors +=
+                    "Official pretrained Gemma response fallback used after invalid IR output."
+                persistStage3DiagnosticsArtifacts(diagnostics)
+                return fallback
+            }
+            warnings += "Official pretrained Gemma response fallback was invalid: ${validation.error.orEmpty()}"
+        } else {
+            warnings += "Stage 3 repaired output is still invalid after $repairAttempts attempts."
+        }
         return null
     }
 

@@ -69,6 +69,20 @@ class PipelineResponseFactCoverageTest {
     }
 
     @Test
+    fun missingFacts_ignoresBareSourceUrlsAndBlankMediaLabels() {
+        val response = """
+            Camera:
+            Weight:
+            https://fujifilm-x.com/global/products/cameras/x-s20/specifications/
+        """.trimIndent()
+        val canonical = JsonParser.parseString(
+            """{"root":"root","state":{},"elements":{"root":{"type":"Text","props":{"text":"Ready"},"children":[]}}}"""
+        )
+
+        assertTrue(ResponseFactCoverage.missingFacts(response, canonical).isEmpty())
+    }
+
+    @Test
     fun missingFacts_preservesHeadingStatusAndOrderIdFromNaturalResponseProse() {
         val response = """
             # SwiftShip Order Status

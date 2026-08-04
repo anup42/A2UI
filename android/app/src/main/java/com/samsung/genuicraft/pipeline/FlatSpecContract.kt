@@ -702,8 +702,57 @@ internal object FlatSpecContract {
         return null
     }
 
+    private data class FallbackAction(
+        val id: String,
+        val label: String,
+        val eventName: String,
+        val reference: String,
+        val sourceLine: Int,
+    )
+
+    private data class FallbackIcon(
+        val id: String,
+        val reference: String,
+        val sourceLine: Int,
+    )
+
+    private data class FallbackTable(
+        val columns: List<String>,
+        val rows: List<List<String>>,
+        val title: String,
+        val sourceLines: Set<Int>,
+    )
+
+    private val FALLBACK_REFERENCE = Regex("""\{\{u\d+\}\}|(?:https?://|//)\S+""")
+    private val FALLBACK_BUTTON_LINE = Regex(
+        """(?i)^\s*(?:Action:\s*)?\[Button:\s*(.+?)]\s*(.*?)\s*$"""
+    )
+    private val FALLBACK_LABEL_REFERENCE_LINE = Regex(
+        """^\s*(?:[-*]\s*)?([^:\r\n]{2,100}):\s*(\S.*?)\s*$"""
+    )
+    private val FALLBACK_MEDIA_ICON_LINE = Regex(
+        """(?i)^\s*Media:\s*Icon\s*=\s*(\{\{u\d+\}\}|(?:https?://|//)\S+)\s*$"""
+    )
+    private val FALLBACK_MEDIA_LINE = Regex(
+        """(?i)^\s*Media:\s*(?:Icon|Image|Photo)\s*=.*$"""
+    )
+    private val FALLBACK_ICON_LABELS = setOf(
+        "airplane", "alarm", "airline", "bookmark star", "briefcase", "calculator", "camera",
+        "camera video", "cash coin", "celebration", "clock", "dining", "dice", "fire", "inventory box",
+        "map", "players", "rain cloud", "schedule", "stabilization", "status alert", "sun", "thermometer",
+        "time", "weight", "basket", "bell", "upc scan",
+    )
+
     fun buildFallbackFlatSpec(stage2Response: String): JsonObject {
-        val textValue = stage2Response.trim().ifBlank { "No content generated." }
+        val fallbackActions = extractFallbackActions(stage2Response)
+        val fallbackIcons = extractFallbackIcons(stage2Response)
+        val fallbackTables = extractFallbackMarkdownTables(stage2Response)
+        val textValue = buildFallbackDisplayText(
+            response = stage2Response,
+            actions = fallbackActions,
+            icons = fallbackIcons,
+            tables = fallbackTables,
+        ).ifBlank { "No content generated." }
         val rootId = "root"
         val textId = "text_1"
         return JsonObject().apply {
@@ -716,7 +765,12 @@ internal object FlatSpecContract {
                         addProperty("direction", "vertical")
                         addProperty("gap", "md")
                     })
-                    add("children", JsonArray().apply { add(textId) })
+                    add("children", JsonArray().apply {
+                        add(textId)
+                        fallbackIcons.forEach { add(it.id) }
+                        fallbackTables.indices.forEach { add("fallback_table_${it + 1}") }
+                        fallbackActions.forEach { add(it.id) }
+                    })
                 })
                 add(textId, JsonObject().apply {
                     addProperty("type", "Text")
@@ -726,9 +780,339 @@ internal object FlatSpecContract {
                     })
                     add("children", JsonArray())
                 })
+                fallbackIcons.forEach { icon ->
+                    add(icon.id, JsonObject().apply {
+                        addProperty("type", "Icon")
+                        add("props", JsonObject().apply {
+                            addProperty("name", "inline_icon")
+                            addProperty("url", icon.reference)
+                            addProperty("size", "sm")
+                            addProperty("tint", "gray")
+                        })
+                        add("children", JsonArray())
+                    })
+                }
+                fallbackTables.forEachIndexed { index, table ->
+                    add("fallback_table_${index + 1}", JsonObject().apply {
+                        addProperty("type", "Table")
+                        add("props", JsonObject().apply {
+                            add("columns", JsonArray().apply { table.columns.forEach { add(it) } })
+                            add("rows", JsonArray().apply {
+                                table.rows.forEach { row ->
+                                    add(JsonArray().apply { row.forEach { add(it) } })
+                                }
+                            })
+                            addProperty("title", table.title)
+                            addProperty("domain", "generic")
+                            addProperty("preferredPresentation", "table")
+                        })
+                        add("children", JsonArray())
+                    })
+                }
+                fallbackActions.forEach { action ->
+                    add(action.id, JsonObject().apply {
+                        addProperty("type", "Button")
+                        add("props", JsonObject().apply {
+                            addProperty("label", action.label)
+                            addProperty("variant", "primary")
+                        })
+                        add("on", JsonObject().apply {
+                            add("press", JsonObject().apply {
+                                addProperty("action", "emitEvent")
+                                add("params", JsonObject().apply {
+                                    addProperty("name", action.eventName)
+                                    add("context", JsonObject().apply {
+                                        addProperty("url", action.reference)
+                                    })
+                                    addProperty("wantResponse", true)
+                                    addProperty("responsePath", "/result")
+                                })
+                            })
+                        })
+                        add("children", JsonArray())
+                    })
+                }
             })
         }
     }
+
+    private fun extractFallbackActions(response: String): List<FallbackAction> {
+        val lines = response.replace("\r\n", "\n").lines()
+        val actions = mutableListOf<FallbackAction>()
+        var inQuickActions = false
+
+        lines.forEachIndexed { index, rawLine ->
+            val line = rawLine.trim()
+            if (line.isBlank()) return@forEachIndexed
+            val heading = line
+                .replace(Regex("""^#{1,6}\s*"""), "")
+                .trim()
+                .trimEnd(':')
+                .trim()
+            if (heading.equals("Quick Actions", ignoreCase = true)) {
+                inQuickActions = true
+                return@forEachIndexed
+            }
+            if (inQuickActions && isFallbackSectionHeading(heading)) {
+                inQuickActions = false
+            }
+
+            val buttonMatch = FALLBACK_BUTTON_LINE.matchEntire(line)
+            if (buttonMatch != null) {
+                val label = buttonMatch.groupValues[1].trim()
+                val reference = FALLBACK_REFERENCE.find(buttonMatch.groupValues[2])
+                    ?.value
+                    ?.trimEnd('>', ']')
+                    ?.takeIf { it.isNotBlank() }
+                if (!reference.isNullOrBlank()) {
+                    actions += FallbackAction(
+                        id = "fallback_action_${actions.size + 1}",
+                        label = label.ifBlank { "Continue" },
+                        eventName = fallbackEventName(label, actions.size + 1),
+                        reference = reference,
+                        sourceLine = index,
+                    )
+                }
+                return@forEachIndexed
+            }
+
+            if (!inQuickActions) return@forEachIndexed
+            val labelReference = FALLBACK_LABEL_REFERENCE_LINE.matchEntire(line) ?: return@forEachIndexed
+            val label = labelReference.groupValues[1].trim()
+            val reference = FALLBACK_REFERENCE.find(labelReference.groupValues[2])
+                ?.value
+                ?.trimEnd('>', ']')
+                ?.takeIf { it.isNotBlank() }
+                ?: return@forEachIndexed
+            actions += FallbackAction(
+                id = "fallback_action_${actions.size + 1}",
+                label = label,
+                eventName = fallbackEventName(label, actions.size + 1),
+                reference = reference,
+                sourceLine = index,
+            )
+        }
+        return actions.distinctBy { it.reference to it.label }
+    }
+
+    private fun extractFallbackIcons(response: String): List<FallbackIcon> {
+        val lines = response.replace("\r\n", "\n").lines()
+        val icons = mutableListOf<FallbackIcon>()
+        var inIcons = false
+        var inSources = false
+
+        fun addIcon(reference: String, sourceLine: Int) {
+            val normalized = reference.trimEnd('>', ']')
+            if (normalized.isBlank() || icons.any { it.reference == normalized }) return
+            icons += FallbackIcon(
+                id = "fallback_icon_${icons.size + 1}",
+                reference = normalized,
+                sourceLine = sourceLine,
+            )
+        }
+
+        lines.forEachIndexed { index, rawLine ->
+            val line = rawLine.trim()
+            if (line.isBlank()) return@forEachIndexed
+            FALLBACK_MEDIA_ICON_LINE.matchEntire(line)?.let { match ->
+                addIcon(match.groupValues[1], index)
+                return@forEachIndexed
+            }
+            val heading = line
+                .replace(Regex("""^#{1,6}\s*"""), "")
+                .trim()
+                .trimEnd(':')
+                .trim()
+            if (heading.equals("Icons", ignoreCase = true)) {
+                inSources = false
+                inIcons = true
+                return@forEachIndexed
+            }
+            if (heading.equals("Sources", ignoreCase = true) ||
+                heading.equals("Source", ignoreCase = true) ||
+                heading.equals("References", ignoreCase = true)
+            ) {
+                inSources = true
+                inIcons = false
+                return@forEachIndexed
+            }
+            if (inSources) return@forEachIndexed
+            val labelReference = FALLBACK_LABEL_REFERENCE_LINE.matchEntire(line) ?: return@forEachIndexed
+            val label = labelReference.groupValues[1].trim()
+            val reference = FALLBACK_REFERENCE.find(labelReference.groupValues[2])
+                ?.value
+                ?.trimEnd('>', ']')
+                ?: return@forEachIndexed
+            if (inIcons || isFallbackIconLabel(label) || reference.contains("/icons/", ignoreCase = true)) {
+                addIcon(reference, index)
+            }
+        }
+        return icons
+    }
+
+    private fun fallbackEventName(label: String, index: Int): String = label
+        .lowercase(Locale.US)
+        .replace(Regex("[^a-z0-9]+"), "_")
+        .trim('_')
+        .ifBlank { "action_$index" }
+
+    private fun buildFallbackDisplayText(
+        response: String,
+        actions: List<FallbackAction>,
+        icons: List<FallbackIcon>,
+        tables: List<FallbackTable>,
+    ): String {
+        val lines = response.replace("\r\n", "\n").lines()
+        val removedTableLines = tables.flatMap { it.sourceLines }.toSet()
+        val removedActionLines = actions.map { it.sourceLine }.toSet()
+        val removedIconLines = icons.map { it.sourceLine }.toSet()
+        val output = mutableListOf<String>()
+        var inIcons = false
+        var inSources = false
+
+        lines.forEachIndexed { index, rawLine ->
+            val line = rawLine.trim()
+            val heading = line
+                .replace(Regex("""^#{1,6}\s*"""), "")
+                .trim()
+                .trimEnd(':')
+                .trim()
+            if (heading.equals("Sources", ignoreCase = true) ||
+                heading.equals("Source", ignoreCase = true) ||
+                heading.equals("References", ignoreCase = true)
+            ) {
+                inSources = true
+                return@forEachIndexed
+            }
+            if (inSources && heading.equals("Icons", ignoreCase = true)) {
+                inSources = false
+                inIcons = true
+                return@forEachIndexed
+            }
+            if (inSources || index in removedTableLines || index in removedActionLines || index in removedIconLines) {
+                return@forEachIndexed
+            }
+            if (FALLBACK_MEDIA_LINE.matches(line)) return@forEachIndexed
+            if (isFallbackBlankLabelLine(line)) return@forEachIndexed
+            if (heading.equals("Icons", ignoreCase = true)) {
+                inIcons = true
+                return@forEachIndexed
+            }
+            if (inIcons && FALLBACK_LABEL_REFERENCE_LINE.matches(line)) return@forEachIndexed
+            if (heading.equals("Quick Actions", ignoreCase = true)) return@forEachIndexed
+            output += rawLine.trimEnd()
+                .replace(Regex("""^\s*#{1,6}\s+"""), "")
+                .replace("**", "")
+        }
+
+        return output.joinToString("\n")
+            .replace(Regex("\n{3,}"), "\n\n")
+            .trim()
+    }
+
+    private fun isFallbackSectionHeading(value: String): Boolean {
+        if (value.isBlank()) return false
+        return value.equals("Sources", ignoreCase = true) ||
+            value.equals("Source", ignoreCase = true) ||
+            value.equals("References", ignoreCase = true) ||
+            value.equals("Icons", ignoreCase = true) ||
+            value.equals("Quick Actions", ignoreCase = true) ||
+            value.endsWith("Overview", ignoreCase = true) ||
+            value.endsWith("Context", ignoreCase = true) ||
+            value.startsWith("Step-by-Step", ignoreCase = true) ||
+            value.startsWith("Detailed", ignoreCase = true) ||
+            value.startsWith("Technical", ignoreCase = true) ||
+            value.startsWith("Flight Comparison", ignoreCase = true) ||
+            value.startsWith("Gross Income Breakdown", ignoreCase = true)
+    }
+
+    private fun isFallbackIconLabel(value: String): Boolean =
+        value.trim().lowercase(Locale.US) in FALLBACK_ICON_LABELS
+
+    private fun isFallbackBlankLabelLine(value: String): Boolean {
+        val match = Regex("""^\s*(?:[-*]\s*)?([^:\r\n]{2,100}):\s*$""").matchEntire(value)
+            ?: return false
+        return match.groupValues[1].trim().lowercase(Locale.US) !in setOf(
+            "ingredients",
+            "instructions",
+            "sources",
+            "source",
+            "references",
+            "quick actions",
+            "icons",
+            "notes",
+            "steps",
+        )
+    }
+
+    private fun extractFallbackMarkdownTables(response: String): List<FallbackTable> {
+        val lines = response.replace("\r\n", "\n").lines()
+        val tables = mutableListOf<FallbackTable>()
+        var index = 0
+        while (index < lines.size) {
+            if (fallbackTableCells(lines[index]) == null) {
+                index++
+                continue
+            }
+            val start = index
+            val candidateLines = mutableListOf<Int>()
+            while (index < lines.size && fallbackTableCells(lines[index]) != null) {
+                candidateLines += index
+                index++
+            }
+            if (candidateLines.size < 2) continue
+
+            val parsed = candidateLines.mapNotNull { lineIndex ->
+                fallbackTableCells(lines[lineIndex])?.let { lineIndex to it }
+            }
+            val headerPair = parsed.firstOrNull { !isFallbackTableSeparator(it.second) } ?: continue
+            val columns = headerPair.second
+            val rows = parsed
+                .dropWhile { it.first <= headerPair.first }
+                .filterNot { isFallbackTableSeparator(it.second) }
+                .map { it.second }
+                .filter { it.size == columns.size }
+            if (rows.isEmpty()) continue
+
+            val title = lines.subList(0, start)
+                .asReversed()
+                .firstOrNull { candidate ->
+                    val trimmed = candidate.trim()
+                    trimmed.isNotBlank() &&
+                        fallbackTableCells(trimmed) == null &&
+                        !FALLBACK_MEDIA_LINE.matches(trimmed) &&
+                        !isFallbackBlankLabelLine(trimmed) &&
+                        !trimmed.contains("http://", ignoreCase = true) &&
+                        !trimmed.contains("https://", ignoreCase = true) &&
+                        !trimmed.endsWith('.') &&
+                        trimmed.length <= 80
+                }
+                ?.trim()
+                ?.replace(Regex("""^\s*#{1,6}\s+"""), "")
+                ?.replace("**", "")
+                ?: "Details"
+            tables += FallbackTable(
+                columns = columns,
+                rows = rows,
+                title = title,
+                sourceLines = candidateLines.toSet(),
+            )
+        }
+        return tables
+    }
+
+    private fun fallbackTableCells(rawLine: String): List<String>? {
+        val line = rawLine.trim()
+        if (!line.contains('|')) return null
+        val parts = line.split('|').toMutableList()
+        if (line.startsWith('|')) parts.removeAt(0)
+        if (line.endsWith('|') && parts.isNotEmpty()) parts.removeAt(parts.lastIndex)
+        val cells = parts.map { it.trim().replace("**", "") }
+        return cells.takeIf { it.size >= 2 && it.all(String::isNotBlank) }
+    }
+
+    private fun isFallbackTableSeparator(cells: List<String>): Boolean =
+        cells.all { it.matches(Regex(":?-{3,}:?")) }
 
     private data class CanonicalizationResult(
         val spec: JsonObject,

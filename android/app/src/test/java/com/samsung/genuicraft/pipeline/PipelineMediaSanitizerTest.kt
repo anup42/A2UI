@@ -18,6 +18,13 @@ class PipelineMediaSanitizerTest {
     }
 
     @Test
+    fun genUiPreservesInlineIcons_recognizesExpressIconCall() {
+        assertTrue(PipelineMediaSanitizer.genUiPreservesInlineIcons(
+            "<a2ui>icon=Icon(\"calculator\",size=\"sm\",tint=\"blue\")</a2ui>"
+        ))
+    }
+
+    @Test
     fun ensureFlightListContent_injectsComparisonTable_whenMissing() {
         val response = """
             Flights from BLR to LKO on March 15 include options from IndiGo and Air India.
@@ -214,5 +221,44 @@ class PipelineMediaSanitizerTest {
         assertTrue(result.jsonText.contains("\"text\":\"Quick Actions\""))
         assertTrue(result.jsonText.contains("\"action\":\"openUrl\""))
         assertTrue(result.jsonText.contains("https://open-meteo.com/en/docs"))
+        assertTrue(result.jsonText.contains("\"padding\":\"md\""))
+        assertEquals(false, result.jsonText.contains("contentPadding"))
+    }
+
+    @Test
+    fun ensureResponseLinksInGenUi_doesNotTreatEventAsPreservedUrl() {
+        val json = """
+            {
+              "root": "rootStack",
+              "state": {},
+              "elements": {
+                "rootStack": { "type": "Stack", "props": {}, "children": ["track"] },
+                "track": {
+                  "type": "Button",
+                  "props": { "label": "Track package" },
+                  "children": [],
+                  "on": {
+                    "press": {
+                      "action": "emitEvent",
+                      "params": { "name": "track_package", "context": { "url": "https://www.samsung.com/support/orders/A-1042" }, "wantResponse": true, "responsePath": "/result" }
+                    }
+                  }
+                }
+              }
+            }
+        """.trimIndent()
+        val response = """
+            ## Quick Actions
+            Action: [Button: Track package] https://www.samsung.com/support/orders/A-1042
+        """.trimIndent()
+
+        val result = PipelineMediaSanitizer.ensureResponseLinksInGenUi(
+            jsonText = json,
+            stage2Response = response
+        )
+
+        assertEquals(1, result.actionsAdded)
+        assertTrue(result.jsonText.contains("https://www.samsung.com/support/orders/A-1042"))
+        assertTrue(result.jsonText.contains("\"action\":\"openUrl\""))
     }
 }

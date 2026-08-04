@@ -42,6 +42,7 @@ internal object ResponseFactCoverage {
             val value = cleanMarkdown(rawValue).trim().take(MAX_VALUE_CHARS)
             val normalizedLabel = compact(label)
             if (label.isBlank() || value.isBlank() || normalizedLabel in NON_FACT_LABELS) return
+            if (label.lowercase() in setOf("http", "https") && value.startsWith("//")) return
             if (value.contains("http://", ignoreCase = true) ||
                 value.contains("https://", ignoreCase = true) ||
                 value.contains("[Button", ignoreCase = true)
@@ -144,7 +145,7 @@ internal object ResponseFactCoverage {
             "(?:number|no\\.?|id)?\\s*(?:[:#-]\\s*)?([a-z0-9][a-z0-9-]{2,})\\b"
     )
     private val PLAIN_LABEL_VALUE = Regex(
-        "(?m)^\\s*(?:[-*]\\s*)?([A-Za-z][A-Za-z0-9 /_()'-]{1,60}):\\s*(.+?)\\s*$"
+        "(?m)^[ \\t]*(?:[-*][ \\t]*)?([A-Za-z][A-Za-z0-9 /_()'-]{1,60}):[ \\t]*([^\\r\\n]+?)[ \\t]*$"
     )
     private val TABLE_SEPARATOR = Regex("^:?-{3,}:?$")
     private val TOKEN = Regex("[\\p{L}\\p{N}]+")

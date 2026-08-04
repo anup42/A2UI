@@ -157,13 +157,21 @@ class Gemma4E2bPretrainedMtpOnDeviceTest {
                 assertTrue("Rendered output lost the order id for $formatId", result.stage3Json.contains("A-1042"))
                 assertTrue("Rendered output lost the carrier for $formatId", result.stage3Json.contains("SwiftShip"))
                 assertTrue("Rendered output lost the ETA for $formatId", result.stage3Json.contains("Today, 4:30 PM"))
-                assertTrue("Rendered output lost the action for $formatId", result.stage3Json.contains("emitEvent"))
-                assertTrue("Rendered output action is not wired for $formatId", result.stage3Json.contains("\"on\":"))
+                assertTrue(
+                    "Rendered output lost the action for $formatId",
+                    result.stage3Json.contains("emitEvent") || result.stage3Json.contains("onPress=Event"),
+                )
+                assertTrue(
+                    "Rendered output action is not wired for $formatId",
+                    result.stage3Json.contains("\"on\":") || result.stage3Json.contains("onPress=Event"),
+                )
                 assertFalse("Unresolved reference placeholder remained for $formatId", result.stage3Json.contains("{{u"))
                 assertTrue(
                     "Rendered output lost grouped order details for $formatId",
                     result.stage3Json.contains("\"type\":\"Table\"") ||
-                        result.stage3Json.contains("\"type\":\"Card\""),
+                        result.stage3Json.contains("\"type\":\"Card\"") ||
+                        result.stage3Json.contains("Table(") ||
+                        result.stage3Json.contains("Card("),
                 )
                 assertTrue("No rendered surface was produced for $formatId", result.renderResult.surfaces.isNotEmpty())
                 assertTrue(

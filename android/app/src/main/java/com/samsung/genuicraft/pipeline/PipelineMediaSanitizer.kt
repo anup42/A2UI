@@ -1221,6 +1221,11 @@ internal object PipelineMediaSanitizer {
     }
 
     fun genUiPreservesInlineIcons(jsonText: String): Boolean {
+        // Production A2UI Express uses calls such as Icon("package", "lg", "blue"),
+        // rather than the JSON/legacy component shapes handled below.
+        if (Regex(
+                """(?i)\bIcon\s*\(\s*(?:(?:name|icon|glyph|asset)\s*=\s*)?[\"'][^\"']+[\"']"""
+            ).containsMatchIn(jsonText)) return true
         // Phase 2+ flat spec: "type":"Icon" with "name" prop
         if (Regex(""""type"\s*:\s*"Icon"[\s\S]{0,240}"name"\s*:\s*"[^"]+"""",
                 setOf(RegexOption.IGNORE_CASE)).containsMatchIn(jsonText)) return true
@@ -1285,6 +1290,7 @@ internal object PipelineMediaSanitizer {
 
         var sourcesAdded = 0
         var actionsAdded = 0
+        val hadOpenUrlAction = genUiHasOpenUrlAction(root)
 
         if (sourceLinks.isNotEmpty() && !genUiHasSourceSection(jsonText)) {
             val section = appendFlatLinkSection(
@@ -1298,7 +1304,7 @@ internal object PipelineMediaSanitizer {
             sourcesAdded = sourceLinks.size
         }
 
-        if (actionLinks.isNotEmpty() && !genUiPreservesActionButtons(jsonText)) {
+        if (actionLinks.isNotEmpty() && !hadOpenUrlAction) {
             val section = appendFlatLinkSection(
                 elements = elements,
                 idPrefix = "mcp_quick_actions",
@@ -1333,7 +1339,9 @@ internal object PipelineMediaSanitizer {
         val sectionChildren = JsonArray().apply { add(stackId) }
         elements.add(sectionId, JsonObject().apply {
             addProperty("type", "Card")
-            add("props", JsonObject().apply { addProperty("contentPadding", "md") })
+            // Use the canonical Card property. The renderer also accepts the
+            // legacy contentPadding alias, but the strict A2UI catalog does not.
+            add("props", JsonObject().apply { addProperty("padding", "md") })
             add("children", sectionChildren)
         })
 
@@ -1393,6 +1401,21 @@ internal object PipelineMediaSanitizer {
             """"(?:text|title|label)"\s*:\s*"(?:Data\s+)?Sources?"""",
             RegexOption.IGNORE_CASE
         ).containsMatchIn(jsonText)
+    }
+
+    private fun genUiHasOpenUrlAction(root: JsonObject): Boolean {
+        val elements = root.getAsJsonObject("elements") ?: return false
+        return elements.entrySet().any { (_, element) ->
+            val elementObject = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@any false
+            val on = elementObject.getAsJsonObject("on") ?: return@any false
+            on.entrySet().any { (_, actionElement) ->
+                val actionObject = actionElement.takeIf { it.isJsonObject }?.asJsonObject
+                    ?: return@any false
+                if (actionObject.get("action")?.asString != "openUrl") return@any false
+                val params = actionObject.getAsJsonObject("params") ?: return@any false
+                params.get("url")?.asString?.isNotBlank() == true
+            }
+        }
     }
 
     private fun extractStage2SourceLinks(text: String): List<LinkSpec> {
