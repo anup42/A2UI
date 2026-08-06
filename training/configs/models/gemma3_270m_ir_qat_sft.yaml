@@ -1,0 +1,54 @@
+run:
+  id: gemma3_270m_ir_qat_sft
+  dataset_dir: outputs/datasets/stage3_folder_90_10
+  output_dir: runs/gemma3_270m_ir_qat_sft
+model:
+  family: gemma
+  model_id: google/gemma-3-270m
+  model_loader: auto_causal_lm
+  trust_remote_code: false
+  tokenizer_loader: auto_tokenizer
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 32768
+  max_output_tokens: 4096
+training:
+  method: qat_lora_sft
+  epochs: 3
+  learning_rate: 0.00005
+  weight_decay: 0.01
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  mixed_precision: auto
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  save_steps: 500
+  eval_steps: 500
+  logging_steps: 20
+  save_total_limit: 2
+  max_grad_norm: 1.0
+  seed: 42
+  forward_smoke_check_rows: 16
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.05
+  target_modules: auto
+  modules_to_save: []
+qat:
+  enabled: true
+  profile: gemma3_270m_int8
+  quantizer: ste_absmax
+  weight_bits: 8
+  activation_bits: 8
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  group_size: null
+  only_base_layers: true
+  final_quantization: dynamic_int8
+  final_runtime_validation_required: true

@@ -110,6 +110,33 @@ This requires a GPU machine with the packages in
 `training/requirements-training.txt`. On CPU-only machines, use compile/tests only;
 do not run the training command.
 
+### True QAT SFT for Gemma 4 E2B and Gemma 270M
+
+The repository also has an opt-in fake-quantization-aware LoRA path. It applies
+W8A8 STE fake quantization to PEFT base linear layers during forward passes and
+restores the wrappers before saving the adapter. It is different from the
+QAT-derived `qat_mtp` profile above, does not train an MTP assistant, and does
+not claim Google's exact private mobile wNa8o8 recipe.
+
+Validate all profiles without loading models or running training:
+
+```powershell
+python training/scripts/validate_qat_training.py
+```
+
+Later, with an explicitly authorized GPU run, select a target profile:
+
+```powershell
+python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_qat_sft.yaml
+python training/scripts/train_sft.py --config training/configs/models/gemma3_270m_ir_qat_sft.yaml
+python training/scripts/train_sft.py --config training/configs/models/functiongemma_270m_ir_qat_sft.yaml
+```
+
+Read `training/docs/gemma4_e2b_qat_mtp_knowledge.md` before changing the
+quantizer or export settings. Merge and quantize the selected adapter with the
+target LiteRT/LiteRT-LM recipe, then measure accuracy and device latency against
+the untouched low-bit baseline.
+
 For Slurm machines, submit the repo-owned sbatch entrypoint instead of writing an
 ad-hoc script:
 

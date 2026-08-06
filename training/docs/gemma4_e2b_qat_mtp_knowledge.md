@@ -1,6 +1,6 @@
-# Gemma 4 E2B QAT, LoRA, INT4, and MTP Knowledge Base
+# Gemma QAT, LoRA, INT4, and MTP Knowledge Base
 
-Last official-source verification: **2026-08-02**
+Last official-source verification: **2026-08-07**
 
 This is the durable handoff for agents maintaining the A2UI response-to-flat-spec
 training and inference scripts. It records what is officially supported, what
@@ -43,8 +43,12 @@ Google does **not** currently provide a public, executable end-to-end recipe for
   custom fine-tuning;
 - guaranteeing MTP acceptance or latency after changing the target weights.
 
-Therefore this repository implements **QAT-derived target tuning**, not QAT or
-joint QAT+MTP training.
+The legacy `qat_mtp` profile in this repository remains **QAT-derived target
+tuning**, not continued QAT or joint QAT+MTP training. The new opt-in `qat`
+profiles implement repository-owned STE fake quantization during LoRA SFT for
+Gemma 4 E2B and Gemma 3/FunctionGemma 270M. They are useful accuracy-adaptation
+experiments, but they do **not** recreate Google's private mobile wNa8o8
+training/export recipe and they do not train an MTP assistant.
 
 ## Exact checkpoints for the Q4_0 reference path
 
@@ -76,7 +80,9 @@ need the exact fake-quantization operations, scale/granularity rules, excluded
 layers, activation policy, optimizer behavior, and exporter used by the final
 runtime.
 
-This repository does not currently implement those operations.
+The legacy `qat_mtp` workflow does not implement those operations; the separate
+`qat` workflow below adds a generic STE approximation and still requires exact
+post-training export/runtime validation.
 
 ### QAT-derived LoRA
 
@@ -85,6 +91,25 @@ pipeline, freezes those base weights, and updates LoRA parameters. It may retain
 some useful QAT-conditioned weight structure, but fake quantization is not active
 during adaptation. It is an engineering compromise and must be evaluated after
 conversion.
+
+### True QAT path now implemented here
+
+`ir_training.qat.fake_quant` wraps the frozen LoRA `base_layer` linear modules
+after PEFT preparation. Each forward pass fake-quantizes activations and
+weights, rounds/clamps them to the configured bit width, and applies a
+straight-through estimator (STE) so LoRA updates receive gradients. The
+default is symmetric per-output-channel W8A8 with dynamic abs-max scales; a
+group size can be selected for experiments. LoRA A/B weights stay floating
+point, which keeps this a practical QAT+LoRA method rather than a claim that
+every adapter operation is already mobile-quantized.
+
+The implementation is reversible: wrappers are restored before the final PEFT
+adapter is saved, and `qat` metadata records the wrapped module count and
+quantizer specification. `load_in_4bit` is rejected because NF4 QLoRA is a
+different method. This is true fake-quantization-aware training in the
+engineering sense, but the final LiteRT/LiteRT-LM converter remains the
+authority for packed layout, calibration, static activation scales, and any
+targeted 2-bit layers.
 
 ### QLoRA
 
@@ -145,6 +170,36 @@ Key decisions:
 The standard `gemma4_e2b_ir_lora.yaml` remains a separate baseline. Do not
 silently turn every Gemma 4 run into the QAT-derived experiment.
 
+### True-QAT target profiles
+
+The new configs are intentionally separate from the QAT-derived/MTP profile:
+
+| Config | Base model | Training fake quantization | Intended final export |
+|---|---|---|---|
+| `gemma4_e2b_ir_qat_sft.yaml` | `google/gemma-4-E2B-it` | W8A8 STE, per-channel weights | Google's exact mobile wNa8o8/LiteRT recipe (must be verified) |
+| `gemma3_270m_ir_qat_sft.yaml` | `google/gemma-3-270m` | W8A8 STE, per-channel weights | dynamic INT8/LiteRT-Torch recipe |
+| `functiongemma_270m_ir_qat_sft.yaml` | `google/functiongemma-270m-it` | W8A8 STE, per-channel weights | dynamic INT8/LiteRT-Torch recipe |
+
+Run only the no-model validation during code setup:
+
+```powershell
+python training/scripts/validate_qat_training.py
+```
+
+Later, when a GPU run is explicitly authorized, use one of:
+
+```powershell
+python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_qat_sft.yaml
+python training/scripts/train_sft.py --config training/configs/models/gemma3_270m_ir_qat_sft.yaml
+python training/scripts/train_sft.py --config training/configs/models/functiongemma_270m_ir_qat_sft.yaml
+```
+
+These commands are training commands and are not part of static validation.
+After training, merge the adapter, run the matching LiteRT export, and compare
+target-only accuracy and latency against the untouched official low-bit model.
+For Gemma 4, retain the official assistant only as a separately validated
+speculative-decoding experiment; this QAT path does not modify or train it.
+
 ### Loader and PEFT compatibility
 
 Google's Gemma 4 model card uses `AutoModelForMultimodalLM`, while the official
@@ -167,6 +222,11 @@ python training/scripts/validate_qat_mtp_workflow.py
 This checks checkpoint pairing, QLoRA/QAT confusion, assistant-training claims,
 learning-rate/scope warnings, and final-runtime gates. It imports no model and
 does not contact Hugging Face.
+
+For the true fake-quantization path, use `validate_qat_training.py`. It checks
+the W8A8 profiles, rejects NF4/QLoRA settings, reports target-specific profile
+warnings, and explicitly reports that it executes no training and loads no
+models.
 
 ### Training command for a later authorized run
 
@@ -421,6 +481,14 @@ preservation.
   https://ai.google.dev/gemma/docs/core/huggingface_text_finetune_qlora
 - Google AI Edge LiteRT-LM runtime:
   https://github.com/google-ai-edge/LiteRT-LM
+- LiteRT Torch generative quantization/export API:
+  https://github.com/google-ai-edge/litert-torch
+- Gemma 3 270M model card:
+  https://huggingface.co/google/gemma-3-270m
+- FunctionGemma 270M documentation:
+  https://ai.google.dev/gemma/docs/functiongemma
+- Gemma 4 assistant architecture and Transformers API:
+  https://huggingface.co/docs/transformers/model_doc/gemma4_assistant
 - Gemma 4 technical report:
   https://arxiv.org/abs/2607.02770
 

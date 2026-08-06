@@ -9,6 +9,8 @@ from typing import Any, Callable
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.models.registry import create_adapter
+from ir_training.qat.fake_quant import QATController, prepare_qat_model
+from ir_training.qat.workflow import validate_qat_config
 from ir_training.qat_mtp.workflow import validate_training_config
 from ir_training.train.callbacks import TrainingMetadataCallback, build_golden_set_eval_callback
 from ir_training.train.lora_config import build_lora_config
@@ -29,7 +31,10 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     training_cfg = config.get("training") if isinstance(config.get("training"), dict) else {}
     lora_cfg = config.get("lora") if isinstance(config.get("lora"), dict) else {}
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
+    qat_cfg = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
+    if qat_cfg:
+        _enforce_qat_training_guardrails(config)
     if qat_mtp_cfg:
         _enforce_qat_mtp_training_guardrails(config)
     _enforce_cuda_requirement(model_cfg, training_cfg)
@@ -65,6 +70,19 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     _disable_peft_vocab_probe(model)
     _disable_model_cache_for_training(model)
     _enable_input_grads_for_kbit_lora(model)
+    qat_controller: QATController | None = None
+    if qat_cfg.get("enabled", False):
+        # Prepare after PEFT wrapping so only the frozen LoRA base_layer
+        # modules are fake-quantized. LoRA A/B parameters remain trainable in
+        # FP, which is the standard QAT+LoRA arrangement; the merged model is
+        # re-quantized by the target LiteRT/export recipe after training.
+        qat_controller = prepare_qat_model(model, config)
+        print(
+            "True QAT enabled: "
+            f"wrapped {qat_controller.wrapped_count} base Linear modules "
+            f"with W{qat_controller.spec.weight_bits}A{qat_controller.spec.activation_bits} STE fake quantization.",
+            flush=True,
+        )
     _align_tokenizer_and_model(tokenizer, model)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="after LoRA wrapping")
     input_vocab_size = _require_model_input_vocab_size(model)
@@ -257,7 +275,14 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
 
-    trainer.train()
+    try:
+        trainer.train()
+    finally:
+        # Fake quantization is a runtime training wrapper, not a serialized
+        # model layer. Restore the original Linear forwards before saving the
+        # adapter so checkpoints remain PEFT/Transformers compatible.
+        if qat_controller is not None:
+            qat_controller.restore()
     final_adapter = output_dir / "final_adapter"
     metadata = {
         "run_id": run_cfg.get("id", output_dir.name),
@@ -265,6 +290,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "training": training_cfg,
         "lora": lora_cfg,
         "golden_eval": golden_eval_cfg,
+        "qat": qat_controller.summary() if qat_controller is not None else {},
         "qat_mtp": qat_mtp_cfg,
         "dataset_dir": str(dataset_dir),
         "final_adapter": str(final_adapter),
@@ -294,6 +320,16 @@ def _enforce_qat_mtp_training_guardrails(config: dict[str, Any]) -> None:
     if errors:
         codes = ", ".join(issue.code for issue in errors)
         raise ValueError(f"QAT/MTP training config failed preflight: {codes}")
+
+
+def _enforce_qat_training_guardrails(config: dict[str, Any]) -> None:
+    issues = validate_qat_config(config)
+    for issue in issues:
+        print(f"True QAT preflight {issue.severity}: [{issue.code}] {issue.message}", flush=True)
+    errors = [issue for issue in issues if issue.severity == "error"]
+    if errors:
+        codes = ", ".join(issue.code for issue in errors)
+        raise ValueError(f"True QAT training config failed preflight: {codes}")
 
 
 def _disable_peft_vocab_probe(model: Any) -> None:
