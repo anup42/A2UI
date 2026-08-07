@@ -1,9 +1,11 @@
 from __future__ import annotations
-# Public AI Edge range compatibility is opt-in through QATSpec.quantizer.
 
 import re
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from typing import Any, Callable
+from typing import Any
+
+# Public AI Edge range compatibility is opt-in through QATSpec.quantizer.
 
 
 @dataclass(frozen=True)
@@ -36,7 +38,7 @@ class QATSpec:
     eps: float = 1e-8
 
     @classmethod
-    def from_config(cls, config: dict[str, Any]) -> "QATSpec":
+    def from_config(cls, config: dict[str, Any]) -> QATSpec:
         qat = config.get("qat") if isinstance(config.get("qat"), dict) else config
         qat = _merge_public_schema(qat)
         exclude = qat.get("exclude_modules", cls.exclude_modules)
@@ -120,9 +122,7 @@ def _scale_and_zero_point(
     normalized_quantizer = str(quantizer).strip().lower()
     if normalized_quantizer not in {"ste_absmax", "ste_ai_edge"}:
         raise ValueError(
-            "Unsupported QAT quantizer {!r}; expected 'ste_absmax' or 'ste_ai_edge'.".format(
-                quantizer
-            )
+            f"Unsupported QAT quantizer {quantizer!r}; expected 'ste_absmax' or 'ste_ai_edge'."
         )
     # AI Edge's public min/max uniform quantizer uses the full signed range for
     # W2/W4, but the narrow signed range for symmetric W8 and above. Its scale
@@ -181,8 +181,6 @@ def fake_quantize_ste(
     the default per-tensor path.  Non-floating tensors and 16-bit-or-higher
     requests are returned unchanged.
     """
-
-    import torch
 
     if not getattr(values, "is_floating_point", lambda: False)() or bits >= 16:
         return values
@@ -261,6 +259,7 @@ class QATController:
         self._wrapped_names: list[str] = []
         self._wrapped_linear_names: list[str] = []
         self._wrapped_embedding_names: list[str] = []
+        self._wrapped_weight_bits: dict[str, int] = {}
 
     @property
     def wrapped_count(self) -> int:
@@ -271,22 +270,24 @@ class QATController:
     def wrapped_names(self) -> tuple[str, ...]:
         return tuple(self._wrapped_names)
 
-    def prepare(self, model: Any) -> "QATController":
-        import torch.nn as nn
-        import torch.nn.functional as functional
+    def prepare(self, model: Any) -> QATController:
+        from torch import nn
+        from torch.nn import functional
 
         for module_name, module in model.named_modules():
             is_linear = isinstance(module, nn.Linear)
             is_embedding = isinstance(module, nn.Embedding)
             if not is_linear and not is_embedding:
                 continue
-            # Embeddings are frozen base parameters in the public mobile
-            # schema and do not acquire PEFT ``base_layer`` suffixes. Include
-            # them when explicitly requested even when only_base_layers is on.
+            # ``only_base_layers`` means base-model weights rather than only
+            # modules whose PEFT path literally contains ``base_layer``.
+            # Ordinary frozen architecture linears must also see the exact
+            # deployment quantization noise. Skip only LoRA adapter matrices;
+            # embeddings remain controlled by ``quantize_embeddings``.
             if (
                 self.spec.only_base_layers
                 and not is_embedding
-                and not _is_base_layer_name(module_name)
+                and _is_adapter_layer_name(module_name)
             ):
                 continue
             if is_embedding and not self.spec.quantize_embeddings:
@@ -355,6 +356,7 @@ class QATController:
             module.forward = qat_forward
             self._original_forwards[module] = original_forward
             self._wrapped_names.append(module_name)
+            self._wrapped_weight_bits[module_name] = module_weight_bits
             if is_linear:
                 self._wrapped_linear_names.append(module_name)
             else:
@@ -367,6 +369,10 @@ class QATController:
         self._original_forwards.clear()
 
     def summary(self) -> dict[str, Any]:
+        bit_histogram: dict[str, int] = {}
+        for bits in self._wrapped_weight_bits.values():
+            label = str(bits)
+            bit_histogram[label] = bit_histogram.get(label, 0) + 1
         return {
             "enabled": True,
             "true_fake_quant": True,
@@ -375,12 +381,28 @@ class QATController:
             "wrapped_embedding_count": len(self._wrapped_embedding_names),
             "wrapped_linear_names": list(self._wrapped_linear_names),
             "wrapped_embedding_names": list(self._wrapped_embedding_names),
+            "wrapped_weight_bits_by_module": dict(self._wrapped_weight_bits),
+            "wrapped_weight_bit_histogram": dict(
+                sorted(bit_histogram.items(), key=lambda item: int(item[0]))
+            ),
             "spec": self.spec.to_dict(),
         }
 
 
-def _is_base_layer_name(module_name: str) -> bool:
-    return module_name == "base_layer" or ".base_layer" in module_name
+def _is_adapter_layer_name(module_name: str) -> bool:
+    """Return whether a module is a trainable PEFT LoRA adapter matrix."""
+
+    adapter_components = {
+        "lora_a",
+        "lora_b",
+        "lora_embedding_a",
+        "lora_embedding_b",
+        "lora_magnitude_vector",
+    }
+    return any(
+        component.strip().lower() in adapter_components
+        for component in module_name.split(".")
+    )
 
 
 def _merge_public_schema(qat: dict[str, Any]) -> dict[str, Any]:
@@ -404,12 +426,13 @@ def _merge_public_schema(qat: dict[str, Any]) -> dict[str, Any]:
 
 
 def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
-    """Apply configured fake quantization and fail if no base linears match."""
+    """Apply configured fake quantization and fail if no base weights match."""
 
     controller = QATController(QATSpec.from_config(config)).prepare(model)
     if controller.wrapped_count == 0:
         raise ValueError(
-            "QAT preparation matched no base nn.Linear modules. "
-            "Run it after LoRA wrapping or set qat.only_base_layers=false for a full model."
+            "QAT preparation matched no eligible base nn.Linear/nn.Embedding modules. "
+            "Check qat.exclude_modules, qat.modules_to_not_convert, and "
+            "qat.quantize_embeddings."
         )
     return controller

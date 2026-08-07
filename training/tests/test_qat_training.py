@@ -100,6 +100,45 @@ def test_qat_controller_wraps_base_layers_and_restores_them():
     assert controller.summary()["wrapped_linear_count"] == 1
 
 
+def test_qat_controller_wraps_plain_base_linears_but_skips_lora_matrices():
+    class LoRAProjection(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.base_layer = nn.Linear(4, 4)
+            self.lora_A = nn.ModuleDict({"default": nn.Linear(4, 2, bias=False)})
+            self.lora_B = nn.ModuleDict({"default": nn.Linear(2, 4, bias=False)})
+
+    class TinyPeftModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.q_proj = LoRAProjection()
+            self.frozen_aux_projection = nn.Linear(4, 4)
+
+    controller = prepare_qat_model(
+        TinyPeftModel(),
+        {
+            "qat": {
+                "weight_bits": 4,
+                "activation_bits": 8,
+                "exclude_modules": [],
+                "only_base_layers": True,
+            }
+        },
+    )
+
+    assert set(controller.wrapped_names) == {
+        "q_proj.base_layer",
+        "frozen_aux_projection",
+    }
+    assert "q_proj.lora_A.default" not in controller.wrapped_names
+    assert "q_proj.lora_B.default" not in controller.wrapped_names
+    assert controller.summary()["wrapped_weight_bits_by_module"] == {
+        "q_proj.base_layer": 4,
+        "frozen_aux_projection": 4,
+    }
+    assert controller.summary()["wrapped_weight_bit_histogram"] == {"4": 2}
+
+
 @pytest.mark.parametrize(
     ("config_name", "expected_activation_bits"),
     [
@@ -135,6 +174,7 @@ def test_public_gemma4_mobile_schema_preserves_ordered_bit_assignments():
     assert schema.bits_for_module("model.language_model.layers.20.mlp.gate_proj") == 2
     assert schema.bits_for_module("model.language_model.layers.2.self_attn.q_proj") == 4
     assert schema.bits_for_module("model.language_model.layers.2.per_layer_input_gate") == 8
+    assert schema.bits_for_module("model.language_model.per_layer_model_projection") is None
     assert schema.bits_for_module("model.vision_tower.patch_embedder") is None
     assert schema.bits_for_module("unmatched.module") == 4
 
@@ -169,41 +209,51 @@ def test_qat_spec_can_load_public_schema_for_module_bits():
 
     assert spec.weight_bits_for_module("language_model.layers.2.mlp.gate_proj") == 4
     assert spec.weight_bits_for_module("language_model.layers.20.mlp.gate_proj") == 2
+    assert spec.weight_bits_for_module("language_model.per_layer_model_projection") is None
     assert spec.weight_bits_for_module("model.vision_tower.patch_embedder") is None
 
 
-def test_public_schema_wraps_embeddings_and_module_specific_linear_bits():
+def test_litertlm_schema_wraps_embeddings_and_module_specific_linear_bits():
     class TinyMobileModel(nn.Module):
         def __init__(self):
             super().__init__()
             self.language_model = nn.Module()
             self.language_model.embed_tokens = nn.Embedding(16, 4)
-            self.language_model.layers = nn.Module()
-            self.language_model.layers.layer_20 = nn.Module()
-            self.language_model.layers.layer_20.mlp = nn.Module()
-            self.language_model.layers.layer_20.mlp.gate_proj = nn.Linear(4, 4)
+            layer_20 = nn.Module()
+            layer_20.mlp = nn.Module()
+            layer_20.mlp.gate_proj = nn.Linear(4, 4)
+            self.language_model.layers = nn.ModuleDict({"20": layer_20})
+            self.language_model.per_layer_model_projection = nn.Linear(4, 4)
 
         def forward(self, token_ids):
             hidden = self.language_model.embed_tokens(token_ids)
-            return self.language_model.layers.layer_20.mlp.gate_proj(hidden)
+            hidden = self.language_model.layers["20"].mlp.gate_proj(hidden)
+            return self.language_model.per_layer_model_projection(hidden)
 
     model = TinyMobileModel()
     controller = prepare_qat_model(
         model,
         {
             "qat": {
-                "schema_path": "configs/quantization/gemma4_e2b_mobile_public_schema.yaml",
+                "schema_path": "configs/quantization/gemma4_e2b_mobile_litertlm_schema.yaml",
                 "quantizer": "ste_ai_edge",
                 "exclude_modules": [],
-                "only_base_layers": False,
+                "only_base_layers": True,
                 "quantize_embeddings": True,
             }
         },
     )
 
     assert "language_model.embed_tokens" in controller.wrapped_names
-    assert "language_model.layers.layer_20.mlp.gate_proj" in controller.wrapped_names
+    assert "language_model.layers.20.mlp.gate_proj" in controller.wrapped_names
+    assert "language_model.per_layer_model_projection" in controller.wrapped_names
     assert controller.spec.quantize_embeddings is True
+    assert controller.summary()["wrapped_weight_bits_by_module"] == {
+        "language_model.embed_tokens": 2,
+        "language_model.layers.20.mlp.gate_proj": 2,
+        "language_model.per_layer_model_projection": 8,
+    }
+    assert controller.summary()["wrapped_weight_bit_histogram"] == {"2": 2, "8": 1}
     output = model(torch.tensor([[1, 2, 3]], dtype=torch.long))
     assert output.shape == (1, 3, 4)
     controller.restore()

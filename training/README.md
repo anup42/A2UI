@@ -113,12 +113,14 @@ do not run the training command.
 ### True QAT SFT for Gemma 4 E2B and Gemma 270M
 
 The repository also has an opt-in fake-quantization-aware LoRA path. The Gemma
-4 profile consumes the public mobile W2/W4/W8 module map, fake-quantizes the
-matching base linears and embeddings, and can use the public AI Edge min/max
-range convention (`ste_ai_edge`: full signed W2/W4, narrow symmetric W8).
-Gemma 270M remains W8A8. This is different from the QAT-derived `qat_mtp`
-profile above, does not train an MTP assistant, and does not claim Google's
-private mobile observer/calibration recipe.
+4 profile consumes the released mobile W2/W4/W8 target inventory,
+fake-quantizes every matching base linear and embedding while excluding LoRA
+A/B matrices, and uses the public AI Edge min/max range convention
+(`ste_ai_edge`: full signed W2/W4, narrow symmetric W8). Gemma 270M uses W8
+weight fake quantization with FP32 activation edges to match its released Q8
+graph. This is different from the QAT-derived `qat_mtp` profile above, does not
+train an MTP assistant, and does not claim Google's private mobile
+observer/calibration recipe.
 
 Validate all profiles without loading models or running training:
 
@@ -140,6 +142,12 @@ quantizer or export settings. The checked-in E2B config's `schema_path` and
 they are not Google's hidden QAT trainer. Merge and quantize the selected
 adapter with the target LiteRT/LiteRT-LM recipe, then measure accuracy and
 device latency against the untouched low-bit baseline.
+
+The exact Google Transformers config copy remains
+`configs/quantization/gemma4_e2b_mobile_public_schema.yaml` for strict source
+audits. Training points to the separate
+`gemma4_e2b_mobile_litertlm_schema.yaml`, whose documented W8
+`per_layer_model_projection` override matches the released target graph.
 
 ### Gemma 4 E2B mobile QAT -> best checkpoint -> MTP package
 
@@ -581,6 +589,9 @@ The command fails closed unless all of these are true:
   merged safetensor shard and shard index;
 - all 277 E2B or all 127 270M unique FC/embedding buffers map to floating-point
   checkpoint tensors with exact shapes;
+- every one of those 277 or 127 official buffers has the same W2/W4/W8 QAT bit
+  assignment in the selected training config; tied E2B `lm_head` is audited
+  through its token-embedding source;
 - the public converter returns the exact observed bit-width/operator/scale
   inventory and every packed byte/scale survives injection;
 - graph structure, operators, signatures, cache wiring, quantization layout,
@@ -625,10 +636,12 @@ python training/scripts/run_gemma270m_qat_litertlm.py `
 ```
 
 Use `--validate-android-gpu` only after the candidate exists. It invokes the
-bounded parity runner on the connected device. E2B requires full GPU
-delegation, warm throughput within the configured regression budget, and MTP
-acceptance within its configured drop budget; 270M requires the same graph and
-throughput gates without MTP.
+bounded parity runner on the connected device. E2B now requires two independent
+schema-v2 reports: target-only must prove full GPU delegation and fixed-length
+warm throughput within budget, then MTP-on must additionally prove draft
+acceptance and speculative throughput. This prevents MTP acceptance from
+masking target-graph speed. 270M requires the graph and fixed-length throughput
+gates without MTP.
 
 The 270M QAT profile is intentionally `WI8/AFP32`: the released Q8 graph has
 per-row INT8 weights (including the embedding table) but FLOAT32 activation

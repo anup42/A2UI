@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -67,3 +68,47 @@ def test_gemma270m_validator_accepts_prefill_without_mtp(monkeypatch, tmp_path):
     assert result["ok"] is True
     assert result["checks"]["prefill_decode_present"] is True
     assert result["checks"]["mtp_not_required"] is True
+
+
+def test_gemma270m_validator_accepts_schema_v2_gpu_parity_report(monkeypatch, tmp_path):
+    import validate_gemma270m_litertlm as validator
+
+    fake_report = {
+        "sections": [
+            {
+                "data_type_name": "TFLiteModel",
+                "items": [
+                    {"key": "model_type", "value": "tf_lite_prefill_decode"}
+                ],
+                "alignment_ok": True,
+                "ordered_after_previous": True,
+                "index": 0,
+            }
+        ],
+        "graphs": [],
+    }
+    monkeypatch.setattr(validator, "inspect_litertlm", lambda *args, **kwargs: fake_report)
+    device_report = tmp_path / "device.json"
+    device_report.write_text(
+        json.dumps(
+            {
+                "schema_version": 2,
+                "mtp_enabled": False,
+                "comparison": {
+                    "structural_gpu_parity_pass": True,
+                    "throughput_sample_comparable": True,
+                    "throughput_gate_pass": True,
+                    "overall_pass": True,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validator.validate_package(
+        tmp_path / "candidate.litertlm", device_report=device_report
+    )
+
+    assert result["ok"] is True
+    assert result["checks"]["gpu_device_validation"] is True
+    assert result["device"]["pipeline_gate_checks"]["throughput_gate"] is True

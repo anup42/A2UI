@@ -97,24 +97,26 @@ conversion.
 
 ### True QAT path now implemented here
 
-`ir_training.qat.fake_quant` wraps the frozen LoRA `base_layer` linear modules
-after PEFT preparation. Each forward pass fake-quantizes activations and
-weights, rounds/clamps them to the configured bit width, and applies a
+`ir_training.qat.fake_quant` wraps every eligible frozen base-model
+`nn.Linear` after PEFT preparation, including ordinary architecture linears
+that do not acquire a literal `base_layer` suffix. It also wraps configured
+embedding tables. PEFT `lora_A`, `lora_B`, embedding-adapter, and magnitude
+modules are deliberately skipped. Each forward pass fake-quantizes activations
+and weights, rounds/clamps them to the configured bit width, and applies a
 straight-through estimator (STE) so LoRA updates receive gradients. The
 default remains symmetric per-output-channel W8A8 with dynamic abs-max scales;
-the Gemma 4 mobile config opts into the public module map and `ste_ai_edge`
-range convention (full signed W2/W4, narrow symmetric W8), and also covers
-matching embedding tables. LoRA A/B weights stay floating point, which keeps
-this a practical QAT+LoRA method rather than a claim that every adapter
-operation is already mobile-quantized.
+the Gemma 4 mobile config opts into the artifact-reconciled module map and
+`ste_ai_edge` range convention (full signed W2/W4, narrow symmetric W8). LoRA
+A/B weights stay floating point, which keeps this a practical QAT+LoRA method
+rather than a claim that every adapter operation is already mobile-quantized.
 
 The implementation is reversible: wrappers are restored before the final PEFT
-adapter is saved, and `qat` metadata records the wrapped module count and
-quantizer specification. `load_in_4bit` is rejected because NF4 QLoRA is a
-different method. This is true fake-quantization-aware training in the
-engineering sense, but the final LiteRT/LiteRT-LM converter remains the
-authority for packed layout, calibration, static activation scales, and any
-targeted 2-bit layers.
+adapter is saved, and `qat` metadata records the wrapped module count, exact
+module-to-bit assignments, W2/W4/W8 histogram, and quantizer specification.
+`load_in_4bit` is rejected because NF4 QLoRA is a different method. This is
+true fake-quantization-aware training in the engineering sense, but the final
+LiteRT/LiteRT-LM converter remains the authority for packed layout,
+calibration, static activation scales, and targeted 2-bit layers.
 
 ### QLoRA
 
@@ -182,7 +184,7 @@ The new configs are intentionally separate from the QAT-derived/MTP profile:
 | Config | Base model | Training fake quantization | Intended final export |
 |---|---|---|---|
 | `gemma4_e2b_ir_qat_sft.yaml` | `google/gemma-4-E2B-it` | Public W2/W4/W8 module map, AI Edge-compatible STE ranges, W8A8 activation edges | Mobile observable-contract approximation; private Google QAT/calibration/export remains unverified |
-| `gemma3_270m_ir_qat_sft.yaml` | `google/gemma-3-270m` | W8A8 STE, per-channel weights | custom dynamic INT8/LiteRT-Torch export; not proven equal to the gated LiteRT-LM Q8 artifact |
+| `gemma3_270m_ir_qat_sft.yaml` | `google/gemma-3-270m-it` | W8 STE per-channel weights with activation fake quantization disabled (FP32 edges) | exact released Q8 topology via the checkpoint compiler; still requires device validation |
 | `functiongemma_270m_ir_qat_sft.yaml` | `google/functiongemma-270m-it` | W8A8 STE, per-channel weights | custom dynamic INT8 export; compare with the official Q8 LiteRT-LM package |
 
 The official Gemma 3 270M Q4_0-derived checkpoint
@@ -213,12 +215,17 @@ speculative-decoding experiment; this QAT path does not modify or train it.
 ### Public-schema reverse engineering
 
 The official `google/gemma-4-E2B-it-qat-mobile-transformers/config.json` exposes
-an exact *deployment schema* even though it does not expose the private QAT
+a public *deployment schema* even though it does not expose the private QAT
 training recipe. It records `quant_method: gemma`, a 4-bit default, embedding
 quantization, ordered module-specific overrides, and modules excluded from
-conversion. The recovered copy is:
+conversion. Keep the exact public copy for source-parity audits:
 
 `training/configs/quantization/gemma4_e2b_mobile_public_schema.yaml`
+
+Training uses a separate schema that starts from that public map and reconciles
+it against the released `.litertlm` target inventory:
+
+`training/configs/quantization/gemma4_e2b_mobile_litertlm_schema.yaml`
 
 Public source anchors are the [Google mobile checkpoint card](https://huggingface.co/google/gemma-4-E2B-it-qat-mobile-transformers), its [released config](https://huggingface.co/google/gemma-4-E2B-it-qat-mobile-transformers/blob/main/config.json), and the [AI Edge Quantizer recipe source](https://github.com/google-ai-edge/ai-edge-quantizer/blob/main/ai_edge_quantizer/recipe.py). The card names the mobile format `wNa8o8`, calls the Transformers weights a reference for other formats, and confirms targeted 2-bit layers plus static activations; it does not publish the QAT trainer or LiteRT-LM exporter.
 
@@ -230,12 +237,18 @@ The observable assignments are:
 | Other language-model MLPs | 2 |
 | Language-model self-attention | 4 |
 | Per-layer input gate/projection | 8 |
+| Global `per_layer_model_projection` | 8 in the released `.litertlm` (local artifact override) |
 | Token embeddings / `lm_head` | 2 (per-layer embeddings are 4) |
 | Vision tower | 8 |
 | Audio tower | 2, with `lconv1d.linear_start` at 4 |
 
-Rule order is part of the contract: the 4-bit MLP rule must precede the generic
-2-bit MLP rule. The schema audit is model-free:
+The public Transformers config excludes `per_layer_model_projection`, but the
+released target graph contains that matrix as W8. The separate artifact schema
+therefore removes that exclusion and adds an explicit W8 rule while leaving the
+public copy unchanged. This is a documented artifact-level override, not a
+claim about Google's private trainer. Rule order is part of the contract: the
+4-bit MLP rule must precede the generic 2-bit MLP rule. The public-schema audit
+is model-free:
 
 ```powershell
 python training/scripts/audit_gemma4_mobile_schema.py
@@ -252,7 +265,7 @@ must remain marked as approximation until numerical equivalence is measured
 against the official checkpoint/runtime.
 
 The checked-in `gemma4_e2b_ir_qat_sft.yaml` selects `quantizer: ste_ai_edge`,
-`quantize_embeddings: true`, and the public schema. This makes the
+`quantize_embeddings: true`, and the artifact-reconciled schema. This makes the
 training-time fake quantizer use the public AI Edge range convention: signed
 W2/W4 keep the full low-bit ranges (`[-2, 1]` and `[-8, 7]`), while symmetric
 W8 uses the narrow range `[-127, 127]`. It is the closest public numerical
@@ -801,11 +814,12 @@ recovered private exporter or QAT recipe.
 ### Official mobile checkpoint serialization parity
 
 The public `gemma-4-E2B-it-qat-mobile-transformers` safetensors checkpoint is
-the strongest available source for the released mobile constants. The public
-schema audit matches the model's module rules: targeted W2/W4/W8 modules,
-static A8 activations, and explicit exclusions for modules such as
-`per_layer_model_projection`. It is a deployment schema, not a disclosure of
-the QAT trainer, calibration corpus, or optimizer schedule.
+the strongest available source for the released mobile constants. Its public
+config describes targeted W2/W4/W8 modules and static A8 activations, but it
+excludes `per_layer_model_projection` while the released `.litertlm` stores
+that matrix as W8. Training therefore follows the artifact-reconciled schema
+described above. Neither source discloses the QAT trainer, calibration corpus,
+or optimizer schedule.
 
 `training/scripts/audit_gemma4_mobile_checkpoint_parity.py` compares unique
 FC/embedding buffers and their scales without modifying either artifact. The
@@ -1533,6 +1547,14 @@ constants are only correct when the base identity and mutation scope are
 correct. FC and embedding inventory constants are regenerated from the merged
 checkpoint.
 
+Before quantization, the compiler derives a canonical QAT module for every
+official inventory entry and compares its configured fake-quant bit width with
+the released graph. E2B must match all 277 assignments (145 W4, 61 W2, 71 W8),
+and 270M must match all 127 W8 assignments. The tied E2B language-model head is
+audited through its token-embedding source, matching the alias used by the
+checkpoint compiler. Any excluded, unmapped, or differently quantized entry
+makes the plan non-executable.
+
 Current exact bindings for the supplied reference artifacts are:
 
 | family | base identity | target section | unique mapped weights | package SHA-256 |
@@ -1562,11 +1584,13 @@ fine-tuning can reduce draft acceptance even when delegation is identical.
 
 Overall recommendation: select the best golden QAT+LoRA checkpoint by strict IR
 quality, merge it with provenance, compile it into the official topology, then
-run the connected-device parity runner. Promote E2B with `mtp=true` only when
-full delegation, warm target-only throughput, MTP acceptance, MTP-on
-throughput, and output-quality gates all pass. Otherwise ship the same exact
-target graph with MTP disabled. For 270M, require full delegation and warm
-throughput parity; MTP is not applicable.
+run `--validate-android-gpu`. The E2B pipeline executes two separate fail-closed
+reports under `android_gpu_parity/target_only` and `android_gpu_parity/mtp_on`.
+Promote E2B with `mtp=true` only when full delegation, fixed-length warm
+target-only throughput, MTP acceptance, MTP-on throughput, and output-quality
+gates all pass. Otherwise ship the same exact target graph with MTP disabled.
+For 270M, require full delegation and fixed-length warm throughput parity; MTP
+is not applicable.
 
 ## Rules for future agents
 

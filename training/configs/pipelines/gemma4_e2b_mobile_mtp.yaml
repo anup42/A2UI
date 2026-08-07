@@ -55,10 +55,17 @@ pipeline:
   android:
     mtp: true
     delegate: gpu
-    device_validation_required: true
+    # The pipeline runs two mandatory reports: target-only isolates graph/GPU
+    # throughput; MTP-on separately gates draft acceptance and speculative speed.
+    device_validation_required: target_only_and_mtp_on
     output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/android_gpu_parity
     max_num_tokens: 2048
     output_tokens: 64
     warm_runs: 1
+    prompt: "Write exactly one hundred numbered words."
+    top_k: 1
+    top_p: 1.0
+    temperature: 0.0
+    seed: 42
     max_throughput_regression_percent: 10.0
     max_mtp_success_rate_drop: 0.10

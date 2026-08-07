@@ -57,6 +57,8 @@ qat:
   weight_per_channel: true
   weight_axis: 0
   group_size: null
+  # Wrap every base-model Linear/Embedding selected above, including frozen
+  # architecture linears without a PEFT suffix; skip LoRA adapter matrices.
   only_base_layers: true
   final_quantization: dynamic_wi8_afp32
   final_runtime_validation_required: true

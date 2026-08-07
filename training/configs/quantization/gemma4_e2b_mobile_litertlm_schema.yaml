@@ -1,0 +1,50 @@
+# Deployment schema based on Google's public
+# gemma-4-E2B-it-qat-mobile-transformers config and reconciled against the
+# released local `.litertlm` target inventory.
+#
+# This is an observable checkpoint/export contract, not Google's private QAT
+# training/calibration recipe. The released `.litertlm` is authoritative for
+# runtime precision: unlike the public Transformers exclusion list,
+# per_layer_model_projection is present there as W8. Keep the rule order: the
+# first matching module rule wins (layers 0-14 MLPs are 4-bit before the
+# generic 2-bit MLP rule).
+#
+# Artifact observation: quantized fully-connected edges use symmetric INT8
+# activations and per-axis weight scales. These rules select training-time fake
+# quantization widths; the final converter remains the packed-layout authority.
+profile: gemma4_e2b_mobile_litertlm_schema
+quant_method: gemma
+num_bits: 4
+quantize_embeddings: true
+module_quant_configs:
+  "^lm_head$":
+    num_bits: 2
+  "audio_tower(?!.*lconv1d\\.linear_start)":
+    num_bits: 2
+  "audio_tower\\.layers\\.\\d+\\.lconv1d\\.linear_start\\.":
+    num_bits: 4
+  "language_model\\.embed_tokens$":
+    num_bits: 2
+  "language_model\\.embed_tokens_per_layer$":
+    num_bits: 4
+  "language_model\\.per_layer_model_projection$":
+    num_bits: 8
+  "language_model\\.layers\\.(\\d|1[0-4])\\.mlp\\.":
+    num_bits: 4
+  "language_model\\.layers\\.\\d+\\.mlp\\.":
+    num_bits: 2
+  "language_model\\.layers\\.\\d+\\.per_layer_input_gate$":
+    num_bits: 8
+  "language_model\\.layers\\.\\d+\\.per_layer_projection$":
+    num_bits: 8
+  "language_model\\.layers\\.\\d+\\.self_attn\\.":
+    num_bits: 4
+  "vision_tower":
+    num_bits: 8
+modules_to_not_convert:
+  - "model.vision_tower.patch_embedder"
+  - "model.audio_tower.subsample_conv_projection"
+  - "model.audio_tower.output_proj"
+  - "relative_k_proj"
+  - "model.embed_audio"
+  - "model.embed_vision"

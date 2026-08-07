@@ -76,6 +76,7 @@ from build_converter_topology_parity import (
 from build_fresh_random_quantized_graph import _extract_inventory
 from ir_training.common.config import load_yaml
 from ir_training.export.litertlm_inspector import inspect_litertlm
+from ir_training.qat.fake_quant import QATSpec
 
 
 class CheckpointTopologyError(RuntimeError):
@@ -362,6 +363,124 @@ def _canonical_inventory_keys(
             fc_ordinal += 1
         else:
             result.append(None)
+    return result
+
+
+def _qat_module_name_for_inventory_key(
+    canonical_key: str, family: str
+) -> str:
+    """Map an export/checkpoint key to the base module named during QAT."""
+
+    if family == "gemma4_e2b" and canonical_key == "lm_head.weight":
+        # The official decode head is tied to the language embedding in the
+        # supported checkpoint. The compiler resolves this same alias through
+        # ``_key_candidates``; audit the QAT precision of that source module.
+        return "model.language_model.embed_tokens"
+    if canonical_key.endswith(".weight"):
+        return canonical_key[: -len(".weight")]
+    return canonical_key
+
+
+def _qat_inventory_precision_report(
+    records: list[dict[str, Any]],
+    *,
+    family: str,
+    model_type: str,
+    training_config: str | Path | None,
+) -> dict[str, Any]:
+    """Compare every official weight bit-width with its training-time QAT rule."""
+
+    result: dict[str, Any] = {
+        "training_config": str(Path(training_config).expanduser().resolve())
+        if training_config
+        else None,
+        "official_inventory_count": len(records),
+        "canonical_key_count": 0,
+        "compared_count": 0,
+        "matched_count": 0,
+        "mismatch_count": 0,
+        "official_bit_histogram": {},
+        "qat_bit_histogram": {},
+        "assignments": [],
+        "mismatches": [],
+        "exact": False,
+    }
+    if not records:
+        result["error"] = "Official target inventory is empty."
+        return result
+    if training_config is None:
+        result["error"] = "Training config is required for QAT precision coverage."
+        return result
+    config_path = Path(training_config).expanduser().resolve()
+    if not config_path.is_file():
+        result["error"] = f"Training config does not exist: {config_path}"
+        return result
+    try:
+        spec = QATSpec.from_config(load_yaml(config_path))
+        canonical_keys = _canonical_inventory_keys(records, family, model_type)
+    except Exception as exc:  # noqa: BLE001 - precision coverage is a hard gate
+        result["error"] = f"Could not resolve QAT precision coverage: {exc}"
+        return result
+
+    official_histogram: dict[str, int] = {}
+    qat_histogram: dict[str, int] = {}
+    assignments: list[dict[str, Any]] = []
+    mismatches: list[dict[str, Any]] = []
+    for record, canonical_key in zip(records, canonical_keys):
+        official_bits = int(record["bits"])
+        official_label = str(official_bits)
+        official_histogram[official_label] = (
+            official_histogram.get(official_label, 0) + 1
+        )
+        module_name = (
+            _qat_module_name_for_inventory_key(canonical_key, family)
+            if canonical_key
+            else None
+        )
+        qat_bits = spec.weight_bits_for_module(module_name) if module_name else None
+        qat_label = "excluded" if qat_bits is None else str(qat_bits)
+        qat_histogram[qat_label] = qat_histogram.get(qat_label, 0) + 1
+        matches = bool(module_name and qat_bits == official_bits)
+        assignment = {
+            "ordinal": int(record["ordinal"]),
+            "canonical_source_key": canonical_key,
+            "qat_module_name": module_name,
+            "official_bits": official_bits,
+            "qat_bits": qat_bits,
+            "match": matches,
+        }
+        assignments.append(assignment)
+        if not matches:
+            mismatches.append(assignment)
+
+    canonical_count = sum(
+        1 for assignment in assignments if assignment["canonical_source_key"]
+    )
+    matched_count = sum(1 for assignment in assignments if assignment["match"])
+    result.update(
+        {
+            "canonical_key_count": canonical_count,
+            "compared_count": len(assignments),
+            "matched_count": matched_count,
+            "mismatch_count": len(mismatches),
+            "official_bit_histogram": dict(
+                sorted(official_histogram.items(), key=lambda item: int(item[0]))
+            ),
+            "qat_bit_histogram": dict(
+                sorted(
+                    qat_histogram.items(),
+                    key=lambda item: (item[0] == "excluded", item[0]),
+                )
+            ),
+            "assignments": assignments,
+            "mismatches": mismatches,
+            "exact": bool(
+                len(assignments) == len(records)
+                and canonical_count == len(records)
+                and not mismatches
+            ),
+        }
+    )
     return result
 
 
@@ -815,6 +934,24 @@ def build_plan(
                 "checks": training_scope["checks"],
             }
         )
+    qat_precision_coverage = _qat_inventory_precision_report(
+        records,
+        family=normalized_family,
+        model_type=selected_model_type,
+        training_config=training_config,
+    )
+    if records and not qat_precision_coverage["exact"]:
+        issues.append(
+            {
+                "code": "qat_official_inventory_precision_mismatch",
+                "matched": qat_precision_coverage["matched_count"],
+                "official_inventory": qat_precision_coverage[
+                    "official_inventory_count"
+                ],
+                "mismatches": qat_precision_coverage["mismatches"],
+                "error": qat_precision_coverage.get("error"),
+            }
+        )
     merge_provenance = _merge_provenance_report(
         checkpoint_path,
         training_config,
@@ -861,6 +998,7 @@ def build_plan(
         "mapping_count": len(mappings),
         "mappings": mappings,
         "training_scope": training_scope,
+        "qat_precision_coverage": qat_precision_coverage,
         "merge_provenance": merge_provenance,
         "output_dir": str(output_root),
         "package_output": str(output_package),

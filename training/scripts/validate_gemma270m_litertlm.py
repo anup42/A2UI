@@ -16,6 +16,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from ir_training.eval.android_gpu_report import (
+    AndroidGpuParityReportError,
+    load_android_gpu_parity_report,
+)
 from ir_training.export.litertlm_inspector import (
     LiteRTLMInspectionError,
     inspect_litertlm,
@@ -86,20 +90,17 @@ def validate_package(
 
     device = {"provided": False, "validated": False}
     if device_report:
-        device_path = Path(device_report).expanduser().resolve()
         try:
-            device = json.loads(device_path.read_text(encoding="utf-8"))
+            device = load_android_gpu_parity_report(
+                device_report,
+                expected_mtp=False,
+                require_mtp_acceptance=False,
+            )
             device["provided"] = True
-        except (OSError, json.JSONDecodeError) as exc:
-            errors.append(f"Could not read device report: {exc}")
+            device["validated"] = True
+        except AndroidGpuParityReportError as exc:
+            errors.append(f"Device report did not prove 270M GPU parity: {exc}")
             device = {"provided": True, "validated": False}
-        if str(device.get("delegate", "")).lower() != "gpu":
-            errors.append("Device report does not prove GPU delegate execution.")
-        if str(device.get("status", "")).lower() not in {"passed", "pass", "ok"}:
-            errors.append("Device report status is not passed/ok.")
-        if device.get("mtp_enabled") is True:
-            errors.append("Gemma 3 270M device report unexpectedly claims mtp=true.")
-        device["validated"] = not errors
 
     return {
         "ok": not errors,

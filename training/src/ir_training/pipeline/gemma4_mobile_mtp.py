@@ -26,6 +26,10 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.config import load_yaml, resolve_path, training_root
+from ir_training.eval.android_gpu_report import (
+    AndroidGpuParityReportError,
+    load_android_gpu_parity_report,
+)
 from ir_training.export.edge_gallery import export_edge_gallery_model
 from ir_training.export.litertlm_mtp import compose_with_default_mtp
 from ir_training.export.merge_lora import merge_lora_adapter
@@ -228,29 +232,55 @@ def build_pipeline_plan(
             + "/android_gpu_parity",
             base,
         )
-    android_command = [
-        sys.executable,
-        str(base / "scripts" / "benchmark_android_litertlm_gpu_parity.py"),
-        "--official",
-        str(base_litertlm) if base_litertlm else "<official-base-litertlm-required>",
-        "--candidate",
-        str(output_litertlm),
-        "--output-dir",
-        str(android_output_dir),
-        "--mtp",
-        "--max-num-tokens",
-        str(int(android_cfg.get("max_num_tokens", 2048))),
-        "--output-tokens",
-        str(int(android_cfg.get("output_tokens", 64))),
-        "--warm-runs",
-        str(int(android_cfg.get("warm_runs", 1))),
-        "--max-throughput-regression-percent",
-        str(float(android_cfg.get("max_throughput_regression_percent", 10.0))),
-        "--max-mtp-success-rate-drop",
-        str(float(android_cfg.get("max_mtp_success_rate_drop", 0.10))),
-    ]
-    if str(android_cfg.get("prompt") or "").strip():
-        android_command.extend(["--prompt", str(android_cfg["prompt"])])
+    android_runner = str(base / "scripts" / "benchmark_android_litertlm_gpu_parity.py")
+
+    def android_command(*, mtp: bool, output_dir: Path) -> list[str]:
+        command = [
+            sys.executable,
+            android_runner,
+            "--official",
+            str(base_litertlm)
+            if base_litertlm
+            else "<official-base-litertlm-required>",
+            "--candidate",
+            str(output_litertlm),
+            "--output-dir",
+            str(output_dir),
+            "--max-num-tokens",
+            str(int(android_cfg.get("max_num_tokens", 2048))),
+            "--output-tokens",
+            str(int(android_cfg.get("output_tokens", 64))),
+            "--warm-runs",
+            str(int(android_cfg.get("warm_runs", 1))),
+            "--max-throughput-regression-percent",
+            str(float(android_cfg.get("max_throughput_regression_percent", 10.0))),
+            "--top-k",
+            str(int(android_cfg.get("top_k", 1))),
+            "--top-p",
+            str(float(android_cfg.get("top_p", 1.0))),
+            "--temperature",
+            str(float(android_cfg.get("temperature", 0.0))),
+            "--seed",
+            str(int(android_cfg.get("seed", 42))),
+        ]
+        if mtp:
+            command.extend(
+                [
+                    "--mtp",
+                    "--max-mtp-success-rate-drop",
+                    str(float(android_cfg.get("max_mtp_success_rate_drop", 0.10))),
+                ]
+            )
+        if str(android_cfg.get("prompt") or "").strip():
+            command.extend(["--prompt", str(android_cfg["prompt"])])
+        return command
+
+    target_only_output_dir = android_output_dir / "target_only"
+    mtp_on_output_dir = android_output_dir / "mtp_on"
+    target_only_command = android_command(
+        mtp=False, output_dir=target_only_output_dir
+    )
+    mtp_on_command = android_command(mtp=True, output_dir=mtp_on_output_dir)
 
     validation: list[dict[str, str]] = []
     if not bool(qat_cfg.get("enabled", False)):
@@ -375,12 +405,23 @@ def build_pipeline_plan(
             ),
         },
         "android_gpu": {
-            "mtp_flag": True,
             "delegate": "gpu",
-            "device_validation": "required_after_packaging",
-            "parity_runner": str(base / "scripts" / "benchmark_android_litertlm_gpu_parity.py"),
+            "device_validation": "target_only_and_mtp_on_required_after_packaging",
+            "parity_runner": android_runner,
             "output_dir": str(android_output_dir),
-            "command": android_command,
+            "required_modes": ["target_only", "mtp_on"],
+            "target_only": {
+                "mtp_flag": False,
+                "purpose": "isolate target graph GPU throughput from draft acceptance",
+                "output_dir": str(target_only_output_dir),
+                "command": target_only_command,
+            },
+            "mtp_on": {
+                "mtp_flag": True,
+                "purpose": "validate preserved drafter acceptance and speculative throughput",
+                "output_dir": str(mtp_on_output_dir),
+                "command": mtp_on_command,
+            },
         },
         "validation": {
             "ok": not any(item["severity"] == "error" for item in validation),
@@ -411,6 +452,26 @@ def _run_command(command: list[str], log_path: Path, *, cwd: Path) -> None:
         raise Gemma4MobileMTPPipelineError(
             f"Command failed with exit code {process.returncode}; see {log_path}"
         )
+
+
+def _load_android_gpu_report(
+    report_path: str | Path,
+    *,
+    mode: str,
+    expected_mtp: bool,
+) -> dict[str, Any]:
+    """Load one fail-closed parity report and enforce its mode-specific gates."""
+
+    try:
+        return load_android_gpu_parity_report(
+            report_path,
+            expected_mtp=expected_mtp,
+            require_mtp_acceptance=expected_mtp,
+        )
+    except AndroidGpuParityReportError as exc:
+        raise Gemma4MobileMTPPipelineError(
+            f"Android GPU {mode} report {exc}: {Path(report_path)}"
+        ) from exc
 
 
 def run_pipeline(
@@ -612,27 +673,31 @@ def run_pipeline(
             raise Gemma4MobileMTPPipelineError(
                 "Android GPU parity requires an exported candidate package first."
             )
-        command = list(plan["android_gpu"]["command"])
-        if adb_override:
-            command.extend(["--adb", str(Path(adb_override).expanduser().resolve())])
-        if serial_override:
-            command.extend(["--serial", str(serial_override)])
-        _run_command(
-            command,
-            logs_dir / "android_gpu_parity.log",
-            cwd=base.parent,
-        )
-        report_path = (
-            Path(plan["android_gpu"]["output_dir"])
-            / "android_litertlm_gpu_parity_report.json"
-        )
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-        if not bool((report.get("comparison") or {}).get("overall_pass")):
-            raise Gemma4MobileMTPPipelineError(
-                "Android GPU parity report did not pass all structure, throughput, "
-                "and MTP-acceptance gates."
+        reports: dict[str, Any] = {}
+        for mode in plan["android_gpu"]["required_modes"]:
+            mode_plan = plan["android_gpu"][mode]
+            command = list(mode_plan["command"])
+            if adb_override:
+                command.extend(
+                    ["--adb", str(Path(adb_override).expanduser().resolve())]
+                )
+            if serial_override:
+                command.extend(["--serial", str(serial_override)])
+            _run_command(
+                command,
+                logs_dir / f"android_gpu_{mode}.log",
+                cwd=base.parent,
+            )
+            report_path = (
+                Path(mode_plan["output_dir"])
+                / "android_litertlm_gpu_parity_report.json"
+            )
+            reports[mode] = _load_android_gpu_report(
+                report_path,
+                mode=mode,
+                expected_mtp=bool(mode_plan["mtp_flag"]),
             )
         plan["android_gpu"]["executed"] = True
-        plan["android_gpu"]["report"] = report
+        plan["android_gpu"]["reports"] = reports
 
     return plan

@@ -469,6 +469,89 @@ def test_checkpoint_topology_maps_all_supported_projection_families():
     ]
 
 
+def test_checkpoint_topology_qat_precision_covers_official_inventory_exactly():
+    gemma4_records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": (
+                "LanguageModel.decode_graph/projected_per_layer_inputs/dot_general"
+            ),
+            "shape": [8, 4],
+            "bits": 8,
+        },
+        {
+            "ordinal": 1,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": (
+                "LanguageModel.decode_graph/transformer/layer_3/attn/q_einsum/"
+                "dot_general"
+            ),
+            "shape": [8, 4],
+            "bits": 4,
+        },
+        {
+            "ordinal": 2,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": "LanguageModel.decode_graph/decode_softmax/dot_general",
+            "shape": [16, 4],
+            "bits": 2,
+        },
+    ]
+    report = build_checkpoint_official_topology._qat_inventory_precision_report(
+        gemma4_records,
+        family="gemma4_e2b",
+        model_type="tf_lite_prefill_decode",
+        training_config=ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml",
+    )
+
+    assert report["exact"] is True
+    assert report["matched_count"] == 3
+    assert report["official_bit_histogram"] == {"2": 1, "4": 1, "8": 1}
+    assert report["qat_bit_histogram"] == {"2": 1, "4": 1, "8": 1}
+    tied_head = next(
+        item for item in report["assignments"] if item["canonical_source_key"] == "lm_head.weight"
+    )
+    assert tied_head["qat_module_name"] == "model.language_model.embed_tokens"
+    assert tied_head["qat_bits"] == 2
+
+    mismatched_records = [dict(item) for item in gemma4_records]
+    mismatched_records[1]["bits"] = 8
+    mismatch = build_checkpoint_official_topology._qat_inventory_precision_report(
+        mismatched_records,
+        family="gemma4_e2b",
+        model_type="tf_lite_prefill_decode",
+        training_config=ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml",
+    )
+    assert mismatch["exact"] is False
+    assert mismatch["mismatch_count"] == 1
+    assert mismatch["mismatches"][0]["qat_bits"] == 4
+
+    gemma270_records = [
+        {
+            "ordinal": 0,
+            "operator": "EMBEDDING_LOOKUP",
+            "shape": [16, 4],
+            "bits": 8,
+        },
+        {
+            "ordinal": 1,
+            "operator": "FULLY_CONNECTED",
+            "shape": [8, 4],
+            "bits": 8,
+        },
+    ]
+    gemma270 = build_checkpoint_official_topology._qat_inventory_precision_report(
+        gemma270_records,
+        family="gemma3_270m",
+        model_type="TF_LITE_PREFILL_DECODE",
+        training_config=ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml",
+    )
+    assert gemma270["exact"] is True
+    assert gemma270["matched_count"] == 2
+    assert gemma270["qat_bit_histogram"] == {"8": 2}
+
+
 def test_checkpoint_topology_resolves_tied_head_alias_and_transpose(tmp_path):
     import types
 

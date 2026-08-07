@@ -16,8 +16,18 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ir_training.export.litertlm_inspector import LiteRTLMInspectionError, inspect_litertlm
-from ir_training.export.litertlm_mtp import find_model_section
+from ir_training.eval.android_gpu_report import (
+    AndroidGpuParityReportError,
+    load_android_gpu_parity_report,
+)
+from ir_training.export.litertlm_inspector import (
+    LiteRTLMInspectionError,
+    inspect_litertlm,
+)
+from ir_training.export.litertlm_mtp import (
+    LiteRTLMMTPPackagingError,
+    find_model_section,
+)
 
 
 def validate_package(
@@ -25,6 +35,7 @@ def validate_package(
     *,
     mtp_model_type: str = "tf_lite_mtp_drafter",
     device_report: str | Path | None = None,
+    target_only_device_report: str | Path | None = None,
     inspect_graphs: bool = False,
 ) -> dict[str, Any]:
     path = Path(artifact).expanduser().resolve()
@@ -39,7 +50,7 @@ def validate_package(
     sections = report.get("sections") or []
     try:
         mtp = find_model_section(report, mtp_model_type)
-    except Exception as exc:
+    except LiteRTLMMTPPackagingError as exc:
         mtp = None
         errors.append(str(exc))
     if mtp is not None:
@@ -59,22 +70,43 @@ def validate_package(
     if not ordered:
         errors.append("One or more LiteRT-LM sections are misaligned or out of order.")
 
-    device = {"provided": False, "validated": False}
-    if device_report:
-        device_path = Path(device_report).expanduser().resolve()
+    device: dict[str, Any] = {
+        "target_only": {"provided": False, "validated": False},
+        "mtp_on": {"provided": False, "validated": False},
+    }
+    if bool(target_only_device_report) != bool(device_report):
+        errors.append(
+            "Provide both target-only and MTP-on device reports for runtime validation."
+        )
+    if target_only_device_report:
         try:
-            device = json.loads(device_path.read_text(encoding="utf-8"))
-            device["provided"] = True
-        except (OSError, json.JSONDecodeError) as exc:
-            errors.append(f"Could not read device report: {exc}")
-            device = {"provided": True, "validated": False}
-        if device.get("mtp_enabled") is not True:
-            errors.append("Device report does not prove mtp_enabled=true.")
-        if str(device.get("delegate", "")).lower() != "gpu":
-            errors.append("Device report does not prove GPU delegate execution.")
-        if str(device.get("status", "")).lower() not in {"passed", "pass", "ok"}:
-            errors.append("Device report status is not passed/ok.")
-        device["validated"] = not errors
+            target_device = load_android_gpu_parity_report(
+                target_only_device_report,
+                expected_mtp=False,
+                require_mtp_acceptance=False,
+            )
+            target_device["provided"] = True
+            target_device["validated"] = True
+            device["target_only"] = target_device
+        except AndroidGpuParityReportError as exc:
+            errors.append(f"Target-only device report did not prove GPU parity: {exc}")
+            device["target_only"] = {"provided": True, "validated": False}
+    if device_report:
+        try:
+            mtp_device = load_android_gpu_parity_report(
+                device_report,
+                expected_mtp=True,
+                require_mtp_acceptance=True,
+            )
+            mtp_device["provided"] = True
+            mtp_device["validated"] = True
+            device["mtp_on"] = mtp_device
+        except AndroidGpuParityReportError as exc:
+            errors.append(f"MTP-on device report did not prove GPU parity: {exc}")
+            device["mtp_on"] = {"provided": True, "validated": False}
+
+    target_validated = bool(device["target_only"].get("validated"))
+    mtp_validated = bool(device["mtp_on"].get("validated"))
 
     return {
         "ok": not errors,
@@ -87,7 +119,9 @@ def validate_package(
             "all_sections_aligned_and_ordered": ordered,
             "graph_inspection_requested": inspect_graphs,
             "mtp_true_requested": True,
-            "gpu_device_validation": bool(device.get("validated")),
+            "target_only_gpu_device_validation": target_validated,
+            "mtp_on_gpu_device_validation": mtp_validated,
+            "dual_mode_gpu_device_validation": target_validated and mtp_validated,
         },
         "device": device,
         "errors": errors,
@@ -108,12 +142,17 @@ def main() -> int:
         help="Parse every embedded TFLite graph (slower; package-only validation is the default).",
     )
     parser.add_argument("--device-report", help="Optional JSON report from a real Android GPU runtime test.")
+    parser.add_argument(
+        "--target-only-device-report",
+        help="Optional schema-v2 target-only parity report; required with --device-report for a shipping-speed claim.",
+    )
     parser.add_argument("--output", type=Path, help="Optional output JSON path.")
     args = parser.parse_args()
     result = validate_package(
         args.artifact,
         mtp_model_type=args.mtp_model_type,
         device_report=args.device_report,
+        target_only_device_report=args.target_only_device_report,
         inspect_graphs=args.inspect_graphs,
     )
     rendered = json.dumps(result, indent=2, ensure_ascii=False)
