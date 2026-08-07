@@ -79,7 +79,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         qat_controller = prepare_qat_model(model, config)
         print(
             "True QAT enabled: "
-            f"wrapped {qat_controller.wrapped_count} base Linear modules "
+            f"wrapped {qat_controller.wrapped_count} base quantized modules "
             f"with W{qat_controller.spec.weight_bits}A{qat_controller.spec.activation_bits} STE fake quantization.",
             flush=True,
         )

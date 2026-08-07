@@ -1,0 +1,23 @@
+pipeline:
+  id: gemma3_270m_qat_litertlm
+  training_config: configs/models/gemma3_270m_ir_qat_sft.yaml
+  output_dir: outputs/pipelines/gemma3_270m_qat_litertlm
+
+  source:
+    merged_model_dir: outputs/pipelines/gemma3_270m_qat_litertlm/merged_best_hf
+
+  export:
+    enabled: true
+    config: configs/export/litertlm_gemma270m_int8.yaml
+    output_dir: outputs/pipelines/gemma3_270m_qat_litertlm/public_export
+    artifact: outputs/pipelines/gemma3_270m_qat_litertlm/gemma3_270m_qat_int8.litertlm
+
+  # Gemma 3 270M has no Gemma 4 MTP drafter package section.
+  mtp:
+    enabled: false
+    status: not_applicable
+
+  android:
+    delegate: gpu
+    mtp: false
+    device_validation_required: true

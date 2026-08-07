@@ -1,0 +1,48 @@
+# Artifact-observed contract, not Google's private QAT recipe.
+#
+# Evidence source: a local Gemma 4 E2B mobile .litertlm artifact audited on
+# 2026-08-07. Keep this separate from gemma4_e2b_mobile_public_schema.yaml:
+# this file records graph dtypes/scale layout observed after export, while the
+# public schema records the Transformers module map. It does not contain the
+# calibration corpus, learned activation scales, optimizer schedule, or weight
+# packing implementation.
+profile: gemma4_e2b_mobile_observable_contract
+evidence_status: local_artifact_observation_only
+artifact_family: gemma-4-E2B-it-mobile
+quantization:
+  weight_granularity: CHANNELWISE
+  weight_quantized_dimension: 0
+  weight_zero_points: symmetric
+  fully_connected_activation_dtype: INT8
+  fully_connected_activation_granularity: TENSORWISE
+  fully_connected_activation_zero_points: symmetric
+sections:
+  tf_lite_embedder:
+    embedding_weight_bits: 2
+  tf_lite_per_layer_embedder:
+    embedding_weight_bits: 4
+  tf_lite_prefill_decode:
+    global:
+      lm_head_weight_bits: 2
+      per_layer_model_projection_weight_bits: 8
+    language_layers:
+      mlp:
+        "0-14": 4
+        "15-34": 2
+      self_attention: 4
+      per_layer_embedding_gate_and_projection: 8
+  tf_lite_mtp_drafter:
+    token_embedding_weight_bits: 4
+    mlp: 4
+    self_attention: 8
+    projections: 8
+  tf_lite_audio_encoder_hw:
+    default_weight_bits: 2
+    lconv1d_linear_start_weight_bits: 4
+  tf_lite_vision_encoder:
+    fully_connected_weight_bits: 8
+notes:
+  - "The package also contains separate audio, vision, and MTP model sections."
+  - "This contract is useful for parity audits and synthetic converter tests."
+  - "It is not an executable claim that the private Google exporter accepts these rules."
+  - "Use audit_litertlm_recipe.py against the exact device artifact before changing it."

@@ -1,0 +1,41 @@
+pipeline:
+  id: gemma4_e2b_mobile_mtp
+  # Existing true-QAT + LoRA SFT config. Its golden_eval callback writes the
+  # best checkpoint used by this pipeline.
+  training_config: configs/models/gemma4_e2b_ir_qat_sft.yaml
+  output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp
+
+  source:
+    # Fill this with the released official Gemma 4 E2B mobile .litertlm. It
+    # must contain tf_lite_mtp_drafter and the target section below.
+    base_litertlm: ""
+    # Exactly one target source is required for --compose. A target_litertlm
+    # is a candidate package containing the fine-tuned target section; a
+    # target_section is a raw TFLite TFL3 section from a compatible mobile
+    # exporter. The public litert-torch exporter is not assumed compatible.
+    target_litertlm: ""
+    target_section: ""
+    merged_model_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/merged_best_hf
+
+  mtp:
+    enabled: true
+    model_type: tf_lite_mtp_drafter
+    target_model_type: tf_lite_prefill_decode
+    # Informational only: the composer preserves the assistant section from
+    # base_litertlm instead of converting this public checkpoint.
+    assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
+    train_assistant: false
+    preserve_official_section: true
+
+  public_export:
+    # Keep false by default. Setting true enables a standalone public
+    # litert-torch export candidate; it does not make that export Google's
+    # private mobile wNa8o8 recipe. Use --execute-public-export explicitly.
+    enabled: false
+    config: configs/export/edge_gallery_gemma4_e2b.yaml
+    output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/public_export
+
+  android:
+    mtp: true
+    delegate: gpu
+    device_validation_required: true

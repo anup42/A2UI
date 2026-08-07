@@ -52,3 +52,18 @@ qat:
   only_base_layers: true
   final_quantization: dynamic_int8
   final_runtime_validation_required: true
+golden_eval:
+  enabled: true
+  dataset_dir: outputs/datasets/golden50_stage3_eval
+  split: all
+  max_rows: 50
+  max_input_tokens: 3072
+  max_new_tokens: 1024
+  trigger: evaluate
+  interval: 1
+  metric_for_best_model: overall_score
+  greater_is_better: true
+  save_best_checkpoint: true
+  best_checkpoint_dir: runs/gemma3_270m_ir_qat_sft/best_golden_checkpoint
+  output_dir: outputs/eval/gemma3_270m_ir_qat_sft/golden50
+  weights_config: ../dataset/configs/run.yaml

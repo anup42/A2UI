@@ -13,16 +13,15 @@ export:
   min_app_version: 1.1.0
   max_input_tokens: 4096
   max_output_tokens: 2048
-  # Google documents this Gemma 4 flag combination for LiteRT-LM export.
+  # These flags are the repository's Edge Gallery export experiment. They are
+  # not a claim that the resulting artifact is Google's private mobile recipe.
   externalize_embedder: true
   # MiniJinja-safe subset of the tokenizer template used by train_gemma.py.
   # It is token-identical for the text-only user messages used by Stage 3.
   jinja_chat_template_override: training/configs/export/gemma4_e2b_training_minijinja.jinja
-  # Gemma 4's supported mixed recipe uses blockwise-32 INT4 for the main
-  # weights and channelwise INT8 for sensitive projections. The deployed
-  # artifact additionally protects q/k/v/o attention projections and lm_head
-  # at INT8; this fixed JSON corruption in the 1024-token mobile quality suite.
-  # Pure INT4 and unprotected mixed INT4 corrupt structured IR generations.
+  # This custom recipe uses blockwise-32 INT4/INT8 protection for an A2UI
+  # quality experiment. Compare its generated .litertlm against the exact
+  # official artifact with audit_litertlm_package.py before making parity claims.
   quantization_recipe: gemma4_mixed48_b32
   # GPU dynamic cache/prefill values are translated to the Gemma 4 magic-number
   # variants by litert-torch. Its typed default supplies prefill length 128.

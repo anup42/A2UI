@@ -42,19 +42,19 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
         )
 
     quantizer = str(qat.get("quantizer", "ste_absmax")).strip().lower()
-    if quantizer != "ste_absmax":
+    if quantizer not in {"ste_absmax", "ste_ai_edge"}:
         issues.append(
             WorkflowIssue(
                 "error",
                 "unsupported_qat_quantizer",
-                "Only the repository's ste_absmax quantizer is implemented in this training path.",
+                "Supported QAT quantizers are ste_absmax and ste_ai_edge.",
             )
         )
 
     weight_bits = _positive_int(qat.get("weight_bits", 8))
     activation_bits = _positive_int(qat.get("activation_bits", 8))
-    if weight_bits not in {4, 8}:
-        issues.append(WorkflowIssue("error", "invalid_weight_bits", "qat.weight_bits must be 4 or 8."))
+    if weight_bits not in {2, 4, 8}:
+        issues.append(WorkflowIssue("error", "invalid_weight_bits", "qat.weight_bits must be 2, 4, or 8."))
     if activation_bits not in {8, 16}:
         issues.append(WorkflowIssue("error", "invalid_activation_bits", "qat.activation_bits must be 8 or 16."))
     group_size = qat.get("group_size")

@@ -48,8 +48,14 @@ lora:
   modules_to_save: []
 qat:
   enabled: true
-  profile: gemma4_e2b_mobile_wna8o8_approx
-  quantizer: ste_absmax
+  profile: gemma4_e2b_mobile_observable_wna8o8_approx
+  # This uses the public AI Edge min/max range convention (W2/W4 full,
+  # symmetric W8 narrow) while training remains an approximation of Google's
+  # private QAT observers/calibration.
+  quantizer: ste_ai_edge
+  schema_path: configs/quantization/gemma4_e2b_mobile_public_schema.yaml
+  quantize_embeddings: true
+  exclude_modules: []
   weight_bits: 8
   activation_bits: 8
   weight_symmetric: true
