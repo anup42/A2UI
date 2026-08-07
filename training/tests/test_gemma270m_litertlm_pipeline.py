@@ -3,8 +3,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -18,13 +16,17 @@ def test_gemma270m_plan_selects_best_checkpoint_and_disables_mtp():
     config = load_yaml(config_path)
     plan = build_pipeline_plan(config, config_path=config_path)
 
-    assert plan["training"]["model_id"] == "google/gemma-3-270m"
-    assert plan["training"]["qat_profile"] == "gemma3_270m_int8"
+    assert plan["training"]["model_id"] == "google/gemma-3-270m-it"
+    assert plan["training"]["qat_profile"] == "gemma3_270m_wi8_afp32"
     assert plan["training"]["best_checkpoint_required"] is True
     assert plan["export"]["recipe"] == "dynamic_wi8_afp32"
     assert plan["package"]["mtp"]["enabled"] is False
     assert plan["package"]["mtp"]["status"] == "not_applicable_for_gemma3_270m"
     assert plan["android_gpu"]["mtp_flag"] is False
+    assert plan["exact_topology"]["enabled"] is True
+    assert plan["exact_topology"]["family"] == "gemma3_270m"
+    assert plan["exact_topology"]["model_type"] == "TF_LITE_PREFILL_DECODE"
+    assert "--execute" in plan["exact_topology"]["command"]
     assert plan["validation"]["ok"] is True
 
 

@@ -4,7 +4,10 @@ run:
   output_dir: runs/gemma3_270m_ir_qat_sft
 model:
   family: gemma
-  model_id: google/gemma-3-270m
+  # Must match the released Q8 graph/template used by the exact-topology
+  # pipeline; preserving official non-projection constants is only valid when
+  # training starts from this exact instruction-tuned base.
+  model_id: google/gemma-3-270m-it
   model_loader: auto_causal_lm
   trust_remote_code: false
   tokenizer_loader: auto_tokenizer
@@ -40,17 +43,22 @@ lora:
   modules_to_save: []
 qat:
   enabled: true
-  profile: gemma3_270m_int8
-  quantizer: ste_absmax
+  # Matches the released Q8 LiteRT-LM graph observed by the parity audit:
+  # per-row INT8 weights with FLOAT32 activation edges. QAT therefore applies
+  # the public AI Edge weight range but does not fake-quantize activations.
+  profile: gemma3_270m_wi8_afp32
+  quantizer: ste_ai_edge
+  quantize_embeddings: true
+  exclude_modules: []
   weight_bits: 8
-  activation_bits: 8
+  activation_bits: 32
   weight_symmetric: true
   activation_symmetric: true
   weight_per_channel: true
   weight_axis: 0
   group_size: null
   only_base_layers: true
-  final_quantization: dynamic_int8
+  final_quantization: dynamic_wi8_afp32
   final_runtime_validation_required: true
 golden_eval:
   enabled: true

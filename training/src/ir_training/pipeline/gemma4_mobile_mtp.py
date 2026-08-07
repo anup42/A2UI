@@ -5,10 +5,12 @@ The pipeline is deliberately split into explicit stages:
 1. QAT SFT (the existing ``train_sft.py`` path) saves a golden-set best
    adapter;
 2. the best adapter is merged back into the floating-point base model;
-3. an optional public LiteRT Torch export produces a *standalone* candidate;
-4. a compatible target TFLite section is composed with the official package,
+3. the preferred exact-topology stage quantizes merged projection weights into
+   a copy of the released target graph while preserving default MTP byte-exact;
+4. an optional generic LiteRT Torch export produces a *standalone* diagnostic;
+5. a legacy compatible target TFLite section can be composed with the official package,
    preserving the default ``tf_lite_mtp_drafter`` section byte-for-byte; and
-5. package/device validation records what was actually proven.
+6. package/device validation records what was actually proven.
 
 The default command is plan-only.  Training and public conversion are
 expensive and the public converter is not Google's private Gemma mobile
@@ -151,6 +153,15 @@ def build_pipeline_plan(
             + "/public_export",
             base,
         )
+    exact_cfg = _section(pipeline_cfg, "exact_topology")
+    exact_enabled = bool(exact_cfg.get("enabled", True))
+    exact_output_dir = _path_or_empty(exact_cfg.get("output_dir"), base)
+    if exact_output_dir is None:
+        exact_output_dir = resolve_path(
+            str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
+            + "/exact_topology_export",
+            base,
+        )
 
     training_script = base / "scripts" / "train_sft.py"
     train_command = [sys.executable, str(training_script), "--config", str(training_config_path)]
@@ -165,6 +176,81 @@ def build_pipeline_plan(
     )
     mtp_model_type = str(mtp_cfg.get("model_type", "tf_lite_mtp_drafter"))
     public_export_enabled = bool(public_export_cfg.get("enabled", False))
+    official_base_model_id = str(
+        exact_cfg.get("official_base_model_id") or model_id
+    )
+    official_artifact_sha256 = str(
+        exact_cfg.get("official_artifact_sha256") or ""
+    ).strip().lower()
+    exact_script = base / "scripts" / "build_checkpoint_official_topology.py"
+    exact_command = [
+        sys.executable,
+        str(exact_script),
+        str(base_litertlm) if base_litertlm else "<official-base-litertlm-required>",
+        "--checkpoint",
+        str(merged_model_dir),
+        "--family",
+        "gemma4_e2b",
+        "--model-type",
+        target_model_type,
+        "--training-config",
+        str(training_config_path),
+        "--official-base-model-id",
+        official_base_model_id,
+        "--official-artifact-sha256",
+        official_artifact_sha256 or "<official-artifact-sha256-required>",
+        "--output-dir",
+        str(exact_output_dir),
+        "--package-output",
+        str(output_litertlm),
+        "--calibration-samples",
+        str(int(exact_cfg.get("calibration_samples", 2))),
+        "--threads",
+        str(int(exact_cfg.get("threads", 1))),
+        "--execute",
+    ]
+    converter_batch_size = exact_cfg.get("converter_batch_size")
+    if converter_batch_size not in (None, "", 0):
+        exact_command.extend(["--converter-batch-size", str(int(converter_batch_size))])
+    if bool(exact_cfg.get("retain_intermediates", False)):
+        exact_command.append("--retain-intermediates")
+    if bool(exact_cfg.get("runtime_allocate", False)):
+        exact_command.extend(
+            ["--runtime-allocate", "--runtime-threads", str(int(exact_cfg.get("runtime_threads", 2)))]
+        )
+        if bool(exact_cfg.get("runtime_without_default_delegates", True)):
+            exact_command.append("--runtime-without-default-delegates")
+    android_cfg = _section(pipeline_cfg, "android")
+    android_output_dir = _path_or_empty(android_cfg.get("output_dir"), base)
+    if android_output_dir is None:
+        android_output_dir = resolve_path(
+            str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
+            + "/android_gpu_parity",
+            base,
+        )
+    android_command = [
+        sys.executable,
+        str(base / "scripts" / "benchmark_android_litertlm_gpu_parity.py"),
+        "--official",
+        str(base_litertlm) if base_litertlm else "<official-base-litertlm-required>",
+        "--candidate",
+        str(output_litertlm),
+        "--output-dir",
+        str(android_output_dir),
+        "--mtp",
+        "--max-num-tokens",
+        str(int(android_cfg.get("max_num_tokens", 2048))),
+        "--output-tokens",
+        str(int(android_cfg.get("output_tokens", 64))),
+        "--warm-runs",
+        str(int(android_cfg.get("warm_runs", 1))),
+        "--max-throughput-regression-percent",
+        str(float(android_cfg.get("max_throughput_regression_percent", 10.0))),
+        "--max-mtp-success-rate-drop",
+        str(float(android_cfg.get("max_mtp_success_rate_drop", 0.10))),
+    ]
+    if str(android_cfg.get("prompt") or "").strip():
+        android_command.extend(["--prompt", str(android_cfg["prompt"])])
 
     validation: list[dict[str, str]] = []
     if not bool(qat_cfg.get("enabled", False)):
@@ -188,7 +274,10 @@ def build_pipeline_plan(
             {
                 "severity": "warning",
                 "code": "missing_base_package",
-                "message": "Provide the official base_litertlm package before --compose.",
+                "message": (
+                    "Provide the official base_litertlm package before exact export "
+                    "or legacy composition."
+                ),
             }
         )
     if target_litertlm is not None and target_section is not None:
@@ -207,7 +296,12 @@ def build_pipeline_plan(
                 "message": f"Public export config does not exist: {export_config_path}",
             }
         )
-    if not public_export_enabled and target_litertlm is None and target_section is None:
+    if (
+        not exact_enabled
+        and not public_export_enabled
+        and target_litertlm is None
+        and target_section is None
+    ):
         validation.append(
             {
                 "severity": "warning",
@@ -249,6 +343,22 @@ def build_pipeline_plan(
                 "Google's private Gemma 4 mobile wNa8o8 exporter."
             ),
         },
+        "exact_topology": {
+            "enabled": exact_enabled,
+            "family": "gemma4_e2b",
+            "official_base_model_id": official_base_model_id,
+            "official_artifact_sha256": official_artifact_sha256 or None,
+            "official_litertlm": str(base_litertlm) if base_litertlm else None,
+            "merged_checkpoint": str(merged_model_dir),
+            "training_config": str(training_config_path),
+            "model_type": target_model_type,
+            "output_dir": str(exact_output_dir),
+            "output_litertlm": str(output_litertlm),
+            "command": exact_command,
+            "training_executed": False,
+            "preserves_default_mtp_byte_exact": True,
+            "requires_complete_277_weight_mapping": True,
+        },
         "package": {
             "base_litertlm": str(base_litertlm) if base_litertlm else None,
             "target_litertlm": str(target_litertlm) if target_litertlm else None,
@@ -258,12 +368,19 @@ def build_pipeline_plan(
             "mtp_model_type": mtp_model_type,
             "mtp_enabled": bool(mtp_cfg.get("enabled", True)),
             "mtp_assistant_model_id": mtp_cfg.get("assistant_model_id"),
-            "target_export_authority": "compatible_mobile_section_required",
+            "target_export_authority": (
+                "official_graph_template_plus_public_quantized_checkpoint_constants"
+                if exact_enabled
+                else "compatible_mobile_section_required"
+            ),
         },
         "android_gpu": {
             "mtp_flag": True,
             "delegate": "gpu",
             "device_validation": "required_after_packaging",
+            "parity_runner": str(base / "scripts" / "benchmark_android_litertlm_gpu_parity.py"),
+            "output_dir": str(android_output_dir),
+            "command": android_command,
         },
         "validation": {
             "ok": not any(item["severity"] == "error" for item in validation),
@@ -287,6 +404,7 @@ def _run_command(command: list[str], log_path: Path, *, cwd: Path) -> None:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            check=False,
         )
         log.write(process.stdout or "")
     if process.returncode != 0:
@@ -302,7 +420,11 @@ def run_pipeline(
     execute_training: bool = False,
     execute_merge: bool = False,
     execute_public_export: bool = False,
+    execute_exact_topology_export: bool = False,
     compose_package: bool = False,
+    validate_android_gpu: bool = False,
+    adb_override: str | Path | None = None,
+    serial_override: str | None = None,
     best_checkpoint_override: str | Path | None = None,
     base_litertlm_override: str | Path | None = None,
     target_litertlm_override: str | Path | None = None,
@@ -326,9 +448,21 @@ def run_pipeline(
         for item in plan["validation"]["issues"]
         if item["severity"] == "error"
     ]
-    if stage_errors:
-        if execute_training or execute_merge or execute_public_export or compose_package:
-            raise Gemma4MobileMTPPipelineError(json.dumps(stage_errors, ensure_ascii=False))
+    if stage_errors and (
+        execute_training
+        or execute_merge
+        or execute_public_export
+        or execute_exact_topology_export
+        or compose_package
+        or validate_android_gpu
+    ):
+        raise Gemma4MobileMTPPipelineError(json.dumps(stage_errors, ensure_ascii=False))
+
+    if execute_exact_topology_export and compose_package:
+        raise Gemma4MobileMTPPipelineError(
+            "Exact-topology export already writes the final package and preserves the "
+            "official MTP section; do not combine it with the legacy --compose stage."
+        )
 
     base = training_root()
     pipeline_root = Path(plan["public_export"]["output_dir"]).parent
@@ -364,6 +498,7 @@ def run_pipeline(
             dtype=str(_section(_section(config, "pipeline"), "source").get("dtype", "bfloat16")),
             trust_remote_code=bool(_section(_section(config, "pipeline"), "source").get("trust_remote_code", False)),
             processor_model_id=str(plan["merge"]["base_model_id"]),
+            training_config_path=plan["training"]["config"],
         )
         plan["merge"]["merged_model_dir"] = str(merged)
         plan["merge"]["executed"] = True
@@ -400,6 +535,48 @@ def run_pipeline(
             )
         plan["package"]["target_litertlm"] = str(candidate)
 
+    if execute_exact_topology_export:
+        if not plan["exact_topology"]["enabled"]:
+            raise Gemma4MobileMTPPipelineError(
+                "pipeline.exact_topology.enabled=false; exact-topology export was requested."
+            )
+        if not plan["exact_topology"]["official_litertlm"]:
+            raise Gemma4MobileMTPPipelineError(
+                "Exact-topology export requires source.base_litertlm or --base-litertlm."
+            )
+        merged_dir = Path(plan["merge"]["merged_model_dir"])
+        if not merged_dir.is_dir():
+            raise Gemma4MobileMTPPipelineError(
+                f"Merged best-checkpoint model is missing: {merged_dir}. Run --execute-merge first."
+            )
+        _run_command(
+            list(plan["exact_topology"]["command"]),
+            logs_dir / "exact_topology_export.log",
+            cwd=base.parent,
+        )
+        report_path = (
+            Path(plan["exact_topology"]["output_dir"])
+            / "checkpoint_official_topology_report.json"
+        )
+        if not report_path.is_file():
+            raise Gemma4MobileMTPPipelineError(
+                f"Exact-topology exporter did not write its report: {report_path}"
+            )
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        if not bool(report.get("final_artifact_gate_pass")):
+            raise Gemma4MobileMTPPipelineError(
+                "Exact-topology exporter report did not pass all artifact gates."
+            )
+        mtp = report.get("mtp_preservation") or {}
+        if not bool(mtp.get("byte_exact")):
+            raise Gemma4MobileMTPPipelineError(
+                "Exact-topology exporter did not prove byte-exact MTP preservation."
+            )
+        plan["exact_topology"]["executed"] = True
+        plan["exact_topology"]["report"] = report
+        plan["package"]["executed"] = True
+        plan["package"]["manifest"] = report
+
     if compose_package:
         base_package = plan["package"].get("base_litertlm")
         target_package = plan["package"].get("target_litertlm")
@@ -423,5 +600,39 @@ def run_pipeline(
         )
         plan["package"]["executed"] = True
         plan["package"]["manifest"] = manifest
+
+    if validate_android_gpu:
+        official_package = plan["package"].get("base_litertlm")
+        candidate_package = plan["package"].get("output_litertlm")
+        if not official_package or not Path(official_package).is_file():
+            raise Gemma4MobileMTPPipelineError(
+                "Android GPU parity requires the official base LiteRT-LM package."
+            )
+        if not candidate_package or not Path(candidate_package).is_file():
+            raise Gemma4MobileMTPPipelineError(
+                "Android GPU parity requires an exported candidate package first."
+            )
+        command = list(plan["android_gpu"]["command"])
+        if adb_override:
+            command.extend(["--adb", str(Path(adb_override).expanduser().resolve())])
+        if serial_override:
+            command.extend(["--serial", str(serial_override)])
+        _run_command(
+            command,
+            logs_dir / "android_gpu_parity.log",
+            cwd=base.parent,
+        )
+        report_path = (
+            Path(plan["android_gpu"]["output_dir"])
+            / "android_litertlm_gpu_parity_report.json"
+        )
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        if not bool((report.get("comparison") or {}).get("overall_pass")):
+            raise Gemma4MobileMTPPipelineError(
+                "Android GPU parity report did not pass all structure, throughput, "
+                "and MTP-acceptance gates."
+            )
+        plan["android_gpu"]["executed"] = True
+        plan["android_gpu"]["report"] = report
 
     return plan

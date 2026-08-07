@@ -37,10 +37,25 @@ def main() -> int:
         help="Run the explicitly enabled public LiteRT Torch standalone export.",
     )
     parser.add_argument(
+        "--execute-exact-topology-export",
+        action="store_true",
+        help=(
+            "Quantize the merged checkpoint into the official target graph and "
+            "write the final .litertlm while preserving the default MTP section."
+        ),
+    )
+    parser.add_argument(
         "--compose",
         action="store_true",
         help="Compose a compatible target section with the official MTP package.",
     )
+    parser.add_argument(
+        "--validate-android-gpu",
+        action="store_true",
+        help="Compare official and candidate packages on the connected Android GPU.",
+    )
+    parser.add_argument("--adb")
+    parser.add_argument("--serial")
     parser.add_argument("--best-checkpoint")
     parser.add_argument("--base-litertlm")
     parser.add_argument("--target-litertlm")
@@ -58,7 +73,11 @@ def main() -> int:
             execute_training=args.execute_training,
             execute_merge=args.execute_merge,
             execute_public_export=args.execute_public_export,
+            execute_exact_topology_export=args.execute_exact_topology_export,
             compose_package=args.compose,
+            validate_android_gpu=args.validate_android_gpu,
+            adb_override=args.adb,
+            serial_override=args.serial,
             best_checkpoint_override=args.best_checkpoint,
             base_litertlm_override=args.base_litertlm,
             target_litertlm_override=args.target_litertlm,
@@ -71,7 +90,14 @@ def main() -> int:
         return 2
     print(json.dumps(plan, indent=2, ensure_ascii=False))
     if not any(
-        [args.execute_training, args.execute_merge, args.execute_public_export, args.compose]
+        [
+            args.execute_training,
+            args.execute_merge,
+            args.execute_public_export,
+            args.execute_exact_topology_export,
+            args.compose,
+            args.validate_android_gpu,
+        ]
     ):
         print("Plan only: no training, model loading, conversion, or package write was run.")
     return 0

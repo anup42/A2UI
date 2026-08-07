@@ -32,8 +32,9 @@ import importlib
 import json
 import re
 import sys
+from collections.abc import Callable, Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 
@@ -41,8 +42,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from build_fresh_random_quantized_graph import (  # noqa: E402
+from build_fresh_random_quantized_graph import (
     _extract_inventory,
+)
+from build_fresh_random_quantized_graph import (
     _vector as _fresh_vector,
 )
 
@@ -68,13 +71,21 @@ def _layer_name(ordinal: int, bits: int) -> str:
 
 
 def _build_random_float_tflite(
-    records: list[dict[str, Any]], seed: int, *, ordinal_offset: int = 0
+    records: list[dict[str, Any]],
+    seed: int,
+    *,
+    ordinal_offset: int = 0,
+    weight_provider: Callable[[int, dict[str, Any]], Any] | None = None,
+    graph_description: str | None = None,
 ) -> tuple[bytes, list[dict[str, Any]]]:
     """Build a minimal independent float32 TFLite graph without SavedModel.
 
     ``ordinal_offset`` lets the topology-injection harness quantize a large
     inventory in several FlatBuffers while retaining globally unique branch
-    names and deterministic random values.
+    names and deterministic random values.  ``weight_provider`` is the
+    checkpoint-transplant seam: when supplied, it must return the float weight
+    for each global inventory ordinal.  The graph construction and public
+    quantizer path are otherwise identical to the random parity experiment.
     """
 
     try:
@@ -134,10 +145,24 @@ def _build_random_float_tflite(
             operator_codes.append(opcode)
         global_ordinal = int(ordinal_offset) + ordinal
         name = _layer_name(global_ordinal, int(record["bits"]))
-        rng = np.random.default_rng(
-            np.random.SeedSequence([int(seed), global_ordinal + 1])
-        )
-        weights = rng.standard_normal(shape, dtype=np.float32)
+        if weight_provider is None:
+            rng = np.random.default_rng(
+                np.random.SeedSequence([int(seed), global_ordinal + 1])
+            )
+            weights = rng.standard_normal(shape, dtype=np.float32)
+            source_kind = "deterministic_random"
+        else:
+            weights = np.asarray(
+                weight_provider(global_ordinal, record), dtype=np.float32
+            )
+            if tuple(int(value) for value in weights.shape) != shape:
+                raise ConverterInventoryParityError(
+                    "Weight provider returned shape "
+                    f"{tuple(weights.shape)} for ordinal {global_ordinal}; "
+                    f"expected {shape}."
+                )
+            weights = np.ascontiguousarray(weights)
+            source_kind = "external_float_checkpoint"
         data_offset = builder.CreateByteVector(weights.tobytes(order="C"))
         Buffer.BufferStart(builder)
         Buffer.BufferAddData(builder, data_offset)
@@ -175,6 +200,7 @@ def _build_random_float_tflite(
                 "official_input_type": record.get("input_type_name"),
                 "official_output_type": record.get("output_type_name"),
                 "official_tensor_name": record.get("official_tensor_name", ""),
+                "source_kind": source_kind,
             }
         )
 
@@ -224,7 +250,9 @@ def _build_random_float_tflite(
     SignatureDef.SignatureDefAddSubgraphIndex(builder, 0)
     signature_offset = SignatureDef.SignatureDefEnd(builder)
     signatures_vector = _fresh_vector(builder, [signature_offset], "UOffset")
-    description = builder.CreateString("Independent random float inventory graph")
+    description = builder.CreateString(
+        graph_description or "Independent random float inventory graph"
+    )
     Model.ModelStart(builder)
     Model.ModelAddVersion(builder, 3)
     Model.ModelAddOperatorCodes(builder, opcodes_vector)

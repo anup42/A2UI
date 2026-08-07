@@ -55,8 +55,14 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
     activation_bits = _positive_int(qat.get("activation_bits", 8))
     if weight_bits not in {2, 4, 8}:
         issues.append(WorkflowIssue("error", "invalid_weight_bits", "qat.weight_bits must be 2, 4, or 8."))
-    if activation_bits not in {8, 16}:
-        issues.append(WorkflowIssue("error", "invalid_activation_bits", "qat.activation_bits must be 8 or 16."))
+    if activation_bits not in {8, 16, 32}:
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "invalid_activation_bits",
+                "qat.activation_bits must be 8, 16, or 32.",
+            )
+        )
     group_size = qat.get("group_size")
     if group_size not in (None, "") and _positive_int(group_size) <= 0:
         issues.append(WorkflowIssue("error", "invalid_group_size", "qat.group_size must be a positive integer or null."))
@@ -71,13 +77,30 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
                     "The documented Gemma 4 mobile approximation uses W8A8 fake quantization; the final converter must still apply Google's exact mobile recipe.",
                 )
             )
-    elif "270m" in model_id or "functiongemma" in model_id:
-        if weight_bits != 8 or activation_bits != 8:
+    elif "gemma-3-270m" in model_id:
+        if (
+            weight_bits != 8
+            or activation_bits < 16
+            or quantizer != "ste_ai_edge"
+            or not bool(qat.get("quantize_embeddings", False))
+        ):
             issues.append(
                 WorkflowIssue(
                     "warning",
                     "gemma270m_int8_profile_mismatch",
-                    "The Gemma 270M profiles use W8A8 fake quantization before dynamic INT8 export.",
+                    "The audited Gemma 3 270M Q8 graph uses public AI Edge per-row "
+                    "INT8 weight ranges, a quantized embedding table, and floating-point "
+                    "activation edges.",
+                )
+            )
+    elif "functiongemma" in model_id:
+        if weight_bits != 8 or activation_bits != 8:
+            issues.append(
+                WorkflowIssue(
+                    "warning",
+                    "functiongemma270m_profile_mismatch",
+                    "Keep the separately configured FunctionGemma W8A8 profile until "
+                    "its target package is independently audited.",
                 )
             )
     else:

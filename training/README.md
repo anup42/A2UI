@@ -559,6 +559,79 @@ python training/scripts/build_converter_random_topology_injection_parity.py `
 Add `--package-output C:\temp\random-injected.litertlm` when a full package
 fixture is needed; it streams the package and replaces only the selected
 section, so the original artifact is never overwritten.
+
+### Merged checkpoint -> exact official topology
+
+`build_checkpoint_official_topology.py` is the deployment path for the best
+QAT+LoRA checkpoint. It reuses the already verified converter-injection
+mechanism, but its float branches come lazily from merged Hugging Face
+safetensors instead of a random generator. The public AI Edge Quantizer emits
+the W2/W4/W8 packed projection constants and per-axis scales; those constants
+are then placed into an unchanged copy of the released target graph.
+
+The command fails closed unless all of these are true:
+
+- the input package SHA-256 matches the configured released artifact;
+- merge metadata v2 binds the checkpoint to the exact training-config hash,
+  base model, QAT method/profile, hashed adapter files, and the SHA-256 of every
+  merged safetensor shard and shard index;
+- all 277 E2B or all 127 270M unique FC/embedding buffers map to floating-point
+  checkpoint tensors with exact shapes;
+- the public converter returns the exact observed bit-width/operator/scale
+  inventory and every packed byte/scale survives injection;
+- graph structure, operators, signatures, cache wiring, quantization layout,
+  section size, and all bytes outside the target section remain official;
+- for E2B, the default `tf_lite_mtp_drafter` SHA-256 remains byte-exact.
+
+The final package is first written as an unpromoted `.partial` file. It is
+renamed to the requested `.litertlm` only after every graph and package gate
+passes. This reproduces the official graph/operators/layout with different
+trained weights; it does not claim recovery of Google's private QAT trainer or
+calibration corpus.
+
+The preferred plan-only entry points are:
+
+```powershell
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --config training/configs/pipelines/gemma4_e2b_mobile_mtp.yaml `
+  --base-litertlm C:\path\to\released-gemma-4-E2B-it.litertlm
+
+python training/scripts/run_gemma270m_qat_litertlm.py `
+  --config training/configs/pipelines/gemma3_270m_qat_litertlm.yaml `
+  --official-litertlm C:\path\to\released-gemma-3-270m-it-q8.litertlm
+```
+
+After training has independently produced a golden best adapter, run the
+explicit merge and exact-topology stages. Neither command starts training:
+
+```powershell
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --base-litertlm C:\path\to\released-gemma-4-E2B-it.litertlm `
+  --execute-merge
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --base-litertlm C:\path\to\released-gemma-4-E2B-it.litertlm `
+  --execute-exact-topology-export
+
+python training/scripts/run_gemma270m_qat_litertlm.py `
+  --official-litertlm C:\path\to\released-gemma-3-270m-it-q8.litertlm `
+  --execute-merge
+python training/scripts/run_gemma270m_qat_litertlm.py `
+  --official-litertlm C:\path\to\released-gemma-3-270m-it-q8.litertlm `
+  --execute-exact-topology-export
+```
+
+Use `--validate-android-gpu` only after the candidate exists. It invokes the
+bounded parity runner on the connected device. E2B requires full GPU
+delegation, warm throughput within the configured regression budget, and MTP
+acceptance within its configured drop budget; 270M requires the same graph and
+throughput gates without MTP.
+
+The 270M QAT profile is intentionally `WI8/AFP32`: the released Q8 graph has
+per-row INT8 weights (including the embedding table) but FLOAT32 activation
+edges. Fake-quantizing 270M activations to INT8 would train for a graph that is
+not the official runtime graph. Its base is pinned to
+`google/gemma-3-270m-it`; changing to a base or FunctionGemma package requires
+changing both the training model ID and the official package/hash together.
 For the full E2B prefill, the automatic eight-weight batching can be overridden
 with `--converter-batch-size N` when memory and FlatBuffer limits permit.
 Run the same command against the Gemma 4 artifact with

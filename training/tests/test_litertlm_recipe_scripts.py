@@ -9,19 +9,20 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import audit_litertlm_recipe  # noqa: E402
-import audit_litertlm_remote_source_recipe  # noqa: E402
-import audit_litertlm_weight_recipe  # noqa: E402
-import audit_gemma4_mobile_checkpoint_parity  # noqa: E402
-import audit_gemma4_mobile_projection_parity  # noqa: E402
-import audit_gemma4_mtp_assistant_parity  # noqa: E402
-import benchmark_android_litertlm_gpu_parity  # noqa: E402
-import build_fresh_random_quantized_graph  # noqa: E402
-import build_converter_random_inventory_parity  # noqa: E402
-import build_converter_random_topology_injection_parity  # noqa: E402
-import build_random_official_topology_parity  # noqa: E402
-import build_random_mobile_contract_parity  # noqa: E402
-import build_random_tflite_recipe_parity  # noqa: E402
+import audit_gemma4_mobile_checkpoint_parity
+import audit_gemma4_mobile_projection_parity
+import audit_gemma4_mtp_assistant_parity
+import audit_litertlm_recipe
+import audit_litertlm_remote_source_recipe
+import audit_litertlm_weight_recipe
+import benchmark_android_litertlm_gpu_parity
+import build_checkpoint_official_topology
+import build_converter_random_inventory_parity
+import build_converter_random_topology_injection_parity
+import build_fresh_random_quantized_graph
+import build_random_mobile_contract_parity
+import build_random_official_topology_parity
+import build_random_tflite_recipe_parity
 
 
 def test_android_gpu_parity_parser_extracts_full_delegation_and_mtp_rate():
@@ -326,6 +327,266 @@ def test_converter_inventory_builder_preserves_embedding_operator_kind():
     assert data[4:8] == b"TFL3"
     assert mappings[0]["official_operator"] == "EMBEDDING_LOOKUP"
     assert recipe[0]["operation"] == "EMBEDDING_LOOKUP"
+
+
+def test_converter_inventory_builder_accepts_checkpoint_weight_provider():
+    import numpy as np
+
+    pytest.importorskip("flatbuffers")
+    pytest.importorskip("tflite")
+    records = [
+        {
+            "operator": "FULLY_CONNECTED",
+            "bits": 4,
+            "shape": [3, 2],
+            "input_type_name": "INT8",
+            "output_type_name": "INT8",
+        }
+    ]
+    calls = []
+
+    def provider(ordinal, record):
+        calls.append((ordinal, record["shape"]))
+        return np.arange(6, dtype=np.float32).reshape(3, 2)
+
+    data, mappings = build_converter_random_inventory_parity._build_random_float_tflite(
+        records,
+        seed=0,
+        weight_provider=provider,
+        graph_description="checkpoint fixture",
+    )
+
+    assert data[4:8] == b"TFL3"
+    assert calls == [(0, [3, 2])]
+    assert mappings[0]["source_kind"] == "external_float_checkpoint"
+
+
+def test_checkpoint_topology_maps_all_supported_projection_families():
+    gemma4_records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": (
+                "LanguageModel.decode_graph/transformer/layer_3/attn/q_einsum/dot_general"
+            ),
+            "shape": [8, 4],
+            "bits": 4,
+        },
+        {
+            "ordinal": 1,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": "LanguageModel.decode_graph/decode_softmax/dot_general",
+            "shape": [16, 4],
+            "bits": 2,
+        },
+    ]
+    assert build_checkpoint_official_topology._canonical_inventory_keys(
+        gemma4_records, "gemma4_e2b", "tf_lite_prefill_decode"
+    ) == [
+        "model.language_model.layers.3.self_attn.q_proj.weight",
+        "lm_head.weight",
+    ]
+
+    gemma3_records = [
+        {
+            "ordinal": 0,
+            "operator": "EMBEDDING_LOOKUP",
+            "shape": [16, 4],
+            "bits": 8,
+        },
+        {
+            "ordinal": 1,
+            "operator": "FULLY_CONNECTED",
+            "shape": [8, 4],
+            "bits": 8,
+        },
+    ]
+    assert build_checkpoint_official_topology._canonical_inventory_keys(
+        gemma3_records, "gemma3_270m", "TF_LITE_PREFILL_DECODE"
+    ) == [
+        "model.embed_tokens.weight",
+        "model.layers.0.self_attn.q_proj.weight",
+    ]
+
+
+def test_checkpoint_topology_resolves_tied_head_alias_and_transpose(tmp_path):
+    import types
+
+    records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": "LanguageModel/decode_softmax/dot_general",
+            "shape": [16, 4],
+            "bits": 2,
+        }
+    ]
+    shard = tmp_path / "model.safetensors"
+    checkpoint = types.SimpleNamespace(
+        entries={
+            "model.language_model.embed_tokens.weight": {
+                "shape": [4, 16],
+                "dtype": "BF16",
+            }
+        },
+        key_to_shard={"model.language_model.embed_tokens.weight": shard},
+    )
+
+    mappings, issues = build_checkpoint_official_topology._resolve_inventory_mappings(
+        records,
+        family="gemma4_e2b",
+        model_type="tf_lite_prefill_decode",
+        checkpoint=checkpoint,
+    )
+
+    assert issues == []
+    assert mappings[0]["canonical_source_key"] == "lm_head.weight"
+    assert mappings[0]["source_key"] == "model.language_model.embed_tokens.weight"
+    assert mappings[0]["transpose"] is True
+
+    projection_records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_tensor_name": (
+                "LanguageModel/decode_graph/transformer/layer_0/attn/q_einsum/"
+                "dot_general"
+            ),
+            "shape": [8, 4],
+            "bits": 4,
+        }
+    ]
+    wrapped_checkpoint = types.SimpleNamespace(
+        entries={
+            "model.language_model.layers.0.self_attn.q_proj.linear.weight": {
+                "shape": [8, 4],
+                "dtype": "BF16",
+            }
+        },
+        key_to_shard={
+            "model.language_model.layers.0.self_attn.q_proj.linear.weight": shard
+        },
+    )
+    wrapped, wrapped_issues = (
+        build_checkpoint_official_topology._resolve_inventory_mappings(
+            projection_records,
+            family="gemma4_e2b",
+            model_type="tf_lite_prefill_decode",
+            checkpoint=wrapped_checkpoint,
+        )
+    )
+    assert wrapped_issues == []
+    assert wrapped[0]["source_key"].endswith("q_proj.linear.weight")
+
+
+def test_checkpoint_topology_indexes_real_safetensors_without_loading(tmp_path):
+    import numpy as np
+
+    safetensors_numpy = pytest.importorskip("safetensors.numpy")
+    source = tmp_path / "model.safetensors"
+    safetensors_numpy.save_file(
+        {"model.layers.0.self_attn.q_proj.weight": np.ones((3, 2), dtype=np.float32)},
+        str(source),
+    )
+
+    checkpoint = build_checkpoint_official_topology.SafetensorCheckpoint(tmp_path)
+
+    assert checkpoint.entries["model.layers.0.self_attn.q_proj.weight"]["shape"] == [3, 2]
+    assert checkpoint.entries["model.layers.0.self_attn.q_proj.weight"]["dtype"] == "F32"
+    assert checkpoint.describe()["shard_count"] == 1
+
+
+def test_checkpoint_topology_training_scope_matches_checked_in_profiles(tmp_path):
+    import json
+
+    gemma4 = build_checkpoint_official_topology._training_scope_report(
+        ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml",
+        family="gemma4_e2b",
+        official_base_model_id="google/gemma-4-E2B-it",
+    )
+    gemma270 = build_checkpoint_official_topology._training_scope_report(
+        ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml",
+        family="gemma3_270m",
+        official_base_model_id="google/gemma-3-270m-it",
+    )
+
+    assert gemma4["supported_projection_only_transplant"] is True
+    assert gemma270["supported_projection_only_transplant"] is True
+    assert gemma270["checks"]["precision_matches_official_layout"] is True
+
+    unsupported_config = build_checkpoint_official_topology.load_yaml(
+        ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml"
+    )
+    unsupported_config["lora"]["target_modules"] = "all-linear"
+    unsupported_path = tmp_path / "unsupported_lora_scope.json"
+    unsupported_path.write_text(json.dumps(unsupported_config), encoding="utf-8")
+    unsupported = build_checkpoint_official_topology._training_scope_report(
+        unsupported_path,
+        family="gemma3_270m",
+        official_base_model_id="google/gemma-3-270m-it",
+    )
+    assert unsupported["supported_projection_only_transplant"] is False
+    assert unsupported["checks"]["projection_only_lora"] is False
+
+
+def test_checkpoint_topology_requires_merge_metadata_bound_to_training_config(tmp_path):
+    import hashlib
+    import json
+
+    training_config = ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml"
+    merged_model = tmp_path / "model.safetensors"
+    merged_model.write_bytes(b"merged-model")
+    metadata = {
+        "manifest_version": 2,
+        "base_model_id": "google/gemma-3-270m-it",
+        "training_config_sha256": hashlib.sha256(training_config.read_bytes()).hexdigest(),
+        "training_method": "qat_lora_sft",
+        "qat_enabled": True,
+        "adapter_files": [
+            {"path": "adapter_model.safetensors", "size": 10, "sha256": "a" * 64}
+        ],
+        "merged_model_files": [
+            {
+                "path": merged_model.name,
+                "size": merged_model.stat().st_size,
+                "sha256": hashlib.sha256(merged_model.read_bytes()).hexdigest(),
+            }
+        ],
+        "requires_post_merge_quantization": True,
+        "packed_int4_output": False,
+        "mtp_assistant_trained_or_modified": False,
+    }
+    (tmp_path / "qat_mtp_merge_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
+
+    report = build_checkpoint_official_topology._merge_provenance_report(
+        tmp_path,
+        training_config,
+        official_base_model_id="google/gemma-3-270m-it",
+    )
+
+    assert report["verified"] is True
+    merged_model.write_bytes(b"tampered-model")
+    tampered = build_checkpoint_official_topology._merge_provenance_report(
+        tmp_path,
+        training_config,
+        official_base_model_id="google/gemma-3-270m-it",
+    )
+    assert tampered["verified"] is False
+    assert tampered["checks"]["merged_checkpoint_hashes_match"] is False
+    merged_model.write_bytes(b"merged-model")
+    metadata["base_model_id"] = "google/gemma-3-270m"
+    (tmp_path / "qat_mtp_merge_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
+    rejected = build_checkpoint_official_topology._merge_provenance_report(
+        tmp_path,
+        training_config,
+        official_base_model_id="google/gemma-3-270m-it",
+    )
+    assert rejected["verified"] is False
+    assert rejected["checks"]["base_model_matches"] is False
 
 
 def test_converter_injection_layout_compacts_packed_values():

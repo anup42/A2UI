@@ -73,6 +73,7 @@ def main() -> None:
         dtype=str(model.get("dtype") or "bfloat16"),
         trust_remote_code=bool(model.get("trust_remote_code", False)),
         processor_model_id=str(model.get("model_id") or ""),
+        training_config_path=Path(args.config).resolve(),
     )
     plan["merged_model_dir"] = str(merged_dir)
     plan["executed"] = True

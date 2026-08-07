@@ -9,8 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 torch = pytest.importorskip("torch")
-from torch import nn
-
 from ir_training.common.config import load_yaml
 from ir_training.qat.fake_quant import (
     QATSpec,
@@ -24,6 +22,7 @@ from ir_training.qat.mobile_schema import (
     load_mobile_quant_schema,
 )
 from ir_training.qat.workflow import validate_qat_config
+from torch import nn
 
 
 def test_fake_quant_ste_quantizes_forward_and_keeps_gradient():
@@ -102,18 +101,20 @@ def test_qat_controller_wraps_base_layers_and_restores_them():
 
 
 @pytest.mark.parametrize(
-    "config_name",
+    ("config_name", "expected_activation_bits"),
     [
-        "gemma4_e2b_ir_qat_sft.yaml",
-        "gemma3_270m_ir_qat_sft.yaml",
-        "functiongemma_270m_ir_qat_sft.yaml",
+        ("gemma4_e2b_ir_qat_sft.yaml", 8),
+        ("gemma3_270m_ir_qat_sft.yaml", 32),
+        ("functiongemma_270m_ir_qat_sft.yaml", 8),
     ],
 )
-def test_supported_qat_profiles_pass_static_validation(config_name: str):
+def test_supported_qat_profiles_pass_static_validation(
+    config_name: str, expected_activation_bits: int
+):
     config = load_yaml(ROOT / "configs" / "models" / config_name)
     assert validate_qat_config(config) == []
     assert QATSpec.from_config(config).weight_bits == 8
-    assert QATSpec.from_config(config).activation_bits == 8
+    assert QATSpec.from_config(config).activation_bits == expected_activation_bits
 
 
 def test_qat_validation_rejects_qlora_and_disabled_qat():

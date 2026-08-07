@@ -5,12 +5,32 @@ pipeline:
 
   source:
     merged_model_dir: outputs/pipelines/gemma3_270m_qat_litertlm/merged_best_hf
+    # Must be the released Q8 package built from the same base model declared
+    # below. It is read-only and supplies the exact graph/operator layout.
+    official_litertlm: ""
 
   export:
     enabled: true
     config: configs/export/litertlm_gemma270m_int8.yaml
     output_dir: outputs/pipelines/gemma3_270m_qat_litertlm/public_export
     artifact: outputs/pipelines/gemma3_270m_qat_litertlm/gemma3_270m_qat_int8.litertlm
+
+  exact_topology:
+    enabled: true
+    # Change both this value and the training model_id together when using an
+    # instruction-tuned or FunctionGemma package. The exporter fails closed on
+    # a mismatch because non-projection constants remain official.
+    official_base_model_id: google/gemma-3-270m-it
+    official_artifact_sha256: 757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63
+    model_type: TF_LITE_PREFILL_DECODE
+    output_dir: outputs/pipelines/gemma3_270m_qat_litertlm/exact_topology_export
+    calibration_samples: 2
+    threads: 1
+    converter_batch_size: 8
+    retain_intermediates: false
+    runtime_allocate: true
+    runtime_threads: 2
+    runtime_without_default_delegates: true
 
   # Gemma 3 270M has no Gemma 4 MTP drafter package section.
   mtp:
@@ -21,3 +41,8 @@ pipeline:
     delegate: gpu
     mtp: false
     device_validation_required: true
+    output_dir: outputs/pipelines/gemma3_270m_qat_litertlm/android_gpu_parity
+    max_num_tokens: 2048
+    output_tokens: 64
+    warm_runs: 1
+    max_throughput_regression_percent: 10.0

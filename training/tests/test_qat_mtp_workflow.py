@@ -129,6 +129,8 @@ def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatc
     adapter_dir = tmp_path / "adapter"
     output_dir = tmp_path / "merged"
     adapter_dir.mkdir()
+    (adapter_dir / "adapter_config.json").write_text("{}", encoding="utf-8")
+    (adapter_dir / "adapter_model.safetensors").write_bytes(b"fake-adapter")
 
     class FakeMerged:
         def save_pretrained(self, output, safe_serialization):
@@ -172,6 +174,9 @@ def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatc
         output_dir,
         model_loader="auto_causal_lm",
         dtype="bfloat16",
+        training_config_path=(
+            ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml"
+        ),
     )
 
     metadata = json.loads((merged_dir / "qat_mtp_merge_metadata.json").read_text(encoding="utf-8"))
@@ -180,6 +185,14 @@ def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatc
     assert metadata["packed_int4_output"] is False
     assert metadata["requires_post_merge_quantization"] is True
     assert metadata["mtp_assistant_trained_or_modified"] is False
+    assert metadata["manifest_version"] == 2
+    assert metadata["training_method"] == "qat_lora_sft"
+    assert metadata["qat_enabled"] is True
+    assert metadata["training_config_sha256"]
+    assert len(metadata["adapter_files"]) == 2
+    assert len(metadata["merged_model_files"]) == 1
+    assert metadata["merged_model_files"][0]["path"] == "model.safetensors"
+    assert len(metadata["merged_model_files"][0]["sha256"]) == 64
 
 
 def test_reference_benchmark_plan_never_claims_packed_int4():

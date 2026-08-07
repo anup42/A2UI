@@ -1497,6 +1497,63 @@ claim that packaging the official assistant guarantees official throughput,
 and do not invent an assistant-training/export path: Google's released
 LiteRT-LM drafter training and lowering recipe is still not public.
 
+## Preferred trained-checkpoint deployment path
+
+Use `training/scripts/build_checkpoint_official_topology.py` (normally through
+the two pipeline runners) instead of asking the generic LiteRT-Torch exporter
+to recreate the released graph. The released `.litertlm` is the immutable
+graph/template authority. The compiler builds independent float branches from
+the merged checkpoint, runs the public AI Edge Quantizer at each official
+W2/W4/W8 width, and injects only the resulting packed projection constants and
+per-axis scales. This is the direct extension of the random-weight experiment
+that already passed graph/layout/allocation and Android GPU delegation.
+
+The safe contract is projection-only QAT+LoRA from the exact base represented
+by the official package. Merge metadata version 2 records the base model,
+training-config SHA-256, `qat_lora_sft` method, QAT profile, adapter file
+hashes, and every merged safetensor shard/index hash. The compiler rejects an old merge, a generic LoRA merge presented with
+a QAT YAML, a packed mobile checkpoint, a base-model mismatch, a package hash
+mismatch, or any missing/shape-incompatible source key. Do not bypass these
+checks: retained RMSNorm, tokenizer, metadata, and other non-inventory
+constants are only correct when the base identity and mutation scope are
+correct. FC and embedding inventory constants are regenerated from the merged
+checkpoint.
+
+Current exact bindings for the supplied reference artifacts are:
+
+| family | base identity | target section | unique mapped weights | package SHA-256 |
+| --- | --- | --- | ---: | --- |
+| Gemma 4 E2B | `google/gemma-4-E2B-it` | `tf_lite_prefill_decode` | 277 | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
+| Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
+
+The 270M mapping has been checked against an existing merged BF16 checkpoint:
+127/127 headers map without transpose or shape errors. That older checkpoint
+lacks merge-metadata v2 and is intentionally rejected as a production input;
+mapping compatibility is not QAT provenance. The public packed Gemma 4 mobile
+checkpoint is also intentionally rejected by this path because its U8 packed
+shapes are not the required merged floating-point source.
+
+For 270M, train weight-only QAT (`ste_ai_edge`, W8, activation bits 32), including
+the embedding table. The released Q8 graph has INT8 per-row weights and FLOAT32
+input/output edges; the former W8A8 training setting optimized a different
+numerical graph. Keep the training model ID and package/hash paired. A Gemma 3
+base, Gemma 3 IT, and FunctionGemma package may share architecture while still
+having different embeddings, norms, tokenizer, or chat behavior.
+
+For E2B, the final package is a streamed copy of the official package with only
+the target section constants changed. The MTP section is separately hashed and
+must be byte-identical before the `.partial` candidate is promoted. This gives
+the same GPU graph/ops/layout, not automatically the same MTP speed: target
+fine-tuning can reduce draft acceptance even when delegation is identical.
+
+Overall recommendation: select the best golden QAT+LoRA checkpoint by strict IR
+quality, merge it with provenance, compile it into the official topology, then
+run the connected-device parity runner. Promote E2B with `mtp=true` only when
+full delegation, warm target-only throughput, MTP acceptance, MTP-on
+throughput, and output-quality gates all pass. Otherwise ship the same exact
+target graph with MTP disabled. For 270M, require full delegation and warm
+throughput parity; MTP is not applicable.
+
 ## Rules for future agents
 
 1. Re-check official model cards and runtime supported-model lists because Gemma

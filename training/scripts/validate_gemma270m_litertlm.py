@@ -16,8 +16,14 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ir_training.export.litertlm_inspector import LiteRTLMInspectionError, inspect_litertlm
-from ir_training.export.litertlm_mtp import find_model_section
+from ir_training.export.litertlm_inspector import (
+    LiteRTLMInspectionError,
+    inspect_litertlm,
+)
+from ir_training.export.litertlm_mtp import (
+    LiteRTLMMTPPackagingError,
+    find_model_section,
+)
 
 
 def validate_package(
@@ -41,7 +47,7 @@ def validate_package(
     warnings: list[str] = []
     try:
         target = find_model_section(report, "tf_lite_prefill_decode")
-    except Exception as exc:
+    except LiteRTLMMTPPackagingError as exc:
         target = None
         errors.append(str(exc))
     if target is not None and not target.get("alignment_ok"):
@@ -99,7 +105,7 @@ def validate_package(
         "ok": not errors,
         "artifact": str(path),
         "model_family": "gemma3_270m",
-        "quantization": "W8A8_INT8",
+        "quantization": "WI8_AFP32",
         "sections": len(sections),
         "checks": {
             "package_inspection": True,
@@ -115,7 +121,7 @@ def validate_package(
         "limitations": [
             "Desktop inspection cannot prove Android GPU delegate execution.",
             "This pipeline does not provide MTP acceleration for Gemma 3 270M.",
-            "The export recipe is INT8, not INT4/Q4_0.",
+            "The export recipe is weight-only INT8 with FP32 activations, not INT4/Q4_0.",
         ],
     }
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -29,6 +28,10 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     assert plan["package"]["mtp_enabled"] is True
     assert plan["package"]["mtp_model_type"] == "tf_lite_mtp_drafter"
     assert plan["android_gpu"]["mtp_flag"] is True
+    assert plan["exact_topology"]["enabled"] is True
+    assert plan["exact_topology"]["family"] == "gemma4_e2b"
+    assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
+    assert "--execute" in plan["exact_topology"]["command"]
     assert any(item["code"] == "missing_base_package" for item in plan["validation"]["issues"])
 
 
