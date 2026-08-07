@@ -184,7 +184,11 @@ python training/scripts/benchmark_android_litertlm_gpu_parity.py `
 ```
 
 The runner checks complete GPU delegation, signature parity, bounded decode
-throughput, and MTP acceptance separately. See
+throughput, and MTP acceptance separately. A throughput sample passes only when
+both packages decode exactly `--output-tokens`; early stop is a fail-closed,
+non-comparable speed sample. For random-weight graph fixtures, deterministic
+`--top-k`, `--top-p`, `--temperature`, and `--seed` controls can be used to find
+an identical full-length sampling run. See
 `training/docs/gemma4_e2b_qat_mtp_knowledge.md` for the verified SM-F966B
 results and why a preserved official drafter does not guarantee unchanged MTP
 speed after target fine-tuning.

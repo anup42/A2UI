@@ -20,11 +20,11 @@ import shutil
 import subprocess
 import sys
 import uuid
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
-
+from typing import Any
 
 STAGE_ROOT = "/data/local/tmp/litert_parity"
 DEFAULT_TEST_CLASS = "com.samsung.genuicraft.LiteRtGpuInitParityProbeTest"
@@ -137,6 +137,16 @@ def _finite_number(value: Any) -> float | None:
     return number if math.isfinite(number) else None
 
 
+def _nonnegative_int(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return None
+    return number if number >= 0 else None
+
+
 def compare_probe_results(
     official: dict[str, Any],
     candidate: dict[str, Any],
@@ -155,9 +165,33 @@ def compare_probe_results(
 
     official_rate = _finite_number(official_report.get("decode_tokens_per_second"))
     candidate_rate = _finite_number(candidate_report.get("decode_tokens_per_second"))
+    official_decode_count = _nonnegative_int(official_report.get("decode_token_count"))
+    candidate_decode_count = _nonnegative_int(candidate_report.get("decode_token_count"))
+    decode_length_match: bool | None = None
+    requested_decode_length_reached: bool | None = None
+    throughput_sample_comparable: bool | None = None
+    if output_tokens > 0:
+        decode_length_match = (
+            official_decode_count is not None
+            and candidate_decode_count is not None
+            and official_decode_count == candidate_decode_count
+        )
+        requested_decode_length_reached = (
+            official_decode_count == output_tokens
+            and candidate_decode_count == output_tokens
+        )
+        throughput_sample_comparable = bool(
+            decode_length_match and requested_decode_length_reached
+        )
     throughput_regression = None
     throughput_gate = False if output_tokens > 0 else None
-    if output_tokens > 0 and official_rate and candidate_rate is not None:
+    if (
+        output_tokens > 0
+        and throughput_sample_comparable
+        and official_rate is not None
+        and official_rate > 0
+        and candidate_rate is not None
+    ):
         throughput_regression = 100.0 * (official_rate - candidate_rate) / official_rate
         throughput_gate = throughput_regression <= max_throughput_regression_percent
 
@@ -216,6 +250,11 @@ def compare_probe_results(
         "signature_evidence_available": signature_evidence_available,
         "signature_shape_match": signature_shape_match,
         "structural_gpu_parity_pass": structural_pass,
+        "official_decode_token_count": official_decode_count,
+        "candidate_decode_token_count": candidate_decode_count,
+        "decode_length_match": decode_length_match,
+        "requested_decode_length_reached": requested_decode_length_reached,
+        "throughput_sample_comparable": throughput_sample_comparable,
         "official_decode_tokens_per_second": official_rate,
         "candidate_decode_tokens_per_second": candidate_rate,
         "throughput_regression_percent": throughput_regression,
@@ -230,8 +269,10 @@ def compare_probe_results(
         "overall_pass": bool(structural_pass and performance_pass),
         "interpretation": (
             "Structural GPU parity proves the same signatures and delegated node "
-            "counts. Decode throughput and MTP acceptance remain weight-dependent; "
-            "a preserved official drafter does not by itself guarantee official MTP speed."
+            "counts. Throughput passes only when both probes reach the exact requested "
+            "decode length under identical sampler settings. Decode throughput and MTP "
+            "acceptance remain weight-dependent, and a preserved official drafter does "
+            "not by itself guarantee official MTP speed."
         ),
     }
 
@@ -289,12 +330,16 @@ class AndroidProbeRunner:
         mtp_enabled: bool,
         max_num_tokens: int,
         output_tokens: int,
+        top_k: int,
+        top_p: float,
+        temperature: float,
+        seed: int,
         prompt: str,
         output_dir: Path,
         run_index: int,
     ) -> dict[str, Any]:
         self.adb_command("logcat", "-c")
-        instrumentation = self.adb_command(
+        instrumentation_args = [
             "shell",
             "am",
             "instrument",
@@ -319,9 +364,24 @@ class AndroidProbeRunner:
             "outputTokens",
             str(output_tokens),
             "-e",
+            "topK",
+            str(top_k),
+            "-e",
+            "topP",
+            str(top_p),
+            "-e",
+            "temperature",
+            str(temperature),
+            "-e",
+            "seed",
+            str(seed),
+            "-e",
             "promptBase64",
             base64.b64encode(prompt.encode("utf-8")).decode("ascii"),
-            self.runner,
+        ]
+        instrumentation_args.append(self.runner)
+        instrumentation = self.adb_command(
+            *instrumentation_args,
             check=False,
             timeout=self.timeout_seconds,
         )
@@ -440,6 +500,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--mtp", action="store_true")
     parser.add_argument("--max-num-tokens", type=int, default=4096)
     parser.add_argument("--output-tokens", type=int, default=64)
+    parser.add_argument("--top-k", type=int, default=1)
+    parser.add_argument("--top-p", type=float, default=1.0)
+    parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--prompt",
         default="Write exactly one hundred numbered words.",
@@ -471,6 +535,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         raise ValueError("--output-tokens must be between 0 and 512.")
     if args.warm_runs < 0:
         raise ValueError("--warm-runs cannot be negative.")
+    if args.top_k < 1:
+        raise ValueError("--top-k must be at least 1.")
+    if not math.isfinite(args.top_p) or not 0.0 <= args.top_p <= 1.0:
+        raise ValueError("--top-p must be finite and between 0 and 1.")
+    if not math.isfinite(args.temperature) or args.temperature < 0.0:
+        raise ValueError("--temperature must be finite and non-negative.")
 
     output_root = Path(args.output_dir).expanduser().resolve()
     output_root.mkdir(parents=True, exist_ok=True)
@@ -513,6 +583,10 @@ def main(argv: Iterable[str] | None = None) -> int:
                         mtp_enabled=args.mtp,
                         max_num_tokens=args.max_num_tokens,
                         output_tokens=args.output_tokens,
+                        top_k=args.top_k,
+                        top_p=args.top_p,
+                        temperature=args.temperature,
+                        seed=args.seed,
                         prompt=args.prompt,
                         output_dir=role_dir,
                         run_index=run_index,
@@ -537,13 +611,19 @@ def main(argv: Iterable[str] | None = None) -> int:
             max_mtp_success_rate_drop=args.max_mtp_success_rate_drop,
         )
         report = {
-            "schema_version": 1,
+            "schema_version": 2,
             "run_id": run_id,
             "created_utc": datetime.now(timezone.utc).isoformat(),
             "device_serial": serial,
             "mtp_enabled": args.mtp,
             "max_num_tokens": args.max_num_tokens,
             "requested_output_tokens": args.output_tokens,
+            "sampler": {
+                "top_k": args.top_k,
+                "top_p": args.top_p,
+                "temperature": args.temperature,
+                "seed": args.seed,
+            },
             "prompt": args.prompt,
             "cold_run_count": 1,
             "warm_run_count": args.warm_runs,
@@ -564,6 +644,9 @@ def main(argv: Iterable[str] | None = None) -> int:
                     "throughput_regression_percent": comparison[
                         "throughput_regression_percent"
                     ],
+                    "throughput_sample_comparable": comparison[
+                        "throughput_sample_comparable"
+                    ],
                     "mtp_success_rate_drop": comparison["mtp_success_rate_drop"],
                 },
                 indent=2,
@@ -582,6 +665,6 @@ def main(argv: Iterable[str] | None = None) -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except Exception as exc:  # pragma: no cover - CLI boundary
+    except Exception as exc:  # noqa: BLE001  # pragma: no cover - CLI boundary
         print(f"ERROR: {exc}", file=sys.stderr)
         raise SystemExit(1)

@@ -30,6 +30,7 @@ import org.junit.runner.RunWith
  * - mtp: optional true/false speculative-decoding flag.
  * - maxNumTokens: optional context size; defaults to 4096.
  * - outputTokens: optional bounded decode length; defaults to zero (init only).
+ * - topK/topP/temperature/seed: optional deterministic sampler controls.
  * - prompt: optional bounded-generation prompt; defaults to "Hello".
  * - promptBase64: optional UTF-8/base64 prompt; preferred for ADB shell safety.
  */
@@ -58,6 +59,16 @@ class LiteRtGpuInitParityProbeTest {
             ?.toIntOrNull()
             ?.coerceIn(0, 512)
             ?: 0
+        val topK = arguments.getString("topK")?.toIntOrNull()?.coerceAtLeast(1) ?: 1
+        val topP = arguments.getString("topP")
+            ?.toDoubleOrNull()
+            ?.takeIf { it.isFinite() && it in 0.0..1.0 }
+            ?: 1.0
+        val temperature = arguments.getString("temperature")
+            ?.toDoubleOrNull()
+            ?.takeIf { it.isFinite() && it >= 0.0 }
+            ?: 0.0
+        val seed = arguments.getString("seed")?.toIntOrNull() ?: 42
         val prompt = arguments.getString("promptBase64")
             ?.takeIf { it.isNotBlank() }
             ?.let { String(Base64.decode(it, Base64.NO_WRAP), Charsets.UTF_8) }
@@ -76,7 +87,7 @@ class LiteRtGpuInitParityProbeTest {
         }
         val reportFile = File(reportDir, "$label.json")
         val report = JSONObject()
-            .put("schema_version", 1)
+            .put("schema_version", 2)
             .put("label", label)
             .put("model_path", modelFile.canonicalPath)
             .put("model_size_bytes", modelFile.length())
@@ -84,6 +95,10 @@ class LiteRtGpuInitParityProbeTest {
             .put("mtp_enabled", mtpEnabled)
             .put("max_num_tokens", maxNumTokens)
             .put("requested_output_tokens", outputTokens)
+            .put("sampler_top_k", topK)
+            .put("sampler_top_p", topP)
+            .put("sampler_temperature", temperature)
+            .put("sampler_seed", seed)
             .put("cache_dir", cacheDir.absolutePath)
             .put("device_model", Build.MODEL)
             .put("device_product", Build.PRODUCT)
@@ -98,7 +113,9 @@ class LiteRtGpuInitParityProbeTest {
             Log.i(
                 LOG_TAG,
                 "LITERT_GPU_INIT_PARITY start label=$label mtp=$mtpEnabled " +
-                    "maxNumTokens=$maxNumTokens model=${modelFile.canonicalPath}",
+                    "maxNumTokens=$maxNumTokens topK=$topK topP=$topP " +
+                    "temperature=$temperature seed=$seed " +
+                    "model=${modelFile.canonicalPath}",
             )
             engine = Engine(
                 EngineConfig(
@@ -118,10 +135,10 @@ class LiteRtGpuInitParityProbeTest {
                 val response = engine.createConversation(
                     ConversationConfig(
                         samplerConfig = SamplerConfig(
-                            topK = 1,
-                            topP = 1.0,
-                            temperature = 0.0,
-                            seed = 42,
+                            topK = topK,
+                            topP = topP,
+                            temperature = temperature,
+                            seed = seed,
                         ),
                         maxOutputToken = outputTokens,
                     )

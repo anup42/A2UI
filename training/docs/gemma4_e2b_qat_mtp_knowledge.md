@@ -1437,7 +1437,10 @@ It stages official and candidate packages only under
 parses the runtime's signature, `LITERT_CL` delegation, and MTP-success logs,
 and removes only its own temporary device models, reports, and cache labels.
 It deliberately treats structural GPU parity, decode throughput, and MTP
-acceptance as three separate gates.
+acceptance as three separate gates. Throughput is fail-closed: both selected
+runs must report exactly the requested decode count before their tokens/second
+values are compared. Equal package size or equal delegation cannot turn a
+short or unequal decode into a valid speed result.
 
 Build and install the probe test APK once:
 
@@ -1466,27 +1469,38 @@ Gemma 3 270M package, omit `--mtp` and normally use `--max-num-tokens 4096`.
 The default performance gates allow at most 10 percent decode regression and,
 when MTP is exercised, at most 0.10 absolute MTP-success-rate loss. These are
 shipping gates, not claims that every prompt has identical timing.
-Use the same prompt for both packages and choose prompts that normally reach
-the output cap; an early-EOS pair remains valid acceptance evidence but is a
-weaker throughput sample.
+Use the same prompt and sampler for both packages. An early stop is useful
+diagnostic or acceptance evidence, but it is not a throughput sample. The host
+runner exposes `--top-k`, `--top-p`, `--temperature`, and `--seed` for a
+reproducible full-length random-fixture probe; a real checkpoint should also be
+tested under its intended shipping sampler.
+
+Do not use LiteRT-LM 0.15.0's Kotlin `SuppressTokensConfig` as a fixed-length
+benchmark workaround on this runtime. The released AAR's class exposes only a
+Kotlin-mangled `getSuppressTokensArray$...` method, while its JNI library looks
+up `getSuppressTokensArray()[I`. Passing the config caused a reproducible native
+abort on the reference device. The probe therefore does not invoke that API;
+re-check a newer official artifact before enabling it in the future.
 
 The connected reference device was an SM-F966B, Android SDK 36, arm64-v8a,
 using the app's LiteRT-LM 0.15.0 dependency. The tests used independently
 quantized random constants injected into the complete official topology; no
 training ran.
 
-| Package pair | Runtime structure result | Cold init | Bounded warm decode |
-|---|---|---:|---:|
-| Gemma 3 270M official Q8 vs random Q8 | Both packages 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill signatures was 1,667/1,667. | 5,014 ms vs 4,983 ms | Both decoded 64 tokens. Official 54.93 tok/s; random 55.34 tok/s (random +0.75 percent). TTFT was 48.34 ms vs 48.31 ms. |
-| Gemma 4 E2B official vs random mixed W2/W4/W8 target with official MTP preserved | Both packages 2,588,147,712 bytes. Target signatures were 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`); MTP was 198/198. | 9,582 ms vs 8,957 ms | The short prompt terminated at 10 official and 7 random tokens. Official was 21.11 tok/s with MTP success rate 1; random was 11.15 tok/s with MTP success rate 0. |
+| Package pair | Runtime structure result | Validated device result |
+|---|---|---|
+| Gemma 3 270M official Q8 vs random Q8 | Both packages are 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill subgraphs was 1,667/1,667. | Both decoded 64/64 tokens. Official was 55.58 tok/s; random was 51.22 tok/s, a 7.84 percent regression inside the 10 percent gate. |
+| Gemma 4 E2B official vs random mixed W2/W4/W8 target, MTP off | Both packages are 2,588,147,712 bytes. Target subgraphs matched at 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`). | With identical top-k 40, top-p 1.0, temperature 1.0, seed 42 sampling, both decoded 32/32 tokens. Official was 30.11 tok/s; random was 28.55 tok/s, a 5.19 percent regression inside the 10 percent gate. |
+| Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | Initialization/delegation-only (`outputTokens=0`) passed. No throughput or acceptance claim is made from this run. |
 
-The 270M result is direct evidence that unchanged graph/layout gives equivalent
-GPU execution speed even when weights differ. The Gemma 4 result proves a
-different and critical point: exact package, graph, op, and delegate parity is
-not sufficient for equal speculative-decoding speed. Draft-token acceptance is
-numerical and therefore weight-dependent. A target with random or substantially
-drifted weights can fully initialize on GPU while rejecting every proposal from
-the byte-preserved official drafter.
+The 270M and target-only E2B results are direct evidence that unchanged
+graph/layout gives comparable GPU execution speed even when weights differ.
+The E2B MTP initialization result proves that the byte-preserved assistant is
+runnable with the exact-topology target. It does not prove speculative speed:
+draft-token acceptance is numerical and therefore weight-dependent. An earlier
+short diagnostic run observed official acceptance 1 and random-target
+acceptance 0, but its unequal token counts are intentionally rejected as a
+throughput comparison by the current runner.
 
 For a real QAT fine-tune, preserve the default MTP section only as the first
 candidate. Benchmark the selected best target checkpoint with MTP off and on
