@@ -1422,6 +1422,81 @@ for the package gate. It checks for `tf_lite_prefill_decode`, section alignment,
 and package ordering; `--inspect-graphs` adds the slower TFLite inspection.
 The final Android GPU run remains necessary for delegate/runtime evidence.
 
+## Connected Android GPU parity evidence (2026-08-08)
+
+`android/app/src/androidTest/java/com/samsung/genuicraft/LiteRtGpuInitParityProbeTest.kt`
+is an initialization-first probe for arbitrary `.litertlm` paths. It requests
+the GPU backend directly, optionally enables MTP, can cap generation with
+LiteRT-LM 0.15's `ConversationConfig.maxOutputToken`, enables native benchmark
+counters only for bounded generation, and writes a compact JSON result. It does
+not generate by default, so random-logit graph fixtures cannot run forever.
+
+`training/scripts/benchmark_android_litertlm_gpu_parity.py` is the host runner.
+It stages official and candidate packages only under
+`/data/local/tmp/litert_parity`, runs one cold plus configurable warm probes,
+parses the runtime's signature, `LITERT_CL` delegation, and MTP-success logs,
+and removes only its own temporary device models, reports, and cache labels.
+It deliberately treats structural GPU parity, decode throughput, and MTP
+acceptance as three separate gates.
+
+Build and install the probe test APK once:
+
+```powershell
+cd android
+.\gradlew.bat :app:assembleDebugAndroidTest
+adb install -r -t app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
+```
+
+Then compare packages without replacing an app-catalog model:
+
+```powershell
+python training/scripts/benchmark_android_litertlm_gpu_parity.py `
+  --official C:\path\to\official.litertlm `
+  --candidate C:\path\to\candidate.litertlm `
+  --output-dir C:\temp\android-gpu-parity `
+  --serial DEVICE_SERIAL `
+  --mtp `
+  --max-num-tokens 8192 `
+  --output-tokens 64 `
+  --prompt "Write exactly one hundred numbered words."
+```
+
+Use `--output-tokens 0` for an initialization/delegation-only gate. For a
+Gemma 3 270M package, omit `--mtp` and normally use `--max-num-tokens 4096`.
+The default performance gates allow at most 10 percent decode regression and,
+when MTP is exercised, at most 0.10 absolute MTP-success-rate loss. These are
+shipping gates, not claims that every prompt has identical timing.
+Use the same prompt for both packages and choose prompts that normally reach
+the output cap; an early-EOS pair remains valid acceptance evidence but is a
+weaker throughput sample.
+
+The connected reference device was an SM-F966B, Android SDK 36, arm64-v8a,
+using the app's LiteRT-LM 0.15.0 dependency. The tests used independently
+quantized random constants injected into the complete official topology; no
+training ran.
+
+| Package pair | Runtime structure result | Cold init | Bounded warm decode |
+|---|---|---:|---:|
+| Gemma 3 270M official Q8 vs random Q8 | Both packages 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill signatures was 1,667/1,667. | 5,014 ms vs 4,983 ms | Both decoded 64 tokens. Official 54.93 tok/s; random 55.34 tok/s (random +0.75 percent). TTFT was 48.34 ms vs 48.31 ms. |
+| Gemma 4 E2B official vs random mixed W2/W4/W8 target with official MTP preserved | Both packages 2,588,147,712 bytes. Target signatures were 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`); MTP was 198/198. | 9,582 ms vs 8,957 ms | The short prompt terminated at 10 official and 7 random tokens. Official was 21.11 tok/s with MTP success rate 1; random was 11.15 tok/s with MTP success rate 0. |
+
+The 270M result is direct evidence that unchanged graph/layout gives equivalent
+GPU execution speed even when weights differ. The Gemma 4 result proves a
+different and critical point: exact package, graph, op, and delegate parity is
+not sufficient for equal speculative-decoding speed. Draft-token acceptance is
+numerical and therefore weight-dependent. A target with random or substantially
+drifted weights can fully initialize on GPU while rejecting every proposal from
+the byte-preserved official drafter.
+
+For a real QAT fine-tune, preserve the default MTP section only as the first
+candidate. Benchmark the selected best target checkpoint with MTP off and on
+against the untouched official pair. Ship `mtp=true` only if quality passes and
+the on-device acceptance/throughput gate passes on the intended prompt set. If
+acceptance falls, reduce target drift or ship target-only inference. Do not
+claim that packaging the official assistant guarantees official throughput,
+and do not invent an assistant-training/export path: Google's released
+LiteRT-LM drafter training and lowering recipe is still not public.
+
 ## Rules for future agents
 
 1. Re-check official model cards and runtime supported-model lists because Gemma

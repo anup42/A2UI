@@ -15,12 +15,99 @@ import audit_litertlm_weight_recipe  # noqa: E402
 import audit_gemma4_mobile_checkpoint_parity  # noqa: E402
 import audit_gemma4_mobile_projection_parity  # noqa: E402
 import audit_gemma4_mtp_assistant_parity  # noqa: E402
+import benchmark_android_litertlm_gpu_parity  # noqa: E402
 import build_fresh_random_quantized_graph  # noqa: E402
 import build_converter_random_inventory_parity  # noqa: E402
 import build_converter_random_topology_injection_parity  # noqa: E402
 import build_random_official_topology_parity  # noqa: E402
 import build_random_mobile_contract_parity  # noqa: E402
 import build_random_tflite_recipe_parity  # noqa: E402
+
+
+def test_android_gpu_parity_parser_extracts_full_delegation_and_mtp_rate():
+    logcat = """
+signature=decode, subgraph_index=0, num_tensors=10, num_inputs=2, num_outputs=1, num_ops=7
+Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+signature=mtp_drafter, subgraph_index=0, num_tensors=5, num_inputs=2, num_outputs=1, num_ops=3
+Replacing 3 out of 3 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (main).
+MTP Drafter - Success rate: 0.75
+"""
+
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(logcat)
+
+    assert evidence["all_gpu_subgraphs_fully_delegated"] is True
+    assert evidence["gpu_delegation_count"] == 2
+    assert [item["operator_count"] for item in evidence["signatures"]] == [7, 3]
+    assert evidence["last_mtp_success_rate"] == pytest.approx(0.75)
+
+
+def test_android_gpu_parity_gate_separates_structure_from_mtp_acceptance():
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
+        """
+signature=decode, subgraph_index=0, num_tensors=10, num_inputs=2, num_outputs=1, num_ops=7
+Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+MTP Drafter - Success rate: 1
+"""
+    )
+    candidate_evidence = dict(evidence)
+    candidate_evidence["mtp_success_rates"] = [0.0]
+    candidate_evidence["last_mtp_success_rate"] = 0.0
+    official = {
+        "instrumentation_passed": True,
+        "device_report": {
+            "model_size_bytes": 100,
+            "decode_tokens_per_second": 60.0,
+        },
+        "logcat_evidence": evidence,
+    }
+    candidate = {
+        "instrumentation_passed": True,
+        "device_report": {
+            "model_size_bytes": 100,
+            "decode_tokens_per_second": 59.0,
+        },
+        "logcat_evidence": candidate_evidence,
+    }
+
+    comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
+        official,
+        candidate,
+        mtp_enabled=True,
+        output_tokens=64,
+        max_throughput_regression_percent=10.0,
+        max_mtp_success_rate_drop=0.1,
+    )
+
+    assert comparison["structural_gpu_parity_pass"] is True
+    assert comparison["throughput_gate_pass"] is True
+    assert comparison["mtp_acceptance_gate_pass"] is False
+    assert comparison["overall_pass"] is False
+
+
+def test_android_gpu_parity_allows_two_absent_signature_summaries():
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
+        "Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, "
+        "yielding 1 partitions for subgraph 0 (decode)."
+    )
+    probe = {
+        "instrumentation_passed": True,
+        "device_report": {"model_size_bytes": 100},
+        "logcat_evidence": evidence,
+    }
+
+    comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
+        probe,
+        probe,
+        mtp_enabled=False,
+        output_tokens=0,
+        max_throughput_regression_percent=10.0,
+        max_mtp_success_rate_drop=0.1,
+    )
+
+    assert comparison["signature_evidence_available"] is False
+    assert comparison["signature_shape_match"] is None
+    assert comparison["structural_gpu_parity_pass"] is True
+    assert comparison["overall_pass"] is True
 
 
 def test_mobile_recipe_audit_groups_observable_tensor_names():

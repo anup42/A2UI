@@ -1,0 +1,587 @@
+#!/usr/bin/env python3
+"""Compare official and candidate LiteRT-LM packages on an Android GPU.
+
+The script never trains a model and never overwrites a catalog model. It stages
+two temporary packages under ``/data/local/tmp/litert_parity``, invokes the
+``LiteRtGpuInitParityProbeTest`` instrumentation test, parses LiteRT's own
+delegation/MTP logs, and writes a compact JSON report. Temporary device models,
+probe reports, and probe-only cache directories are removed unless explicitly
+retained.
+"""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import json
+import math
+import re
+import shutil
+import subprocess
+import sys
+import uuid
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterable
+
+
+STAGE_ROOT = "/data/local/tmp/litert_parity"
+DEFAULT_TEST_CLASS = "com.samsung.genuicraft.LiteRtGpuInitParityProbeTest"
+DEFAULT_RUNNER = (
+    "com.samsung.genuicraft.test/androidx.test.runner.AndroidJUnitRunner"
+)
+DEFAULT_APP_PACKAGE = "com.samsung.genuicraft"
+
+DELEGATION_RE = re.compile(
+    r"Replacing\s+(?P<delegated>\d+)\s+out of\s+(?P<total>\d+)\s+node\(s\)\s+"
+    r"with delegate \(LITERT_CL\) node,\s+yielding\s+(?P<partitions>\d+)\s+"
+    r"partitions for subgraph\s+(?P<subgraph>\d+)\s+\((?P<name>[^)]+)\)",
+    re.IGNORECASE,
+)
+SIGNATURE_RE = re.compile(
+    r"signature=(?P<name>[A-Za-z0-9_]+),\s+"
+    r"subgraph_index=(?P<subgraph>\d+),\s+"
+    r"num_tensors=(?P<tensors>\d+),\s+"
+    r"num_inputs=(?P<inputs>\d+),\s+"
+    r"num_outputs=(?P<outputs>\d+),\s+"
+    r"num_ops=(?P<ops>\d+)",
+    re.IGNORECASE,
+)
+MTP_SUCCESS_RE = re.compile(
+    r"MTP\s+Drafter\s+-\s+Success\s+rate:\s*(?P<rate>[0-9]+(?:\.[0-9]+)?)",
+    re.IGNORECASE,
+)
+
+
+@dataclass(frozen=True)
+class CommandResult:
+    returncode: int
+    stdout: str
+
+
+def parse_logcat_evidence(text: str) -> dict[str, Any]:
+    """Extract delegation, signature, and MTP acceptance evidence."""
+
+    delegations = [
+        {
+            "delegated_nodes": int(match.group("delegated")),
+            "total_nodes": int(match.group("total")),
+            "partitions": int(match.group("partitions")),
+            "subgraph_index": int(match.group("subgraph")),
+            "subgraph_name": match.group("name"),
+        }
+        for match in DELEGATION_RE.finditer(text)
+    ]
+    signatures = [
+        {
+            "name": match.group("name"),
+            "subgraph_index": int(match.group("subgraph")),
+            "tensor_count": int(match.group("tensors")),
+            "input_count": int(match.group("inputs")),
+            "output_count": int(match.group("outputs")),
+            "operator_count": int(match.group("ops")),
+        }
+        for match in SIGNATURE_RE.finditer(text)
+    ]
+    mtp_success_rates = [
+        float(match.group("rate")) for match in MTP_SUCCESS_RE.finditer(text)
+    ]
+    return {
+        "gpu_delegations": delegations,
+        "gpu_delegation_count": len(delegations),
+        "all_gpu_subgraphs_fully_delegated": bool(delegations)
+        and all(
+            item["delegated_nodes"] == item["total_nodes"]
+            and item["partitions"] == 1
+            for item in delegations
+        ),
+        "signatures": signatures,
+        "mtp_success_rates": mtp_success_rates,
+        "last_mtp_success_rate": mtp_success_rates[-1]
+        if mtp_success_rates
+        else None,
+    }
+
+
+def _delegation_shape(evidence: dict[str, Any]) -> list[tuple[int, str, int]]:
+    return sorted(
+        (
+            int(item["subgraph_index"]),
+            str(item["subgraph_name"]),
+            int(item["total_nodes"]),
+        )
+        for item in evidence.get("gpu_delegations", [])
+    )
+
+
+def _signature_shape(evidence: dict[str, Any]) -> list[tuple[Any, ...]]:
+    return sorted(
+        (
+            str(item["name"]),
+            int(item["subgraph_index"]),
+            int(item["tensor_count"]),
+            int(item["input_count"]),
+            int(item["output_count"]),
+            int(item["operator_count"]),
+        )
+        for item in evidence.get("signatures", [])
+    )
+
+
+def _finite_number(value: Any) -> float | None:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
+
+def compare_probe_results(
+    official: dict[str, Any],
+    candidate: dict[str, Any],
+    *,
+    mtp_enabled: bool,
+    output_tokens: int,
+    max_throughput_regression_percent: float,
+    max_mtp_success_rate_drop: float,
+) -> dict[str, Any]:
+    """Build explicit structural, speed, and MTP-acceptance gates."""
+
+    official_evidence = official["logcat_evidence"]
+    candidate_evidence = candidate["logcat_evidence"]
+    official_report = official.get("device_report") or {}
+    candidate_report = candidate.get("device_report") or {}
+
+    official_rate = _finite_number(official_report.get("decode_tokens_per_second"))
+    candidate_rate = _finite_number(candidate_report.get("decode_tokens_per_second"))
+    throughput_regression = None
+    throughput_gate = False if output_tokens > 0 else None
+    if output_tokens > 0 and official_rate and candidate_rate is not None:
+        throughput_regression = 100.0 * (official_rate - candidate_rate) / official_rate
+        throughput_gate = throughput_regression <= max_throughput_regression_percent
+
+    official_mtp_rate = _finite_number(official_evidence.get("last_mtp_success_rate"))
+    candidate_mtp_rate = _finite_number(candidate_evidence.get("last_mtp_success_rate"))
+    mtp_rate_drop = None
+    mtp_acceptance_gate = None
+    if mtp_enabled and output_tokens > 0:
+        if official_mtp_rate is not None and candidate_mtp_rate is not None:
+            mtp_rate_drop = official_mtp_rate - candidate_mtp_rate
+            mtp_acceptance_gate = mtp_rate_drop <= max_mtp_success_rate_drop
+        else:
+            mtp_acceptance_gate = False
+
+    official_size = official_report.get("model_size_bytes")
+    candidate_size = candidate_report.get("model_size_bytes")
+    size_match = (
+        official_size is not None
+        and candidate_size is not None
+        and official_size == candidate_size
+    )
+    delegation_shape_match = _delegation_shape(official_evidence) == _delegation_shape(
+        candidate_evidence
+    )
+    official_signatures = _signature_shape(official_evidence)
+    candidate_signatures = _signature_shape(candidate_evidence)
+    signature_evidence_available = bool(official_signatures or candidate_signatures)
+    signature_shape_match: bool | None
+    if signature_evidence_available:
+        signature_shape_match = bool(official_signatures and candidate_signatures) and (
+            official_signatures == candidate_signatures
+        )
+    else:
+        signature_shape_match = None
+    structural_pass = all(
+        (
+            official.get("instrumentation_passed"),
+            candidate.get("instrumentation_passed"),
+            official_evidence.get("all_gpu_subgraphs_fully_delegated"),
+            candidate_evidence.get("all_gpu_subgraphs_fully_delegated"),
+            delegation_shape_match,
+            signature_shape_match is not False,
+            size_match,
+        )
+    )
+    performance_pass = throughput_gate is not False and mtp_acceptance_gate is not False
+    return {
+        "official_and_candidate_package_size_match": size_match,
+        "official_full_gpu_delegation": bool(
+            official_evidence.get("all_gpu_subgraphs_fully_delegated")
+        ),
+        "candidate_full_gpu_delegation": bool(
+            candidate_evidence.get("all_gpu_subgraphs_fully_delegated")
+        ),
+        "delegation_shape_match": delegation_shape_match,
+        "signature_evidence_available": signature_evidence_available,
+        "signature_shape_match": signature_shape_match,
+        "structural_gpu_parity_pass": structural_pass,
+        "official_decode_tokens_per_second": official_rate,
+        "candidate_decode_tokens_per_second": candidate_rate,
+        "throughput_regression_percent": throughput_regression,
+        "max_throughput_regression_percent": max_throughput_regression_percent,
+        "throughput_gate_pass": throughput_gate,
+        "official_mtp_success_rate": official_mtp_rate,
+        "candidate_mtp_success_rate": candidate_mtp_rate,
+        "mtp_success_rate_drop": mtp_rate_drop,
+        "max_mtp_success_rate_drop": max_mtp_success_rate_drop,
+        "mtp_acceptance_gate_pass": mtp_acceptance_gate,
+        "performance_gate_pass": performance_pass,
+        "overall_pass": bool(structural_pass and performance_pass),
+        "interpretation": (
+            "Structural GPU parity proves the same signatures and delegated node "
+            "counts. Decode throughput and MTP acceptance remain weight-dependent; "
+            "a preserved official drafter does not by itself guarantee official MTP speed."
+        ),
+    }
+
+
+class AndroidProbeRunner:
+    def __init__(
+        self,
+        *,
+        adb: str,
+        serial: str,
+        app_package: str,
+        test_class: str,
+        runner: str,
+        timeout_seconds: int,
+    ) -> None:
+        self.adb = adb
+        self.serial = serial
+        self.app_package = app_package
+        self.test_class = test_class
+        self.runner = runner
+        self.timeout_seconds = timeout_seconds
+
+    def adb_command(
+        self,
+        *arguments: str,
+        check: bool = True,
+        timeout: int | None = None,
+    ) -> CommandResult:
+        completed = subprocess.run(
+            [self.adb, "-s", self.serial, *arguments],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout or self.timeout_seconds,
+            check=False,
+        )
+        if check and completed.returncode != 0:
+            raise RuntimeError(
+                f"adb command failed ({completed.returncode}): {' '.join(arguments)}\n"
+                f"{completed.stdout}"
+            )
+        return CommandResult(completed.returncode, completed.stdout)
+
+    def stage(self, host_path: Path, device_path: str) -> None:
+        self.adb_command("push", str(host_path), device_path)
+        self.adb_command("shell", "chmod", "644", device_path)
+
+    def run_once(
+        self,
+        *,
+        device_path: str,
+        label: str,
+        mtp_enabled: bool,
+        max_num_tokens: int,
+        output_tokens: int,
+        prompt: str,
+        output_dir: Path,
+        run_index: int,
+    ) -> dict[str, Any]:
+        self.adb_command("logcat", "-c")
+        instrumentation = self.adb_command(
+            "shell",
+            "am",
+            "instrument",
+            "-w",
+            "-r",
+            "-e",
+            "class",
+            self.test_class,
+            "-e",
+            "modelPath",
+            device_path,
+            "-e",
+            "label",
+            label,
+            "-e",
+            "mtp",
+            str(mtp_enabled).lower(),
+            "-e",
+            "maxNumTokens",
+            str(max_num_tokens),
+            "-e",
+            "outputTokens",
+            str(output_tokens),
+            "-e",
+            "promptBase64",
+            base64.b64encode(prompt.encode("utf-8")).decode("ascii"),
+            self.runner,
+            check=False,
+            timeout=self.timeout_seconds,
+        )
+        logcat = self.adb_command("logcat", "-d", "-v", "threadtime").stdout
+        instrumentation_passed = (
+            instrumentation.returncode == 0
+            and "OK (1 test)" in instrumentation.stdout
+            and "FAILURES!!!" not in instrumentation.stdout
+        )
+        prefix = output_dir / f"run_{run_index:02d}"
+        prefix.with_suffix(".instrumentation.txt").write_text(
+            instrumentation.stdout, encoding="utf-8"
+        )
+        prefix.with_suffix(".logcat.txt").write_text(logcat, encoding="utf-8")
+        device_report: dict[str, Any] | None = None
+        device_report_error: str | None = None
+        report_result = self.adb_command(
+            "exec-out",
+            "run-as",
+            self.app_package,
+            "cat",
+            f"files/litert_gpu_parity_reports/{label}.json",
+            check=False,
+        )
+        if report_result.returncode == 0 and report_result.stdout.strip():
+            try:
+                device_report = json.loads(report_result.stdout)
+            except json.JSONDecodeError as exc:
+                device_report_error = f"{exc}: {report_result.stdout.strip()[:500]}"
+        if device_report is not None:
+            prefix.with_suffix(".device_report.json").write_text(
+                json.dumps(device_report, indent=2) + "\n", encoding="utf-8"
+            )
+        return {
+            "run_index": run_index,
+            "instrumentation_passed": instrumentation_passed,
+            "instrumentation_returncode": instrumentation.returncode,
+            "device_report": device_report,
+            "device_report_error": device_report_error,
+            "logcat_evidence": parse_logcat_evidence(logcat),
+        }
+
+    def cleanup_probe_artifacts(self, *, device_paths: Iterable[str], labels: Iterable[str]) -> None:
+        for device_path in device_paths:
+            if not device_path.startswith(f"{STAGE_ROOT}/parity_"):
+                raise ValueError(f"Refusing to remove unexpected device path: {device_path}")
+            self.adb_command("shell", "rm", "-f", device_path, check=False)
+        for label in labels:
+            if not re.fullmatch(r"parity_[A-Za-z0-9_.-]+", label):
+                raise ValueError(f"Refusing to remove unexpected probe label: {label}")
+            self.adb_command(
+                "shell",
+                "run-as",
+                self.app_package,
+                "rm",
+                "-rf",
+                f"cache/litert_gpu_parity/{label}",
+                check=False,
+            )
+            self.adb_command(
+                "shell",
+                "run-as",
+                self.app_package,
+                "rm",
+                "-f",
+                f"files/litert_gpu_parity_reports/{label}.json",
+                check=False,
+            )
+
+
+def _resolve_adb(explicit: str | None) -> str:
+    candidate = explicit or shutil.which("adb")
+    if not candidate:
+        raise RuntimeError("adb was not found. Pass --adb or add platform-tools to PATH.")
+    return candidate
+
+
+def _resolve_serial(adb: str, explicit: str | None) -> str:
+    completed = subprocess.run(
+        [adb, "devices"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    devices = [
+        line.split()[0]
+        for line in completed.stdout.splitlines()
+        if len(line.split()) >= 2 and line.split()[1] == "device"
+    ]
+    if explicit:
+        if explicit not in devices:
+            raise RuntimeError(
+                f"Requested device {explicit!r} is not connected; found {devices}."
+            )
+        return explicit
+    if len(devices) != 1:
+        raise RuntimeError(f"Expected one connected device; found {devices}. Pass --serial.")
+    return devices[0]
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Benchmark official and candidate LiteRT-LM packages on Android GPU."
+    )
+    parser.add_argument("--official", required=True, help="Official .litertlm package.")
+    parser.add_argument("--candidate", required=True, help="Candidate .litertlm package.")
+    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--adb")
+    parser.add_argument("--serial")
+    parser.add_argument("--app-package", default=DEFAULT_APP_PACKAGE)
+    parser.add_argument("--test-class", default=DEFAULT_TEST_CLASS)
+    parser.add_argument("--runner", default=DEFAULT_RUNNER)
+    parser.add_argument("--mtp", action="store_true")
+    parser.add_argument("--max-num-tokens", type=int, default=4096)
+    parser.add_argument("--output-tokens", type=int, default=64)
+    parser.add_argument(
+        "--prompt",
+        default="Write exactly one hundred numbered words.",
+        help="Bounded-generation prompt. Choose one unlikely to stop before the token cap.",
+    )
+    parser.add_argument(
+        "--warm-runs",
+        type=int,
+        default=1,
+        help="Additional runs after the cold run; the last run is compared.",
+    )
+    parser.add_argument("--timeout-seconds", type=int, default=900)
+    parser.add_argument("--max-throughput-regression-percent", type=float, default=10.0)
+    parser.add_argument("--max-mtp-success-rate-drop", type=float, default=0.10)
+    parser.add_argument("--keep-device-artifacts", action="store_true")
+    return parser
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    args = _parser().parse_args(argv)
+    official = Path(args.official).expanduser().resolve()
+    candidate = Path(args.candidate).expanduser().resolve()
+    for path in (official, candidate):
+        if not path.is_file() or path.stat().st_size <= 0:
+            raise FileNotFoundError(f"LiteRT-LM package is missing or empty: {path}")
+    if args.max_num_tokens < 1024:
+        raise ValueError("--max-num-tokens must be at least 1024.")
+    if not 0 <= args.output_tokens <= 512:
+        raise ValueError("--output-tokens must be between 0 and 512.")
+    if args.warm_runs < 0:
+        raise ValueError("--warm-runs cannot be negative.")
+
+    output_root = Path(args.output_dir).expanduser().resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "_" + uuid.uuid4().hex[:8]
+    device_dir = f"{STAGE_ROOT}/parity_{run_id}"
+    device_paths = {
+        "official": f"{device_dir}/official.litertlm",
+        "candidate": f"{device_dir}/candidate.litertlm",
+    }
+    labels = {
+        "official": f"parity_{run_id}_official",
+        "candidate": f"parity_{run_id}_candidate",
+    }
+
+    adb = _resolve_adb(args.adb)
+    serial = _resolve_serial(adb, args.serial)
+    runner = AndroidProbeRunner(
+        adb=adb,
+        serial=serial,
+        app_package=args.app_package,
+        test_class=args.test_class,
+        runner=args.runner,
+        timeout_seconds=args.timeout_seconds,
+    )
+    runner.adb_command("shell", "mkdir", "-p", device_dir)
+    runner.adb_command("shell", "chmod", "755", device_dir)
+    results: dict[str, Any] = {}
+    try:
+        runner.stage(official, device_paths["official"])
+        runner.stage(candidate, device_paths["candidate"])
+        for role in ("official", "candidate"):
+            role_dir = output_root / role
+            role_dir.mkdir(parents=True, exist_ok=True)
+            role_runs = []
+            for run_index in range(args.warm_runs + 1):
+                role_runs.append(
+                    runner.run_once(
+                        device_path=device_paths[role],
+                        label=labels[role],
+                        mtp_enabled=args.mtp,
+                        max_num_tokens=args.max_num_tokens,
+                        output_tokens=args.output_tokens,
+                        prompt=args.prompt,
+                        output_dir=role_dir,
+                        run_index=run_index,
+                    )
+                )
+            results[role] = {
+                "host_path": str(official if role == "official" else candidate),
+                "host_size_bytes": (
+                    official if role == "official" else candidate
+                ).stat().st_size,
+                "device_path": device_paths[role],
+                "runs": role_runs,
+                "selected_run": role_runs[-1],
+            }
+
+        comparison = compare_probe_results(
+            results["official"]["selected_run"],
+            results["candidate"]["selected_run"],
+            mtp_enabled=args.mtp,
+            output_tokens=args.output_tokens,
+            max_throughput_regression_percent=args.max_throughput_regression_percent,
+            max_mtp_success_rate_drop=args.max_mtp_success_rate_drop,
+        )
+        report = {
+            "schema_version": 1,
+            "run_id": run_id,
+            "created_utc": datetime.now(timezone.utc).isoformat(),
+            "device_serial": serial,
+            "mtp_enabled": args.mtp,
+            "max_num_tokens": args.max_num_tokens,
+            "requested_output_tokens": args.output_tokens,
+            "prompt": args.prompt,
+            "cold_run_count": 1,
+            "warm_run_count": args.warm_runs,
+            "training_executed": False,
+            "results": results,
+            "comparison": comparison,
+        }
+        report_path = output_root / "android_litertlm_gpu_parity_report.json"
+        report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        print(
+            json.dumps(
+                {
+                    "report": str(report_path),
+                    "overall_pass": comparison["overall_pass"],
+                    "structural_gpu_parity_pass": comparison[
+                        "structural_gpu_parity_pass"
+                    ],
+                    "throughput_regression_percent": comparison[
+                        "throughput_regression_percent"
+                    ],
+                    "mtp_success_rate_drop": comparison["mtp_success_rate_drop"],
+                },
+                indent=2,
+            )
+        )
+        return 0 if comparison["overall_pass"] else 2
+    finally:
+        if not args.keep_device_artifacts:
+            runner.cleanup_probe_artifacts(
+                device_paths=device_paths.values(), labels=labels.values()
+            )
+            if device_dir.startswith(f"{STAGE_ROOT}/parity_"):
+                runner.adb_command("shell", "rmdir", device_dir, check=False)
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except Exception as exc:  # pragma: no cover - CLI boundary
+        print(f"ERROR: {exc}", file=sys.stderr)
+        raise SystemExit(1)

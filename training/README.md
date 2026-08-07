@@ -171,6 +171,24 @@ assistant. A package passing this desktop gate is structurally ready for an
 report from a real LiteRT-LM GPU harness to the validator for the final runtime
 gate.
 
+After installing the `androidTest` APK, compare the untouched official package
+and the composed candidate without replacing any catalog model:
+
+```powershell
+python training/scripts/benchmark_android_litertlm_gpu_parity.py `
+  --official C:\path\to\official.litertlm `
+  --candidate C:\path\to\candidate.litertlm `
+  --output-dir C:\temp\android-gpu-parity `
+  --mtp --max-num-tokens 8192 --output-tokens 64 `
+  --prompt "Write exactly one hundred numbered words."
+```
+
+The runner checks complete GPU delegation, signature parity, bounded decode
+throughput, and MTP acceptance separately. See
+`training/docs/gemma4_e2b_qat_mtp_knowledge.md` for the verified SM-F966B
+results and why a preserved official drafter does not guarantee unchanged MTP
+speed after target fine-tuning.
+
 Training, merge, and the optional public standalone exporter are explicit:
 
 ```powershell
