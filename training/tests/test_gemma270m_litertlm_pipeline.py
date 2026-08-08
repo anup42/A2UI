@@ -25,11 +25,30 @@ def test_gemma270m_plan_selects_best_checkpoint_and_disables_mtp():
     assert plan["package"]["mtp"]["enabled"] is False
     assert plan["package"]["mtp"]["status"] == "not_applicable_for_gemma3_270m"
     assert plan["android_gpu"]["mtp_flag"] is False
+    assert plan["android_gpu"]["warm_runs"] == 3
+    assert plan["android_gpu"]["minimum_performance_warm_runs"] == 3
+    assert plan["android_gpu"]["performance_selection_policy"] == (
+        "median_of_all_warm_runs_all_must_be_valid"
+    )
     assert plan["exact_topology"]["enabled"] is True
     assert plan["exact_topology"]["family"] == "gemma3_270m"
     assert plan["exact_topology"]["model_type"] == "TF_LITE_PREFILL_DECODE"
     assert "--execute" in plan["exact_topology"]["command"]
     assert plan["validation"]["ok"] is True
+
+
+def test_gemma270m_plan_rejects_too_few_gpu_warm_runs():
+    config_path = ROOT / "configs" / "pipelines" / "gemma3_270m_qat_litertlm.yaml"
+    config = load_yaml(config_path)
+    config["pipeline"]["android"]["warm_runs"] = 2
+
+    plan = build_pipeline_plan(config, config_path=config_path)
+
+    assert plan["validation"]["ok"] is False
+    assert any(
+        issue["code"] == "insufficient_android_gpu_warm_runs"
+        for issue in plan["validation"]["issues"]
+    )
 
 
 def test_gemma270m_plan_rejects_mtp_configuration():
@@ -71,7 +90,7 @@ def test_gemma270m_validator_accepts_prefill_without_mtp(monkeypatch, tmp_path):
     assert result["checks"]["mtp_not_required"] is True
 
 
-def test_gemma270m_validator_accepts_schema_v4_gpu_parity_report(monkeypatch, tmp_path):
+def test_gemma270m_validator_accepts_schema_v5_gpu_parity_report(monkeypatch, tmp_path):
     import validate_gemma270m_litertlm as validator
 
     fake_report = {
@@ -99,8 +118,12 @@ def test_gemma270m_validator_accepts_schema_v4_gpu_parity_report(monkeypatch, tm
     device_report.write_text(
         json.dumps(
             {
-                "schema_version": 4,
+                "schema_version": 5,
                 "mtp_enabled": False,
+                "warm_run_count": 3,
+                "performance_selection_policy": (
+                    "median_of_all_warm_runs_all_must_be_valid"
+                ),
                 "comparison": {
                     "official_artifact_identity_verified": True,
                     "candidate_artifact_identity_verified": True,
@@ -113,6 +136,8 @@ def test_gemma270m_validator_accepts_schema_v4_gpu_parity_report(monkeypatch, tm
                     "structural_gpu_parity_pass": True,
                     "throughput_sample_comparable": True,
                     "throughput_gate_pass": True,
+                    "warm_run_gate_pass": True,
+                    "warm_structural_gate_pass": True,
                     "overall_pass": True,
                 },
             }

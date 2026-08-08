@@ -1523,16 +1523,18 @@ It stages official and candidate packages only under
 `/data/local/tmp/litert_parity`, runs one cold plus configurable warm probes,
 parses the runtime's signature, `LITERT_CL` delegation, and MTP-success logs,
 and removes only its own temporary device models, reports, and cache labels.
-Schema-v4 reports cryptographically bind each result to the exact package:
+Schema-v5 reports cryptographically bind each result to the exact package:
 the runner hashes the host file, verifies the staged device SHA-256 before and
 after inference, and checks the device-reported path and size. Pipeline/package
 validators independently re-hash the final candidate and require it to equal
 the candidate identity in the report. Older path-and-size-only reports are not
 shipping evidence.
 It deliberately treats structural GPU parity, decode throughput, and MTP
-acceptance as three separate gates. Throughput is fail-closed: both selected
-runs must report the requested decode count before their tokens/second values
-are compared. Target-only requires an exact count. With MTP, LiteRT-LM checks
+acceptance as three separate gates. The runner alternates which package executes
+first, requires at least three valid warm runs per package, rejects the entire
+speed gate if any warm run loses delegation or misses the decode bound, and
+compares the two warm medians. Target-only requires an exact count. With MTP,
+LiteRT-LM checks
 the cap after `Decode()` and one verifier call can accept several draft tokens,
 so the default gate permits only the released four-position bound of
 `requested <= decoded <= requested + 4`. A short decode or larger overshoot is
@@ -1582,7 +1584,7 @@ re-check a newer official artifact before enabling it in the future.
 The connected reference device was an SM-F966B, Android SDK 36, arm64-v8a,
 using the app's LiteRT-LM 0.15.0 dependency. The tests used independently
 quantized random constants injected into the complete official topology; no
-training ran. The latest selected warm runs below use schema-v4 identity gates:
+training ran. The original selected warm runs below use schema-v4 identity gates:
 the official and candidate SHA-256 values matched the staged device files both
 before and after inference. The 270M official/candidate hashes were
 `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` /
@@ -1642,6 +1644,32 @@ official assistant guarantees official throughput. The checked-in trained
 assistant path is explicitly a public reconstruction and must pass the same
 device gates; Google's exact private drafter training/lowering recipe is still
 not public.
+
+### Repeated schema-v5 device results
+
+The same SM-F966B was then used for fresh schema-v5 runs. Every performance
+comparison used one cold run followed by three warm runs per package, alternated
+official/candidate execution order, required every warm sample to remain fully
+delegated and within the decode bound, and compared the median warm throughput.
+No training was performed for these topology fixtures. Older schema-v4 reports
+remain useful historical diagnostics but are no longer accepted by the current
+production validator.
+
+| Package pair | Warm median and runtime result | Report SHA-256 |
+|---|---|---|
+| Gemma 3 270M official Q8 vs independently quantized random Q8 | Both decoded 64/64 on every warm run with complete, consistent delegation. Official median was 52.3033 tok/s and candidate median was 50.5414 tok/s, a 3.3685 percent regression inside the 10 percent gate. The independent package/graph/device validator passed. | `aca8d594d6391b4e6d0bb6ce3efe19687b4be5552f32e1c491dbc4ed7e1cffb0` |
+| Gemma 4 E2B official vs independently quantized random mixed W2/W4/W8 target, MTP off | Both decoded 32/32 on every warm run with identical target signatures and complete delegation. Official median was 30.2114 tok/s and candidate median was 30.4102 tok/s, so the candidate was 0.6579 percent faster in this sample. All schema-v5 gates passed. | `bff1553877b9bfec17c9a155f3a78bb615be27318caf15e57f2518ec2e896028` |
+| Gemma 4 E2B official vs random target with the byte-preserved official drafter, MTP on | The target and 198-node drafter graph remained fully delegated and structurally consistent in every warm run. Official/candidate medians were 17.1064/12.5374 tok/s and MTP acceptance was 0.266667/0.0. Structural and warm-sample validity passed; the 26.7091 percent speed regression and acceptance loss correctly failed promotion. | `ad2cba78a3b3fa1d4c64a8f0417d1f76374b53f6a73284c370b32ec48db29cba` |
+| Gemma 4 E2B official vs random target plus independently quantized random 23-matrix drafter, MTP on | The target and random 198-node drafter fully delegated in every warm run. Official/candidate medians were 16.6188/12.6563 tok/s; median acceptance was 0.266667/0.133333. Nonzero candidate acceptance proves that the independently rebuilt drafter executed, while the 23.8432 percent speed regression and 0.133334 acceptance drop correctly failed weight-dependent promotion gates. | `179f9b5e339ac1a0e0dbfe7c0d85aacc5bf1c041d395f9919416ad818758bba2` |
+
+These runs strengthen the graph and Android GPU conclusion: official-topology
+target reconstruction preserves allocation, signatures, delegation, and
+target-only performance across repeated measurements. They also prove that
+both the preserved official assistant and the independently rebuilt public
+assistant topology execute through MTP. They do not prove trained-model quality
+or speculative speed. MTP acceptance is numerical and weight-dependent, so the
+real QAT-selected target checkpoint—and a trained public drafter if the released
+assistant no longer aligns—must pass the same schema-v5 gates before shipping.
 
 ## Preferred trained-checkpoint deployment path
 

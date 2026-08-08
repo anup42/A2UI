@@ -153,7 +153,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--target-only-device-report",
-        help="Optional schema-v4 target-only parity report; required with --device-report for a shipping-speed claim.",
+        help="Optional schema-v5 target-only parity report; required with --device-report for a shipping-speed claim.",
     )
     parser.add_argument("--output", type=Path, help="Optional output JSON path.")
     args = parser.parse_args()

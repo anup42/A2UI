@@ -310,7 +310,10 @@ python training/scripts/benchmark_android_litertlm_gpu_parity.py `
 ```
 
 The runner checks complete GPU delegation, signature parity, bounded decode
-throughput, and MTP acceptance separately. Target-only runs must decode exactly
+throughput, and MTP acceptance separately. Schema-v5 performance reports
+alternate which package runs first, require three valid warm samples for each
+artifact, and compare the warm medians; one failed delegation or short decode
+invalidates the speed gate. Target-only runs must decode exactly
 `--output-tokens`. MTP runs may finish up to
 `--mtp-max-decode-overshoot` tokens above that request because LiteRT-LM checks
 the cap after one four-position verifier batch; decoding fewer than requested
@@ -714,7 +717,7 @@ python training/scripts/benchmark_android_litertlm_gpu_parity.py `
   --candidate-section-patch C:\temp\random-mtp-section\random_mtp_drafter.tflite `
   --candidate-section-model-type tf_lite_mtp_drafter `
   --output-dir C:\temp\full-random-mtp-device-report `
-  --mtp --output-tokens 8 --warm-runs 0
+  --mtp --output-tokens 8 --warm-runs 3
 ```
 
 The benchmark stream-hashes the virtual full package on the host, stages the
@@ -723,9 +726,14 @@ Android `toybox dd`, and requires the staged and post-run SHA-256 values to
 equal the virtual host SHA. It never writes or overwrites a complete composite
 package on the host. The verified SM-F966B full-random run matched the official
 target delegation counts (2,068 decode, 1,107 per prefill, 2,243 verify) and
-the 198-node MTP drafter, all fully delegated in one partition. Its lower
-throughput and MTP acceptance correctly failed the weight-dependent performance
-gate; structural GPU parity passed.
+the 198-node MTP drafter, all fully delegated in one partition across every
+warm run. Schema-v5 median throughput was 16.6188 tok/s for the official package
+and 12.6563 tok/s for the full-random candidate; median MTP acceptance was
+0.266667 and 0.133333. Those weight-dependent speed and acceptance gates
+correctly failed while repeated structural GPU parity passed. The target-only
+schema-v5 fixtures passed: 270M official/candidate medians were 52.3033/50.5414
+tok/s, and E2B official/candidate medians were 30.2114/30.4102 tok/s. No
+training was performed for these topology checks.
 
 ### Merged checkpoint -> exact official topology
 
@@ -807,7 +815,7 @@ python training/scripts/run_gemma270m_qat_litertlm.py `
 
 Use `--validate-android-gpu` only after the candidate exists. It invokes the
 bounded parity runner on the connected device. E2B now requires two independent
-schema-v4 reports: target-only must prove full GPU delegation and fixed-length
+schema-v5 reports: target-only must prove full GPU delegation and fixed-length
 warm throughput within budget, then MTP-on must additionally prove draft
 acceptance and speculative throughput. This prevents MTP acceptance from
 masking target-graph speed. 270M requires the graph and fixed-length throughput

@@ -29,6 +29,8 @@ from typing import Any
 from ir_training.common.config import load_yaml, resolve_path, training_root
 from ir_training.eval.android_gpu_report import (
     AndroidGpuParityReportError,
+    MIN_PERFORMANCE_WARM_RUNS,
+    PERFORMANCE_SELECTION_POLICY,
     load_android_gpu_parity_report,
 )
 from ir_training.export.edge_gallery import export_edge_gallery_model
@@ -368,6 +370,9 @@ def build_pipeline_plan(
         if bool(exact_cfg.get("runtime_without_default_delegates", True)):
             drafter_export_command.append("--runtime-without-default-delegates")
     android_cfg = _section(pipeline_cfg, "android")
+    android_warm_runs = int(
+        android_cfg.get("warm_runs", MIN_PERFORMANCE_WARM_RUNS)
+    )
     android_output_dir = _path_or_empty(android_cfg.get("output_dir"), base)
     if android_output_dir is None:
         android_output_dir = resolve_path(
@@ -394,7 +399,7 @@ def build_pipeline_plan(
             "--output-tokens",
             str(int(android_cfg.get("output_tokens", 64))),
             "--warm-runs",
-            str(int(android_cfg.get("warm_runs", 1))),
+            str(android_warm_runs),
             "--max-throughput-regression-percent",
             str(float(android_cfg.get("max_throughput_regression_percent", 10.0))),
             "--top-k",
@@ -516,6 +521,17 @@ def build_pipeline_plan(
                 "message": (
                     "The E2B training config must reject missing, unexpected, "
                     "mismatched, or errored keys during the real model load."
+                ),
+            }
+        )
+    if android_warm_runs < MIN_PERFORMANCE_WARM_RUNS:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "insufficient_android_gpu_warm_runs",
+                "message": (
+                    "Schema-v5 Android GPU promotion requires at least "
+                    f"{MIN_PERFORMANCE_WARM_RUNS} warm runs per artifact."
                 ),
             }
         )
@@ -748,6 +764,9 @@ def build_pipeline_plan(
         },
         "android_gpu": {
             "delegate": "gpu",
+            "warm_runs": android_warm_runs,
+            "minimum_performance_warm_runs": MIN_PERFORMANCE_WARM_RUNS,
+            "performance_selection_policy": PERFORMANCE_SELECTION_POLICY,
             "device_validation": (
                 "target_only_and_mtp_on_required_after_packaging"
                 if mtp_enabled

@@ -77,6 +77,11 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only(tmp_path):
     assert plan["android_gpu"]["required_modes"] == ["target_only", "mtp_on"]
     assert plan["android_gpu"]["target_only"]["mtp_flag"] is False
     assert plan["android_gpu"]["mtp_on"]["mtp_flag"] is True
+    assert plan["android_gpu"]["warm_runs"] == 3
+    assert plan["android_gpu"]["minimum_performance_warm_runs"] == 3
+    assert plan["android_gpu"]["performance_selection_policy"] == (
+        "median_of_all_warm_runs_all_must_be_valid"
+    )
     assert "--mtp" not in plan["android_gpu"]["target_only"]["command"]
     assert "--mtp" in plan["android_gpu"]["mtp_on"]["command"]
     assert "--mtp-max-decode-overshoot" in plan["android_gpu"]["mtp_on"]["command"]
@@ -94,6 +99,21 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only(tmp_path):
     assert any(
         item["code"] == "mobile_training_seed_unverified"
         for item in plan["validation"]["issues"]
+    )
+
+
+def test_mobile_mtp_pipeline_rejects_too_few_gpu_warm_runs(tmp_path):
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
+    config["pipeline"]["android"]["warm_runs"] = 2
+
+    plan = build_pipeline_plan(config, config_path=config_path)
+
+    assert any(
+        issue["code"] == "insufficient_android_gpu_warm_runs"
+        for issue in plan["validation"]["issues"]
     )
 
 
@@ -331,6 +351,8 @@ def _write_device_report(
         "structural_gpu_parity_pass": True,
         "throughput_sample_comparable": True,
         "throughput_gate_pass": True,
+        "warm_run_gate_pass": True,
+        "warm_structural_gate_pass": True,
         "overall_pass": True,
     }
     if mtp_acceptance is not None:
@@ -338,8 +360,12 @@ def _write_device_report(
     path.write_text(
         json.dumps(
             {
-                "schema_version": 4,
+                "schema_version": 5,
                 "mtp_enabled": mtp,
+                "warm_run_count": 3,
+                "performance_selection_policy": (
+                    "median_of_all_warm_runs_all_must_be_valid"
+                ),
                 "comparison": comparison,
             }
         ),
@@ -372,14 +398,14 @@ def test_android_gpu_pipeline_report_gate_rejects_old_or_wrong_mode_reports(tmp_
         )
 
     payload = json.loads(report_path.read_text(encoding="utf-8"))
-    payload["schema_version"] = 1
+    payload["schema_version"] = 4
     payload["comparison"]["mtp_acceptance_gate_pass"] = True
     report_path.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(Gemma4MobileMTPPipelineError, match="schema_v4_or_newer"):
+    with pytest.raises(Gemma4MobileMTPPipelineError, match="schema_v5_or_newer"):
         _load_android_gpu_report(report_path, mode="mtp_on", expected_mtp=True)
 
 
-def test_mtp_package_validator_requires_paired_schema_v4_device_reports(
+def test_mtp_package_validator_requires_paired_schema_v5_device_reports(
     monkeypatch, tmp_path
 ):
     import validate_litertlm_mtp_gpu as validator

@@ -64,6 +64,51 @@ MTP Drafter - Success rate: 0.75
     assert evidence["last_mtp_success_rate"] == pytest.approx(0.75)
 
 
+def test_android_gpu_parity_warm_summary_uses_median_and_fails_on_any_bad_run():
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
+        "Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, "
+        "yielding 1 partitions for subgraph 0 (decode)."
+    )
+
+    def probe(run_index: int, rate: float, decode_count: int = 64):
+        return {
+            "run_index": run_index,
+            "instrumentation_passed": True,
+            "device_report": {
+                "decode_token_count": decode_count,
+                "decode_tokens_per_second": rate,
+            },
+            "logcat_evidence": evidence,
+        }
+
+    runs = [
+        probe(0, 40.0),
+        probe(1, 60.0),
+        probe(2, 55.0),
+        probe(3, 50.0),
+    ]
+    summary = benchmark_android_litertlm_gpu_parity.summarize_warm_runs(
+        runs,
+        mtp_enabled=False,
+        output_tokens=64,
+    )
+
+    assert summary["warm_run_count"] == 3
+    assert summary["median_decode_tokens_per_second"] == pytest.approx(55.0)
+    assert summary["representative_run_index"] == 2
+    assert summary["all_warm_runs_structural"] is True
+    assert summary["all_warm_performance_samples_valid"] is True
+
+    runs[-1] = probe(3, 50.0, decode_count=12)
+    rejected = benchmark_android_litertlm_gpu_parity.summarize_warm_runs(
+        runs,
+        mtp_enabled=False,
+        output_tokens=64,
+    )
+    assert rejected["all_warm_runs_structural"] is True
+    assert rejected["all_warm_performance_samples_valid"] is False
+
+
 def test_android_gpu_parity_gate_separates_structure_from_mtp_acceptance():
     evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
         """

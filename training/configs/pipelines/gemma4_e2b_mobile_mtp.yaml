@@ -77,7 +77,9 @@ pipeline:
     output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/android_gpu_parity
     max_num_tokens: 2048
     output_tokens: 64
-    warm_runs: 1
+    # Schema-v5 promotion compares the median of three alternating-order warm
+    # probes and fails if any sample misses full delegation or the decode cap.
+    warm_runs: 3
     prompt: "Write exactly one hundred numbered words."
     top_k: 1
     top_p: 1.0

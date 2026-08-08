@@ -18,11 +18,13 @@ from __future__ import annotations
 
 import argparse
 import base64
+import copy
 import hashlib
 import json
 import math
 import re
 import shutil
+import statistics
 import subprocess
 import sys
 import uuid
@@ -38,6 +40,10 @@ sys.path.insert(0, str(ROOT / "src"))
 from ir_training.export.litertlm_inspector import (
     LiteRTLMInspectionError,
     inspect_litertlm,
+)
+from ir_training.eval.android_gpu_report import (
+    MIN_PERFORMANCE_WARM_RUNS,
+    PERFORMANCE_SELECTION_POLICY,
 )
 
 STAGE_ROOT = "/data/local/tmp/litert_parity"
@@ -338,6 +344,176 @@ def _nonnegative_int(value: Any) -> int | None:
     return number if number >= 0 else None
 
 
+def summarize_warm_runs(
+    runs: list[dict[str, Any]],
+    *,
+    mtp_enabled: bool,
+    output_tokens: int,
+    mtp_max_decode_overshoot: int = 4,
+    minimum_warm_runs: int = MIN_PERFORMANCE_WARM_RUNS,
+) -> dict[str, Any]:
+    """Summarize all warm probes without silently dropping a bad sample.
+
+    Run index zero is the cold probe. Every later run is a warm sample. A
+    performance summary is eligible only when at least ``minimum_warm_runs``
+    are present and every one completed instrumentation, fully delegated,
+    reached the bounded decode cap, and reported finite positive throughput.
+    MTP samples must also expose an acceptance rate.
+    """
+
+    warm_runs = [run for run in runs if int(run.get("run_index", -1)) > 0]
+    allowed_overshoot = mtp_max_decode_overshoot if mtp_enabled else 0
+    maximum_decode_count = output_tokens + allowed_overshoot
+    samples: list[dict[str, Any]] = []
+    for run in warm_runs:
+        report = run.get("device_report")
+        if not isinstance(report, dict):
+            report = {}
+        evidence = run.get("logcat_evidence")
+        if not isinstance(evidence, dict):
+            evidence = {}
+        decode_count = _nonnegative_int(report.get("decode_token_count"))
+        rate = _finite_number(report.get("decode_tokens_per_second"))
+        mtp_rate = _finite_number(evidence.get("last_mtp_success_rate"))
+        decode_cap_reached = bool(
+            output_tokens > 0
+            and decode_count is not None
+            and output_tokens <= decode_count <= maximum_decode_count
+        )
+        structural_pass = bool(
+            run.get("instrumentation_passed")
+            and evidence.get("all_gpu_subgraphs_fully_delegated")
+        )
+        delegation_shape = _delegation_shape(evidence)
+        signature_shape = _signature_shape(evidence)
+        performance_pass = bool(
+            structural_pass
+            and decode_cap_reached
+            and rate is not None
+            and rate > 0
+            and (not mtp_enabled or mtp_rate is not None)
+        )
+        samples.append(
+            {
+                "run_index": int(run.get("run_index", -1)),
+                "instrumentation_passed": bool(run.get("instrumentation_passed")),
+                "full_gpu_delegation": bool(
+                    evidence.get("all_gpu_subgraphs_fully_delegated")
+                ),
+                "delegation_shape": delegation_shape,
+                "signature_shape": signature_shape,
+                "decode_token_count": decode_count,
+                "decode_cap_reached": decode_cap_reached,
+                "decode_tokens_per_second": rate,
+                "mtp_success_rate": mtp_rate if mtp_enabled else None,
+                "structural_pass": structural_pass,
+                "performance_sample_valid": performance_pass,
+            }
+        )
+
+    valid_rates = [
+        float(sample["decode_tokens_per_second"])
+        for sample in samples
+        if sample["performance_sample_valid"]
+    ]
+    valid_mtp_rates = [
+        float(sample["mtp_success_rate"])
+        for sample in samples
+        if sample["performance_sample_valid"]
+        and sample["mtp_success_rate"] is not None
+    ]
+    median_rate = statistics.median(valid_rates) if valid_rates else None
+    median_mtp_rate = (
+        statistics.median(valid_mtp_rates)
+        if mtp_enabled and valid_mtp_rates
+        else None
+    )
+    representative_run_index = None
+    if median_rate is not None:
+        representative = min(
+            (
+                sample
+                for sample in samples
+                if sample["performance_sample_valid"]
+            ),
+            key=lambda sample: (
+                abs(float(sample["decode_tokens_per_second"]) - median_rate),
+                int(sample["run_index"]),
+            ),
+        )
+        representative_run_index = int(representative["run_index"])
+
+    enough_warm_runs = len(samples) >= int(minimum_warm_runs)
+    delegation_shape_consistent = bool(samples) and all(
+        sample["delegation_shape"] == samples[0]["delegation_shape"]
+        for sample in samples
+    )
+    signature_shapes = [sample["signature_shape"] for sample in samples]
+    signature_shape_consistent = bool(samples) and (
+        all(not shape for shape in signature_shapes)
+        or (
+            all(bool(shape) for shape in signature_shapes)
+            and all(shape == signature_shapes[0] for shape in signature_shapes)
+        )
+    )
+    all_structural = (
+        enough_warm_runs
+        and all(sample["structural_pass"] for sample in samples)
+        and delegation_shape_consistent
+        and signature_shape_consistent
+    )
+    all_performance_samples_valid = enough_warm_runs and all(
+        sample["performance_sample_valid"] for sample in samples
+    )
+    return {
+        "selection_policy": PERFORMANCE_SELECTION_POLICY,
+        "minimum_required_warm_runs": int(minimum_warm_runs),
+        "warm_run_count": len(samples),
+        "enough_warm_runs": enough_warm_runs,
+        "delegation_shape_consistent": delegation_shape_consistent,
+        "signature_shape_consistent": signature_shape_consistent,
+        "all_warm_runs_structural": all_structural,
+        "all_warm_performance_samples_valid": all_performance_samples_valid,
+        "median_decode_tokens_per_second": median_rate,
+        "median_mtp_success_rate": median_mtp_rate,
+        "representative_run_index": representative_run_index,
+        "samples": samples,
+    }
+
+
+def selected_probe_from_warm_summary(
+    runs: list[dict[str, Any]],
+    summary: dict[str, Any],
+    artifact_identity: dict[str, Any],
+) -> dict[str, Any]:
+    """Return one structurally real probe carrying aggregate warm statistics."""
+
+    selected_index = summary.get("representative_run_index")
+    selected = next(
+        (
+            run
+            for run in runs
+            if selected_index is not None
+            and int(run.get("run_index", -1)) == int(selected_index)
+        ),
+        runs[-1],
+    )
+    result = copy.deepcopy(selected)
+    result["artifact_identity"] = dict(artifact_identity)
+    result["warm_performance_summary"] = summary
+    median_rate = _finite_number(summary.get("median_decode_tokens_per_second"))
+    if median_rate is not None and isinstance(result.get("device_report"), dict):
+        result["device_report"]["decode_tokens_per_second"] = median_rate
+        result["device_report"]["decode_rate_statistic"] = "warm_median"
+    median_mtp_rate = _finite_number(summary.get("median_mtp_success_rate"))
+    if median_mtp_rate is not None and isinstance(
+        result.get("logcat_evidence"), dict
+    ):
+        result["logcat_evidence"]["last_mtp_success_rate"] = median_mtp_rate
+        result["logcat_evidence"]["mtp_rate_statistic"] = "warm_median"
+    return result
+
+
 def _artifact_identity_checks(probe: dict[str, Any]) -> dict[str, Any]:
     identity = probe.get("artifact_identity")
     device_report = probe.get("device_report") or {}
@@ -388,6 +564,8 @@ def compare_probe_results(
     max_throughput_regression_percent: float,
     max_mtp_success_rate_drop: float,
     mtp_max_decode_overshoot: int = 4,
+    official_warm_summary: dict[str, Any] | None = None,
+    candidate_warm_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build explicit structural, speed, and MTP-acceptance gates."""
 
@@ -408,6 +586,31 @@ def compare_probe_results(
     official_decode_cap_reached: bool | None = None
     candidate_decode_cap_reached: bool | None = None
     throughput_sample_comparable: bool | None = None
+    warm_summaries_supplied = bool(
+        isinstance(official_warm_summary, dict)
+        and isinstance(candidate_warm_summary, dict)
+    )
+    warm_run_gate: bool | None = None
+    warm_structural_gate: bool | None = None
+    if warm_summaries_supplied:
+        warm_run_gate = bool(
+            official_warm_summary.get("all_warm_performance_samples_valid")
+            and candidate_warm_summary.get("all_warm_performance_samples_valid")
+        )
+        official_warm_count = int(
+            official_warm_summary.get("warm_run_count", 0) or 0
+        )
+        candidate_warm_count = int(
+            candidate_warm_summary.get("warm_run_count", 0) or 0
+        )
+        if official_warm_count == 0 and candidate_warm_count == 0:
+            warm_structural_gate = None
+        else:
+            warm_structural_gate = bool(
+                official_warm_count == candidate_warm_count
+                and official_warm_summary.get("all_warm_runs_structural")
+                and candidate_warm_summary.get("all_warm_runs_structural")
+            )
     if output_tokens > 0:
         decode_length_match = (
             official_decode_count is not None
@@ -426,7 +629,10 @@ def compare_probe_results(
         requested_decode_length_reached = bool(
             official_decode_cap_reached and candidate_decode_cap_reached
         )
-        throughput_sample_comparable = requested_decode_length_reached
+        throughput_sample_comparable = bool(
+            requested_decode_length_reached
+            and (warm_run_gate is not False)
+        )
     throughput_regression = None
     throughput_gate = False if output_tokens > 0 else None
     if (
@@ -481,6 +687,7 @@ def compare_probe_results(
             size_match,
             official_identity["checks"]["verified"],
             candidate_identity["checks"]["verified"],
+            warm_structural_gate is not False,
         )
     )
     performance_pass = throughput_gate is not False and mtp_acceptance_gate is not False
@@ -523,6 +730,18 @@ def compare_probe_results(
         "decode_length_match": decode_length_match,
         "requested_decode_length_reached": requested_decode_length_reached,
         "throughput_sample_comparable": throughput_sample_comparable,
+        "performance_selection_policy": (
+            PERFORMANCE_SELECTION_POLICY
+            if warm_summaries_supplied
+            else "single_probe"
+        ),
+        "minimum_performance_warm_runs": (
+            MIN_PERFORMANCE_WARM_RUNS if warm_summaries_supplied else None
+        ),
+        "warm_run_gate_pass": warm_run_gate,
+        "warm_structural_gate_pass": warm_structural_gate,
+        "official_warm_summary": official_warm_summary,
+        "candidate_warm_summary": candidate_warm_summary,
         "official_decode_tokens_per_second": official_rate,
         "candidate_decode_tokens_per_second": candidate_rate,
         "throughput_regression_percent": throughput_regression,
@@ -539,8 +758,10 @@ def compare_probe_results(
             "Structural GPU parity proves the same signatures and delegated node "
             "counts and cryptographically binds each run to the host and staged device "
             "artifact before and after execution. Throughput passes only when both "
-            "probes reach the requested decode "
-            "cap under identical sampler settings. A non-MTP run must report the exact "
+            "probes reach the requested decode cap under identical sampler settings. "
+            "Schema-v5 performance reports alternate package order, require every one "
+            "of at least three warm probes to remain valid, and compare warm medians. "
+            "A non-MTP run must report the exact "
             "cap; an MTP run may include at most one configured verifier batch of "
             "overshoot because LiteRT-LM checks the cap after Decode() advances the "
             "sequence. Decode throughput and MTP acceptance remain weight-dependent, "
@@ -896,8 +1117,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--warm-runs",
         type=int,
-        default=1,
-        help="Additional runs after the cold run; the last run is compared.",
+        default=MIN_PERFORMANCE_WARM_RUNS,
+        help=(
+            "Additional runs after the cold run. Performance gates require at least "
+            "three valid warm runs and compare their median."
+        ),
     )
     parser.add_argument("--timeout-seconds", type=int, default=900)
     parser.add_argument("--max-throughput-regression-percent", type=float, default=10.0)
@@ -1000,12 +1224,25 @@ def main(argv: Iterable[str] | None = None) -> int:
             staged_identities["candidate"] = runner.stage(
                 candidate, device_paths["candidate"]
             )
+        role_runs: dict[str, list[dict[str, Any]]] = {
+            "official": [],
+            "candidate": [],
+        }
+        role_dirs = {}
         for role in ("official", "candidate"):
             role_dir = output_root / role
             role_dir.mkdir(parents=True, exist_ok=True)
-            role_runs = []
-            for run_index in range(args.warm_runs + 1):
-                role_runs.append(
+            role_dirs[role] = role_dir
+        for run_index in range(args.warm_runs + 1):
+            # Balance first/second execution order across the cold/warm pairs
+            # to reduce systematic thermal and scheduler bias.
+            role_order = (
+                ("official", "candidate")
+                if run_index % 2 == 0
+                else ("candidate", "official")
+            )
+            for role in role_order:
+                role_runs[role].append(
                     runner.run_once(
                         device_path=device_paths[role],
                         label=labels[role],
@@ -1017,16 +1254,24 @@ def main(argv: Iterable[str] | None = None) -> int:
                         temperature=args.temperature,
                         seed=args.seed,
                         prompt=args.prompt,
-                        output_dir=role_dir,
+                        output_dir=role_dirs[role],
                         run_index=run_index,
                     )
                 )
+        for role in ("official", "candidate"):
             identity = dict(staged_identities[role])
             identity["post_run_device_sha256"] = runner.device_sha256(
                 device_paths[role]
             )
-            selected_run = dict(role_runs[-1])
-            selected_run["artifact_identity"] = identity
+            warm_summary = summarize_warm_runs(
+                role_runs[role],
+                mtp_enabled=args.mtp,
+                output_tokens=args.output_tokens,
+                mtp_max_decode_overshoot=args.mtp_max_decode_overshoot,
+            )
+            selected_run = selected_probe_from_warm_summary(
+                role_runs[role], warm_summary, identity
+            )
             results[role] = {
                 "host_path": str(official if role == "official" else candidate),
                 "host_artifact_kind": (
@@ -1038,7 +1283,8 @@ def main(argv: Iterable[str] | None = None) -> int:
                 "device_path": device_paths[role],
                 "artifact_identity": identity,
                 "host_composition": identity.get("composition"),
-                "runs": role_runs,
+                "runs": role_runs[role],
+                "warm_summary": warm_summary,
                 "selected_run": selected_run,
             }
 
@@ -1050,9 +1296,11 @@ def main(argv: Iterable[str] | None = None) -> int:
             max_throughput_regression_percent=args.max_throughput_regression_percent,
             max_mtp_success_rate_drop=args.max_mtp_success_rate_drop,
             mtp_max_decode_overshoot=args.mtp_max_decode_overshoot,
+            official_warm_summary=results["official"]["warm_summary"],
+            candidate_warm_summary=results["candidate"]["warm_summary"],
         )
         report = {
-            "schema_version": 4,
+            "schema_version": 5,
             "run_id": run_id,
             "created_utc": datetime.now(timezone.utc).isoformat(),
             "device_serial": serial,
@@ -1071,6 +1319,8 @@ def main(argv: Iterable[str] | None = None) -> int:
             "prompt": args.prompt,
             "cold_run_count": 1,
             "warm_run_count": args.warm_runs,
+            "minimum_performance_warm_runs": MIN_PERFORMANCE_WARM_RUNS,
+            "performance_selection_policy": PERFORMANCE_SELECTION_POLICY,
             "training_executed": False,
             "candidate_section_patch": candidate_composition,
             "results": results,
@@ -1093,6 +1343,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                         "throughput_sample_comparable"
                     ],
                     "mtp_success_rate_drop": comparison["mtp_success_rate_drop"],
+                    "warm_run_gate_pass": comparison["warm_run_gate_pass"],
                 },
                 indent=2,
             )

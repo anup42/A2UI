@@ -7,6 +7,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+MIN_PERFORMANCE_WARM_RUNS = 3
+PERFORMANCE_SELECTION_POLICY = "median_of_all_warm_runs_all_must_be_valid"
+
 
 class AndroidGpuParityReportError(ValueError):
     """Raised when a device report does not prove the requested runtime mode."""
@@ -28,7 +31,7 @@ def validate_android_gpu_parity_report(
     expected_official_sha256: str | None = None,
     expected_candidate_sha256: str | None = None,
 ) -> dict[str, bool]:
-    """Return named gates or raise when a schema-v4 parity report is incomplete."""
+    """Return named gates or raise when a schema-v5 parity report is incomplete."""
 
     comparison = report.get("comparison")
     if not isinstance(comparison, dict):
@@ -48,8 +51,14 @@ def validate_android_gpu_parity_report(
         candidate_identity.get("host_sha256") or ""
     ).lower()
     checks = {
-        "schema_v4_or_newer": int(report.get("schema_version", 0) or 0) >= 4,
+        "schema_v5_or_newer": int(report.get("schema_version", 0) or 0) >= 5,
         "mode_matches": report.get("mtp_enabled") is expected_mtp,
+        "minimum_three_warm_runs": int(report.get("warm_run_count", 0) or 0)
+        >= MIN_PERFORMANCE_WARM_RUNS,
+        "median_warm_selection_policy": report.get(
+            "performance_selection_policy"
+        )
+        == PERFORMANCE_SELECTION_POLICY,
         "official_artifact_identity": comparison.get(
             "official_artifact_identity_verified"
         )
@@ -62,6 +71,11 @@ def validate_android_gpu_parity_report(
         "fixed_length_throughput_sample": (
             comparison.get("throughput_sample_comparable") is True
         ),
+        "all_warm_samples_valid": comparison.get("warm_run_gate_pass") is True,
+        "all_warm_structural_samples_valid": comparison.get(
+            "warm_structural_gate_pass"
+        )
+        is True,
         "throughput_gate": comparison.get("throughput_gate_pass") is True,
         "overall_pass": comparison.get("overall_pass") is True,
     }

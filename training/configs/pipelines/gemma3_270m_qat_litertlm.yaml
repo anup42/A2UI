@@ -44,5 +44,7 @@ pipeline:
     output_dir: outputs/pipelines/gemma3_270m_qat_litertlm/android_gpu_parity
     max_num_tokens: 2048
     output_tokens: 64
-    warm_runs: 1
+    # Schema-v5 promotion compares the median of three alternating-order warm
+    # probes and fails if any sample misses full delegation or the decode cap.
+    warm_runs: 3
     max_throughput_regression_percent: 10.0
