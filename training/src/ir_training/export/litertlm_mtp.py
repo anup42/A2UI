@@ -104,9 +104,11 @@ def compare_target_layout(base_bytes: bytes, candidate_bytes: bytes) -> dict[str
 
     The comparison deliberately excludes buffer indices because a valid
     FlatBuffer reserialization may renumber buffers.  It still compares
-    operator/tensor topology, tensor shapes/types and quantization dimensions
-    and scale counts.  Quantized *values* are expected to differ after
-    fine-tuning and are not compared here.
+    operator/tensor topology, all decoded builtin/custom option values,
+    signatures, metadata, tensor semantics, buffer storage layout, and
+    quantization dimensions/scale counts. Quantized scales and buffer payloads
+    are expected to differ after fine-tuning and are masked by the execution
+    contract.
     """
 
     base_graph = _graph_report(base_bytes)
@@ -131,17 +133,35 @@ def compare_target_layout(base_bytes: bytes, candidate_bytes: bytes) -> dict[str
     storage_match = base_graph.get("buffer_storage_sha256") == candidate_graph.get(
         "buffer_storage_sha256"
     )
+    execution_contract_complete = bool(
+        base_graph.get("execution_contract_complete")
+        and candidate_graph.get("execution_contract_complete")
+    )
+    execution_contract_match = bool(
+        execution_contract_complete
+        and base_graph.get("execution_contract_sha256")
+        and base_graph.get("execution_contract_sha256")
+        == candidate_graph.get("execution_contract_sha256")
+    )
     return {
         "available": True,
-        "ok": bool(structural_match and layout_match and storage_match),
+        "ok": bool(
+            structural_match
+            and layout_match
+            and storage_match
+            and execution_contract_match
+        ),
         "structural_match": bool(structural_match),
         "quantization_layout_match": bool(layout_match),
         "buffer_storage_match": bool(storage_match),
+        "execution_contract_complete": execution_contract_complete,
+        "execution_contract_match": execution_contract_match,
         "base": base_graph,
         "candidate": candidate_graph,
         "interpretation": (
-            "Topology/layout parity is required; learned packed constants and "
-            "private calibration values are intentionally allowed to differ."
+            "Complete execution-contract/topology/layout parity is required; "
+            "learned packed constants, per-weight scales, and private calibration "
+            "values are intentionally allowed to differ."
         ),
     }
 

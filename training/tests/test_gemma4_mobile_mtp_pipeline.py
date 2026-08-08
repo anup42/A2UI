@@ -507,3 +507,5 @@ def test_compare_target_layout_ignores_buffer_indices_but_requires_tflite_graphs
     assert result["structural_match"] is True
     assert result["quantization_layout_match"] is True
     assert result["buffer_storage_match"] is True
+    assert result["execution_contract_complete"] is True
+    assert result["execution_contract_match"] is True

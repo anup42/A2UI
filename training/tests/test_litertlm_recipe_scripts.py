@@ -1144,10 +1144,16 @@ def test_converter_injection_reports_random_network_parity_separately_from_value
         official_layout_match=True,
         execution_topology_match=True,
         execution_layout_match=True,
+        official_execution_contract_match=True,
+        execution_contract_match_ignoring_buffer_indices=True,
+        non_mapped_state_match=True,
     )
 
     assert report["same"] is True
-    assert report["scope"] == "topology_and_quantization_layout_only"
+    assert report["scope"] == (
+        "execution_contract_topology_and_quantization_layout"
+    )
+    assert report["checks"]["official_execution_contract_match"] is True
     assert report["not_value_or_model_identity"] is True
 
     failed = build_converter_random_topology_injection_parity._random_quantized_network_match(
@@ -1158,6 +1164,9 @@ def test_converter_injection_reports_random_network_parity_separately_from_value
         official_layout_match=False,
         execution_topology_match=True,
         execution_layout_match=True,
+        official_execution_contract_match=True,
+        execution_contract_match_ignoring_buffer_indices=True,
+        non_mapped_state_match=True,
     )
     assert failed["same"] is False
     assert failed["checks"]["official_layout_match"] is False
@@ -1263,6 +1272,173 @@ def test_converter_injection_rebuilds_modelt_graph_and_preserves_constants():
         rebuilt, records
     )
     assert observed == expected
+    assert (
+        build_converter_random_topology_injection_parity._non_mapped_state_digest(
+            official, records
+        )["sha256"]
+        == build_converter_random_topology_injection_parity._non_mapped_state_digest(
+            rebuilt, records
+        )["sha256"]
+    )
+
+
+def _shared_weight_alias_tflite(
+    records: list[dict[str, object]], *, non_weight_alias: bool = False
+) -> bytes:
+    import copy
+
+    import flatbuffers
+    from ai_edge_litert import schema_py_generated as schema
+
+    base = build_fresh_random_quantized_graph._build_fresh_tflite(records, seed=23)
+    model = schema.ModelT.InitFromObj(schema.Model.GetRootAsModel(base, 0))
+    alias_subgraph = copy.deepcopy(model.subgraphs[0])
+    alias_subgraph.name = b"shared_weight_alias"
+    if non_weight_alias:
+        # Give the activation tensor the mapped learned-weight buffer.  The
+        # alias resolver must reject this rather than silently excluding it.
+        alias_subgraph.tensors[0].buffer = alias_subgraph.tensors[1].buffer
+    model.subgraphs.append(alias_subgraph)
+    builder = flatbuffers.Builder(len(base) * 2 + 1024)
+    root = model.Pack(builder)
+    builder.Finish(root, file_identifier=b"TFL3")
+    return bytes(builder.Output())
+
+
+def test_converter_injection_updates_every_shared_weight_quantization_alias():
+    import numpy as np
+
+    records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_subgraph": 0,
+            "official_operator_index": 0,
+            "official_buffer": 1,
+            "bits": 8,
+            "shape": [4, 3],
+            "type_value": 9,
+            "scale_count": 4,
+            "zero_point_count": 4,
+            "quantized_dimension": 0,
+            "zero_points_all_zero": True,
+        }
+    ]
+    official = _shared_weight_alias_tflite(records)
+    converter = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "bits": 8,
+            "shape": [4, 3],
+            "raw": bytes(range(12)),
+            "scales": np.asarray([0.1, 0.2, 0.3, 0.4], dtype=np.float32),
+            "zero_point_count": 4,
+            "zero_points_all_zero": True,
+        }
+    ]
+
+    injected, injection = (
+        build_converter_random_topology_injection_parity._patch_official_constants(
+            official, records, converter
+        )
+    )
+    rebuilt, rebuild = (
+        build_converter_random_topology_injection_parity._rebuild_graph_with_constants(
+            official, records, converter
+        )
+    )
+    expected = build_converter_random_topology_injection_parity._constants_digest(
+        converter
+    )
+
+    assert injection["patched_weight_count"] == 1
+    assert injection["patched_weight_alias_count"] == 2
+    assert injection["alias_verification"]["alias_count_histogram"] == {"2": 1}
+    assert rebuild["replaced_weight_count"] == 1
+    assert rebuild["replaced_weight_alias_count"] == 2
+    assert (
+        build_converter_random_topology_injection_parity._official_constants_digest(
+            injected, records
+        )
+        == expected
+    )
+    assert (
+        build_converter_random_topology_injection_parity._official_constants_digest(
+            rebuilt, records
+        )
+        == expected
+    )
+    assert (
+        build_converter_random_topology_injection_parity._non_mapped_state_digest(
+            injected, records
+        )["excluded_mapped_alias_count"]
+        == 2
+    )
+
+
+def test_converter_injection_rejects_non_weight_reference_to_mapped_buffer():
+    records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_subgraph": 0,
+            "official_operator_index": 0,
+            "official_buffer": 1,
+            "bits": 8,
+            "shape": [4, 3],
+            "type_value": 9,
+        }
+    ]
+    malformed = _shared_weight_alias_tflite(records, non_weight_alias=True)
+
+    with pytest.raises(
+        build_converter_random_topology_injection_parity.ConverterRandomTopologyInjectionError,
+        match="outside the FC/embedding weight slot",
+    ):
+        build_converter_random_topology_injection_parity._official_weight_alias_groups(
+            build_fresh_random_quantized_graph._schema_model(malformed), records
+        )
+
+
+def test_non_mapped_state_digest_rejects_unrelated_quantization_change():
+    import flatbuffers
+    from ai_edge_litert import schema_py_generated as schema
+
+    records = [
+        {
+            "ordinal": 0,
+            "operator": "FULLY_CONNECTED",
+            "official_subgraph": 0,
+            "official_operator_index": 0,
+            "bits": 8,
+            "shape": [4, 3],
+            "type_value": 9,
+            "input_type_value": 9,
+            "output_type_value": 9,
+        }
+    ]
+    official = build_fresh_random_quantized_graph._build_fresh_tflite(
+        records, seed=19
+    )
+    model = schema.ModelT.InitFromObj(schema.Model.GetRootAsModel(official, 0))
+    # Tensor zero is the activation input, not the mapped weight tensor.
+    model.subgraphs[0].tensors[0].quantization.scale = [2.0]
+    builder = flatbuffers.Builder(len(official) + 1024)
+    root = model.Pack(builder)
+    builder.Finish(root, file_identifier=b"TFL3")
+    changed = bytes(builder.Output())
+
+    before = build_converter_random_topology_injection_parity._non_mapped_state_digest(
+        official, records
+    )
+    after = build_converter_random_topology_injection_parity._non_mapped_state_digest(
+        changed, records
+    )
+
+    assert before["excluded_mapped_tensor_count"] == 1
+    assert before["excluded_mapped_buffer_count"] == 1
+    assert before["sha256"] != after["sha256"]
 
 
 def test_mtp_assistant_audit_has_explicit_23_weight_mapping():
@@ -1357,6 +1533,7 @@ def test_converter_inventory_layout_includes_activation_quantization():
         "scale_count": 8,
         "zero_point_count": 8,
         "quantized_dimension": 0,
+        "zero_points_all_zero": True,
         "input_type": "INT8",
         "output_type": "INT8",
         "input_quantization": {
@@ -1380,6 +1557,11 @@ def test_converter_inventory_layout_includes_activation_quantization():
     assert build_converter_random_inventory_parity._layout_key(
         base
     ) != build_converter_random_inventory_parity._layout_key(changed)
+
+    asymmetric_weight = {**base, "zero_points_all_zero": False}
+    assert build_converter_random_inventory_parity._layout_key(
+        base
+    ) != build_converter_random_inventory_parity._layout_key(asymmetric_weight)
 
 
 def test_gemma4_mobile_checkpoint_signed_code_transform():

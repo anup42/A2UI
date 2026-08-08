@@ -63,6 +63,7 @@ from build_converter_random_topology_injection_parity import (
     _converter_weight_records,
     _file_range_sha256,
     _graph_report,
+    _non_mapped_state_digest,
     _official_constants_digest,
     _package_boundary_report,
     _patch_official_constants,
@@ -1356,6 +1357,12 @@ def run(
     injected_graph = _graph_report(injected_bytes)
     converter_constants = _constants_digest(converter_records)
     injected_constants = _official_constants_digest(injected_bytes, official_records)
+    official_non_mapped_state = _non_mapped_state_digest(
+        official_bytes, official_records
+    )
+    injected_non_mapped_state = _non_mapped_state_digest(
+        injected_bytes, official_records
+    )
     official_structural = official_graph["graph"].get("structural_sha256")
     injected_structural = injected_graph["graph"].get("structural_sha256")
     official_layout = official_graph["graph"].get("quantization_layout_sha256")
@@ -1371,6 +1378,28 @@ def run(
     )
     injected_layout_no_buffers = injected_graph["graph_without_buffer_indices"].get(
         "quantization_layout_sha256"
+    )
+    official_execution_contract = official_graph["graph"].get(
+        "execution_contract_sha256"
+    )
+    injected_execution_contract = injected_graph["graph"].get(
+        "execution_contract_sha256"
+    )
+    official_execution_contract_no_buffers = official_graph[
+        "graph_without_buffer_indices"
+    ].get("execution_contract_sha256")
+    injected_execution_contract_no_buffers = injected_graph[
+        "graph_without_buffer_indices"
+    ].get("execution_contract_sha256")
+    execution_contracts_complete = bool(
+        official_graph["graph"].get("execution_contract_complete")
+        and injected_graph["graph"].get("execution_contract_complete")
+        and official_graph["graph_without_buffer_indices"].get(
+            "execution_contract_complete"
+        )
+        and injected_graph["graph_without_buffer_indices"].get(
+            "execution_contract_complete"
+        )
     )
     gates = {
         "training_scope_supported": bool(
@@ -1388,6 +1417,10 @@ def run(
         == _counter(converter_records),
         "converter_constants_transferred_exactly": converter_constants
         == injected_constants,
+        "non_mapped_state_byte_exact": bool(
+            official_non_mapped_state["sha256"]
+            == injected_non_mapped_state["sha256"]
+        ),
         "official_graph_structure": bool(
             official_structural and official_structural == injected_structural
         ),
@@ -1400,6 +1433,18 @@ def run(
         "official_layout_ignoring_buffer_indices": bool(
             official_layout_no_buffers
             and official_layout_no_buffers == injected_layout_no_buffers
+        ),
+        "execution_contract_complete": execution_contracts_complete,
+        "official_execution_contract": bool(
+            execution_contracts_complete
+            and official_execution_contract
+            and official_execution_contract == injected_execution_contract
+        ),
+        "official_execution_contract_ignoring_buffer_indices": bool(
+            execution_contracts_complete
+            and official_execution_contract_no_buffers
+            and official_execution_contract_no_buffers
+            == injected_execution_contract_no_buffers
         ),
         "section_size_unchanged": len(injected_bytes) == len(official_bytes),
     }
@@ -1433,6 +1478,10 @@ def run(
         },
         "official_section": official_graph,
         "candidate_section": injected_graph,
+        "non_mapped_state": {
+            "official": official_non_mapped_state,
+            "candidate": injected_non_mapped_state,
+        },
         "package_boundary": package_boundary,
         "gates": gates,
         "final_artifact_gate_pass": final_gate_pass,
@@ -1441,6 +1490,8 @@ def run(
             and gates["official_quantization_layout"]
             and gates["official_execution_topology_ignoring_buffer_indices"]
             and gates["official_layout_ignoring_buffer_indices"]
+            and gates["official_execution_contract"]
+            and gates["official_execution_contract_ignoring_buffer_indices"]
         ),
         "learned_weights_expected_to_differ": True,
         "private_google_recipe_recovered": False,

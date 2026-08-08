@@ -242,25 +242,28 @@ def _randomize_section(
     import numpy as np
 
     model = _schema_model(section_bytes)
-    patched_buffers: set[int] = set()
+    aliases_by_buffer: dict[int, list[dict[str, Any]]] = collections.defaultdict(list)
+    all_references_by_buffer: dict[int, list[tuple[int, int]]] = collections.defaultdict(list)
     buffer_records: dict[int, dict[str, Any]] = {}
     skipped = collections.Counter()
     storage_counts = collections.Counter()
     encoding_verified = 0
     encoding_mismatches = 0
     encoding_ranges: dict[int, list[int]] = {}
-    tensor_count = 0
-    ordinal = 0
 
     for subgraph_index in range(int(model.SubgraphsLength() or 0)):
         subgraph = model.Subgraphs(subgraph_index)
         for tensor_index in range(int(subgraph.TensorsLength() or 0)):
             tensor = subgraph.Tensors(tensor_index)
+            buffer_index = int(tensor.Buffer())
+            if buffer_index > 0:
+                all_references_by_buffer[buffer_index].append(
+                    (subgraph_index, tensor_index)
+                )
             type_value = int(tensor.Type())
             bits = _LOW_BIT_TYPES.get(type_value)
             quant = tensor.Quantization()
             shape = tuple(int(tensor.Shape(i)) for i in range(int(tensor.ShapeLength() or 0)))
-            buffer_index = int(tensor.Buffer())
             if bits is None or quant is None or buffer_index <= 0:
                 continue
             storage_view = _buffer_view(model, buffer_index, section_bytes)
@@ -279,61 +282,135 @@ def _randomize_section(
             if expected_bytes != data_length:
                 skipped["unexpected_buffer_size"] += 1
                 continue
-            if buffer_index in patched_buffers:
-                continue
-
-            if verify_weight_encoding:
-                value_count = int(np.prod(shape, dtype=np.int64))
-                decoded = _unpack_low_bit(raw, bits, value_count)
-                if _pack_low_bit(decoded, bits).tobytes() == bytes(raw):
-                    encoding_verified += 1
-                else:
-                    encoding_mismatches += 1
-                current_range = encoding_ranges.setdefault(bits, [127, -128])
-                if len(decoded):
-                    current_range[0] = min(current_range[0], int(decoded.min()))
-                    current_range[1] = max(current_range[1], int(decoded.max()))
-
-            packed, scales = _random_quantized_weight(shape, bits, seed, ordinal)
-            ordinal += 1
-            if raw is None or len(raw) != len(packed):
-                skipped["buffer_view_unavailable"] += 1
-                continue
-            raw[:] = packed
-            storage_counts[storage] += 1
             scale_view = quant.ScaleAsNumpy()
-            if scale_view is None or len(scale_view) != len(scales):
+            if not isinstance(scale_view, np.ndarray) or len(scale_view) != scale_count:
                 skipped["scale_view_unavailable"] += 1
                 continue
-            scale_view[:] = scales
+            zero_count = int(quant.ZeroPointLength() or 0)
             zero_view = quant.ZeroPointAsNumpy()
-            if zero_view is not None and len(zero_view):
-                zero_view[:] = 0
-            patched_buffers.add(buffer_index)
+            if zero_count and (
+                not isinstance(zero_view, np.ndarray) or len(zero_view) != zero_count
+            ):
+                skipped["zero_point_view_unavailable"] += 1
+                continue
+            aliases_by_buffer[buffer_index].append(
+                {
+                    "subgraph": subgraph_index,
+                    "tensor": tensor_index,
+                    "tensor_object": tensor,
+                    "quantization": quant,
+                    "scale_view": scale_view,
+                    "zero_view": zero_view,
+                    "zero_count": zero_count,
+                    "name": _decode(tensor.Name()),
+                    "type_value": type_value,
+                    "bits": bits,
+                    "shape": shape,
+                    "buffer_bytes": data_length,
+                    "storage": storage,
+                    "storage_offset": storage_offset,
+                    "raw": raw,
+                }
+            )
+
+    patched_buffers: set[int] = set()
+    tensor_count = 0
+    for ordinal, (buffer_index, aliases) in enumerate(aliases_by_buffer.items()):
+        alias_keys = {(item["subgraph"], item["tensor"]) for item in aliases}
+        all_keys = set(all_references_by_buffer[buffer_index])
+        if alias_keys != all_keys:
+            raise OfficialTopologyParityError(
+                f"Mapped buffer {buffer_index} has non-weight or unsupported aliases: "
+                f"{sorted(all_keys - alias_keys)[:3]}"
+            )
+        first = aliases[0]
+        reference_layout = (
+            first["type_value"],
+            first["bits"],
+            first["shape"],
+            first["buffer_bytes"],
+            len(first["scale_view"]),
+            first["zero_count"],
+            bytes(np.asarray(first["scale_view"], dtype=np.float32)),
+            bytes(np.asarray(first["zero_view"], dtype=np.int64))
+            if first["zero_count"]
+            else b"",
+        )
+        for alias in aliases[1:]:
+            alias_layout = (
+                alias["type_value"],
+                alias["bits"],
+                alias["shape"],
+                alias["buffer_bytes"],
+                len(alias["scale_view"]),
+                alias["zero_count"],
+                bytes(np.asarray(alias["scale_view"], dtype=np.float32)),
+                bytes(np.asarray(alias["zero_view"], dtype=np.int64))
+                if alias["zero_count"]
+                else b"",
+            )
+            if alias_layout != reference_layout:
+                raise OfficialTopologyParityError(
+                    f"Weight aliases disagree on layout/quantization for buffer {buffer_index}."
+                )
+
+        raw = first["raw"]
+        shape = first["shape"]
+        bits = first["bits"]
+        if verify_weight_encoding:
+            value_count = int(np.prod(shape, dtype=np.int64))
+            decoded = _unpack_low_bit(raw, bits, value_count)
+            if _pack_low_bit(decoded, bits).tobytes() == bytes(raw):
+                encoding_verified += 1
+            else:
+                encoding_mismatches += 1
+            current_range = encoding_ranges.setdefault(bits, [127, -128])
+            if len(decoded):
+                current_range[0] = min(current_range[0], int(decoded.min()))
+                current_range[1] = max(current_range[1], int(decoded.max()))
+
+        packed, scales = _random_quantized_weight(shape, bits, seed, ordinal)
+        if len(raw) != len(packed) or len(scales) != len(first["scale_view"]):
+            raise OfficialTopologyParityError(
+                f"Generated random constants do not fit mapped buffer {buffer_index}."
+            )
+        raw[:] = packed
+        for alias in aliases:
+            alias["scale_view"][:] = scales
+            if alias["zero_count"]:
+                alias["zero_view"][:] = 0
             tensor_count += 1
-            buffer_records[buffer_index] = {
-                "subgraph": subgraph_index,
-                "tensor": tensor_index,
-                "name": _decode(tensor.Name()),
-                "type_value": type_value,
-                "bits": bits,
-                "shape": list(shape),
-                "buffer_bytes": data_length,
-                "scale_count": scale_count,
-                "scale_min": float(np.min(scales)),
-                "scale_max": float(np.max(scales)),
-                "storage": storage,
-                "storage_offset": storage_offset,
-                "buffer_sha256_after": _sha256(raw),
-            }
+        storage_counts[first["storage"]] += 1
+        patched_buffers.add(buffer_index)
+        scale_count = len(scales)
+        buffer_records[buffer_index] = {
+            "subgraph": first["subgraph"],
+            "tensor": first["tensor"],
+            "name": first["name"],
+            "type_value": first["type_value"],
+            "bits": first["bits"],
+            "shape": list(shape),
+            "buffer_bytes": first["buffer_bytes"],
+            "scale_count": scale_count,
+            "scale_min": float(np.min(scales)),
+            "scale_max": float(np.max(scales)),
+            "storage": first["storage"],
+            "storage_offset": first["storage_offset"],
+            "alias_count": len(aliases),
+            "buffer_sha256_after": _sha256(raw),
+        }
 
     # Keep only compact records in the JSON report; names remain available for
     # the first few records while counts cover the complete section.
     records = list(buffer_records.values())
     type_counts = collections.Counter(str(item["type_value"]) for item in records)
+    alias_histogram = collections.Counter(int(item["alias_count"]) for item in records)
     return {
         "randomized_tensor_count": tensor_count,
+        "randomized_weight_alias_count": tensor_count,
         "randomized_buffer_count": len(patched_buffers),
+        "shared_weight_buffer_count": sum(int(item["alias_count"]) > 1 for item in records),
+        "alias_count_histogram": dict(sorted(alias_histogram.items())),
         "randomized_type_values": dict(sorted(type_counts.items())),
         "randomized_storage": dict(sorted(storage_counts.items())),
         "weight_encoding": {
@@ -456,6 +533,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         and official_graph.get("quantization_layout_sha256")
         == randomized_graph.get("quantization_layout_sha256")
     )
+    execution_contract_complete = bool(
+        official_graph.get("execution_contract_complete")
+        and randomized_graph.get("execution_contract_complete")
+    )
+    execution_contract_match = bool(
+        execution_contract_complete
+        and official_graph.get("execution_contract_sha256")
+        == randomized_graph.get("execution_contract_sha256")
+    )
     result = {
         **plan,
         "official_section_sha256": _sha256(original),
@@ -465,6 +551,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "randomized_graph": randomized_graph,
         "graph_structure_match": graph_structure_match,
         "quantization_layout_match": quant_layout_match,
+        "execution_contract_complete": execution_contract_complete,
+        "execution_contract_match": execution_contract_match,
         "quantization_values_match": bool(
             official_graph.get("quantization_values_sha256")
             and official_graph.get("quantization_values_sha256")
@@ -472,8 +560,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "exact_official_model_match": False,
         "interpretation": (
-            "A structure/layout match is expected because the official graph is "
-            "preserved while only random weight bytes and scales are changed. "
+            "A complete execution-contract/structure/layout match is expected "
+            "because the official graph is preserved while only random weight "
+            "bytes and scales are changed. "
             "This validates low-bit buffer sizing/packing and observable layout, "
             "not the private QAT schedule, calibration corpus, or learned weights."
         ),

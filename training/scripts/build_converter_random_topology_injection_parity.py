@@ -37,10 +37,10 @@ from __future__ import annotations
 
 import argparse
 import collections
+import gc
 import hashlib
 import json
 import re
-import gc
 import shutil
 import sys
 from pathlib import Path
@@ -116,17 +116,18 @@ def _constants_digest(records: Iterable[dict[str, Any]]) -> str:
 
 
 def _official_constants_digest(section_bytes: bytes, records: list[dict[str, Any]]) -> str:
-    """Read the patched official buffers/scales in the inventory order."""
+    """Read patched buffers/scales after proving every shared alias agrees."""
 
     mutable = bytearray(section_bytes)
     model = _schema_model(mutable)
-    locations = _official_weight_locations(model, records)
+    groups = _official_weight_alias_groups(model, records)
     observed: list[dict[str, Any]] = []
-    for record, tensor in zip(records, locations):
-        view_info = _buffer_view(model, int(tensor.Buffer()), mutable)
+    for record, group in zip(records, groups):
+        tensor = group["aliases"][0]["tensor"]
+        view_info = _buffer_view(model, int(group["buffer_index"]), mutable)
         if view_info is None:
             raise ConverterRandomTopologyInjectionError(
-                f"Could not read patched official buffer {tensor.Buffer()}."
+                f"Could not read patched official buffer {group['buffer_index']}."
             )
         view, _, _, _ = view_info
         quantization = tensor.Quantization()
@@ -144,6 +145,112 @@ def _official_constants_digest(section_bytes: bytes, records: list[dict[str, Any
             }
         )
     return _constants_digest(observed)
+
+
+def _non_mapped_state_digest(
+    section_bytes: bytes, records: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Hash every buffer and quantization field outside mapped learned weights.
+
+    Execution-contract fingerprints intentionally mask buffer payloads and
+    quantization scales so newly trained weights may differ.  This companion
+    digest proves that the exclusion is narrow: only the exact inventory of
+    mapped FC/embedding tensors, their buffers, and their quantization records
+    are omitted. Everything else must remain byte/value identical.
+    """
+
+    model = _schema_model(section_bytes)
+    alias_groups = _official_weight_alias_groups(model, records)
+    mapped_tensors = {
+        (int(alias["subgraph_index"]), int(alias["tensor_index"]))
+        for group in alias_groups
+        for alias in group["aliases"]
+    }
+    mapped_buffers = {int(group["buffer_index"]) for group in alias_groups}
+    alias_summary = _weight_alias_summary(alias_groups)
+
+    digest = hashlib.sha256()
+    included_buffer_count = 0
+    included_buffer_bytes = 0
+    for buffer_index in range(int(model.BuffersLength())):
+        if buffer_index in mapped_buffers:
+            continue
+        view_info = _buffer_view(model, buffer_index, section_bytes)
+        if view_info is None:
+            storage = "empty"
+            payload_size = 0
+            payload_sha256 = hashlib.sha256(b"").digest()
+        else:
+            view, storage, _, payload_size = view_info
+            payload_sha256 = hashlib.sha256(view).digest()
+        digest.update(int(buffer_index).to_bytes(8, "little", signed=False))
+        storage_bytes = str(storage).encode("utf-8")
+        digest.update(len(storage_bytes).to_bytes(4, "little", signed=False))
+        digest.update(storage_bytes)
+        digest.update(int(payload_size).to_bytes(8, "little", signed=False))
+        digest.update(payload_sha256)
+        included_buffer_count += 1
+        included_buffer_bytes += int(payload_size)
+
+    included_quantization_count = 0
+
+    def quant_vector(obj: Any, length_name: str, item_name: str, cast: Any) -> list[Any]:
+        length = int(getattr(obj, length_name, lambda: 0)() or 0)
+        getter = getattr(obj, item_name, None)
+        return [cast(getter(index)) for index in range(length)] if getter else []
+
+    for subgraph_index in range(int(model.SubgraphsLength())):
+        subgraph = model.Subgraphs(subgraph_index)
+        for tensor_index in range(int(subgraph.TensorsLength())):
+            if (subgraph_index, tensor_index) in mapped_tensors:
+                continue
+            tensor = subgraph.Tensors(tensor_index)
+            quantization = tensor.Quantization()
+            if quantization is None:
+                continue
+            record = {
+                "subgraph": subgraph_index,
+                "tensor": tensor_index,
+                "min": quant_vector(
+                    quantization, "MinLength", "Min", float
+                ),
+                "max": quant_vector(
+                    quantization, "MaxLength", "Max", float
+                ),
+                "scale": quant_vector(
+                    quantization, "ScaleLength", "Scale", float
+                ),
+                "zero_point": quant_vector(
+                    quantization, "ZeroPointLength", "ZeroPoint", int
+                ),
+                "details_type": int(
+                    getattr(quantization, "DetailsType", lambda: 0)() or 0
+                ),
+                "quantized_dimension": int(
+                    quantization.QuantizedDimension() or 0
+                ),
+            }
+            payload = json.dumps(
+                record,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode("utf-8")
+            digest.update(len(payload).to_bytes(8, "little", signed=False))
+            digest.update(payload)
+            included_quantization_count += 1
+
+    return {
+        "sha256": digest.hexdigest(),
+        "included_buffer_count": included_buffer_count,
+        "included_buffer_bytes": included_buffer_bytes,
+        "included_quantization_tensor_count": included_quantization_count,
+        "excluded_mapped_tensor_count": len(mapped_tensors),
+        "excluded_mapped_buffer_count": len(mapped_buffers),
+        "excluded_mapped_alias_count": alias_summary["weight_tensor_alias_count"],
+        "mapped_alias_count_histogram": alias_summary["alias_count_histogram"],
+        "scope": "all_state_except_explicit_mapped_weight_buffers_and_quantization",
+    }
 
 
 def _file_range_sha256(path: Path, start: int, size: int, *, chunk_size: int = 8 * 1024 * 1024) -> str:
@@ -361,19 +468,272 @@ def _compact_converter_layout(records: list[dict[str, Any]]) -> list[dict[str, A
     return [{key: record.get(key) for key in fields} for record in records]
 
 
-def _official_weight_locations(model: Any, records: list[dict[str, Any]]) -> list[Any]:
-    """Resolve official inventory records to mutable object-API weight tensors."""
+def _table_tensor_shape(tensor: Any) -> tuple[int, ...]:
+    return tuple(
+        int(tensor.Shape(index))
+        for index in range(int(tensor.ShapeLength() or 0))
+    )
 
-    locations: list[Any] = []
-    for record in records:
-        subgraph = model.Subgraphs(int(record["official_subgraph"]))
-        operator = subgraph.Operators(int(record["official_operator_index"]))
+
+def _table_quantization_vectors(tensor: Any) -> tuple[Any, np.ndarray, np.ndarray]:
+    quantization = tensor.Quantization()
+    if quantization is None:
+        raise ConverterRandomTopologyInjectionError(
+            "A mapped official weight tensor has no quantization parameters."
+        )
+    scale_count = int(quantization.ScaleLength() or 0)
+    zero_count = int(quantization.ZeroPointLength() or 0)
+    scales = np.asarray(
+        [float(quantization.Scale(index)) for index in range(scale_count)],
+        dtype=np.float32,
+    )
+    zero_points = np.asarray(
+        [int(quantization.ZeroPoint(index)) for index in range(zero_count)],
+        dtype=np.int64,
+    )
+    return quantization, scales, zero_points
+
+
+def _official_weight_alias_groups(
+    model: Any, records: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Resolve and validate every tensor alias for each mapped weight buffer.
+
+    LiteRT-LM decoder sections share packed weight buffers between decode,
+    prefill, and verification subgraphs.  Each subgraph still owns a distinct
+    Tensor/QuantizationParameters table, so replacing only the first tensor's
+    scales creates a numerically inconsistent graph even though its operator
+    topology and GPU delegation remain unchanged.  This resolver treats the
+    shared buffer as one learned matrix and all referring weight tensors as a
+    mandatory update set.
+    """
+
+    record_by_buffer: dict[int, tuple[int, dict[str, Any]]] = {}
+    canonical_keys: dict[int, tuple[int, int]] = {}
+    buffer_by_ordinal: list[int] = []
+    for ordinal, record in enumerate(records):
+        subgraph_index = int(record["official_subgraph"])
+        operator_index = int(record["official_operator_index"])
+        subgraph = model.Subgraphs(subgraph_index)
+        operator = subgraph.Operators(operator_index)
+        code = model.OperatorCodes(int(operator.OpcodeIndex()))
+        builtin = int(code.BuiltinCode())
+        if builtin not in (_FULLY_CONNECTED, _EMBEDDING_LOOKUP):
+            raise ConverterRandomTopologyInjectionError(
+                f"Inventory record {ordinal} does not point to a supported weight operator."
+            )
         inputs = _vector(operator, "InputsLength", "Inputs")
         if len(inputs) < 2 or inputs[1] < 0:
             raise ConverterRandomTopologyInjectionError(
                 f"Official inventory record has no weight input: {record}"
             )
-        locations.append(subgraph.Tensors(inputs[1]))
+        tensor_index = int(inputs[1])
+        tensor = subgraph.Tensors(tensor_index)
+        buffer_index = int(tensor.Buffer())
+        recorded_buffer = record.get("official_buffer")
+        if recorded_buffer is not None and int(recorded_buffer) != buffer_index:
+            raise ConverterRandomTopologyInjectionError(
+                f"Inventory record {ordinal} buffer changed: "
+                f"record={recorded_buffer} graph={buffer_index}."
+            )
+        if buffer_index in record_by_buffer:
+            previous = record_by_buffer[buffer_index][0]
+            raise ConverterRandomTopologyInjectionError(
+                f"Inventory records {previous} and {ordinal} duplicate buffer {buffer_index}."
+            )
+        record_by_buffer[buffer_index] = (ordinal, record)
+        canonical_keys[buffer_index] = (subgraph_index, tensor_index)
+        buffer_by_ordinal.append(buffer_index)
+
+    aliases_by_buffer: dict[int, set[tuple[int, int]]] = collections.defaultdict(set)
+    tensors_by_buffer: dict[int, set[tuple[int, int]]] = collections.defaultdict(set)
+    unexpected_operator_uses: list[dict[str, int | str]] = []
+    mapped_buffers = set(record_by_buffer)
+    for subgraph_index in range(int(model.SubgraphsLength() or 0)):
+        subgraph = model.Subgraphs(subgraph_index)
+        for tensor_index in range(int(subgraph.TensorsLength() or 0)):
+            buffer_index = int(subgraph.Tensors(tensor_index).Buffer())
+            if buffer_index in mapped_buffers:
+                tensors_by_buffer[buffer_index].add((subgraph_index, tensor_index))
+        for operator_index in range(int(subgraph.OperatorsLength() or 0)):
+            operator = subgraph.Operators(operator_index)
+            code = model.OperatorCodes(int(operator.OpcodeIndex()))
+            builtin = int(code.BuiltinCode())
+            inputs = _vector(operator, "InputsLength", "Inputs")
+            outputs = _vector(operator, "OutputsLength", "Outputs")
+            for input_position, tensor_index in enumerate(inputs):
+                if tensor_index < 0:
+                    continue
+                buffer_index = int(subgraph.Tensors(tensor_index).Buffer())
+                if buffer_index not in mapped_buffers:
+                    continue
+                if builtin in (_FULLY_CONNECTED, _EMBEDDING_LOOKUP) and input_position == 1:
+                    aliases_by_buffer[buffer_index].add(
+                        (subgraph_index, int(tensor_index))
+                    )
+                else:
+                    unexpected_operator_uses.append(
+                        {
+                            "kind": "input",
+                            "subgraph": subgraph_index,
+                            "operator": operator_index,
+                            "builtin": builtin,
+                            "position": input_position,
+                            "tensor": int(tensor_index),
+                            "buffer": buffer_index,
+                        }
+                    )
+            for output_position, tensor_index in enumerate(outputs):
+                if tensor_index < 0:
+                    continue
+                buffer_index = int(subgraph.Tensors(tensor_index).Buffer())
+                if buffer_index in mapped_buffers:
+                    unexpected_operator_uses.append(
+                        {
+                            "kind": "output",
+                            "subgraph": subgraph_index,
+                            "operator": operator_index,
+                            "builtin": builtin,
+                            "position": output_position,
+                            "tensor": int(tensor_index),
+                            "buffer": buffer_index,
+                        }
+                    )
+
+    if unexpected_operator_uses:
+        raise ConverterRandomTopologyInjectionError(
+            "A mapped learned-weight buffer is used outside the FC/embedding "
+            f"weight slot: {unexpected_operator_uses[:3]}"
+        )
+
+    groups: list[dict[str, Any]] = []
+    for ordinal, record in enumerate(records):
+        buffer_index = buffer_by_ordinal[ordinal]
+        canonical_subgraph, canonical_tensor = canonical_keys[buffer_index]
+        canonical = model.Subgraphs(canonical_subgraph).Tensors(canonical_tensor)
+        if int(canonical.Buffer()) != buffer_index:
+            raise ConverterRandomTopologyInjectionError(
+                f"Canonical weight buffer changed at ordinal {ordinal}."
+            )
+        alias_keys = sorted(aliases_by_buffer.get(buffer_index, set()))
+        if not alias_keys or (canonical_subgraph, canonical_tensor) not in alias_keys:
+            raise ConverterRandomTopologyInjectionError(
+                f"Mapped buffer {buffer_index} has no complete weight alias set."
+            )
+        unexpected_tensors = sorted(tensors_by_buffer[buffer_index] - set(alias_keys))
+        if unexpected_tensors:
+            raise ConverterRandomTopologyInjectionError(
+                f"Mapped buffer {buffer_index} is referenced by non-weight tensors: "
+                f"{unexpected_tensors[:3]}"
+            )
+
+        aliases: list[dict[str, Any]] = []
+        reference_scales: bytes | None = None
+        reference_zero_points: bytes | None = None
+        reference_dimension: int | None = None
+        for subgraph_index, tensor_index in alias_keys:
+            tensor = model.Subgraphs(subgraph_index).Tensors(tensor_index)
+            shape = _table_tensor_shape(tensor)
+            if shape != tuple(int(value) for value in record["shape"]):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight alias shape mismatch for buffer {buffer_index}: "
+                    f"record={record['shape']} alias={shape}."
+                )
+            expected_type = record.get("type_value")
+            if expected_type is not None and int(tensor.Type()) != int(expected_type):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight alias type mismatch for buffer {buffer_index}: "
+                    f"record={expected_type} alias={tensor.Type()}."
+                )
+            quantization, scales, zero_points = _table_quantization_vectors(tensor)
+            dimension = int(quantization.QuantizedDimension() or 0)
+            expected_scale_count = record.get("scale_count")
+            expected_zero_count = record.get("zero_point_count")
+            expected_dimension = record.get("quantized_dimension")
+            if expected_scale_count is not None and len(scales) != int(expected_scale_count):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight alias scale count mismatch for buffer {buffer_index}."
+                )
+            if expected_zero_count is not None and len(zero_points) != int(expected_zero_count):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight alias zero-point count mismatch for buffer {buffer_index}."
+                )
+            if expected_dimension is not None and dimension != int(expected_dimension):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight alias quantized dimension mismatch for buffer {buffer_index}."
+                )
+            if record.get("zero_points_all_zero") is True and (
+                not len(zero_points) or not bool(np.all(zero_points == 0))
+            ):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight alias is not symmetric for buffer {buffer_index}."
+                )
+            scale_bytes = scales.tobytes()
+            zero_bytes = zero_points.tobytes()
+            if reference_scales is None:
+                reference_scales = scale_bytes
+                reference_zero_points = zero_bytes
+                reference_dimension = dimension
+            elif (
+                scale_bytes != reference_scales
+                or zero_bytes != reference_zero_points
+                or dimension != reference_dimension
+            ):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Weight aliases disagree on quantization for buffer {buffer_index}."
+                )
+            aliases.append(
+                {
+                    "subgraph_index": subgraph_index,
+                    "tensor_index": tensor_index,
+                    "tensor": tensor,
+                }
+            )
+        groups.append(
+            {
+                "ordinal": ordinal,
+                "buffer_index": buffer_index,
+                "canonical": (canonical_subgraph, canonical_tensor),
+                "aliases": aliases,
+            }
+        )
+    return groups
+
+
+def _weight_alias_summary(groups: list[dict[str, Any]]) -> dict[str, Any]:
+    histogram = collections.Counter(len(group["aliases"]) for group in groups)
+    return {
+        "unique_weight_buffer_count": len(groups),
+        "weight_tensor_alias_count": sum(len(group["aliases"]) for group in groups),
+        "shared_weight_buffer_count": sum(
+            len(group["aliases"]) > 1 for group in groups
+        ),
+        "alias_count_histogram": {
+            str(count): int(frequency)
+            for count, frequency in sorted(histogram.items())
+        },
+        "unexpected_mapped_buffer_references": 0,
+        "all_alias_quantization_records_identical": True,
+    }
+
+
+def _official_weight_locations(model: Any, records: list[dict[str, Any]]) -> list[Any]:
+    """Return canonical tensors; retained for callers that need one per buffer."""
+
+    locations: list[Any] = []
+    for group in _official_weight_alias_groups(model, records):
+        canonical = tuple(group["canonical"])
+        locations.append(
+            next(
+                alias["tensor"]
+                for alias in group["aliases"]
+                if (
+                    int(alias["subgraph_index"]),
+                    int(alias["tensor_index"]),
+                )
+                == canonical
+            )
+        )
     return locations
 
 
@@ -399,10 +759,10 @@ def _patch_official_constants(
 
     mutable = bytearray(section_bytes)
     model = _schema_model(mutable)
-    locations = _official_weight_locations(model, records)
+    alias_groups = _official_weight_alias_groups(model, records)
     patched = 0
-    skipped: collections.Counter[str] = collections.Counter()
-    for ordinal, (record, tensor) in enumerate(zip(records, locations)):
+    patched_aliases = 0
+    for ordinal, (record, group) in enumerate(zip(records, alias_groups)):
         converter = converter_by_ordinal[ordinal]
         if int(record["bits"]) != int(converter["bits"]):
             raise ConverterRandomTopologyInjectionError(
@@ -415,10 +775,11 @@ def _patch_official_constants(
                 f"Shape mismatch at ordinal {ordinal}: "
                 f"official={record['shape']} converter={converter['shape']}"
             )
-        raw_view_info = _buffer_view(model, int(tensor.Buffer()), mutable)
+        raw_view_info = _buffer_view(model, int(group["buffer_index"]), mutable)
         if raw_view_info is None:
-            skipped["buffer_storage_unavailable"] += 1
-            continue
+            raise ConverterRandomTopologyInjectionError(
+                f"Buffer storage is unavailable at ordinal {ordinal}."
+            )
         raw_view, _, _, data_length = raw_view_info
         if data_length != len(converter["raw"]):
             raise ConverterRandomTopologyInjectionError(
@@ -426,25 +787,50 @@ def _patch_official_constants(
                 f"official={data_length} converter={len(converter['raw'])}"
             )
         raw_view[:] = np.frombuffer(converter["raw"], dtype=np.uint8)
-        quantization = tensor.Quantization()
-        if quantization is None:
-            skipped["official_quantization_unavailable"] += 1
-            continue
-        scale_view = quantization.ScaleAsNumpy()
-        if scale_view is None or len(scale_view) != len(converter["scales"]):
+        converter_scales = np.asarray(
+            converter["scales"], dtype=np.float32
+        ).reshape(-1)
+        expected_zero_count = int(
+            converter.get("zero_point_count", len(converter_scales))
+        )
+        if converter.get("zero_points_all_zero") is False:
             raise ConverterRandomTopologyInjectionError(
-                f"Scale count mismatch at ordinal {ordinal}: "
-                f"official={0 if scale_view is None else len(scale_view)} "
-                f"converter={len(converter['scales'])}"
+                f"Converter produced asymmetric weight zero points at ordinal {ordinal}."
             )
-        scale_view[:] = converter["scales"]
-        zero_view = quantization.ZeroPointAsNumpy()
-        if zero_view is not None and len(zero_view):
+        for alias in group["aliases"]:
+            tensor = alias["tensor"]
+            quantization = tensor.Quantization()
+            if quantization is None:
+                raise ConverterRandomTopologyInjectionError(
+                    f"Official alias has no quantization at ordinal {ordinal}."
+                )
+            scale_view = quantization.ScaleAsNumpy()
+            if not isinstance(scale_view, np.ndarray) or len(scale_view) != len(
+                converter_scales
+            ):
+                raise ConverterRandomTopologyInjectionError(
+                    f"Scale count mismatch at ordinal {ordinal}: "
+                    f"official={0 if not isinstance(scale_view, np.ndarray) else len(scale_view)} "
+                    f"converter={len(converter_scales)}"
+                )
+            scale_view[:] = converter_scales
+            zero_view = quantization.ZeroPointAsNumpy()
+            if not isinstance(zero_view, np.ndarray) or len(zero_view) != expected_zero_count:
+                raise ConverterRandomTopologyInjectionError(
+                    f"Zero-point count mismatch at ordinal {ordinal}: "
+                    f"official={0 if not isinstance(zero_view, np.ndarray) else len(zero_view)} "
+                    f"converter={expected_zero_count}"
+                )
             zero_view[:] = 0
+            patched_aliases += 1
         patched += 1
+    verified_groups = _official_weight_alias_groups(model, records)
+    alias_summary = _weight_alias_summary(verified_groups)
     return bytes(mutable), {
         "patched_weight_count": patched,
-        "skipped": dict(sorted(skipped.items())),
+        "patched_weight_alias_count": patched_aliases,
+        "alias_verification": alias_summary,
+        "skipped": {},
     }
 
 
@@ -485,6 +871,9 @@ def _rebuild_graph_with_constants(
             "Converter output does not contain one contiguous branch per inventory record."
         )
 
+    table_alias_groups = _official_weight_alias_groups(
+        _schema_model(section_bytes), records
+    )
     root = schema.Model.GetRootAsModel(section_bytes, 0)
     model = schema.ModelT.InitFromObj(root)
     materialized_external = 0
@@ -510,8 +899,8 @@ def _rebuild_graph_with_constants(
         materialized_bytes += size
 
     replaced = 0
-    seen_buffers: set[int] = set()
-    for ordinal, record in enumerate(records):
+    replaced_aliases = 0
+    for ordinal, (record, group) in enumerate(zip(records, table_alias_groups)):
         converter = converter_by_ordinal[ordinal]
         if int(record["bits"]) != int(converter["bits"]):
             raise ConverterRandomTopologyInjectionError(
@@ -524,33 +913,53 @@ def _rebuild_graph_with_constants(
                 f"Shape mismatch at ordinal {ordinal}: "
                 f"official={record['shape']} converter={converter['shape']}"
             )
-        subgraph = model.subgraphs[int(record["official_subgraph"])]
-        operator = subgraph.operators[int(record["official_operator_index"])]
-        inputs = np.asarray(operator.inputs, dtype=np.int64).reshape(-1)
-        if len(inputs) < 2 or int(inputs[1]) < 0:
-            raise ConverterRandomTopologyInjectionError(
-                f"Official inventory record has no weight input at ordinal {ordinal}."
-            )
-        tensor_index = int(inputs[1])
-        tensor = subgraph.tensors[tensor_index]
-        buffer_index = int(tensor.buffer)
-        if buffer_index in seen_buffers:
-            continue
-        seen_buffers.add(buffer_index)
+        buffer_index = int(group["buffer_index"])
         buffer = model.buffers[buffer_index]
         raw = np.frombuffer(converter["raw"], dtype=np.uint8).copy()
         buffer.data = raw
         buffer.offset = 0
         buffer.size = 0
-        quantization = tensor.quantization
-        if quantization is None:
-            raise ConverterRandomTopologyInjectionError(
-                f"Official tensor has no quantization at ordinal {ordinal}."
-            )
-        quantization.scale = np.asarray(converter["scales"], dtype=np.float32).copy()
-        quantization.zeroPoint = np.zeros(
-            len(converter["scales"]), dtype=np.int64
+        converter_scales = np.asarray(
+            converter["scales"], dtype=np.float32
+        ).reshape(-1)
+        expected_zero_count = int(
+            converter.get("zero_point_count", len(converter_scales))
         )
+        if converter.get("zero_points_all_zero") is False:
+            raise ConverterRandomTopologyInjectionError(
+                f"Converter produced asymmetric weight zero points at ordinal {ordinal}."
+            )
+        for alias in group["aliases"]:
+            subgraph = model.subgraphs[int(alias["subgraph_index"])]
+            tensor = subgraph.tensors[int(alias["tensor_index"])]
+            if int(tensor.buffer) != buffer_index:
+                raise ConverterRandomTopologyInjectionError(
+                    f"ModelT alias buffer changed at ordinal {ordinal}."
+                )
+            quantization = tensor.quantization
+            if quantization is None:
+                raise ConverterRandomTopologyInjectionError(
+                    f"Official alias has no quantization at ordinal {ordinal}."
+                )
+            existing_scales = np.asarray(
+                [] if quantization.scale is None else quantization.scale,
+                dtype=np.float32,
+            ).reshape(-1)
+            existing_zeros = np.asarray(
+                [] if quantization.zeroPoint is None else quantization.zeroPoint,
+                dtype=np.int64,
+            ).reshape(-1)
+            if len(existing_scales) != len(converter_scales):
+                raise ConverterRandomTopologyInjectionError(
+                    f"ModelT scale count mismatch at ordinal {ordinal}."
+                )
+            if len(existing_zeros) != expected_zero_count:
+                raise ConverterRandomTopologyInjectionError(
+                    f"ModelT zero-point count mismatch at ordinal {ordinal}."
+                )
+            quantization.scale = converter_scales.copy()
+            quantization.zeroPoint = np.zeros(expected_zero_count, dtype=np.int64)
+            replaced_aliases += 1
         replaced += 1
 
     builder = flatbuffers.Builder(max(1024, min(len(section_bytes), 64 * 1024 * 1024)))
@@ -559,6 +968,8 @@ def _rebuild_graph_with_constants(
     rebuilt = bytes(builder.Output())
     return rebuilt, {
         "replaced_weight_count": replaced,
+        "replaced_weight_alias_count": replaced_aliases,
+        "alias_verification": _weight_alias_summary(table_alias_groups),
         "materialized_external_buffer_count": materialized_external,
         "materialized_external_bytes": materialized_bytes,
         "modelt_rebuilt": True,
@@ -585,6 +996,9 @@ def _random_quantized_network_match(
     official_layout_match: bool,
     execution_topology_match: bool,
     execution_layout_match: bool,
+    official_execution_contract_match: bool,
+    execution_contract_match_ignoring_buffer_indices: bool,
+    non_mapped_state_match: bool,
 ) -> dict[str, Any]:
     """Summarize network parity while keeping value parity separate.
 
@@ -608,10 +1022,17 @@ def _random_quantized_network_match(
         "execution_layout_match_ignoring_buffer_indices": bool(
             execution_layout_match
         ),
+        "official_execution_contract_match": bool(
+            official_execution_contract_match
+        ),
+        "execution_contract_match_ignoring_buffer_indices": bool(
+            execution_contract_match_ignoring_buffer_indices
+        ),
+        "non_mapped_state_match": bool(non_mapped_state_match),
     }
     return {
         "same": bool(all(checks.values())),
-        "scope": "topology_and_quantization_layout_only",
+        "scope": "execution_contract_topology_and_quantization_layout",
         "checks": checks,
         "not_value_or_model_identity": True,
     }
@@ -850,6 +1271,16 @@ def run(
     injected_constants_sha256 = _official_constants_digest(
         injected_bytes, official_records
     )
+    official_non_mapped_state = _non_mapped_state_digest(
+        official_bytes, official_records
+    )
+    injected_non_mapped_state = _non_mapped_state_digest(
+        injected_bytes, official_records
+    )
+    non_mapped_state_match = bool(
+        official_non_mapped_state["sha256"]
+        == injected_non_mapped_state["sha256"]
+    )
     injected_path = output_root / "random_converter_topology_injected.tflite"
     if write_models:
         injected_path.write_bytes(injected_bytes)
@@ -883,6 +1314,28 @@ def run(
     injected_layout_no_buffers = injected_graph[
         "graph_without_buffer_indices"
     ].get("quantization_layout_sha256")
+    official_execution_contract = official_graph["graph"].get(
+        "execution_contract_sha256"
+    )
+    injected_execution_contract = injected_graph["graph"].get(
+        "execution_contract_sha256"
+    )
+    official_execution_contract_no_buffers = official_graph[
+        "graph_without_buffer_indices"
+    ].get("execution_contract_sha256")
+    injected_execution_contract_no_buffers = injected_graph[
+        "graph_without_buffer_indices"
+    ].get("execution_contract_sha256")
+    execution_contracts_complete = bool(
+        official_graph["graph"].get("execution_contract_complete")
+        and injected_graph["graph"].get("execution_contract_complete")
+        and official_graph["graph_without_buffer_indices"].get(
+            "execution_contract_complete"
+        )
+        and injected_graph["graph_without_buffer_indices"].get(
+            "execution_contract_complete"
+        )
+    )
     result: dict[str, Any] = {
         "artifact": str(artifact_path),
         "model_type": model_type,
@@ -958,6 +1411,11 @@ def run(
         "converter_to_injected_quantization_values_match": bool(
             converter_constants_sha256 == injected_constants_sha256
         ),
+        "non_mapped_state_match": non_mapped_state_match,
+        "non_mapped_state": {
+            "official": official_non_mapped_state,
+            "injected": injected_non_mapped_state,
+        },
         "converter_constants_sha256": converter_constants_sha256,
         "injected_constants_sha256": injected_constants_sha256,
         "official_topology_graph_structure_match": bool(
@@ -972,6 +1430,18 @@ def run(
         "official_quantization_layout_match_ignoring_buffer_indices": bool(
             official_layout_no_buffers
             and official_layout_no_buffers == injected_layout_no_buffers
+        ),
+        "official_execution_contract_complete": execution_contracts_complete,
+        "official_execution_contract_match": bool(
+            execution_contracts_complete
+            and official_execution_contract
+            and official_execution_contract == injected_execution_contract
+        ),
+        "official_execution_contract_match_ignoring_buffer_indices": bool(
+            execution_contracts_complete
+            and official_execution_contract_no_buffers
+            and official_execution_contract_no_buffers
+            == injected_execution_contract_no_buffers
         ),
         "quantization_values_match": bool(
             official_graph["graph"].get("quantization_values_sha256")
@@ -989,6 +1459,14 @@ def run(
             ),
             "injected_quantization_values_sha256": injected_graph["graph"].get(
                 "quantization_values_sha256"
+            ),
+            "official_execution_contract_sha256": official_execution_contract,
+            "injected_execution_contract_sha256": injected_execution_contract,
+            "official_execution_contract_without_buffer_indices_sha256": (
+                official_execution_contract_no_buffers
+            ),
+            "injected_execution_contract_without_buffer_indices_sha256": (
+                injected_execution_contract_no_buffers
             ),
             "converter_constants_sha256": converter_constants_sha256,
             "injected_constants_sha256": injected_constants_sha256,
@@ -1013,6 +1491,13 @@ def run(
         rebuilt_constants = _official_constants_digest(
             rebuilt_bytes, official_records
         )
+        rebuilt_non_mapped_state = _non_mapped_state_digest(
+            rebuilt_bytes, official_records
+        )
+        rebuilt_non_mapped_state_match = bool(
+            rebuilt_non_mapped_state["sha256"]
+            == official_non_mapped_state["sha256"]
+        )
         rebuilt_structural = rebuilt_graph["graph"].get("structural_sha256")
         rebuilt_layout = rebuilt_graph["graph"].get(
             "quantization_layout_sha256"
@@ -1029,6 +1514,22 @@ def run(
         official_buffer_storage = official_graph["graph"].get(
             "buffer_storage_sha256"
         )
+        rebuilt_execution_contract = rebuilt_graph["graph"].get(
+            "execution_contract_sha256"
+        )
+        rebuilt_execution_contract_no_buffers = rebuilt_graph[
+            "graph_without_buffer_indices"
+        ].get("execution_contract_sha256")
+        rebuilt_execution_contracts_complete = bool(
+            official_graph["graph"].get("execution_contract_complete")
+            and rebuilt_graph["graph"].get("execution_contract_complete")
+            and official_graph["graph_without_buffer_indices"].get(
+                "execution_contract_complete"
+            )
+            and rebuilt_graph["graph_without_buffer_indices"].get(
+                "execution_contract_complete"
+            )
+        )
         result["rebuilt_variant"] = {
             "size": len(rebuilt_bytes),
             "sha256": _sha256(rebuilt_bytes),
@@ -1038,6 +1539,8 @@ def run(
             "constants_sha256": rebuilt_constants,
             "buffer_storage_sha256": rebuilt_buffer_storage,
             "official_buffer_storage_sha256": official_buffer_storage,
+            "non_mapped_state": rebuilt_non_mapped_state,
+            "non_mapped_state_match": rebuilt_non_mapped_state_match,
             "constants_match_converter": bool(
                 rebuilt_constants == converter_constants_sha256
             ),
@@ -1055,6 +1558,13 @@ def run(
                 and rebuilt_buffer_storage
                 and rebuilt_buffer_storage == official_buffer_storage
                 and rebuilt_constants == converter_constants_sha256
+                and rebuilt_execution_contracts_complete
+                and rebuilt_execution_contract
+                and rebuilt_execution_contract == official_execution_contract
+                and rebuilt_execution_contract_no_buffers
+                and rebuilt_execution_contract_no_buffers
+                == official_execution_contract_no_buffers
+                and rebuilt_non_mapped_state_match
             ),
             "scope": "reconstructed_topology_and_public_converter_constants",
             "checks": {
@@ -1078,6 +1588,19 @@ def run(
                 "converter_constants_match": bool(
                     rebuilt_constants == converter_constants_sha256
                 ),
+                "execution_contract_complete": rebuilt_execution_contracts_complete,
+                "official_execution_contract_match": bool(
+                    rebuilt_execution_contracts_complete
+                    and rebuilt_execution_contract
+                    and rebuilt_execution_contract == official_execution_contract
+                ),
+                "execution_contract_match_ignoring_buffer_indices": bool(
+                    rebuilt_execution_contracts_complete
+                    and rebuilt_execution_contract_no_buffers
+                    and rebuilt_execution_contract_no_buffers
+                    == official_execution_contract_no_buffers
+                ),
+                "non_mapped_state_match": rebuilt_non_mapped_state_match,
             },
             "not_official_learned_model_identity": True,
         }
@@ -1114,6 +1637,18 @@ def run(
             official_layout_no_buffers
             and official_layout_no_buffers == injected_layout_no_buffers
         ),
+        official_execution_contract_match=bool(
+            execution_contracts_complete
+            and official_execution_contract
+            and official_execution_contract == injected_execution_contract
+        ),
+        execution_contract_match_ignoring_buffer_indices=bool(
+            execution_contracts_complete
+            and official_execution_contract_no_buffers
+            and official_execution_contract_no_buffers
+            == injected_execution_contract_no_buffers
+        ),
+        non_mapped_state_match=non_mapped_state_match,
     )
     if runtime_allocate:
         result["runtime"] = _runtime_allocate_report(

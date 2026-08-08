@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.export.litertlm_inspector import (  # noqa: E402
     _enum_names,
+    _tflite_graph_fingerprint,
     compare_litertlm_reports,
     inspect_litertlm,
 )
@@ -53,6 +54,8 @@ def test_compare_reports_keeps_random_weight_claims_separate():
             "graphs": [
                 {
                     "structural_sha256": structural,
+                    "execution_contract_complete": True,
+                    "execution_contract_sha256": f"contract-{structural}",
                     "quantization_layout_sha256": quant_layout,
                     "quantization_values_sha256": quant_values,
                 }
@@ -65,6 +68,8 @@ def test_compare_reports_keeps_random_weight_claims_separate():
     comparison = compare_litertlm_reports(left, random_candidate)
 
     assert comparison["graph_structure_match"] is True
+    assert comparison["execution_contract_complete"] is True
+    assert comparison["execution_contract_match"] is True
     assert comparison["quantization_layout_match"] is True
     assert comparison["quantization_values_match"] is False
     assert comparison["weight_bytes_match"] is False
@@ -83,3 +88,66 @@ def test_tensor_type_fallback_labels_current_low_bit_values():
 
     assert labels[19] == "INT2"
     assert labels[20] == "UINT4"
+
+
+def _tiny_fully_connected_model(*, keep_num_dims: bool) -> bytes:
+    import flatbuffers
+    from ai_edge_litert import schema_py_generated as schema
+
+    model = schema.ModelT()
+    model.version = 3
+    model.description = "execution-contract-test"
+    opcode = schema.OperatorCodeT()
+    opcode.builtinCode = schema.BuiltinOperator.FULLY_CONNECTED
+    opcode.deprecatedBuiltinCode = schema.BuiltinOperator.FULLY_CONNECTED
+    opcode.version = 1
+    model.operatorCodes = [opcode]
+    model.buffers = [schema.BufferT()]
+
+    subgraph = schema.SubGraphT()
+    subgraph.name = "main"
+    subgraph.inputs = [0]
+    subgraph.outputs = [2]
+    subgraph.tensors = []
+    for index in range(3):
+        tensor = schema.TensorT()
+        tensor.name = f"tensor_{index}"
+        tensor.shape = [1]
+        tensor.shapeSignature = [1]
+        tensor.type = schema.TensorType.FLOAT32
+        tensor.hasRank = True
+        subgraph.tensors.append(tensor)
+
+    operator = schema.OperatorT()
+    operator.opcodeIndex = 0
+    operator.inputs = [0, 1]
+    operator.outputs = [2]
+    operator.builtinOptionsType = schema.BuiltinOptions.FullyConnectedOptions
+    options = schema.FullyConnectedOptionsT()
+    options.keepNumDims = keep_num_dims
+    operator.builtinOptions = options
+    subgraph.operators = [operator]
+    model.subgraphs = [subgraph]
+
+    builder = flatbuffers.Builder(1024)
+    root = model.Pack(builder)
+    builder.Finish(root, file_identifier=b"TFL3")
+    return bytes(builder.Output())
+
+
+def test_execution_contract_detects_builtin_option_values_omitted_by_coarse_hash():
+    ordinary = _tflite_graph_fingerprint(
+        memoryview(_tiny_fully_connected_model(keep_num_dims=False))
+    )
+    keep_dims = _tflite_graph_fingerprint(
+        memoryview(_tiny_fully_connected_model(keep_num_dims=True))
+    )
+
+    assert ordinary["execution_contract_complete"] is True
+    assert keep_dims["execution_contract_complete"] is True
+    # The legacy structure hash includes the option *type* but not its fields.
+    assert ordinary["structural_sha256"] == keep_dims["structural_sha256"]
+    assert (
+        ordinary["execution_contract_sha256"]
+        != keep_dims["execution_contract_sha256"]
+    )

@@ -240,7 +240,9 @@ all verify:
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
 python training/scripts/validate_litertlm_mtp_gpu.py `
-  training/outputs/pipelines/gemma4_e2b_mobile_mtp/gemma4_e2b_mobile_mtp.litertlm
+  training/outputs/pipelines/gemma4_e2b_mobile_mtp/gemma4_e2b_mobile_mtp.litertlm `
+  --inspect-graphs `
+  --official-artifact C:\path\to\official-gemma-4-E2B-it.litertlm
 ```
 
 Reproduce the bounded checkpoint audit without downloading the full dense
@@ -359,13 +361,16 @@ an MTP package. Validate its package envelope before device testing:
 
 ```powershell
 python training/scripts/validate_gemma270m_litertlm.py `
-  training/outputs/pipelines/gemma3_270m_qat_litertlm/gemma3_270m_qat_int8.litertlm
+  training/outputs/pipelines/gemma3_270m_qat_litertlm/gemma3_270m_qat_int8.litertlm `
+  --inspect-graphs `
+  --official-artifact C:\path\to\official-gemma3-270m-it-q8.litertlm
 ```
 
-Use `--inspect-graphs` for the slower embedded-TFLite graph check and provide
-an Android GPU device report for the runtime gate. Do not enable MTP for this
-model; the validator treats an MTP section as unexpected rather than attaching
-the Gemma 4 assistant.
+The embedded-TFLite check requires a completely decoded execution contract;
+with the official reference it also requires exact contract parity. Provide an
+Android GPU device report for the runtime gate. Do not enable MTP for this model;
+the validator treats an MTP section as unexpected rather than attaching the
+Gemma 4 assistant.
 
 To audit the publicly observable Google mobile schema without downloading
 weights:
@@ -652,15 +657,39 @@ It deserializes the official section through the public
 `ai_edge_litert.schema_py_generated.ModelT`, materializes external buffers,
 places the AI Edge-converter random constants into that object graph, and packs
 a new `TFL3` FlatBuffer. The report adds
-`rebuilt_quantized_network.same=true` only when structural/layout hashes,
-buffer-index-independent execution topology/layout, converter-constant digest,
-and optional runtime allocation all match. Verified rebuilt runs pass for the
+`rebuilt_quantized_network.same=true` only when the complete execution contract,
+structural/layout hashes, buffer-index-independent execution topology/layout,
+converter-constant digest, and optional runtime allocation all match. The
+contract includes decoded builtin/custom option values, signatures, metadata,
+tensor semantics, wiring, and logical buffer sizes while masking buffer
+payloads and quantization-scale values. Unsupported sparse unions or
+external large custom options fail the completeness gate. A companion
+`non_mapped_state_match` digest covers every buffer payload and quantization
+record outside the explicit mapped FC/embedding inventory, so an unrelated
+constant change also fails. Verified rebuilt runs pass for the
 E2B token embedder (1/1), per-layer embedder (35/35), audio encoder (120/120),
 vision encoder (112/112), main decoder (277/277), MTP (23/23), and Gemma 3
 270M (127/127). The audio and vision counts are unique weight buffers; the
 audit may show more operator occurrences when a buffer is reused. This still keeps
 `quantization_values_match=false` and `exact_official_model_match=false`, as
 required for a random model.
+
+Fresh option-aware rebuilds also pass for the three shipping-critical graphs:
+Gemma 3 270M (127 matrices), Gemma 4 E2B target (277 matrices in 35 converter
+batches), and Gemma 4 MTP (23 matrices). Each has exact official/rebuilt
+execution-contract hashes and host LiteRT allocation parity. A regression test
+changes only `FullyConnectedOptions.keepNumDims`; the legacy structural hash
+misses that change, while the execution contract correctly rejects it.
+
+A shared-buffer audit is also mandatory. The decoder packages reuse each
+packed matrix through distinct tensor/quantization tables: 270M has 737 tensor
+aliases for 127 buffers (`5x1`, `122x6`), E2B has 812 aliases for 277 buffers
+(`148x2`, `129x4`), and MTP has 23 one-to-one aliases. The injector and ModelT
+rebuild now update and re-read every alias, reject inconsistent scale or
+zero-point records, and reject any mapped buffer used outside an FC/embedding
+weight slot. Earlier random packages updated only the first alias and are valid
+only as historical topology/delegation evidence, not as numerically coherent
+quantized fixtures. Alias-complete replacement packages supersede them.
 
 The current public LiteRT-Torch exporter still lists quantized safetensor
 support as a TODO and rejects a Hugging Face `quantization_config` with
@@ -724,15 +753,16 @@ The benchmark stream-hashes the virtual full package on the host, stages the
 base and section separately, patches exactly the selected byte range with
 Android `toybox dd`, and requires the staged and post-run SHA-256 values to
 equal the virtual host SHA. It never writes or overwrites a complete composite
-package on the host. The verified SM-F966B full-random run matched the official
+package on the host. The alias-complete SM-F966B full-random run matched the official
 target delegation counts (2,068 decode, 1,107 per prefill, 2,243 verify) and
 the 198-node MTP drafter, all fully delegated in one partition across every
-warm run. Schema-v5 median throughput was 16.6188 tok/s for the official package
-and 12.6563 tok/s for the full-random candidate; median MTP acceptance was
+warm run. Schema-v5 median throughput was 17.5252 tok/s for the official package
+and 13.1734 tok/s for the full-random candidate; median MTP acceptance was
 0.266667 and 0.133333. Those weight-dependent speed and acceptance gates
 correctly failed while repeated structural GPU parity passed. The target-only
-schema-v5 fixtures passed: 270M official/candidate medians were 52.3033/50.5414
-tok/s, and E2B official/candidate medians were 30.2114/30.4102 tok/s. No
+schema-v5 alias-complete fixtures passed: 270M official/candidate medians were
+53.2653/51.6543 tok/s (3.0245 percent regression), and E2B medians were
+30.2335/29.9675 tok/s (0.8797 percent regression). No
 training was performed for these topology checks.
 
 ### Merged checkpoint -> exact official topology

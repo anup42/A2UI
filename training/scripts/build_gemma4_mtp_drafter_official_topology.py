@@ -41,6 +41,7 @@ from build_converter_random_topology_injection_parity import (
     _converter_weight_records,
     _file_range_sha256,
     _graph_report,
+    _non_mapped_state_digest,
     _official_constants_digest,
     _package_boundary_report,
     _patch_official_constants,
@@ -477,6 +478,28 @@ def build_plan(
                             "quantization_layout_sha256"
                         )
                     ),
+                    "execution_contract_complete": bool(
+                        official_target_graph["graph"].get(
+                            "execution_contract_complete"
+                        )
+                        and input_target_graph["graph"].get(
+                            "execution_contract_complete"
+                        )
+                    ),
+                    "official_execution_contract": bool(
+                        official_target_graph["graph"].get(
+                            "execution_contract_complete"
+                        )
+                        and input_target_graph["graph"].get(
+                            "execution_contract_complete"
+                        )
+                        and official_target_graph["graph"].get(
+                            "execution_contract_sha256"
+                        )
+                        == input_target_graph["graph"].get(
+                            "execution_contract_sha256"
+                        )
+                    ),
                     "bytes_outside_target_official_exact": bool(
                         prefix_exact and suffix_exact
                     ),
@@ -486,6 +509,8 @@ def build_plan(
                     for key in (
                         "official_structure",
                         "official_quantization_layout",
+                        "execution_contract_complete",
+                        "official_execution_contract",
                         "bytes_outside_target_official_exact",
                     )
                 ):
@@ -497,6 +522,8 @@ def build_plan(
                                 for key in (
                                     "official_structure",
                                     "official_quantization_layout",
+                                    "execution_contract_complete",
+                                    "official_execution_contract",
                                     "bytes_outside_target_official_exact",
                                 )
                             },
@@ -812,6 +839,22 @@ def run(
     injected_constants = _official_constants_digest(
         injected_bytes, official_records
     )
+    official_non_mapped_state = _non_mapped_state_digest(
+        official_bytes, official_records
+    )
+    candidate_non_mapped_state = _non_mapped_state_digest(
+        injected_bytes, official_records
+    )
+    execution_contracts_complete = bool(
+        official_graph["graph"].get("execution_contract_complete")
+        and candidate_graph["graph"].get("execution_contract_complete")
+        and official_graph["graph_without_buffer_indices"].get(
+            "execution_contract_complete"
+        )
+        and candidate_graph["graph_without_buffer_indices"].get(
+            "execution_contract_complete"
+        )
+    )
     gates = {
         "training_scope_supported": bool(
             plan["training_scope"]["supported_projection_only_transplant"]
@@ -826,6 +869,10 @@ def run(
         == _counter(converter_records),
         "converter_constants_transferred_exactly": converter_constants
         == injected_constants,
+        "non_mapped_state_byte_exact": bool(
+            official_non_mapped_state["sha256"]
+            == candidate_non_mapped_state["sha256"]
+        ),
         "official_graph_structure": (
             official_graph["graph"].get("structural_sha256")
             == candidate_graph["graph"].get("structural_sha256")
@@ -846,6 +893,21 @@ def run(
             )
             == candidate_graph["graph_without_buffer_indices"].get(
                 "quantization_layout_sha256"
+            )
+        ),
+        "execution_contract_complete": execution_contracts_complete,
+        "official_execution_contract": bool(
+            execution_contracts_complete
+            and official_graph["graph"].get("execution_contract_sha256")
+            == candidate_graph["graph"].get("execution_contract_sha256")
+        ),
+        "official_execution_contract_ignoring_buffer_indices": bool(
+            execution_contracts_complete
+            and official_graph["graph_without_buffer_indices"].get(
+                "execution_contract_sha256"
+            )
+            == candidate_graph["graph_without_buffer_indices"].get(
+                "execution_contract_sha256"
             )
         ),
         "section_size_unchanged": len(injected_bytes) == len(official_bytes),
@@ -872,6 +934,10 @@ def run(
         },
         "official_section": official_graph,
         "candidate_section": candidate_graph,
+        "non_mapped_state": {
+            "official": official_non_mapped_state,
+            "candidate": candidate_non_mapped_state,
+        },
         "gates": gates,
         "assistant_weight_source": "trained_checkpoint",
         "assistant_trained": True,

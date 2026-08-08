@@ -431,6 +431,7 @@ def _layout_key(record: dict[str, Any]) -> tuple[Any, ...]:
         int(record["scale_count"]),
         int(record["zero_point_count"]),
         int(record["quantized_dimension"]),
+        bool(record.get("zero_points_all_zero", False)),
         str(record.get("input_type_name", record.get("input_type", ""))),
         str(record.get("output_type_name", record.get("output_type", ""))),
         quantization_key(record.get("input_quantization")),

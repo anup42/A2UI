@@ -22,6 +22,7 @@ from ir_training.eval.android_gpu_report import (
 )
 from ir_training.export.litertlm_inspector import (
     LiteRTLMInspectionError,
+    compare_litertlm_reports,
     inspect_litertlm,
 )
 from ir_training.export.litertlm_mtp import (
@@ -49,6 +50,7 @@ def validate_package(
 
     errors: list[str] = []
     sections = report.get("sections") or []
+    graph = None
     try:
         mtp = find_model_section(report, mtp_model_type)
     except LiteRTLMMTPPackagingError as exc:
@@ -63,6 +65,77 @@ def validate_package(
         )
         if inspect_graphs and graph is not None and not graph.get("available"):
             errors.append("MTP TFLite graph could not be inspected in this environment.")
+
+    execution_contract_complete = False
+    official_graph_comparison: dict[str, Any] = {"provided": False}
+    if inspect_graphs:
+        graphs = report.get("graphs") or []
+        execution_contract_complete = bool(
+            graphs
+            and all(
+                item.get("available")
+                and item.get("execution_contract_complete")
+                for item in graphs
+            )
+        )
+        if not execution_contract_complete:
+            errors.append(
+                "One or more package TFLite execution contracts were not completely decoded."
+            )
+        if official_artifact:
+            try:
+                official_report = inspect_litertlm(
+                    Path(official_artifact).expanduser().resolve(),
+                    include_hashes=False,
+                    inspect_tflite=True,
+                    include_graph_details=False,
+                )
+                comparison = compare_litertlm_reports(
+                    official_report, report
+                )
+                required = {
+                    "header_metadata_match": comparison.get(
+                        "header_metadata_match"
+                    )
+                    is True,
+                    "section_layout_match": comparison.get(
+                        "section_layout_match"
+                    )
+                    is True,
+                    "graph_structure_match": comparison.get(
+                        "graph_structure_match"
+                    )
+                    is True,
+                    "quantization_layout_match": comparison.get(
+                        "quantization_layout_match"
+                    )
+                    is True,
+                    "execution_contract_complete": comparison.get(
+                        "execution_contract_complete"
+                    )
+                    is True,
+                    "execution_contract_match": comparison.get(
+                        "execution_contract_match"
+                    )
+                    is True,
+                }
+                official_graph_comparison = {
+                    "provided": True,
+                    "checks": required,
+                    "comparison": comparison,
+                    "validated": all(required.values()),
+                }
+                if not official_graph_comparison["validated"]:
+                    errors.append(
+                        "Candidate package does not match the official complete execution contract."
+                    )
+            except (OSError, LiteRTLMInspectionError) as exc:
+                official_graph_comparison = {
+                    "provided": True,
+                    "validated": False,
+                    "error": str(exc),
+                }
+                errors.append(f"Official graph comparison failed: {exc}")
 
     ordered = all(
         bool(section.get("alignment_ok")) and bool(section.get("ordered_after_previous"))
@@ -123,12 +196,17 @@ def validate_package(
             "mtp_section_present": mtp is not None,
             "all_sections_aligned_and_ordered": ordered,
             "graph_inspection_requested": inspect_graphs,
+            "execution_contract_complete": execution_contract_complete,
+            "official_execution_contract_match": bool(
+                official_graph_comparison.get("validated")
+            ),
             "mtp_true_requested": True,
             "target_only_gpu_device_validation": target_validated,
             "mtp_on_gpu_device_validation": mtp_validated,
             "dual_mode_gpu_device_validation": target_validated and mtp_validated,
         },
         "device": device,
+        "official_graph_comparison": official_graph_comparison,
         "errors": errors,
         "limitations": [
             "Desktop inspection cannot prove Android GPU delegate execution.",

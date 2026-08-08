@@ -747,8 +747,15 @@ runtime allocation, `converter_to_injected_quantization_values_match`, and
 
 Each injection report also has a `random_quantized_network` object. Its
 `same=true` value means that the complete FC/embedding inventory, operator
-structure, quantization layout, and buffer-index-independent execution graph
-all match; it deliberately excludes learned model identity. The separate
+structure, quantization layout, buffer-index-independent execution graph, and
+complete execution contract all match; it deliberately excludes learned model
+identity. The execution contract covers every decoded builtin option value,
+custom-option payload, tensor name/shape/signature/type/mutability field,
+operator wiring/intermediates, subgraph signature, model metadata, and logical
+buffer layout. It masks only quantization scales and buffer payload bytes, which
+are the expected learned-value differences. A sparse-index union or externally
+stored large custom option that cannot be decoded makes the contract incomplete
+and fails promotion instead of being silently ignored. The separate
 `converter_to_injected_quantization_values_match=true` field proves the
 converter's random bytes/scales are identical after injection. The
 verified Gemma 4 E2B main, Gemma 4 MTP, and Gemma 3 270M runs all report this
@@ -763,9 +770,10 @@ the official bytes: it deserializes the selected section through the public
 `ai_edge_litert.schema_py_generated.ModelT`, materializes external buffers, puts
 the independently AI Edge-quantized random constants into the object graph, and
 packs a new `TFL3` FlatBuffer. The rebuilt report adds
-`rebuilt_quantized_network.same`, which requires structural hash, quantization
-layout, buffer-index-independent execution topology/layout, converter-constant
-digest, and (when requested) LiteRT allocation parity. It is stronger than
+`rebuilt_quantized_network.same`, which requires the complete execution
+contract, structural hash, quantization layout, buffer-index-independent
+execution topology/layout, converter-constant digest, and (when requested)
+LiteRT allocation parity. It is stronger than
 in-place byte injection because stale official buffer offsets cannot explain a
 passing result.
 
@@ -777,6 +785,45 @@ show more operator occurrences when a buffer is reused. They still correctly rep
 `quantization_values_match=false` and `exact_official_model_match=false`: a
 random graph can prove network/serialization compatibility, but cannot become
 Google's learned model.
+
+The decoder graphs reuse learned buffers across distinct tensor tables. A
+post-rebuild audit found 737 weight-tensor aliases for 127 unique 270M buffers
+(`5x1`, `122x6`), 812 aliases for 277 E2B target buffers (`148x2`, `129x4`),
+and 23 one-to-one MTP aliases. The first injector revision changed each packed
+buffer and only its first tensor's scale table. That retained exact topology
+and GPU delegation but left the other decode/prefill/verify aliases
+numerically inconsistent. Those older random artifacts are therefore
+historical topology-only evidence. The production and random builders now
+resolve every tensor sharing a mapped buffer, update every scale and zero-point
+table, reject any alias disagreement, reject non-weight references to mapped
+buffers, and exclude all mapped aliases (not only one) from the non-mapped-state
+digest.
+
+The execution-contract gate was added after identifying that the earlier
+`structural_sha256` recorded builtin-option *types* but omitted their field
+values. A regression test now changes only
+`FullyConnectedOptions.keepNumDims`: the legacy structure hash remains equal,
+while `execution_contract_sha256` changes and correctly rejects parity. Fresh
+public-quantizer rebuilds on 2026-08-08 passed the stronger gate:
+
+| Rebuilt graph | Mapped random weights | Official/rebuilt execution-contract SHA-256 | Rebuilt section SHA-256 | Report SHA-256 |
+|---|---:|---|---|---|
+| Gemma 3 270M prefill/decode | 127 buffers / 737 aliases | `f1a702acfaccd1905602c65aca960b586f30c48e08cb0fe5023402e038ad735c` | `88871ea857500889d336543715c21d8cd201aa056c1694d81537ce297447dbd3` | `7a5326e223354d302f157179adf16ea9624c5af903ebf0649a170e1aa1bd9bfe` |
+| Gemma 4 E2B target | 277 buffers / 812 aliases in 35 converter batches | `68a71a8f13a678084f25d71ed25cd1cb59a4e9ba80a42de2af874a41c4a9ef90` | `a7370203b7fc20d4b11dba7ff88714310e0d67dabd051ebde5e77c90d75eedee` | `11311fd17070660a30c30211ce4815f5e01fdad4ba038437981d1086d8c3af5b` |
+| Gemma 4 E2B MTP drafter | 23 buffers / 23 aliases | `b9807804a31a9eb864966fa57385f05ac3405545592f66ba31870d02ebc07d33` | `f6517ac1eb3a8917266551242ff3a15d907b4a4b3164d56b2c5fd1025317f215` | `bb100069111648999f3469804a252d0a94e13f1c0c45e44ee9a6f0729eec3dba` |
+
+All three reports have `random_quantized_network.same=true`,
+`rebuilt_quantized_network.same=true`, complete contract matches with and
+without tensor buffer indices, exact converter-to-rebuilt constant transfer,
+and LiteRT allocation parity. They also hash all state outside the explicit
+mapped tensor/buffer inventory. The official, direct-injection, and independent
+rebuild digests match at `617230c0e8484f3460682ee52ce24353855edcad6b44da777e091f4ee8f3fc9a`
+for 270M, `985b27e1b44cd0ece4072dd89ce37f5388e6d5fb3cd92eb7b4e1b048f20b2343`
+for the E2B target, and
+`5c36ad3c0875dbf8152b7c5ba3e6fc34f2e1fe415c8610154d6ee0ce79bb5be1`
+for the MTP drafter. Therefore only the 127, 277, or 23 mapped learned
+matrices and all of their 737, 812, or 23 quantization aliases can differ. No
+training ran.
 
 Example:
 
@@ -1622,13 +1669,13 @@ parity is insufficient for speculative speed: draft-token acceptance is
 numerical and therefore weight-dependent. The random target's early stop and
 zero acceptance are intentionally rejected as a throughput comparison.
 
-The separate full-random MTP run closes the former runtime-coverage gap for a
-random drafter. Because the host had insufficient room for another 2.59 GB
-package, the benchmark stream-hashed the virtual composition of the existing
-random-target package and the 44,325,712-byte random MTP section, then patched
+The alias-complete full-random MTP run closes the runtime-coverage gap for a
+random drafter. To avoid another 2.59 GB host package, the benchmark
+stream-hashed the virtual composition of the corrected random-target package
+and the 44,325,712-byte random MTP section, then patched
 that section at offset 2,543,812,608 only in its temporary Android copy. The
 expected, staged, and post-run package SHA-256 all matched
-`fa769933ed955e56d14b0d63cb91360d5bc6aa2a148ab3d75ab9a4fb43fc530d`.
+`545a65c6d6110e4b9583c1f9620c02e9af1799bb6d84041df1527f8ab18624bc`.
 This cryptographically binds the GPU evidence without creating or overwriting
 a complete host package. Nonzero random-drafter acceptance confirms that the
 MTP path executed; the performance failure remains expected for unrelated
@@ -1645,6 +1692,12 @@ assistant path is explicitly a public reconstruction and must pass the same
 device gates; Google's exact private drafter training/lowering recipe is still
 not public.
 
+The schema-v4 results above and the first schema-v5 reports used the earlier
+single-alias injector. They remain valid proof that the copied official graph
+delegates and runs, but they are not evidence of a numerically coherent random
+quantized model. The alias-complete schema-v5 reruns below supersede them for
+package promotion and performance comparison.
+
 ### Repeated schema-v5 device results
 
 The same SM-F966B was then used for fresh schema-v5 runs. Every performance
@@ -1657,10 +1710,23 @@ production validator.
 
 | Package pair | Warm median and runtime result | Report SHA-256 |
 |---|---|---|
-| Gemma 3 270M official Q8 vs independently quantized random Q8 | Both decoded 64/64 on every warm run with complete, consistent delegation. Official median was 52.3033 tok/s and candidate median was 50.5414 tok/s, a 3.3685 percent regression inside the 10 percent gate. The independent package/graph/device validator passed. | `aca8d594d6391b4e6d0bb6ce3efe19687b4be5552f32e1c491dbc4ed7e1cffb0` |
-| Gemma 4 E2B official vs independently quantized random mixed W2/W4/W8 target, MTP off | Both decoded 32/32 on every warm run with identical target signatures and complete delegation. Official median was 30.2114 tok/s and candidate median was 30.4102 tok/s, so the candidate was 0.6579 percent faster in this sample. All schema-v5 gates passed. | `bff1553877b9bfec17c9a155f3a78bb615be27318caf15e57f2518ec2e896028` |
-| Gemma 4 E2B official vs random target with the byte-preserved official drafter, MTP on | The target and 198-node drafter graph remained fully delegated and structurally consistent in every warm run. Official/candidate medians were 17.1064/12.5374 tok/s and MTP acceptance was 0.266667/0.0. Structural and warm-sample validity passed; the 26.7091 percent speed regression and acceptance loss correctly failed promotion. | `ad2cba78a3b3fa1d4c64a8f0417d1f76374b53f6a73284c370b32ec48db29cba` |
-| Gemma 4 E2B official vs random target plus independently quantized random 23-matrix drafter, MTP on | The target and random 198-node drafter fully delegated in every warm run. Official/candidate medians were 16.6188/12.6563 tok/s; median acceptance was 0.266667/0.133333. Nonzero candidate acceptance proves that the independently rebuilt drafter executed, while the 23.8432 percent speed regression and 0.133334 acceptance drop correctly failed weight-dependent promotion gates. | `179f9b5e339ac1a0e0dbfe7c0d85aacc5bf1c041d395f9919416ad818758bba2` |
+| Gemma 3 270M official Q8 vs alias-complete random Q8 | All three warm runs decoded 64/64 with complete, consistent delegation. Official median was 53.2653 tok/s and candidate median was 51.6543 tok/s, a 3.0245 percent regression inside the 10 percent gate. Candidate SHA-256: `c59bb7514c952cd909ac89101f2b861e32b251c1de65b4059de1bb63db9e53fa`. | `31f7cbce3e69a5141b2dd168b405fcec27d29d8fa3e51cba4fe4375b9b323873` |
+| Gemma 4 E2B official vs alias-complete random mixed W2/W4/W8 target, MTP off | All three warm runs decoded 32/32 with complete target delegation. Official median was 30.2335 tok/s and candidate median was 29.9675 tok/s, a 0.8797 percent regression. Candidate SHA-256: `2e68f8e944977a075dcdc058e5b2c591fc5341bea8325f9d530d83b0cf9dde3a`. | `bb512eb78f3a9ab1f8af7c5984728294fa0cb0a6c04c3596121ff76f3dd69021` |
+| Gemma 4 E2B alias-complete random target with byte-preserved official drafter, MTP on | Target and 198-node drafter remained fully delegated. Official/candidate medians were 17.6262/12.6060 tok/s and acceptance was 0.266667/0.0. Structural parity passed; the 28.4814 percent regression and acceptance loss correctly failed numerical promotion. | `9a860572206b043b9a917b52ff39e5b48d1f3a22f9172b6d0fef377289222037` |
+| Gemma 4 E2B alias-complete random target plus independently quantized random 23-matrix drafter, MTP on | Target and random 198-node drafter fully delegated. Official/candidate medians were 17.5252/13.1734 tok/s; acceptance was 0.266667/0.133333. The virtual candidate SHA-256 matched before and after execution at `545a65c6d6110e4b9583c1f9620c02e9af1799bb6d84041df1527f8ab18624bc`; the 24.8314 percent regression and acceptance drop correctly failed numerical promotion. | `e301961f0de3c1cec22737143e64f9fc0e8ceaed6d5a43e12aabea9298629f48` |
+
+The validators now require the complete execution contract whenever
+`--inspect-graphs` is used and compare it with `--official-artifact` when that
+reference is supplied. A combined 270M validation passed the official contract,
+candidate identity, and schema-v5 GPU gates; its validation-report SHA-256 is
+`caa994c9bb112d689dedeb07af5aa7bd73ddaccc272b6fc683b5700a41eff5d2`.
+The equivalent E2B validation report
+(`0343b0c3da94dd2a2f13bd3ca226acfadc8f70a736bb4fa80842cf234638efbf`)
+proved complete contract parity across all ten embedded TFLite sections and
+passed target-only device validation. It intentionally remained overall false
+only because the unrelated random target failed the MTP throughput and draft
+acceptance gates. This is the expected separation between an exact inference
+contract and weight-dependent speculative performance.
 
 These runs strengthen the graph and Android GPU conclusion: official-topology
 target reconstruction preserves allocation, signatures, delegation, and
@@ -1668,8 +1734,8 @@ target-only performance across repeated measurements. They also prove that
 both the preserved official assistant and the independently rebuilt public
 assistant topology execute through MTP. They do not prove trained-model quality
 or speculative speed. MTP acceptance is numerical and weight-dependent, so the
-real QAT-selected target checkpoint—and a trained public drafter if the released
-assistant no longer aligns—must pass the same schema-v5 gates before shipping.
+real QAT-selected target checkpoint, and a trained public drafter if the released
+assistant no longer aligns, must pass the same schema-v5 gates before shipping.
 
 ## Preferred trained-checkpoint deployment path
 
@@ -1680,7 +1746,8 @@ graph/template authority. The compiler builds independent float branches from
 the merged checkpoint, runs the public AI Edge Quantizer at each official
 W2/W4/W8 width, and injects only the resulting packed projection constants and
 per-axis scales. This is the direct extension of the random-weight experiment
-that already passed graph/layout/allocation and Android GPU delegation.
+that already passed complete execution-contract, graph/layout/allocation, and
+Android GPU delegation gates.
 
 The production initialization now comes from the exact public packed checkpoint,
 not the separate dense Q4 release. Run

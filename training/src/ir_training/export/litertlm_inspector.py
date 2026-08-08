@@ -6,10 +6,10 @@ models, weights, tokenizers, and runtime metadata).  This module deliberately
 does not load model weights into a framework or execute inference.  It is
 therefore safe to use as a model-free conversion audit.
 
-The optional ``tflite`` Python package is used when available to inspect the
-embedded TFLite graph.  It is intentionally an optional dependency because the
-training package must remain usable on machines that do not have LiteRT
-conversion tooling installed.
+The current ``ai_edge_litert`` generated schema is preferred for embedded graph
+inspection, with the optional standalone ``tflite`` package as a compatibility
+fallback. The training package remains usable on machines without LiteRT
+conversion tooling.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
+import math
 import mmap
 import struct
 from pathlib import Path
@@ -297,6 +298,185 @@ def _enum_names(module: Any, class_name: str) -> dict[int, str]:
     return result
 
 
+def _contract_atom(value: Any, *, depth: int = 0) -> Any:
+    """Normalize generated-binding values into stable JSON primitives.
+
+    Byte vectors are represented by their length and digest.  This keeps
+    custom operator options exact without embedding arbitrary binary payloads
+    in inspection reports.  Large model buffers are never passed here.
+    """
+
+    if value is None or isinstance(value, (bool, int, str)):
+        return value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else str(value)
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        payload = bytes(value)
+        return {
+            "byte_length": len(payload),
+            "sha256": hashlib.sha256(payload).hexdigest(),
+        }
+    if isinstance(value, (list, tuple)):
+        return [_contract_atom(item, depth=depth + 1) for item in value]
+    # NumPy scalar values occur in some generated bindings.  Avoid importing
+    # NumPy in this lightweight inspector just to normalize them.
+    item = getattr(value, "item", None)
+    if callable(item):
+        try:
+            return _contract_atom(item(), depth=depth + 1)
+        except Exception:  # pragma: no cover - binding-specific scalar types
+            pass
+    if hasattr(value, "_tab") and depth < 12:
+        return _generated_table_contract(value, depth=depth + 1)
+    return {"generated_type": type(value).__name__}
+
+
+def _generated_vector_contract(obj: Any, base_name: str, *, depth: int = 0) -> list[Any]:
+    length = _safe_call(obj, f"{base_name}Length", 0) or 0
+    getter = getattr(obj, base_name, None)
+    if getter is None:
+        return []
+    values: list[Any] = []
+    for index in range(int(length)):
+        try:
+            values.append(_contract_atom(getter(index), depth=depth + 1))
+        except Exception:  # pragma: no cover - generated bindings vary by version
+            values.append({"unreadable_index": index})
+    return values
+
+
+def _generated_table_contract(obj: Any, *, depth: int = 0) -> dict[str, Any]:
+    """Read all ordinary fields exposed by one generated FlatBuffer table.
+
+    Union fields require a caller-provided concrete table and are handled for
+    operator BuiltinOptions/BuiltinOptions2 below.  Ordinary scalar, string,
+    table, and vector accessors are discovered so newly added option fields are
+    included without maintaining a hand-written list for every TFLite op.
+    """
+
+    if obj is None:
+        return {}
+    if depth >= 12:
+        return {"table_type": type(obj).__name__, "depth_limited": True}
+    names = sorted(name for name in dir(obj) if name and name[0].isupper())
+    vector_bases = {
+        name[: -len("Length")]
+        for name in names
+        if name.endswith("Length") and callable(getattr(obj, name, None))
+    }
+    result: dict[str, Any] = {"table_type": type(obj).__name__}
+    undecoded_accessors: list[str] = []
+    for base_name in sorted(vector_bases):
+        result[base_name] = _generated_vector_contract(
+            obj, base_name, depth=depth + 1
+        )
+    for name in names:
+        if (
+            name in vector_bases
+            or name.endswith(("Length", "AsNumpy", "IsNone"))
+            or name.startswith("GetRootAs")
+            or name == "Init"
+            or name == "Pack"
+            or name.endswith("BufferHasIdentifier")
+        ):
+            continue
+        getter = getattr(obj, name, None)
+        if not callable(getter):
+            continue
+        try:
+            value = getter()
+        except TypeError:
+            # A union accessor such as BuiltinOptions requires a concrete
+            # destination object.  Its discriminator is recorded elsewhere.
+            undecoded_accessors.append(name)
+            continue
+        except Exception:  # pragma: no cover - generated bindings vary
+            continue
+        result[name] = _contract_atom(value, depth=depth + 1)
+    if undecoded_accessors:
+        result["undecoded_accessors"] = undecoded_accessors
+    return result
+
+
+def _generated_contract_complete(value: Any) -> bool:
+    if isinstance(value, list):
+        return all(_generated_contract_complete(item) for item in value)
+    if not isinstance(value, dict):
+        return True
+    if any(
+        key in value
+        for key in (
+            "depth_limited",
+            "generated_type",
+            "unreadable_index",
+            "undecoded_accessors",
+        )
+    ):
+        return False
+    return all(_generated_contract_complete(item) for item in value.values())
+
+
+def _binding_class(namespace: Any, class_name: str) -> Any | None:
+    cls = getattr(namespace, class_name, None)
+    if cls is not None:
+        return cls
+    try:
+        module = importlib.import_module(f"tflite.{class_name}")
+    except ImportError:
+        return None
+    return getattr(module, class_name, None)
+
+
+def _operator_union_contract(
+    operator: Any,
+    *,
+    accessor_name: str,
+    type_value: int,
+    type_names: dict[int, str],
+    binding_namespace: Any,
+) -> tuple[dict[str, Any], bool]:
+    type_name = type_names.get(type_value, f"unknown:{type_value}")
+    record: dict[str, Any] = {"type": type_value, "type_name": type_name}
+    if type_value == 0:
+        record["value"] = None
+        return record, True
+    option_class = _binding_class(binding_namespace, type_name)
+    accessor = getattr(operator, accessor_name, None)
+    if option_class is None or accessor is None:
+        record["decoded"] = False
+        return record, False
+    option = option_class()
+    try:
+        union_table = accessor()
+        if union_table is None:
+            record["decoded"] = False
+            return record, False
+        if isinstance(union_table, option_class):
+            option = union_table
+        elif hasattr(union_table, "Bytes") and hasattr(union_table, "Pos"):
+            option.Init(union_table.Bytes, union_table.Pos)
+        else:  # pragma: no cover - older generated bindings use an out-param
+            accessor(option)
+    except TypeError:
+        try:
+            accessor(option)
+        except Exception:  # pragma: no cover - generated bindings vary
+            record["decoded"] = False
+            return record, False
+    except Exception:  # pragma: no cover - generated bindings vary
+        record["decoded"] = False
+        return record, False
+    record["value"] = _generated_table_contract(option)
+    complete = _generated_contract_complete(record["value"])
+    record["decoded"] = complete
+    return record, complete
+
+
+def _byte_vector_contract(obj: Any, base_name: str) -> dict[str, Any]:
+    values = _safe_vector(obj, f"{base_name}Length", base_name, cast=int)
+    return _contract_atom(bytes(value & 0xFF for value in values))
+
+
 def _quantization_layout(quantization: Any) -> dict[str, Any] | None:
     if quantization is None:
         return None
@@ -320,21 +500,53 @@ def _tflite_graph_fingerprint(
     include_buffer_indices: bool = True,
 ) -> dict[str, Any]:
     try:
-        model_module = importlib.import_module("tflite.Model")
-        operator_module = importlib.import_module("tflite.BuiltinOperator")
-        tensor_type_module = importlib.import_module("tflite.TensorType")
+        # Prefer LiteRT's current official generated schema.  The standalone
+        # ``tflite`` wheel remains a compatibility fallback.
+        binding_namespace = importlib.import_module(
+            "ai_edge_litert.schema_py_generated"
+        )
+        model_module = binding_namespace
+        operator_module = binding_namespace
+        tensor_type_module = binding_namespace
+        builtin_options_module = binding_namespace
+        builtin_options2_module = binding_namespace
     except ImportError as exc:
-        return {
-            "available": False,
-            "reason": "Install the optional 'tflite' package to inspect embedded TFLite graphs.",
-            "error": str(exc),
-        }
+        try:
+            binding_namespace = importlib.import_module("tflite")
+            model_module = importlib.import_module("tflite.Model")
+            operator_module = importlib.import_module("tflite.BuiltinOperator")
+            tensor_type_module = importlib.import_module("tflite.TensorType")
+            builtin_options_module = importlib.import_module(
+                "tflite.BuiltinOptions"
+            )
+            builtin_options2_module = importlib.import_module(
+                "tflite.BuiltinOptions2"
+            )
+        except ImportError:
+            return {
+                "available": False,
+                "reason": (
+                    "Install ai-edge-litert or the optional 'tflite' package "
+                    "to inspect embedded TFLite graphs."
+                ),
+                "error": str(exc),
+            }
 
     model = model_module.Model.GetRootAsModel(data, 0)
     operator_names = _enum_names(operator_module, "BuiltinOperator")
     tensor_type_names = _enum_names(tensor_type_module, "TensorType")
+    builtin_options_names = _enum_names(
+        builtin_options_module, "BuiltinOptions"
+    )
+    builtin_options2_names = _enum_names(
+        builtin_options2_module, "BuiltinOptions2"
+    )
+    quantization_details_names = _enum_names(
+        binding_namespace, "QuantizationDetails"
+    )
     operator_codes = []
     operator_code_values = []
+    execution_operator_codes = []
     for index in range(_safe_call(model, "OperatorCodesLength", 0) or 0):
         code = model.OperatorCodes(index)
         builtin = _safe_call(code, "BuiltinCode", None)
@@ -354,11 +566,21 @@ def _tflite_graph_fingerprint(
             }
         )
         operator_code_values.append((builtin, custom_code, version))
+        execution_operator_codes.append(
+            {
+                "builtin_code": builtin,
+                "deprecated_builtin_code": deprecated,
+                "custom_code": _contract_atom(custom_code),
+                "version": version,
+            }
+        )
 
     subgraph_details = []
     structural_subgraphs = []
     quant_layout_subgraphs = []
     quant_value_subgraphs = []
+    execution_contract_subgraphs = []
+    execution_contract_complete = True
     operator_histogram: dict[str, int] = {}
     tensor_type_histogram: dict[str, int] = {}
     quantization_layout_histogram: dict[str, int] = {}
@@ -372,6 +594,7 @@ def _tflite_graph_fingerprint(
         tensors = []
         quant_layout = []
         quant_value_tensors = []
+        execution_tensors = []
         for tensor_index in range(_safe_call(subgraph, "TensorsLength", 0) or 0):
             tensor = subgraph.Tensors(tensor_index)
             tensor_type = _safe_call(tensor, "Type", None)
@@ -382,6 +605,36 @@ def _tflite_graph_fingerprint(
             if isinstance(tensor_name, (bytes, bytearray)):
                 tensor_name = bytes(tensor_name).decode("utf-8", errors="replace")
             q = _quantization_layout(_safe_call(tensor, "Quantization", None))
+            quantization = _safe_call(tensor, "Quantization", None)
+            quantization_contract = None
+            if quantization is not None:
+                details_type = int(
+                    _safe_call(quantization, "DetailsType", 0) or 0
+                )
+                details_contract, details_complete = _operator_union_contract(
+                    quantization,
+                    accessor_name="Details",
+                    type_value=details_type,
+                    type_names=quantization_details_names,
+                    binding_namespace=binding_namespace,
+                )
+                execution_contract_complete = bool(
+                    execution_contract_complete and details_complete
+                )
+                quantization_contract = {
+                    "scale_count": q["scale_count"] if q else 0,
+                    # Scale values are learned/calibrated values and are the
+                    # only quantization field deliberately masked here.
+                    "zero_points": q["zero_points"] if q else [],
+                    "quantized_dimension": q["quantized_dimension"] if q else 0,
+                    "min": _safe_vector(
+                        quantization, "MinLength", "Min", cast=float
+                    ),
+                    "max": _safe_vector(
+                        quantization, "MaxLength", "Max", cast=float
+                    ),
+                    "details": details_contract,
+                }
             if q and (q["scale_count"] or q["zero_point_count"]):
                 quantized_tensor_count += 1
                 layout_key = (
@@ -407,6 +660,37 @@ def _tflite_graph_fingerprint(
                 } if q else None
                 tensor_record["quantization_values"] = q
             tensors.append(tensor_record)
+            sparsity = _safe_call(tensor, "Sparsity", None)
+            # Sparse-index union payloads are uncommon in the Gemma artifacts
+            # audited here.  Mark the contract incomplete rather than silently
+            # claiming full coverage if one appears in a future model.
+            if sparsity is not None:
+                execution_contract_complete = False
+            execution_tensor = {
+                "name": tensor_name,
+                "shape": shape,
+                "shape_signature": _safe_vector(
+                    tensor, "ShapeSignatureLength", "ShapeSignature", cast=int
+                ),
+                "type": tensor_type,
+                "is_variable": bool(_safe_call(tensor, "IsVariable", False)),
+                "has_rank": bool(_safe_call(tensor, "HasRank", False)),
+                "external_buffer": int(
+                    _safe_call(tensor, "ExternalBuffer", 0) or 0
+                ),
+                "sparsity": (
+                    _generated_table_contract(sparsity)
+                    if sparsity is not None
+                    else None
+                ),
+                "variant_tensors": _generated_vector_contract(
+                    tensor, "VariantTensors"
+                ),
+                "quantization": quantization_contract,
+            }
+            if include_buffer_indices:
+                execution_tensor["buffer"] = buffer_index
+            execution_tensors.append(execution_tensor)
             quant_value_record = {
                 "shape": shape,
                 "type": tensor_type,
@@ -426,6 +710,7 @@ def _tflite_graph_fingerprint(
             quant_layout.append(quant_layout_record)
 
         operators = []
+        execution_operators = []
         for operator_index in range(_safe_call(subgraph, "OperatorsLength", 0) or 0):
             operator = subgraph.Operators(operator_index)
             opcode_index = _safe_call(operator, "OpcodeIndex", 0)
@@ -434,15 +719,76 @@ def _tflite_graph_fingerprint(
             operator_histogram[opcode_name] = operator_histogram.get(opcode_name, 0) + 1
             inputs = _safe_vector(operator, "InputsLength", "Inputs", cast=int)
             outputs = _safe_vector(operator, "OutputsLength", "Outputs", cast=int)
+            builtin_options_type = int(
+                _safe_call(operator, "BuiltinOptionsType", 0) or 0
+            )
+            builtin_options2_type = int(
+                _safe_call(operator, "BuiltinOptions2Type", 0) or 0
+            )
+            builtin_options, builtin_options_complete = _operator_union_contract(
+                operator,
+                accessor_name="BuiltinOptions",
+                type_value=builtin_options_type,
+                type_names=builtin_options_names,
+                binding_namespace=binding_namespace,
+            )
+            builtin_options2, builtin_options2_complete = _operator_union_contract(
+                operator,
+                accessor_name="BuiltinOptions2",
+                type_value=builtin_options2_type,
+                type_names=builtin_options2_names,
+                binding_namespace=binding_namespace,
+            )
+            execution_contract_complete = bool(
+                execution_contract_complete
+                and builtin_options_complete
+                and builtin_options2_complete
+            )
             operator_record = {
                 "opcode_index": opcode_index,
                 "builtin_name": opcode_name,
                 "inputs": inputs,
                 "outputs": outputs,
-                "builtin_options_type": _safe_call(operator, "BuiltinOptionsType", None),
-                "builtin_options2_type": _safe_call(operator, "BuiltinOptions2Type", None),
+                "builtin_options_type": builtin_options_type,
+                "builtin_options2_type": builtin_options2_type,
             }
             operators.append(operator_record)
+            large_custom_options_size = int(
+                _safe_call(operator, "LargeCustomOptionsSize", 0) or 0
+            )
+            if large_custom_options_size:
+                execution_contract_complete = False
+            execution_operators.append(
+                {
+                    "opcode_index": opcode_index,
+                    "inputs": inputs,
+                    "outputs": outputs,
+                    "intermediates": _safe_vector(
+                        operator, "IntermediatesLength", "Intermediates", cast=int
+                    ),
+                    "mutating_variable_inputs": _safe_vector(
+                        operator,
+                        "MutatingVariableInputsLength",
+                        "MutatingVariableInputs",
+                        cast=bool,
+                    ),
+                    "builtin_options": builtin_options,
+                    "builtin_options2": builtin_options2,
+                    "custom_options": _byte_vector_contract(
+                        operator, "CustomOptions"
+                    ),
+                    "custom_options_format": int(
+                        _safe_call(operator, "CustomOptionsFormat", 0) or 0
+                    ),
+                    "large_custom_options_offset": int(
+                        _safe_call(operator, "LargeCustomOptionsOffset", 0) or 0
+                    ),
+                    "large_custom_options_size": large_custom_options_size,
+                    "debug_metadata_index": int(
+                        _safe_call(operator, "DebugMetadataIndex", -1)
+                    ),
+                }
+            )
 
         inputs = _safe_vector(subgraph, "InputsLength", "Inputs", cast=int)
         outputs = _safe_vector(subgraph, "OutputsLength", "Outputs", cast=int)
@@ -452,6 +798,18 @@ def _tflite_graph_fingerprint(
                 "outputs": outputs,
                 "tensors": tensors,
                 "operators": operators,
+            }
+        )
+        execution_contract_subgraphs.append(
+            {
+                "name": name,
+                "debug_metadata_index": int(
+                    _safe_call(subgraph, "DebugMetadataIndex", -1)
+                ),
+                "inputs": inputs,
+                "outputs": outputs,
+                "tensors": execution_tensors,
+                "operators": execution_operators,
             }
         )
         quant_layout_subgraphs.append(
@@ -508,6 +866,15 @@ def _tflite_graph_fingerprint(
             name = bytes(name).decode("utf-8", errors="replace")
         metadata.append({"name": name, "buffer": _safe_call(item, "Buffer", 0)})
 
+    metadata_buffer = _safe_vector(
+        model, "MetadataBufferLength", "MetadataBuffer", cast=int
+    )
+    signature_defs = _generated_vector_contract(model, "SignatureDefs")
+    external_buffer_groups = _generated_vector_contract(
+        model, "ExternalBufferGroups"
+    )
+    external_buffers = _generated_vector_contract(model, "ExternalBuffers")
+
     def digest(payload: Any) -> str:
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
@@ -528,6 +895,20 @@ def _tflite_graph_fingerprint(
     buffer_storage_payload = {
         "buffer_count": len(logical_buffer_sizes),
         "logical_sizes": logical_buffer_sizes,
+    }
+    execution_contract_payload = {
+        "schema_version": 1,
+        "model_version": _safe_call(model, "Version", None),
+        "description": _contract_atom(_safe_call(model, "Description", None)),
+        "operator_codes": execution_operator_codes,
+        "subgraphs": execution_contract_subgraphs,
+        "buffer_count": len(logical_buffer_sizes),
+        "logical_buffer_sizes": logical_buffer_sizes,
+        "metadata_buffer": metadata_buffer,
+        "metadata": metadata,
+        "signature_defs": signature_defs,
+        "external_buffer_groups": external_buffer_groups,
+        "external_buffers": external_buffers,
     }
     summary = {
         "subgraph_count": len(structural_subgraphs),
@@ -550,6 +931,13 @@ def _tflite_graph_fingerprint(
         "quantization_layout_sha256": digest(quant_layout_payload),
         "quantization_values_sha256": digest(quant_value_payload),
         "buffer_storage_sha256": digest(buffer_storage_payload),
+        "execution_contract_schema_version": 1,
+        "execution_contract_complete": bool(execution_contract_complete),
+        "execution_contract_sha256": digest(execution_contract_payload),
+        "execution_contract_masked_fields": [
+            "tensor.quantization.scales",
+            "buffer.payload_bytes",
+        ],
     }
     if include_details:
         result["operator_codes"] = operator_codes
@@ -669,6 +1057,10 @@ def compare_litertlm_reports(left: dict[str, Any], right: dict[str, Any]) -> dic
     left_structural, right_structural = values("structural_sha256")
     left_quant_layout, right_quant_layout = values("quantization_layout_sha256")
     left_quant_values, right_quant_values = values("quantization_values_sha256")
+    left_execution, right_execution = values("execution_contract_sha256")
+    left_execution_complete, right_execution_complete = values(
+        "execution_contract_complete"
+    )
 
     left_weights = [item.get("sha256") for item in left_sections if item.get("data_type_name") == "TFLiteWeights"]
     right_weights = [item.get("sha256") for item in right_sections if item.get("data_type_name") == "TFLiteWeights"]
@@ -682,6 +1074,20 @@ def compare_litertlm_reports(left: dict[str, Any], right: dict[str, Any]) -> dic
         "section_layout_match": section_layout_left == section_layout_right,
         "graph_count_match": len(left_graphs) == len(right_graphs),
         "graph_structure_match": bool(left_structural and left_structural == right_structural),
+        "execution_contract_complete": bool(
+            left_execution_complete
+            and right_execution_complete
+            and all(left_execution_complete)
+            and all(right_execution_complete)
+        ),
+        "execution_contract_match": bool(
+            left_execution
+            and left_execution == right_execution
+            and left_execution_complete
+            and right_execution_complete
+            and all(left_execution_complete)
+            and all(right_execution_complete)
+        ),
         "quantization_layout_match": bool(left_quant_layout and left_quant_layout == right_quant_layout),
         "quantization_values_match": bool(left_quant_values and left_quant_values == right_quant_values),
         "weight_bytes_match": (left_weights == right_weights) if weights_known else None,
@@ -691,7 +1097,10 @@ def compare_litertlm_reports(left: dict[str, Any], right: dict[str, Any]) -> dic
         ),
         "tflite_model_section_comparison_available": model_payloads_known,
         "interpretation": (
-            "Graph and quantization-layout matches establish structural parity only. "
+            "The complete execution-contract match covers options, signatures, "
+            "metadata, tensor semantics, wiring, and storage layout while masking "
+            "learned buffer payloads and quantization scales. Graph and "
+            "quantization-layout matches alone establish structural parity only. "
             "Random-weight exports cannot establish learned-weight or private calibration parity."
         ),
     }
