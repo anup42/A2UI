@@ -16,6 +16,7 @@ model:
   # reconstructed directory contains only model shards and config.json.
   tokenizer_source: google/gemma-4-E2B-it-qat-mobile-transformers
   model_loader: auto_causal_lm
+  architecture_preflight_required: true
   require_exact_checkpoint_keys: true
   trust_remote_code: false
   tokenizer_loader: pretrained_tokenizer_fast

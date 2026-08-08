@@ -169,7 +169,17 @@ For E2B, first plan and then explicitly execute
 `training/scripts/reconstruct_gemma4_mobile_training_seed.py` as documented in
 `training/docs/gemma4_e2b_qat_mtp_knowledge.md`; reconstruction writes model
 files but does not train. The E2B training command below refuses to load a model
-until that manifest verifies.
+until that manifest verifies. Before allocating model weights, independently
+compare all 541 checkpoint headers with the actual Transformers architecture:
+
+```powershell
+python training/scripts/validate_gemma4_mobile_seed_architecture.py
+```
+
+This instantiates `Gemma4ForCausalLM` on the meta device only. It fails on an
+old Transformers version, wrong class/config, non-BF16 checkpoint tensor,
+missing/unexpected key, or any shape mismatch. Direct E2B SFT runs repeat this
+preflight and record it in training metadata before loading real weights.
 
 Later, with an explicitly authorized GPU run, select a target profile:
 

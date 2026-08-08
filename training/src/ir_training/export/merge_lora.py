@@ -85,6 +85,12 @@ def _verify_qat_training_metadata(
         "mobile_training_seed_matches": not mobile_training_seed.get(
             "required", False
         ),
+        "mobile_seed_metadata_v4": not mobile_training_seed.get(
+            "required", False
+        ),
+        "mobile_seed_architecture_verified": not mobile_training_seed.get(
+            "required", False
+        ),
     }
     report: dict[str, Any] = {
         "required": True,
@@ -152,6 +158,9 @@ def _verify_qat_training_metadata(
         else {}
     )
     if mobile_training_seed.get("required", False):
+        checks["mobile_seed_metadata_v4"] = (
+            int(metadata.get("training_metadata_version", 0) or 0) >= 4
+        )
         checks["mobile_training_seed_matches"] = bool(
             recorded_seed.get("verified") is True
             and str(recorded_seed.get("manifest_sha256") or "").lower()
@@ -160,6 +169,35 @@ def _verify_qat_training_metadata(
             == str(
                 mobile_training_seed.get("transformation_plan_sha256") or ""
             ).lower()
+        )
+        architecture = (
+            metadata.get("mobile_seed_architecture")
+            if isinstance(metadata.get("mobile_seed_architecture"), dict)
+            else {}
+        )
+        comparison = (
+            architecture.get("comparison")
+            if isinstance(architecture.get("comparison"), dict)
+            else {}
+        )
+        architecture_checks = (
+            architecture.get("checks")
+            if isinstance(architecture.get("checks"), dict)
+            else {}
+        )
+        checks["mobile_seed_architecture_verified"] = bool(
+            architecture.get("verified") is True
+            and architecture.get("model_class") == "Gemma4ForCausalLM"
+            and str(architecture.get("seed_manifest_sha256") or "").lower()
+            == str(mobile_training_seed.get("manifest_sha256") or "").lower()
+            and comparison.get("exact") is True
+            and comparison.get("checkpoint_inventory_sha256")
+            == comparison.get("framework_inventory_sha256")
+            and architecture_checks.get("key_and_shape_inventory_exact") is True
+            and architecture_checks.get("framework_state_on_meta") is True
+            and architecture.get("model_weights_loaded") is False
+            and architecture.get("forward_executed") is False
+            and architecture.get("training_executed") is False
         )
     report["training_git_commit"] = git_commit or None
     report["adapter_files"] = actual_files

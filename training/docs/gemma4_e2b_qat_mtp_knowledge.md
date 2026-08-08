@@ -1768,17 +1768,38 @@ and dense-config check passed, and the E2B plan then reported
 10 GB generated seed remains ignored and is not committed; future machines
 must reproduce and verify it from the pinned public inputs.
 
+The independent framework architecture preflight was then run with the pinned
+minimum Transformers 5.10.1. `Gemma4TextConfig` instantiated
+`Gemma4ForCausalLM` entirely on the meta device. Its 541 state keys and shapes
+matched all 541 BF16 checkpoint headers exactly: no missing, unexpected, or
+mismatched entries. Both inventories hash to
+`c35eb170bd32bc303e6a515a1ef4193ae69e3af1d584109c592fc8e3478f7d56`.
+The generated report SHA-256 is
+`5c135e1680f962afb9a805cbb969d2d98461c7d245a0788dab16fc42f70396da`.
+No weights, forward pass, optimizer, dataset, or training step were loaded or
+run. Reproduce this gate with:
+
+```powershell
+python training/scripts/validate_gemma4_mobile_seed_architecture.py
+```
+
+The direct SFT path reruns this preflight before allocating the model. A
+successful report is written into adapter training metadata, and merge refuses
+an E2B adapter if the seed-manifest hash, framework class, meta-device evidence,
+exact inventory flag, or the two inventory hashes do not match.
+
 Training remains opt-in through `--execute-training`; do not combine seed
 reconstruction, training, merge, export, and device promotion into an
 unreviewed one-shot command.
 
-Training metadata version 3 records the verified seed manifest; merge metadata
-version 4 additionally binds the canonical base ID, local base source,
-training-config SHA-256, QAT run, adapter hashes, and every merged shard/index
-hash. The mobile profile requires exact Transformers checkpoint loading with no
-missing, unexpected, mismatched, or errored state keys, and the merge/compiler
-provenance preserves that fail-closed requirement. The compiler rejects an old
-merge, generic or base-only-QAT metadata, the
+Training metadata version 4 records the verified seed manifest plus the exact
+framework architecture preflight; merge metadata version 4 additionally binds
+the canonical base ID, local base source, training-config SHA-256, QAT run,
+adapter hashes, and every merged shard/index hash. The mobile profile also
+requires actual Transformers checkpoint loading with no missing, unexpected,
+mismatched, or errored state keys, and the merge/compiler provenance preserves
+both fail-closed requirements. The compiler rejects an old merge, generic or
+base-only-QAT metadata, the
 raw packed checkpoint, the Q4 seed, a manifest/source mismatch, package hash
 mismatch, retained-constant mismatch, or incomplete source mapping. Retained
 non-inventory constants remain hash-bound to the official package, while all

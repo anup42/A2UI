@@ -182,6 +182,26 @@ def build_pipeline_plan(
 
     training_script = base / "scripts" / "train_sft.py"
     train_command = [sys.executable, str(training_script), "--config", str(training_config_path)]
+    architecture_preflight_script = (
+        base / "scripts" / "validate_gemma4_mobile_seed_architecture.py"
+    )
+    architecture_preflight_output = resolve_path(
+        str(
+            pipeline_cfg.get(
+                "output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"
+            )
+        )
+        + "/mobile_seed_architecture_report.json",
+        base,
+    )
+    architecture_preflight_command = [
+        sys.executable,
+        str(architecture_preflight_script),
+        "--training-config",
+        str(training_config_path),
+        "--output",
+        str(architecture_preflight_output),
+    ]
     export_config_value = public_export_cfg.get(
         "config", "configs/export/edge_gallery_gemma4_e2b.yaml"
     )
@@ -477,6 +497,28 @@ def build_pipeline_plan(
                 "message": "The referenced training config must enable qat.enabled.",
             }
         )
+    if model_cfg.get("architecture_preflight_required") is not True:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "architecture_preflight_not_required",
+                "message": (
+                    "The E2B training config must require a 541-key/shape "
+                    "Gemma4ForCausalLM meta-device architecture preflight."
+                ),
+            }
+        )
+    if model_cfg.get("require_exact_checkpoint_keys") is not True:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "exact_checkpoint_keys_not_required",
+                "message": (
+                    "The E2B training config must reject missing, unexpected, "
+                    "mismatched, or errored keys during the real model load."
+                ),
+            }
+        )
     if not mtp_enabled and (
         mtp_weight_source == "trained" or train_assistant
     ):
@@ -601,6 +643,15 @@ def build_pipeline_plan(
             "best_checkpoint": str(best_checkpoint),
             "best_checkpoint_ready": _checkpoint_ready(best_checkpoint),
             "best_checkpoint_required": True,
+            "architecture_preflight": {
+                "required": True,
+                "script": str(architecture_preflight_script),
+                "output": str(architecture_preflight_output),
+                "command": architecture_preflight_command,
+                "loads_weights": False,
+                "runs_forward": False,
+                "runs_training": False,
+            },
         },
         "merge": {
             "base_model_id": model_id,

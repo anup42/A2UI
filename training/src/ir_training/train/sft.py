@@ -11,6 +11,10 @@ from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.models.registry import create_adapter
 from ir_training.qat.fake_quant import QATController, prepare_qat_model
+from ir_training.qat.mobile_seed_architecture import (
+    MobileSeedArchitectureError,
+    validate_mobile_seed_architecture,
+)
 from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
 from ir_training.qat.workflow import validate_qat_config
 from ir_training.qat_mtp.workflow import validate_training_config
@@ -47,6 +51,37 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             "Gemma 4 mobile training seed is missing or failed identity checks: "
             + ", ".join(failed)
         )
+    mobile_seed_architecture: dict[str, Any] = {
+        "required": bool(mobile_training_seed.get("required", False)),
+        "verified": not bool(mobile_training_seed.get("required", False)),
+    }
+    if mobile_training_seed.get("required", False):
+        if model_cfg.get("architecture_preflight_required") is not True:
+            raise RuntimeError(
+                "Gemma 4 mobile architecture_preflight_required must remain true."
+            )
+        try:
+            mobile_seed_architecture = validate_mobile_seed_architecture(
+                model_cfg,
+                base=base,
+                verified_seed=mobile_training_seed,
+            )
+        except MobileSeedArchitectureError as exc:
+            raise RuntimeError(
+                f"Gemma 4 mobile architecture preflight failed: {exc}"
+            ) from exc
+        if not mobile_seed_architecture.get("verified"):
+            failed = [
+                name
+                for name, passed in mobile_seed_architecture.get(
+                    "checks", {}
+                ).items()
+                if not passed
+            ]
+            raise RuntimeError(
+                "Gemma 4 mobile architecture preflight failed checks: "
+                + ", ".join(failed)
+            )
     try:
         from datasets import load_dataset  # type: ignore
         from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
@@ -308,7 +343,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     final_adapter = output_dir / "final_adapter"
     golden_summary = None
     metadata = {
-        "training_metadata_version": 3,
+        "training_metadata_version": 4,
         "run_id": run_cfg.get("id", output_dir.name),
         "model": model_cfg,
         "training": training_cfg,
@@ -317,6 +352,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "qat": qat_controller.summary() if qat_controller is not None else {},
         "qat_mtp": qat_mtp_cfg,
         "mobile_training_seed": mobile_training_seed,
+        "mobile_seed_architecture": mobile_seed_architecture,
         "dataset_dir": str(dataset_dir),
         "final_adapter": str(final_adapter),
         "git_commit": current_commit(repo_root()),

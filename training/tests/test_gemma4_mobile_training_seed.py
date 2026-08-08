@@ -15,6 +15,7 @@ import build_checkpoint_official_topology as topology
 import pytest
 import reconstruct_gemma4_mobile_training_seed as reconstruction
 from ir_training.common.config import load_yaml
+from ir_training.export import merge_lora
 from ir_training.models import base as model_base
 from ir_training.models.registry import create_adapter
 from ir_training.qat import mobile_training_seed as seed_verifier
@@ -356,6 +357,86 @@ def test_mobile_training_config_fails_before_model_load_when_seed_is_missing(
 
     with pytest.raises(RuntimeError, match="mobile training seed"):
         train_sft(config)
+
+
+def test_merge_requires_verified_mobile_framework_architecture(tmp_path):
+    adapter = tmp_path / "best_checkpoint"
+    adapter.mkdir()
+    adapter_weights = adapter / "adapter_model.safetensors"
+    adapter_weights.write_bytes(b"adapter")
+    adapter_record = {
+        "path": adapter_weights.name,
+        "size": adapter_weights.stat().st_size,
+        "sha256": _sha256(adapter_weights),
+    }
+    seed_report = {
+        "required": True,
+        "verified": True,
+        "manifest_sha256": "a" * 64,
+        "transformation_plan_sha256": "b" * 64,
+    }
+    inventory_sha256 = "c" * 64
+    metadata = {
+        "training_metadata_version": 4,
+        "training_config_sha256": "d" * 64,
+        "training": {"method": "qat_lora_sft"},
+        "lora": {"dropout": 0.0},
+        "qat": {
+            "enabled": True,
+            "effective_merged_weight_qat_enabled": True,
+            "wrapped_effective_lora_count": 1,
+            "uncovered_lora_adapter_linear_names": [],
+            "spec": {"effective_merged_weight": True},
+        },
+        "git_commit": "e" * 40,
+        "adapter_checkpoints": [
+            {"role": "best_golden", "files": [adapter_record]}
+        ],
+        "mobile_training_seed": dict(seed_report),
+        "mobile_seed_architecture": {
+            "verified": True,
+            "model_class": "Gemma4ForCausalLM",
+            "seed_manifest_sha256": seed_report["manifest_sha256"],
+            "comparison": {
+                "exact": True,
+                "checkpoint_inventory_sha256": inventory_sha256,
+                "framework_inventory_sha256": inventory_sha256,
+            },
+            "checks": {
+                "key_and_shape_inventory_exact": True,
+                "framework_state_on_meta": True,
+            },
+            "model_weights_loaded": False,
+            "forward_executed": False,
+            "training_executed": False,
+        },
+    }
+    metadata_path = adapter / "training_metadata.json"
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+
+    report = merge_lora._verify_qat_training_metadata(
+        adapter,
+        training_config_sha256="d" * 64,
+        training_method="qat_lora_sft",
+        mobile_training_seed=seed_report,
+    )
+
+    assert report["verified"] is True
+    assert report["checks"]["mobile_seed_metadata_v4"] is True
+    assert report["checks"]["mobile_seed_architecture_verified"] is True
+
+    metadata["mobile_seed_architecture"]["comparison"][
+        "framework_inventory_sha256"
+    ] = "f" * 64
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+    rejected = merge_lora._verify_qat_training_metadata(
+        adapter,
+        training_config_sha256="d" * 64,
+        training_method="qat_lora_sft",
+        mobile_training_seed=seed_report,
+    )
+    assert rejected["verified"] is False
+    assert rejected["checks"]["mobile_seed_architecture_verified"] is False
 
 
 def test_compiler_merge_provenance_binds_mobile_seed_hash(tmp_path):

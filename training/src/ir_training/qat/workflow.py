@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat.mobile_training_seed import OFFICIAL_MOBILE_MODEL_ID
 from ir_training.qat_mtp.workflow import WorkflowIssue
 
 
@@ -95,6 +96,31 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
 
     model_id = str(model.get("model_id") or "").lower()
     if "gemma-4" in model_id or "gemma4" in model_id:
+        if (
+            model_id == OFFICIAL_MOBILE_MODEL_ID.lower()
+            and model.get("architecture_preflight_required") is not True
+        ):
+            issues.append(
+                WorkflowIssue(
+                    "error",
+                    "gemma4_architecture_preflight_required",
+                    "Gemma 4 mobile training must compare all reconstructed "
+                    "checkpoint keys/shapes with Gemma4ForCausalLM on the meta "
+                    "device before allocating or training the model.",
+                )
+            )
+        if (
+            model_id == OFFICIAL_MOBILE_MODEL_ID.lower()
+            and model.get("require_exact_checkpoint_keys") is not True
+        ):
+            issues.append(
+                WorkflowIssue(
+                    "error",
+                    "gemma4_exact_checkpoint_keys_required",
+                    "Gemma 4 mobile training must require zero missing, unexpected, "
+                    "mismatched, or errored checkpoint keys during the real load.",
+                )
+            )
         try:
             gemma4_spec = QATSpec.from_config(config)
             observable_layout_matches = bool(

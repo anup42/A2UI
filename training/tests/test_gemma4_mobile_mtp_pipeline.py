@@ -67,6 +67,11 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only(tmp_path):
     assert plan["mtp"]["assistant_model_id"] == OFFICIAL_QAT_ASSISTANT
     assert plan["exact_topology"]["official_base_model_id"] == OFFICIAL_MOBILE_MODEL_ID
     assert plan["training"]["best_checkpoint_required"] is True
+    assert plan["training"]["architecture_preflight"]["required"] is True
+    assert plan["training"]["architecture_preflight"]["loads_weights"] is False
+    assert "validate_gemma4_mobile_seed_architecture.py" in " ".join(
+        plan["training"]["architecture_preflight"]["command"]
+    )
     assert plan["package"]["mtp_enabled"] is True
     assert plan["package"]["mtp_model_type"] == "tf_lite_mtp_drafter"
     assert plan["android_gpu"]["required_modes"] == ["target_only", "mtp_on"]

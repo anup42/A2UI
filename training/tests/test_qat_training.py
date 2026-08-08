@@ -322,6 +322,19 @@ def test_gemma4_qat_validation_requires_grouped_per_layer_embedding():
     assert "gemma4_mobile_observable_layout_mismatch" in codes
 
 
+def test_gemma4_qat_validation_requires_both_architecture_load_gates():
+    config = load_yaml(
+        ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
+    config["model"].pop("architecture_preflight_required")
+    config["model"]["require_exact_checkpoint_keys"] = False
+
+    codes = {issue.code for issue in validate_qat_config(config)}
+
+    assert "gemma4_architecture_preflight_required" in codes
+    assert "gemma4_exact_checkpoint_keys_required" in codes
+
+
 def test_training_adapter_manifest_binds_checkpoint_bytes(tmp_path):
     (tmp_path / "adapter_config.json").write_text("{}", encoding="utf-8")
     weights = tmp_path / "adapter_model.safetensors"
