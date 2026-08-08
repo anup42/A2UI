@@ -173,9 +173,16 @@ class OnDeviceLitertBackend(
     private data class PromptParts(
         val system: String?,
         val user: String,
+        val initialMessages: List<InferenceBackend.ConversationMessage>,
     ) {
         val combinedForEstimates: String
-            get() = if (system.isNullOrBlank()) user else "$system\n\n$user"
+            get() = buildList {
+                if (!system.isNullOrBlank()) add(system)
+                initialMessages.forEach { message ->
+                    if (message.content.isNotBlank()) add(message.content)
+                }
+                add(user)
+            }.joinToString("\n\n")
     }
 
     private fun buildPromptParts(
@@ -193,12 +200,21 @@ class OnDeviceLitertBackend(
             return PromptParts(
                 system = null,
                 user = "<|im_start|>user\n$combined\n<|im_start|>assistant\n",
+                initialMessages = emptyList(),
             )
         }
         return if (request.localSendSystemPrompt && system.isNotBlank()) {
-            PromptParts(system = system, user = user)
+            PromptParts(
+                system = system,
+                user = user,
+                initialMessages = request.initialMessages,
+            )
         } else {
-            PromptParts(system = null, user = user)
+            PromptParts(
+                system = null,
+                user = user,
+                initialMessages = request.initialMessages,
+            )
         }
     }
 
@@ -222,6 +238,12 @@ class OnDeviceLitertBackend(
         val deterministic = temperature <= 0.0
         val conversationConfig = ConversationConfig(
             systemInstruction = promptParts.system?.let { Contents.of(it) },
+            initialMessages = promptParts.initialMessages.map { message ->
+                when (message.role) {
+                    InferenceBackend.ConversationRole.USER -> Message.user(message.content)
+                    InferenceBackend.ConversationRole.MODEL -> Message.model(message.content)
+                }
+            },
             samplerConfig = SamplerConfig(
                 temperature = temperature,
                 topK = if (deterministic) 1 else 32,

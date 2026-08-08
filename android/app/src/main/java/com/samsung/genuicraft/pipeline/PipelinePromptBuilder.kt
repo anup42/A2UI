@@ -2,11 +2,13 @@ package com.samsung.genuicraft.pipeline
 
 import android.content.SharedPreferences
 import android.content.res.AssetManager
+import com.samsung.genuicraft.inference.InferenceBackend
 
 internal object PipelinePromptBuilder {
 
     const val STAGE2_PROMPT_ASSET = "pipeline_prompts/response_gen.md"
     const val STAGE3_PROMPT_ASSET = "pipeline_prompts/genui_gen.md"
+    const val STAGE3_A2UI_EXPRESS_PROMPT_ASSET = "pipeline_prompts/genui_gen_a2ui_express_v1.md"
     const val STAGE3_GEMMA_PROMPT_ASSET = "pipeline_prompts/genui_gen_gemma_litert.md"
 
     data class PromptContext(
@@ -21,7 +23,8 @@ internal object PipelinePromptBuilder {
 
     data class Stage3PromptContext(
         val systemPrompt: String?,
-        val userTemplate: String
+        val userTemplate: String,
+        val initialMessages: List<InferenceBackend.ConversationMessage> = emptyList(),
     )
 
     data class AssetMapping(
@@ -53,6 +56,7 @@ internal object PipelinePromptBuilder {
         template: String,
         rawResponseOnly: Boolean = false,
         rawResponsePrefix: String? = null,
+        trainingCompatible: Boolean = false,
     ): Stage3PromptContext {
         if (rawResponseOnly) {
             return Stage3PromptContext(
@@ -60,7 +64,7 @@ internal object PipelinePromptBuilder {
                 userTemplate = "${rawResponsePrefix.orEmpty()}{response_text}",
             )
         }
-        return preparePromptContext(
+        val prepared = preparePromptContext(
             template = template,
             placeholder = "{response_text}",
             sentinel = "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]",
@@ -69,7 +73,33 @@ internal object PipelinePromptBuilder {
                     "by the system instructions.\n" +
                     "Return ONLY the requested payload (no prose and no markdown fences).\n\n" +
                     "Response:\n{response_text}"
-        ).let { context ->
+        )
+        if (trainingCompatible) {
+            return Stage3PromptContext(
+                systemPrompt = prepared.systemPrompt,
+                userTemplate = "Create A2UI Express v1 GenUI IR for this response:\n\n{response_text}",
+                initialMessages = listOf(
+                    InferenceBackend.ConversationMessage(
+                        role = InferenceBackend.ConversationRole.USER,
+                        content =
+                            "Create A2UI Express v1 GenUI IR for this response:\n\n" +
+                                "A small travel checklist with a title and two items.",
+                    ),
+                    InferenceBackend.ConversationMessage(
+                        role = InferenceBackend.ConversationRole.MODEL,
+                        content =
+                            "<a2ui>\n" +
+                                "root=Column([a,b])\n" +
+                                "a=Text(\"Travel Checklist\",\"h1\")\n" +
+                                "b=List([c,d])\n" +
+                                "c=Text(\"Passport\")\n" +
+                                "d=Text(\"Charger\")\n" +
+                                "</a2ui>",
+                    ),
+                ),
+            )
+        }
+        return prepared.let { context ->
             Stage3PromptContext(
                 systemPrompt = context.systemPrompt,
                 userTemplate = context.userTemplate

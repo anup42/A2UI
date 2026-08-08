@@ -104,10 +104,14 @@ class GenUiStagePipeline(private val appContext: Context) {
         if (provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT) {
             val profile = com.samsung.genuicraft.inference.OnDeviceModelCatalog
                 .entryForModelPath(onDeviceModelPath)
-            // Raw trained exports use their training wrapper below. The official
+            // Training-compatible exports use the pinned training contract and
+            // native Express few-shot turn. Raw trained exports use their
+            // legacy wrapper below. The official
             // pretrained Gemma target needs a mobile-specific instruction profile,
             // rather than the cloud prompt copied into the generic route.
-            return if (profile?.rawStage3Response == true) {
+            return if (profile?.trainingCompatiblePrompt == true) {
+                PipelinePromptBuilder.STAGE3_A2UI_EXPRESS_PROMPT_ASSET
+            } else if (profile?.rawStage3Response == true) {
                 IrPromptVersionSettings.stage3PromptAssetPath(appContext)
             } else {
                 PipelinePromptBuilder.STAGE3_GEMMA_PROMPT_ASSET
@@ -221,6 +225,15 @@ class GenUiStagePipeline(private val appContext: Context) {
         return provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT &&
             com.samsung.genuicraft.inference.OnDeviceModelCatalog
                 .entryForModelPath(onDeviceModelPath)?.rawStage3Response == true
+    }
+
+    private fun usesTrainingCompatibleStage3Profile(
+        provider: InferenceBackendSettings.Provider,
+        onDeviceModelPath: String,
+    ): Boolean {
+        return provider == InferenceBackendSettings.Provider.ON_DEVICE_LITERT &&
+            com.samsung.genuicraft.inference.OnDeviceModelCatalog
+                .entryForModelPath(onDeviceModelPath)?.trainingCompatiblePrompt == true
     }
 
     private fun shouldUseOfficialGemmaResponseFallback(
@@ -650,10 +663,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(irProvider, onDeviceModelPath)
+        val useTrainingCompatibleStage3Profile = usesTrainingCompatibleStage3Profile(irProvider, onDeviceModelPath)
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
             genUiTemplate,
             rawResponseOnly = useRawStage3ResponseProfile,
             rawResponsePrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
+            trainingCompatible = useTrainingCompatibleStage3Profile,
         )
         val stage3CacheDeferred = if (irProvider == InferenceBackendSettings.Provider.GEMINI &&
             geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
@@ -774,7 +789,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             catalogId = catalogId,
             assets = emptyList(),
             outputFormat = currentStage3Format(),
-            appendRequestPolicies = !useRawStage3ResponseProfile,
+            appendRequestPolicies = !useRawStage3ResponseProfile && !useTrainingCompatibleStage3Profile,
         )
         val promptReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(rawStage3Prompt)
         val stage3Prompt = promptReferenceMask.shortenedText
@@ -944,6 +959,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = irProvider,
             prompt = stage3Prompt,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
+            initialMessages = promptContext.initialMessages,
             temperature = stage3TemperatureFor(irProvider),
             maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
@@ -1359,10 +1375,12 @@ class GenUiStagePipeline(private val appContext: Context) {
                 )
             }
         val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(provider, onDeviceModelPath)
+        val useTrainingCompatibleStage3Profile = usesTrainingCompatibleStage3Profile(provider, onDeviceModelPath)
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
             genUiTemplate,
             rawResponseOnly = useRawStage3ResponseProfile,
             rawResponsePrefix = rawStage3ResponsePrefix(provider, onDeviceModelPath),
+            trainingCompatible = useTrainingCompatibleStage3Profile,
         )
         val stage3CacheDeferred = if (provider == InferenceBackendSettings.Provider.GEMINI &&
             geminiApiMode == InferenceBackendSettings.GeminiApiMode.AI_STUDIO_DIRECT) {
@@ -1430,7 +1448,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             catalogId = catalogId,
             assets = emptyList(),
             outputFormat = currentStage3Format(),
-            appendRequestPolicies = !useRawStage3ResponseProfile,
+            appendRequestPolicies = !useRawStage3ResponseProfile && !useTrainingCompatibleStage3Profile,
         )
         val promptReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(rawStage3Prompt)
         val stage3Prompt = promptReferenceMask.shortenedText
@@ -1562,6 +1580,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = provider,
             prompt = stage3Prompt,
             systemPrompt = if (stage3Cache.name != null) null else promptContext.systemPrompt,
+            initialMessages = promptContext.initialMessages,
             temperature = stage3TemperatureFor(provider),
             maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
@@ -1889,10 +1908,12 @@ class GenUiStagePipeline(private val appContext: Context) {
             )
         }
         val useRawStage3ResponseProfile = usesRawStage3ResponseProfile(irProvider, onDeviceModelPath)
+        val useTrainingCompatibleStage3Profile = usesTrainingCompatibleStage3Profile(irProvider, onDeviceModelPath)
         val promptContext = PipelinePromptBuilder.prepareStage3PromptContext(
             genUiTemplate,
             rawResponseOnly = useRawStage3ResponseProfile,
             rawResponsePrefix = rawStage3ResponsePrefix(irProvider, onDeviceModelPath),
+            trainingCompatible = useTrainingCompatibleStage3Profile,
         )
         val rawStage3Prompt = PipelinePromptBuilder.buildStage3UserPrompt(
             userTemplate = promptContext.userTemplate,
@@ -1900,7 +1921,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             catalogId = catalogId,
             assets = emptyList(),
             outputFormat = currentStage3Format(),
-            appendRequestPolicies = !useRawStage3ResponseProfile,
+            appendRequestPolicies = !useRawStage3ResponseProfile && !useTrainingCompatibleStage3Profile,
         )
         val promptReferenceMask = com.samsung.genuicraft.mcp.McpUrlShortener.shorten(rawStage3Prompt)
         val stage3Prompt = promptReferenceMask.shortenedText
@@ -1997,6 +2018,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             provider = irProvider,
             prompt = stage3Prompt,
             systemPrompt = promptContext.systemPrompt,
+            initialMessages = promptContext.initialMessages,
             temperature = stage3TemperatureFor(irProvider),
             maxOutputTokens = stage3MaxOutputTokens,
             jsonMode = currentStage3Format() != GenUiIrFormat.A2UI_EXPRESS_V1,
@@ -2679,6 +2701,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         provider: InferenceBackendSettings.Provider,
         prompt: String,
         systemPrompt: String?,
+        initialMessages: List<InferenceBackend.ConversationMessage> = emptyList(),
         temperature: Double,
         maxOutputTokens: Int,
         jsonMode: Boolean,
@@ -2720,6 +2743,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 InferenceBackend.GenerateRequest(
                     prompt = prompt,
                     systemPrompt = systemPrompt,
+                    initialMessages = initialMessages,
                     temperature = temperature,
                     maxOutputTokens = maxOutputTokens,
                     jsonMode = jsonMode,
@@ -2769,6 +2793,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     InferenceBackend.GenerateRequest(
                         prompt = prompt,
                         systemPrompt = systemPrompt,
+                        initialMessages = initialMessages,
                         temperature = temperature,
                         maxOutputTokens = maxOutputTokens,
                         jsonMode = jsonMode,
@@ -2809,6 +2834,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     InferenceBackend.GenerateRequest(
                         prompt = prompt,
                         systemPrompt = systemPrompt,
+                        initialMessages = initialMessages,
                         temperature = temperature,
                         maxOutputTokens = maxOutputTokens,
                         jsonMode = jsonMode,
@@ -2854,6 +2880,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     InferenceBackend.GenerateRequest(
                         prompt = prompt,
                         systemPrompt = systemPrompt,
+                        initialMessages = initialMessages,
                         temperature = temperature,
                         maxOutputTokens = maxOutputTokens,
                         jsonMode = jsonMode,
@@ -2915,6 +2942,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                     InferenceBackend.GenerateRequest(
                         prompt = prompt,
                         systemPrompt = geminiCacheFallbackSystemPrompt ?: systemPrompt,
+                        initialMessages = initialMessages,
                         temperature = temperature,
                         maxOutputTokens = maxOutputTokens,
                         jsonMode = jsonMode,

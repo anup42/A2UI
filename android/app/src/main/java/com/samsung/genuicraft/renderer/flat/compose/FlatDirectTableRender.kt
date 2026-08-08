@@ -244,7 +244,12 @@ internal fun RenderDirectTable(
         )
         return
     }
-    val weatherRows = NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
+    val isComparisonTable = table.domain == "comparison"
+    val weatherRows = if (isComparisonTable) {
+        null
+    } else {
+        NativeWeatherSemantics.buildWeatherRows(headers, table.rows)
+    }
     if (!weatherRows.isNullOrEmpty()) {
         NativeWeatherUiRenderer.RenderWeatherRows(
             rows = weatherRows,
@@ -262,7 +267,11 @@ internal fun RenderDirectTable(
         )
         return
     }
-    val currentWeatherRows = NativeWeatherSemantics.buildCurrentWeatherRowsFromKeyValueTable(headers, table.rows)
+    val currentWeatherRows = if (isComparisonTable) {
+        null
+    } else {
+        NativeWeatherSemantics.buildCurrentWeatherRowsFromKeyValueTable(headers, table.rows)
+    }
     if (!currentWeatherRows.isNullOrEmpty()) {
         NativeWeatherUiRenderer.RenderWeatherRows(
             rows = currentWeatherRows,

@@ -392,6 +392,25 @@ class FlatSpecContractTest {
     }
 
     @Test
+    fun buildFallbackFlatSpec_keepsClimateComparisonAsComparisonTable() {
+        val fallback = FlatSpecContract.buildFallbackFlatSpec(
+            "January Climate Snapshot\n" +
+                "| Feature | Bangkok (Thailand) | Hanoi (Vietnam) |\n" +
+                "| --- | --- | --- |\n" +
+                "| Daily Temp Range | 22-32°C | 14-20°C |\n" +
+                "| Humidity | 65-70% | 70-80% |\n" +
+                "| Rain Probability | Very Low | Low |"
+        )
+        val tableProps = fallback.getAsJsonObject("elements")
+            .getAsJsonObject("fallback_table_1")
+            .getAsJsonObject("props")
+
+        assertEquals("comparison", tableProps.get("domain").asString)
+        assertEquals("table", tableProps.get("preferredPresentation").asString)
+        assertTrue(A2uiCanonicalGraph.validate(fallback).isValid)
+    }
+
+    @Test
     fun buildFallbackFlatSpec_removesStructuredMarkupFromText() {
         val fallback = FlatSpecContract.buildFallbackFlatSpec(
             """

@@ -5,6 +5,16 @@ package com.samsung.genuicraft.inference
  */
 interface InferenceBackend {
 
+    enum class ConversationRole {
+        USER,
+        MODEL,
+    }
+
+    data class ConversationMessage(
+        val role: ConversationRole,
+        val content: String,
+    )
+
     fun generate(request: GenerateRequest): GenerateResponse
 
     fun checkHealth(): HealthCheckResult
@@ -23,7 +33,8 @@ interface InferenceBackend {
         val structuredOutput: Boolean = false,
         val localSystemPromptCacheKey: String? = null,
         val localSendSystemPrompt: Boolean = true,
-        val onStreamUpdate: ((StreamUpdate) -> Unit)? = null
+        val onStreamUpdate: ((StreamUpdate) -> Unit)? = null,
+        val initialMessages: List<ConversationMessage> = emptyList(),
     )
 
     data class StreamUpdate(

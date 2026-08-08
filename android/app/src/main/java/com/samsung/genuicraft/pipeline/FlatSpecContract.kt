@@ -793,6 +793,7 @@ internal object FlatSpecContract {
                     })
                 }
                 fallbackTables.forEachIndexed { index, table ->
+                    val tableDomain = inferTableDomainFromHeaders(table.columns)
                     add("fallback_table_${index + 1}", JsonObject().apply {
                         addProperty("type", "Table")
                         add("props", JsonObject().apply {
@@ -803,8 +804,11 @@ internal object FlatSpecContract {
                                 }
                             })
                             addProperty("title", table.title)
-                            addProperty("domain", "generic")
-                            addProperty("preferredPresentation", "table")
+                            addProperty("domain", tableDomain)
+                            addProperty(
+                                "preferredPresentation",
+                                if (tableDomain in cardFirstTableDomains) "cards" else "table"
+                            )
                         })
                         add("children", JsonArray())
                     })

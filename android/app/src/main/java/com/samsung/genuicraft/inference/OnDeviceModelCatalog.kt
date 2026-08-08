@@ -19,6 +19,7 @@ object OnDeviceModelCatalog {
         val enableSpeculativeDecoding: Boolean = false,
         val rawStage3Response: Boolean = false,
         val useRawTrainingWrapper: Boolean = false,
+        val trainingCompatiblePrompt: Boolean = false,
         val stage3TrainingPromptPrefix: String? = null,
         val minimumFileSizeBytes: Long = 1L,
     ) {
@@ -26,17 +27,36 @@ object OnDeviceModelCatalog {
             get() = !downloadUrl.isNullOrBlank()
 
         fun localFile(context: Context): File {
-            val dir = File(context.getExternalFilesDir(null), "on_device_models")
+            val external = externalLocalFile(context)
+            val internal = internalLocalFile(context)
+            return when {
+                isUsable(external) -> external
+                isUsable(internal) -> internal
+                else -> external
+            }
+        }
+
+        private fun externalLocalFile(context: Context): File {
+            val dir = File(context.getExternalFilesDir(null) ?: context.filesDir, "on_device_models")
             // Create the directory from the app process so scoped-storage ownership is correct.
             dir.mkdirs()
             return File(dir, fileName)
         }
 
+        private fun internalLocalFile(context: Context): File {
+            val dir = File(context.filesDir, "on_device_models")
+            dir.mkdirs()
+            return File(dir, fileName)
+        }
+
+        private fun isUsable(file: File): Boolean {
+            return file.isFile && file.length() >= minimumFileSizeBytes
+        }
+
         fun localPath(context: Context): String = localFile(context).absolutePath
 
         fun isDownloaded(context: Context): Boolean {
-            val file = localFile(context)
-            return file.exists() && file.length() > 0L
+            return isUsable(externalLocalFile(context)) || isUsable(internalLocalFile(context))
         }
     }
 
@@ -85,7 +105,7 @@ object OnDeviceModelCatalog {
             maxContextTokens = 4_096,
             maxOutputTokens = 2_048,
             requireGpu = true,
-            rawStage3Response = true,
+            trainingCompatiblePrompt = true,
             minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
