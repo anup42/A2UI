@@ -155,6 +155,7 @@ def compare_probe_results(
     output_tokens: int,
     max_throughput_regression_percent: float,
     max_mtp_success_rate_drop: float,
+    mtp_max_decode_overshoot: int = 4,
 ) -> dict[str, Any]:
     """Build explicit structural, speed, and MTP-acceptance gates."""
 
@@ -167,8 +168,11 @@ def compare_probe_results(
     candidate_rate = _finite_number(candidate_report.get("decode_tokens_per_second"))
     official_decode_count = _nonnegative_int(official_report.get("decode_token_count"))
     candidate_decode_count = _nonnegative_int(candidate_report.get("decode_token_count"))
+    allowed_decode_overshoot = mtp_max_decode_overshoot if mtp_enabled else 0
     decode_length_match: bool | None = None
     requested_decode_length_reached: bool | None = None
+    official_decode_cap_reached: bool | None = None
+    candidate_decode_cap_reached: bool | None = None
     throughput_sample_comparable: bool | None = None
     if output_tokens > 0:
         decode_length_match = (
@@ -176,13 +180,19 @@ def compare_probe_results(
             and candidate_decode_count is not None
             and official_decode_count == candidate_decode_count
         )
-        requested_decode_length_reached = (
-            official_decode_count == output_tokens
-            and candidate_decode_count == output_tokens
+        maximum_valid_decode_count = output_tokens + allowed_decode_overshoot
+        official_decode_cap_reached = (
+            official_decode_count is not None
+            and output_tokens <= official_decode_count <= maximum_valid_decode_count
         )
-        throughput_sample_comparable = bool(
-            decode_length_match and requested_decode_length_reached
+        candidate_decode_cap_reached = (
+            candidate_decode_count is not None
+            and output_tokens <= candidate_decode_count <= maximum_valid_decode_count
         )
+        requested_decode_length_reached = bool(
+            official_decode_cap_reached and candidate_decode_cap_reached
+        )
+        throughput_sample_comparable = requested_decode_length_reached
     throughput_regression = None
     throughput_gate = False if output_tokens > 0 else None
     if (
@@ -252,6 +262,20 @@ def compare_probe_results(
         "structural_gpu_parity_pass": structural_pass,
         "official_decode_token_count": official_decode_count,
         "candidate_decode_token_count": candidate_decode_count,
+        "official_decode_token_delta_from_request": (
+            official_decode_count - output_tokens
+            if official_decode_count is not None and output_tokens > 0
+            else None
+        ),
+        "candidate_decode_token_delta_from_request": (
+            candidate_decode_count - output_tokens
+            if candidate_decode_count is not None and output_tokens > 0
+            else None
+        ),
+        "mtp_max_decode_overshoot": mtp_max_decode_overshoot if mtp_enabled else None,
+        "allowed_decode_overshoot": allowed_decode_overshoot,
+        "official_decode_cap_reached": official_decode_cap_reached,
+        "candidate_decode_cap_reached": candidate_decode_cap_reached,
         "decode_length_match": decode_length_match,
         "requested_decode_length_reached": requested_decode_length_reached,
         "throughput_sample_comparable": throughput_sample_comparable,
@@ -269,10 +293,13 @@ def compare_probe_results(
         "overall_pass": bool(structural_pass and performance_pass),
         "interpretation": (
             "Structural GPU parity proves the same signatures and delegated node "
-            "counts. Throughput passes only when both probes reach the exact requested "
-            "decode length under identical sampler settings. Decode throughput and MTP "
-            "acceptance remain weight-dependent, and a preserved official drafter does "
-            "not by itself guarantee official MTP speed."
+            "counts. Throughput passes only when both probes reach the requested decode "
+            "cap under identical sampler settings. A non-MTP run must report the exact "
+            "cap; an MTP run may include at most one configured verifier batch of "
+            "overshoot because LiteRT-LM checks the cap after Decode() advances the "
+            "sequence. Decode throughput and MTP acceptance remain weight-dependent, "
+            "and a preserved official drafter does not by itself guarantee official "
+            "MTP speed."
         ),
     }
 
@@ -518,6 +545,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout-seconds", type=int, default=900)
     parser.add_argument("--max-throughput-regression-percent", type=float, default=10.0)
     parser.add_argument("--max-mtp-success-rate-drop", type=float, default=0.10)
+    parser.add_argument(
+        "--mtp-max-decode-overshoot",
+        type=int,
+        default=4,
+        help=(
+            "Maximum extra decode tokens allowed above --output-tokens for an MTP "
+            "sample. The released Gemma 4 E2B verifier drafts four tokens, and "
+            "LiteRT-LM checks the cap after a verifier batch. Ignored without --mtp."
+        ),
+    )
     parser.add_argument("--keep-device-artifacts", action="store_true")
     return parser
 
@@ -535,6 +572,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         raise ValueError("--output-tokens must be between 0 and 512.")
     if args.warm_runs < 0:
         raise ValueError("--warm-runs cannot be negative.")
+    if not 0 <= args.mtp_max_decode_overshoot <= 512:
+        raise ValueError("--mtp-max-decode-overshoot must be between 0 and 512.")
     if args.top_k < 1:
         raise ValueError("--top-k must be at least 1.")
     if not math.isfinite(args.top_p) or not 0.0 <= args.top_p <= 1.0:
@@ -609,15 +648,19 @@ def main(argv: Iterable[str] | None = None) -> int:
             output_tokens=args.output_tokens,
             max_throughput_regression_percent=args.max_throughput_regression_percent,
             max_mtp_success_rate_drop=args.max_mtp_success_rate_drop,
+            mtp_max_decode_overshoot=args.mtp_max_decode_overshoot,
         )
         report = {
-            "schema_version": 2,
+            "schema_version": 3,
             "run_id": run_id,
             "created_utc": datetime.now(timezone.utc).isoformat(),
             "device_serial": serial,
             "mtp_enabled": args.mtp,
             "max_num_tokens": args.max_num_tokens,
             "requested_output_tokens": args.output_tokens,
+            "mtp_max_decode_overshoot": (
+                args.mtp_max_decode_overshoot if args.mtp else None
+            ),
             "sampler": {
                 "top_k": args.top_k,
                 "top_p": args.top_p,

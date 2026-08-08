@@ -1,0 +1,63 @@
+run:
+  id: gemma4_e2b_mtp_drafter_qat
+  dataset_dir: outputs/datasets/stage3_folder_90_10
+  output_dir: runs/gemma4_e2b_mtp_drafter_qat
+
+target:
+  # Point this at the merged best fine-tuned target. The pipeline overrides it
+  # automatically with source.merged_model_dir.
+  model_id_or_path: outputs/pipelines/gemma4_e2b_mobile_mtp/merged_best_hf
+  tokenizer_id_or_path: google/gemma-4-E2B-it
+
+assistant:
+  model_id_or_path: google/gemma-4-E2B-it-assistant
+  best_checkpoint_dir: runs/gemma4_e2b_mtp_drafter_qat/best_checkpoint
+
+model:
+  trust_remote_code: false
+
+training:
+  # Public reconstruction based on the released architecture: the frozen
+  # target supplies its final activation, shared KV states, and token
+  # embedding; the four-layer assistant predicts four tokens autoregressively.
+  # This is teacher-forced supervised CE, not a claim that Google's private
+  # assistant distillation loss has been recovered.
+  method: target_conditioned_autoregressive_qat
+  draft_steps: 4
+  teacher_forcing: true
+  completion_only_loss: true
+  positions_per_sequence: 4
+  epochs: 1
+  learning_rate: 0.00001
+  weight_decay: 0.01
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 4
+  mixed_precision: bf16
+  max_seq_length: 2048
+  max_eval_rows: 64
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  max_grad_norm: 1.0
+  seed: 42
+
+qat:
+  enabled: true
+  profile: gemma4_e2b_mtp_observable_w4w8_a8
+  quantizer: ste_ai_edge
+  weight_bits: 4
+  activation_bits: 8
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  group_size: null
+  quantize_embeddings: true
+  exclude_modules: []
+  only_base_layers: true
+  effective_merged_weight: false
+  # All attention projections plus the input/output bridges are W8. MLP and
+  # tied vocabulary matrices remain W4, matching all 23 official constants.
+  module_quant_configs:
+    "^pre_projection$": 8
+    "^post_projection$": 8
+    "^model\\.layers\\.[0-3]\\.self_attn\\.(q_proj|o_proj)$": 8

@@ -145,6 +145,97 @@ def test_android_gpu_parity_rejects_unequal_or_short_decode_samples():
     assert equal_but_short["overall_pass"] is False
 
 
+def test_android_gpu_parity_accepts_one_mtp_verifier_batch_of_overshoot():
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
+        "Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, "
+        "yielding 1 partitions for subgraph 0 (decode).\n"
+        "MTP Drafter - Success rate: 0.75"
+    )
+    official = {
+        "instrumentation_passed": True,
+        "device_report": {
+            "model_size_bytes": 100,
+            "decode_token_count": 35,
+            "decode_tokens_per_second": 40.0,
+        },
+        "logcat_evidence": evidence,
+    }
+    candidate = {
+        "instrumentation_passed": True,
+        "device_report": {
+            "model_size_bytes": 100,
+            "decode_token_count": 36,
+            "decode_tokens_per_second": 38.0,
+        },
+        "logcat_evidence": evidence,
+    }
+
+    comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
+        official,
+        candidate,
+        mtp_enabled=True,
+        output_tokens=32,
+        max_throughput_regression_percent=10.0,
+        max_mtp_success_rate_drop=0.1,
+        mtp_max_decode_overshoot=4,
+    )
+
+    assert comparison["decode_length_match"] is False
+    assert comparison["official_decode_cap_reached"] is True
+    assert comparison["candidate_decode_cap_reached"] is True
+    assert comparison["requested_decode_length_reached"] is True
+    assert comparison["throughput_sample_comparable"] is True
+    assert comparison["throughput_gate_pass"] is True
+    assert comparison["overall_pass"] is True
+
+
+def test_android_gpu_parity_rejects_mtp_early_stop_or_excess_overshoot():
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
+        "Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, "
+        "yielding 1 partitions for subgraph 0 (decode).\n"
+        "MTP Drafter - Success rate: 0.75"
+    )
+
+    def probe(decode_count: int) -> dict[str, object]:
+        return {
+            "instrumentation_passed": True,
+            "device_report": {
+                "model_size_bytes": 100,
+                "decode_token_count": decode_count,
+                "decode_tokens_per_second": 40.0,
+            },
+            "logcat_evidence": evidence,
+        }
+
+    early_stop = benchmark_android_litertlm_gpu_parity.compare_probe_results(
+        probe(35),
+        probe(12),
+        mtp_enabled=True,
+        output_tokens=32,
+        max_throughput_regression_percent=10.0,
+        max_mtp_success_rate_drop=0.1,
+        mtp_max_decode_overshoot=4,
+    )
+    excess_overshoot = benchmark_android_litertlm_gpu_parity.compare_probe_results(
+        probe(35),
+        probe(37),
+        mtp_enabled=True,
+        output_tokens=32,
+        max_throughput_regression_percent=10.0,
+        max_mtp_success_rate_drop=0.1,
+        mtp_max_decode_overshoot=4,
+    )
+
+    assert early_stop["candidate_decode_cap_reached"] is False
+    assert early_stop["throughput_sample_comparable"] is False
+    assert early_stop["throughput_gate_pass"] is False
+    assert early_stop["overall_pass"] is False
+    assert excess_overshoot["candidate_decode_cap_reached"] is False
+    assert excess_overshoot["throughput_sample_comparable"] is False
+    assert excess_overshoot["throughput_gate_pass"] is False
+    assert excess_overshoot["overall_pass"] is False
+
+
 def test_android_gpu_parity_allows_two_absent_signature_summaries():
     evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
         "Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, "

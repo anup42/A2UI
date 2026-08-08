@@ -6,11 +6,12 @@ The pipeline is deliberately split into explicit stages:
    adapter;
 2. the best adapter is merged back into the floating-point base model;
 3. the preferred exact-topology stage quantizes merged projection weights into
-   a copy of the released target graph while preserving default MTP byte-exact;
-4. an optional generic LiteRT Torch export produces a *standalone* diagnostic;
-5. a legacy compatible target TFLite section can be composed with the official package,
+   a copy of the released target graph;
+4. MTP weights use either official bytes or a trained 23-matrix transplant;
+5. an optional generic LiteRT Torch export produces a *standalone* diagnostic;
+6. a legacy compatible target TFLite section can be composed with the official package,
    preserving the default ``tf_lite_mtp_drafter`` section byte-for-byte; and
-6. package/device validation records what was actually proven.
+7. package/device validation records what was actually proven.
 
 The default command is plan-only.  Training and public conversion are
 expensive and the public converter is not Google's private Gemma mobile
@@ -179,6 +180,39 @@ def build_pipeline_plan(
         mtp_cfg.get("target_model_type", "tf_lite_prefill_decode")
     )
     mtp_model_type = str(mtp_cfg.get("model_type", "tf_lite_mtp_drafter"))
+    mtp_weight_source = str(mtp_cfg.get("weight_source", "official")).strip().lower()
+    drafter_training_config_path = resolve_path(
+        str(
+            mtp_cfg.get("training_config")
+            or "configs/models/gemma4_e2b_mtp_drafter_qat.yaml"
+        ),
+        base,
+    )
+    drafter_checkpoint = _path_or_empty(mtp_cfg.get("trained_checkpoint"), base)
+    if drafter_checkpoint is None:
+        drafter_checkpoint = resolve_path(
+            "runs/gemma4_e2b_mtp_drafter_qat/best_checkpoint", base
+        )
+    target_intermediate_litertlm = _path_or_empty(
+        mtp_cfg.get("target_intermediate_litertlm"), base
+    ) or resolve_path(
+        str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
+        + "/gemma4_e2b_target_with_official_mtp.litertlm",
+        base,
+    )
+    drafter_exact_output_dir = _path_or_empty(
+        mtp_cfg.get("exact_topology_output_dir"), base
+    ) or (exact_output_dir / "drafter")
+    target_exact_output_dir = (
+        exact_output_dir / "target"
+        if mtp_weight_source == "trained"
+        else exact_output_dir
+    )
+    target_exact_package_output = (
+        target_intermediate_litertlm
+        if mtp_weight_source == "trained"
+        else output_litertlm
+    )
     public_export_enabled = bool(public_export_cfg.get("enabled", False))
     official_base_model_id = str(
         exact_cfg.get("official_base_model_id") or model_id
@@ -204,9 +238,9 @@ def build_pipeline_plan(
         "--official-artifact-sha256",
         official_artifact_sha256 or "<official-artifact-sha256-required>",
         "--output-dir",
-        str(exact_output_dir),
+        str(target_exact_output_dir),
         "--package-output",
-        str(output_litertlm),
+        str(target_exact_package_output),
         "--calibration-samples",
         str(int(exact_cfg.get("calibration_samples", 2))),
         "--threads",
@@ -224,6 +258,55 @@ def build_pipeline_plan(
         )
         if bool(exact_cfg.get("runtime_without_default_delegates", True)):
             exact_command.append("--runtime-without-default-delegates")
+    drafter_training_script = base / "scripts" / "train_gemma4_mtp_drafter.py"
+    drafter_training_command = [
+        sys.executable,
+        str(drafter_training_script),
+        "--config",
+        str(drafter_training_config_path),
+        "--target-model",
+        str(merged_model_dir),
+        "--execute",
+    ]
+    drafter_export_script = (
+        base / "scripts" / "build_gemma4_mtp_drafter_official_topology.py"
+    )
+    drafter_export_command = [
+        sys.executable,
+        str(drafter_export_script),
+        str(base_litertlm) if base_litertlm else "<official-base-litertlm-required>",
+        "--package-input",
+        str(target_intermediate_litertlm),
+        "--assistant-checkpoint",
+        str(drafter_checkpoint),
+        "--assistant-training-config",
+        str(drafter_training_config_path),
+        "--official-assistant-model-id",
+        str(mtp_cfg.get("assistant_model_id") or "google/gemma-4-E2B-it-assistant"),
+        "--official-artifact-sha256",
+        official_artifact_sha256 or "<official-artifact-sha256-required>",
+        "--output-dir",
+        str(drafter_exact_output_dir),
+        "--package-output",
+        str(output_litertlm),
+        "--calibration-samples",
+        str(int(exact_cfg.get("calibration_samples", 2))),
+        "--threads",
+        str(int(exact_cfg.get("threads", 1))),
+        "--execute",
+    ]
+    if converter_batch_size not in (None, "", 0):
+        drafter_export_command.extend(
+            ["--converter-batch-size", str(int(converter_batch_size))]
+        )
+    if bool(exact_cfg.get("retain_intermediates", False)):
+        drafter_export_command.append("--retain-intermediates")
+    if bool(exact_cfg.get("runtime_allocate", False)):
+        drafter_export_command.extend(
+            ["--runtime-allocate", "--runtime-threads", str(int(exact_cfg.get("runtime_threads", 2)))]
+        )
+        if bool(exact_cfg.get("runtime_without_default_delegates", True)):
+            drafter_export_command.append("--runtime-without-default-delegates")
     android_cfg = _section(pipeline_cfg, "android")
     android_output_dir = _path_or_empty(android_cfg.get("output_dir"), base)
     if android_output_dir is None:
@@ -269,6 +352,8 @@ def build_pipeline_plan(
                     "--mtp",
                     "--max-mtp-success-rate-drop",
                     str(float(android_cfg.get("max_mtp_success_rate_drop", 0.10))),
+                    "--mtp-max-decode-overshoot",
+                    str(int(android_cfg.get("mtp_max_decode_overshoot", 4))),
                 ]
             )
         if str(android_cfg.get("prompt") or "").strip():
@@ -297,6 +382,55 @@ def build_pipeline_plan(
                 "severity": "error",
                 "code": "mtp_disabled",
                 "message": "mtp.enabled must remain true for the requested Android path.",
+            }
+        )
+    if not bool(mtp_cfg.get("preserve_official_section", True)):
+        validation.append(
+            {
+                "severity": "error",
+                "code": "official_mtp_template_required",
+                "message": (
+                    "The target stage must preserve the released MTP section; "
+                    "trained matrices are injected only in the second gated stage."
+                ),
+            }
+        )
+    if mtp_weight_source not in {"official", "trained"}:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "invalid_mtp_weight_source",
+                "message": "mtp.weight_source must be official or trained.",
+            }
+        )
+    if bool(mtp_cfg.get("train_assistant", False)) and mtp_weight_source != "trained":
+        validation.append(
+            {
+                "severity": "error",
+                "code": "drafter_training_requires_trained_weight_source",
+                "message": "Set mtp.weight_source=trained when train_assistant=true.",
+            }
+        )
+    if mtp_weight_source == "trained" and not exact_enabled:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "trained_mtp_requires_exact_topology",
+                "message": (
+                    "Trained assistant weights can only be injected through the "
+                    "official exact-topology path."
+                ),
+            }
+        )
+    if mtp_weight_source == "trained" and not drafter_training_config_path.is_file():
+        validation.append(
+            {
+                "severity": "error",
+                "code": "missing_drafter_training_config",
+                "message": (
+                    "The trained MTP path requires its QAT training config: "
+                    f"{drafter_training_config_path}"
+                ),
             }
         )
     if base_litertlm is None:
@@ -383,12 +517,41 @@ def build_pipeline_plan(
             "merged_checkpoint": str(merged_model_dir),
             "training_config": str(training_config_path),
             "model_type": target_model_type,
-            "output_dir": str(exact_output_dir),
-            "output_litertlm": str(output_litertlm),
+            "output_dir": str(target_exact_output_dir),
+            "output_litertlm": str(target_exact_package_output),
+            "final_output_litertlm": str(output_litertlm),
             "command": exact_command,
             "training_executed": False,
             "preserves_default_mtp_byte_exact": True,
+            "final_package_preserves_default_mtp_byte_exact": (
+                mtp_weight_source == "official"
+            ),
             "requires_complete_277_weight_mapping": True,
+        },
+        "mtp": {
+            "enabled": bool(mtp_cfg.get("enabled", True)),
+            "weight_source": mtp_weight_source,
+            "official_weights_preserved": mtp_weight_source == "official",
+            "assistant_model_id": mtp_cfg.get("assistant_model_id"),
+            "train_assistant": bool(mtp_cfg.get("train_assistant", False)),
+            "training": {
+                "enabled": bool(mtp_cfg.get("train_assistant", False)),
+                "config": str(drafter_training_config_path),
+                "target_model": str(merged_model_dir),
+                "checkpoint": str(drafter_checkpoint),
+                "command": drafter_training_command,
+                "executed": False,
+                "private_google_recipe_recovered": False,
+            },
+            "exact_topology": {
+                "enabled": mtp_weight_source == "trained",
+                "package_input": str(target_intermediate_litertlm),
+                "output_dir": str(drafter_exact_output_dir),
+                "output_litertlm": str(output_litertlm),
+                "command": drafter_export_command,
+                "requires_complete_23_weight_mapping": True,
+                "preserves_target_section_byte_exact": True,
+            },
         },
         "package": {
             "base_litertlm": str(base_litertlm) if base_litertlm else None,
@@ -399,6 +562,8 @@ def build_pipeline_plan(
             "mtp_model_type": mtp_model_type,
             "mtp_enabled": bool(mtp_cfg.get("enabled", True)),
             "mtp_assistant_model_id": mtp_cfg.get("assistant_model_id"),
+            "mtp_assistant_weight_source": mtp_weight_source,
+            "official_mtp_bytes_preserved": mtp_weight_source == "official",
             "target_export_authority": (
                 "official_graph_template_plus_public_quantized_checkpoint_constants"
                 if exact_enabled
@@ -429,7 +594,11 @@ def build_pipeline_plan(
             "issues": validation,
         },
         "limitations": [
-            "The released MTP drafter is preserved, not trained or adapted.",
+            (
+                "The released MTP drafter is preserved byte-for-byte."
+                if mtp_weight_source == "official"
+                else "The trained drafter path is a public reconstruction; Google's private data mixture, loss weighting, optimizer, and observer schedule are not recovered."
+            ),
             "Fine-tuning the target can lower MTP acceptance; measure it on device.",
             "A real Android LiteRT-LM GPU run is required for a runtime claim.",
         ],
@@ -481,6 +650,7 @@ def run_pipeline(
     config_path: str | Path | None = None,
     execute_training: bool = False,
     execute_merge: bool = False,
+    execute_drafter_training: bool = False,
     execute_public_export: bool = False,
     execute_exact_topology_export: bool = False,
     compose_package: bool = False,
@@ -513,6 +683,7 @@ def run_pipeline(
     if stage_errors and (
         execute_training
         or execute_merge
+        or execute_drafter_training
         or execute_public_export
         or execute_exact_topology_export
         or compose_package
@@ -564,6 +735,33 @@ def run_pipeline(
         )
         plan["merge"]["merged_model_dir"] = str(merged)
         plan["merge"]["executed"] = True
+
+    if execute_drafter_training:
+        if plan["mtp"]["weight_source"] != "trained":
+            raise Gemma4MobileMTPPipelineError(
+                "Drafter training requires pipeline.mtp.weight_source=trained."
+            )
+        if not plan["mtp"]["training"]["enabled"]:
+            raise Gemma4MobileMTPPipelineError(
+                "Drafter training is disabled. Set pipeline.mtp.train_assistant=true "
+                "or provide an existing trained checkpoint."
+            )
+        merged_dir = Path(plan["merge"]["merged_model_dir"])
+        if not merged_dir.is_dir():
+            raise Gemma4MobileMTPPipelineError(
+                f"Merged target model is missing: {merged_dir}. Run --execute-merge first."
+            )
+        _run_command(
+            list(plan["mtp"]["training"]["command"]),
+            logs_dir / "train_mtp_drafter.log",
+            cwd=base.parent,
+        )
+        checkpoint = Path(plan["mtp"]["training"]["checkpoint"])
+        if not _checkpoint_ready(checkpoint):
+            raise Gemma4MobileMTPPipelineError(
+                f"Drafter training did not produce the configured checkpoint: {checkpoint}"
+            )
+        plan["mtp"]["training"]["executed"] = True
 
     if execute_public_export:
         if not plan["public_export"]["enabled"]:
@@ -634,12 +832,60 @@ def run_pipeline(
             raise Gemma4MobileMTPPipelineError(
                 "Exact-topology exporter did not prove byte-exact MTP preservation."
             )
+        final_manifest: dict[str, Any] | None = None
+        if plan["mtp"]["weight_source"] == "trained":
+            checkpoint = Path(plan["mtp"]["training"]["checkpoint"])
+            if not _checkpoint_ready(checkpoint):
+                raise Gemma4MobileMTPPipelineError(
+                    f"Trained MTP checkpoint is missing: {checkpoint}. Run "
+                    "--execute-drafter-training or provide mtp.trained_checkpoint."
+                )
+            _run_command(
+                list(plan["mtp"]["exact_topology"]["command"]),
+                logs_dir / "exact_topology_mtp_drafter.log",
+                cwd=base.parent,
+            )
+            drafter_report_path = (
+                Path(plan["mtp"]["exact_topology"]["output_dir"])
+                / "mtp_checkpoint_official_topology_report.json"
+            )
+            if not drafter_report_path.is_file():
+                raise Gemma4MobileMTPPipelineError(
+                    "Trained MTP exporter did not write its report: "
+                    f"{drafter_report_path}"
+                )
+            drafter_report = json.loads(
+                drafter_report_path.read_text(encoding="utf-8")
+            )
+            if not bool(drafter_report.get("final_artifact_gate_pass")):
+                raise Gemma4MobileMTPPipelineError(
+                    "Trained MTP exporter did not pass all graph/layout/package gates."
+                )
+            drafter_gates = drafter_report.get("gates") or {}
+            if not bool(
+                drafter_gates.get("fine_tuned_target_section_byte_exact")
+                and drafter_gates.get("package_outside_mtp_byte_exact")
+                and drafter_gates.get("official_graph_structure")
+                and drafter_gates.get("official_quantization_layout")
+            ):
+                raise Gemma4MobileMTPPipelineError(
+                    "Trained MTP export did not prove target preservation and "
+                    "official MTP graph/layout parity."
+                )
+            plan["mtp"]["exact_topology"]["executed"] = True
+            plan["mtp"]["exact_topology"]["report"] = drafter_report
+            final_manifest = {"target": report, "mtp_drafter": drafter_report}
         plan["exact_topology"]["executed"] = True
         plan["exact_topology"]["report"] = report
         plan["package"]["executed"] = True
-        plan["package"]["manifest"] = report
+        plan["package"]["manifest"] = final_manifest or report
 
     if compose_package:
+        if plan["mtp"]["weight_source"] != "official":
+            raise Gemma4MobileMTPPipelineError(
+                "Legacy composition only preserves official MTP weights; use the "
+                "exact-topology export for mtp.weight_source=trained."
+            )
         base_package = plan["package"].get("base_litertlm")
         target_package = plan["package"].get("target_litertlm")
         target_section = plan["package"].get("target_section")

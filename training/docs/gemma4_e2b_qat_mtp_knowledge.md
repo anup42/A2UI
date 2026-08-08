@@ -3,7 +3,7 @@
 This handoff also includes a static parity harness for the complete 0-34
 language MLP range.
 
-Last official-source verification: **2026-08-07**
+Last official-source verification: **2026-08-08**
 
 This is the durable handoff for agents maintaining the A2UI response-to-flat-spec
 training and inference scripts. It records what is officially supported, what
@@ -19,11 +19,11 @@ For custom A2UI accuracy and faster low-bit inference, use this sequence:
 > the tuned target keeps task accuracy and the final runtime/device shows a real
 > end-to-end speedup. If assistant acceptance or throughput degrades, reduce
 > target drift or ship target-only INT4. Treat custom assistant training as a
-> separate unsupported research project.
+> separate experimental public reconstruction, never as Google's recipe.
 
 Keep Google's untouched QAT target plus matching assistant as the speed and
-quality control. Do not jointly train the target and assistant with the current
-repository.
+quality control. Do not jointly update target and assistant weights: the
+repository's optional assistant stage freezes the selected target.
 
 ## Short support determination
 
@@ -51,7 +51,8 @@ tuning**, not continued QAT or joint QAT+MTP training. The new opt-in `qat`
 profiles implement repository-owned STE fake quantization during LoRA SFT for
 Gemma 4 E2B and Gemma 3/FunctionGemma 270M. They are useful accuracy-adaptation
 experiments, but they do **not** recreate Google's private mobile wNa8o8
-training/export recipe and they do not train an MTP assistant.
+training/export recipe. Those target profiles do not train an MTP assistant;
+the separate opt-in drafter workflow documented below is experimental.
 
 ## Exact checkpoints for the Q4_0 reference path
 
@@ -1366,7 +1367,7 @@ Use the exact artifact variant as the comparison target. Google publishes
 separate web, Tensor G5, Qualcomm, and Intel `.litertlm` variants; their graph
 and backend metadata are not interchangeable.
 
-## End-to-end mobile pipeline and default MTP composition
+## End-to-end mobile pipeline with official or trained MTP weights
 
 The checked-in pipeline for the requested workflow is:
 
@@ -1374,8 +1375,10 @@ The checked-in pipeline for the requested workflow is:
 QAT LoRA SFT
   -> golden-set best adapter
   -> BF16 merged best checkpoint
-  -> compatible mobile target TFLite section
-  -> official .litertlm package with default MTP section preserved
+  -> public AI Edge quantization of all 277 target matrices
+  -> released target graph with trained constants
+  -> either (A) byte-exact official MTP section
+             or (B) 23 trained drafter matrices in the released MTP graph
   -> desktop package gate
   -> Android LiteRT-LM GPU + mtp=true gate
 ```
@@ -1392,6 +1395,26 @@ The merge stage is still floating-point and records
 standalone candidate. It cannot be called Google's mobile W2/W4/W8-A8 output
 without proving the private schema, observers, calibration, and exporter.
 
+`pipeline.mtp.weight_source` selects the assistant branch. `official` is the
+recommended first candidate and retains `tf_lite_mtp_drafter` byte-for-byte.
+`trained` uses `training/scripts/train_gemma4_mtp_drafter.py` and
+`training/configs/models/gemma4_e2b_mtp_drafter_qat.yaml`, then
+`training/scripts/build_gemma4_mtp_drafter_official_topology.py`. The trainer
+freezes the target and every assistant parameter except the exact 23 matrices
+mapped to the mobile graph. It reconstructs the public target-conditioned
+four-token rollout: target last hidden state, target token embedding, shared
+target KV, constant position ID, autoregressive assistant state, and teacher
+forced completion cross-entropy; this is not Google's unknown distillation
+loss. Its QAT assignment is 13 W4 plus 10 W8 matrices with A8 fake
+quantization. This is a public reconstruction; Google's data mixture, loss
+weights, optimizer, and observer schedule remain unknown.
+
+The trained-drafter exporter accepts only a provenance-hashed checkpoint from
+that narrow workflow. It quantizes the 23 float matrices through the public AI
+Edge quantizer, patches their packed bytes and per-row scales into the released
+MTP section, proves graph and quantization-layout hashes unchanged, and proves
+the fine-tuned target plus all bytes outside the MTP section remain exact.
+
 `training/scripts/compose_litertlm_with_mtp.py` performs the safe packaging
 operation once a compatible exporter has produced either a candidate package
 or a raw `TFL3` target section. It requires:
@@ -1403,13 +1426,10 @@ or a raw `TFL3` target section. It requires:
 4. a successful post-write inspection proving that the MTP section hash and
    every non-target section hash are unchanged.
 
-The composer does not train, convert, or replace the assistant. The assistant
-is the default compiled section from the selected official package. This is
-the only safe way currently available in this repository to combine a tuned
-target with that released assistant without inventing a LiteRT-LM header
-serializer or claiming private exporter parity. If section sizes differ, the
-tool fails and asks for a header-aware composer/exporter rather than shifting
-absolute section offsets heuristically.
+The legacy composer does not train, convert, or replace the assistant. It is
+valid only for the default compiled section from the selected official package.
+If section sizes differ, the tool fails and asks for a header-aware
+composer/exporter rather than shifting absolute section offsets heuristically.
 
 Run the structural gate with:
 
@@ -1432,7 +1452,7 @@ Gemma 3 270M uses the parallel
 stages are:
 
 ```text
-W8A8 QAT SFT
+W8 / activation-FP32 QAT SFT
   -> golden-set best adapter
   -> BF16 merged checkpoint
   -> public dynamic_wi8_afp32 LiteRT-LM export
@@ -1442,8 +1462,9 @@ W8A8 QAT SFT
 
 The Gemma 3 270M training config now includes an explicit golden evaluation
 block and writes `runs/gemma3_270m_ir_qat_sft/best_golden_checkpoint`. The
-pipeline refuses a model family other than `google/gemma-3-270m`, requires
-W8A8 QAT, and records `packed_int8_output=false` until the converter runs.
+pipeline requires the package-matched `google/gemma-3-270m-it` base, requires
+W8 weight QAT with activation fake quantization disabled, and records
+`packed_int8_output=false` until the converter runs.
 The public export config is `training/configs/export/litertlm_gemma270m_int8.yaml`
 with `dynamic_wi8_afp32`; this is an INT8 LiteRT-LM artifact, not INT4/Q4_0.
 
@@ -1470,9 +1491,13 @@ parses the runtime's signature, `LITERT_CL` delegation, and MTP-success logs,
 and removes only its own temporary device models, reports, and cache labels.
 It deliberately treats structural GPU parity, decode throughput, and MTP
 acceptance as three separate gates. Throughput is fail-closed: both selected
-runs must report exactly the requested decode count before their tokens/second
-values are compared. Equal package size or equal delegation cannot turn a
-short or unequal decode into a valid speed result.
+runs must report the requested decode count before their tokens/second values
+are compared. Target-only requires an exact count. With MTP, LiteRT-LM checks
+the cap after `Decode()` and one verifier call can accept several draft tokens,
+so the default gate permits only the released four-position bound of
+`requested <= decoded <= requested + 4`. A short decode or larger overshoot is
+not a valid speed result. Equal package size or delegation cannot override this
+gate.
 
 Build and install the probe test APK once:
 
@@ -1523,25 +1548,26 @@ training ran.
 |---|---|---|
 | Gemma 3 270M official Q8 vs random Q8 | Both packages are 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill subgraphs was 1,667/1,667. | Both decoded 64/64 tokens. Official was 55.58 tok/s; random was 51.22 tok/s, a 7.84 percent regression inside the 10 percent gate. |
 | Gemma 4 E2B official vs random mixed W2/W4/W8 target, MTP off | Both packages are 2,588,147,712 bytes. Target subgraphs matched at 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`). | With identical top-k 40, top-p 1.0, temperature 1.0, seed 42 sampling, both decoded 32/32 tokens. Official was 30.11 tok/s; random was 28.55 tok/s, a 5.19 percent regression inside the 10 percent gate. |
-| Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | Initialization/delegation-only (`outputTokens=0`) passed. No throughput or acceptance claim is made from this run. |
+| Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | In the bounded run requesting 32 tokens, official decoded 35 at 41.05 tok/s with MTP success 0.375 (valid four-token overshoot); the random target stopped at 12, 16.25 tok/s, and MTP success 0.0. Structural GPU parity passed, but acceptance and comparable-throughput gates correctly failed. |
 
 The 270M and target-only E2B results are direct evidence that unchanged
 graph/layout gives comparable GPU execution speed even when weights differ.
-The E2B MTP initialization result proves that the byte-preserved assistant is
-runnable with the exact-topology target. It does not prove speculative speed:
-draft-token acceptance is numerical and therefore weight-dependent. An earlier
-short diagnostic run observed official acceptance 1 and random-target
-acceptance 0, but its unequal token counts are intentionally rejected as a
-throughput comparison by the current runner.
+The E2B MTP result proves that the byte-preserved assistant is runnable and
+fully delegated with the exact-topology target. It also demonstrates why graph
+parity is insufficient for speculative speed: draft-token acceptance is
+numerical and therefore weight-dependent. The random target's early stop and
+zero acceptance are intentionally rejected as a throughput comparison.
 
 For a real QAT fine-tune, preserve the default MTP section only as the first
 candidate. Benchmark the selected best target checkpoint with MTP off and on
 against the untouched official pair. Ship `mtp=true` only if quality passes and
 the on-device acceptance/throughput gate passes on the intended prompt set. If
-acceptance falls, reduce target drift or ship target-only inference. Do not
-claim that packaging the official assistant guarantees official throughput,
-and do not invent an assistant-training/export path: Google's released
-LiteRT-LM drafter training and lowering recipe is still not public.
+acceptance falls, reduce target drift, use the specialized trained-drafter
+experiment, or ship target-only inference. Do not claim that packaging the
+official assistant guarantees official throughput. The checked-in trained
+assistant path is explicitly a public reconstruction and must pass the same
+device gates; Google's exact private drafter training/lowering recipe is still
+not public.
 
 ## Preferred trained-checkpoint deployment path
 
@@ -1595,11 +1621,14 @@ numerical graph. Keep the training model ID and package/hash paired. A Gemma 3
 base, Gemma 3 IT, and FunctionGemma package may share architecture while still
 having different embeddings, norms, tokenizer, or chat behavior.
 
-For E2B, the final package is a streamed copy of the official package with only
-the target section constants changed. The MTP section is separately hashed and
-must be byte-identical before the `.partial` candidate is promoted. This gives
-the same GPU graph/ops/layout, not automatically the same MTP speed: target
-fine-tuning can reduce draft acceptance even when delegation is identical.
+For E2B, target compilation always produces a streamed copy of the official
+package with only target-section constants changed and first proves the MTP
+section byte-identical. In `official` mode that package is final. In `trained`
+mode a second fail-closed stage replaces only the 23 provenance-bound drafter
+matrices while retaining the released MTP graph/operators/layout and every
+other constant. Either mode gives the same GPU topology, not automatically the
+same MTP speed: target and drafter weights determine draft acceptance even when
+delegation is identical.
 
 Overall recommendation: select the best golden QAT+LoRA checkpoint by strict IR
 quality, merge it with provenance, compile it into the official topology, then
@@ -1617,8 +1646,8 @@ is not applicable.
    4 tooling is changing quickly.
 2. Read generated merge/conversion manifests before debugging downstream output.
 3. Do not weaken explicit `--execute` guards.
-4. Do not add a `train_assistant` implementation by copying a generic MTP loss;
-   Gemma 4's released assistant is specialized and target-conditioned.
+4. Do not replace the specialized `train_assistant` implementation with a generic MTP loss;
+   Keep its target-conditioned four-step shared-KV contract and 23-matrix scope.
 5. Preserve the standard Gemma 4 config as a baseline.
 6. Preserve dataset and golden artifacts; do not regenerate or delete them while
    repairing scripts unless explicitly authorized.

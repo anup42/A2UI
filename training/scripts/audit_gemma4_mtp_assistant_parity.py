@@ -13,8 +13,9 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 
@@ -22,37 +23,27 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from audit_gemma4_mobile_checkpoint_parity import (  # noqa: E402
+from audit_gemma4_mobile_checkpoint_parity import (
     _records,
     _section_by_model_type,
 )
-from build_converter_topology_parity import _read_section, _unpack_model  # noqa: E402
-from build_random_official_topology_parity import _pack_low_bit  # noqa: E402
-from ir_training.export.litertlm_inspector import (  # noqa: E402
+from build_converter_topology_parity import _read_section, _unpack_model
+from build_random_official_topology_parity import _pack_low_bit
+from ir_training.export.litertlm_inspector import (
     LiteRTLMInspectionError,
     inspect_litertlm,
 )
+from ir_training.mtp.drafter_contract import source_keys
 
 
 class MTPAssistantParityError(RuntimeError):
     """Raised when the assistant source cannot be audited."""
 
 
-_LAYER_KEYS = (
-    "self_attn.q_proj.weight",
-    "self_attn.o_proj.weight",
-    "mlp.gate_proj.weight",
-    "mlp.up_proj.weight",
-    "mlp.down_proj.weight",
-)
-
-
 def _source_keys() -> list[str]:
-    keys = ["pre_projection.weight"]
-    for layer in range(4):
-        keys.extend(f"model.layers.{layer}.{suffix}" for suffix in _LAYER_KEYS)
-    keys.extend(["model.embed_tokens.weight", "post_projection.weight"])
-    return keys
+    """Compatibility wrapper around the shared deployment contract."""
+
+    return source_keys()
 
 
 def _pack_source(values: np.ndarray, bits: int) -> tuple[bytes, np.ndarray]:
@@ -71,8 +62,8 @@ def _pack_source(values: np.ndarray, bits: int) -> tuple[bytes, np.ndarray]:
 
 def _load_source(source: Path) -> tuple[Any, set[str]]:
     try:
-        from safetensors import safe_open
         import torch
+        from safetensors import safe_open
     except ImportError as exc:  # pragma: no cover - optional audit dependency
         raise MTPAssistantParityError(
             "The assistant audit requires safetensors and torch."
@@ -131,7 +122,7 @@ def run(
         error = None
         try:
             source = source_get(source_key)
-        except Exception as exc:  # pragma: no cover - malformed source dependent
+        except (KeyError, OSError, RuntimeError, ValueError) as exc:  # pragma: no cover
             error = f"source_read:{exc}"
         candidate_raw = None
         candidate_scales = None

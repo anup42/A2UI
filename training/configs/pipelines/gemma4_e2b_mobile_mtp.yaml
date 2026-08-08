@@ -21,11 +21,16 @@ pipeline:
     enabled: true
     model_type: tf_lite_mtp_drafter
     target_model_type: tf_lite_prefill_decode
-    # Informational only: the composer preserves the assistant section from
-    # base_litertlm instead of converting this public checkpoint.
-    assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
+    # official preserves the released section byte-for-byte (recommended first).
+    # trained injects only 23 trained matrices into the official MTP graph.
+    weight_source: official
+    assistant_model_id: google/gemma-4-E2B-it-assistant
     train_assistant: false
     preserve_official_section: true
+    training_config: configs/models/gemma4_e2b_mtp_drafter_qat.yaml
+    trained_checkpoint: runs/gemma4_e2b_mtp_drafter_qat/best_checkpoint
+    target_intermediate_litertlm: outputs/pipelines/gemma4_e2b_mobile_mtp/gemma4_e2b_target_with_official_mtp.litertlm
+    exact_topology_output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/exact_topology_export/drafter
 
   public_export:
     # Keep false by default. Setting true enables a standalone public
@@ -38,8 +43,9 @@ pipeline:
   exact_topology:
     # Preferred deployment path. The released package is the graph/template
     # authority; only checkpoint-derived FC weights and their per-axis scales
-    # are replaced. All other sections, including the default MTP drafter,
-    # remain byte-for-byte official.
+    # are replaced. This target stage always retains the default MTP drafter
+    # byte-for-byte. With weight_source=trained, the separately gated second
+    # stage then replaces only the 23 mapped drafter matrices.
     enabled: true
     official_base_model_id: google/gemma-4-E2B-it
     official_artifact_sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
@@ -69,3 +75,7 @@ pipeline:
     seed: 42
     max_throughput_regression_percent: 10.0
     max_mtp_success_rate_drop: 0.10
+    # The official verifier consumes four draft positions. LiteRT-LM checks
+    # the output cap after a speculative batch, so its benchmark count can be
+    # up to four tokens above output_tokens without being an early-stop sample.
+    mtp_max_decode_overshoot: 4

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import sys
 from pathlib import Path
@@ -37,6 +38,7 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     assert plan["android_gpu"]["mtp_on"]["mtp_flag"] is True
     assert "--mtp" not in plan["android_gpu"]["target_only"]["command"]
     assert "--mtp" in plan["android_gpu"]["mtp_on"]["command"]
+    assert "--mtp-max-decode-overshoot" in plan["android_gpu"]["mtp_on"]["command"]
     assert (
         plan["android_gpu"]["target_only"]["output_dir"]
         != plan["android_gpu"]["mtp_on"]["output_dir"]
@@ -46,6 +48,39 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
     assert "--execute" in plan["exact_topology"]["command"]
     assert any(item["code"] == "missing_base_package" for item in plan["validation"]["issues"])
+
+
+def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = copy.deepcopy(load_yaml(config_path))
+    config["pipeline"]["mtp"]["weight_source"] = "trained"
+    config["pipeline"]["mtp"]["train_assistant"] = True
+
+    plan = build_pipeline_plan(config, config_path=config_path)
+
+    assert plan["validation"]["ok"] is True
+    assert plan["mtp"]["weight_source"] == "trained"
+    assert plan["mtp"]["official_weights_preserved"] is False
+    assert plan["mtp"]["training"]["enabled"] is True
+    assert plan["mtp"]["training"]["private_google_recipe_recovered"] is False
+    assert "--execute" in plan["mtp"]["training"]["command"]
+    assert plan["mtp"]["exact_topology"]["enabled"] is True
+    assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
+    assert (
+        plan["exact_topology"]["final_package_preserves_default_mtp_byte_exact"]
+        is False
+    )
+    assert "build_gemma4_mtp_drafter_official_topology.py" in " ".join(
+        plan["mtp"]["exact_topology"]["command"]
+    )
+    assert (
+        plan["exact_topology"]["output_litertlm"]
+        == plan["mtp"]["exact_topology"]["package_input"]
+    )
+    assert plan["package"]["output_litertlm"] == plan["exact_topology"][
+        "final_output_litertlm"
+    ]
+    assert "private" in plan["limitations"][0].lower()
 
 
 def _write_device_report(path: Path, *, mtp: bool, mtp_acceptance: bool | None) -> None:

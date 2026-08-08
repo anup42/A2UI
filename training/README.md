@@ -159,31 +159,55 @@ audits. Training points to the separate
 
 The end-to-end mobile hand-off is defined in
 `training/configs/pipelines/gemma4_e2b_mobile_mtp.yaml`. It selects the
-golden-set best adapter, merges it into the BF16 base, and keeps the official
-MTP drafter separate from target training. The default is plan-only:
+golden-set best adapter and merges it into the BF16 base. Its MTP stage has two
+explicit weight sources:
+
+- `mtp.weight_source: official` (default) preserves the released drafter
+  section byte-for-byte;
+- `mtp.weight_source: trained` optionally trains the public four-layer
+  target-conditioned assistant, then replaces only its 23 mapped W4/W8
+  matrices inside the released drafter graph.
+
+The default is plan-only:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py
 ```
 
-Set `pipeline.source.base_litertlm` to the exact official package variant and
-provide either `pipeline.source.target_litertlm` or a raw
-`pipeline.source.target_section` produced by a compatible Gemma mobile
-exporter. Then compose the package:
+Set `pipeline.source.base_litertlm` to the exact official package variant. The
+preferred deployment stage quantizes the merged target checkpoint with the
+public AI Edge quantizer, injects those constants into the released target
+graph, and writes the final package:
 
 ```powershell
-python training/scripts/run_gemma4_e2b_mobile_mtp.py --compose
+python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
 python training/scripts/validate_litertlm_mtp_gpu.py `
   training/outputs/pipelines/gemma4_e2b_mobile_mtp/gemma4_e2b_mobile_mtp.litertlm
 ```
 
-The composer replaces only `tf_lite_prefill_decode`, requires equal section
-size plus matching TFLite topology/quantization/buffer-storage layout, and preserves
-`tf_lite_mtp_drafter` byte-for-byte. It does **not** train or convert the
-assistant. A package passing this desktop gate is structurally ready for an
-`mtp=true` request, not proof of Android GPU execution. Supply a device JSON
-report from a real LiteRT-LM GPU harness to the validator for the final runtime
-gate.
+In official mode, `tf_lite_mtp_drafter` remains byte-for-byte official. In
+trained mode, first set `weight_source: trained` and `train_assistant: true`,
+then run the explicitly guarded stages:
+
+```powershell
+python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-drafter-training
+python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
+```
+
+The drafter trainer is a public reconstruction, not Google's private recipe.
+It freezes the fine-tuned target and every assistant parameter outside the 23
+deployable matrices, uses target final hidden state + target token embedding +
+shared target KV with a constant position ID, predicts four draft tokens with
+teacher-forced completion cross-entropy, and applies W4/W8-A8 STE fake
+quantization matching the released inventory. The exporter requires hashed
+training provenance and then
+preserves the target and every byte outside `tf_lite_mtp_drafter` while
+injecting the newly quantized matrices into the official graph/layout.
+
+The legacy `--compose` path remains available only for a compatible prebuilt
+target section/package and official drafter weights. A package passing desktop
+gates is structurally ready for `mtp=true`; it is not proof of Android GPU
+execution or useful draft acceptance.
 
 After installing the `androidTest` APK, compare the untouched official package
 and the composed candidate without replacing any catalog model:
@@ -198,16 +222,20 @@ python training/scripts/benchmark_android_litertlm_gpu_parity.py `
 ```
 
 The runner checks complete GPU delegation, signature parity, bounded decode
-throughput, and MTP acceptance separately. A throughput sample passes only when
-both packages decode exactly `--output-tokens`; early stop is a fail-closed,
-non-comparable speed sample. For random-weight graph fixtures, deterministic
+throughput, and MTP acceptance separately. Target-only runs must decode exactly
+`--output-tokens`. MTP runs may finish up to
+`--mtp-max-decode-overshoot` tokens above that request because LiteRT-LM checks
+the cap after one four-position verifier batch; decoding fewer than requested
+or exceeding that bound remains a fail-closed, non-comparable speed sample. For
+random-weight graph fixtures, deterministic
 `--top-k`, `--top-p`, `--temperature`, and `--seed` controls can be used to find
 an identical full-length sampling run. See
 `training/docs/gemma4_e2b_qat_mtp_knowledge.md` for the verified SM-F966B
 results and why a preserved official drafter does not guarantee unchanged MTP
 speed after target fine-tuning.
 
-Training, merge, and the optional public standalone exporter are explicit:
+Target training, merge, and the optional public standalone exporter are
+explicit:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-training
@@ -223,7 +251,8 @@ layout, or section size.
 ### Gemma 3 270M QAT -> LiteRT-LM INT8
 
 The equivalent 270M pipeline is separate because Gemma 3 270M has no Gemma 4
-MTP drafter. It trains the checked-in W8A8 QAT profile, selects the golden-set
+MTP drafter. It trains the checked-in W8/activation-FP32 QAT profile (including
+the embedding table), selects the golden-set
 best adapter, merges it, and invokes the public `dynamic_wi8_afp32` LiteRT
 exporter:
 

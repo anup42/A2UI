@@ -1,4 +1,4 @@
-"""Plan or run the Gemma 4 E2B mobile QAT + default-MTP pipeline."""
+"""Plan or run Gemma 4 E2B mobile QAT with official or trained MTP weights."""
 
 from __future__ import annotations
 
@@ -21,7 +21,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "QAT train -> select best golden checkpoint -> merge -> optional public "
-            "export -> compose official default MTP into LiteRT-LM."
+            "export -> inject the target and official or trained MTP weights into "
+            "the released LiteRT-LM topology."
         )
     )
     parser.add_argument(
@@ -32,6 +33,14 @@ def main() -> int:
     parser.add_argument("--execute-training", action="store_true", help="Run QAT SFT now.")
     parser.add_argument("--execute-merge", action="store_true", help="Merge the best adapter now.")
     parser.add_argument(
+        "--execute-drafter-training",
+        action="store_true",
+        help=(
+            "Run the opt-in target-conditioned drafter QAT stage. Requires "
+            "pipeline.mtp.weight_source=trained."
+        ),
+    )
+    parser.add_argument(
         "--execute-public-export",
         action="store_true",
         help="Run the explicitly enabled public LiteRT Torch standalone export.",
@@ -41,7 +50,8 @@ def main() -> int:
         action="store_true",
         help=(
             "Quantize the merged checkpoint into the official target graph and "
-            "write the final .litertlm while preserving the default MTP section."
+            "write the final .litertlm, preserving official MTP weights or "
+            "injecting a provenance-verified trained drafter per config."
         ),
     )
     parser.add_argument(
@@ -72,6 +82,7 @@ def main() -> int:
             config_path=config_path,
             execute_training=args.execute_training,
             execute_merge=args.execute_merge,
+            execute_drafter_training=args.execute_drafter_training,
             execute_public_export=args.execute_public_export,
             execute_exact_topology_export=args.execute_exact_topology_export,
             compose_package=args.compose,
@@ -93,6 +104,7 @@ def main() -> int:
         [
             args.execute_training,
             args.execute_merge,
+            args.execute_drafter_training,
             args.execute_public_export,
             args.execute_exact_topology_export,
             args.compose,
