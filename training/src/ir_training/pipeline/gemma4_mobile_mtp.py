@@ -197,11 +197,14 @@ def build_pipeline_plan(
         require_materialized=True,
     )
     mtp_cfg = _section(pipeline_cfg, "mtp")
+    mtp_enabled = bool(mtp_cfg.get("enabled", True))
+    train_assistant = bool(mtp_cfg.get("train_assistant", False))
     target_model_type = str(
         mtp_cfg.get("target_model_type", "tf_lite_prefill_decode")
     )
     mtp_model_type = str(mtp_cfg.get("model_type", "tf_lite_mtp_drafter"))
     mtp_weight_source = str(mtp_cfg.get("weight_source", "official")).strip().lower()
+    trained_mtp_enabled = mtp_enabled and mtp_weight_source == "trained"
     drafter_training_config_path = resolve_path(
         str(
             mtp_cfg.get("training_config")
@@ -226,12 +229,12 @@ def build_pipeline_plan(
     ) or (exact_output_dir / "drafter")
     target_exact_output_dir = (
         exact_output_dir / "target"
-        if mtp_weight_source == "trained"
+        if trained_mtp_enabled
         else exact_output_dir
     )
     target_exact_package_output = (
         target_intermediate_litertlm
-        if mtp_weight_source == "trained"
+        if trained_mtp_enabled
         else output_litertlm
     )
     public_export_enabled = bool(public_export_cfg.get("enabled", False))
@@ -455,10 +458,7 @@ def build_pipeline_plan(
                 ),
             }
         )
-    if (
-        mtp_weight_source == "trained"
-        and assistant_model_id != OFFICIAL_QAT_ASSISTANT
-    ):
+    if trained_mtp_enabled and assistant_model_id != OFFICIAL_QAT_ASSISTANT:
         validation.append(
             {
                 "severity": "error",
@@ -477,12 +477,18 @@ def build_pipeline_plan(
                 "message": "The referenced training config must enable qat.enabled.",
             }
         )
-    if not bool(mtp_cfg.get("enabled", True)):
+    if not mtp_enabled and (
+        mtp_weight_source == "trained" or train_assistant
+    ):
         validation.append(
             {
                 "severity": "error",
-                "code": "mtp_disabled",
-                "message": "mtp.enabled must remain true for the requested Android path.",
+                "code": "mtp_disabled_with_trained_drafter",
+                "message": (
+                    "MTP-disabled mode preserves the official drafter section but "
+                    "does not train or inject drafter weights. Set weight_source=official "
+                    "and train_assistant=false, or enable MTP."
+                ),
             }
         )
     if not bool(mtp_cfg.get("preserve_official_section", True)):
@@ -504,7 +510,7 @@ def build_pipeline_plan(
                 "message": "mtp.weight_source must be official or trained.",
             }
         )
-    if bool(mtp_cfg.get("train_assistant", False)) and mtp_weight_source != "trained":
+    if mtp_enabled and train_assistant and mtp_weight_source != "trained":
         validation.append(
             {
                 "severity": "error",
@@ -512,7 +518,7 @@ def build_pipeline_plan(
                 "message": "Set mtp.weight_source=trained when train_assistant=true.",
             }
         )
-    if mtp_weight_source == "trained" and not exact_enabled:
+    if trained_mtp_enabled and not exact_enabled:
         validation.append(
             {
                 "severity": "error",
@@ -523,7 +529,7 @@ def build_pipeline_plan(
                 ),
             }
         )
-    if mtp_weight_source == "trained" and not drafter_training_config_path.is_file():
+    if trained_mtp_enabled and not drafter_training_config_path.is_file():
         validation.append(
             {
                 "severity": "error",
@@ -639,18 +645,19 @@ def build_pipeline_plan(
             "training_executed": False,
             "preserves_default_mtp_byte_exact": True,
             "final_package_preserves_default_mtp_byte_exact": (
-                mtp_weight_source == "official"
+                not trained_mtp_enabled
             ),
             "requires_complete_277_weight_mapping": True,
         },
         "mtp": {
-            "enabled": bool(mtp_cfg.get("enabled", True)),
+            "enabled": mtp_enabled,
             "weight_source": mtp_weight_source,
-            "official_weights_preserved": mtp_weight_source == "official",
+            "official_weights_preserved": not trained_mtp_enabled,
+            "section_present": True,
             "assistant_model_id": assistant_model_id,
-            "train_assistant": bool(mtp_cfg.get("train_assistant", False)),
+            "train_assistant": train_assistant,
             "training": {
-                "enabled": bool(mtp_cfg.get("train_assistant", False)),
+                "enabled": mtp_enabled and train_assistant,
                 "config": str(drafter_training_config_path),
                 "target_model": str(merged_model_dir),
                 "checkpoint": str(drafter_checkpoint),
@@ -659,7 +666,7 @@ def build_pipeline_plan(
                 "private_google_recipe_recovered": False,
             },
             "exact_topology": {
-                "enabled": mtp_weight_source == "trained",
+                "enabled": trained_mtp_enabled,
                 "package_input": str(target_intermediate_litertlm),
                 "output_dir": str(drafter_exact_output_dir),
                 "output_litertlm": str(output_litertlm),
@@ -675,10 +682,13 @@ def build_pipeline_plan(
             "output_litertlm": str(output_litertlm),
             "target_model_type": target_model_type,
             "mtp_model_type": mtp_model_type,
-            "mtp_enabled": bool(mtp_cfg.get("enabled", True)),
+            "mtp_enabled": mtp_enabled,
+            "mtp_section_present": True,
             "mtp_assistant_model_id": assistant_model_id,
-            "mtp_assistant_weight_source": mtp_weight_source,
-            "official_mtp_bytes_preserved": mtp_weight_source == "official",
+            "mtp_assistant_weight_source": (
+                mtp_weight_source if mtp_enabled else "official_preserved_disabled"
+            ),
+            "official_mtp_bytes_preserved": not trained_mtp_enabled,
             "target_export_authority": (
                 "official_graph_template_plus_public_quantized_checkpoint_constants"
                 if exact_enabled
@@ -687,18 +697,26 @@ def build_pipeline_plan(
         },
         "android_gpu": {
             "delegate": "gpu",
-            "device_validation": "target_only_and_mtp_on_required_after_packaging",
+            "device_validation": (
+                "target_only_and_mtp_on_required_after_packaging"
+                if mtp_enabled
+                else "target_only_required_after_packaging"
+            ),
             "parity_runner": android_runner,
             "output_dir": str(android_output_dir),
-            "required_modes": ["target_only", "mtp_on"],
+            "required_modes": (
+                ["target_only", "mtp_on"] if mtp_enabled else ["target_only"]
+            ),
             "target_only": {
                 "mtp_flag": False,
+                "required": True,
                 "purpose": "isolate target graph GPU throughput from draft acceptance",
                 "output_dir": str(target_only_output_dir),
                 "command": target_only_command,
             },
             "mtp_on": {
                 "mtp_flag": True,
+                "required": mtp_enabled,
                 "purpose": "validate preserved drafter acceptance and speculative throughput",
                 "output_dir": str(mtp_on_output_dir),
                 "command": mtp_on_command,
@@ -710,9 +728,13 @@ def build_pipeline_plan(
         },
         "limitations": [
             (
-                "The released MTP drafter is preserved byte-for-byte."
-                if mtp_weight_source == "official"
-                else "The trained drafter path is a public reconstruction; Google's private data mixture, loss weighting, optimizer, and observer schedule are not recovered."
+                "MTP inference is disabled; the released drafter section remains byte-for-byte in the package so graph topology stays official and MTP can be enabled later."
+                if not mtp_enabled
+                else (
+                    "The released MTP drafter is preserved byte-for-byte."
+                    if mtp_weight_source == "official"
+                    else "The trained drafter path is a public reconstruction; Google's private data mixture, loss weighting, optimizer, and observer schedule are not recovered."
+                )
             ),
             "Fine-tuning the target can lower MTP acceptance; measure it on device.",
             "A real Android LiteRT-LM GPU run is required for a runtime claim.",
@@ -868,6 +890,10 @@ def run_pipeline(
         plan["merge"]["executed"] = True
 
     if execute_drafter_training:
+        if not plan["mtp"]["enabled"]:
+            raise Gemma4MobileMTPPipelineError(
+                "Drafter training cannot run while pipeline.mtp.enabled=false."
+            )
         if plan["mtp"]["weight_source"] != "trained":
             raise Gemma4MobileMTPPipelineError(
                 "Drafter training requires pipeline.mtp.weight_source=trained."
@@ -964,7 +990,7 @@ def run_pipeline(
                 "Exact-topology exporter did not prove byte-exact MTP preservation."
             )
         final_manifest: dict[str, Any] | None = None
-        if plan["mtp"]["weight_source"] == "trained":
+        if plan["mtp"]["exact_topology"]["enabled"]:
             checkpoint = Path(plan["mtp"]["training"]["checkpoint"])
             if not _checkpoint_ready(checkpoint):
                 raise Gemma4MobileMTPPipelineError(

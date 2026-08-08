@@ -29,9 +29,36 @@ from ir_training.qat.retained_constants import verify_retained_constant_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
 
 
-def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
+def _use_unmaterialized_mobile_seed(
+    config: dict, tmp_path: Path
+) -> dict:
+    """Keep plan tests independent of ignored workstation seed artifacts."""
+
+    import yaml
+
+    training_path = (
+        ROOT
+        / "configs"
+        / "models"
+        / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
+    training = copy.deepcopy(load_yaml(training_path))
+    missing_seed = tmp_path / "unmaterialized_mobile_seed"
+    training["model"]["model_source"] = str(missing_seed)
+    training["model"]["mobile_training_seed_manifest"] = str(
+        missing_seed / "mobile_training_seed_manifest.json"
+    )
+    temporary = tmp_path / "unmaterialized_mobile_training.yaml"
+    temporary.write_text(yaml.safe_dump(training), encoding="utf-8")
+    config["pipeline"]["training_config"] = str(temporary)
+    return config
+
+
+def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only(tmp_path):
     config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
-    config = load_yaml(config_path)
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
     plan = build_pipeline_plan(config, config_path=config_path)
 
     assert plan["training"]["qat_profile"] == "gemma4_e2b_mobile_observable_wna8o8_approx"
@@ -98,9 +125,11 @@ def test_mobile_mtp_pipeline_rejects_non_qat_or_mismatched_seeds(tmp_path):
     assert plan["validation"]["ok"] is False
 
 
-def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
+def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph(tmp_path):
     config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
-    config = copy.deepcopy(load_yaml(config_path))
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
     config["pipeline"]["mtp"]["weight_source"] = "trained"
     config["pipeline"]["mtp"]["train_assistant"] = True
 
@@ -135,9 +164,60 @@ def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
     assert "private" in plan["limitations"][0].lower()
 
 
-def test_official_mtp_bytes_do_not_require_transformers_assistant_identity():
+def test_mobile_mtp_pipeline_can_disable_mtp_for_target_only_runtime(tmp_path):
     config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
-    config = copy.deepcopy(load_yaml(config_path))
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
+    config["pipeline"]["mtp"]["enabled"] = False
+
+    plan = build_pipeline_plan(config, config_path=config_path)
+    codes = {item["code"] for item in plan["validation"]["issues"]}
+
+    assert "mtp_disabled" not in codes
+    assert "mtp_disabled_with_trained_drafter" not in codes
+    assert plan["package"]["mtp_enabled"] is False
+    assert plan["package"]["mtp_section_present"] is True
+    assert plan["package"]["official_mtp_bytes_preserved"] is True
+    assert plan["mtp"]["enabled"] is False
+    assert plan["mtp"]["official_weights_preserved"] is True
+    assert plan["mtp"]["training"]["enabled"] is False
+    assert plan["mtp"]["exact_topology"]["enabled"] is False
+    assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
+    assert (
+        plan["exact_topology"]["final_package_preserves_default_mtp_byte_exact"]
+        is True
+    )
+    assert plan["android_gpu"]["required_modes"] == ["target_only"]
+    assert plan["android_gpu"]["target_only"]["required"] is True
+    assert plan["android_gpu"]["mtp_on"]["required"] is False
+    assert plan["android_gpu"]["device_validation"] == (
+        "target_only_required_after_packaging"
+    )
+
+
+def test_mobile_mtp_pipeline_rejects_trained_drafter_when_mtp_disabled(tmp_path):
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
+    config["pipeline"]["mtp"].update(
+        {"enabled": False, "weight_source": "trained", "train_assistant": True}
+    )
+
+    plan = build_pipeline_plan(config, config_path=config_path)
+    codes = {item["code"] for item in plan["validation"]["issues"]}
+
+    assert "mtp_disabled_with_trained_drafter" in codes
+    assert plan["mtp"]["training"]["enabled"] is False
+    assert plan["mtp"]["exact_topology"]["enabled"] is False
+
+
+def test_official_mtp_bytes_do_not_require_transformers_assistant_identity(tmp_path):
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
     config["pipeline"]["mtp"]["assistant_model_id"] = "not-downloaded-in-official-mode"
 
     official = build_pipeline_plan(config, config_path=config_path)
@@ -214,9 +294,11 @@ def test_retained_constant_contract_requires_exact_values_and_compiled_mapping(
     assert rejected["verified"] is False
 
 
-def test_exact_topology_stage_stops_before_conversion_without_mobile_seed():
+def test_exact_topology_stage_stops_before_conversion_without_mobile_seed(tmp_path):
     config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
-    config = load_yaml(config_path)
+    config = _use_unmaterialized_mobile_seed(
+        copy.deepcopy(load_yaml(config_path)), tmp_path
+    )
 
     with pytest.raises(
         Gemma4MobileMTPPipelineError,

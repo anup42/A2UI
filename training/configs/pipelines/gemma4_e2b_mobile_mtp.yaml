@@ -19,6 +19,9 @@ pipeline:
     merged_model_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/merged_best_hf
 
   mtp:
+    # Set false for a target-only deployment/runtime gate. The exact-topology
+    # package still retains the released drafter section byte-for-byte so its
+    # structure stays official and MTP can be enabled later without repacking.
     enabled: true
     model_type: tf_lite_mtp_drafter
     target_model_type: tf_lite_prefill_decode
@@ -68,11 +71,9 @@ pipeline:
     runtime_without_default_delegates: true
 
   android:
-    mtp: true
     delegate: gpu
-    # The pipeline runs two mandatory reports: target-only isolates graph/GPU
-    # throughput; MTP-on separately gates draft acceptance and speculative speed.
-    device_validation_required: target_only_and_mtp_on
+    # Target-only always isolates graph/GPU throughput. When mtp.enabled=true,
+    # the pipeline additionally requires MTP acceptance and speculative speed.
     output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/android_gpu_parity
     max_num_tokens: 2048
     output_tokens: 64

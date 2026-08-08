@@ -342,9 +342,16 @@ def test_model_adapter_keeps_canonical_identity_but_loads_local_source(
     assert calls == [str(tmp_path.resolve())]
 
 
-def test_mobile_training_config_fails_before_model_load_when_seed_is_missing():
+def test_mobile_training_config_fails_before_model_load_when_seed_is_missing(
+    tmp_path,
+):
     config = load_yaml(
         ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
+    missing_seed = tmp_path / "missing_mobile_seed"
+    config["model"]["model_source"] = str(missing_seed)
+    config["model"]["mobile_training_seed_manifest"] = str(
+        missing_seed / "mobile_training_seed_manifest.json"
     )
 
     with pytest.raises(RuntimeError, match="mobile training seed"):

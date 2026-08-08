@@ -944,16 +944,20 @@ def test_checkpoint_topology_indexes_real_safetensors_without_loading(tmp_path):
 def test_checkpoint_topology_training_scope_matches_checked_in_profiles(tmp_path):
     import json
 
-    mobile_config = (
+    checked_in_mobile_config = (
         ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
     )
-    mobile_manifest = (
-        ROOT
-        / "outputs"
-        / "seeds"
-        / "gemma4_e2b_mobile_dequantized_text_hf"
-        / "mobile_training_seed_manifest.json"
+    mobile_payload = build_checkpoint_official_topology.load_yaml(
+        checked_in_mobile_config
     )
+    missing_seed = tmp_path / "unmaterialized_mobile_seed"
+    mobile_manifest = missing_seed / "mobile_training_seed_manifest.json"
+    mobile_payload["model"]["model_source"] = str(missing_seed)
+    mobile_payload["model"]["mobile_training_seed_manifest"] = str(
+        mobile_manifest
+    )
+    mobile_config = tmp_path / "mobile_training_config.json"
+    mobile_config.write_text(json.dumps(mobile_payload), encoding="utf-8")
     gemma4 = build_checkpoint_official_topology._training_scope_report(
         mobile_config,
         family="gemma4_e2b",

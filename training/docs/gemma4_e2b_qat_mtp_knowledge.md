@@ -1389,10 +1389,12 @@ QAT LoRA SFT
   -> BF16 merged best checkpoint
   -> public AI Edge quantization of all 277 target matrices
   -> released target graph with trained constants
-  -> either (A) byte-exact official MTP section
-             or (B) 23 trained drafter matrices in the released MTP graph
+  -> either (A) target-only runtime with the official MTP section retained dormant
+             (B) byte-exact official MTP weights enabled
+             or (C) 23 trained drafter matrices in the released MTP graph
   -> desktop package gate
-  -> Android LiteRT-LM GPU + mtp=true gate
+  -> Android LiteRT-LM GPU target-only gate
+  -> when MTP is enabled, an additional mtp=true acceptance/throughput gate
 ```
 
 Use `training/scripts/run_gemma4_e2b_mobile_mtp.py` with
@@ -1420,6 +1422,15 @@ forced completion cross-entropy; this is not Google's unknown distillation
 loss. Its QAT assignment is 13 W4 plus 10 W8 matrices with A8 fake
 quantization. This is a public reconstruction; Google's data mixture, loss
 weights, optimizer, and observer schedule remain unknown.
+
+`pipeline.mtp.enabled: false` is a supported target-only mode. It requires
+`weight_source: official` and `train_assistant: false`, skips the drafter
+training/transplant stage, and changes the required Android report set to only
+`target_only`. The exact-topology exporter still proves and preserves the
+official drafter section byte-for-byte. This intentionally keeps the package
+graph/layout identical to the released artifact while LiteRT-LM runs it with
+MTP disabled. A contradictory disabled-plus-trained-drafter configuration is a
+hard error.
 
 The released LiteRT-LM runtime source confirms the inference-side rollout used
 by this reconstruction. It sets the drafter `input_pos` to `position - 1` once,
@@ -1718,8 +1729,9 @@ auxiliary hashes; and require the manifest directory to equal
 `training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml`. Its canonical
 model ID stays `google/gemma-4-E2B-it-qat-mobile-transformers`, while its local
 load source is `training/outputs/seeds/gemma4_e2b_mobile_dequantized_text_hf`.
-Until that output is explicitly materialized, the checked-in pipeline correctly
-reports `mobile_training_seed_unverified` and cannot train, merge, or export.
+On a checkout where that ignored output has not been explicitly materialized,
+the checked-in pipeline correctly reports `mobile_training_seed_unverified`
+and cannot train, merge, or export.
 
 Plan first; the output directory is not created:
 
@@ -1739,6 +1751,22 @@ the pipeline's default plan before selecting any explicit stage:
 python training/scripts/run_gemma4_e2b_mobile_mtp.py `
   --config training/configs/pipelines/gemma4_e2b_mobile_mtp.yaml
 ```
+
+The reconstruction was executed and independently re-verified on 2026-08-08.
+It produced 541 tensors in three BF16 Safetensors shards with a total payload
+of 10,062,445,126 bytes. The transformation-plan SHA-256 is
+`03086afb123acf2c6f359d3cec2b1208f89529bca39e2d29f8b501e0918e3d5c`;
+the materialized manifest SHA-256 is
+`67dd1d3c94368bb2c72dbb1e4164b42451fa381e665240790fa0d41b1e4435e1`;
+and the three shard SHA-256 values are
+`965db4380dafa5d3c5f86fdc130c1cafb3ff3f03104cd93cc68fa3e017155773`,
+`39a6a7ac126d7ad73b9a2503f622fb2017b2d3507fdfd10808f3cc76c0b81471`,
+and `63db8fc7c80c5218c5e775c9c82b1105e25a1363842ef093eb02a29f3416607a`.
+Every manifest, source-identity, transformation, inventory, shard, auxiliary,
+and dense-config check passed, and the E2B plan then reported
+`validation.ok=true` with no issues when bound to the official package. The
+10 GB generated seed remains ignored and is not committed; future machines
+must reproduce and verify it from the pinned public inputs.
 
 Training remains opt-in through `--execute-training`; do not combine seed
 reconstruction, training, merge, export, and device promotion into an
@@ -1772,7 +1800,7 @@ Current exact bindings for the supplied reference artifacts are:
 
 | family | public training seed | target section | unique mapped weights | production status | package SHA-256 |
 | --- | --- | --- | ---: | --- | --- |
-| Gemma 4 E2B | BF16 text reconstruction of `google/gemma-4-E2B-it-qat-mobile-transformers` | `tf_lite_prefill_decode` | 277 | script/config ready; blocked only until the local 541-tensor seed is materialized and its manifest verifies; device quality/speed still required | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
+| Gemma 4 E2B | BF16 text reconstruction of `google/gemma-4-E2B-it-qat-mobile-transformers` | `tf_lite_prefill_decode` | 277 | reconstruction path and local 541-tensor seed verified; trained target, quality, target-only speed, and optional MTP acceptance/speed still required | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
 | Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | exact-base path; device quality/speed still required | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
 
 The optional trained E2B drafter is seeded from
@@ -1822,9 +1850,10 @@ MTP drafter as the deployable accuracy baseline. Materialize the checked-in
 mobile reconstruction, train with the mobile-seed QAT config, select the best
 golden checkpoint by strict IR quality, merge it with provenance, compile it
 into the official topology, then run `--validate-android-gpu`. Never promote
-the rejected Q4-seed hybrid merely because its graph runs on GPU. The E2B pipeline executes
-two separate fail-closed
-reports under `android_gpu_parity/target_only` and `android_gpu_parity/mtp_on`.
+the rejected Q4-seed hybrid merely because its graph runs on GPU. The E2B
+pipeline always executes the fail-closed `android_gpu_parity/target_only`
+report. When MTP is enabled, it additionally requires the separate
+`android_gpu_parity/mtp_on` report.
 Promote E2B with `mtp=true` only when full delegation, fixed-length warm
 target-only throughput, MTP acceptance, MTP-on throughput, and output-quality
 gates all pass. Otherwise ship the same exact target graph with MTP disabled.

@@ -200,13 +200,17 @@ after LoRA wrapping instead of silently falling through to the default W4.
 The end-to-end mobile hand-off is defined in
 `training/configs/pipelines/gemma4_e2b_mobile_mtp.yaml`. It selects the
 golden-set best adapter and merges it into the BF16 base. Its MTP stage has two
-explicit weight sources:
+explicit weight sources and a target-only switch:
 
 - `mtp.weight_source: official` (default) preserves the released drafter
   section byte-for-byte;
 - `mtp.weight_source: trained` optionally trains the public four-layer
   target-conditioned assistant, then replaces only its 23 mapped W4/W8
-  matrices inside the released drafter graph.
+  matrices inside the released drafter graph;
+- `mtp.enabled: false` skips drafter training/transplant and makes target-only
+  Android GPU parity the sole runtime gate. The package deliberately keeps the
+  official drafter section byte-for-byte so graph/package identity is retained
+  and the same artifact can later run with MTP enabled.
 
 The default is plan-only:
 
