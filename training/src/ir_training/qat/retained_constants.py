@@ -126,6 +126,7 @@ def verify_retained_constant_contract(
             "compiled_graph_mapping_verified": contract.get(
                 "compiled_graph_mapping_verified", False
             ),
+            "rejected_q4_seed_audit": contract.get("rejected_q4_seed_audit"),
             "verified": all(checks.values()),
             "limitation": (
                 "Graph/operator parity does not make a cross-base checkpoint transplant "

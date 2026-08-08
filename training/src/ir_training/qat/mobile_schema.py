@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from ir_training.common.config import load_yaml, resolve_path, training_root
-
 
 PUBLIC_GEMMA4_E2B_MOBILE_SCHEMA = (
     training_root() / "configs" / "quantization" / "gemma4_e2b_mobile_public_schema.yaml"
@@ -17,6 +17,7 @@ PUBLIC_GEMMA4_E2B_MOBILE_SCHEMA = (
 class MobileQuantRule:
     pattern: str
     num_bits: int
+    group_size: int | None = None
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,12 @@ class MobileQuantSchema:
                 return rule.num_bits
         return self.num_bits
 
+    def group_size_for_module(self, module_name: str) -> int | None:
+        for rule in self.module_quant_configs:
+            if re.search(rule.pattern, module_name):
+                return rule.group_size
+        return None
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "profile": self.profile,
@@ -45,7 +52,14 @@ class MobileQuantSchema:
             "num_bits": self.num_bits,
             "quantize_embeddings": self.quantize_embeddings,
             "module_quant_configs": {
-                rule.pattern: {"num_bits": rule.num_bits}
+                rule.pattern: {
+                    "num_bits": rule.num_bits,
+                    **(
+                        {"group_size": rule.group_size}
+                        if rule.group_size is not None
+                        else {}
+                    ),
+                }
                 for rule in self.module_quant_configs
             },
             "modules_to_not_convert": list(self.modules_to_not_convert),
@@ -75,11 +89,27 @@ def schema_from_config(config: dict[str, Any]) -> MobileQuantSchema:
     if isinstance(module_configs, dict):
         for pattern, rule in module_configs.items():
             bits = rule.get("num_bits") if isinstance(rule, dict) else rule
-            rules.append(MobileQuantRule(str(pattern), int(bits)))
+            group_size = rule.get("group_size") if isinstance(rule, dict) else None
+            rules.append(
+                MobileQuantRule(
+                    str(pattern),
+                    int(bits),
+                    int(group_size) if group_size not in (None, "", 0) else None,
+                )
+            )
     elif isinstance(module_configs, list):
         for item in module_configs:
             if isinstance(item, dict) and "pattern" in item:
-                rules.append(MobileQuantRule(str(item["pattern"]), int(item["num_bits"])))
+                group_size = item.get("group_size")
+                rules.append(
+                    MobileQuantRule(
+                        str(item["pattern"]),
+                        int(item["num_bits"]),
+                        int(group_size)
+                        if group_size not in (None, "", 0)
+                        else None,
+                    )
+                )
     excluded = quantization.get("modules_to_not_convert") or []
     if isinstance(excluded, str):
         excluded = [excluded]
@@ -111,10 +141,21 @@ def compare_to_public_schema(
                 f"Expected quantize_embeddings={expected.quantize_embeddings}, got {observed.quantize_embeddings}.",
             )
         )
-    expected_rules = [(rule.pattern, rule.num_bits) for rule in expected.module_quant_configs]
-    observed_rules = [(rule.pattern, rule.num_bits) for rule in observed.module_quant_configs]
+    expected_rules = [
+        (rule.pattern, rule.num_bits, rule.group_size)
+        for rule in expected.module_quant_configs
+    ]
+    observed_rules = [
+        (rule.pattern, rule.num_bits, rule.group_size)
+        for rule in observed.module_quant_configs
+    ]
     if observed_rules != expected_rules:
-        issues.append(SchemaIssue("module_rules_mismatch", "Module bit rules or their order differ from the public schema."))
+        issues.append(
+            SchemaIssue(
+                "module_rules_mismatch",
+                "Module bit/group rules or their order differ from the public schema.",
+            )
+        )
     if observed.modules_to_not_convert != expected.modules_to_not_convert:
         issues.append(SchemaIssue("excluded_modules_mismatch", "modules_to_not_convert differs from the public schema."))
     return issues

@@ -24,6 +24,7 @@ from ir_training.pipeline.gemma4_mobile_mtp import (
     build_pipeline_plan,
     run_pipeline,
 )
+from ir_training.qat.mobile_training_seed import OFFICIAL_MOBILE_MODEL_ID
 from ir_training.qat.retained_constants import verify_retained_constant_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
 
@@ -34,9 +35,10 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     plan = build_pipeline_plan(config, config_path=config_path)
 
     assert plan["training"]["qat_profile"] == "gemma4_e2b_mobile_observable_wna8o8_approx"
-    assert plan["training"]["model_id"] == OFFICIAL_QAT_TARGET
+    assert plan["training"]["model_id"] == OFFICIAL_MOBILE_MODEL_ID
+    assert plan["training"]["mobile_training_seed"]["verified"] is False
     assert plan["mtp"]["assistant_model_id"] == OFFICIAL_QAT_ASSISTANT
-    assert plan["exact_topology"]["official_base_model_id"] == OFFICIAL_QAT_TARGET
+    assert plan["exact_topology"]["official_base_model_id"] == OFFICIAL_MOBILE_MODEL_ID
     assert plan["training"]["best_checkpoint_required"] is True
     assert plan["package"]["mtp_enabled"] is True
     assert plan["package"]["mtp_model_type"] == "tf_lite_mtp_drafter"
@@ -53,11 +55,12 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     assert plan["exact_topology"]["enabled"] is True
     assert plan["exact_topology"]["family"] == "gemma4_e2b"
     assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
-    assert plan["exact_topology"]["retained_constant_compatibility"]["verified"] is False
+    assert plan["exact_topology"]["retained_constant_compatibility"]["verified"] is True
+    assert "--mobile-training-seed-manifest" in plan["exact_topology"]["command"]
     assert "--execute" in plan["exact_topology"]["command"]
     assert any(item["code"] == "missing_base_package" for item in plan["validation"]["issues"])
     assert any(
-        item["code"] == "retained_constant_compatibility_unverified"
+        item["code"] == "mobile_training_seed_unverified"
         for item in plan["validation"]["issues"]
     )
 
@@ -65,7 +68,12 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
 def test_mobile_mtp_pipeline_rejects_non_qat_or_mismatched_seeds(tmp_path):
     config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
     config = copy.deepcopy(load_yaml(config_path))
-    training_path = ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml"
+    training_path = (
+        ROOT
+        / "configs"
+        / "models"
+        / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
     training = load_yaml(training_path)
     training["model"]["model_id"] = "google/gemma-4-E2B-it"
 
@@ -84,9 +92,9 @@ def test_mobile_mtp_pipeline_rejects_non_qat_or_mismatched_seeds(tmp_path):
         temporary.unlink(missing_ok=True)
 
     codes = {item["code"] for item in plan["validation"]["issues"]}
-    assert "non_qat_e2b_training_seed" in codes
+    assert "non_mobile_e2b_training_seed" in codes
     assert "training_seed_provenance_mismatch" in codes
-    assert "non_matching_qat_assistant_seed" in codes
+    assert "non_matching_qat_assistant_seed" not in codes
     assert plan["validation"]["ok"] is False
 
 
@@ -100,7 +108,7 @@ def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
 
     assert plan["validation"]["ok"] is False
     assert any(
-        item["code"] == "retained_constant_compatibility_unverified"
+        item["code"] == "mobile_training_seed_unverified"
         for item in plan["validation"]["issues"]
     )
     assert plan["mtp"]["weight_source"] == "trained"
@@ -127,7 +135,22 @@ def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
     assert "private" in plan["limitations"][0].lower()
 
 
-def test_retained_constant_contract_rejects_known_cross_checkpoint_mismatch():
+def test_official_mtp_bytes_do_not_require_transformers_assistant_identity():
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = copy.deepcopy(load_yaml(config_path))
+    config["pipeline"]["mtp"]["assistant_model_id"] = "not-downloaded-in-official-mode"
+
+    official = build_pipeline_plan(config, config_path=config_path)
+    official_codes = {item["code"] for item in official["validation"]["issues"]}
+    assert "non_matching_qat_assistant_seed" not in official_codes
+
+    config["pipeline"]["mtp"]["weight_source"] = "trained"
+    trained = build_pipeline_plan(config, config_path=config_path)
+    trained_codes = {item["code"] for item in trained["validation"]["issues"]}
+    assert "non_matching_qat_assistant_seed" in trained_codes
+
+
+def test_retained_constant_contract_rejects_known_q4_cross_checkpoint_seed():
     contract = (
         ROOT
         / "configs"
@@ -142,11 +165,12 @@ def test_retained_constant_contract_rejects_known_cross_checkpoint_mismatch():
     )
 
     assert report["verified"] is False
-    assert report["production_status"] == "incompatible_checkpoint_values"
+    assert report["production_status"] == "compatible_exact"
     assert report["selection"]["selected_tensor_count"] == 262
-    assert report["comparison"]["exact_tensor_count"] == 50
-    assert report["comparison"]["value_mismatch_count"] == 212
-    assert report["checks"]["no_value_mismatches"] is False
+    assert report["comparison"]["exact_tensor_count"] == 262
+    assert report["comparison"]["value_mismatch_count"] == 0
+    assert report["checks"]["training_seed_matches"] is False
+    assert report["rejected_q4_seed_audit"]["value_mismatch_count"] == 212
     assert report["checks"]["compiled_graph_mapping_verified"] is True
 
 
@@ -190,13 +214,13 @@ def test_retained_constant_contract_requires_exact_values_and_compiled_mapping(
     assert rejected["verified"] is False
 
 
-def test_exact_topology_stage_stops_before_conversion_on_incompatible_contract():
+def test_exact_topology_stage_stops_before_conversion_without_mobile_seed():
     config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
     config = load_yaml(config_path)
 
     with pytest.raises(
         Gemma4MobileMTPPipelineError,
-        match="retained_constant_compatibility_unverified",
+        match="mobile_training_seed_unverified",
     ):
         run_pipeline(
             config,

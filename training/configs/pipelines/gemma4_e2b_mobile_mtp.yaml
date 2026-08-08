@@ -1,8 +1,9 @@
 pipeline:
   id: gemma4_e2b_mobile_mtp
-  # Existing true-QAT + LoRA SFT config. Its golden_eval callback writes the
-  # best checkpoint used by this pipeline.
-  training_config: configs/models/gemma4_e2b_ir_qat_sft.yaml
+  # True-QAT + LoRA SFT over the text-only BF16 seed reconstructed from the
+  # exact public packed mobile checkpoint. The config fail-closes until its
+  # materialized seed manifest and every output shard hash verify.
+  training_config: configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml
   output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp
 
   source:
@@ -24,6 +25,8 @@ pipeline:
     # official preserves the released section byte-for-byte (recommended first).
     # trained injects only 23 trained matrices into the official MTP graph.
     weight_source: official
+    # Used only when weight_source=trained. weight_source=official preserves
+    # the released package's drafter bytes and does not download this model.
     assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
     train_assistant: false
     preserve_official_section: true
@@ -47,13 +50,12 @@ pipeline:
     # byte-for-byte. With weight_source=trained, the separately gated second
     # stage then replaces only the 23 mapped drafter matrices.
     enabled: true
-    # This binds merge provenance to the public dense QAT training seed. The
-    # released mobile package remains the graph and packed-constant authority.
-    official_base_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
-    # This contract currently fails closed: 212/262 non-inventory learned
-    # constants differ between the dense Q4-QAT seed and packed mobile model.
-    # Replace it only with evidence that proves both checkpoint equality and
-    # mapping into the compiled target buffers.
+    # Canonical identity remains the hash-bound packed mobile release; the
+    # training config separately names its reconstructed local BF16 load path.
+    official_base_model_id: google/gemma-4-E2B-it-qat-mobile-transformers
+    # This proves 262/262 retained public BF16 constants and their compiled
+    # buffers. The materialized reconstruction manifest is an additional hard
+    # gate and cannot be replaced by this static contract.
     retained_constant_contract: configs/quantization/gemma4_e2b_mobile_observable_contract.yaml
     official_artifact_sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
     output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/exact_topology_export

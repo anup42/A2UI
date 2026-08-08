@@ -944,10 +944,21 @@ def test_checkpoint_topology_indexes_real_safetensors_without_loading(tmp_path):
 def test_checkpoint_topology_training_scope_matches_checked_in_profiles(tmp_path):
     import json
 
+    mobile_config = (
+        ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
+    mobile_manifest = (
+        ROOT
+        / "outputs"
+        / "seeds"
+        / "gemma4_e2b_mobile_dequantized_text_hf"
+        / "mobile_training_seed_manifest.json"
+    )
     gemma4 = build_checkpoint_official_topology._training_scope_report(
-        ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml",
+        mobile_config,
         family="gemma4_e2b",
-        official_base_model_id="google/gemma-4-E2B-it-qat-q4_0-unquantized",
+        official_base_model_id="google/gemma-4-E2B-it-qat-mobile-transformers",
+        mobile_training_seed_manifest=mobile_manifest,
     )
     gemma270 = build_checkpoint_official_topology._training_scope_report(
         ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml",
@@ -955,19 +966,21 @@ def test_checkpoint_topology_training_scope_matches_checked_in_profiles(tmp_path
         official_base_model_id="google/gemma-3-270m-it",
     )
 
-    assert gemma4["supported_projection_only_transplant"] is True
+    assert gemma4["supported_projection_only_transplant"] is False
     assert gemma4["checks"]["family_training_seed_supported"] is True
+    assert gemma4["checks"]["mobile_training_seed_manifest_matches_config"] is True
+    assert gemma4["checks"]["mobile_training_seed_verified"] is False
     assert gemma270["supported_projection_only_transplant"] is True
     assert gemma270["checks"]["precision_matches_official_layout"] is True
 
-    non_qat_e2b = build_checkpoint_official_topology._training_scope_report(
+    q4_e2b = build_checkpoint_official_topology._training_scope_report(
         ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml",
         family="gemma4_e2b",
-        official_base_model_id="google/gemma-4-E2B-it",
+        official_base_model_id="google/gemma-4-E2B-it-qat-q4_0-unquantized",
     )
-    assert non_qat_e2b["supported_projection_only_transplant"] is False
-    assert non_qat_e2b["checks"]["base_model_id_matches_declared_official_base"] is False
-    assert non_qat_e2b["checks"]["family_training_seed_supported"] is True
+    assert q4_e2b["supported_projection_only_transplant"] is False
+    assert q4_e2b["checks"]["base_model_id_matches_declared_official_base"] is True
+    assert q4_e2b["checks"]["family_training_seed_supported"] is False
 
     unsupported_config = build_checkpoint_official_topology.load_yaml(
         ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml"

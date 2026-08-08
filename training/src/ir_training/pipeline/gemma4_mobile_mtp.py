@@ -34,8 +34,12 @@ from ir_training.eval.android_gpu_report import (
 from ir_training.export.edge_gallery import export_edge_gallery_model
 from ir_training.export.litertlm_mtp import compose_with_default_mtp
 from ir_training.export.merge_lora import merge_lora_adapter
+from ir_training.qat.mobile_training_seed import (
+    OFFICIAL_MOBILE_MODEL_ID,
+    verify_configured_mobile_training_seed,
+)
 from ir_training.qat.retained_constants import verify_retained_constant_contract
-from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
+from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT
 
 
 class Gemma4MobileMTPPipelineError(RuntimeError):
@@ -60,7 +64,7 @@ def _best_checkpoint_dir(training_config: dict[str, Any], base: Path) -> Path:
     if configured:
         return resolve_path(str(configured), base)
     return resolve_path(
-        str(run.get("output_dir", "runs/gemma4_e2b_ir_qat_sft"))
+        str(run.get("output_dir", "runs/gemma4_e2b_mobile_seed_ir_qat_sft"))
         + "/best_golden_checkpoint",
         base,
     )
@@ -100,7 +104,8 @@ def build_pipeline_plan(
     base = training_root()
     pipeline_cfg = _section(config, "pipeline")
     training_config_value = pipeline_cfg.get(
-        "training_config", "configs/models/gemma4_e2b_ir_qat_sft.yaml"
+        "training_config",
+        "configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml",
     )
     training_config_path = resolve_path(str(training_config_value), base)
     if not training_config_path.is_file():
@@ -112,7 +117,12 @@ def build_pipeline_plan(
     qat_cfg = _section(training_config, "qat")
     train_run_cfg = _section(training_config, "run")
     training_output = resolve_path(
-        str(train_run_cfg.get("output_dir", "runs/gemma4_e2b_ir_qat_sft")), base
+        str(
+            train_run_cfg.get(
+                "output_dir", "runs/gemma4_e2b_mobile_seed_ir_qat_sft"
+            )
+        ),
+        base,
     )
     best_checkpoint = (
         resolve_path(str(best_checkpoint_override), base)
@@ -177,6 +187,15 @@ def build_pipeline_plan(
     )
     export_config_path = resolve_path(str(export_config_value), base)
     model_id = str(model_cfg.get("model_id") or "")
+    model_source = _path_or_empty(model_cfg.get("model_source"), base)
+    mobile_training_seed_manifest = _path_or_empty(
+        model_cfg.get("mobile_training_seed_manifest"), base
+    )
+    mobile_training_seed = verify_configured_mobile_training_seed(
+        model_cfg,
+        base=base,
+        require_materialized=True,
+    )
     mtp_cfg = _section(pipeline_cfg, "mtp")
     target_model_type = str(
         mtp_cfg.get("target_model_type", "tf_lite_prefill_decode")
@@ -247,6 +266,10 @@ def build_pipeline_plan(
         str(retained_constant_contract)
         if retained_constant_contract
         else "<retained-constant-contract-required>",
+        "--mobile-training-seed-manifest",
+        str(mobile_training_seed_manifest)
+        if mobile_training_seed_manifest
+        else "<mobile-training-seed-manifest-required>",
         "--official-base-model-id",
         official_base_model_id,
         "--official-artifact-sha256",
@@ -385,14 +408,26 @@ def build_pipeline_plan(
     assistant_model_id = str(
         mtp_cfg.get("assistant_model_id") or OFFICIAL_QAT_ASSISTANT
     )
-    if model_id != OFFICIAL_QAT_TARGET:
+    if model_id != OFFICIAL_MOBILE_MODEL_ID:
         validation.append(
             {
                 "severity": "error",
-                "code": "non_qat_e2b_training_seed",
+                "code": "non_mobile_e2b_training_seed",
                 "message": (
-                    "The mobile QAT pipeline must start from Google's public dense "
-                    f"QAT seed {OFFICIAL_QAT_TARGET}; observed {model_id or '<missing>'}."
+                    "The mobile QAT pipeline must retain Google's packed mobile "
+                    f"identity {OFFICIAL_MOBILE_MODEL_ID}; observed "
+                    f"{model_id or '<missing>'}."
+                ),
+            }
+        )
+    if not mobile_training_seed["verified"]:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "mobile_training_seed_unverified",
+                "message": (
+                    "Materialize and verify the hash-bound BF16 text seed before "
+                    "training, merge, or exact-topology export."
                 ),
             }
         )
@@ -420,7 +455,10 @@ def build_pipeline_plan(
                 ),
             }
         )
-    if assistant_model_id != OFFICIAL_QAT_ASSISTANT:
+    if (
+        mtp_weight_source == "trained"
+        and assistant_model_id != OFFICIAL_QAT_ASSISTANT
+    ):
         validation.append(
             {
                 "severity": "error",
@@ -547,6 +585,11 @@ def build_pipeline_plan(
             "config": str(training_config_path),
             "command": train_command,
             "model_id": model_id,
+            "model_source": str(model_source) if model_source else None,
+            "mobile_training_seed_manifest": str(mobile_training_seed_manifest)
+            if mobile_training_seed_manifest
+            else None,
+            "mobile_training_seed": mobile_training_seed,
             "qat_profile": qat_cfg.get("profile"),
             "output_dir": str(training_output),
             "best_checkpoint": str(best_checkpoint),
@@ -555,6 +598,10 @@ def build_pipeline_plan(
         },
         "merge": {
             "base_model_id": model_id,
+            "base_model_source": str(model_source) if model_source else None,
+            "mobile_training_seed_manifest": str(mobile_training_seed_manifest)
+            if mobile_training_seed_manifest
+            else None,
             "adapter_dir": str(best_checkpoint),
             "merged_model_dir": str(merged_model_dir),
             "training_qat_mode": "effective_merged_weight",
@@ -583,6 +630,7 @@ def build_pipeline_plan(
             if retained_constant_contract
             else None,
             "retained_constant_compatibility": retained_constant_compatibility,
+            "mobile_training_seed": mobile_training_seed,
             "model_type": target_model_type,
             "output_dir": str(target_exact_output_dir),
             "output_litertlm": str(target_exact_package_output),
@@ -811,6 +859,10 @@ def run_pipeline(
             trust_remote_code=bool(_section(_section(config, "pipeline"), "source").get("trust_remote_code", False)),
             processor_model_id=str(plan["merge"]["base_model_id"]),
             training_config_path=plan["training"]["config"],
+            base_model_source=plan["merge"]["base_model_source"],
+            mobile_training_seed_manifest=plan["merge"][
+                "mobile_training_seed_manifest"
+            ],
         )
         plan["merge"]["merged_model_dir"] = str(merged)
         plan["merge"]["executed"] = True

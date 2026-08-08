@@ -8,6 +8,7 @@ from typing import Any
 
 from ir_training.common.config import resolve_path, training_root
 from ir_training.models.hf_loading import load_hf_model
+from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
 
 
 def _sha256_file(path: Path) -> str:
@@ -56,6 +57,7 @@ def _verify_qat_training_metadata(
     *,
     training_config_sha256: str,
     training_method: str,
+    mobile_training_seed: dict[str, Any],
 ) -> dict[str, Any]:
     metadata_path = next(
         (
@@ -80,6 +82,9 @@ def _verify_qat_training_metadata(
         "zero_lora_dropout": False,
         "git_commit_recorded": False,
         "adapter_checkpoint_hashes_match": False,
+        "mobile_training_seed_matches": not mobile_training_seed.get(
+            "required", False
+        ),
     }
     report: dict[str, Any] = {
         "required": True,
@@ -141,6 +146,21 @@ def _verify_qat_training_metadata(
             and _normalized_file_records(checkpoint.get("files")) == actual_files
             for checkpoint in checkpoints
         )
+    recorded_seed = (
+        metadata.get("mobile_training_seed")
+        if isinstance(metadata.get("mobile_training_seed"), dict)
+        else {}
+    )
+    if mobile_training_seed.get("required", False):
+        checks["mobile_training_seed_matches"] = bool(
+            recorded_seed.get("verified") is True
+            and str(recorded_seed.get("manifest_sha256") or "").lower()
+            == str(mobile_training_seed.get("manifest_sha256") or "").lower()
+            and str(recorded_seed.get("transformation_plan_sha256") or "").lower()
+            == str(
+                mobile_training_seed.get("transformation_plan_sha256") or ""
+            ).lower()
+        )
     report["training_git_commit"] = git_commit or None
     report["adapter_files"] = actual_files
     report["verified"] = bool(all(checks.values()))
@@ -152,6 +172,8 @@ def _training_provenance(
     training_config_path: str | Path | None,
     *,
     base: Path,
+    base_model_source: str | Path | None = None,
+    mobile_training_seed_manifest: str | Path | None = None,
 ) -> dict[str, Any]:
     result: dict[str, Any] = {
         "training_config": None,
@@ -161,6 +183,10 @@ def _training_provenance(
         "qat_profile": None,
         "qat_effective_merged_weight": None,
         "lora_dropout": None,
+        "mobile_training_seed": {
+            "required": False,
+            "verified": True,
+        },
         "training_run_metadata": {
             "required": False,
             "verified": False,
@@ -178,6 +204,46 @@ def _training_provenance(
     config_bytes = resolved_config.read_bytes()
     config_sha256 = hashlib.sha256(config_bytes).hexdigest()
     config = load_yaml(resolved_config)
+    model = config.get("model") if isinstance(config.get("model"), dict) else {}
+    model = dict(model)
+    configured_source = model.get("model_source")
+    if base_model_source is not None:
+        supplied_source = resolve_path(base_model_source, base)
+        expected_source = (
+            resolve_path(configured_source, base) if configured_source else None
+        )
+        if expected_source is None or supplied_source != expected_source:
+            raise ValueError(
+                "Merge base_model_source does not match model.model_source in the "
+                "training config."
+            )
+        model["model_source"] = str(supplied_source)
+    configured_manifest = model.get("mobile_training_seed_manifest")
+    if mobile_training_seed_manifest is not None:
+        supplied_manifest = resolve_path(mobile_training_seed_manifest, base)
+        expected_manifest = (
+            resolve_path(configured_manifest, base) if configured_manifest else None
+        )
+        if expected_manifest is None or supplied_manifest != expected_manifest:
+            raise ValueError(
+                "Merge mobile_training_seed_manifest does not match the training config."
+            )
+        model["mobile_training_seed_manifest"] = str(supplied_manifest)
+    mobile_training_seed = verify_configured_mobile_training_seed(
+        model,
+        base=base,
+        require_materialized=True,
+    )
+    if not mobile_training_seed["verified"]:
+        failed = [
+            name
+            for name, passed in mobile_training_seed.get("checks", {}).items()
+            if not passed
+        ]
+        raise ValueError(
+            "Merge mobile training-seed identity is incomplete or mismatched: "
+            + ", ".join(failed)
+        )
     training = config.get("training") if isinstance(config.get("training"), dict) else {}
     qat = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     lora = config.get("lora") if isinstance(config.get("lora"), dict) else {}
@@ -194,6 +260,7 @@ def _training_provenance(
                 qat.get("effective_merged_weight", False)
             ),
             "lora_dropout": lora.get("dropout"),
+            "mobile_training_seed": mobile_training_seed,
         }
     )
     if qat_enabled:
@@ -201,6 +268,7 @@ def _training_provenance(
             adapter_path,
             training_config_sha256=config_sha256,
             training_method=training_method,
+            mobile_training_seed=mobile_training_seed,
         )
         result["training_run_metadata"] = run_report
         if not run_report["verified"]:
@@ -226,6 +294,8 @@ def merge_lora_adapter(
     trust_remote_code: bool = False,
     processor_model_id: str | None = None,
     training_config_path: str | Path | None = None,
+    base_model_source: str | Path | None = None,
+    mobile_training_seed_manifest: str | Path | None = None,
 ) -> Path:
     """Merge an adapter while recording what this operation does not prove.
 
@@ -244,12 +314,19 @@ def merge_lora_adapter(
     base = training_root()
     adapter_path = resolve_path(adapter_dir, base)
     out_dir = resolve_path(output_dir, base)
+    model_source = (
+        resolve_path(base_model_source, base)
+        if base_model_source is not None
+        else str(base_model_id)
+    )
     if not adapter_path.exists():
         raise FileNotFoundError(f"Missing LoRA adapter directory: {adapter_path}")
     training_provenance = _training_provenance(
         adapter_path,
         training_config_path,
         base=base,
+        base_model_source=base_model_source,
+        mobile_training_seed_manifest=mobile_training_seed_manifest,
     )
     try:
         from peft import PeftModel  # type: ignore
@@ -266,8 +343,11 @@ def merge_lora_adapter(
         "device_map": "auto",
         "trust_remote_code": trust_remote_code,
         "load_in_4bit": False,
+        "require_exact_checkpoint_keys": bool(
+            training_provenance["mobile_training_seed"].get("required", False)
+        ),
     }
-    model = load_hf_model(base_model_id, model_config)
+    model = load_hf_model(str(model_source), model_config)
     model = PeftModel.from_pretrained(model, str(adapter_path))
     merged = model.merge_and_unload()
     merged.save_pretrained(str(out_dir), safe_serialization=True)
@@ -316,13 +396,17 @@ def merge_lora_adapter(
         )
 
     metadata = {
-        "manifest_version": 3,
+        "manifest_version": 4,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "base_model_id": base_model_id,
+        "base_model_source": str(model_source),
         "adapter_dir": str(adapter_path),
         "merged_model_dir": str(out_dir),
         "model_loader": model_loader,
         "merge_dtype": dtype,
+        "exact_checkpoint_keys_required": bool(
+            training_provenance["mobile_training_seed"].get("required", False)
+        ),
         "base_is_qat_derived": "-qat-" in base_model_id.lower(),
         "continued_qat_performed": bool(training_provenance["qat_enabled"]),
         "merge_performed_qat": False,

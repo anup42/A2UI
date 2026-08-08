@@ -2,30 +2,27 @@ from __future__ import annotations
 
 import hashlib
 import inspect
-import json
 import shutil
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.models.registry import create_adapter
 from ir_training.qat.fake_quant import QATController, prepare_qat_model
+from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
 from ir_training.qat.workflow import validate_qat_config
 from ir_training.qat_mtp.workflow import validate_training_config
-from ir_training.train.callbacks import TrainingMetadataCallback, build_golden_set_eval_callback
+from ir_training.train.callbacks import (
+    TrainingMetadataCallback,
+    build_golden_set_eval_callback,
+)
 from ir_training.train.lora_config import build_lora_config
 
 
 def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[str, Any]:
     _stabilize_torch_runtime()
-    try:
-        from datasets import load_dataset  # type: ignore
-        from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
-        from transformers import Trainer, TrainingArguments  # type: ignore
-    except Exception as exc:  # pragma: no cover - dependency failure path
-        raise RuntimeError("Install training/requirements-training.txt before running SFT training.") from exc
-
     run_cfg = config.get("run") if isinstance(config.get("run"), dict) else {}
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
     model_cfg = dict(model_cfg)
@@ -34,6 +31,30 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
     qat_cfg = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
+    base = training_root()
+    mobile_training_seed = verify_configured_mobile_training_seed(
+        model_cfg,
+        base=base,
+        require_materialized=True,
+    )
+    if not mobile_training_seed["verified"]:
+        failed = [
+            name
+            for name, passed in mobile_training_seed.get("checks", {}).items()
+            if not passed
+        ]
+        raise RuntimeError(
+            "Gemma 4 mobile training seed is missing or failed identity checks: "
+            + ", ".join(failed)
+        )
+    try:
+        from datasets import load_dataset  # type: ignore
+        from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
+        from transformers import Trainer, TrainingArguments  # type: ignore
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError(
+            "Install training/requirements-training.txt before running SFT training."
+        ) from exc
     if qat_cfg:
         _enforce_qat_training_guardrails(config)
     if qat_mtp_cfg:
@@ -45,7 +66,6 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     resolved_dtype = _resolve_training_dtype(requested_dtype)
     model_cfg["dtype"] = resolved_dtype
 
-    base = training_root()
     dataset_dir = resolve_path(run_cfg.get("dataset_dir", "outputs/datasets/dataset_v1_stage3"), base)
     output_dir = resolve_path(run_cfg.get("output_dir", "runs/gemma_e2b_ir_lora"), base)
     train_path = dataset_dir / "train.jsonl"
@@ -288,7 +308,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     final_adapter = output_dir / "final_adapter"
     golden_summary = None
     metadata = {
-        "training_metadata_version": 2,
+        "training_metadata_version": 3,
         "run_id": run_cfg.get("id", output_dir.name),
         "model": model_cfg,
         "training": training_cfg,
@@ -296,6 +316,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "golden_eval": golden_eval_cfg,
         "qat": qat_controller.summary() if qat_controller is not None else {},
         "qat_mtp": qat_mtp_cfg,
+        "mobile_training_seed": mobile_training_seed,
         "dataset_dir": str(dataset_dir),
         "final_adapter": str(final_adapter),
         "git_commit": current_commit(repo_root()),

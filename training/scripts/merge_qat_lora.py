@@ -41,6 +41,16 @@ def main() -> None:
     base = training_root()
     plan = {
         "base_model_id": model.get("model_id"),
+        "base_model_source": str(
+            resolve_path(model.get("model_source"), base)
+        )
+        if model.get("model_source")
+        else model.get("model_id"),
+        "mobile_training_seed_manifest": str(
+            resolve_path(model.get("mobile_training_seed_manifest"), base)
+        )
+        if model.get("mobile_training_seed_manifest")
+        else None,
         "adapter_dir": str(resolve_path(adapter_dir, base)),
         "merged_model_dir": str(resolve_path(output_dir, base)),
         "model_loader": model.get("model_loader", "auto_causal_lm"),
@@ -74,6 +84,10 @@ def main() -> None:
         trust_remote_code=bool(model.get("trust_remote_code", False)),
         processor_model_id=str(model.get("model_id") or ""),
         training_config_path=Path(args.config).resolve(),
+        base_model_source=model.get("model_source"),
+        mobile_training_seed_manifest=model.get(
+            "mobile_training_seed_manifest"
+        ),
     )
     plan["merged_model_dir"] = str(merged_dir)
     plan["executed"] = True

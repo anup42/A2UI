@@ -1,0 +1,92 @@
+run:
+  id: gemma4_e2b_mobile_seed_ir_qat_sft
+  dataset_dir: outputs/datasets/stage3_folder_90_10
+  output_dir: runs/gemma4_e2b_mobile_seed_ir_qat_sft
+runtime:
+  distributed: ddp
+model:
+  family: gemma
+  # Keep the public mobile release as the canonical identity. The explicit
+  # local source is the text-only BF16 reconstruction produced from that exact
+  # packed checkpoint; it is never silently replaced by a Hub download.
+  model_id: google/gemma-4-E2B-it-qat-mobile-transformers
+  model_source: outputs/seeds/gemma4_e2b_mobile_dequantized_text_hf
+  mobile_training_seed_manifest: outputs/seeds/gemma4_e2b_mobile_dequantized_text_hf/mobile_training_seed_manifest.json
+  # Tokenizer assets can be loaded from the canonical release even when the
+  # reconstructed directory contains only model shards and config.json.
+  tokenizer_source: google/gemma-4-E2B-it-qat-mobile-transformers
+  model_loader: auto_causal_lm
+  require_exact_checkpoint_keys: true
+  trust_remote_code: false
+  tokenizer_loader: pretrained_tokenizer_fast
+  processor_fallback: true
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 8192
+  max_output_tokens: 4096
+training:
+  method: qat_lora_sft
+  epochs: 2
+  learning_rate: 0.00005
+  weight_decay: 0.01
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  mixed_precision: auto
+  require_ddp_for_multi_gpu: true
+  ddp_find_unused_parameters: false
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  save_steps: 500
+  eval_steps: 500
+  logging_steps: 20
+  save_total_limit: 2
+  max_grad_norm: 1.0
+  seed: 42
+  forward_smoke_check_rows: 16
+  lora_diagnostics_steps: 12
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.0
+  target_modules: peft-default
+  modules_to_save: []
+qat:
+  enabled: true
+  profile: gemma4_e2b_mobile_observable_wna8o8_approx
+  # This is the public AI Edge range convention and official observed bit map,
+  # not a claim that Google's private observer/calibration recipe was released.
+  quantizer: ste_ai_edge
+  schema_path: configs/quantization/gemma4_e2b_mobile_litertlm_schema.yaml
+  quantize_embeddings: true
+  exclude_modules: []
+  weight_bits: 8
+  activation_bits: 8
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  # Projection weights use per-output-channel scales. The schema overrides
+  # only embed_tokens_per_layer with its observed 256-column grouping.
+  group_size: null
+  only_base_layers: true
+  effective_merged_weight: true
+  final_quantization: mobile_wna8o8
+  final_runtime_validation_required: true
+golden_eval:
+  enabled: true
+  dataset_dir: outputs/datasets/golden50_stage3_eval
+  split: all
+  max_rows: 50
+  max_input_tokens: 4096
+  max_new_tokens: 4096
+  trigger: evaluate
+  interval: 1
+  metric_for_best_model: overall_score
+  greater_is_better: true
+  save_best_checkpoint: true
+  best_checkpoint_dir: runs/gemma4_e2b_mobile_seed_ir_qat_sft/best_golden_checkpoint
+  output_dir: outputs/eval/gemma4_e2b_mobile_seed_ir_qat_sft/golden50
+  weights_config: ../dataset/configs/run.yaml

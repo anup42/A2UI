@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 torch = pytest.importorskip("torch")
 from ir_training.common.config import load_yaml
+from ir_training.qat import fake_quant as fake_quant_module
 from ir_training.qat.fake_quant import (
     QATSpec,
     _scale_and_zero_point,
@@ -258,6 +259,7 @@ def test_effective_lora_qat_rejects_nonzero_adapter_dropout():
 @pytest.mark.parametrize(
     ("config_name", "expected_activation_bits"),
     [
+        ("gemma4_e2b_mobile_seed_ir_qat_sft.yaml", 8),
         ("gemma4_e2b_ir_qat_sft.yaml", 8),
         ("gemma3_270m_ir_qat_sft.yaml", 32),
         ("functiongemma_270m_ir_qat_sft.yaml", 8),
@@ -273,7 +275,9 @@ def test_supported_qat_profiles_pass_static_validation(
 
 
 def test_gemma4_true_qat_keeps_peft_language_model_default_scope():
-    config = load_yaml(ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml")
+    config = load_yaml(
+        ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
 
     # PEFT 0.19+ owns the Gemma 4 language_model q_proj/v_proj regex. The
     # GemmaAdapter `.linear` fallback targets clipped modality wrappers instead.
@@ -299,6 +303,23 @@ def test_qat_validation_requires_effective_weight_and_zero_lora_dropout():
         "effective_merged_weight_qat_required",
         "nonzero_lora_dropout_breaks_merged_qat",
     }.issubset(codes)
+
+
+def test_gemma4_qat_validation_requires_grouped_per_layer_embedding():
+    config = load_yaml(
+        ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
+    )
+    config["qat"]["module_quant_configs"] = {
+        "language_model\\.embed_tokens$": {"num_bits": 2},
+        "language_model\\.embed_tokens_per_layer$": {
+            "num_bits": 4,
+            "group_size": 128,
+        },
+    }
+
+    codes = {issue.code for issue in validate_qat_config(config)}
+
+    assert "gemma4_mobile_observable_layout_mismatch" in codes
 
 
 def test_training_adapter_manifest_binds_checkpoint_bytes(tmp_path):
@@ -336,6 +357,19 @@ def test_public_gemma4_mobile_schema_preserves_ordered_bit_assignments():
     assert schema.bits_for_module("unmatched.module") == 4
 
     assert compare_to_public_schema(schema.to_dict(), schema) == []
+
+    litertlm_schema = load_mobile_quant_schema(
+        ROOT
+        / "configs"
+        / "quantization"
+        / "gemma4_e2b_mobile_litertlm_schema.yaml"
+    )
+    assert (
+        litertlm_schema.group_size_for_module(
+            "language_model.embed_tokens_per_layer"
+        )
+        == 256
+    )
 
 
 def test_public_schema_audit_reports_module_distribution():
@@ -392,6 +426,42 @@ def test_qat_precision_rules_match_peft_and_multimodal_wrapper_prefixes():
             "base_model.model.model.language_model.layers.2.self_attn.q_proj"
         )
         == 4
+    )
+    # Text-only Gemma4ForCausalLM drops the multimodal ``language_model``
+    # component; these aliases must still hit the official precision rules.
+    assert (
+        spec.weight_bits_for_module(
+            "base_model.model.model.layers.2.mlp.gate_proj"
+        )
+        == 4
+    )
+    assert (
+        spec.weight_bits_for_module(
+            "base_model.model.model.layers.20.mlp.gate_proj"
+        )
+        == 2
+    )
+    assert spec.weight_bits_for_module("base_model.model.model.embed_tokens") == 2
+    assert (
+        spec.weight_bits_for_module(
+            "base_model.model.model.embed_tokens_per_layer"
+        )
+        == 4
+    )
+    assert (
+        spec.group_size_for_module(
+            "base_model.model.model.embed_tokens_per_layer"
+        )
+        == 256
+    )
+    assert (
+        spec.group_size_for_module("base_model.model.model.embed_tokens") is None
+    )
+    assert (
+        spec.weight_bits_for_module(
+            "base_model.model.model.per_layer_model_projection"
+        )
+        == 8
     )
     public_spec = QATSpec.from_config(
         {
@@ -451,4 +521,69 @@ def test_litertlm_schema_wraps_embeddings_and_module_specific_linear_bits():
     assert controller.summary()["wrapped_weight_bit_histogram"] == {"2": 2, "8": 1}
     output = model(torch.tensor([[1, 2, 3]], dtype=torch.long))
     assert output.shape == (1, 3, 4)
+    controller.restore()
+
+
+def test_grouped_embedding_qat_quantizes_only_selected_rows(monkeypatch):
+    class TinyGroupedEmbeddingModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.embed_tokens_per_layer = nn.Embedding(4, 4)
+
+        def forward(self, token_ids):
+            return self.embed_tokens_per_layer(token_ids)
+
+    model = TinyGroupedEmbeddingModel()
+    with torch.no_grad():
+        model.embed_tokens_per_layer.weight.copy_(
+            torch.tensor(
+                [
+                    [1.0, 1.0, 100.0, 100.0],
+                    [2.0, 2.0, 20.0, 20.0],
+                    [3.0, 3.0, 30.0, 30.0],
+                    [4.0, 4.0, 40.0, 40.0],
+                ]
+            )
+        )
+    observed_shapes: list[tuple[int, ...]] = []
+    original_fake_quantize_weight = fake_quant_module.fake_quantize_weight
+
+    def capture_selected_shape(weight, spec):
+        observed_shapes.append(tuple(weight.shape))
+        return original_fake_quantize_weight(weight, spec)
+
+    monkeypatch.setattr(
+        fake_quant_module, "fake_quantize_weight", capture_selected_shape
+    )
+    controller = prepare_qat_model(
+        model,
+        {
+            "qat": {
+                "weight_bits": 8,
+                "activation_bits": 32,
+                "quantizer": "ste_ai_edge",
+                "exclude_modules": [],
+                "quantize_embeddings": True,
+                "module_quant_configs": {
+                    "^embed_tokens_per_layer$": {
+                        "num_bits": 2,
+                        "group_size": 2,
+                    }
+                },
+            }
+        },
+    )
+
+    output = model(torch.tensor([[0, 0, 1]], dtype=torch.long))
+
+    assert observed_shapes == [(2, 4)]
+    torch.testing.assert_close(
+        output,
+        torch.tensor(
+            [[[1.0, 1.0, 100.0, 100.0], [1.0, 1.0, 100.0, 100.0], [2.0, 2.0, 20.0, 20.0]]]
+        ),
+    )
+    assert controller.summary()["wrapped_group_sizes_by_module"] == {
+        "embed_tokens_per_layer": 2
+    }
     controller.restore()

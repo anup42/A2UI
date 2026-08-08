@@ -13,9 +13,8 @@ training bound to the declared public training seed. Every mapped target
 FC/embedding constant is regenerated from the merged checkpoint; learned
 constants outside that inventory remain from the official package. Gemma 4
 therefore also requires a fail-closed retained-constant evidence contract.
-The public Q4_0 QAT-derived BF16 checkpoint is not assumed numerically
-compatible with the separate packed mobile checkpoint merely because both are
-official releases.
+For Gemma 4, the training checkpoint must descend from the hash-bound public
+mobile reconstruction manifest; the incompatible public Q4_0 seed is rejected.
 The tokenizer, separate token/per-layer embedder sections, audio/vision
 sections, and default MTP drafter are preserved byte-for-byte. A fail-closed
 manifest records every source key, shape transform, quantizer layout, graph
@@ -82,8 +81,11 @@ from build_fresh_random_quantized_graph import _extract_inventory
 from ir_training.common.config import load_yaml
 from ir_training.export.litertlm_inspector import inspect_litertlm
 from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat.mobile_training_seed import (
+    OFFICIAL_MOBILE_MODEL_ID,
+    verify_configured_mobile_training_seed,
+)
 from ir_training.qat.retained_constants import verify_retained_constant_contract
-from ir_training.qat_mtp.workflow import OFFICIAL_QAT_TARGET
 
 
 class CheckpointTopologyError(RuntimeError):
@@ -578,6 +580,7 @@ def _training_scope_report(
     *,
     family: str,
     official_base_model_id: str | None,
+    mobile_training_seed_manifest: str | Path | None = None,
 ) -> dict[str, Any]:
     checks: dict[str, bool] = {
         "training_config_present": False,
@@ -593,6 +596,10 @@ def _training_scope_report(
         "public_ai_edge_weight_ranges": False,
         "precision_matches_official_layout": False,
         "family_training_seed_supported": family != "gemma4_e2b",
+        "mobile_training_seed_manifest_matches_config": family != "gemma4_e2b",
+        "mobile_training_seed_verified": family != "gemma4_e2b",
+        "exact_checkpoint_key_loading": family != "gemma4_e2b",
+        "per_layer_embedding_group_size_matches": family != "gemma4_e2b",
     }
     result: dict[str, Any] = {
         "path": str(Path(training_config).expanduser().resolve())
@@ -626,7 +633,40 @@ def _training_scope_report(
         official_base_model_id and model_id == str(official_base_model_id)
     )
     if family == "gemma4_e2b":
-        checks["family_training_seed_supported"] = model_id == OFFICIAL_QAT_TARGET
+        checks["family_training_seed_supported"] = model_id == OFFICIAL_MOBILE_MODEL_ID
+        configured_manifest = model.get("mobile_training_seed_manifest")
+        configured_path = (
+            (ROOT / str(configured_manifest)).resolve()
+            if configured_manifest
+            else None
+        )
+        supplied_path = (
+            Path(mobile_training_seed_manifest).expanduser().resolve()
+            if mobile_training_seed_manifest
+            else None
+        )
+        checks["mobile_training_seed_manifest_matches_config"] = bool(
+            configured_path and supplied_path and configured_path == supplied_path
+        )
+        mobile_training_seed = verify_configured_mobile_training_seed(
+            model, base=ROOT, require_materialized=True
+        )
+        checks["mobile_training_seed_verified"] = bool(
+            mobile_training_seed["verified"]
+        )
+        checks["exact_checkpoint_key_loading"] = bool(
+            model.get("require_exact_checkpoint_keys") is True
+        )
+        try:
+            checks["per_layer_embedding_group_size_matches"] = (
+                QATSpec.from_config(config).group_size_for_module(
+                    "language_model.embed_tokens_per_layer"
+                )
+                == 256
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            checks["per_layer_embedding_group_size_matches"] = False
+        result["mobile_training_seed"] = mobile_training_seed
     checks["qat_lora_sft"] = str(training.get("method") or "") == "qat_lora_sft"
     checks["qat_enabled"] = bool(qat.get("enabled", False))
     modules_to_save = lora.get("modules_to_save", [])
@@ -708,7 +748,9 @@ def _merge_provenance_report(
     training_config: str | Path | None,
     *,
     official_base_model_id: str | None,
+    mobile_training_seed: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    seed_required = bool(mobile_training_seed and mobile_training_seed.get("required"))
     metadata_path = (
         checkpoint / "qat_mtp_merge_metadata.json"
         if checkpoint.is_dir()
@@ -730,6 +772,9 @@ def _merge_provenance_report(
         "merged_checkpoint_hashes_match": False,
         "floating_merge_requires_quantization": False,
         "assistant_unmodified": False,
+        "mobile_training_seed_matches": not seed_required,
+        "base_model_source_matches_seed": not seed_required,
+        "exact_checkpoint_key_loading": not seed_required,
     }
     result: dict[str, Any] = {
         "path": str(metadata_path),
@@ -752,6 +797,38 @@ def _merge_provenance_report(
         official_base_model_id
         and str(metadata.get("base_model_id") or "") == str(official_base_model_id)
     )
+    if seed_required:
+        recorded_seed = (
+            metadata.get("mobile_training_seed")
+            if isinstance(metadata.get("mobile_training_seed"), dict)
+            else {}
+        )
+        checks["manifest_v3_or_newer"] = (
+            int(metadata.get("manifest_version", 0) or 0) >= 4
+        )
+        checks["mobile_training_seed_matches"] = bool(
+            mobile_training_seed
+            and mobile_training_seed.get("verified") is True
+            and recorded_seed.get("verified") is True
+            and str(recorded_seed.get("manifest_sha256") or "").lower()
+            == str(mobile_training_seed.get("manifest_sha256") or "").lower()
+            and str(recorded_seed.get("transformation_plan_sha256") or "").lower()
+            == str(
+                mobile_training_seed.get("transformation_plan_sha256") or ""
+            ).lower()
+        )
+        seed_output = (
+            mobile_training_seed.get("output")
+            if isinstance(mobile_training_seed.get("output"), dict)
+            else {}
+        )
+        checks["base_model_source_matches_seed"] = bool(
+            str(metadata.get("base_model_source") or "")
+            == str(seed_output.get("directory") or "")
+        )
+        checks["exact_checkpoint_key_loading"] = bool(
+            metadata.get("exact_checkpoint_keys_required") is True
+        )
     if training_config is not None:
         config_path = Path(training_config).expanduser().resolve()
         if config_path.is_file():
@@ -875,6 +952,7 @@ def build_plan(
     model_type: str | None = None,
     training_config: str | Path | None = None,
     retained_constant_contract: str | Path | None = None,
+    mobile_training_seed_manifest: str | Path | None = None,
     official_base_model_id: str | None = None,
     official_artifact_sha256: str | None = None,
     output_dir: str | Path | None = None,
@@ -968,6 +1046,7 @@ def build_plan(
         training_config,
         family=normalized_family,
         official_base_model_id=official_base_model_id,
+        mobile_training_seed_manifest=mobile_training_seed_manifest,
     )
     if not training_scope["supported_projection_only_transplant"]:
         issues.append(
@@ -1017,6 +1096,7 @@ def build_plan(
         checkpoint_path,
         training_config,
         official_base_model_id=official_base_model_id,
+        mobile_training_seed=training_scope.get("mobile_training_seed"),
     )
     if not merge_provenance["verified"]:
         issues.append(
@@ -1059,6 +1139,7 @@ def build_plan(
         "mapping_count": len(mappings),
         "mappings": mappings,
         "training_scope": training_scope,
+        "mobile_training_seed": training_scope.get("mobile_training_seed"),
         "retained_constant_compatibility": retained_constant_compatibility,
         "qat_precision_coverage": qat_precision_coverage,
         "merge_provenance": merge_provenance,
@@ -1113,6 +1194,7 @@ def run(
     official_artifact_sha256: str,
     output_dir: str | Path,
     package_output: str | Path,
+    mobile_training_seed_manifest: str | Path | None = None,
     calibration_samples: int = 2,
     threads: int = 1,
     converter_batch_size: int | None = None,
@@ -1128,6 +1210,7 @@ def run(
         model_type=model_type,
         training_config=training_config,
         retained_constant_contract=retained_constant_contract,
+        mobile_training_seed_manifest=mobile_training_seed_manifest,
         official_base_model_id=official_base_model_id,
         official_artifact_sha256=official_artifact_sha256,
         output_dir=output_dir,
@@ -1489,6 +1572,13 @@ def main(argv: Iterable[str] | None = None) -> int:
             "are compatible with the declared training seed (required for Gemma 4)."
         ),
     )
+    parser.add_argument(
+        "--mobile-training-seed-manifest",
+        help=(
+            "Hash manifest for the reconstructed Gemma 4 mobile BF16 seed "
+            "(required for Gemma 4)."
+        ),
+    )
     parser.add_argument("--official-base-model-id", required=True)
     parser.add_argument("--official-artifact-sha256", required=True)
     parser.add_argument("--output-dir", required=True)
@@ -1522,6 +1612,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 model_type=args.model_type,
                 training_config=args.training_config,
                 retained_constant_contract=args.retained_constant_contract,
+                mobile_training_seed_manifest=args.mobile_training_seed_manifest,
                 official_base_model_id=args.official_base_model_id,
                 official_artifact_sha256=args.official_artifact_sha256,
                 output_dir=args.output_dir,
@@ -1542,6 +1633,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 model_type=args.model_type,
                 training_config=args.training_config,
                 retained_constant_contract=args.retained_constant_contract,
+                mobile_training_seed_manifest=args.mobile_training_seed_manifest,
                 official_base_model_id=args.official_base_model_id,
                 official_artifact_sha256=args.official_artifact_sha256,
                 output_dir=args.output_dir,

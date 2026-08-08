@@ -10,19 +10,23 @@ profile: gemma4_e2b_mobile_observable_contract
 evidence_status: local_artifact_observation_only
 artifact_family: gemma-4-E2B-it-mobile
 
-# Cross-checkpoint audit performed with bounded Safetensors range reads on
-# 2026-08-08. This is deliberately a failing production gate: the public dense
-# Q4-QAT seed has the same 262 retained tensor schemas as the packed mobile
-# checkpoint, but 212 learned values differ. The exact-topology compiler must
-# not silently combine absolute projection weights from that seed with retained
-# constants from the mobile package.
+# The production seed is reconstructed from the hash-bound packed mobile
+# checkpoint. Its 263 direct BF16 tensors include all 262 retained language
+# constants, so those values remain exact at the public BF16 boundary. The
+# separate seed manifest must still prove the complete 541-tensor transform,
+# materialized shard hashes, and compiled mapping before training or export.
 retained_constant_compatibility:
-  production_status: incompatible_checkpoint_values
+  production_status: compatible_exact
   dense_training_seed:
-    repo_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
-    revision: 6befbaca7398925921802abd1f277b495b78b738
-    model_safetensors_size_bytes: 10208852878
-    model_safetensors_etag: 33fe0cece08fb527ffefbd1a3a9ce73bd71073727993a283506293e5c6bf0137
+    repo_id: google/gemma-4-E2B-it-qat-mobile-transformers
+    revision: dd693ff40353f057ca5f07e945ad867f4afbf2ec
+    source_config_sha256: cf6d7dc22738b5e6beb364bac833d78b869f5a6ffd57dfc96c6be3f2abc80424
+    seed_format: gemma4_e2b_mobile_dequantized_bf16_text
+    transformation_plan_sha256: 03086afb123acf2c6f359d3cec2b1208f89529bca39e2d29f8b501e0918e3d5c
+    output_tensor_count: 541
+    direct_bf16_tensor_count: 263
+    dequantized_tensor_count: 278
+    precision_boundary: public_packed_cell_centers_rounded_to_bf16_rne
   packed_mobile_checkpoint:
     repo_id: google/gemma-4-E2B-it-qat-mobile-transformers
     revision: dd693ff40353f057ca5f07e945ad867f4afbf2ec
@@ -40,12 +44,13 @@ retained_constant_compatibility:
       - .output_min
   comparison:
     schema_mismatch_count: 0
-    exact_tensor_count: 50
-    value_mismatch_count: 212
-    all_selected_tensors_exact: false
-    dense_seed_aggregate_sha256: c3be6ec6262092beaceb1b4c3d2b01a1073290d8bfb739ebe3cf40289e280e6c
+    exact_tensor_count: 262
+    value_mismatch_count: 0
+    all_selected_tensors_exact: true
+    dense_seed_aggregate_sha256: 1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa
     packed_mobile_aggregate_sha256: 1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa
   compiled_graph_mapping:
+    retained_compiled_report_sha256: 4fa47cf6fefb983a79bebc1e00bdd1f28df8d6570f59d7e979a1791a9a63429a
     official_artifact_sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
     model_type: tf_lite_prefill_decode
     decode_subgraph_index: 0
@@ -56,6 +61,13 @@ retained_constant_compatibility:
     lower_float32_mantissa_bits_recovered: false
   compiled_graph_mapping_verified: true
   private_qat_recipe_recovered: false
+  rejected_q4_seed_audit:
+    repo_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+    revision: 6befbaca7398925921802abd1f277b495b78b738
+    selected_tensor_count: 262
+    exact_tensor_count: 50
+    value_mismatch_count: 212
+    compatible: false
 quantization:
   weight_granularity: CHANNELWISE
   weight_quantized_dimension: 0

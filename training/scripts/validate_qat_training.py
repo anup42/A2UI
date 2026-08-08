@@ -12,9 +12,8 @@ from ir_training.common.config import load_yaml
 from ir_training.qat.workflow import validate_qat_config
 from ir_training.qat_mtp.workflow import summarize_issues
 
-
 DEFAULT_CONFIGS = (
-    "training/configs/models/gemma4_e2b_ir_qat_sft.yaml",
+    "training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml",
     "training/configs/models/gemma3_270m_ir_qat_sft.yaml",
     "training/configs/models/functiongemma_270m_ir_qat_sft.yaml",
 )

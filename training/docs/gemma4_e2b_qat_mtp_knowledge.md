@@ -113,6 +113,14 @@ the Gemma 4 mobile config opts into the artifact-reconciled module map and
 `ste_ai_edge` range convention (full signed W2/W4, narrow symmetric W8). LoRA
 A/B weights stay floating point, which keeps this a practical QAT+LoRA method
 rather than a claim that every adapter operation is already mobile-quantized.
+The observable per-layer embedding is the one granularity exception: its
+`[262144, 35]` public scale table covers 256-column groups in the logical
+`[262144, 8960]` weight, so the LiteRT-LM schema assigns
+`embed_tokens_per_layer` a module-specific `group_size: 256`. The training
+wrapper fake-quantizes only the unique embedding rows referenced by the current
+batch, rather than rebuilding the roughly 4.7 GiB BF16 table on every lookup;
+the selected rows still use the same row-local 256-column groups. Other mapped
+matrices retain the observed per-output-channel scale behavior.
 All effective-weight QAT profiles require `lora.dropout: 0.0`; a per-example
 adapter dropout mask cannot be represented by one final merged inference
 matrix. DoRA and mixed-adapter forward arguments fail closed for the same
@@ -128,8 +136,9 @@ actual loaded module names before training.
 
 The implementation is reversible: wrappers are restored before the final PEFT
 adapter is saved, and `qat` metadata records the wrapped module count, exact
-module-to-bit assignments, W2/W4/W8 histogram, effective LoRA wrapper count,
-uncovered-adapter list, and quantizer specification. Training metadata also
+module-to-bit assignments, module-specific group sizes, W2/W4/W8 histogram,
+effective LoRA wrapper count, uncovered-adapter list, and quantizer
+specification. Training metadata also
 hashes each saved adapter checkpoint. Merge manifest v3 verifies that metadata,
 the training-config hash, and adapter hashes before loading the base model.
 `load_in_4bit` is rejected because NF4 QLoRA is a different method. This is
@@ -202,7 +211,8 @@ The new configs are intentionally separate from the QAT-derived/MTP profile:
 
 | Config | Base model | Training fake quantization | Intended final export |
 |---|---|---|---|
-| `gemma4_e2b_ir_qat_sft.yaml` | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | Public W2/W4/W8 module map, AI Edge-compatible STE ranges, W8A8 activation edges | Mobile observable-contract approximation; private Google QAT/calibration/export remains unverified |
+| `gemma4_e2b_mobile_seed_ir_qat_sft.yaml` | Manifest-verified BF16 reconstruction of `google/gemma-4-E2B-it-qat-mobile-transformers` | Public W2/W4/W8 module map, AI Edge-compatible STE ranges, W8A8 activation edges | Preferred official-topology transplant; private Google QAT/calibration remains unrecovered and device gates remain required |
+| `gemma4_e2b_ir_qat_sft.yaml` | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | Same observable training approximation | Rejected research baseline for mobile transplant: 212/262 retained values differ |
 | `gemma3_270m_ir_qat_sft.yaml` | `google/gemma-3-270m-it` | W8 STE per-channel weights with activation fake quantization disabled (FP32 edges) | exact released Q8 topology via the checkpoint compiler; still requires device validation |
 | `functiongemma_270m_ir_qat_sft.yaml` | `google/functiongemma-270m-it` | W8A8 STE, per-channel weights | custom dynamic INT8 export; compare with the official Q8 LiteRT-LM package |
 
@@ -220,7 +230,7 @@ python training/scripts/validate_qat_training.py
 Later, when a GPU run is explicitly authorized, use one of:
 
 ```powershell
-python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_qat_sft.yaml
+python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml
 python training/scripts/train_sft.py --config training/configs/models/gemma3_270m_ir_qat_sft.yaml
 python training/scripts/train_sft.py --config training/configs/models/functiongemma_270m_ir_qat_sft.yaml
 ```
@@ -283,7 +293,7 @@ quant bit selection, but unsupported module types and exact scale semantics
 must remain marked as approximation until numerical equivalence is measured
 against the official checkpoint/runtime.
 
-The checked-in `gemma4_e2b_ir_qat_sft.yaml` selects `quantizer: ste_ai_edge`,
+The checked-in `gemma4_e2b_mobile_seed_ir_qat_sft.yaml` selects `quantizer: ste_ai_edge`,
 `quantize_embeddings: true`, and the artifact-reconciled schema. This makes the
 training-time fake quantizer use the public AI Edge range convention: signed
 W2/W4 keep the full low-bit ranges (`[-2, 1]` and `[-8, 7]`), while symmetric
@@ -1617,33 +1627,50 @@ W2/W4/W8 width, and injects only the resulting packed projection constants and
 per-axis scales. This is the direct extension of the random-weight experiment
 that already passed graph/layout/allocation and Android GPU delegation.
 
-The graph-safe public experiment is projection-only QAT+LoRA from Google's
-dense `gemma-4-E2B-it-qat-q4_0-unquantized` seed, with the released mobile
-package as the immutable graph and packed-layout authority. It is not currently
-a production-safe numerical transplant. On 2026-08-08,
-`audit_hf_retained_constant_parity.py` compared the public dense seed (remote
-Safetensors commit `6befbaca7398925921802abd1f277b495b78b738`, file etag
-`33fe0cece08fb527ffefbd1a3a9ce73bd71073727993a283506293e5c6bf0137`)
-with the packed mobile checkpoint (commit
-`dd693ff40353f057ca5f07e945ad867f4afbf2ec`, Safetensors SHA-256
-`efab429012b97ab986c4d4838a46ff3ad95d618b42ce514771ca40fadc76a9a4`).
-It selected 262 common language-model scalars/vectors after excluding observer
-min/max tensors: all 262 schemas matched, but only 50 values were byte-exact
-and 212 differed. The aggregate digests were
-`c3be6ec6262092beaceb1b4c3d2b01a1073290d8bfb739ebe3cf40289e280e6c`
-(dense Q4 seed) and
-`1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa`
-(packed mobile checkpoint).
+The production initialization now comes from the exact public packed checkpoint,
+not the separate dense Q4 release. Run
+`training/scripts/reconstruct_gemma4_mobile_training_seed.py` against
+`google/gemma-4-E2B-it-qat-mobile-transformers` commit
+`dd693ff40353f057ca5f07e945ad867f4afbf2ec`; its model Safetensors must be
+2,458,111,846 bytes with SHA-256
+`efab429012b97ab986c4d4838a46ff3ad95d618b42ce514771ca40fadc76a9a4`.
+The official source `config.json` is also pinned to SHA-256
+`cf6d7dc22738b5e6beb364bac833d78b869f5a6ffd57dfc96c6be3f2abc80424`,
+and the retained-compiled evidence report to
+`4fa47cf6fefb983a79bebc1e00bdd1f28df8d6570f59d7e979a1791a9a63429a`.
+The script is plan-only unless `--execute` is supplied, never runs training,
+never overwrites an existing output/partial, and streams the reconstruction so
+the largest tensor is not held in memory.
 
-That result closes an ambiguity: matching official model ownership, tensor
-names, dtypes, and shapes does not make the two releases the same numerical
-base. Transplanting absolute Q4-seed projection weights while retaining mobile
-RMSNorm/layer-scalar constants would create an unvalidated hybrid. The checked-in
-retained-constant contract therefore has
-`production_status: incompatible_checkpoint_values`, and both the pipeline and
-direct exact-topology compiler refuse production export. The separate random
-weight graph harness remains valid for proving graph/operator/layout and GPU
-delegation, because it makes no accuracy or model-identity claim.
+The audited transform produces a text-only `Gemma4ForCausalLM` BF16 checkpoint
+with 541 tensors: 263 direct BF16 copies and 278 dequantized matrices. The
+payload is 10,062,445,126 bytes and the default 5 GiB limit creates three
+Safetensors shards. Its canonical transformation-plan SHA-256 is
+`03086afb123acf2c6f359d3cec2b1208f89529bca39e2d29f8b501e0918e3d5c`.
+The source-matrix histogram is 62 W2, 146 W4, and 70 W8. This is intentionally
+different from the main compiled section's 61 W2, 145 W4, and 71 W8: the source
+inventory includes the separate W4 per-layer embedding, while the final main
+graph quantizes the direct BF16 per-layer model projection to W8.
+
+Low-bit U8 codes are unpacked in low-bit order and shifted by the published
+signed offset; I8 codes are used directly. Published F32 scales are applied by
+output row. The `embed_tokens_per_layer` source has logical shape
+`[262144, 8960]` and scale shape `[262144, 35]`; each scale column covers exactly
+256 logical columns. K/V projection tensors serialized for shared-KV layers
+15-34 are omitted because the dense Transformers text architecture does not own
+those duplicates. All 262 retained RMSNorm/scalar/vector tensors are among the
+direct BF16 copies, so their public values remain exact.
+
+The separate dense `gemma-4-E2B-it-qat-q4_0-unquantized` seed remains rejected.
+On 2026-08-08, `audit_hf_retained_constant_parity.py` compared its commit
+`6befbaca7398925921802abd1f277b495b78b738` with the packed mobile checkpoint.
+All 262 retained schemas matched, but only 50 values were exact and 212 differed;
+their aggregate digests were
+`c3be6ec6262092beaceb1b4c3d2b01a1073290d8bfb739ebe3cf40289e280e6c` and
+`1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa`.
+Matching official ownership and shapes therefore does not make those releases
+the same numerical base. Keep the Q4 config only as a rejected research
+baseline; never bypass its 212-value mismatch.
 
 The compiled mapping itself is no longer an open question at the public
 precision boundary. A second read-only audit,
@@ -1658,48 +1685,78 @@ of the five layer-norm roles, 35 query norms, 15 key norms, 35 layer scalars,
 one final norm, and one per-layer projection norm. Shared buffers explain why
 262 semantic tensors map to 242 unique buffers.
 
-This result proves that the packed mobile checkpoint is the public numerical
-authority for the retained constants at BF16 precision. It does not recover
-the compiled constants' lower FLOAT32 mantissa bits, Google's master
-checkpoint, training data, observer state, optimizer schedule, or private QAT
-recipe. It also does not make the dense Q4-QAT seed compatible: that independent
-comparison remains 50/262 exact.
+This proves the packed mobile checkpoint is the public numerical authority at
+BF16 precision. It does not recover compiled constants' lower FLOAT32 mantissa
+bits, Google's pre-quantization master weights, training data, observer state,
+optimizer schedule, or private QAT recipe. Dequantized values are public
+quantization-cell centers rounded to BF16 RNE. Fine-tuning is expected to change
+the trained weights; exact graph/operators/quantization layout, not official
+weight equality, is the deployment-speed invariant.
 
-Google does not publish the dense pre-quantization wNa8o8 training checkpoint.
-The public paths that could safely reopen production export are: obtain a dense
-mobile-compatible seed, or reconstruct/dequantize the public packed mobile
-checkpoint while preserving the now-verified retained-constant relationship.
-Either path must produce a `compatible_exact` contract with zero schema/value
-mismatches; the checked-in contract already records
-`compiled_graph_mapping_verified: true` from generated evidence. Do not toggle
-the production status without a compatible training-seed audit. Merge metadata
-version 3 then
-records the training seed,
-training-config SHA-256, `qat_lora_sft` method, effective merged-weight QAT run,
-selected adapter hashes, and every merged safetensor shard/index hash. The
-compiler rejects an old merge, a generic or base-only-QAT LoRA merge presented
-with the new QAT YAML, a packed mobile checkpoint, a base-model mismatch, a
-package hash mismatch, an incompatible retained-constant contract, or any
-missing/shape-incompatible source key. Do not bypass these checks. Once a
-compatible seed exists, retained RMSNorm, tokenizer, metadata, and other
-non-inventory constants remain hash-bound to the official package, while every
-target FC and embedding inventory constant is regenerated from the merged
-checkpoint. This proves official graph/operator/layout equivalence; it still
-does not recover Google's private QAT loss, calibration data, or exporter.
+`mobile_training_seed_manifest.json` is the executable gate. Training, merge,
+and the direct compiler recompute its mapping-plan digest; require the 541-key
+weight map and tensor-hash inventory; verify the exact source, official package,
+retained-compiled report, dense config, shard set, payload sizes, and all shard/
+auxiliary hashes; and require the manifest directory to equal
+`model.model_source`. The recommended config is
+`training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml`. Its canonical
+model ID stays `google/gemma-4-E2B-it-qat-mobile-transformers`, while its local
+load source is `training/outputs/seeds/gemma4_e2b_mobile_dequantized_text_hf`.
+Until that output is explicitly materialized, the checked-in pipeline correctly
+reports `mobile_training_seed_unverified` and cannot train, merge, or export.
+
+Plan first; the output directory is not created:
+
+```powershell
+python training/scripts/reconstruct_gemma4_mobile_training_seed.py `
+  --source-safetensors <packed-checkpoint-dir>/model.safetensors `
+  --source-config <packed-checkpoint-dir>/config.json `
+  --retained-compiled-report <evidence-dir>/gemma4-mobile-retained-compiled-parity.json `
+  --output-dir training/outputs/seeds/gemma4_e2b_mobile_dequantized_text_hf
+```
+
+After inspecting the plan, repeat with `--execute` to materialize the seed.
+This writes model/config/manifest files only; it still does not train. Then use
+the pipeline's default plan before selecting any explicit stage:
+
+```powershell
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --config training/configs/pipelines/gemma4_e2b_mobile_mtp.yaml
+```
+
+Training remains opt-in through `--execute-training`; do not combine seed
+reconstruction, training, merge, export, and device promotion into an
+unreviewed one-shot command.
+
+Training metadata version 3 records the verified seed manifest; merge metadata
+version 4 additionally binds the canonical base ID, local base source,
+training-config SHA-256, QAT run, adapter hashes, and every merged shard/index
+hash. The mobile profile requires exact Transformers checkpoint loading with no
+missing, unexpected, mismatched, or errored state keys, and the merge/compiler
+provenance preserves that fail-closed requirement. The compiler rejects an old
+merge, generic or base-only-QAT metadata, the
+raw packed checkpoint, the Q4 seed, a manifest/source mismatch, package hash
+mismatch, retained-constant mismatch, or incomplete source mapping. Retained
+non-inventory constants remain hash-bound to the official package, while all
+277 target FC/embedding constants are regenerated from the fine-tuned merged
+checkpoint. This proves official graph/operator/layout equivalence; device
+quality, throughput, and MTP acceptance remain separate promotion gates.
 
 Before quantization, the compiler derives a canonical QAT module for every
 official inventory entry and compares its configured fake-quant bit width with
 the released graph. E2B must match all 277 assignments (145 W4, 61 W2, 71 W8),
 and 270M must match all 127 W8 assignments. The tied E2B language-model head is
 audited through its token-embedding source, matching the alias used by the
-checkpoint compiler. Any excluded, unmapped, or differently quantized entry
-makes the plan non-executable.
+checkpoint compiler. The training-scope gate separately requires the observed
+256-column grouping for `embed_tokens_per_layer`. Any excluded, unmapped,
+differently quantized, or differently grouped entry makes the plan
+non-executable.
 
 Current exact bindings for the supplied reference artifacts are:
 
 | family | public training seed | target section | unique mapped weights | production status | package SHA-256 |
 | --- | --- | --- | ---: | --- | --- |
-| Gemma 4 E2B | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | `tf_lite_prefill_decode` | 277 | blocked: seed differs in 212/262 retained constants; mobile-to-compiled is 262/262 exact at BF16 precision | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
+| Gemma 4 E2B | BF16 text reconstruction of `google/gemma-4-E2B-it-qat-mobile-transformers` | `tf_lite_prefill_decode` | 277 | script/config ready; blocked only until the local 541-tensor seed is materialized and its manifest verifies; device quality/speed still required | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
 | Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | exact-base path; device quality/speed still required | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
 
 The optional trained E2B drafter is seeded from
@@ -1715,14 +1772,18 @@ canonical names with known PEFT/multimodal wrappers removed. This matters for
 the anchored public rule `^lm_head$`: a PEFT path such as
 `base_model.model.lm_head` must still receive W2 fake quantization. The tests
 also cover a doubly wrapped `base_model.model.model.language_model...` path and
-official exclusions, preventing silent fallback to the default bit width.
+official exclusions. The text-only `Gemma4ForCausalLM` paths
+`model.layers.*`, `model.embed_tokens`, `model.embed_tokens_per_layer`, and
+`model.per_layer_model_projection` are explicitly aliased back to the public
+`language_model.*` namespace; otherwise W2/W4 tensors would silently receive
+the default W8 fake quantizer.
 
 The 270M mapping has been checked against an existing merged BF16 checkpoint:
 127/127 headers map without transpose or shape errors. That older checkpoint
 lacks merge-metadata v3 and is intentionally rejected as a production input;
-mapping compatibility is not QAT provenance. The public packed Gemma 4 mobile
-checkpoint is also intentionally rejected by this path because its U8 packed
-shapes are not the required merged floating-point source.
+mapping compatibility is not QAT provenance. The raw packed Gemma 4 checkpoint
+is intentionally rejected as a merged floating-point input; only its
+manifest-verified BF16 text reconstruction is accepted as the training base.
 
 For 270M, train weight-only QAT (`ste_ai_edge`, W8, activation bits 32), including
 the embedding table. The released Q8 graph has INT8 per-row weights and FLOAT32
@@ -1740,13 +1801,12 @@ other constant. Either mode gives the same GPU topology, not automatically the
 same MTP speed: target and drafter weights determine draft acceptance even when
 delegation is identical.
 
-Overall recommendation: for Gemma 4, keep the official mobile model (and its
-official MTP drafter) as the deployable accuracy baseline until a
-mobile-compatible dense/dequantized training seed passes the retained-constant
-gate. Do not promote the current Q4-seed hybrid merely because its graph runs
-on GPU. After that prerequisite is satisfied, select the best golden QAT+LoRA
-checkpoint by strict IR quality, merge it with provenance, compile it into the
-official topology, then run `--validate-android-gpu`. The E2B pipeline executes
+Overall recommendation: keep the official mobile model and byte-exact official
+MTP drafter as the deployable accuracy baseline. Materialize the checked-in
+mobile reconstruction, train with the mobile-seed QAT config, select the best
+golden checkpoint by strict IR quality, merge it with provenance, compile it
+into the official topology, then run `--validate-android-gpu`. Never promote
+the rejected Q4-seed hybrid merely because its graph runs on GPU. The E2B pipeline executes
 two separate fail-closed
 reports under `android_gpu_parity/target_only` and `android_gpu_parity/mtp_on`.
 Promote E2B with `mtp=true` only when full delegation, fixed-length warm
@@ -1781,6 +1841,9 @@ is not applicable.
 https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
 - Official Gemma 4 mobile-transformers config (public module bit map):
   https://huggingface.co/google/gemma-4-E2B-it-qat-mobile-transformers/blob/main/config.json
+- Official Transformers Gemma packed-weight loader (W2/W4 unpack order,
+  signed offsets, block-scale application):
+  https://github.com/huggingface/transformers/blob/main/src/transformers/integrations/gemma_quant.py
 - Gemma 4 MTP Transformers tutorial:
   https://ai.google.dev/gemma/docs/mtp/mtp
 - Gemma 4 MTP architecture overview:

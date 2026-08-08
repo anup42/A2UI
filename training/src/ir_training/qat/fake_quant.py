@@ -36,6 +36,7 @@ class QATSpec:
         r"(^|\.)(lm_head|embed_tokens|embed_positions|output_projection)(\.|$)",
     )
     module_quant_configs: tuple[tuple[str, int], ...] = ()
+    module_group_sizes: tuple[tuple[str, int], ...] = ()
     modules_to_not_convert: tuple[str, ...] = ()
     quantize_embeddings: bool = False
     quantizer: str = "ste_absmax"
@@ -54,7 +55,14 @@ class QATSpec:
             exclude = cls.exclude_modules
         group_size = qat.get("group_size")
         module_quant_configs = qat.get("module_quant_configs", {})
+        module_group_sizes: tuple[tuple[str, int], ...] = ()
         if isinstance(module_quant_configs, dict):
+            module_group_sizes = tuple(
+                (str(pattern), int(rule["group_size"]))
+                for pattern, rule in module_quant_configs.items()
+                if isinstance(rule, dict)
+                and rule.get("group_size") not in (None, "", 0)
+            )
             module_quant_configs = tuple(
                 (str(pattern), int(rule.get("num_bits", rule)) if isinstance(rule, dict) else int(rule))
                 for pattern, rule in module_quant_configs.items()
@@ -88,6 +96,7 @@ class QATSpec:
             ),
             exclude_modules=exclude,
             module_quant_configs=module_quant_configs,
+            module_group_sizes=module_group_sizes,
             modules_to_not_convert=modules_to_not_convert,
             quantize_embeddings=bool(qat.get("quantize_embeddings", cls.quantize_embeddings)),
             quantizer=str(qat.get("quantizer", cls.quantizer)).strip().lower(),
@@ -107,6 +116,12 @@ class QATSpec:
             if _module_pattern_matches(pattern, module_name):
                 return bits
         return self.weight_bits
+
+    def group_size_for_module(self, module_name: str) -> int | None:
+        for pattern, group_size in self.module_group_sizes:
+            if _module_pattern_matches(pattern, module_name):
+                return group_size
+        return self.group_size
 
     def excludes_module(self, module_name: str) -> bool:
         return any(
@@ -145,6 +160,24 @@ def _module_name_candidates(module_name: str) -> tuple[str, ...]:
             if stripped and stripped not in candidates:
                 candidates.append(stripped)
                 queue.append(stripped)
+    # ``Gemma4ForCausalLM`` is text-only, so its modules are exposed as
+    # ``model.layers.*`` / ``model.embed_tokens`` rather than the multimodal
+    # checkpoint's ``language_model.*`` paths used by Google's public mobile
+    # precision map. Add only the known text-model roots; without these aliases
+    # W2/W4 matrices silently receive the default W8 fake quantizer.
+    text_roots = (
+        "layers.",
+        "embed_tokens",
+        "embed_tokens_per_layer",
+        "per_layer_model_projection",
+    )
+    for candidate in tuple(candidates):
+        if candidate.startswith("language_model."):
+            continue
+        if candidate.startswith(text_roots):
+            alias = "language_model." + candidate
+            if alias not in candidates:
+                candidates.append(alias)
     return tuple(candidates)
 
 
@@ -355,7 +388,9 @@ class QATController:
                     continue
                 adapter_names = _validate_effective_lora_wrapper(module, module_name)
                 original_forward = module.forward
-                module_spec = _module_spec_for_bits(self.spec, module_weight_bits)
+                module_spec = _module_spec_for_module(
+                    self.spec, module_name, module_weight_bits
+                )
 
                 def qat_lora_forward(
                     input_tensor: Any,
@@ -437,7 +472,9 @@ class QATController:
             if module in self._original_forwards:
                 continue
             original_forward = module.forward
-            module_spec = _module_spec_for_bits(self.spec, module_weight_bits)
+            module_spec = _module_spec_for_module(
+                self.spec, module_name, module_weight_bits
+            )
 
             if is_linear:
 
@@ -472,15 +509,12 @@ class QATController:
                     # same fake-quantized rows as the mobile exporter.
                     if args or kwargs:
                         return _original_forward(input_tensor, *args, **kwargs)
-                    quantized_weight = fake_quantize_weight(_module.weight, _module_spec)
-                    return functional.embedding(
+                    return _fake_quantized_embedding_lookup(
                         input_tensor,
-                        quantized_weight,
-                        _module.padding_idx,
-                        _module.max_norm,
-                        _module.norm_type,
-                        _module.scale_grad_by_freq,
-                        _module.sparse,
+                        _module,
+                        _module_spec,
+                        functional,
+                        _original_forward,
                     )
 
             module.forward = qat_forward
@@ -523,6 +557,11 @@ class QATController:
             "wrapped_linear_names": list(self._wrapped_linear_names),
             "wrapped_embedding_names": list(self._wrapped_embedding_names),
             "wrapped_weight_bits_by_module": dict(self._wrapped_weight_bits),
+            "wrapped_group_sizes_by_module": {
+                name: self.spec.group_size_for_module(name)
+                for name in self._wrapped_names
+                if self.spec.group_size_for_module(name) is not None
+            },
             "wrapped_weight_bit_histogram": dict(
                 sorted(bit_histogram.items(), key=lambda item: int(item[0]))
             ),
@@ -530,16 +569,70 @@ class QATController:
         }
 
 
-def _module_spec_for_bits(spec: QATSpec, weight_bits: int) -> QATSpec:
-    if weight_bits == spec.weight_bits:
+def _module_spec_for_module(
+    spec: QATSpec, module_name: str, weight_bits: int
+) -> QATSpec:
+    group_size = spec.group_size_for_module(module_name)
+    if weight_bits == spec.weight_bits and group_size == spec.group_size:
         return spec
     return QATSpec(
         **{
             **spec.to_dict(),
             "weight_bits": weight_bits,
+            "group_size": group_size,
             "module_quant_configs": (),
+            "module_group_sizes": (),
             "modules_to_not_convert": (),
         }
+    )
+
+
+def _fake_quantized_embedding_lookup(
+    input_tensor: Any,
+    module: Any,
+    spec: QATSpec,
+    functional: Any,
+    original_forward: Callable[..., Any],
+) -> Any:
+    """Fake-quantize only embedding rows referenced by this input batch.
+
+    The Gemma 4 per-layer table is roughly 4.7 GiB in BF16. Quantizing the
+    complete frozen table on every token lookup is unnecessary: embedding
+    output depends only on selected rows, and the released scales are local to
+    each row (with 256-column groups for ``embed_tokens_per_layer``).
+    """
+
+    import torch
+
+    if not hasattr(input_tensor, "numel") or input_tensor.numel() == 0:
+        return original_forward(input_tensor)
+    if module.max_norm is not None:
+        # ``max_norm`` mutates selected source rows in PyTorch. Gemma does not
+        # use it, so preserve generic nn.Embedding semantics rather than
+        # pretending the optimized path is exact.
+        return original_forward(input_tensor)
+
+    flat_indices = input_tensor.reshape(-1)
+    unique_indices, inverse_indices = torch.unique(
+        flat_indices, sorted=True, return_inverse=True
+    )
+    selected_weight = torch.index_select(module.weight, 0, unique_indices)
+    quantized_weight = fake_quantize_weight(selected_weight, spec)
+    local_padding_idx = None
+    if module.padding_idx is not None:
+        padding_matches = torch.nonzero(
+            unique_indices == int(module.padding_idx), as_tuple=False
+        )
+        if padding_matches.numel():
+            local_padding_idx = int(padding_matches[0, 0].item())
+    return functional.embedding(
+        inverse_indices.reshape_as(input_tensor),
+        quantized_weight,
+        local_padding_idx,
+        None,
+        module.norm_type,
+        module.scale_grad_by_freq,
+        module.sparse,
     )
 
 

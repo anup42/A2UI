@@ -27,6 +27,9 @@ module_quant_configs:
     num_bits: 2
   "language_model\\.embed_tokens_per_layer$":
     num_bits: 4
+    # Public packed shape [262144, 2240] expands to 8960 logical columns;
+    # [262144, 35] scales therefore cover 256 columns each.
+    group_size: 256
   "language_model\\.per_layer_model_projection$":
     num_bits: 8
   "language_model\\.layers\\.(\\d|1[0-4])\\.mlp\\.":

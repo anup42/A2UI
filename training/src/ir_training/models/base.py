@@ -2,8 +2,10 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
+from ir_training.common.config import resolve_path, training_root
 from ir_training.models.hf_loading import load_hf_model
 
 
@@ -34,16 +36,43 @@ class ModelAdapter(ABC):
     def export_capabilities(self) -> ExportCapabilities:
         raise NotImplementedError
 
+    def model_source(self) -> str:
+        """Return the load source while preserving ``model_id`` as provenance."""
+
+        configured = self.config.get("model_source")
+        if configured is None or not str(configured).strip():
+            return self.model_id
+        source = resolve_path(str(configured), training_root())
+        if not source.exists():
+            raise FileNotFoundError(f"Configured model.model_source does not exist: {source}")
+        return str(source)
+
+    def tokenizer_source(self) -> str:
+        configured = self.config.get("tokenizer_source")
+        if configured is None or not str(configured).strip():
+            return self.model_id
+        value = str(configured).strip()
+        candidate = Path(value).expanduser()
+        if candidate.is_absolute():
+            if not candidate.exists():
+                raise FileNotFoundError(
+                    f"Configured model.tokenizer_source does not exist: {candidate}"
+                )
+            return str(candidate.resolve())
+        local = resolve_path(candidate, training_root())
+        return str(local) if local.exists() else value
+
     def load_tokenizer(self):
         from transformers import AutoTokenizer, PreTrainedTokenizerFast  # type: ignore
 
+        tokenizer_source = self.tokenizer_source()
         loader = str(self.config.get("tokenizer_loader", "auto_tokenizer")).strip().lower()
         if loader in {"auto_processor", "processor"}:
             tokenizer = self._load_tokenizer_from_processor()
         elif loader in {"pretrained_tokenizer_fast", "tokenizer_fast", "fast"}:
             try:
                 tokenizer = PreTrainedTokenizerFast.from_pretrained(
-                    self.model_id,
+                    tokenizer_source,
                     trust_remote_code=bool(self.config.get("trust_remote_code", False)),
                 )
             except Exception:
@@ -53,7 +82,7 @@ class ModelAdapter(ABC):
         else:
             try:
                 tokenizer = AutoTokenizer.from_pretrained(
-                    self.model_id,
+                    tokenizer_source,
                     trust_remote_code=bool(self.config.get("trust_remote_code", False)),
                     use_fast=bool(self.config.get("use_fast_tokenizer", True)),
                 )
@@ -72,13 +101,13 @@ class ModelAdapter(ABC):
         from transformers import AutoProcessor  # type: ignore
 
         processor = AutoProcessor.from_pretrained(
-            self.model_id,
+            self.tokenizer_source(),
             trust_remote_code=bool(self.config.get("trust_remote_code", False)),
         )
         return getattr(processor, "tokenizer", processor)
 
     def load_model(self):
-        return load_hf_model(self.model_id, self.config)
+        return load_hf_model(self.model_source(), self.config)
 
     def format_example(self, example: dict[str, Any], tokenizer: Any | None = None, include_assistant: bool = True) -> str:
         messages = list(example.get("messages") or [])

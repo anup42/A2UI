@@ -122,14 +122,13 @@ graph. This is different from the QAT-derived `qat_mtp` profile above, does not
 train an MTP assistant, and does not claim Google's private mobile
 observer/calibration recipe.
 
-The checked-in E2B profile starts from Google's dense
-`gemma-4-E2B-it-qat-q4_0-unquantized` checkpoint, not the ordinary BF16 E2B
-checkpoint. Its optional trainable drafter starts from the matching
-`-qat-q4_0-unquantized-assistant`. The packed `-qat-mobile-transformers`
-checkpoint and released `.litertlm` remain the observable weight-layout and
-graph authorities; Google does not publish the dense pre-quantization mobile
-training checkpoint. The pipeline rejects a non-QAT seed, a mismatched
-assistant, or merge provenance bound to a different seed.
+The recommended E2B profile uses a text-only BF16 reconstruction of Google's
+exact packed `gemma-4-E2B-it-qat-mobile-transformers` checkpoint. The packed
+checkpoint and released `.litertlm` remain the observable numerical/layout and
+graph authorities; Google does not publish its dense pre-quantization master
+checkpoint. The pipeline rejects a missing/tampered reconstruction manifest,
+an incompatible base, or merge provenance bound to a different seed. Its
+optional trainable drafter remains a separate public reconstruction.
 
 Important production boundary: a bounded byte audit shows that the dense
 Q4-QAT seed and packed mobile checkpoint share all 262 retained language-model
@@ -139,18 +138,26 @@ packed-mobile BF16 tensors to the released target's FLOAT32 buffers, and all
 262 are exact after FLOAT32-to-BF16 round-to-nearest-even conversion. This
 proves the packed-mobile checkpoint is the public numerical authority for those
 constants at BF16 precision; it does not recover the compiled buffers' lower
-FLOAT32 mantissa bits. Consequently, the exact-topology production export still
-fails closed for the dense-Q4/mobile cross-checkpoint combination. Graph/GPU
+FLOAT32 mantissa bits. Consequently, the dense-Q4/mobile cross-checkpoint
+combination remains rejected. The checked-in mobile reconstruction instead
+copies those retained values and dequantizes the packed matrices, with every
+output bound by a materialized manifest. Graph/GPU
 topology parity is proven by the random-weight harness, but it does not make a
 hybrid of Q4-seed projections and mobile-package constants an accuracy-valid
-trained model. A future dense/dequantized mobile seed must pass the exact
-checkpoint-value gate before this block is lifted.
+trained model. Training/export still fail closed until the local 541-tensor
+mobile-seed manifest and every shard hash verify.
 
 The QAT profiles require `lora.dropout: 0.0`: an input-dependent adapter
 dropout mask has no exact equivalent in the final merged inference matrix.
 Training metadata hashes the selected adapter and records the number of PEFT
-wrappers using effective-weight QAT; merge manifest v3 rejects old base-only-QAT
-or unbound adapters before model loading.
+wrappers using effective-weight QAT; merge manifest v4 also binds the mobile
+seed manifest/local source and rejects old base-only-QAT or unbound adapters
+before model loading. The mobile profile additionally requires Transformers
+loading diagnostics with zero missing, unexpected, mismatched, or errored
+checkpoint keys; that requirement is preserved in merge/compiler provenance.
+Its per-layer embedding uses the public 256-column grouped scale layout and
+fake-quantizes only rows selected by the current token batch, avoiding a full
+multi-gigabyte embedding-table quantization on every forward pass.
 
 Validate all profiles without loading models or running training:
 
@@ -158,10 +165,16 @@ Validate all profiles without loading models or running training:
 python training/scripts/validate_qat_training.py
 ```
 
+For E2B, first plan and then explicitly execute
+`training/scripts/reconstruct_gemma4_mobile_training_seed.py` as documented in
+`training/docs/gemma4_e2b_qat_mtp_knowledge.md`; reconstruction writes model
+files but does not train. The E2B training command below refuses to load a model
+until that manifest verifies.
+
 Later, with an explicitly authorized GPU run, select a target profile:
 
 ```powershell
-python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_ir_qat_sft.yaml
+python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml
 python training/scripts/train_sft.py --config training/configs/models/gemma3_270m_ir_qat_sft.yaml
 python training/scripts/train_sft.py --config training/configs/models/functiongemma_270m_ir_qat_sft.yaml
 ```

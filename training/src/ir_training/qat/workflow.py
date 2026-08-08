@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ir_training.qat.fake_quant import QATSpec
 from ir_training.qat_mtp.workflow import WorkflowIssue
 
 
@@ -94,6 +95,36 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
 
     model_id = str(model.get("model_id") or "").lower()
     if "gemma-4" in model_id or "gemma4" in model_id:
+        try:
+            gemma4_spec = QATSpec.from_config(config)
+            observable_layout_matches = bool(
+                quantizer == "ste_ai_edge"
+                and qat.get("quantize_embeddings") is True
+                and gemma4_spec.weight_bits_for_module(
+                    "language_model.embed_tokens"
+                )
+                == 2
+                and gemma4_spec.weight_bits_for_module(
+                    "language_model.embed_tokens_per_layer"
+                )
+                == 4
+                and gemma4_spec.group_size_for_module(
+                    "language_model.embed_tokens_per_layer"
+                )
+                == 256
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            observable_layout_matches = False
+        if not observable_layout_matches:
+            issues.append(
+                WorkflowIssue(
+                    "error",
+                    "gemma4_mobile_observable_layout_mismatch",
+                    "Gemma 4 mobile QAT requires the public W2 token embedding, "
+                    "W4 per-layer embedding, and its observed 256-column grouped "
+                    "scales under the ste_ai_edge range convention.",
+                )
+            )
         if weight_bits != 8 or activation_bits != 8:
             issues.append(
                 WorkflowIssue(

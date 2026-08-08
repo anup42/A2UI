@@ -71,7 +71,38 @@ def load_hf_model(model_id: str, config: dict[str, Any]):
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=dtype,
         )
-    return loader_class.from_pretrained(model_id, **kwargs)
+    require_exact_keys = bool(config.get("require_exact_checkpoint_keys", False))
+    if require_exact_keys:
+        kwargs["output_loading_info"] = True
+    loaded = loader_class.from_pretrained(model_id, **kwargs)
+    if not require_exact_keys:
+        return loaded
+    if not (
+        isinstance(loaded, tuple)
+        and len(loaded) == 2
+        and isinstance(loaded[1], dict)
+    ):
+        raise RuntimeError(
+            "Exact checkpoint-key loading was requested, but Transformers did not "
+            "return loading diagnostics."
+        )
+    model, loading_info = loaded
+    failures = {
+        name: loading_info.get(name) or []
+        for name in (
+            "missing_keys",
+            "unexpected_keys",
+            "mismatched_keys",
+            "error_msgs",
+        )
+    }
+    failures = {name: value for name, value in failures.items() if value}
+    if failures:
+        raise RuntimeError(
+            "Reconstructed checkpoint did not load with an exact model-state "
+            f"inventory: {failures}"
+        )
+    return model
 
 
 def device_map_disabled(value: Any) -> bool:

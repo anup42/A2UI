@@ -163,6 +163,77 @@ def test_hf_loader_selects_transformers_5_causal_loader(monkeypatch):
     ]
 
 
+def test_hf_loader_requires_exact_checkpoint_key_inventory(monkeypatch):
+    calls: list[tuple[str, dict]] = []
+    expected_model = object()
+    fake_bfloat16 = object()
+
+    class FakeLoader:
+        @staticmethod
+        def from_pretrained(model_id, **kwargs):
+            calls.append((model_id, kwargs))
+            return expected_model, {
+                "missing_keys": [],
+                "unexpected_keys": [],
+                "mismatched_keys": [],
+                "error_msgs": [],
+            }
+
+    fake_torch = types.SimpleNamespace(
+        bfloat16=fake_bfloat16, float16=object(), float32=object()
+    )
+    fake_transformers = types.SimpleNamespace(
+        __version__="5.10.1", AutoModelForCausalLM=FakeLoader
+    )
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+
+    model = load_hf_model(
+        "local-mobile-seed",
+        {
+            "model_loader": "auto_causal_lm",
+            "dtype": "bfloat16",
+            "device_map": "none",
+            "require_exact_checkpoint_keys": True,
+        },
+    )
+
+    assert model is expected_model
+    assert calls[0][1]["output_loading_info"] is True
+
+
+def test_hf_loader_rejects_non_exact_checkpoint_key_inventory(monkeypatch):
+    class FakeLoader:
+        @staticmethod
+        def from_pretrained(_model_id, **_kwargs):
+            return object(), {
+                "missing_keys": ["model.layers.0.input_layernorm.weight"],
+                "unexpected_keys": [],
+                "mismatched_keys": [],
+                "error_msgs": [],
+            }
+
+    fake_torch = types.SimpleNamespace(
+        bfloat16=object(), float16=object(), float32=object()
+    )
+    fake_transformers = types.SimpleNamespace(
+        __version__="5.10.1", AutoModelForCausalLM=FakeLoader
+    )
+    monkeypatch.setitem(sys.modules, "torch", fake_torch)
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+
+    with pytest.raises(RuntimeError, match="exact model-state inventory"):
+        load_hf_model(
+            "local-mobile-seed",
+            {
+                "model_loader": "auto_causal_lm",
+                "dtype": "bfloat16",
+                "device_map": "none",
+                "require_exact_checkpoint_keys": True,
+            },
+        )
+
+
 def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatch):
     adapter_dir = tmp_path / "adapter"
     output_dir = tmp_path / "merged"
@@ -224,7 +295,7 @@ def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatc
     assert metadata["packed_int4_output"] is False
     assert metadata["requires_post_merge_quantization"] is True
     assert metadata["mtp_assistant_trained_or_modified"] is False
-    assert metadata["manifest_version"] == 3
+    assert metadata["manifest_version"] == 4
     assert metadata["training_method"] == "qat_lora_sft"
     assert metadata["qat_enabled"] is True
     assert metadata["qat_effective_merged_weight"] is True
