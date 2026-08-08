@@ -9,6 +9,46 @@
 profile: gemma4_e2b_mobile_observable_contract
 evidence_status: local_artifact_observation_only
 artifact_family: gemma-4-E2B-it-mobile
+
+# Cross-checkpoint audit performed with bounded Safetensors range reads on
+# 2026-08-08. This is deliberately a failing production gate: the public dense
+# Q4-QAT seed has the same 262 retained tensor schemas as the packed mobile
+# checkpoint, but 212 learned values differ. The exact-topology compiler must
+# not silently combine absolute projection weights from that seed with retained
+# constants from the mobile package.
+retained_constant_compatibility:
+  production_status: incompatible_checkpoint_values
+  dense_training_seed:
+    repo_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+    revision: 6befbaca7398925921802abd1f277b495b78b738
+    model_safetensors_size_bytes: 10208852878
+    model_safetensors_etag: 33fe0cece08fb527ffefbd1a3a9ce73bd71073727993a283506293e5c6bf0137
+  packed_mobile_checkpoint:
+    repo_id: google/gemma-4-E2B-it-qat-mobile-transformers
+    revision: dd693ff40353f057ca5f07e945ad867f4afbf2ec
+    model_safetensors_size_bytes: 2458111846
+    model_safetensors_sha256: efab429012b97ab986c4d4838a46ff3ad95d618b42ce514771ca40fadc76a9a4
+  selection:
+    prefix: model.language_model.
+    max_rank: 1
+    selected_tensor_count: 262
+    compared_bytes: 571974
+    excluded_observer_suffixes:
+      - .input_max
+      - .input_min
+      - .output_max
+      - .output_min
+  comparison:
+    schema_mismatch_count: 0
+    exact_tensor_count: 50
+    value_mismatch_count: 212
+    all_selected_tensors_exact: false
+    dense_seed_aggregate_sha256: c3be6ec6262092beaceb1b4c3d2b01a1073290d8bfb739ebe3cf40289e280e6c
+    packed_mobile_aggregate_sha256: 1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa
+  # The checkpoint audit does not yet map these tensors to the fused FLOAT32
+  # buffers in the compiled TFLite target section.
+  compiled_graph_mapping_verified: false
+  private_qat_recipe_recovered: false
 quantization:
   weight_granularity: CHANNELWISE
   weight_quantized_dimension: 0

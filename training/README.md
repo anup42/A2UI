@@ -131,6 +131,16 @@ graph authorities; Google does not publish the dense pre-quantization mobile
 training checkpoint. The pipeline rejects a non-QAT seed, a mismatched
 assistant, or merge provenance bound to a different seed.
 
+Important production boundary: a bounded byte audit now shows that the dense
+Q4-QAT seed and packed mobile checkpoint share all 262 retained language-model
+tensor schemas, but only 50 tensors are byte-identical and 212 learned
+norm/scalar tensors differ. Consequently, the exact-topology production export
+fails closed for this cross-checkpoint combination. Graph/GPU topology parity
+is still proven by the random-weight harness, but it does not make a hybrid of
+Q4-seed projections and mobile-package constants an accuracy-valid trained
+model. A future dense/dequantized mobile seed must pass both checkpoint-value
+and compiled-buffer mapping gates before this block is lifted.
+
 The QAT profiles require `lora.dropout: 0.0`: an input-dependent adapter
 dropout mask has no exact equivalent in the final merged inference matrix.
 Training metadata hashes the selected adapter and records the number of PEFT
@@ -187,15 +197,31 @@ python training/scripts/run_gemma4_e2b_mobile_mtp.py
 ```
 
 Set `pipeline.source.base_litertlm` to the exact official package variant. The
-preferred deployment stage quantizes the merged target checkpoint with the
-public AI Edge quantizer, injects those constants into the released target
-graph, and writes the final package:
+preferred deployment stage is designed to quantize the merged target
+checkpoint with the public AI Edge quantizer, inject those constants into the
+released target graph, and write the final package. It currently refuses the
+checked-in E2B Q4-seed/mobile-template pairing because its retained-constant
+contract is incompatible; do not bypass that gate:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
 python training/scripts/validate_litertlm_mtp_gpu.py `
   training/outputs/pipelines/gemma4_e2b_mobile_mtp/gemma4_e2b_mobile_mtp.litertlm
 ```
+
+Reproduce the bounded checkpoint audit without downloading the full dense
+checkpoint (the local file should be the public packed mobile Safetensors):
+
+```powershell
+python training/scripts/audit_hf_retained_constant_parity.py `
+  --remote-repo google/gemma-4-E2B-it-qat-q4_0-unquantized `
+  --local-safetensors PATH_TO_PACKED_MOBILE_MODEL_SAFETENSORS `
+  --local-model-id google/gemma-4-E2B-it-qat-mobile-transformers `
+  --output RETAINED_CONSTANT_AUDIT_JSON
+```
+
+The script accepts only bounded HTTP `206 Partial Content` responses and exits
+nonzero when any selected schema/value differs. It does not run training.
 
 In official mode, `tf_lite_mtp_drafter` remains byte-for-byte official. In
 trained mode, first set `weight_source: trained` and `train_assistant: true`,
@@ -654,7 +680,8 @@ gate; structural GPU parity passed.
 ### Merged checkpoint -> exact official topology
 
 `build_checkpoint_official_topology.py` is the deployment path for the best
-QAT+LoRA checkpoint. It reuses the already verified converter-injection
+QAT+LoRA checkpoint once its numerical base passes the retained-constant gate.
+It reuses the already verified converter-injection
 mechanism, but its float branches come lazily from merged Hugging Face
 safetensors instead of a random generator. The public AI Edge Quantizer emits
 the W2/W4/W8 packed projection constants and per-axis scales; those constants
@@ -671,6 +698,9 @@ The command fails closed unless all of these are true:
 - every one of those 277 or 127 official buffers has the same W2/W4/W8 QAT bit
   assignment in the selected training config; tied E2B `lm_head` is audited
   through its token-embedding source;
+- for E2B, a generated retained-constant contract proves exact seed/mobile
+  values and their mapping into compiled buffers (the current public Q4 seed
+  fails this gate at 50/262 exact tensors);
 - the public converter returns the exact observed bit-width/operator/scale
   inventory and every packed byte/scale survives injection;
 - graph structure, operators, signatures, cache wiring, quantization layout,
@@ -679,9 +709,11 @@ The command fails closed unless all of these are true:
 
 The final package is first written as an unpromoted `.partial` file. It is
 renamed to the requested `.litertlm` only after every graph and package gate
-passes. This reproduces the official graph/operators/layout with different
-trained weights; it does not claim recovery of Google's private QAT trainer or
-calibration corpus.
+passes. When all gates pass, this reproduces the official
+graph/operators/layout with different trained weights; it does not claim
+recovery of Google's private QAT trainer or calibration corpus. At present
+this statement applies to the 270M exact-base route and to E2B topology
+experiments, not to a production E2B Q4-seed/mobile-template hybrid.
 
 The preferred plan-only entry points are:
 
@@ -696,7 +728,9 @@ python training/scripts/run_gemma270m_qat_litertlm.py `
 ```
 
 After training has independently produced a golden best adapter, run the
-explicit merge and exact-topology stages. Neither command starts training:
+explicit merge and exact-topology stages. Neither command starts training. The
+E2B exact export shown below intentionally fails until its compatibility
+contract becomes `compatible_exact`; the 270M exact-base flow remains usable:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py `

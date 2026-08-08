@@ -1617,22 +1617,53 @@ W2/W4/W8 width, and injects only the resulting packed projection constants and
 per-axis scales. This is the direct extension of the random-weight experiment
 that already passed graph/layout/allocation and Android GPU delegation.
 
-The safe public contract is projection-only QAT+LoRA from Google's dense
-`gemma-4-E2B-it-qat-q4_0-unquantized` seed, with the released mobile package as
-the immutable graph and packed-layout authority. Google does not publish the
-dense pre-quantization wNa8o8 training checkpoint, so do not describe the Q4_0
-seed as numerically identical to every mobile constant. Merge metadata version
-3 records the training seed,
+The graph-safe public experiment is projection-only QAT+LoRA from Google's
+dense `gemma-4-E2B-it-qat-q4_0-unquantized` seed, with the released mobile
+package as the immutable graph and packed-layout authority. It is not currently
+a production-safe numerical transplant. On 2026-08-08,
+`audit_hf_retained_constant_parity.py` compared the public dense seed (remote
+Safetensors commit `6befbaca7398925921802abd1f277b495b78b738`, file etag
+`33fe0cece08fb527ffefbd1a3a9ce73bd71073727993a283506293e5c6bf0137`)
+with the packed mobile checkpoint (commit
+`dd693ff40353f057ca5f07e945ad867f4afbf2ec`, Safetensors SHA-256
+`efab429012b97ab986c4d4838a46ff3ad95d618b42ce514771ca40fadc76a9a4`).
+It selected 262 common language-model scalars/vectors after excluding observer
+min/max tensors: all 262 schemas matched, but only 50 values were byte-exact
+and 212 differed. The aggregate digests were
+`c3be6ec6262092beaceb1b4c3d2b01a1073290d8bfb739ebe3cf40289e280e6c`
+(dense Q4 seed) and
+`1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa`
+(packed mobile checkpoint).
+
+That result closes an ambiguity: matching official model ownership, tensor
+names, dtypes, and shapes does not make the two releases the same numerical
+base. Transplanting absolute Q4-seed projection weights while retaining mobile
+RMSNorm/layer-scalar constants would create an unvalidated hybrid. The checked-in
+retained-constant contract therefore has
+`production_status: incompatible_checkpoint_values`, and both the pipeline and
+direct exact-topology compiler refuse production export. The separate random
+weight graph harness remains valid for proving graph/operator/layout and GPU
+delegation, because it makes no accuracy or model-identity claim.
+
+Google does not publish the dense pre-quantization wNa8o8 training checkpoint.
+The public paths that could safely reopen production export are: obtain a dense
+mobile-compatible seed, or reconstruct/dequantize the public packed mobile
+checkpoint and prove its retained tensors map into the compiled FLOAT32
+buffers. Either path must produce a `compatible_exact` contract with zero
+schema/value mismatches and `compiled_graph_mapping_verified: true`; do not
+toggle those fields without generated evidence. Merge metadata version 3 then
+records the training seed,
 training-config SHA-256, `qat_lora_sft` method, effective merged-weight QAT run,
 selected adapter hashes, and every merged safetensor shard/index hash. The
 compiler rejects an old merge, a generic or base-only-QAT LoRA merge presented
 with the new QAT YAML, a packed mobile checkpoint, a base-model mismatch, a
-package hash mismatch, or any missing/shape-incompatible source key. Do not bypass these
-checks: retained RMSNorm, tokenizer, metadata, and other non-inventory
-constants remain hash-bound to the official package, while every target FC and
-embedding inventory constant is regenerated from the merged checkpoint. This
-proves official graph/operator/layout equivalence; it does not prove recovery
-of Google's unavailable dense mobile seed or private QAT numerics.
+package hash mismatch, an incompatible retained-constant contract, or any
+missing/shape-incompatible source key. Do not bypass these checks. Once a
+compatible seed exists, retained RMSNorm, tokenizer, metadata, and other
+non-inventory constants remain hash-bound to the official package, while every
+target FC and embedding inventory constant is regenerated from the merged
+checkpoint. This proves official graph/operator/layout equivalence; it still
+does not recover Google's private QAT loss, calibration data, or exporter.
 
 Before quantization, the compiler derives a canonical QAT module for every
 official inventory entry and compares its configured fake-quant bit width with
@@ -1644,10 +1675,10 @@ makes the plan non-executable.
 
 Current exact bindings for the supplied reference artifacts are:
 
-| family | public training seed | target section | unique mapped weights | package SHA-256 |
-| --- | --- | --- | ---: | --- |
-| Gemma 4 E2B | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | `tf_lite_prefill_decode` | 277 | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
-| Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
+| family | public training seed | target section | unique mapped weights | production status | package SHA-256 |
+| --- | --- | --- | ---: | --- | --- |
+| Gemma 4 E2B | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | `tf_lite_prefill_decode` | 277 | blocked: 212/262 retained constants differ | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
+| Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | exact-base path; device quality/speed still required | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
 
 The optional trained E2B drafter is seeded from
 `google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant`. Google states that a
@@ -1687,9 +1718,14 @@ other constant. Either mode gives the same GPU topology, not automatically the
 same MTP speed: target and drafter weights determine draft acceptance even when
 delegation is identical.
 
-Overall recommendation: select the best golden QAT+LoRA checkpoint by strict IR
-quality, merge it with provenance, compile it into the official topology, then
-run `--validate-android-gpu`. The E2B pipeline executes two separate fail-closed
+Overall recommendation: for Gemma 4, keep the official mobile model (and its
+official MTP drafter) as the deployable accuracy baseline until a
+mobile-compatible dense/dequantized training seed passes the retained-constant
+gate. Do not promote the current Q4-seed hybrid merely because its graph runs
+on GPU. After that prerequisite is satisfied, select the best golden QAT+LoRA
+checkpoint by strict IR quality, merge it with provenance, compile it into the
+official topology, then run `--validate-android-gpu`. The E2B pipeline executes
+two separate fail-closed
 reports under `android_gpu_parity/target_only` and `android_gpu_parity/mtp_on`.
 Promote E2B with `mtp=true` only when full delegation, fixed-length warm
 target-only throughput, MTP acceptance, MTP-on throughput, and output-quality

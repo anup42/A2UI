@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import audit_gemma4_mobile_checkpoint_parity
 import audit_gemma4_mobile_projection_parity
 import audit_gemma4_mtp_assistant_parity
+import audit_hf_retained_constant_parity
 import audit_litertlm_recipe
 import audit_litertlm_remote_source_recipe
 import audit_litertlm_weight_recipe
@@ -1342,3 +1343,99 @@ def test_gemma4_mobile_checkpoint_source_key_mapping():
     assert audit_gemma4_mobile_checkpoint_parity._source_key(
         "tf_lite_prefill_decode", "layer_3/mlp/gating_einsum1", 0
     ) == ("model.language_model.layers.3.mlp.gate_proj.weight", None)
+
+
+def test_retained_constant_selection_excludes_observers_and_matrices():
+    header = {
+        "model.language_model.layers.0.input_layernorm.weight": {
+            "dtype": "BF16",
+            "shape": [4],
+            "data_offsets": [0, 8],
+        },
+        "model.language_model.layers.0.layer_scalar": {
+            "dtype": "F32",
+            "shape": [],
+            "data_offsets": [8, 12],
+        },
+        "model.language_model.layers.0.input_layernorm.input_max": {
+            "dtype": "F32",
+            "shape": [],
+            "data_offsets": [12, 16],
+        },
+        "model.language_model.per_layer_model_projection.weight": {
+            "dtype": "BF16",
+            "shape": [8, 4],
+            "data_offsets": [16, 80],
+        },
+        "model.vision_tower.norm.weight": {
+            "dtype": "BF16",
+            "shape": [4],
+            "data_offsets": [80, 88],
+        },
+    }
+
+    selected = audit_hf_retained_constant_parity._select_entries(
+        header,
+        prefix="model.language_model.",
+        max_rank=1,
+    )
+
+    assert set(selected) == {
+        "model.language_model.layers.0.input_layernorm.weight",
+        "model.language_model.layers.0.layer_scalar",
+    }
+
+
+def test_retained_constant_ranges_merge_only_exact_bounded_adjacency():
+    entries = {
+        "a": {"dtype": "BF16", "shape": [2], "data_offsets": [0, 4]},
+        "b": {"dtype": "BF16", "shape": [2], "data_offsets": [4, 8]},
+        "c": {"dtype": "BF16", "shape": [2], "data_offsets": [12, 16]},
+        "d": {"dtype": "BF16", "shape": [2], "data_offsets": [16, 20]},
+    }
+
+    groups = audit_hf_retained_constant_parity._coalesce_remote_ranges(
+        entries,
+        data_start=100,
+        max_group_bytes=6,
+    )
+
+    assert [(group["begin"], group["end_exclusive"]) for group in groups] == [
+        (100, 104),
+        (104, 108),
+        (112, 116),
+        (116, 120),
+    ]
+
+
+def test_retained_constant_range_read_rejects_full_response_before_body(monkeypatch):
+    class NeverRead:
+        def read(self, _size):
+            raise AssertionError("an unbounded response body must never be consumed")
+
+    class FakeResponse:
+        def __init__(self):
+            self.status_code = 200
+            self.headers = {"Content-Length": "10208852878"}
+            self.raw = NeverRead()
+
+        def close(self):
+            return None
+
+    monkeypatch.setattr(
+        audit_hf_retained_constant_parity.requests,
+        "get",
+        lambda *args, **kwargs: FakeResponse(),
+    )
+
+    with pytest.raises(
+        audit_hf_retained_constant_parity.RetainedConstantAuditError,
+        match="did not honor the bounded byte range",
+    ):
+        audit_hf_retained_constant_parity._bounded_range_get(
+            "https://example.invalid/model.safetensors",
+            begin=0,
+            end=7,
+            retries=1,
+            timeout_seconds=1,
+        )

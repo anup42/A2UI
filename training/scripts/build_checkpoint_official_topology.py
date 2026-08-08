@@ -11,10 +11,11 @@ official graph.
 The operation is deliberately narrow. It accepts only projection-only LoRA
 training bound to the declared public training seed. Every mapped target
 FC/embedding constant is regenerated from the merged checkpoint; learned
-constants outside that inventory remain from the official package. For Gemma
-4 E2B, Google does not publish the dense pre-quantization mobile checkpoint, so
-the checked-in workflow uses its public Q4_0 QAT-derived BF16 checkpoint as the
-trainable seed while the released package remains the graph/layout authority.
+constants outside that inventory remain from the official package. Gemma 4
+therefore also requires a fail-closed retained-constant evidence contract.
+The public Q4_0 QAT-derived BF16 checkpoint is not assumed numerically
+compatible with the separate packed mobile checkpoint merely because both are
+official releases.
 The tokenizer, separate token/per-layer embedder sections, audio/vision
 sections, and default MTP drafter are preserved byte-for-byte. A fail-closed
 manifest records every source key, shape transform, quantizer layout, graph
@@ -81,6 +82,7 @@ from build_fresh_random_quantized_graph import _extract_inventory
 from ir_training.common.config import load_yaml
 from ir_training.export.litertlm_inspector import inspect_litertlm
 from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat.retained_constants import verify_retained_constant_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_TARGET
 
 
@@ -695,7 +697,8 @@ def _training_scope_report(
     result["preserved_constant_contract"] = (
         "Every mapped target FC/embedding constant may differ. All learned constants "
         "outside that inventory are retained from the hash-bound official package; "
-        "this proves graph/layout identity, not an unavailable dense mobile seed."
+        "this mutation scope can preserve graph/layout identity, but production also "
+        "requires a separate retained-constant compatibility proof."
     )
     return result
 
@@ -871,6 +874,7 @@ def build_plan(
     family: str,
     model_type: str | None = None,
     training_config: str | Path | None = None,
+    retained_constant_contract: str | Path | None = None,
     official_base_model_id: str | None = None,
     official_artifact_sha256: str | None = None,
     output_dir: str | Path | None = None,
@@ -972,6 +976,25 @@ def build_plan(
                 "checks": training_scope["checks"],
             }
         )
+    retained_constant_compatibility = verify_retained_constant_contract(
+        retained_constant_contract,
+        family=normalized_family,
+        training_model_id=str(training_scope.get("training_model_id") or ""),
+    )
+    if not retained_constant_compatibility["verified"]:
+        issues.append(
+            {
+                "code": "retained_constant_compatibility_unverified",
+                "checks": retained_constant_compatibility["checks"],
+                "production_status": retained_constant_compatibility.get(
+                    "production_status"
+                ),
+                "message": (
+                    "Refusing to mix checkpoint-derived projection weights with "
+                    "unverified learned constants retained from the official package."
+                ),
+            }
+        )
     qat_precision_coverage = _qat_inventory_precision_report(
         records,
         family=normalized_family,
@@ -1036,6 +1059,7 @@ def build_plan(
         "mapping_count": len(mappings),
         "mappings": mappings,
         "training_scope": training_scope,
+        "retained_constant_compatibility": retained_constant_compatibility,
         "qat_precision_coverage": qat_precision_coverage,
         "merge_provenance": merge_provenance,
         "output_dir": str(output_root),
@@ -1084,6 +1108,7 @@ def run(
     family: str,
     model_type: str | None,
     training_config: str | Path,
+    retained_constant_contract: str | Path | None,
     official_base_model_id: str,
     official_artifact_sha256: str,
     output_dir: str | Path,
@@ -1102,6 +1127,7 @@ def run(
         family=family,
         model_type=model_type,
         training_config=training_config,
+        retained_constant_contract=retained_constant_contract,
         official_base_model_id=official_base_model_id,
         official_artifact_sha256=official_artifact_sha256,
         output_dir=output_dir,
@@ -1266,6 +1292,9 @@ def run(
     gates = {
         "training_scope_supported": bool(
             plan["training_scope"]["supported_projection_only_transplant"]
+        ),
+        "retained_constant_compatibility_verified": bool(
+            plan["retained_constant_compatibility"]["verified"]
         ),
         "merge_provenance_verified": bool(plan["merge_provenance"]["verified"]),
         "complete_checkpoint_mapping": len(loaded_mappings) == len(official_records),
@@ -1453,6 +1482,13 @@ def main(argv: Iterable[str] | None = None) -> int:
     )
     parser.add_argument("--model-type")
     parser.add_argument("--training-config", required=True)
+    parser.add_argument(
+        "--retained-constant-contract",
+        help=(
+            "Evidence YAML proving constants retained from the official package "
+            "are compatible with the declared training seed (required for Gemma 4)."
+        ),
+    )
     parser.add_argument("--official-base-model-id", required=True)
     parser.add_argument("--official-artifact-sha256", required=True)
     parser.add_argument("--output-dir", required=True)
@@ -1485,6 +1521,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 family=args.family,
                 model_type=args.model_type,
                 training_config=args.training_config,
+                retained_constant_contract=args.retained_constant_contract,
                 official_base_model_id=args.official_base_model_id,
                 official_artifact_sha256=args.official_artifact_sha256,
                 output_dir=args.output_dir,
@@ -1504,6 +1541,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 family=args.family,
                 model_type=args.model_type,
                 training_config=args.training_config,
+                retained_constant_contract=args.retained_constant_contract,
                 official_base_model_id=args.official_base_model_id,
                 official_artifact_sha256=args.official_artifact_sha256,
                 output_dir=args.output_dir,

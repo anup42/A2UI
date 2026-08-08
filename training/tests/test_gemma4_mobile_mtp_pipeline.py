@@ -22,7 +22,9 @@ from ir_training.pipeline.gemma4_mobile_mtp import (
     Gemma4MobileMTPPipelineError,
     _load_android_gpu_report,
     build_pipeline_plan,
+    run_pipeline,
 )
+from ir_training.qat.retained_constants import verify_retained_constant_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
 
 
@@ -51,8 +53,13 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     assert plan["exact_topology"]["enabled"] is True
     assert plan["exact_topology"]["family"] == "gemma4_e2b"
     assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
+    assert plan["exact_topology"]["retained_constant_compatibility"]["verified"] is False
     assert "--execute" in plan["exact_topology"]["command"]
     assert any(item["code"] == "missing_base_package" for item in plan["validation"]["issues"])
+    assert any(
+        item["code"] == "retained_constant_compatibility_unverified"
+        for item in plan["validation"]["issues"]
+    )
 
 
 def test_mobile_mtp_pipeline_rejects_non_qat_or_mismatched_seeds(tmp_path):
@@ -91,7 +98,11 @@ def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
 
     plan = build_pipeline_plan(config, config_path=config_path)
 
-    assert plan["validation"]["ok"] is True
+    assert plan["validation"]["ok"] is False
+    assert any(
+        item["code"] == "retained_constant_compatibility_unverified"
+        for item in plan["validation"]["issues"]
+    )
     assert plan["mtp"]["weight_source"] == "trained"
     assert plan["mtp"]["official_weights_preserved"] is False
     assert plan["mtp"]["training"]["enabled"] is True
@@ -114,6 +125,84 @@ def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
         "final_output_litertlm"
     ]
     assert "private" in plan["limitations"][0].lower()
+
+
+def test_retained_constant_contract_rejects_known_cross_checkpoint_mismatch():
+    contract = (
+        ROOT
+        / "configs"
+        / "quantization"
+        / "gemma4_e2b_mobile_observable_contract.yaml"
+    )
+
+    report = verify_retained_constant_contract(
+        contract,
+        family="gemma4_e2b",
+        training_model_id=OFFICIAL_QAT_TARGET,
+    )
+
+    assert report["verified"] is False
+    assert report["production_status"] == "incompatible_checkpoint_values"
+    assert report["selection"]["selected_tensor_count"] == 262
+    assert report["comparison"]["exact_tensor_count"] == 50
+    assert report["comparison"]["value_mismatch_count"] == 212
+    assert report["checks"]["no_value_mismatches"] is False
+    assert report["checks"]["compiled_graph_mapping_verified"] is False
+
+
+def test_retained_constant_contract_requires_exact_values_and_compiled_mapping(
+    tmp_path,
+):
+    contract = tmp_path / "retained.json"
+    payload = {
+        "retained_constant_compatibility": {
+            "production_status": "compatible_exact",
+            "dense_training_seed": {"repo_id": OFFICIAL_QAT_TARGET},
+            "packed_mobile_checkpoint": {"repo_id": "google/mobile"},
+            "selection": {"selected_tensor_count": 262},
+            "comparison": {
+                "schema_mismatch_count": 0,
+                "exact_tensor_count": 262,
+                "value_mismatch_count": 0,
+                "all_selected_tensors_exact": True,
+            },
+            "compiled_graph_mapping_verified": True,
+        }
+    }
+    contract.write_text(json.dumps(payload), encoding="utf-8")
+
+    report = verify_retained_constant_contract(
+        contract,
+        family="gemma4_e2b",
+        training_model_id=OFFICIAL_QAT_TARGET,
+    )
+
+    assert report["verified"] is True
+    payload["retained_constant_compatibility"][
+        "compiled_graph_mapping_verified"
+    ] = False
+    contract.write_text(json.dumps(payload), encoding="utf-8")
+    rejected = verify_retained_constant_contract(
+        contract,
+        family="gemma4_e2b",
+        training_model_id=OFFICIAL_QAT_TARGET,
+    )
+    assert rejected["verified"] is False
+
+
+def test_exact_topology_stage_stops_before_conversion_on_incompatible_contract():
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = load_yaml(config_path)
+
+    with pytest.raises(
+        Gemma4MobileMTPPipelineError,
+        match="retained_constant_compatibility_unverified",
+    ):
+        run_pipeline(
+            config,
+            config_path=config_path,
+            execute_exact_topology_export=True,
+        )
 
 
 def _write_device_report(

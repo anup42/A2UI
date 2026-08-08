@@ -34,6 +34,7 @@ from ir_training.eval.android_gpu_report import (
 from ir_training.export.edge_gallery import export_edge_gallery_model
 from ir_training.export.litertlm_mtp import compose_with_default_mtp
 from ir_training.export.merge_lora import merge_lora_adapter
+from ir_training.qat.retained_constants import verify_retained_constant_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
 
 
@@ -221,6 +222,14 @@ def build_pipeline_plan(
     official_artifact_sha256 = str(
         exact_cfg.get("official_artifact_sha256") or ""
     ).strip().lower()
+    retained_constant_contract = _path_or_empty(
+        exact_cfg.get("retained_constant_contract"), base
+    )
+    retained_constant_compatibility = verify_retained_constant_contract(
+        retained_constant_contract,
+        family="gemma4_e2b",
+        training_model_id=model_id,
+    )
     exact_script = base / "scripts" / "build_checkpoint_official_topology.py"
     exact_command = [
         sys.executable,
@@ -234,6 +243,10 @@ def build_pipeline_plan(
         target_model_type,
         "--training-config",
         str(training_config_path),
+        "--retained-constant-contract",
+        str(retained_constant_contract)
+        if retained_constant_contract
+        else "<retained-constant-contract-required>",
         "--official-base-model-id",
         official_base_model_id,
         "--official-artifact-sha256",
@@ -391,6 +404,19 @@ def build_pipeline_plan(
                 "message": (
                     "exact_topology.official_base_model_id must equal the training "
                     "model_id so adapter merge provenance is bound to the same seed."
+                ),
+            }
+        )
+    if not retained_constant_compatibility["verified"]:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_constant_compatibility_unverified",
+                "scope": "exact_topology_export",
+                "message": (
+                    "The dense training seed is not proven compatible with learned "
+                    "constants retained from the packed mobile package. Current "
+                    "evidence must be compatible_exact and mapped into the compiled graph."
                 ),
             }
         )
@@ -553,6 +579,10 @@ def build_pipeline_plan(
             "official_litertlm": str(base_litertlm) if base_litertlm else None,
             "merged_checkpoint": str(merged_model_dir),
             "training_config": str(training_config_path),
+            "retained_constant_contract": str(retained_constant_contract)
+            if retained_constant_contract
+            else None,
+            "retained_constant_compatibility": retained_constant_compatibility,
             "model_type": target_model_type,
             "output_dir": str(target_exact_output_dir),
             "output_litertlm": str(target_exact_package_output),
@@ -721,7 +751,13 @@ def run_pipeline(
         for item in plan["validation"]["issues"]
         if item["severity"] == "error"
     ]
-    if stage_errors and (
+    blocking_stage_errors = [
+        item
+        for item in stage_errors
+        if item.get("code") != "retained_constant_compatibility_unverified"
+        or execute_exact_topology_export
+    ]
+    if blocking_stage_errors and (
         execute_training
         or execute_merge
         or execute_drafter_training
@@ -730,7 +766,9 @@ def run_pipeline(
         or compose_package
         or validate_android_gpu
     ):
-        raise Gemma4MobileMTPPipelineError(json.dumps(stage_errors, ensure_ascii=False))
+        raise Gemma4MobileMTPPipelineError(
+            json.dumps(blocking_stage_errors, ensure_ascii=False)
+        )
 
     if execute_exact_topology_export and compose_package:
         raise Gemma4MobileMTPPipelineError(
