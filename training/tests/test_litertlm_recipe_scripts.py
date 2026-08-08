@@ -25,6 +25,26 @@ import build_random_official_topology_parity
 import build_random_tflite_recipe_parity
 
 
+def _bind_verified_artifact_identity(
+    probe: dict[str, object],
+    *,
+    digest: str,
+    device_path: str,
+) -> dict[str, object]:
+    device_report = probe["device_report"]
+    assert isinstance(device_report, dict)
+    device_report["model_path"] = device_path
+    probe["artifact_identity"] = {
+        "algorithm": "SHA-256",
+        "host_size_bytes": device_report["model_size_bytes"],
+        "host_sha256": digest,
+        "device_path": device_path,
+        "staged_device_sha256": digest,
+        "post_run_device_sha256": digest,
+    }
+    return probe
+
+
 def test_android_gpu_parity_parser_extracts_full_delegation_and_mtp_rate():
     logcat = """
 signature=decode, subgraph_index=0, num_tensors=10, num_inputs=2, num_outputs=1, num_ops=7
@@ -71,6 +91,12 @@ MTP Drafter - Success rate: 1
         },
         "logcat_evidence": candidate_evidence,
     }
+    _bind_verified_artifact_identity(
+        official, digest="a" * 64, device_path="/data/local/tmp/official.litertlm"
+    )
+    _bind_verified_artifact_identity(
+        candidate, digest="b" * 64, device_path="/data/local/tmp/candidate.litertlm"
+    )
 
     comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
         official,
@@ -110,6 +136,12 @@ def test_android_gpu_parity_rejects_unequal_or_short_decode_samples():
         },
         "logcat_evidence": evidence,
     }
+    _bind_verified_artifact_identity(
+        official, digest="a" * 64, device_path="/data/local/tmp/official.litertlm"
+    )
+    _bind_verified_artifact_identity(
+        candidate, digest="b" * 64, device_path="/data/local/tmp/candidate.litertlm"
+    )
 
     comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
         official,
@@ -169,6 +201,12 @@ def test_android_gpu_parity_accepts_one_mtp_verifier_batch_of_overshoot():
         },
         "logcat_evidence": evidence,
     }
+    _bind_verified_artifact_identity(
+        official, digest="a" * 64, device_path="/data/local/tmp/official.litertlm"
+    )
+    _bind_verified_artifact_identity(
+        candidate, digest="b" * 64, device_path="/data/local/tmp/candidate.litertlm"
+    )
 
     comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
         official,
@@ -197,7 +235,8 @@ def test_android_gpu_parity_rejects_mtp_early_stop_or_excess_overshoot():
     )
 
     def probe(decode_count: int) -> dict[str, object]:
-        return {
+        return _bind_verified_artifact_identity(
+            {
             "instrumentation_passed": True,
             "device_report": {
                 "model_size_bytes": 100,
@@ -205,7 +244,10 @@ def test_android_gpu_parity_rejects_mtp_early_stop_or_excess_overshoot():
                 "decode_tokens_per_second": 40.0,
             },
             "logcat_evidence": evidence,
-        }
+            },
+            digest="a" * 64,
+            device_path="/data/local/tmp/model.litertlm",
+        )
 
     early_stop = benchmark_android_litertlm_gpu_parity.compare_probe_results(
         probe(35),
@@ -246,6 +288,9 @@ def test_android_gpu_parity_allows_two_absent_signature_summaries():
         "device_report": {"model_size_bytes": 100},
         "logcat_evidence": evidence,
     }
+    _bind_verified_artifact_identity(
+        probe, digest="a" * 64, device_path="/data/local/tmp/model.litertlm"
+    )
 
     comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
         probe,
@@ -260,6 +305,59 @@ def test_android_gpu_parity_allows_two_absent_signature_summaries():
     assert comparison["signature_shape_match"] is None
     assert comparison["structural_gpu_parity_pass"] is True
     assert comparison["overall_pass"] is True
+
+
+def test_android_gpu_parity_rejects_unbound_or_changed_device_artifact():
+    evidence = benchmark_android_litertlm_gpu_parity.parse_logcat_evidence(
+        "Replacing 7 out of 7 node(s) with delegate (LITERT_CL) node, "
+        "yielding 1 partitions for subgraph 0 (decode)."
+    )
+    official = _bind_verified_artifact_identity(
+        {
+            "instrumentation_passed": True,
+            "device_report": {"model_size_bytes": 100},
+            "logcat_evidence": evidence,
+        },
+        digest="a" * 64,
+        device_path="/data/local/tmp/official.litertlm",
+    )
+    candidate = _bind_verified_artifact_identity(
+        {
+            "instrumentation_passed": True,
+            "device_report": {"model_size_bytes": 100},
+            "logcat_evidence": evidence,
+        },
+        digest="b" * 64,
+        device_path="/data/local/tmp/candidate.litertlm",
+    )
+    identity = candidate["artifact_identity"]
+    assert isinstance(identity, dict)
+    identity["post_run_device_sha256"] = "c" * 64
+
+    comparison = benchmark_android_litertlm_gpu_parity.compare_probe_results(
+        official,
+        candidate,
+        mtp_enabled=False,
+        output_tokens=0,
+        max_throughput_regression_percent=10.0,
+        max_mtp_success_rate_drop=0.1,
+    )
+
+    assert comparison["official_artifact_identity_verified"] is True
+    assert comparison["candidate_artifact_identity_verified"] is False
+    assert comparison["structural_gpu_parity_pass"] is False
+    assert comparison["overall_pass"] is False
+
+
+def test_android_gpu_parity_parses_android_sha256sum_output():
+    assert (
+        benchmark_android_litertlm_gpu_parity.parse_sha256sum_output(
+            "A" * 64 + "  /data/local/tmp/model.litertlm\n"
+        )
+        == "a" * 64
+    )
+    with pytest.raises(ValueError, match="Could not parse SHA-256"):
+        benchmark_android_litertlm_gpu_parity.parse_sha256sum_output("not-a-hash")
 
 
 def test_mobile_recipe_audit_groups_observable_tensor_names():

@@ -35,6 +35,7 @@ def validate_package(
     *,
     inspect_graphs: bool = False,
     device_report: str | Path | None = None,
+    official_artifact: str | Path | None = None,
 ) -> dict[str, Any]:
     path = Path(artifact).expanduser().resolve()
     try:
@@ -95,6 +96,8 @@ def validate_package(
                 device_report,
                 expected_mtp=False,
                 require_mtp_acceptance=False,
+                expected_official_artifact=official_artifact,
+                expected_candidate_artifact=path,
             )
             device["provided"] = True
             device["validated"] = True
@@ -132,12 +135,17 @@ def main() -> int:
     parser.add_argument("artifact")
     parser.add_argument("--inspect-graphs", action="store_true")
     parser.add_argument("--device-report")
+    parser.add_argument(
+        "--official-artifact",
+        help="Optional official Q8 package to re-hash against the device report.",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     result = validate_package(
         args.artifact,
         inspect_graphs=args.inspect_graphs,
         device_report=args.device_report,
+        official_artifact=args.official_artifact,
     )
     rendered = json.dumps(result, indent=2, ensure_ascii=False)
     if args.output:

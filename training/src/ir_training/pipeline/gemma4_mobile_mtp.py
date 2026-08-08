@@ -629,6 +629,8 @@ def _load_android_gpu_report(
     *,
     mode: str,
     expected_mtp: bool,
+    expected_official_artifact: str | Path | None = None,
+    expected_candidate_artifact: str | Path | None = None,
 ) -> dict[str, Any]:
     """Load one fail-closed parity report and enforce its mode-specific gates."""
 
@@ -637,6 +639,8 @@ def _load_android_gpu_report(
             report_path,
             expected_mtp=expected_mtp,
             require_mtp_acceptance=expected_mtp,
+            expected_official_artifact=expected_official_artifact,
+            expected_candidate_artifact=expected_candidate_artifact,
         )
     except AndroidGpuParityReportError as exc:
         raise Gemma4MobileMTPPipelineError(
@@ -943,6 +947,8 @@ def run_pipeline(
                 report_path,
                 mode=mode,
                 expected_mtp=bool(mode_plan["mtp_flag"]),
+                expected_official_artifact=official_package,
+                expected_candidate_artifact=candidate_package,
             )
         plan["android_gpu"]["executed"] = True
         plan["android_gpu"]["reports"] = reports

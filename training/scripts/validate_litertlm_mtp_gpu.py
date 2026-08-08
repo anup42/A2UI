@@ -36,6 +36,7 @@ def validate_package(
     mtp_model_type: str = "tf_lite_mtp_drafter",
     device_report: str | Path | None = None,
     target_only_device_report: str | Path | None = None,
+    official_artifact: str | Path | None = None,
     inspect_graphs: bool = False,
 ) -> dict[str, Any]:
     path = Path(artifact).expanduser().resolve()
@@ -84,6 +85,8 @@ def validate_package(
                 target_only_device_report,
                 expected_mtp=False,
                 require_mtp_acceptance=False,
+                expected_official_artifact=official_artifact,
+                expected_candidate_artifact=path,
             )
             target_device["provided"] = True
             target_device["validated"] = True
@@ -97,6 +100,8 @@ def validate_package(
                 device_report,
                 expected_mtp=True,
                 require_mtp_acceptance=True,
+                expected_official_artifact=official_artifact,
+                expected_candidate_artifact=path,
             )
             mtp_device["provided"] = True
             mtp_device["validated"] = True
@@ -143,8 +148,12 @@ def main() -> int:
     )
     parser.add_argument("--device-report", help="Optional JSON report from a real Android GPU runtime test.")
     parser.add_argument(
+        "--official-artifact",
+        help="Optional official package to re-hash against both device reports.",
+    )
+    parser.add_argument(
         "--target-only-device-report",
-        help="Optional schema-v2 target-only parity report; required with --device-report for a shipping-speed claim.",
+        help="Optional schema-v4 target-only parity report; required with --device-report for a shipping-speed claim.",
     )
     parser.add_argument("--output", type=Path, help="Optional output JSON path.")
     args = parser.parse_args()
@@ -153,6 +162,7 @@ def main() -> int:
         mtp_model_type=args.mtp_model_type,
         device_report=args.device_report,
         target_only_device_report=args.target_only_device_report,
+        official_artifact=args.official_artifact,
         inspect_graphs=args.inspect_graphs,
     )
     rendered = json.dumps(result, indent=2, ensure_ascii=False)

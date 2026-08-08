@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -70,7 +71,7 @@ def test_gemma270m_validator_accepts_prefill_without_mtp(monkeypatch, tmp_path):
     assert result["checks"]["mtp_not_required"] is True
 
 
-def test_gemma270m_validator_accepts_schema_v2_gpu_parity_report(monkeypatch, tmp_path):
+def test_gemma270m_validator_accepts_schema_v4_gpu_parity_report(monkeypatch, tmp_path):
     import validate_gemma270m_litertlm as validator
 
     fake_report = {
@@ -88,13 +89,27 @@ def test_gemma270m_validator_accepts_schema_v2_gpu_parity_report(monkeypatch, tm
         "graphs": [],
     }
     monkeypatch.setattr(validator, "inspect_litertlm", lambda *args, **kwargs: fake_report)
+    candidate_path = tmp_path / "candidate.litertlm"
+    candidate_path.write_bytes(b"candidate")
+    candidate_sha256 = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+    official_path = tmp_path / "official.litertlm"
+    official_path.write_bytes(b"official")
+    official_sha256 = hashlib.sha256(official_path.read_bytes()).hexdigest()
     device_report = tmp_path / "device.json"
     device_report.write_text(
         json.dumps(
             {
-                "schema_version": 2,
+                "schema_version": 4,
                 "mtp_enabled": False,
                 "comparison": {
+                    "official_artifact_identity_verified": True,
+                    "candidate_artifact_identity_verified": True,
+                    "official_artifact_identity": {
+                        "host_sha256": official_sha256
+                    },
+                    "candidate_artifact_identity": {
+                        "host_sha256": candidate_sha256
+                    },
                     "structural_gpu_parity_pass": True,
                     "throughput_sample_comparable": True,
                     "throughput_gate_pass": True,
@@ -106,9 +121,36 @@ def test_gemma270m_validator_accepts_schema_v2_gpu_parity_report(monkeypatch, tm
     )
 
     result = validator.validate_package(
-        tmp_path / "candidate.litertlm", device_report=device_report
+        candidate_path,
+        device_report=device_report,
+        official_artifact=official_path,
     )
 
     assert result["ok"] is True
     assert result["checks"]["gpu_device_validation"] is True
     assert result["device"]["pipeline_gate_checks"]["throughput_gate"] is True
+
+    candidate_path.write_bytes(b"candidate-tampered-after-device-run")
+    tampered = validator.validate_package(
+        candidate_path,
+        device_report=device_report,
+        official_artifact=official_path,
+    )
+    assert tampered["ok"] is False
+    assert any(
+        "candidate_artifact_sha256_matches_pipeline_output" in error
+        for error in tampered["errors"]
+    )
+
+    candidate_path.write_bytes(b"candidate")
+    official_path.write_bytes(b"official-tampered-after-device-run")
+    wrong_reference = validator.validate_package(
+        candidate_path,
+        device_report=device_report,
+        official_artifact=official_path,
+    )
+    assert wrong_reference["ok"] is False
+    assert any(
+        "official_artifact_sha256_matches_pipeline_reference" in error
+        for error in wrong_reference["errors"]
+    )

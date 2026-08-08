@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -83,8 +84,18 @@ def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():
     assert "private" in plan["limitations"][0].lower()
 
 
-def _write_device_report(path: Path, *, mtp: bool, mtp_acceptance: bool | None) -> None:
+def _write_device_report(
+    path: Path,
+    *,
+    mtp: bool,
+    mtp_acceptance: bool | None,
+    candidate_sha256: str = "b" * 64,
+) -> None:
     comparison = {
+        "official_artifact_identity_verified": True,
+        "candidate_artifact_identity_verified": True,
+        "official_artifact_identity": {"host_sha256": "a" * 64},
+        "candidate_artifact_identity": {"host_sha256": candidate_sha256},
         "structural_gpu_parity_pass": True,
         "throughput_sample_comparable": True,
         "throughput_gate_pass": True,
@@ -95,7 +106,7 @@ def _write_device_report(path: Path, *, mtp: bool, mtp_acceptance: bool | None) 
     path.write_text(
         json.dumps(
             {
-                "schema_version": 2,
+                "schema_version": 4,
                 "mtp_enabled": mtp,
                 "comparison": comparison,
             }
@@ -132,11 +143,11 @@ def test_android_gpu_pipeline_report_gate_rejects_old_or_wrong_mode_reports(tmp_
     payload["schema_version"] = 1
     payload["comparison"]["mtp_acceptance_gate_pass"] = True
     report_path.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(Gemma4MobileMTPPipelineError, match="schema_v2_or_newer"):
+    with pytest.raises(Gemma4MobileMTPPipelineError, match="schema_v4_or_newer"):
         _load_android_gpu_report(report_path, mode="mtp_on", expected_mtp=True)
 
 
-def test_mtp_package_validator_requires_paired_schema_v2_device_reports(
+def test_mtp_package_validator_requires_paired_schema_v4_device_reports(
     monkeypatch, tmp_path
 ):
     import validate_litertlm_mtp_gpu as validator
@@ -160,16 +171,29 @@ def test_mtp_package_validator_requires_paired_schema_v2_device_reports(
     )
     target_report = tmp_path / "target.json"
     mtp_report = tmp_path / "mtp.json"
-    _write_device_report(target_report, mtp=False, mtp_acceptance=None)
-    _write_device_report(mtp_report, mtp=True, mtp_acceptance=True)
+    candidate_path = tmp_path / "candidate.litertlm"
+    candidate_path.write_bytes(b"candidate")
+    candidate_sha256 = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+    _write_device_report(
+        target_report,
+        mtp=False,
+        mtp_acceptance=None,
+        candidate_sha256=candidate_sha256,
+    )
+    _write_device_report(
+        mtp_report,
+        mtp=True,
+        mtp_acceptance=True,
+        candidate_sha256=candidate_sha256,
+    )
 
     paired = validator.validate_package(
-        tmp_path / "candidate.litertlm",
+        candidate_path,
         target_only_device_report=target_report,
         device_report=mtp_report,
     )
     unpaired = validator.validate_package(
-        tmp_path / "candidate.litertlm",
+        candidate_path,
         device_report=mtp_report,
     )
 

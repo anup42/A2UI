@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import math
 import re
@@ -52,12 +53,32 @@ MTP_SUCCESS_RE = re.compile(
     r"MTP\s+Drafter\s+-\s+Success\s+rate:\s*(?P<rate>[0-9]+(?:\.[0-9]+)?)",
     re.IGNORECASE,
 )
+SHA256SUM_RE = re.compile(r"^\s*(?P<sha256>[0-9a-fA-F]{64})(?:\s+|$)")
 
 
 @dataclass(frozen=True)
 class CommandResult:
     returncode: int
     stdout: str
+
+
+def sha256_file(path: Path, *, chunk_size: int = 8 * 1024 * 1024) -> str:
+    """Hash one host artifact without loading it into memory."""
+
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(chunk_size):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def parse_sha256sum_output(text: str) -> str:
+    """Extract a normalized SHA-256 from Android toybox/sha256sum output."""
+
+    match = SHA256SUM_RE.match(text)
+    if not match:
+        raise ValueError(f"Could not parse SHA-256 output: {text.strip()[:200]!r}")
+    return match.group("sha256").lower()
 
 
 def parse_logcat_evidence(text: str) -> dict[str, Any]:
@@ -147,6 +168,47 @@ def _nonnegative_int(value: Any) -> int | None:
     return number if number >= 0 else None
 
 
+def _artifact_identity_checks(probe: dict[str, Any]) -> dict[str, Any]:
+    identity = probe.get("artifact_identity")
+    device_report = probe.get("device_report") or {}
+    if not isinstance(identity, dict):
+        identity = {}
+
+    host_sha256 = str(identity.get("host_sha256") or "").lower()
+    staged_sha256 = str(identity.get("staged_device_sha256") or "").lower()
+    post_run_sha256 = str(identity.get("post_run_device_sha256") or "").lower()
+    valid_sha = re.compile(r"[0-9a-f]{64}").fullmatch
+    host_size = _nonnegative_int(identity.get("host_size_bytes"))
+    report_size = _nonnegative_int(device_report.get("model_size_bytes"))
+    staged_path = str(identity.get("device_path") or "")
+    report_path = str(device_report.get("model_path") or "")
+
+    checks = {
+        "host_sha256_valid": bool(valid_sha(host_sha256)),
+        "staged_device_sha256_valid": bool(valid_sha(staged_sha256)),
+        "post_run_device_sha256_valid": bool(valid_sha(post_run_sha256)),
+        "host_matches_staged_device": bool(host_sha256)
+        and host_sha256 == staged_sha256,
+        "host_matches_post_run_device": bool(host_sha256)
+        and host_sha256 == post_run_sha256,
+        "device_report_size_matches_host": host_size is not None
+        and report_size == host_size,
+        "device_report_path_matches_staged_path": bool(staged_path)
+        and report_path == staged_path,
+    }
+    checks["verified"] = all(checks.values())
+    return {
+        "host_sha256": host_sha256 or None,
+        "staged_device_sha256": staged_sha256 or None,
+        "post_run_device_sha256": post_run_sha256 or None,
+        "host_size_bytes": host_size,
+        "device_report_size_bytes": report_size,
+        "staged_device_path": staged_path or None,
+        "device_report_model_path": report_path or None,
+        "checks": checks,
+    }
+
+
 def compare_probe_results(
     official: dict[str, Any],
     candidate: dict[str, Any],
@@ -163,6 +225,8 @@ def compare_probe_results(
     candidate_evidence = candidate["logcat_evidence"]
     official_report = official.get("device_report") or {}
     candidate_report = candidate.get("device_report") or {}
+    official_identity = _artifact_identity_checks(official)
+    candidate_identity = _artifact_identity_checks(candidate)
 
     official_rate = _finite_number(official_report.get("decode_tokens_per_second"))
     candidate_rate = _finite_number(candidate_report.get("decode_tokens_per_second"))
@@ -245,11 +309,21 @@ def compare_probe_results(
             delegation_shape_match,
             signature_shape_match is not False,
             size_match,
+            official_identity["checks"]["verified"],
+            candidate_identity["checks"]["verified"],
         )
     )
     performance_pass = throughput_gate is not False and mtp_acceptance_gate is not False
     return {
         "official_and_candidate_package_size_match": size_match,
+        "official_artifact_identity": official_identity,
+        "candidate_artifact_identity": candidate_identity,
+        "official_artifact_identity_verified": official_identity["checks"][
+            "verified"
+        ],
+        "candidate_artifact_identity_verified": candidate_identity["checks"][
+            "verified"
+        ],
         "official_full_gpu_delegation": bool(
             official_evidence.get("all_gpu_subgraphs_fully_delegated")
         ),
@@ -293,7 +367,9 @@ def compare_probe_results(
         "overall_pass": bool(structural_pass and performance_pass),
         "interpretation": (
             "Structural GPU parity proves the same signatures and delegated node "
-            "counts. Throughput passes only when both probes reach the requested decode "
+            "counts and cryptographically binds each run to the host and staged device "
+            "artifact before and after execution. Throughput passes only when both "
+            "probes reach the requested decode "
             "cap under identical sampler settings. A non-MTP run must report the exact "
             "cap; an MTP run may include at most one configured verifier batch of "
             "overshoot because LiteRT-LM checks the cap after Decode() advances the "
@@ -345,9 +421,42 @@ class AndroidProbeRunner:
             )
         return CommandResult(completed.returncode, completed.stdout)
 
-    def stage(self, host_path: Path, device_path: str) -> None:
+    def device_sha256(self, device_path: str) -> str:
+        failures: list[str] = []
+        for command in (
+            ("shell", "sha256sum", device_path),
+            ("shell", "toybox", "sha256sum", device_path),
+        ):
+            result = self.adb_command(*command, check=False)
+            if result.returncode == 0:
+                try:
+                    return parse_sha256sum_output(result.stdout)
+                except ValueError as exc:
+                    failures.append(str(exc))
+            else:
+                failures.append(result.stdout.strip()[:200])
+        raise RuntimeError(
+            f"Could not hash staged device artifact {device_path}: {failures}"
+        )
+
+    def stage(self, host_path: Path, device_path: str) -> dict[str, Any]:
+        host_sha256 = sha256_file(host_path)
         self.adb_command("push", str(host_path), device_path)
         self.adb_command("shell", "chmod", "644", device_path)
+        staged_sha256 = self.device_sha256(device_path)
+        if staged_sha256 != host_sha256:
+            raise RuntimeError(
+                "Staged artifact SHA-256 mismatch: "
+                f"host={host_sha256}, device={staged_sha256}, path={device_path}"
+            )
+        return {
+            "algorithm": "SHA-256",
+            "host_size_bytes": host_path.stat().st_size,
+            "host_sha256": host_sha256,
+            "device_path": device_path,
+            "staged_device_sha256": staged_sha256,
+            "post_run_device_sha256": None,
+        }
 
     def run_once(
         self,
@@ -608,8 +717,10 @@ def main(argv: Iterable[str] | None = None) -> int:
     runner.adb_command("shell", "chmod", "755", device_dir)
     results: dict[str, Any] = {}
     try:
-        runner.stage(official, device_paths["official"])
-        runner.stage(candidate, device_paths["candidate"])
+        staged_identities = {
+            "official": runner.stage(official, device_paths["official"]),
+            "candidate": runner.stage(candidate, device_paths["candidate"]),
+        }
         for role in ("official", "candidate"):
             role_dir = output_root / role
             role_dir.mkdir(parents=True, exist_ok=True)
@@ -631,14 +742,21 @@ def main(argv: Iterable[str] | None = None) -> int:
                         run_index=run_index,
                     )
                 )
+            identity = dict(staged_identities[role])
+            identity["post_run_device_sha256"] = runner.device_sha256(
+                device_paths[role]
+            )
+            selected_run = dict(role_runs[-1])
+            selected_run["artifact_identity"] = identity
             results[role] = {
                 "host_path": str(official if role == "official" else candidate),
                 "host_size_bytes": (
                     official if role == "official" else candidate
                 ).stat().st_size,
                 "device_path": device_paths[role],
+                "artifact_identity": identity,
                 "runs": role_runs,
-                "selected_run": role_runs[-1],
+                "selected_run": selected_run,
             }
 
         comparison = compare_probe_results(
@@ -651,7 +769,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             mtp_max_decode_overshoot=args.mtp_max_decode_overshoot,
         )
         report = {
-            "schema_version": 3,
+            "schema_version": 4,
             "run_id": run_id,
             "created_utc": datetime.now(timezone.utc).isoformat(),
             "device_serial": serial,

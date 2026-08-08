@@ -1409,6 +1409,17 @@ loss. Its QAT assignment is 13 W4 plus 10 W8 matrices with A8 fake
 quantization. This is a public reconstruction; Google's data mixture, loss
 weights, optimizer, and observer schedule remain unknown.
 
+The released LiteRT-LM runtime source confirms the inference-side rollout used
+by this reconstruction. It sets the drafter `input_pos` to `position - 1` once,
+duplicates the target KV inputs once, then runs four steps with the current
+token embedding concatenated first with the target activation and thereafter
+with the drafter's previous `projected_activations`. The drafter outputs only
+`logits` and `projected_activations`; it does not advance a separate KV cache
+inside those four steps. The target verifier then evaluates the input token plus
+all four proposals in one five-position call. This makes the checked-in
+constant-position/fixed-shared-KV loop runtime-faithful even though its training
+loss and data are still a public approximation.
+
 The trained-drafter exporter accepts only a provenance-hashed checkpoint from
 that narrow workflow. It quantizes the 23 float matrices through the public AI
 Edge quantizer, patches their packed bytes and per-row scales into the released
@@ -1489,6 +1500,12 @@ It stages official and candidate packages only under
 `/data/local/tmp/litert_parity`, runs one cold plus configurable warm probes,
 parses the runtime's signature, `LITERT_CL` delegation, and MTP-success logs,
 and removes only its own temporary device models, reports, and cache labels.
+Schema-v4 reports cryptographically bind each result to the exact package:
+the runner hashes the host file, verifies the staged device SHA-256 before and
+after inference, and checks the device-reported path and size. Pipeline/package
+validators independently re-hash the final candidate and require it to equal
+the candidate identity in the report. Older path-and-size-only reports are not
+shipping evidence.
 It deliberately treats structural GPU parity, decode throughput, and MTP
 acceptance as three separate gates. Throughput is fail-closed: both selected
 runs must report the requested decode count before their tokens/second values
@@ -1542,13 +1559,20 @@ re-check a newer official artifact before enabling it in the future.
 The connected reference device was an SM-F966B, Android SDK 36, arm64-v8a,
 using the app's LiteRT-LM 0.15.0 dependency. The tests used independently
 quantized random constants injected into the complete official topology; no
-training ran.
+training ran. The latest selected warm runs below use schema-v4 identity gates:
+the official and candidate SHA-256 values matched the staged device files both
+before and after inference. The 270M official/candidate hashes were
+`757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` /
+`704c4f7f8e091348eb8505fbecd4b59637311d2b0a694c0ee994623a52636374`;
+the E2B pair was
+`181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` /
+`a2c75a43101897d894eb49129151d17b8a30b083ea5603e60b72491f16d031be`.
 
 | Package pair | Runtime structure result | Validated device result |
 |---|---|---|
-| Gemma 3 270M official Q8 vs random Q8 | Both packages are 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill subgraphs was 1,667/1,667. | Both decoded 64/64 tokens. Official was 55.58 tok/s; random was 51.22 tok/s, a 7.84 percent regression inside the 10 percent gate. |
-| Gemma 4 E2B official vs random mixed W2/W4/W8 target, MTP off | Both packages are 2,588,147,712 bytes. Target subgraphs matched at 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`). | With identical top-k 40, top-p 1.0, temperature 1.0, seed 42 sampling, both decoded 32/32 tokens. Official was 30.11 tok/s; random was 28.55 tok/s, a 5.19 percent regression inside the 10 percent gate. |
-| Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | In the bounded run requesting 32 tokens, official decoded 35 at 41.05 tok/s with MTP success 0.375 (valid four-token overshoot); the random target stopped at 12, 16.25 tok/s, and MTP success 0.0. Structural GPU parity passed, but acceptance and comparable-throughput gates correctly failed. |
+| Gemma 3 270M official Q8 vs random Q8 | Both packages are 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill subgraphs was 1,667/1,667. | Both decoded 64/64 tokens. Official was 54.60 tok/s; random was 55.47 tok/s (1.60 percent faster in this run), passing the 10 percent regression gate. |
+| Gemma 4 E2B official vs random mixed W2/W4/W8 target, MTP off | Both packages are 2,588,147,712 bytes. Target subgraphs matched at 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`). | With identical top-k 40, top-p 1.0, temperature 1.0, seed 42 sampling, both decoded 32/32 tokens. Official was 31.85 tok/s; random was 31.54 tok/s, a 0.98 percent regression inside the 10 percent gate. |
+| Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | In the bounded run requesting 32 tokens, official decoded 35 at 39.35 tok/s with MTP success 0.375 (valid four-token overshoot); the random target stopped at 12, 16.60 tok/s, and MTP success 0.0. Structural GPU parity passed, but acceptance and comparable-throughput gates correctly failed. |
 
 The 270M and target-only E2B results are direct evidence that unchanged
 graph/layout gives comparable GPU execution speed even when weights differ.
@@ -1678,6 +1702,8 @@ https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
   https://ai.google.dev/gemma/docs/core/huggingface_text_finetune_qlora
 - Google AI Edge LiteRT-LM runtime:
   https://github.com/google-ai-edge/LiteRT-LM
+- LiteRT-LM Gemma 4 MTP drafting and verification loop:
+  https://github.com/google-ai-edge/LiteRT-LM/blob/240f2397420757dd40f78d1cdca9618bc476eecc/runtime/executor/llm_litert_mtp_drafter.cc
 - LiteRT-LM `.litertlm` header schema:
   https://github.com/google-ai-edge/LiteRT-LM/blob/main/schema/core/litertlm_header_schema.fbs
 - LiteRT-LM header/section reader:

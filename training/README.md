@@ -672,11 +672,14 @@ python training/scripts/run_gemma270m_qat_litertlm.py `
 
 Use `--validate-android-gpu` only after the candidate exists. It invokes the
 bounded parity runner on the connected device. E2B now requires two independent
-schema-v2 reports: target-only must prove full GPU delegation and fixed-length
+schema-v4 reports: target-only must prove full GPU delegation and fixed-length
 warm throughput within budget, then MTP-on must additionally prove draft
 acceptance and speculative throughput. This prevents MTP acceptance from
 masking target-graph speed. 270M requires the graph and fixed-length throughput
-gates without MTP.
+gates without MTP. Each report records the host SHA-256, verifies the staged
+device SHA-256 before and after inference, binds the device-reported model path
+and size to that artifact, and the pipeline validator re-hashes both the final
+candidate and configured official reference before accepting the report.
 
 The 270M QAT profile is intentionally `WI8/AFP32`: the released Q8 graph has
 per-row INT8 weights (including the embedding table) but FLOAT32 activation

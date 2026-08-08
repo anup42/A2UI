@@ -18,6 +18,10 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.config import load_yaml, resolve_path, training_root
+from ir_training.eval.android_gpu_report import (
+    AndroidGpuParityReportError,
+    load_android_gpu_parity_report,
+)
 from ir_training.export.edge_gallery import export_edge_gallery_model
 from ir_training.export.merge_lora import merge_lora_adapter
 
@@ -567,11 +571,18 @@ def run_pipeline(
             Path(plan["android_gpu"]["output_dir"])
             / "android_litertlm_gpu_parity_report.json"
         )
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-        if not bool((report.get("comparison") or {}).get("overall_pass")):
-            raise Gemma270MPipelineError(
-                "Android GPU parity report did not pass structure and throughput gates."
+        try:
+            report = load_android_gpu_parity_report(
+                report_path,
+                expected_mtp=False,
+                require_mtp_acceptance=False,
+                expected_official_artifact=official_package,
+                expected_candidate_artifact=candidate_package,
             )
+        except AndroidGpuParityReportError as exc:
+            raise Gemma270MPipelineError(
+                f"Android GPU parity report did not pass required gates: {exc}"
+            ) from exc
         plan["android_gpu"]["executed"] = True
         plan["android_gpu"]["report"] = report
 
