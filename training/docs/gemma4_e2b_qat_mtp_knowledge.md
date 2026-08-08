@@ -1645,13 +1645,35 @@ direct exact-topology compiler refuse production export. The separate random
 weight graph harness remains valid for proving graph/operator/layout and GPU
 delegation, because it makes no accuracy or model-identity claim.
 
+The compiled mapping itself is no longer an open question at the public
+precision boundary. A second read-only audit,
+`audit_gemma4_mobile_retained_compiled_parity.py`, hash-bound the released
+2,588,147,712-byte package to SHA-256
+`181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c`, selected
+the canonical `decode` subgraph, and mapped constants by semantic consumer
+names. It resolved all 262 public retained tensors to 242 unique compiled
+FLOAT32 buffers. All 262 compiled values round byte-exactly to the checkpoint's
+BF16 values with IEEE round-to-nearest-even. The inventory consists of 35 each
+of the five layer-norm roles, 35 query norms, 15 key norms, 35 layer scalars,
+one final norm, and one per-layer projection norm. Shared buffers explain why
+262 semantic tensors map to 242 unique buffers.
+
+This result proves that the packed mobile checkpoint is the public numerical
+authority for the retained constants at BF16 precision. It does not recover
+the compiled constants' lower FLOAT32 mantissa bits, Google's master
+checkpoint, training data, observer state, optimizer schedule, or private QAT
+recipe. It also does not make the dense Q4-QAT seed compatible: that independent
+comparison remains 50/262 exact.
+
 Google does not publish the dense pre-quantization wNa8o8 training checkpoint.
 The public paths that could safely reopen production export are: obtain a dense
 mobile-compatible seed, or reconstruct/dequantize the public packed mobile
-checkpoint and prove its retained tensors map into the compiled FLOAT32
-buffers. Either path must produce a `compatible_exact` contract with zero
-schema/value mismatches and `compiled_graph_mapping_verified: true`; do not
-toggle those fields without generated evidence. Merge metadata version 3 then
+checkpoint while preserving the now-verified retained-constant relationship.
+Either path must produce a `compatible_exact` contract with zero schema/value
+mismatches; the checked-in contract already records
+`compiled_graph_mapping_verified: true` from generated evidence. Do not toggle
+the production status without a compatible training-seed audit. Merge metadata
+version 3 then
 records the training seed,
 training-config SHA-256, `qat_lora_sft` method, effective merged-weight QAT run,
 selected adapter hashes, and every merged safetensor shard/index hash. The
@@ -1677,7 +1699,7 @@ Current exact bindings for the supplied reference artifacts are:
 
 | family | public training seed | target section | unique mapped weights | production status | package SHA-256 |
 | --- | --- | --- | ---: | --- | --- |
-| Gemma 4 E2B | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | `tf_lite_prefill_decode` | 277 | blocked: 212/262 retained constants differ | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
+| Gemma 4 E2B | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | `tf_lite_prefill_decode` | 277 | blocked: seed differs in 212/262 retained constants; mobile-to-compiled is 262/262 exact at BF16 precision | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
 | Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | exact-base path; device quality/speed still required | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
 
 The optional trained E2B drafter is seeded from

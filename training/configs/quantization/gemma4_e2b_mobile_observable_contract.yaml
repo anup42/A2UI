@@ -45,9 +45,16 @@ retained_constant_compatibility:
     all_selected_tensors_exact: false
     dense_seed_aggregate_sha256: c3be6ec6262092beaceb1b4c3d2b01a1073290d8bfb739ebe3cf40289e280e6c
     packed_mobile_aggregate_sha256: 1bc159104579c507d3ebfc388bcc44e4d1e567f3e4ba209ef0b2503be470f0aa
-  # The checkpoint audit does not yet map these tensors to the fused FLOAT32
-  # buffers in the compiled TFLite target section.
-  compiled_graph_mapping_verified: false
+  compiled_graph_mapping:
+    official_artifact_sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
+    model_type: tf_lite_prefill_decode
+    decode_subgraph_index: 0
+    semantic_mapping_count: 262
+    exact_bf16_rne_tensor_count: 262
+    unique_compiled_buffer_count: 242
+    relation: compiled_float32_rounds_to_public_checkpoint_bf16_rne
+    lower_float32_mantissa_bits_recovered: false
+  compiled_graph_mapping_verified: true
   private_qat_recipe_recovered: false
 quantization:
   weight_granularity: CHANNELWISE

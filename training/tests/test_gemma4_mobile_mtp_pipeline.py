@@ -147,7 +147,7 @@ def test_retained_constant_contract_rejects_known_cross_checkpoint_mismatch():
     assert report["comparison"]["exact_tensor_count"] == 50
     assert report["comparison"]["value_mismatch_count"] == 212
     assert report["checks"]["no_value_mismatches"] is False
-    assert report["checks"]["compiled_graph_mapping_verified"] is False
+    assert report["checks"]["compiled_graph_mapping_verified"] is True
 
 
 def test_retained_constant_contract_requires_exact_values_and_compiled_mapping(

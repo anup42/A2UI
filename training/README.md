@@ -131,15 +131,20 @@ graph authorities; Google does not publish the dense pre-quantization mobile
 training checkpoint. The pipeline rejects a non-QAT seed, a mismatched
 assistant, or merge provenance bound to a different seed.
 
-Important production boundary: a bounded byte audit now shows that the dense
+Important production boundary: a bounded byte audit shows that the dense
 Q4-QAT seed and packed mobile checkpoint share all 262 retained language-model
 tensor schemas, but only 50 tensors are byte-identical and 212 learned
-norm/scalar tensors differ. Consequently, the exact-topology production export
-fails closed for this cross-checkpoint combination. Graph/GPU topology parity
-is still proven by the random-weight harness, but it does not make a hybrid of
-Q4-seed projections and mobile-package constants an accuracy-valid trained
-model. A future dense/dequantized mobile seed must pass both checkpoint-value
-and compiled-buffer mapping gates before this block is lifted.
+norm/scalar tensors differ. A separate hash-bound graph audit maps all 262
+packed-mobile BF16 tensors to the released target's FLOAT32 buffers, and all
+262 are exact after FLOAT32-to-BF16 round-to-nearest-even conversion. This
+proves the packed-mobile checkpoint is the public numerical authority for those
+constants at BF16 precision; it does not recover the compiled buffers' lower
+FLOAT32 mantissa bits. Consequently, the exact-topology production export still
+fails closed for the dense-Q4/mobile cross-checkpoint combination. Graph/GPU
+topology parity is proven by the random-weight harness, but it does not make a
+hybrid of Q4-seed projections and mobile-package constants an accuracy-valid
+trained model. A future dense/dequantized mobile seed must pass the exact
+checkpoint-value gate before this block is lifted.
 
 The QAT profiles require `lora.dropout: 0.0`: an input-dependent adapter
 dropout mask has no exact equivalent in the final merged inference matrix.
@@ -222,6 +227,22 @@ python training/scripts/audit_hf_retained_constant_parity.py `
 
 The script accepts only bounded HTTP `206 Partial Content` responses and exits
 nonzero when any selected schema/value differs. It does not run training.
+
+Map the packed-mobile retained constants into an exact released target package:
+
+```powershell
+$env:PYTHONPATH = "training/src;training/scripts;<tflite-install-location>"
+python training/scripts/audit_gemma4_mobile_retained_compiled_parity.py `
+  C:\path\to\gemma-4-E2B-it.litertlm `
+  --source-safetensors C:\path\to\gemma4-mobile\model.safetensors `
+  --official-artifact-sha256 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c `
+  --output C:\temp\gemma4-retained-compiled-parity.json
+```
+
+The audit is read-only, requires the exact package hash, uses semantic decode
+graph consumers rather than buffer order, and verifies 262/262 tensors at the
+public BF16 precision boundary. It does not run training or claim recovery of
+Google's FLOAT32 master checkpoint or private recipe.
 
 In official mode, `tf_lite_mtp_drafter` remains byte-for-byte official. In
 trained mode, first set `weight_source: trained` and `train_assistant: true`,
@@ -699,8 +720,9 @@ The command fails closed unless all of these are true:
   assignment in the selected training config; tied E2B `lm_head` is audited
   through its token-embedding source;
 - for E2B, a generated retained-constant contract proves exact seed/mobile
-  values and their mapping into compiled buffers (the current public Q4 seed
-  fails this gate at 50/262 exact tensors);
+  values and their mapping into compiled buffers (the mobile-to-compiled
+  mapping is 262/262 exact at BF16 precision, but the current public Q4 seed
+  still fails the seed/mobile value gate at 50/262 exact tensors);
 - the public converter returns the exact observed bit-width/operator/scale
   inventory and every packed byte/scale survives injection;
 - graph structure, operators, signatures, cache wiring, quantization layout,
@@ -834,6 +856,15 @@ scale, so it is reported as unresolved rather than guessed. Exact comparable
 constants are strong evidence that the released checkpoint supplies the
 artifact's observable mobile weights; they do not expose Google's private QAT
 loss, calibration data, optimizer schedule, or exporter/package source.
+
+The retained FLOAT32 graph constants can be audited separately with
+`audit_gemma4_mobile_retained_compiled_parity.py`. Against the exact released
+package SHA-256, semantic consumer mapping resolved 262/262 tensors across 242
+unique graph buffers, and every compiled FLOAT32 value rounded exactly to the
+public checkpoint's BF16 bytes using round-to-nearest-even. This closes the
+compiled-buffer mapping gap at public precision. It does not identify the lower
+FLOAT32 mantissa bits that BF16 serialization discarded and does not make the
+dense Q4-QAT checkpoint numerically compatible with the mobile release.
 
 For the MTP drafter, `audit_gemma4_mtp_assistant_parity.py` maps the supplied
 23-record traversal to the public four-layer assistant safetensors and applies

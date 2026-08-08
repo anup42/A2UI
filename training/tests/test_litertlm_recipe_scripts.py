@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import audit_gemma4_mobile_checkpoint_parity
 import audit_gemma4_mobile_projection_parity
+import audit_gemma4_mobile_retained_compiled_parity
 import audit_gemma4_mtp_assistant_parity
 import audit_hf_retained_constant_parity
 import audit_litertlm_recipe
@@ -1439,3 +1440,48 @@ def test_retained_constant_range_read_rejects_full_response_before_body(monkeypa
             retries=1,
             timeout_seconds=1,
         )
+
+
+def test_compiled_retained_bfloat16_rounding_uses_ties_to_even():
+    import numpy as np
+
+    values = np.asarray(
+        [
+            1.0,
+            1.00390625,
+            1.0078125,
+            1.01171875,
+        ],
+        dtype="<f4",
+    )
+
+    raw = audit_gemma4_mobile_retained_compiled_parity._float32_to_bfloat16_rne(
+        values.tobytes()
+    )
+
+    assert np.frombuffer(raw, dtype="<u2").tolist() == [
+        0x3F80,
+        0x3F80,
+        0x3F81,
+        0x3F82,
+    ]
+
+
+def test_compiled_retained_consumer_names_map_to_checkpoint_keys():
+    source_key = (
+        audit_gemma4_mobile_retained_compiled_parity._source_key_from_consumer
+    )
+    assert source_key(
+        "LanguageModel.decode_graph/transformer/layer_7/"
+        "layer_7.pre_qkv/attn._pre_attention_fn/query_norm/composite"
+    ) == "model.language_model.layers.7.self_attn.q_norm.weight"
+    assert source_key(
+        "LanguageModel.decode_graph/transformer/layer_12/"
+        "layer_12.post_qkv/layer_12._maybe_apply_skip_scale/mul"
+    ) == "model.language_model.layers.12.layer_scalar"
+    assert source_key(
+        "LanguageModel.decode_graph/per_layer_embedding_projection_norm/composite"
+    ) == "model.language_model.per_layer_projection_norm.weight"
+    assert source_key("StatefulPartitionedCall:0") == (
+        "model.language_model.norm.weight"
+    )
