@@ -34,6 +34,7 @@ from ir_training.eval.android_gpu_report import (
 from ir_training.export.edge_gallery import export_edge_gallery_model
 from ir_training.export.litertlm_mtp import compose_with_default_mtp
 from ir_training.export.merge_lora import merge_lora_adapter
+from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
 
 
 class Gemma4MobileMTPPipelineError(RuntimeError):
@@ -282,7 +283,7 @@ def build_pipeline_plan(
         "--assistant-training-config",
         str(drafter_training_config_path),
         "--official-assistant-model-id",
-        str(mtp_cfg.get("assistant_model_id") or "google/gemma-4-E2B-it-assistant"),
+        str(mtp_cfg.get("assistant_model_id") or OFFICIAL_QAT_ASSISTANT),
         "--official-artifact-sha256",
         official_artifact_sha256 or "<official-artifact-sha256-required>",
         "--output-dir",
@@ -368,6 +369,42 @@ def build_pipeline_plan(
     mtp_on_command = android_command(mtp=True, output_dir=mtp_on_output_dir)
 
     validation: list[dict[str, str]] = []
+    assistant_model_id = str(
+        mtp_cfg.get("assistant_model_id") or OFFICIAL_QAT_ASSISTANT
+    )
+    if model_id != OFFICIAL_QAT_TARGET:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "non_qat_e2b_training_seed",
+                "message": (
+                    "The mobile QAT pipeline must start from Google's public dense "
+                    f"QAT seed {OFFICIAL_QAT_TARGET}; observed {model_id or '<missing>'}."
+                ),
+            }
+        )
+    if official_base_model_id != model_id:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "training_seed_provenance_mismatch",
+                "message": (
+                    "exact_topology.official_base_model_id must equal the training "
+                    "model_id so adapter merge provenance is bound to the same seed."
+                ),
+            }
+        )
+    if assistant_model_id != OFFICIAL_QAT_ASSISTANT:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "non_matching_qat_assistant_seed",
+                "message": (
+                    "Use Google's matching QAT assistant seed "
+                    f"{OFFICIAL_QAT_ASSISTANT}; observed {assistant_model_id or '<missing>'}."
+                ),
+            }
+        )
     if not bool(qat_cfg.get("enabled", False)):
         validation.append(
             {
@@ -532,7 +569,7 @@ def build_pipeline_plan(
             "enabled": bool(mtp_cfg.get("enabled", True)),
             "weight_source": mtp_weight_source,
             "official_weights_preserved": mtp_weight_source == "official",
-            "assistant_model_id": mtp_cfg.get("assistant_model_id"),
+            "assistant_model_id": assistant_model_id,
             "train_assistant": bool(mtp_cfg.get("train_assistant", False)),
             "training": {
                 "enabled": bool(mtp_cfg.get("train_assistant", False)),
@@ -561,7 +598,7 @@ def build_pipeline_plan(
             "target_model_type": target_model_type,
             "mtp_model_type": mtp_model_type,
             "mtp_enabled": bool(mtp_cfg.get("enabled", True)),
-            "mtp_assistant_model_id": mtp_cfg.get("assistant_model_id"),
+            "mtp_assistant_model_id": assistant_model_id,
             "mtp_assistant_weight_source": mtp_weight_source,
             "official_mtp_bytes_preserved": mtp_weight_source == "official",
             "target_export_authority": (

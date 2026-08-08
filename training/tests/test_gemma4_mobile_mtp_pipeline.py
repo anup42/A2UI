@@ -23,6 +23,7 @@ from ir_training.pipeline.gemma4_mobile_mtp import (
     _load_android_gpu_report,
     build_pipeline_plan,
 )
+from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT, OFFICIAL_QAT_TARGET
 
 
 def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
@@ -31,6 +32,9 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     plan = build_pipeline_plan(config, config_path=config_path)
 
     assert plan["training"]["qat_profile"] == "gemma4_e2b_mobile_observable_wna8o8_approx"
+    assert plan["training"]["model_id"] == OFFICIAL_QAT_TARGET
+    assert plan["mtp"]["assistant_model_id"] == OFFICIAL_QAT_ASSISTANT
+    assert plan["exact_topology"]["official_base_model_id"] == OFFICIAL_QAT_TARGET
     assert plan["training"]["best_checkpoint_required"] is True
     assert plan["package"]["mtp_enabled"] is True
     assert plan["package"]["mtp_model_type"] == "tf_lite_mtp_drafter"
@@ -49,6 +53,34 @@ def test_mobile_mtp_pipeline_plan_is_qat_and_plan_only():
     assert plan["exact_topology"]["preserves_default_mtp_byte_exact"] is True
     assert "--execute" in plan["exact_topology"]["command"]
     assert any(item["code"] == "missing_base_package" for item in plan["validation"]["issues"])
+
+
+def test_mobile_mtp_pipeline_rejects_non_qat_or_mismatched_seeds(tmp_path):
+    config_path = ROOT / "configs" / "pipelines" / "gemma4_e2b_mobile_mtp.yaml"
+    config = copy.deepcopy(load_yaml(config_path))
+    training_path = ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml"
+    training = load_yaml(training_path)
+    training["model"]["model_id"] = "google/gemma-4-E2B-it"
+
+    temporary = tmp_path / "non_qat_e2b_training_seed.yaml"
+    try:
+        import yaml
+
+        temporary.write_text(yaml.safe_dump(training), encoding="utf-8")
+        config["pipeline"]["training_config"] = str(temporary)
+        config["pipeline"]["mtp"]["assistant_model_id"] = (
+            "google/gemma-4-E2B-it-assistant"
+        )
+
+        plan = build_pipeline_plan(config, config_path=config_path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+    codes = {item["code"] for item in plan["validation"]["issues"]}
+    assert "non_qat_e2b_training_seed" in codes
+    assert "training_seed_provenance_mismatch" in codes
+    assert "non_matching_qat_assistant_seed" in codes
+    assert plan["validation"]["ok"] is False
 
 
 def test_mobile_mtp_pipeline_can_plan_trained_drafter_in_official_graph():

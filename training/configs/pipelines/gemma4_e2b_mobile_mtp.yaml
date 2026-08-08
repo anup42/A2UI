@@ -24,7 +24,7 @@ pipeline:
     # official preserves the released section byte-for-byte (recommended first).
     # trained injects only 23 trained matrices into the official MTP graph.
     weight_source: official
-    assistant_model_id: google/gemma-4-E2B-it-assistant
+    assistant_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
     train_assistant: false
     preserve_official_section: true
     training_config: configs/models/gemma4_e2b_mtp_drafter_qat.yaml
@@ -47,7 +47,9 @@ pipeline:
     # byte-for-byte. With weight_source=trained, the separately gated second
     # stage then replaces only the 23 mapped drafter matrices.
     enabled: true
-    official_base_model_id: google/gemma-4-E2B-it
+    # This binds merge provenance to the public dense QAT training seed. The
+    # released mobile package remains the graph and packed-constant authority.
+    official_base_model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
     official_artifact_sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
     output_dir: outputs/pipelines/gemma4_e2b_mobile_mtp/exact_topology_export
     calibration_samples: 2

@@ -14,7 +14,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-OFFICIAL_GEMMA4_E2B_ASSISTANT = "google/gemma-4-E2B-it-assistant"
+# Google explicitly requires a QAT target to use the matching QAT assistant at
+# the same precision.  This is the public floating checkpoint used to seed the
+# optional trained-drafter reconstruction; ``weight_source=official`` still
+# preserves the assistant section compiled into the released LiteRT-LM package.
+OFFICIAL_GEMMA4_E2B_ASSISTANT = (
+    "google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant"
+)
 GEMMA4_E2B_MTP_MODEL_TYPE = "tf_lite_mtp_drafter"
 
 

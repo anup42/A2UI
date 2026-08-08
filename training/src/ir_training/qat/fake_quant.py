@@ -98,12 +98,61 @@ class QATSpec:
         return asdict(self)
 
     def weight_bits_for_module(self, module_name: str) -> int | None:
-        if any(re.search(pattern, module_name) for pattern in self.modules_to_not_convert):
+        if any(
+            _module_pattern_matches(pattern, module_name)
+            for pattern in self.modules_to_not_convert
+        ):
             return None
         for pattern, bits in self.module_quant_configs:
-            if re.search(pattern, module_name):
+            if _module_pattern_matches(pattern, module_name):
                 return bits
         return self.weight_bits
+
+    def excludes_module(self, module_name: str) -> bool:
+        return any(
+            _module_pattern_matches(pattern, module_name)
+            for pattern in self.exclude_modules
+        )
+
+
+def _module_name_candidates(module_name: str) -> tuple[str, ...]:
+    """Return deployment-style aliases for a possibly PEFT-prefixed module.
+
+    PEFT normally exposes a Gemma module such as ``lm_head`` as
+    ``base_model.model.lm_head`` and can add an additional ``model`` component
+    for multimodal wrappers.  Google's public precision map is written against
+    the unwrapped model names and includes anchored rules such as
+    ``^lm_head$``.  Matching only the raw ``named_modules`` path silently turns
+    that W2 head into the default W4 rule during QAT.
+
+    Keep the original name first, then remove only known wrapper prefixes.  We
+    do not generate arbitrary suffixes, so an anchored rule for one top-level
+    module cannot accidentally match a nested module with the same leaf name.
+    """
+
+    value = str(module_name).strip(".")
+    if not value:
+        return ("",)
+    candidates = [value]
+    queue = [value]
+    prefixes = ("base_model.model.", "base_model.", "model.")
+    while queue:
+        current = queue.pop(0)
+        for prefix in prefixes:
+            if not current.startswith(prefix):
+                continue
+            stripped = current[len(prefix) :]
+            if stripped and stripped not in candidates:
+                candidates.append(stripped)
+                queue.append(stripped)
+    return tuple(candidates)
+
+
+def _module_pattern_matches(pattern: str, module_name: str) -> bool:
+    return any(
+        re.search(pattern, candidate) is not None
+        for candidate in _module_name_candidates(module_name)
+    )
 
 
 def _quant_bounds(bits: int, symmetric: bool) -> tuple[int, int]:
@@ -299,10 +348,7 @@ class QATController:
             for module_name, module in named_modules:
                 if not _is_lora_linear_wrapper(module, nn):
                     continue
-                if any(
-                    re.search(pattern, module_name)
-                    for pattern in self.spec.exclude_modules
-                ):
+                if self.spec.excludes_module(module_name):
                     continue
                 module_weight_bits = self.spec.weight_bits_for_module(module_name)
                 if module_weight_bits is None:
@@ -383,7 +429,7 @@ class QATController:
                 continue
             if is_embedding and not self.spec.quantize_embeddings:
                 continue
-            if any(re.search(pattern, module_name) for pattern in self.spec.exclude_modules):
+            if self.spec.excludes_module(module_name):
                 continue
             module_weight_bits = self.spec.weight_bits_for_module(module_name)
             if module_weight_bits is None:

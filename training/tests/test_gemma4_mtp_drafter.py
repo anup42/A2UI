@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import build_gemma4_mtp_drafter_official_topology as topology
 from ir_training.common.config import load_yaml
 from ir_training.mtp.drafter_contract import (
+    OFFICIAL_GEMMA4_E2B_ASSISTANT,
     contract_summary,
     deployment_weight_specs,
     source_keys,
@@ -257,7 +258,7 @@ def test_deployment_training_scope_requires_tied_vocabulary_matrix():
 def test_drafter_export_scope_matches_checked_in_training_config():
     report = topology._drafter_training_scope_report(
         ROOT / "configs" / "models" / "gemma4_e2b_mtp_drafter_qat.yaml",
-        official_base_model_id="google/gemma-4-E2B-it-assistant",
+        official_base_model_id=OFFICIAL_GEMMA4_E2B_ASSISTANT,
     )
 
     assert report["supported_projection_only_transplant"] is True
@@ -275,7 +276,7 @@ def test_drafter_export_provenance_hashes_checkpoint_and_config(tmp_path):
         "manifest_version": 1,
         "training_method": "target_conditioned_autoregressive_qat",
         "loss": "teacher_forced_completion_cross_entropy",
-        "assistant_base_model_id_or_path": "google/gemma-4-E2B-it-assistant",
+        "assistant_base_model_id_or_path": OFFICIAL_GEMMA4_E2B_ASSISTANT,
         "training_config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
         "target_frozen": True,
         "draft_steps": 4,
@@ -303,7 +304,7 @@ def test_drafter_export_provenance_hashes_checkpoint_and_config(tmp_path):
     report = topology._training_provenance_report(
         checkpoint,
         config_path,
-        official_assistant_model_id="google/gemma-4-E2B-it-assistant",
+        official_assistant_model_id=OFFICIAL_GEMMA4_E2B_ASSISTANT,
     )
     assert report["verified"] is True
 
@@ -311,7 +312,7 @@ def test_drafter_export_provenance_hashes_checkpoint_and_config(tmp_path):
     tampered = topology._training_provenance_report(
         checkpoint,
         config_path,
-        official_assistant_model_id="google/gemma-4-E2B-it-assistant",
+        official_assistant_model_id=OFFICIAL_GEMMA4_E2B_ASSISTANT,
     )
     assert tampered["verified"] is False
     assert tampered["checks"]["checkpoint_hashes_match"] is False

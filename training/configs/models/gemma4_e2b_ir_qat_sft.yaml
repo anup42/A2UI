@@ -6,7 +6,11 @@ runtime:
   distributed: ddp
 model:
   family: gemma
-  model_id: google/gemma-4-E2B-it
+  # Google's half-precision checkpoint extracted from its QAT pipeline is the
+  # public trainable seed for downstream compilation. The packed
+  # `-qat-mobile-transformers` checkpoint is the observable mobile constant
+  # authority, but it is not a dense LoRA/QAT training checkpoint.
+  model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
   model_loader: auto_causal_lm
   trust_remote_code: false
   tokenizer_loader: pretrained_tokenizer_fast

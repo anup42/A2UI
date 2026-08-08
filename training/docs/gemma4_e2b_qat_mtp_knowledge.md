@@ -1604,17 +1604,22 @@ W2/W4/W8 width, and injects only the resulting packed projection constants and
 per-axis scales. This is the direct extension of the random-weight experiment
 that already passed graph/layout/allocation and Android GPU delegation.
 
-The safe contract is projection-only QAT+LoRA from the exact base represented
-by the official package. Merge metadata version 3 records the base model,
+The safe public contract is projection-only QAT+LoRA from Google's dense
+`gemma-4-E2B-it-qat-q4_0-unquantized` seed, with the released mobile package as
+the immutable graph and packed-layout authority. Google does not publish the
+dense pre-quantization wNa8o8 training checkpoint, so do not describe the Q4_0
+seed as numerically identical to every mobile constant. Merge metadata version
+3 records the training seed,
 training-config SHA-256, `qat_lora_sft` method, effective merged-weight QAT run,
 selected adapter hashes, and every merged safetensor shard/index hash. The
 compiler rejects an old merge, a generic or base-only-QAT LoRA merge presented
 with the new QAT YAML, a packed mobile checkpoint, a base-model mismatch, a
 package hash mismatch, or any missing/shape-incompatible source key. Do not bypass these
 checks: retained RMSNorm, tokenizer, metadata, and other non-inventory
-constants are only correct when the base identity and mutation scope are
-correct. FC and embedding inventory constants are regenerated from the merged
-checkpoint.
+constants remain hash-bound to the official package, while every target FC and
+embedding inventory constant is regenerated from the merged checkpoint. This
+proves official graph/operator/layout equivalence; it does not prove recovery
+of Google's unavailable dense mobile seed or private QAT numerics.
 
 Before quantization, the compiler derives a canonical QAT module for every
 official inventory entry and compares its configured fake-quant bit width with
@@ -1626,10 +1631,25 @@ makes the plan non-executable.
 
 Current exact bindings for the supplied reference artifacts are:
 
-| family | base identity | target section | unique mapped weights | package SHA-256 |
+| family | public training seed | target section | unique mapped weights | package SHA-256 |
 | --- | --- | --- | ---: | --- |
-| Gemma 4 E2B | `google/gemma-4-E2B-it` | `tf_lite_prefill_decode` | 277 | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
+| Gemma 4 E2B | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | `tf_lite_prefill_decode` | 277 | `181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c` |
 | Gemma 3 270M IT | `google/gemma-3-270m-it` | `TF_LITE_PREFILL_DECODE` | 127 | `757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63` |
+
+The optional trained E2B drafter is seeded from
+`google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant`. Google states that a
+QAT target and assistant must use matching precision. The ordinary
+`gemma-4-E2B-it-assistant` remains the correct pair only for the ordinary BF16
+target; it is rejected by this mobile QAT training pipeline. Official-drafter
+mode does not load either Transformers assistant: it preserves the compiled
+`tf_lite_mtp_drafter` section from the hash-bound `.litertlm` byte-for-byte.
+
+QAT module rules are matched against both raw `named_modules()` paths and
+canonical names with known PEFT/multimodal wrappers removed. This matters for
+the anchored public rule `^lm_head$`: a PEFT path such as
+`base_model.model.lm_head` must still receive W2 fake quantization. The tests
+also cover a doubly wrapped `base_model.model.model.language_model...` path and
+official exclusions, preventing silent fallback to the default bit width.
 
 The 270M mapping has been checked against an existing merged BF16 checkpoint:
 127/127 headers map without transpose or shape errors. That older checkpoint

@@ -370,6 +370,44 @@ def test_qat_spec_can_load_public_schema_for_module_bits():
     assert spec.weight_bits_for_module("model.vision_tower.patch_embedder") is None
 
 
+def test_qat_precision_rules_match_peft_and_multimodal_wrapper_prefixes():
+    spec = QATSpec.from_config(
+        {
+            "qat": {
+                "schema_path": "configs/quantization/gemma4_e2b_mobile_litertlm_schema.yaml",
+                "exclude_modules": [],
+            }
+        }
+    )
+
+    assert spec.weight_bits_for_module("base_model.model.lm_head") == 2
+    assert (
+        spec.weight_bits_for_module(
+            "base_model.model.model.language_model.layers.20.mlp.gate_proj"
+        )
+        == 2
+    )
+    assert (
+        spec.weight_bits_for_module(
+            "base_model.model.model.language_model.layers.2.self_attn.q_proj"
+        )
+        == 4
+    )
+    public_spec = QATSpec.from_config(
+        {
+            "qat": {
+                "schema_path": "configs/quantization/gemma4_e2b_mobile_public_schema.yaml"
+            }
+        }
+    )
+    assert (
+        public_spec.weight_bits_for_module(
+            "base_model.model.model.vision_tower.patch_embedder"
+        )
+        is None
+    )
+
+
 def test_litertlm_schema_wraps_embeddings_and_module_specific_linear_bits():
     class TinyMobileModel(nn.Module):
         def __init__(self):

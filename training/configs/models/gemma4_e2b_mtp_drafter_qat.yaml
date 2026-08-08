@@ -7,10 +7,12 @@ target:
   # Point this at the merged best fine-tuned target. The pipeline overrides it
   # automatically with source.merged_model_dir.
   model_id_or_path: outputs/pipelines/gemma4_e2b_mobile_mtp/merged_best_hf
-  tokenizer_id_or_path: google/gemma-4-E2B-it
+  tokenizer_id_or_path: google/gemma-4-E2B-it-qat-q4_0-unquantized
 
 assistant:
-  model_id_or_path: google/gemma-4-E2B-it-assistant
+  # A QAT target must use Google's matching QAT assistant precision. The
+  # ordinary BF16 assistant remains valid only for the ordinary BF16 target.
+  model_id_or_path: google/gemma-4-E2B-it-qat-q4_0-unquantized-assistant
   best_checkpoint_dir: runs/gemma4_e2b_mtp_drafter_qat/best_checkpoint
 
 model:

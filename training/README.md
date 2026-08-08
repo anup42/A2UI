@@ -122,6 +122,15 @@ graph. This is different from the QAT-derived `qat_mtp` profile above, does not
 train an MTP assistant, and does not claim Google's private mobile
 observer/calibration recipe.
 
+The checked-in E2B profile starts from Google's dense
+`gemma-4-E2B-it-qat-q4_0-unquantized` checkpoint, not the ordinary BF16 E2B
+checkpoint. Its optional trainable drafter starts from the matching
+`-qat-q4_0-unquantized-assistant`. The packed `-qat-mobile-transformers`
+checkpoint and released `.litertlm` remain the observable weight-layout and
+graph authorities; Google does not publish the dense pre-quantization mobile
+training checkpoint. The pipeline rejects a non-QAT seed, a mismatched
+assistant, or merge provenance bound to a different seed.
+
 The QAT profiles require `lora.dropout: 0.0`: an input-dependent adapter
 dropout mask has no exact equivalent in the final merged inference matrix.
 Training metadata hashes the selected adapter and records the number of PEFT
@@ -154,6 +163,9 @@ The exact Google Transformers config copy remains
 audits. Training points to the separate
 `gemma4_e2b_mobile_litertlm_schema.yaml`, whose documented W8
 `per_layer_model_projection` override matches the released target graph.
+Precision matching canonicalizes known PEFT/multimodal wrapper prefixes before
+applying the ordered rules, so anchored entries such as `^lm_head$` remain W2
+after LoRA wrapping instead of silently falling through to the default W4.
 
 ### Gemma 4 E2B mobile QAT -> best checkpoint -> MTP package
 

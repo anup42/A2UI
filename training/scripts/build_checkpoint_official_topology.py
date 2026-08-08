@@ -8,13 +8,17 @@ FC/embedding constant, quantized by the public AI Edge Quantizer with the
 officially observed bit width, and copied into a byte-for-byte copy of the
 official graph.
 
-The operation is deliberately narrow.  It is valid only for projection-only
-LoRA training from the exact base model represented by the official package.
-All non-projection constants remain official.  For Gemma 4 E2B that also means
-the tokenizer, token/per-layer embedders, audio/vision sections, and default
-MTP drafter are preserved byte-for-byte.  A fail-closed manifest records every
-source key, shape transform, quantizer layout, graph fingerprint, and package
-boundary before a final package is accepted.
+The operation is deliberately narrow. It accepts only projection-only LoRA
+training bound to the declared public training seed. Every mapped target
+FC/embedding constant is regenerated from the merged checkpoint; learned
+constants outside that inventory remain from the official package. For Gemma
+4 E2B, Google does not publish the dense pre-quantization mobile checkpoint, so
+the checked-in workflow uses its public Q4_0 QAT-derived BF16 checkpoint as the
+trainable seed while the released package remains the graph/layout authority.
+The tokenizer, separate token/per-layer embedder sections, audio/vision
+sections, and default MTP drafter are preserved byte-for-byte. A fail-closed
+manifest records every source key, shape transform, quantizer layout, graph
+fingerprint, and package boundary before a final package is accepted.
 
 This does not recover Google's private trainer, calibration corpus, or learned
 constants.  It does reproduce the released graph/operators/layout while
@@ -77,6 +81,7 @@ from build_fresh_random_quantized_graph import _extract_inventory
 from ir_training.common.config import load_yaml
 from ir_training.export.litertlm_inspector import inspect_litertlm
 from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat_mtp.workflow import OFFICIAL_QAT_TARGET
 
 
 class CheckpointTopologyError(RuntimeError):
@@ -585,6 +590,7 @@ def _training_scope_report(
         "embedding_qat_matches_inventory": False,
         "public_ai_edge_weight_ranges": False,
         "precision_matches_official_layout": False,
+        "family_training_seed_supported": family != "gemma4_e2b",
     }
     result: dict[str, Any] = {
         "path": str(Path(training_config).expanduser().resolve())
@@ -617,6 +623,8 @@ def _training_scope_report(
     checks["base_model_id_matches_declared_official_base"] = bool(
         official_base_model_id and model_id == str(official_base_model_id)
     )
+    if family == "gemma4_e2b":
+        checks["family_training_seed_supported"] = model_id == OFFICIAL_QAT_TARGET
     checks["qat_lora_sft"] = str(training.get("method") or "") == "qat_lora_sft"
     checks["qat_enabled"] = bool(qat.get("enabled", False))
     modules_to_save = lora.get("modules_to_save", [])
@@ -685,8 +693,9 @@ def _training_scope_report(
         )
     result["supported_projection_only_transplant"] = bool(all(checks.values()))
     result["preserved_constant_contract"] = (
-        "Only mapped projection/embedding constants may differ. All other learned "
-        "constants are retained from the declared identical official base package."
+        "Every mapped target FC/embedding constant may differ. All learned constants "
+        "outside that inventory are retained from the hash-bound official package; "
+        "this proves graph/layout identity, not an unavailable dense mobile seed."
     )
     return result
 
