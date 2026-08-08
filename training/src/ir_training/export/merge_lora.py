@@ -18,6 +18,204 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _adapter_file_records(adapter_path: Path) -> list[dict[str, Any]]:
+    return [
+        {
+            "path": candidate.name,
+            "size": int(candidate.stat().st_size),
+            "sha256": _sha256_file(candidate),
+        }
+        for candidate in sorted(adapter_path.glob("adapter*"))
+        if candidate.is_file()
+    ]
+
+
+def _normalized_file_records(records: Any) -> list[dict[str, Any]]:
+    if not isinstance(records, list):
+        return []
+    normalized = []
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        try:
+            size = int(item.get("size", -1) or -1)
+        except (TypeError, ValueError):
+            size = -1
+        normalized.append(
+            {
+                "path": str(item.get("path") or ""),
+                "size": size,
+                "sha256": str(item.get("sha256") or "").lower(),
+            }
+        )
+    return sorted(normalized, key=lambda item: item["path"])
+
+
+def _verify_qat_training_metadata(
+    adapter_path: Path,
+    *,
+    training_config_sha256: str,
+    training_method: str,
+) -> dict[str, Any]:
+    metadata_path = next(
+        (
+            candidate
+            for candidate in (
+                adapter_path / "training_metadata.json",
+                adapter_path.parent / "training_metadata.json",
+            )
+            if candidate.is_file()
+        ),
+        None,
+    )
+    checks = {
+        "metadata_present": metadata_path is not None,
+        "metadata_v2_or_newer": False,
+        "training_config_hash_matches": False,
+        "training_method_matches": False,
+        "qat_enabled": False,
+        "effective_merged_weight_qat": False,
+        "effective_lora_wrappers_recorded": False,
+        "all_lora_adapter_linears_covered": False,
+        "zero_lora_dropout": False,
+        "git_commit_recorded": False,
+        "adapter_checkpoint_hashes_match": False,
+    }
+    report: dict[str, Any] = {
+        "required": True,
+        "path": str(metadata_path) if metadata_path else None,
+        "sha256": _sha256_file(metadata_path) if metadata_path else None,
+        "checks": checks,
+        "verified": False,
+    }
+    if metadata_path is None:
+        return report
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        report["error"] = f"Could not read training metadata: {exc}"
+        return report
+    if not isinstance(metadata, dict):
+        report["error"] = "Training metadata root is not an object."
+        return report
+    qat = metadata.get("qat") if isinstance(metadata.get("qat"), dict) else {}
+    qat_spec = qat.get("spec") if isinstance(qat.get("spec"), dict) else {}
+    lora = metadata.get("lora") if isinstance(metadata.get("lora"), dict) else {}
+    training = (
+        metadata.get("training")
+        if isinstance(metadata.get("training"), dict)
+        else {}
+    )
+    checks["metadata_v2_or_newer"] = (
+        int(metadata.get("training_metadata_version", 0) or 0) >= 2
+    )
+    checks["training_config_hash_matches"] = (
+        str(metadata.get("training_config_sha256") or "").lower()
+        == training_config_sha256.lower()
+    )
+    checks["training_method_matches"] = (
+        str(training.get("method") or "") == training_method
+    )
+    checks["qat_enabled"] = qat.get("enabled") is True
+    checks["effective_merged_weight_qat"] = bool(
+        qat.get("effective_merged_weight_qat_enabled") is True
+        and qat_spec.get("effective_merged_weight") is True
+    )
+    checks["effective_lora_wrappers_recorded"] = (
+        int(qat.get("wrapped_effective_lora_count", 0) or 0) > 0
+    )
+    checks["all_lora_adapter_linears_covered"] = not bool(
+        qat.get("uncovered_lora_adapter_linear_names")
+    )
+    try:
+        checks["zero_lora_dropout"] = float(lora.get("dropout", -1.0)) == 0.0
+    except (TypeError, ValueError):
+        checks["zero_lora_dropout"] = False
+    git_commit = str(metadata.get("git_commit") or "").strip().lower()
+    checks["git_commit_recorded"] = bool(git_commit and git_commit != "unknown")
+    actual_files = _normalized_file_records(_adapter_file_records(adapter_path))
+    checkpoints = metadata.get("adapter_checkpoints")
+    if isinstance(checkpoints, list):
+        checks["adapter_checkpoint_hashes_match"] = any(
+            isinstance(checkpoint, dict)
+            and _normalized_file_records(checkpoint.get("files")) == actual_files
+            for checkpoint in checkpoints
+        )
+    report["training_git_commit"] = git_commit or None
+    report["adapter_files"] = actual_files
+    report["verified"] = bool(all(checks.values()))
+    return report
+
+
+def _training_provenance(
+    adapter_path: Path,
+    training_config_path: str | Path | None,
+    *,
+    base: Path,
+) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "training_config": None,
+        "training_config_sha256": None,
+        "training_method": None,
+        "qat_enabled": None,
+        "qat_profile": None,
+        "qat_effective_merged_weight": None,
+        "lora_dropout": None,
+        "training_run_metadata": {
+            "required": False,
+            "verified": False,
+        },
+    }
+    if training_config_path is None:
+        return result
+    from ir_training.common.config import load_yaml
+
+    resolved_config = resolve_path(training_config_path, base)
+    if not resolved_config.is_file():
+        raise FileNotFoundError(
+            f"Missing training config for merge provenance: {resolved_config}"
+        )
+    config_bytes = resolved_config.read_bytes()
+    config_sha256 = hashlib.sha256(config_bytes).hexdigest()
+    config = load_yaml(resolved_config)
+    training = config.get("training") if isinstance(config.get("training"), dict) else {}
+    qat = config.get("qat") if isinstance(config.get("qat"), dict) else {}
+    lora = config.get("lora") if isinstance(config.get("lora"), dict) else {}
+    training_method = str(training.get("method") or "")
+    qat_enabled = bool(qat.get("enabled", False))
+    result.update(
+        {
+            "training_config": str(resolved_config),
+            "training_config_sha256": config_sha256,
+            "training_method": training_method,
+            "qat_enabled": qat_enabled,
+            "qat_profile": qat.get("profile"),
+            "qat_effective_merged_weight": bool(
+                qat.get("effective_merged_weight", False)
+            ),
+            "lora_dropout": lora.get("dropout"),
+        }
+    )
+    if qat_enabled:
+        run_report = _verify_qat_training_metadata(
+            adapter_path,
+            training_config_sha256=config_sha256,
+            training_method=training_method,
+        )
+        result["training_run_metadata"] = run_report
+        if not run_report["verified"]:
+            failed = [
+                name
+                for name, passed in run_report["checks"].items()
+                if not passed
+            ]
+            raise ValueError(
+                "QAT adapter training provenance is incomplete or mismatched: "
+                + ", ".join(failed)
+            )
+    return result
+
+
 def merge_lora_adapter(
     base_model_id: str,
     adapter_dir: str | Path,
@@ -31,16 +229,10 @@ def merge_lora_adapter(
 ) -> Path:
     """Merge an adapter while recording what this operation does not prove.
 
-    A merge from a QAT-derived base remains a floating-point Hugging Face model.
-    It is not packed INT4 and this function does not perform continued QAT or
-    modify an MTP assistant.
+    A merge from a QAT-trained adapter remains a floating-point Hugging Face
+    model. It is not packed INT4; this function verifies the training-time QAT
+    provenance but does not itself run QAT or modify an MTP assistant.
     """
-
-    try:
-        from peft import PeftModel  # type: ignore
-        from transformers import AutoProcessor, AutoTokenizer  # type: ignore
-    except Exception as exc:  # pragma: no cover - dependency failure path
-        raise RuntimeError("Install the training requirements before merging LoRA adapters.") from exc
 
     if not str(base_model_id).strip():
         raise ValueError("base_model_id is required")
@@ -54,6 +246,18 @@ def merge_lora_adapter(
     out_dir = resolve_path(output_dir, base)
     if not adapter_path.exists():
         raise FileNotFoundError(f"Missing LoRA adapter directory: {adapter_path}")
+    training_provenance = _training_provenance(
+        adapter_path,
+        training_config_path,
+        base=base,
+    )
+    try:
+        from peft import PeftModel  # type: ignore
+        from transformers import AutoProcessor, AutoTokenizer  # type: ignore
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError(
+            "Install the training requirements before merging LoRA adapters."
+        ) from exc
     out_dir.mkdir(parents=True, exist_ok=True)
 
     model_config: dict[str, Any] = {
@@ -89,52 +293,7 @@ def merge_lora_adapter(
             tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=trust_remote_code)
             tokenizer.save_pretrained(str(out_dir))
 
-    training_provenance: dict[str, Any] = {
-        "training_config": None,
-        "training_config_sha256": None,
-        "training_method": None,
-        "qat_enabled": None,
-        "qat_profile": None,
-    }
-    if training_config_path is not None:
-        from ir_training.common.config import load_yaml
-
-        resolved_training_config = resolve_path(training_config_path, base)
-        if not resolved_training_config.is_file():
-            raise FileNotFoundError(
-                f"Missing training config for merge provenance: {resolved_training_config}"
-            )
-        training_bytes = resolved_training_config.read_bytes()
-        training_config = load_yaml(resolved_training_config)
-        training_section = (
-            training_config.get("training")
-            if isinstance(training_config.get("training"), dict)
-            else {}
-        )
-        qat_section = (
-            training_config.get("qat")
-            if isinstance(training_config.get("qat"), dict)
-            else {}
-        )
-        training_provenance = {
-            "training_config": str(resolved_training_config),
-            "training_config_sha256": hashlib.sha256(training_bytes).hexdigest(),
-            "training_method": training_section.get("method"),
-            "qat_enabled": bool(qat_section.get("enabled", False)),
-            "qat_profile": qat_section.get("profile"),
-        }
-
-    adapter_files = []
-    for candidate in sorted(adapter_path.glob("adapter*")):
-        if not candidate.is_file():
-            continue
-        adapter_files.append(
-            {
-                "path": str(candidate),
-                "size": int(candidate.stat().st_size),
-                "sha256": _sha256_file(candidate),
-            }
-        )
+    adapter_files = _adapter_file_records(adapter_path)
 
     merged_model_files = []
     merged_candidates = list(out_dir.glob("model*.safetensors"))
@@ -157,7 +316,7 @@ def merge_lora_adapter(
         )
 
     metadata = {
-        "manifest_version": 2,
+        "manifest_version": 3,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "base_model_id": base_model_id,
         "adapter_dir": str(adapter_path),
@@ -165,7 +324,8 @@ def merge_lora_adapter(
         "model_loader": model_loader,
         "merge_dtype": dtype,
         "base_is_qat_derived": "-qat-" in base_model_id.lower(),
-        "continued_qat_performed": False,
+        "continued_qat_performed": bool(training_provenance["qat_enabled"]),
+        "merge_performed_qat": False,
         "packed_int4_output": False,
         "requires_post_merge_quantization": True,
         "mtp_assistant_trained_or_modified": False,

@@ -18,6 +18,9 @@ class QATSpec:
     pass, so this implementation does not add observer state to checkpoints.
     ``ste_ai_edge`` opts into the public AI Edge signed range convention; it
     is not a disclosure of Google's private QAT observer.
+
+    ``effective_merged_weight`` makes PEFT projections fake-quantize the same
+    ``base_weight + LoRA_delta`` matrix later produced by ``merge_and_unload``.
     """
 
     weight_bits: int = 8
@@ -28,6 +31,7 @@ class QATSpec:
     weight_axis: int = 0
     group_size: int | None = None
     only_base_layers: bool = True
+    effective_merged_weight: bool = True
     exclude_modules: tuple[str, ...] = (
         r"(^|\.)(lm_head|embed_tokens|embed_positions|output_projection)(\.|$)",
     )
@@ -79,6 +83,9 @@ class QATSpec:
             weight_axis=int(qat.get("weight_axis", cls.weight_axis)),
             group_size=int(group_size) if group_size not in (None, "", 0) else None,
             only_base_layers=bool(qat.get("only_base_layers", cls.only_base_layers)),
+            effective_merged_weight=bool(
+                qat.get("effective_merged_weight", cls.effective_merged_weight)
+            ),
             exclude_modules=exclude,
             module_quant_configs=module_quant_configs,
             modules_to_not_convert=modules_to_not_convert,
@@ -259,7 +266,10 @@ class QATController:
         self._wrapped_names: list[str] = []
         self._wrapped_linear_names: list[str] = []
         self._wrapped_embedding_names: list[str] = []
+        self._wrapped_effective_lora_names: list[str] = []
         self._wrapped_weight_bits: dict[str, int] = {}
+        self._detected_lora_adapter_linear_count = 0
+        self._uncovered_lora_adapter_linear_names: list[str] = []
 
     @property
     def wrapped_count(self) -> int:
@@ -270,11 +280,92 @@ class QATController:
     def wrapped_names(self) -> tuple[str, ...]:
         return tuple(self._wrapped_names)
 
+    @property
+    def wrapped_effective_lora_count(self) -> int:
+        return len(self._wrapped_effective_lora_names)
+
     def prepare(self, model: Any) -> QATController:
         from torch import nn
         from torch.nn import functional
 
-        for module_name, module in model.named_modules():
+        named_modules = list(model.named_modules())
+        self._detected_lora_adapter_linear_count = sum(
+            1
+            for module_name, module in named_modules
+            if isinstance(module, nn.Linear) and _is_adapter_layer_name(module_name)
+        )
+        effective_lora_prefixes: list[str] = []
+        if self.spec.effective_merged_weight:
+            for module_name, module in named_modules:
+                if not _is_lora_linear_wrapper(module, nn):
+                    continue
+                if any(
+                    re.search(pattern, module_name)
+                    for pattern in self.spec.exclude_modules
+                ):
+                    continue
+                module_weight_bits = self.spec.weight_bits_for_module(module_name)
+                if module_weight_bits is None:
+                    continue
+                adapter_names = _validate_effective_lora_wrapper(module, module_name)
+                original_forward = module.forward
+                module_spec = _module_spec_for_bits(self.spec, module_weight_bits)
+
+                def qat_lora_forward(
+                    input_tensor: Any,
+                    *args: Any,
+                    _module: Any = module,
+                    _module_name: str = module_name,
+                    _module_spec: QATSpec = module_spec,
+                    _adapter_names: tuple[str, ...] = adapter_names,
+                    **kwargs: Any,
+                ) -> Any:
+                    if args or kwargs:
+                        raise TypeError(
+                            "Effective merged-weight QAT does not support extra "
+                            f"arguments for {_module_name!r}; mixed-adapter batches "
+                            "would bypass the deployment-equivalent forward."
+                        )
+                    quantized_input = fake_quantize_activation(
+                        input_tensor, _module_spec
+                    )
+                    effective_weight = _effective_lora_weight(
+                        _module, _adapter_names
+                    )
+                    quantized_weight = fake_quantize_weight(
+                        effective_weight, _module_spec
+                    )
+                    return functional.linear(
+                        quantized_input,
+                        quantized_weight,
+                        _module.base_layer.bias,
+                    )
+
+                module.forward = qat_lora_forward
+                self._original_forwards[module] = original_forward
+                self._wrapped_names.append(module_name)
+                self._wrapped_linear_names.append(module_name)
+                self._wrapped_effective_lora_names.append(module_name)
+                self._wrapped_weight_bits[module_name] = module_weight_bits
+                effective_lora_prefixes.append(module_name)
+
+        self._uncovered_lora_adapter_linear_names = [
+            module_name
+            for module_name, module in named_modules
+            if isinstance(module, nn.Linear)
+            and _is_adapter_layer_name(module_name)
+            and not any(
+                _is_descendant_module_name(module_name, prefix)
+                for prefix in effective_lora_prefixes
+            )
+        ]
+
+        for module_name, module in named_modules:
+            if any(
+                _is_descendant_module_name(module_name, prefix)
+                for prefix in effective_lora_prefixes
+            ):
+                continue
             is_linear = isinstance(module, nn.Linear)
             is_embedding = isinstance(module, nn.Embedding)
             if not is_linear and not is_embedding:
@@ -300,14 +391,7 @@ class QATController:
             if module in self._original_forwards:
                 continue
             original_forward = module.forward
-            module_spec = self.spec if module_weight_bits == self.spec.weight_bits else QATSpec(
-                **{
-                    **self.spec.to_dict(),
-                    "weight_bits": module_weight_bits,
-                    "module_quant_configs": (),
-                    "modules_to_not_convert": (),
-                }
-            )
+            module_spec = _module_spec_for_bits(self.spec, module_weight_bits)
 
             if is_linear:
 
@@ -379,6 +463,17 @@ class QATController:
             "wrapped_module_count": self.wrapped_count,
             "wrapped_linear_count": len(self._wrapped_linear_names),
             "wrapped_embedding_count": len(self._wrapped_embedding_names),
+            "effective_merged_weight_qat_enabled": self.spec.effective_merged_weight,
+            "wrapped_effective_lora_count": self.wrapped_effective_lora_count,
+            "wrapped_effective_lora_names": list(
+                self._wrapped_effective_lora_names
+            ),
+            "detected_lora_adapter_linear_count": (
+                self._detected_lora_adapter_linear_count
+            ),
+            "uncovered_lora_adapter_linear_names": list(
+                self._uncovered_lora_adapter_linear_names
+            ),
             "wrapped_linear_names": list(self._wrapped_linear_names),
             "wrapped_embedding_names": list(self._wrapped_embedding_names),
             "wrapped_weight_bits_by_module": dict(self._wrapped_weight_bits),
@@ -387,6 +482,130 @@ class QATController:
             ),
             "spec": self.spec.to_dict(),
         }
+
+
+def _module_spec_for_bits(spec: QATSpec, weight_bits: int) -> QATSpec:
+    if weight_bits == spec.weight_bits:
+        return spec
+    return QATSpec(
+        **{
+            **spec.to_dict(),
+            "weight_bits": weight_bits,
+            "module_quant_configs": (),
+            "modules_to_not_convert": (),
+        }
+    )
+
+
+def _is_lora_linear_wrapper(module: Any, nn: Any) -> bool:
+    return bool(
+        isinstance(getattr(module, "base_layer", None), nn.Linear)
+        and callable(getattr(module, "get_delta_weight", None))
+        and hasattr(module, "lora_A")
+        and hasattr(module, "lora_B")
+    )
+
+
+def _active_lora_adapter_names(module: Any) -> tuple[str, ...]:
+    active = getattr(module, "active_adapters", None)
+    if active is None:
+        active = getattr(module, "active_adapter", None)
+    if isinstance(active, str):
+        return (active,)
+    if isinstance(active, list | tuple | set):
+        return tuple(str(item) for item in active)
+    return ()
+
+
+def _container_has(container: Any, key: str) -> bool:
+    try:
+        return key in container
+    except (TypeError, AttributeError):
+        return False
+
+
+def _container_item(container: Any, key: str, default: Any = None) -> Any:
+    try:
+        return container[key]
+    except (KeyError, TypeError, AttributeError):
+        return default
+
+
+def _validate_effective_lora_wrapper(
+    module: Any, module_name: str
+) -> tuple[str, ...]:
+    if bool(getattr(module, "disable_adapters", False)):
+        raise ValueError(
+            f"LoRA adapters are disabled for {module_name!r}; effective-weight QAT cannot run."
+        )
+    if bool(getattr(module, "merged", False)):
+        raise ValueError(
+            f"LoRA wrapper {module_name!r} is already merged; prepare QAT before merging."
+        )
+    active = _active_lora_adapter_names(module)
+    selected = tuple(
+        adapter
+        for adapter in active
+        if _container_has(module.lora_A, adapter)
+        and _container_has(module.lora_B, adapter)
+    )
+    if not selected:
+        raise ValueError(
+            f"LoRA wrapper {module_name!r} has no active A/B adapter pair."
+        )
+    for adapter in selected:
+        dropout = _container_item(getattr(module, "lora_dropout", {}), adapter)
+        dropout_probability = float(getattr(dropout, "p", 0.0) or 0.0)
+        if dropout_probability != 0.0:
+            raise ValueError(
+                f"LoRA adapter {adapter!r} in {module_name!r} has dropout="
+                f"{dropout_probability}; exact post-merge QAT requires dropout=0."
+            )
+        use_dora = getattr(module, "use_dora", False)
+        adapter_uses_dora = (
+            bool(_container_item(use_dora, adapter, False))
+            if not isinstance(use_dora, bool)
+            else use_dora
+        )
+        if adapter_uses_dora:
+            raise ValueError(
+                f"DoRA adapter {adapter!r} in {module_name!r} is not supported by "
+                "the exact effective-weight QAT path."
+            )
+        lora_variant = getattr(module, "lora_variant", {})
+        if _container_item(lora_variant, adapter) is not None:
+            raise ValueError(
+                f"LoRA variant for adapter {adapter!r} in {module_name!r} is not "
+                "supported by the exact effective-weight QAT path."
+            )
+        lora_bias = getattr(module, "lora_bias", {})
+        if bool(_container_item(lora_bias, adapter, False)):
+            raise ValueError(
+                f"LoRA bias for adapter {adapter!r} in {module_name!r} is not "
+                "supported by the exact effective-weight QAT path."
+            )
+    return selected
+
+
+def _effective_lora_weight(module: Any, adapter_names: tuple[str, ...]) -> Any:
+    base_weight = module.base_layer.weight
+    effective_weight = base_weight
+    for adapter in adapter_names:
+        delta = module.get_delta_weight(adapter)
+        if tuple(delta.shape) != tuple(base_weight.shape):
+            raise ValueError(
+                f"LoRA delta shape {tuple(delta.shape)} does not match base weight "
+                f"shape {tuple(base_weight.shape)} for adapter {adapter!r}."
+            )
+        delta = delta.to(device=base_weight.device, dtype=base_weight.dtype)
+        effective_weight = effective_weight + delta
+    return effective_weight
+
+
+def _is_descendant_module_name(module_name: str, parent_name: str) -> bool:
+    if not parent_name:
+        return bool(module_name)
+    return module_name.startswith(parent_name + ".")
 
 
 def _is_adapter_layer_name(module_name: str) -> bool:
@@ -429,6 +648,15 @@ def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
     """Apply configured fake quantization and fail if no base weights match."""
 
     controller = QATController(QATSpec.from_config(config)).prepare(model)
+    if (
+        controller.spec.effective_merged_weight
+        and controller._uncovered_lora_adapter_linear_names
+    ):
+        raise ValueError(
+            "Effective merged-weight QAT could not bind these LoRA adapter "
+            "matrices to compatible PEFT linear wrappers: "
+            + ", ".join(controller._uncovered_lora_adapter_linear_names)
+        )
     if controller.wrapped_count == 0:
         raise ValueError(
             "QAT preparation matched no eligible base nn.Linear/nn.Embedding modules. "

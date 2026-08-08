@@ -14,6 +14,7 @@ from ir_training.qat.fake_quant import (
     QATSpec,
     _scale_and_zero_point,
     fake_quantize_ste,
+    fake_quantize_weight,
     prepare_qat_model,
 )
 from ir_training.qat.mobile_schema import (
@@ -22,7 +23,46 @@ from ir_training.qat.mobile_schema import (
     load_mobile_quant_schema,
 )
 from ir_training.qat.workflow import validate_qat_config
+from ir_training.train.sft import _adapter_checkpoint_manifest
 from torch import nn
+
+
+class FakePeftLoraLinear(nn.Module):
+    def __init__(self, *, dropout: float = 0.0):
+        super().__init__()
+        self.base_layer = nn.Linear(2, 2, bias=False)
+        self.base_layer.weight.requires_grad_(False)
+        self.lora_A = nn.ModuleDict(
+            {"default": nn.Linear(2, 1, bias=False)}
+        )
+        self.lora_B = nn.ModuleDict(
+            {"default": nn.Linear(1, 2, bias=False)}
+        )
+        self.lora_dropout = nn.ModuleDict(
+            {"default": nn.Dropout(dropout)}
+        )
+        self.scaling = {"default": 1.0}
+        self.use_dora = {"default": False}
+        self.active_adapters = ["default"]
+        self.disable_adapters = False
+        self.merged = False
+
+    def get_delta_weight(self, adapter: str):
+        return (
+            self.lora_B[adapter].weight
+            @ self.lora_A[adapter].weight
+            * self.scaling[adapter]
+        )
+
+    def forward(self, inputs):
+        result = self.base_layer(inputs)
+        for adapter in self.active_adapters:
+            adapter_inputs = self.lora_dropout[adapter](inputs)
+            result = result + (
+                self.lora_B[adapter](self.lora_A[adapter](adapter_inputs))
+                * self.scaling[adapter]
+            )
+        return result
 
 
 def test_fake_quant_ste_quantizes_forward_and_keeps_gradient():
@@ -101,18 +141,11 @@ def test_qat_controller_wraps_base_layers_and_restores_them():
 
 
 def test_qat_controller_wraps_plain_base_linears_but_skips_lora_matrices():
-    class LoRAProjection(nn.Module):
-        def __init__(self):
-            super().__init__()
-            self.base_layer = nn.Linear(4, 4)
-            self.lora_A = nn.ModuleDict({"default": nn.Linear(4, 2, bias=False)})
-            self.lora_B = nn.ModuleDict({"default": nn.Linear(2, 4, bias=False)})
-
     class TinyPeftModel(nn.Module):
         def __init__(self):
             super().__init__()
-            self.q_proj = LoRAProjection()
-            self.frozen_aux_projection = nn.Linear(4, 4)
+            self.q_proj = FakePeftLoraLinear()
+            self.frozen_aux_projection = nn.Linear(2, 2)
 
     controller = prepare_qat_model(
         TinyPeftModel(),
@@ -127,16 +160,99 @@ def test_qat_controller_wraps_plain_base_linears_but_skips_lora_matrices():
     )
 
     assert set(controller.wrapped_names) == {
-        "q_proj.base_layer",
+        "q_proj",
         "frozen_aux_projection",
     }
     assert "q_proj.lora_A.default" not in controller.wrapped_names
     assert "q_proj.lora_B.default" not in controller.wrapped_names
     assert controller.summary()["wrapped_weight_bits_by_module"] == {
-        "q_proj.base_layer": 4,
+        "q_proj": 4,
         "frozen_aux_projection": 4,
     }
     assert controller.summary()["wrapped_weight_bit_histogram"] == {"4": 2}
+    assert controller.summary()["wrapped_effective_lora_names"] == ["q_proj"]
+    assert controller.summary()["uncovered_lora_adapter_linear_names"] == []
+
+
+def test_effective_lora_qat_quantizes_merged_weight_and_keeps_adapter_gradients():
+    class TinyModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.q_proj = FakePeftLoraLinear()
+
+        def forward(self, inputs):
+            return self.q_proj(inputs)
+
+    model = TinyModel()
+    with torch.no_grad():
+        model.q_proj.base_layer.weight.copy_(
+            torch.tensor([[0.9, 0.2], [-0.7, 0.4]])
+        )
+        model.q_proj.lora_A["default"].weight.copy_(
+            torch.tensor([[0.6, -0.3]])
+        )
+        model.q_proj.lora_B["default"].weight.copy_(
+            torch.tensor([[0.5], [-0.25]])
+        )
+    original_forward = model.q_proj.forward
+    controller = prepare_qat_model(
+        model,
+        {
+            "qat": {
+                "weight_bits": 2,
+                "activation_bits": 32,
+                "weight_per_channel": True,
+                "exclude_modules": [],
+                "only_base_layers": True,
+                "effective_merged_weight": True,
+            }
+        },
+    )
+    inputs = torch.tensor([[1.0, -0.5], [0.25, 0.75]])
+    effective_weight = (
+        model.q_proj.base_layer.weight
+        + model.q_proj.get_delta_weight("default")
+    )
+    expected = torch.nn.functional.linear(
+        inputs,
+        fake_quantize_weight(effective_weight, controller.spec),
+    )
+    legacy_base_only = torch.nn.functional.linear(
+        inputs,
+        fake_quantize_weight(model.q_proj.base_layer.weight, controller.spec),
+    ) + model.q_proj.lora_B["default"](
+        model.q_proj.lora_A["default"](inputs)
+    )
+
+    actual = model(inputs)
+    assert torch.allclose(actual, expected)
+    assert not torch.allclose(actual, legacy_base_only)
+    actual.square().mean().backward()
+    assert model.q_proj.lora_A["default"].weight.grad is not None
+    assert model.q_proj.lora_B["default"].weight.grad is not None
+    assert model.q_proj.base_layer.weight.grad is None
+
+    controller.restore()
+    assert model.q_proj.forward == original_forward
+    assert torch.allclose(model(inputs), torch.nn.functional.linear(inputs, effective_weight))
+
+
+def test_effective_lora_qat_rejects_nonzero_adapter_dropout():
+    model = nn.Module()
+    model.q_proj = FakePeftLoraLinear(dropout=0.05)
+
+    with pytest.raises(ValueError, match="requires dropout=0"):
+        prepare_qat_model(
+            model,
+            {
+                "qat": {
+                    "weight_bits": 4,
+                    "activation_bits": 8,
+                    "exclude_modules": [],
+                    "effective_merged_weight": True,
+                }
+            },
+        )
 
 
 @pytest.mark.parametrize(
@@ -156,12 +272,53 @@ def test_supported_qat_profiles_pass_static_validation(
     assert QATSpec.from_config(config).activation_bits == expected_activation_bits
 
 
+def test_gemma4_true_qat_keeps_peft_language_model_default_scope():
+    config = load_yaml(ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml")
+
+    # PEFT 0.19+ owns the Gemma 4 language_model q_proj/v_proj regex. The
+    # GemmaAdapter `.linear` fallback targets clipped modality wrappers instead.
+    assert config["lora"]["target_modules"] == "peft-default"
+
+
 def test_qat_validation_rejects_qlora_and_disabled_qat():
     config = load_yaml(ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml")
     config["model"]["load_in_4bit"] = True
     config["qat"]["enabled"] = False
     codes = {issue.code for issue in validate_qat_config(config)}
     assert {"qlora_is_not_qat", "qat_not_enabled"}.issubset(codes)
+
+
+def test_qat_validation_requires_effective_weight_and_zero_lora_dropout():
+    config = load_yaml(ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml")
+    config["qat"]["effective_merged_weight"] = False
+    config["lora"]["dropout"] = 0.05
+
+    codes = {issue.code for issue in validate_qat_config(config)}
+
+    assert {
+        "effective_merged_weight_qat_required",
+        "nonzero_lora_dropout_breaks_merged_qat",
+    }.issubset(codes)
+
+
+def test_training_adapter_manifest_binds_checkpoint_bytes(tmp_path):
+    (tmp_path / "adapter_config.json").write_text("{}", encoding="utf-8")
+    weights = tmp_path / "adapter_model.safetensors"
+    weights.write_bytes(b"adapter-v1")
+
+    first = _adapter_checkpoint_manifest(tmp_path, role="best_golden")
+    weights.write_bytes(b"adapter-v2")
+    second = _adapter_checkpoint_manifest(tmp_path, role="best_golden")
+
+    assert first["role"] == "best_golden"
+    assert len(first["files"]) == 2
+    first_weight = next(
+        item for item in first["files"] if item["path"] == weights.name
+    )
+    second_weight = next(
+        item for item in second["files"] if item["path"] == weights.name
+    )
+    assert first_weight["sha256"] != second_weight["sha256"]
 
 
 def test_public_gemma4_mobile_schema_preserves_ordered_bit_assignments():

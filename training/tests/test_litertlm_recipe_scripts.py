@@ -680,11 +680,16 @@ def test_checkpoint_topology_requires_merge_metadata_bound_to_training_config(tm
     merged_model = tmp_path / "model.safetensors"
     merged_model.write_bytes(b"merged-model")
     metadata = {
-        "manifest_version": 2,
+        "manifest_version": 3,
         "base_model_id": "google/gemma-3-270m-it",
         "training_config_sha256": hashlib.sha256(training_config.read_bytes()).hexdigest(),
         "training_method": "qat_lora_sft",
         "qat_enabled": True,
+        "qat_effective_merged_weight": True,
+        "lora_dropout": 0.0,
+        "training_run_metadata": {"verified": True},
+        "continued_qat_performed": True,
+        "merge_performed_qat": False,
         "adapter_files": [
             {"path": "adapter_model.safetensors", "size": 10, "sha256": "a" * 64}
         ],

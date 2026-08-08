@@ -580,6 +580,8 @@ def _training_scope_report(
         "qat_enabled": False,
         "projection_only_lora": False,
         "only_base_layers": False,
+        "effective_merged_weight_qat": False,
+        "zero_lora_dropout": False,
         "embedding_qat_matches_inventory": False,
         "public_ai_edge_weight_ranges": False,
         "precision_matches_official_layout": False,
@@ -653,6 +655,13 @@ def _training_scope_report(
     )
     result["lora_target_modules"] = normalized_targets
     checks["only_base_layers"] = bool(qat.get("only_base_layers", False))
+    checks["effective_merged_weight_qat"] = bool(
+        qat.get("effective_merged_weight", False)
+    )
+    try:
+        checks["zero_lora_dropout"] = float(lora.get("dropout", -1.0)) == 0.0
+    except (TypeError, ValueError):
+        checks["zero_lora_dropout"] = False
     checks["embedding_qat_matches_inventory"] = bool(
         qat.get("quantize_embeddings", False)
         and not qat.get("exclude_modules", [])
@@ -695,11 +704,16 @@ def _merge_provenance_report(
     )
     checks = {
         "metadata_present": metadata_path.is_file(),
-        "manifest_v2_or_newer": False,
+        "manifest_v3_or_newer": False,
         "base_model_matches": False,
         "training_config_hash_matches": False,
         "qat_lora_sft": False,
         "qat_enabled": False,
+        "effective_merged_weight_qat": False,
+        "zero_lora_dropout": False,
+        "training_run_metadata_verified": False,
+        "continued_qat_performed": False,
+        "merge_did_not_fake_qat": False,
         "adapter_hashes_recorded": False,
         "merged_checkpoint_hashes_match": False,
         "floating_merge_requires_quantization": False,
@@ -721,7 +735,7 @@ def _merge_provenance_report(
         result["error"] = "Merge provenance must be a JSON object."
         return result
     result["metadata"] = metadata
-    checks["manifest_v2_or_newer"] = int(metadata.get("manifest_version", 0) or 0) >= 2
+    checks["manifest_v3_or_newer"] = int(metadata.get("manifest_version", 0) or 0) >= 3
     checks["base_model_matches"] = bool(
         official_base_model_id
         and str(metadata.get("base_model_id") or "") == str(official_base_model_id)
@@ -737,6 +751,21 @@ def _merge_provenance_report(
             )
     checks["qat_lora_sft"] = str(metadata.get("training_method") or "") == "qat_lora_sft"
     checks["qat_enabled"] = bool(metadata.get("qat_enabled", False))
+    checks["effective_merged_weight_qat"] = bool(
+        metadata.get("qat_effective_merged_weight", False)
+    )
+    try:
+        checks["zero_lora_dropout"] = float(metadata.get("lora_dropout", -1.0)) == 0.0
+    except (TypeError, ValueError):
+        checks["zero_lora_dropout"] = False
+    run_metadata = (
+        metadata.get("training_run_metadata")
+        if isinstance(metadata.get("training_run_metadata"), dict)
+        else {}
+    )
+    checks["training_run_metadata_verified"] = run_metadata.get("verified") is True
+    checks["continued_qat_performed"] = metadata.get("continued_qat_performed") is True
+    checks["merge_did_not_fake_qat"] = metadata.get("merge_performed_qat") is False
     adapter_files = metadata.get("adapter_files")
     checks["adapter_hashes_recorded"] = bool(
         isinstance(adapter_files, list)

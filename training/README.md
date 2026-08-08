@@ -114,13 +114,19 @@ do not run the training command.
 
 The repository also has an opt-in fake-quantization-aware LoRA path. The Gemma
 4 profile consumes the released mobile W2/W4/W8 target inventory,
-fake-quantizes every matching base linear and embedding while excluding LoRA
-A/B matrices, and uses the public AI Edge min/max range convention
+fake-quantizes every matching embedding and each effective projection weight
+(`base_weight + LoRA_delta`), and uses the public AI Edge min/max range convention
 (`ste_ai_edge`: full signed W2/W4, narrow symmetric W8). Gemma 270M uses W8
 weight fake quantization with FP32 activation edges to match its released Q8
 graph. This is different from the QAT-derived `qat_mtp` profile above, does not
 train an MTP assistant, and does not claim Google's private mobile
 observer/calibration recipe.
+
+The QAT profiles require `lora.dropout: 0.0`: an input-dependent adapter
+dropout mask has no exact equivalent in the final merged inference matrix.
+Training metadata hashes the selected adapter and records the number of PEFT
+wrappers using effective-weight QAT; merge manifest v3 rejects old base-only-QAT
+or unbound adapters before model loading.
 
 Validate all profiles without loading models or running training:
 
@@ -584,9 +590,9 @@ are then placed into an unchanged copy of the released target graph.
 The command fails closed unless all of these are true:
 
 - the input package SHA-256 matches the configured released artifact;
-- merge metadata v2 binds the checkpoint to the exact training-config hash,
-  base model, QAT method/profile, hashed adapter files, and the SHA-256 of every
-  merged safetensor shard and shard index;
+- merge metadata v3 binds the checkpoint to the exact training-config hash,
+  base model, effective merged-weight QAT run, hashed selected adapter, and the
+  SHA-256 of every merged safetensor shard and shard index;
 - all 277 E2B or all 127 270M unique FC/embedding buffers map to floating-point
   checkpoint tensors with exact shapes;
 - every one of those 277 or 127 official buffers has the same W2/W4/W8 QAT bit

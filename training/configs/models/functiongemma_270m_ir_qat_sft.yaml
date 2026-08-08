@@ -35,7 +35,8 @@ training:
 lora:
   r: 16
   alpha: 16
-  dropout: 0.05
+  # Exact merged-weight QAT cannot represent a per-example LoRA dropout mask.
+  dropout: 0.0
   target_modules: auto
   modules_to_save: []
 qat:
@@ -50,5 +51,6 @@ qat:
   weight_axis: 0
   group_size: null
   only_base_layers: true
+  effective_merged_weight: true
   final_quantization: dynamic_int8
   final_runtime_validation_required: true

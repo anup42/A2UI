@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import types
@@ -32,6 +33,43 @@ def _recommended_training_config() -> dict:
 
 def _recommended_benchmark_config() -> dict:
     return load_yaml(ROOT / "configs" / "eval" / "gemma4_e2b_qat_mtp.yaml")
+
+
+def _write_effective_qat_training_metadata(
+    adapter_dir: Path, training_config: Path
+) -> None:
+    config = load_yaml(training_config)
+    adapter_files = [
+        {
+            "path": candidate.name,
+            "size": candidate.stat().st_size,
+            "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+        }
+        for candidate in sorted(adapter_dir.glob("adapter*"))
+        if candidate.is_file()
+    ]
+    metadata = {
+        "training_metadata_version": 2,
+        "training_config_sha256": hashlib.sha256(
+            training_config.read_bytes()
+        ).hexdigest(),
+        "training": config["training"],
+        "lora": config["lora"],
+        "qat": {
+            "enabled": True,
+            "effective_merged_weight_qat_enabled": True,
+            "wrapped_effective_lora_count": 1,
+            "uncovered_lora_adapter_linear_names": [],
+            "spec": {"effective_merged_weight": True},
+        },
+        "git_commit": "a" * 40,
+        "adapter_checkpoints": [
+            {"role": "best_golden", "path": str(adapter_dir), "files": adapter_files}
+        ],
+    }
+    (adapter_dir / "training_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
 
 
 def test_recommended_qat_mtp_configs_pass_static_validation():
@@ -131,6 +169,8 @@ def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatc
     adapter_dir.mkdir()
     (adapter_dir / "adapter_config.json").write_text("{}", encoding="utf-8")
     (adapter_dir / "adapter_model.safetensors").write_bytes(b"fake-adapter")
+    training_config = ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml"
+    _write_effective_qat_training_metadata(adapter_dir, training_config)
 
     class FakeMerged:
         def save_pretrained(self, output, safe_serialization):
@@ -174,25 +214,54 @@ def test_merge_records_qat_provenance_without_claiming_int4(tmp_path, monkeypatc
         output_dir,
         model_loader="auto_causal_lm",
         dtype="bfloat16",
-        training_config_path=(
-            ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml"
-        ),
+        training_config_path=training_config,
     )
 
     metadata = json.loads((merged_dir / "qat_mtp_merge_metadata.json").read_text(encoding="utf-8"))
     assert metadata["base_is_qat_derived"] is True
-    assert metadata["continued_qat_performed"] is False
+    assert metadata["continued_qat_performed"] is True
+    assert metadata["merge_performed_qat"] is False
     assert metadata["packed_int4_output"] is False
     assert metadata["requires_post_merge_quantization"] is True
     assert metadata["mtp_assistant_trained_or_modified"] is False
-    assert metadata["manifest_version"] == 2
+    assert metadata["manifest_version"] == 3
     assert metadata["training_method"] == "qat_lora_sft"
     assert metadata["qat_enabled"] is True
+    assert metadata["qat_effective_merged_weight"] is True
+    assert metadata["lora_dropout"] == 0.0
+    assert metadata["training_run_metadata"]["verified"] is True
     assert metadata["training_config_sha256"]
     assert len(metadata["adapter_files"]) == 2
     assert len(metadata["merged_model_files"]) == 1
     assert metadata["merged_model_files"][0]["path"] == "model.safetensors"
     assert len(metadata["merged_model_files"][0]["sha256"]) == 64
+
+
+def test_merge_rejects_unbound_or_tampered_qat_adapter_before_model_load(tmp_path):
+    adapter_dir = tmp_path / "adapter"
+    adapter_dir.mkdir()
+    (adapter_dir / "adapter_config.json").write_text("{}", encoding="utf-8")
+    adapter_weights = adapter_dir / "adapter_model.safetensors"
+    adapter_weights.write_bytes(b"fake-adapter")
+    training_config = ROOT / "configs" / "models" / "gemma4_e2b_ir_qat_sft.yaml"
+
+    with pytest.raises(ValueError, match="metadata_present"):
+        merge_lora_adapter(
+            "google/gemma-4-E2B-it",
+            adapter_dir,
+            tmp_path / "unbound-output",
+            training_config_path=training_config,
+        )
+
+    _write_effective_qat_training_metadata(adapter_dir, training_config)
+    adapter_weights.write_bytes(b"tampered-adapter")
+    with pytest.raises(ValueError, match="adapter_checkpoint_hashes_match"):
+        merge_lora_adapter(
+            "google/gemma-4-E2B-it",
+            adapter_dir,
+            tmp_path / "tampered-output",
+            training_config_path=training_config,
+        )
 
 
 def test_reference_benchmark_plan_never_claims_packed_int4():

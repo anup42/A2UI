@@ -10,6 +10,7 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
 
     model = _section(config, "model")
     training = _section(config, "training")
+    lora = _section(config, "lora")
     qat = _section(config, "qat")
     issues: list[WorkflowIssue] = []
 
@@ -38,6 +39,30 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
                 "error",
                 "qlora_is_not_qat",
                 "model.load_in_4bit must be false; BitsAndBytes NF4/QLoRA is not fake-quantization-aware training.",
+            )
+        )
+
+    if qat.get("effective_merged_weight", True) is not True:
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "effective_merged_weight_qat_required",
+                "QAT must fake-quantize base_weight + LoRA_delta; quantizing only "
+                "the frozen base does not simulate the post-merge LiteRT weight.",
+            )
+        )
+    try:
+        lora_dropout = float(lora.get("dropout", 0.0) or 0.0)
+    except (TypeError, ValueError):
+        lora_dropout = -1.0
+    if lora_dropout != 0.0:
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "nonzero_lora_dropout_breaks_merged_qat",
+                "Exact effective-weight QAT requires lora.dropout: 0.0 because "
+                "a per-example adapter dropout mask cannot be represented by the "
+                "final merged inference matrix.",
             )
         )
 
@@ -125,7 +150,8 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
             WorkflowIssue(
                 "warning",
                 "full_linear_scope",
-                "Wrapping every Linear also fake-quantizes LoRA A/B layers; base-layer-only is the safer default.",
+                "Keep qat.only_base_layers=true so adapter matrices are represented "
+                "only through the fake-quantized effective merged weight.",
             )
         )
     if not bool(qat.get("final_runtime_validation_required", False)):

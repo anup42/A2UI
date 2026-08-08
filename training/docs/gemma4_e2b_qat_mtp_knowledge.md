@@ -100,19 +100,37 @@ conversion.
 `ir_training.qat.fake_quant` wraps every eligible frozen base-model
 `nn.Linear` after PEFT preparation, including ordinary architecture linears
 that do not acquire a literal `base_layer` suffix. It also wraps configured
-embedding tables. PEFT `lora_A`, `lora_B`, embedding-adapter, and magnitude
-modules are deliberately skipped. Each forward pass fake-quantizes activations
-and weights, rounds/clamps them to the configured bit width, and applies a
-straight-through estimator (STE) so LoRA updates receive gradients. The
+embedding tables. For a PEFT projection it constructs
+`base_weight + LoRA_delta`, fake-quantizes that effective matrix once, and then
+runs the linear operation. This is materially different from the earlier
+`fake_quant(base_weight) + floating_LoRA_branch` approximation because the
+final exporter quantizes the merged matrix. Each forward pass rounds/clamps to
+the configured bit width and applies a straight-through estimator (STE), so
+gradients still reach both LoRA matrices. The
 default remains symmetric per-output-channel W8A8 with dynamic abs-max scales;
 the Gemma 4 mobile config opts into the artifact-reconciled module map and
 `ste_ai_edge` range convention (full signed W2/W4, narrow symmetric W8). LoRA
 A/B weights stay floating point, which keeps this a practical QAT+LoRA method
 rather than a claim that every adapter operation is already mobile-quantized.
+All effective-weight QAT profiles require `lora.dropout: 0.0`; a per-example
+adapter dropout mask cannot be represented by one final merged inference
+matrix. DoRA and mixed-adapter forward arguments fail closed for the same
+reason.
+
+For Gemma 4 E2B, keep `target_modules: peft-default` with the pinned PEFT
+0.19+ environment. Its Gemma 4 mapping is scoped to `language_model` query and
+value projections. Do not substitute the adapter's historical `.linear`
+fallback: current Transformers uses those inner linears for clipped audio and
+vision wrappers, while the language decoder projections are ordinary
+`nn.Linear` modules. Any future PEFT scope change must be verified against the
+actual loaded module names before training.
 
 The implementation is reversible: wrappers are restored before the final PEFT
 adapter is saved, and `qat` metadata records the wrapped module count, exact
-module-to-bit assignments, W2/W4/W8 histogram, and quantizer specification.
+module-to-bit assignments, W2/W4/W8 histogram, effective LoRA wrapper count,
+uncovered-adapter list, and quantizer specification. Training metadata also
+hashes each saved adapter checkpoint. Merge manifest v3 verifies that metadata,
+the training-config hash, and adapter hashes before loading the base model.
 `load_in_4bit` is rejected because NF4 QLoRA is a different method. This is
 true fake-quantization-aware training in the engineering sense, but the final
 LiteRT/LiteRT-LM converter remains the authority for packed layout,
@@ -1537,11 +1555,12 @@ per-axis scales. This is the direct extension of the random-weight experiment
 that already passed graph/layout/allocation and Android GPU delegation.
 
 The safe contract is projection-only QAT+LoRA from the exact base represented
-by the official package. Merge metadata version 2 records the base model,
-training-config SHA-256, `qat_lora_sft` method, QAT profile, adapter file
-hashes, and every merged safetensor shard/index hash. The compiler rejects an old merge, a generic LoRA merge presented with
-a QAT YAML, a packed mobile checkpoint, a base-model mismatch, a package hash
-mismatch, or any missing/shape-incompatible source key. Do not bypass these
+by the official package. Merge metadata version 3 records the base model,
+training-config SHA-256, `qat_lora_sft` method, effective merged-weight QAT run,
+selected adapter hashes, and every merged safetensor shard/index hash. The
+compiler rejects an old merge, a generic or base-only-QAT LoRA merge presented
+with the new QAT YAML, a packed mobile checkpoint, a base-model mismatch, a
+package hash mismatch, or any missing/shape-incompatible source key. Do not bypass these
 checks: retained RMSNorm, tokenizer, metadata, and other non-inventory
 constants are only correct when the base identity and mutation scope are
 correct. FC and embedding inventory constants are regenerated from the merged
@@ -1564,7 +1583,7 @@ Current exact bindings for the supplied reference artifacts are:
 
 The 270M mapping has been checked against an existing merged BF16 checkpoint:
 127/127 headers map without transpose or shape errors. That older checkpoint
-lacks merge-metadata v2 and is intentionally rejected as a production input;
+lacks merge-metadata v3 and is intentionally rejected as a production input;
 mapping compatibility is not QAT provenance. The public packed Gemma 4 mobile
 checkpoint is also intentionally rejected by this path because its U8 packed
 shapes are not the required merged floating-point source.

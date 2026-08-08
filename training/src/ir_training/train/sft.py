@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import json
+import hashlib
 import inspect
+import json
 import shutil
 from pathlib import Path
 from typing import Any, Callable
@@ -72,15 +73,16 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     _enable_input_grads_for_kbit_lora(model)
     qat_controller: QATController | None = None
     if qat_cfg.get("enabled", False):
-        # Prepare after PEFT wrapping so only the frozen LoRA base_layer
-        # modules are fake-quantized. LoRA A/B parameters remain trainable in
-        # FP, which is the standard QAT+LoRA arrangement; the merged model is
-        # re-quantized by the target LiteRT/export recipe after training.
+        # Prepare after PEFT wrapping so each targeted projection can
+        # fake-quantize base_weight + LoRA_delta. This matches the matrix that
+        # merge_and_unload later sends to the LiteRT/LiteRT-LM quantizer.
         qat_controller = prepare_qat_model(model, config)
         print(
             "True QAT enabled: "
             f"wrapped {qat_controller.wrapped_count} base quantized modules "
-            f"with W{qat_controller.spec.weight_bits}A{qat_controller.spec.activation_bits} STE fake quantization.",
+            f"({qat_controller.wrapped_effective_lora_count} effective LoRA weights) "
+            f"with W{qat_controller.spec.weight_bits}A{qat_controller.spec.activation_bits} "
+            "STE fake quantization.",
             flush=True,
         )
     _align_tokenizer_and_model(tokenizer, model)
@@ -284,7 +286,9 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         if qat_controller is not None:
             qat_controller.restore()
     final_adapter = output_dir / "final_adapter"
+    golden_summary = None
     metadata = {
+        "training_metadata_version": 2,
         "run_id": run_cfg.get("id", output_dir.name),
         "model": model_cfg,
         "training": training_cfg,
@@ -302,14 +306,59 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             metadata["best_golden_eval"] = golden_summary
     if config_path is not None:
         metadata["config_path"] = str(config_path)
+        metadata["training_config_sha256"] = hashlib.sha256(
+            config_path.read_bytes()
+        ).hexdigest()
     if _trainer_is_world_process_zero(trainer):
         trainer.model.save_pretrained(str(final_adapter))
         tokenizer.save_pretrained(str(final_adapter))
         if config_path is not None:
             shutil.copy2(config_path, output_dir / "config.yaml")
+        checkpoint_paths = [("final", final_adapter)]
+        if isinstance(golden_summary, dict) and golden_summary.get("checkpoint_dir"):
+            best_checkpoint = Path(str(golden_summary["checkpoint_dir"]))
+            if best_checkpoint.is_dir():
+                checkpoint_paths.append(("best_golden", best_checkpoint))
+        metadata["adapter_checkpoints"] = [
+            _adapter_checkpoint_manifest(path, role=role)
+            for role, path in checkpoint_paths
+        ]
         TrainingMetadataCallback(output_dir, metadata).write()
+        metadata_path = output_dir / "training_metadata.json"
+        for _, checkpoint_path in checkpoint_paths:
+            shutil.copy2(metadata_path, checkpoint_path / "training_metadata.json")
+            if config_path is not None:
+                shutil.copy2(config_path, checkpoint_path / "training_config.yaml")
     _barrier_if_distributed()
     return metadata
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _adapter_checkpoint_manifest(path: Path, *, role: str) -> dict[str, Any]:
+    files = [
+        candidate for candidate in sorted(path.glob("adapter*")) if candidate.is_file()
+    ]
+    if not files:
+        raise RuntimeError(f"Adapter checkpoint has no adapter files: {path}")
+    return {
+        "role": role,
+        "path": str(path),
+        "files": [
+            {
+                "path": candidate.name,
+                "size": int(candidate.stat().st_size),
+                "sha256": _sha256_file(candidate),
+            }
+            for candidate in files
+        ],
+    }
 
 
 def _enforce_qat_mtp_training_guardrails(config: dict[str, Any]) -> None:
