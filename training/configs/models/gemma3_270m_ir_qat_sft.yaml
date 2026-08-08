@@ -49,6 +49,8 @@ qat:
   # the public AI Edge weight range but does not fake-quantize activations.
   profile: gemma3_270m_wi8_afp32
   quantizer: ste_ai_edge
+  # Match the tested public ai-edge-quantizer 0.8.0 scale floor.
+  eps: 1.0e-9
   quantize_embeddings: true
   exclude_modules: []
   weight_bits: 8

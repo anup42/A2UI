@@ -8,6 +8,17 @@ from typing import Any
 # Public AI Edge range compatibility is opt-in through QATSpec.quantizer.
 
 
+# These values are taken from the public ai-edge-quantizer 0.8.0 uniform
+# quantizer used by the verified LiteRT-LM export environment.  Keep the
+# version visible in run metadata: this is a public implementation contract,
+# not a claim about Google's private QAT observer or calibration recipe.
+AI_EDGE_REFERENCE_QUANTIZER_VERSION = "0.8.0"
+AI_EDGE_MIN_SCALE = 1e-9
+AI_EDGE_SCALE_COMPUTE_DTYPE = "float32"
+AI_EDGE_BLOCKWISE_SCALE_CAST = ("bfloat16", "float16", "float32")
+AI_EDGE_ROUNDING = "ties_to_even"
+
+
 @dataclass(frozen=True)
 class QATSpec:
     """Configuration for the training-time fake quantizer.
@@ -46,6 +57,12 @@ class QATSpec:
     def from_config(cls, config: dict[str, Any]) -> QATSpec:
         qat = config.get("qat") if isinstance(config.get("qat"), dict) else config
         qat = _merge_public_schema(qat)
+        quantizer = str(qat.get("quantizer", cls.quantizer)).strip().lower()
+        default_eps = (
+            AI_EDGE_MIN_SCALE
+            if quantizer == "ste_ai_edge"
+            else cls.eps
+        )
         exclude = qat.get("exclude_modules", cls.exclude_modules)
         if isinstance(exclude, str):
             exclude = (exclude,)
@@ -99,8 +116,8 @@ class QATSpec:
             module_group_sizes=module_group_sizes,
             modules_to_not_convert=modules_to_not_convert,
             quantize_embeddings=bool(qat.get("quantize_embeddings", cls.quantize_embeddings)),
-            quantizer=str(qat.get("quantizer", cls.quantizer)).strip().lower(),
-            eps=float(qat.get("eps", cls.eps)),
+            quantizer=quantizer,
+            eps=float(qat.get("eps", default_eps)),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -216,6 +233,9 @@ def _scale_and_zero_point(
     # AI Edge's public min/max uniform quantizer uses the full signed range for
     # W2/W4, but the narrow signed range for symmetric W8 and above. Its scale
     # denominator is qmax (1, 7, 127, ...), rather than the magnitude of qmin.
+    # It computes min/max and scales in FLOAT32 even when the checkpoint source
+    # is BF16.  This matters during QAT: deriving the scale in BF16 can move
+    # multiple W8 codes relative to the final converter.
     # Keep the historical ste_absmax behavior as the default so existing
     # profiles remain reproducible; opt into this mode explicitly when the
     # final converter is the public AI Edge min/max implementation.
@@ -226,6 +246,8 @@ def _scale_and_zero_point(
     else:
         scale_denominator = float(max(abs(qmin), abs(qmax)))
     detached = values.detach()
+    if normalized_quantizer == "ste_ai_edge":
+        detached = detached.to(dtype=torch.float32)
     if symmetric:
         max_abs = detached.abs()
         if reduce_dims:
@@ -249,8 +271,27 @@ def _fake_quantize_with_scale(values: Any, scale: Any, zero_point: Any, qmin: in
 
     quantized = torch.round(values / scale + zero_point).clamp(qmin, qmax)
     dequantized = (quantized - zero_point) * scale
+    # FLOAT32 scale computation must not promote a BF16/FP16 training model's
+    # forward pass.  The integer codes and scales match the converter; the
+    # simulated dequantized value returns to the model's original dtype.
+    if dequantized.dtype != values.dtype:
+        dequantized = dequantized.to(dtype=values.dtype)
     # STE: use the quantized forward value but identity d(output)/d(values).
     return values + (dequantized - values).detach()
+
+
+def _round_ai_edge_blockwise_scale(scale: Any) -> Any:
+    """Apply the public AI Edge blockwise scale storage conversion.
+
+    ai-edge-quantizer 0.8.0 computes the scale in FLOAT32, rounds it through
+    BF16, stores it as FP16, and then continues quantization with the resulting
+    FLOAT32 value.  The explicit conversion here keeps grouped embedding QAT
+    numerically aligned with the final public converter.
+    """
+
+    import torch
+
+    return scale.to(torch.bfloat16).to(torch.float16).to(torch.float32)
 
 
 def fake_quantize_ste(
@@ -279,23 +320,33 @@ def fake_quantize_ste(
         raise ValueError(f"QAT group_size must be positive, got {group_size}.")
 
     if group_size is not None:
-        if values.ndim < 2 or values.shape[-1] % group_size != 0:
-            # A non-divisible projection falls back to per-channel scales so
-            # the model remains runnable instead of silently dropping layers.
-            group_size = None
-        else:
-            groups = values.shape[-1] // group_size
-            grouped = values.reshape(*values.shape[:-1], groups, group_size)
-            reduce_dims = (grouped.ndim - 1,)
-            scale, zero_point, qmin, qmax = _scale_and_zero_point(
-                grouped,
-                bits=bits,
-                symmetric=symmetric,
-                reduce_dims=reduce_dims,
-                eps=eps,
-                quantizer=quantizer,
+        if values.ndim < 2:
+            raise ValueError(
+                "Grouped QAT requires a rank-2-or-higher weight tensor, got "
+                f"shape {tuple(values.shape)}."
             )
-            return _fake_quantize_with_scale(grouped, scale, zero_point, qmin, qmax).reshape_as(values)
+        if values.shape[-1] % group_size != 0:
+            raise ValueError(
+                "Grouped QAT cannot reproduce the deployment layout because "
+                f"the final dimension {values.shape[-1]} is not divisible by "
+                f"group_size={group_size}."
+            )
+        groups = values.shape[-1] // group_size
+        grouped = values.reshape(*values.shape[:-1], groups, group_size)
+        reduce_dims = (grouped.ndim - 1,)
+        scale, zero_point, qmin, qmax = _scale_and_zero_point(
+            grouped,
+            bits=bits,
+            symmetric=symmetric,
+            reduce_dims=reduce_dims,
+            eps=eps,
+            quantizer=quantizer,
+        )
+        if str(quantizer).strip().lower() == "ste_ai_edge":
+            scale = _round_ai_edge_blockwise_scale(scale)
+        return _fake_quantize_with_scale(
+            grouped, scale, zero_point, qmin, qmax
+        ).reshape_as(values)
 
     if per_channel and values.ndim > 1:
         normalized_axis = axis if axis >= 0 else values.ndim + axis
@@ -565,6 +616,7 @@ class QATController:
             "wrapped_weight_bit_histogram": dict(
                 sorted(bit_histogram.items(), key=lambda item: int(item[0]))
             ),
+            "numeric_contract": qat_numeric_contract(self.spec),
             "spec": self.spec.to_dict(),
         }
 
@@ -761,6 +813,38 @@ def _is_adapter_layer_name(module_name: str) -> bool:
         component.strip().lower() in adapter_components
         for component in module_name.split(".")
     )
+
+
+def qat_numeric_contract(spec: QATSpec) -> dict[str, Any]:
+    """Return the explicit numerical contract represented by a QAT spec."""
+
+    is_ai_edge = spec.quantizer == "ste_ai_edge"
+    min_scale_matches = bool(
+        is_ai_edge and float(spec.eps) == float(AI_EDGE_MIN_SCALE)
+    )
+    return {
+        "quantizer": spec.quantizer,
+        "reference_package": "ai-edge-quantizer",
+        "reference_version": AI_EDGE_REFERENCE_QUANTIZER_VERSION,
+        "scale_compute_dtype": (
+            AI_EDGE_SCALE_COMPUTE_DTYPE if is_ai_edge else "source_dtype"
+        ),
+        "minimum_scale": float(spec.eps),
+        "expected_minimum_scale": (
+            AI_EDGE_MIN_SCALE if is_ai_edge else float(spec.eps)
+        ),
+        "minimum_scale_matches": min_scale_matches if is_ai_edge else None,
+        "rounding": AI_EDGE_ROUNDING if is_ai_edge else "torch_round",
+        "low_bit_signed_range": "full" if is_ai_edge else "symmetric_absmax",
+        "w8_signed_range": "narrow" if is_ai_edge else "symmetric_absmax",
+        "blockwise_scale_cast": (
+            list(AI_EDGE_BLOCKWISE_SCALE_CAST) if is_ai_edge else []
+        ),
+        "public_ai_edge_numeric_contract": bool(
+            is_ai_edge and min_scale_matches
+        ),
+        "private_google_observer_recovered": False,
+    }
 
 
 def _merge_public_schema(qat: dict[str, Any]) -> dict[str, Any]:

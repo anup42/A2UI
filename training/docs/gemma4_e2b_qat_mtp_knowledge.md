@@ -1976,6 +1976,76 @@ gates all pass. Otherwise ship the same exact target graph with MTP disabled.
 For 270M, require full delegation and fixed-length warm throughput parity; MTP
 is not applicable.
 
+## Public QAT numerical contract verification (2026-08-08)
+
+The training STE now has a separate, executable numerical-parity gate:
+
+```powershell
+python training/scripts/validate_ai_edge_qat_numeric_contract.py
+```
+
+This command does not load a Gemma checkpoint and does not train anything. It
+compares deterministic BF16 inputs against the installed public
+`ai-edge-quantizer` implementation. The verified conversion toolchain is pinned
+in `requirements-edge-export-tested.txt`; its key versions are LiteRT Torch
+0.9.3, AI Edge Quantizer 0.8.0, AI Edge LiteRT 2.1.6, and LiteRT-LM Builder
+0.15.0. Converter reports now record the complete tested package-version set so
+later evidence cannot silently inherit a claim from a different toolchain.
+
+The verified training/deployment numerical contract is:
+
+- source BF16/FP16 weights are promoted to FLOAT32 for min/max and scale
+  calculation, matching the public converter's checkpoint path;
+- symmetric W2/W4 use their full signed storage ranges (`[-2, 1]` and
+  `[-8, 7]`), while symmetric W8 uses `[-127, 127]`;
+- scale is `max(abs(min), abs(max)) / qmax`, with a `1e-9` minimum before any
+  block-scale storage conversion;
+- integer rounding is round-to-nearest, ties-to-even;
+- grouped W4/G256 scales are rounded FLOAT32 -> BF16 -> FP16 -> FLOAT32, as in
+  AI Edge Quantizer 0.8.0;
+- the fake-dequantized value is cast back to the original training dtype, while
+  the STE gradient remains the identity;
+- an invalid/non-divisible group shape is a hard error rather than a silent
+  per-channel fallback.
+
+The deterministic validator passed exact scales and integer codes for W2, W4,
+W8 channelwise cases and the W4/G256 blockwise case in the tested environment.
+This closes a real accuracy gap: the earlier BF16-scale calculation could move
+W8 codes relative to the FLOAT32 public exporter even though graph topology was
+already exact.
+
+This still does **not** recover Google's private QAT observers, calibration
+corpus, clipping policy, loss mixture, optimizer schedule, or learned
+constants. E2B activation fake quantization remains a public approximation to
+the released static-A8 deployment behavior, so final quality and Android gates
+remain mandatory.
+
+### Recommended training and deployment order
+
+For Gemma 4 E2B, start from the manifest-verified BF16 reconstruction of the
+official packed mobile checkpoint. Run effective-merged-weight LoRA QAT with
+the checked-in heterogeneous W2/W4/W8 plus A8 profile, select the best golden
+IR checkpoint, merge it, quantize the mapped matrices with the pinned public
+converter, and inject only those constants into the official target topology.
+First deploy with the byte-exact official MTP drafter. This is the best initial
+accuracy/speed choice because the official drafter was trained for the original
+target distribution. Train and transplant the 23-matrix drafter only after the
+fine-tuned target passes target-only quality and GPU gates, and keep the trained
+drafter only if MTP acceptance, end-to-end throughput, and output quality all
+beat the official-drafter or MTP-disabled alternatives.
+
+For Gemma 3 270M, use the official instruction-tuned seed, effective-merged
+per-row W8 QAT with floating activations (`activation_bits: 32`), golden-checkpoint
+selection, merge, public quantization, and official-topology injection. There is
+no compatible Gemma 4-style MTP section for this model; do not attach one.
+
+Training changes the learned weights by design. "Same as official" means the
+same section inventory, operators, builtin options, tensor wiring, quantization
+layout, aliases, package boundaries, and GPU delegation behavior—not the same
+weight bytes, outputs, quality, or drafter acceptance. Each trained checkpoint
+must therefore pass the host contract gates and fresh Android target-only/MTP
+acceptance gates before promotion.
+
 ## Rules for future agents
 
 1. Re-check official model cards and runtime supported-model lists because Gemma

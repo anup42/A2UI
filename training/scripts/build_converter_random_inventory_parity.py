@@ -48,6 +48,7 @@ from build_fresh_random_quantized_graph import (
 from build_fresh_random_quantized_graph import (
     _vector as _fresh_vector,
 )
+from ir_training.qat.toolchain import edge_export_toolchain_report
 
 
 class ConverterInventoryParityError(RuntimeError):
@@ -531,6 +532,7 @@ def run(
         "training_executed": False,
         "random_initialization": True,
         "private_qat_recipe_recovered": False,
+        "public_conversion_toolchain": edge_export_toolchain_report(),
         "official_inventory_count": len(records),
         "skipped_non_fc_count": len(skipped),
         "quantized_fc_count": len(observed),

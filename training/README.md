@@ -122,6 +122,18 @@ graph. This is different from the QAT-derived `qat_mtp` profile above, does not
 train an MTP assistant, and does not claim Google's private mobile
 observer/calibration recipe.
 
+The `ste_ai_edge` numerical path is regression-checked against the public
+`ai-edge-quantizer` 0.8.0 implementation: min/max and scale calculations are
+FLOAT32 even for BF16 training tensors, the scale floor is `1e-9`, rounding is
+ties-to-even, and 256-column grouped scales follow the public
+BF16-to-FP16-to-FLOAT32 storage conversion. It returns simulated values to the
+original training dtype and fails instead of silently changing a non-divisible
+group layout. Verify this without loading or training a model:
+
+```powershell
+python training/scripts/validate_ai_edge_qat_numeric_contract.py
+```
+
 The recommended E2B profile uses a text-only BF16 reconstruction of Google's
 exact packed `gemma-4-E2B-it-qat-mobile-transformers` checkpoint. The packed
 checkpoint and released `.litertlm` remain the observable numerical/layout and
@@ -1104,11 +1116,17 @@ merge the LoRA adapter into a Hugging Face model directory and run Google's
 LiteRT Torch Hugging Face exporter:
 
 ```powershell
-python -m pip install -r training/requirements-edge-export.txt
+python -m pip install -r training/requirements-edge-export-tested.txt
 hf auth login
 python training/scripts/export_edge_gallery_model.py --config training/configs/export/edge_gallery_gemma4_e2b.yaml --merge-lora
 adb push training/outputs/export/gemma4_e2b_ir_edge_gallery/litertlm/<model>.litertlm /sdcard/Download/
 ```
+
+`requirements-edge-export-tested.txt` pins the conversion environment used by
+the recorded graph rebuilds and Android GPU parity runs. The looser
+`requirements-edge-export.txt` is suitable for experimentation, but a version
+change is unverified until the numerical, topology, package, and device gates
+are rerun.
 
 For CI or CPU-only machines, validate the generated command/manifest without
 running conversion:

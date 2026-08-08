@@ -1,0 +1,14 @@
+# Reproduce the public conversion environment used by the checked-in random
+# topology, exact-package, and Android GPU parity evidence. Keep this separate
+# from the training environment. Newer versions may be used only after all
+# graph/package/device promotion gates are rerun and this lock is updated.
+litert-torch==0.9.3
+ai-edge-quantizer==0.8.0
+ai-edge-litert==2.1.6
+litert-lm-builder==0.15.0
+flatbuffers==25.12.19
+numpy==2.4.4
+scipy==1.17.1
+ml-dtypes==0.5.4
+safetensors==0.8.0
+huggingface_hub[cli]>=0.23

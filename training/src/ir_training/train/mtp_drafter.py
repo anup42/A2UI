@@ -35,6 +35,7 @@ from ir_training.qat.fake_quant import (
     QATSpec,
     fake_quantize_activation,
     fake_quantize_weight,
+    qat_numeric_contract,
 )
 
 
@@ -253,6 +254,12 @@ def build_drafter_training_plan(
         "only_base_layers": bool(qat_spec and qat_spec.only_base_layers),
         "effective_merged_weight_disabled": bool(
             qat_spec and not qat_spec.effective_merged_weight
+        ),
+        "public_ai_edge_numeric_contract": bool(
+            qat_spec
+            and qat_numeric_contract(qat_spec)[
+                "public_ai_edge_numeric_contract"
+            ]
         ),
     }
     if not all(qat_contract_checks.values()):

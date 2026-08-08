@@ -65,6 +65,7 @@ qat:
   # symmetric W8 narrow) while training remains an approximation of Google's
   # private QAT observers/calibration.
   quantizer: ste_ai_edge
+  eps: 1.0e-9
   schema_path: configs/quantization/gemma4_e2b_mobile_litertlm_schema.yaml
   quantize_embeddings: true
   exclude_modules: []

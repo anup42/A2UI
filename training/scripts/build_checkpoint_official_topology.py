@@ -81,12 +81,13 @@ from build_converter_topology_parity import (
 from build_fresh_random_quantized_graph import _extract_inventory
 from ir_training.common.config import load_yaml
 from ir_training.export.litertlm_inspector import inspect_litertlm
-from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
 from ir_training.qat.mobile_training_seed import (
     OFFICIAL_MOBILE_MODEL_ID,
     verify_configured_mobile_training_seed,
 )
 from ir_training.qat.retained_constants import verify_retained_constant_contract
+from ir_training.qat.toolchain import edge_export_toolchain_report
 
 
 class CheckpointTopologyError(RuntimeError):
@@ -595,6 +596,7 @@ def _training_scope_report(
         "zero_lora_dropout": False,
         "embedding_qat_matches_inventory": False,
         "public_ai_edge_weight_ranges": False,
+        "public_ai_edge_numeric_contract": False,
         "precision_matches_official_layout": False,
         "family_training_seed_supported": family != "gemma4_e2b",
         "mobile_training_seed_manifest_matches_config": family != "gemma4_e2b",
@@ -720,6 +722,14 @@ def _training_scope_report(
     checks["public_ai_edge_weight_ranges"] = (
         str(qat.get("quantizer") or "").strip().lower() == "ste_ai_edge"
     )
+    try:
+        checks["public_ai_edge_numeric_contract"] = bool(
+            qat_numeric_contract(QATSpec.from_config(config))[
+                "public_ai_edge_numeric_contract"
+            ]
+        )
+    except (OSError, RuntimeError, TypeError, ValueError):
+        checks["public_ai_edge_numeric_contract"] = False
     weight_bits = int(qat.get("weight_bits", 0) or 0)
     activation_bits = int(qat.get("activation_bits", 0) or 0)
     if family == "gemma4_e2b":
@@ -1462,6 +1472,7 @@ def run(
         ],
         "converter": {
             "public_ai_edge_quantizer_executed": True,
+            "toolchain": edge_export_toolchain_report(),
             "batch_size": int(chosen_batch_size),
             "batch_count": len(converter_batches),
             "batches": converter_batches,

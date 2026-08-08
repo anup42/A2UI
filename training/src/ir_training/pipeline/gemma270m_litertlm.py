@@ -26,6 +26,7 @@ from ir_training.eval.android_gpu_report import (
 )
 from ir_training.export.edge_gallery import export_edge_gallery_model
 from ir_training.export.merge_lora import merge_lora_adapter
+from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
 
 
 class Gemma270MPipelineError(RuntimeError):
@@ -274,6 +275,25 @@ def build_pipeline_plan(
                     "The official Gemma 3 270M Q8 graph is weight-only INT8 "
                     "including its embedding table, with floating-point "
                     "activation edges (WI8/AFP32)."
+                ),
+            }
+        )
+    try:
+        ai_edge_numeric_contract_matches = bool(
+            qat_numeric_contract(QATSpec.from_config(training_config))[
+                "public_ai_edge_numeric_contract"
+            ]
+        )
+    except (OSError, RuntimeError, TypeError, ValueError):
+        ai_edge_numeric_contract_matches = False
+    if not ai_edge_numeric_contract_matches:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "ai_edge_numeric_contract_mismatch",
+                "message": (
+                    "The 270M QAT config must use the tested public AI Edge "
+                    "FLOAT32 scale calculation and 1e-9 minimum scale."
                 ),
             }
         )

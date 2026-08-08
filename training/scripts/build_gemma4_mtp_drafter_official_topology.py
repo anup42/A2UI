@@ -67,7 +67,8 @@ from ir_training.mtp.drafter_contract import (
     deployment_weight_specs,
     source_keys,
 )
-from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
+from ir_training.qat.toolchain import edge_export_toolchain_report
 
 
 class MTPDrafterTopologyError(RuntimeError):
@@ -94,6 +95,7 @@ def _drafter_training_scope_report(
         "completion_only_loss": False,
         "qat_enabled": False,
         "public_ai_edge_weight_ranges": False,
+        "public_ai_edge_numeric_contract": False,
         "activation_int8": False,
         "symmetric_per_row_weights": False,
         "symmetric_per_tensor_activations": False,
@@ -153,6 +155,9 @@ def _drafter_training_scope_report(
     checks["qat_enabled"] = qat.get("enabled") is True
     checks["public_ai_edge_weight_ranges"] = (
         str(qat.get("quantizer") or "").strip().lower() == "ste_ai_edge"
+    )
+    checks["public_ai_edge_numeric_contract"] = bool(
+        qat_numeric_contract(spec)["public_ai_edge_numeric_contract"]
     )
     checks["activation_int8"] = int(qat.get("activation_bits", 0) or 0) == 8
     checks["symmetric_per_row_weights"] = bool(
@@ -918,6 +923,7 @@ def run(
         "checkpoint_mappings": sorted(loaded, key=lambda item: item["ordinal"]),
         "converter": {
             "public_ai_edge_quantizer_executed": True,
+            "toolchain": edge_export_toolchain_report(),
             "batch_size": int(chosen_batch_size),
             "batch_count": len(converter_batches),
             "batches": converter_batches,

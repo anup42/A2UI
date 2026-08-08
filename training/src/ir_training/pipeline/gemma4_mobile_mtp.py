@@ -40,6 +40,7 @@ from ir_training.qat.mobile_training_seed import (
     OFFICIAL_MOBILE_MODEL_ID,
     verify_configured_mobile_training_seed,
 )
+from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
 from ir_training.qat.retained_constants import verify_retained_constant_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT
 
@@ -500,6 +501,25 @@ def build_pipeline_plan(
                 "severity": "error",
                 "code": "qat_disabled",
                 "message": "The referenced training config must enable qat.enabled.",
+            }
+        )
+    try:
+        ai_edge_numeric_contract_matches = bool(
+            qat_numeric_contract(QATSpec.from_config(training_config))[
+                "public_ai_edge_numeric_contract"
+            ]
+        )
+    except (OSError, RuntimeError, TypeError, ValueError):
+        ai_edge_numeric_contract_matches = False
+    if not ai_edge_numeric_contract_matches:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "ai_edge_numeric_contract_mismatch",
+                "message": (
+                    "The E2B QAT config must use the tested public AI Edge "
+                    "FLOAT32 scale calculation and 1e-9 minimum scale."
+                ),
             }
         )
     if model_cfg.get("architecture_preflight_required") is not True:

@@ -46,6 +46,8 @@ qat:
   enabled: true
   profile: gemma4_e2b_mtp_observable_w4w8_a8
   quantizer: ste_ai_edge
+  # Match the tested public ai-edge-quantizer 0.8.0 scale floor.
+  eps: 1.0e-9
   weight_bits: 4
   activation_bits: 8
   weight_symmetric: true

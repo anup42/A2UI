@@ -60,6 +60,8 @@ qat:
   # This is the public AI Edge range convention and official observed bit map,
   # not a claim that Google's private observer/calibration recipe was released.
   quantizer: ste_ai_edge
+  # ai-edge-quantizer 0.8.0 tensor_zp_scale_from_min_max floor.
+  eps: 1.0e-9
   schema_path: configs/quantization/gemma4_e2b_mobile_litertlm_schema.yaml
   quantize_embeddings: true
   exclude_modules: []

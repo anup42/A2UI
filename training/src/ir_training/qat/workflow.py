@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ir_training.qat.fake_quant import QATSpec
+from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
 from ir_training.qat.mobile_training_seed import OFFICIAL_MOBILE_MODEL_ID
 from ir_training.qat_mtp.workflow import WorkflowIssue
 
@@ -75,6 +75,30 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
                 "error",
                 "unsupported_qat_quantizer",
                 "Supported QAT quantizers are ste_absmax and ste_ai_edge.",
+            )
+        )
+
+    try:
+        numeric_contract = qat_numeric_contract(QATSpec.from_config(config))
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        numeric_contract = {"public_ai_edge_numeric_contract": False}
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "qat_numeric_contract_unreadable",
+                f"Could not resolve the QAT numerical contract: {exc}",
+            )
+        )
+    if (
+        quantizer == "ste_ai_edge"
+        and numeric_contract.get("public_ai_edge_numeric_contract") is not True
+    ):
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "ai_edge_numeric_contract_mismatch",
+                "ste_ai_edge requires the public ai-edge-quantizer 0.8.0 "
+                "FLOAT32 scale calculation and 1e-9 minimum scale contract.",
             )
         )
 

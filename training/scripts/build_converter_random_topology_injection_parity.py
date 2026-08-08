@@ -80,6 +80,7 @@ from ir_training.export.litertlm_inspector import (  # noqa: E402
     _tflite_graph_fingerprint,
     inspect_litertlm,
 )
+from ir_training.qat.toolchain import edge_export_toolchain_report  # noqa: E402
 
 
 class ConverterRandomTopologyInjectionError(RuntimeError):
@@ -1361,6 +1362,7 @@ def run(
         "random_initialization": True,
         "public_converter_executed": True,
         "private_qat_recipe_recovered": False,
+        "public_conversion_toolchain": edge_export_toolchain_report(),
         "official_inventory_count": len(official_records),
         "converter_weight_count": len(converter_records),
         "official_operator_counts": dict(

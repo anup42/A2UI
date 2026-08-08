@@ -12,11 +12,14 @@ torch = pytest.importorskip("torch")
 from ir_training.common.config import load_yaml
 from ir_training.qat import fake_quant as fake_quant_module
 from ir_training.qat.fake_quant import (
+    AI_EDGE_MIN_SCALE,
     QATSpec,
+    _round_ai_edge_blockwise_scale,
     _scale_and_zero_point,
     fake_quantize_ste,
     fake_quantize_weight,
     prepare_qat_model,
+    qat_numeric_contract,
 )
 from ir_training.qat.mobile_schema import (
     audit_module_names,
@@ -101,6 +104,134 @@ def test_ai_edge_fake_quant_uses_full_low_bit_and_narrow_w8_ranges():
     assert qmin == -127
     assert qmax == 127
     assert torch.allclose(scale, torch.tensor([[2.0 / 127.0]]))
+
+
+def test_ai_edge_fake_quant_uses_float32_scale_and_preserves_bfloat16_forward():
+    values = torch.tensor(
+        [[-0.76953125, -0.310546875, 0.109375, 0.73046875]],
+        dtype=torch.bfloat16,
+        requires_grad=True,
+    )
+    scale, zero_point, qmin, qmax = _scale_and_zero_point(
+        values,
+        bits=8,
+        symmetric=True,
+        reduce_dims=(1,),
+        eps=AI_EDGE_MIN_SCALE,
+        quantizer="ste_ai_edge",
+    )
+
+    expected_scale = values.detach().float().abs().amax(dim=1, keepdim=True) / 127
+    assert scale.dtype == torch.float32
+    torch.testing.assert_close(scale, expected_scale, rtol=0, atol=0)
+    assert (qmin, qmax) == (-127, 127)
+    assert zero_point.shape == scale.shape
+
+    simulated = fake_quantize_ste(
+        values,
+        bits=8,
+        symmetric=True,
+        per_channel=True,
+        axis=0,
+        eps=AI_EDGE_MIN_SCALE,
+        quantizer="ste_ai_edge",
+    )
+    assert simulated.dtype == torch.bfloat16
+    simulated.float().sum().backward()
+    assert torch.all(values.grad == 1)
+
+
+def test_ai_edge_fake_quant_matches_public_channelwise_codes_when_available():
+    qtyping = pytest.importorskip("ai_edge_quantizer.qtyping")
+    public = pytest.importorskip(
+        "ai_edge_quantizer.algorithms.uniform_quantize.uniform_quantize_tensor"
+    )
+    values = torch.tensor(
+        [
+            [-0.76953125, -0.310546875, -0.109375, 0.109375, 0.73046875],
+            [-0.421875, -0.203125, 0.015625, 0.28125, 0.578125],
+        ],
+        dtype=torch.bfloat16,
+    )
+    source = values.float().numpy()
+
+    for bits in (2, 4, 8):
+        scale, zero_point, qmin, qmax = _scale_and_zero_point(
+            values,
+            bits=bits,
+            symmetric=True,
+            reduce_dims=(1,),
+            eps=AI_EDGE_MIN_SCALE,
+            quantizer="ste_ai_edge",
+        )
+        public_zp, public_scale = public.tensor_zp_scale_from_min_max(
+            source.min(axis=1),
+            source.max(axis=1),
+            bits,
+            True,
+            qtyping.QuantGranularity.CHANNELWISE,
+        )
+        params = qtyping.UniformQuantParams(
+            num_bits=bits,
+            scale=public_scale,
+            zero_point=public_zp,
+            symmetric=True,
+            quantized_dimension=0,
+        )
+        public_codes = public.uniform_quantize(source, params)
+        ours_codes = (
+            torch.round(values.float() / scale + zero_point)
+            .clamp(qmin, qmax)
+            .to(torch.int8)
+            .numpy()
+        )
+        assert scale.squeeze(1).numpy().tobytes() == public_scale.tobytes()
+        assert ours_codes.tobytes() == public_codes.tobytes()
+
+
+def test_ai_edge_grouped_scale_uses_public_bfloat16_float16_storage_rounding():
+    values = torch.linspace(-0.8, 0.7, 512, dtype=torch.float32).reshape(
+        2, 1, 256
+    ).to(torch.bfloat16)
+    scale, _, _, _ = _scale_and_zero_point(
+        values,
+        bits=4,
+        symmetric=True,
+        reduce_dims=(2,),
+        eps=AI_EDGE_MIN_SCALE,
+        quantizer="ste_ai_edge",
+    )
+
+    rounded = _round_ai_edge_blockwise_scale(scale)
+
+    assert rounded.dtype == torch.float32
+    torch.testing.assert_close(
+        rounded,
+        scale.to(torch.bfloat16).to(torch.float16).to(torch.float32),
+        rtol=0,
+        atol=0,
+    )
+
+
+def test_grouped_qat_rejects_non_divisible_deployment_shape():
+    with pytest.raises(ValueError, match="not divisible"):
+        fake_quantize_ste(
+            torch.ones((2, 7)),
+            bits=4,
+            symmetric=True,
+            per_channel=True,
+            axis=0,
+            group_size=4,
+            quantizer="ste_ai_edge",
+            eps=AI_EDGE_MIN_SCALE,
+        )
+
+
+def test_ai_edge_qat_spec_defaults_to_public_minimum_scale():
+    spec = QATSpec.from_config({"qat": {"quantizer": "ste_ai_edge"}})
+
+    assert spec.eps == AI_EDGE_MIN_SCALE
+    assert qat_numeric_contract(spec)["public_ai_edge_numeric_contract"] is True
 
 
 def test_qat_controller_wraps_base_layers_and_restores_them():
@@ -290,6 +421,15 @@ def test_qat_validation_rejects_qlora_and_disabled_qat():
     config["qat"]["enabled"] = False
     codes = {issue.code for issue in validate_qat_config(config)}
     assert {"qlora_is_not_qat", "qat_not_enabled"}.issubset(codes)
+
+
+def test_qat_validation_rejects_ai_edge_minimum_scale_drift():
+    config = load_yaml(ROOT / "configs" / "models" / "gemma3_270m_ir_qat_sft.yaml")
+    config["qat"]["eps"] = 1e-8
+
+    codes = {issue.code for issue in validate_qat_config(config)}
+
+    assert "ai_edge_numeric_contract_mismatch" in codes
 
 
 def test_qat_validation_requires_effective_weight_and_zero_lora_dropout():
