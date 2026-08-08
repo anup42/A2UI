@@ -217,9 +217,11 @@ python training/scripts/run_gemma4_e2b_mobile_mtp.py
 Set `pipeline.source.base_litertlm` to the exact official package variant. The
 preferred deployment stage is designed to quantize the merged target
 checkpoint with the public AI Edge quantizer, inject those constants into the
-released target graph, and write the final package. It currently refuses the
-checked-in E2B Q4-seed/mobile-template pairing because its retained-constant
-contract is incompatible; do not bypass that gate:
+released target graph, and write the final package. The active path requires
+the manifest-verified BF16 reconstruction of the packed mobile checkpoint. It
+still rejects the dense Q4-seed/mobile-template hybrid and fails closed until
+the reconstructed seed, trained adapter, merge metadata, and checkpoint hashes
+all verify:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
@@ -724,18 +726,20 @@ are then placed into an unchanged copy of the released target graph.
 The command fails closed unless all of these are true:
 
 - the input package SHA-256 matches the configured released artifact;
-- merge metadata v3 binds the checkpoint to the exact training-config hash,
-  base model, effective merged-weight QAT run, hashed selected adapter, and the
-  SHA-256 of every merged safetensor shard and shard index;
+- merge metadata v4 binds the checkpoint to the canonical mobile model ID,
+  exact reconstructed local source/manifest, training-config hash, effective
+  merged-weight QAT run, hashed selected adapter, exact-key loading gate, and
+  the SHA-256 of every merged safetensor shard and shard index;
 - all 277 E2B or all 127 270M unique FC/embedding buffers map to floating-point
   checkpoint tensors with exact shapes;
 - every one of those 277 or 127 official buffers has the same W2/W4/W8 QAT bit
   assignment in the selected training config; tied E2B `lm_head` is audited
   through its token-embedding source;
-- for E2B, a generated retained-constant contract proves exact seed/mobile
-  values and their mapping into compiled buffers (the mobile-to-compiled
-  mapping is 262/262 exact at BF16 precision, but the current public Q4 seed
-  still fails the seed/mobile value gate at 50/262 exact tensors);
+- for E2B, the retained-constant contract proves 262/262 exact public mobile
+  values at the BF16 boundary and their compiled-buffer mapping, while the
+  separate reconstruction manifest proves the complete 541-tensor mobile
+  training seed; the public dense Q4 seed remains rejected at 50/262 exact
+  retained tensors;
 - the public converter returns the exact observed bit-width/operator/scale
   inventory and every packed byte/scale survives injection;
 - graph structure, operators, signatures, cache wiring, quantization layout,
@@ -747,8 +751,10 @@ renamed to the requested `.litertlm` only after every graph and package gate
 passes. When all gates pass, this reproduces the official
 graph/operators/layout with different trained weights; it does not claim
 recovery of Google's private QAT trainer or calibration corpus. At present
-this statement applies to the 270M exact-base route and to E2B topology
-experiments, not to a production E2B Q4-seed/mobile-template hybrid.
+this statement is device-proven for the 270M exact-base/random route and E2B
+random topology experiments. A production E2B claim remains pending until an
+actual trained, provenance-bound candidate passes quality plus both target-only
+and MTP-on device gates; the Q4-seed/mobile-template hybrid is never eligible.
 
 The preferred plan-only entry points are:
 
@@ -764,8 +770,10 @@ python training/scripts/run_gemma270m_qat_litertlm.py `
 
 After training has independently produced a golden best adapter, run the
 explicit merge and exact-topology stages. Neither command starts training. The
-E2B exact export shown below intentionally fails until its compatibility
-contract becomes `compatible_exact`; the 270M exact-base flow remains usable:
+E2B retained-constant contract is now `compatible_exact` for the reconstructed
+mobile seed, but export intentionally still fails until that seed is
+materialized and the best adapter/merge provenance exists. The 270M exact-base
+flow remains usable under the same trained-checkpoint provenance gates:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py `

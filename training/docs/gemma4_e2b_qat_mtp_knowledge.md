@@ -139,8 +139,10 @@ adapter is saved, and `qat` metadata records the wrapped module count, exact
 module-to-bit assignments, module-specific group sizes, W2/W4/W8 histogram,
 effective LoRA wrapper count, uncovered-adapter list, and quantizer
 specification. Training metadata also
-hashes each saved adapter checkpoint. Merge manifest v3 verifies that metadata,
-the training-config hash, and adapter hashes before loading the base model.
+hashes each saved adapter checkpoint. Current merge manifest v4 verifies that
+metadata, the training-config hash, adapter hashes, canonical model identity,
+local mobile-seed source/manifest, and exact checkpoint-key loading before
+loading the base model.
 `load_in_4bit` is rejected because NF4 QLoRA is a different method. This is
 true fake-quantization-aware training in the engineering sense, but the final
 LiteRT/LiteRT-LM converter remains the authority for packed layout,
@@ -1584,6 +1586,20 @@ the E2B pair was
 | Gemma 4 E2B official vs random mixed W2/W4/W8 target, MTP off | Both packages are 2,588,147,712 bytes. Target subgraphs matched at 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`). | With identical top-k 40, top-p 1.0, temperature 1.0, seed 42 sampling, both decoded 32/32 tokens. Official was 31.85 tok/s; random was 31.54 tok/s, a 0.98 percent regression inside the 10 percent gate. |
 | Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | In the bounded run requesting 32 tokens, official decoded 35 at 39.35 tok/s with MTP success 0.375 (valid four-token overshoot); the random target stopped at 12, 16.60 tok/s, and MTP success 0.0. Structural GPU parity passed, but acceptance and comparable-throughput gates correctly failed. |
 | Gemma 4 E2B official vs random target plus random drafter, MTP on | The random target and all 23 independently quantized drafter matrices ran together. Target delegation again matched at 2,068, 1,107, 1,107, and 2,243 nodes; the random drafter matched 198/198, with every subgraph in one GPU partition and all signature shapes equal. | The bounded cold probe requested 8 tokens. Official decoded 10 at 19.33 tok/s with MTP success 0.266667; the full-random candidate decoded 8 at 15.76 tok/s with MTP success 0.133333. Structural GPU parity passed. The 18.47 percent throughput regression and 0.133334 acceptance drop correctly failed the weight-dependent performance gates; this short cold probe is not a shipping-speed claim. |
+
+After the mobile-seed pipeline update in commit `8cbcaf18`, fresh schema-v4
+target-only probes were run on the same SM-F966B. Both probes verified the host,
+staged-device, and post-run SHA-256 values. For 270M, official and random
+packages both decoded 64/64 tokens with full GPU delegation; throughput was
+53.973 versus 51.609 tokens/s (4.3795 percent candidate regression, inside the
+10 percent gate). For E2B, both decoded 32/32 tokens with matching full GPU
+delegation; throughput was 31.781 versus 31.768 tokens/s (0.0426 percent
+regression). The current 270M validator therefore passes package inspection,
+full graph inspection, artifact identity, GPU delegation, and throughput. The
+E2B dual validator accepts target-only parity but still rejects the retained
+random-weight MTP report specifically on fixed-length throughput and draft
+acceptance. This is the intended fail-closed result; it is not a missing
+graph/runtime feature.
 
 The 270M and target-only E2B results are direct evidence that unchanged
 graph/layout gives comparable GPU execution speed even when weights differ.
