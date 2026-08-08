@@ -619,6 +619,38 @@ Add `--package-output C:\temp\random-injected.litertlm` when a full package
 fixture is needed; it streams the package and replaces only the selected
 section, so the original artifact is never overwritten.
 
+When the host does not have room for another multi-gigabyte package, retain
+only the injected section and let the Android benchmark compose it in its
+temporary device directory:
+
+```powershell
+python training/scripts/build_converter_random_topology_injection_parity.py `
+  C:\path\to\random-target.litertlm `
+  --model-type tf_lite_mtp_drafter `
+  --output-dir C:\temp\random-mtp-section `
+  --in-memory `
+  --section-output C:\temp\random-mtp-section\random_mtp_drafter.tflite `
+  --runtime-allocate --runtime-without-default-delegates
+
+python training/scripts/benchmark_android_litertlm_gpu_parity.py `
+  --official C:\path\to\official.litertlm `
+  --candidate C:\path\to\random-target.litertlm `
+  --candidate-section-patch C:\temp\random-mtp-section\random_mtp_drafter.tflite `
+  --candidate-section-model-type tf_lite_mtp_drafter `
+  --output-dir C:\temp\full-random-mtp-device-report `
+  --mtp --output-tokens 8 --warm-runs 0
+```
+
+The benchmark stream-hashes the virtual full package on the host, stages the
+base and section separately, patches exactly the selected byte range with
+Android `toybox dd`, and requires the staged and post-run SHA-256 values to
+equal the virtual host SHA. It never writes or overwrites a complete composite
+package on the host. The verified SM-F966B full-random run matched the official
+target delegation counts (2,068 decode, 1,107 per prefill, 2,243 verify) and
+the 198-node MTP drafter, all fully delegated in one partition. Its lower
+throughput and MTP acceptance correctly failed the weight-dependent performance
+gate; structural GPU parity passed.
+
 ### Merged checkpoint -> exact official topology
 
 `build_checkpoint_official_topology.py` is the deployment path for the best

@@ -360,6 +360,117 @@ def test_android_gpu_parity_parses_android_sha256sum_output():
         benchmark_android_litertlm_gpu_parity.parse_sha256sum_output("not-a-hash")
 
 
+def test_android_gpu_parity_hashes_virtual_section_patch_without_full_copy(tmp_path):
+    import hashlib
+
+    base_bytes = bytes(range(96))
+    section_bytes = b"\x08\x00\x00\x00TFL3" + bytes(range(16))
+    begin = 32
+    base = tmp_path / "base.litertlm"
+    section = tmp_path / "replacement.tflite"
+    base.write_bytes(base_bytes)
+    section.write_bytes(section_bytes)
+
+    identity = benchmark_android_litertlm_gpu_parity.section_patch_identity(
+        base,
+        section,
+        begin_offset=begin,
+        section_size=len(section_bytes),
+    )
+    expected = base_bytes[:begin] + section_bytes + base_bytes[begin + len(section_bytes) :]
+
+    assert identity["expected_composite_sha256"] == hashlib.sha256(expected).hexdigest()
+    assert identity["prefix_sha256"] == hashlib.sha256(base_bytes[:begin]).hexdigest()
+    assert identity["section_sha256"] == hashlib.sha256(section_bytes).hexdigest()
+    assert identity["suffix_sha256"] == hashlib.sha256(
+        base_bytes[begin + len(section_bytes) :]
+    ).hexdigest()
+    assert identity["expected_composite_size_bytes"] == len(base_bytes)
+    assert identity["full_host_composite_written"] is False
+
+    with pytest.raises(ValueError, match="Replacement section size"):
+        benchmark_android_litertlm_gpu_parity.section_patch_identity(
+            base,
+            section,
+            begin_offset=begin,
+            section_size=len(section_bytes) + 1,
+        )
+
+
+def test_android_gpu_parity_device_patch_is_bound_to_streamed_identity(
+    tmp_path, monkeypatch
+):
+    base = tmp_path / "base.litertlm"
+    section = tmp_path / "replacement.tflite"
+    base.write_bytes(bytes(range(96)))
+    section.write_bytes(b"\x08\x00\x00\x00TFL3" + bytes(range(16)))
+    composition = benchmark_android_litertlm_gpu_parity.section_patch_identity(
+        base,
+        section,
+        begin_offset=32,
+        section_size=section.stat().st_size,
+    )
+    runner = benchmark_android_litertlm_gpu_parity.AndroidProbeRunner(
+        adb="adb",
+        serial="device",
+        app_package="package",
+        test_class="test",
+        runner="runner",
+        timeout_seconds=30,
+    )
+    commands: list[tuple[str, ...]] = []
+
+    def fake_stage(host_path: Path, device_path: str) -> dict[str, object]:
+        return {
+            "algorithm": "SHA-256",
+            "host_size_bytes": host_path.stat().st_size,
+            "host_sha256": benchmark_android_litertlm_gpu_parity.sha256_file(host_path),
+            "device_path": device_path,
+            "staged_device_sha256": benchmark_android_litertlm_gpu_parity.sha256_file(
+                host_path
+            ),
+            "post_run_device_sha256": None,
+        }
+
+    def fake_adb_command(*arguments: str, **_kwargs):
+        commands.append(arguments)
+        return benchmark_android_litertlm_gpu_parity.CommandResult(0, "")
+
+    monkeypatch.setattr(runner, "stage", fake_stage)
+    monkeypatch.setattr(runner, "adb_command", fake_adb_command)
+    monkeypatch.setattr(
+        runner,
+        "device_sha256",
+        lambda _path: composition["expected_composite_sha256"],
+    )
+
+    identity = runner.stage_with_section_patch(
+        base_host_path=base,
+        section_host_path=section,
+        device_path="/data/local/tmp/candidate.litertlm",
+        section_device_path="/data/local/tmp/replacement.tflite",
+        composition=composition,
+    )
+
+    dd_command = next(item for item in commands if "dd" in item)
+    assert "seek=32" in dd_command
+    assert "oflag=seek_bytes" in dd_command
+    assert "conv=notrunc,fsync" in dd_command
+    assert identity["host_identity_kind"] == "streamed_section_composition"
+    assert identity["host_sha256"] == composition["expected_composite_sha256"]
+    assert identity["staged_device_sha256"] == composition["expected_composite_sha256"]
+
+    monkeypatch.setattr(runner, "device_sha256", lambda _path: "0" * 64)
+    with pytest.raises(RuntimeError, match="composition SHA-256 mismatch"):
+        runner.stage_with_section_patch(
+            base_host_path=base,
+            section_host_path=section,
+            device_path="/data/local/tmp/candidate.litertlm",
+            section_device_path="/data/local/tmp/replacement.tflite",
+            composition=composition,
+        )
+
+
 def test_mobile_recipe_audit_groups_observable_tensor_names():
     assert audit_litertlm_recipe._layer_group("layer_14/mlp/gating") == "mlp_layer_14"
     assert audit_litertlm_recipe._layer_group("layer_2/attn/q") == "self_attention"

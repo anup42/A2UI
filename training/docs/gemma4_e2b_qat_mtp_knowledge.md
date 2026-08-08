@@ -202,7 +202,7 @@ The new configs are intentionally separate from the QAT-derived/MTP profile:
 
 | Config | Base model | Training fake quantization | Intended final export |
 |---|---|---|---|
-| `gemma4_e2b_ir_qat_sft.yaml` | `google/gemma-4-E2B-it` | Public W2/W4/W8 module map, AI Edge-compatible STE ranges, W8A8 activation edges | Mobile observable-contract approximation; private Google QAT/calibration/export remains unverified |
+| `gemma4_e2b_ir_qat_sft.yaml` | `google/gemma-4-E2B-it-qat-q4_0-unquantized` | Public W2/W4/W8 module map, AI Edge-compatible STE ranges, W8A8 activation edges | Mobile observable-contract approximation; private Google QAT/calibration/export remains unverified |
 | `gemma3_270m_ir_qat_sft.yaml` | `google/gemma-3-270m-it` | W8 STE per-channel weights with activation fake quantization disabled (FP32 edges) | exact released Q8 topology via the checkpoint compiler; still requires device validation |
 | `functiongemma_270m_ir_qat_sft.yaml` | `google/functiongemma-270m-it` | W8A8 STE, per-channel weights | custom dynamic INT8 export; compare with the official Q8 LiteRT-LM package |
 
@@ -1573,6 +1573,7 @@ the E2B pair was
 | Gemma 3 270M official Q8 vs random Q8 | Both packages are 304,005,120 bytes. `decode` was 1,537/1,537 GPU nodes; each of five prefill subgraphs was 1,667/1,667. | Both decoded 64/64 tokens. Official was 54.60 tok/s; random was 55.47 tok/s (1.60 percent faster in this run), passing the 10 percent regression gate. |
 | Gemma 4 E2B official vs random mixed W2/W4/W8 target, MTP off | Both packages are 2,588,147,712 bytes. Target subgraphs matched at 2,068/2,068 (`decode`), 1,107/1,107 (`prefill_1024`), 1,107/1,107 (`prefill_128`), and 2,243/2,243 (`verify`). | With identical top-k 40, top-p 1.0, temperature 1.0, seed 42 sampling, both decoded 32/32 tokens. Official was 31.85 tok/s; random was 31.54 tok/s, a 0.98 percent regression inside the 10 percent gate. |
 | Gemma 4 E2B official vs the same random target, MTP on | The four target subgraphs above plus the preserved assistant's 198/198-node subgraph fully delegated for both packages with matching shape and signatures. | In the bounded run requesting 32 tokens, official decoded 35 at 39.35 tok/s with MTP success 0.375 (valid four-token overshoot); the random target stopped at 12, 16.60 tok/s, and MTP success 0.0. Structural GPU parity passed, but acceptance and comparable-throughput gates correctly failed. |
+| Gemma 4 E2B official vs random target plus random drafter, MTP on | The random target and all 23 independently quantized drafter matrices ran together. Target delegation again matched at 2,068, 1,107, 1,107, and 2,243 nodes; the random drafter matched 198/198, with every subgraph in one GPU partition and all signature shapes equal. | The bounded cold probe requested 8 tokens. Official decoded 10 at 19.33 tok/s with MTP success 0.266667; the full-random candidate decoded 8 at 15.76 tok/s with MTP success 0.133333. Structural GPU parity passed. The 18.47 percent throughput regression and 0.133334 acceptance drop correctly failed the weight-dependent performance gates; this short cold probe is not a shipping-speed claim. |
 
 The 270M and target-only E2B results are direct evidence that unchanged
 graph/layout gives comparable GPU execution speed even when weights differ.
@@ -1581,6 +1582,18 @@ fully delegated with the exact-topology target. It also demonstrates why graph
 parity is insufficient for speculative speed: draft-token acceptance is
 numerical and therefore weight-dependent. The random target's early stop and
 zero acceptance are intentionally rejected as a throughput comparison.
+
+The separate full-random MTP run closes the former runtime-coverage gap for a
+random drafter. Because the host had insufficient room for another 2.59 GB
+package, the benchmark stream-hashed the virtual composition of the existing
+random-target package and the 44,325,712-byte random MTP section, then patched
+that section at offset 2,543,812,608 only in its temporary Android copy. The
+expected, staged, and post-run package SHA-256 all matched
+`fa769933ed955e56d14b0d63cb91360d5bc6aa2a148ab3d75ab9a4fb43fc530d`.
+This cryptographically binds the GPU evidence without creating or overwriting
+a complete host package. Nonzero random-drafter acceptance confirms that the
+MTP path executed; the performance failure remains expected for unrelated
+random values.
 
 For a real QAT fine-tune, preserve the default MTP section only as the first
 candidate. Benchmark the selected best target checkpoint with MTP off and on

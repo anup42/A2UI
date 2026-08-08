@@ -7,6 +7,11 @@ two temporary packages under ``/data/local/tmp/litert_parity``, invokes the
 delegation/MTP logs, and writes a compact JSON report. Temporary device models,
 probe reports, and probe-only cache directories are removed unless explicitly
 retained.
+
+For low-disk graph fixtures, ``--candidate-section-patch`` stream-hashes a
+virtual full candidate on the host and applies the same bounded section
+replacement only to the temporary Android copy. The staged and post-run device
+hashes must equal that virtual host identity before the result can pass.
 """
 
 from __future__ import annotations
@@ -26,6 +31,14 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from ir_training.export.litertlm_inspector import (
+    LiteRTLMInspectionError,
+    inspect_litertlm,
+)
 
 STAGE_ROOT = "/data/local/tmp/litert_parity"
 DEFAULT_TEST_CLASS = "com.samsung.genuicraft.LiteRtGpuInitParityProbeTest"
@@ -70,6 +83,163 @@ def sha256_file(path: Path, *, chunk_size: int = 8 * 1024 * 1024) -> str:
         while chunk := handle.read(chunk_size):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _update_digests_from_handle(
+    handle: Any,
+    byte_count: int,
+    *digests: Any,
+    chunk_size: int = 8 * 1024 * 1024,
+) -> None:
+    """Hash exactly ``byte_count`` bytes from the current file position."""
+
+    remaining = int(byte_count)
+    if remaining < 0:
+        raise ValueError("byte_count cannot be negative")
+    while remaining:
+        block = handle.read(min(chunk_size, remaining))
+        if not block:
+            raise ValueError(
+                f"Unexpected EOF with {remaining} bytes left in a section composition."
+            )
+        for digest in digests:
+            digest.update(block)
+        remaining -= len(block)
+
+
+def section_patch_identity(
+    base_path: Path,
+    section_path: Path,
+    *,
+    begin_offset: int,
+    section_size: int,
+) -> dict[str, Any]:
+    """Hash a virtual base-package section replacement without writing it.
+
+    This supports low-disk Android parity runs: the host proves the SHA-256 of
+    ``base[:begin] + section + base[end:]`` as a stream, while Android performs
+    the same bounded replacement in its temporary staging directory.
+    """
+
+    base = Path(base_path).expanduser().resolve()
+    section = Path(section_path).expanduser().resolve()
+    for path in (base, section):
+        if not path.is_file() or path.stat().st_size <= 0:
+            raise FileNotFoundError(f"Section-composition input is missing or empty: {path}")
+
+    begin = int(begin_offset)
+    size = int(section_size)
+    base_size = base.stat().st_size
+    end = begin + size
+    if begin < 0 or size <= 0 or end > base_size:
+        raise ValueError(
+            f"Section range [{begin}, {end}) is outside base package size {base_size}."
+        )
+    if section.stat().st_size != size:
+        raise ValueError(
+            "Replacement section size does not match the selected package section: "
+            f"replacement={section.stat().st_size}, expected={size}."
+        )
+    with section.open("rb") as handle:
+        identifier = handle.read(8)
+    if len(identifier) < 8 or identifier[4:8] != b"TFL3":
+        raise ValueError(f"Replacement section is not a TFLite model: {section}")
+
+    composite_digest = hashlib.sha256()
+    prefix_digest = hashlib.sha256()
+    section_digest = hashlib.sha256()
+    suffix_digest = hashlib.sha256()
+    with base.open("rb") as base_handle:
+        _update_digests_from_handle(
+            base_handle,
+            begin,
+            composite_digest,
+            prefix_digest,
+        )
+        base_handle.seek(end)
+        with section.open("rb") as section_handle:
+            _update_digests_from_handle(
+                section_handle,
+                size,
+                composite_digest,
+                section_digest,
+            )
+        _update_digests_from_handle(
+            base_handle,
+            base_size - end,
+            composite_digest,
+            suffix_digest,
+        )
+    return {
+        "mode": "streamed_host_identity_device_section_patch",
+        "base_host_path": str(base),
+        "section_host_path": str(section),
+        "base_size_bytes": base_size,
+        "begin_offset": begin,
+        "end_offset": end,
+        "section_size_bytes": size,
+        "prefix_sha256": prefix_digest.hexdigest(),
+        "section_sha256": section_digest.hexdigest(),
+        "suffix_sha256": suffix_digest.hexdigest(),
+        "expected_composite_size_bytes": base_size,
+        "expected_composite_sha256": composite_digest.hexdigest(),
+        "full_host_composite_written": False,
+    }
+
+
+def candidate_section_patch_contract(
+    base_path: Path,
+    section_path: Path,
+    *,
+    model_type: str,
+) -> dict[str, Any]:
+    """Resolve one LiteRT-LM model section and bind its virtual replacement."""
+
+    try:
+        package = inspect_litertlm(base_path, inspect_tflite=False)
+    except (OSError, LiteRTLMInspectionError) as exc:
+        raise ValueError(f"Could not inspect candidate base package: {exc}") from exc
+    matches = [
+        item
+        for item in package.get("sections", [])
+        if item.get("data_type_name") == "TFLiteModel"
+        and any(
+            entry.get("key") == "model_type"
+            and str(entry.get("value")) == model_type
+            for entry in item.get("items", [])
+        )
+    ]
+    if len(matches) != 1:
+        available = [
+            next(
+                (
+                    str(entry.get("value"))
+                    for entry in item.get("items", [])
+                    if entry.get("key") == "model_type"
+                ),
+                "",
+            )
+            for item in package.get("sections", [])
+            if item.get("data_type_name") == "TFLiteModel"
+        ]
+        raise ValueError(
+            f"Expected exactly one model_type={model_type!r} section; "
+            f"found {len(matches)}. Available: {available}"
+        )
+    selected = matches[0]
+    identity = section_patch_identity(
+        base_path,
+        section_path,
+        begin_offset=int(selected["begin_offset"]),
+        section_size=int(selected["size"]),
+    )
+    identity.update(
+        {
+            "model_type": model_type,
+            "section_index": int(selected["index"]),
+        }
+    )
+    return identity
 
 
 def parse_sha256sum_output(text: str) -> str:
@@ -458,6 +628,70 @@ class AndroidProbeRunner:
             "post_run_device_sha256": None,
         }
 
+    def stage_with_section_patch(
+        self,
+        *,
+        base_host_path: Path,
+        section_host_path: Path,
+        device_path: str,
+        section_device_path: str,
+        composition: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Stage a base package and patch one verified TFLite section on-device."""
+
+        base_identity = self.stage(base_host_path, device_path)
+        section_identity = self.stage(section_host_path, section_device_path)
+        expected_section_sha256 = str(composition["section_sha256"]).lower()
+        if section_identity["host_sha256"] != expected_section_sha256:
+            raise RuntimeError(
+                "Replacement section changed after the composition identity was built: "
+                f"expected={expected_section_sha256}, "
+                f"observed={section_identity['host_sha256']}"
+            )
+
+        begin_offset = int(composition["begin_offset"])
+        self.adb_command(
+            "shell",
+            "toybox",
+            "dd",
+            f"if={section_device_path}",
+            f"of={device_path}",
+            "bs=4M",
+            f"seek={begin_offset}",
+            "oflag=seek_bytes",
+            "conv=notrunc,fsync",
+            "status=none",
+        )
+        self.adb_command("shell", "chmod", "644", device_path)
+        staged_sha256 = self.device_sha256(device_path)
+        expected_sha256 = str(composition["expected_composite_sha256"]).lower()
+        if staged_sha256 != expected_sha256:
+            raise RuntimeError(
+                "On-device section composition SHA-256 mismatch: "
+                f"expected={expected_sha256}, device={staged_sha256}, path={device_path}"
+            )
+        return {
+            "algorithm": "SHA-256",
+            "host_identity_kind": "streamed_section_composition",
+            "host_size_bytes": int(composition["expected_composite_size_bytes"]),
+            "host_sha256": expected_sha256,
+            "device_path": device_path,
+            "staged_device_sha256": staged_sha256,
+            "post_run_device_sha256": None,
+            "composition": {
+                **composition,
+                "base_staging": base_identity,
+                "section_staging": section_identity,
+                "device_composition_command": {
+                    "tool": "toybox dd",
+                    "seek_mode": "bytes",
+                    "begin_offset": begin_offset,
+                    "truncate_output": False,
+                    "fsync": True,
+                },
+            },
+        }
+
     def run_once(
         self,
         *,
@@ -627,6 +861,20 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--official", required=True, help="Official .litertlm package.")
     parser.add_argument("--candidate", required=True, help="Candidate .litertlm package.")
+    parser.add_argument(
+        "--candidate-section-patch",
+        help=(
+            "Optional TFLite section to stream-hash over --candidate and patch into "
+            "the temporary Android copy without writing a second host package."
+        ),
+    )
+    parser.add_argument(
+        "--candidate-section-model-type",
+        help=(
+            "LiteRT-LM model_type replaced by --candidate-section-patch, for example "
+            "tf_lite_mtp_drafter. Required together with the patch path."
+        ),
+    )
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--adb")
     parser.add_argument("--serial")
@@ -675,6 +923,22 @@ def main(argv: Iterable[str] | None = None) -> int:
     for path in (official, candidate):
         if not path.is_file() or path.stat().st_size <= 0:
             raise FileNotFoundError(f"LiteRT-LM package is missing or empty: {path}")
+    patch_requested = bool(args.candidate_section_patch)
+    model_type_requested = bool(args.candidate_section_model_type)
+    if patch_requested != model_type_requested:
+        raise ValueError(
+            "--candidate-section-patch and --candidate-section-model-type must be "
+            "provided together."
+        )
+    candidate_patch: Path | None = None
+    candidate_composition: dict[str, Any] | None = None
+    if patch_requested:
+        candidate_patch = Path(args.candidate_section_patch).expanduser().resolve()
+        candidate_composition = candidate_section_patch_contract(
+            candidate,
+            candidate_patch,
+            model_type=str(args.candidate_section_model_type),
+        )
     if args.max_num_tokens < 1024:
         raise ValueError("--max-num-tokens must be at least 1024.")
     if not 0 <= args.output_tokens <= 512:
@@ -698,6 +962,10 @@ def main(argv: Iterable[str] | None = None) -> int:
         "official": f"{device_dir}/official.litertlm",
         "candidate": f"{device_dir}/candidate.litertlm",
     }
+    if candidate_patch is not None:
+        device_paths["candidate_section_patch"] = (
+            f"{device_dir}/candidate_section_patch.tflite"
+        )
     labels = {
         "official": f"parity_{run_id}_official",
         "candidate": f"parity_{run_id}_candidate",
@@ -719,8 +987,19 @@ def main(argv: Iterable[str] | None = None) -> int:
     try:
         staged_identities = {
             "official": runner.stage(official, device_paths["official"]),
-            "candidate": runner.stage(candidate, device_paths["candidate"]),
         }
+        if candidate_patch is not None and candidate_composition is not None:
+            staged_identities["candidate"] = runner.stage_with_section_patch(
+                base_host_path=candidate,
+                section_host_path=candidate_patch,
+                device_path=device_paths["candidate"],
+                section_device_path=device_paths["candidate_section_patch"],
+                composition=candidate_composition,
+            )
+        else:
+            staged_identities["candidate"] = runner.stage(
+                candidate, device_paths["candidate"]
+            )
         for role in ("official", "candidate"):
             role_dir = output_root / role
             role_dir.mkdir(parents=True, exist_ok=True)
@@ -750,11 +1029,15 @@ def main(argv: Iterable[str] | None = None) -> int:
             selected_run["artifact_identity"] = identity
             results[role] = {
                 "host_path": str(official if role == "official" else candidate),
-                "host_size_bytes": (
-                    official if role == "official" else candidate
-                ).stat().st_size,
+                "host_artifact_kind": (
+                    "streamed_base_plus_section_patch"
+                    if role == "candidate" and candidate_composition is not None
+                    else "complete_file"
+                ),
+                "host_size_bytes": int(identity["host_size_bytes"]),
                 "device_path": device_paths[role],
                 "artifact_identity": identity,
+                "host_composition": identity.get("composition"),
                 "runs": role_runs,
                 "selected_run": selected_run,
             }
@@ -789,6 +1072,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             "cold_run_count": 1,
             "warm_run_count": args.warm_runs,
             "training_executed": False,
+            "candidate_section_patch": candidate_composition,
             "results": results,
             "comparison": comparison,
         }

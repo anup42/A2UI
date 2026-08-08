@@ -693,6 +693,7 @@ def run(
     runtime_threads: int = 2,
     runtime_without_default_delegates: bool = False,
     package_output: str | Path | None = None,
+    section_output: str | Path | None = None,
     converter_batch_size: int | None = None,
     rebuild_graph: bool = False,
 ) -> dict[str, Any]:
@@ -852,6 +853,15 @@ def run(
     injected_path = output_root / "random_converter_topology_injected.tflite"
     if write_models:
         injected_path.write_bytes(injected_bytes)
+    section_output_path: Path | None = None
+    if section_output is not None:
+        section_output_path = Path(section_output).expanduser().resolve()
+        if section_output_path.exists():
+            raise ConverterRandomTopologyInjectionError(
+                f"Refusing to overwrite existing section output: {section_output_path}"
+            )
+        section_output_path.parent.mkdir(parents=True, exist_ok=True)
+        section_output_path.write_bytes(injected_bytes)
     package_boundary = _package_boundary_report(
         artifact_path, section, injected_bytes
     )
@@ -926,7 +936,16 @@ def run(
         "injected_variant": {
             "size": len(injected_bytes),
             "sha256": _sha256(injected_bytes),
-            "path": str(injected_path) if write_models else None,
+            "path": (
+                str(injected_path)
+                if write_models
+                else str(section_output_path)
+                if section_output_path is not None
+                else None
+            ),
+            "explicit_section_output": (
+                str(section_output_path) if section_output_path is not None else None
+            ),
             "injection": injection,
             "graph": injected_graph,
         },
@@ -1177,6 +1196,13 @@ def main(argv: Iterable[str] | None = None) -> int:
         help="Optional full .litertlm fixture with only the selected section replaced.",
     )
     parser.add_argument(
+        "--section-output",
+        help=(
+            "Retain only the injected TFLite section at this path. Useful with "
+            "--in-memory when there is not enough host disk for a full package."
+        ),
+    )
+    parser.add_argument(
         "--rebuild-flatbuffer",
         action="store_true",
         help=(
@@ -1203,6 +1229,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             runtime_threads=args.runtime_threads,
             runtime_without_default_delegates=args.runtime_without_default_delegates,
             package_output=args.package_output,
+            section_output=args.section_output,
             converter_batch_size=args.converter_batch_size,
             rebuild_graph=args.rebuild_flatbuffer,
         )
