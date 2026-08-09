@@ -10,4 +10,6 @@ jsonschema>=4.22
 PyYAML>=6.0
 safetensors>=0.4
 tqdm>=4.66
+# Golden-100 eval metrics are routed through Trainer.log into the same run.
+tensorboard>=2.17
 pytest>=8.0

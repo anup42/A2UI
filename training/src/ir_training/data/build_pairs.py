@@ -137,6 +137,14 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 genui.get("expected_ui_contract")
                 or response.get("expected_ui_contract")
             )
+            expected_ui_contract_v5_4 = (
+                genui.get("expected_ui_contract_v5_4")
+                or response.get("expected_ui_contract_v5_4")
+            )
+            expected_ui_contract_v5_4_source = (
+                genui.get("expected_ui_contract_v5_4_source")
+                or response.get("expected_ui_contract_v5_4_source")
+            )
             row_id = genui.get("ui_id") or f"u_{response_id}"
             source_id = str(
                 genui.get("source_id")
@@ -164,6 +172,8 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     "intent_bucket": intent_bucket,
                     "tags": tags,
                     "expected_ui_contract": expected_ui_contract,
+                    "expected_ui_contract_v5_4": expected_ui_contract_v5_4,
+                    "expected_ui_contract_v5_4_source": expected_ui_contract_v5_4_source,
                     "response_generation": response_generation,
                     "ir_generation": ir_generation,
                     "created_at": genui.get("created_at") or response.get("created_at"),
@@ -263,6 +273,8 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     "intent_bucket": source["intent_bucket"],
                     "assets": source["masked_assets"],
                     "expected_ui_contract": source["expected_ui_contract"],
+                    "expected_ui_contract_v5_4": source["expected_ui_contract_v5_4"],
+                    "expected_ui_contract_v5_4_source": source["expected_ui_contract_v5_4_source"],
                     "source_model_family": str(
                         source["ir_generation"].get("model")
                         or source["response_generation"].get("model")
@@ -307,6 +319,28 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     "assigned_split": split_name,
                 }
             )
+
+    required_accepted_rows = filter_cfg.get("required_accepted_rows")
+    if required_accepted_rows is not None:
+        required_count = int(required_accepted_rows)
+        if required_count < 1:
+            raise ValueError("filters.required_accepted_rows must be at least 1")
+        require_exact_accepted_rows = bool(filter_cfg.get("require_exact_accepted_rows", False))
+        count_invalid = (
+            len(accepted) != required_count
+            if require_exact_accepted_rows
+            else len(accepted) < required_count
+        )
+        if count_invalid:
+            comparator = "exactly" if require_exact_accepted_rows else "at least"
+            raise ValueError(
+                f"Prepared dataset requires {comparator} {required_count} accepted rows, "
+                f"but materialization produced {len(accepted)}."
+            )
+    if bool(filter_cfg.get("require_unique_source_ids", False)):
+        source_ids = [str(row.get("source_id") or "").strip() for row in accepted]
+        if any(not value for value in source_ids) or len(set(source_ids)) != len(source_ids):
+            raise ValueError("Prepared dataset requires one unique source_id per accepted row.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     all_count = write_jsonl(output_dir / "all.jsonl", accepted)

@@ -5,6 +5,8 @@ import sys
 import types
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -25,6 +27,7 @@ from ir_training.train.sft import (
     _align_tokenizer_and_model,
     _enforce_cuda_requirement,
     _effective_max_seq_length,
+    _ensure_tensorboard_reporter,
     _model_output_vocab_size,
     _model_vocab_size,
     _model_position_limit,
@@ -87,6 +90,8 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
                 "response_id": "r1",
                 "ui_id": "u1",
                 "genui_json": spec,
+                "expected_ui_contract_v5_4": {"contract_version": "5.4.0-test"},
+                "expected_ui_contract_v5_4_source": "persisted",
                 "gen": {"provider": "azure_openai", "model": "gpt-5.4-mini", "prompt_version": "genui_v1"},
             }
         ],
@@ -106,6 +111,8 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
     row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
     assert row["metadata"]["response_generation"]["model"] == "gemini-2.5-flash"
     assert row["metadata"]["ir_generation"]["model"] == "gpt-5.4-mini"
+    assert row["expected_ui_contract_v5_4"] == {"contract_version": "5.4.0-test"}
+    assert row["expected_ui_contract_v5_4_source"] == "persisted"
 
 
 def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
@@ -150,6 +157,35 @@ def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
     assert manifest["counts"]["all"] == 10
     assert len(manifest["source_genui_paths"]) == 2
     assert (out_dir / "all.jsonl").exists()
+
+
+def test_prepare_dataset_fails_closed_when_fixed_set_count_is_wrong(tmp_path):
+    run_dir = tmp_path / "fixed-run"
+    spec = {
+        "root": "root",
+        "state": {},
+        "elements": {"root": {"type": "Text", "props": {"text": "One"}, "children": []}},
+    }
+    _write_jsonl(
+        run_dir / "genui.jsonl",
+        [{"response_id": "r1", "response_text": "One", "genui_json": spec}],
+    )
+
+    with pytest.raises(ValueError, match="exactly 100 accepted rows"):
+        prepare_dataset(
+            {
+                "run": {
+                    "source_run_dir": str(run_dir),
+                    "output_dir": str(tmp_path / "prepared-fixed"),
+                },
+                "filters": {
+                    "require_strict_express": True,
+                    "required_accepted_rows": 100,
+                    "require_exact_accepted_rows": True,
+                },
+                "split": {"train": 1.0, "val": 0.0, "test": 0.0},
+            }
+        )
 
 
 def test_prepare_dataset_assigns_source_groups_before_target_materialization(tmp_path):
@@ -490,6 +526,7 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
     best_dir = tmp_path / "best"
     generated_dirs: list[Path] = []
     saved_scores: list[float] = []
+    logged_metrics: list[dict[str, float]] = []
     scores = iter([20.0, 10.0])
 
     monkeypatch.setitem(
@@ -505,7 +542,12 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
         return 1
 
     def fake_evaluate_predictions(**kwargs):
-        return {"overall_score": next(scores), "count": 1}
+        score = next(scores)
+        return {
+            "overall_score": score,
+            "generation_reward_v5_4_avg": score + 0.5,
+            "count": 1,
+        }
 
     def fake_save_best_checkpoint(**kwargs):
         saved_scores.append(float(kwargs["best_info"]["metric_value"]))
@@ -525,6 +567,8 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
         trigger="evaluate",
         metric_for_best_model="overall_score",
         best_checkpoint_dir=best_dir,
+        metric_logger=logged_metrics.append,
+        metric_log_prefix="golden100",
     )
     control = object()
     model = object()
@@ -535,6 +579,9 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
 
     assert generated_dirs == [output_dir / "step_000000010", output_dir / "step_000000020"]
     assert saved_scores == [20.0]
+    assert [item["eval_golden100/v5_4_score"] for item in logged_metrics] == [20.5, 10.5]
+    assert [item["eval_golden100/overall_score"] for item in logged_metrics] == [20.0, 10.0]
+    assert all("eval_golden100/step" not in item for item in logged_metrics)
     assert callback.summary() == {
         "metric": "overall_score",
         "metric_value": 20.0,
@@ -543,6 +590,49 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
         "epoch": 1.0,
         "checkpoint_dir": str(best_dir),
     }
+
+
+def test_golden_eval_rejects_a_short_or_duplicate_fixed_set(tmp_path, monkeypatch):
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        types.SimpleNamespace(TrainerCallback=object),
+    )
+    short_split = tmp_path / "short.jsonl"
+    _write_jsonl(short_split, [{"id": f"row-{index}"} for index in range(99)])
+
+    with pytest.raises(ValueError, match="exactly 100 valid rows"):
+        build_golden_set_eval_callback(
+            enabled=True,
+            split_path=short_split,
+            output_dir=tmp_path / "short-output",
+            adapter=object(),
+            tokenizer=object(),
+            max_rows=100,
+            required_rows=100,
+            require_exact_rows=True,
+        )
+
+    duplicate_split = tmp_path / "duplicate.jsonl"
+    _write_jsonl(duplicate_split, [{"id": "same"}, {"id": "same"}])
+    with pytest.raises(ValueError, match="duplicate row identities"):
+        build_golden_set_eval_callback(
+            enabled=True,
+            split_path=duplicate_split,
+            output_dir=tmp_path / "duplicate-output",
+            adapter=object(),
+            tokenizer=object(),
+            max_rows=2,
+            required_rows=2,
+            require_exact_rows=True,
+            require_unique_rows=True,
+        )
+
+
+def test_tensorboard_reporter_is_added_without_removing_existing_reporters():
+    assert _ensure_tensorboard_reporter("none") == "tensorboard"
+    assert _ensure_tensorboard_reporter("tensorboard") == "tensorboard"
+    assert _ensure_tensorboard_reporter(["wandb"]) == ["wandb", "tensorboard"]
 
 
 def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tmp_path, monkeypatch):

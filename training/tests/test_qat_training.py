@@ -405,6 +405,46 @@ def test_supported_qat_profiles_pass_static_validation(
     assert QATSpec.from_config(config).activation_bits == expected_activation_bits
 
 
+@pytest.mark.parametrize(
+    "config_name",
+    [
+        "gemma4_e2b_mobile_seed_ir_qat_sft.yaml",
+        "gemma3_270m_ir_qat_sft.yaml",
+        "functiongemma_270m_ir_qat_sft.yaml",
+    ],
+)
+def test_deployable_qat_profiles_use_exact_golden100_v5_4_tensorboard_eval(
+    config_name: str,
+):
+    config = load_yaml(ROOT / "configs" / "models" / config_name)
+    training = config["training"]
+    golden = config["golden_eval"]
+
+    assert training["report_to"] == "tensorboard"
+    assert training["logging_dir"].endswith("/tensorboard")
+    assert golden["enabled"] is True
+    assert golden["dataset_dir"] == "outputs/datasets/golden100_stage3_eval"
+    assert golden["max_rows"] == 100
+    assert golden["required_rows"] == 100
+    assert golden["require_exact_rows"] is True
+    assert golden["require_unique_rows"] is True
+    assert golden["trigger"] == "evaluate"
+    assert golden["interval"] == 1
+    assert golden["metric_version"] == "dual"
+    assert golden["metric_for_best_model"] == "generation_reward_v5_4_avg"
+    assert golden["tensorboard"] is True
+    assert golden["metric_log_prefix"] == "golden100"
+
+
+def test_golden100_preparation_config_fails_closed_on_count_and_identity():
+    config = load_yaml(ROOT / "configs" / "datasets" / "golden100_stage3_eval.yaml")
+
+    assert config["run"]["output_dir"] == "outputs/datasets/golden100_stage3_eval"
+    assert config["filters"]["required_accepted_rows"] == 100
+    assert config["filters"]["require_exact_accepted_rows"] is True
+    assert config["filters"]["require_unique_source_ids"] is True
+
+
 def test_gemma4_true_qat_keeps_peft_language_model_default_scope():
     config = load_yaml(
         ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"

@@ -28,6 +28,8 @@ training:
   save_steps: 500
   eval_steps: 500
   logging_steps: 20
+  report_to: tensorboard
+  logging_dir: runs/functiongemma_270m_ir_qat_sft/tensorboard
   save_total_limit: 2
   max_grad_norm: 1.0
   seed: 42
@@ -54,3 +56,27 @@ qat:
   effective_merged_weight: true
   final_quantization: dynamic_int8
   final_runtime_validation_required: true
+golden_eval:
+  enabled: true
+  # This directory must contain one immutable all.jsonl with exactly 100
+  # unique held-out rows. Training fails before step 1 if that contract is not met.
+  dataset_dir: outputs/datasets/golden100_stage3_eval
+  split: all
+  max_rows: 100
+  required_rows: 100
+  require_exact_rows: true
+  require_unique_rows: true
+  max_input_tokens: 3072
+  max_new_tokens: 1024
+  trigger: evaluate
+  interval: 1
+  metric_version: dual
+  metric_for_best_model: generation_reward_v5_4_avg
+  greater_is_better: true
+  save_best_checkpoint: true
+  best_checkpoint_dir: runs/functiongemma_270m_ir_qat_sft/best_golden_checkpoint
+  output_dir: outputs/eval/functiongemma_270m_ir_qat_sft/golden100
+  weights_config: ../dataset/configs/run.yaml
+  tensorboard: true
+  log_to_trainer: true
+  metric_log_prefix: golden100

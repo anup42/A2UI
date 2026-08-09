@@ -1190,7 +1190,7 @@ MTP will not improve IR quality. Accuracy work should focus on:
 - no reasoning traces or markdown fences in the target;
 - compact IR: avoid duplicate prose, expanded table cell trees, and unnecessary
   `sourceText`;
-- deterministic golden selection, never training on golden50;
+- deterministic Golden-100 selection, never training on the fixed evaluation set;
 - error mining by domain and renderer failure, followed by regeneration through
   Stage 3 rather than hand-editing generated IR;
 - optional later preference/RL work only with stable deterministic rewards and a
@@ -1202,6 +1202,41 @@ every unnecessary output token directly increases end-to-end latency. The
 current recommended profile allows 4096 input plus 4096 output for golden
 evaluation and uses a 4096 total SFT sequence; revisit these after inspecting
 actual truncation statistics.
+
+### Golden-100 evaluation and TensorBoard contract (2026-08-09)
+
+The deployable Gemma 4 E2B, Gemma 3 270M, and FunctionGemma 270M QAT SFT
+profiles run Golden-100 generation on every Hugging Face Trainer evaluation
+event (`trigger: evaluate`, `interval: 1`). This is a target-model quality gate,
+not a teacher-forced loss alias:
+
+- the prepared `all.jsonl` must contain exactly 100 unique held-out rows;
+- both dataset preparation and callback construction fail before training when
+  the row-count contract is not met;
+- the selected split SHA-256 and row count are recorded with every evaluation;
+- DDP ranks partition generation, then rank 0 scores and logs after gathering;
+- official `generation_reward_v5_4` supplies the headline 0-100 score, while
+  the artifact-only v5.4 value remains available as a diagnostic;
+- best-checkpoint selection uses `generation_reward_v5_4_avg`;
+- `Trainer.log` routes finite aggregates to the same TensorBoard event stream;
+  the stable headline tag is `eval/golden100/v5_4_score`.
+
+The checked-in repository has only the older 50-row fixed source. Never obtain
+Golden-100 by duplicating those rows or silently evaluating only 50. Supply a
+separate immutable held-out run and prepare it with:
+
+```powershell
+python training/scripts/prepare_dataset.py `
+  --config training/configs/datasets/golden100_stage3_eval.yaml `
+  --source-run-dir C:\path\to\immutable-golden100-run
+```
+
+The full autoregressive pass runs every `training.eval_steps`, so reducing that
+value materially increases evaluation time. The four-layer MTP drafter is not
+a standalone response-to-IR generator. Its checkpoint selection must continue
+to use drafter validation/acceptance metrics; target-plus-drafter v5.4 belongs
+in the separate end-to-end benchmark and must not be represented as a drafter
+training score.
 
 ## Required experiment matrix
 
@@ -1541,7 +1576,7 @@ W8 / activation-FP32 QAT SFT
   -> Android GPU validation
 ```
 
-The Gemma 3 270M training config now includes an explicit golden evaluation
+The Gemma 3 270M training config includes an exact Golden-100 v5.4 evaluation
 block and writes `runs/gemma3_270m_ir_qat_sft/best_golden_checkpoint`. The
 pipeline requires the package-matched `google/gemma-3-270m-it` base, requires
 W8 weight QAT with activation fake quantization disabled, and records

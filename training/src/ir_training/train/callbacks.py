@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import math
+import re
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Sequence
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.data.url_preprocess import restore_url_placeholders
@@ -34,22 +36,46 @@ def build_golden_set_eval_callback(
     adapter: Any,
     tokenizer: Any,
     max_rows: int = 50,
+    required_rows: int | None = None,
+    require_exact_rows: bool = False,
+    require_unique_rows: bool = False,
     max_input_tokens: int | None = None,
     max_new_tokens: int = 8192,
     weights_config_path: str | Path | None = None,
     baseline_aggregate_path: str | Path | None = None,
+    metric_version: str = "legacy",
     trigger: str = "epoch",
     interval: int = 1,
     metric_for_best_model: str = "overall_score",
     greater_is_better: bool = True,
     save_best_checkpoint: bool = True,
     best_checkpoint_dir: str | Path | None = None,
+    metric_logger: Callable[[dict[str, float]], Any] | None = None,
+    metric_log_prefix: str = "golden",
 ) -> Any | None:
     if not enabled:
         return None
     resolved_split = Path(split_path)
     if not resolved_split.exists():
         raise FileNotFoundError(f"Missing golden eval split: {resolved_split}")
+    resolved_max_rows = int(max_rows)
+    if resolved_max_rows < 1:
+        raise ValueError("golden_eval.max_rows must be at least 1.")
+    resolved_required_rows = int(required_rows) if required_rows is not None else None
+    if resolved_required_rows is not None and resolved_required_rows < 1:
+        raise ValueError("golden_eval.required_rows must be at least 1 when set.")
+    golden_rows = _load_fixed_golden_rows(
+        resolved_split,
+        max_rows=resolved_max_rows,
+        required_rows=resolved_required_rows,
+        require_exact_rows=bool(require_exact_rows),
+        require_unique_rows=bool(require_unique_rows),
+    )
+    golden_split_sha256 = hashlib.sha256(resolved_split.read_bytes()).hexdigest()
+    resolved_metric_version = str(metric_version).strip().lower() or "legacy"
+    if resolved_metric_version not in {"legacy", "v5_4", "dual"}:
+        raise ValueError("golden_eval.metric_version must be 'legacy', 'v5_4', or 'dual'.")
+    resolved_metric_log_prefix = _metric_prefix(metric_log_prefix)
     resolved_trigger = str(trigger).strip().lower()
     if resolved_trigger not in {"epoch", "evaluate"}:
         raise ValueError("golden_eval.trigger must be 'epoch' or 'evaluate'.")
@@ -103,9 +129,10 @@ def build_golden_set_eval_callback(
                     adapter=adapter,
                     split_path=resolved_split,
                     output_path=predictions_path,
-                    max_rows=max_rows,
+                    max_rows=resolved_max_rows,
                     max_input_tokens=max_input_tokens,
                     max_new_tokens=max_new_tokens,
+                    selected_rows=golden_rows,
                 )
                 if rank == 0:
                     aggregate = evaluate_predictions(
@@ -113,15 +140,25 @@ def build_golden_set_eval_callback(
                         output_dir=event_dir,
                         weights_config_path=weights_config_path,
                         baseline_aggregate_path=baseline_aggregate_path,
+                        metric_version=resolved_metric_version,
                     )
                     aggregate["epoch"] = getattr(state, "epoch", None)
                     aggregate["step"] = int(getattr(state, "global_step", 0) or 0)
                     aggregate["evaluation_event"] = self.evaluation_count
+                    aggregate["golden_set_rows"] = len(golden_rows)
+                    aggregate["golden_set_sha256"] = golden_split_sha256
                     aggregate_path = event_dir / "aggregate_metrics.json"
                     aggregate_path.write_text(
                         json.dumps(aggregate, indent=2, ensure_ascii=False),
                         encoding="utf-8",
                     )
+                    if metric_logger is not None:
+                        metric_logger(
+                            _golden_scalar_logs(
+                                aggregate,
+                                prefix=resolved_metric_log_prefix,
+                            )
+                        )
                     self._record_best_if_improved(
                         model=model,
                         state=state,
@@ -212,6 +249,7 @@ def _generate_predictions_with_model(
     max_rows: int,
     max_input_tokens: int | None,
     max_new_tokens: int,
+    selected_rows: Sequence[dict[str, Any]] | None = None,
 ) -> int:
     try:
         import torch  # type: ignore
@@ -223,10 +261,14 @@ def _generate_predictions_with_model(
     was_training = bool(getattr(model, "training", False))
     model.eval()
     rows_out: list[dict[str, Any]] = []
-    selected_rows = list(read_jsonl(split_path))[: max(0, int(max_rows))]
+    rows_for_eval = (
+        list(selected_rows)
+        if selected_rows is not None
+        else list(read_jsonl(split_path))[: max(0, int(max_rows))]
+    )
     try:
-        for idx in range(rank, len(selected_rows), world_size):
-            row = selected_rows[idx]
+        for idx in range(rank, len(rows_for_eval), world_size):
+            row = rows_for_eval[idx]
             prompt_text = adapter.format_example(row, tokenizer=tokenizer, include_assistant=False)
             tokenizer_kwargs: dict[str, Any] = {"return_tensors": "pt"}
             if max_input_tokens is not None and int(max_input_tokens) > 0:
@@ -259,6 +301,11 @@ def _generate_predictions_with_model(
                     "intent": row.get("intent") or metadata.get("intent"),
                     "intent_bucket": row.get("intent_bucket") or metadata.get("intent_bucket"),
                     "tags": row.get("tags") or metadata.get("tags"),
+                    "assets": row.get("assets") or [],
+                    "expected_ui_contract": row.get("expected_ui_contract"),
+                    "expected_ui_contract_source": row.get("expected_ui_contract_source"),
+                    "expected_ui_contract_v5_4": row.get("expected_ui_contract_v5_4"),
+                    "expected_ui_contract_v5_4_source": row.get("expected_ui_contract_v5_4_source"),
                     "response_text": restore_url_placeholders(_extract_user_text(row), url_map),
                     "expected": restore_url_placeholders(_extract_expected_completion(row), url_map),
                     "generated_text": generated,
@@ -277,6 +324,74 @@ def _generate_predictions_with_model(
     for row in gathered_rows:
         row.pop("_golden_index", None)
     return write_jsonl(output_path, gathered_rows)
+
+
+def _load_fixed_golden_rows(
+    split_path: Path,
+    *,
+    max_rows: int,
+    required_rows: int | None,
+    require_exact_rows: bool,
+    require_unique_rows: bool,
+) -> list[dict[str, Any]]:
+    all_rows = list(read_jsonl(split_path))
+    selected_rows = all_rows[:max_rows]
+    if required_rows is not None:
+        observed = len(all_rows) if require_exact_rows else len(selected_rows)
+        comparator = "exactly" if require_exact_rows else "at least"
+        row_count_invalid = (
+            observed != required_rows
+            if require_exact_rows
+            else observed < required_rows
+        )
+        if row_count_invalid:
+            raise ValueError(
+                f"Golden eval requires {comparator} {required_rows} valid rows, "
+                f"but {split_path} provides {observed}."
+            )
+        if len(selected_rows) != required_rows:
+            raise ValueError(
+                f"golden_eval.max_rows={max_rows} does not select the required "
+                f"{required_rows} rows from {split_path}."
+            )
+    if require_unique_rows:
+        identities = [_golden_row_identity(row, index) for index, row in enumerate(selected_rows)]
+        if len(set(identities)) != len(identities):
+            raise ValueError(f"Golden eval split contains duplicate row identities: {split_path}")
+    return selected_rows
+
+
+def _golden_row_identity(row: dict[str, Any], index: int) -> str:
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+    for value in (
+        row.get("source_id"),
+        row.get("response_id"),
+        row.get("id"),
+        metadata.get("query_id"),
+    ):
+        if value is not None and str(value).strip():
+            return str(value).strip()
+    return f"row-index:{index}"
+
+
+def _metric_prefix(value: str) -> str:
+    normalized = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value).strip()).strip("_")
+    return normalized or "golden"
+
+
+def _golden_scalar_logs(aggregate: dict[str, Any], *, prefix: str) -> dict[str, float]:
+    logs: dict[str, float] = {}
+    for key, value in aggregate.items():
+        if key in {"epoch", "step", "evaluation_event"} or isinstance(value, bool):
+            continue
+        parsed = _finite_float(value)
+        if parsed is None:
+            continue
+        logs[f"eval_{prefix}/{key}"] = parsed
+    v5_4_score = _finite_float(aggregate.get("generation_reward_v5_4_avg"))
+    if v5_4_score is not None:
+        logs[f"eval_{prefix}/v5_4_score"] = v5_4_score
+    return logs
 
 
 def _extract_user_text(row: dict[str, Any]) -> str:

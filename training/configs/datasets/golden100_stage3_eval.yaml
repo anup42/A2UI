@@ -1,0 +1,27 @@
+run:
+  id: golden100_stage3_eval
+  seed: 42
+  # Replace this with the dedicated, immutable held-out run containing the
+  # curated Golden-100. Do not point it at dataset_v1/v2/v3 training sources.
+  # The CLI --source-run-dir override is the recommended remote-machine path.
+  source_run_dir: ../dataset/data/runs/golden100_fixed_heldout
+  output_dir: outputs/datasets/golden100_stage3_eval
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1
+  schema_path: ../dataset/schema/genuicraft_a2ui_express_profile_v1.json
+  system_prompt: ""
+filters:
+  require_strict_express: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+  required_accepted_rows: 100
+  require_exact_accepted_rows: true
+  require_unique_source_ids: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 1.0
+  val: 0.0
+  test: 0.0
+  stratify_by: intent_bucket

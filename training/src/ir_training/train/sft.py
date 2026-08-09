@@ -188,6 +188,9 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         else "evaluation_strategy"
     )
     precision_flags = _training_precision_flags(resolved_dtype, training_cfg)
+    report_to = training_cfg.get("report_to", "none")
+    if bool(golden_eval_cfg.get("tensorboard", False)):
+        report_to = _ensure_tensorboard_reporter(report_to)
     training_args_kwargs = {
         "output_dir": str(output_dir),
         "num_train_epochs": float(training_cfg.get("epochs", 2)),
@@ -209,8 +212,11 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         "max_grad_norm": float(training_cfg.get("max_grad_norm", 1.0)),
         "seed": int(training_cfg.get("seed", run_cfg.get("seed", 42))),
         **precision_flags,
-        "report_to": training_cfg.get("report_to", "none"),
+        "report_to": report_to,
     }
+    logging_dir_value = training_cfg.get("logging_dir")
+    if logging_dir_value:
+        training_args_kwargs["logging_dir"] = str(resolve_path(logging_dir_value, base))
     if "warmup_steps" in training_cfg:
         training_args_kwargs["warmup_steps"] = int(training_cfg.get("warmup_steps", 0))
     else:
@@ -328,6 +334,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         tokenizer=tokenizer,
         model_cfg=model_cfg,
         training_cfg=training_cfg,
+        metric_logger=getattr(trainer, "log", None),
     )
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
@@ -2030,6 +2037,7 @@ def _build_optional_golden_callback(
     tokenizer: Any,
     model_cfg: dict[str, Any],
     training_cfg: dict[str, Any],
+    metric_logger: Any | None = None,
 ) -> Any | None:
     if not bool(golden_eval_cfg.get("enabled", False)):
         return None
@@ -2070,10 +2078,18 @@ def _build_optional_golden_callback(
         adapter=adapter,
         tokenizer=tokenizer,
         max_rows=int(golden_eval_cfg.get("max_rows", 50)),
+        required_rows=(
+            int(golden_eval_cfg["required_rows"])
+            if golden_eval_cfg.get("required_rows") is not None
+            else None
+        ),
+        require_exact_rows=bool(golden_eval_cfg.get("require_exact_rows", False)),
+        require_unique_rows=bool(golden_eval_cfg.get("require_unique_rows", False)),
         max_input_tokens=max_input_tokens,
         max_new_tokens=max_new_tokens,
         weights_config_path=resolve_path(weights_config_path, base) if weights_config_path else None,
         baseline_aggregate_path=resolve_path(baseline_aggregate_path, base) if baseline_aggregate_path else None,
+        metric_version=str(golden_eval_cfg.get("metric_version", "legacy")),
         trigger=str(golden_eval_cfg.get("trigger", "epoch")),
         interval=int(golden_eval_cfg.get("interval", 1)),
         metric_for_best_model=str(golden_eval_cfg.get("metric_for_best_model", "overall_score")),
@@ -2084,4 +2100,26 @@ def _build_optional_golden_callback(
             if best_checkpoint_dir_value
             else output_dir / "best_golden_checkpoint"
         ),
+        metric_logger=metric_logger if bool(golden_eval_cfg.get("log_to_trainer", True)) else None,
+        metric_log_prefix=str(golden_eval_cfg.get("metric_log_prefix", "golden")),
     )
+
+
+def _ensure_tensorboard_reporter(value: Any) -> Any:
+    if value is None:
+        return "tensorboard"
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"", "none"}:
+            return "tensorboard"
+        if normalized == "all" or "tensorboard" in {
+            item.strip().lower() for item in value.split(",") if item.strip()
+        }:
+            return value
+        return [value, "tensorboard"]
+    if isinstance(value, (list, tuple, set)):
+        reporters = list(value)
+        if not any(str(item).strip().lower() in {"all", "tensorboard"} for item in reporters):
+            reporters.append("tensorboard")
+        return reporters
+    return [value, "tensorboard"]

@@ -2,6 +2,7 @@
 
 import json
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,12 @@ def score_prediction(
     expected: Any | None,
     generated_text: str,
     repaired_generated_text: str | None = None,
+    *,
+    metric_version: str | None = None,
+    intent: str | None = None,
+    assets: Any = None,
+    expected_ui_contract: Mapping[str, Any] | None = None,
+    expected_ui_contract_source: str | None = None,
 ) -> dict[str, Any]:
     dataset_src = Path(__file__).resolve().parents[4] / "dataset" / "src"
     if str(dataset_src) not in sys.path:
@@ -118,6 +125,17 @@ def score_prediction(
     elif expected is not None:
         metrics["exact_match"] = False
         metrics["semantic_match"] = False
+    if _uses_v5_4(metric_version):
+        metrics.update(
+            _score_prediction_v5_4(
+                response_text=response_text,
+                generated_text=generated_text,
+                intent=intent,
+                assets=assets,
+                expected_ui_contract=expected_ui_contract,
+                expected_ui_contract_source=expected_ui_contract_source,
+            )
+        )
     return metrics
 
 
@@ -145,6 +163,25 @@ def aggregate_scores(
             continue
         suffix = _aggregate_suffix(key)
         out[f"{key}{suffix}"] = sum(values) / len(values)
+    # Keep the established ``*_avg`` aggregate fields while also exposing the
+    # two v5.4 headline values under their official metric names.  The latter
+    # are intentionally scalar so training/TensorBoard integrations do not
+    # need to unpack a reward breakdown.
+    for key in ("generation_reward_v5_4", "render_artifact_quality_v5_4"):
+        average = out.get(f"{key}_avg")
+        if average is not None:
+            out[key] = average
+    v5_4_identities = [
+        row.get("metrics", {}).get("metric_identity_v5_4")
+        for row in rows
+        if isinstance(row.get("metrics"), dict)
+        and isinstance(row.get("metrics", {}).get("metric_identity_v5_4"), dict)
+    ]
+    if v5_4_identities:
+        out["metric_identity_v5_4"] = dict(v5_4_identities[0])
+        out["genui_metric_version"] = str(
+            v5_4_identities[0].get("metric_version") or "5.4.0"
+        )
     if weights:
         out["overall_score"] = compute_training_overall_score(out, weights)
         out["overall_score_weights"] = weights
@@ -218,6 +255,53 @@ def _dataset_compute_overall_score(aggregate: dict[str, Any], weights: dict[str,
         return float(compute_overall_score(aggregate, weights))
     except Exception:
         return None
+
+
+def _uses_v5_4(metric_version: str | None) -> bool:
+    return str(metric_version or "").strip().casefold() in {"v5_4", "dual"}
+
+
+def _score_prediction_v5_4(
+    *,
+    response_text: str,
+    generated_text: str,
+    intent: str | None,
+    assets: Any,
+    expected_ui_contract: Mapping[str, Any] | None,
+    expected_ui_contract_source: str | None,
+) -> dict[str, Any]:
+    """Run the official v5.4 generation scorer and retain its artifact score."""
+    dataset_src = Path(__file__).resolve().parents[4] / "dataset" / "src"
+    if str(dataset_src) not in sys.path:
+        sys.path.insert(0, str(dataset_src))
+    from pipeline.genui_quality import generation_reward_v5_4  # type: ignore
+
+    kwargs = {
+        "intent": intent,
+        "assets": assets,
+        "expected_ui_contract": expected_ui_contract,
+        "expected_ui_contract_source": expected_ui_contract_source,
+    }
+    generation = generation_reward_v5_4(
+        generated_text,
+        response_text,
+        **kwargs,
+    )
+    identity = {
+        "metric_version": generation.metric_version,
+        "metric_name": generation.metric_name,
+        "metric_fingerprint": generation.metric_fingerprint,
+        "reward_pipeline_fingerprint": generation.reward_pipeline_fingerprint,
+        **generation.identity,
+    }
+    return {
+        "generation_reward_v5_4": float(generation.quality_0_100),
+        # The generation breakdown already contains the artifact-only result;
+        # reuse it so every Golden-100 eval performs one v5.4 scoring pass.
+        "render_artifact_quality_v5_4": float(generation.artifact_quality_0_100),
+        "metric_identity_v5_4": identity,
+        "genui_metric_version": generation.metric_version,
+    }
 
 
 def _aggregate_suffix(key: str) -> str:

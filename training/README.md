@@ -82,6 +82,38 @@ promotion gates before using it:
 - `training/docs/gemma4_e2b_qat_mtp_knowledge.md`
 - `docs/gemma4_e2b_qat_mtp_implementation_prompt.md`
 
+The deployable Gemma 4 E2B and Gemma 3/FunctionGemma 270M QAT profiles run an
+exact, immutable Golden-100 generation test at every configured Trainer
+evaluation event. The repository intentionally does not turn the existing
+Golden-50 into a synthetic Golden-100. Prepare a separate held-out source with
+exactly 100 unique accepted rows:
+
+```powershell
+python training/scripts/prepare_dataset.py `
+  --config training/configs/datasets/golden100_stage3_eval.yaml `
+  --source-run-dir C:\path\to\immutable-golden100-run
+```
+
+Preparation and training both fail closed unless the split contains exactly
+100 unique rows. At every `training.eval_steps`, the callback generates all 100
+predictions, writes the step artifacts under
+`training/outputs/eval/<run-id>/golden100/step_*`, computes the official GenUI
+Representation Quality v5.4 generation score, and selects the best adapter by
+`generation_reward_v5_4_avg`. It logs all finite Golden-100 aggregates through
+`Trainer.log`; the headline TensorBoard tag is
+`eval/golden100/v5_4_score`. Start TensorBoard with:
+
+```powershell
+tensorboard --logdir training/runs
+```
+
+This full autoregressive Golden-100 pass pauses training and can be expensive;
+`eval_steps` controls frequency. It applies to the response-to-IR target SFT.
+The MTP drafter is not a standalone response-to-IR model, so its training loop
+continues to use drafter validation loss and separate target-plus-assistant
+acceptance/latency benchmarks rather than mislabeling target quality as a
+drafter v5.4 score.
+
 Install the current Gemma 4 dependency overlay and run the no-model static
 preflight:
 
