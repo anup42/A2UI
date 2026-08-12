@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import sys
 from pathlib import Path
@@ -14,6 +15,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import build_checkpoint_official_topology as topology
 import pytest
 import reconstruct_gemma4_mobile_training_seed as reconstruction
+import validate_gemma4_mobile_scale_preserving_qat as scale_validator
 from ir_training.common.config import load_yaml
 from ir_training.export import merge_lora
 from ir_training.models import base as model_base
@@ -25,6 +27,128 @@ from ir_training.train.sft import train_sft
 def _bf16_bytes_to_float32(raw: bytes) -> np.ndarray:
     words = np.frombuffer(raw, dtype="<u2").astype("<u4") << np.uint32(16)
     return words.view("<f4")
+
+
+@pytest.mark.parametrize(
+    ("bits", "raw", "expected"),
+    [
+        (2, bytes([0b11100100]), [-2, -1, 0, 1]),
+        (4, bytes([0xF0, 0x87]), [-8, 7, -1, 0]),
+        (8, bytes([0x80, 0xFF, 0x00, 0x7F]), [-128, -1, 0, 127]),
+    ],
+)
+def test_strict_validator_decodes_published_offset_codes(
+    bits, raw, expected
+):
+    np.testing.assert_array_equal(
+        scale_validator._unpack_codes(raw, bits, len(expected)),
+        np.asarray(expected, dtype=np.int8),
+    )
+
+
+def test_strict_validator_checks_materialized_seed_against_source_codes_and_scales():
+    packed = bytes([0b11100100])
+    scale_bytes = np.asarray([[0.5]], dtype="<f4").tobytes()
+    transform = reconstruction.TensorTransform(
+        output_key="model.layers.0.self_attn.q_proj.weight",
+        output_shape=(1, 4),
+        output_dtype="BF16",
+        source_key="packed.q_proj",
+        source_dtype="U8",
+        source_shape=(1, 1),
+        source_begin=0,
+        source_end=1,
+        transform="dequantize_w2_to_bf16_rne",
+        bits=2,
+        scale_key="packed.q_proj_scale",
+        scale_shape=(1, 1),
+        scale_begin=1,
+        scale_end=5,
+        scale_group_width=4,
+    )
+    dense = np.asarray([[-1.0, -0.5, 0.0, 0.5]], dtype=np.float32)
+
+    exact = scale_validator._validate_materialized_projection(
+        io.BytesIO(packed + scale_bytes),
+        transform,
+        dense=dense,
+        sidecar_scales=np.asarray([[0.5]], dtype=np.float32),
+        working_set_bytes=1024,
+    )
+    assert exact["mismatch_count"] == 0
+    assert exact["sidecar_source_scale_bytes_exact"] is True
+    assert exact["code_histogram_preserved"] is True
+
+    tampered = scale_validator._validate_materialized_projection(
+        io.BytesIO(packed + scale_bytes),
+        transform,
+        dense=dense,
+        sidecar_scales=np.asarray([[0.25]], dtype=np.float32),
+        working_set_bytes=1024,
+    )
+    assert tampered["sidecar_source_scale_bytes_exact"] is False
+    assert tampered["mismatch_count"] > 0
+
+
+def test_strict_validator_binds_both_activation_scale_bytes_to_source():
+    input_raw = np.asarray([0.125], dtype="<f4").tobytes()
+    output_raw = np.asarray([0.25], dtype="<f4").tobytes()
+    transform = reconstruction.TensorTransform(
+        output_key="model.layers.0.self_attn.q_proj.weight",
+        output_shape=(1, 4),
+        output_dtype="BF16",
+        source_key="model.language_model.layers.0.self_attn.q_proj.weight",
+        source_dtype="U8",
+        source_shape=(1, 1),
+        source_begin=0,
+        source_end=1,
+        transform="dequantize_w2_to_bf16_rne",
+        bits=2,
+        scale_key="source_scale",
+        scale_shape=(1, 1),
+        scale_begin=1,
+        scale_end=5,
+        scale_group_width=4,
+    )
+    stem = transform.source_key[: -len(".weight")]
+    header = {
+        f"{stem}.input_activation_scale": {
+            "dtype": "F32",
+            "shape": [],
+            "data_offsets": [0, 4],
+        },
+        f"{stem}.output_activation_scale": {
+            "dtype": "F32",
+            "shape": [1],
+            "data_offsets": [4, 8],
+        },
+    }
+    inventory = {
+        "input_activation_scale_f32_le_hex": input_raw.hex(),
+        "output_activation_scale_f32_le_hex": output_raw.hex(),
+    }
+
+    exact = scale_validator._validate_source_activation_scales(
+        io.BytesIO(input_raw + output_raw),
+        transform,
+        header=header,
+        data_start=0,
+        file_size=8,
+        inventory_entry=inventory,
+    )
+    assert all(exact.values())
+
+    inventory["output_activation_scale_f32_le_hex"] = input_raw.hex()
+    tampered = scale_validator._validate_source_activation_scales(
+        io.BytesIO(input_raw + output_raw),
+        transform,
+        header=header,
+        data_start=0,
+        file_size=8,
+        inventory_entry=inventory,
+    )
+    assert tampered["input_activation_scale_source_bytes_exact"] is True
+    assert tampered["output_activation_scale_source_bytes_exact"] is False
 
 
 def test_mobile_seed_dequantization_applies_low_bit_offsets_and_grouped_scales():
@@ -79,6 +203,50 @@ def test_mobile_seed_transform_rules_omit_shared_kv_duplicates():
     assert reconstruction._output_key(
         "model.language_model.layers.14.self_attn.k_proj.weight"
     ) == "model.layers.14.self_attn.k_proj.weight"
+
+
+def test_mobile_qparams_inventory_distinguishes_per_row_from_grouped_scales():
+    projection = reconstruction.TensorTransform(
+        output_key="model.layers.0.self_attn.q_proj.weight",
+        output_shape=(3, 1536),
+        output_dtype="BF16",
+        source_key="packed.q_proj",
+        source_dtype="U8",
+        source_shape=(3, 768),
+        source_begin=0,
+        source_end=2304,
+        transform="dequantize_w4_to_bf16_rne",
+        bits=4,
+        scale_key="packed.q_proj_scale",
+        scale_shape=(3, 1),
+        scale_begin=2304,
+        scale_end=2316,
+        scale_group_width=1536,
+    )
+    grouped_embedding = reconstruction.TensorTransform(
+        output_key="model.embed_tokens_per_layer.weight",
+        output_shape=(4, 512),
+        output_dtype="BF16",
+        source_key="packed.embedding",
+        source_dtype="U8",
+        source_shape=(4, 256),
+        source_begin=0,
+        source_end=1024,
+        transform="dequantize_w4_to_bf16_rne",
+        bits=4,
+        scale_key="packed.embedding_scale",
+        scale_shape=(4, 2),
+        scale_begin=1024,
+        scale_end=1056,
+        scale_group_width=256,
+    )
+
+    inventory = reconstruction._qparams_inventory(
+        (projection, grouped_embedding)
+    )
+
+    assert inventory[projection.output_key]["group_size"] is None
+    assert inventory[grouped_embedding.output_key]["group_size"] == 256
 
 
 def test_mobile_seed_streaming_writer_emits_valid_atomic_safetensors(tmp_path):

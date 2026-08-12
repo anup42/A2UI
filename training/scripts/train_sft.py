@@ -18,6 +18,14 @@ from ir_training.train.sft import train_sft
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train a response-to-IR SFT adapter.")
     parser.add_argument("--config", required=True, help="Path to model training YAML config.")
+    parser.add_argument(
+        "--preflight-only",
+        action="store_true",
+        help=(
+            "Load the real model/dataset, run QAT-off versus zero-adapter QAT-on "
+            "numeric gates, then exit without constructing an optimizer or training."
+        ),
+    )
     args = parser.parse_args()
     configure_logging()
     config_path = Path(args.config).resolve()
@@ -26,7 +34,11 @@ def main() -> None:
     cuda_visible_devices = normalize_cuda_visible_devices()
     print(f"CUDA_VISIBLE_DEVICES={cuda_visible_devices}", flush=True)
     _print_launch_rank()
-    result = train_sft(config, config_path=config_path)
+    result = train_sft(
+        config,
+        config_path=config_path,
+        preflight_only=bool(args.preflight_only),
+    )
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 

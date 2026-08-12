@@ -361,6 +361,191 @@ def _load_fixed_golden_rows(
     return selected_rows
 
 
+def build_checkpoint_provenance_callback(
+    *,
+    output_dir: str | Path,
+    metadata: dict[str, Any],
+    config_path: str | Path | None = None,
+    golden_summary_provider: Callable[[], dict[str, Any] | None] | None = None,
+) -> Any:
+    """Write self-contained provenance into every Trainer checkpoint.
+
+    Interrupted runs must remain diagnosable and must not depend on metadata
+    written only after ``trainer.train()`` completes. The callback runs after
+    each successful Trainer save on world process zero and binds the adapter
+    bytes in that exact checkpoint.
+    """
+
+    try:
+        from transformers import TrainerCallback  # type: ignore
+    except Exception as exc:  # pragma: no cover - training dependency path
+        raise RuntimeError(
+            "Install training/requirements-training.txt before training."
+        ) from exc
+
+    resolved_output = Path(output_dir)
+    resolved_config = Path(config_path) if config_path is not None else None
+
+    class CheckpointProvenanceCallback(TrainerCallback):  # type: ignore[misc]
+        def on_save(
+            self,
+            args: Any,
+            state: Any,
+            control: Any,
+            **kwargs: Any,
+        ) -> Any:
+            if getattr(state, "is_world_process_zero", True) is False:
+                return control
+            step = int(getattr(state, "global_step", 0) or 0)
+            checkpoint_dir = resolved_output / f"checkpoint-{step}"
+            if not checkpoint_dir.is_dir():
+                raise RuntimeError(
+                    "Trainer on_save fired before checkpoint materialization: "
+                    f"{checkpoint_dir}"
+                )
+            payload = json.loads(json.dumps(metadata, ensure_ascii=False))
+            payload.update(
+                {
+                    "checkpoint_step": step,
+                    "checkpoint_epoch": _finite_float(
+                        getattr(state, "epoch", None)
+                    ),
+                    "last_trainer_log": (
+                        dict(state.log_history[-1])
+                        if getattr(state, "log_history", None)
+                        else None
+                    ),
+                }
+            )
+            if golden_summary_provider is not None:
+                golden_summary = golden_summary_provider()
+                if golden_summary is not None:
+                    payload["best_golden_eval"] = golden_summary
+            _write_checkpoint_provenance(
+                checkpoint_dir,
+                role="trainer_intermediate",
+                payload=payload,
+            )
+            if resolved_config is not None and resolved_config.is_file():
+                _atomic_copy_file(
+                    resolved_config,
+                    checkpoint_dir / "training_config.yaml",
+                )
+            # Golden evaluation precedes Trainer saving when eval_steps and
+            # save_steps coincide. Mirror self-bound provenance immediately so
+            # an interrupted run never leaves its selected adapter anonymous.
+            golden_summary = payload.get("best_golden_eval")
+            best_dir_value = (
+                golden_summary.get("checkpoint_dir")
+                if isinstance(golden_summary, dict)
+                else None
+            )
+            if best_dir_value:
+                best_dir = Path(str(best_dir_value))
+                if best_dir.is_dir():
+                    best_payload = json.loads(
+                        json.dumps(payload, ensure_ascii=False)
+                    )
+                    best_payload["checkpoint_step"] = int(
+                        golden_summary.get("step", step) or step
+                    )
+                    best_payload["checkpoint_epoch"] = _finite_float(
+                        golden_summary.get("epoch")
+                    )
+                    _write_checkpoint_provenance(
+                        best_dir,
+                        role="best_golden",
+                        payload=best_payload,
+                    )
+                    if resolved_config is not None and resolved_config.is_file():
+                        _atomic_copy_file(
+                            resolved_config,
+                            best_dir / "training_config.yaml",
+                        )
+            return control
+
+    return CheckpointProvenanceCallback()
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _checkpoint_adapter_manifest(
+    checkpoint_dir: Path, *, role: str
+) -> dict[str, Any]:
+    adapter_files = sorted(
+        candidate
+        for candidate in checkpoint_dir.glob("adapter*")
+        if candidate.is_file()
+    )
+    if not adapter_files:
+        raise RuntimeError(
+            f"Saved checkpoint has no local adapter files: {checkpoint_dir}"
+        )
+    return {
+        "role": role,
+        "path": str(checkpoint_dir),
+        "files": [
+            {
+                "path": candidate.name,
+                "size": int(candidate.stat().st_size),
+                "sha256": _sha256_file(candidate),
+            }
+            for candidate in adapter_files
+        ],
+    }
+
+
+def _write_checkpoint_provenance(
+    checkpoint_dir: Path,
+    *,
+    role: str,
+    payload: dict[str, Any],
+) -> None:
+    manifest = _checkpoint_adapter_manifest(checkpoint_dir, role=role)
+    materialized = json.loads(json.dumps(payload, ensure_ascii=False))
+    materialized.update(
+        {
+            "checkpoint_role": role,
+            "checkpoint_dir": str(checkpoint_dir),
+            "adapter_checkpoints": [manifest],
+            # Retain the earlier diagnostic view while using the canonical
+            # adapter_checkpoints schema consumed by merge verification.
+            "checkpoint_adapter_files": [
+                {
+                    "path": item["path"],
+                    "size_bytes": item["size"],
+                    "sha256": item["sha256"],
+                }
+                for item in manifest["files"]
+            ],
+        }
+    )
+    _atomic_write_json(
+        checkpoint_dir / "training_metadata.json", materialized
+    )
+
+
+def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
+    temporary = path.with_name(path.name + ".partial")
+    temporary.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+
+
+def _atomic_copy_file(source: Path, destination: Path) -> None:
+    temporary = destination.with_name(destination.name + ".partial")
+    shutil.copy2(source, temporary)
+    temporary.replace(destination)
+
+
 def _golden_row_identity(row: dict[str, Any], index: int) -> str:
     metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
     for value in (

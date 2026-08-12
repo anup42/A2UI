@@ -256,6 +256,12 @@ val syncIntentFixtures by tasks.registering(Copy::class) {
 android {
     namespace = "com.samsung.genuicraft"
     compileSdk = 35
+    // Keep ordinary instrumentation on debug, but allow the model handoff
+    // gate to target the credential-free, data-isolated judgeCapture package:
+    //   gradlew -PandroidTestBuildType=judgeCapture ...
+    testBuildType = providers.gradleProperty("androidTestBuildType")
+        .orElse("debug")
+        .get()
 
     defaultConfig {
         applicationId = "com.samsung.genuicraft"

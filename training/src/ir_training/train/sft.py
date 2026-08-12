@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import json
+import math
 import shutil
 from collections.abc import Callable
 from pathlib import Path
@@ -20,12 +22,18 @@ from ir_training.qat.workflow import validate_qat_config
 from ir_training.qat_mtp.workflow import validate_training_config
 from ir_training.train.callbacks import (
     TrainingMetadataCallback,
+    build_checkpoint_provenance_callback,
     build_golden_set_eval_callback,
 )
 from ir_training.train.lora_config import build_lora_config
 
 
-def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[str, Any]:
+def train_sft(
+    config: dict[str, Any],
+    config_path: Path | None = None,
+    *,
+    preflight_only: bool = False,
+) -> dict[str, Any]:
     _stabilize_torch_runtime()
     run_cfg = config.get("run") if isinstance(config.get("run"), dict) else {}
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
@@ -35,6 +43,11 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
     qat_cfg = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
+    # Validate an explicitly bounded run before loading multi-gigabyte model
+    # artifacts. Invalid max_steps must not silently fall back to epochs.
+    training_limit = _training_limit_config(training_cfg)
+    if bool(golden_eval_cfg.get("enabled", False)):
+        _validate_bounded_eval_save_cadence(training_cfg, training_limit)
     base = training_root()
     mobile_training_seed = verify_configured_mobile_training_seed(
         model_cfg,
@@ -127,19 +140,6 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     _disable_model_cache_for_training(model)
     _enable_input_grads_for_kbit_lora(model)
     qat_controller: QATController | None = None
-    if qat_cfg.get("enabled", False):
-        # Prepare after PEFT wrapping so each targeted projection can
-        # fake-quantize base_weight + LoRA_delta. This matches the matrix that
-        # merge_and_unload later sends to the LiteRT/LiteRT-LM quantizer.
-        qat_controller = prepare_qat_model(model, config)
-        print(
-            "True QAT enabled: "
-            f"wrapped {qat_controller.wrapped_count} base quantized modules "
-            f"({qat_controller.wrapped_effective_lora_count} effective LoRA weights) "
-            f"with W{qat_controller.spec.weight_bits}A{qat_controller.spec.activation_bits} "
-            "STE fake quantization.",
-            flush=True,
-        )
     _align_tokenizer_and_model(tokenizer, model)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="after LoRA wrapping")
     input_vocab_size = _require_model_input_vocab_size(model)
@@ -193,7 +193,6 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         report_to = _ensure_tensorboard_reporter(report_to)
     training_args_kwargs = {
         "output_dir": str(output_dir),
-        "num_train_epochs": float(training_cfg.get("epochs", 2)),
         "learning_rate": float(training_cfg.get("learning_rate", 2e-4)),
         "weight_decay": float(training_cfg.get("weight_decay", 0.0)),
         "per_device_train_batch_size": int(training_cfg.get("per_device_train_batch_size", 1)),
@@ -214,6 +213,7 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
         **precision_flags,
         "report_to": report_to,
     }
+    _apply_training_limit_to_args(training_args_kwargs, training_limit)
     logging_dir_value = training_cfg.get("logging_dir")
     if logging_dir_value:
         training_args_kwargs["logging_dir"] = str(resolve_path(logging_dir_value, base))
@@ -273,6 +273,11 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     args = args_cls(**training_args_kwargs)
 
     if trainer_backend == "trl":
+        if qat_cfg.get("enabled", False):
+            raise ValueError(
+                "Fail-closed retained-scale QAT preflight requires the default "
+                "HF Trainer backend; TRL is not supported for this profile."
+            )
         trainer_kwargs = {
             "model": model,
             "train_dataset": dataset["train"],
@@ -297,15 +302,125 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
             label_vocab_size=label_vocab_size,
             max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         )
-        _run_forward_smoke_check(
+        preflight_cfg = (
+            config.get("preflight")
+            if isinstance(config.get("preflight"), dict)
+            else {}
+        )
+        zero_adapter_initialization = _verify_zero_lora_initialization(model)
+        if (
+            qat_cfg.get("enabled", False)
+            and preflight_cfg.get("require_zero_adapter_parity") is True
+            and not zero_adapter_initialization["verified_zero_delta"]
+        ):
+            raise RuntimeError(
+                "Fresh retained-scale QAT requires an exactly zero LoRA delta "
+                "before the baseline probe; nonzero/invalid adapter pairs: "
+                + ", ".join(
+                    zero_adapter_initialization["nonzero_or_invalid_pairs"][:20]
+                )
+            )
+        gate_rows = int(
+            preflight_cfg.get(
+                "rows", training_cfg.get("forward_smoke_check_rows", 1)
+            )
+        )
+        baseline_numeric_report = _run_forward_numeric_gate(
             model=model,
             split=tokenized_dataset["train"],
             tokenizer=tokenizer,
             input_vocab_size=input_vocab_size,
             label_vocab_size=label_vocab_size,
             max_position_embeddings=max_position_embeddings,
-            max_rows=int(training_cfg.get("forward_smoke_check_rows", 1)),
+            max_rows=gate_rows,
+            logit_probe_tokens=int(preflight_cfg.get("logit_probe_tokens", 16)),
+            label="baseline_qat_off",
         )
+        baseline_greedy_report = _run_deterministic_greedy_gate(
+            model=model,
+            split=sft_text_dataset["train"],
+            tokenizer=tokenizer,
+            max_position_embeddings=min(
+                max_seq_length,
+                max_position_embeddings or max_seq_length,
+            ),
+            max_rows=int(preflight_cfg.get("greedy_probe_rows", 1)),
+            max_new_tokens=int(
+                preflight_cfg.get("greedy_probe_new_tokens", 32)
+            ),
+            min_new_tokens=int(preflight_cfg.get("min_greedy_tokens", 8)),
+            repeats=1,
+            label="baseline_qat_off",
+        )
+        if qat_cfg.get("enabled", False):
+            # The same completion rows are measured before and after binding
+            # retained scales. Any catastrophic zero-adapter change stops the
+            # run before Trainer/optimizer construction.
+            qat_controller = prepare_qat_model(model, config)
+            print(
+                "True QAT enabled: "
+                f"wrapped {qat_controller.wrapped_count} modules "
+                f"({qat_controller.wrapped_effective_lora_count} effective LoRA weights) "
+                f"using {qat_controller.spec.scale_mode} scales and "
+                f"{qat_controller.spec.ste_gradient} STE.",
+                flush=True,
+            )
+        qat_numeric_report = _run_forward_numeric_gate(
+            model=model,
+            split=tokenized_dataset["train"],
+            tokenizer=tokenizer,
+            input_vocab_size=input_vocab_size,
+            label_vocab_size=label_vocab_size,
+            max_position_embeddings=max_position_embeddings,
+            max_rows=gate_rows,
+            logit_probe_tokens=int(preflight_cfg.get("logit_probe_tokens", 16)),
+            label="zero_adapter_qat_on" if qat_controller else "qat_disabled",
+        )
+        qat_greedy_report = _run_deterministic_greedy_gate(
+            model=model,
+            split=sft_text_dataset["train"],
+            tokenizer=tokenizer,
+            max_position_embeddings=min(
+                max_seq_length,
+                max_position_embeddings or max_seq_length,
+            ),
+            max_rows=int(preflight_cfg.get("greedy_probe_rows", 1)),
+            max_new_tokens=int(
+                preflight_cfg.get("greedy_probe_new_tokens", 32)
+            ),
+            min_new_tokens=int(preflight_cfg.get("min_greedy_tokens", 8)),
+            repeats=2 if qat_controller is not None else 1,
+            label="zero_adapter_qat_on" if qat_controller else "qat_disabled",
+        )
+        numeric_preflight_report = _compare_initial_numeric_reports(
+            baseline_numeric_report,
+            qat_numeric_report,
+            preflight_cfg=preflight_cfg,
+            qat_enabled=qat_controller is not None,
+        )
+        numeric_preflight_report["zero_adapter_initialization"] = (
+            zero_adapter_initialization
+        )
+        numeric_preflight_report["greedy_generation"] = (
+            _compare_initial_greedy_reports(
+                baseline_greedy_report,
+                qat_greedy_report,
+                preflight_cfg=preflight_cfg,
+                qat_enabled=qat_controller is not None,
+            )
+        )
+        if preflight_only:
+            if qat_controller is not None:
+                qat_controller.restore()
+            return {
+                "preflight_only": True,
+                "passed": True,
+                "mobile_training_seed": mobile_training_seed,
+                "mobile_seed_architecture": mobile_seed_architecture,
+                "qat": qat_controller.summary() if qat_controller else {},
+                "numeric_preflight": numeric_preflight_report,
+                "training_executed": False,
+            }
         checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer, training_cfg)
         trainer_params = inspect.signature(Trainer.__init__).parameters
         trainer_kwargs = {
@@ -339,6 +454,45 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
 
+    checkpoint_provenance = {
+        "training_metadata_version": 4,
+        "run_id": run_cfg.get("id", output_dir.name),
+        "model": model_cfg,
+        "training": training_cfg,
+        "training_limit": training_limit,
+        "lora": lora_cfg,
+        "golden_eval": golden_eval_cfg,
+        "qat": qat_controller.summary() if qat_controller is not None else {},
+        "qat_mtp": qat_mtp_cfg,
+        "mobile_training_seed": mobile_training_seed,
+        "mobile_seed_architecture": mobile_seed_architecture,
+        "numeric_preflight": locals().get("numeric_preflight_report"),
+        "dataset_dir": str(dataset_dir),
+        "git_commit": current_commit(repo_root()),
+        "launcher_provenance": {
+            name: _optional_file_identity(run_cfg.get(config_key), base=base)
+            for name, config_key in (
+                ("launch_plan", "launch_plan_path"),
+                ("preflight_report", "preflight_report_path"),
+            )
+        },
+    }
+    if config_path is not None:
+        checkpoint_provenance["config_path"] = str(config_path)
+        checkpoint_provenance["training_config_sha256"] = hashlib.sha256(
+            config_path.read_bytes()
+        ).hexdigest()
+    trainer.add_callback(
+        build_checkpoint_provenance_callback(
+            output_dir=output_dir,
+            metadata=checkpoint_provenance,
+            config_path=config_path,
+            golden_summary_provider=(
+                golden_callback.summary if golden_callback is not None else None
+            ),
+        )
+    )
+
     try:
         trainer.train()
     finally:
@@ -350,29 +504,13 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     final_adapter = output_dir / "final_adapter"
     golden_summary = None
     metadata = {
-        "training_metadata_version": 4,
-        "run_id": run_cfg.get("id", output_dir.name),
-        "model": model_cfg,
-        "training": training_cfg,
-        "lora": lora_cfg,
-        "golden_eval": golden_eval_cfg,
-        "qat": qat_controller.summary() if qat_controller is not None else {},
-        "qat_mtp": qat_mtp_cfg,
-        "mobile_training_seed": mobile_training_seed,
-        "mobile_seed_architecture": mobile_seed_architecture,
-        "dataset_dir": str(dataset_dir),
+        **checkpoint_provenance,
         "final_adapter": str(final_adapter),
-        "git_commit": current_commit(repo_root()),
     }
     if golden_callback is not None and hasattr(golden_callback, "summary"):
         golden_summary = golden_callback.summary()
         if golden_summary is not None:
             metadata["best_golden_eval"] = golden_summary
-    if config_path is not None:
-        metadata["config_path"] = str(config_path)
-        metadata["training_config_sha256"] = hashlib.sha256(
-            config_path.read_bytes()
-        ).hexdigest()
     if _trainer_is_world_process_zero(trainer):
         trainer.model.save_pretrained(str(final_adapter))
         tokenizer.save_pretrained(str(final_adapter))
@@ -397,12 +535,91 @@ def train_sft(config: dict[str, Any], config_path: Path | None = None) -> dict[s
     return metadata
 
 
+def _training_limit_config(training_cfg: dict[str, Any]) -> dict[str, Any]:
+    """Resolve an optional exact optimizer-step limit without epoch fallback.
+
+    ``bool`` is deliberately rejected even though it is a Python ``int``
+    subclass. A malformed bounded-run value must never turn into one step or
+    silently fall back to epoch-based training.
+    """
+
+    max_optimizer_steps: int | None = None
+    if "max_steps" in training_cfg:
+        configured = training_cfg.get("max_steps")
+        if type(configured) is not int or configured <= 0:
+            raise ValueError(
+                "training.max_steps must be a positive integer optimizer-step "
+                "limit; booleans, zero, negative, fractional, and string "
+                "values are not accepted."
+            )
+        max_optimizer_steps = configured
+    return {
+        "mode": (
+            "max_optimizer_steps"
+            if max_optimizer_steps is not None
+            else "num_train_epochs"
+        ),
+        "max_optimizer_steps": max_optimizer_steps,
+        "num_train_epochs": float(training_cfg.get("epochs", 2)),
+        "max_steps_overrides_epochs": max_optimizer_steps is not None,
+    }
+
+
+def _validate_bounded_eval_save_cadence(
+    training_cfg: dict[str, Any], training_limit: dict[str, Any]
+) -> None:
+    max_optimizer_steps = training_limit.get("max_optimizer_steps")
+    if max_optimizer_steps is None:
+        return
+    invalid: list[str] = []
+    for name in ("eval_steps", "save_steps"):
+        value = training_cfg.get(name)
+        if type(value) is not int or value <= 0 or value > max_optimizer_steps:
+            invalid.append(f"{name}={value!r}")
+    if invalid:
+        raise ValueError(
+            "A bounded Golden-eval run requires positive integer eval/save "
+            "cadences no greater than training.max_steps="
+            f"{max_optimizer_steps}; invalid: {', '.join(invalid)}."
+        )
+
+
+def _apply_training_limit_to_args(
+    training_args_kwargs: dict[str, Any], training_limit: dict[str, Any]
+) -> None:
+    # A positive Transformers max_steps value counts optimizer updates and
+    # intentionally overrides num_train_epochs. Keep epochs alongside it so
+    # the override remains visible rather than silently mutating the recipe.
+    training_args_kwargs["num_train_epochs"] = training_limit[
+        "num_train_epochs"
+    ]
+    max_optimizer_steps = training_limit.get("max_optimizer_steps")
+    if max_optimizer_steps is None:
+        training_args_kwargs.pop("max_steps", None)
+    else:
+        training_args_kwargs["max_steps"] = max_optimizer_steps
+
+
 def _sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(8 * 1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _optional_file_identity(value: Any, *, base: Path) -> dict[str, Any] | None:
+    if value is None or not str(value).strip():
+        return None
+    path = resolve_path(value, base)
+    if not path.is_file():
+        return {"path": str(path), "present": False}
+    return {
+        "path": str(path),
+        "present": True,
+        "size_bytes": path.stat().st_size,
+        "sha256": _sha256_file(path),
+    }
 
 
 def _adapter_checkpoint_manifest(path: Path, *, role: str) -> dict[str, Any]:
@@ -1038,7 +1255,7 @@ def _rank_label() -> str:
     return f"{os.environ.get('RANK', '0')}/{os.environ.get('LOCAL_RANK', '0')}"
 
 
-def _run_forward_smoke_check(
+def _run_forward_numeric_gate(
     *,
     model: Any,
     split: Any,
@@ -1047,12 +1264,16 @@ def _run_forward_smoke_check(
     label_vocab_size: int,
     max_position_embeddings: int | None,
     max_rows: int,
-) -> None:
+    logit_probe_tokens: int = 16,
+    label: str = "forward",
+) -> dict[str, Any]:
     try:
         import torch
     except Exception as exc:  # pragma: no cover - dependency failure path
         print(f"Skipping forward smoke check because torch import failed: {exc!r}", flush=True)
-        return
+        raise RuntimeError(
+            f"Cannot run required {label} numeric gate because torch import failed: {exc!r}"
+        ) from exc
 
     if len(split) <= 0:
         raise ValueError("Cannot run SFT forward smoke check: train split is empty.")
@@ -1067,6 +1288,11 @@ def _run_forward_smoke_check(
     try:
         model.eval()
         rows_to_check = len(split) if max_rows <= 0 else min(len(split), max_rows)
+        total_loss_numerator = 0.0
+        total_loss_tokens = 0
+        probe_hash = hashlib.sha256()
+        top1_probe_ids: list[int] = []
+        row_losses: list[float] = []
         for row_index in range(rows_to_check):
             row = split[row_index]
             features = [
@@ -1102,16 +1328,75 @@ def _run_forward_smoke_check(
                 _drop_trivial_attention_mask(model_inputs)
                 outputs = model(**model_inputs)
                 logits = _extract_logits(outputs)
-                _validate_labels_against_logits_vocab(labels.to(logits.device), int(logits.shape[-1]))
+                labels_device = labels.to(logits.device)
+                _validate_labels_against_logits_vocab(
+                    labels_device, int(logits.shape[-1])
+                )
+                shifted_logits = logits[:, :-1, :].float()
+                shifted_labels = labels_device[:, 1:]
+                flat_labels = shifted_labels.reshape(-1)
+                valid = flat_labels.ne(-100)
+                valid_count = int(valid.sum().item())
+                if valid_count <= 0:
+                    raise ValueError(
+                        f"Numeric gate row {row_index} has no completion labels."
+                    )
+                losses = torch.nn.functional.cross_entropy(
+                    shifted_logits.reshape(-1, shifted_logits.shape[-1]),
+                    flat_labels,
+                    ignore_index=-100,
+                    reduction="none",
+                )
+                loss_sum = float(losses[valid].sum().item())
+                row_loss = loss_sum / valid_count
+                if not math.isfinite(row_loss):
+                    raise ValueError(
+                        f"Numeric gate row {row_index} produced non-finite loss {row_loss}."
+                    )
+                total_loss_numerator += loss_sum
+                total_loss_tokens += valid_count
+                row_losses.append(row_loss)
+                probe_indices = torch.nonzero(valid, as_tuple=False).reshape(-1)[
+                    : max(0, int(logit_probe_tokens))
+                ]
+                if int(probe_indices.numel()) > 0:
+                    selected_logits = shifted_logits.reshape(
+                        -1, shifted_logits.shape[-1]
+                    ).index_select(0, probe_indices)
+                    # Hash stable top-k token IDs instead of all floating logits;
+                    # loss is the tolerant numerical comparison.
+                    top_ids = torch.topk(
+                        selected_logits, k=min(8, selected_logits.shape[-1]), dim=-1
+                    ).indices.to(torch.int32).cpu().contiguous()
+                    probe_hash.update(top_ids.numpy().tobytes())
+                    top1_probe_ids.extend(
+                        int(value)
+                        for value in top_ids[:, 0].reshape(-1).tolist()
+                    )
                 print(
-                    "SFT forward smoke check row passed: "
+                    f"SFT {label} numeric gate row passed: "
                     f"row_index={row_index}, logits_shape={tuple(logits.shape)}, "
-                    f"logits_device={logits.device}, logits_vocab_size={int(logits.shape[-1])}",
+                    f"completion_loss={row_loss:.8f}, "
+                    f"completion_tokens={valid_count}, logits_device={logits.device}, "
+                    f"logits_vocab_size={int(logits.shape[-1])}",
                     flush=True,
                 )
+        if total_loss_tokens <= 0:
+            raise ValueError(f"Required {label} numeric gate checked no completion tokens.")
+        report = {
+            "label": label,
+            "rows_checked": rows_to_check,
+            "completion_tokens": total_loss_tokens,
+            "completion_loss": total_loss_numerator / total_loss_tokens,
+            "row_losses": row_losses,
+            "top_token_probe_sha256": probe_hash.hexdigest(),
+            "top1_probe_ids": top1_probe_ids,
+        }
+        print(f"SFT {label} numeric gate: {report}", flush=True)
+        return report
     except Exception as exc:
         raise RuntimeError(
-            "SFT forward smoke check failed before training. "
+            f"SFT {label} numeric gate failed before training. "
             "Token preflight passed, so this is likely a model-forward/CUDA environment issue, "
             "not a dataset tokenization issue. Compare torch/transformers/bitsandbytes/CUDA versions "
             "with the PC where the same code works; also verify the Hugging Face model cache is not stale. "
@@ -1126,6 +1411,343 @@ def _run_forward_smoke_check(
     finally:
         if was_training:
             model.train()
+
+
+def _compare_initial_numeric_reports(
+    baseline: dict[str, Any],
+    qat_on: dict[str, Any],
+    *,
+    preflight_cfg: dict[str, Any],
+    qat_enabled: bool,
+) -> dict[str, Any]:
+    import math
+
+    baseline_loss = float(baseline["completion_loss"])
+    qat_loss = float(qat_on["completion_loss"])
+    if not math.isfinite(baseline_loss) or not math.isfinite(qat_loss):
+        raise RuntimeError(
+            "Initial numeric gate produced non-finite completion loss: "
+            f"baseline={baseline_loss}, qat={qat_loss}."
+        )
+    loss_increase = qat_loss - baseline_loss
+    loss_ratio = qat_loss / max(baseline_loss, 1e-12)
+    max_increase = float(preflight_cfg.get("max_qat_loss_increase", 0.35))
+    max_ratio = float(preflight_cfg.get("max_qat_loss_ratio", 1.10))
+    max_absolute = float(
+        preflight_cfg.get("max_initial_completion_loss", 15.0)
+    )
+    same_probe = bool(
+        baseline.get("top_token_probe_sha256")
+        == qat_on.get("top_token_probe_sha256")
+    )
+    baseline_top1 = [int(value) for value in baseline.get("top1_probe_ids", [])]
+    qat_top1 = [int(value) for value in qat_on.get("top1_probe_ids", [])]
+    compared_top1 = min(len(baseline_top1), len(qat_top1))
+    top1_match_fraction = (
+        sum(
+            int(baseline_top1[index] == qat_top1[index])
+            for index in range(compared_top1)
+        )
+        / compared_top1
+        if compared_top1
+        else 0.0
+    )
+    min_top1_match = float(preflight_cfg.get("min_top1_probe_match", 0.90))
+    report = {
+        "passed": True,
+        "qat_enabled": qat_enabled,
+        "baseline": baseline,
+        "qat_on": qat_on,
+        "loss_increase": loss_increase,
+        "loss_ratio": loss_ratio,
+        "max_qat_loss_increase": max_increase,
+        "max_qat_loss_ratio": max_ratio,
+        "max_initial_completion_loss": max_absolute,
+        "top_token_probe_equal": same_probe,
+        "top1_probe_count": compared_top1,
+        "top1_probe_match_fraction": top1_match_fraction,
+        "min_top1_probe_match": min_top1_match,
+    }
+    if qat_loss > max_absolute or (
+        qat_enabled
+        and (
+            loss_increase > max_increase
+            or loss_ratio > max_ratio
+            or compared_top1 <= 0
+            or top1_match_fraction < min_top1_match
+        )
+    ):
+        raise RuntimeError(
+            "Zero-adapter QAT numeric parity failed before optimizer step 1: "
+            f"baseline_loss={baseline_loss:.8f}, qat_loss={qat_loss:.8f}, "
+            f"increase={loss_increase:.8f} (max {max_increase}), "
+            f"ratio={loss_ratio:.8f} (max {max_ratio}), "
+            f"absolute_max={max_absolute}, top1_match_fraction="
+            f"{top1_match_fraction:.6f} (min {min_top1_match}), "
+            f"top_token_probe_equal={same_probe}."
+        )
+    return report
+
+
+def _run_deterministic_greedy_gate(
+    *,
+    model: Any,
+    split: Any,
+    tokenizer: Any,
+    max_position_embeddings: int | None,
+    max_rows: int,
+    max_new_tokens: int,
+    min_new_tokens: int,
+    repeats: int,
+    label: str,
+) -> dict[str, Any]:
+    """Generate a short fixed greedy probe without constructing a Trainer.
+
+    This is a liveness/determinism gate, not an accuracy score. The generic
+    instruction target has not learned the repository task yet, so semantic IR
+    quality remains the job of held-out Golden-100 evaluation during training.
+    """
+
+    try:
+        import torch
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError(
+            f"Cannot run required {label} greedy-generation gate: {exc!r}"
+        ) from exc
+    if max_rows < 1 or max_new_tokens < 1 or min_new_tokens < 1:
+        raise ValueError(
+            "Greedy preflight rows/new-token limits must all be positive."
+        )
+    if min_new_tokens > max_new_tokens:
+        raise ValueError(
+            "preflight.min_greedy_tokens cannot exceed "
+            "preflight.greedy_probe_new_tokens."
+        )
+    if repeats < 1 or len(split) <= 0:
+        raise ValueError("Greedy preflight requires a non-empty split and repeats>=1.")
+    rows_to_check = min(len(split), int(max_rows))
+    prompt_budget = max(
+        1,
+        int(max_position_embeddings or 4096) - int(max_new_tokens),
+    )
+    device = _model_input_device(model)
+    was_training = bool(getattr(model, "training", False))
+    runs: list[list[list[int]]] = []
+    try:
+        model.eval()
+        for repeat_index in range(int(repeats)):
+            sequences: list[list[int]] = []
+            for row_index in range(rows_to_check):
+                prompt_text = str(split[row_index].get("prompt_text") or "")
+                prompt_ids = _tokenize_text(tokenizer, prompt_text)[-prompt_budget:]
+                if not prompt_ids:
+                    raise ValueError(
+                        f"Greedy preflight row {row_index} has an empty prompt."
+                    )
+                input_ids = torch.tensor(
+                    [prompt_ids], dtype=torch.long, device=device
+                )
+                attention_mask = torch.ones_like(input_ids)
+                generation_kwargs: dict[str, Any] = {
+                    "input_ids": input_ids,
+                    "attention_mask": attention_mask,
+                    "do_sample": False,
+                    "max_new_tokens": int(max_new_tokens),
+                    "min_new_tokens": int(min_new_tokens),
+                    "use_cache": False,
+                }
+                pad_token_id = getattr(tokenizer, "pad_token_id", None)
+                if pad_token_id is None:
+                    pad_token_id = getattr(tokenizer, "eos_token_id", None)
+                if pad_token_id is not None:
+                    generation_kwargs["pad_token_id"] = int(pad_token_id)
+                with torch.no_grad():
+                    output = model.generate(**generation_kwargs)
+                generated = [
+                    int(value)
+                    for value in output[0, input_ids.shape[-1] :]
+                    .detach()
+                    .cpu()
+                    .tolist()
+                ]
+                if len(generated) < int(min_new_tokens):
+                    raise RuntimeError(
+                        f"{label} greedy preflight row {row_index} generated only "
+                        f"{len(generated)} tokens; required {min_new_tokens}."
+                    )
+                sequences.append(generated)
+            runs.append(sequences)
+            print(
+                f"SFT {label} greedy gate repeat {repeat_index + 1} passed: "
+                f"rows={rows_to_check}, token_counts="
+                f"{[len(item) for item in sequences]}",
+                flush=True,
+            )
+    finally:
+        if was_training:
+            model.train()
+
+    canonical = json.dumps(runs, separators=(",", ":")).encode("utf-8")
+    return {
+        "label": label,
+        "rows_checked": rows_to_check,
+        "repeats": int(repeats),
+        "max_new_tokens": int(max_new_tokens),
+        "min_new_tokens": int(min_new_tokens),
+        "deterministic": all(run == runs[0] for run in runs[1:]),
+        "generated_token_counts": [
+            [len(sequence) for sequence in run] for run in runs
+        ],
+        "generated_token_ids": runs,
+        "sha256": hashlib.sha256(canonical).hexdigest(),
+    }
+
+
+def _compare_initial_greedy_reports(
+    baseline: dict[str, Any],
+    qat_on: dict[str, Any],
+    *,
+    preflight_cfg: dict[str, Any],
+    qat_enabled: bool,
+) -> dict[str, Any]:
+    baseline_runs = baseline.get("generated_token_ids") or []
+    qat_runs = qat_on.get("generated_token_ids") or []
+    baseline_first = baseline_runs[0] if baseline_runs else []
+    qat_first = qat_runs[0] if qat_runs else []
+    positional_matches = 0
+    compared = 0
+    common_prefix_lengths: list[int] = []
+    for baseline_row, qat_row in zip(baseline_first, qat_first, strict=False):
+        shared = min(len(baseline_row), len(qat_row))
+        compared += shared
+        positional_matches += sum(
+            int(baseline_row[index] == qat_row[index])
+            for index in range(shared)
+        )
+        row_prefix = 0
+        for index in range(shared):
+            if baseline_row[index] != qat_row[index]:
+                break
+            row_prefix += 1
+        common_prefix_lengths.append(row_prefix)
+    require_determinism = bool(
+        preflight_cfg.get("require_greedy_determinism", True)
+    )
+    minimum_prefix = int(
+        preflight_cfg.get("min_baseline_qat_greedy_prefix_tokens", 8) or 0
+    )
+    deterministic = bool(qat_on.get("deterministic"))
+    report = {
+        "passed": True,
+        "qat_enabled": qat_enabled,
+        "require_greedy_determinism": require_determinism,
+        "qat_greedy_deterministic": deterministic,
+        "baseline": baseline,
+        "qat_on": qat_on,
+        "baseline_qat_positional_match_fraction": (
+            positional_matches / compared if compared else 0.0
+        ),
+        "baseline_qat_common_prefix_tokens_by_row": common_prefix_lengths,
+        "baseline_qat_min_common_prefix_tokens": (
+            min(common_prefix_lengths) if common_prefix_lengths else 0
+        ),
+        "min_baseline_qat_greedy_prefix_tokens": minimum_prefix,
+    }
+    if qat_enabled and require_determinism and not deterministic:
+        raise RuntimeError(
+            "Zero-adapter retained-scale QAT greedy generation was not "
+            "deterministic across identical repeated probes."
+        )
+    row_counts_match = bool(
+        baseline_first
+        and qat_first
+        and len(baseline_first) == len(qat_first)
+    )
+    minimum_observed_prefix = (
+        min(common_prefix_lengths) if common_prefix_lengths else 0
+    )
+    if qat_enabled and (
+        not row_counts_match or minimum_observed_prefix < minimum_prefix
+    ):
+        raise RuntimeError(
+            "Zero-adapter retained-scale QAT greedy generation diverged too "
+            "early from QAT-off: row_counts_match="
+            f"{row_counts_match}, common_prefix_tokens_by_row="
+            f"{common_prefix_lengths}, required_per_row={minimum_prefix}, "
+            "positional_match="
+            f"{report['baseline_qat_positional_match_fraction']:.6f}."
+        )
+    return report
+
+
+def _verify_zero_lora_initialization(model: Any) -> dict[str, Any]:
+    """Fail closed if a supposedly fresh PEFT adapter already changes weights."""
+
+    try:
+        import torch
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError(
+            f"Cannot verify zero LoRA initialization: {exc!r}"
+        ) from exc
+    pair_count = 0
+    wrapper_count = 0
+    nonzero_or_invalid: list[str] = []
+    for module_name, module in model.named_modules():
+        lora_a = getattr(module, "lora_A", None)
+        lora_b = getattr(module, "lora_B", None)
+        if lora_a is None or lora_b is None:
+            continue
+        active = getattr(module, "active_adapters", None)
+        if active is None:
+            active = getattr(module, "active_adapter", None)
+        if isinstance(active, str):
+            adapter_names = (active,)
+        elif isinstance(active, (list, tuple, set)):
+            adapter_names = tuple(str(value) for value in active)
+        else:
+            adapter_names = ()
+        selected = [
+            adapter
+            for adapter in adapter_names
+            if adapter in lora_a and adapter in lora_b
+        ]
+        if not selected:
+            nonzero_or_invalid.append(f"{module_name}:no_active_pair")
+            continue
+        wrapper_count += 1
+        for adapter in selected:
+            pair_count += 1
+            a_weight = getattr(lora_a[adapter], "weight", None)
+            b_weight = getattr(lora_b[adapter], "weight", None)
+            if a_weight is None or b_weight is None:
+                nonzero_or_invalid.append(
+                    f"{module_name}:{adapter}:missing_weight"
+                )
+                continue
+            with torch.no_grad():
+                finite = bool(torch.isfinite(a_weight).all()) and bool(
+                    torch.isfinite(b_weight).all()
+                )
+                # LoRA delta is B@A. Either factor being exactly zero proves
+                # the initialized effective weight is exactly the base weight.
+                factor_zero = bool(torch.count_nonzero(a_weight).item() == 0) or bool(
+                    torch.count_nonzero(b_weight).item() == 0
+                )
+            if not finite or not factor_zero:
+                nonzero_or_invalid.append(f"{module_name}:{adapter}")
+    return {
+        "verified_zero_delta": bool(
+            wrapper_count > 0 and pair_count > 0 and not nonzero_or_invalid
+        ),
+        "wrapper_count": wrapper_count,
+        "adapter_pair_count": pair_count,
+        "nonzero_or_invalid_pairs": nonzero_or_invalid,
+    }
+
+
+# Backward-compatible private alias for existing scaffold tests/callers.
+def _run_forward_smoke_check(**kwargs: Any) -> None:
+    _run_forward_numeric_gate(**kwargs)
 
 
 def _model_input_device(model: Any) -> Any:

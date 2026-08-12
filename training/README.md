@@ -199,9 +199,10 @@ seed manifest/local source and rejects old base-only-QAT or unbound adapters
 before model loading. The mobile profile additionally requires Transformers
 loading diagnostics with zero missing, unexpected, mismatched, or errored
 checkpoint keys; that requirement is preserved in merge/compiler provenance.
-Its per-layer embedding uses the public 256-column grouped scale layout and
-fake-quantizes only rows selected by the current token batch, avoiding a full
-multi-gigabyte embedding-table quantization on every forward pass.
+The corrected mobile profile retains the packed checkpoint's immutable F32
+weight and static A8 scales and applies QAT only to the exact 205 effective
+base+LoRA projections. Frozen embeddings already contain the published
+dequantized cell centers and are not dynamically requantized.
 
 Validate all profiles without loading models or running training:
 
@@ -225,20 +226,40 @@ old Transformers version, wrong class/config, non-BF16 checkpoint tensor,
 missing/unexpected key, or any shape mismatch. Direct E2B SFT runs repeat this
 preflight and record it in training metadata before loading real weights.
 
-Later, with an explicitly authorized GPU run, select a target profile:
+For Gemma 4 E2B, use the fail-closed portable launcher and read its remote-PC
+runbook. It is plan-only by default, runs strict streamed scale/code and real
+model loss/top-token plus deterministic greedy preflights with `--preflight`,
+and trains only with `--execute`:
 
 ```powershell
-python training/scripts/train_sft.py --config training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml
+python training/scripts/run_gemma4_mobile_qat.py --config training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft_smoke_3_steps.yaml --run-id e2b_mobile_qat_smoke_plan --num-gpus 4
+python training/scripts/run_gemma4_mobile_qat.py --config training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft_smoke_3_steps.yaml --run-id e2b_mobile_qat_smoke_preflight --num-gpus 4 --preflight
+python training/scripts/run_gemma4_mobile_qat.py --config training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft_smoke_3_steps.yaml --run-id e2b_mobile_qat_smoke_train --num-gpus 4 --execute
+```
+
+That explicit profile is a bounded three-optimizer-step serialization/device
+smoke: it evaluates and saves once at step 3, is not quality-promotion eligible,
+and must not be mistaken for the full training schedule. Add
+`--source-safetensors <local-packed-model.safetensors>` when the copied seed
+manifest still names the old PC.
+
+Do not use the direct E2B SFT command because it omits the launcher's
+cross-artifact hashes and streamed full-projection gate. Other target profiles
+retain their direct commands:
+
+```powershell
 python training/scripts/train_sft.py --config training/configs/models/gemma3_270m_ir_qat_sft.yaml
 python training/scripts/train_sft.py --config training/configs/models/functiongemma_270m_ir_qat_sft.yaml
 ```
 
 Read `training/docs/gemma4_e2b_qat_mtp_knowledge.md` before changing the
-quantizer or export settings. The checked-in E2B config's `schema_path` and
-`ste_ai_edge` setting reproduce only public observable deployment semantics;
-they are not Google's hidden QAT trainer. Merge and quantize the selected
-adapter with the target LiteRT/LiteRT-LM recipe, then measure accuracy and
-device latency against the untouched low-bit baseline.
+quantizer or export settings, and read
+`training/docs/gemma4_mobile_qat_remote_pc_runbook.md` before launching E2B.
+The retained published scales and `ste_ai_edge` integer ranges reproduce public
+observable deployment semantics; they are not Google's hidden QAT trainer.
+New retained-scale checkpoints must use the dedicated code-only 205-projection
+export stage described below. The legacy exact-topology/public abs-max exporter
+and composer remain blocked for Gemma 4 `retained_mobile` checkpoints.
 
 The exact Google Transformers config copy remains
 `configs/quantization/gemma4_e2b_mobile_public_schema.yaml` for strict source
@@ -266,28 +287,50 @@ explicit weight sources and a target-only switch:
   official drafter section byte-for-byte so graph/package identity is retained
   and the same artifact can later run with MTP enabled.
 
-The default is plan-only:
+The pipeline is plan-only by default. For a completed portable-launcher run,
+bind the exact resolved config, callback-created best-Golden checkpoint, exact
+official package variant, and fresh destinations explicitly:
 
 ```powershell
-python training/scripts/run_gemma4_e2b_mobile_mtp.py
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --training-config <run_root>/launch/resolved_training_config.yaml `
+  --best-checkpoint <run_root>/best_golden_checkpoint `
+  --base-litertlm <official.litertlm> `
+  --merged-model-dir <fresh_export_root>/merged_best_hf `
+  --exact-output-dir <fresh_export_root>/retained_scale_export `
+  --export-report <fresh_export_root>/retained_scale_export/report.json `
+  --output-litertlm <fresh_export_root>/retained_scale_export/gemma4_e2b_retained_scale.litertlm
 ```
 
-Set `pipeline.source.base_litertlm` to the exact official package variant. The
-preferred deployment stage is designed to quantize the merged target
-checkpoint with the public AI Edge quantizer, inject those constants into the
-released target graph, and write the final package. The active path requires
-the manifest-verified BF16 reconstruction of the packed mobile checkpoint. It
-still rejects the dense Q4-seed/mobile-template hybrid and fails closed until
-the reconstructed seed, trained adapter, merge metadata, and checkpoint hashes
-all verify:
+Training completion alone is not export authorization. Review the plan and
+best-Golden provenance, then add both `--execute-merge` and
+`--execute-retained-scale-export`. The exporter fails closed unless the
+pre-step numeric/greedy gates, exact 205 retained-qparams bindings, selected
+adapter and merge hashes, immutable scale/frozen-constant contract, and final
+exporter report all pass. The merged directory, exact-output directory, report,
+and `.litertlm` output must not already exist. It rejects the dense
+Q4-seed/mobile-template hybrid and never silently falls back to abs-max scales.
 
 ```powershell
-python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --training-config <run_root>/launch/resolved_training_config.yaml `
+  --best-checkpoint <run_root>/best_golden_checkpoint `
+  --base-litertlm <official.litertlm> `
+  --merged-model-dir <fresh_export_root>/merged_best_hf `
+  --exact-output-dir <fresh_export_root>/retained_scale_export `
+  --export-report <fresh_export_root>/retained_scale_export/report.json `
+  --output-litertlm <fresh_export_root>/retained_scale_export/gemma4_e2b_retained_scale.litertlm `
+  --execute-merge --execute-retained-scale-export
+
 python training/scripts/validate_litertlm_mtp_gpu.py `
-  training/outputs/pipelines/gemma4_e2b_mobile_mtp/gemma4_e2b_mobile_mtp.litertlm `
+  <fresh_export_root>/retained_scale_export/gemma4_e2b_retained_scale.litertlm `
   --inspect-graphs `
-  --official-artifact C:\path\to\official-gemma-4-E2B-it.litertlm
+  --official-artifact <official.litertlm>
 ```
+
+The initial candidate preserves the released MTP section byte-for-byte and must
+be tested target-only first. Keep MTP disabled until desktop inspection,
+target-only semantic validation, and Android GPU target-only gates pass.
 
 Reproduce the bounded checkpoint audit without downloading the full dense
 checkpoint (the local file should be the public packed mobile Safetensors):
@@ -319,14 +362,12 @@ graph consumers rather than buffer order, and verifies 262/262 tensors at the
 public BF16 precision boundary. It does not run training or claim recovery of
 Google's FLOAT32 master checkpoint or private recipe.
 
-In official mode, `tf_lite_mtp_drafter` remains byte-for-byte official. In
-trained mode, first set `weight_source: trained` and `train_assistant: true`,
-then run the explicitly guarded stages:
-
-```powershell
-python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-drafter-training
-python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-exact-topology-export
-```
+The retained-scale export candidate keeps `tf_lite_mtp_drafter` byte-for-byte
+official and MTP disabled. Only after target-only semantic and Android GPU gates
+pass may a separately reviewed trained-drafter experiment set
+`weight_source: trained` and `train_assistant: true`. Do not use the legacy
+`--execute-exact-topology-export` to attach that drafter to a
+`retained_mobile` target.
 
 The drafter trainer is a public reconstruction, not Google's private recipe.
 It freezes the fine-tuned target and every assistant parameter outside the 23
@@ -338,10 +379,10 @@ training provenance and then
 preserves the target and every byte outside `tf_lite_mtp_drafter` while
 injecting the newly quantized matrices into the official graph/layout.
 
-The legacy `--compose` path remains available only for a compatible prebuilt
-target section/package and official drafter weights. A package passing desktop
-gates is structurally ready for `mtp=true`; it is not proof of Android GPU
-execution or useful draft acceptance.
+The legacy `--compose` path is blocked for Gemma 4 `retained_mobile`. A package
+passing desktop gates is only structurally ready for later device testing; it
+is not proof of Android GPU execution, semantic quality, or useful draft
+acceptance.
 
 After installing the `androidTest` APK, compare the untouched official package
 and the composed candidate without replacing any catalog model:
@@ -371,19 +412,12 @@ an identical full-length sampling run. See
 results and why a preserved official drafter does not guarantee unchanged MTP
 speed after target fine-tuning.
 
-Target training, merge, and the optional public standalone exporter are
-explicit:
-
-```powershell
-python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-training
-python training/scripts/run_gemma4_e2b_mobile_mtp.py --execute-merge
-```
-
-`--execute-public-export` is intentionally not enabled by default. The public
-`litert-torch` path is useful for a candidate artifact, but it is not evidence
-that Google's private mobile W2/W4/W8-A8 exporter or calibration has been
-reproduced; the strict composer rejects a candidate with a different graph,
-layout, or section size.
+Use `run_gemma4_mobile_qat.py` for portable multi-GPU target training. After its
+best-Golden checkpoint and resolved launcher config are independently reviewed,
+the dedicated pipeline command above performs merge plus retained-scale export
+as one explicitly authorized hand-off. For Gemma 4 `retained_mobile`, the
+pipeline rejects `--execute-public-export`, `--execute-exact-topology-export`,
+and `--compose`; none may be used as a substitute for the code-only exporter.
 
 ### Gemma 3 270M QAT -> LiteRT-LM INT8
 
@@ -836,8 +870,10 @@ The command fails closed unless all of these are true:
   separate reconstruction manifest proves the complete 541-tensor mobile
   training seed; the public dense Q4 seed remains rejected at 50/262 exact
   retained tensors;
-- the public converter returns the exact observed bit-width/operator/scale
-  inventory and every packed byte/scale survives injection;
+- the dedicated retained-scale exporter changes only the packed codes for the
+  exact 205 trained projections using their bound qparams, preserves the
+  official weight/A8 scale bytes and 72 frozen target constants, and emits a
+  passing hash-bound exporter report;
 - graph structure, operators, signatures, cache wiring, quantization layout,
   section size, and all bytes outside the target section remain official;
 - for E2B, the default `tf_lite_mtp_drafter` SHA-256 remains byte-exact.
@@ -857,27 +893,36 @@ The preferred plan-only entry points are:
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py `
   --config training/configs/pipelines/gemma4_e2b_mobile_mtp.yaml `
-  --base-litertlm C:\path\to\released-gemma-4-E2B-it.litertlm
+  --training-config <run_root>/launch/resolved_training_config.yaml `
+  --best-checkpoint <run_root>/best_golden_checkpoint `
+  --base-litertlm <official.litertlm> `
+  --merged-model-dir <fresh_export_root>/merged_best_hf `
+  --exact-output-dir <fresh_export_root>/retained_scale_export `
+  --export-report <fresh_export_root>/retained_scale_export/report.json `
+  --output-litertlm <fresh_export_root>/retained_scale_export/gemma4_e2b_retained_scale.litertlm
 
 python training/scripts/run_gemma270m_qat_litertlm.py `
   --config training/configs/pipelines/gemma3_270m_qat_litertlm.yaml `
   --official-litertlm C:\path\to\released-gemma-3-270m-it-q8.litertlm
 ```
 
-After training has independently produced a golden best adapter, run the
-explicit merge and exact-topology stages. Neither command starts training. The
-E2B retained-constant contract is now `compatible_exact` for the reconstructed
-mobile seed, but export intentionally still fails until that seed is
-materialized and the best adapter/merge provenance exists. The 270M exact-base
-flow remains usable under the same trained-checkpoint provenance gates:
+After training has independently produced a Golden-best adapter, review the
+plan, resolved-config identity, local checkpoint provenance, exact-205 qparams
+binding and preflight reports. Only then add the two explicit execution flags
+to the same E2B command. This command does not train. All output directories and
+files must be fresh, and absence/failure of the exporter report blocks package
+promotion. The 270M exact-base flow remains separate:
 
 ```powershell
 python training/scripts/run_gemma4_e2b_mobile_mtp.py `
-  --base-litertlm C:\path\to\released-gemma-4-E2B-it.litertlm `
-  --execute-merge
-python training/scripts/run_gemma4_e2b_mobile_mtp.py `
-  --base-litertlm C:\path\to\released-gemma-4-E2B-it.litertlm `
-  --execute-exact-topology-export
+  --training-config <run_root>/launch/resolved_training_config.yaml `
+  --best-checkpoint <run_root>/best_golden_checkpoint `
+  --base-litertlm <official.litertlm> `
+  --merged-model-dir <fresh_export_root>/merged_best_hf `
+  --exact-output-dir <fresh_export_root>/retained_scale_export `
+  --export-report <fresh_export_root>/retained_scale_export/report.json `
+  --output-litertlm <fresh_export_root>/retained_scale_export/gemma4_e2b_retained_scale.litertlm `
+  --execute-merge --execute-retained-scale-export
 
 python training/scripts/run_gemma270m_qat_litertlm.py `
   --official-litertlm C:\path\to\released-gemma-3-270m-it-q8.litertlm `
@@ -886,6 +931,12 @@ python training/scripts/run_gemma270m_qat_litertlm.py `
   --official-litertlm C:\path\to\released-gemma-3-270m-it-q8.litertlm `
   --execute-exact-topology-export
 ```
+
+For Gemma 4 `retained_mobile`, legacy
+`--execute-exact-topology-export`, public abs-max export, and `--compose` are
+hard-blocked migration paths. The first retained-scale package must preserve
+the released MTP section byte-for-byte and remain MTP-off until target-only
+semantic and Android GPU validation pass.
 
 Use `--validate-android-gpu` only after the candidate exists. It invokes the
 bounded parity runner on the connected device. E2B now requires two independent

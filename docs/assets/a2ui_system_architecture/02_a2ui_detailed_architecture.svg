@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1500" viewBox="0 0 2400 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Detailed A2UI dataset, training, export, and Android deployment architecture</title>
+  <desc id="desc">Four-lane architecture showing Gemma 4 31B teacher dataset generation, Gemma 4 E2B student training, LiteRTLM export, Android native runtime, and offline quality feedback.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#102a43" flood-opacity="0.11"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#173b65"/>
+    </marker>
+    <marker id="feedbackArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7b4bb7"/>
+    </marker>
+    <style>
+      .title { font: 700 42px 'Segoe UI', Arial, sans-serif; fill: #102a43; }
+      .subtitle { font: 400 20px 'Segoe UI', Arial, sans-serif; fill: #52667a; }
+      .lane-title { font: 700 27px 'Segoe UI', Arial, sans-serif; fill: #102a43; letter-spacing: .4px; }
+      .lane-note { font: 500 18px 'Segoe UI', Arial, sans-serif; fill: #365064; }
+      .node-title { font: 700 20px 'Segoe UI', Arial, sans-serif; fill: #102a43; }
+      .node-sub { font: 400 16px 'Segoe UI', Arial, sans-serif; fill: #52667a; }
+      .step { font: 700 16px 'Segoe UI', Arial, sans-serif; fill: white; }
+      .callout-title { font: 700 18px 'Segoe UI', Arial, sans-serif; fill: #5a348b; }
+      .callout { font: 400 16px 'Segoe UI', Arial, sans-serif; fill: #5a348b; }
+      .flow { stroke: #173b65; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+      .feedback { stroke: #7b4bb7; stroke-width: 4; stroke-dasharray: 11 9; fill: none; marker-end: url(#feedbackArrow); }
+      .node { fill: #ffffff; stroke: #b7c6d5; stroke-width: 2; filter: url(#shadow); }
+    </style>
+  </defs>
+
+  <rect width="2400" height="1500" fill="#f7fafc"/>
+  <text x="80" y="66" class="title">A2UI dataset → model training → Android deployment</text>
+  <text x="80" y="102" class="subtitle">Gemma 4 31B creates supervised data. Gemma 4 E2B learns response-to-A2UI generation and runs on-device.</text>
+
+  <!-- Lane 1: teacher data factory -->
+  <rect x="60" y="135" width="2280" height="285" rx="30" fill="#dff5f2" stroke="#83cbc2" stroke-width="2"/>
+  <text x="95" y="180" class="lane-title">GEMMA 4 31B TEACHER · DATA FACTORY</text>
+  <text x="95" y="211" class="lane-note">Source response is reference truth · active model-facing target is strict A2UI Express v1</text>
+
+  <g transform="translate(95 240)">
+    <rect class="node" width="320" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#138a7e"/><text x="28" y="34" text-anchor="middle" class="step">1</text>
+    <text x="160" y="55" text-anchor="middle" class="node-title">Prompt + Intent Library</text><text x="160" y="84" text-anchor="middle" class="node-sub">domains · tasks · policies</text><text x="160" y="110" text-anchor="middle" class="node-sub">generation configuration</text>
+  </g>
+  <path class="flow" d="M415 308 H457"/>
+  <g transform="translate(475 240)">
+    <rect class="node" width="320" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#138a7e"/><text x="28" y="34" text-anchor="middle" class="step">2</text>
+    <text x="160" y="51" text-anchor="middle" class="node-title">Stage 1 · Queries</text><text x="160" y="81" text-anchor="middle" class="node-sub">Gemma 4 31B</text><text x="160" y="109" text-anchor="middle" class="node-sub">queries.jsonl</text>
+  </g>
+  <path class="flow" d="M795 308 H837"/>
+  <g transform="translate(855 240)">
+    <rect class="node" width="320" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#138a7e"/><text x="28" y="34" text-anchor="middle" class="step">3</text>
+    <text x="160" y="49" text-anchor="middle" class="node-title">Stage 2 · Responses</text><text x="160" y="77" text-anchor="middle" class="node-sub">source text + assets</text><text x="160" y="105" text-anchor="middle" class="node-sub">responses.jsonl</text>
+  </g>
+  <path class="flow" d="M1175 308 H1217"/>
+  <g transform="translate(1235 240)">
+    <rect class="node" width="320" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#138a7e"/><text x="28" y="34" text-anchor="middle" class="step">4</text>
+    <text x="160" y="49" text-anchor="middle" class="node-title">Stage 3 · Express Targets</text><text x="160" y="77" text-anchor="middle" class="node-sub">response → A2UI Express v1</text><text x="160" y="105" text-anchor="middle" class="node-sub">genui.jsonl</text>
+  </g>
+  <path class="flow" d="M1555 308 H1597"/>
+  <g transform="translate(1615 240)">
+    <rect class="node" width="320" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#138a7e"/><text x="28" y="34" text-anchor="middle" class="step">5</text>
+    <text x="160" y="49" text-anchor="middle" class="node-title">Stage 4 · Quality Gates</text><text x="160" y="77" text-anchor="middle" class="node-sub">strict validate · native render</text><text x="160" y="105" text-anchor="middle" class="node-sub">metric v5.4 · dashboard</text>
+  </g>
+  <path class="flow" d="M1935 308 H1977"/>
+  <g transform="translate(1995 240)">
+    <rect class="node" width="310" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#138a7e"/><text x="28" y="34" text-anchor="middle" class="step">6</text>
+    <text x="155" y="57" text-anchor="middle" class="node-title">Approved Dataset Run</text><text x="155" y="87" text-anchor="middle" class="node-sub">immutable records</text><text x="155" y="113" text-anchor="middle" class="node-sub">training-ready examples</text>
+  </g>
+
+  <!-- Lane 2: training -->
+  <rect x="60" y="450" width="2280" height="285" rx="30" fill="#ebe5f8" stroke="#b5a1dc" stroke-width="2"/>
+  <text x="95" y="495" class="lane-title">GEMMA 4 E2B STUDENT · TRAINING AND REWARD</text>
+  <text x="95" y="526" class="lane-note">SFT first · deterministic offline reward · no factuality judge · no direct reward for JSON size or component count</text>
+  <path class="flow" d="M2150 375 V445 H270 V550"/>
+
+  <g transform="translate(95 550)">
+    <rect class="node" width="325" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#7553a6"/><text x="28" y="34" text-anchor="middle" class="step">7</text>
+    <text x="162" y="49" text-anchor="middle" class="node-title">Pair Builder</text><text x="162" y="79" text-anchor="middle" class="node-sub">response_text → A2UI</text><text x="162" y="107" text-anchor="middle" class="node-sub">asset placeholder normalization</text>
+  </g>
+  <path class="flow" d="M420 618 H462"/>
+  <g transform="translate(480 550)">
+    <rect class="node" width="325" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#7553a6"/><text x="28" y="34" text-anchor="middle" class="step">8</text>
+    <text x="162" y="49" text-anchor="middle" class="node-title">Leakage-safe Split</text><text x="162" y="79" text-anchor="middle" class="node-sub">source ID · model family · time</text><text x="162" y="107" text-anchor="middle" class="node-sub">train + golden evaluation</text>
+  </g>
+  <path class="flow" d="M805 618 H847"/>
+  <g transform="translate(865 550)">
+    <rect class="node" width="325" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#7553a6"/><text x="28" y="34" text-anchor="middle" class="step">9</text>
+    <text x="162" y="49" text-anchor="middle" class="node-title">Gemma 4 E2B LoRA SFT</text><text x="162" y="79" text-anchor="middle" class="node-sub">strict A2UI grammar</text><text x="162" y="107" text-anchor="middle" class="node-sub">valid SFT checkpoint</text>
+  </g>
+  <path class="flow" d="M1190 618 H1232"/>
+  <g transform="translate(1250 550)">
+    <rect class="node" width="325" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#7553a6"/><text x="28" y="34" text-anchor="middle" class="step">10</text>
+    <text x="162" y="49" text-anchor="middle" class="node-title">Golden Evaluation</text><text x="162" y="79" text-anchor="middle" class="node-sub">strict validity + metric v5.4</text><text x="162" y="107" text-anchor="middle" class="node-sub">regression and render evidence</text>
+  </g>
+  <path class="flow" d="M1575 618 H1617"/>
+  <g transform="translate(1635 550)">
+    <rect class="node" width="325" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#7553a6"/><text x="28" y="34" text-anchor="middle" class="step">11</text>
+    <text x="162" y="49" text-anchor="middle" class="node-title">Optional GRPO</text><text x="162" y="79" text-anchor="middle" class="node-sub">8 candidates per source</text><text x="162" y="107" text-anchor="middle" class="node-sub">reward r = 2Q − 1</text>
+  </g>
+  <path class="flow" d="M1960 618 H2002"/>
+  <g transform="translate(2020 550)">
+    <rect class="node" width="285" height="135" rx="18"/><circle cx="28" cy="28" r="18" fill="#7553a6"/><text x="28" y="34" text-anchor="middle" class="step">12</text>
+    <text x="142" y="59" text-anchor="middle" class="node-title">Best Adapter</text><text x="142" y="89" text-anchor="middle" class="node-sub">promotion candidate</text><text x="142" y="115" text-anchor="middle" class="node-sub">signed evaluation report</text>
+  </g>
+
+  <!-- Lane 3: export -->
+  <rect x="60" y="765" width="2280" height="255" rx="30" fill="#e2f1fb" stroke="#96c5e5" stroke-width="2"/>
+  <text x="95" y="810" class="lane-title">EXPORT · PACKAGE · RELEASE GATES</text>
+  <text x="95" y="841" class="lane-note">Promote only artifacts that preserve generation behavior, strict ingestion, identity, and Android smoke evidence</text>
+  <path class="flow" d="M2162 685 V755 H275 V865"/>
+
+  <g transform="translate(95 865)"><rect class="node" width="320" height="110" rx="18"/><circle cx="28" cy="28" r="18" fill="#277db3"/><text x="28" y="34" text-anchor="middle" class="step">13</text><text x="160" y="48" text-anchor="middle" class="node-title">Merge LoRA</text><text x="160" y="79" text-anchor="middle" class="node-sub">Gemma 4 E2B weights</text></g>
+  <path class="flow" d="M415 920 H457"/>
+  <g transform="translate(475 865)"><rect class="node" width="320" height="110" rx="18"/><circle cx="28" cy="28" r="18" fill="#277db3"/><text x="28" y="34" text-anchor="middle" class="step">14</text><text x="160" y="48" text-anchor="middle" class="node-title">Q4_0 Conversion</text><text x="160" y="79" text-anchor="middle" class="node-sub">mobile-sized model artifact</text></g>
+  <path class="flow" d="M795 920 H837"/>
+  <g transform="translate(855 865)"><rect class="node" width="320" height="110" rx="18"/><circle cx="28" cy="28" r="18" fill="#277db3"/><text x="28" y="34" text-anchor="middle" class="step">15</text><text x="160" y="48" text-anchor="middle" class="node-title">LiteRTLM Package</text><text x="160" y="79" text-anchor="middle" class="node-sub">Android inference format</text></g>
+  <path class="flow" d="M1175 920 H1217"/>
+  <g transform="translate(1235 865)"><rect class="node" width="320" height="110" rx="18"/><circle cx="28" cy="28" r="18" fill="#277db3"/><text x="28" y="34" text-anchor="middle" class="step">16</text><text x="160" y="48" text-anchor="middle" class="node-title">Manifest + SHA-256</text><text x="160" y="79" text-anchor="middle" class="node-sub">immutable artifact identity</text></g>
+  <path class="flow" d="M1555 920 H1597"/>
+  <g transform="translate(1615 865)"><rect class="node" width="320" height="110" rx="18"/><circle cx="28" cy="28" r="18" fill="#277db3"/><text x="28" y="34" text-anchor="middle" class="step">17</text><text x="160" y="48" text-anchor="middle" class="node-title">Export Validation</text><text x="160" y="79" text-anchor="middle" class="node-sub">generation + strict ingest</text></g>
+  <path class="flow" d="M1935 920 H1977"/>
+  <g transform="translate(1995 865)"><rect class="node" width="310" height="110" rx="18"/><circle cx="28" cy="28" r="18" fill="#277db3"/><text x="28" y="34" text-anchor="middle" class="step">18</text><text x="155" y="48" text-anchor="middle" class="node-title">Android Release Gate</text><text x="155" y="79" text-anchor="middle" class="node-sub">load + generate + render smoke</text></g>
+
+  <!-- Lane 4: Android runtime -->
+  <rect x="60" y="1050" width="2280" height="365" rx="30" fill="#e6f4e8" stroke="#9dcea5" stroke-width="2"/>
+  <text x="95" y="1095" class="lane-title">ANDROID RUNTIME · NATIVE RENDERING</text>
+  <text x="95" y="1126" class="lane-note">The deployed E2B model performs Stage 3. Stage 2 may remain cloud or local. No on-device training.</text>
+  <path class="flow" d="M2150 975 V1040 H190 V1160"/>
+
+  <g transform="translate(85 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">19</text><text x="102" y="50" text-anchor="middle" class="node-title">Install Model</text><text x="102" y="79" text-anchor="middle" class="node-sub">on_device_models</text><text x="102" y="104" text-anchor="middle" class="node-sub">verify SHA + size</text></g>
+  <path class="flow" d="M290 1222 H312"/>
+  <g transform="translate(330 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">20</text><text x="102" y="50" text-anchor="middle" class="node-title">LiteRT Backend</text><text x="102" y="79" text-anchor="middle" class="node-sub">AUTO · GPU · CPU</text><text x="102" y="104" text-anchor="middle" class="node-sub">supported accelerator</text></g>
+  <path class="flow" d="M535 1222 H557"/>
+  <g transform="translate(575 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">21</text><text x="102" y="60" text-anchor="middle" class="node-title">User Query</text><text x="102" y="91" text-anchor="middle" class="node-sub">runtime request</text></g>
+  <path class="flow" d="M780 1222 H802"/>
+  <g transform="translate(820 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">22</text><text x="102" y="49" text-anchor="middle" class="node-title">Stage 2</text><text x="102" y="78" text-anchor="middle" class="node-sub">response backend</text><text x="102" y="104" text-anchor="middle" class="node-sub">cloud or local</text></g>
+  <path class="flow" d="M1025 1222 H1047"/>
+  <g transform="translate(1065 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">23</text><text x="102" y="50" text-anchor="middle" class="node-title">Source Response</text><text x="102" y="79" text-anchor="middle" class="node-sub">reference text</text><text x="102" y="104" text-anchor="middle" class="node-sub">+ asset context</text></g>
+  <path class="flow" d="M1270 1222 H1292"/>
+  <g transform="translate(1310 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">24</text><text x="102" y="49" text-anchor="middle" class="node-title">On-device Stage 3</text><text x="102" y="78" text-anchor="middle" class="node-sub">Gemma 4 E2B</text><text x="102" y="104" text-anchor="middle" class="node-sub">response → A2UI</text></g>
+  <path class="flow" d="M1515 1222 H1537"/>
+  <g transform="translate(1555 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">25</text><text x="102" y="49" text-anchor="middle" class="node-title">Express Codec</text><text x="102" y="78" text-anchor="middle" class="node-sub">strict profile</text><text x="102" y="104" text-anchor="middle" class="node-sub">reject invalid output</text></g>
+  <path class="flow" d="M1760 1222 H1782"/>
+  <g transform="translate(1800 1160)"><rect class="node" width="205" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">26</text><text x="102" y="49" text-anchor="middle" class="node-title">Canonical Graph</text><text x="102" y="78" text-anchor="middle" class="node-sub">renderer semantics</text><text x="102" y="104" text-anchor="middle" class="node-sub">legacy decode boundary</text></g>
+  <path class="flow" d="M2005 1222 H2027"/>
+  <g transform="translate(2045 1160)"><rect class="node" width="260" height="125" rx="16"/><circle cx="25" cy="25" r="16" fill="#3b8f49"/><text x="25" y="31" text-anchor="middle" class="step">27</text><text x="130" y="49" text-anchor="middle" class="node-title">Native Interactive UI</text><text x="130" y="78" text-anchor="middle" class="node-sub">Compose renderer</text><text x="130" y="104" text-anchor="middle" class="node-sub">actions + state</text></g>
+
+  <!-- Offline QA feedback -->
+  <path class="feedback" d="M2175 1285 V1380 H2350 V505 H1415 V542"/>
+  <rect x="1780" y="1352" width="340" height="48" rx="16" fill="#f4effb" stroke="#b79bd7"/>
+  <text x="1950" y="1373" text-anchor="middle" class="callout-title">OFFLINE QA FEEDBACK</text>
+  <text x="1950" y="1393" text-anchor="middle" class="callout">render evidence → future reviewed run</text>
+
+  <rect x="90" y="1440" width="2220" height="40" rx="14" fill="#eef3f7"/>
+  <text x="1200" y="1467" text-anchor="middle" class="subtitle">Solid arrows = production path · Dotted arrow = offline evaluation only · Active model output = A2UI Express v1</text>
+</svg>

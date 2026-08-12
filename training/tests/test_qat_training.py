@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 torch = pytest.importorskip("torch")
 from ir_training.common.config import load_yaml
 from ir_training.qat import fake_quant as fake_quant_module
+from ir_training.qat import mobile_qparams as mobile_qparams_module
 from ir_training.qat.fake_quant import (
     AI_EDGE_MIN_SCALE,
     QATSpec,
@@ -67,6 +68,87 @@ class FakePeftLoraLinear(nn.Module):
                 * self.scaling[adapter]
             )
         return result
+
+
+class SyntheticRetainedMobileQParams:
+    """Small in-memory qparameter authority for live-scope tests."""
+
+    def __init__(
+        self,
+        *,
+        expected_keys: set[str],
+        resolved_keys: dict[str, str],
+    ):
+        self.expected_keys = set(expected_keys)
+        self.resolved_keys = dict(resolved_keys)
+
+    def resolve_weight_key(self, candidates):
+        for candidate in candidates:
+            if candidate in self.resolved_keys:
+                return self.resolved_keys[candidate]
+        return None
+
+    def load_scale(self, weight_key, *, weight_shape, bits, group_size):
+        assert weight_key
+        assert bits == 4
+        assert group_size is None
+        return torch.full((int(weight_shape[0]), 1), 0.25, dtype=torch.float32)
+
+    def activation_scale(self, weight_key, edge):
+        assert weight_key
+        assert edge in {"input", "output"}
+        return None
+
+    def trainable_projection_weight_keys(self):
+        return tuple(sorted(self.expected_keys))
+
+    def summary(self):
+        return {
+            "verified": True,
+            "trainable_projection_count": len(self.expected_keys),
+        }
+
+
+def _synthetic_retained_scope_model(*module_names: str):
+    model = nn.Module()
+    for module_name in module_names:
+        setattr(model, module_name, FakePeftLoraLinear())
+    return model
+
+
+def _synthetic_retained_scope_config(*, expected_count: int):
+    return {
+        "qat": {
+            "enabled": True,
+            "weight_bits": 4,
+            "activation_bits": 32,
+            "weight_symmetric": True,
+            "activation_symmetric": True,
+            "weight_per_channel": True,
+            "weight_axis": 0,
+            "group_size": None,
+            "only_base_layers": True,
+            "effective_merged_weight": True,
+            "effective_lora_only": True,
+            "exclude_modules": [],
+            "quantize_embeddings": False,
+            "quantizer": "ste_ai_edge",
+            "scale_mode": "retained_mobile",
+            "mobile_qparams_contract": "synthetic-mobile-qparams.json",
+            "fixed_scale_required": True,
+            "fixed_activation_scale_required": False,
+            "expected_effective_lora_modules": expected_count,
+            "ste_gradient": "clipped",
+        }
+    }
+
+
+def _install_synthetic_mobile_qparams(monkeypatch, qparams):
+    monkeypatch.setattr(
+        mobile_qparams_module,
+        "MobileQParams",
+        lambda _contract_path: qparams,
+    )
 
 
 def test_fake_quant_ste_quantizes_forward_and_keeps_gradient():
@@ -187,6 +269,201 @@ def test_ai_edge_fake_quant_matches_public_channelwise_codes_when_available():
         )
         assert scale.squeeze(1).numpy().tobytes() == public_scale.tobytes()
         assert ours_codes.tobytes() == public_codes.tobytes()
+
+
+@pytest.mark.parametrize(
+    ("bits", "codes", "scales"),
+    [
+        (
+            2,
+            [[-2, -1, 0, 1], [-1, 0, 1, -2]],
+            [[0.5], [0.125]],
+        ),
+        (
+            4,
+            [
+                [-8, -7, -1, 0, 1, 5, 6, 7],
+                [-6, -3, -1, 0, 1, 2, 4, 6],
+            ],
+            [[0.25], [0.0625]],
+        ),
+        (
+            8,
+            [
+                [-100, -37, -1, 0, 1, 44, 95],
+                [-64, -17, -1, 0, 1, 23, 63],
+            ],
+            [[0.03125], [0.0078125]],
+        ),
+    ],
+)
+def test_retained_mobile_scales_are_idempotent_and_preserve_codes(
+    bits: int,
+    codes: list[list[int]],
+    scales: list[list[float]],
+):
+    """A zero-delta QAT pass must preserve Google's released cell centers.
+
+    The W8 rows deliberately do not occupy either endpoint. Recomputing an
+    abs-max scale can therefore not pass this test by coincidence.
+    """
+
+    integer_codes = torch.tensor(codes, dtype=torch.int8)
+    retained_scales = torch.tensor(scales, dtype=torch.float32)
+    released_centers = integer_codes.float() * retained_scales
+
+    simulated = fake_quantize_ste(
+        released_centers,
+        bits=bits,
+        symmetric=True,
+        per_channel=True,
+        axis=0,
+        quantizer="ste_ai_edge",
+        eps=AI_EDGE_MIN_SCALE,
+        scale_override=retained_scales,
+    )
+    recovered_codes = torch.round(simulated / retained_scales).to(torch.int8)
+
+    torch.testing.assert_close(simulated, released_centers, rtol=0, atol=0)
+    assert torch.equal(recovered_codes, integer_codes)
+    assert torch.equal(recovered_codes == 0, integer_codes == 0)
+
+
+def test_retained_grouped_w4_scales_preserve_each_group_and_code():
+    integer_codes = torch.tensor(
+        [
+            [-8, -3, 0, 7, -7, -1, 1, 6],
+            [-6, -2, 2, 5, -8, 0, 3, 7],
+        ],
+        dtype=torch.int8,
+    )
+    # This is the sidecar/storage shape: [rows, groups]. fake_quantize_ste
+    # must normalize it for the internal [rows, groups, group_width] view.
+    retained_scales = torch.tensor(
+        [[0.5, 0.125], [0.25, 0.0625]], dtype=torch.float32
+    )
+    expanded_scales = retained_scales.repeat_interleave(4, dim=1)
+    released_centers = integer_codes.float() * expanded_scales
+
+    simulated = fake_quantize_ste(
+        released_centers,
+        bits=4,
+        symmetric=True,
+        per_channel=True,
+        axis=0,
+        group_size=4,
+        quantizer="ste_ai_edge",
+        eps=AI_EDGE_MIN_SCALE,
+        scale_override=retained_scales,
+    )
+    recovered_codes = torch.round(simulated / expanded_scales).to(torch.int8)
+
+    torch.testing.assert_close(simulated, released_centers, rtol=0, atol=0)
+    assert torch.equal(recovered_codes, integer_codes)
+
+
+def test_retained_quantization_rejects_zero_point_without_scale():
+    with pytest.raises(ValueError, match="scale_override"):
+        fake_quantize_ste(
+            torch.tensor([[-1.0, 0.0, 0.5]]),
+            bits=2,
+            symmetric=True,
+            quantizer="ste_ai_edge",
+            zero_point_override=torch.zeros((1, 1)),
+        )
+
+
+def test_retained_asymmetric_zero_point_preserves_codes():
+    integer_codes = torch.tensor([0, 3, 8, 15], dtype=torch.int8)
+    retained_scale = torch.tensor(0.25)
+    retained_zero_point = torch.tensor(8.0)
+    released_centers = (
+        integer_codes.float() - retained_zero_point
+    ) * retained_scale
+
+    simulated = fake_quantize_ste(
+        released_centers,
+        bits=4,
+        symmetric=False,
+        scale_override=retained_scale,
+        zero_point_override=retained_zero_point,
+    )
+    recovered_codes = torch.round(
+        simulated / retained_scale + retained_zero_point
+    ).to(torch.int8)
+
+    torch.testing.assert_close(simulated, released_centers, rtol=0, atol=0)
+    assert torch.equal(recovered_codes, integer_codes)
+
+
+@pytest.mark.parametrize(
+    "bad_scale",
+    [
+        torch.ones((2, 3)),
+        torch.ones((2, 1, 1)),
+    ],
+)
+def test_retained_channelwise_scale_rejects_shape_mismatch(bad_scale):
+    with pytest.raises(ValueError, match="scale_override.*shape"):
+        fake_quantize_ste(
+            torch.ones((2, 4)),
+            bits=4,
+            symmetric=True,
+            per_channel=True,
+            axis=0,
+            quantizer="ste_ai_edge",
+            scale_override=bad_scale,
+        )
+
+
+def test_retained_grouped_scale_rejects_wrong_group_count():
+    with pytest.raises(ValueError, match="scale_override.*shape"):
+        fake_quantize_ste(
+            torch.ones((2, 8)),
+            bits=4,
+            symmetric=True,
+            per_channel=True,
+            axis=0,
+            group_size=4,
+            quantizer="ste_ai_edge",
+            scale_override=torch.ones((2, 1)),
+        )
+
+
+def test_clipped_ste_blocks_gradients_outside_retained_integer_range():
+    values = torch.tensor(
+        [-2.0, -1.0, -0.25, 0.0, 0.25, 0.5, 1.0, 2.0],
+        dtype=torch.float32,
+        requires_grad=True,
+    )
+
+    simulated = fake_quantize_ste(
+        values,
+        bits=2,
+        symmetric=True,
+        quantizer="ste_ai_edge",
+        scale_override=torch.tensor(0.5),
+        ste_gradient="clipped",
+    )
+    simulated.sum().backward()
+
+    # W2 with scale 0.5 represents [-1.0, 0.5]. Bounds are inclusive.
+    torch.testing.assert_close(
+        values.grad,
+        torch.tensor([0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0]),
+        rtol=0,
+        atol=0,
+    )
+
+
+def test_clipped_ste_rejects_unknown_gradient_policy():
+    with pytest.raises(ValueError, match="ste_gradient"):
+        fake_quantize_ste(
+            torch.ones(2),
+            bits=4,
+            scale_override=torch.tensor(0.5),
+            ste_gradient="straight_through_everywhere",
+        )
 
 
 def test_ai_edge_grouped_scale_uses_public_bfloat16_float16_storage_rounding():
@@ -369,6 +646,114 @@ def test_effective_lora_qat_quantizes_merged_weight_and_keeps_adapter_gradients(
     assert torch.allclose(model(inputs), torch.nn.functional.linear(inputs, effective_weight))
 
 
+def test_zero_lora_effective_weight_matches_fixed_scale_mobile_base():
+    model = FakePeftLoraLinear()
+    retained_scale = torch.tensor([[0.5], [0.125]], dtype=torch.float32)
+    integer_codes = torch.tensor([[-2, -1], [0, 1]], dtype=torch.int8)
+    released_centers = integer_codes.float() * retained_scale
+    with torch.no_grad():
+        model.base_layer.weight.copy_(released_centers)
+        model.lora_A["default"].weight.copy_(torch.tensor([[0.75, -0.25]]))
+        model.lora_B["default"].weight.zero_()
+
+    effective_weight = (
+        model.base_layer.weight + model.get_delta_weight("default")
+    )
+    simulated_weight = fake_quantize_ste(
+        effective_weight,
+        bits=2,
+        symmetric=True,
+        per_channel=True,
+        axis=0,
+        quantizer="ste_ai_edge",
+        eps=AI_EDGE_MIN_SCALE,
+        scale_override=retained_scale,
+        ste_gradient="clipped",
+    )
+    inputs = torch.tensor([[1.0, -0.5], [0.25, 0.75]])
+    actual = torch.nn.functional.linear(inputs, simulated_weight)
+    expected = torch.nn.functional.linear(inputs, released_centers)
+
+    torch.testing.assert_close(effective_weight, released_centers, rtol=0, atol=0)
+    torch.testing.assert_close(simulated_weight, released_centers, rtol=0, atol=0)
+    torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+    recovered_codes = torch.round(simulated_weight / retained_scale).to(torch.int8)
+    assert torch.equal(recovered_codes, integer_codes)
+
+    actual.square().mean().backward()
+    assert model.lora_A["default"].weight.grad is not None
+    assert model.lora_B["default"].weight.grad is not None
+
+
+def test_retained_mobile_live_scope_rejects_partial_bound_set(monkeypatch):
+    qparams = SyntheticRetainedMobileQParams(
+        expected_keys={"q_proj.weight", "v_proj.weight"},
+        resolved_keys={"q_proj.weight": "q_proj.weight"},
+    )
+    _install_synthetic_mobile_qparams(monkeypatch, qparams)
+    model = _synthetic_retained_scope_model("q_proj")
+
+    with pytest.raises(ValueError, match="Live effective-LoRA scope differs") as exc:
+        prepare_qat_model(
+            model,
+            _synthetic_retained_scope_config(expected_count=2),
+        )
+
+    assert "v_proj.weight" in str(exc.value)
+    assert "wrapped=1" in str(exc.value)
+    assert "bindings=1" in str(exc.value)
+
+
+def test_retained_mobile_live_scope_rejects_wrong_and_extra_bound_names(
+    monkeypatch,
+):
+    qparams = SyntheticRetainedMobileQParams(
+        expected_keys={"q_proj.weight", "v_proj.weight"},
+        resolved_keys={
+            "q_proj.weight": "unexpected_proj.weight",
+            "v_proj.weight": "v_proj.weight",
+        },
+    )
+    _install_synthetic_mobile_qparams(monkeypatch, qparams)
+    model = _synthetic_retained_scope_model("q_proj", "v_proj")
+
+    with pytest.raises(ValueError, match="Live effective-LoRA scope differs") as exc:
+        prepare_qat_model(
+            model,
+            _synthetic_retained_scope_config(expected_count=2),
+        )
+
+    message = str(exc.value)
+    assert "q_proj.weight" in message
+    assert "unexpected_proj.weight" in message
+    assert "wrapped=2" in message
+    assert "bindings=2" in message
+
+
+def test_retained_mobile_live_scope_accepts_exact_names_and_count(monkeypatch):
+    expected_keys = {"q_proj.weight", "v_proj.weight"}
+    qparams = SyntheticRetainedMobileQParams(
+        expected_keys=expected_keys,
+        resolved_keys={key: key for key in expected_keys},
+    )
+    _install_synthetic_mobile_qparams(monkeypatch, qparams)
+    model = _synthetic_retained_scope_model("q_proj", "v_proj")
+
+    controller = prepare_qat_model(
+        model,
+        _synthetic_retained_scope_config(expected_count=2),
+    )
+
+    summary = controller.summary()
+    assert controller.wrapped_effective_lora_count == 2
+    assert summary["retained_qparams_binding_count"] == 2
+    assert {
+        binding["weight_key"]
+        for binding in summary["retained_qparams_bindings"].values()
+    } == expected_keys
+    controller.restore()
+
+
 def test_effective_lora_qat_rejects_nonzero_adapter_dropout():
     model = nn.Module()
     model.q_proj = FakePeftLoraLinear(dropout=0.05)
@@ -453,6 +838,7 @@ def test_gemma4_true_qat_keeps_peft_language_model_default_scope():
     # PEFT 0.19+ owns the Gemma 4 language_model q_proj/v_proj regex. The
     # GemmaAdapter `.linear` fallback targets clipped modality wrappers instead.
     assert config["lora"]["target_modules"] == "peft-default"
+    assert config["qat"]["expected_effective_lora_modules"] == 205
 
 
 def test_qat_validation_rejects_qlora_and_disabled_qat():

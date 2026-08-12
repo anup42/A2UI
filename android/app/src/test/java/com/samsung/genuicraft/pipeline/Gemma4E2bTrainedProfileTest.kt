@@ -12,6 +12,62 @@ import org.junit.Test
 
 class Gemma4E2bTrainedProfileTest {
     @Test
+    fun trainedExpressCatalogEntryUsesTheMobileQatPromptAndMtpProfile() {
+        val entry = requireNotNull(
+            OnDeviceModelCatalog.entryForModelPath(
+                "/sdcard/Android/data/com.samsung.genuicraft/files/on_device_models/" +
+                    "gemma-4-e2b-trained-express-int4.litertlm"
+            )
+        )
+
+        assertEquals("gemma4_e2b_trained_express", entry.id)
+        assertEquals("Gemma 4 E2B Trained Express", entry.displayName)
+        assertEquals("Mixed W2/W4/W8-A8 mobile topology", entry.quantization)
+        assertEquals(4_096, entry.maxContextTokens)
+        assertEquals(2_048, entry.maxOutputTokens)
+        assertTrue(entry.requireGpu)
+        assertTrue(entry.enableSpeculativeDecoding)
+        assertTrue(entry.trainingCompatiblePrompt)
+        assertFalse(entry.rawStage3Response)
+        assertFalse(entry.useRawTrainingWrapper)
+        assertNull(entry.stage3TrainingPromptPrefix)
+        assertEquals(2_500_000_000L, entry.minimumFileSizeBytes)
+        assertFalse(entry.isDownloadable)
+    }
+
+    @Test
+    fun trainedExpressPromptMatchesTheMobileQatTrainingMessages() {
+        val entry = requireNotNull(
+            OnDeviceModelCatalog.entryForModelPath(
+                "/tmp/gemma-4-e2b-trained-express-int4.litertlm"
+            )
+        )
+        val context = PipelinePromptBuilder.prepareStage3PromptContext(
+            template =
+                "You convert response text into A2UI Express v1. " +
+                    "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]",
+            trainingCompatible = entry.trainingCompatiblePrompt,
+        )
+        val prompt = PipelinePromptBuilder.buildStage3UserPrompt(
+            userTemplate = context.userTemplate,
+            stage2Response = "Order A-1042 is out for delivery.",
+            catalogId = "ignored",
+            assets = emptyList(),
+            appendRequestPolicies = false,
+        )
+
+        assertEquals(
+            "Create A2UI Express v1 GenUI IR for this response:\n\n" +
+                "Order A-1042 is out for delivery.",
+            prompt,
+        )
+        assertEquals(2, context.initialMessages.size)
+        assertTrue(context.initialMessages.first().content.contains("travel checklist"))
+        assertTrue(context.initialMessages.last().content.startsWith("<a2ui>"))
+        assertTrue(context.systemPrompt.orEmpty().contains("A2UI Express v1"))
+    }
+
+    @Test
     fun catalogEntryUsesRawResponseWithNativeGemmaChatTemplate() {
         val entry = OnDeviceModelCatalog.entryForModelPath(
             "/sdcard/Android/data/com.samsung.genuicraft/files/on_device_models/gemma-4-e2b-ir-trained-int4.litertlm"
@@ -59,7 +115,8 @@ class Gemma4E2bTrainedProfileTest {
         assertEquals(2_048, entry.maxOutputTokens)
         assertTrue(entry.requireGpu)
         assertFalse(entry.enableSpeculativeDecoding)
-        assertTrue(entry.rawStage3Response)
+        assertFalse(entry.rawStage3Response)
+        assertTrue(entry.trainingCompatiblePrompt)
         assertEquals(2_500_000_000L, entry.minimumFileSizeBytes)
         assertFalse(entry.isDownloadable)
     }

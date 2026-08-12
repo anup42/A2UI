@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import types
@@ -19,7 +20,10 @@ from ir_training.export.manifest import build_manifest, write_manifest
 from ir_training.common.cuda_env import normalize_cuda_visible_devices
 from ir_training.train import callbacks as callbacks_module
 from ir_training.train import sft as sft_module
-from ir_training.train.callbacks import build_golden_set_eval_callback
+from ir_training.train.callbacks import (
+    build_checkpoint_provenance_callback,
+    build_golden_set_eval_callback,
+)
 from ir_training.train.sft import (
     _CausalLMDataCollator,
     _checked_shifted_causal_lm_loss,
@@ -629,10 +633,385 @@ def test_golden_eval_rejects_a_short_or_duplicate_fixed_set(tmp_path, monkeypatc
         )
 
 
+def test_each_trainer_checkpoint_gets_self_contained_provenance(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        types.SimpleNamespace(TrainerCallback=object),
+    )
+    output_dir = tmp_path / "run"
+    checkpoint = output_dir / "checkpoint-500"
+    checkpoint.mkdir(parents=True)
+    adapter = checkpoint / "adapter_model.safetensors"
+    adapter.write_bytes(b"fixed-scale-adapter")
+    (checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    config = tmp_path / "resolved.yaml"
+    config.write_text("qat:\n  scale_mode: retained_mobile\n", encoding="utf-8")
+    best_checkpoint = tmp_path / "best_golden"
+    best_checkpoint.mkdir()
+    best_adapter = best_checkpoint / "adapter_model.safetensors"
+    best_adapter.write_bytes(b"best-fixed-scale-adapter")
+    (best_checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    callback = build_checkpoint_provenance_callback(
+        output_dir=output_dir,
+        metadata={
+            "training_metadata_version": 4,
+            "qat": {"retained_qparams_binding_count": 205},
+            "numeric_preflight": {"passed": True},
+        },
+        config_path=config,
+        golden_summary_provider=lambda: {
+            "metric": "generation_reward_v5_4_avg",
+            "metric_value": 88.0,
+            "step": 500,
+            "epoch": 0.25,
+            "checkpoint_dir": str(best_checkpoint),
+        },
+    )
+    state = types.SimpleNamespace(
+        global_step=500,
+        epoch=0.25,
+        is_world_process_zero=True,
+        log_history=[{"eval_golden100/v5_4_score": 88.0}],
+    )
+
+    callback.on_save(None, state, object())
+
+    payload = json.loads(
+        (checkpoint / "training_metadata.json").read_text(encoding="utf-8")
+    )
+    assert payload["checkpoint_step"] == 500
+    assert payload["qat"]["retained_qparams_binding_count"] == 205
+    assert payload["numeric_preflight"]["passed"] is True
+    assert payload["best_golden_eval"]["metric_value"] == 88.0
+    assert payload["last_trainer_log"]["eval_golden100/v5_4_score"] == 88.0
+    weights = next(
+        item
+        for item in payload["checkpoint_adapter_files"]
+        if item["path"] == adapter.name
+    )
+    assert weights["size_bytes"] == adapter.stat().st_size
+    assert len(weights["sha256"]) == 64
+    assert payload["adapter_checkpoints"][0]["role"] == "trainer_intermediate"
+    assert payload["adapter_checkpoints"][0]["files"][0]["size"] > 0
+    assert (checkpoint / "training_config.yaml").read_text(encoding="utf-8") == config.read_text(
+        encoding="utf-8"
+    )
+    best_payload = json.loads(
+        (best_checkpoint / "training_metadata.json").read_text(encoding="utf-8")
+    )
+    assert best_payload["checkpoint_role"] == "best_golden"
+    best_weight_record = next(
+        item
+        for item in best_payload["adapter_checkpoints"][0]["files"]
+        if item["path"] == best_adapter.name
+    )
+    assert best_weight_record["sha256"] == hashlib.sha256(
+        best_adapter.read_bytes()
+    ).hexdigest()
+    assert (best_checkpoint / "training_config.yaml").read_bytes() == config.read_bytes()
+    assert not list(checkpoint.glob("*.partial"))
+    assert not list(best_checkpoint.glob("*.partial"))
+
+
+def test_checkpoint_provenance_callback_skips_nonzero_rank(tmp_path, monkeypatch):
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        types.SimpleNamespace(TrainerCallback=object),
+    )
+    callback = build_checkpoint_provenance_callback(
+        output_dir=tmp_path / "run",
+        metadata={"training_metadata_version": 4},
+    )
+    state = types.SimpleNamespace(
+        global_step=500,
+        epoch=0.25,
+        is_world_process_zero=False,
+        log_history=[],
+    )
+    control = object()
+
+    returned = callback.on_save(None, state, control)
+
+    assert returned is control
+    assert not (tmp_path / "run").exists()
+
+
+def test_checkpoint_provenance_callback_rejects_missing_adapter(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        types.SimpleNamespace(TrainerCallback=object),
+    )
+    checkpoint = tmp_path / "run" / "checkpoint-500"
+    checkpoint.mkdir(parents=True)
+    (checkpoint / "trainer_state.json").write_text("{}", encoding="utf-8")
+    callback = build_checkpoint_provenance_callback(
+        output_dir=tmp_path / "run",
+        metadata={"training_metadata_version": 4},
+    )
+    state = types.SimpleNamespace(
+        global_step=500,
+        epoch=0.25,
+        is_world_process_zero=True,
+        log_history=[],
+    )
+
+    with pytest.raises(RuntimeError, match="no local adapter files"):
+        callback.on_save(None, state, object())
+
+    assert not (checkpoint / "training_metadata.json").exists()
+    assert not list(checkpoint.glob("*.partial"))
+
+
 def test_tensorboard_reporter_is_added_without_removing_existing_reporters():
     assert _ensure_tensorboard_reporter("none") == "tensorboard"
     assert _ensure_tensorboard_reporter("tensorboard") == "tensorboard"
     assert _ensure_tensorboard_reporter(["wandb"]) == ["wandb", "tensorboard"]
+
+
+def test_training_limit_uses_positive_max_steps_as_optimizer_step_override():
+    report = sft_module._training_limit_config({"epochs": 2, "max_steps": 3})
+
+    assert report == {
+        "mode": "max_optimizer_steps",
+        "max_optimizer_steps": 3,
+        "num_train_epochs": 2.0,
+        "max_steps_overrides_epochs": True,
+    }
+    training_args = {"max_steps": 999}
+    sft_module._apply_training_limit_to_args(training_args, report)
+    assert training_args == {"num_train_epochs": 2.0, "max_steps": 3}
+
+
+@pytest.mark.parametrize("invalid", [True, False, 0, -1, 1.5, "3", None])
+def test_training_limit_rejects_invalid_max_steps_without_epoch_fallback(invalid):
+    with pytest.raises(ValueError, match="positive integer optimizer-step"):
+        sft_module._training_limit_config({"epochs": 2, "max_steps": invalid})
+
+
+def test_training_limit_defaults_to_epochs_only_when_max_steps_is_absent():
+    report = sft_module._training_limit_config({"epochs": 1.5})
+    assert report == {
+        "mode": "num_train_epochs",
+        "max_optimizer_steps": None,
+        "num_train_epochs": 1.5,
+        "max_steps_overrides_epochs": False,
+    }
+    training_args = {"max_steps": 999}
+    sft_module._apply_training_limit_to_args(training_args, report)
+    assert training_args == {"num_train_epochs": 1.5}
+
+
+def test_bounded_golden_eval_cadence_must_fit_optimizer_step_limit():
+    limit = sft_module._training_limit_config(
+        {"epochs": 2, "max_steps": 3}
+    )
+    sft_module._validate_bounded_eval_save_cadence(
+        {"max_steps": 3, "eval_steps": 3, "save_steps": 3}, limit
+    )
+
+    with pytest.raises(ValueError, match="no greater than training.max_steps=3"):
+        sft_module._validate_bounded_eval_save_cadence(
+            {"max_steps": 3, "eval_steps": 4, "save_steps": 4}, limit
+        )
+
+
+def test_greedy_numeric_preflight_repeats_deterministically_and_restores_mode():
+    import torch
+
+    class Tokenizer:
+        pad_token_id = 0
+        eos_token_id = 2
+
+        def __call__(self, text, **kwargs):
+            return {"input_ids": [3, 4, 5] if text else []}
+
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.anchor = torch.nn.Parameter(torch.zeros(()))
+
+        def generate(self, *, input_ids, max_new_tokens, **kwargs):
+            generated = torch.arange(
+                10,
+                10 + int(max_new_tokens),
+                device=input_ids.device,
+                dtype=input_ids.dtype,
+            ).reshape(1, -1)
+            return torch.cat((input_ids, generated), dim=-1)
+
+    model = Model()
+    model.train()
+    report = sft_module._run_deterministic_greedy_gate(
+        model=model,
+        split=[{"prompt_text": "fixed prompt"}],
+        tokenizer=Tokenizer(),
+        max_position_embeddings=64,
+        max_rows=1,
+        max_new_tokens=8,
+        min_new_tokens=4,
+        repeats=2,
+        label="test",
+    )
+
+    assert report["deterministic"] is True
+    assert report["generated_token_counts"] == [[8], [8]]
+    assert report["generated_token_ids"][0] == report["generated_token_ids"][1]
+    assert model.training is True
+
+
+def test_greedy_numeric_preflight_comparison_rejects_nondeterministic_qat():
+    baseline = {
+        "generated_token_ids": [[[1, 2, 3]]],
+        "deterministic": True,
+    }
+    qat_on = {
+        "generated_token_ids": [[[1, 2, 3]], [[1, 2, 4]]],
+        "deterministic": False,
+    }
+
+    with pytest.raises(RuntimeError, match="was not deterministic"):
+        sft_module._compare_initial_greedy_reports(
+            baseline,
+            qat_on,
+            preflight_cfg={"require_greedy_determinism": True},
+            qat_enabled=True,
+        )
+
+
+def test_greedy_numeric_preflight_rejects_deterministic_early_divergence():
+    baseline = {
+        "generated_token_ids": [[[1, 2, 3, 4, 5, 6, 7, 8]]],
+        "deterministic": True,
+    }
+    qat_on = {
+        "generated_token_ids": [
+            [[91, 92, 93, 94, 95, 96, 97, 98]],
+            [[91, 92, 93, 94, 95, 96, 97, 98]],
+        ],
+        "deterministic": True,
+    }
+
+    with pytest.raises(RuntimeError, match="diverged too early"):
+        sft_module._compare_initial_greedy_reports(
+            baseline,
+            qat_on,
+            preflight_cfg={
+                "require_greedy_determinism": True,
+                "min_baseline_qat_greedy_prefix_tokens": 8,
+            },
+            qat_enabled=True,
+        )
+
+
+def test_greedy_numeric_preflight_accepts_required_cross_mode_prefix():
+    baseline = {
+        "generated_token_ids": [[[1, 2, 3, 4, 5, 6, 7, 8, 9]]],
+        "deterministic": True,
+    }
+    qat_sequences = [[1, 2, 3, 4, 5, 6, 7, 8, 99]]
+    report = sft_module._compare_initial_greedy_reports(
+        baseline,
+        {
+            "generated_token_ids": [qat_sequences, qat_sequences],
+            "deterministic": True,
+        },
+        preflight_cfg={
+            "require_greedy_determinism": True,
+            "min_baseline_qat_greedy_prefix_tokens": 8,
+        },
+        qat_enabled=True,
+    )
+
+    assert report["passed"] is True
+    assert report["baseline_qat_common_prefix_tokens_by_row"] == [8]
+    assert report["baseline_qat_min_common_prefix_tokens"] == 8
+
+
+def test_greedy_numeric_preflight_requires_prefix_for_every_row():
+    baseline_rows = [
+        [1, 2, 3, 4, 5, 6, 7, 8],
+        [11, 12, 13, 14, 15, 16, 17, 18],
+    ]
+    qat_rows = [
+        [1, 2, 3, 4, 5, 6, 7, 8],
+        [99, 98, 97, 96, 95, 94, 93, 92],
+    ]
+
+    with pytest.raises(RuntimeError, match="required_per_row=8"):
+        sft_module._compare_initial_greedy_reports(
+            {"generated_token_ids": [baseline_rows], "deterministic": True},
+            {
+                "generated_token_ids": [qat_rows, qat_rows],
+                "deterministic": True,
+            },
+            preflight_cfg={
+                "require_greedy_determinism": True,
+                "min_baseline_qat_greedy_prefix_tokens": 8,
+            },
+            qat_enabled=True,
+        )
+
+
+def test_greedy_numeric_preflight_rejects_cross_mode_row_count_mismatch():
+    with pytest.raises(RuntimeError, match="row_counts_match=False"):
+        sft_module._compare_initial_greedy_reports(
+            {
+                "generated_token_ids": [
+                    [[1, 2, 3, 4, 5, 6, 7, 8], [11, 12, 13, 14, 15, 16, 17, 18]]
+                ],
+                "deterministic": True,
+            },
+            {
+                "generated_token_ids": [
+                    [[1, 2, 3, 4, 5, 6, 7, 8]],
+                    [[1, 2, 3, 4, 5, 6, 7, 8]],
+                ],
+                "deterministic": True,
+            },
+            preflight_cfg={
+                "require_greedy_determinism": True,
+                "min_baseline_qat_greedy_prefix_tokens": 8,
+            },
+            qat_enabled=True,
+        )
+
+
+def test_zero_lora_initialization_gate_rejects_nonzero_delta_factors():
+    import torch
+
+    class LoraWrapper(torch.nn.Module):
+        def __init__(self, *, zero_b: bool):
+            super().__init__()
+            self.base_layer = torch.nn.Linear(3, 3, bias=False)
+            self.lora_A = torch.nn.ModuleDict(
+                {"default": torch.nn.Linear(3, 2, bias=False)}
+            )
+            self.lora_B = torch.nn.ModuleDict(
+                {"default": torch.nn.Linear(2, 3, bias=False)}
+            )
+            self.active_adapters = ["default"]
+            with torch.no_grad():
+                self.lora_A["default"].weight.fill_(1.0)
+                self.lora_B["default"].weight.fill_(0.0 if zero_b else 1.0)
+
+    exact = sft_module._verify_zero_lora_initialization(
+        torch.nn.ModuleDict({"projection": LoraWrapper(zero_b=True)})
+    )
+    wrong = sft_module._verify_zero_lora_initialization(
+        torch.nn.ModuleDict({"projection": LoraWrapper(zero_b=False)})
+    )
+
+    assert exact["verified_zero_delta"] is True
+    assert exact["wrapper_count"] == exact["adapter_pair_count"] == 1
+    assert wrong["verified_zero_delta"] is False
+    assert wrong["nonzero_or_invalid_pairs"] == ["projection:default"]
 
 
 def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tmp_path, monkeypatch):

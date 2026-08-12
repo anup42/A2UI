@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,17 @@ from typing import Any
 from ir_training.common.config import resolve_path, training_root
 from ir_training.models.hf_loading import load_hf_model
 from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
+from ir_training.qat.mobile_qparams import verify_mobile_qparams_contract
+
+
+_RETAINED_MOBILE_PROJECTION_COUNT = 205
+_REQUIRED_PORTABLE_PREFLIGHTS = {
+    "cuda_bf16_environment",
+    "static_qat_profile",
+    "mobile_seed_architecture",
+    "scale_preserving_qat",
+    "model_numeric_preflight",
+}
 
 
 def _sha256_file(path: Path) -> str:
@@ -52,12 +64,198 @@ def _normalized_file_records(records: Any) -> list[dict[str, Any]]:
     return sorted(normalized, key=lambda item: item["path"])
 
 
+def _recorded_identity_is_complete(value: Any) -> bool:
+    if not isinstance(value, dict) or value.get("present") is not True:
+        return False
+    digest = str(value.get("sha256") or "").lower()
+    try:
+        size = int(value.get("size_bytes", -1))
+    except (TypeError, ValueError):
+        return False
+    return bool(str(value.get("path") or "").strip() and size >= 0 and len(digest) == 64)
+
+
+def _load_bound_json(identity: Any) -> dict[str, Any] | None:
+    """Load a launcher artifact only when its recorded size/hash still match."""
+
+    if not _recorded_identity_is_complete(identity):
+        return None
+    path = Path(str(identity["path"]))
+    if not path.is_file():
+        return None
+    try:
+        if path.stat().st_size != int(identity["size_bytes"]):
+            return None
+        if _sha256_file(path) != str(identity["sha256"]).lower():
+            return None
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _retained_projection_keys(qparams: dict[str, Any]) -> set[str]:
+    suffixes = (
+        "self_attn.q_proj.weight",
+        "self_attn.k_proj.weight",
+        "self_attn.v_proj.weight",
+        "self_attn.o_proj.weight",
+        "mlp.gate_proj.weight",
+        "mlp.up_proj.weight",
+        "mlp.down_proj.weight",
+    )
+    inventory = qparams.get("inventory")
+    if not isinstance(inventory, dict):
+        return set()
+    return {
+        str(key)
+        for key, entry in inventory.items()
+        if isinstance(entry, dict)
+        and str(key).startswith("model.layers.")
+        and str(key).endswith(suffixes)
+        and entry.get("input_activation_scale_f32_le_hex") is not None
+        and entry.get("output_activation_scale_f32_le_hex") is not None
+    }
+
+
+def _retained_binding_contract_matches(
+    qat: dict[str, Any], qparams: dict[str, Any]
+) -> bool:
+    names = qat.get("wrapped_effective_lora_names")
+    bindings = qat.get("retained_qparams_bindings")
+    inventory = qparams.get("inventory")
+    if not isinstance(names, list) or not isinstance(bindings, dict) or not isinstance(inventory, dict):
+        return False
+    normalized_names = [str(name) for name in names]
+    if (
+        len(normalized_names) != _RETAINED_MOBILE_PROJECTION_COUNT
+        or len(set(normalized_names)) != _RETAINED_MOBILE_PROJECTION_COUNT
+        or set(normalized_names) != {str(name) for name in bindings}
+    ):
+        return False
+    bound_weight_keys: set[str] = set()
+    for binding in bindings.values():
+        if not isinstance(binding, dict):
+            return False
+        weight_key = str(binding.get("weight_key") or "")
+        entry = inventory.get(weight_key)
+        if not isinstance(entry, dict):
+            return False
+        try:
+            input_scale = float(binding.get("input_activation_scale"))
+            output_scale = float(binding.get("output_activation_scale"))
+            bits_match = int(binding.get("bits", -1)) == int(entry.get("bits", -2))
+            binding_group = binding.get("group_size")
+            entry_group = entry.get("group_size")
+            group_match = (
+                (binding_group is None and entry_group is None)
+                or int(binding_group) == int(entry_group)
+            )
+            shape_match = [int(value) for value in binding.get("scale_shape", [])] == [
+                int(value) for value in entry.get("scale_shape", [])
+            ]
+        except (TypeError, ValueError):
+            return False
+        if not (
+            bits_match
+            and group_match
+            and shape_match
+            and math.isfinite(input_scale)
+            and input_scale > 0
+            and math.isfinite(output_scale)
+            and output_scale > 0
+        ):
+            return False
+        bound_weight_keys.add(weight_key)
+    return bound_weight_keys == _retained_projection_keys(qparams)
+
+
+def _portable_launcher_contract_matches(
+    metadata: dict[str, Any], *, training_config_sha256: str
+) -> bool:
+    launcher = metadata.get("launcher_provenance")
+    if not isinstance(launcher, dict):
+        return False
+    launch_identity = launcher.get("launch_plan")
+    preflight_identity = launcher.get("preflight_report")
+    launch_plan = _load_bound_json(launch_identity)
+    preflight = _load_bound_json(preflight_identity)
+    if launch_plan is None or preflight is None:
+        return False
+    bound = launch_plan.get("bound_artifacts")
+    bound = bound if isinstance(bound, dict) else {}
+    resolved_config = bound.get("resolved_training_config")
+    if not isinstance(resolved_config, dict):
+        return False
+    try:
+        config_hash_matches = (
+            str(resolved_config.get("sha256") or "").lower()
+            == training_config_sha256.lower()
+            and int(resolved_config.get("size_bytes", -1)) >= 1
+        )
+    except (TypeError, ValueError):
+        config_hash_matches = False
+    required_bound = {
+        "mobile_seed_manifest",
+        "mobile_qparams_contract",
+        "official_packed_source",
+        "training_train",
+        "training_val",
+        "golden100",
+        "resolved_training_config",
+    }
+    def bound_identity_complete(role: str) -> bool:
+        identity = bound.get(role)
+        if not isinstance(identity, dict):
+            return False
+        try:
+            size = int(identity.get("size_bytes", -1))
+        except (TypeError, ValueError):
+            return False
+        return len(str(identity.get("sha256") or "")) == 64 and size >= 0
+
+    bound_complete = required_bound.issubset(bound) and all(
+        bound_identity_complete(role) for role in required_bound
+    )
+    reports = preflight.get("reports")
+    reports = reports if isinstance(reports, list) else []
+    report_ids = {
+        str(item.get("id"))
+        for item in reports
+        if isinstance(item, dict) and item.get("passed") is True
+    }
+    gate_records_bound = all(
+        isinstance(item, dict)
+        and item.get("passed") is True
+        and _recorded_identity_is_complete(item.get("log"))
+        and all(
+            _recorded_identity_is_complete(output)
+            for output in (item.get("declared_outputs") or [])
+        )
+        for item in reports
+    )
+    return bool(
+        launch_plan.get("mode") == "fresh_run_only_no_resume"
+        and launch_plan.get("run_id") == metadata.get("run_id")
+        and isinstance(launch_plan.get("checks"), dict)
+        and launch_plan["checks"].get("contract_ok") is True
+        and config_hash_matches
+        and bound_complete
+        and preflight.get("run_id") == metadata.get("run_id")
+        and preflight.get("all_passed") is True
+        and report_ids == _REQUIRED_PORTABLE_PREFLIGHTS
+        and gate_records_bound
+    )
+
+
 def _verify_qat_training_metadata(
     adapter_path: Path,
     *,
     training_config_sha256: str,
     training_method: str,
     mobile_training_seed: dict[str, Any],
+    training_config: dict[str, Any] | None = None,
+    mobile_qparams: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     metadata_path = next(
         (
@@ -92,6 +290,27 @@ def _verify_qat_training_metadata(
             "required", False
         ),
     }
+    retained_required = bool(
+        isinstance(training_config, dict)
+        and isinstance(training_config.get("qat"), dict)
+        and training_config["qat"].get("scale_mode") == "retained_mobile"
+    )
+    if retained_required:
+        checks.update(
+            {
+                "retained_metadata_v4": False,
+                "best_golden_checkpoint_role": False,
+                "best_golden_v5_4_selected": False,
+                "retained_mobile_qat_spec": False,
+                "exact_205_effective_lora_modules": False,
+                "exact_205_retained_qparams_bindings": False,
+                "retained_qparams_identity_matches": False,
+                "zero_adapter_initialization_verified": False,
+                "initial_numeric_parity_passed": False,
+                "deterministic_greedy_prefix_passed": False,
+                "portable_launcher_artifacts_bound": False,
+            }
+        )
     report: dict[str, Any] = {
         "required": True,
         "path": str(metadata_path) if metadata_path else None,
@@ -199,6 +418,154 @@ def _verify_qat_training_metadata(
             and architecture.get("forward_executed") is False
             and architecture.get("training_executed") is False
         )
+    if retained_required:
+        config_qat = training_config.get("qat", {})  # type: ignore[union-attr]
+        config_preflight = training_config.get("preflight", {})  # type: ignore[union-attr]
+        config_golden = training_config.get("golden_eval", {})  # type: ignore[union-attr]
+        config_qat = config_qat if isinstance(config_qat, dict) else {}
+        config_preflight = (
+            config_preflight if isinstance(config_preflight, dict) else {}
+        )
+        config_golden = config_golden if isinstance(config_golden, dict) else {}
+        retained = (
+            qat.get("retained_qparams")
+            if isinstance(qat.get("retained_qparams"), dict)
+            else {}
+        )
+        numeric = (
+            metadata.get("numeric_preflight")
+            if isinstance(metadata.get("numeric_preflight"), dict)
+            else {}
+        )
+        zero_adapter = (
+            numeric.get("zero_adapter_initialization")
+            if isinstance(numeric.get("zero_adapter_initialization"), dict)
+            else {}
+        )
+        greedy = (
+            numeric.get("greedy_generation")
+            if isinstance(numeric.get("greedy_generation"), dict)
+            else {}
+        )
+        golden = (
+            metadata.get("best_golden_eval")
+            if isinstance(metadata.get("best_golden_eval"), dict)
+            else {}
+        )
+        expected_count = int(
+            config_qat.get(
+                "expected_effective_lora_modules",
+                _RETAINED_MOBILE_PROJECTION_COUNT,
+            )
+            or 0
+        )
+        minimum_prefix = int(
+            config_preflight.get("min_baseline_qat_greedy_prefix_tokens", 8)
+            or 0
+        )
+        minimum_top1 = float(config_preflight.get("min_top1_probe_match", 0.90))
+        checks["retained_metadata_v4"] = (
+            int(metadata.get("training_metadata_version", 0) or 0) >= 4
+        )
+        checks["best_golden_checkpoint_role"] = bool(
+            metadata.get("checkpoint_role") == "best_golden"
+            and isinstance(metadata.get("adapter_checkpoints"), list)
+            and any(
+                isinstance(checkpoint, dict)
+                and checkpoint.get("role") == "best_golden"
+                and _normalized_file_records(checkpoint.get("files"))
+                == actual_files
+                for checkpoint in metadata["adapter_checkpoints"]
+            )
+        )
+        try:
+            golden_metric_value = float(golden.get("metric_value"))
+        except (TypeError, ValueError):
+            golden_metric_value = math.nan
+        try:
+            golden_step_matches = int(golden.get("step", -1)) == int(
+                metadata.get("checkpoint_step", -2)
+            )
+        except (TypeError, ValueError):
+            golden_step_matches = False
+        checks["best_golden_v5_4_selected"] = bool(
+            golden.get("metric") == "generation_reward_v5_4_avg"
+            and config_golden.get("metric_for_best_model")
+            == "generation_reward_v5_4_avg"
+            and math.isfinite(golden_metric_value)
+            and golden_step_matches
+        )
+        checks["retained_mobile_qat_spec"] = bool(
+            qat_spec.get("scale_mode") == "retained_mobile"
+            and qat_spec.get("fixed_scale_required") is True
+            and qat_spec.get("fixed_activation_scale_required") is True
+            and qat_spec.get("effective_lora_only") is True
+            and qat_spec.get("effective_merged_weight") is True
+            and qat_spec.get("ste_gradient") == "clipped"
+            and int(qat_spec.get("expected_effective_lora_modules", 0) or 0)
+            == expected_count
+            and expected_count == _RETAINED_MOBILE_PROJECTION_COUNT
+        )
+        checks["exact_205_effective_lora_modules"] = bool(
+            int(qat.get("wrapped_effective_lora_count", 0) or 0)
+            == _RETAINED_MOBILE_PROJECTION_COUNT
+            and not qat.get("uncovered_lora_adapter_linear_names")
+        )
+        qparams_report = mobile_qparams if isinstance(mobile_qparams, dict) else {}
+        checks["exact_205_retained_qparams_bindings"] = bool(
+            qparams_report.get("verified") is True
+            and int(qat.get("retained_qparams_binding_count", 0) or 0)
+            == _RETAINED_MOBILE_PROJECTION_COUNT
+            and _retained_binding_contract_matches(qat, qparams_report)
+        )
+        checks["retained_qparams_identity_matches"] = bool(
+            retained.get("verified") is True
+            and retained.get("mode") == "retained_mobile"
+            and str(retained.get("contract_sha256") or "").lower()
+            == str(qparams_report.get("contract_sha256") or "").lower()
+            and str(retained.get("scale_storage_sha256") or "").lower()
+            == str(qparams_report.get("scale_storage_sha256") or "").lower()
+            and retained.get("inventory_sha256")
+            == qparams_report.get("inventory_sha256")
+            and int(retained.get("tensor_count", 0) or 0)
+            == int(qparams_report.get("tensor_count", -1) or -1)
+        )
+        checks["zero_adapter_initialization_verified"] = bool(
+            zero_adapter.get("verified_zero_delta") is True
+            and int(zero_adapter.get("wrapper_count", 0) or 0)
+            == _RETAINED_MOBILE_PROJECTION_COUNT
+            and int(zero_adapter.get("adapter_pair_count", 0) or 0)
+            >= _RETAINED_MOBILE_PROJECTION_COUNT
+            and not zero_adapter.get("nonzero_or_invalid_pairs")
+        )
+        try:
+            top1_fraction = float(numeric.get("top1_probe_match_fraction"))
+        except (TypeError, ValueError):
+            top1_fraction = math.nan
+        checks["initial_numeric_parity_passed"] = bool(
+            numeric.get("passed") is True
+            and numeric.get("qat_enabled") is True
+            and math.isfinite(top1_fraction)
+            and top1_fraction >= minimum_top1
+        )
+        try:
+            observed_prefix = int(
+                greedy.get("baseline_qat_min_common_prefix_tokens", -1)
+            )
+        except (TypeError, ValueError):
+            observed_prefix = -1
+        checks["deterministic_greedy_prefix_passed"] = bool(
+            greedy.get("passed") is True
+            and greedy.get("qat_enabled") is True
+            and greedy.get("qat_greedy_deterministic") is True
+            and observed_prefix >= minimum_prefix
+            and minimum_prefix >= 8
+        )
+        checks["portable_launcher_artifacts_bound"] = (
+            _portable_launcher_contract_matches(
+                metadata, training_config_sha256=training_config_sha256
+            )
+        )
     report["training_git_commit"] = git_commit or None
     report["adapter_files"] = actual_files
     report["verified"] = bool(all(checks.values()))
@@ -222,6 +589,10 @@ def _training_provenance(
         "qat_effective_merged_weight": None,
         "lora_dropout": None,
         "mobile_training_seed": {
+            "required": False,
+            "verified": True,
+        },
+        "mobile_qparams": {
             "required": False,
             "verified": True,
         },
@@ -285,6 +656,21 @@ def _training_provenance(
     training = config.get("training") if isinstance(config.get("training"), dict) else {}
     qat = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     lora = config.get("lora") if isinstance(config.get("lora"), dict) else {}
+    mobile_qparams: dict[str, Any] = {"required": False, "verified": True}
+    if qat.get("scale_mode") == "retained_mobile":
+        mobile_qparams = verify_mobile_qparams_contract(
+            model.get("mobile_qparams_contract"), base=base
+        )
+        if not mobile_qparams.get("verified"):
+            failed = [
+                name
+                for name, passed in mobile_qparams.get("checks", {}).items()
+                if not passed
+            ]
+            raise ValueError(
+                "Merge retained mobile qparams identity is incomplete or mismatched: "
+                + ", ".join(failed)
+            )
     training_method = str(training.get("method") or "")
     qat_enabled = bool(qat.get("enabled", False))
     result.update(
@@ -299,6 +685,7 @@ def _training_provenance(
             ),
             "lora_dropout": lora.get("dropout"),
             "mobile_training_seed": mobile_training_seed,
+            "mobile_qparams": mobile_qparams,
         }
     )
     if qat_enabled:
@@ -307,6 +694,8 @@ def _training_provenance(
             training_config_sha256=config_sha256,
             training_method=training_method,
             mobile_training_seed=mobile_training_seed,
+            training_config=config,
+            mobile_qparams=mobile_qparams,
         )
         result["training_run_metadata"] = run_report
         if not run_report["verified"]:

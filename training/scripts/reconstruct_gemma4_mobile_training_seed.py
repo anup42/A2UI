@@ -28,6 +28,7 @@ import json
 import math
 import re
 import shutil
+import struct
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -60,6 +61,8 @@ EXPECTED_SHARED_KV_START = 15
 MAX_HEADER_BYTES = 16 * 1024 * 1024
 DEFAULT_MAX_SHARD_BYTES = 5 * 1024 * 1024 * 1024
 DEFAULT_WORKING_SET_BYTES = 16 * 1024 * 1024
+MOBILE_QPARAMS_FILENAME = "mobile_qparams.safetensors"
+MOBILE_QPARAMS_CONTRACT_FILENAME = "mobile_qparams.json"
 LAYER_RE = re.compile(r"^model\.language_model\.layers\.(\d+)\.")
 
 
@@ -684,6 +687,197 @@ def _write_shard(
     }
 
 
+def _activation_scale_hex_by_weight(
+    source_path: Path,
+    header: dict[str, Any],
+    *,
+    data_start: int,
+    file_size: int,
+    tensors: Iterable[TensorTransform],
+) -> dict[str, dict[str, str]]:
+    result: dict[str, dict[str, str]] = {}
+    with source_path.open("rb") as source:
+        for tensor in tensors:
+            if tensor.scale_key is None or not tensor.source_key.endswith(".weight"):
+                continue
+            stem = tensor.source_key[: -len(".weight")]
+            scales: dict[str, str] = {}
+            for role in ("input", "output"):
+                source_key = f"{stem}.{role}_activation_scale"
+                if source_key not in header:
+                    continue
+                dtype, shape, begin, end = _entry(
+                    header,
+                    source_key,
+                    data_start=data_start,
+                    file_size=file_size,
+                )
+                if dtype != "F32" or shape not in {(), (1,)} or end - begin != 4:
+                    raise Gemma4MobileSeedError(
+                        f"Expected scalar F32 {role} activation scale for "
+                        f"{tensor.source_key!r}; got {dtype} {shape}."
+                    )
+                source.seek(begin)
+                raw = source.read(4)
+                value = struct.unpack("<f", raw)[0]
+                if not math.isfinite(value) or value <= 0:
+                    # lm_head uses floating graph edges and publishes zero
+                    # placeholders; it is frozen and not an effective-LoRA target.
+                    if tensor.output_key != "lm_head.weight" or value != 0:
+                        raise Gemma4MobileSeedError(
+                            f"Invalid {role} activation scale for "
+                            f"{tensor.source_key!r}: {value}."
+                        )
+                scales[f"{role}_activation_scale_f32_le_hex"] = raw.hex()
+            if scales:
+                result[tensor.output_key] = scales
+    return result
+
+
+def _qparams_inventory(
+    tensors: Iterable[TensorTransform],
+    activation_scales: dict[str, dict[str, str]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Describe the released quantization parameters retained for each matrix.
+
+    The dense BF16 seed contains dequantized cell centers.  Those centers are
+    not enough to reconstruct the released quantizer: W2/W4 tensors frequently
+    do not occupy both extrema, so deriving a new abs-max scale changes their
+    codes.  This inventory therefore treats Google's published scale tensor as
+    immutable training/export state.
+    """
+
+    inventory: dict[str, dict[str, Any]] = {}
+    for tensor in tensors:
+        if tensor.scale_key is None:
+            continue
+        if tensor.bits not in {2, 4, 8} or tensor.scale_shape is None:
+            raise Gemma4MobileSeedError(
+                f"Incomplete retained qparams for {tensor.output_key!r}."
+            )
+        if tensor.scale_begin is None or tensor.scale_end is None:
+            raise Gemma4MobileSeedError(
+                f"Missing retained scale offsets for {tensor.output_key!r}."
+            )
+        # A single scale column is ordinary per-output-channel quantization.
+        # Multiple columns are blockwise and the recorded width must be used.
+        group_size = (
+            int(tensor.scale_group_width)
+            if int(tensor.scale_shape[1]) > 1
+            else None
+        )
+        inventory[tensor.output_key] = {
+            "scale_tensor": tensor.output_key,
+            "source_scale_key": tensor.scale_key,
+            "bits": int(tensor.bits),
+            "weight_shape": list(tensor.output_shape),
+            "scale_shape": list(tensor.scale_shape),
+            "axis": 0,
+            "group_size": group_size,
+            "zero_point": 0,
+            "symmetric": True,
+            "signed_range": "narrow" if tensor.bits == 8 else "full",
+            **dict((activation_scales or {}).get(tensor.output_key, {})),
+        }
+    return dict(sorted(inventory.items()))
+
+
+def _qparams_inventory_sha256(inventory: dict[str, dict[str, Any]]) -> str:
+    canonical = json.dumps(
+        inventory,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _qparams_safetensors_header(tensors: tuple[TensorTransform, ...]) -> bytes:
+    payload: dict[str, Any] = {
+        "__metadata__": {
+            "format": "pt",
+            "contract": "gemma4_mobile_retained_qparams_v1",
+        }
+    }
+    offset = 0
+    for tensor in tensors:
+        if tensor.scale_shape is None:
+            raise Gemma4MobileSeedError(
+                f"Missing scale shape for {tensor.output_key!r}."
+            )
+        nbytes = _numel(tensor.scale_shape) * 4
+        payload[tensor.output_key] = {
+            "dtype": "F32",
+            "shape": list(tensor.scale_shape),
+            "data_offsets": [offset, offset + nbytes],
+        }
+        offset += nbytes
+    raw = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).encode(
+        "utf-8"
+    )
+    raw += b" " * ((-len(raw)) % 8)
+    return raw
+
+
+def _write_qparams_sidecar(
+    source_path: Path,
+    destination_path: Path,
+    tensors: tuple[TensorTransform, ...],
+) -> dict[str, Any]:
+    """Stream exact F32 scale bytes into a portable Safetensors sidecar."""
+
+    header = _qparams_safetensors_header(tensors)
+    partial_path = destination_path.with_name(destination_path.name + ".partial")
+    if destination_path.exists() or partial_path.exists():
+        raise Gemma4MobileSeedError(
+            f"Refusing to overwrite retained-qparams output: {destination_path}"
+        )
+    digest = hashlib.sha256()
+    payload_nbytes = 0
+    prefix = len(header).to_bytes(8, "little", signed=False) + header
+    with source_path.open("rb") as source, partial_path.open("xb") as output:
+        output.write(prefix)
+        digest.update(prefix)
+        for tensor in tensors:
+            if tensor.scale_begin is None or tensor.scale_end is None:
+                raise Gemma4MobileSeedError(
+                    f"Missing scale byte range for {tensor.output_key!r}."
+                )
+            expected = _numel(tensor.scale_shape or ()) * 4
+            if tensor.scale_end - tensor.scale_begin != expected:
+                raise Gemma4MobileSeedError(
+                    f"Scale byte count differs for {tensor.output_key!r}: "
+                    f"{tensor.scale_end - tensor.scale_begin} vs {expected}."
+                )
+            source.seek(tensor.scale_begin)
+            remaining = expected
+            while remaining:
+                block = source.read(min(8 * 1024 * 1024, remaining))
+                if not block:
+                    raise Gemma4MobileSeedError(
+                        f"Scale tensor is truncated for {tensor.output_key!r}."
+                    )
+                output.write(block)
+                digest.update(block)
+                remaining -= len(block)
+                payload_nbytes += len(block)
+        output.flush()
+    expected_size = len(prefix) + payload_nbytes
+    observed_size = partial_path.stat().st_size
+    if observed_size != expected_size:
+        raise Gemma4MobileSeedError(
+            f"Retained-qparams file size differs: {observed_size} vs {expected_size}."
+        )
+    partial_path.replace(destination_path)
+    return {
+        "path": destination_path.name,
+        "size_bytes": observed_size,
+        "payload_bytes": payload_nbytes,
+        "tensor_count": len(tensors),
+        "sha256": digest.hexdigest(),
+    }
+
+
 def _validate_retained_report(
     path: Path,
     *,
@@ -852,6 +1046,19 @@ def build_plan(
         f"W{item.bits}" for item in transforms if item.bits is not None
     )
     transform_histogram = collections.Counter(item.transform for item in transforms)
+    activation_scales = _activation_scale_hex_by_weight(
+        source_path,
+        header,
+        data_start=data_start,
+        file_size=source_path.stat().st_size,
+        tensors=transforms,
+    )
+    qparams_inventory = _qparams_inventory(transforms, activation_scales)
+    if len(qparams_inventory) != EXPECTED_DEQUANTIZED_COUNT:
+        raise Gemma4MobileSeedError(
+            "Retained-qparams inventory differs from the dequantized matrix "
+            f"inventory: {len(qparams_inventory)} vs {EXPECTED_DEQUANTIZED_COUNT}."
+        )
     weight_map = {
         tensor.output_key: shard.filename
         for shard in shards
@@ -908,6 +1115,15 @@ def build_plan(
             ],
             "weight_map": weight_map,
             "config": dense_config,
+            "mobile_qparams": {
+                "contract_path": MOBILE_QPARAMS_CONTRACT_FILENAME,
+                "safetensors_path": MOBILE_QPARAMS_FILENAME,
+                "tensor_count": len(qparams_inventory),
+                "inventory_sha256": _qparams_inventory_sha256(
+                    qparams_inventory
+                ),
+                "inventory": qparams_inventory,
+            },
         },
         "transformation": {
             "plan_sha256": _plan_digest(transforms),
@@ -931,6 +1147,8 @@ def build_plan(
             == EXPECTED_SOURCE_TENSOR_COUNT,
             "output_tensor_count_match": len(transforms)
             == EXPECTED_OUTPUT_TENSOR_COUNT,
+            "retained_qparams_inventory_complete": len(qparams_inventory)
+            == EXPECTED_DEQUANTIZED_COUNT,
             "retained_compiled_parity_verified": retained["verified"],
             "output_destination_safe": not any(
                 item["code"]
@@ -1026,6 +1244,69 @@ def execute_plan(
         tensor_hashes.update(hashes)
         shard_records.append(record)
 
+    qparam_mappings = tuple(
+        tensor for tensor in mappings if tensor.scale_key is not None
+    )
+    expected_qparams = plan["output"].get("mobile_qparams")
+    expected_qparams = (
+        expected_qparams if isinstance(expected_qparams, dict) else {}
+    )
+    materialized_weight_inventory = _qparams_inventory(qparam_mappings)
+    qparams_inventory = expected_qparams.get("inventory")
+    qparams_inventory = (
+        qparams_inventory if isinstance(qparams_inventory, dict) else {}
+    )
+    inventory_sha256 = _qparams_inventory_sha256(qparams_inventory)
+    comparable_expected = {
+        key: {
+            field: value
+            for field, value in entry.items()
+            if not field.endswith("_activation_scale_f32_le_hex")
+        }
+        for key, entry in qparams_inventory.items()
+        if isinstance(entry, dict)
+    }
+    if (
+        len(qparam_mappings) != EXPECTED_DEQUANTIZED_COUNT
+        or inventory_sha256 != expected_qparams.get("inventory_sha256")
+        or materialized_weight_inventory != comparable_expected
+    ):
+        raise Gemma4MobileSeedError(
+            "Retained-qparams execution inventory differs from the audited plan."
+        )
+    qparams_record = _write_qparams_sidecar(
+        source_path,
+        output_path / MOBILE_QPARAMS_FILENAME,
+        qparam_mappings,
+    )
+    qparams_contract = {
+        "contract_version": 1,
+        "contract_type": "gemma4_mobile_retained_qparams",
+        "source_model_id": plan["source"]["model_id"],
+        "source_revision": plan["source"]["revision"],
+        "source_safetensors_sha256": plan["source"][
+            "safetensors_sha256_observed"
+        ],
+        "seed_id": plan["seed_id"],
+        "scale_storage": qparams_record,
+        "tensor_count": len(qparams_inventory),
+        "inventory_sha256": inventory_sha256,
+        "inventory": qparams_inventory,
+        "zero_points_are_all_zero": True,
+        "training_executed": False,
+        "private_google_recipe_recovered": False,
+    }
+    qparams_contract_path = output_path / MOBILE_QPARAMS_CONTRACT_FILENAME
+    qparams_contract_path.write_text(
+        json.dumps(qparams_contract, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    qparams_contract_record = {
+        "path": qparams_contract_path.name,
+        "size_bytes": qparams_contract_path.stat().st_size,
+        "sha256": _sha256_file(qparams_contract_path),
+    }
+
     config_path = output_path / "config.json"
     config_path.write_text(
         json.dumps(plan["output"]["config"], indent=2, ensure_ascii=False) + "\n",
@@ -1038,6 +1319,7 @@ def execute_plan(
             "sha256": _sha256_file(config_path),
         }
     ]
+    auxiliary_records.extend([qparams_record, qparams_contract_record])
     source_dir = Path(str(plan["source"]["config"])).parent
     for name in (
         "chat_template.jinja",
@@ -1083,6 +1365,12 @@ def execute_plan(
     manifest["output"]["shards"] = shard_records
     manifest["output"]["tensor_sha256"] = tensor_hashes
     manifest["output"]["auxiliary_files"] = auxiliary_records
+    manifest["output"]["mobile_qparams"] = {
+        **expected_qparams,
+        "scale_storage": qparams_record,
+        "contract": qparams_contract_record,
+        "materialized": True,
+    }
     manifest["output"]["materialized"] = True
     manifest["executed"] = True
     manifest["training_executed"] = False

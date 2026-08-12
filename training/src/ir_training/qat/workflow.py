@@ -78,6 +78,25 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
             )
         )
 
+    scale_mode = str(qat.get("scale_mode", "dynamic")).strip().lower()
+    if scale_mode not in {"dynamic", "retained_mobile"}:
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "unsupported_qat_scale_mode",
+                "qat.scale_mode must be dynamic or retained_mobile.",
+            )
+        )
+    ste_gradient = str(qat.get("ste_gradient", "identity")).strip().lower()
+    if ste_gradient not in {"identity", "clipped"}:
+        issues.append(
+            WorkflowIssue(
+                "error",
+                "unsupported_qat_ste_gradient",
+                "qat.ste_gradient must be identity or clipped.",
+            )
+        )
+
     try:
         numeric_contract = qat_numeric_contract(QATSpec.from_config(config))
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -120,6 +139,150 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
 
     model_id = str(model.get("model_id") or "").lower()
     if "gemma-4" in model_id or "gemma4" in model_id:
+        if model_id == OFFICIAL_MOBILE_MODEL_ID.lower():
+            retained_contract = (
+                qat.get("mobile_qparams_contract")
+                or model.get("mobile_qparams_contract")
+            )
+            if scale_mode != "retained_mobile":
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_retained_scale_mode_required",
+                        "The reconstructed mobile seed must retain Google's "
+                        "published scales; dynamic abs-max scale recomputation "
+                        "corrupts W2/W4 cell centers.",
+                    )
+                )
+            if not str(retained_contract or "").strip():
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_qparams_contract_required",
+                        "Configure the hash-bound mobile_qparams.json emitted "
+                        "with the reconstructed seed.",
+                    )
+                )
+            if qat.get("fixed_scale_required") is not True:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_fixed_scale_required",
+                        "Every effective LoRA projection must bind an exact "
+                        "published weight scale before training.",
+                    )
+                )
+            if qat.get("fixed_activation_scale_required") is not True:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_fixed_activation_scale_required",
+                        "Every effective LoRA projection must use its published "
+                        "static A8 input/output scales.",
+                    )
+                )
+            if qat.get("effective_lora_only") is not True:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_effective_lora_only_required",
+                        "Frozen mobile cell centers must remain unchanged; fake "
+                        "quantize only base+LoRA projections with retained qparams.",
+                    )
+                )
+            try:
+                expected_lora_modules = int(
+                    qat.get("expected_effective_lora_modules", 0) or 0
+                )
+            except (TypeError, ValueError):
+                expected_lora_modules = 0
+            if expected_lora_modules != 205:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_exact_lora_scope_required",
+                        "The retained-scale mobile profile must bind exactly "
+                        "205 q/k/v/o and gate/up/down projections.",
+                    )
+                )
+            if ste_gradient != "clipped":
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_clipped_ste_required",
+                        "Immutable W2/W4 scales require a saturation-aware clipped STE.",
+                    )
+                )
+            preflight = (
+                config.get("preflight")
+                if isinstance(config.get("preflight"), dict)
+                else {}
+            )
+            if preflight.get("require_zero_adapter_parity") is not True:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_zero_adapter_parity_required",
+                        "Training must compare QAT-off and zero-adapter QAT-on "
+                        "loss/logits before optimizer step 1.",
+                    )
+                )
+            if preflight.get("require_initial_loss_gate") is not True:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_initial_loss_gate_required",
+                        "Training must fail before step 1 on catastrophic or "
+                        "non-finite completion loss.",
+                    )
+                )
+            try:
+                top1_floor = float(
+                    preflight.get("min_top1_probe_match", 0.0) or 0.0
+                )
+            except (TypeError, ValueError):
+                top1_floor = 0.0
+            if top1_floor < 0.90:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_top1_probe_gate_too_weak",
+                        "Retained-scale QAT must keep at least 90% of fixed "
+                        "teacher-forced top-1 probes before optimizer step 1.",
+                    )
+                )
+            if (
+                preflight.get("require_greedy_determinism") is not True
+                or _positive_int(preflight.get("greedy_probe_rows")) < 1
+                or _positive_int(preflight.get("greedy_probe_new_tokens")) < 8
+                or _positive_int(preflight.get("min_greedy_tokens")) < 8
+                or _positive_int(
+                    preflight.get("min_baseline_qat_greedy_prefix_tokens")
+                )
+                < 8
+            ):
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_greedy_preflight_required",
+                        "Before Trainer construction, zero-adapter QAT must "
+                        "repeat a deterministic nontrivial greedy-generation probe.",
+                    )
+                )
+            try:
+                eval_steps = int(training.get("eval_steps", 0) or 0)
+                save_steps = int(training.get("save_steps", 0) or 0)
+            except (TypeError, ValueError):
+                eval_steps = save_steps = 0
+            if eval_steps < 1 or save_steps != eval_steps:
+                issues.append(
+                    WorkflowIssue(
+                        "error",
+                        "gemma4_mobile_checkpoint_eval_cadence_mismatch",
+                        "save_steps must equal positive eval_steps so every "
+                        "Golden-best adapter receives immediate provenance.",
+                    )
+                )
         if (
             model_id == OFFICIAL_MOBILE_MODEL_ID.lower()
             and model.get("architecture_preflight_required") is not True
@@ -149,7 +312,6 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
             gemma4_spec = QATSpec.from_config(config)
             observable_layout_matches = bool(
                 quantizer == "ste_ai_edge"
-                and qat.get("quantize_embeddings") is True
                 and gemma4_spec.weight_bits_for_module(
                     "language_model.embed_tokens"
                 )
@@ -162,6 +324,13 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
                     "language_model.embed_tokens_per_layer"
                 )
                 == 256
+                and (
+                    qat.get("quantize_embeddings") is True
+                    or (
+                        scale_mode == "retained_mobile"
+                        and qat.get("effective_lora_only") is True
+                    )
+                )
             )
         except (OSError, RuntimeError, TypeError, ValueError):
             observable_layout_matches = False

@@ -13,7 +13,10 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.common.config import load_yaml
 from ir_training.eval.mtp_benchmark import build_mtp_benchmark_plan
-from ir_training.export.merge_lora import merge_lora_adapter
+from ir_training.export.merge_lora import (
+    _verify_qat_training_metadata,
+    merge_lora_adapter,
+)
 from ir_training.export.q4_0 import build_q4_0_conversion_plan
 from ir_training.models.hf_loading import load_hf_model
 from ir_training.models.registry import create_adapter
@@ -334,6 +337,236 @@ def test_merge_rejects_unbound_or_tampered_qat_adapter_before_model_load(tmp_pat
             training_config_path=training_config,
         )
 
+
+def _identity(path: Path) -> dict:
+    return {
+        "path": str(path),
+        "present": True,
+        "size_bytes": path.stat().st_size,
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
+
+
+def _write_retained_mobile_metadata_fixture(tmp_path: Path) -> tuple[Path, dict, dict, str]:
+    adapter_dir = tmp_path / "best_golden_checkpoint"
+    adapter_dir.mkdir()
+    (adapter_dir / "adapter_config.json").write_text("{}", encoding="utf-8")
+    (adapter_dir / "adapter_model.safetensors").write_bytes(b"adapter")
+    config_bytes = b"resolved-config"
+    config_sha256 = hashlib.sha256(config_bytes).hexdigest()
+    names = [f"base_model.model.model.layers.{index}.self_attn.q_proj" for index in range(205)]
+    keys = [f"model.layers.{index}.self_attn.q_proj.weight" for index in range(205)]
+    inventory = {
+        key: {
+            "bits": 4,
+            "group_size": None,
+            "scale_shape": [1, 1],
+            "input_activation_scale_f32_le_hex": "0000803f",
+            "output_activation_scale_f32_le_hex": "0000803f",
+        }
+        for key in keys
+    }
+    qparams = {
+        "verified": True,
+        "contract_sha256": "1" * 64,
+        "scale_storage_sha256": "2" * 64,
+        "inventory_sha256": "3" * 64,
+        "tensor_count": 278,
+        "inventory": inventory,
+    }
+    preflight_path = tmp_path / "preflight_report.json"
+    reports = [
+        {
+            "id": gate,
+            "passed": True,
+            "log": {
+                "path": str(tmp_path / f"{gate}.log"),
+                "present": True,
+                "size_bytes": 1,
+                "sha256": "4" * 64,
+            },
+            "declared_outputs": [],
+        }
+        for gate in (
+            "cuda_bf16_environment",
+            "static_qat_profile",
+            "mobile_seed_architecture",
+            "scale_preserving_qat",
+            "model_numeric_preflight",
+        )
+    ]
+    preflight_path.write_text(
+        json.dumps({"run_id": "retained-r1", "all_passed": True, "reports": reports}),
+        encoding="utf-8",
+    )
+    generic_bound = {"sha256": "5" * 64, "size_bytes": 1}
+    launch_path = tmp_path / "launch_plan.json"
+    launch_path.write_text(
+        json.dumps(
+            {
+                "mode": "fresh_run_only_no_resume",
+                "run_id": "retained-r1",
+                "checks": {"contract_ok": True},
+                "bound_artifacts": {
+                    **{
+                        role: dict(generic_bound)
+                        for role in (
+                            "mobile_seed_manifest",
+                            "mobile_qparams_contract",
+                            "official_packed_source",
+                            "training_train",
+                            "training_val",
+                            "golden100",
+                        )
+                    },
+                    "resolved_training_config": {
+                        "sha256": config_sha256,
+                        "size_bytes": len(config_bytes),
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    adapter_files = [
+        {
+            "path": candidate.name,
+            "size": candidate.stat().st_size,
+            "sha256": hashlib.sha256(candidate.read_bytes()).hexdigest(),
+        }
+        for candidate in sorted(adapter_dir.glob("adapter*"))
+    ]
+    bindings = {
+        name: {
+            "weight_key": key,
+            "bits": 4,
+            "group_size": None,
+            "scale_shape": [1, 1],
+            "input_activation_scale": 1.0,
+            "output_activation_scale": 1.0,
+        }
+        for name, key in zip(names, keys, strict=True)
+    }
+    metadata = {
+        "training_metadata_version": 4,
+        "training_config_sha256": config_sha256,
+        "run_id": "retained-r1",
+        "training": {"method": "qat_lora_sft"},
+        "lora": {"dropout": 0.0},
+        "git_commit": "a" * 40,
+        "checkpoint_role": "best_golden",
+        "checkpoint_step": 10,
+        "adapter_checkpoints": [
+            {"role": "best_golden", "path": str(adapter_dir), "files": adapter_files}
+        ],
+        "best_golden_eval": {
+            "metric": "generation_reward_v5_4_avg",
+            "metric_value": 0.75,
+            "step": 10,
+        },
+        "qat": {
+            "enabled": True,
+            "effective_merged_weight_qat_enabled": True,
+            "wrapped_effective_lora_count": 205,
+            "wrapped_effective_lora_names": names,
+            "uncovered_lora_adapter_linear_names": [],
+            "retained_qparams_binding_count": 205,
+            "retained_qparams_bindings": bindings,
+            "retained_qparams": {
+                "verified": True,
+                "mode": "retained_mobile",
+                "contract_sha256": qparams["contract_sha256"],
+                "scale_storage_sha256": qparams["scale_storage_sha256"],
+                "inventory_sha256": qparams["inventory_sha256"],
+                "tensor_count": 278,
+            },
+            "spec": {
+                "scale_mode": "retained_mobile",
+                "fixed_scale_required": True,
+                "fixed_activation_scale_required": True,
+                "effective_lora_only": True,
+                "effective_merged_weight": True,
+                "ste_gradient": "clipped",
+                "expected_effective_lora_modules": 205,
+            },
+        },
+        "numeric_preflight": {
+            "passed": True,
+            "qat_enabled": True,
+            "top1_probe_match_fraction": 0.95,
+            "zero_adapter_initialization": {
+                "verified_zero_delta": True,
+                "wrapper_count": 205,
+                "adapter_pair_count": 205,
+                "nonzero_or_invalid_pairs": [],
+            },
+            "greedy_generation": {
+                "passed": True,
+                "qat_enabled": True,
+                "qat_greedy_deterministic": True,
+                "baseline_qat_min_common_prefix_tokens": 8,
+            },
+        },
+        "launcher_provenance": {
+            "launch_plan": _identity(launch_path),
+            "preflight_report": _identity(preflight_path),
+        },
+    }
+    (adapter_dir / "training_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
+    config = {
+        "qat": {
+            "scale_mode": "retained_mobile",
+            "expected_effective_lora_modules": 205,
+        },
+        "preflight": {
+            "min_top1_probe_match": 0.90,
+            "min_baseline_qat_greedy_prefix_tokens": 8,
+        },
+        "golden_eval": {"metric_for_best_model": "generation_reward_v5_4_avg"},
+    }
+    return adapter_dir, config, qparams, config_sha256
+
+
+def test_retained_mobile_merge_requires_full_best_golden_provenance(tmp_path):
+    adapter_dir, config, qparams, config_sha256 = _write_retained_mobile_metadata_fixture(
+        tmp_path
+    )
+
+    report = _verify_qat_training_metadata(
+        adapter_dir,
+        training_config_sha256=config_sha256,
+        training_method="qat_lora_sft",
+        mobile_training_seed={"required": False},
+        training_config=config,
+        mobile_qparams=qparams,
+    )
+
+    assert report["verified"] is True
+    assert all(report["checks"].values())
+
+
+def test_retained_mobile_merge_rejects_partial_204_projection_metadata(tmp_path):
+    adapter_dir, config, qparams, config_sha256 = _write_retained_mobile_metadata_fixture(
+        tmp_path
+    )
+    metadata_path = adapter_dir / "training_metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata["qat"]["wrapped_effective_lora_count"] = 204
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+
+    report = _verify_qat_training_metadata(
+        adapter_dir,
+        training_config_sha256=config_sha256,
+        training_method="qat_lora_sft",
+        mobile_training_seed={"required": False},
+        training_config=config,
+        mobile_qparams=qparams,
+    )
+
+    assert report["verified"] is False
+    assert report["checks"]["exact_205_effective_lora_modules"] is False
 
 def test_reference_benchmark_plan_never_claims_packed_int4():
     plan = build_mtp_benchmark_plan(_recommended_benchmark_config())

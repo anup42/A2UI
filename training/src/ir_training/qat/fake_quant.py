@@ -24,11 +24,12 @@ class QATSpec:
     """Configuration for the training-time fake quantizer.
 
     The quantizer uses a straight-through estimator (STE): the forward pass
-    sees rounded/clamped values while the backward pass receives the identity
-    gradient.  Scales are calculated from detached values on every forward
-    pass, so this implementation does not add observer state to checkpoints.
-    ``ste_ai_edge`` opts into the public AI Edge signed range convention; it
-    is not a disclosure of Google's private QAT observer.
+    sees rounded/clamped values. Legacy profiles calculate scales from detached
+    values on every forward. ``scale_mode=retained_mobile`` instead consumes
+    the exact scale tensors published with Google's packed mobile checkpoint;
+    those immutable tensors are part of checkpoint provenance and export.
+    ``ste_ai_edge`` opts into the public AI Edge signed range convention; it is
+    not a disclosure of Google's private QAT observer.
 
     ``effective_merged_weight`` makes PEFT projections fake-quantize the same
     ``base_weight + LoRA_delta`` matrix later produced by ``merge_and_unload``.
@@ -51,6 +52,13 @@ class QATSpec:
     modules_to_not_convert: tuple[str, ...] = ()
     quantize_embeddings: bool = False
     quantizer: str = "ste_absmax"
+    scale_mode: str = "dynamic"
+    mobile_qparams_contract: str | None = None
+    expected_effective_lora_modules: int | None = None
+    fixed_scale_required: bool = False
+    fixed_activation_scale_required: bool = False
+    effective_lora_only: bool = False
+    ste_gradient: str = "identity"
     eps: float = 1e-8
 
     @classmethod
@@ -58,6 +66,8 @@ class QATSpec:
         qat = config.get("qat") if isinstance(config.get("qat"), dict) else config
         qat = _merge_public_schema(qat)
         quantizer = str(qat.get("quantizer", cls.quantizer)).strip().lower()
+        scale_mode = str(qat.get("scale_mode", cls.scale_mode)).strip().lower()
+        ste_gradient = str(qat.get("ste_gradient", cls.ste_gradient)).strip().lower()
         default_eps = (
             AI_EDGE_MIN_SCALE
             if quantizer == "ste_ai_edge"
@@ -117,6 +127,30 @@ class QATSpec:
             modules_to_not_convert=modules_to_not_convert,
             quantize_embeddings=bool(qat.get("quantize_embeddings", cls.quantize_embeddings)),
             quantizer=quantizer,
+            scale_mode=scale_mode,
+            mobile_qparams_contract=(
+                str(qat.get("mobile_qparams_contract")).strip()
+                if qat.get("mobile_qparams_contract")
+                else None
+            ),
+            expected_effective_lora_modules=(
+                int(qat.get("expected_effective_lora_modules"))
+                if qat.get("expected_effective_lora_modules") is not None
+                else None
+            ),
+            fixed_scale_required=bool(
+                qat.get("fixed_scale_required", cls.fixed_scale_required)
+            ),
+            fixed_activation_scale_required=bool(
+                qat.get(
+                    "fixed_activation_scale_required",
+                    cls.fixed_activation_scale_required,
+                )
+            ),
+            effective_lora_only=bool(
+                qat.get("effective_lora_only", cls.effective_lora_only)
+            ),
+            ste_gradient=ste_gradient,
             eps=float(qat.get("eps", default_eps)),
         )
 
@@ -266,7 +300,58 @@ def _scale_and_zero_point(
     return scale, zero_point, qmin, qmax
 
 
-def _fake_quantize_with_scale(values: Any, scale: Any, zero_point: Any, qmin: int, qmax: int) -> Any:
+def _quant_bounds_for_quantizer(
+    bits: int, symmetric: bool, quantizer: str
+) -> tuple[int, int]:
+    qmin, qmax = _quant_bounds(bits, symmetric)
+    if str(quantizer).strip().lower() == "ste_ai_edge" and symmetric and bits >= 8:
+        qmin += 1
+    return qmin, qmax
+
+
+def _validate_override_tensor(
+    value: Any,
+    *,
+    values: Any,
+    expected_shape: tuple[int, ...],
+    label: str,
+    positive: bool,
+) -> Any:
+    import torch
+
+    tensor = value if isinstance(value, torch.Tensor) else torch.as_tensor(value)
+    tensor = tensor.detach().to(device=values.device, dtype=torch.float32)
+    # Retained grouped scales are stored without the final singleton dimension.
+    if tuple(tensor.shape) == expected_shape[:-1] and expected_shape[-1] == 1:
+        tensor = tensor.unsqueeze(-1)
+    if tensor.ndim == 0:
+        if label == "zero_point_override":
+            tensor = tensor.reshape(tuple(1 for _ in expected_shape)).expand(
+                expected_shape
+            )
+        elif expected_shape == tuple(1 for _ in range(values.ndim)):
+            tensor = tensor.reshape(expected_shape)
+    if tuple(tensor.shape) != expected_shape:
+        raise ValueError(
+            f"{label} shape {tuple(tensor.shape)} does not match required "
+            f"broadcast shape {expected_shape} for values {tuple(values.shape)}."
+        )
+    if not bool(torch.isfinite(tensor).all()):
+        raise ValueError(f"{label} contains NaN or Inf.")
+    if positive and not bool((tensor > 0).all()):
+        raise ValueError(f"{label} must contain only positive values.")
+    return tensor
+
+
+def _fake_quantize_with_scale(
+    values: Any,
+    scale: Any,
+    zero_point: Any,
+    qmin: int,
+    qmax: int,
+    *,
+    ste_gradient: str = "identity",
+) -> Any:
     import torch
 
     quantized = torch.round(values / scale + zero_point).clamp(qmin, qmax)
@@ -276,8 +361,23 @@ def _fake_quantize_with_scale(values: Any, scale: Any, zero_point: Any, qmin: in
     # simulated dequantized value returns to the model's original dtype.
     if dequantized.dtype != values.dtype:
         dequantized = dequantized.to(dtype=values.dtype)
-    # STE: use the quantized forward value but identity d(output)/d(values).
-    return values + (dequantized - values).detach()
+    normalized_gradient = str(ste_gradient).strip().lower()
+    if normalized_gradient == "identity":
+        # Historical STE: use the quantized forward value but identity
+        # d(output)/d(values), including outside the representable interval.
+        return values + (dequantized - values).detach()
+    if normalized_gradient == "clipped":
+        # Saturation-aware STE. The forward value is still exactly quantized,
+        # but values outside the retained code range receive no gradient that
+        # would push them farther beyond an immutable mobile scale.
+        lower = (qmin - zero_point) * scale
+        upper = (qmax - zero_point) * scale
+        inside = ((values >= lower) & (values <= upper)).to(dtype=values.dtype)
+        surrogate = values * inside
+        return surrogate + (dequantized - surrogate).detach()
+    raise ValueError(
+        f"Unsupported ste_gradient {ste_gradient!r}; expected 'identity' or 'clipped'."
+    )
 
 
 def _round_ai_edge_blockwise_scale(scale: Any) -> Any:
@@ -304,6 +404,9 @@ def fake_quantize_ste(
     group_size: int | None = None,
     eps: float = 1e-8,
     quantizer: str = "ste_absmax",
+    scale_override: Any | None = None,
+    zero_point_override: Any | None = None,
+    ste_gradient: str = "identity",
 ) -> Any:
     """Fake-quantize a tensor with an STE backward pass.
 
@@ -318,6 +421,8 @@ def fake_quantize_ste(
         raise ValueError(f"QAT bit width must be at least 2, got {bits}.")
     if group_size is not None and group_size <= 0:
         raise ValueError(f"QAT group_size must be positive, got {group_size}.")
+    if zero_point_override is not None and scale_override is None:
+        raise ValueError("zero_point_override requires scale_override.")
 
     if group_size is not None:
         if values.ndim < 2:
@@ -334,18 +439,41 @@ def fake_quantize_ste(
         groups = values.shape[-1] // group_size
         grouped = values.reshape(*values.shape[:-1], groups, group_size)
         reduce_dims = (grouped.ndim - 1,)
-        scale, zero_point, qmin, qmax = _scale_and_zero_point(
-            grouped,
-            bits=bits,
-            symmetric=symmetric,
-            reduce_dims=reduce_dims,
-            eps=eps,
-            quantizer=quantizer,
-        )
-        if str(quantizer).strip().lower() == "ste_ai_edge":
-            scale = _round_ai_edge_blockwise_scale(scale)
+        if scale_override is None:
+            scale, zero_point, qmin, qmax = _scale_and_zero_point(
+                grouped,
+                bits=bits,
+                symmetric=symmetric,
+                reduce_dims=reduce_dims,
+                eps=eps,
+                quantizer=quantizer,
+            )
+            if str(quantizer).strip().lower() == "ste_ai_edge":
+                scale = _round_ai_edge_blockwise_scale(scale)
+        else:
+            expected_shape = tuple(grouped.shape[:-1]) + (1,)
+            scale = _validate_override_tensor(
+                scale_override,
+                values=grouped,
+                expected_shape=expected_shape,
+                label="scale_override",
+                positive=True,
+            )
+            zero_point = _validate_override_tensor(
+                0.0 if zero_point_override is None else zero_point_override,
+                values=grouped,
+                expected_shape=expected_shape,
+                label="zero_point_override",
+                positive=False,
+            )
+            qmin, qmax = _quant_bounds_for_quantizer(bits, symmetric, quantizer)
         return _fake_quantize_with_scale(
-            grouped, scale, zero_point, qmin, qmax
+            grouped,
+            scale,
+            zero_point,
+            qmin,
+            qmax,
+            ste_gradient=ste_gradient,
         ).reshape_as(values)
 
     if per_channel and values.ndim > 1:
@@ -355,18 +483,55 @@ def fake_quantize_ste(
         reduce_dims = tuple(index for index in range(values.ndim) if index != normalized_axis)
     else:
         reduce_dims = tuple(range(values.ndim))
-    scale, zero_point, qmin, qmax = _scale_and_zero_point(
+    if scale_override is None:
+        scale, zero_point, qmin, qmax = _scale_and_zero_point(
+            values,
+            bits=bits,
+            symmetric=symmetric,
+            reduce_dims=reduce_dims,
+            eps=eps,
+            quantizer=quantizer,
+        )
+    else:
+        if per_channel and values.ndim > 1:
+            expected_shape = tuple(
+                values.shape[index] if index == normalized_axis else 1
+                for index in range(values.ndim)
+            )
+        else:
+            expected_shape = tuple(1 for _ in range(values.ndim))
+        scale = _validate_override_tensor(
+            scale_override,
+            values=values,
+            expected_shape=expected_shape,
+            label="scale_override",
+            positive=True,
+        )
+        zero_point = _validate_override_tensor(
+            0.0 if zero_point_override is None else zero_point_override,
+            values=values,
+            expected_shape=expected_shape,
+            label="zero_point_override",
+            positive=False,
+        )
+        qmin, qmax = _quant_bounds_for_quantizer(bits, symmetric, quantizer)
+    return _fake_quantize_with_scale(
         values,
-        bits=bits,
-        symmetric=symmetric,
-        reduce_dims=reduce_dims,
-        eps=eps,
-        quantizer=quantizer,
+        scale,
+        zero_point,
+        qmin,
+        qmax,
+        ste_gradient=ste_gradient,
     )
-    return _fake_quantize_with_scale(values, scale, zero_point, qmin, qmax)
 
 
-def fake_quantize_weight(weight: Any, spec: QATSpec) -> Any:
+def fake_quantize_weight(
+    weight: Any,
+    spec: QATSpec,
+    *,
+    scale_override: Any | None = None,
+    zero_point_override: Any | None = None,
+) -> Any:
     return fake_quantize_ste(
         weight,
         bits=spec.weight_bits,
@@ -376,10 +541,18 @@ def fake_quantize_weight(weight: Any, spec: QATSpec) -> Any:
         group_size=spec.group_size,
         eps=spec.eps,
         quantizer=spec.quantizer,
+        scale_override=scale_override,
+        zero_point_override=zero_point_override,
+        ste_gradient=spec.ste_gradient,
     )
 
 
-def fake_quantize_activation(activation: Any, spec: QATSpec) -> Any:
+def fake_quantize_activation(
+    activation: Any,
+    spec: QATSpec,
+    *,
+    scale_override: Any | None = None,
+) -> Any:
     return fake_quantize_ste(
         activation,
         bits=spec.activation_bits,
@@ -387,14 +560,40 @@ def fake_quantize_activation(activation: Any, spec: QATSpec) -> Any:
         per_channel=False,
         eps=spec.eps,
         quantizer=spec.quantizer,
+        scale_override=scale_override,
+        ste_gradient=spec.ste_gradient,
     )
+
+
+def _mobile_weight_key_candidates(module_name: str) -> tuple[str, ...]:
+    candidates: list[str] = []
+    for module_candidate in _module_name_candidates(module_name):
+        normalized = module_candidate
+        if normalized.startswith("language_model."):
+            normalized = "model." + normalized[len("language_model.") :]
+        elif normalized.startswith("layers.") or normalized.startswith(
+            ("embed_tokens", "embed_tokens_per_layer", "per_layer_model_projection")
+        ):
+            normalized = "model." + normalized
+        for value in (module_candidate, normalized):
+            if not value:
+                continue
+            weight_key = value if value.endswith(".weight") else value + ".weight"
+            if weight_key not in candidates:
+                candidates.append(weight_key)
+            if weight_key.endswith(".linear.weight"):
+                flattened = weight_key[: -len(".linear.weight")] + ".weight"
+                if flattened not in candidates:
+                    candidates.append(flattened)
+    return tuple(candidates)
 
 
 class QATController:
     """Owns reversible fake-quantization wrappers for a model."""
 
-    def __init__(self, spec: QATSpec):
+    def __init__(self, spec: QATSpec, mobile_qparams: Any | None = None):
         self.spec = spec
+        self.mobile_qparams = mobile_qparams
         self._original_forwards: dict[Any, Callable[..., Any]] = {}
         self._wrapped_names: list[str] = []
         self._wrapped_linear_names: list[str] = []
@@ -403,6 +602,64 @@ class QATController:
         self._wrapped_weight_bits: dict[str, int] = {}
         self._detected_lora_adapter_linear_count = 0
         self._uncovered_lora_adapter_linear_names: list[str] = []
+        self._retained_qparams_bindings: dict[str, dict[str, Any]] = {}
+
+    def _retained_qparams_for_module(
+        self,
+        module_name: str,
+        module_spec: QATSpec,
+        weight_shape: tuple[int, ...],
+    ) -> dict[str, Any] | None:
+        if module_spec.scale_mode != "retained_mobile":
+            return None
+        if self.mobile_qparams is None:
+            raise ValueError(
+                "QAT scale_mode=retained_mobile requires a verified mobile "
+                "qparams contract."
+            )
+        candidates = _mobile_weight_key_candidates(module_name)
+        weight_key = self.mobile_qparams.resolve_weight_key(candidates)
+        if weight_key is None:
+            if module_spec.fixed_scale_required:
+                raise ValueError(
+                    "No retained mobile scale matches QAT module "
+                    f"{module_name!r}; candidates={list(candidates)!r}."
+                )
+            return None
+        scale = self.mobile_qparams.load_scale(
+            weight_key,
+            weight_shape=tuple(int(value) for value in weight_shape),
+            bits=module_spec.weight_bits,
+            group_size=module_spec.group_size,
+        )
+        input_activation_scale = self.mobile_qparams.activation_scale(
+            weight_key, "input"
+        )
+        output_activation_scale = self.mobile_qparams.activation_scale(
+            weight_key, "output"
+        )
+        if (
+            module_spec.activation_bits < 16
+            and module_spec.fixed_activation_scale_required
+            and (
+                input_activation_scale is None
+                or output_activation_scale is None
+            )
+        ):
+            raise ValueError(
+                f"Retained A{module_spec.activation_bits} input/output scales "
+                f"are incomplete for QAT module {module_name!r} ({weight_key!r})."
+            )
+        binding = {
+            "weight_key": weight_key,
+            "bits": module_spec.weight_bits,
+            "group_size": module_spec.group_size,
+            "scale_shape": list(scale.shape),
+            "input_activation_scale": input_activation_scale,
+            "output_activation_scale": output_activation_scale,
+        }
+        self._retained_qparams_bindings[module_name] = binding
+        return {**binding, "scale": scale}
 
     @property
     def wrapped_count(self) -> int:
@@ -442,6 +699,45 @@ class QATController:
                 module_spec = _module_spec_for_module(
                     self.spec, module_name, module_weight_bits
                 )
+                retained_qparams = self._retained_qparams_for_module(
+                    module_name,
+                    module_spec,
+                    tuple(int(value) for value in module.base_layer.weight.shape),
+                )
+                device_scale_cache: dict[str, Any] = {}
+
+                def retained_scale(
+                    name: str,
+                    reference: Any,
+                    *,
+                    _binding: dict[str, Any] | None = retained_qparams,
+                    _cache: dict[str, Any] = device_scale_cache,
+                ) -> Any | None:
+                    if _binding is None:
+                        return None
+                    cache_key = f"{name}:{reference.device}"
+                    cached = _cache.get(cache_key)
+                    if cached is None:
+                        raw = (
+                            _binding["scale"]
+                            if name == "weight"
+                            else _binding.get(f"{name}_activation_scale")
+                        )
+                        if raw is None:
+                            return None
+                        import torch
+
+                        cached = (
+                            raw.to(device=reference.device, dtype=torch.float32)
+                            if isinstance(raw, torch.Tensor)
+                            else torch.tensor(
+                                float(raw),
+                                device=reference.device,
+                                dtype=torch.float32,
+                            )
+                        )
+                        _cache[cache_key] = cached
+                    return cached
 
                 def qat_lora_forward(
                     input_tensor: Any,
@@ -450,6 +746,8 @@ class QATController:
                     _module_name: str = module_name,
                     _module_spec: QATSpec = module_spec,
                     _adapter_names: tuple[str, ...] = adapter_names,
+                    _retained_scale: Callable[[str, Any], Any | None] = retained_scale,
+                    _has_retained_qparams: bool = retained_qparams is not None,
                     **kwargs: Any,
                 ) -> Any:
                     if args or kwargs:
@@ -459,19 +757,30 @@ class QATController:
                             "would bypass the deployment-equivalent forward."
                         )
                     quantized_input = fake_quantize_activation(
-                        input_tensor, _module_spec
+                        input_tensor,
+                        _module_spec,
+                        scale_override=_retained_scale("input", input_tensor),
                     )
                     effective_weight = _effective_lora_weight(
                         _module, _adapter_names
                     )
                     quantized_weight = fake_quantize_weight(
-                        effective_weight, _module_spec
+                        effective_weight,
+                        _module_spec,
+                        scale_override=_retained_scale("weight", effective_weight),
                     )
-                    return functional.linear(
+                    output = functional.linear(
                         quantized_input,
                         quantized_weight,
                         _module.base_layer.bias,
                     )
+                    if _has_retained_qparams:
+                        return fake_quantize_activation(
+                            output,
+                            _module_spec,
+                            scale_override=_retained_scale("output", output),
+                        )
+                    return output
 
                 module.forward = qat_lora_forward
                 self._original_forwards[module] = original_forward
@@ -491,6 +800,9 @@ class QATController:
                 for prefix in effective_lora_prefixes
             )
         ]
+
+        if self.spec.effective_lora_only:
+            return self
 
         for module_name, module in named_modules:
             if any(
@@ -617,6 +929,15 @@ class QATController:
                 sorted(bit_histogram.items(), key=lambda item: int(item[0]))
             ),
             "numeric_contract": qat_numeric_contract(self.spec),
+            "retained_qparams": (
+                self.mobile_qparams.summary()
+                if self.mobile_qparams is not None
+                else None
+            ),
+            "retained_qparams_binding_count": len(
+                self._retained_qparams_bindings
+            ),
+            "retained_qparams_bindings": dict(self._retained_qparams_bindings),
             "spec": self.spec.to_dict(),
         }
 
@@ -843,6 +1164,13 @@ def qat_numeric_contract(spec: QATSpec) -> dict[str, Any]:
         "public_ai_edge_numeric_contract": bool(
             is_ai_edge and min_scale_matches
         ),
+        "scale_mode": spec.scale_mode,
+        "retained_mobile_scales": spec.scale_mode == "retained_mobile",
+        "fixed_scale_required": spec.fixed_scale_required,
+        "fixed_activation_scale_required": spec.fixed_activation_scale_required,
+        "effective_lora_only": spec.effective_lora_only,
+        "ste_gradient": spec.ste_gradient,
+        "scales_recomputed_from_weight_absmax": spec.scale_mode == "dynamic",
         "private_google_observer_recovered": False,
     }
 
@@ -870,7 +1198,54 @@ def _merge_public_schema(qat: dict[str, Any]) -> dict[str, Any]:
 def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
     """Apply configured fake quantization and fail if no base weights match."""
 
-    controller = QATController(QATSpec.from_config(config)).prepare(model)
+    spec = QATSpec.from_config(config)
+    mobile_qparams = None
+    if spec.scale_mode == "retained_mobile":
+        contract_path = spec.mobile_qparams_contract
+        if not contract_path:
+            model_config = (
+                config.get("model")
+                if isinstance(config.get("model"), dict)
+                else {}
+            )
+            contract_path = model_config.get("mobile_qparams_contract")
+        if not contract_path:
+            raise ValueError(
+                "QAT scale_mode=retained_mobile requires "
+                "qat.mobile_qparams_contract or model.mobile_qparams_contract."
+            )
+        from ir_training.qat.mobile_qparams import MobileQParams
+
+        mobile_qparams = MobileQParams(contract_path)
+    controller = QATController(spec, mobile_qparams=mobile_qparams).prepare(model)
+    if spec.scale_mode == "retained_mobile":
+        expected_keys = set(mobile_qparams.trainable_projection_weight_keys())
+        bound_keys = {
+            str(binding.get("weight_key"))
+            for binding in controller._retained_qparams_bindings.values()
+        }
+        expected_count = spec.expected_effective_lora_modules
+        if expected_count is None:
+            raise ValueError(
+                "Retained mobile QAT requires qat.expected_effective_lora_modules."
+            )
+        if (
+            len(expected_keys) != int(expected_count)
+            or controller.wrapped_effective_lora_count != int(expected_count)
+            or len(controller._retained_qparams_bindings) != int(expected_count)
+            or bound_keys != expected_keys
+        ):
+            missing = sorted(expected_keys - bound_keys)
+            extra = sorted(bound_keys - expected_keys)
+            raise ValueError(
+                "Live effective-LoRA scope differs from the exact retained "
+                "mobile projection contract: "
+                f"expected={expected_count}, contract_keys={len(expected_keys)}, "
+                f"wrapped={controller.wrapped_effective_lora_count}, "
+                f"bindings={len(controller._retained_qparams_bindings)}, "
+                f"missing={missing[:12]}, extra={extra[:12]}. Verify the pinned "
+                "PEFT version/target mapping; never train a partial adapter."
+            )
     if (
         controller.spec.effective_merged_weight
         and controller._uncovered_lora_adapter_linear_names

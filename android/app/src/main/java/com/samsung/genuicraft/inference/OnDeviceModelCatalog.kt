@@ -94,6 +94,25 @@ object OnDeviceModelCatalog {
             minimumFileSizeBytes = 2_500_000_000L,
         ),
         Entry(
+            id = "gemma4_e2b_trained_express",
+            displayName = "Gemma 4 E2B Trained Express",
+            subtitle =
+                "Retained-scale A2UI Express package in the released Gemma 4 mobile " +
+                    "topology. GPU-only with the unchanged default MTP assistant; validate " +
+                    "target-only strict IR before enabling MTP.",
+            repoId = "local/gemma-4-e2b-trained-express",
+            fileName = "gemma-4-e2b-trained-express-int4.litertlm",
+            downloadUrl = null,
+            approximateSize = "2.59 GB",
+            quantization = "Mixed W2/W4/W8-A8 mobile topology",
+            maxContextTokens = 4_096,
+            maxOutputTokens = 2_048,
+            requireGpu = true,
+            enableSpeculativeDecoding = true,
+            trainingCompatiblePrompt = true,
+            minimumFileSizeBytes = 2_500_000_000L,
+        ),
+        Entry(
             id = "gemma4_e2b_a2ui_express_v6_litert",
             displayName = "Gemma 4 E2B A2UI Express v6",
             subtitle = "Custom v6 A2UI Express model exported for LiteRT-LM. GPU is the default; NPU needs a device-specific compiled model and vendor runtime.",

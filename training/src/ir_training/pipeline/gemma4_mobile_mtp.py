@@ -5,13 +5,12 @@ The pipeline is deliberately split into explicit stages:
 1. QAT SFT (the existing ``train_sft.py`` path) saves a golden-set best
    adapter;
 2. the best adapter is merged back into the floating-point base model;
-3. the preferred exact-topology stage quantizes merged projection weights into
-   a copy of the released target graph;
+3. the dedicated retained-scale exporter changes only the 205 trained target
+   projection code buffers in a copy of the released package;
 4. MTP weights use either official bytes or a trained 23-matrix transplant;
-5. an optional generic LiteRT Torch export produces a *standalone* diagnostic;
-6. a legacy compatible target TFLite section can be composed with the official package,
-   preserving the default ``tf_lite_mtp_drafter`` section byte-for-byte; and
-7. package/device validation records what was actually proven.
+5. legacy abs-max/public target export and section composition are blocked for
+   this retained-scale profile; and
+6. package/device validation records what was actually proven.
 
 The default command is plan-only.  Training and public conversion are
 expensive and the public converter is not Google's private Gemma mobile
@@ -20,6 +19,7 @@ exporter, so neither is run unless explicitly requested.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -33,15 +33,12 @@ from ir_training.eval.android_gpu_report import (
     PERFORMANCE_SELECTION_POLICY,
     load_android_gpu_parity_report,
 )
-from ir_training.export.edge_gallery import export_edge_gallery_model
-from ir_training.export.litertlm_mtp import compose_with_default_mtp
 from ir_training.export.merge_lora import merge_lora_adapter
 from ir_training.qat.mobile_training_seed import (
     OFFICIAL_MOBILE_MODEL_ID,
     verify_configured_mobile_training_seed,
 )
-from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
-from ir_training.qat.retained_constants import verify_retained_constant_contract
+from ir_training.qat.mobile_qparams import verify_mobile_qparams_contract
 from ir_training.qat_mtp.workflow import OFFICIAL_QAT_ASSISTANT
 
 
@@ -96,8 +93,12 @@ def build_pipeline_plan(
     config: dict[str, Any],
     *,
     config_path: str | Path | None = None,
+    training_config_override: str | Path | None = None,
     best_checkpoint_override: str | Path | None = None,
     base_litertlm_override: str | Path | None = None,
+    merged_model_dir_override: str | Path | None = None,
+    exact_output_dir_override: str | Path | None = None,
+    export_report_override: str | Path | None = None,
     target_litertlm_override: str | Path | None = None,
     target_section_override: str | Path | None = None,
     output_litertlm_override: str | Path | None = None,
@@ -110,7 +111,9 @@ def build_pipeline_plan(
         "training_config",
         "configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml",
     )
-    training_config_path = resolve_path(str(training_config_value), base)
+    training_config_path = resolve_path(
+        str(training_config_override or training_config_value), base
+    )
     if not training_config_path.is_file():
         raise Gemma4MobileMTPPipelineError(
             f"Training config does not exist: {training_config_path}"
@@ -134,8 +137,10 @@ def build_pipeline_plan(
     )
 
     source_cfg = _section(pipeline_cfg, "source")
-    merged_model_dir = _path_or_empty(
-        source_cfg.get("merged_model_dir"), base
+    merged_model_dir = (
+        resolve_path(str(merged_model_dir_override), base)
+        if merged_model_dir_override
+        else _path_or_empty(source_cfg.get("merged_model_dir"), base)
     ) or resolve_path(
         str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
         + "/merged_best_hf",
@@ -160,10 +165,6 @@ def build_pipeline_plan(
         resolve_path(str(output_litertlm_override), base)
         if output_litertlm_override
         else _path_or_empty(source_cfg.get("output_litertlm"), base)
-    ) or resolve_path(
-        str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
-        + "/gemma4_e2b_mobile_mtp.litertlm",
-        base,
     )
     public_export_cfg = _section(pipeline_cfg, "public_export")
     public_export_dir = _path_or_empty(public_export_cfg.get("output_dir"), base)
@@ -173,15 +174,26 @@ def build_pipeline_plan(
             + "/public_export",
             base,
         )
-    exact_cfg = _section(pipeline_cfg, "exact_topology")
-    exact_enabled = bool(exact_cfg.get("enabled", True))
-    exact_output_dir = _path_or_empty(exact_cfg.get("output_dir"), base)
-    if exact_output_dir is None:
-        exact_output_dir = resolve_path(
+    retained_export_cfg = _section(pipeline_cfg, "retained_scale_export")
+    retained_export_enabled = bool(retained_export_cfg.get("enabled", True))
+    retained_output_dir = (
+        resolve_path(str(exact_output_dir_override), base)
+        if exact_output_dir_override
+        else _path_or_empty(retained_export_cfg.get("output_dir"), base)
+    )
+    if retained_output_dir is None:
+        retained_output_dir = resolve_path(
             str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
-            + "/exact_topology_export",
+            + "/retained_scale_export",
             base,
         )
+    if output_litertlm is None:
+        output_litertlm = retained_output_dir / "gemma4_e2b_retained_scale.litertlm"
+    export_report = (
+        resolve_path(str(export_report_override), base)
+        if export_report_override
+        else _path_or_empty(retained_export_cfg.get("report"), base)
+    ) or (retained_output_dir / "gemma4_retained_scale_code_only_report.json")
 
     training_script = base / "scripts" / "train_sft.py"
     train_command = [sys.executable, str(training_script), "--config", str(training_config_path)]
@@ -214,6 +226,9 @@ def build_pipeline_plan(
     mobile_training_seed_manifest = _path_or_empty(
         model_cfg.get("mobile_training_seed_manifest"), base
     )
+    mobile_qparams_contract = _path_or_empty(
+        model_cfg.get("mobile_qparams_contract"), base
+    )
     mobile_training_seed = verify_configured_mobile_training_seed(
         model_cfg,
         base=base,
@@ -242,85 +257,57 @@ def build_pipeline_plan(
         )
     target_intermediate_litertlm = _path_or_empty(
         mtp_cfg.get("target_intermediate_litertlm"), base
-    ) or resolve_path(
-        str(pipeline_cfg.get("output_dir", "outputs/pipelines/gemma4_e2b_mobile_mtp"))
-        + "/gemma4_e2b_target_with_official_mtp.litertlm",
-        base,
-    )
+    ) or (retained_output_dir / "gemma4_e2b_target_with_official_mtp.litertlm")
     drafter_exact_output_dir = _path_or_empty(
         mtp_cfg.get("exact_topology_output_dir"), base
-    ) or (exact_output_dir / "drafter")
-    target_exact_output_dir = (
-        exact_output_dir / "target"
-        if trained_mtp_enabled
-        else exact_output_dir
-    )
-    target_exact_package_output = (
+    ) or (retained_output_dir / "drafter")
+    target_retained_output_dir = retained_output_dir
+    target_retained_package_output = (
         target_intermediate_litertlm
         if trained_mtp_enabled
         else output_litertlm
     )
     public_export_enabled = bool(public_export_cfg.get("enabled", False))
-    official_base_model_id = str(
-        exact_cfg.get("official_base_model_id") or model_id
-    )
     official_artifact_sha256 = str(
-        exact_cfg.get("official_artifact_sha256") or ""
+        retained_export_cfg.get("official_artifact_sha256") or ""
     ).strip().lower()
-    retained_constant_contract = _path_or_empty(
-        exact_cfg.get("retained_constant_contract"), base
+    mobile_qparams = verify_mobile_qparams_contract(
+        mobile_qparams_contract, base=base
     )
-    retained_constant_compatibility = verify_retained_constant_contract(
-        retained_constant_contract,
-        family="gemma4_e2b",
-        training_model_id=model_id,
+    retained_export_script = (
+        base / "scripts" / "build_gemma4_retained_scale_litertlm.py"
     )
-    exact_script = base / "scripts" / "build_checkpoint_official_topology.py"
-    exact_command = [
+    retained_export_command = [
         sys.executable,
-        str(exact_script),
-        str(base_litertlm) if base_litertlm else "<official-base-litertlm-required>",
+        str(retained_export_script),
+        "--official-litertlm",
+        str(base_litertlm) if base_litertlm else "<official-litertlm-required>",
+        "--official-artifact-sha256",
+        official_artifact_sha256 or "<official-artifact-sha256-required>",
         "--checkpoint",
         str(merged_model_dir),
-        "--family",
-        "gemma4_e2b",
-        "--model-type",
-        target_model_type,
+        "--adapter-checkpoint",
+        str(best_checkpoint),
         "--training-config",
         str(training_config_path),
-        "--retained-constant-contract",
-        str(retained_constant_contract)
-        if retained_constant_contract
-        else "<retained-constant-contract-required>",
         "--mobile-training-seed-manifest",
         str(mobile_training_seed_manifest)
         if mobile_training_seed_manifest
         else "<mobile-training-seed-manifest-required>",
-        "--official-base-model-id",
-        official_base_model_id,
-        "--official-artifact-sha256",
-        official_artifact_sha256 or "<official-artifact-sha256-required>",
+        "--mobile-qparams-contract",
+        str(mobile_qparams_contract)
+        if mobile_qparams_contract
+        else "<mobile-qparams-contract-required>",
+        "--zero-adapter-checkpoint",
+        str(model_source) if model_source else "<zero-adapter-checkpoint-required>",
         "--output-dir",
-        str(target_exact_output_dir),
-        "--package-output",
-        str(target_exact_package_output),
-        "--calibration-samples",
-        str(int(exact_cfg.get("calibration_samples", 2))),
-        "--threads",
-        str(int(exact_cfg.get("threads", 1))),
+        str(target_retained_output_dir),
+        "--output-litertlm",
+        str(target_retained_package_output),
+        "--report",
+        str(export_report),
         "--execute",
     ]
-    converter_batch_size = exact_cfg.get("converter_batch_size")
-    if converter_batch_size not in (None, "", 0):
-        exact_command.extend(["--converter-batch-size", str(int(converter_batch_size))])
-    if bool(exact_cfg.get("retain_intermediates", False)):
-        exact_command.append("--retain-intermediates")
-    if bool(exact_cfg.get("runtime_allocate", False)):
-        exact_command.extend(
-            ["--runtime-allocate", "--runtime-threads", str(int(exact_cfg.get("runtime_threads", 2)))]
-        )
-        if bool(exact_cfg.get("runtime_without_default_delegates", True)):
-            exact_command.append("--runtime-without-default-delegates")
     drafter_training_script = base / "scripts" / "train_gemma4_mtp_drafter.py"
     drafter_training_command = [
         sys.executable,
@@ -353,22 +340,23 @@ def build_pipeline_plan(
         "--package-output",
         str(output_litertlm),
         "--calibration-samples",
-        str(int(exact_cfg.get("calibration_samples", 2))),
+        str(int(mtp_cfg.get("calibration_samples", 2))),
         "--threads",
-        str(int(exact_cfg.get("threads", 1))),
+        str(int(mtp_cfg.get("threads", 1))),
         "--execute",
     ]
+    converter_batch_size = mtp_cfg.get("converter_batch_size")
     if converter_batch_size not in (None, "", 0):
         drafter_export_command.extend(
             ["--converter-batch-size", str(int(converter_batch_size))]
         )
-    if bool(exact_cfg.get("retain_intermediates", False)):
+    if bool(mtp_cfg.get("retain_intermediates", False)):
         drafter_export_command.append("--retain-intermediates")
-    if bool(exact_cfg.get("runtime_allocate", False)):
+    if bool(mtp_cfg.get("runtime_allocate", False)):
         drafter_export_command.extend(
-            ["--runtime-allocate", "--runtime-threads", str(int(exact_cfg.get("runtime_threads", 2)))]
+            ["--runtime-allocate", "--runtime-threads", str(int(mtp_cfg.get("runtime_threads", 2)))]
         )
-        if bool(exact_cfg.get("runtime_without_default_delegates", True)):
+        if bool(mtp_cfg.get("runtime_without_default_delegates", True)):
             drafter_export_command.append("--runtime-without-default-delegates")
     android_cfg = _section(pipeline_cfg, "android")
     android_warm_runs = int(
@@ -460,27 +448,15 @@ def build_pipeline_plan(
                 ),
             }
         )
-    if official_base_model_id != model_id:
+    if not mobile_qparams.get("verified"):
         validation.append(
             {
                 "severity": "error",
-                "code": "training_seed_provenance_mismatch",
+                "code": "mobile_qparams_unverified",
+                "scope": "retained_scale_export",
                 "message": (
-                    "exact_topology.official_base_model_id must equal the training "
-                    "model_id so adapter merge provenance is bound to the same seed."
-                ),
-            }
-        )
-    if not retained_constant_compatibility["verified"]:
-        validation.append(
-            {
-                "severity": "error",
-                "code": "retained_constant_compatibility_unverified",
-                "scope": "exact_topology_export",
-                "message": (
-                    "The dense training seed is not proven compatible with learned "
-                    "constants retained from the packed mobile package. Current "
-                    "evidence must be compatible_exact and mapped into the compiled graph."
+                    "The hash-bound retained weight/A8 qparams sidecar must verify "
+                    "before merge or retained-scale export."
                 ),
             }
         )
@@ -503,22 +479,23 @@ def build_pipeline_plan(
                 "message": "The referenced training config must enable qat.enabled.",
             }
         )
-    try:
-        ai_edge_numeric_contract_matches = bool(
-            qat_numeric_contract(QATSpec.from_config(training_config))[
-                "public_ai_edge_numeric_contract"
-            ]
-        )
-    except (OSError, RuntimeError, TypeError, ValueError):
-        ai_edge_numeric_contract_matches = False
-    if not ai_edge_numeric_contract_matches:
+    retained_qat_matches = bool(
+        qat_cfg.get("scale_mode") == "retained_mobile"
+        and qat_cfg.get("fixed_scale_required") is True
+        and qat_cfg.get("fixed_activation_scale_required") is True
+        and qat_cfg.get("effective_lora_only") is True
+        and qat_cfg.get("effective_merged_weight") is True
+        and qat_cfg.get("ste_gradient") == "clipped"
+        and int(qat_cfg.get("expected_effective_lora_modules", 0) or 0) == 205
+    )
+    if not retained_qat_matches:
         validation.append(
             {
                 "severity": "error",
-                "code": "ai_edge_numeric_contract_mismatch",
+                "code": "retained_mobile_qat_contract_mismatch",
                 "message": (
-                    "The E2B QAT config must use the tested public AI Edge "
-                    "FLOAT32 scale calculation and 1e-9 minimum scale."
+                    "This pipeline accepts only exact-205 retained_mobile QAT "
+                    "with fixed weight/A8 scales, effective-LoRA-only and clipped STE."
                 ),
             }
         )
@@ -596,14 +573,14 @@ def build_pipeline_plan(
                 "message": "Set mtp.weight_source=trained when train_assistant=true.",
             }
         )
-    if trained_mtp_enabled and not exact_enabled:
+    if trained_mtp_enabled and not retained_export_enabled:
         validation.append(
             {
                 "severity": "error",
-                "code": "trained_mtp_requires_exact_topology",
+                "code": "trained_mtp_requires_retained_scale_export",
                 "message": (
                     "Trained assistant weights can only be injected through the "
-                    "official exact-topology path."
+                    "dedicated retained-scale target export path."
                 ),
             }
         )
@@ -624,41 +601,110 @@ def build_pipeline_plan(
                 "severity": "warning",
                 "code": "missing_base_package",
                 "message": (
-                    "Provide the official base_litertlm package before exact export "
-                    "or legacy composition."
+                    "Provide the official base_litertlm package before retained-scale export."
                 ),
             }
         )
-    if target_litertlm is not None and target_section is not None:
+    if target_retained_package_output.parent.resolve() != retained_output_dir.resolve():
         validation.append(
             {
-                "severity": "warning",
-                "code": "two_target_sources",
-                "message": "Provide only target_litertlm or target_section.",
-            }
-        )
-    if public_export_enabled and not export_config_path.is_file():
-        validation.append(
-            {
-                "severity": "warning",
-                "code": "missing_public_export_config",
-                "message": f"Public export config does not exist: {export_config_path}",
-            }
-        )
-    if (
-        not exact_enabled
-        and not public_export_enabled
-        and target_litertlm is None
-        and target_section is None
-    ):
-        validation.append(
-            {
-                "severity": "warning",
-                "code": "private_target_export_pending",
+                "severity": "error",
+                "code": "retained_export_output_outside_fresh_directory",
                 "message": (
-                    "No compatible target TFLite section/package is configured. "
-                    "The public generic exporter cannot be assumed to reproduce Google's mobile recipe."
+                    "The retained-scale target package must be a direct child of "
+                    "pipeline.retained_scale_export.output_dir. Choose "
+                    "--output-litertlm inside --exact-output-dir."
                 ),
+            }
+        )
+    if export_report.parent.resolve() != retained_output_dir.resolve():
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_export_report_outside_fresh_directory",
+                "message": (
+                    "The retained-scale report must be a direct child of "
+                    "pipeline.retained_scale_export.output_dir."
+                ),
+            }
+        )
+    if target_litertlm is not None or target_section is not None:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "legacy_target_source_blocked",
+                "message": (
+                    "Retained-mobile deployment cannot consume a pre-exported target "
+                    "or raw target section; use the dedicated code-only exporter."
+                ),
+            }
+        )
+    if public_export_enabled:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "legacy_public_export_blocked",
+                "message": (
+                    "Generic LiteRT Torch/abs-max target export is forbidden for "
+                    "qat.scale_mode=retained_mobile."
+                ),
+            }
+        )
+    if _section(pipeline_cfg, "exact_topology"):
+        validation.append(
+            {
+                "severity": "error",
+                "code": "legacy_exact_topology_config_blocked",
+                "message": (
+                    "pipeline.exact_topology is the retired abs-max target exporter. "
+                    "Use pipeline.retained_scale_export only."
+                ),
+            }
+        )
+    if not retained_export_enabled:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_scale_export_disabled",
+                "message": "pipeline.retained_scale_export.enabled must remain true.",
+            }
+        )
+    if not retained_export_script.is_file():
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_scale_exporter_missing",
+                "message": f"Dedicated exporter does not exist: {retained_export_script}",
+            }
+        )
+    if target_retained_package_output.parent != retained_output_dir:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_output_outside_fresh_export_dir",
+                "message": (
+                    "The retained target package must be a direct child of the "
+                    "fresh retained-scale output directory."
+                ),
+            }
+        )
+    if export_report.parent != retained_output_dir:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_report_outside_fresh_export_dir",
+                "message": (
+                    "The retained exporter report must be a direct child of the "
+                    "fresh retained-scale output directory."
+                ),
+            }
+        )
+    if target_retained_package_output == export_report:
+        validation.append(
+            {
+                "severity": "error",
+                "code": "retained_output_report_collision",
+                "message": "The retained package and JSON report paths must differ.",
             }
         )
 
@@ -711,30 +757,38 @@ def build_pipeline_plan(
                 "Google's private Gemma 4 mobile wNa8o8 exporter."
             ),
         },
-        "exact_topology": {
-            "enabled": exact_enabled,
-            "family": "gemma4_e2b",
-            "official_base_model_id": official_base_model_id,
+        "retained_scale_export": {
+            "enabled": retained_export_enabled,
+            "mode": "retained_scale_code_only_v1",
             "official_artifact_sha256": official_artifact_sha256 or None,
             "official_litertlm": str(base_litertlm) if base_litertlm else None,
             "merged_checkpoint": str(merged_model_dir),
+            "adapter_checkpoint": str(best_checkpoint),
             "training_config": str(training_config_path),
-            "retained_constant_contract": str(retained_constant_contract)
-            if retained_constant_contract
+            "mobile_training_seed_manifest": str(mobile_training_seed_manifest)
+            if mobile_training_seed_manifest
             else None,
-            "retained_constant_compatibility": retained_constant_compatibility,
+            "mobile_qparams_contract": str(mobile_qparams_contract)
+            if mobile_qparams_contract
+            else None,
+            "mobile_qparams": mobile_qparams,
+            "mobile_training_seed_manifest": str(mobile_training_seed_manifest)
+            if mobile_training_seed_manifest
+            else None,
             "mobile_training_seed": mobile_training_seed,
-            "model_type": target_model_type,
-            "output_dir": str(target_exact_output_dir),
-            "output_litertlm": str(target_exact_package_output),
+            "zero_adapter_checkpoint": str(model_source) if model_source else None,
+            "output_dir": str(target_retained_output_dir),
+            "output_litertlm": str(target_retained_package_output),
+            "report": str(export_report),
             "final_output_litertlm": str(output_litertlm),
-            "command": exact_command,
+            "command": retained_export_command,
             "training_executed": False,
             "preserves_default_mtp_byte_exact": True,
             "final_package_preserves_default_mtp_byte_exact": (
                 not trained_mtp_enabled
             ),
-            "requires_complete_277_weight_mapping": True,
+            "requires_exact_205_projection_mapping": True,
+            "legacy_absmax_export_blocked": True,
         },
         "mtp": {
             "enabled": mtp_enabled,
@@ -777,9 +831,7 @@ def build_pipeline_plan(
             ),
             "official_mtp_bytes_preserved": not trained_mtp_enabled,
             "target_export_authority": (
-                "official_graph_template_plus_public_quantized_checkpoint_constants"
-                if exact_enabled
-                else "compatible_mobile_section_required"
+                "official_package_plus_retained_scale_205_code_only_patch"
             ),
         },
         "android_gpu": {
@@ -851,6 +903,333 @@ def _run_command(command: list[str], log_path: Path, *, cwd: Path) -> None:
         )
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _current_file_records(directory: Path, candidates: list[Path]) -> list[dict[str, Any]]:
+    return [
+        {
+            "path": candidate.relative_to(directory).as_posix(),
+            "size": int(candidate.stat().st_size),
+            "sha256": _sha256_file(candidate),
+        }
+        for candidate in sorted(candidates, key=lambda item: item.as_posix())
+        if candidate.is_file()
+    ]
+
+
+def _adapter_file_records(directory: Path) -> list[dict[str, Any]]:
+    return _current_file_records(directory, list(directory.glob("adapter*")))
+
+
+def _merged_file_records(directory: Path) -> list[dict[str, Any]]:
+    candidates = list(directory.glob("model*.safetensors"))
+    candidates.append(directory / "model.safetensors.index.json")
+    return _current_file_records(directory, candidates)
+
+
+def _normalized_artifact_records(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    records: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        try:
+            size = int(item.get("size", -1))
+        except (TypeError, ValueError):
+            size = -1
+        records.append(
+            {
+                "path": str(item.get("path") or "").replace("\\", "/"),
+                "size": size,
+                "sha256": str(item.get("sha256") or "").lower(),
+            }
+        )
+    return sorted(records, key=lambda item: item["path"])
+
+
+def _normalized_merged_verification(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    records: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict) or item.get("valid") is not True:
+            return []
+        try:
+            expected_size = int(item.get("expected_size", -1))
+            observed_size = int(item.get("observed_size", -1))
+        except (TypeError, ValueError):
+            return []
+        expected_sha = str(item.get("expected_sha256") or "").lower()
+        observed_sha = str(item.get("observed_sha256") or "").lower()
+        if expected_size != observed_size or expected_sha != observed_sha:
+            return []
+        records.append(
+            {
+                "path": str(item.get("path") or "").replace("\\", "/"),
+                "size": observed_size,
+                "sha256": observed_sha,
+            }
+        )
+    return sorted(records, key=lambda item: item["path"])
+
+
+def _validate_retained_scale_export_report(
+    report_path: str | Path,
+    *,
+    expected_plan: dict[str, Any],
+) -> dict[str, Any]:
+    """Recheck the dedicated exporter's final fail-closed report."""
+
+    path = Path(report_path)
+    if not path.is_file():
+        raise Gemma4MobileMTPPipelineError(
+            f"Retained-scale exporter did not write its report: {path}"
+        )
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise Gemma4MobileMTPPipelineError(
+            f"Retained-scale exporter report is unreadable: {path}: {exc}"
+        ) from exc
+    if not isinstance(report, dict):
+        raise Gemma4MobileMTPPipelineError(
+            "Retained-scale exporter report root is not an object."
+        )
+    required_gates = {
+        "zero_adapter_target_byte_exact",
+        "processed_205",
+        "base_lora_candidate_dtype_match_205",
+        "base_lora_candidate_bfloat16_205",
+        "base_lora_numerical_parity_205",
+        "base_lora_code_parity_205",
+        "base_delta_norms_finite_205",
+        "at_least_one_lora_delta_nonzero",
+        "changed_buffers_within_expected_205",
+        "at_least_one_trained_code_changed",
+        "restored_official_payload_target_byte_exact",
+        "frozen_72_byte_exact",
+        "weight_qparams_byte_exact",
+        "activation_a8_qparams_byte_exact",
+        "all_tensor_qparams_byte_exact",
+        "official_retained_weight_scales_exact",
+        "official_retained_a8_scales_exact",
+        "graph_layout_execution_identity",
+        "section_size_unchanged",
+        "exact_205_key_buffer_bijection",
+        "expected_bit_histogram",
+        "retained_qparams_verified",
+        "legacy_metadata_rejected",
+        "package_outside_target_byte_exact",
+        "mtp_byte_exact",
+        "package_parseable",
+    }
+    gates = report.get("gates")
+    gates = gates if isinstance(gates, dict) else {}
+    package_checks = report.get("package_checks")
+    package_checks = package_checks if isinstance(package_checks, dict) else {}
+    failed = sorted(name for name in required_gates if gates.get(name) is not True)
+    failed.extend(
+        f"package_checks.{name}"
+        for name, passed in sorted(package_checks.items())
+        if passed is not True
+    )
+    output = Path(str(expected_plan["output_litertlm"])).resolve()
+    declared_output = report.get("output_litertlm")
+    output_identity_ok = bool(
+        output.is_file()
+        and declared_output
+        and Path(str(declared_output)).resolve() == output
+        and str(report.get("output_sha256") or "").lower() == _sha256_file(output)
+    )
+    expected_official = Path(str(expected_plan["official_litertlm"])).resolve()
+    expected_merged = Path(str(expected_plan["merged_checkpoint"])).resolve()
+    expected_adapter = Path(str(expected_plan["adapter_checkpoint"])).resolve()
+    expected_config = Path(str(expected_plan["training_config"])).resolve()
+    expected_seed_manifest = Path(
+        str(expected_plan["mobile_training_seed_manifest"])
+    ).resolve()
+    expected_qparams = Path(str(expected_plan["mobile_qparams_contract"])).resolve()
+    expected_zero = Path(str(expected_plan["zero_adapter_checkpoint"])).resolve()
+    official_identity = report.get("official_artifact_identity")
+    official_identity = official_identity if isinstance(official_identity, dict) else {}
+    merged_identity = report.get("merged_checkpoint_identity")
+    merged_identity = merged_identity if isinstance(merged_identity, dict) else {}
+    adapter_identity = report.get("adapter_identity")
+    adapter_identity = adapter_identity if isinstance(adapter_identity, dict) else {}
+    config_identity = report.get("resolved_training_config_identity")
+    config_identity = config_identity if isinstance(config_identity, dict) else {}
+    seed_identity = report.get("mobile_training_seed_identity")
+    seed_identity = seed_identity if isinstance(seed_identity, dict) else {}
+    qparams_identity = report.get("mobile_qparams_identity")
+    qparams_identity = qparams_identity if isinstance(qparams_identity, dict) else {}
+    expected_qparams_report = expected_plan.get("mobile_qparams")
+    expected_qparams_report = (
+        expected_qparams_report
+        if isinstance(expected_qparams_report, dict)
+        else {}
+    )
+    expected_scale_storage = Path(
+        str(expected_qparams_report.get("scale_storage_path") or "")
+    ).resolve()
+
+    def file_matches(path_value: Any, size_value: Any, sha_value: Any) -> bool:
+        try:
+            candidate = Path(str(path_value)).resolve()
+            expected_size = int(size_value)
+            expected_sha = str(sha_value or "").lower()
+        except (OSError, TypeError, ValueError):
+            return False
+        return bool(
+            candidate.is_file()
+            and expected_size >= 0
+            and len(expected_sha) == 64
+            and candidate.stat().st_size == expected_size
+            and _sha256_file(candidate) == expected_sha
+        )
+
+    adapter_records = adapter_identity.get("files")
+    adapter_records = adapter_records if isinstance(adapter_records, list) else []
+    adapter_record_names = {
+        str(item.get("path") or "")
+        for item in adapter_records
+        if isinstance(item, dict)
+    }
+    actual_adapter_names = {
+        item.name for item in expected_adapter.glob("adapter*") if item.is_file()
+    }
+    adapter_files_live = bool(
+        adapter_records
+        and adapter_record_names == actual_adapter_names
+        and all(
+            isinstance(item, dict)
+            and file_matches(
+                expected_adapter / str(item.get("path") or ""),
+                item.get("size"),
+                item.get("sha256"),
+            )
+            for item in adapter_records
+        )
+    )
+    adapter_metadata_path = expected_adapter / "training_metadata.json"
+    adapter_metadata_live = bool(
+        adapter_metadata_path.is_file()
+        and str(adapter_identity.get("training_metadata_sha256") or "").lower()
+        == _sha256_file(adapter_metadata_path)
+    )
+
+    merged_records = merged_identity.get("file_verification")
+    merged_records = merged_records if isinstance(merged_records, list) else []
+    merged_record_names = {
+        str(item.get("path") or "").replace("\\", "/")
+        for item in merged_records
+        if isinstance(item, dict)
+    }
+    actual_merged_names = {
+        item.relative_to(expected_merged).as_posix()
+        for item in expected_merged.glob("model*.safetensors")
+        if item.is_file()
+    }
+    merged_index = expected_merged / "model.safetensors.index.json"
+    if merged_index.is_file():
+        actual_merged_names.add(merged_index.relative_to(expected_merged).as_posix())
+    merged_files_live = bool(
+        merged_records
+        and merged_record_names == actual_merged_names
+        and all(
+            isinstance(item, dict)
+            and item.get("valid") is True
+            and Path(str(item.get("path") or "")).is_absolute() is False
+            and ".." not in Path(str(item.get("path") or "")).parts
+            and file_matches(
+                expected_merged / str(item.get("path") or ""),
+                item.get("expected_size"),
+                item.get("expected_sha256"),
+            )
+            for item in merged_records
+        )
+    )
+    merged_metadata_path = expected_merged / "qat_mtp_merge_metadata.json"
+    merged_metadata_live = bool(
+        merged_metadata_path.is_file()
+        and Path(str(merged_identity.get("metadata_path") or "")).resolve()
+        == merged_metadata_path.resolve()
+        and str(merged_identity.get("metadata_sha256") or "").lower()
+        == _sha256_file(merged_metadata_path)
+    )
+    expected_official_sha = str(
+        expected_plan.get("official_artifact_sha256") or ""
+    ).lower()
+    input_identity_ok = bool(
+        Path(str(report.get("official_litertlm") or "")).resolve()
+        == expected_official
+        and str(report.get("official_artifact_sha256") or "").lower()
+        == expected_official_sha
+        and official_identity.get("verified") is True
+        and str(official_identity.get("declared_sha256") or "").lower()
+        == expected_official_sha
+        and str(official_identity.get("observed_sha256") or "").lower()
+        == expected_official_sha
+        and Path(str(merged_identity.get("path") or "")).resolve()
+        == expected_merged
+        and merged_identity.get("verified") is True
+        and merged_files_live
+        and merged_metadata_live
+        and Path(str(adapter_identity.get("path") or "")).resolve()
+        == expected_adapter
+        and adapter_identity.get("verified") is True
+        and adapter_files_live
+        and adapter_metadata_live
+        and Path(str(config_identity.get("path") or "")).resolve()
+        == expected_config
+        and config_identity.get("verified") is True
+        and str(config_identity.get("sha256") or "").lower()
+        == _sha256_file(expected_config)
+        and Path(str(seed_identity.get("manifest_path") or "")).resolve()
+        == expected_seed_manifest
+        and seed_identity.get("verified") is True
+        and str(seed_identity.get("manifest_sha256") or "").lower()
+        == _sha256_file(expected_seed_manifest)
+        and Path(str(qparams_identity.get("contract_path") or "")).resolve()
+        == expected_qparams
+        and qparams_identity.get("verified") is True
+        and str(qparams_identity.get("contract_sha256") or "").lower()
+        == _sha256_file(expected_qparams)
+        and Path(str(qparams_identity.get("scale_storage_path") or "")).resolve()
+        == expected_scale_storage
+        and expected_scale_storage.is_file()
+        and str(qparams_identity.get("scale_storage_sha256") or "").lower()
+        == _sha256_file(expected_scale_storage)
+        and Path(str(report.get("zero_adapter_checkpoint") or "")).resolve()
+        == expected_zero
+    )
+    if (
+        report.get("mode") != "retained_scale_code_only_v1"
+        or report.get("executed") is not True
+        or report.get("plan_passed") is not True
+        or report.get("passed") is not True
+        or set(gates) != required_gates
+        or not package_checks
+        or failed
+        or not output_identity_ok
+        or not input_identity_ok
+    ):
+        detail = failed or [
+            "mode/executed/plan/passed/gate-set/input-or-output-identity"
+        ]
+        raise Gemma4MobileMTPPipelineError(
+            "Retained-scale exporter report failed pipeline verification: "
+            + ", ".join(detail)
+        )
+    return report
+
+
 def _load_android_gpu_report(
     report_path: str | Path,
     *,
@@ -884,12 +1263,17 @@ def run_pipeline(
     execute_drafter_training: bool = False,
     execute_public_export: bool = False,
     execute_exact_topology_export: bool = False,
+    execute_retained_scale_export: bool = False,
     compose_package: bool = False,
     validate_android_gpu: bool = False,
     adb_override: str | Path | None = None,
     serial_override: str | None = None,
+    training_config_override: str | Path | None = None,
     best_checkpoint_override: str | Path | None = None,
     base_litertlm_override: str | Path | None = None,
+    merged_model_dir_override: str | Path | None = None,
+    exact_output_dir_override: str | Path | None = None,
+    export_report_override: str | Path | None = None,
     target_litertlm_override: str | Path | None = None,
     target_section_override: str | Path | None = None,
     output_litertlm_override: str | Path | None = None,
@@ -897,11 +1281,31 @@ def run_pipeline(
 ) -> dict[str, Any]:
     """Plan and optionally execute explicitly selected stages."""
 
+    if execute_exact_topology_export:
+        raise Gemma4MobileMTPPipelineError(
+            "--execute-exact-topology-export is the retired Gemma 4 abs-max path. "
+            "Use --execute-retained-scale-export."
+        )
+    if execute_public_export:
+        raise Gemma4MobileMTPPipelineError(
+            "--execute-public-export is blocked for Gemma 4 retained_mobile QAT; "
+            "it does not preserve the released scales."
+        )
+    if compose_package:
+        raise Gemma4MobileMTPPipelineError(
+            "--compose is blocked for Gemma 4 retained_mobile QAT. The dedicated "
+            "retained-scale exporter writes the final official-topology package."
+        )
+
     plan = build_pipeline_plan(
         config,
         config_path=config_path,
+        training_config_override=training_config_override,
         best_checkpoint_override=best_checkpoint_override,
         base_litertlm_override=base_litertlm_override,
+        merged_model_dir_override=merged_model_dir_override,
+        exact_output_dir_override=exact_output_dir_override,
+        export_report_override=export_report_override,
         target_litertlm_override=target_litertlm_override,
         target_section_override=target_section_override,
         output_litertlm_override=output_litertlm_override,
@@ -911,33 +1315,19 @@ def run_pipeline(
         for item in plan["validation"]["issues"]
         if item["severity"] == "error"
     ]
-    blocking_stage_errors = [
-        item
-        for item in stage_errors
-        if item.get("code") != "retained_constant_compatibility_unverified"
-        or execute_exact_topology_export
-    ]
-    if blocking_stage_errors and (
+    if stage_errors and (
         execute_training
         or execute_merge
         or execute_drafter_training
-        or execute_public_export
-        or execute_exact_topology_export
-        or compose_package
+        or execute_retained_scale_export
         or validate_android_gpu
     ):
         raise Gemma4MobileMTPPipelineError(
-            json.dumps(blocking_stage_errors, ensure_ascii=False)
-        )
-
-    if execute_exact_topology_export and compose_package:
-        raise Gemma4MobileMTPPipelineError(
-            "Exact-topology export already writes the final package and preserves the "
-            "official MTP section; do not combine it with the legacy --compose stage."
+            json.dumps(stage_errors, ensure_ascii=False)
         )
 
     base = training_root()
-    pipeline_root = Path(plan["public_export"]["output_dir"]).parent
+    pipeline_root = Path(plan["retained_scale_export"]["output_dir"]).parent
     logs_dir = pipeline_root / "logs"
     if execute_training:
         _run_command(plan["training"]["command"], logs_dir / "train_sft.log", cwd=base.parent)
@@ -957,10 +1347,10 @@ def run_pipeline(
                 f"Best checkpoint is missing or not a PEFT model: {checkpoint}"
             )
         merged_destination = Path(plan["merge"]["merged_model_dir"])
-        if merged_destination.exists() and any(merged_destination.iterdir()):
+        if merged_destination.exists():
             raise Gemma4MobileMTPPipelineError(
-                "Refusing to merge into a non-empty directory; choose a new "
-                f"merged_model_dir or clear it explicitly: {merged_destination}"
+                "Refusing to merge into an existing path; choose a unique fresh "
+                f"--merged-model-dir: {merged_destination}"
             )
         merged = merge_lora_adapter(
             base_model_id=str(plan["merge"]["base_model_id"]),
@@ -1010,75 +1400,42 @@ def run_pipeline(
             )
         plan["mtp"]["training"]["executed"] = True
 
-    if execute_public_export:
-        if not plan["public_export"]["enabled"]:
+    if execute_retained_scale_export:
+        retained_plan = plan["retained_scale_export"]
+        if not retained_plan["enabled"]:
             raise Gemma4MobileMTPPipelineError(
-                "Public export is disabled in the pipeline config. Set "
-                "pipeline.public_export.enabled=true only when you explicitly want "
-                "a standalone public-converter candidate."
+                "pipeline.retained_scale_export.enabled=false."
             )
-        export_config_path = Path(plan["public_export"]["config"])
-        if not export_config_path.is_file():
+        if not retained_plan["official_litertlm"]:
             raise Gemma4MobileMTPPipelineError(
-                f"Public export config does not exist: {export_config_path}"
+                "Retained-scale export requires source.base_litertlm or --base-litertlm."
             )
         merged_dir = Path(plan["merge"]["merged_model_dir"])
         if not merged_dir.is_dir():
             raise Gemma4MobileMTPPipelineError(
                 f"Merged best-checkpoint model is missing: {merged_dir}. Run --execute-merge first."
             )
-        export_config = load_yaml(plan["public_export"]["config"])
-        export_config.setdefault("run", {})["output_dir"] = plan["public_export"]["output_dir"]
-        export_config.setdefault("source", {})["base_model_id"] = plan["merge"]["base_model_id"]
-        export_config.setdefault("source", {})["merged_model_dir"] = str(merged_dir)
-        export_config["source"].pop("adapter_dir", None)
-        export_manifest = export_edge_gallery_model(export_config, dry_run=False)
-        plan["public_export"]["executed"] = True
-        plan["public_export"]["manifest"] = export_manifest
-        candidate = _find_single_litertlm(Path(plan["public_export"]["output_dir"]))
-        if candidate is None:
+        output_dir = Path(retained_plan["output_dir"])
+        report_path = Path(retained_plan["report"])
+        output_path = Path(retained_plan["output_litertlm"])
+        collisions = [
+            str(path)
+            for path in (output_dir, report_path, output_path)
+            if path.exists()
+        ]
+        if collisions:
             raise Gemma4MobileMTPPipelineError(
-                "Public export did not produce exactly one .litertlm candidate."
-            )
-        plan["package"]["target_litertlm"] = str(candidate)
-
-    if execute_exact_topology_export:
-        if not plan["exact_topology"]["enabled"]:
-            raise Gemma4MobileMTPPipelineError(
-                "pipeline.exact_topology.enabled=false; exact-topology export was requested."
-            )
-        if not plan["exact_topology"]["official_litertlm"]:
-            raise Gemma4MobileMTPPipelineError(
-                "Exact-topology export requires source.base_litertlm or --base-litertlm."
-            )
-        merged_dir = Path(plan["merge"]["merged_model_dir"])
-        if not merged_dir.is_dir():
-            raise Gemma4MobileMTPPipelineError(
-                f"Merged best-checkpoint model is missing: {merged_dir}. Run --execute-merge first."
+                "Refusing to reuse retained-scale export outputs; choose fresh paths: "
+                + ", ".join(collisions)
             )
         _run_command(
-            list(plan["exact_topology"]["command"]),
-            logs_dir / "exact_topology_export.log",
+            list(retained_plan["command"]),
+            logs_dir / "retained_scale_export.log",
             cwd=base.parent,
         )
-        report_path = (
-            Path(plan["exact_topology"]["output_dir"])
-            / "checkpoint_official_topology_report.json"
+        report = _validate_retained_scale_export_report(
+            report_path, expected_plan=retained_plan
         )
-        if not report_path.is_file():
-            raise Gemma4MobileMTPPipelineError(
-                f"Exact-topology exporter did not write its report: {report_path}"
-            )
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-        if not bool(report.get("final_artifact_gate_pass")):
-            raise Gemma4MobileMTPPipelineError(
-                "Exact-topology exporter report did not pass all artifact gates."
-            )
-        mtp = report.get("mtp_preservation") or {}
-        if not bool(mtp.get("byte_exact")):
-            raise Gemma4MobileMTPPipelineError(
-                "Exact-topology exporter did not prove byte-exact MTP preservation."
-            )
         final_manifest: dict[str, Any] | None = None
         if plan["mtp"]["exact_topology"]["enabled"]:
             checkpoint = Path(plan["mtp"]["training"]["checkpoint"])
@@ -1122,39 +1479,10 @@ def run_pipeline(
             plan["mtp"]["exact_topology"]["executed"] = True
             plan["mtp"]["exact_topology"]["report"] = drafter_report
             final_manifest = {"target": report, "mtp_drafter": drafter_report}
-        plan["exact_topology"]["executed"] = True
-        plan["exact_topology"]["report"] = report
+        retained_plan["executed"] = True
+        retained_plan["report_payload"] = report
         plan["package"]["executed"] = True
         plan["package"]["manifest"] = final_manifest or report
-
-    if compose_package:
-        if plan["mtp"]["weight_source"] != "official":
-            raise Gemma4MobileMTPPipelineError(
-                "Legacy composition only preserves official MTP weights; use the "
-                "exact-topology export for mtp.weight_source=trained."
-            )
-        base_package = plan["package"].get("base_litertlm")
-        target_package = plan["package"].get("target_litertlm")
-        target_section = plan["package"].get("target_section")
-        if not base_package:
-            raise Gemma4MobileMTPPipelineError(
-                "Package composition requires package.base_litertlm (official package)."
-            )
-        if bool(target_package) == bool(target_section):
-            raise Gemma4MobileMTPPipelineError(
-                "Package composition requires exactly one target_litertlm or target_section."
-            )
-        manifest = compose_with_default_mtp(
-            base_litertlm=base_package,
-            target_litertlm=target_package,
-            target_section=target_section,
-            output_litertlm=plan["package"]["output_litertlm"],
-            target_model_type=plan["package"]["target_model_type"],
-            mtp_model_type=plan["package"]["mtp_model_type"],
-            force=force,
-        )
-        plan["package"]["executed"] = True
-        plan["package"]["manifest"] = manifest
 
     if validate_android_gpu:
         official_package = plan["package"].get("base_litertlm")

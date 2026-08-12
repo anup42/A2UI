@@ -20,9 +20,8 @@ from ir_training.pipeline.gemma4_mobile_mtp import (
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "QAT train -> select best golden checkpoint -> merge -> optional public "
-            "export -> inject the target and official or trained MTP weights into "
-            "the released LiteRT-LM topology."
+            "Plan or run the provenance-gated Gemma 4 retained-scale merge/export, "
+            "preserving the released LiteRT-LM topology and MTP bytes."
         )
     )
     parser.add_argument(
@@ -43,21 +42,27 @@ def main() -> int:
     parser.add_argument(
         "--execute-public-export",
         action="store_true",
-        help="Run the explicitly enabled public LiteRT Torch standalone export.",
+        help="Rejected legacy flag: public abs-max export is unsafe for retained_mobile.",
     )
     parser.add_argument(
         "--execute-exact-topology-export",
         action="store_true",
         help=(
-            "Quantize the merged checkpoint into the official target graph and "
-            "write the final .litertlm, preserving official MTP weights or "
-            "injecting a provenance-verified trained drafter per config."
+            "Rejected legacy flag. Use --execute-retained-scale-export."
+        ),
+    )
+    parser.add_argument(
+        "--execute-retained-scale-export",
+        action="store_true",
+        help=(
+            "Run the dedicated exact-205 retained-scale code-only exporter and "
+            "recheck its fail-closed report."
         ),
     )
     parser.add_argument(
         "--compose",
         action="store_true",
-        help="Compose a compatible target section with the official MTP package.",
+        help="Rejected legacy flag for retained_mobile QAT.",
     )
     parser.add_argument(
         "--validate-android-gpu",
@@ -66,8 +71,22 @@ def main() -> int:
     )
     parser.add_argument("--adb")
     parser.add_argument("--serial")
+    parser.add_argument(
+        "--training-config",
+        help="Exact resolved launcher config copied/hash-bound into the checkpoint.",
+    )
     parser.add_argument("--best-checkpoint")
     parser.add_argument("--base-litertlm")
+    parser.add_argument(
+        "--merged-model-dir", help="Fresh output directory for merged HF Safetensors."
+    )
+    parser.add_argument(
+        "--exact-output-dir",
+        help="Fresh retained-scale exporter working/output directory.",
+    )
+    parser.add_argument(
+        "--export-report", help="Fresh retained-scale exporter JSON report path."
+    )
     parser.add_argument("--target-litertlm")
     parser.add_argument("--target-section")
     parser.add_argument("--output-litertlm")
@@ -85,12 +104,17 @@ def main() -> int:
             execute_drafter_training=args.execute_drafter_training,
             execute_public_export=args.execute_public_export,
             execute_exact_topology_export=args.execute_exact_topology_export,
+            execute_retained_scale_export=args.execute_retained_scale_export,
             compose_package=args.compose,
             validate_android_gpu=args.validate_android_gpu,
             adb_override=args.adb,
             serial_override=args.serial,
+            training_config_override=args.training_config,
             best_checkpoint_override=args.best_checkpoint,
             base_litertlm_override=args.base_litertlm,
+            merged_model_dir_override=args.merged_model_dir,
+            exact_output_dir_override=args.exact_output_dir,
+            export_report_override=args.export_report,
             target_litertlm_override=args.target_litertlm,
             target_section_override=args.target_section,
             output_litertlm_override=args.output_litertlm,
@@ -107,6 +131,7 @@ def main() -> int:
             args.execute_drafter_training,
             args.execute_public_export,
             args.execute_exact_topology_export,
+            args.execute_retained_scale_export,
             args.compose,
             args.validate_android_gpu,
         ]

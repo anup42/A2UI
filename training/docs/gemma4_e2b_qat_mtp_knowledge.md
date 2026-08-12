@@ -1469,8 +1469,8 @@ The checked-in pipeline for the requested workflow is:
 QAT LoRA SFT
   -> golden-set best adapter
   -> BF16 merged best checkpoint
-  -> public AI Edge quantization of all 277 target matrices
-  -> released target graph with trained constants
+  -> retained-scale code serialization for exactly 205 trained projections
+  -> released target graph with official weight/A8 scales and 72 frozen constants unchanged
   -> either (A) target-only runtime with the official MTP section retained dormant
              (B) byte-exact official MTP weights enabled
              or (C) 23 trained drafter matrices in the released MTP graph
@@ -1487,9 +1487,32 @@ to `final_adapter`, because deployment selection must use the measured best
 checkpoint.
 
 The merge stage is still floating-point and records
-`packed_int4_output=false`. A public `litert-torch export_hf` result is only a
-standalone candidate. It cannot be called Google's mobile W2/W4/W8-A8 output
-without proving the private schema, observers, calibration, and exporter.
+`packed_int4_output=false`. The dedicated retained-scale exporter then encodes
+only the exact 205 trained projections with the hash-bound qparams contract,
+preserves the released weight/A8 scale bytes and 72 frozen target constants,
+and requires a passing exporter report before promoting the `.litertlm`. This
+reproduces the observable retained-scale serialization contract; it does not
+claim Google's private data, optimizer, observer schedule, or QAT recipe.
+
+Use the pipeline plan before execution, with fresh destinations:
+
+```powershell
+python training/scripts/run_gemma4_e2b_mobile_mtp.py `
+  --training-config <run_root>/launch/resolved_training_config.yaml `
+  --best-checkpoint <run_root>/best_golden_checkpoint `
+  --base-litertlm <official.litertlm> `
+  --merged-model-dir <fresh_export_root>/merged_best_hf `
+  --exact-output-dir <fresh_export_root>/retained_scale_export `
+  --export-report <fresh_export_root>/retained_scale_export/report.json `
+  --output-litertlm <fresh_export_root>/retained_scale_export/gemma4_e2b_retained_scale.litertlm
+```
+
+Training completion alone does not authorize export. The launcher-resolved
+config, callback-created best-Golden adapter, exact-205 qparams/preflight
+evidence, merge provenance, official base package and plan must all agree.
+After review, add `--execute-merge --execute-retained-scale-export`; any existing
+merged/export directory, report, or output package is rejected rather than
+overwritten.
 
 `pipeline.mtp.weight_source` selects the assistant branch. `official` is the
 recommended first candidate and retains `tf_lite_mtp_drafter` byte-for-byte.
@@ -1505,10 +1528,10 @@ loss. Its QAT assignment is 13 W4 plus 10 W8 matrices with A8 fake
 quantization. This is a public reconstruction; Google's data mixture, loss
 weights, optimizer, and observer schedule remain unknown.
 
-`pipeline.mtp.enabled: false` is a supported target-only mode. It requires
+`pipeline.mtp.enabled: false` is the required first target-only mode. It requires
 `weight_source: official` and `train_assistant: false`, skips the drafter
 training/transplant stage, and changes the required Android report set to only
-`target_only`. The exact-topology exporter still proves and preserves the
+`target_only`. The retained-scale exporter proves and preserves the
 official drafter section byte-for-byte. This intentionally keeps the package
 graph/layout identical to the released artifact while LiteRT-LM runs it with
 MTP disabled. A contradictory disabled-plus-trained-drafter configuration is a
@@ -1531,9 +1554,10 @@ Edge quantizer, patches their packed bytes and per-row scales into the released
 MTP section, proves graph and quantization-layout hashes unchanged, and proves
 the fine-tuned target plus all bytes outside the MTP section remain exact.
 
-`training/scripts/compose_litertlm_with_mtp.py` performs the safe packaging
-operation once a compatible exporter has produced either a candidate package
-or a raw `TFL3` target section. It requires:
+`training/scripts/compose_litertlm_with_mtp.py` is a legacy packaging operation
+for compatible non-retained prebuilt sections. It is blocked for Gemma 4
+`retained_mobile`; the dedicated exporter already preserves the official MTP
+section. Historically, the composer required:
 
 1. an official base `.litertlm` containing `tf_lite_mtp_drafter`;
 2. exactly one target source and the same `tf_lite_prefill_decode` section size;
@@ -1542,10 +1566,11 @@ or a raw `TFL3` target section. It requires:
 4. a successful post-write inspection proving that the MTP section hash and
    every non-target section hash are unchanged.
 
-The legacy composer does not train, convert, or replace the assistant. It is
-valid only for the default compiled section from the selected official package.
-If section sizes differ, the tool fails and asks for a header-aware
-composer/exporter rather than shifting absolute section offsets heuristically.
+The legacy composer does not train, convert, or replace the assistant. Do not
+use it, public abs-max export, or `--execute-exact-topology-export` as a shortcut
+for a retained-scale target. Keep the official MTP bytes unchanged and MTP
+disabled until exporter-report, target-only semantic, and Android GPU gates
+pass.
 
 Run the structural gate with:
 
@@ -2082,6 +2107,71 @@ must therefore pass the host contract gates and fresh Android target-only/MTP
 acceptance gates before promotion.
 
 ## Rules for future agents
+
+### Retained-scale correction after checkpoint-20500 (2026-08-12)
+
+The earlier Gemma 4 mobile profile that recalculated public AI Edge abs-max
+scales from the dequantized BF16 seed is retired. It was graph-compatible but
+not numerically equivalent to the released mobile quantizer. In particular,
+W2 uses the full signed code range `[-2, 1]`; deriving `max(abs(weight))/qmax`
+from already dequantized cell centers can double a published scale and collapse
+most codes to zero. `checkpoint-20500` was produced by that invalid contract and
+must never be resumed or used as initialization.
+
+The corrected reconstruction writes `mobile_qparams.safetensors` plus
+`mobile_qparams.json`. They retain all 278 exact published F32 weight-scale
+tensors and the published static input/output A8 scales for projection
+matrices, with identities bound into `mobile_training_seed_manifest.json`.
+Training uses `scale_mode: retained_mobile`, immutable weight and A8 scales,
+clipped saturation-aware STE, and exactly 205 effective base+LoRA projections.
+Frozen embeddings and the other frozen mobile constants remain their published
+dequantized cell centers instead of being requantized on every forward.
+
+Before optimizer step 1, the portable launcher requires:
+
+1. seed, qparams, dataset, Golden-100, toolchain, CUDA and BF16 identity gates;
+2. byte-exact source-versus-sidecar scales for all 205 trainable projections;
+3. re-encoding the actual materialized BF16 seed with the sidecar scales to the
+   original packed codes for all 205 projections;
+4. the live PEFT wrapper/binding set to equal the same exact 205-key contract;
+5. a real-model QAT-off versus zero-adapter QAT-on completion-loss/top-token
+   probe with at least 90% fixed top-1 agreement, run without an optimizer;
+6. two identical nontrivial greedy generations from zero-adapter QAT on a
+   fixed prompt, retaining at least the first eight QAT-off tokens, also before
+   Trainer/optimizer construction; and
+7. a fresh isolated run ID with no resume or output reuse.
+
+Use `training/scripts/run_gemma4_mobile_qat.py` and read
+`training/docs/gemma4_mobile_qat_remote_pc_runbook.md` completely. The launcher
+is plan-only by default; `--preflight` runs gates without training and
+`--execute` is the only training authorization. Each Trainer evaluation still
+runs the immutable Golden-100 and logs v5.4 to TensorBoard. The learning rate is
+reset to `1e-5`; promote by the best strict Golden-100 v5.4 checkpoint, never by
+training/eval loss alone.
+
+For the requested bounded end-to-end wiring check, explicitly select
+`training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft_smoke_3_steps.yaml`.
+It runs three optimizer updates, evaluates/saves at step 3, and is eligible
+only for serialization/device validation, never quality promotion. The
+launcher default remains the full production profile.
+
+Export is now available only through the dedicated, fail-closed retained-scale
+pipeline stage. Run `run_gemma4_e2b_mobile_mtp.py` plan-only with the portable
+launcher’s resolved training config, callback-created best-Golden checkpoint,
+exact official base `.litertlm`, and unique fresh merged/export/report/output
+paths. After reviewing the plan, execute with both `--execute-merge` and
+`--execute-retained-scale-export`. The stage modifies only the exact 205 trained
+projection codes, preserves all official weight/A8 scale bytes, 72 frozen
+target constants, and the official MTP section, and requires the bound
+preflight/provenance gates plus a passing exporter report. Legacy
+`--execute-exact-topology-export`, public abs-max export, and `--compose` are
+blocked for Gemma 4 `retained_mobile`.
+
+Training completion alone is never export permission. First verify the local
+best-Golden provenance and resolved-config hash. After export, keep MTP disabled
+and the released assistant byte-exact until target-only semantic and Android GPU
+gates pass; only then consider MTP-on acceptance/throughput validation or a
+separately reviewed drafter-training experiment.
 
 1. Re-check official model cards and runtime supported-model lists because Gemma
    4 tooling is changing quickly.

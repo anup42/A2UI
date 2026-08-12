@@ -129,6 +129,7 @@ def verify_mobile_training_seed_manifest(
     expected_model_source: str | Path | None = None,
     base: str | Path | None = None,
     require_materialized: bool = True,
+    require_mobile_qparams: bool = False,
 ) -> dict[str, Any]:
     """Verify the exact reconstructed seed and every materialized model shard."""
 
@@ -155,6 +156,13 @@ def verify_mobile_training_seed_manifest(
         "shard_hashes_match": not require_materialized,
         "auxiliary_hashes_match": not require_materialized,
         "dense_config_valid": not require_materialized,
+        "mobile_qparams_contract_declared": not require_mobile_qparams,
+        "mobile_qparams_materialized": not (
+            require_materialized and require_mobile_qparams
+        ),
+        "mobile_qparams_verified": not (
+            require_materialized and require_mobile_qparams
+        ),
         "no_training_or_private_recipe_claim": False,
     }
     report: dict[str, Any] = {
@@ -368,6 +376,60 @@ def verify_mobile_training_seed_manifest(
             and config.get("tie_word_embeddings") is False
             and str(config.get("dtype") or "").lower() == "bfloat16"
         )
+        qparams = (
+            output.get("mobile_qparams")
+            if isinstance(output.get("mobile_qparams"), dict)
+            else {}
+        )
+        if require_mobile_qparams:
+            checks["mobile_qparams_contract_declared"] = bool(
+                qparams.get("contract_path") == "mobile_qparams.json"
+                and qparams.get("safetensors_path")
+                == "mobile_qparams.safetensors"
+                and int(qparams.get("tensor_count", 0) or 0)
+                == EXPECTED_DEQUANTIZED_COUNT
+                and isinstance(qparams.get("inventory"), dict)
+                and len(qparams.get("inventory"))
+                == EXPECTED_DEQUANTIZED_COUNT
+            )
+            contract_record = qparams.get("contract")
+            scale_record = qparams.get("scale_storage")
+            checks["mobile_qparams_materialized"] = bool(
+                qparams.get("materialized") is True
+                and isinstance(contract_record, dict)
+                and isinstance(scale_record, dict)
+            )
+        if require_mobile_qparams and checks["mobile_qparams_materialized"]:
+            from ir_training.qat.mobile_qparams import (
+                verify_mobile_qparams_contract,
+            )
+
+            qparams_report = verify_mobile_qparams_contract(
+                manifest_directory / str(qparams.get("contract_path")),
+                base=anchor,
+            )
+            report["mobile_qparams"] = qparams_report
+            checks["mobile_qparams_verified"] = bool(
+                qparams_report.get("verified")
+                and qparams_report.get("contract_sha256")
+                == str(contract_record.get("sha256") or "")
+                and qparams_report.get("scale_storage_sha256")
+                == str(scale_record.get("sha256") or "")
+                and qparams_report.get("inventory_sha256")
+                == qparams.get("inventory_sha256")
+            )
+    elif require_mobile_qparams:
+        qparams = (
+            output.get("mobile_qparams")
+            if isinstance(output.get("mobile_qparams"), dict)
+            else {}
+        )
+        checks["mobile_qparams_contract_declared"] = bool(
+            qparams.get("contract_path") == "mobile_qparams.json"
+            and qparams.get("safetensors_path") == "mobile_qparams.safetensors"
+            and int(qparams.get("tensor_count", 0) or 0)
+            == EXPECTED_DEQUANTIZED_COUNT
+        )
 
     report.update(
         {
@@ -414,4 +476,7 @@ def verify_configured_mobile_training_seed(
         expected_model_source=model_config.get("model_source"),
         base=base,
         require_materialized=require_materialized,
+        require_mobile_qparams=bool(
+            model_config.get("mobile_qparams_contract")
+        ),
     )
