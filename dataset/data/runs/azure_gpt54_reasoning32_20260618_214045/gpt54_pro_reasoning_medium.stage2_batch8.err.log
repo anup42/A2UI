@@ -1,5 +1,0 @@
-2026-06-19 02:40:58 INFO dataset: Stage2 async asset processing enabled workers=8
-2026-06-19 02:40:58 INFO dataset: Stage2 scheduled response_id=r_000003_01 for asset processing
-2026-06-19 02:40:59 INFO dataset: Stage2 created response_id=r_000003_01 assets=3/3
-2026-06-19 02:43:27 INFO dataset: Stage2 scheduled response_id=r_000004_01 for asset processing
-2026-06-19 02:43:28 INFO dataset: Stage2 created response_id=r_000004_01 assets=4/4

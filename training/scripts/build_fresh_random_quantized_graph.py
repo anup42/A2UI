@@ -41,6 +41,7 @@ from ir_training.export.litertlm_inspector import (  # noqa: E402
     LiteRTLMInspectionError,
     inspect_litertlm,
 )
+from tflite_schema_compat import schema_module  # noqa: E402
 
 
 class FreshGraphParityError(RuntimeError):
@@ -100,7 +101,7 @@ def _section_by_model_type(package: dict[str, Any], model_type: str) -> dict[str
 
 def _operator_names() -> dict[int, str]:
     try:
-        module = importlib.import_module("tflite.BuiltinOperator")
+        module = schema_module("BuiltinOperator")
         cls = getattr(module, "BuiltinOperator")
     except (ImportError, AttributeError) as exc:
         raise FreshGraphParityError(
@@ -115,7 +116,7 @@ def _operator_names() -> dict[int, str]:
 
 def _schema_model(data: Any) -> Any:
     try:
-        module = importlib.import_module("tflite.Model")
+        module = schema_module("Model")
         model_cls = getattr(module, "Model")
         getter = getattr(model_cls, "GetRootAsModel", None) or getattr(model_cls, "GetRootAs")
         return getter(data, 0)
@@ -281,13 +282,13 @@ def _vector(builder: Any, values: Iterable[Any], prepend: str) -> int:
 def _build_fresh_tflite(records: list[dict[str, Any]], seed: int) -> bytes:
     try:
         import flatbuffers
-        Buffer = importlib.import_module("tflite.Buffer")
-        Model = importlib.import_module("tflite.Model")
-        Operator = importlib.import_module("tflite.Operator")
-        OperatorCode = importlib.import_module("tflite.OperatorCode")
-        QuantizationParameters = importlib.import_module("tflite.QuantizationParameters")
-        SubGraph = importlib.import_module("tflite.SubGraph")
-        Tensor = importlib.import_module("tflite.Tensor")
+        Buffer = schema_module("Buffer")
+        Model = schema_module("Model")
+        Operator = schema_module("Operator")
+        OperatorCode = schema_module("OperatorCode")
+        QuantizationParameters = schema_module("QuantizationParameters")
+        SubGraph = schema_module("SubGraph")
+        Tensor = schema_module("Tensor")
     except ImportError as exc:  # pragma: no cover - conversion environment only
         raise FreshGraphParityError("Fresh graph serialization requires flatbuffers and generated tflite bindings.") from exc
 

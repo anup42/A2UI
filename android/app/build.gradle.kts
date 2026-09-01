@@ -368,6 +368,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    // LiteRT-LM GPU deployment uses the matching official GPU/OpenCL
+    // accelerators.  Do not package the older CL-GL accelerator, which would
+    // otherwise win LiteRT's runtime registry lookup and mix ABIs.
+    packaging {
+        jniLibs {
+            excludes += "**/libLiteRtClGlAccelerator.so"
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -531,7 +540,16 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-svg:2.7.0")
-    implementation("com.google.ai.edge.litertlm:litertlm-android:0.15.0")
+    val patchedLiteRtLmAar = rootProject.projectDir.parentFile.resolve(
+        "working_dir/litertlm-android-0.16.1-gpu-fixed-with-provider-v6.aar"
+    )
+    if (patchedLiteRtLmAar.isFile) {
+        implementation(files(patchedLiteRtLmAar))
+    } else {
+        // Keep clean checkouts buildable; the patched AAR enables the optional
+        // v0.16.1 GPU-provider path documented under android/tools.
+        implementation("com.google.ai.edge.litertlm:litertlm-android:0.15.0")
+    }
 
     debugImplementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")

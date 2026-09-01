@@ -9353,6 +9353,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--sync-on-start", action="store_true", help="Sync enabled sources before serving")
     parser.add_argument("--sync-once", action="store_true", help="Run one sync and exit")
+    parser.add_argument("--source-id", help="Limit startup or one-shot sync to one source id")
     parser.add_argument("--summary-once", action="store_true", help="Print summary JSON and exit")
     parser.add_argument("--askpass", action="store_true", help=argparse.SUPPRESS)
     return parser.parse_args()
@@ -9401,13 +9402,13 @@ def main() -> int:
     install_shutdown_handlers(state)
 
     if args.sync_once:
-        emit_json_stdout(state.sync(use_dashboard_password=False))
+        emit_json_stdout(state.sync(source_id=args.source_id, use_dashboard_password=False))
         return 0
     if args.summary_once:
         emit_json_stdout(state.summary())
         return 0
     if args.sync_on_start:
-        emit_json_stdout(state.sync(use_dashboard_password=False))
+        emit_json_stdout(state.sync(source_id=args.source_id, use_dashboard_password=False))
 
     httpd = FastShutdownThreadingHTTPServer((args.host, args.port), make_handler(state))
     install_shutdown_handlers(state, httpd)

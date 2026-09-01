@@ -998,7 +998,7 @@ def _fake_quantized_embedding_lookup(
         )
         if padding_matches.numel():
             local_padding_idx = int(padding_matches[0, 0].item())
-    return functional.embedding(
+    output = functional.embedding(
         inverse_indices.reshape_as(input_tensor),
         quantized_weight,
         local_padding_idx,
@@ -1007,6 +1007,27 @@ def _fake_quantized_embedding_lookup(
         module.scale_grad_by_freq,
         module.sparse,
     )
+
+    # Gemma 3 exposes ``Gemma3TextScaledWordEmbedding`` as an nn.Embedding
+    # subclass. Its forward method applies a non-unit ``embed_scale`` after
+    # the lookup. Calling functional.embedding above is intentional (it lets
+    # us quantize only the referenced rows), but it would otherwise silently
+    # drop that architecture-specific post-processing and shrink every hidden
+    # state by roughly sqrt(hidden_size). Preserve the public embedding
+    # contract for scaled embedding subclasses while keeping the fast path.
+    embed_scale = getattr(module, "embed_scale", None)
+    if embed_scale is None:
+        embed_scale = getattr(module, "scalar_embed_scale", None)
+    if embed_scale is not None:
+        if hasattr(embed_scale, "to"):
+            embed_scale = embed_scale.to(
+                device=output.device,
+                dtype=output.dtype,
+            )
+        else:
+            embed_scale = output.new_tensor(embed_scale)
+        output = output * embed_scale
+    return output
 
 
 def _is_lora_linear_wrapper(module: Any, nn: Any) -> bool:

@@ -10,13 +10,10 @@ import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.ExperimentalApi
 import com.google.ai.edge.litertlm.ExperimentalFlags
 import com.google.ai.edge.litertlm.Message
-import com.google.ai.edge.litertlm.MessageCallback
 import com.google.ai.edge.litertlm.SamplerConfig
 import com.samsung.genuicraft.InferenceBackendSettings
 import java.io.File
 import java.util.Locale
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -57,23 +54,37 @@ class OnDeviceLitertBackend(
                 modelMaxOutputTokens = runtimeProfile?.maxOutputTokens ?: ON_DEVICE_MAX_OUTPUT_TOKENS,
             )
             val requireGpu = runtimeProfile?.requireGpu == true
+            val allowGpuQualityFallback = runtimeProfile?.allowGpuQualityFallback == true
+            val requireGpuForInitialization = requireGpu && !(
+                allowGpuQualityFallback &&
+                    acceleratorPreference == InferenceBackendSettings.Accelerator.AUTO
+                )
             val enableSpeculativeDecoding = runtimeProfile?.enableSpeculativeDecoding == true
             val holder = getOrCreateEngine(
                 modelFile = modelFile,
                 maxContextTokens = maxContextTokens,
                 forceCpu = false,
-                requireGpu = requireGpu,
+                requireGpu = requireGpuForInitialization,
                 enableSpeculativeDecoding = enableSpeculativeDecoding,
                 acceleratorPreference = acceleratorPreference,
                 npuNativeLibraryDir = npuNativeLibraryDir,
             )
             val generation = try {
-                generateWithEngine(holder, promptParts, request.temperature, request.onStreamUpdate)
+                generateWithEngine(
+                    holder = holder,
+                    promptParts = promptParts,
+                    temperature = request.temperature,
+                    maxOutputTokens = min(
+                        request.maxOutputTokens,
+                        runtimeProfile?.maxOutputTokens ?: ON_DEVICE_MAX_OUTPUT_TOKENS,
+                    ),
+                    onStreamUpdate = request.onStreamUpdate,
+                )
             } catch (gpuFailure: Throwable) {
                 if (
                     holder.backendName != BACKEND_GPU ||
-                    requireGpu ||
-                    acceleratorPreference != InferenceBackendSettings.Accelerator.AUTO
+                    acceleratorPreference != InferenceBackendSettings.Accelerator.AUTO ||
+                    (!allowGpuQualityFallback && requireGpu)
                 ) {
                     throw gpuFailure
                 }
@@ -88,17 +99,60 @@ class OnDeviceLitertBackend(
                     acceleratorPreference = InferenceBackendSettings.Accelerator.CPU,
                     npuNativeLibraryDir = npuNativeLibraryDir,
                 )
-                generateWithEngine(cpuHolder, promptParts, request.temperature, request.onStreamUpdate)
+                generateWithEngine(
+                    holder = cpuHolder,
+                    promptParts = promptParts,
+                    temperature = request.temperature,
+                    maxOutputTokens = min(
+                        request.maxOutputTokens,
+                        runtimeProfile?.maxOutputTokens ?: ON_DEVICE_MAX_OUTPUT_TOKENS,
+                    ),
+                    onStreamUpdate = request.onStreamUpdate,
+                )
+            }
+            val qualityCheckedGeneration = if (
+                generation.backendName == BACKEND_GPU &&
+                acceleratorPreference == InferenceBackendSettings.Accelerator.AUTO &&
+                allowGpuQualityFallback &&
+                isInvalidGpuOutput(generation.text)
+            ) {
+                Log.w(
+                    LOG_TAG,
+                    "LiteRT GPU returned invalid special-token output; retrying on CPU. " +
+                        "gpuText=${generation.text.take(160)}"
+                )
+                closeCachedEngine()
+                val cpuHolder = getOrCreateEngine(
+                    modelFile = modelFile,
+                    maxContextTokens = maxContextTokens,
+                    forceCpu = true,
+                    requireGpu = false,
+                    enableSpeculativeDecoding = enableSpeculativeDecoding,
+                    acceleratorPreference = InferenceBackendSettings.Accelerator.CPU,
+                    npuNativeLibraryDir = npuNativeLibraryDir,
+                )
+                generateWithEngine(
+                    holder = cpuHolder,
+                    promptParts = promptParts,
+                    temperature = request.temperature,
+                    maxOutputTokens = min(
+                        request.maxOutputTokens,
+                        runtimeProfile?.maxOutputTokens ?: ON_DEVICE_MAX_OUTPUT_TOKENS,
+                    ),
+                    onStreamUpdate = request.onStreamUpdate,
+                )
+            } else {
+                generation
             }
             InferenceBackend.GenerateResponse(
-                text = generation.text,
-                rawResponse = generation.text,
+                text = qualityCheckedGeneration.text,
+                rawResponse = qualityCheckedGeneration.text,
                 error = null,
                 streamDurationMs = System.currentTimeMillis() - startMs,
-                inputTokens = generation.inputTokens ?: estimateTokens(promptParts.combinedForEstimates),
-                outputTokens = generation.outputTokens,
-                outputTokensPerSecond = generation.outputTokensPerSecond,
-                runtimeBackend = generation.backendName
+                inputTokens = qualityCheckedGeneration.inputTokens ?: estimateTokens(promptParts.combinedForEstimates),
+                outputTokens = qualityCheckedGeneration.outputTokens,
+                outputTokensPerSecond = qualityCheckedGeneration.outputTokensPerSecond,
+                runtimeBackend = qualityCheckedGeneration.backendName
             )
         } catch (t: Throwable) {
             InferenceBackend.GenerateResponse(
@@ -222,6 +276,7 @@ class OnDeviceLitertBackend(
         holder: EngineHolder,
         promptParts: PromptParts,
         temperature: Double,
+        maxOutputTokens: Int,
         onStreamUpdate: ((InferenceBackend.StreamUpdate) -> Unit)?,
     ): GenerationOutput {
         val startedAt = System.currentTimeMillis()
@@ -248,7 +303,8 @@ class OnDeviceLitertBackend(
                 temperature = temperature,
                 topK = if (deterministic) 1 else 32,
                 topP = if (deterministic) 1.0 else 0.9,
-            )
+            ),
+            maxOutputToken = maxOutputTokens.coerceAtLeast(1),
         )
         onStreamUpdate?.invoke(
             InferenceBackend.StreamUpdate(
@@ -261,72 +317,25 @@ class OnDeviceLitertBackend(
             )
         )
         val generation = holder.engine.createConversation(conversationConfig).use { conversation ->
-            val done = CountDownLatch(1)
-            val failure = AtomicReference<Throwable?>(null)
-            val textLock = Any()
-            var streamedText = ""
-            var firstTokenAtMs: Long? = null
-            var lastUiUpdateAtMs = 0L
-
-            conversation.sendMessageAsync(
-                promptParts.user,
-                object : MessageCallback {
-                    override fun onMessage(message: Message) {
-                        val chunk = messageText(message)
-                        if (chunk.isEmpty()) {
-                            return
-                        }
-                        val nowMs = System.currentTimeMillis()
-                        val snapshot = synchronized(textLock) {
-                            streamedText = mergeLiteRtStreamText(streamedText, chunk)
-                            streamedText
-                        }
-                        if (firstTokenAtMs == null) {
-                            firstTokenAtMs = nowMs
-                        }
-                        if (lastUiUpdateAtMs == 0L || nowMs - lastUiUpdateAtMs >= STREAM_UI_INTERVAL_MS) {
-                            lastUiUpdateAtMs = nowMs
-                            val tokenCount = estimateTokens(snapshot)
-                            onStreamUpdate?.invoke(
-                                InferenceBackend.StreamUpdate(
-                                    text = snapshot,
-                                    outputTokens = tokenCount,
-                                    outputTokensPerSecond = estimatedDecodeRate(
-                                        outputTokens = tokenCount,
-                                        firstTokenAtMs = firstTokenAtMs,
-                                        nowMs = nowMs,
-                                    ),
-                                    runtimeBackend = runtimeBackendLabel,
-                                    metricsAreEstimated = true,
-                                    complete = false,
-                                )
-                            )
-                        }
-                    }
-
-                    override fun onDone() {
-                        done.countDown()
-                    }
-
-                    override fun onError(throwable: Throwable) {
-                        failure.set(throwable)
-                        done.countDown()
-                    }
-                }
+            // LiteRT-LM's Android callback path can complete without exposing
+            // the final text for GPU executions.  Use the synchronous final
+            // message API, which is also the API used by the official Android
+            // GPU validation probe, and extract the returned Content.Text.
+            val responseMessage = conversation.sendMessage(promptParts.user)
+            val text = messageText(responseMessage).trim()
+            Log.i(
+                LOG_TAG,
+                "LiteRT sync response role=${responseMessage.role} " +
+                    "contentTypes=${responseMessage.contents.contents.map { it.javaClass.name }} " +
+                    "textChars=${text.length}",
             )
-            done.await()
-            failure.get()?.let { throw it }
-
-            val text = synchronized(textLock) { streamedText }.trim()
             val benchmark = readBenchmarkSnapshot(conversation)
             val benchmarkOutputTokens = benchmark?.outputTokens?.takeIf { it > 0 }
             val outputTokens = benchmarkOutputTokens ?: estimateTokens(text)
             val benchmarkRate = benchmark?.outputTokensPerSecond
                 ?.takeIf { it.isFinite() && it > 0.0 }
-            val outputTokensPerSecond = benchmarkRate ?: run {
-                val elapsedMs = (System.currentTimeMillis() - (firstTokenAtMs ?: startedAt)).coerceAtLeast(1L)
-                outputTokens * 1000.0 / elapsedMs
-            }
+            val elapsedMs = (System.currentTimeMillis() - startedAt).coerceAtLeast(1L)
+            val outputTokensPerSecond = benchmarkRate ?: outputTokens * 1000.0 / elapsedMs
             onStreamUpdate?.invoke(
                 InferenceBackend.StreamUpdate(
                     text = text,
@@ -360,19 +369,6 @@ class OnDeviceLitertBackend(
                 else -> ""
             }
         }
-    }
-
-    private fun estimatedDecodeRate(
-        outputTokens: Int,
-        firstTokenAtMs: Long?,
-        nowMs: Long,
-    ): Double? {
-        val firstMs = firstTokenAtMs ?: return null
-        val elapsedMs = nowMs - firstMs
-        if (outputTokens <= 0 || elapsedMs < MIN_RATE_SAMPLE_MS) {
-            return null
-        }
-        return outputTokens * 1000.0 / elapsedMs
     }
 
     private data class GenerationOutput(
@@ -415,6 +411,18 @@ class OnDeviceLitertBackend(
         return max(1, (text.length / 4.0).roundToInt())
     }
 
+    private fun isInvalidGpuOutput(text: String): Boolean {
+        val normalized = text.trim()
+        if (normalized.isBlank()) {
+            return true
+        }
+        if (normalized.contains("<pad>", ignoreCase = true)) {
+            return true
+        }
+        return Regex("^(?:<(?:unused\\d+|bos|eos)>\\s*)+$", RegexOption.IGNORE_CASE)
+            .matches(normalized)
+    }
+
     private fun maxContextTokensFor(
         prompt: String,
         requestedMaxOutputTokens: Int,
@@ -433,8 +441,6 @@ class OnDeviceLitertBackend(
         private const val BACKEND_GPU = "GPU"
         private const val BACKEND_CPU = "CPU"
         private const val BACKEND_NPU = "NPU"
-        private const val STREAM_UI_INTERVAL_MS = 80L
-        private const val MIN_RATE_SAMPLE_MS = 100L
         private const val ON_DEVICE_MIN_CONTEXT_TOKENS = 8192
         private const val ON_DEVICE_MAX_CONTEXT_TOKENS = 12288
         private const val ON_DEVICE_MAX_OUTPUT_TOKENS = 4096
@@ -445,6 +451,7 @@ class OnDeviceLitertBackend(
         private var cachedSpeculativeDecoding: Boolean? = null
         private var cachedAcceleratorPreference: InferenceBackendSettings.Accelerator? = null
         private var cachedEngine: EngineHolder? = null
+        private var gpuSamplerLoadAttempted = false
 
         private data class EngineHolder(
             val engine: Engine,
@@ -496,6 +503,9 @@ class OnDeviceLitertBackend(
                 var lastError: Throwable? = null
                 for ((backendName, backend) in backendCandidates) {
                     try {
+                        if (backendName == BACKEND_GPU) {
+                            ensureGpuSamplerDependenciesLoaded()
+                        }
                         Log.i(
                             LOG_TAG,
                             "Initializing LiteRT engine backend=$backendName context=$maxContextTokens " +
@@ -551,6 +561,42 @@ class OnDeviceLitertBackend(
         private fun cpuBackend(): Backend.CPU {
             val threads = Runtime.getRuntime().availableProcessors().coerceIn(2, 6)
             return Backend.CPU(threads)
+        }
+
+        /**
+         * LiteRT-LM discovers the OpenCL sampler with a native dlopen(). Load
+         * the LiteRT runtime before the sampler so its exported runtime-builtin
+         * table is visible in the app linker namespace. Otherwise LiteRT-LM
+         * silently falls back to the statically linked sampler; on this device
+         * that fallback returns token 0 for GPU logits.
+         */
+        private fun ensureGpuSamplerDependenciesLoaded() {
+            if (gpuSamplerLoadAttempted) {
+                return
+            }
+            gpuSamplerLoadAttempted = true
+            val libraries = listOf(
+                "c++_shared",
+                "LiteRt",
+                "LiteRtTopKOpenClSampler",
+            )
+            val loaded = mutableListOf<String>()
+            for (library in libraries) {
+                try {
+                    System.loadLibrary(library)
+                    loaded += library
+                } catch (error: UnsatisfiedLinkError) {
+                    Log.w(
+                        LOG_TAG,
+                        "Optional LiteRT GPU sampler library failed to load name=$library " +
+                            "error=${error.message}",
+                    )
+                }
+            }
+            Log.i(
+                LOG_TAG,
+                "Optional LiteRT GPU sampler load attempted loaded=${loaded.joinToString(",")}",
+            )
         }
 
         private fun cacheDirFor(canonicalPath: String, modelFile: File): String? {

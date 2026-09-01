@@ -9,6 +9,8 @@ internal object PipelinePromptBuilder {
     const val STAGE2_PROMPT_ASSET = "pipeline_prompts/response_gen.md"
     const val STAGE3_PROMPT_ASSET = "pipeline_prompts/genui_gen.md"
     const val STAGE3_A2UI_EXPRESS_PROMPT_ASSET = "pipeline_prompts/genui_gen_a2ui_express_v1.md"
+    const val STAGE3_A2UI_EXPRESS_TRAINING_PROMPT_ASSET =
+        "pipeline_prompts/genui_gen_a2ui_express_training_v1.md"
     const val STAGE3_GEMMA_PROMPT_ASSET = "pipeline_prompts/genui_gen_gemma_litert.md"
 
     data class PromptContext(

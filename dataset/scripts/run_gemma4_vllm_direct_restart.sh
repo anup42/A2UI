@@ -26,6 +26,22 @@ if [[ -n "${ENV_DIR}" && -f "${ENV_DIR}/bin/activate" && -z "${VIRTUAL_ENV:-}" ]
   hash -r
 fi
 
+# Prefer the active environment's Python module entrypoint over the generated
+# `vllm` console script.  Virtual environments copied between Space images can
+# retain an old absolute shebang (for example /home/user/code/...), while the
+# environment's Python and vLLM package remain usable at the new mount path.
+VLLM_PYTHON="${VLLM_PYTHON:-}"
+if [[ -z "${VLLM_PYTHON}" && -n "${VIRTUAL_ENV:-}" && -x "${VIRTUAL_ENV}/bin/python" ]]; then
+  VLLM_PYTHON="${VIRTUAL_ENV}/bin/python"
+fi
+if [[ -z "${VLLM_PYTHON}" ]]; then
+  VLLM_PYTHON="$(command -v python || true)"
+fi
+if [[ -z "${VLLM_PYTHON}" || ! -x "${VLLM_PYTHON}" ]]; then
+  echo "Could not find an executable Python for the vLLM environment." >&2
+  exit 1
+fi
+
 MODEL_ROOT="${MODEL_ROOT:-${LOCAL_MODEL_ROOT:-${A2UI_MODEL_ROOT:-${GEMMA4_MODEL_ROOT:-}}}}"
 GEMMA4_MODEL_ID="${GEMMA4_MODEL_ID:-google/gemma-4-31b-it}"
 GEMMA4_ASSISTANT_MODEL_ID="${GEMMA4_ASSISTANT_MODEL_ID:-google/gemma-4-31b-it-assistant}"
@@ -87,7 +103,7 @@ is_truthy() {
 
 vllm_supports_flag() {
   local flag="$1"
-  vllm serve --help 2>&1 | grep -q -- "${flag}"
+  "${VLLM_PYTHON}" -m vllm.entrypoints.cli.main serve --help 2>&1 | grep -q -- "${flag}"
 }
 
 resolve_model() {
@@ -298,7 +314,7 @@ PY
 fi
 
 cmd=(
-  vllm serve "${TARGET_MODEL_PATH}"
+  "${VLLM_PYTHON}" -m vllm.entrypoints.cli.main serve "${TARGET_MODEL_PATH}"
   --served-model-name "${GEMMA4_MODEL_ID}"
   --host "${VLLM_HOST}"
   --port "${VLLM_PORT}"

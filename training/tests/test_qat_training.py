@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import sys
 from pathlib import Path
 
@@ -1165,4 +1166,44 @@ def test_grouped_embedding_qat_quantizes_only_selected_rows(monkeypatch):
     assert controller.summary()["wrapped_group_sizes_by_module"] == {
         "embed_tokens_per_layer": 2
     }
+    controller.restore()
+
+
+def test_embedding_qat_preserves_scaled_embedding_forward_contract():
+    class ScaledEmbedding(nn.Embedding):
+        def __init__(self):
+            super().__init__(8, 4)
+            self.register_buffer("embed_scale", torch.tensor(2.5), persistent=False)
+
+        def forward(self, input_ids):
+            return super().forward(input_ids) * self.embed_scale.to(self.weight.dtype)
+
+    class TinyScaledEmbeddingModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.embed_tokens = ScaledEmbedding()
+
+        def forward(self, token_ids):
+            return self.embed_tokens(token_ids)
+
+    torch.manual_seed(7)
+    baseline_model = TinyScaledEmbeddingModel()
+    qat_model = copy.deepcopy(baseline_model)
+    controller = prepare_qat_model(
+        qat_model,
+        {
+            "qat": {
+                "weight_bits": 8,
+                "activation_bits": 32,
+                "quantizer": "ste_ai_edge",
+                "exclude_modules": [],
+                "quantize_embeddings": True,
+            }
+        },
+    )
+
+    token_ids = torch.tensor([[1, 2, 1]], dtype=torch.long)
+    expected = baseline_model(token_ids)
+    observed = qat_model(token_ids)
+    torch.testing.assert_close(observed, expected, rtol=0.05, atol=0.05)
     controller.restore()

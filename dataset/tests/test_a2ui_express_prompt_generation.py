@@ -10,7 +10,6 @@ PROMPT_PATHS = [
     ROOT / "prompts" / "genui_gen_mobile_a2ui_express_v1.md",
     ROOT / ".." / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen.md",
     ROOT / ".." / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen_a2ui_express_v1.md",
-    ROOT / ".." / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen_gemma_litert.md",
 ]
 
 

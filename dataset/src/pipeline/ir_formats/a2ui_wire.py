@@ -16,6 +16,28 @@ from .common import load_catalog, load_manifest, rewrite_element_ids
 VERSION = "v0.9"
 DEFAULT_SURFACE_ID = "default_surface"
 _MISSING = object()
+_IMAGE_DIMENSION_TOKENS = {
+    "xs": 14,
+    "xsmall": 14,
+    "extra-small": 14,
+    "sm": 18,
+    "small": 18,
+    "md": 24,
+    "medium": 24,
+    "lg": 32,
+    "large": 32,
+    "xl": 40,
+    "xlarge": 40,
+    "extra-large": 40,
+}
+_FORMULA_DISPLAY_TOKENS = {
+    "block": True,
+    "display": True,
+    "true": True,
+    "inline": False,
+    "none": False,
+    "false": False,
+}
 
 
 def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> list[dict[str, Any]]:
@@ -28,7 +50,18 @@ def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> list[dict[st
             "component": raw["type"],
         }
         props = raw.get("props") if isinstance(raw.get("props"), dict) else {}
-        component.update(_lower_bindings(deepcopy(props)))
+        # Express producers may use ``None`` to mean an omitted optional prop
+        # (for example ``Table.statePath``).  The pinned wire schema does not
+        # accept JSON null for those fields, so omit null-valued keys at the
+        # transport boundary while preserving nulls inside arrays/strings.
+        component.update(
+            _lower_bindings(
+                _normalize_wire_props(
+                    _drop_none_props(deepcopy(props)),
+                    component_type=raw["type"],
+                )
+            )
+        )
         children = raw.get("children") if isinstance(raw.get("children"), list) else []
         repeat = raw.get("repeat") if isinstance(raw.get("repeat"), Mapping) else None
         child_list = _lower_child_list(children, repeat)
@@ -72,6 +105,53 @@ def encode(spec: Mapping[str, Any], *, shorten_ids: bool = True) -> list[dict[st
             }
         )
     return messages
+
+
+def _drop_none_props(value: Any) -> Any:
+    """Remove null-valued object properties before wire-schema validation."""
+
+    if isinstance(value, Mapping):
+        return {
+            key: _drop_none_props(item)
+            for key, item in value.items()
+            if item is not None
+        }
+    if isinstance(value, list):
+        return [_drop_none_props(item) for item in value]
+    return value
+
+
+def _normalize_wire_props(value: Any, *, component_type: str) -> Any:
+    """Normalize Express-only shorthand before strict wire-schema validation.
+
+    The Android renderer uses the same compact icon-size scale for dimensions
+    (xs=14, sm=18, md=24, lg=32, xl=40 dp), while the pinned wire contract
+    represents Image width/height as numeric dynamic values.
+    """
+
+    if not isinstance(value, dict):
+        return value
+    if component_type == "Image":
+        for key in ("width", "height"):
+            raw = value.get(key)
+            if isinstance(raw, str):
+                token = raw.strip().lower()
+                if token in _IMAGE_DIMENSION_TOKENS:
+                    value[key] = _IMAGE_DIMENSION_TOKENS[token]
+    elif component_type == "Formula":
+        raw = value.get("display")
+        if isinstance(raw, str):
+            token = raw.strip().lower()
+            if token in _FORMULA_DISPLAY_TOKENS:
+                value["display"] = _FORMULA_DISPLAY_TOKENS[token]
+    elif component_type == "List":
+        # Some model outputs use items as a numeric count. The pinned wire
+        # schema requires dynamicArray here, while children already carries
+        # the rendered entries, so omit the invalid count.
+        items = value.get("items")
+        if isinstance(items, (int, float)) and not isinstance(items, bool):
+            value.pop("items", None)
+    return value
 
 
 def decode(payload: Any) -> dict[str, Any]:
@@ -301,6 +381,8 @@ def _lower_bindings(value: Any, *, action_map: bool = False) -> Any:
     if isinstance(value, Mapping):
         if action_map and "action" in value and isinstance(value.get("action"), str):
             return _lower_action(value)
+        if isinstance(value.get("call"), str) and set(value).issubset({"call", "args", "kwargs"}):
+            return _lower_legacy_call(value)
         return {str(key): _lower_bindings(item, action_map=action_map) for key, item in value.items()}
     return value
 
@@ -309,6 +391,24 @@ def _is_binding_string(value: str) -> bool:
     """Recognize only Express data-path forms; dollar-prefixed literals stay literal."""
 
     return value == "$" or value.startswith("$/") or value.startswith("$state.")
+
+
+def _lower_legacy_call(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Lower Express call shorthand to the pinned wire functionCall shape."""
+
+    args: dict[str, Any] = {}
+    positional = value.get("args")
+    if isinstance(positional, Mapping):
+        args.update({str(key): _lower_bindings(item) for key, item in positional.items()})
+    elif isinstance(positional, list):
+        args.update({f"arg{index}": _lower_bindings(item) for index, item in enumerate(positional)})
+    kwargs = value.get("kwargs")
+    if isinstance(kwargs, Mapping):
+        args.update({str(key): _lower_bindings(item) for key, item in kwargs.items()})
+    function_call: dict[str, Any] = {"call": str(value["call"])}
+    if args:
+        function_call["args"] = args
+    return function_call
 
 
 def _lower_action(value: Mapping[str, Any]) -> dict[str, Any]:

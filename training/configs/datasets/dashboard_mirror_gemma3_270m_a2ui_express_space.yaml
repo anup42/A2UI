@@ -1,0 +1,22 @@
+run:
+  id: dashboard_mirror_gemma3_270m_a2ui_express_space
+  source_genui_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/source
+  source_glob: "**/genui.jsonl"
+  output_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/data/prepared
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1_few_shot
+  schema_path: /user-volume/code/A2UI/dataset/schema/genuicraft_a2ui_v1_wire.schema.json
+  # Empty selects the canonical shared Express contract in chat_templates.py.
+  system_prompt: ""
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 0.90
+  val: 0.05
+  test: 0.05
+  stratify_by: intent_bucket

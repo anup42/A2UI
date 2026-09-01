@@ -1,0 +1,63 @@
+run:
+  id: gemma3_270m_a2ui_express_full_qat_space
+  dataset_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/data/compact
+  output_dir: /group-volume/k.anup/working_dir/gemma3_270m_fullqat_express_20260828/training
+  dataset_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1_few_shot
+
+model:
+  family: gemma
+  model_id: /group-volume/vighnesh.h/SFM/gemma-3-270m-it
+  model_loader: auto_causal_lm
+  tokenizer_loader: auto_tokenizer
+  trust_remote_code: false
+  attn_implementation: eager
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 32768
+
+training:
+  method: full_finetune_qat
+  epochs: 2
+  learning_rate: 0.00002
+  weight_decay: 0.01
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: false
+  mixed_precision: bf16
+  max_seq_length: 4096
+  save_steps: 2000
+  eval_steps: 5000
+  logging_steps: 10
+  logging_dir: /group-volume/k.anup/working_dir/gemma3_270m_fullqat_express_20260828/tensorboard
+  report_to: tensorboard
+  save_total_limit: 3
+  max_grad_norm: 1.0
+  seed: 42
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  ddp_find_unused_parameters: false
+  optim: adamw_torch_fused
+  deepspeed: /group-volume/k.anup/working_dir/gemma3_270m_fullqat_express_20260828/deepspeed_zero2.json
+  preflight_token_check_rows: 16
+
+qat:
+  enabled: true
+  profile: gemma3_270m_wi8_afp32_full_finetune
+  quantizer: ste_ai_edge
+  eps: 1.0e-9
+  quantize_embeddings: true
+  exclude_modules: []
+  weight_bits: 8
+  activation_bits: 32
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  group_size: null
+  only_base_layers: true
+  effective_merged_weight: true
+  final_quantization: dynamic_wi8_afp32
+  final_runtime_validation_required: true

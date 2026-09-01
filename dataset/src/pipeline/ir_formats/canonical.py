@@ -111,7 +111,21 @@ def validate_canonical_graph(
                 None,
                 f"Element {element_id!r} has unsupported prop(s): {', '.join(map(str, unknown_props))}",
             )
-        property_error = _validate_property_values(element_type, props, f"Element {element_id!r}.props")
+        normalized_props = deepcopy(dict(props))
+        if element_type in {"Stack", "Row", "Column"}:
+            # Models commonly emit CSS/UI shorthand. Lower harmless aliases
+            # before strict catalog validation to avoid repair calls.
+            gap_aliases = {"xs": "sm", "small": "sm", "medium": "md", "large": "lg"}
+            wrap_aliases = {"yes": "wrap", "no": "nowrap"}
+            if normalized_props.get("gap") in gap_aliases:
+                normalized_props["gap"] = gap_aliases[normalized_props["gap"]]
+            if normalized_props.get("wrap") in wrap_aliases:
+                normalized_props["wrap"] = wrap_aliases[normalized_props["wrap"]]
+            if normalized_props.get("justify") == "between":
+                normalized_props["justify"] = "spaceBetween"
+        property_error = _validate_property_values(
+            element_type, normalized_props, f"Element {element_id!r}.props"
+        )
         if property_error:
             return CanonicalValidation(None, property_error)
 
@@ -121,7 +135,7 @@ def validate_canonical_graph(
 
         normalized_element: dict[str, Any] = {
             "type": element_type,
-            "props": deepcopy(dict(props)),
+            "props": normalized_props,
             "children": deepcopy(children),
         }
         if "repeat" in raw_element:
@@ -307,13 +321,28 @@ def _validate_action_map(value: Any, actions: Mapping[str, Mapping[str, Any]], c
 def _validate_property_values(element_type: str, props: Mapping[str, Any], context: str) -> str | None:
     """Validate catalog/profile enum values without parser-side normalization."""
 
-    if element_type == "Stack":
+    if element_type in {"Stack", "Row", "Column"}:
         direction = props.get("direction")
         if direction is not None and direction not in {"vertical", "horizontal"}:
             return f"{context}.direction must be 'vertical' or 'horizontal'"
         gap = props.get("gap")
         if gap is not None and gap not in {"none", "sm", "md", "lg", "xl"}:
             return f"{context}.gap must be one of none, sm, md, lg, xl"
+        wrap = props.get("wrap")
+        if wrap is not None and wrap not in {"nowrap", "wrap"}:
+            return f"{context}.wrap must be 'nowrap' or 'wrap'"
+        justify = props.get("justify")
+        if justify is not None and justify not in {
+            "start",
+            "center",
+            "end",
+            "stretch",
+            "spaceAround",
+            "spaceBetween",
+            "spaceEvenly",
+            "between",
+        }:
+            return f"{context}.justify must be a supported distribution"
     return None
 
 

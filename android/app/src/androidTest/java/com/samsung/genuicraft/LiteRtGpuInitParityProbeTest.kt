@@ -30,6 +30,7 @@ import org.junit.runner.RunWith
  * - mtp: optional true/false speculative-decoding flag.
  * - maxNumTokens: optional context size; defaults to 4096.
  * - outputTokens: optional bounded decode length; defaults to zero (init only).
+ * - backend: optional cpu/gpu selector; defaults to gpu.
  * - topK/topP/temperature/seed: optional deterministic sampler controls.
  * - prompt: optional bounded-generation prompt; defaults to "Hello".
  * - promptBase64: optional UTF-8/base64 prompt; preferred for ADB shell safety.
@@ -59,6 +60,11 @@ class LiteRtGpuInitParityProbeTest {
             ?.toIntOrNull()
             ?.coerceIn(0, 512)
             ?: 0
+        val backendName = arguments.getString("backend")
+            ?.trim()
+            ?.lowercase()
+            ?.takeIf { it == "cpu" || it == "gpu" }
+            ?: "gpu"
         val topK = arguments.getString("topK")?.toIntOrNull()?.coerceAtLeast(1) ?: 1
         val topP = arguments.getString("topP")
             ?.toDoubleOrNull()
@@ -91,14 +97,14 @@ class LiteRtGpuInitParityProbeTest {
             .put("label", label)
             .put("model_path", modelFile.canonicalPath)
             .put("model_size_bytes", modelFile.length())
-            .put("backend_requested", "GPU")
+            .put("backend_requested", backendName.uppercase())
             .put("mtp_enabled", mtpEnabled)
             .put("max_num_tokens", maxNumTokens)
             .put("requested_output_tokens", outputTokens)
             .put("sampler_top_k", topK)
             .put("sampler_top_p", topP)
-            .put("sampler_temperature", temperature)
-            .put("sampler_seed", seed)
+                        .put("sampler_temperature", temperature)
+                        .put("sampler_seed", seed)
             .put("cache_dir", cacheDir.absolutePath)
             .put("device_model", Build.MODEL)
             .put("device_product", Build.PRODUCT)
@@ -107,6 +113,9 @@ class LiteRtGpuInitParityProbeTest {
 
         ExperimentalFlags.enableSpeculativeDecoding = mtpEnabled
         ExperimentalFlags.enableBenchmark = outputTokens > 0
+        if (backendName == "gpu") {
+            loadGpuSamplerDependencies()
+        }
         var engine: Engine? = null
         val startedAtMs = SystemClock.elapsedRealtime()
         try {
@@ -120,7 +129,7 @@ class LiteRtGpuInitParityProbeTest {
             engine = Engine(
                 EngineConfig(
                     modelPath = modelFile.canonicalPath,
-                    backend = Backend.GPU(),
+                backend = if (backendName == "cpu") Backend.CPU() else Backend.GPU(),
                     maxNumTokens = maxNumTokens,
                     cacheDir = cacheDir.absolutePath,
                 )
@@ -160,6 +169,7 @@ class LiteRtGpuInitParityProbeTest {
                         SystemClock.elapsedRealtime() - generationStartedAtMs,
                     )
                     .put("response_character_count", response.toString().length)
+                    .put("response_text", response.toString().take(512))
             }
             Log.i(
                 LOG_TAG,
@@ -197,6 +207,17 @@ class LiteRtGpuInitParityProbeTest {
     private fun sanitizeLabel(value: String): String {
         val normalized = value.replace(Regex("[^A-Za-z0-9._-]+"), "_").trim('_')
         return normalized.ifBlank { "probe" }.take(96)
+    }
+
+    private fun loadGpuSamplerDependencies() {
+        listOf(
+            "c++_shared",
+            "LiteRt",
+            "LiteRtTopKOpenClSampler",
+        ).forEach { library ->
+            runCatching { System.loadLibrary(library) }
+                .onFailure { Log.w(LOG_TAG, "GPU sampler dependency failed name=$library", it) }
+        }
     }
 
     private data class BenchmarkSnapshot(

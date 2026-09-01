@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -16,10 +17,12 @@ CATALOG_PATH = ROOT / "schema" / "genuicraft_a2ui_catalog_v1.json"
 MANIFEST_PATH = ROOT / "schema" / "genuicraft_ir_formats.manifest.json"
 
 
+@lru_cache(maxsize=1)
 def load_catalog() -> dict[str, Any]:
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
 def load_manifest() -> dict[str, Any]:
     return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 

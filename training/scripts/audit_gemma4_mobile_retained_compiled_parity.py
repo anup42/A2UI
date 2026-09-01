@@ -48,6 +48,10 @@ from ir_training.export.litertlm_inspector import (
     LiteRTLMInspectionError,
     inspect_litertlm,
 )
+from ir_training.qat.retained_parity import (
+    OFFICIAL_RETAINED_COMPILED_REPORT_SHA256,
+    canonical_retained_parity_report_sha256,
+)
 
 EXPECTED_RETAINED_COUNT = 262
 FLOAT32_TENSOR_TYPE = 0
@@ -456,6 +460,17 @@ def run(
             "mantissa bits and Google's master checkpoint remain unrecovered."
         ),
     }
+    canonical_sha256 = canonical_retained_parity_report_sha256(result)
+    if canonical_sha256 != OFFICIAL_RETAINED_COMPILED_REPORT_SHA256:
+        result["issues"].append(
+            {
+                "code": "canonical_report_sha256_mismatch",
+                "expected": OFFICIAL_RETAINED_COMPILED_REPORT_SHA256,
+                "observed": canonical_sha256,
+            }
+        )
+        result["ok"] = False
+        result["compiled_graph_mapping_verified"] = False
     if output is not None:
         output_path = Path(output).expanduser().resolve()
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -491,6 +506,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         parser.error(str(exc))
         return 2
     print(json.dumps(result, indent=2, ensure_ascii=False))
+    print(
+        "canonical_report_sha256="
+        + canonical_retained_parity_report_sha256(result),
+        file=sys.stderr,
+    )
     return 0 if result["ok"] else 2
 
 

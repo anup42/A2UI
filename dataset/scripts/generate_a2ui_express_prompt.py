@@ -2,8 +2,9 @@
 """Generate the one model-facing A2UI Express contract.
 
 The contract is derived from the pinned grammar, strict catalog, Express
-inference profile, and shared quality policy.  Dataset, training, repair, and
-Android assets are byte-identical so syntax/signature drift is testable.
+inference profile, and shared quality policy. Dataset and shared Android assets
+are byte-identical so syntax/signature drift is testable. The on-device Gemma
+prompt is intentionally specialized for the smaller mobile runtime.
 """
 from __future__ import annotations
 
@@ -22,7 +23,6 @@ OUTPUTS = (
     ROOT / "dataset" / "prompts" / "genui_gen_mobile_a2ui_express_v1.md",
     ROOT / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen.md",
     ROOT / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen_a2ui_express_v1.md",
-    ROOT / "android" / "app" / "src" / "main" / "assets" / "pipeline_prompts" / "genui_gen_gemma_litert.md",
 )
 
 

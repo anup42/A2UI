@@ -1,0 +1,26 @@
+run:
+  id: dashboard_mirror_gemma3_270m_a2ui_express_compact_space
+  source_prepared_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/data/compact
+  output_dir: /home/user/working_dir/gemma3_270m_a2ui_express_compact_20260829/data/prepared
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1_compact
+  prompt_file: dataset/prompts/genui_gen_mobile_a2ui_express_compact_v1.md
+  system_prompt: |
+    Generate exactly one native <a2ui>...</a2ui> program.
+    Return no prose, JSON, FlatSpec, HTML, JSX, CSS, or markdown.
+    Use root=... and valid reachable assignments.
+    Use explicit properties and actions; never use _props or opaque metadata bags.
+    Preserve all content, tables, media, state, and interactions.
+    Never invent URLs or values.
+filters:
+  require_strict_flat_spec: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 0.90
+  val: 0.05
+  test: 0.05
+  stratify_by: intent_bucket

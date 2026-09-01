@@ -1,0 +1,26 @@
+run:
+  id: gemma4_e2b_a2ui_express_v6_gpu
+  output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/litertlm_v6_gpu_2048
+source:
+  base_model_id: google/gemma-4-E2B-it
+  merged_model_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/full_a2ui_express_lora_v6/merged_hf
+export:
+  runtime: litertlm
+  format: litertlm
+  litert_output_dir: /home/k_anup/working_dir/genui-lm-qat-mtp-20260802/output/litertlm_v6_gpu_2048
+  command: litert-torch
+  min_app_version: 1.1.0
+  max_input_tokens: 2048
+  max_output_tokens: 2048
+  externalize_embedder: true
+  jinja_chat_template_override: training/configs/export/gemma4_e2b_training_minijinja.jinja
+  quantization_recipe: dynamic_wi4b32_afp32
+  extra_flags:
+    - --prefill_lengths=2048
+    - --cache_length=4096
+    - --enable_gpu_dynamic_prefill=True
+    - --enable_gpu_dynamic_cache=True
+android:
+  package_name: gemma4_e2b_a2ui_express_v6_gpu
+  display_name: Gemma 4 E2B A2UI Express v6 GPU
+  stage: stage3_ir

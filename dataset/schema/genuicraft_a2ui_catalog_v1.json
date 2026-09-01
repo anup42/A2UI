@@ -4191,11 +4191,35 @@
               }
             ]
           },
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "role": {
             "$ref": "#/$defs/dynamicString"
           },
           "semanticRole": {
             "$ref": "#/$defs/dynamicString"
+          },
+          "space": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "spacing": {
+            "$ref": "#/$defs/dynamicValue"
           },
           "template": {
             "$ref": "#/$defs/dynamicString"
@@ -4236,8 +4260,16 @@
         "height",
         "itemTemplate",
         "justify",
+        "margin",
+        "marginHorizontal",
+        "marginVertical",
+        "padding",
+        "paddingHorizontal",
+        "paddingVertical",
         "role",
         "semanticRole",
+        "space",
+        "spacing",
         "template",
         "width",
         "wrap"
@@ -4378,7 +4410,7 @@
       ]
     }
   },
-  "catalogIdentityHash": "2591971dff231d6452e76f53b0079b233b22742bd10c396873c84daa0ee0fe37",
+  "catalogIdentityHash": "df587a54930a333e9aca5bec3ed1b524c87412e900df2e5ea9c211c8b7feb6fe",
   "catalogVersion": "genuicraft-a2ui-catalog-v1",
   "profileVersion": "genuicraft-a2ui-express-profile-v1",
   "$defs": {
@@ -4572,7 +4604,7 @@
       ]
     },
     "dynamicObject": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "object"
         },
@@ -4585,7 +4617,7 @@
       ]
     },
     "dynamicValue": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": [
             "string",

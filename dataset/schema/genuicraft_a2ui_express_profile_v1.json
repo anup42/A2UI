@@ -20,6 +20,7 @@
     "AudioPlayer": { "positional": ["url", "description", "posterUrl", "title"], "properties": ["url", "src", "source", "name", "poster", "posterUrl", "thumbnail", "thumbnailUrl", "description", "title"] },
     "Button": { "positional": ["label", "variant", "icon"], "properties": ["label", "text", "variant", "icon", "accessibilityLabel", "contentDescription", "onClickLabel", "actionLabel"] },
     "Card": { "positional": ["children", "title", "subtitle", "tone"], "properties": ["title", "subtitle", "tone", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"], "childProperties": ["children"] },
+    "Column": { "positional": ["children", "gap", "align", "justify", "wrap"], "properties": ["gap", "spacing", "space", "align", "justify", "wrap", "padding", "paddingHorizontal", "paddingVertical", "margin", "marginHorizontal", "marginVertical"], "childProperties": ["children"] },
     "Chart": { "positional": ["chartType", "columns", "statePath", "rows", "title", "subtitle"], "defaults": { "chartType": "bar" }, "properties": ["chartType", "title", "subtitle", "yLabel", "columns", "rows", "statePath", "rowsPath", "dataPath", "xKey", "yKey"] },
     "CheckBox": { "positional": ["label", "value", "statePath"], "properties": ["label", "value", "statePath", "accessibilityLabel", "contentDescription"] },
     "Checklist": { "positional": ["items", "title", "disclaimer", "source"], "properties": ["title", "items", "disclaimer", "source"] },

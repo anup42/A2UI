@@ -1,0 +1,75 @@
+run:
+  id: gemma3_270m_a2ui_express_qat_sft_space
+  dataset_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/data/compact
+  output_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/training
+model:
+  family: gemma
+  model_id: /group-volume/vighnesh.h/SFM/gemma-3-270m-it
+  model_loader: auto_causal_lm
+  trust_remote_code: false
+  tokenizer_loader: auto_tokenizer
+  # The H100 cuDNN fused MHA backward can fail on this QAT/LoRA path with
+  # `mha_graph.execute(...)=false`; eager attention is stable for this model.
+  attn_implementation: eager
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 32768
+  max_output_tokens: 2048
+training:
+  method: qat_lora_sft
+  epochs: 2
+  learning_rate: 0.00001
+  weight_decay: 0.01
+  # Keep the full 262k-vocabulary FP32 loss tensor below the H100 memory
+  # ceiling. The effective global batch remains 2 * 2 GPUs * 8 accumulation
+  # = 32 while each microbatch has enough headroom for 4,096-token samples.
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: false
+  # The model is loaded in BF16.  Enabling Trainer bf16 mixed precision wraps
+  # every model output with Accelerate's convert_to_fp32, which OOMs on the
+  # full-vocabulary causal-LM logits before loss computation.
+  mixed_precision: no
+  trainer_backend: hf
+  require_ddp_for_multi_gpu: true
+  ddp_find_unused_parameters: false
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  save_steps: 1000
+  eval_steps: 1000
+  logging_steps: 10
+  report_to: tensorboard
+  logging_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/training/tensorboard
+  save_total_limit: 2
+  max_grad_norm: 1.0
+  seed: 42
+  preflight_token_check_rows: 64
+  forward_smoke_check_rows: 8
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.0
+  target_modules: auto
+  modules_to_save: []
+qat:
+  enabled: true
+  profile: gemma3_270m_wi8_afp32
+  quantizer: ste_ai_edge
+  eps: 1.0e-9
+  quantize_embeddings: true
+  exclude_modules: []
+  weight_bits: 8
+  activation_bits: 32
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  group_size: null
+  only_base_layers: true
+  effective_merged_weight: true
+  final_quantization: dynamic_wi8_afp32
+  final_runtime_validation_required: true
+golden_eval:
+  enabled: false

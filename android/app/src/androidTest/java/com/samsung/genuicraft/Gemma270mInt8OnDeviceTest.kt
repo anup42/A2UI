@@ -37,9 +37,40 @@ class Gemma270mInt8OnDeviceTest {
         assertTrue("Gemma 270M must require GPU execution", entry.requireGpu)
 
         val stage2Response = """
-            Weather comparison for Bengaluru
-            Today is warm with a high of 29 C and a low of 21 C. Rain chance is 35 percent.
-            Tomorrow is cloudy with a high of 27 C and a low of 20 C. Rain chance is 55 percent.
+            ## Berlin Mitte Rental Market Overview
+            Media: Icon=<url1>
+            Finding a 2-bedroom apartment in Mitte under **€1,800 warm** is competitive. While Mitte is the city center, looking at the fringes of the district or adjacent areas like Prenzlauer Berg or Moabit can increase your options while maintaining a short commute to Alexanderplatz.
+
+            ## Priority Viewing Checklist
+            To ensure the apartment meets your specific needs for space, budget, and commute, prioritize these five criteria during your appointments:
+
+            | Priority | Criteria | What to Verify | Why it Matters |
+            | :--- | :--- | :--- | :--- |
+            | 1 | **Warm Rent Total** | Confirm "Warmmiete" includes heating and water | Ensures you stay under the **€1,800** limit |
+            | 2 | **Balcony Access** | Check size, orientation, and noise levels | Confirms a primary requirement for the couple |
+            | 3 | **Transit Route** | Test a live route to Alexanderplatz via VBB/Google Maps | Ensures the **30-minute** commute is realistic |
+            | 4 | **Layout/Rooms** | Verify the second bedroom is a legal room (not a "Kammer") | Ensures comfort for a couple needing two distinct rooms |
+            | 5 | **Energy Rating** | Check the "Energieausweis" (Energy Certificate) | Prevents unexpected spikes in heating costs in winter |
+
+            ## Recommended Search Strategies
+            Media: Icon=<url2>
+
+            Option 1: ImmoScout24 | Germany's largest portal; best for volume | High competition
+            Action: [Button: Search ImmoScout24] <<url3>>
+
+            Option 2: WG-Gesucht | Great for smaller apartments and couples | More flexible landlords
+            Action: [Button: Search WG-Gesucht] <<url4>>
+
+            Option 3: Immowelt | Strong presence in Berlin Mitte | Diverse listing types
+            Action: [Button: Search Immowelt] <<url5>>
+
+            ## Quick Actions
+            Action: [Button: Berlin Transit Map] <<url6>>
+            Action: [Button: Rent Index Berlin] <<url7>>
+
+            ## Sources
+            - VBB Transit Authority: <<url6>>
+            - Berlin City Portal: <<url8>>
         """.trimIndent()
         val prompt = requireNotNull(entry.stage3TrainingPromptPrefix) + stage2Response
         File(resultDir, "prompt.txt").writeText(prompt)
@@ -72,7 +103,8 @@ class Gemma270mInt8OnDeviceTest {
         assertTrue(contract.error.orEmpty(), contract.isValid)
         val spec = requireNotNull(contract.spec)
         File(resultDir, "ir.json").writeText(spec.toString())
-        assertTrue(spec.toString().contains("Bengaluru", ignoreCase = true))
+        assertTrue(spec.toString().contains("Berlin", ignoreCase = true))
+        assertTrue(spec.toString().contains("Mitte", ignoreCase = true))
 
         val renderResult = GenUiNativeRenderer.render(spec.toString(), sourceDir = null)
         assertNull(renderResult.errorMessage, renderResult.errorMessage)

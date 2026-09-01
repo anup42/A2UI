@@ -110,7 +110,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             // pretrained Gemma target needs a mobile-specific instruction profile,
             // rather than the cloud prompt copied into the generic route.
             return if (profile?.trainingCompatiblePrompt == true) {
-                PipelinePromptBuilder.STAGE3_A2UI_EXPRESS_PROMPT_ASSET
+                PipelinePromptBuilder.STAGE3_A2UI_EXPRESS_TRAINING_PROMPT_ASSET
             } else if (profile?.rawStage3Response == true) {
                 IrPromptVersionSettings.stage3PromptAssetPath(appContext)
             } else {

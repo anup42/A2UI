@@ -1,6 +1,6 @@
 # A2UI Express v1 generated model contract
 
-<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=668082a49664d33c154ac62c8a58db24b487df683d1c17112d74c9b3bd98a9d1 profile=18d5675c4c95d227cd4148a68caff35f166b61d3a8caa7fb76d30f6dd40fd786 quality=d75f6f5f26226cec9b6774ea70a91fdf80fae5d590d1373cb5906ee6227e5971 -->
+<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=d75f6f5f26226cec9b6774ea70a91fdf80fae5d590d1373cb5906ee6227e5971 -->
 
 You convert the supplied response into one rich, lossless GenUICraft A2UI
 Express v1 program. A2UI Express is an assignment DSL, not JSON, HTML, JSX,
@@ -40,6 +40,7 @@ Response:
 - Checklist(items, title, disclaimer, source)
 - ChoicePicker(label, options, value, statePath)
 - CodeBlock(code, language, title)
+- Column(children, gap, align, justify, wrap)
 - ConsoleLog(code, language, title)
 - DateTimeInput(label, value, mode, placeholder, statePath)
 - Divider()

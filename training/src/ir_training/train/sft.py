@@ -703,7 +703,17 @@ def _materialize_sft_text_dataset(
         completion_text = _completion_suffix_text(example, text, prompt_text)
         return {"text": text, "prompt_text": prompt_text, "completion_text": completion_text}
 
-    return dataset.map(add_text, desc="Formatting SFT text")
+    # This is an ephemeral training representation. Persisting both the
+    # formatted strings and the later tokenized arrays as Arrow cache files
+    # can duplicate multi-gigabyte corpora on small remote volumes. Keep the
+    # materialized view in memory; the source JSON/Arrow dataset remains the
+    # only on-disk dataset artifact.
+    return dataset.map(
+        add_text,
+        desc="Formatting SFT text",
+        keep_in_memory=True,
+        load_from_cache_file=False,
+    )
 
 
 def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int) -> Any:
@@ -737,6 +747,8 @@ def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int
             batched=True,
             remove_columns=split.column_names,
             desc=f"Tokenizing {split_name} SFT text",
+            keep_in_memory=True,
+            load_from_cache_file=False,
         )
     return tokenized_splits
 
@@ -1811,7 +1823,12 @@ def _checked_shifted_causal_lm_loss(logits: Any, labels: Any) -> Any:
     if logits.shape[1] < 2:
         raise ValueError(f"Sequence length is too short for shifted causal-LM loss: logits={tuple(logits.shape)}")
 
-    shift_logits = logits[..., :-1, :].contiguous()
+    # Causal-LM heads have a 262k vocabulary. Keep the model forward in BF16
+    # to avoid Accelerate's full-output FP32 copy, but compute cross-entropy in
+    # FP32 so the loss/gradient path does not overflow on large vocab logits.
+    # The training config uses a bounded microbatch so this cast fits on the
+    # H100 while remaining materially more stable than BF16 CE.
+    shift_logits = logits[..., :-1, :].contiguous().float()
     shift_labels = labels[..., 1:].contiguous()
     logits_vocab_size = int(shift_logits.shape[-1])
     _validate_labels_against_logits_vocab(shift_labels, logits_vocab_size)

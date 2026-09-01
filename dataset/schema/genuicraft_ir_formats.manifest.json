@@ -8,7 +8,7 @@
   "profileVersion": "genuicraft-a2ui-express-profile-v1",
   "canonicalGraphSchemaVersion": "canonical-ui-graph-v1",
   "catalogId": "https://genui.samsung.com/a2ui/catalogs/genuicraft-mobile/v1",
-  "catalogIdentityHash": "2591971dff231d6452e76f53b0079b233b22742bd10c396873c84daa0ee0fe37",
+  "catalogIdentityHash": "df587a54930a333e9aca5bec3ed1b524c87412e900df2e5ea9c211c8b7feb6fe",
   "tokenizer": {
     "status": "blocked",
     "name": "deployed_gemma_tokenizer_unavailable",
@@ -16,20 +16,20 @@
   },
   "files": {
     "dataset/schema/genuicraft_a2ui_catalog_v1.json": {
-      "sha256": "668082a49664d33c154ac62c8a58db24b487df683d1c17112d74c9b3bd98a9d1",
-      "bytes": 105907
+      "sha256": "b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e",
+      "bytes": 106759
     },
     "dataset/schema/genuicraft_a2ui_express_profile_v1.json": {
-      "sha256": "18d5675c4c95d227cd4148a68caff35f166b61d3a8caa7fb76d30f6dd40fd786",
-      "bytes": 7335
+      "sha256": "c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83",
+      "bytes": 7619
     },
     "dataset/schema/canonical_ui_graph_v1.schema.json": {
       "sha256": "0c5c211e0ddf05e0e6f22b803dee6050a2141d4723e341a75ff3b4dd69384e83",
       "bytes": 967
     },
     "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": {
-      "sha256": "01bb062a82de3a026bb5f1c9412c169ca55464d598c9acfb7eb19d3ed1bd3628",
-      "bytes": 81340
+      "sha256": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+      "bytes": 82009
     },
     "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md": {
       "sha256": "5eadf7a877932d8279234f7a9a0bba55dae151c58c4b834efbe3caee2f6a86cc",
@@ -56,8 +56,8 @@
       "bytes": 4453
     },
     "android/app/src/main/assets/pipeline_prompts/genui_gen_gemma_litert.md": {
-      "sha256": "5eadf7a877932d8279234f7a9a0bba55dae151c58c4b834efbe3caee2f6a86cc",
-      "bytes": 4453
+      "sha256": "9dd8788b4bb728b503ff47f7359e06fd86e17f86e76b8fd6cd87193a901543d1",
+      "bytes": 6067
     },
     "dataset/src/pipeline/ir_formats/express.py": {
       "sha256": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
@@ -68,8 +68,8 @@
       "bytes": 4470
     },
     "dataset/src/pipeline/ir_formats/a2ui_wire.py": {
-      "sha256": "57c39fcd5a9935c194aa4f1651287887dfb0aa8cbcff89e530f932a101237f34",
-      "bytes": 15698
+      "sha256": "b129aa4c96ea80bda2e89eccca742e35827a35b42d705959c9912849837b6e4e",
+      "bytes": 19306
     },
     "android/app/src/main/java/com/samsung/genuicraft/pipeline/A2uiExpressCodec.kt": {
       "sha256": "4974a9ff12544cf9f6f33c85a2917abbea4cf513ebef9dc2fbd10efa3b21f1ee",

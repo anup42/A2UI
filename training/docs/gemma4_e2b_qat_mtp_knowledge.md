@@ -1819,7 +1819,9 @@ not the separate dense Q4 release. Run
 The official source `config.json` is also pinned to SHA-256
 `cf6d7dc22738b5e6beb364bac833d78b869f5a6ffd57dfc96c6be3f2abc80424`,
 and the retained-compiled evidence report to
-`4fa47cf6fefb983a79bebc1e00bdd1f28df8d6570f59d7e979a1791a9a63429a`.
+`6744af4144688b93ef7009a67218700fcaa2b78b4186872496a8e17cd72e4008` (the
+canonical report hash removes only machine-local `artifact.path` and
+`source.path`, then uses sorted compact JSON).
 The script is plan-only unless `--execute` is supplied, never runs training,
 never overwrites an existing output/partial, and streams the reconstruction so
 the largest tensor is not held in memory.

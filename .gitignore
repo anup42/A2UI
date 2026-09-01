@@ -11,6 +11,11 @@ outputs/
 *.py[cod]
 .pytest_cache/
 .pytest_tmp_*/
+.pytest-tmp-*/
+.tmp/
+.tmp_*/
+.tmp-*/
+/.tmp*.tmp
 .mypy_cache/
 .angular
 

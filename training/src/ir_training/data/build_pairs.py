@@ -19,6 +19,7 @@ from ir_training.data.ir_targets import (
     serialize_completion,
 )
 from ir_training.data.legacy_targets import FLAT_SPEC_V1, canonical_graph_from_legacy_source
+from ir_training.data.repairs import RepairResult, repair_graph
 from ir_training.data.splits import stratified_split
 from ir_training.data.url_preprocess import preprocess_training_urls
 
@@ -94,10 +95,32 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                 )
                 continue
             try:
+                # Historical FlatSpec rows can contain the small set of known,
+                # auditable defects handled by the shared repair layer. Repair
+                # mappings before strict legacy decoding so an unsafe URL or a
+                # legacy layout alias does not prevent the row from reaching
+                # that boundary. Express text is decoded first, then its
+                # canonical graph crosses the same repair pass.
+                source_repair = (
+                    repair_graph(native_payload)
+                    if isinstance(native_payload, Mapping)
+                    else RepairResult(graph={})
+                )
+                payload_for_decode = (
+                    source_repair.graph
+                    if isinstance(native_payload, Mapping)
+                    else native_payload
+                )
                 if str(source_format).strip().lower() == A2UI_EXPRESS_V1:
-                    canonical = canonical_graph_from_source(native_payload, source_format=source_format)
+                    canonical = canonical_graph_from_source(payload_for_decode, source_format=source_format)
                 else:
-                    canonical = canonical_graph_from_legacy_source(native_payload, source_format=source_format)
+                    canonical = canonical_graph_from_legacy_source(
+                        payload_for_decode,
+                        source_format=source_format,
+                    )
+                canonical_repair = repair_graph(canonical)
+                repair = source_repair.merge(canonical_repair)
+                canonical = repair.graph
             except (TypeError, ValueError) as exc:
                 rejected.append(
                     {
@@ -178,6 +201,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     "ir_generation": ir_generation,
                     "created_at": genui.get("created_at") or response.get("created_at"),
                     "target_formats": selected_target_formats,
+                    "repair": repair.as_dict(),
                 }
             )
 
@@ -275,6 +299,7 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
                     "expected_ui_contract": source["expected_ui_contract"],
                     "expected_ui_contract_v5_4": source["expected_ui_contract_v5_4"],
                     "expected_ui_contract_v5_4_source": source["expected_ui_contract_v5_4_source"],
+                    "repair": source["repair"],
                     "source_model_family": str(
                         source["ir_generation"].get("model")
                         or source["response_generation"].get("model")
@@ -362,11 +387,39 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         "split_assignment_stage": "source_group_before_target_materialization",
         "source_group_count": len({str(row["source_id"]) for row in prepared_sources}),
         "url_preprocessing": {"enabled": url_preprocessing_enabled},
+        "repair": _repair_summary(accepted),
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     if config_path is not None:
         manifest["config_path"] = str(config_path)
     return manifest
+
+
+def _repair_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    change_counts: dict[str, int] = {}
+    repaired_records = 0
+    total_changes = 0
+    for row in rows:
+        repair = row.get("repair")
+        if not isinstance(repair, Mapping) or not repair.get("applied"):
+            continue
+        repaired_records += 1
+        changes = repair.get("changes")
+        if not isinstance(changes, list):
+            continue
+        total_changes += len(changes)
+        for change in changes:
+            if not isinstance(change, Mapping):
+                continue
+            kind = str(change.get("kind") or "").strip()
+            if kind:
+                change_counts[kind] = change_counts.get(kind, 0) + 1
+    return {
+        "accepted_records_with_repairs": repaired_records,
+        "accepted_records_without_repairs": len(rows) - repaired_records,
+        "total_changes": total_changes,
+        "change_counts": dict(sorted(change_counts.items())),
+    }
 
 
 def _collect_stage3_genui_paths(run_cfg: dict[str, Any], base: Path) -> list[Path]:

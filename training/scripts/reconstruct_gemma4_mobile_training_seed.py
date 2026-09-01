@@ -36,6 +36,15 @@ from typing import Any, BinaryIO
 
 import numpy as np
 
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+import sys
+
+sys.path.insert(0, str(SCRIPT_ROOT / "src"))
+from ir_training.qat.retained_parity import (  # noqa: E402
+    OFFICIAL_RETAINED_COMPILED_REPORT_SHA256,
+    canonical_retained_parity_report_sha256,
+)
+
 OFFICIAL_MOBILE_MODEL_ID = "google/gemma-4-E2B-it-qat-mobile-transformers"
 OFFICIAL_MOBILE_REVISION = "dd693ff40353f057ca5f07e945ad867f4afbf2ec"
 OFFICIAL_MOBILE_SAFETENSORS_SHA256 = (
@@ -47,9 +56,6 @@ OFFICIAL_MOBILE_CONFIG_SHA256 = (
 )
 OFFICIAL_LITERTLM_SHA256 = (
     "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c"
-)
-OFFICIAL_RETAINED_COMPILED_REPORT_SHA256 = (
-    "4fa47cf6fefb983a79bebc1e00bdd1f28df8d6570f59d7e979a1791a9a63429a"
 )
 EXPECTED_SOURCE_TENSOR_COUNT = 2_780
 EXPECTED_OUTPUT_TENSOR_COUNT = 541
@@ -885,7 +891,7 @@ def _validate_retained_report(
     expected_report_sha256: str,
 ) -> dict[str, Any]:
     report = _read_json(path, label="retained compiled-parity report")
-    observed_report_sha256 = _sha256_file(path)
+    observed_report_sha256 = canonical_retained_parity_report_sha256(report)
     artifact = report.get("artifact") if isinstance(report.get("artifact"), dict) else {}
     source = report.get("source") if isinstance(report.get("source"), dict) else {}
     comparison = (
@@ -895,7 +901,7 @@ def _validate_retained_report(
     )
     checks = {
         "report_ok": report.get("ok") is True,
-        "report_sha256_match": observed_report_sha256 == expected_report_sha256,
+        "report_canonical_sha256_match": observed_report_sha256 == expected_report_sha256,
         "training_not_executed": report.get("training_executed") is False,
         "artifact_identity_match": artifact.get("identity_match") is True,
         "artifact_sha256_match": str(artifact.get("sha256_observed") or "").lower()

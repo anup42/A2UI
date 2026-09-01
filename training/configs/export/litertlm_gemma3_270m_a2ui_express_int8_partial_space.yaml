@@ -1,0 +1,30 @@
+run:
+  id: gemma3_270m_a2ui_express_int8_partial_space
+  output_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/partial_export_retry
+source:
+  base_model_id: /group-volume/vighnesh.h/SFM/gemma-3-270m-it
+  adapter_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/training/checkpoint-5000
+  merged_model_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/partial_merged_hf
+  model_loader: auto_causal_lm
+  dtype: bfloat16
+export:
+  runtime: litertlm
+  format: litertlm
+  litert_output_dir: /user-volume/code/A2UI/working_dir/gemma3_270m_a2ui_express_20260822/partial_export_retry/litertlm
+  command: litert-torch
+  min_app_version: 1.1.0
+  max_input_tokens: 2048
+  max_output_tokens: 2048
+  quantization_recipe: dynamic_wi8_afp32
+  externalize_embedder: false
+  extra_flags:
+    - --cache_length=4096
+    - --prefill_lengths=[2048]
+    - --use_jinja_template=True
+    - --enable_gpu_dynamic_prefill=True
+    - --enable_gpu_dynamic_cache=True
+    - --bundle_litert_lm=True
+android:
+  package_name: gemma3_270m_a2ui_express_int8_partial
+  display_name: Gemma 3 270M A2UI Express INT8 Partial
+  stage: stage3_ir

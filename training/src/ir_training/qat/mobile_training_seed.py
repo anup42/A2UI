@@ -15,6 +15,10 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.config import resolve_path, training_root
+from ir_training.qat.retained_parity import (
+    OFFICIAL_RETAINED_COMPILED_REPORT_SHA256,
+    canonical_retained_parity_report_sha256,
+)
 
 OFFICIAL_MOBILE_MODEL_ID = "google/gemma-4-E2B-it-qat-mobile-transformers"
 OFFICIAL_MOBILE_REVISION = "dd693ff40353f057ca5f07e945ad867f4afbf2ec"
@@ -26,9 +30,6 @@ OFFICIAL_MOBILE_CONFIG_SHA256 = (
 )
 OFFICIAL_LITERTLM_SHA256 = (
     "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c"
-)
-OFFICIAL_RETAINED_COMPILED_REPORT_SHA256 = (
-    "4fa47cf6fefb983a79bebc1e00bdd1f28df8d6570f59d7e979a1791a9a63429a"
 )
 EXPECTED_TRANSFORMATION_PLAN_SHA256 = (
     "03086afb123acf2c6f359d3cec2b1208f89529bca39e2d29f8b501e0918e3d5c"

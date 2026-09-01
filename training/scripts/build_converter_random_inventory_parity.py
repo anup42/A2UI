@@ -49,6 +49,7 @@ from build_fresh_random_quantized_graph import (
     _vector as _fresh_vector,
 )
 from ir_training.qat.toolchain import edge_export_toolchain_report
+from tflite_schema_compat import schema_module
 
 
 class ConverterInventoryParityError(RuntimeError):
@@ -92,14 +93,14 @@ def _build_random_float_tflite(
     try:
         import flatbuffers
 
-        Buffer = importlib.import_module("tflite.Buffer")
-        Model = importlib.import_module("tflite.Model")
-        Operator = importlib.import_module("tflite.Operator")
-        OperatorCode = importlib.import_module("tflite.OperatorCode")
-        SignatureDef = importlib.import_module("tflite.SignatureDef")
-        SubGraph = importlib.import_module("tflite.SubGraph")
-        Tensor = importlib.import_module("tflite.Tensor")
-        TensorMap = importlib.import_module("tflite.TensorMap")
+        Buffer = schema_module("Buffer")
+        Model = schema_module("Model")
+        Operator = schema_module("Operator")
+        OperatorCode = schema_module("OperatorCode")
+        SignatureDef = schema_module("SignatureDef")
+        SubGraph = schema_module("SubGraph")
+        Tensor = schema_module("Tensor")
+        TensorMap = schema_module("TensorMap")
     except ImportError as exc:  # pragma: no cover - conversion environment only
         raise ConverterInventoryParityError(
             "Float graph construction requires flatbuffers and generated tflite bindings."
@@ -363,9 +364,9 @@ def _quantization(tensor: Any) -> dict[str, Any] | None:
 
 def _inspect_quantized(path: Path) -> list[dict[str, Any]]:
     try:
-        model_module = importlib.import_module("tflite.Model")
-        op_module = importlib.import_module("tflite.BuiltinOperator")
-        tensor_module = importlib.import_module("tflite.TensorType")
+        model_module = schema_module("Model")
+        op_module = schema_module("BuiltinOperator")
+        tensor_module = schema_module("TensorType")
     except ImportError as exc:  # pragma: no cover - conversion environment only
         raise ConverterInventoryParityError(
             "Inspection requires the generated 'tflite' schema bindings."

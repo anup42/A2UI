@@ -220,7 +220,7 @@
       ]
     },
     "dynamicObject": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "object"
         },
@@ -233,7 +233,7 @@
       ]
     },
     "dynamicValue": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": [
             "string",
@@ -3012,11 +3012,35 @@
               }
             ]
           },
+          "margin": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "marginVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "padding": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingHorizontal": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
+          "paddingVertical": {
+            "$ref": "#/$defs/dynamicNumber"
+          },
           "role": {
             "$ref": "#/$defs/dynamicString"
           },
           "semanticRole": {
             "$ref": "#/$defs/dynamicString"
+          },
+          "space": {
+            "$ref": "#/$defs/dynamicValue"
+          },
+          "spacing": {
+            "$ref": "#/$defs/dynamicValue"
           },
           "template": {
             "$ref": "#/$defs/dynamicString"

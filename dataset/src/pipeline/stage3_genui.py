@@ -1085,6 +1085,7 @@ def run_stage3(
             }
 
     existing_ids = {row.get("ui_id") for row in iter_jsonl(genui_path)}
+    existing_genui_count = len(existing_ids)
     writer = JsonlWriter(genui_path)
     response_text_by_id: dict[str, str] = {}
     auto_assets_dir = responses_path.parent / "assets"
@@ -1713,7 +1714,21 @@ def run_stage3(
         # the graph and compiled wire payload are explicit post-parse artifacts.
         normalized_native_output = _normalized_native_output(genui_json)
         normalized_native_text = serialized_text(normalized_native_output)
-        compiled_a2ui = compile_express_to_wire(genui_json)
+        try:
+            compiled_a2ui = compile_express_to_wire(genui_json)
+        except Exception as exc:
+            # A single malformed model completion must not terminate the whole
+            # Stage 3 run.  Preserve the raw payload in the error artifact and
+            # let the caller continue with the remaining responses; a later
+            # resume can retry this ui_id with a fresh generation.
+            compile_error = f"standard_a2ui_compile_error: {exc}"
+            logger.warning(
+                "Stage3 skipping invalid ui_id=%s after final compile failure: %s",
+                ui_id,
+                compile_error,
+            )
+            _record_generation_error(task, compile_error, genui_json)
+            return
 
         toon = encode_toon(genui_json)
         toon_ok = roundtrip_ok(genui_json, toon)
@@ -2240,7 +2255,14 @@ def run_stage3(
                 contract_resolution.cache_hit,
             )
         total_created += 1
-        if total_created == 1 or total_created % aggregate_every == 0:
+        # A resumed run may already contain thousands of records.  Rebuilding
+        # the full aggregate after the first newly-created record makes the
+        # single Stage 3 worker spend minutes CPU-bound before it can submit
+        # the next batch.  Keep the first-record aggregate for fresh runs, but
+        # defer it on resumes until the normal aggregate interval.
+        if total_created % aggregate_every == 0 or (
+            total_created == 1 and existing_genui_count == 0
+        ):
             _write_aggregates(reason=f"after_ui={ui_id}")
 
         if errors:
@@ -2642,8 +2664,6 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
-
-
 
 
 

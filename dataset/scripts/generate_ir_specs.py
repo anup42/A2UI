@@ -245,14 +245,18 @@ def _catalog_defs() -> dict[str, Any]:
             ]
         },
         "dynamicObject": {
-            "oneOf": [
+            # Data bindings and function calls are objects too, so they
+            # intentionally overlap the generic object branch.
+            "anyOf": [
                 {"type": "object"},
                 {"$ref": "#/$defs/dataBinding"},
                 {"$ref": "#/$defs/functionCall"},
             ]
         },
         "dynamicValue": {
-            "oneOf": [
+            # A dataBinding/functionCall is also a valid object value; using
+            # oneOf incorrectly rejects otherwise valid binding payloads.
+            "anyOf": [
                 {"type": ["string", "number", "boolean", "null"]},
                 {"type": "array"},
                 {"type": "object"},

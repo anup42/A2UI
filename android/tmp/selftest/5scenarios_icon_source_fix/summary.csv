@@ -1,6 +1,0 @@
-"scenario","status","elapsed_sec","completed","has_error_text","markdown_leak","screenshot","xml","log"
-"s1_weather","completed","30","True","False","False","tmp\selftest\5scenarios_icon_source_fix\s1_weather.png","tmp\selftest\5scenarios_icon_source_fix\s1_weather_done.xml","tmp\selftest\5scenarios_icon_source_fix\s1_weather.logcat.txt"
-"s2_flights","completed","35","True","False","False","tmp\selftest\5scenarios_icon_source_fix\s2_flights.png","tmp\selftest\5scenarios_icon_source_fix\s2_flights_done.xml","tmp\selftest\5scenarios_icon_source_fix\s2_flights.logcat.txt"
-"s3_itinerary","failed","5","False","True","False","tmp\selftest\5scenarios_icon_source_fix\s3_itinerary.png","tmp\selftest\5scenarios_icon_source_fix\s3_itinerary_done.xml","tmp\selftest\5scenarios_icon_source_fix\s3_itinerary.logcat.txt"
-"s4_compare","completed","40","True","False","False","tmp\selftest\5scenarios_icon_source_fix\s4_compare.png","tmp\selftest\5scenarios_icon_source_fix\s4_compare_done.xml","tmp\selftest\5scenarios_icon_source_fix\s4_compare.logcat.txt"
-"s5_bullets","completed","45","True","False","False","tmp\selftest\5scenarios_icon_source_fix\s5_bullets.png","tmp\selftest\5scenarios_icon_source_fix\s5_bullets_done.xml","tmp\selftest\5scenarios_icon_source_fix\s5_bullets.logcat.txt"
