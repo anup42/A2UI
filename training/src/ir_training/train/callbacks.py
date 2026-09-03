@@ -11,6 +11,7 @@ from typing import Any, Callable, Sequence
 from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.eval.compare_to_baseline import evaluate_predictions
+from ir_training.eval.tensorboard_logging import log_evaluation_result
 
 
 class TrainingMetadataCallback:
@@ -52,6 +53,9 @@ def build_golden_set_eval_callback(
     best_checkpoint_dir: str | Path | None = None,
     metric_logger: Callable[[dict[str, float]], Any] | None = None,
     metric_log_prefix: str = "golden",
+    tensorboard_root: str | Path | None = None,
+    tensorboard_run_id: str | None = None,
+    tensorboard_evaluation_name: str | None = None,
 ) -> Any | None:
     if not enabled:
         return None
@@ -158,6 +162,30 @@ def build_golden_set_eval_callback(
                                 aggregate,
                                 prefix=resolved_metric_log_prefix,
                             )
+                        )
+                    if tensorboard_root is not None:
+                        log_evaluation_result(
+                            tensorboard_root,
+                            run_id=tensorboard_run_id or "training",
+                            evaluation_name=(
+                                tensorboard_evaluation_name
+                                or resolved_metric_log_prefix
+                            ),
+                            metrics=aggregate,
+                            step=int(aggregate["step"]),
+                            artifacts={
+                                "predictions": predictions_path,
+                                "scored_predictions": event_dir
+                                / "scored_predictions.jsonl",
+                                "aggregate_metrics": aggregate_path,
+                            },
+                            metadata={
+                                "event": event_label,
+                                "trigger": resolved_trigger,
+                                "golden_set_rows": len(golden_rows),
+                                "golden_set_sha256": golden_split_sha256,
+                            },
+                            source_aggregate_path=aggregate_path,
                         )
                     self._record_best_if_improved(
                         model=model,
@@ -580,12 +608,17 @@ def _golden_scalar_logs(aggregate: dict[str, Any], *, prefix: str) -> dict[str, 
 
 
 def _extract_user_text(row: dict[str, Any]) -> str:
-    for message in row.get("messages") or []:
+    response_text = row.get("response_text")
+    if isinstance(response_text, str) and response_text.strip():
+        return response_text
+    # Golden rows can include few-shot demonstrations. Score against the held-
+    # out request in the final user turn rather than the first demo prompt.
+    for message in reversed(list(row.get("messages") or [])):
         if isinstance(message, dict) and message.get("role") == "user":
             content = str(message.get("content") or "")
             marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
             return content.split(marker, 1)[-1]
-    return str(row.get("prompt") or "")
+    return str(row.get("input") or row.get("prompt") or "")
 
 
 def _extract_expected_completion(row: dict[str, Any]) -> Any:

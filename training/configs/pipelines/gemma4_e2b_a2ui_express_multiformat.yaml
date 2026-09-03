@@ -1,0 +1,114 @@
+pipeline:
+  id: gemma4_e2b_a2ui_express_multiformat
+  model_family: gemma4_e2b
+  # Override --run-id for every real attempt. Both the portable trainer and
+  # this orchestrator refuse to reuse generated artifacts silently.
+  run_id: gemma4_e2b_a2ui_express_multiformat_001
+  output_root: outputs/pipelines/gemma4_e2b_a2ui_express_multiformat
+
+  golden:
+    dataset_config: configs/datasets/golden32_20260903_eval.yaml
+    dataset_config_sha256: 2c4c70624658f097484efda25f5f336d685fa469b13982d310a17100e3eb44d5
+    split: outputs/datasets/golden32_20260903_eval/all.jsonl
+    split_sha256: b1a2d9c1a2b7ed6f2e052fd84b53284f706667c9ade7c6f859ba287150b28ad4
+    source_genui: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/genui.jsonl
+    source_genui_sha256: 596f56a15a63d904423970c9768797ba795ff0528a04da37dddcba280a4f4e17
+    source_responses: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/responses.jsonl
+    source_responses_sha256: 27406fa78d486ded4e9fcb2a78e987aa54d9f2ee8fe5db926874a1b2ff827089
+    required_rows: 32
+    require_exact_rows: true
+    require_unique_rows: true
+    metric_version: dual
+    weights_config: ../dataset/configs/run.yaml
+    max_input_tokens: 4096
+    max_new_tokens: 4096
+
+  tensorboard:
+    # Resolved relative to the repository root. On an MLP host set
+    # A2UI_TENSORBOARD_ROOT=/tensorboard without editing this file.
+    root: tensorboard
+
+  training:
+    config: configs/models/gemma4_e2b_a2ui_express_official_qat.yaml
+    portable_launcher: scripts/run_gemma4_mobile_qat.py
+    runs_root: training/runs/gemma4_e2b_a2ui_express_multiformat
+    num_gpus: 1
+    gpu_ids: ""
+    # Optional when the reconstructed seed manifest still points to the exact
+    # local packed model. Otherwise pass --source-safetensors to the runner.
+    source_safetensors: ""
+    checkpoint_evaluation:
+      # The trainer evaluates Golden-32 at every Trainer eval event. This
+      # additional stage evaluates and logs the selected adapter after training.
+      enabled: true
+      evaluation_name: checkpoint
+
+  official_qat:
+    # The only official-format deployment lane. It retains released W2/W4/W8
+    # and A8 scales/topology and changes integer codes for 205 projections.
+    enabled: true
+    base_pipeline_config: configs/pipelines/gemma4_e2b_mobile_mtp.yaml
+    base_litertlm: ""
+    official_artifact_sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
+    output_name: gemma4_e2b_official_retained_w2w4w8.litertlm
+
+  mtp:
+    # Applies to official_qat only. Public W32/W16/W8/W4 comparison exports are
+    # target-only because their converter does not preserve the official MTP section.
+    enabled: true
+    weight_source: official
+    train_assistant: false
+    training_config: configs/models/gemma4_e2b_mtp_drafter_qat.yaml
+    # Template only. When trained mode is opted in, the orchestrator rewrites
+    # the config/output/checkpoint beneath the unique top-level run ID.
+    trained_checkpoint: runs/gemma4_e2b_mtp_drafter_qat/best_checkpoint
+
+  public_variants:
+    # These four artifacts are comparison exports from the merged HF checkpoint.
+    # They are not the official Gemma mobile QAT format.
+    w32:
+      enabled: true
+      requested_bits: 32
+      artifact_kind: fp32
+      quantization_recipe: none
+      extra_flags: []
+    w16:
+      enabled: true
+      requested_bits: 16
+      artifact_kind: fp16
+      quantization_recipe: none
+      extra_flags:
+        - --experimental_use_fp16=True
+    w8:
+      enabled: true
+      requested_bits: 8
+      artifact_kind: int8
+      quantization_recipe: dynamic_wi8_afp32
+      extra_flags: []
+    w4:
+      enabled: true
+      requested_bits: 4
+      # gemma4_mixed48_b32 is mixed W4/W8, not a uniform pure-INT4 package.
+      artifact_kind: mixed_w4_w8
+      quantization_recipe: gemma4_mixed48_b32
+      extra_flags: []
+
+  export:
+    script: scripts/export_edge_gallery_model.py
+    command: litert-torch
+    externalize_embedder: true
+    jinja_chat_template_override: training/configs/export/gemma4_e2b_training_minijinja.jinja
+    cache_length: 4096
+    prefill_lengths: 128,512,1024,2048
+    max_input_tokens: 4096
+    max_output_tokens: 4096
+
+  evaluation:
+    checkpoint_script: scripts/evaluate_checkpoint_on_golden.py
+    litertlm_script: scripts/evaluate_litertlm_on_golden.py
+    package_audit_script: scripts/audit_litertlm_package.py
+    # Copy and edit this example on the training/test host so `command` invokes
+    # the real LiteRT-LM runtime. The evaluator fails closed on a placeholder.
+    litertlm_runner_config: configs/eval/litertlm_external_runner.example.yaml
+    output_dir: evaluations
+    scorecard: evaluation_scorecard.json

@@ -41,6 +41,9 @@ training:
   lr_scheduler_type: cosine
   max_grad_norm: 1.0
   seed: 42
+  # The multiformat orchestrator rewrites this to the shared run-scoped root.
+  tensorboard_root: tensorboard
+  tensorboard_subdir: mtp_training
 
 qat:
   enabled: true

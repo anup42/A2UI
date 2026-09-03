@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.config import resolve_path, training_root
+from ir_training.eval.tensorboard_logging import resolve_tensorboard_root
 from ir_training.mtp.drafter_contract import (
     OFFICIAL_GEMMA4_E2B_ASSISTANT,
     contract_summary,
@@ -701,6 +702,7 @@ def train_mtp_drafter(
         from accelerate.utils import set_seed
         from torch.optim import AdamW
         from torch.utils.data import DataLoader, Dataset
+        from torch.utils.tensorboard import SummaryWriter
         from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
     except Exception as exc:  # pragma: no cover - dependency environment
         raise MTPDrafterTrainingError(
@@ -850,6 +852,18 @@ def train_mtp_drafter(
     global_step = 0
     best_loss = float("inf")
     history: list[dict[str, Any]] = []
+    tensorboard_subdir = str(training_cfg.get("tensorboard_subdir") or "mtp_training")
+    tensorboard_log_dir = (
+        resolve_tensorboard_root(training_cfg.get("tensorboard_root") or "tensorboard")
+        / str(plan["run_id"])
+        / tensorboard_subdir
+    )
+    writer = (
+        SummaryWriter(log_dir=str(tensorboard_log_dir))
+        if accelerator.is_main_process
+        else None
+    )
+    logging_steps = max(1, int(training_cfg.get("logging_steps", 20)))
 
     def evaluate() -> float:
         if validation_loader is None:
@@ -924,6 +938,17 @@ def train_mtp_drafter(
                 epoch_losses.append(float(loss.detach().item()))
                 if accelerator.sync_gradients:
                     global_step += 1
+                    if writer is not None and global_step % logging_steps == 0:
+                        writer.add_scalar(
+                            "mtp_training/train_loss_step",
+                            float(loss.detach().item()),
+                            global_step,
+                        )
+                        writer.add_scalar(
+                            "mtp_training/learning_rate",
+                            float(scheduler.get_last_lr()[0]),
+                            global_step,
+                        )
                 if max_steps > 0 and global_step >= max_steps:
                     break
             train_loss = sum(epoch_losses) / max(len(epoch_losses), 1)
@@ -940,6 +965,20 @@ def train_mtp_drafter(
                     "selection_loss": selection_loss,
                 }
             )
+            if writer is not None:
+                writer.add_scalar(
+                    "mtp_training/train_loss_epoch", train_loss, global_step
+                )
+                writer.add_scalar(
+                    "mtp_training/selection_loss", selection_loss, global_step
+                )
+                if math.isfinite(validation_loss):
+                    writer.add_scalar(
+                        "mtp_training/validation_loss",
+                        validation_loss,
+                        global_step,
+                    )
+                writer.flush()
             if selection_loss < best_loss:
                 best_loss = selection_loss
                 save_checkpoint(Path(plan["assistant"]["best_checkpoint"]))
@@ -948,6 +987,9 @@ def train_mtp_drafter(
         save_checkpoint(Path(plan["assistant"]["final_checkpoint"]))
     finally:
         qat_controller.restore()
+        if writer is not None:
+            writer.flush()
+            writer.close()
 
     accelerator.wait_for_everyone()
     result = {
@@ -957,6 +999,7 @@ def train_mtp_drafter(
         "best_selection_loss": best_loss,
         "history": history,
         "qat_runtime": qat_summary,
+        "tensorboard_log_dir": str(tensorboard_log_dir),
     }
     if accelerator.is_main_process:
         config_hash = _sha256(Path(config_path).expanduser().resolve())
@@ -987,6 +1030,7 @@ def train_mtp_drafter(
                 "trainable_source_keys": source_keys(),
                 "mobile_contract": contract_summary(),
                 "qat": qat_summary,
+                "tensorboard_log_dir": str(tensorboard_log_dir),
                 "checkpoint_files": _checkpoint_manifest(checkpoint),
                 "history": history,
             }

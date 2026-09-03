@@ -33,6 +33,8 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
     base = training_root()
     output_dir = resolve_path(run_cfg.get("output_dir", "outputs/datasets/dataset_v1_stage3"), base)
     genui_paths = _collect_stage3_genui_paths(run_cfg, base)
+    source_genui_sha256s = _verify_source_genui_sha256(run_cfg, genui_paths)
+    source_responses_sha256s = _verify_source_responses_sha256(run_cfg, genui_paths)
     response_lookups = {path: _load_response_lookup(path) for path in genui_paths}
     # Legacy graph validation is performed only while importing a legacy row;
     # the active target is validated as native Express text after encoding.
@@ -376,6 +378,18 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         "source_run_dir": str(run_cfg.get("source_run_dir", "")),
         "source_genui_dir": str(run_cfg.get("source_genui_dir", "")),
         "source_genui_paths": [str(path) for path in genui_paths],
+        "source_genui_sha256s": source_genui_sha256s,
+        "source_responses_sha256s": source_responses_sha256s,
+        "output_sha256s": {
+            name: _sha256_file(output_dir / name)
+            for name in (
+                "all.jsonl",
+                "train.jsonl",
+                "val.jsonl",
+                "test.jsonl",
+                "rejected.jsonl",
+            )
+        },
         "output_dir": str(output_dir),
         "prompt_version": run_cfg.get("prompt_version"),
         "schema_path": run_cfg.get("schema_path"),
@@ -389,9 +403,13 @@ def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> 
         "url_preprocessing": {"enabled": url_preprocessing_enabled},
         "repair": _repair_summary(accepted),
     }
-    (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     if config_path is not None:
-        manifest["config_path"] = str(config_path)
+        resolved_config_path = Path(config_path).expanduser().resolve()
+        manifest["config_path"] = str(resolved_config_path)
+        manifest["config_sha256"] = _sha256_file(resolved_config_path)
+    (output_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     return manifest
 
 
@@ -449,6 +467,76 @@ def _collect_stage3_genui_paths(run_cfg: dict[str, Any], base: Path) -> list[Pat
     if not genui_path.exists():
         raise FileNotFoundError(f"Missing genui.jsonl: {genui_path}")
     return [genui_path]
+
+
+def _verify_source_genui_sha256(
+    run_cfg: dict[str, Any], genui_paths: list[Path]
+) -> dict[str, str]:
+    observed = {str(path): _sha256_file(path) for path in genui_paths}
+    configured = run_cfg.get("source_genui_sha256")
+    if configured is None or not str(configured).strip():
+        return observed
+    if len(genui_paths) != 1:
+        raise ValueError(
+            "run.source_genui_sha256 can bind only one source genui.jsonl; "
+            "use a single run source."
+        )
+    expected = str(configured).strip().lower()
+    if len(expected) != 64 or any(character not in "0123456789abcdef" for character in expected):
+        raise ValueError("run.source_genui_sha256 must be a 64-character lowercase hex digest.")
+    path = genui_paths[0]
+    actual = observed[str(path)]
+    if actual != expected:
+        raise ValueError(
+            f"Source genui.jsonl SHA-256 mismatch for {path}: "
+            f"expected {expected}, observed {actual}."
+        )
+    return observed
+
+
+def _verify_source_responses_sha256(
+    run_cfg: dict[str, Any], genui_paths: list[Path]
+) -> dict[str, str]:
+    response_paths = [path.parent / "responses.jsonl" for path in genui_paths]
+    observed = {
+        str(path): _sha256_file(path) for path in response_paths if path.is_file()
+    }
+    configured = run_cfg.get("source_responses_sha256")
+    if configured is None or not str(configured).strip():
+        return observed
+    if len(genui_paths) != 1:
+        raise ValueError(
+            "run.source_responses_sha256 can bind only one responses.jsonl; "
+            "use a single run source."
+        )
+    responses_path = response_paths[0]
+    if not responses_path.is_file():
+        raise FileNotFoundError(
+            "run.source_responses_sha256 was declared but responses.jsonl is "
+            f"missing: {responses_path}"
+        )
+    expected = str(configured).strip().lower()
+    if len(expected) != 64 or any(
+        character not in "0123456789abcdef" for character in expected
+    ):
+        raise ValueError(
+            "run.source_responses_sha256 must be a 64-character lowercase hex digest."
+        )
+    actual = observed[str(responses_path)]
+    if actual != expected:
+        raise ValueError(
+            f"Source responses.jsonl SHA-256 mismatch for {responses_path}: "
+            f"expected {expected}, observed {actual}."
+        )
+    return observed
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while block := handle.read(1024 * 1024):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _load_response_lookup(genui_path: Path) -> dict[str, dict[str, Any]]:

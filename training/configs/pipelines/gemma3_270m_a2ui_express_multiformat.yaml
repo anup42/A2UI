@@ -1,0 +1,125 @@
+pipeline:
+  id: gemma3_270m_a2ui_express_multiformat
+  # Override for every real attempt; all training, export, evaluation, log, and
+  # TensorBoard paths are isolated under this one component.
+  run_id: gemma3_270m_a2ui_express_multiformat_001
+  output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat
+
+  training:
+    config: configs/models/gemma3_270m_a2ui_express_qat.yaml
+    tensorboard_root: tensorboard
+
+  golden:
+    dataset_config: configs/datasets/golden32_20260903_eval.yaml
+    dataset_config_sha256: 2c4c70624658f097484efda25f5f336d685fa469b13982d310a17100e3eb44d5
+    source_run_dir: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903
+    source_jsonl: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/genui.jsonl
+    source_sha256: 596f56a15a63d904423970c9768797ba795ff0528a04da37dddcba280a4f4e17
+    responses_jsonl: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/responses.jsonl
+    responses_sha256: 27406fa78d486ded4e9fcb2a78e987aa54d9f2ee8fe5db926874a1b2ff827089
+    split_path: outputs/datasets/golden32_20260903_eval/all.jsonl
+    split_sha256: b1a2d9c1a2b7ed6f2e052fd84b53284f706667c9ade7c6f859ba287150b28ad4
+    required_rows: 32
+    require_exact_rows: true
+    require_unique_rows: true
+    metric_version: dual
+    metric_for_report: generation_reward_v5_4_avg
+    weights_config: ../dataset/configs/run.yaml
+    max_input_tokens: 3072
+    max_new_tokens: 1024
+
+  merge:
+    output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/merged_best_hf
+
+  # These are four deployment measurements from one merged W8-QAT checkpoint.
+  # w8 is aligned with the QAT objective. w32/w16 are floating baselines and
+  # w4 is a post-training sensitivity variant; do not call all four QAT models.
+  formats:
+    w32:
+      enabled: true
+      label: fp32
+      weight_bits: 32
+      quantization_recipe: none
+      experimental: false
+      output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/export/w32
+      artifact: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/litertlm/gemma3_270m_a2ui_express_w32.litertlm
+
+    w16:
+      enabled: true
+      label: fp16
+      weight_bits: 16
+      quantization_recipe: none
+      experimental: true
+      require_explicit_opt_in: true
+      extra_flags:
+        - --experimental_use_fp16=True
+      output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/export/w16
+      artifact: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/litertlm/gemma3_270m_a2ui_express_w16.litertlm
+
+    w8:
+      enabled: true
+      label: int8
+      weight_bits: 8
+      quantization_recipe: dynamic_wi8_afp32
+      experimental: false
+      qat_aligned: true
+      output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/export/w8
+      artifact: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/litertlm/gemma3_270m_a2ui_express_w8.litertlm
+
+    w4:
+      enabled: true
+      label: int4_block32
+      weight_bits: 4
+      # Block-32 avoids the especially fragile channelwise-INT4 choice for a
+      # small LLM. This is a public export, not an official Gemma 270M graph.
+      quantization_recipe: dynamic_wi4b32_afp32
+      experimental: true
+      require_explicit_opt_in: true
+      qat_aligned: false
+      output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/export/w4
+      artifact: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/litertlm/gemma3_270m_a2ui_express_w4.litertlm
+
+  export:
+    command: litert-torch
+    task: text_generation
+    max_input_tokens: 3072
+    max_output_tokens: 1024
+    externalize_embedder: false
+    common_extra_flags:
+      - --cache_length=4096
+      - --prefill_lengths=128
+      - --use_jinja_template=True
+      - --enable_gpu_dynamic_prefill=True
+      - --enable_gpu_dynamic_cache=True
+      - --bundle_litert_lm=True
+
+  # Optional official-topology promotion exists only for w8. It requires the
+  # released Q8 package for the exact same base model and its pinned digest.
+  # w32/w16/w4 must never be passed through this Q8-only transplant path.
+  official_q8:
+    enabled: false
+    source_litertlm: ""
+    source_sha256: 757e9119fa5bd667a2774fb470ac4afcd3190a21c677f8e69a5d6bc908abdd63
+    base_model_id: google/gemma-3-270m-it
+    model_type: TF_LITE_PREFILL_DECODE
+    output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/official_q8
+    artifact: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/litertlm/gemma3_270m_a2ui_express_w8_official_topology.litertlm
+    calibration_samples: 2
+    converter_batch_size: 8
+    threads: 1
+
+  evaluation:
+    checkpoint_output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/evaluation/checkpoint
+    merged_output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/evaluation/merged
+    litertlm_output_root: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/evaluation/litertlm
+    scorecard: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/final_scorecard.json
+    # Copy the example and configure its command template for the LiteRT-LM
+    # binary/API on the training host. The evaluator uses a JSONL request/output
+    # protocol so model stdout is never parsed heuristically.
+    litertlm_runner_config: configs/eval/litertlm_external_runner.example.yaml
+    log_every_result_to_tensorboard: true
+
+  # Gemma 3 270M does not define a Gemma 4 speculative drafter section.
+  mtp:
+    enabled: false
+    status: not_applicable_for_gemma3_270m

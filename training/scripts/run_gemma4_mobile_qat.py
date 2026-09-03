@@ -26,6 +26,10 @@ REPO_ROOT = ROOT.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.common.config import load_yaml, resolve_path  # noqa: E402
+from ir_training.eval.tensorboard_logging import (  # noqa: E402
+    TENSORBOARD_ROOT_ENV,
+    resolve_tensorboard_root,
+)
 from ir_training.qat.mobile_training_seed import (  # noqa: E402
     OFFICIAL_MOBILE_SAFETENSORS_SHA256,
 )
@@ -84,6 +88,29 @@ def _training_limit_summary(training: dict[str, Any]) -> dict[str, Any]:
 
 def _resolve_training_path(value: Any) -> Path:
     return resolve_path(str(value), ROOT)
+
+
+def _configured_golden_source_file(
+    golden: dict[str, Any], filename: str
+) -> Path | None:
+    """Resolve one immutable source file declared by a Golden config."""
+
+    dataset_config_value = golden.get("dataset_config")
+    if dataset_config_value is None or not str(dataset_config_value).strip():
+        return None
+    dataset_config_path = _resolve_training_path(dataset_config_value)
+    if not dataset_config_path.is_file():
+        return None
+    dataset_config = load_yaml(dataset_config_path)
+    dataset_run = _section(dataset_config, "run")
+    source_run_value = dataset_run.get("source_run_dir")
+    if source_run_value is None or not str(source_run_value).strip():
+        return None
+    return _resolve_training_path(source_run_value) / filename
+
+
+def _configured_golden_source(golden: dict[str, Any]) -> Path | None:
+    return _configured_golden_source_file(golden, "genui.jsonl")
 
 
 def _resolve_packed_source(
@@ -178,8 +205,26 @@ def _resolve_run_config(
         )
 
     training_dir = (run_root / "trainer").resolve()
-    tensorboard_dir = (run_root / "tensorboard").resolve()
-    golden_output_dir = (run_root / "golden100").resolve()
+    tensorboard_root_value = training.get("tensorboard_root")
+    if os.environ.get(TENSORBOARD_ROOT_ENV) or (
+        tensorboard_root_value is not None
+        and str(tensorboard_root_value).strip()
+    ):
+        tensorboard_root = resolve_tensorboard_root(tensorboard_root_value)
+        tensorboard_subdir = str(training.get("tensorboard_subdir") or "").strip()
+        tensorboard_dir = (tensorboard_root / run_id).resolve()
+        if tensorboard_subdir:
+            tensorboard_dir = (tensorboard_dir / tensorboard_subdir).resolve()
+    else:
+        # Backward-compatible location for existing Golden-100 profiles.
+        tensorboard_dir = (run_root / "tensorboard").resolve()
+    required_golden_rows = golden.get("required_rows")
+    golden_label = (
+        f"golden{required_golden_rows}"
+        if type(required_golden_rows) is int and required_golden_rows > 0
+        else "golden_eval"
+    )
+    golden_output_dir = (run_root / golden_label).resolve()
     best_checkpoint_dir = (run_root / "best_golden_checkpoint").resolve()
     launch_dir = (run_root / "launch").resolve()
     run["launch_plan_path"] = str(launch_dir / "launch_plan.json")
@@ -361,13 +406,39 @@ def _validate_launch_contract(
         training.get("require_ddp_for_multi_gpu") is True,
         "training.require_ddp_for_multi_gpu must remain true.",
     )
-    require(
-        "golden100_not_strict",
-        golden.get("enabled") is True
-        and int(golden.get("required_rows", 0) or 0) == 100
+    required_golden_rows = golden.get("required_rows")
+    strict_golden_rows = bool(
+        type(required_golden_rows) is int
+        and required_golden_rows > 0
+        and golden.get("enabled") is True
         and golden.get("require_exact_rows") is True
-        and golden.get("require_unique_rows") is True,
-        "Golden evaluation must require exactly 100 unique held-out rows.",
+        and golden.get("require_unique_rows") is True
+        and golden.get("max_rows") == required_golden_rows
+    )
+    require(
+        "golden_eval_not_strict",
+        strict_golden_rows,
+        "Golden evaluation must declare a positive exact row count, select all "
+        "of those rows, and require unique held-out identities.",
+    )
+    golden_dataset_configured = bool(
+        str(golden.get("dataset_config") or "").strip()
+    )
+    golden_source_sha256 = str(
+        golden.get("source_genui_sha256") or ""
+    ).strip().lower()
+    golden_responses_sha256 = str(
+        golden.get("source_responses_sha256") or ""
+    ).strip().lower()
+    require(
+        "golden_source_contract_incomplete",
+        not golden_dataset_configured
+        or bool(
+            re.fullmatch(r"[0-9a-f]{64}", golden_source_sha256)
+            and re.fullmatch(r"[0-9a-f]{64}", golden_responses_sha256)
+        ),
+        "A Golden dataset_config must be paired with the exact source "
+        "genui.jsonl and responses.jsonl SHA-256 values.",
     )
     require(
         "wrong_best_metric",
@@ -379,7 +450,7 @@ def _validate_launch_contract(
         "golden_not_every_eval",
         str(golden.get("trigger") or "") == "evaluate"
         and int(golden.get("interval", 0) or 0) == 1,
-        "Golden-100 v5.4 must run at every Trainer evaluation event.",
+        "Golden v5.4 must run at every Trainer evaluation event.",
     )
     try:
         eval_steps = int(training.get("eval_steps", 0) or 0)
@@ -485,8 +556,8 @@ def _artifact_contract_issues(config: dict[str, Any]) -> list[dict[str, Any]]:
             "mobile_qparams_not_materialized",
             f"Retained mobile qparams contract is missing: {qparams}",
         )
-    training_identities: set[str] = set()
-    split_identity_sets: dict[str, set[str]] = {}
+    training_response_signatures: set[str] = set()
+    split_response_signature_sets: dict[str, set[str]] = {}
     for name in ("train.jsonl", "val.jsonl"):
         split_path = dataset_dir / name
         if not split_path.is_file() or split_path.stat().st_size <= 0:
@@ -496,53 +567,108 @@ def _artifact_contract_issues(config: dict[str, Any]) -> list[dict[str, Any]]:
             )
             continue
         try:
-            identities = set(_jsonl_identities(split_path))
+            signatures = set(_jsonl_response_signatures(split_path))
         except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
             missing(
                 f"training_{name.removesuffix('.jsonl')}_unreadable",
                 f"Could not validate prepared split {split_path}: {exc}",
             )
             continue
-        split_identity_sets[name] = identities
-        training_identities.update(identities)
-    if split_identity_sets.get("train.jsonl", set()) & split_identity_sets.get(
-        "val.jsonl", set()
-    ):
+        split_response_signature_sets[name] = signatures
+        training_response_signatures.update(signatures)
+    if split_response_signature_sets.get(
+        "train.jsonl", set()
+    ) & split_response_signature_sets.get("val.jsonl", set()):
         missing(
-            "training_validation_identity_overlap",
-            "Prepared train and validation splits share source identities.",
+            "training_validation_content_overlap",
+            "Prepared train and validation splits share normalized response content.",
         )
 
     golden_path = golden_dir / f"{str(golden.get('split', 'all')).strip() or 'all'}.jsonl"
+    golden_source = _configured_golden_source(golden)
+    golden_responses = _configured_golden_source_file(golden, "responses.jsonl")
+    configured_source_sha256 = str(
+        golden.get("source_genui_sha256") or ""
+    ).strip().lower()
+    configured_responses_sha256 = str(
+        golden.get("source_responses_sha256") or ""
+    ).strip().lower()
+    if str(golden.get("dataset_config") or "").strip():
+        golden_dataset_config = _resolve_training_path(golden["dataset_config"])
+        if not golden_dataset_config.is_file():
+            missing("golden_dataset_config_missing", str(golden_dataset_config))
+        else:
+            dataset_contract = _section(load_yaml(golden_dataset_config), "run")
+            if not bool(
+                dataset_contract.get("source_genui_sha256") == configured_source_sha256
+                and dataset_contract.get("source_responses_sha256")
+                == configured_responses_sha256
+            ):
+                missing(
+                    "golden_dataset_source_contract_mismatch",
+                    "Training and dataset Golden source hashes differ.",
+                )
+        if golden_source is None or not golden_source.is_file():
+            missing(
+                "golden_source_missing",
+                "Golden dataset_config does not resolve to an existing source "
+                "genui.jsonl.",
+            )
+        elif _sha256_file(golden_source) != configured_source_sha256:
+            missing(
+                "golden_source_identity_mismatch",
+                f"Golden source SHA-256 does not match {golden_source}.",
+            )
+        if golden_responses is None or not golden_responses.is_file():
+            missing(
+                "golden_responses_missing",
+                "Golden dataset_config does not resolve to an existing source "
+                "responses.jsonl.",
+            )
+        elif _sha256_file(golden_responses) != configured_responses_sha256:
+            missing(
+                "golden_responses_identity_mismatch",
+                f"Golden responses SHA-256 does not match {golden_responses}.",
+            )
+    required_rows = golden.get("required_rows")
+    required_rows = required_rows if type(required_rows) is int else 0
     if not golden_path.is_file():
         missing(
-            "golden100_missing",
-            f"Immutable Golden-100 split is missing: {golden_path}",
+            "golden_eval_missing",
+            f"Immutable Golden evaluation split is missing: {golden_path}",
         )
         return issues
     try:
         identities = _jsonl_identities(golden_path)
+        response_signatures = _jsonl_response_signatures(golden_path)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
         missing(
-            "golden100_unreadable",
-            f"Could not validate Golden-100 split {golden_path}: {exc}",
+            "golden_eval_unreadable",
+            f"Could not validate Golden evaluation split {golden_path}: {exc}",
         )
         return issues
-    if len(identities) != 100:
+    if required_rows <= 0 or len(identities) != required_rows:
         missing(
-            "golden100_wrong_count",
-            f"Golden split must contain exactly 100 non-empty JSON rows; observed {len(identities)}.",
+            "golden_eval_wrong_count",
+            "Golden split must contain exactly the configured positive "
+            f"required_rows={required_rows}; observed {len(identities)}.",
         )
     if len(set(identities)) != len(identities):
         missing(
-            "golden100_duplicate_identity",
+            "golden_eval_duplicate_identity",
             "Golden split contains duplicate source/response/row identities.",
         )
-    overlap = training_identities & set(identities)
+    if len(set(response_signatures)) != len(response_signatures):
+        missing(
+            "golden_eval_duplicate_response_content",
+            "Golden split contains duplicate normalized response content.",
+        )
+    overlap = training_response_signatures & set(response_signatures)
     if overlap:
         missing(
-            "golden100_training_identity_overlap",
-            f"Golden-100 shares {len(overlap)} source identities with train/validation.",
+            "golden_eval_training_content_overlap",
+            "Golden split shares "
+            f"{len(overlap)} normalized response-content signatures with train/validation.",
         )
     return issues
 
@@ -556,22 +682,64 @@ def _jsonl_identities(path: Path) -> list[str]:
             row = json.loads(line)
             if not isinstance(row, dict):
                 raise ValueError(f"row {index + 1} is not a JSON object")
-            metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
-            identity = next(
-                (
-                    str(value).strip()
-                    for value in (
-                        row.get("source_id"),
-                        row.get("response_id"),
-                        row.get("id"),
-                        metadata.get("query_id"),
-                    )
-                    if value is not None and str(value).strip()
-                ),
-                f"row-index:{index}",
-            )
-            identities.append(identity)
+            identities.append(_jsonl_identities_from_row(row, index))
     return identities
+
+
+def _jsonl_response_signatures(path: Path) -> list[str]:
+    """Hash normalized response content for cross-run leakage detection.
+
+    Source IDs are only run-local (for example, many runs contain q_000001),
+    so they cannot safely identify cross-run leakage.
+    """
+
+    signatures: list[str] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for index, line in enumerate(handle):
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if not isinstance(row, dict):
+                raise ValueError(f"row {index + 1} is not a JSON object")
+            response_text = str(row.get("response_text") or "").strip()
+            if not response_text:
+                messages = row.get("messages")
+                if isinstance(messages, list):
+                    user_messages = [
+                        str(item.get("content") or "")
+                        for item in messages
+                        if isinstance(item, dict) and item.get("role") == "user"
+                    ]
+                    response_text = user_messages[-1].strip() if user_messages else ""
+                    marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
+                    if marker in response_text:
+                        response_text = response_text.split(marker, 1)[-1]
+            if response_text:
+                normalized = re.sub(r"\s+", " ", response_text).strip()
+                signatures.append(
+                    "sha256:" + hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+                )
+            else:
+                identities = _jsonl_identities_from_row(row, index)
+                signatures.append("identity-fallback:" + identities)
+    return signatures
+
+
+def _jsonl_identities_from_row(row: dict[str, Any], index: int) -> str:
+    metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+    return next(
+        (
+            str(value).strip()
+            for value in (
+                row.get("source_id"),
+                row.get("response_id"),
+                row.get("id"),
+                metadata.get("query_id"),
+            )
+            if value is not None and str(value).strip()
+        ),
+        f"row-index:{index}",
+    )
 
 
 def _bound_artifacts(
@@ -594,8 +762,18 @@ def _bound_artifacts(
         ),
         "training_train": dataset_dir / "train.jsonl",
         "training_val": dataset_dir / "val.jsonl",
-        "golden100": golden_dir / golden_name,
+        "golden_eval": golden_dir / golden_name,
     }
+    if str(golden.get("dataset_config") or "").strip():
+        candidates["golden_dataset_config"] = _resolve_training_path(
+            golden["dataset_config"]
+        )
+    golden_source = _configured_golden_source(golden)
+    if golden_source is not None:
+        candidates["golden_source_genui"] = golden_source
+    golden_responses = _configured_golden_source_file(golden, "responses.jsonl")
+    if golden_responses is not None:
+        candidates["golden_source_responses"] = golden_responses
     result: dict[str, dict[str, Any]] = {}
     for role, path in candidates.items():
         if path.is_file():
@@ -805,6 +983,30 @@ def build_launch_plan(
             resolved_config,
             packed_source_identity=packed_source_identity,
         ),
+        "golden_eval_contract": {
+            "artifact_role": "golden_eval",
+            "dataset_config_bound": bool(
+                str(_section(resolved_config, "golden_eval").get("dataset_config") or "").strip()
+            ),
+            "split": str(_section(resolved_config, "golden_eval").get("split", "all")),
+            "required_rows": _section(resolved_config, "golden_eval").get("required_rows"),
+            "max_rows": _section(resolved_config, "golden_eval").get("max_rows"),
+            "require_exact_rows": _section(resolved_config, "golden_eval").get(
+                "require_exact_rows"
+            ),
+            "require_unique_rows": _section(resolved_config, "golden_eval").get(
+                "require_unique_rows"
+            ),
+            "metric_for_best_model": _section(
+                resolved_config, "golden_eval"
+            ).get("metric_for_best_model"),
+            "source_genui_sha256": _section(resolved_config, "golden_eval").get(
+                "source_genui_sha256"
+            ),
+            "source_responses_sha256": _section(
+                resolved_config, "golden_eval"
+            ).get("source_responses_sha256"),
+        },
         "paths": {name: str(path) for name, path in paths.items()},
         "checks": {
             "no_resume_supported": True,

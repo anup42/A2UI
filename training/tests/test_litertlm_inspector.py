@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import struct
 import sys
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -13,6 +16,10 @@ from ir_training.export.litertlm_inspector import (  # noqa: E402
     _tflite_graph_fingerprint,
     compare_litertlm_reports,
     inspect_litertlm,
+)
+from ir_training.eval.evaluation_evidence import (  # noqa: E402
+    EvaluationEvidenceError,
+    validate_litertlm_precision_contract,
 )
 
 
@@ -41,6 +48,9 @@ def test_inspect_minimal_litertlm_header(tmp_path):
     assert report["header"]["version"] == {"major": 1, "minor": 5, "patch": 0}
     assert report["sections"] == []
     assert report["weights"]["section_count"] == 0
+
+    hashed = inspect_litertlm(artifact, inspect_tflite=False, include_hashes=True)
+    assert hashed["sha256"] == hashlib.sha256(artifact.read_bytes()).hexdigest()
 
 
 def test_compare_reports_keeps_random_weight_claims_separate():
@@ -90,8 +100,11 @@ def test_tensor_type_fallback_labels_current_low_bit_values():
     assert labels[20] == "UINT4"
 
 
-def _tiny_fully_connected_model(*, keep_num_dims: bool) -> bytes:
+def _tiny_fully_connected_model(
+    *, keep_num_dims: bool, materialize_weight: bool = False
+) -> bytes:
     import flatbuffers
+    import numpy as np
     from ai_edge_litert import schema_py_generated as schema
 
     model = schema.ModelT()
@@ -103,6 +116,10 @@ def _tiny_fully_connected_model(*, keep_num_dims: bool) -> bytes:
     opcode.version = 1
     model.operatorCodes = [opcode]
     model.buffers = [schema.BufferT()]
+    if materialize_weight:
+        weight_buffer = schema.BufferT()
+        weight_buffer.data = np.frombuffer(struct.pack("<f", 1.0), dtype=np.uint8).copy()
+        model.buffers.append(weight_buffer)
 
     subgraph = schema.SubGraphT()
     subgraph.name = "main"
@@ -116,6 +133,8 @@ def _tiny_fully_connected_model(*, keep_num_dims: bool) -> bytes:
         tensor.shapeSignature = [1]
         tensor.type = schema.TensorType.FLOAT32
         tensor.hasRank = True
+        if materialize_weight and index == 1:
+            tensor.buffer = 1
         subgraph.tensors.append(tensor)
 
     operator = schema.OperatorT()
@@ -151,3 +170,70 @@ def test_execution_contract_detects_builtin_option_values_omitted_by_coarse_hash
         ordinary["execution_contract_sha256"]
         != keep_dims["execution_contract_sha256"]
     )
+
+
+def test_tflite_fingerprint_separates_stored_constants_from_runtime_tensors():
+    graph = _tflite_graph_fingerprint(
+        memoryview(
+            _tiny_fully_connected_model(
+                keep_num_dims=False, materialize_weight=True
+            )
+        )
+    )
+
+    assert graph["summary"]["tensor_type_histogram"] == {"FLOAT32": 3}
+    assert graph["summary"]["constant_tensor_type_histogram"] == {"FLOAT32": 1}
+    assert graph["summary"]["constant_quantized_tensor_count"] == 0
+
+
+def test_precision_contract_uses_stored_constants_not_activation_tensor_types():
+    report = {
+        "graphs": [
+            {
+                "available": True,
+                "summary": {
+                    # Runtime/scratch tensors happen to include INT4.  The
+                    # package's stored constants are nevertheless W8.
+                    "tensor_type_histogram": {"INT4": 8, "INT8": 8},
+                    "quantization_layout_histogram": {
+                        "INT4|scales=8|zero_points=8|quantized_dimension=0": 8,
+                        "INT8|scales=8|zero_points=8|quantized_dimension=0": 8,
+                    },
+                    "quantized_tensor_count": 16,
+                    "constant_tensor_type_histogram": {"INT8": 8},
+                    "constant_quantization_layout_histogram": {
+                        "INT8|scales=8|zero_points=8|quantized_dimension=0": 8,
+                    },
+                    "constant_quantized_tensor_count": 8,
+                },
+            }
+        ]
+    }
+
+    validated = validate_litertlm_precision_contract(report, expected_format="w8")
+    assert validated["constant_tensor_type_histogram"] == {"INT8": 8}
+
+    with pytest.raises(EvaluationEvidenceError, match="w4 precision mismatch"):
+        validate_litertlm_precision_contract(report, expected_format="w4")
+
+
+def test_precision_contract_fails_closed_without_constant_histograms():
+    report = {
+        "graphs": [
+            {
+                "available": True,
+                "summary": {
+                    "tensor_type_histogram": {"INT8": 8},
+                    "quantization_layout_histogram": {
+                        "INT8|scales=8|zero_points=8|quantized_dimension=0": 8,
+                    },
+                    "quantized_tensor_count": 8,
+                },
+            }
+        ]
+    }
+
+    with pytest.raises(
+        EvaluationEvidenceError, match="constant-weight precision histograms"
+    ):
+        validate_litertlm_precision_contract(report, expected_format="w8")

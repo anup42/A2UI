@@ -253,6 +253,14 @@ def _sha256_range(handle: Any, begin: int, end: int, *, chunk_size: int = 8 * 10
     return digest.hexdigest()
 
 
+def _sha256_path(path: Path, *, chunk_size: int = 8 * 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(chunk_size), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def _safe_call(obj: Any, method_name: str, default: Any = None) -> Any:
     method = getattr(obj, method_name, None)
     if method is None:
@@ -858,6 +866,38 @@ def _tflite_graph_fingerprint(
         )
         logical_buffer_sizes.append(int(logical_size))
 
+    constant_tensor_type_histogram: dict[str, int] = {}
+    constant_quantization_layout_histogram: dict[str, int] = {}
+    constant_quantized_tensor_count = 0
+    for subgraph in quant_layout_subgraphs:
+        for tensor in subgraph["tensors"]:
+            buffer_index = tensor.get("buffer")
+            if (
+                not isinstance(buffer_index, int)
+                or buffer_index < 0
+                or buffer_index >= len(logical_buffer_sizes)
+                or logical_buffer_sizes[buffer_index] <= 0
+            ):
+                continue
+            type_name = tensor_type_names.get(
+                tensor.get("type"), f"unknown:{tensor.get('type')}"
+            )
+            constant_tensor_type_histogram[type_name] = (
+                constant_tensor_type_histogram.get(type_name, 0) + 1
+            )
+            scale_count = int(tensor.get("scale_count") or 0)
+            zero_point_count = int(tensor.get("zero_point_count") or 0)
+            if scale_count or zero_point_count:
+                constant_quantized_tensor_count += 1
+                layout_key = (
+                    f"{type_name}|scales={scale_count}|"
+                    f"zero_points={zero_point_count}|"
+                    f"quantized_dimension={int(tensor.get('quantized_dimension') or 0)}"
+                )
+                constant_quantization_layout_histogram[layout_key] = (
+                    constant_quantization_layout_histogram.get(layout_key, 0) + 1
+                )
+
     metadata = []
     for index in range(_safe_call(model, "MetadataLength", 0) or 0):
         item = model.Metadata(index)
@@ -922,6 +962,13 @@ def _tflite_graph_fingerprint(
         "quantized_tensor_count": quantized_tensor_count,
         "quantization_layout_histogram": dict(sorted(quantization_layout_histogram.items())),
         "quantization_shape_histogram": dict(sorted(quantization_shape_histogram.items())),
+        "constant_tensor_type_histogram": dict(
+            sorted(constant_tensor_type_histogram.items())
+        ),
+        "constant_quantized_tensor_count": constant_quantized_tensor_count,
+        "constant_quantization_layout_histogram": dict(
+            sorted(constant_quantization_layout_histogram.items())
+        ),
         "logical_buffer_size_total": int(sum(logical_buffer_sizes)),
     }
     result = {
@@ -1016,7 +1063,7 @@ def inspect_litertlm(
         finally:
             mapped.close()
 
-    return {
+    report = {
         "format": "litertlm",
         "path": str(artifact),
         "file_size": file_size,
@@ -1034,6 +1081,9 @@ def inspect_litertlm(
             "hashed": include_hashes,
         },
     }
+    if include_hashes:
+        report["sha256"] = _sha256_path(artifact)
+    return report
 
 
 def compare_litertlm_reports(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:

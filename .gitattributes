@@ -6,3 +6,10 @@
 # Kotlin sources feed the GenUI metric renderer manifest hash. Pin LF so the
 # hash is identical regardless of a contributor's core.autocrlf setting.
 *.kt text eol=lf
+
+# These Golden-32 sidecars are bound by byte-for-byte SHA-256 in the training
+# dataset config. Preserve their supplied CRLF bytes on every checkout so the
+# same immutable digest is valid on Windows and Linux training hosts.
+dataset/data/runs/genui_demo_golden40_gemini38_20260903/genui.jsonl -text whitespace=cr-at-eol
+dataset/data/runs/genui_demo_golden40_gemini38_20260903/responses.jsonl -text whitespace=cr-at-eol
+training/configs/datasets/golden32_20260903_eval.yaml text eol=lf

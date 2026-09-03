@@ -55,6 +55,7 @@ training/outputs/
 training/runs/
 training/checkpoints/
 training/wandb/
+/tensorboard/
 
 # MkDocs build output
 site/

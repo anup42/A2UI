@@ -1,0 +1,23 @@
+# Copy this file on the training machine and replace the runner path. The
+# runner may use LiteRT-LM on Linux, Android, or another host, but it must obey
+# the versioned JSONL protocol documented in training/docs/golden32_evaluation.md.
+protocol: a2ui_external_generation_v1
+command:
+  - python
+  - /absolute/path/to/litertlm_batch_runner.py
+  - --model
+  - "{model_path}"
+  - --requests
+  - "{requests_path}"
+  - --outputs
+  - "{outputs_path}"
+  - --max-input-tokens
+  - "{max_input_tokens}"
+  - --max-new-tokens
+  - "{max_new_tokens}"
+  - --mtp-enabled
+  - "{mtp_enabled}"
+timeout_seconds: 7200
+# working_dir: /absolute/path/to/runner/project
+# environment:
+#   LITERT_LOG_LEVEL: INFO

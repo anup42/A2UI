@@ -4,6 +4,7 @@ import hashlib
 import inspect
 import json
 import math
+import os
 import shutil
 from collections.abc import Callable
 from pathlib import Path
@@ -11,6 +12,11 @@ from typing import Any
 
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
+from ir_training.eval.tensorboard_logging import (
+    TENSORBOARD_ROOT_ENV,
+    resolve_tensorboard_root,
+    resolve_tensorboard_run_dir,
+)
 from ir_training.models.registry import create_adapter
 from ir_training.qat.fake_quant import QATController, prepare_qat_model
 from ir_training.qat.mobile_seed_architecture import (
@@ -191,6 +197,11 @@ def train_sft(
     report_to = training_cfg.get("report_to", "none")
     if bool(golden_eval_cfg.get("tensorboard", False)):
         report_to = _ensure_tensorboard_reporter(report_to)
+    tensorboard_root = _resolve_training_tensorboard_root(training_cfg)
+    tensorboard_run_dir = _resolve_training_tensorboard_dir(
+        training_cfg,
+        run_id=str(run_cfg.get("id") or output_dir.name),
+    )
     training_args_kwargs = {
         "output_dir": str(output_dir),
         "learning_rate": float(training_cfg.get("learning_rate", 2e-4)),
@@ -215,7 +226,9 @@ def train_sft(
     }
     _apply_training_limit_to_args(training_args_kwargs, training_limit)
     logging_dir_value = training_cfg.get("logging_dir")
-    if logging_dir_value:
+    if tensorboard_run_dir is not None:
+        training_args_kwargs["logging_dir"] = str(tensorboard_run_dir)
+    elif logging_dir_value:
         training_args_kwargs["logging_dir"] = str(resolve_path(logging_dir_value, base))
     if "warmup_steps" in training_cfg:
         training_args_kwargs["warmup_steps"] = int(training_cfg.get("warmup_steps", 0))
@@ -450,6 +463,8 @@ def train_sft(
         model_cfg=model_cfg,
         training_cfg=training_cfg,
         metric_logger=getattr(trainer, "log", None),
+        tensorboard_root=tensorboard_root,
+        tensorboard_run_id=str(run_cfg.get("id") or output_dir.name),
     )
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
@@ -468,6 +483,15 @@ def train_sft(
         "mobile_seed_architecture": mobile_seed_architecture,
         "numeric_preflight": locals().get("numeric_preflight_report"),
         "dataset_dir": str(dataset_dir),
+        "tensorboard": {
+            "root": str(tensorboard_root) if tensorboard_root is not None else None,
+            "training_log_dir": (
+                str(tensorboard_run_dir)
+                if tensorboard_run_dir is not None
+                else None
+            ),
+            "environment_override": os.environ.get(TENSORBOARD_ROOT_ENV),
+        },
         "git_commit": current_commit(repo_root()),
         "launcher_provenance": {
             name: _optional_file_identity(run_cfg.get(config_key), base=base)
@@ -2677,6 +2701,8 @@ def _build_optional_golden_callback(
     model_cfg: dict[str, Any],
     training_cfg: dict[str, Any],
     metric_logger: Any | None = None,
+    tensorboard_root: Path | None = None,
+    tensorboard_run_id: str | None = None,
 ) -> Any | None:
     if not bool(golden_eval_cfg.get("enabled", False)):
         return None
@@ -2741,6 +2767,12 @@ def _build_optional_golden_callback(
         ),
         metric_logger=metric_logger if bool(golden_eval_cfg.get("log_to_trainer", True)) else None,
         metric_log_prefix=str(golden_eval_cfg.get("metric_log_prefix", "golden")),
+        tensorboard_root=tensorboard_root,
+        tensorboard_run_id=tensorboard_run_id,
+        tensorboard_evaluation_name=str(
+            golden_eval_cfg.get("tensorboard_evaluation_name")
+            or golden_eval_cfg.get("metric_log_prefix", "golden")
+        ),
     )
 
 
@@ -2762,3 +2794,30 @@ def _ensure_tensorboard_reporter(value: Any) -> Any:
             reporters.append("tensorboard")
         return reporters
     return [value, "tensorboard"]
+
+
+def _resolve_training_tensorboard_dir(
+    training_cfg: dict[str, Any], *, run_id: str
+) -> Path | None:
+    resolved_root = _resolve_training_tensorboard_root(training_cfg)
+    if resolved_root is None:
+        return None
+    run_dir = resolve_tensorboard_run_dir(resolved_root, run_id=run_id)
+    subdir_value = str(training_cfg.get("tensorboard_subdir", "training") or "").strip()
+    if not subdir_value:
+        return run_dir
+    subdir = Path(subdir_value)
+    if subdir.is_absolute() or len(subdir.parts) != 1 or subdir.name in {".", ".."}:
+        raise ValueError(
+            "training.tensorboard_subdir must be one relative directory name."
+        )
+    return run_dir / subdir.name
+
+
+def _resolve_training_tensorboard_root(
+    training_cfg: dict[str, Any],
+) -> Path | None:
+    configured_root = training_cfg.get("tensorboard_root")
+    if not os.environ.get(TENSORBOARD_ROOT_ENV) and configured_root is None:
+        return None
+    return resolve_tensorboard_root(configured_root)

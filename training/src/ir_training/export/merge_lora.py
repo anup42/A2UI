@@ -195,15 +195,43 @@ def _portable_launcher_contract_matches(
         )
     except (TypeError, ValueError):
         config_hash_matches = False
+    # New launch plans bind an explicitly sized, exact Golden contract under
+    # ``golden_eval``.  Keep accepting ``golden100`` so already trained,
+    # provenance-bound checkpoints remain mergeable.
+    golden_role = (
+        "golden_eval"
+        if isinstance(bound.get("golden_eval"), dict)
+        else "golden100"
+    )
     required_bound = {
         "mobile_seed_manifest",
         "mobile_qparams_contract",
         "official_packed_source",
         "training_train",
         "training_val",
-        "golden100",
+        golden_role,
         "resolved_training_config",
     }
+    launch_golden_contract = launch_plan.get("golden_eval_contract")
+    if (
+        golden_role == "golden_eval"
+        and isinstance(launch_golden_contract, dict)
+        and str(launch_golden_contract.get("source_genui_sha256") or "").strip()
+    ):
+        required_bound.add("golden_source_genui")
+    if (
+        golden_role == "golden_eval"
+        and isinstance(launch_golden_contract, dict)
+        and str(launch_golden_contract.get("source_responses_sha256") or "").strip()
+    ):
+        required_bound.add("golden_source_responses")
+    if (
+        golden_role == "golden_eval"
+        and isinstance(launch_golden_contract, dict)
+        and launch_golden_contract.get("dataset_config_bound") is True
+    ):
+        required_bound.add("golden_dataset_config")
+
     def bound_identity_complete(role: str) -> bool:
         identity = bound.get(role)
         if not isinstance(identity, dict):
@@ -234,6 +262,61 @@ def _portable_launcher_contract_matches(
         )
         for item in reports
     )
+    golden_contract_ok = golden_role == "golden100"
+    if golden_role == "golden_eval":
+        golden_contract = launch_golden_contract
+        configured_golden = metadata.get("golden_eval")
+        if not isinstance(golden_contract, dict):
+            golden_contract = {}
+        if not isinstance(configured_golden, dict):
+            configured_golden = {}
+        required_rows = golden_contract.get("required_rows")
+        bound_golden = bound.get(golden_role)
+        expected_source_sha256 = str(
+            golden_contract.get("source_genui_sha256") or ""
+        ).strip().lower()
+        expected_responses_sha256 = str(
+            golden_contract.get("source_responses_sha256") or ""
+        ).strip().lower()
+        bound_source = bound.get("golden_source_genui")
+        bound_responses = bound.get("golden_source_responses")
+        source_contract_ok = bool(
+            (
+                not expected_source_sha256
+                or (
+                    isinstance(bound_source, dict)
+                    and str(bound_source.get("sha256") or "").lower()
+                    == expected_source_sha256
+                )
+            )
+            and (
+                not expected_responses_sha256
+                or (
+                    isinstance(bound_responses, dict)
+                    and str(bound_responses.get("sha256") or "").lower()
+                    == expected_responses_sha256
+                )
+            )
+        )
+        golden_contract_ok = bool(
+            type(required_rows) is int
+            and required_rows > 0
+            and golden_contract.get("artifact_role") == golden_role
+            and golden_contract.get("max_rows") == required_rows
+            and golden_contract.get("require_exact_rows") is True
+            and golden_contract.get("require_unique_rows") is True
+            and golden_contract.get("metric_for_best_model")
+            == "generation_reward_v5_4_avg"
+            and configured_golden.get("required_rows") == required_rows
+            and configured_golden.get("max_rows") == required_rows
+            and configured_golden.get("require_exact_rows") is True
+            and configured_golden.get("require_unique_rows") is True
+            and configured_golden.get("metric_for_best_model")
+            == "generation_reward_v5_4_avg"
+            and isinstance(bound_golden, dict)
+            and len(str(bound_golden.get("sha256") or "")) == 64
+            and source_contract_ok
+        )
     return bool(
         launch_plan.get("mode") == "fresh_run_only_no_resume"
         and launch_plan.get("run_id") == metadata.get("run_id")
@@ -241,6 +324,7 @@ def _portable_launcher_contract_matches(
         and launch_plan["checks"].get("contract_ok") is True
         and config_hash_matches
         and bound_complete
+        and golden_contract_ok
         and preflight.get("run_id") == metadata.get("run_id")
         and preflight.get("all_passed") is True
         and report_ids == _REQUIRED_PORTABLE_PREFLIGHTS

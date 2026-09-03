@@ -11,6 +11,35 @@ content=Text("...","body")
 
 `dataset/` remains responsible for generating queries, responses, assets, and cloud IR. `training/` consumes completed dataset runs and provides a model-agnostic path for data preparation, SFT training, evaluation, export, and Android packaging. FlatSpec is accepted only as a read-only legacy source; Compact IR v2 is migration-only and is never a training target.
 
+## Training pipeline inventory
+
+The detailed, file-by-file status and legacy boundaries are maintained in
+`training/docs/training_pipeline_inventory.md`.
+
+| Pipeline | Entry point | Current status |
+|---|---|---|
+| Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |
+| Gemma 3 270M W8-QAT and W32/W16/W8/W4 comparisons | `training/scripts/run_gemma270m_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W8 is QAT-aligned, W16/W4 are explicit experimental conversions |
+| Generic LoRA/QLoRA SFT and true LoRA-QAT profiles | `training/scripts/train_sft.py` | Current shared trainer for Gemma/Qwen/Llama adapters; behavior comes from the selected YAML and `ModelAdapter` |
+| Gemma 4 E2B retained-scale target/MTP merge and package gates | `training/scripts/run_gemma4_e2b_mobile_mtp.py` | Current lower-level official-topology implementation used by the E2B multiformat orchestrator |
+| Gemma 3 270M W8-only QAT/LiteRT-LM path | `training/scripts/run_gemma270m_qat_litertlm.py` | Older, narrower INT8 deployment path; retained for focused Q8/Android work |
+| Gemma 3 270M full-parameter QAT | `training/scripts/train_full_finetune_qat.py` | Separate multi-GPU experiment; not wired into the LoRA merge/multiformat pipeline |
+| Optional Gemma 4 MTP drafter QAT | `training/scripts/train_gemma4_mtp_drafter.py` | Opt-in teacher-forced public reconstruction; not a response-to-IR model and not Google's private recipe |
+| A2UI Express GRPO after SFT | `training/scripts/train_grpo.py` | Current optional policy-optimization experiment; requires a strict Express SFT checkpoint |
+| Generic DPO experiment | `dpo/train_dpo.py`, `dpo/src/train.py` | Separate preference-training tree; not integrated with A2UI Express data or evaluation |
+| Historical trainers and shell launchers | `training_scripts/`, selected `training/scripts/*.sh` | Legacy/site-specific; several hard-code external paths or reference missing files and are not the recommended handoff |
+
+There is no implemented A2UI distillation pipeline. “Official-format” in the
+E2B path means the released topology, precision assignment, and retained scale
+bytes are preserved while trained integer codes are transplanted. The optimizer
+and STE-QAT loop are repository implementations, not Google's private training
+or calibration recipe.
+
+The two recommended multiformat pipelines use the pinned 2026-09-03 Golden-32
+only for evaluation. Older deployable profiles described below still use their
+separate Golden-100 contract; do not combine those sets or copy Golden rows into
+training data.
+
 ## Main Flow
 
 1. Prepare response-to-IR pairs from a dataset run.
@@ -70,8 +99,9 @@ the configured model context.
 
 ### Gemma 4 QAT-derived LoRA and MTP workflow
 
-The recommended low-bit experiment is intentionally separate from the standard
-Gemma 4 baseline. It fine-tunes only Google's unquantized Q4_0 QAT-derived
+This older alternative low-bit experiment is intentionally separate from the
+standard Gemma 4 baseline and the recommended retained-scale pipeline below.
+It fine-tunes only Google's unquantized Q4_0 QAT-derived
 target with BF16 LoRA, keeps the matching assistant frozen, and requires
 post-merge Q4_0 conversion plus final runtime/device validation. It is **not**
 continued QAT or joint target/assistant training.
@@ -113,6 +143,12 @@ The MTP drafter is not a standalone response-to-IR model, so its training loop
 continues to use drafter validation loss and separate target-plus-assistant
 acceptance/latency benchmarks rather than mislabeling target quality as a
 drafter v5.4 score.
+
+This Golden-100 section describes the older deployable profiles. The newer
+multiformat orchestrators listed above instead use the exact pinned Golden-32,
+write training and evaluation events under the repository-root `tensorboard/`
+(or `/tensorboard` via `A2UI_TENSORBOARD_ROOT` on MLP), and produce an
+artifact-bound final scorecard.
 
 Install the current Gemma 4 dependency overlay and run the no-model static
 preflight:
@@ -269,6 +305,24 @@ audits. Training points to the separate
 Precision matching canonicalizes known PEFT/multimodal wrapper prefixes before
 applying the ordered rules, so anchored entries such as `^lm_head$` remain W2
 after LoRA wrapping instead of silently falling through to the default W4.
+
+### Recommended Gemma 4 E2B Golden-32 multiformat pipeline
+
+Use the dry-run-first orchestrator for target training, selected-checkpoint
+evaluation, merge, official retained-scale export, public
+W32/W16/W8/mixed-W4-W8 comparison exports, identical Golden-32 evaluation, and
+the final scorecard:
+
+```powershell
+python training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py `
+  --run-id e2b_a2ui_YYYYMMDD_001
+```
+
+On a clean checkout the plan intentionally reports missing large
+seed/package/runtime inputs as blockers and performs no writes. The complete
+fresh-machine prerequisites, MTP on/off semantics, separate training/export
+environments, recovery commands, TensorBoard layout, and evidence gates are in
+`training/docs/gemma4_e2b_a2ui_express_multiformat_runbook.md`.
 
 ### Gemma 4 E2B mobile QAT -> best checkpoint -> MTP package
 
@@ -449,6 +503,21 @@ with the official reference it also requires exact contract parity. Provide an
 Android GPU device report for the runtime gate. Do not enable MTP for this model;
 the validator treats an MTP section as unexpected rather than attaching the
 Gemma 4 assistant.
+
+For the newer end-to-end A2UI Express comparison that binds the supplied
+2026-09-03 Golden-32, logs periodic and final scores below the repository-root
+`tensorboard/`, and evaluates W32/W16/W8/W4 LiteRT-LM variants from one merged
+W8-QAT checkpoint, use the dry-run-first entry point:
+
+```powershell
+python training/scripts/run_gemma270m_a2ui_express_multiformat.py
+```
+
+W16 and block-32 W4 require `--allow-experimental-formats`; only W8 is aligned
+with the training fake-quantization objective. The complete remote-machine
+procedure, external LiteRT-LM runner protocol, official-Q8 option, output
+layout, and scorecard gates are in
+`training/docs/gemma3_270m_a2ui_express_multiformat_runbook.md`.
 
 To audit the publicly observable Google mobile schema without downloading
 weights:
@@ -1192,7 +1261,7 @@ python training/scripts/evaluate.py --predictions training/outputs/eval/predicti
 
 The evaluator writes `aggregate_metrics.json` with `overall_score`, `baseline_overall_score`, and `overall_score_delta_vs_baseline` when a baseline is provided.
 
-5. Export a trained Gemma 4 E2B model for Google AI Edge Gallery.
+5. Export a baseline/non-retained Gemma 4 E2B model for Google AI Edge Gallery.
 
 Google AI Edge Gallery imports local LLMs as `.litertlm` files. After training,
 merge the LoRA adapter into a Hugging Face model directory and run Google's
@@ -1204,6 +1273,11 @@ hf auth login
 python training/scripts/export_edge_gallery_model.py --config training/configs/export/edge_gallery_gemma4_e2b.yaml --merge-lora
 adb push training/outputs/export/gemma4_e2b_ir_edge_gallery/litertlm/<model>.litertlm /sdcard/Download/
 ```
+
+This generic exporter is for baseline or non-retained-scale checkpoints. Do
+not use it for a `retained_mobile` E2B checkpoint or as a substitute for the
+official-format 205-projection code-only exporter used by the multiformat/mobile
+pipeline.
 
 `requirements-edge-export-tested.txt` pins the conversion environment used by
 the recorded graph rebuilds and Android GPU parity runs. The looser
