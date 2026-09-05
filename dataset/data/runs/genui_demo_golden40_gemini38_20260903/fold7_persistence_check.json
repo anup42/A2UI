@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "execution_mode": "visible_app_ui",
+  "run_id": "device_setup",
+  "case_id": "fold7_persistence_check",
+  "prompt": "check",
+  "started_at_ms": 1788460783831,
+  "response_model": "gemini-3.8-flash",
+  "ir_model": "gemini-3.8-flash",
+  "mcp_enabled": true,
+  "response_provider": "gemini",
+  "ir_provider": "gemini",
+  "gemini_api_mode": "vertex_ai_express_api_key",
+  "success": false,
+  "outcome_stage": "history",
+  "error": "No existing app-history record matches the exact prompt.",
+  "ui_status": "harvest_failed",
+  "ui_prompt_round_trip": false,
+  "ui_screenshot_ok": false,
+  "finished_at_ms": 1788460783835,
+  "elapsed_ms": 0
+}

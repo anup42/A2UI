@@ -1,0 +1,1 @@
+Explain Python lists versus tuples using a five-row comparison table and one short code example for each.

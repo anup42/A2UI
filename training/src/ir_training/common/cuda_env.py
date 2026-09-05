@@ -17,16 +17,15 @@ def normalize_cuda_visible_devices(env: MutableMapping[str, str] | None = None) 
     if _truthy(target_env.get("A2UI_SKIP_CUDA_DEVICE_NORMALIZE")):
         return target_env.get("CUDA_VISIBLE_DEVICES", "")
 
+    if _distributed_launch(target_env):
+        # The parent launcher is the only authority once ranks are assigned.
+        return target_env.get("CUDA_VISIBLE_DEVICES", "")
+
     explicit = str(target_env.get("A2UI_CUDA_VISIBLE_DEVICES", "")).strip()
     if explicit:
         selected = _apply_exclusions(explicit, target_env)
         target_env["CUDA_VISIBLE_DEVICES"] = selected
         return selected
-
-    if _distributed_launch(target_env):
-        # torchrun/Slurm already set per-launch visibility. Mutating it inside
-        # each worker can desynchronize LOCAL_RANK from CUDA device ordinals.
-        return target_env.get("CUDA_VISIBLE_DEVICES", "")
 
     current = str(target_env.get("CUDA_VISIBLE_DEVICES", "")).strip()
     detected = _detect_queryable_gpu_indices()

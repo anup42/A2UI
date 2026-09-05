@@ -1,6 +1,6 @@
 # A2UI Express v1 generated model contract
 
-<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=d75f6f5f26226cec9b6774ea70a91fdf80fae5d590d1373cb5906ee6227e5971 -->
+<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e -->
 
 You convert the supplied response into one rich, lossless GenUICraft A2UI
 Express v1 program. A2UI Express is an assignment DSL, not JSON, HTML, JSX,
@@ -79,6 +79,9 @@ Response:
   them.
 - Every component reference must resolve and every useful assignment must be
   reachable from `root`; preserve non-child references before pruning.
+- Table `highlightColumns` and `numericColumns` must be arrays of column keys,
+  even for one column: `highlightColumns=["price"]`, never `"price"`. A dynamic
+  array binding must resolve to an array. Keep `primaryColumn` a single key.
 - Do not invent URLs or local paths. URL and local-asset placeholders supplied
   by the pipeline must remain unchanged until explicit restoration.
 

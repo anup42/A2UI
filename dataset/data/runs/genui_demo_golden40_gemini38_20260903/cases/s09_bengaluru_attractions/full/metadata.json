@@ -1,0 +1,61 @@
+{
+  "case_id": "s09_full",
+  "pair_id": "s09",
+  "scenario": "bengaluru_attractions",
+  "variant": "full",
+  "attempt": 1,
+  "query_id": "q_000017",
+  "response_id": "r_000017_01",
+  "ui_id": "u_000017_01",
+  "status": "visual_issues",
+  "timestamps": {
+    "started_at": "2026-09-03T19:29:19.475000Z",
+    "completed_at": "2026-09-03T19:34:30.935000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "Masked 19 URL/asset reference(s) before step.",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "IR output format: A2UI Express v1",
+      "Gemini route: vertex_ai_express_api_key",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "step structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "step output is not a valid A2UI Express completion. Running strict selected-format repair.",
+      "step repair attempt 1 invalid (step output did not contain a valid selected-format payload.).",
+      "step repair attempt 2 invalid (step omitted authoritative response facts: Karnataka Tourism Official Portal={{u17}}; Incredible India Destination Guide={{u18}}).",
+      "A2UI Express repair parsed natively; no legacy fallback was attempted.",
+      "step did not preserve inline image; layout retained.",
+      "step output omitted one or more quick actions."
+    ],
+    "stage3_input_tokens": 2333,
+    "stage3_output_tokens": 1741,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "e9c5accda7a5f21c56c558df4beabdaf6251963fec86957ee29ae55cb6b9a062",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "issues"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/10_u_000017_01.png"
+  }
+}

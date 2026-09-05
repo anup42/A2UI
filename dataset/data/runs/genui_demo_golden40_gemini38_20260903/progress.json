@@ -1,0 +1,10 @@
+{
+  "updated_at": "2026-09-03T19:56:13.776665Z",
+  "planned": 40,
+  "completed": 40,
+  "pipeline_successes": 32,
+  "valid_ir": 32,
+  "captures": 32,
+  "accepted": 2,
+  "issues": 55
+}

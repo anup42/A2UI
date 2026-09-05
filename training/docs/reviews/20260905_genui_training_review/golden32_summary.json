@@ -1,0 +1,314 @@
+{
+  "evidence_root": "C:/Users/anupk/Downloads/review/genUI-review/extracted_20260905_172922/review_analysis/golden32",
+  "golden_sha256": "69344d162f6cd944c61d7c76cede6475d769b5ebe9e4591b77e1fd86aedc0824",
+  "wrong_source_control_count": 256,
+  "wrong_source_control_max_abs_difference": 0.0,
+  "scores": [
+    {
+      "step": 0,
+      "variant": "reference_target",
+      "n": 32,
+      "reward": 88.56267002319798,
+      "parse_count": 32,
+      "coverage_parseable": 0.9585057793473011,
+      "coverage_all_rows_zero_failure": 0.9585057793473011,
+      "at_40": 0,
+      "caps": {
+        "missing_action": 4,
+        "partial_action": 6,
+        "partial_special_role": 2,
+        "partial_table": 1,
+        "production_invalid": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 5000,
+      "variant": "raw",
+      "n": 32,
+      "reward": 17.52500253069642,
+      "parse_count": 8,
+      "coverage_parseable": 0.8517686498040962,
+      "coverage_all_rows_zero_failure": 0.21294216245102404,
+      "at_40": 1,
+      "caps": {
+        "parse_failure": 24,
+        "partial_special_role": 1,
+        "missing_action": 3,
+        "missing_special_role": 1,
+        "partial_reachability": 1,
+        "partial_table": 1,
+        "partial_action": 2,
+        "missing_table": 1,
+        "reachability_below_90": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 5000,
+      "variant": "stop_only",
+      "n": 32,
+      "reward": 20.053027087006228,
+      "parse_count": 9,
+      "coverage_parseable": 0.8331770714308014,
+      "coverage_all_rows_zero_failure": 0.23433105133991292,
+      "at_40": 1,
+      "caps": {
+        "parse_failure": 23,
+        "partial_special_role": 1,
+        "missing_action": 4,
+        "missing_special_role": 1,
+        "partial_reachability": 1,
+        "partial_table": 1,
+        "partial_action": 2,
+        "missing_table": 1,
+        "reachability_below_90": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 5000,
+      "variant": "stop_plus_id_repair",
+      "n": 32,
+      "reward": 60.25368067231866,
+      "parse_count": 32,
+      "coverage_parseable": 0.9047294752185799,
+      "coverage_all_rows_zero_failure": 0.9047294752185799,
+      "at_40": 15,
+      "caps": {
+        "reachability_below_90": 15,
+        "partial_action": 9,
+        "partial_special_role": 3,
+        "missing_action": 12,
+        "missing_special_role": 1,
+        "missing_table": 4,
+        "partial_reachability": 2,
+        "partial_table": 2
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 10000,
+      "variant": "raw",
+      "n": 32,
+      "reward": 26.287042863499888,
+      "parse_count": 12,
+      "coverage_parseable": 0.934272248546983,
+      "coverage_all_rows_zero_failure": 0.3503520932051186,
+      "at_40": 3,
+      "caps": {
+        "parse_failure": 20,
+        "reachability_below_90": 3,
+        "partial_special_role": 2,
+        "missing_action": 2,
+        "partial_action": 5,
+        "missing_special_role": 1,
+        "missing_table": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 10000,
+      "variant": "stop_only",
+      "n": 32,
+      "reward": 29.94207565482893,
+      "parse_count": 14,
+      "coverage_parseable": 0.9261572785563297,
+      "coverage_all_rows_zero_failure": 0.4051938093683942,
+      "at_40": 4,
+      "caps": {
+        "parse_failure": 18,
+        "reachability_below_90": 4,
+        "partial_special_role": 2,
+        "missing_action": 4,
+        "partial_action": 5,
+        "missing_special_role": 1,
+        "missing_table": 2
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 10000,
+      "variant": "stop_plus_id_repair",
+      "n": 32,
+      "reward": 61.44322488272432,
+      "parse_count": 27,
+      "coverage_parseable": 0.9409506807605341,
+      "coverage_all_rows_zero_failure": 0.7939271368917007,
+      "at_40": 6,
+      "caps": {
+        "reachability_below_90": 6,
+        "partial_action": 7,
+        "partial_special_role": 2,
+        "missing_action": 5,
+        "missing_special_role": 2,
+        "parse_failure": 5,
+        "missing_table": 2,
+        "partial_reachability": 3,
+        "partial_table": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 15000,
+      "variant": "raw",
+      "n": 32,
+      "reward": 31.58060780336201,
+      "parse_count": 14,
+      "coverage_parseable": 0.9392459325950195,
+      "coverage_all_rows_zero_failure": 0.41092009551032105,
+      "at_40": 3,
+      "caps": {
+        "parse_failure": 18,
+        "partial_reachability": 2,
+        "partial_action": 8,
+        "reachability_below_90": 3,
+        "missing_special_role": 2,
+        "partial_special_role": 1,
+        "partial_table": 1,
+        "missing_table": 1,
+        "missing_action": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 15000,
+      "variant": "stop_only",
+      "n": 32,
+      "reward": 40.0169121629972,
+      "parse_count": 18,
+      "coverage_parseable": 0.9321131864392096,
+      "coverage_all_rows_zero_failure": 0.5243136673720554,
+      "at_40": 5,
+      "caps": {
+        "parse_failure": 14,
+        "partial_reachability": 2,
+        "partial_action": 10,
+        "reachability_below_90": 5,
+        "missing_special_role": 2,
+        "partial_special_role": 1,
+        "partial_table": 1,
+        "missing_table": 1,
+        "missing_action": 2
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 15000,
+      "variant": "stop_plus_id_repair",
+      "n": 32,
+      "reward": 66.42681239504367,
+      "parse_count": 30,
+      "coverage_parseable": 0.9372379801432384,
+      "coverage_all_rows_zero_failure": 0.878660606384286,
+      "at_40": 9,
+      "caps": {
+        "partial_reachability": 3,
+        "partial_action": 16,
+        "reachability_below_90": 9,
+        "missing_special_role": 2,
+        "missing_action": 4,
+        "missing_table": 2,
+        "partial_special_role": 1,
+        "parse_failure": 2,
+        "partial_table": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 20000,
+      "variant": "raw",
+      "n": 32,
+      "reward": 8.805598188493274,
+      "parse_count": 4,
+      "coverage_parseable": 0.9376088484645427,
+      "coverage_all_rows_zero_failure": 0.11720110605806784,
+      "at_40": 1,
+      "caps": {
+        "parse_failure": 28,
+        "missing_special_role": 1,
+        "missing_action": 1,
+        "partial_action": 2,
+        "reachability_below_90": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 20000,
+      "variant": "stop_only",
+      "n": 32,
+      "reward": 59.798062966626034,
+      "parse_count": 27,
+      "coverage_parseable": 0.9216970542618056,
+      "coverage_all_rows_zero_failure": 0.7776818895333985,
+      "at_40": 7,
+      "caps": {
+        "partial_action": 11,
+        "parse_failure": 5,
+        "reachability_below_90": 7,
+        "missing_special_role": 3,
+        "partial_reachability": 1,
+        "missing_action": 8,
+        "partial_table": 1,
+        "missing_table": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    },
+    {
+      "step": 20000,
+      "variant": "stop_plus_id_repair",
+      "n": 32,
+      "reward": 65.42306296662603,
+      "parse_count": 30,
+      "coverage_parseable": 0.9226451660009151,
+      "coverage_all_rows_zero_failure": 0.8649798431258579,
+      "at_40": 8,
+      "caps": {
+        "partial_action": 12,
+        "parse_failure": 2,
+        "reachability_below_90": 8,
+        "missing_special_role": 3,
+        "partial_reachability": 3,
+        "missing_action": 8,
+        "partial_table": 1,
+        "missing_table": 1
+      },
+      "metric_fingerprint": "83cd7ad2fa02baf469c84dd4c0d36862a02aba84821b9cdb31ccb9b76e9580dc",
+      "reward_pipeline_fingerprint": "3891d1fab69c8b43f04fe60cf850bae94754d5ebd61a1a6a8b57ea94b520e090"
+    }
+  ],
+  "paired_bootstrap": {
+    "stop_only": {
+      "paired_mean_20k_minus_15k": 19.781150803628833,
+      "bootstrap95": [
+        3.2644746466192105,
+        35.690025000793035
+      ],
+      "wins": 19,
+      "losses": 8,
+      "ties": 5
+    },
+    "stop_plus_id_repair": {
+      "paired_mean_20k_minus_15k": -1.0037494284176298,
+      "bootstrap95": [
+        -11.787564295053166,
+        9.225312401301146
+      ],
+      "wins": 14,
+      "losses": 12,
+      "ties": 6
+    }
+  }
+}

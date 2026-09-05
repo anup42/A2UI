@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "run_id": "genui_demo_golden40_gemini38_20260903",
+  "case_id": "s02_short",
+  "prompt": "Find 3 one-way flights from BLR to DEL on 2026-10-15. Economy, 1 adult, INR. Airline, departure and fare only.",
+  "started_at_ms": 1788457793019,
+  "response_model": "gemini-3.8-flash",
+  "ir_model": "gemini-3.8-flash",
+  "mcp_enabled": true,
+  "response_provider": "gemini",
+  "ir_provider": "gemini",
+  "gemini_api_mode": "vertex_ai_express_api_key",
+  "success": true,
+  "outcome_stage": "complete",
+  "response_text": "Searching for one-way flights from BLR to DEL on October 15, 2026.\n\n## Flights from BLR to DEL\n\nDepart 2026-10-15 - Class 1 - 1 adult\n\nGoogle Flights returned 3 best options and 50 other options. Each row keeps airline logos, prices, layovers, and action links for native flight cards.\n\n| Airline | Departure | Arrival | Duration | Stops | Fare | Status | Legs | Layover | Carbon | Booking | Airline Logo | Booking URL | Action Label |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| IndiGo - 6E 6863 / 6E 2401 | BLR 08:20 | DEL 12:55 | 4h 35m | 1 stop | ₹8,065 /adult | Best flight - One way | BLR 08:20 -> NAG 09:55 (6E 6863, Airbus A321neo); NAG 11:15 -> DEL 12:55 (6E 2401, Airbus A321neo) | NAG 1h 20m | +4% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| IndiGo - 6E 175 | BLR 10:45 | DEL 13:35 | 2h 50m | Non-stop | ₹9,500 /adult | Best flight - One way | BLR 10:45 -> DEL 13:35 (6E 175, Airbus A321neo) |  | -8% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| Akasa Air - QP 1359 | BLR 05:00 | DEL 07:50 | 2h 50m | Non-stop | ₹10,150 /adult | Best flight - One way | BLR 05:00 -> DEL 07:50 (QP 1359, Boeing 737MAX 8 Passenger) |  | -7% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/QP.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| IndiGo - 6E 6003 / 6E 6434 | BLR 15:35 | DEL 20:30 | 4h 55m | 1 stop | ₹8,065 /adult | Other flight - One way | BLR 15:35 -> NAG 17:20 (6E 6003, Airbus A321neo); NAG 18:45 -> DEL 20:30 (6E 6434, Airbus A320neo) | NAG 1h 25m | +7% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| IndiGo - 6E 312 / 6E 6202 | BLR 09:15 | DEL 13:55 | 4h 40m | 1 stop | ₹8,144 /adult | Other flight - One way | BLR 09:15 -> HYD 10:30 (6E 312, Airbus A321neo); HYD 11:35 -> DEL 13:55 (6E 6202, Airbus A321neo) | HYD 1h 5m | +8% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| IndiGo - 6E 537 / 6E 6031 | BLR 10:15 | DEL 15:25 | 5h 10m | 1 stop | ₹8,144 /adult | Other flight - One way | BLR 10:15 -> HYD 11:30 (6E 537, Airbus A320neo); HYD 13:00 -> DEL 15:25 (6E 6031, Airbus A321neo) | HYD 1h 30m | +11% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| IndiGo - 6E 6404 / 6E 711 | BLR 11:35 | DEL 16:55 | 5h 20m | 1 stop | ₹8,144 /adult | Other flight - One way | BLR 11:35 -> HYD 12:50 (6E 6404, Airbus A320neo); HYD 14:40 -> DEL 16:55 (6E 711, Airbus A321neo) | HYD 1h 50m | +11% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n| IndiGo - 6E 6067 / 6E 6043 | BLR 16:30 | DEL 21:40 | 5h 10m | 1 stop | ₹8,144 /adult | Other flight - One way | BLR 16:30 -> HYD 17:45 (6E 6067, Airbus A321neo); HYD 19:10 -> DEL 21:40 (6E 6043, Airbus A321neo) | HYD 1h 25m | +8% CO2 vs typical | Booking token available | https://www.gstatic.com/flights/airline_logos/70px/6E.png | https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15 | View fare |\n\n## Sources\n- Google Flights via SerpApi: https://serpapi.com/\n- Google Flights: https://www.google.com/travel/flights\n\n## Quick Actions\nAction: [Button: Search Google Flights] https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\n",
+  "genui_json": "<a2ui>\nroot=Column([a,b,e,l],\"md\")\na=Alert(\"Searching for one-way flights from BLR to DEL on October 15, 2026.\",\"Flight Search\",\"info\")\nb=Card([c,d],\"Flights from BLR to DEL\",\"Depart 2026-10-15 - Class 1 - 1 adult\")\nc=Text(\"Google Flights returned 3 best options and 50 other options. Each row keeps airline logos, prices, layovers, and action links for native flight cards.\",\"body\")\nd=Table(columns=[\"Airline\",\"Departure\",\"Arrival\",\"Duration\",\"Stops\",\"Fare\",\"Status\",\"Legs\",\"Layover\",\"Carbon\",\"Booking\",\"Airline Logo\",\"Booking URL\",\"Action Label\"],rows=[[\"IndiGo - 6E 6863 / 6E 2401\",\"BLR 08:20\",\"DEL 12:55\",\"4h 35m\",\"1 stop\",\"₹8,065 /adult\",\"Best flight - One way\",\"BLR 08:20 -> NAG 09:55 (6E 6863, Airbus A321neo); NAG 11:15 -> DEL 12:55 (6E 2401, Airbus A321neo)\",\"NAG 1h 20m\",\"+4% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"IndiGo - 6E 175\",\"BLR 10:45\",\"DEL 13:35\",\"2h 50m\",\"Non-stop\",\"₹9,500 /adult\",\"Best flight - One way\",\"BLR 10:45 -> DEL 13:35 (6E 175, Airbus A321neo)\",\"\",\"-8% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"Akasa Air - QP 1359\",\"BLR 05:00\",\"DEL 07:50\",\"2h 50m\",\"Non-stop\",\"₹10,150 /adult\",\"Best flight - One way\",\"BLR 05:00 -> DEL 07:50 (QP 1359, Boeing 737MAX 8 Passenger)\",\"\",\"-7% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/QP.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"IndiGo - 6E 6003 / 6E 6434\",\"BLR 15:35\",\"DEL 20:30\",\"4h 55m\",\"1 stop\",\"₹8,065 /adult\",\"Other flight - One way\",\"BLR 15:35 -> NAG 17:20 (6E 6003, Airbus A321neo); NAG 18:45 -> DEL 20:30 (6E 6434, Airbus A320neo)\",\"NAG 1h 25m\",\"+7% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"IndiGo - 6E 312 / 6E 6202\",\"BLR 09:15\",\"DEL 13:55\",\"4h 40m\",\"1 stop\",\"₹8,144 /adult\",\"Other flight - One way\",\"BLR 09:15 -> HYD 10:30 (6E 312, Airbus A321neo); HYD 11:35 -> DEL 13:55 (6E 6202, Airbus A321neo)\",\"HYD 1h 5m\",\"+8% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"IndiGo - 6E 537 / 6E 6031\",\"BLR 10:15\",\"DEL 15:25\",\"5h 10m\",\"1 stop\",\"₹8,144 /adult\",\"Other flight - One way\",\"BLR 10:15 -> HYD 11:30 (6E 537, Airbus A320neo); HYD 13:00 -> DEL 15:25 (6E 6031, Airbus A321neo)\",\"HYD 1h 30m\",\"+11% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"IndiGo - 6E 6404 / 6E 711\",\"BLR 11:35\",\"DEL 16:55\",\"5h 20m\",\"1 stop\",\"₹8,144 /adult\",\"Other flight - One way\",\"BLR 11:35 -> HYD 12:50 (6E 6404, Airbus A320neo); HYD 14:40 -> DEL 16:55 (6E 711, Airbus A321neo)\",\"HYD 1h 50m\",\"+11% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"],[\"IndiGo - 6E 6067 / 6E 6043\",\"BLR 16:30\",\"DEL 21:40\",\"5h 10m\",\"1 stop\",\"₹8,144 /adult\",\"Other flight - One way\",\"BLR 16:30 -> HYD 17:45 (6E 6067, Airbus A321neo); HYD 19:10 -> DEL 21:40 (6E 6043, Airbus A321neo)\",\"HYD 1h 25m\",\"+8% CO2 vs typical\",\"Booking token available\",\"https://www.gstatic.com/flights/airline_logos/70px/6E.png\",\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\",\"View fare\"]],title=\"Flights from BLR to DEL\",domain=\"flights\",preferredPresentation=\"table\")\ne=Card([f,i],\"Sources\")\nf=Row([g,h],\"sm\",\"center\")\ng=Text(\"Google Flights via SerpApi: https://serpapi.com/\")\nh=Button(\"Open\",\"secondary\",onPress=openUrl(\"https://serpapi.com/\"))\ni=Row([j,k],\"sm\",\"center\")\nj=Text(\"Google Flights: https://www.google.com/travel/flights\")\nk=Button(\"Open\",\"secondary\",onPress=openUrl(\"https://www.google.com/travel/flights\"))\nl=Card([m],\"Quick Actions\")\nm=Button(\"Search Google Flights\",\"primary\",onPress=openUrl(\"https://www.google.com/travel/flights?q=Flights%20from%20BLR%20to%20DEL%20on%202026-10-15\"))\n</a2ui>",
+  "used_fallback": false,
+  "warnings": [
+    "MCP: Flights (LLM-routed + live data)",
+    "Response backend: gemini",
+    "IR backend: gemini",
+    "Gemini route: vertex_ai_express_api_key",
+    "Masked 6 URL/asset reference(s) before Stage 3.",
+    "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+    "IR output format: A2UI Express v1",
+    "Gemini response model: gemini-3.8-flash",
+    "Gemini IR model: gemini-3.8-flash",
+    "Stage 3 omitted authoritative response facts: Google Flights via SerpApi={{u4}}; Google Flights={{u5}} Running strict selected-format repair.",
+    "A2UI Express repair parsed natively; no legacy fallback was attempted.",
+    "Stage 3 output omitted one or more quick actions."
+  ],
+  "stage3_input_tokens": 2885,
+  "stage3_output_tokens": 1547,
+  "stage_durations_ms": {
+    "stage2": 18599,
+    "stage3": 84419,
+    "stage4": 26
+  },
+  "stage_stream_durations_ms": {
+    "stage2": 1,
+    "stage3": 2
+  },
+  "surface_count": 1,
+  "component_count": 0,
+  "stage_updates": [
+    {
+      "stage": "stage2",
+      "message": "Fetching data",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "MCP domain selected: Flights",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "Fetching live Flights data",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "MCP API call completed",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "Rich response ready",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage3",
+      "message": "Converting response into selected GenUICraft IR",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage3",
+      "message": "GenUI JSON ready",
+      "llm_input_tokens": 2885,
+      "llm_output_tokens": 1547,
+      "stream_complete": false
+    },
+    {
+      "stage": "stage4",
+      "message": "Rendering output",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage4",
+      "message": "Native render ready",
+      "stream_complete": false
+    }
+  ],
+  "finished_at_ms": 1788457896097,
+  "elapsed_ms": 103078,
+  "instrumentation_return_code": 0,
+  "instrumentation_log": "instrumentation_logs/s02_short.txt"
+}

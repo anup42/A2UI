@@ -1,0 +1,12 @@
+<a2ui>
+root=Card([a,d,e,h,i])
+a=Row([b,c],"sm","center")
+b=Text("Subject: Project Plan Review – Feedback by Friday","h3")
+c=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar.svg")
+d=Divider()
+e=Row([f,g],"sm","center")
+f=Text("Hi team,")
+g=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg")
+h=Text("Please review the attached project plan and share any feedback or questions by this Friday at 5 PM.")
+i=Text("Thanks!")
+</a2ui>

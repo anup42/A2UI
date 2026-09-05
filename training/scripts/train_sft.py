@@ -16,7 +16,7 @@ from ir_training.train.sft import train_sft
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train a response-to-IR SFT adapter.")
+    parser = argparse.ArgumentParser(description="Train a response-to-IR SFT adapter or full model.")
     parser.add_argument("--config", required=True, help="Path to model training YAML config.")
     parser.add_argument(
         "--preflight-only",
@@ -45,7 +45,9 @@ def main() -> None:
 def _apply_config_cuda_visibility(config: dict) -> None:
     import os
 
-    if os.environ.get("A2UI_CUDA_VISIBLE_DEVICES"):
+    if "LOCAL_RANK" in os.environ or int(os.environ.get("WORLD_SIZE", "1")) > 1:
+        return
+    if "CUDA_VISIBLE_DEVICES" in os.environ or os.environ.get("A2UI_CUDA_VISIBLE_DEVICES"):
         return
     runtime_cfg = config.get("runtime") if isinstance(config.get("runtime"), dict) else {}
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}

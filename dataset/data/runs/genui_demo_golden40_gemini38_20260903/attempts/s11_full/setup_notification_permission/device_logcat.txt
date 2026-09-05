@@ -1,0 +1,9 @@
+--------- beginning of system
+09-04 00:03:25.477  2727  4183 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10888 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+09-04 00:03:25.705  2727  3298 I ActivityTaskManager: done cause=notifyTransitionStarting drawn timestamp=255973030873329 info=TransitionInfo{8558899 a=ActivityRecord{214186203 u0 com.samsung.genuicraft/.MainActivity t3365} r=null d=true}
+--------- beginning of main
+09-04 00:03:25.709  2727  3292 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +232ms
+09-04 00:03:26.288  2727  5778 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10888 (com.samsung.genuicraft) (sr=214186203) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:03:26.303  2727  5293 I ActivityTaskManager: START u0 {act=android.content.pm.action.REQUEST_PERMISSIONS xflg=0x4 pkg=com.google.android.permissioncontroller cmp=com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity (has extras)} with LAUNCH_MULTIPLE from uid 10888 (com.samsung.genuicraft) (rr=7923868) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:03:26.462  2727  3298 I ActivityTaskManager: done cause=notifyTransitionStarting drawn timestamp=255973787087235 info=TransitionInfo{8663c66 a=ActivityRecord{105609638 u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity t3365} r=null d=true}
+09-04 00:03:26.462  2727  3292 I ActivityTaskManager: Displayed com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity for user 0: +177ms

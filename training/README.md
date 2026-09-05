@@ -1,5 +1,12 @@
 ﻿# Response-to-IR Training
 
+For the September 2026 reviewed E2B/270M training restart, begin with the
+[GPU-PC training handoff](docs/GPU_PC_TRAINING_HANDOFF.md) and
+[implemented fixes and validation](docs/reviews/20260905_genui_training_review/IMPLEMENTED_FIXES.md).
+It provides checked data preparation, separate capability baselines, portable
+GPU launch commands and the required Golden-reference regeneration. The code
+was CPU-tested here; real training and runtime validation belong on the GPU PC.
+
 This folder trains local Stage 3 models that convert Stage 2 response text into the Android A2UI Express v1 IR:
 
 ```text
@@ -20,7 +27,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 |---|---|---|
 | Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |
 | Gemma 3 270M W8-QAT and W32/W16/W8/W4 comparisons | `training/scripts/run_gemma270m_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W8 is QAT-aligned, W16/W4 are explicit experimental conversions |
-| Generic LoRA/QLoRA SFT and true LoRA-QAT profiles | `training/scripts/train_sft.py` | Current shared trainer for Gemma/Qwen/Llama adapters; behavior comes from the selected YAML and `ModelAdapter` |
+| Checked full-model SFT/QAT and LoRA/QLoRA SFT | `training/scripts/train_sft.py` | Shared HF trainer; explicit method, complete-example loss masking, actual Linear target resolution and strict resume contract |
 | Gemma 4 E2B retained-scale target/MTP merge and package gates | `training/scripts/run_gemma4_e2b_mobile_mtp.py` | Current lower-level official-topology implementation used by the E2B multiformat orchestrator |
 | Gemma 3 270M W8-only QAT/LiteRT-LM path | `training/scripts/run_gemma270m_qat_litertlm.py` | Older, narrower INT8 deployment path; retained for focused Q8/Android work |
 | Gemma 3 270M full-parameter QAT | `training/scripts/train_full_finetune_qat.py` | Separate multi-GPU experiment; not wired into the LoRA merge/multiformat pipeline |

@@ -383,9 +383,10 @@ def test_prediction_scoring_uses_response_text_or_final_user_turn():
         "completion": "Golden target",
     }
 
-    assert build_prediction_record(row, "Generated")["response_text"] == (
-        "Authoritative response"
-    )
+    with pytest.raises(ValueError, match="Scoring source mismatch"):
+        build_prediction_record(row, "Generated")
+    row["response_text"] = "Held-out response"
+    assert build_prediction_record(row, "Generated")["response_text"] == "Held-out response"
     del row["response_text"]
     assert build_prediction_record(row, "Generated")["response_text"] == (
         "Held-out response"

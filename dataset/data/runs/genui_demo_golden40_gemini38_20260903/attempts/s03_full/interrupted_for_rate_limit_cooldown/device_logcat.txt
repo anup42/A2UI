@@ -1,0 +1,7 @@
+--------- beginning of system
+09-03 23:49:24.702  3355  7219 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-03 23:49:24.856  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +152ms
+09-03 23:49:25.436  3355  5161 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=15629084) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-03 23:49:25.541  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +103ms
+09-03 23:49:50.565 18870 19004 I McpLlmRouter: MCP router: domain=flights entities={origin=BLR, destination=BOM, departure_date=2026-10-15, return_date=2026-10-18, type=round-trip, travel_class=economy, adults=1, currency=INR} hasIntro=true hasFull=false

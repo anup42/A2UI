@@ -1,0 +1,59 @@
+{
+  "case_id": "s01_short",
+  "pair_id": "s01",
+  "scenario": "weather",
+  "variant": "short",
+  "attempt": 1,
+  "query_id": "q_000002",
+  "response_id": "r_000002_01",
+  "ui_id": "u_000002_01",
+  "status": "accepted",
+  "timestamps": {
+    "started_at": "2026-09-03T17:44:33.232000Z",
+    "completed_at": "2026-09-03T17:45:17.150000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "MCP: Weather (LLM-routed + live data)",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "Gemini route: vertex_ai_express_api_key",
+      "Masked 3 URL/asset reference(s) before Stage 3.",
+      "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "IR output format: A2UI Express v1",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "A2UI Express parsed natively; no legacy fallback is available.",
+      "Stage 3 output omitted one or more quick actions."
+    ],
+    "stage3_input_tokens": 1760,
+    "stage3_output_tokens": 335,
+    "stage_durations_ms": {
+      "stage2": 15489,
+      "stage3": 28378,
+      "stage4": 25
+    }
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "46ebcd3638c7a7d86c4a21c3f184ef35588536acf7285a1b63061d5603648fa6",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "pending"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/01_u_000002_01.png"
+  }
+}

@@ -1,0 +1,17 @@
+<a2ui>
+root=Column([a,d,e,h,i,l,m,n],"md")
+a=Row([b,c],"sm","center")
+b=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg")
+c=Text("Bengaluru Tourist Attractions Overview","h1")
+d=Text("Public visitor ratings for three major landmark attractions across Bengaluru.","body")
+e=Row([f,g],"sm","center")
+f=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg")
+g=Text("Top Landmarks and Ratings","h2")
+h=Table(columns=["Attraction Name","Rating"],rows=[["Lalbagh Botanical Garden","4.4 / 5.0"],["Cubbon Park","4.5 / 5.0"],["Bangalore Palace","4.2 / 5.0"]],title="Top Landmarks and Ratings")
+i=Row([j,k],"sm","center")
+j=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg")
+k=Text("Tourism Information Access","h2")
+l=Button("Explore Karnataka Tourism","primary",onPress=openUrl("https://www.karnatakatourism.org"))
+m=Text("Sources","h3")
+n=Text("Karnataka Tourism Official Portal: https://www.karnatakatourism.org","caption")
+</a2ui>

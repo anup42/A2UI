@@ -1,0 +1,16 @@
+<a2ui>
+root=Card([a,c,d])
+a=Row(children=[b],align="center")
+b=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
+c=Divider()
+d=Column([e,h,k],"sm")
+e=Row(children=[f,g],justify="spaceBetween")
+f=Text("Total:")
+g=Text("20")
+h=Row(children=[i,j],justify="spaceBetween")
+i=Text("Reserved:")
+j=Text("7")
+k=Row(children=[l,m],justify="spaceBetween")
+l=Text("Available:")
+m=Text("13")
+</a2ui>

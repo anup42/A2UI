@@ -1,0 +1,22 @@
+Here is the 7-day weather forecast for Bengaluru, including temperature, conditions, rain chances, and wind speeds.
+
+## Weather in Bengaluru, India
+
+Weather forecast table (domain: weather, preferredPresentation: cards).
+
+| Day | Date | Condition | Temp | High | Low | Feels Like | Rain Chance | Rain | Wind | Gusts | Humidity | UV | Best Window | Morning | Afternoon | Evening | Night | What to wear |
+|-----|------|-----------|------|------|-----|------------|-------------|------|------|-------|----------|----|-------------|---------|-----------|---------|-------|--------------|
+| Today | 2026-09-03 | Partly cloudy | 21.9°C | 28.7°C | 20.1°C | 24.3°C | 64% | 1.3 mm | W 10.3 km/h | 43.9 km/h | 90% | 0 | Before noon | Overcast | Overcast | Overcast | Drizzle | Carry an umbrella; wear quick-dry footwear and light layers. |
+| Fri | 2026-09-04 | Drizzle | - | 29°C | 19.9°C | 31.4°C | 76% | 2.5 mm | W 14.1 km/h | 38.9 km/h | 69% | 9.4 | Before noon | Drizzle | Drizzle | Overcast | Drizzle | Carry an umbrella; wear quick-dry footwear and light layers. |
+| Sat | 2026-09-05 | Overcast | - | 30.2°C | 19.9°C | 33.2°C | 16% | 0 mm | W 11 km/h | 31.3 km/h | 61% | 9.1 | Before noon | Clear | Clear | Clear | Clear | Light comfortable clothing should work; carry a small layer if heading out late. |
+| Sun | 2026-09-06 | Overcast | - | 31°C | 19.9°C | 32.9°C | 24% | 0 mm | W 13 km/h | 36.7 km/h | 57% | 9.4 | Before noon | Clear | Clouds | Clouds | Clear | Light comfortable clothing should work; carry a small layer if heading out late. |
+| Mon | 2026-09-07 | Overcast | - | 31.2°C | 20.5°C | 33°C | 20% | 0 mm | W 14.5 km/h | 42.8 km/h | 56% | 9 | Before noon | Clear | Clear | Clear | Overcast | Light comfortable clothing should work; carry a small layer if heading out late. |
+| Tue | 2026-09-08 | Drizzle | - | 30°C | 20.6°C | 31.5°C | 53% | 1.2 mm | W 15.3 km/h | 42.1 km/h | 59% | 9.4 | Before noon | Clouds | Drizzle | Drizzle | Drizzle | Carry an umbrella; wear quick-dry footwear and light layers. |
+| Wed | 2026-09-09 | Drizzle | - | 29.4°C | 20°C | 30.8°C | 44% | 0 mm | NW 15.8 km/h | 42.8 km/h | 60% | 10.3 | Before noon | Overcast | Drizzle | Clouds | Clear | Carry an umbrella; wear quick-dry footwear and light layers. |
+
+## Sources
+- Open-Meteo Forecast API: https://open-meteo.com/en/docs
+- Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api
+
+## Quick Actions
+Action: [Button: Open Forecast Source] https://open-meteo.com/en/docs

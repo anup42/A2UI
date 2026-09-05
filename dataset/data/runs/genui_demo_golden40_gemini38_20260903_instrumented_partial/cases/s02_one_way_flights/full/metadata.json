@@ -1,0 +1,60 @@
+{
+  "case_id": "s02_full",
+  "pair_id": "s02",
+  "scenario": "one_way_flights",
+  "variant": "full",
+  "attempt": 1,
+  "query_id": "q_000003",
+  "response_id": "r_000003_01",
+  "ui_id": "u_000003_01",
+  "status": "pipeline_pass",
+  "timestamps": {
+    "started_at": "2026-09-03T17:48:48.672000Z",
+    "completed_at": "2026-09-03T17:49:51.469000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "MCP: Flights (LLM-routed + live data)",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "Gemini route: vertex_ai_express_api_key",
+      "Masked 6 URL/asset reference(s) before Stage 3.",
+      "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "IR output format: A2UI Express v1",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "Stage 3 omitted authoritative response facts: Google Flights via SerpApi={{u4}}; Google Flights={{u5}} Running strict selected-format repair.",
+      "A2UI Express repair parsed natively; no legacy fallback was attempted.",
+      "Stage 3 output omitted one or more quick actions."
+    ],
+    "stage3_input_tokens": 2892,
+    "stage3_output_tokens": 1635,
+    "stage_durations_ms": {
+      "stage2": 19340,
+      "stage3": 43397,
+      "stage4": 26
+    }
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "cd1e4877fe59f3a0e73d82d40772d03568ca48520a197e6016d3e65798993da7",
+    "native_render_ok": null,
+    "capture_ok": null,
+    "visual_review": "pending"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "app_screenshot": null,
+    "viewport_screenshot": null,
+    "canonical_screenshot": null
+  }
+}

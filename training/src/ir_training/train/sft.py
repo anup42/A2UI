@@ -18,6 +18,11 @@ from ir_training.eval.tensorboard_logging import (
     resolve_tensorboard_run_dir,
 )
 from ir_training.models.registry import create_adapter
+from ir_training.generation_policy import preserve_generation_eos
+from ir_training.train.recipe import (
+    FULL_METHODS, optimizer_steps, resolve_eval_strategy,
+    validate_effective_batch, validate_sft_recipe,
+)
 from ir_training.qat.fake_quant import QATController, prepare_qat_model
 from ir_training.qat.mobile_seed_architecture import (
     MobileSeedArchitectureError,
@@ -31,7 +36,9 @@ from ir_training.train.callbacks import (
     build_checkpoint_provenance_callback,
     build_golden_set_eval_callback,
 )
-from ir_training.train.lora_config import build_lora_config
+from ir_training.train.lora_config import build_lora_config, resolve_lora_config_targets
+from ir_training.train.prepared_binding import verify_tokenizer_binding
+from ir_training.train.resume_contract import build_resume_contract, verify_resume_contract
 
 
 def train_sft(
@@ -49,12 +56,31 @@ def train_sft(
     golden_eval_cfg = config.get("golden_eval") if isinstance(config.get("golden_eval"), dict) else {}
     qat_cfg = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
+    method = validate_sft_recipe(config)
+    full_finetune = method in FULL_METHODS
+    effective_batch = validate_effective_batch(training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
     # Validate an explicitly bounded run before loading multi-gigabyte model
     # artifacts. Invalid max_steps must not silently fall back to epochs.
     training_limit = _training_limit_config(training_cfg)
     if bool(golden_eval_cfg.get("enabled", False)):
         _validate_bounded_eval_save_cadence(training_cfg, training_limit)
     base = training_root()
+    resume_from_checkpoint = training_cfg.get("resume_from_checkpoint")
+    if resume_from_checkpoint is None:
+        resume_from_checkpoint = config.get("resume_from_checkpoint")
+    resolved_resume_checkpoint: Path | None = None
+    if resume_from_checkpoint is not None and str(resume_from_checkpoint).strip():
+        resolved_resume_checkpoint = resolve_path(str(resume_from_checkpoint), base)
+        if not resolved_resume_checkpoint.is_dir():
+            raise FileNotFoundError(
+                "Configured training.resume_from_checkpoint does not exist: "
+                f"{resolved_resume_checkpoint}"
+            )
+        print(
+            "Resuming SFT from checkpoint: "
+            f"{resolved_resume_checkpoint}",
+            flush=True,
+        )
     mobile_training_seed = verify_configured_mobile_training_seed(
         model_cfg,
         base=base,
@@ -103,13 +129,13 @@ def train_sft(
             )
     try:
         from datasets import load_dataset  # type: ignore
-        from peft import get_peft_model, prepare_model_for_kbit_training  # type: ignore
+        from peft import PeftModel, get_peft_model, prepare_model_for_kbit_training  # type: ignore
         from transformers import Trainer, TrainingArguments  # type: ignore
     except Exception as exc:  # pragma: no cover - dependency failure path
         raise RuntimeError(
             "Install training/requirements-training.txt before running SFT training."
         ) from exc
-    if qat_cfg:
+    if qat_cfg.get("enabled", False):
         _enforce_qat_training_guardrails(config)
     if qat_mtp_cfg:
         _enforce_qat_mtp_training_guardrails(config)
@@ -126,11 +152,20 @@ def train_sft(
     val_path = dataset_dir / "val.jsonl"
     if not train_path.exists():
         raise FileNotFoundError(f"Missing train split: {train_path}")
+    resume_contract = build_resume_contract(config, dataset_dir, effective_batch=effective_batch)
+    resume_state_report = verify_resume_contract(resolved_resume_checkpoint, resume_contract) if resolved_resume_checkpoint is not None else None
 
-    adapter = create_adapter(model_cfg)
+    load_cfg = dict(model_cfg)
+    if full_finetune and resolved_resume_checkpoint is not None:
+        _require_full_model_checkpoint(resolved_resume_checkpoint)
+        load_cfg["model_source"] = str(resolved_resume_checkpoint)
+        load_cfg["tokenizer_source"] = str(resolved_resume_checkpoint)
+    adapter = create_adapter(load_cfg)
     tokenizer = adapter.load_tokenizer()
+    prepared_binding = verify_tokenizer_binding(dataset_dir, tokenizer, model_cfg, required=bool(run_cfg.get("prepared_manifest_required", False)))
     model = adapter.load_model()
     _align_tokenizer_and_model(tokenizer, model)
+    generation_eos_ids = preserve_generation_eos(model, tokenizer)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="initial model load")
     max_position_embeddings = _model_position_limit(model)
     gradient_checkpointing = bool(training_cfg.get("gradient_checkpointing", False))
@@ -141,8 +176,36 @@ def train_sft(
             model,
             use_gradient_checkpointing=gradient_checkpointing,
         )
-    model = get_peft_model(model, build_lora_config(adapter, lora_cfg))
-    _disable_peft_vocab_probe(model)
+    configured_lora = None if full_finetune else build_lora_config(adapter, lora_cfg)
+    resolved_lora_targets = resolve_lora_config_targets(configured_lora, model) if configured_lora is not None else []
+    resume_adapter_report: dict[str, Any] | None = None
+    if full_finetune:
+        for parameter in model.parameters():
+            parameter.requires_grad_(True)
+    elif resolved_resume_checkpoint is not None:
+        _require_peft_resume_checkpoint(resolved_resume_checkpoint)
+        model = PeftModel.from_pretrained(
+            model,
+            str(resolved_resume_checkpoint),
+            is_trainable=True,
+        )
+        resume_adapter_report = _validate_resumed_lora_model(
+            model,
+            expected_config=configured_lora,
+            checkpoint=resolved_resume_checkpoint,
+        )
+        print(
+            "Loaded LoRA weights before resume preflight: "
+            f"checkpoint={resolved_resume_checkpoint}, "
+            f"adapter_sha256={resume_adapter_report['adapter_sha256']}, "
+            f"adapter_pairs={resume_adapter_report['adapter_pair_count']}, "
+            f"nonzero_pairs={resume_adapter_report['nonzero_adapter_pairs']}",
+            flush=True,
+        )
+    else:
+        model = get_peft_model(model, configured_lora)
+    if not full_finetune:
+        _disable_peft_vocab_probe(model)
     _disable_model_cache_for_training(model)
     _enable_input_grads_for_kbit_lora(model)
     qat_controller: QATController | None = None
@@ -216,8 +279,9 @@ def train_sft(
         "gradient_accumulation_steps": int(training_cfg.get("gradient_accumulation_steps", 16)),
         "logging_steps": int(training_cfg.get("logging_steps", 20)),
         "save_steps": int(training_cfg.get("save_steps", 500)),
+        "save_strategy": str(training_cfg.get("save_strategy", "steps")),
         "eval_steps": int(training_cfg.get("eval_steps", 500)),
-        eval_strategy_name: "steps" if "validation" in dataset else "no",
+        eval_strategy_name: resolve_eval_strategy(training_cfg, golden_eval_cfg, has_validation="validation" in dataset and len(dataset["validation"]) > 0),
         "save_total_limit": int(training_cfg.get("save_total_limit", 3)),
         "max_grad_norm": float(training_cfg.get("max_grad_norm", 1.0)),
         "seed": int(training_cfg.get("seed", run_cfg.get("seed", 42))),
@@ -226,14 +290,41 @@ def train_sft(
     }
     _apply_training_limit_to_args(training_args_kwargs, training_limit)
     logging_dir_value = training_cfg.get("logging_dir")
-    if tensorboard_run_dir is not None:
+    if tensorboard_run_dir is not None and "logging_dir" in args_params:
         training_args_kwargs["logging_dir"] = str(tensorboard_run_dir)
-    elif logging_dir_value:
+    elif logging_dir_value and "logging_dir" in args_params:
         training_args_kwargs["logging_dir"] = str(resolve_path(logging_dir_value, base))
+    elif logging_dir_value:
+        print(
+            "Training logging_dir is not supported by this transformers build; "
+            "continuing without an explicit logging directory.",
+            flush=True,
+        )
     if "warmup_steps" in training_cfg:
-        training_args_kwargs["warmup_steps"] = int(training_cfg.get("warmup_steps", 0))
-    else:
+        if "warmup_steps" in args_params:
+            training_args_kwargs["warmup_steps"] = int(training_cfg.get("warmup_steps", 0))
+    elif "warmup_ratio" in args_params:
         training_args_kwargs["warmup_ratio"] = float(training_cfg.get("warmup_ratio", 0.03))
+    elif "warmup_steps" in args_params:
+        # Newer Transformers removed warmup_ratio but retain warmup_steps.
+        # Convert the configured ratio using the explicit max_steps when
+        # available so the schedule remains equivalent.
+        max_steps_value = int(training_args_kwargs.get("max_steps", -1))
+        if max_steps_value <= 0:
+            max_steps_value = optimizer_steps(
+                rows=len(dataset["train"]), world_size=int(os.environ.get("WORLD_SIZE", "1")),
+                microbatch=training_args_kwargs["per_device_train_batch_size"],
+                accumulation=training_args_kwargs["gradient_accumulation_steps"],
+                epochs=training_limit["num_train_epochs"],
+            )
+        training_args_kwargs["warmup_steps"] = math.ceil(
+            max_steps_value * float(training_cfg.get("warmup_ratio", 0.03))
+        )
+    for name in ("dataloader_num_workers", "dataloader_pin_memory", "optim", "ddp_broadcast_buffers", "gradient_checkpointing_kwargs"):
+        if name in training_cfg:
+            if name not in args_params:
+                raise ValueError(f"Installed TrainingArguments does not support configured {name}.")
+            training_args_kwargs[name] = training_cfg[name]
     if "gradient_checkpointing" in args_params:
         training_args_kwargs["gradient_checkpointing"] = gradient_checkpointing
     if "ddp_find_unused_parameters" in args_params and "ddp_find_unused_parameters" in training_cfg:
@@ -320,9 +411,17 @@ def train_sft(
             if isinstance(config.get("preflight"), dict)
             else {}
         )
-        zero_adapter_initialization = _verify_zero_lora_initialization(model)
+        zero_adapter_initialization = (
+            {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
+            if full_finetune else _verify_zero_lora_initialization(model)
+        )
+        adapter_preflight_label = (
+            "full_model" if full_finetune else ("resumed_adapter" if resolved_resume_checkpoint is not None else "zero_adapter")
+        )
         if (
-            qat_cfg.get("enabled", False)
+            not full_finetune
+            and resolved_resume_checkpoint is None
+            and qat_cfg.get("enabled", False)
             and preflight_cfg.get("require_zero_adapter_parity") is True
             and not zero_adapter_initialization["verified_zero_delta"]
         ):
@@ -347,7 +446,7 @@ def train_sft(
             max_position_embeddings=max_position_embeddings,
             max_rows=gate_rows,
             logit_probe_tokens=int(preflight_cfg.get("logit_probe_tokens", 16)),
-            label="baseline_qat_off",
+            label=f"{adapter_preflight_label}_qat_off",
         )
         baseline_greedy_report = _run_deterministic_greedy_gate(
             model=model,
@@ -363,7 +462,7 @@ def train_sft(
             ),
             min_new_tokens=int(preflight_cfg.get("min_greedy_tokens", 8)),
             repeats=1,
-            label="baseline_qat_off",
+            label=f"{adapter_preflight_label}_qat_off",
         )
         if qat_cfg.get("enabled", False):
             # The same completion rows are measured before and after binding
@@ -387,7 +486,11 @@ def train_sft(
             max_position_embeddings=max_position_embeddings,
             max_rows=gate_rows,
             logit_probe_tokens=int(preflight_cfg.get("logit_probe_tokens", 16)),
-            label="zero_adapter_qat_on" if qat_controller else "qat_disabled",
+            label=(
+                f"{adapter_preflight_label}_qat_on"
+                if qat_controller
+                else "qat_disabled"
+            ),
         )
         qat_greedy_report = _run_deterministic_greedy_gate(
             model=model,
@@ -403,7 +506,11 @@ def train_sft(
             ),
             min_new_tokens=int(preflight_cfg.get("min_greedy_tokens", 8)),
             repeats=2 if qat_controller is not None else 1,
-            label="zero_adapter_qat_on" if qat_controller else "qat_disabled",
+            label=(
+                f"{adapter_preflight_label}_qat_on"
+                if qat_controller
+                else "qat_disabled"
+            ),
         )
         numeric_preflight_report = _compare_initial_numeric_reports(
             baseline_numeric_report,
@@ -414,6 +521,12 @@ def train_sft(
         numeric_preflight_report["zero_adapter_initialization"] = (
             zero_adapter_initialization
         )
+        numeric_preflight_report["adapter_initialization_mode"] = (
+            "resumed_checkpoint"
+            if resolved_resume_checkpoint is not None
+            else ("full_model" if full_finetune else "fresh_zero_adapter")
+        )
+        numeric_preflight_report["resume_adapter"] = resume_adapter_report
         numeric_preflight_report["greedy_generation"] = (
             _compare_initial_greedy_reports(
                 baseline_greedy_report,
@@ -454,6 +567,7 @@ def train_sft(
             trainer_kwargs["processing_class"] = tokenizer
         trainer = checked_trainer_cls(**trainer_kwargs)
 
+    preserve_generation_eos(trainer.model, tokenizer, extra_eos_ids=generation_eos_ids)
     golden_callback = _build_optional_golden_callback(
         golden_eval_cfg=golden_eval_cfg,
         base=base,
@@ -475,7 +589,18 @@ def train_sft(
         "model": model_cfg,
         "training": training_cfg,
         "training_limit": training_limit,
+        "checkpoint_kind": "full_model" if full_finetune else "lora_adapter",
+        "effective_batch_size": effective_batch,
+        "generation_eos_token_ids": generation_eos_ids,
+        "loss_normalization": "mean_supervised_tokens_per_microbatch_then_mean_microbatches",
+        "overflow_policy": "error",
+        "resume_contract": resume_contract,
+        "resume_state": resume_state_report,
+        "prepared_dataset_binding": prepared_binding,
+        "trainable_parameter_names": [name for name, parameter in trainer.model.named_parameters() if parameter.requires_grad],
+        "trainable_parameter_counts": dict(zip(("trainable", "total"), _trainable_parameter_count(trainer.model))),
         "lora": lora_cfg,
+        "resolved_lora_targets": sorted(resolved_lora_targets),
         "golden_eval": golden_eval_cfg,
         "qat": qat_controller.summary() if qat_controller is not None else {},
         "qat_mtp": qat_mtp_cfg,
@@ -492,6 +617,11 @@ def train_sft(
             ),
             "environment_override": os.environ.get(TENSORBOARD_ROOT_ENV),
         },
+        "resume_from_checkpoint": (
+            str(resolved_resume_checkpoint)
+            if resolved_resume_checkpoint is not None
+            else None
+        ),
         "git_commit": current_commit(repo_root()),
         "launcher_provenance": {
             name: _optional_file_identity(run_cfg.get(config_key), base=base)
@@ -510,6 +640,8 @@ def train_sft(
         build_checkpoint_provenance_callback(
             output_dir=output_dir,
             metadata=checkpoint_provenance,
+            tokenizer=tokenizer,
+            generation_eos_ids=generation_eos_ids,
             config_path=config_path,
             golden_summary_provider=(
                 golden_callback.summary if golden_callback is not None else None
@@ -518,18 +650,21 @@ def train_sft(
     )
 
     try:
-        trainer.train()
+        train_kwargs = {}
+        if resolved_resume_checkpoint is not None:
+            train_kwargs["resume_from_checkpoint"] = str(resolved_resume_checkpoint)
+        trainer.train(**train_kwargs)
     finally:
         # Fake quantization is a runtime training wrapper, not a serialized
         # model layer. Restore the original Linear forwards before saving the
         # adapter so checkpoints remain PEFT/Transformers compatible.
         if qat_controller is not None:
             qat_controller.restore()
-    final_adapter = output_dir / "final_adapter"
+    final_adapter = output_dir / ("final_model" if full_finetune else "final_adapter")
     golden_summary = None
     metadata = {
         **checkpoint_provenance,
-        "final_adapter": str(final_adapter),
+        "final_model" if full_finetune else "final_adapter": str(final_adapter),
     }
     if golden_callback is not None and hasattr(golden_callback, "summary"):
         golden_summary = golden_callback.summary()
@@ -597,6 +732,9 @@ def _validate_bounded_eval_save_cadence(
         return
     invalid: list[str] = []
     for name in ("eval_steps", "save_steps"):
+        strategy = training_cfg.get("eval_strategy", training_cfg.get("evaluation_strategy", "steps")) if name == "eval_steps" else training_cfg.get("save_strategy", "steps")
+        if strategy != "steps":
+            continue
         value = training_cfg.get(name)
         if type(value) is not int or value <= 0 or value > max_optimizer_steps:
             invalid.append(f"{name}={value!r}")
@@ -650,10 +788,17 @@ def _adapter_checkpoint_manifest(path: Path, *, role: str) -> dict[str, Any]:
     files = [
         candidate for candidate in sorted(path.glob("adapter*")) if candidate.is_file()
     ]
+    kind = "lora_adapter"
     if not files:
-        raise RuntimeError(f"Adapter checkpoint has no adapter files: {path}")
+        _require_full_model_checkpoint(path)
+        kind = "full_model"
+        files = sorted(candidate for candidate in path.iterdir() if candidate.is_file() and (
+            candidate.name in {"config.json", "generation_config.json", "tokenizer.json", "tokenizer_config.json", "special_tokens_map.json", "chat_template.jinja"}
+            or candidate.name.startswith(("model", "pytorch_model", "tokenizer.model"))
+        ))
     return {
         "role": role,
+        "checkpoint_kind": kind,
         "path": str(path),
         "files": [
             {
@@ -790,7 +935,7 @@ def _completion_suffix_text(example: dict[str, Any], full_text: str, prompt_text
         for message in reversed(messages):
             if isinstance(message, dict) and message.get("role") == "assistant":
                 return str(message.get("content") or "")
-    return full_text
+    raise ValueError("SFT row has no assistant completion; refusing full-prompt language-model loss.")
 
 
 def _tokenize_completion_only_row(
@@ -803,30 +948,17 @@ def _tokenize_completion_only_row(
 ) -> dict[str, list[int]]:
     prompt_ids = _tokenize_text(tokenizer, prompt_text)
     completion_ids = _tokenize_text(tokenizer, completion_text)
-    if not completion_ids:
-        fallback = tokenizer(
-            full_text,
-            truncation=True,
-            max_length=max_seq_length,
-            add_special_tokens=True,
+    if not prompt_ids or not completion_ids:
+        raise ValueError("SFT requires nonempty prompt and completion; quarantine this row during preparation.")
+    if full_text != prompt_text + completion_text:
+        raise ValueError("SFT prompt is not an exact prefix of the formatted assistant conversation.")
+    if len(prompt_ids) + len(completion_ids) > max_seq_length:
+        raise ValueError(
+            f"SFT sequence overflow: prompt={len(prompt_ids)}, completion={len(completion_ids)}, "
+            f"max_seq_length={max_seq_length}. Increase context or quarantine the entire row; no tokens were truncated."
         )
-        input_ids = list(fallback.get("input_ids") or [])
-        if not input_ids:
-            raise ValueError("SFT tokenization produced no input_ids.")
-        return {
-            "input_ids": input_ids,
-            "attention_mask": [1] * len(input_ids),
-            "labels": list(input_ids),
-        }
-
-    if len(completion_ids) >= max_seq_length:
-        input_ids = completion_ids[:max_seq_length]
-        labels = list(input_ids)
-    else:
-        prompt_budget = max_seq_length - len(completion_ids)
-        prompt_ids = prompt_ids[-prompt_budget:] if prompt_budget > 0 else []
-        input_ids = prompt_ids + completion_ids
-        labels = [-100] * len(prompt_ids) + list(completion_ids)
+    input_ids = prompt_ids + completion_ids
+    labels = [-100] * len(prompt_ids) + list(completion_ids)
     return {
         "input_ids": input_ids,
         "attention_mask": [1] * len(input_ids),
@@ -1077,6 +1209,14 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
     lora_diagnostics_all_ranks = bool((training_cfg or {}).get("lora_diagnostics_all_ranks", False))
 
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            # compute_loss below deliberately returns a per-token mean and
+            # ignores num_items_in_batch. Tell Transformers to apply its normal
+            # gradient-accumulation divisor; otherwise recent Trainer versions
+            # treat the custom signature as token-aware and skip that divisor.
+            self.model_accepts_loss_kwargs = False
+
         def training_step(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
             should_report = _should_report_lora_diagnostics(
                 trainer=self,
@@ -1544,6 +1684,8 @@ def _run_deterministic_greedy_gate(
     quality remains the job of held-out Golden-100 evaluation during training.
     """
 
+    from ir_training.generation_policy import build_stopping_criteria, generation_diagnostics
+
     try:
         import torch
     except Exception as exc:  # pragma: no cover - dependency failure path
@@ -1569,13 +1711,18 @@ def _run_deterministic_greedy_gate(
     device = _model_input_device(model)
     was_training = bool(getattr(model, "training", False))
     runs: list[list[list[int]]] = []
+    policy_runs: list[list[dict[str, Any]]] = []
+    eos_ids = preserve_generation_eos(model, tokenizer)
     try:
         model.eval()
         for repeat_index in range(int(repeats)):
             sequences: list[list[int]] = []
+            diagnostics: list[dict[str, Any]] = []
             for row_index in range(rows_to_check):
                 prompt_text = str(split[row_index].get("prompt_text") or "")
-                prompt_ids = _tokenize_text(tokenizer, prompt_text)[-prompt_budget:]
+                prompt_ids = _tokenize_text(tokenizer, prompt_text)
+                if len(prompt_ids) > prompt_budget:
+                    raise ValueError(f"Greedy preflight row {row_index} exceeds context budget; prompt truncation is forbidden.")
                 if not prompt_ids:
                     raise ValueError(
                         f"Greedy preflight row {row_index} has an empty prompt."
@@ -1589,8 +1736,11 @@ def _run_deterministic_greedy_gate(
                     "attention_mask": attention_mask,
                     "do_sample": False,
                     "max_new_tokens": int(max_new_tokens),
-                    "min_new_tokens": int(min_new_tokens),
                     "use_cache": False,
+                    "eos_token_id": eos_ids,
+                    "stop_strings": None,
+                    "stopping_criteria": build_stopping_criteria(tokenizer, len(prompt_ids)),
+                    "synced_gpus": False,
                 }
                 pad_token_id = getattr(tokenizer, "pad_token_id", None)
                 if pad_token_id is None:
@@ -1606,13 +1756,18 @@ def _run_deterministic_greedy_gate(
                     .cpu()
                     .tolist()
                 ]
-                if len(generated) < int(min_new_tokens):
+                diagnostic = generation_diagnostics(tokenizer, generated,
+                    eos_token_ids=eos_ids, max_new_tokens=max_new_tokens,
+                    prompt_text=prompt_text, input_ids=prompt_ids)
+                diagnostics.append(diagnostic)
+                if len(generated) < int(min_new_tokens) and diagnostic["stop_reason"] not in {"closing_sentinel", "eos_token"}:
                     raise RuntimeError(
                         f"{label} greedy preflight row {row_index} generated only "
                         f"{len(generated)} tokens; required {min_new_tokens}."
                     )
                 sequences.append(generated)
             runs.append(sequences)
+            policy_runs.append(diagnostics)
             print(
                 f"SFT {label} greedy gate repeat {repeat_index + 1} passed: "
                 f"rows={rows_to_check}, token_counts="
@@ -1635,6 +1790,7 @@ def _run_deterministic_greedy_gate(
             [len(sequence) for sequence in run] for run in runs
         ],
         "generated_token_ids": runs,
+        "generation_diagnostics": policy_runs,
         "sha256": hashlib.sha256(canonical).hexdigest(),
     }
 
@@ -1714,6 +1870,151 @@ def _compare_initial_greedy_reports(
             f"{report['baseline_qat_positional_match_fraction']:.6f}."
         )
     return report
+
+
+def _require_peft_resume_checkpoint(checkpoint: Path) -> None:
+    config_path = checkpoint / "adapter_config.json"
+    weight_paths = tuple(
+        path
+        for path in (
+            checkpoint / "adapter_model.safetensors",
+            checkpoint / "adapter_model.bin",
+        )
+        if path.is_file()
+    )
+    if not config_path.is_file() or len(weight_paths) != 1:
+        raise RuntimeError(
+            "LoRA resume requires adapter_config.json and exactly one adapter "
+            "weight file in the checkpoint: "
+            f"checkpoint={checkpoint}, config_exists={config_path.is_file()}, "
+            f"weight_files={[path.name for path in weight_paths]}"
+        )
+
+
+def _require_full_model_checkpoint(checkpoint: Path) -> None:
+    has_weights = any(checkpoint.glob("model*.safetensors")) or any(checkpoint.glob("pytorch_model*.bin"))
+    if (checkpoint / "adapter_config.json").exists() or not (checkpoint / "config.json").is_file() or not has_weights:
+        raise ValueError(f"Full finetuning requires an HF full-model checkpoint, not an adapter: {checkpoint}")
+
+
+def _resolved_lora_targets(config: Any, model: Any) -> str | set[str]:
+    targets = getattr(config, "target_modules", None)
+    if targets is None:
+        # PEFT fills its architecture default while wrapping. Resolve that same
+        # default here instead of comparing None to the materialized target set.
+        from peft.utils.constants import TRANSFORMERS_MODELS_TO_LORA_TARGET_MODULES_MAPPING
+        model_type = getattr(getattr(model, "config", None), "model_type", None)
+        targets = TRANSFORMERS_MODELS_TO_LORA_TARGET_MODULES_MAPPING.get(model_type)
+        if targets is None:
+            raise ValueError(f"Cannot resolve PEFT default targets for model_type={model_type!r}; specify explicit targets.")
+    return targets if isinstance(targets, str) else set(targets)
+
+
+def _validate_resumed_lora_model(
+    model: Any,
+    *,
+    expected_config: Any,
+    checkpoint: Path,
+) -> dict[str, Any]:
+    """Verify that PEFT materialized the configured, nonzero resume adapter."""
+
+    try:
+        import torch
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError(f"Cannot validate resumed LoRA adapter: {exc!r}") from exc
+
+    peft_configs = getattr(model, "peft_config", None)
+    if not isinstance(peft_configs, dict) or not peft_configs:
+        raise RuntimeError("Resumed model does not expose a PEFT adapter config.")
+    active = getattr(model, "active_adapters", None)
+    if callable(active):
+        active = active()
+    if isinstance(active, str):
+        active_names = [active]
+    elif isinstance(active, (list, tuple, set)):
+        active_names = [str(value) for value in active]
+    else:
+        active_name = getattr(model, "active_adapter", None)
+        active_names = [str(active_name)] if active_name else []
+    if len(active_names) != 1 or active_names[0] not in peft_configs:
+        raise RuntimeError(
+            "LoRA resume requires exactly one active adapter; "
+            f"active={active_names}, configured={sorted(peft_configs)}"
+        )
+    active_name = active_names[0]
+    actual_config = peft_configs[active_name]
+
+    config_mismatches: list[str] = []
+    for field in ("r", "lora_alpha", "lora_dropout"):
+        expected = getattr(expected_config, field, None)
+        actual = getattr(actual_config, field, None)
+        if actual != expected:
+            config_mismatches.append(f"{field}: expected={expected!r}, actual={actual!r}")
+    expected_targets = _resolved_lora_targets(expected_config, model)
+    actual_targets = _resolved_lora_targets(actual_config, model)
+    if actual_targets != expected_targets:
+        config_mismatches.append(
+            "target_modules: "
+            f"expected={expected_targets!r}, actual={actual_targets!r}"
+        )
+    if config_mismatches:
+        raise RuntimeError(
+            "Resume adapter config does not match the requested LoRA config: "
+            + "; ".join(config_mismatches)
+        )
+
+    pair_count = 0
+    finite_pair_count = 0
+    nonzero_pair_count = 0
+    for module in model.modules():
+        lora_a = getattr(module, "lora_A", None)
+        lora_b = getattr(module, "lora_B", None)
+        if lora_a is None or lora_b is None:
+            continue
+        if active_name not in lora_a or active_name not in lora_b:
+            continue
+        a_weight = getattr(lora_a[active_name], "weight", None)
+        b_weight = getattr(lora_b[active_name], "weight", None)
+        if a_weight is None or b_weight is None:
+            continue
+        pair_count += 1
+        with torch.no_grad():
+            finite = bool(torch.isfinite(a_weight).all()) and bool(
+                torch.isfinite(b_weight).all()
+            )
+            if finite:
+                finite_pair_count += 1
+            if (
+                finite
+                and bool(torch.count_nonzero(a_weight).item())
+                and bool(torch.count_nonzero(b_weight).item())
+            ):
+                nonzero_pair_count += 1
+    if pair_count <= 0 or finite_pair_count != pair_count or nonzero_pair_count <= 0:
+        raise RuntimeError(
+            "Resume adapter weights were not materialized as finite, nonzero LoRA "
+            "pairs before QAT preflight: "
+            f"pairs={pair_count}, finite={finite_pair_count}, "
+            f"nonzero={nonzero_pair_count}"
+        )
+
+    weight_path = next(
+        path
+        for path in (
+            checkpoint / "adapter_model.safetensors",
+            checkpoint / "adapter_model.bin",
+        )
+        if path.is_file()
+    )
+    return {
+        "checkpoint": str(checkpoint),
+        "adapter_name": active_name,
+        "adapter_sha256": hashlib.sha256(weight_path.read_bytes()).hexdigest(),
+        "adapter_pair_count": pair_count,
+        "finite_adapter_pairs": finite_pair_count,
+        "nonzero_adapter_pairs": nonzero_pair_count,
+        "target_modules": actual_targets if isinstance(actual_targets, str) else sorted(actual_targets),
+    }
 
 
 def _verify_zero_lora_initialization(model: Any) -> dict[str, Any]:
@@ -1987,7 +2288,8 @@ def _align_tokenizer_and_model(tokenizer: Any, model: Any) -> None:
     model_vocab_size = _min_known_vocab_size(input_vocab_size, output_vocab_size)
     _sync_model_config_vocab_size(model, output_vocab_size or input_vocab_size)
     _ensure_safe_pad_token(tokenizer, model_vocab_size)
-    for attr in ("pad_token_id", "bos_token_id", "eos_token_id"):
+    preserve_generation_eos(model, tokenizer)
+    for attr in ("pad_token_id", "bos_token_id"):
         value = getattr(tokenizer, attr, None)
         if value is None:
             continue
@@ -2540,9 +2842,7 @@ def _validate_sft_token_ids(
             completion_text = str(split[row_index].get("completion_text", ""))
             encoded = tokenizer(
                 text,
-                truncation=True,
-                max_length=max_seq_length,
-                add_special_tokens=True,
+                add_special_tokens=False,
             )
             input_ids = encoded.get("input_ids") or []
             if not input_ids:
@@ -2773,7 +3073,28 @@ def _build_optional_golden_callback(
             golden_eval_cfg.get("tensorboard_evaluation_name")
             or golden_eval_cfg.get("metric_log_prefix", "golden")
         ),
+        stop_strings=_resolve_golden_stop_strings(golden_eval_cfg),
     )
+
+
+def _resolve_golden_stop_strings(golden_eval_cfg: dict[str, Any]) -> list[str]:
+    """Sentinels that end golden-eval generation, from ``golden_eval.stop_strings``.
+
+    Defaults to the A2UI Express closing sentinel so a completed payload stops
+    decoding instead of running on. Set ``stop_strings: []`` to restore the old
+    decode-to-``max_new_tokens`` behaviour; note that changing this changes what
+    the reported metric measures, so scores are not comparable across the switch.
+    """
+    if "stop_strings" not in golden_eval_cfg:
+        return ["</a2ui>"]
+    configured = golden_eval_cfg.get("stop_strings")
+    if configured is None or configured is False:
+        return []
+    if isinstance(configured, str):
+        configured = [configured]
+    if not isinstance(configured, (list, tuple)):
+        raise ValueError("golden_eval.stop_strings must be a string, a list of strings, or null.")
+    return [str(item) for item in configured if str(item)]
 
 
 def _ensure_tensorboard_reporter(value: Any) -> Any:

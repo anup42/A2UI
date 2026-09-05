@@ -1,0 +1,1 @@
+{"case_id": "s01_full", "pair_id": "s01", "variant": "full", "severity": "error", "type": "pipeline_failure", "message": "Stage 3 output failed strict validation after repair. No fallback IR was rendered."}

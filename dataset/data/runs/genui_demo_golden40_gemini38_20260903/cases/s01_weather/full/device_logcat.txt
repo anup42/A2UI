@@ -1,0 +1,11 @@
+--------- beginning of system
+09-03 23:43:06.082  3355  5161 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-03 23:43:06.219  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +136ms
+09-03 23:43:06.809  3355  7413 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=185766694) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-03 23:43:06.920  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +110ms
+09-03 23:43:13.808 17444 17547 I McpLlmRouter: MCP router: domain=weather entities={location=Bengaluru, days=7} hasIntro=true hasFull=false
+09-03 23:43:20.418 17444 17547 I McpLlmRouter: MCP domain=weather extracted entities={location=Bengaluru, days=7}
+09-03 23:43:20.418 17444 17547 I GenUiStagePipeline: MCP router: domain=weather entities={location=Bengaluru, days=7}
+09-03 23:43:50.610  3355  4059 W ActivityTaskManager: setRunningRemoteTransition: no process for null
+09-03 23:43:50.985  3355  5099 W ActivityTaskManager: Force removing ActivityRecord{105054407 u0 com.samsung.genuicraft/.GenUiAssistantActivity t667 f}}: app died, no saved state

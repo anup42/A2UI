@@ -1,0 +1,1 @@
+Show walking activity as a bar chart and table: Monday 4,000 steps, Tuesday 6,500, Wednesday 5,000, Thursday 8,000, Friday 7,500. Include total and average.

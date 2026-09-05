@@ -1,0 +1,10 @@
+--------- beginning of system
+09-04 00:35:48.037  2727  7508 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10888 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+09-04 00:35:48.174  2727  3298 I ActivityTaskManager: done cause=notifyTransitionStarting drawn timestamp=257915498942171 info=TransitionInfo{9d24c6a a=ActivityRecord{193231757 u0 com.samsung.genuicraft/.MainActivity t3383} r=null d=true}
+--------- beginning of main
+09-04 00:35:48.174  2727  3292 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +137ms
+09-04 00:35:48.738  2727  7508 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10888 (com.samsung.genuicraft) (sr=193231757) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:35:48.833  2727  3298 I ActivityTaskManager: done cause=notifyTransitionStarting drawn timestamp=257916158691442 info=TransitionInfo{a252cfb a=ActivityRecord{81733811 u0 com.samsung.genuicraft/.GenUiAssistantActivity t3383} r=null d=true}
+09-04 00:35:48.833  2727  3292 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +96ms
+09-04 00:35:56.943 22718 22790 I McpLlmRouter: MCP router: domain=none entities={} hasIntro=false hasFull=true
+09-04 00:35:56.944 22718 22790 I GenUiStagePipeline: MCP router: domain=none, using LLM full_response

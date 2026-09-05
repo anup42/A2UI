@@ -1,0 +1,10 @@
+--------- beginning of system
+09-04 00:18:44.448  3355  5093 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-04 00:18:44.614  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +173ms
+09-04 00:18:45.614  3355  5161 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=44605610) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:18:45.726  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +112ms
+09-04 00:18:52.647 23940 24050 I McpLlmRouter: MCP router: domain=hotels entities={location=Mysuru, check_in=2026-10-16, check_out=2026-10-18, adults=2, currency=INR} hasIntro=true hasFull=false
+09-04 00:18:57.208 23940 24050 I McpLlmRouter: MCP domain=hotels extracted entities={location=mysuru, check_in=2026-10-16, check_out=2026-10-18, adults=2, currency=INR}
+09-04 00:18:57.208 23940 24050 I GenUiStagePipeline: MCP router: domain=hotels entities={location=mysuru, check_in=2026-10-16, check_out=2026-10-18, adults=2, currency=INR}
+09-04 00:19:01.479 23940 24051 D McpClient: Hotels: query='Find 5 hotels in Mysuru for 2 adults. Check-in 2026-10-16. Check-out 2026-10-18. Show ratings, INR nightly prices and property links.' location='mysuru' properties=20

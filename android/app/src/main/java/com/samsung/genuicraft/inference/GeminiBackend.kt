@@ -203,7 +203,12 @@ class GeminiBackend(
             })
 
             add("generationConfig", JsonObject().apply {
-                addProperty("temperature", request.temperature)
+                // Gemini 3 and moving aliases use thinking levels. Google documents the
+                // legacy sampling knobs as obsolete for these models, so rely on the model's
+                // default thinking level rather than sending an ignored parameter.
+                if (usesLegacySamplingConfiguration()) {
+                    addProperty("temperature", request.temperature)
+                }
                 addProperty("maxOutputTokens", min(request.maxOutputTokens, 8192))
                 if (usesGeminiApiEndpoint()) {
                     add("thinkingConfig", JsonObject().apply {
@@ -234,6 +239,11 @@ class GeminiBackend(
             }
         }
         return gson.toJson(body)
+    }
+
+    private fun usesLegacySamplingConfiguration(): Boolean {
+        val normalized = normalizeModelName(model).lowercase(Locale.US)
+        return !normalized.startsWith("gemini-3") && !normalized.endsWith("-latest")
     }
 
     // ── response parsing ───────────────────────────────────────────────

@@ -1,0 +1,1 @@
+Show Bengaluru weather for the next 7 days, including conditions, temperature, rain probability and wind.

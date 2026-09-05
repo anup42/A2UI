@@ -1,0 +1,58 @@
+{
+  "case_id": "s20_full",
+  "pair_id": "s20",
+  "scenario": "email_preview",
+  "variant": "full",
+  "attempt": 1,
+  "query_id": "q_000039",
+  "response_id": "r_000039_01",
+  "ui_id": "u_000039_01",
+  "status": "visual_issues",
+  "timestamps": {
+    "started_at": "2026-09-03T19:09:58.236000Z",
+    "completed_at": "2026-09-03T19:15:30.098000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "MCP: LLM routing decided no live data needed - using LLM response",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "Gemini route: vertex_ai_express_api_key",
+      "Masked 2 URL/asset reference(s) before step.",
+      "step structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "IR output format: A2UI Express v1",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "step output is not a valid A2UI Express completion. Running strict selected-format repair.",
+      "A2UI Express repair parsed natively; no legacy fallback was attempted."
+    ],
+    "stage3_input_tokens": 1577,
+    "stage3_output_tokens": 175,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "fc0e396611031f47f62509348b9d2c622afa8297146aa236c8a549a8b79fb8d0",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "issues"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/31_u_000039_01.png"
+  }
+}

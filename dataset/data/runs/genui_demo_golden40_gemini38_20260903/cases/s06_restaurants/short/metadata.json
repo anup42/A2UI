@@ -1,0 +1,57 @@
+{
+  "case_id": "s06_short",
+  "pair_id": "s06",
+  "scenario": "restaurants",
+  "variant": "short",
+  "attempt": 1,
+  "query_id": "q_000012",
+  "response_id": "r_000012_01",
+  "ui_id": "u_000012_01",
+  "status": "visual_issues",
+  "timestamps": {
+    "started_at": "2026-09-03T19:02:14.660000Z",
+    "completed_at": "2026-09-03T19:04:24.572000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "Masked 4 URL/asset reference(s) before step.",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "IR output format: A2UI Express v1",
+      "Gemini route: vertex_ai_express_api_key",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "step structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "step omitted authoritative response facts: NDTV Food Bangalore Guide={{u2}}; Justdial Indiranagar Dining Directory={{u3}} Running strict selected-format repair.",
+      "A2UI Express repair parsed natively; no legacy fallback was attempted."
+    ],
+    "stage3_input_tokens": 1615,
+    "stage3_output_tokens": 256,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "02e2e476b95827f5374bd7dc438e0b36b6ff9991cce1d41b64f15a483d6d571a",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "issues"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/07_u_000012_01.png"
+  }
+}

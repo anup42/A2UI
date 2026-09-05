@@ -26,6 +26,7 @@ from ir_training.train.callbacks import (
 )
 from ir_training.train.sft import (
     _CausalLMDataCollator,
+    _build_checked_causal_lm_trainer,
     _checked_shifted_causal_lm_loss,
     _disable_peft_vocab_probe,
     _align_tokenizer_and_model,
@@ -42,6 +43,17 @@ from ir_training.train.sft import (
     _validate_sft_token_ids,
     _validate_tokenized_sft_dataset,
 )
+
+
+def test_checked_trainer_declares_mean_loss_does_not_accept_loss_kwargs():
+    class BaseTrainer:
+        def __init__(self):
+            self.model_accepts_loss_kwargs = True
+
+    trainer_cls = _build_checked_causal_lm_trainer(BaseTrainer)
+    trainer = trainer_cls()
+
+    assert trainer.model_accepts_loss_kwargs is False
 
 
 def test_disable_peft_vocab_probe_preserves_adapter_origin_and_forces_save_flag(tmp_path):
@@ -344,11 +356,11 @@ def test_completion_only_tokenization_masks_prompt_and_keeps_completion():
         prompt_text="PPPP",
         completion_text="CCC",
         full_text="PPPPCCC",
-        max_seq_length=5,
+        max_seq_length=7,
     )
 
-    assert row["input_ids"] == [10, 10, 20, 20, 20]
-    assert row["labels"] == [-100, -100, 20, 20, 20]
+    assert row["input_ids"] == [10, 10, 10, 10, 20, 20, 20]
+    assert row["labels"] == [-100, -100, -100, -100, 20, 20, 20]
 
 
 def test_collator_preserves_completion_only_labels():
@@ -832,6 +844,9 @@ def test_greedy_numeric_preflight_repeats_deterministically_and_restores_mode():
         def __call__(self, text, **kwargs):
             return {"input_ids": [3, 4, 5] if text else []}
 
+        def decode(self, tokens, skip_special_tokens=True):
+            return " ".join(str(value) for value in tokens)
+
     class Model(torch.nn.Module):
         def __init__(self):
             super().__init__()
@@ -1014,6 +1029,96 @@ def test_zero_lora_initialization_gate_rejects_nonzero_delta_factors():
     assert wrong["nonzero_or_invalid_pairs"] == ["projection:default"]
 
 
+def test_resume_lora_validation_requires_matching_nonzero_adapter(tmp_path):
+    import torch
+
+    checkpoint = tmp_path / "checkpoint-10"
+    checkpoint.mkdir()
+    (checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    weights = checkpoint / "adapter_model.bin"
+    weights.write_bytes(b"resume-adapter")
+
+    class Config:
+        r = 16
+        lora_alpha = 16
+        lora_dropout = 0.0
+        target_modules = {"q_proj", "v_proj"}
+
+    class LoraWrapper(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.lora_A = torch.nn.ModuleDict(
+                {"default": torch.nn.Linear(3, 2, bias=False)}
+            )
+            self.lora_B = torch.nn.ModuleDict(
+                {"default": torch.nn.Linear(2, 3, bias=False)}
+            )
+            with torch.no_grad():
+                self.lora_A["default"].weight.fill_(0.5)
+                self.lora_B["default"].weight.fill_(0.25)
+
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.projection = LoraWrapper()
+            self.peft_config = {"default": Config()}
+            self.active_adapters = ["default"]
+
+    sft_module._require_peft_resume_checkpoint(checkpoint)
+    report = sft_module._validate_resumed_lora_model(
+        Model(),
+        expected_config=Config(),
+        checkpoint=checkpoint,
+    )
+
+    assert report["adapter_sha256"] == hashlib.sha256(b"resume-adapter").hexdigest()
+    assert report["adapter_pair_count"] == 1
+    assert report["finite_adapter_pairs"] == 1
+    assert report["nonzero_adapter_pairs"] == 1
+
+
+def test_resume_lora_validation_rejects_zero_adapter(tmp_path):
+    import torch
+
+    checkpoint = tmp_path / "checkpoint-10"
+    checkpoint.mkdir()
+    (checkpoint / "adapter_config.json").write_text("{}", encoding="utf-8")
+    (checkpoint / "adapter_model.safetensors").write_bytes(b"weights")
+
+    class Config:
+        r = 16
+        lora_alpha = 16
+        lora_dropout = 0.0
+        target_modules = {"q_proj"}
+
+    class LoraWrapper(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.lora_A = torch.nn.ModuleDict(
+                {"default": torch.nn.Linear(3, 2, bias=False)}
+            )
+            self.lora_B = torch.nn.ModuleDict(
+                {"default": torch.nn.Linear(2, 3, bias=False)}
+            )
+            with torch.no_grad():
+                self.lora_A["default"].weight.fill_(1.0)
+                self.lora_B["default"].weight.zero_()
+
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.projection = LoraWrapper()
+            self.peft_config = {"default": Config()}
+            self.active_adapters = ["default"]
+
+    with pytest.raises(RuntimeError, match="finite, nonzero LoRA pairs"):
+        sft_module._validate_resumed_lora_model(
+            Model(),
+            expected_config=Config(),
+            checkpoint=checkpoint,
+        )
+
+
 def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tmp_path, monkeypatch):
     import torch
 
@@ -1098,8 +1203,7 @@ def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tm
         {
             "prompt": "formatted prompt",
             "return_tensors": "pt",
-            "truncation": True,
-            "max_length": 123,
+            "add_special_tokens": False,
         }
     ]
     prediction = json.loads(output_path.read_text(encoding="utf-8"))
@@ -1143,7 +1247,7 @@ def test_sft_tokenizer_model_alignment_resizes_and_sets_special_ids():
 
     assert model.get_input_embeddings().num_embeddings == 6
     assert model.config.pad_token_id == 0
-    assert model.generation_config.eos_token_id == 1
+    assert model.generation_config.eos_token_id == [1]
 
 
 def test_sft_alignment_replaces_out_of_vocab_pad_token_with_eos():

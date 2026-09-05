@@ -1,0 +1,76 @@
+"""Print a portable GPU launch plan; --execute explicitly starts it on that host."""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
+from ir_training.common.config import load_yaml
+from ir_training.train.recipe import validate_effective_batch, validate_sft_recipe
+from prepare_review_training import sha256, verify_prepared
+
+
+def verify_launch_binding(config_path: Path) -> None:
+    report_path = config_path.parent / "preparation_report.json"
+    if not report_path.is_file():
+        raise ValueError("Execution requires the report produced by prepare_review_training.py; regenerate a bound run plan.")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    if report.get("training_config_sha256") != sha256(config_path):
+        raise ValueError("Training config changed after preparation; regenerate the run plan instead of editing it.")
+    config = load_yaml(config_path)
+    refreshed = verify_prepared(Path(config["run"]["dataset_dir"]), Path(config["golden_eval"]["split_path"]),
+        max_sequence=config["training"]["max_seq_length"], max_prompt=config["golden_eval"]["max_input_tokens"])
+    for key in ("dataset_manifest_sha256", "golden_sha256", "tokenizer"):
+        if refreshed[key] != report.get(key):
+            raise ValueError(f"Prepared launch binding changed: {key}")
+    model_dir = Path(config["model"]["model_source"])
+    if not report.get("model_files"):
+        raise ValueError("Preparation report has no bound model files.")
+    for name, digest in report["model_files"].items():
+        if not (model_dir / name).is_file() or sha256(model_dir / name) != digest:
+            raise ValueError(f"Model/tokenizer bundle changed since preparation: {name}")
+
+
+def launch_plan(config_path: Path, *, preflight_only: bool = False) -> tuple[list[str], dict[str, str]]:
+    config = load_yaml(config_path)
+    validate_sft_recipe(config)
+    runtime = config.get("runtime") or {}
+    devices = str(runtime.get("cuda_visible_devices", "")).strip()
+    selected = [part.strip() for part in devices.split(",") if part.strip()]
+    if not selected or len(set(selected)) != len(selected):
+        raise ValueError("Resolve an explicit unique device list with prepare_review_training.py first.")
+    if int(runtime.get("world_size", len(selected))) != len(selected):
+        raise ValueError("runtime.world_size disagrees with CUDA device list.")
+    validate_effective_batch(config["training"], len(selected))
+    command = [sys.executable, "-m", "torch.distributed.run", "--standalone", f"--nproc_per_node={len(selected)}", str(ROOT / "scripts/train_sft.py"), "--config", str(config_path.resolve())]
+    if preflight_only:
+        command.append("--preflight-only")
+    environment = dict(os.environ)
+    environment.update(CUDA_VISIBLE_DEVICES=",".join(selected), A2UI_SKIP_CUDA_DEVICE_NORMALIZE="1", TOKENIZERS_PARALLELISM="false")
+    environment.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
+    environment.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
+    return command, environment
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--preflight-only", action="store_true", help="GPU host: real model forward checks, no optimizer.")
+    parser.add_argument("--execute", action="store_true", help="Actually launch GPU workers. Omit to print only.")
+    args = parser.parse_args()
+    command, environment = launch_plan(args.config, preflight_only=args.preflight_only)
+    print(json.dumps({"command": command, "CUDA_VISIBLE_DEVICES": environment["CUDA_VISIBLE_DEVICES"], "execute": args.execute}, indent=2), flush=True)
+    if args.execute:
+        verify_launch_binding(args.config.resolve())
+        completed = subprocess.run(command, env=environment, cwd=ROOT.parent, check=False)
+        raise SystemExit(completed.returncode)
+
+
+if __name__ == "__main__":
+    main()

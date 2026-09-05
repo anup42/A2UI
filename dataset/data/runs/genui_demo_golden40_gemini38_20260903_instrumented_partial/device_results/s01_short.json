@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "run_id": "genui_demo_golden40_gemini38_20260903",
+  "case_id": "s01_short",
+  "prompt": "Show Bengaluru weather for 1 day: temperature, condition and rain chance only.",
+  "started_at_ms": 1788457473232,
+  "response_model": "gemini-3.8-flash",
+  "ir_model": "gemini-3.8-flash",
+  "mcp_enabled": true,
+  "response_provider": "gemini",
+  "ir_provider": "gemini",
+  "gemini_api_mode": "vertex_ai_express_api_key",
+  "success": true,
+  "outcome_stage": "complete",
+  "response_text": "Checking the 1-day weather forecast for Bengaluru.\n\n## Weather in Bengaluru, India\n\nWeather forecast table (domain: weather, preferredPresentation: cards).\n\n| Day | Date | Condition | Temp | High | Low | Feels Like | Rain Chance | Rain | Wind | Gusts | Humidity | UV | Best Window | Morning | Afternoon | Evening | Night | What to wear |\n|-----|------|-----------|------|------|-----|------------|-------------|------|------|-------|----------|----|-------------|---------|-----------|---------|-------|--------------|\n| Today | 2026-09-03 | Overcast | 21.9°C | 28.7°C | 20.1°C | 24.5°C | 64% | 1.3 mm | W 9.5 km/h | 43.9 km/h | 90% | 0 | Before noon | Overcast | Overcast | Overcast | Drizzle | Carry an umbrella; wear quick-dry footwear and light layers. |\n\n## Sources\n- Open-Meteo Forecast API: https://open-meteo.com/en/docs\n- Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api\n\n## Quick Actions\nAction: [Button: Open Forecast Source] https://open-meteo.com/en/docs\n",
+  "genui_json": "<a2ui>\nroot=Column([a,b,c,d,g],\"md\")\na=Text(\"Checking the 1-day weather forecast for Bengaluru.\",\"body\")\nb=Text(\"Weather in Bengaluru, India\",\"h2\")\nc=Table(columns=[\"Day\",\"Date\",\"Condition\",\"Temp\",\"High\",\"Low\",\"Feels Like\",\"Rain Chance\",\"Rain\",\"Wind\",\"Gusts\",\"Humidity\",\"UV\",\"Best Window\",\"Morning\",\"Afternoon\",\"Evening\",\"Night\",\"What to wear\"],rows=[[\"Today\",\"2026-09-03\",\"Overcast\",\"21.9°C\",\"28.7°C\",\"20.1°C\",\"24.5°C\",\"64%\",\"1.3 mm\",\"W 9.5 km/h\",\"43.9 km/h\",\"90%\",\"0\",\"Before noon\",\"Overcast\",\"Overcast\",\"Overcast\",\"Drizzle\",\"Carry an umbrella; wear quick-dry footwear and light layers.\"]],title=\"Weather forecast table\",domain=\"weather\",preferredPresentation=\"cards\")\nd=Card([e,f],\"Sources\")\ne=Text(\"Open-Meteo Forecast API: https://open-meteo.com/en/docs\")\nf=Text(\"Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api\")\ng=Card([h],\"Quick Actions\")\nh=Button(\"Open Forecast Source\",\"primary\",onPress=openUrl(\"https://open-meteo.com/en/docs\"))\n</a2ui>",
+  "used_fallback": false,
+  "warnings": [
+    "MCP: Weather (LLM-routed + live data)",
+    "Response backend: gemini",
+    "IR backend: gemini",
+    "Gemini route: vertex_ai_express_api_key",
+    "Masked 3 URL/asset reference(s) before Stage 3.",
+    "Stage 3 structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+    "IR output format: A2UI Express v1",
+    "Gemini response model: gemini-3.8-flash",
+    "Gemini IR model: gemini-3.8-flash",
+    "A2UI Express parsed natively; no legacy fallback is available.",
+    "Stage 3 output omitted one or more quick actions."
+  ],
+  "stage3_input_tokens": 1760,
+  "stage3_output_tokens": 335,
+  "stage_durations_ms": {
+    "stage2": 15489,
+    "stage3": 28378,
+    "stage4": 25
+  },
+  "stage_stream_durations_ms": {
+    "stage2": 1,
+    "stage3": 0
+  },
+  "surface_count": 1,
+  "component_count": 0,
+  "stage_updates": [
+    {
+      "stage": "stage2",
+      "message": "Fetching data",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "MCP domain selected: Weather",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "Fetching live Weather data",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "MCP API call completed",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage2",
+      "message": "Rich response ready",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage3",
+      "message": "Converting response into selected GenUICraft IR",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage3",
+      "message": "GenUI JSON ready",
+      "llm_input_tokens": 1760,
+      "llm_output_tokens": 335,
+      "stream_complete": false
+    },
+    {
+      "stage": "stage4",
+      "message": "Rendering output",
+      "stream_complete": false
+    },
+    {
+      "stage": "stage4",
+      "message": "Native render ready",
+      "stream_complete": false
+    }
+  ],
+  "finished_at_ms": 1788457517150,
+  "elapsed_ms": 43918,
+  "instrumentation_return_code": 0,
+  "instrumentation_log": "instrumentation_logs/s01_short.txt"
+}

@@ -7,6 +7,8 @@ from typing import Any
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.data.url_preprocess import restore_url_placeholders
+from ir_training.generation_policy import sha256_text, stop_express_completion
+from ir_training.eval.generate import prediction_source_context_hash
 from ir_training.eval.metrics import (
     aggregate_scores,
     load_baseline_aggregate,
@@ -24,13 +26,19 @@ def evaluate_predictions(
 ) -> dict[str, Any]:
     rows_out: list[dict[str, Any]] = []
     for row in read_jsonl(predictions_path):
+        if row.get("source_context_sha256") and row["source_context_sha256"] != prediction_source_context_hash(row):
+            raise ValueError(f"Scoring context hash mismatch for row {row.get('id')}")
         url_map = row.get("url_map") if isinstance(row.get("url_map"), dict) else {}
         response_text = str(restore_url_placeholders(row.get("response_text") or row.get("input") or "", url_map))
+        if row.get("response_text_sha256") and row["response_text_sha256"] != sha256_text(response_text):
+            raise ValueError(f"Scoring source hash mismatch for row {row.get('id')}")
         generated_text = str(row.get("generated_text") or row.get("prediction") or "")
         expected = restore_url_placeholders(
             row.get("expected") or row.get("completion") or row.get("expected_json"),
             url_map,
         )
+        if row.get("expected_sha256") and row["expected_sha256"] != sha256_text(str(expected or "")):
+            raise ValueError(f"Expected completion hash mismatch for row {row.get('id')}")
         restored_generated_text = str(restore_url_placeholders(generated_text, url_map))
         metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
         intent = _first_text(
@@ -74,10 +82,27 @@ def evaluate_predictions(
         if restored_generated_text != generated_text:
             out["generated_text_restored"] = restored_generated_text
         out["metrics"] = metrics
+        raw_text = str(restore_url_placeholders(row.get("raw_generated_text", generated_text), url_map))
+        stopped_text = stop_express_completion(raw_text)
+        def score_variant(text: str) -> dict[str, Any]:
+            if text == restored_generated_text:
+                return dict(metrics)
+            return score_prediction(response_text, expected, text,
+                metric_version=metric_version, intent=intent, assets=assets,
+                expected_ui_contract=expected_ui_contract,
+                expected_ui_contract_source=expected_ui_contract_source)
+        out["raw_metrics"] = score_variant(raw_text)
+        out["serving_stopped_metrics"] = score_variant(stopped_text)
+        out["serving_stopped_text"] = stopped_text
+        out["diagnostic_policy"] = "quote-aware closing sentinel only; no ID or graph repair"
         rows_out.append(out)
     weights = load_dataset_weights(weights_config_path)
     baseline = load_baseline_aggregate(baseline_aggregate_path)
     aggregate = aggregate_scores(rows_out, weights=weights, baseline_aggregate=baseline)
+    for label in ("raw", "serving_stopped"):
+        aggregate[f"{label}_diagnostics"] = aggregate_scores(
+            [{"metrics": row[f"{label}_metrics"]} for row in rows_out], weights=weights)
+    aggregate["raw_output_scope"] = "observed runtime output only; an early-stopped run has no raw continuation to reconstruct"
     if output_dir is not None:
         out_dir = Path(output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)

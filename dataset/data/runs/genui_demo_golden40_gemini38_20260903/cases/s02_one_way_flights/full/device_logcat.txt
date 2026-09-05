@@ -1,0 +1,12 @@
+--------- beginning of system
+09-03 23:44:01.919  3355  7219 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-03 23:44:02.053  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +138ms
+09-03 23:44:02.617  3355  7174 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=132737527) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-03 23:44:02.718  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +99ms
+09-03 23:44:12.991 17825 17938 I McpLlmRouter: MCP router: domain=flights entities={origin=BLR, destination=DEL, date=2026-10-15, departure_date=2026-10-15, type=one-way, travel_class=economy, adults=1, currency=INR} hasIntro=true hasFull=false
+09-03 23:44:26.770 17825 17938 W McpLlmRouter: MCP entity extraction call failed; using fallback entities. Failed to parse entity extraction JSON: com.google.gson.stream.MalformedJsonException: Unterminated string at line 26 column 12 path $.entities
+09-03 23:44:26.770 17825 17938 W McpLlmRouter: See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json
+09-03 23:44:26.773 17825 17938 I McpLlmRouter: MCP domain=flights extracted entities={origin=BLR, destination=DEL, date=2026-10-15, departure_date=2026-10-15, type=one_way, travel_class=economy, adults=1, currency=INR}
+09-03 23:44:26.773 17825 17938 I GenUiStagePipeline: MCP router: domain=flights entities={origin=BLR, destination=DEL, date=2026-10-15, departure_date=2026-10-15, type=one_way, travel_class=economy, adults=1, currency=INR}
+09-03 23:44:47.543  3355  7177 W ActivityTaskManager: setRunningRemoteTransition: no process for null

@@ -26,12 +26,13 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
         )
 
     method = str(training.get("method") or "").strip().lower()
-    if method not in {"qat_lora_sft", "lora_sft", "sft_lora"}:
+    full_finetune = method == "full_finetune_qat"
+    if method not in {"qat_lora_sft", "lora_sft", "sft_lora", "full_finetune_qat"}:
         issues.append(
             WorkflowIssue(
                 "error",
                 "unsupported_qat_training_method",
-                "True QAT currently supports LoRA SFT only (training.method=qat_lora_sft).",
+                "QAT supports qat_lora_sft or full_finetune_qat with the checked HF SFT backend.",
             )
         )
 
@@ -44,7 +45,7 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
             )
         )
 
-    if qat.get("effective_merged_weight", True) is not True:
+    if not full_finetune and qat.get("effective_merged_weight", True) is not True:
         issues.append(
             WorkflowIssue(
                 "error",
@@ -79,6 +80,8 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
         )
 
     scale_mode = str(qat.get("scale_mode", "dynamic")).strip().lower()
+    if full_finetune and (lora or scale_mode == "retained_mobile" or qat.get("effective_lora_only")):
+        issues.append(WorkflowIssue("error", "unsupported_full_qat_contract", "Full QAT requires dynamic scales, no LoRA settings, and full eligible weight coverage."))
     if scale_mode not in {"dynamic", "retained_mobile"}:
         issues.append(
             WorkflowIssue(

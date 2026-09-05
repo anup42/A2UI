@@ -1,0 +1,10 @@
+<a2ui>
+root=Card([a],"Subject: Please Review: Project Plan (Scope, Timeline & Risks) by Friday")
+a=Column([b,c,d,e,f,g],"sm")
+b=Text("Hi Team,")
+c=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg")
+d=Text("The updated project plan is ready for review. Please take a look at the attached document and provide your feedback on the project scope, timeline, and identified risks.")
+e=Text("Kindly share your comments or sign-off by this Friday at 5:00 PM so we can finalize our roadmap.")
+f=Text("Thanks,\n[Your Name]")
+g=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg")
+</a2ui>

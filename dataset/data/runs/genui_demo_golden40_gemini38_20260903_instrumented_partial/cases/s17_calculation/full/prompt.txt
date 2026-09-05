@@ -1,0 +1,1 @@
+Split a ₹2,400 bill with a 10% tip equally among four people. Show the formula, tip, total and amount per person.

@@ -1,0 +1,1 @@
+Bar chart only: Mon 4,000, Tue 6,500, Wed 5,000, Thu 8,000, Fri 7,500 steps. No commentary.

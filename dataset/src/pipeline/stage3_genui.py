@@ -1266,7 +1266,18 @@ def run_stage3(
         return native_payload, decode_express_completion(native_payload), False
 
     def _validate_completion(native_payload: Any, canonical: Any) -> tuple[bool, list[str], bool]:
-        return _validate_schema(schema, canonical, schema_path.parent)
+        valid, validation_errors, validator_ok = _validate_schema(schema, canonical, schema_path.parent)
+        if not valid:
+            return valid, validation_errors, validator_ok
+        # Apply the production wire gate on every attempt, including repaired
+        # and regenerated completions. Canonical props alone do not enforce
+        # dynamicArray types such as Table.highlightColumns; accepting a repair
+        # here previously exited the loop only to fail final compilation.
+        try:
+            compile_express_to_wire(native_payload)
+        except Exception as exc:
+            return False, [f"standard_a2ui_compile_error: {exc}"], True
+        return True, [], validator_ok
 
     def _repair_instructions(raw_text: str, errors: list[str]) -> str:
         failure_reason = "; ".join(errors[-5:]) if errors else "format validation failed"
@@ -1470,14 +1481,10 @@ def run_stage3(
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
                 parsed_native_payload, genui_json
             )
-            initial_native_catalog_valid = schema_valid_strict
-            if schema_valid_strict:
-                try:
-                    compile_express_to_wire(parsed_native_payload)
-                    initial_standard_a2ui_valid = True
-                except Exception as exc:
-                    errors.append(f"standard_a2ui_compile_error: {exc}")
-                    schema_valid_strict = False
+            # Keep catalog and production-wire diagnostics separate even
+            # though the acceptance/repair gate now requires both.
+            initial_native_catalog_valid, _, _ = _validate_schema(schema, genui_json, schema_path.parent)
+            initial_standard_a2ui_valid = schema_valid_strict
             if schema_valid_strict:
                 schema_valid_lenient = True
             else:
@@ -1682,14 +1689,9 @@ def run_stage3(
             return
 
         generation_completion = raw_text
-        final_standard_a2ui_valid = initial_standard_a2ui_valid
-        if repair_attempts > 0:
-            try:
-                compile_express_to_wire(parsed_native_payload)
-                final_standard_a2ui_valid = True
-            except Exception as exc:
-                errors.append(f"repaired_standard_a2ui_compile_error: {exc}")
-                final_standard_a2ui_valid = False
+        # Every path reaching acceptance has passed the same wire gate,
+        # including final regeneration when no repair attempts were enabled.
+        final_standard_a2ui_valid = True
         # Restore only after the raw Express completion has parsed and passed
         # catalog/schema checks.  Model-facing prompts never contain these
         # raw URL or local-path values.
@@ -2664,8 +2666,6 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
-
-
 
 
 

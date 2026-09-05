@@ -1,0 +1,69 @@
+# Portable capability baseline. Resolve paths with prepare_review_training.py.
+# This dense QAT-derived seed does not establish retained mobile export parity.
+run:
+  id: e2b_review_sft
+  dataset_format: a2ui_express_v1
+  purpose: capability_baseline
+  quality_promotion_eligible: false
+model:
+  family: gemma
+  model_id: google/gemma-4-E2B-it-qat-q4_0-unquantized
+  model_loader: auto_causal_lm
+  tokenizer_loader: pretrained_tokenizer_fast
+  trust_remote_code: false
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 8192
+  max_output_tokens: 4096
+training:
+  method: lora_sft
+  trainer_backend: hf
+  epochs: 1
+  learning_rate: 0.00002
+  weight_decay: 0.01
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs: {use_reentrant: false}
+  ddp_broadcast_buffers: false
+  ddp_find_unused_parameters: false
+  require_ddp_for_multi_gpu: true
+  mixed_precision: auto
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  overflow_policy: error
+  eval_strategy: steps
+  eval_steps: 500
+  save_steps: 500
+  logging_steps: 10
+  save_total_limit: 3
+  report_to: tensorboard
+  max_grad_norm: 1.0
+  seed: 42
+  forward_smoke_check_rows: 4
+  lora_diagnostics_steps: 5
+lora:
+  r: 32
+  alpha: 32
+  dropout: 0.0
+  # Target only language decoder attention and MLP projections. Avoid modality
+  # towers and the vocabulary head. Verify the realized module inventory on GPU.
+  target_modules: '.*language_model\.layers\.\d+\.(self_attn\.(q|k|v|o)_proj|mlp\.(gate|up|down)_proj)'
+  modules_to_save: []
+golden_eval:
+  enabled: true
+  max_rows: 32
+  required_rows: 32
+  require_exact_rows: true
+  require_unique_rows: true
+  max_input_tokens: 4096
+  max_new_tokens: 4096
+  metric_version: v5_4
+  trigger: evaluate
+  interval: 1
+  metric_for_best_model: generation_reward_v5_4_avg
+  greater_is_better: true
+  save_best_checkpoint: true
+  stop_strings: ['</a2ui>']

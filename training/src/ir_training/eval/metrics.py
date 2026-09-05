@@ -120,7 +120,7 @@ def score_prediction(
         except Exception:
             pass
     if expected_graph is not None and parsed is not None:
-        metrics["exact_match"] = validation.semantic_hash == expected_hash
+        metrics["exact_match"] = generated_text.strip() == expected_text.strip()
         metrics["semantic_match"] = validation.semantic_hash == expected_hash
     elif expected is not None:
         metrics["exact_match"] = False
@@ -158,11 +158,15 @@ def aggregate_scores(
             elif isinstance(value, (int, float)):
                 numeric.setdefault(key, []).append(float(value))
     out = {"count": len(rows)}
+    out["metric_observed_counts"] = {key: len(values) for key, values in sorted(numeric.items())}
+    out["aggregation_denominator"] = "all rows; missing numeric values contribute zero (observed-only means are separately labelled)"
     for key, values in sorted(numeric.items()):
         if not values:
             continue
         suffix = _aggregate_suffix(key)
-        out[f"{key}{suffix}"] = sum(values) / len(values)
+        out[f"{key}{suffix}"] = sum(values) / len(rows)
+        if len(values) != len(rows):
+            out[f"{key}_observed_only_avg"] = sum(values) / len(values)
     # Keep the established ``*_avg`` aggregate fields while also exposing the
     # two v5.4 headline values under their official metric names.  The latter
     # are intentionally scalar so training/TensorBoard integrations do not
@@ -178,6 +182,10 @@ def aggregate_scores(
         and isinstance(row.get("metrics", {}).get("metric_identity_v5_4"), dict)
     ]
     if v5_4_identities:
+        identity_keys = ("metric_version", "metric_name", "metric_fingerprint", "reward_pipeline_fingerprint")
+        first_identity = v5_4_identities[0]
+        if any(any(identity.get(key) != first_identity.get(key) for key in identity_keys) for identity in v5_4_identities[1:]):
+            raise ValueError("Cannot aggregate v5.4 predictions with mixed scorer identities")
         out["metric_identity_v5_4"] = dict(v5_4_identities[0])
         out["genui_metric_version"] = str(
             v5_4_identities[0].get("metric_version") or "5.4.0"
@@ -294,6 +302,8 @@ def _score_prediction_v5_4(
         "reward_pipeline_fingerprint": generation.reward_pipeline_fingerprint,
         **generation.identity,
     }
+    integrity = generation.atomics.get("integrity", {})
+    output_evidence = generation.evidence.get("output", {})
     return {
         "generation_reward_v5_4": float(generation.quality_0_100),
         # The generation breakdown already contains the artifact-only result;
@@ -301,6 +311,14 @@ def _score_prediction_v5_4(
         "render_artifact_quality_v5_4": float(generation.artifact_quality_0_100),
         "metric_identity_v5_4": identity,
         "genui_metric_version": generation.metric_version,
+        "root_reachable_fraction_v5_4": float(integrity.get("reachable_fraction") or 0.0),
+        "fully_root_reachable_v5_4": float(integrity.get("reachable_fraction") or 0.0) == 1.0,
+        "cap_v5_4": float(generation.cap_0_1),
+        "active_caps_v5_4": list(generation.active_caps),
+        "binding_caps_v5_4": list(generation.binding_caps),
+        "graph_evidence_v5_4": output_evidence,
+        "fidelity_atomics_v5_4": dict(generation.atomics.get("fidelity", {})),
+        "scoring_errors_v5_4": list(generation.errors),
     }
 
 

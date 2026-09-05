@@ -1,0 +1,9 @@
+--------- beginning of system
+09-04 00:50:41.454  3355  7197 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-04 00:50:41.610  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +164ms
+09-04 00:50:42.611  3355  4667 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=214785581) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:50:42.728  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +116ms
+09-04 00:50:50.302 28304 28440 I McpLlmRouter: MCP router: domain=places entities={location=Mysuru} hasIntro=true hasFull=false
+09-04 00:50:53.842 28304 28440 I McpLlmRouter: MCP domain=places extracted entities={location=Mysuru}
+09-04 00:50:53.843 28304 28440 W GenUiStagePipeline: MCP domain places identified but API key not configured; falling back to normal Stage 2

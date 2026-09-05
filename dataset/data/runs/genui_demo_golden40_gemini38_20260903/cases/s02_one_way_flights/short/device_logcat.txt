@@ -1,0 +1,18 @@
+--------- beginning of system
+09-03 23:44:49.437  3355  6300 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-03 23:44:49.571  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +132ms
+09-03 23:44:50.134  3355  7177 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=208865828) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-03 23:44:50.237  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +102ms
+09-03 23:44:57.900 18249 18332 I McpLlmRouter: MCP router: domain=flights entities={origin=BLR, destination=DEL, date=2026-10-15, departure_date=2026-10-15, type=one-way, travel_class=Economy, adults=1, currency=INR} hasIntro=true hasFull=false
+09-03 23:45:09.210 18249 18332 I McpLlmRouter: MCP domain=flights extracted entities={origin=BLR, destination=DEL, departure_date=2026-10-15, type=one_way, travel_class=economy, adults=1, currency=INR, date=2026-10-15}
+09-03 23:45:09.211 18249 18332 I GenUiStagePipeline: MCP router: domain=flights entities={origin=BLR, destination=DEL, departure_date=2026-10-15, type=one_way, travel_class=economy, adults=1, currency=INR, date=2026-10-15}
+09-03 23:46:08.772 18249 18332 W GenUiStagePipeline: Transient backend error (attempt 2/3). Retrying immediately. error=HTTP 429: {
+09-03 23:46:08.772 18249 18332 W GenUiStagePipeline:   "error": {
+09-03 23:46:08.772 18249 18332 W GenUiStagePipeline:     "code": 429,
+09-03 23:46:08.772 18249 18332 W GenUiStagePipeline:     "message": "Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-co
+09-03 23:48:26.077 18249 18332 W GenUiStagePipeline: Transient backend error (attempt 1/3). Retrying immediately. error=HTTP 429: {
+09-03 23:48:26.077 18249 18332 W GenUiStagePipeline:   "error": {
+09-03 23:48:26.077 18249 18332 W GenUiStagePipeline:     "code": 429,
+09-03 23:48:26.077 18249 18332 W GenUiStagePipeline:     "message": "Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-co
+09-03 23:49:22.585  3355  5160 W ActivityTaskManager: setRunningRemoteTransition: no process for null

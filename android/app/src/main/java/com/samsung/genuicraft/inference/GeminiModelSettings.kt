@@ -13,6 +13,27 @@ object GeminiModelSettings {
     const val GEMMA_4_31B_IT_MODEL = "gemma-4-31b-it"
     const val DEFAULT_MODEL = DEFAULT_RESPONSE_MODEL
 
+    /**
+     * Text-output models suitable for both response generation and GenUI IR conversion.
+     * Keep explicit stable IDs ahead of preview, legacy, and auto-updating aliases so the
+     * settings screen favors reproducible model selections.
+     */
+    val BUILT_IN_TEXT_MODEL_OPTIONS = listOf(
+        "gemini-3.8-flash",
+        "gemini-3.7-flash",
+        "gemini-3.6-flash",
+        "gemini-3.5-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-3.1-pro-preview",
+        "gemini-2.5-pro",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-pro-latest",
+        "gemini-flash-latest",
+        "gemini-flash-lite-latest",
+    )
+
     fun getSelectedModel(context: Context): String {
         return getResponseModel(context)
     }

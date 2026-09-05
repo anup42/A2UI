@@ -1,0 +1,46 @@
+{
+  "case_id": "s05_full",
+  "pair_id": "s05",
+  "scenario": "mysuru_hotels",
+  "variant": "full",
+  "attempt": 1,
+  "query_id": "q_000009",
+  "response_id": "r_000009_01",
+  "ui_id": "u_000009_01",
+  "status": "pipeline_failed",
+  "timestamps": {
+    "started_at": "2026-09-03T18:48:44.428000Z",
+    "completed_at": "2026-09-03T18:52:49.804000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": null,
+    "warnings": [],
+    "stage3_input_tokens": null,
+    "stage3_output_tokens": null,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": false,
+    "semantic_hash": null,
+    "native_render_ok": null,
+    "capture_ok": null,
+    "visual_review": "pending"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": null,
+    "ir": null,
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": null,
+    "viewport_screenshot": null,
+    "canonical_screenshot": null
+  }
+}

@@ -1,0 +1,5 @@
+<a2ui>
+root=Column([a,b],"md")
+a=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg")
+b=Table(columns=["Start Time","Activity"],rows=[["9:00 AM","Welcome, Introductions & Workshop Overview"],["10:00 AM","Core Presentation & Concept Deep Dive"],["11:00 AM","Hands-on Group Activity & Collaboration"],["12:00 PM","Group Presentations, Q&A & Wrap-up"]])
+</a2ui>

@@ -1,0 +1,11 @@
+serial: R3GL203AKSF
+model: SM-F776U
+brand: samsung
+android: 17
+sdk: 37
+focused: mCurrentFocus=null
+  mFocusedApp=ActivityRecord{107531259 u0 com.android.systemui/.subscreen.SubHomeActivity t4}
+  mCurrentFocus=Window{dbd4b03 u0 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity}
+  mFocusedApp=ActivityRecord{193022305 u0 com.sec.android.app.launcher/.activities.LauncherActivity t240}
+package: com.samsung.genuicraft
+pidof: 607

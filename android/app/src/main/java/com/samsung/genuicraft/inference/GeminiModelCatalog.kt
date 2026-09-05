@@ -11,6 +11,12 @@ object GeminiModelCatalog {
     private val excludedModelKeywords = listOf(
         "image",
         "tts",
+        "live",
+        "native-audio",
+        "transcribe",
+        "translate",
+        "embedding",
+        "omni",
         "computer-use",
         "robotics",
         "customtools"
@@ -106,17 +112,12 @@ object GeminiModelCatalog {
     }
 
     private fun priorityFor(model: String): Int {
-        return when (model) {
-            "gemini-2.5-pro" -> 0
-            "gemini-2.5-flash" -> 1
-            "gemini-2.5-flash-lite" -> 2
-            GeminiModelSettings.GEMMA_4_31B_IT_MODEL -> 3
-            "gemini-2.0-flash" -> 4
-            "gemini-2.0-flash-lite" -> 5
-            "gemini-pro-latest" -> 6
-            "gemini-flash-latest" -> 7
-            "gemini-flash-lite-latest" -> 8
-            else -> 10
+        val builtInIndex = GeminiModelSettings.BUILT_IN_TEXT_MODEL_OPTIONS.indexOf(model)
+        return when {
+            builtInIndex >= 0 -> builtInIndex
+            model == GeminiModelSettings.GEMMA_4_31B_IT_MODEL ->
+                GeminiModelSettings.BUILT_IN_TEXT_MODEL_OPTIONS.size
+            else -> GeminiModelSettings.BUILT_IN_TEXT_MODEL_OPTIONS.size + 1
         }
     }
 }

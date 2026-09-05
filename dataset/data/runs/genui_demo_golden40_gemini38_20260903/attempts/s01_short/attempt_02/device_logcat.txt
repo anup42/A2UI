@@ -1,0 +1,9 @@
+--------- beginning of system
+09-03 23:38:03.028  3355  5161 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-03 23:38:03.161  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +132ms
+09-03 23:38:03.731  3355  6935 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=93281512) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-03 23:38:03.829  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +97ms
+09-03 23:38:15.102 16213 16294 I McpLlmRouter: MCP router: domain=weather entities={location=Bengaluru, days=1} hasIntro=true hasFull=false
+09-03 23:38:21.615 16213 16294 I McpLlmRouter: MCP domain=weather extracted entities={location=Bengaluru, days=1}
+09-03 23:38:21.615 16213 16294 I GenUiStagePipeline: MCP router: domain=weather entities={location=Bengaluru, days=1}

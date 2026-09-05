@@ -1,0 +1,1 @@
+₹2,400 bill, 10% tip, four people: show tip, total and per-person amount only.

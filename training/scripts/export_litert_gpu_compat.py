@@ -505,12 +505,12 @@ def main() -> None:
     parser.add_argument(
         "--sampler-top-k",
         type=int,
-        default=1,
+        default=None,
         help=(
-            "Bake the runtime sampler policy into the LiteRT-LM metadata. "
-            "The Android test app uses greedy decoding (top-k=1), so keeping "
-            "the export metadata identical avoids selecting the optional GPU "
-            "Top-K sampler at runtime."
+            "Optionally bake a top-k sampler policy into the LiteRT-LM metadata. "
+            "Leave this unset for the runtime-supported default sampler; setting "
+            "top-k=1 selects sampler type 3, which is unsupported by LiteRT-LM "
+            "0.16.1."
         ),
     )
     parser.add_argument(

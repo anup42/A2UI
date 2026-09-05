@@ -60,7 +60,7 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
 
 
-def _run(tmp_path: Path, adapter: _ExpressAdapter) -> list[dict]:
+def _run(tmp_path: Path, adapter: _ExpressAdapter, *, max_repair_attempts: int = 0) -> list[dict]:
     responses = tmp_path / "responses.jsonl"
     queries = tmp_path / "queries.jsonl"
     output = tmp_path / "genui.jsonl"
@@ -75,7 +75,7 @@ def _run(tmp_path: Path, adapter: _ExpressAdapter) -> list[dict]:
         schema_path=DATASET_ROOT / "schema" / "canonical_ui_graph_v1.schema.json",
         artifacts_dir=tmp_path / "artifacts",
         candidates_per_response=1,
-        max_repair_attempts=0,
+        max_repair_attempts=max_repair_attempts,
         max_tokens=2048,
         prompt_max_tokens=None,
         seed=1,
@@ -116,6 +116,31 @@ def test_wrong_native_format_is_rejected_without_fallback(tmp_path, monkeypatch)
     assert rows[0]["record_status"] == "format_rejected"
     assert "genui_json" not in rows[0]
     assert not rows[0]["validation"]["schema_valid_strict"]
+
+
+def test_stage3_rechecks_wire_schema_after_each_repair(tmp_path, monkeypatch):
+    monkeypatch.setenv("STAGE3_FINAL_REGEN_ATTEMPTS", "0")
+
+    class TableRepairAdapter(_ExpressAdapter):
+        def generate(self, prompt, system, temperature, max_tokens, seed, json_mode=False):
+            result = super().generate(prompt, system, temperature, max_tokens, seed, json_mode)
+            # These are synthetic unit-test responses, not edited dataset IR.
+            highlight = '"price"' if len(self.json_modes) <= 2 else '["price"]'
+            table = f'tab=Table(columns=["price"],rows=[[24]],highlightColumns={highlight})'
+            text = result.text.replace("root=Column([a,b,c,e])", "root=Column([a,b,c,e,tab])")
+            # Source IDs are deterministically shortened by the actual codec;
+            # add the table using the root's first child-list delimiter.
+            if "tab])" not in text:
+                root_line = next(line for line in text.splitlines() if line.startswith("root="))
+                text = text.replace(root_line, root_line.replace("]", ",tab]", 1))
+            result.text = text.replace("</a2ui>", table + "\n</a2ui>")
+            return result
+
+    adapter = TableRepairAdapter()
+    rows = _run(tmp_path, adapter, max_repair_attempts=2)
+    assert adapter.json_modes == [False, False, False]
+    assert rows[0]["record_status"] == "accepted"
+    assert rows[0]["canonical_graph"]["elements"]["tab"]["props"]["highlightColumns"] == ["price"]
 
 
 def test_stage3_masks_and_restores_urls_and_local_asset_paths():

@@ -656,6 +656,31 @@ def _verify_qat_training_metadata(
     return report
 
 
+def _recorded_qat_evidence(adapter_path: Path) -> list[str]:
+    """Inspect saved evidence before accepting a caller's replacement recipe."""
+    from ir_training.common.config import load_yaml
+
+    evidence: list[str] = []
+    candidates = {
+        adapter_path / "training_metadata.json", adapter_path.parent / "training_metadata.json",
+        adapter_path / "training_config.yaml", adapter_path.parent / "config.yaml",
+    }
+    for path in sorted(candidates):
+        if not path.is_file():
+            continue
+        try:
+            record = json.loads(path.read_text(encoding="utf-8")) if path.suffix == ".json" else load_yaml(path)
+        except (OSError, ValueError) as exc:
+            raise ValueError(f"Unreadable saved training provenance: {path}") from exc
+        if not isinstance(record, dict):
+            raise ValueError(f"Invalid saved training provenance: {path}")
+        qat = record.get("qat") or {}
+        method = str((record.get("training") or {}).get("method", "")).lower()
+        if (isinstance(qat, dict) and qat.get("enabled") is True) or method in {"qat_lora_sft", "full_finetune_qat"}:
+            evidence.append(str(path))
+    return evidence
+
+
 def _training_provenance(
     adapter_path: Path,
     training_config_path: str | Path | None,
@@ -685,7 +710,10 @@ def _training_provenance(
             "verified": False,
         },
     }
+    recorded_qat = _recorded_qat_evidence(adapter_path)
     if training_config_path is None:
+        if recorded_qat:
+            raise ValueError("Saved checkpoint records QAT; supply its original training config for provenance verification.")
         return result
     from ir_training.common.config import load_yaml
 
@@ -697,6 +725,8 @@ def _training_provenance(
     config_bytes = resolved_config.read_bytes()
     config_sha256 = hashlib.sha256(config_bytes).hexdigest()
     config = load_yaml(resolved_config)
+    if recorded_qat and (config.get("qat") or {}).get("enabled") is not True:
+        raise ValueError("Saved checkpoint records QAT; refusing to relabel it as ordinary LoRA and bypass QAT provenance checks.")
     model = config.get("model") if isinstance(config.get("model"), dict) else {}
     model = dict(model)
     configured_source = model.get("model_source")

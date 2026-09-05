@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h],"md")
+a=Text("Here is the weather forecast for Bengaluru for today:")
+b=Text("Weather in Bengaluru, India","h2")
+c=Table(columns=["Day","Date","Condition","Temp","High","Low","Feels Like","Rain Chance","Rain","Wind","Gusts","Humidity","UV","Best Window","Morning","Afternoon","Evening","Night","What to wear"],rows=[["Today","2026-09-03","Partly cloudy","21.9°C","28.7°C","20.1°C","24.3°C","64%","1.3 mm","W 10.3 km/h","43.9 km/h","90%","0","Before noon","Overcast","Overcast","Overcast","Drizzle","Carry an umbrella; wear quick-dry footwear and light layers."]],title="Weather forecast table",domain="weather",preferredPresentation="cards")
+d=Text("Sources","h3")
+e=Text("• Open-Meteo Forecast API: https://open-meteo.com/en/docs")
+f=Text("• Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api")
+g=Text("Quick Actions","h3")
+h=Button("Open Forecast Source","primary",onPress=openUrl("https://open-meteo.com/en/docs"))
+</a2ui>

@@ -1,0 +1,12 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("Here is the comparison of the three fictional headphones:")
+b=Image(alt="Icon")
+c=Table(columns=["Model","Price","Battery Life","Weight"],rows=[["**A**","₹3,000","30 hours","220 g"],["**B**","₹5,000","40 hours","250 g"],["**C**","₹4,000","25 hours","200 g"]])
+d=Card([e,f],"Summary")
+e=Image(alt="Icon")
+f=List([g,h,i])
+g=Text("**Best Budget & Balanced:** **Model A** offers great battery life at the lowest price.")
+h=Text("**Longest Battery Life:** **Model B** has the best battery life (40 hrs) but is the heaviest and most expensive.")
+i=Text("**Lightest:** **Model C** is the lightest (200 g), but has the lowest battery life and sits in the mid-price range.")
+</a2ui>

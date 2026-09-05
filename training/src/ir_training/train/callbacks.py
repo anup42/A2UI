@@ -12,6 +12,8 @@ from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.eval.compare_to_baseline import evaluate_predictions
 from ir_training.eval.tensorboard_logging import log_evaluation_result
+from ir_training.eval.generate import build_prediction_record, _extract_user_text as _bound_source_text
+from ir_training.generation_policy import build_stopping_criteria, generation_diagnostics, preserve_generation_eos
 
 
 class TrainingMetadataCallback:
@@ -56,6 +58,7 @@ def build_golden_set_eval_callback(
     tensorboard_root: str | Path | None = None,
     tensorboard_run_id: str | None = None,
     tensorboard_evaluation_name: str | None = None,
+    stop_strings: Sequence[str] | None = None,
 ) -> Any | None:
     if not enabled:
         return None
@@ -91,6 +94,7 @@ def build_golden_set_eval_callback(
         if best_checkpoint_dir is not None
         else resolved_output_dir / "best_golden_checkpoint"
     )
+    resolved_stop_strings = [str(s) for s in (stop_strings or []) if str(s)]
 
     try:
         from transformers import TrainerCallback  # type: ignore
@@ -137,6 +141,7 @@ def build_golden_set_eval_callback(
                     max_input_tokens=max_input_tokens,
                     max_new_tokens=max_new_tokens,
                     selected_rows=golden_rows,
+                    stop_strings=resolved_stop_strings,
                 )
                 if rank == 0:
                     aggregate = evaluate_predictions(
@@ -267,6 +272,11 @@ def build_golden_set_eval_callback(
     return GoldenSetEvalCallback()
 
 
+def _build_stop_string_criteria(tokenizer: Any, stop_strings: Sequence[str] | None, *, prompt_length: int) -> Any:
+    """Compatibility entry point for the shared generated-only serving policy."""
+    return build_stopping_criteria(tokenizer, prompt_length, stop_strings or None)
+
+
 def _generate_predictions_with_model(
     *,
     model: Any,
@@ -278,6 +288,7 @@ def _generate_predictions_with_model(
     max_input_tokens: int | None,
     max_new_tokens: int,
     selected_rows: Sequence[dict[str, Any]] | None = None,
+    stop_strings: Sequence[str] | None = None,
 ) -> int:
     try:
         import torch  # type: ignore
@@ -286,6 +297,7 @@ def _generate_predictions_with_model(
 
     rank, world_size = _distributed_context()
     generation_model = _unwrap_model(model)
+    eos_ids = preserve_generation_eos(generation_model, tokenizer)
     was_training = bool(getattr(model, "training", False))
     model.eval()
     rows_out: list[dict[str, Any]] = []
@@ -298,49 +310,42 @@ def _generate_predictions_with_model(
         for idx in range(rank, len(rows_for_eval), world_size):
             row = rows_for_eval[idx]
             prompt_text = adapter.format_example(row, tokenizer=tokenizer, include_assistant=False)
-            tokenizer_kwargs: dict[str, Any] = {"return_tensors": "pt"}
-            if max_input_tokens is not None and int(max_input_tokens) > 0:
-                tokenizer_kwargs.update({"truncation": True, "max_length": int(max_input_tokens)})
-            inputs = tokenizer(prompt_text, **tokenizer_kwargs)
+            _extract_user_text(row)  # Reject a mismatched source before inference.
+            inputs = tokenizer(prompt_text, return_tensors="pt", add_special_tokens=False)
+            input_length = inputs["input_ids"].shape[-1]
+            if max_input_tokens and input_length > int(max_input_tokens):
+                raise ValueError(f"Golden row {row.get('id')} exceeds max_input_tokens; source truncation is forbidden.")
+            stop_criteria = _build_stop_string_criteria(tokenizer, stop_strings, prompt_length=input_length)
             device = _model_device(generation_model)
             if device is not None and hasattr(inputs, "to"):
                 inputs = inputs.to(device)
             generation_kwargs: dict[str, Any] = {
                 "max_new_tokens": int(max_new_tokens),
                 "do_sample": False,
+                "eos_token_id": eos_ids,
+                "stop_strings": None,
+                # DDP is explicitly unwrapped. Rows are sharded and may differ
+                # in count/length; do not enter generation-time collectives.
+                "synced_gpus": False,
             }
             pad_token_id = getattr(tokenizer, "pad_token_id", None)
             if pad_token_id is None:
                 pad_token_id = getattr(tokenizer, "eos_token_id", None)
             if pad_token_id is not None:
                 generation_kwargs["pad_token_id"] = pad_token_id
+            if stop_criteria is not None:
+                generation_kwargs["stopping_criteria"] = stop_criteria
             with torch.no_grad():
                 output = generation_model.generate(**inputs, **generation_kwargs)
             input_length = inputs["input_ids"].shape[-1]
             generated = tokenizer.decode(output[0][input_length:], skip_special_tokens=True)
-            url_map = _extract_url_map(row)
-            metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
-            rows_out.append(
-                {
-                    "id": row.get("id"),
-                    "ui_id": row.get("ui_id") or metadata.get("ui_id"),
-                    "response_id": row.get("response_id"),
-                    "query_id": row.get("query_id") or metadata.get("query_id"),
-                    "intent": row.get("intent") or metadata.get("intent"),
-                    "intent_bucket": row.get("intent_bucket") or metadata.get("intent_bucket"),
-                    "tags": row.get("tags") or metadata.get("tags"),
-                    "assets": row.get("assets") or [],
-                    "expected_ui_contract": row.get("expected_ui_contract"),
-                    "expected_ui_contract_source": row.get("expected_ui_contract_source"),
-                    "expected_ui_contract_v5_4": row.get("expected_ui_contract_v5_4"),
-                    "expected_ui_contract_v5_4_source": row.get("expected_ui_contract_v5_4_source"),
-                    "response_text": restore_url_placeholders(_extract_user_text(row), url_map),
-                    "expected": restore_url_placeholders(_extract_expected_completion(row), url_map),
-                    "generated_text": generated,
-                    "url_map": url_map,
-                    "_golden_index": idx,
-                }
-            )
+            runtime = generation_diagnostics(tokenizer, output[0][input_length:],
+                eos_token_ids=eos_ids, max_new_tokens=max_new_tokens,
+                prompt_text=prompt_text, input_ids=inputs["input_ids"][0],
+                stop_strings=stop_strings or None)
+            record = build_prediction_record(row, generated, runtime=runtime)
+            record["_golden_index"] = idx
+            rows_out.append(record)
     finally:
         if was_training:
             model.train()
@@ -395,6 +400,8 @@ def build_checkpoint_provenance_callback(
     metadata: dict[str, Any],
     config_path: str | Path | None = None,
     golden_summary_provider: Callable[[], dict[str, Any] | None] | None = None,
+    tokenizer: Any | None = None,
+    generation_eos_ids: Sequence[int] | None = None,
 ) -> Any:
     """Write self-contained provenance into every Trainer checkpoint.
 
@@ -415,6 +422,16 @@ def build_checkpoint_provenance_callback(
     resolved_config = Path(config_path) if config_path is not None else None
 
     class CheckpointProvenanceCallback(TrainerCallback):  # type: ignore[misc]
+        def on_train_begin(self, args: Any, state: Any, control: Any, **kwargs: Any) -> Any:
+            model = kwargs.get("model")
+            active_tokenizer = tokenizer or kwargs.get("processing_class") or kwargs.get("tokenizer")
+            if model is not None and active_tokenizer is not None:
+                ids = preserve_generation_eos(_unwrap_model(model), active_tokenizer, generation_eos_ids)
+                metadata["effective_generation_eos_ids"] = ids
+                if getattr(state, "is_world_process_zero", True):
+                    print(f"Effective generation EOS IDs after Trainer alignment: {ids}; closing policy: generated-only quote-aware </a2ui>", flush=True)
+            return control
+
         def on_save(
             self,
             args: Any,
@@ -511,12 +528,23 @@ def _checkpoint_adapter_manifest(
         for candidate in checkpoint_dir.glob("adapter*")
         if candidate.is_file()
     )
+    checkpoint_kind = "lora_adapter" if adapter_files else "full_model"
+    if not adapter_files:
+        adapter_files = sorted({candidate for pattern in
+            ("model*.safetensors", "model*.json", "pytorch_model*.bin", "pytorch_model*.json", "config.json", "generation_config.json")
+            for candidate in checkpoint_dir.glob(pattern) if candidate.is_file()})
+        if not any(path.suffix in {".safetensors", ".bin"} for path in adapter_files):
+            adapter_files = []
     if not adapter_files:
         raise RuntimeError(
-            f"Saved checkpoint has no local adapter files: {checkpoint_dir}"
+            f"Saved checkpoint has no local adapter files or full model weights: {checkpoint_dir}"
         )
+    tokenizer_files = {candidate for pattern in ("tokenizer*", "special_tokens_map.json", "added_tokens.json", "chat_template*")
+        for candidate in checkpoint_dir.glob(pattern) if candidate.is_file()}
+    adapter_files = sorted(set(adapter_files) | tokenizer_files)
     return {
         "role": role,
+        "checkpoint_kind": checkpoint_kind,
         "path": str(checkpoint_dir),
         "files": [
             {
@@ -540,6 +568,7 @@ def _write_checkpoint_provenance(
     materialized.update(
         {
             "checkpoint_role": role,
+            "checkpoint_kind": manifest["checkpoint_kind"],
             "checkpoint_dir": str(checkpoint_dir),
             "adapter_checkpoints": [manifest],
             # Retain the earlier diagnostic view while using the canonical
@@ -608,17 +637,7 @@ def _golden_scalar_logs(aggregate: dict[str, Any], *, prefix: str) -> dict[str, 
 
 
 def _extract_user_text(row: dict[str, Any]) -> str:
-    response_text = row.get("response_text")
-    if isinstance(response_text, str) and response_text.strip():
-        return response_text
-    # Golden rows can include few-shot demonstrations. Score against the held-
-    # out request in the final user turn rather than the first demo prompt.
-    for message in reversed(list(row.get("messages") or [])):
-        if isinstance(message, dict) and message.get("role") == "user":
-            content = str(message.get("content") or "")
-            marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
-            return content.split(marker, 1)[-1]
-    return str(row.get("input") or row.get("prompt") or "")
+    return _bound_source_text(row)
 
 
 def _extract_expected_completion(row: dict[str, Any]) -> Any:

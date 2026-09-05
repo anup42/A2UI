@@ -1,0 +1,58 @@
+{
+  "case_id": "s02_full",
+  "pair_id": "s02",
+  "scenario": "one_way_flights",
+  "variant": "full",
+  "attempt": 1,
+  "query_id": "q_000003",
+  "response_id": "r_000003_01",
+  "ui_id": "u_000003_01",
+  "status": "visual_issues",
+  "timestamps": {
+    "started_at": "2026-09-03T18:14:01.899000Z",
+    "completed_at": "2026-09-03T18:14:47.505000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "MCP: Flights (LLM-routed + live data)",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "Gemini route: vertex_ai_express_api_key",
+      "Masked 6 URL/asset reference(s) before step.",
+      "step structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "IR output format: A2UI Express v1",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "A2UI Express parsed natively; no legacy fallback is available.",
+      "step output omitted one or more quick actions."
+    ],
+    "stage3_input_tokens": 2886,
+    "stage3_output_tokens": 1549,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "0abe7b82f5640f731d2ed36a1b0011e4a999d1b01819f3973933ee57acdbad74",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "issues"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/03_u_000003_01.png"
+  }
+}

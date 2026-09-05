@@ -35,6 +35,12 @@ internal object ResponseFactCoverage {
 
     private fun extractFacts(text: String): List<Fact> {
         val facts = linkedMapOf<String, Fact>()
+        // MCP table hints describe renderer properties, not user-visible facts.
+        // Remove only complete hint lines; a colon or metadata-like word in
+        // ordinary prose must not suppress actual response content.
+        val factText = text.lineSequence()
+            .filterNot { TABLE_PRESENTATION_HINT.matches(it.trim()) }
+            .joinToString("\n")
 
         fun addFact(rawLabel: String, rawValue: String) {
             if (facts.size >= MAX_EXTRACTED_FACTS) return
@@ -51,24 +57,25 @@ internal object ResponseFactCoverage {
             facts.putIfAbsent("$normalizedLabel|${compact(value)}", Fact(label, value))
         }
 
-        BOLD_LABEL_VALUE.findAll(text).forEach { match ->
+        BOLD_LABEL_VALUE.findAll(factText).forEach { match ->
             addFact(match.groupValues[1], match.groupValues[2])
         }
-        MARKDOWN_HEADING.findAll(text).forEach { match ->
+        MARKDOWN_HEADING.findAll(factText).forEach { match ->
             addFact("Heading", match.groupValues[1])
         }
-        INLINE_BOLD_VALUE.findAll(text).forEach { match ->
+        INLINE_BOLD_VALUE.findAll(factText).forEach { match ->
             val value = match.groupValues[1].trim()
             if (!value.endsWith(':')) addFact("Emphasized fact", value)
         }
+        // A caption may still contain a real booking/order identifier.
         REFERENCE_IDENTIFIER.findAll(text).forEach { match ->
             val value = match.groupValues[2]
             if (value.any(Char::isDigit)) addFact(match.groupValues[1], value)
         }
-        PLAIN_LABEL_VALUE.findAll(text).forEach { match ->
+        PLAIN_LABEL_VALUE.findAll(factText).forEach { match ->
             addFact(match.groupValues[1], match.groupValues[2])
         }
-        text.lineSequence().forEach { line ->
+        factText.lineSequence().forEach { line ->
             val trimmed = line.trim()
             if (!trimmed.startsWith('|') || !trimmed.endsWith('|')) return@forEach
             val cells = trimmed.split('|').drop(1).dropLast(1).map(::cleanMarkdown)
@@ -146,6 +153,10 @@ internal object ResponseFactCoverage {
     )
     private val PLAIN_LABEL_VALUE = Regex(
         "(?m)^[ \\t]*(?:[-*][ \\t]*)?([A-Za-z][A-Za-z0-9 /_()'-]{1,60}):[ \\t]*([^\\r\\n]+?)[ \\t]*$"
+    )
+    private val TABLE_PRESENTATION_HINT = Regex(
+        """[A-Za-z][A-Za-z0-9 /_-]* table\s*\(\s*domain\s*:\s*[A-Za-z][A-Za-z0-9_-]*\s*,\s*preferredPresentation\s*:\s*(?:cards|table|auto)\s*\)\.?""",
+        RegexOption.IGNORE_CASE,
     )
     private val TABLE_SEPARATOR = Regex("^:?-{3,}:?$")
     private val TOKEN = Regex("[\\p{L}\\p{N}]+")

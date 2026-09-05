@@ -1,0 +1,10 @@
+--------- beginning of system
+09-04 00:59:19.505  3355  5161 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-04 00:59:19.650  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +152ms
+09-04 00:59:20.672  3355  4059 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=263766717) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:59:20.786  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +113ms
+09-04 00:59:32.601 29693 29944 I McpLlmRouter: MCP router: domain=places entities={location=Bengaluru} hasIntro=true hasFull=false
+09-04 00:59:42.225 29693 29944 I McpLlmRouter: MCP domain=places extracted entities={location=Bengaluru}
+09-04 00:59:42.226 29693 29944 W GenUiStagePipeline: MCP domain places identified but API key not configured; falling back to normal Stage 2
+09-04 01:04:31.403  3355  7165 W ActivityTaskManager: Force removing ActivityRecord{219004048 u0 com.samsung.genuicraft/.GenUiAssistantActivity t684 f}}: app died, no saved state

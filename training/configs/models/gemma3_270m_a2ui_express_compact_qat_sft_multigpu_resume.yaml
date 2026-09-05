@@ -1,0 +1,86 @@
+run:
+  id: gemma3_270m_a2ui_express_compact_qat_sft_multigpu_resume
+  # Legacy continuation template. Prefer prepare_review_training.py for new runs.
+  dataset_dir: outputs/datasets/gemma3_270m_review_prepared
+  output_dir: runs/gemma3_270m_review_resume
+
+runtime:
+  cuda_visible_devices: "0,1,2,3"
+  world_size: 4
+
+model:
+  family: gemma
+  model_id: google/gemma-3-270m-it
+  model_loader: auto_causal_lm
+  tokenizer_loader: auto_tokenizer
+  trust_remote_code: false
+  attn_implementation: eager
+  load_in_4bit: false
+  dtype: bfloat16
+  device_map: none
+  max_context_tokens: 32768
+  max_output_tokens: 2048
+
+training:
+  method: qat_lora_sft
+  epochs: 2
+  max_steps: 21236
+  resume_from_checkpoint: runs/gemma3_270m_review_resume/checkpoint-16000
+  learning_rate: 0.00001
+  weight_decay: 0.01
+  # Preserve the Space run's effective batch of 16 exactly:
+  # 4 GPUs * microbatch 1 * accumulation 4.
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  expected_effective_batch_size: 16
+  gradient_checkpointing: true
+  mixed_precision: "no"
+  trainer_backend: hf
+  require_ddp_for_multi_gpu: true
+  ddp_find_unused_parameters: false
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  overflow_policy: error
+  eval_strategy: "no"
+  save_steps: 1000
+  eval_steps: 1000
+  logging_steps: 10
+  report_to: tensorboard
+  logging_dir: runs/gemma3_270m_review_resume/tensorboard
+  save_total_limit: 2
+  max_grad_norm: 1.0
+  seed: 42
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  preflight_token_check_rows: 64
+  forward_smoke_check_rows: 8
+
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.0
+  target_modules: auto
+  modules_to_save: []
+
+qat:
+  enabled: true
+  profile: gemma3_270m_wi8_afp32
+  quantizer: ste_ai_edge
+  eps: 1.0e-9
+  quantize_embeddings: true
+  exclude_modules: []
+  weight_bits: 8
+  activation_bits: 32
+  weight_symmetric: true
+  activation_symmetric: true
+  weight_per_channel: true
+  weight_axis: 0
+  group_size: null
+  only_base_layers: true
+  effective_merged_weight: true
+  final_quantization: dynamic_wi8_afp32
+  final_runtime_validation_required: true
+
+golden_eval:
+  enabled: false

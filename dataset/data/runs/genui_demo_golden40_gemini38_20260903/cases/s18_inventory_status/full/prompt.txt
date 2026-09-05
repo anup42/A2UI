@@ -1,0 +1,1 @@
+Using this sample data, show inventory by location: warehouse A has 12 units, warehouse B has 5, storefront has 3, and 7 units are reserved. Include total and available stock.

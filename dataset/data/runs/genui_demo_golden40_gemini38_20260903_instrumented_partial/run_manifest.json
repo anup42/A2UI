@@ -1,0 +1,43 @@
+{
+  "manifest_version": 1,
+  "generated_at": "2026-09-03T17:51:36.373680Z",
+  "run_id": "genui_demo_golden40_gemini38_20260903",
+  "purpose": "Twenty regular/short GenUI Demo scenario pairs captured on Android",
+  "planned_cases": 40,
+  "completed_cases": 4,
+  "pipeline_successes": 3,
+  "accepted_cases": 1,
+  "models": [
+    {
+      "response": "gemini-3.8-flash",
+      "ir": "gemini-3.8-flash"
+    }
+  ],
+  "mcp_enabled_values": [
+    true
+  ],
+  "repo": {
+    "git_commit": "4ef5a90eb2d5ada53947fdde13efd7a8a06574a4",
+    "git_branch": "new_ir_changes_20260331",
+    "git_dirty": true
+  },
+  "device": {
+    "serial": "R3GL203AKSF",
+    "manufacturer": "samsung",
+    "model": "SM-F776U",
+    "android_release": "17",
+    "sdk": "37",
+    "build_fingerprint": "samsung/b8qsqw/b8q:17/CP2A.260330.023/F776USQU0AZE3_OYN0AZE3:userdebug/test-keys",
+    "captured_at": "2026-09-03T17:46:09.302739Z"
+  },
+  "paths": {
+    "scenarios": "scenarios.jsonl",
+    "queries": "queries.jsonl",
+    "responses": "responses.jsonl",
+    "genui": "genui.jsonl",
+    "execution_results": "execution_results.jsonl",
+    "issues": "issues.jsonl",
+    "screenshots": "android_device_rendered",
+    "cases": "cases"
+  }
+}

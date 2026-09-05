@@ -1,0 +1,1 @@
+Show 5 tourist attractions in Bengaluru with ratings, short descriptions and Maps links.

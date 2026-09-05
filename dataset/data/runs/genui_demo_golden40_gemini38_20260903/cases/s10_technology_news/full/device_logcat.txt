@@ -1,0 +1,10 @@
+--------- beginning of system
+09-04 01:09:30.389  3355  3391 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-04 01:09:30.538  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +157ms
+09-04 01:09:31.552  3355  3391 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=182890540) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 01:09:31.657  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +103ms
+09-04 01:09:40.656 31432 31596 I McpLlmRouter: MCP router: domain=news entities={topic=technology, country=India, language=English} hasIntro=true hasFull=false
+09-04 01:09:50.379 31432 31596 I McpLlmRouter: MCP domain=news extracted entities={topic=technology, country=in, language=en}
+09-04 01:09:50.379 31432 31596 I GenUiStagePipeline: MCP router: domain=news entities={topic=technology, country=in, language=en}
+09-04 01:10:12.824  3355  5100 W ActivityTaskManager: Force removing ActivityRecord{123366739 u0 com.samsung.genuicraft/.GenUiAssistantActivity t686 f}}: app died, no saved state

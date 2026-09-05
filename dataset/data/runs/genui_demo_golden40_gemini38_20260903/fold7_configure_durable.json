@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "execution_mode": "visible_app_ui",
+  "run_id": "device_setup",
+  "case_id": "fold7_configure_durable",
+  "prompt": "configuration",
+  "started_at_ms": 1788460782750,
+  "response_model": "gemini-3.8-flash",
+  "ir_model": "gemini-3.8-flash",
+  "mcp_enabled": true,
+  "response_provider": "gemini",
+  "ir_provider": "gemini",
+  "gemini_api_mode": "vertex_ai_express_api_key",
+  "success": true,
+  "outcome_stage": "configured",
+  "configuration_only": true,
+  "vertex_express_key_present": true,
+  "finished_at_ms": 1788460782757,
+  "elapsed_ms": 7
+}

@@ -1,0 +1,59 @@
+{
+  "case_id": "s02_short",
+  "pair_id": "s02",
+  "scenario": "one_way_flights",
+  "variant": "short",
+  "attempt": 1,
+  "query_id": "q_000004",
+  "response_id": "r_000004_01",
+  "ui_id": "u_000004_01",
+  "status": "visual_issues",
+  "timestamps": {
+    "started_at": "2026-09-03T18:14:49.420000Z",
+    "completed_at": "2026-09-03T18:19:22.546000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "MCP: Flights (LLM-routed + live data)",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "Gemini route: vertex_ai_express_api_key",
+      "Masked 6 URL/asset reference(s) before step.",
+      "step structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "IR output format: A2UI Express v1",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "step omitted authoritative response facts: Google Flights via SerpApi={{u4}}; Google Flights={{u5}} Running strict selected-format repair.",
+      "A2UI Express repair parsed natively; no legacy fallback was attempted.",
+      "step output omitted one or more quick actions."
+    ],
+    "stage3_input_tokens": 2885,
+    "stage3_output_tokens": 1550,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "0dc25696abdbf1c6343e1553bd6b6668afc8656be18c43bf62ac27d0c28d0b3d",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "issues"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/04_u_000004_01.png"
+  }
+}

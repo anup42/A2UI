@@ -3,6 +3,7 @@
 from typing import Any
 
 from ir_training.models.base import ModelAdapter
+from ir_training.train.lora_targets import resolve_lora_config_targets
 
 
 def build_lora_config(adapter: ModelAdapter, cfg: dict[str, Any]):

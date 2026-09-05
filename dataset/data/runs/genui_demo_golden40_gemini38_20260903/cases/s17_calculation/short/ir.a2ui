@@ -1,0 +1,13 @@
+<a2ui>
+root=Card([a])
+a=Column([b,e,h],"md")
+b=Row([c,d],"sm","center")
+c=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg")
+d=Text("Tip: ₹240")
+e=Row([f,g],"sm","center")
+f=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg")
+g=Text("Total: ₹2,640")
+h=Row([i,j],"sm","center")
+i=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg")
+j=Text("Per-person amount: ₹660")
+</a2ui>

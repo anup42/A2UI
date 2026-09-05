@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,d,e,f,g,h],"md")
+a=Row([b,c],"sm","center")
+b=Icon("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg")
+c=Text("3-Day Work Trip Packing Checklist","h2")
+d=Text("Here is your 12-item packing checklist for a three-day work trip, categorized for easy packing:","body")
+e=Checklist(["Government ID / Passport & Boarding Passes – Essential identification along with physical or digital travel confirmations.","Corporate Credit Card & Expense Receipts Folder – For booking expenses, meals, and keeping physical receipts organized.","Meeting Agenda & Business Cards – Key notes, client itineraries, and business cards for networking."],"Documents")
+f=Checklist(["Work Laptop & Power Adapter – Ensure it is fully charged before departure.","Multi-Port Fast Charger & Phone Cables – A compact dual USB-C/A charger to power both your phone and accessories.","Noise-Canceling Earbuds / Headphones – For taking calls on the go, focus, and travel transit."],"Electronics")
+g=Checklist(["2–3 Professional Shirts / Tops – Wrinkle-resistant button-downs or blouses suitable for client meetings.","2 Pairs of Trousers / Slacks – Versatile tailored pants that pair well across multiple shirts (one can be worn while traveling).","Undergarments & Socks (4 pairs each) – Pack enough for 3 full days plus one emergency spare set."],"Clothing")
+h=Checklist(["TSA-Approved Dental Kit – Travel-sized toothbrush, toothpaste, and floss.","Grooming / Skincare Essentials – Travel-sized deodorant, facial moisturizer/sunscreen, and styling product or comb.","Compact First-Aid & Medication Pouch – Personal prescriptions, pain relievers, and band-aids for long days on your feet."],"Toiletries")
+</a2ui>

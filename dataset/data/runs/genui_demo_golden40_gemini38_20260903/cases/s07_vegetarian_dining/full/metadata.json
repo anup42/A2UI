@@ -1,0 +1,60 @@
+{
+  "case_id": "s07_full",
+  "pair_id": "s07",
+  "scenario": "vegetarian_dining",
+  "variant": "full",
+  "attempt": 1,
+  "query_id": "q_000013",
+  "response_id": "r_000013_01",
+  "ui_id": "u_000013_01",
+  "status": "visual_issues",
+  "timestamps": {
+    "started_at": "2026-09-03T19:04:56.367000Z",
+    "completed_at": "2026-09-03T19:13:14.251000Z"
+  },
+  "pipeline": {
+    "response_provider": "gemini",
+    "response_model": "gemini-3.8-flash",
+    "ir_provider": "gemini",
+    "ir_model": "gemini-3.8-flash",
+    "gemini_api_mode": "vertex_ai_express_api_key",
+    "mcp_enabled": true,
+    "used_fallback": false,
+    "warnings": [
+      "Masked 16 URL/asset reference(s) before step.",
+      "Response backend: gemini",
+      "IR backend: gemini",
+      "IR output format: A2UI Express v1",
+      "Gemini route: vertex_ai_express_api_key",
+      "Gemini response model: gemini-3.8-flash",
+      "Gemini IR model: gemini-3.8-flash",
+      "step structured schema disabled for Vertex Express (prevents empty-elements outputs).",
+      "step output is not a valid A2UI Express completion. Running strict selected-format repair.",
+      "step repair attempt 1 invalid (Repair attempt 1 did not produce valid A2UI Express text.).",
+      "step repair attempt 2 invalid (step omitted authoritative response facts: Tuk Tuk Thai Koramangala Listing={{u13}}; Gramin Restaurant Details={{u14}}; Sree Krishna Kafe Profile={{u15}}).",
+      "A2UI Express repair parsed natively; no legacy fallback was attempted.",
+      "step output omitted one or more quick actions."
+    ],
+    "stage3_input_tokens": 2474,
+    "stage3_output_tokens": 1426,
+    "stage_durations_ms": {}
+  },
+  "validation": {
+    "express_valid": true,
+    "semantic_hash": "f4744b345ca0647143c21972212630f6cdaec124261e2625e4ca3d7054724f5c",
+    "native_render_ok": true,
+    "capture_ok": true,
+    "visual_review": "issues"
+  },
+  "artifacts": {
+    "prompt": "prompt.txt",
+    "response": "response.md",
+    "ir": "ir.a2ui",
+    "manual_ui_screenshot": "manual_ui_screenshot.png",
+    "ui_hierarchy": "ui_hierarchy.xml",
+    "device_logcat": "device_logcat.txt",
+    "app_screenshot": "app_screenshot.png",
+    "viewport_screenshot": "viewport_screenshot.png",
+    "canonical_screenshot": "../../../android_device_rendered/08_u_000013_01.png"
+  }
+}

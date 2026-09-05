@@ -121,6 +121,11 @@ def parse_args() -> argparse.Namespace:
         help="Output folder name inside the run directory.",
     )
     parser.add_argument("--adb_bin", default="adb", help="adb executable path (default: adb)")
+    parser.add_argument(
+        "--serial",
+        default="",
+        help="Target adb device serial. Sets ANDROID_SERIAL for every helper invocation.",
+    )
     parser.add_argument("--package", default="com.samsung.genuicraft", help="Android app package name")
     parser.add_argument(
         "--device_base_dir",
@@ -141,6 +146,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.serial.strip():
+        os.environ["ANDROID_SERIAL"] = args.serial.strip()
     root = Path(__file__).resolve().parents[1]
     run_dir = root / "data" / "runs" / args.run_id
     genui_path = run_dir / "genui.jsonl"

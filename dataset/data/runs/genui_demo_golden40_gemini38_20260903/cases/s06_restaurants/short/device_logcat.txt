@@ -1,0 +1,17 @@
+--------- beginning of system
+09-04 00:32:14.678  3355  5159 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-04 00:32:14.825  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +151ms
+09-04 00:32:15.835  3355  5159 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=216919167) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:32:15.943  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +105ms
+09-04 00:32:23.407 26034 26164 I McpLlmRouter: MCP router: domain=restaurants entities={location=Indiranagar, Bengaluru} hasIntro=true hasFull=false
+09-04 00:32:28.835 26034 26164 I McpLlmRouter: MCP domain=restaurants extracted entities={location=Indiranagar, Bengaluru}
+09-04 00:32:28.836 26034 26164 W GenUiStagePipeline: MCP domain restaurants identified but API key not configured; falling back to normal Stage 2
+09-04 00:33:03.769 26034 26164 W GenUiStagePipeline: Transient backend error (attempt 1/3). Retrying immediately. error=HTTP 429: {
+09-04 00:33:03.769 26034 26164 W GenUiStagePipeline:   "error": {
+09-04 00:33:03.769 26034 26164 W GenUiStagePipeline:     "code": 429,
+09-04 00:33:03.769 26034 26164 W GenUiStagePipeline:     "message": "Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-co
+09-04 00:33:18.194 26034 26164 W GenUiStagePipeline: Transient backend error (attempt 2/3). Retrying immediately. error=HTTP 429: {
+09-04 00:33:18.194 26034 26164 W GenUiStagePipeline:   "error": {
+09-04 00:33:18.194 26034 26164 W GenUiStagePipeline:     "code": 429,
+09-04 00:33:18.194 26034 26164 W GenUiStagePipeline:     "message": "Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-co

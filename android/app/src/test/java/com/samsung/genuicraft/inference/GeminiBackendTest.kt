@@ -43,6 +43,15 @@ class GeminiBackendTest {
     }
 
     @Test
+    fun latestGeminiModelUsesVertexExpressEndpoint() {
+        val endpoint = buildEndpointFor(model = "gemini-3.8-flash")
+
+        assertEquals("aiplatform.googleapis.com", endpoint.host)
+        assertTrue(endpoint.path.endsWith("/v1/publishers/google/models/gemini-3.8-flash:generateContent"))
+        assertTrue(endpoint.query.contains("vertex-key"))
+    }
+
+    @Test
     fun extractTextSkipsGemmaThoughtParts() {
         val raw = """
             {
@@ -107,6 +116,22 @@ class GeminiBackendTest {
     }
 
     @Test
+    fun gemini3RequestOmitsLegacyTemperature() {
+        val generationConfig = generationConfigFor("gemini-3.8-flash")
+
+        assertFalse(generationConfig.has("temperature"))
+        assertEquals(256, generationConfig.get("maxOutputTokens").asInt)
+    }
+
+    @Test
+    fun gemini25RequestKeepsLegacyTemperature() {
+        val generationConfig = generationConfigFor("gemini-2.5-flash")
+
+        assertTrue(generationConfig.has("temperature"))
+        assertEquals(0.25, generationConfig.get("temperature").asDouble, 0.0)
+    }
+
+    @Test
     fun billingFailureGetsActionableVertexExpressHint() {
         val backend = backend(model = "gemini-2.5-flash-lite")
 
@@ -129,6 +154,26 @@ class GeminiBackendTest {
         method.isAccessible = true
         return method.invoke(backend) as URL
     }
+
+    private fun generationConfigFor(model: String) =
+        JsonParser.parseString(
+            GeminiBackend::class.java.getDeclaredMethod(
+                "buildRequestPayload",
+                InferenceBackend.GenerateRequest::class.java,
+            ).apply { isAccessible = true }.invoke(
+                backend(model),
+                InferenceBackend.GenerateRequest(
+                    prompt = "Return OK.",
+                    systemPrompt = null,
+                    temperature = 0.25,
+                    maxOutputTokens = 256,
+                    jsonMode = false,
+                    enableGoogleSearch = false,
+                    cachedContentName = null,
+                    structuredOutput = false,
+                ),
+            ) as String,
+        ).asJsonObject.getAsJsonObject("generationConfig")
 
     private fun backend(
         model: String,

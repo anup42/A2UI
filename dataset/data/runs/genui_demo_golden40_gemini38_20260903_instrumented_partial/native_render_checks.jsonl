@@ -1,0 +1,1 @@
+{"ui_id": "u_000002_01", "query_id": "q_000002", "response_id": "r_000002_01", "renderer_check_result": {"adapter": "android_native_flat_renderer", "source": "DatasetRenderCaptureActivity.capture_manifest", "attempted": true, "ok": true, "status": "rendered", "screenshot": "android_device_rendered/01_u_000002_01.png", "full_height_px": 1950, "tile_count": 1}}

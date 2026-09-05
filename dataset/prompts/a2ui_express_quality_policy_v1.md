@@ -7,5 +7,8 @@
   them.
 - Every component reference must resolve and every useful assignment must be
   reachable from `root`; preserve non-child references before pruning.
+- Table `highlightColumns` and `numericColumns` must be arrays of column keys,
+  even for one column: `highlightColumns=["price"]`, never `"price"`. A dynamic
+  array binding must resolve to an array. Keep `primaryColumn` a single key.
 - Do not invent URLs or local paths. URL and local-asset placeholders supplied
   by the pipeline must remain unchanged until explicit restoration.

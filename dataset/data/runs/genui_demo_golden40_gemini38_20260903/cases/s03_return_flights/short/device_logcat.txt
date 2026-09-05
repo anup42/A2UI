@@ -1,0 +1,9 @@
+--------- beginning of system
+09-04 00:03:25.134  3355  7165 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 xflg=0x4 pkg=com.samsung.genuicraft cmp=com.samsung.genuicraft/.MainActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (BAL_ALLOW_PERMISSION) result code=0
+--------- beginning of main
+09-04 00:03:25.282  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.MainActivity for user 0: +151ms
+09-04 00:03:26.307  3355  6935 I ActivityTaskManager: START u0 {xflg=0x4 cmp=com.samsung.genuicraft/.GenUiAssistantActivity} with LAUNCH_MULTIPLE from uid 10379 (com.samsung.genuicraft) (sr=200102820) (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+09-04 00:03:26.418  3355  3491 I ActivityTaskManager: Displayed com.samsung.genuicraft/.GenUiAssistantActivity for user 0: +110ms
+09-04 00:03:46.051 21942 22055 I McpLlmRouter: MCP router: domain=flights entities={origin=BLR, destination=BOM, departure_date=2026-10-15, return_date=2026-10-18, type=round-trip, travel_class=Economy, adults=1, currency=INR} hasIntro=true hasFull=false
+09-04 00:03:52.553 21942 22055 I McpLlmRouter: MCP domain=flights extracted entities={origin=BLR, destination=BOM, departure_date=2026-10-15, return_date=2026-10-18, type=round_trip, travel_class=economy, adults=1, currency=INR}
+09-04 00:03:52.553 21942 22055 I GenUiStagePipeline: MCP router: domain=flights entities={origin=BLR, destination=BOM, departure_date=2026-10-15, return_date=2026-10-18, type=round_trip, travel_class=economy, adults=1, currency=INR}
