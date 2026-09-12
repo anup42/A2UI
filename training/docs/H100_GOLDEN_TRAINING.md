@@ -1,9 +1,33 @@
 # H100 training and Golden evaluation — September 12, 2026
 
-This is the current entry point for Codex on the GPU PC. No model training,
+**Current command:** use the [end-to-end quickstart](GOLDEN_E2E_QUICKSTART.md).
+`run_golden_training.py` now prepares the checked-in Stage 3 data with one
+production prompt, filters reserved sources, and automatically evaluates the
+selected-best and actual final checkpoint on **both Golden32 and Golden35**.
+Its default is plan-only; add `--execute` to run on the GPU host. Golden32
+remains the development/selection set; Golden35 remains final-only.
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --output-dir /runs/e2b-new --execute
+```
+
+The manual walkthrough below records the earlier lower-level workflow and
+hardware/data rationale. It is **superseded as a clone-and-run recipe**: simply
+feeding the historical raw archive messages into its manual preparation steps
+can recreate the old prompt mismatch. Use the new launcher to normalize and
+bind the full system/few-shot/task scaffold, rather than editing prepared files
+or their hashes. Both raw Golden sets and the default `dataset_v1` Stage 3
+source are tracked; only model/tokenizer assets and generated outputs must be
+provided or created on the GPU host. The old statements about unavailable full
+training files refer to the external review archive, not the tracked default
+source.
+
+No model training,
 model downloads, H100 benchmarks, or LiteRT runtime inference were performed
 while implementing these changes. CPU tests and dataset preparation are not
-model-quality evidence. Do not launch a long run before the smoke below passes.
+model-quality evidence. Follow the quickstart's short smoke before a long run.
 
 ## Benchmark identities — do not mix these scores
 

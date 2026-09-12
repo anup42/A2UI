@@ -19,8 +19,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--tokenizer-loader", choices=("auto_tokenizer", "pretrained_tokenizer_fast", "auto_processor"), default="auto_tokenizer", help="Match model.tokenizer_loader in the training YAML")
     parser.add_argument("--max-seq-length", type=int, help="Reject full chats exceeding this selected tokenizer limit")
     parser.add_argument("--max-input-tokens", type=int, help="Reject generation prompts exceeding this selected tokenizer limit")
+    parser.add_argument("--evaluation-split", action="append", default=[], help="Split name with prompt-only token limits; references stay intact and any rejected case aborts publication")
     parser.add_argument("--local-files-only", action="store_true", help="Do not download tokenizer files")
     parser.add_argument("--chat-template-kwargs", default="{}", help="JSON object matching model.chat_template_kwargs in the training YAML")
+    prompt_group = parser.add_mutually_exclusive_group()
+    prompt_group.add_argument("--shared-production-prompt", action="store_true", help="Normalize every split to the current full production scaffold and save its version/hash")
+    prompt_group.add_argument("--shared-prompt-contract", type=Path, help="Reuse a saved shared_prompt.json, rejecting production prompt drift")
     args = parser.parse_args(argv)
     if (args.max_seq_length or args.max_input_tokens) and not args.tokenizer:
         parser.error("Token limits require --tokenizer")
@@ -41,7 +45,11 @@ def main(argv: list[str] | None = None) -> None:
     template_kwargs = json.loads(args.chat_template_kwargs)
     if not isinstance(template_kwargs, dict):
         parser.error("--chat-template-kwargs must be a JSON object")
-    manifest = prepare_splits(inputs, args.output_dir, ordering=args.ordering, tokenizer=tokenizer, max_seq_length=args.max_seq_length, max_input_tokens=args.max_input_tokens, chat_template_kwargs=template_kwargs)
+    shared_prompt = None
+    if args.shared_production_prompt or args.shared_prompt_contract:
+        from ir_training.data.shared_prompt import create_shared_prompt_contract, load_shared_prompt_contract
+        shared_prompt = load_shared_prompt_contract(args.shared_prompt_contract) if args.shared_prompt_contract else create_shared_prompt_contract(ordering=args.ordering)
+    manifest = prepare_splits(inputs, args.output_dir, ordering=args.ordering, tokenizer=tokenizer, max_seq_length=args.max_seq_length, max_input_tokens=args.max_input_tokens, chat_template_kwargs=template_kwargs, shared_prompt=shared_prompt, evaluation_splits=args.evaluation_split)
     print(json.dumps({"output_dir": str(args.output_dir.resolve()), "ordering": args.ordering, "scaffold_count": manifest["scaffold_count"], "splits": {name: {key: values.get(key, 0) for key in ("input_rows", "accepted_rows", "quarantined_rows", "quarantine_reasons")} for name, values in manifest["splits"].items()}}, indent=2))
 
 

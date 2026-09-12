@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -53,12 +54,16 @@ def main() -> None:
         ),
     )
     parser.add_argument("--output-dir", required=True)
-    parser.add_argument("--tensorboard-root", default="tensorboard")
+    parser.add_argument(
+        "--tensorboard-root",
+        default=os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard",
+    )
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--evaluation-name", default="checkpoint")
     parser.add_argument("--step", type=int)
     parser.add_argument("--max-rows", type=int, default=32)
     parser.add_argument("--required-rows", type=int, default=32)
+    parser.add_argument("--require-prepared-contract", action="store_true", help="Require a hash-bound dual-Golden run plan and the identical training scaffold/tokenizer before loading model weights.")
     parser.add_argument("--max-input-tokens", type=int, default=4096)
     parser.add_argument("--max-new-tokens", type=int, default=2048)
     parser.add_argument(
@@ -85,6 +90,13 @@ def main() -> None:
     kind = _checkpoint_kind(checkpoint, args.checkpoint_kind)
     config_path = Path(args.config).expanduser().resolve()
     config = copy.deepcopy(load_yaml(config_path))
+    prepared_contract = None
+    if args.require_prepared_contract:
+        from ir_training.eval.prepared_contract import verify_evaluation_prepared_contract
+
+        prepared_contract = verify_evaluation_prepared_contract(config_path, split,
+            required_rows=args.required_rows, max_input_tokens=args.max_input_tokens)
+        config["prepared_evaluation_contract"] = prepared_contract
     model_cfg = config.setdefault("model", {})
     if not isinstance(model_cfg, dict):
         raise ValueError("config.model must be a YAML object.")
@@ -97,7 +109,7 @@ def main() -> None:
                 f"Merged checkpoint is missing config.json: {checkpoint}"
             )
         model_cfg["model_source"] = str(checkpoint)
-        if _contains_tokenizer(checkpoint):
+        if _contains_tokenizer(checkpoint) and prepared_contract is None:
             model_cfg["tokenizer_source"] = str(checkpoint)
     qat_cfg = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     apply_qat = (
@@ -157,6 +169,7 @@ def main() -> None:
             "metric_version": args.metric_version,
             "qat_mode": args.qat_mode,
             "qat_applied": apply_qat,
+            "prepared_contract": prepared_contract,
         },
         source_aggregate_path=aggregate_path,
     )
@@ -165,6 +178,7 @@ def main() -> None:
         "checkpoint_kind": kind,
         "row_count": generated,
         "qat_applied": apply_qat,
+        "prepared_contract": prepared_contract,
         "aggregate": aggregate,
         "tensorboard_record": record["record_path"],
     }

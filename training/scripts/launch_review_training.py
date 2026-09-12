@@ -25,11 +25,17 @@ def verify_launch_binding(config_path: Path) -> None:
     if report.get("training_config_sha256") != sha256(config_path):
         raise ValueError("Training config changed after preparation; regenerate the run plan instead of editing it.")
     config = load_yaml(config_path)
+    final_datasets = config.get("final_evaluation_datasets") or {}
+    golden35 = (final_datasets.get("golden35") or {}).get("split_path")
     refreshed = verify_prepared(Path(config["run"]["dataset_dir"]), Path(config["golden_eval"]["split_path"]),
-        max_sequence=config["training"]["max_seq_length"], max_prompt=config["golden_eval"]["max_input_tokens"])
+        max_sequence=config["training"]["max_seq_length"], max_prompt=config["golden_eval"]["max_input_tokens"],
+        golden35=Path(golden35) if golden35 is not None else None)
     for key in ("dataset_manifest_sha256", "golden_sha256", "tokenizer"):
         if refreshed[key] != report.get(key):
             raise ValueError(f"Prepared launch binding changed: {key}")
+    if final_datasets:
+        if refreshed.get("final_evaluation_datasets") != final_datasets or final_datasets != report.get("final_evaluation_datasets"):
+            raise ValueError("Prepared launch binding changed: final_evaluation_datasets")
     model_dir = Path(config["model"]["model_source"])
     if not report.get("model_files"):
         raise ValueError("Preparation report has no bound model files.")

@@ -1,14 +1,29 @@
 ﻿# Response-to-IR Training
 
-For the current E2B/270M restart, begin with [H100 + Golden training](docs/H100_GOLDEN_TRAINING.md),
-[automatic GPU profiles](docs/gpu_training_profiles.md) and the
-[data filtering audit](docs/data_filtering_audit_20260912.md).
-The September 12 update adds all-visible-GPU DDP, 2,048-token generation,
-bounded distributed Golden evaluation, and an explicit 32-occurrence/31-source
-archive benchmark replacement. The separate **Golden35** evaluation set keeps
-the 35 passing references from the historical 50-case source; its 15 excluded
-sources remain reserved against training leakage. [CPU validation](docs/validation_20260912.md)
-does not establish H100 throughput, model quality or deployed-runtime parity.
+For **E2B / 270M training and automatic final testing on both Golden32 and
+Golden35**, start with the [end-to-end quickstart](docs/GOLDEN_E2E_QUICKSTART.md).
+The current `run_golden_training.py` command uses checked-in Stage 3 data and
+Golden artifacts, aligns one production prompt, filters held-out sources,
+prepares with the local model tokenizer, selects all visible GPUs, and runs
+preflight, training and selected-best/final checkpoint tests. Model weights
+must be supplied locally; omitting `--execute` only prints a plan.
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --output-dir /runs/e2b-new --execute
+```
+
+Defaults are validation/save every 500 optimizer updates, Golden32 every 1,000
+plus final weights, final Golden35 testing, 2,048 generated tokens and
+`/tensorboard/<run-id>/`. Golden32 has 32 occurrences / 31 unique sources;
+Golden35 has 35 unique references and is not used for checkpoint selection.
+Their excluded originals remain reserved from training. This dense capability
+workflow is distinct from official retained-scale QAT/LiteRT export and MTP.
+See [GPU profiles](docs/gpu_training_profiles.md), the
+[data audit](docs/data_filtering_audit_20260912.md) and
+[H100 implementation notes](docs/H100_GOLDEN_TRAINING.md). CPU validation does
+not establish H100 throughput, model quality or deployed-runtime parity.
 
 This folder trains local Stage 3 models that convert Stage 2 response text into the Android A2UI Express v1 IR:
 
@@ -28,6 +43,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 
 | Pipeline | Entry point | Current status |
 |---|---|---|
+| Dense E2B LoRA / 270M full-model training with shared-prompt Golden32 and Golden35 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on both sets, logs TensorBoard and scorecard; no LiteRT export |
 | Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |
 | Gemma 3 270M W8-QAT and W32/W16/W8/W4 comparisons | `training/scripts/run_gemma270m_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W8 is QAT-aligned, W16/W4 are explicit experimental conversions |
 | Checked full-model SFT/QAT and LoRA/QLoRA SFT | `training/scripts/train_sft.py` | Shared HF trainer; explicit method, complete-example loss masking, actual Linear target resolution and strict resume contract |

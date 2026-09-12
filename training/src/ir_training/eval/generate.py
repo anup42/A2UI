@@ -35,6 +35,10 @@ def generate_predictions(
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
     adapter = create_adapter(model_cfg)
     tokenizer = adapter.load_tokenizer()
+    if config.get("prepared_evaluation_contract") is not None:
+        from ir_training.eval.prepared_contract import verify_loaded_evaluation_tokenizer
+
+        verify_loaded_evaluation_tokenizer(tokenizer, model_cfg, config["prepared_evaluation_contract"])
     model = adapter.load_model()
     if adapter_checkpoint is not None:
         try:

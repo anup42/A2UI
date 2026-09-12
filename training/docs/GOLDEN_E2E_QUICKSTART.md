@@ -1,0 +1,282 @@
+# E2B / 270M training with Golden32 and Golden35
+
+This is the current clone-and-run entry point for **dense E2B LoRA capability
+training and Gemma 3 270M full-model training**, followed by checkpoint testing
+on both Golden sets. It aligns training and evaluation to one versioned
+production A2UI Express prompt. It does not train here, download model weights,
+or establish that a GPU run has passed.
+
+The command performs data preparation, source-leakage filtering, tokenizer
+checks, automatic GPU configuration, a real-model forward preflight, training,
+and final checkpoint evaluation. Use a short smoke run before a full run.
+
+## 1. Clone and prepare the GPU host
+
+Use Linux and the scheduler/container environment that exposes the intended
+H100 GPUs. Run commands from the repository root:
+
+```bash
+git clone --branch new_ir_changes_20260331 https://github.com/anup42/A2UI.git
+cd A2UI
+
+python3 -m venv .venv-a2ui-train
+source .venv-a2ui-train/bin/activate
+python -m pip install --upgrade pip
+# Install the CUDA-enabled PyTorch build appropriate to this GPU host first.
+python -m pip install -r training/requirements-gemma4-qat.txt
+
+python -c "import torch,transformers,peft; print(torch.__version__,torch.version.cuda,torch.cuda.is_available(),torch.cuda.device_count(),transformers.__version__,peft.__version__)"
+nvidia-smi
+export A2UI_TENSORBOARD_ROOT=/tensorboard
+```
+
+The Gemma 4 dependency overlay includes the newer architecture APIs needed by
+E2B. The package requirements are not a tested lock for every CUDA host. Retain
+the actual environment versions after a successful smoke. `/tensorboard` must
+exist or be creatable and writable inside the training container; MLP must see
+that same mounted location.
+
+A normal clone is sufficient for this workflow. The unrelated `workspace`
+gitlink is not a training dependency; do not require recursive submodule setup.
+
+Provide a **local, complete model bundle** containing its dense HF
+`config.json`, safetensors weights, tokenizer files and chat template. The
+repository review profiles name `google/gemma-4-E2B-it-qat-q4_0-unquantized`
+for E2B and `google/gemma-3-270m-it` for 270M. E2B requires that dense
+QAT-derived bundle, not a packed mobile checkpoint. Model access, license
+acceptance and obtaining those bundles are prerequisites; the launcher never
+downloads weights or silently substitutes a model.
+
+The following inputs are included in Git:
+
+- Completed Stage 3 source `dataset/data/runs/dataset_v1/genui.jsonl` and its
+  Stage 2 `responses.jsonl`. This is the default training source.
+- `training/data/eval/golden32_archive_repeat_v1/golden32.jsonl` and its manifest.
+- `training/data/eval/golden35_v1/golden35.jsonl` and its manifest.
+- Preparation, filtering, trainer, evaluation and prompt/schema code.
+
+Prepared/tokenizer-bound splits, model weights, training checkpoints and logs
+are generated on the GPU host and are not clone prerequisites.
+
+## 2. Run a smoke, then start training
+
+Replace the model and output paths. Every fresh run must use a **new output
+directory**; verified continuation is an explicit exception described below.
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --output-dir /runs/e2b-smoke --steps 20 --execute
+```
+
+The smoke still performs final tests on both complete Golden sets; `--steps 20`
+limits optimizer updates, not benchmark membership. Require finite loss and
+gradients, real parameter updates, no OOM/distributed failure, and complete
+post-training reports. Twenty updates test wiring, not final model quality.
+
+After the smoke passes:
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --output-dir /runs/e2b-epoch1 --epochs 1 --execute
+```
+
+For Gemma 3 270M, use the same workflow with its own model and output directory:
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile 270m --model-dir /models/gemma-3-270m-it \
+  --output-dir /runs/gemma270m-epoch1 --epochs 1 --execute
+```
+
+E2B uses the review profile's rank-32 LoRA on language attention/MLP projections.
+270M defaults to full-model SFT. These are documented starting recipes, not
+measured throughput or quality optima.
+
+Execution modes:
+
+- Omit `--execute` to print a plan only: no new files, tokenizer/model load or
+  training.
+- Use `--prepare-only` instead of `--execute` to materialize/filter inputs and
+  prepare examples with the local tokenizer, without model-weight loading or
+  training. Continue that prepared run explicitly with `--continue-run` and
+  `--execute`, using the same model, data and recipe arguments.
+- Use `--execute` for the complete workflow, including model preflight and
+  training. A failed stage stops the workflow; later scores are not fabricated.
+
+Use `python training/scripts/run_golden_training.py --help` for supported
+overrides. Fresh runs refuse an existing output directory. `--continue-run`
+can continue a verified prepared run or retry final evaluation after verified
+completed training; it must not restart failed/interrupted training as a new
+optimizer run. Preserve failed-run evidence and use the lower-level checked
+resume tooling only after diagnosing a training failure and retaining the
+original data/recipe contract. No continuation silently overwrites checkpoints.
+
+## 3. Evaluation defaults and outputs
+
+| Setting | Default |
+|---|---|
+| Epochs | 1 |
+| Training / periodic Golden32 GPUs | All scheduler-visible GPUs; H100 2/4/8 profiles selected automatically |
+| Validation loss and checkpoint saves | Every 500 optimizer updates |
+| Golden32 generation/selection | Every 1,000 optimizer updates, plus final weights |
+| Golden35 | Final evaluation only; never used to select a checkpoint |
+| Final checkpoint testing | Selected best and actual final weights, each on Golden32 and Golden35 |
+| New generation tokens | 2,048 |
+| Training full-sequence / evaluation prompt budget | 4,096 tokens with the exact local tokenizer |
+| TensorBoard | `/tensorboard/<run-id>/` |
+
+Context overrides must keep `--max-input-tokens` equal to `--max-seq-length`.
+The prompt budget plus `--max-new-tokens` must not exceed the recipe context:
+8,192 for E2B or 32,768 for 270M. The default 4,096 + 2,048 fits both. Change
+both input/sequence options together; increasing only one fails validation.
+
+Golden32's headline selection metric is
+`unique_source_generation_reward_v5_4_avg`: its 32 occurrences contain **31
+unique sources**, including the requested repeated donor. The ordinary
+32-occurrence score is separate. Golden35 has **35 unique strict-valid
+references**. The two sets are scored separately, never as a mixed 67-row
+average. The original September 3 demo Golden32 used by the separate official
+export pipeline is a different cohort.
+
+After training, the workflow tests both the checkpoint selected using Golden32
+and the actual final saved checkpoint on **both** sets. Even if selected-best
+and final correspond to the same training step, their artifact roles remain
+explicit. Per-case predictions, aggregate metrics, checkpoint identities,
+stage logs/status and a combined scorecard are retained in the output run.
+TensorBoard receives training, periodic Golden32 and final Golden32/35 metrics.
+No score is called complete unless the expected row count is present.
+
+The four post-training tests currently run as sequential standalone processes,
+each using the first selected CUDA device. They are not multi-rank tests; the
+all-visible-GPU setting above applies to training and periodic Golden32 passes.
+
+Output paths below are relative to the chosen output directory:
+
+| Artifact | Location |
+|---|---|
+| Stage status, provenance and output inventory | `pipeline_manifest.json` |
+| Tokenizer-bound data and prompt contracts | `prepared/` |
+| Resolved training configuration | `fit/training_config.yaml` |
+| Golden32-selected checkpoint | `fit/training/best_golden_checkpoint/` |
+| Actual final weights | `fit/training/final_adapter/` for E2B; `final_model/` for 270M |
+| Per-case and aggregate final tests | `evaluations/{best,final}_{golden32,golden35}/attempt_001/` |
+| Combined final comparison | `evaluation_scorecard.json` |
+| Stage command logs | `logs/` |
+
+The `prepared` directory includes `train.jsonl`, `val.jsonl`, `golden32.jsonl`,
+`golden35.jsonl`, `manifest.json`, saved shared/inference prompt contracts, and
+source prompt-scaffold evidence. Retried evaluations use distinct attempts;
+do not treat stale output from a failed attempt as a completed scorecard.
+
+All cadences count **optimizer updates**, not microbatches. The checked-in
+`dataset_v1` currently has 4,870 Stage 3 records before filtering; one epoch at
+global batch 32 may finish before step 500. In that case, final Golden32 and
+Golden35 evaluation still run, but there may be no periodic Golden pass. For a
+shorter cadence on a small dataset, explicitly use:
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --output-dir /runs/e2b-frequent-eval --epochs 1 \
+  --eval-steps 100 --golden-every-steps 100 --execute
+```
+
+`--golden-every-steps` must be a positive multiple of `--eval-steps`. Evaluating
+more often costs training time. Periodic generation is distributed across
+training ranks with a scoped KV cache; it is synchronous and pauses optimizer
+work. No zero-overhead concurrent inference or measured H100 speedup is
+promised. See [GPU profile details](gpu_training_profiles.md).
+
+```bash
+tensorboard --logdir /tensorboard
+```
+
+## 4. One prompt, frozen references, clean training data
+
+The launcher materializes the completed default source through the current
+strict Express/wire/reachability checks, groups source cases into deterministic
+90/10 train/validation splits, and filters reserved Golden source identities
+and normalized source responses from both splits. It also reserves the failed
+original Golden32 source and all 15 sources excluded from Golden35. Those
+unscored sources do not become training examples.
+
+The full system/few-shot/task scaffold is rebuilt from the versioned shared
+production prompt for **training, Golden32 and Golden35** before tokenizer-aware
+preparation. The prepared manifest binds prompt, tokenizer vocabulary, chat
+template/kwargs, split bytes and benchmark membership. Different input response
+text is expected; a different instruction scaffold is not.
+
+The checked-in Golden files remain unchanged. Prompt alignment is a prepared
+view with new provenance/hashes, not a rewrite of Golden source responses,
+reference outputs, IDs or membership. Deploy/evaluate with the saved full
+scaffold and matching chat template; do not substitute an abbreviated prompt.
+Historical scores produced with the old archive prompt are not directly
+comparable to scores from this aligned setup.
+
+Strict-invalid or overlong training rows are quarantined whole, with reasons.
+No target is silently truncated, manually repaired or synthesized. If even one
+fixed Golden occurrence fails strict validation or its **inference prompt**
+exceeds the token budget, the workflow
+stops instead of reporting a partial benchmark. Inspect corpus retention,
+component/intent distribution and token lengths before judging data sufficiency.
+The default source is usable input, not a claim that all its legacy records are
+clean or that one epoch guarantees high scores.
+
+Golden targets remain complete references: they are not filtered by the
+training full-sequence limit or shortened to fit the 2,048-token generation
+budget. Report long-reference and generation-limit cases as limitations of the
+chosen context/decoder policy, not as missing benchmark cases.
+
+To use another completed Stage 3 run:
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --source-run-dir /data/completed-stage3-run \
+  --output-dir /runs/e2b-other-source --execute
+```
+
+To use authoritative existing `train.jsonl` and `val.jsonl` files, pass
+`--input-dir /data/source-bound-train-val` instead. Source/query identities and
+canonical source responses must be recoverable; slim review samples lacking
+identity/provenance are not suitable production inputs. Existing source splits
+are still filtered, prompt-aligned, token-checked and checked for leakage.
+Training itself never invokes Stage 1/2/3 generation or a cloud teacher.
+
+## 5. Quantization, LiteRT and MTP are separate
+
+This command closes the **HF training plus dual-Golden checkpoint-testing**
+workflow. It does not convert E2B to official retained-scale QAT packages or
+automatically export/test W32/W16/W8/W4 LiteRT-LM variants. Do not call dense
+QAT-derived LoRA training a verified retained-scale QAT result.
+
+For optional 270M full-model W8 QAT after a successful SFT run, initialize a
+fresh run from its selected full checkpoint (including its saved tokenizer):
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile 270m --qat \
+  --model-dir /runs/gemma270m-epoch1/fit/training/best_golden_checkpoint \
+  --output-dir /runs/gemma270m-w8-qat --execute
+```
+
+This uses the lower-learning-rate QAT recipe and evaluates with fake
+quantization enabled. It remains an HF checkpoint workflow, not a LiteRT
+conversion or runtime-parity test.
+
+Those workflows remain available through the
+[pipeline inventory](training_pipeline_inventory.md) and the
+[retained-scale GPU runbook](gemma4_mobile_qat_remote_pc_runbook.md), with their
+own seeds, reference pins, converter environments and runtime runners. Their
+existing MTP enable/disable option remains separate; this capability command
+does not jointly train an MTP drafter. 270M has no Gemma 4 MTP drafter.
+
+Return the complete scorecard, raw/per-case predictions, manifests, quarantine
+counts, resolved config, GPU/environment versions, stage logs and checkpoint
+metadata after a real run. CPU tests cannot establish CUDA memory fit,
+distributed stability, actual quality or deployed-runtime parity.
+
+Implementation test evidence is in
+[the September 12 shared-prompt validation record](golden_e2e_validation_20260912.md).

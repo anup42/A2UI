@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Mapping
+from typing import Any, Collection, Mapping
 
 from ir_training.common.config import repo_root
 
@@ -281,6 +281,8 @@ def prepare_splits(
     inputs: Mapping[str, Path], output_dir: Path, *, ordering: str = "root-first",
     tokenizer: Any | None = None, max_seq_length: int | None = None,
     max_input_tokens: int | None = None, chat_template_kwargs: Mapping[str, Any] | None = None,
+    shared_prompt: Mapping[str, Any] | None = None,
+    evaluation_splits: Collection[str] = (),
 ) -> dict[str, Any]:
     """Publish a complete new directory atomically; never overwrite a dataset.
 
@@ -290,6 +292,11 @@ def prepare_splits(
     """
     if ordering not in {"bottom-up", "root-first"}:
         raise ValueError("ordering must be bottom-up or root-first")
+    if shared_prompt is not None:
+        from ir_training.data.shared_prompt import validate_shared_prompt_contract
+        shared_prompt = validate_shared_prompt_contract(shared_prompt)
+        if shared_prompt["serialization_order"] != ordering:
+            raise ValueError("Shared prompt serialization_order differs from preparation ordering")
     for name, limit in (("max_seq_length", max_seq_length), ("max_input_tokens", max_input_tokens)):
         if limit is not None and (not isinstance(limit, int) or limit <= 0 or tokenizer is None):
             raise ValueError(f"{name} requires a positive integer and an explicit tokenizer")
@@ -298,6 +305,9 @@ def prepare_splits(
         raise ValueError("chat_template_kwargs cannot override tokenize/add_generation_prompt")
     if not inputs or any(not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", name) or name.casefold() == "quarantine" for name in inputs):
         raise ValueError("Supply at least one input; split names must be simple identifiers")
+    evaluation_names = set(evaluation_splits)
+    if isinstance(evaluation_splits, str) or not evaluation_names <= set(inputs):
+        raise ValueError("evaluation_splits must name supplied input splits")
     sources = {name: Path(path).resolve(strict=True) for name, path in inputs.items()}
     destination = output_dir.resolve()
     if destination.exists():
@@ -320,6 +330,7 @@ def prepare_splits(
     try:
         stats: dict[str, Any] = {}
         scaffolds: dict[str, Any] = {}
+        original_scaffolds: dict[str, Any] = {}
         with (temporary / "quarantine.jsonl").open("w", encoding="utf-8", newline="\n") as quarantine:
             for split, source in sources.items():
                 counts: Counter[str] = Counter()
@@ -343,10 +354,21 @@ def prepare_splits(
                         try:
                             if not isinstance(row, dict):
                                 raise PreparationError("row_not_object", "Each JSONL row must be an object")
-                            prepared, target, scaffold = prepare_row(row, ordering)
+                            normalized = row
+                            if shared_prompt is not None:
+                                from ir_training.data.shared_prompt import normalize_row, source_prompt_scaffold
+                                normalized = normalize_row(row, shared_prompt)
+                                original_scaffold = source_prompt_scaffold(row)
+                                original_scaffolds[original_scaffold["sha256"]] = original_scaffold
+                            prepared, target, scaffold = prepare_row(normalized, ordering)
+                            if shared_prompt is not None and "response_text" in row:
+                                # Existing builders trim the task message but some
+                                # source fields retain a trailing newline. Keep the
+                                # original response bytes as well as the task turn.
+                                prepared["response_text"] = row["response_text"]
                             if tokenizer is not None:
                                 lengths = _token_lengths(prepared, tokenizer, template_kwargs)
-                                if max_seq_length is not None and lengths["sequence_tokens"] > max_seq_length:
+                                if split not in evaluation_names and max_seq_length is not None and lengths["sequence_tokens"] > max_seq_length:
                                     raise PreparationError("sequence_too_long", f"{lengths['sequence_tokens']} tokens > {max_seq_length}; complete row quarantined")
                                 if max_input_tokens is not None and lengths["prompt_tokens"] > max_input_tokens:
                                     raise PreparationError("prompt_too_long", f"{lengths['prompt_tokens']} tokens > {max_input_tokens}; complete row quarantined")
@@ -368,6 +390,8 @@ def prepare_splits(
                         scaffold_counts[scaffold["sha256"]] += 1
                 if not counts["accepted_rows"]:
                     raise ValueError(f"Split {split} has no accepted rows; no dataset published")
+                if split in evaluation_names and counts["quarantined_rows"]:
+                    raise ValueError(f"Evaluation split {split} must preserve every reference; rejected rows: {dict(reasons)}")
                 if _sha_file(source) != source_hashes[split]:
                     raise ValueError(f"Source changed while preparing {split}; no dataset published")
                 stats[split] = {
@@ -398,6 +422,9 @@ def prepare_splits(
             "prompt_parity": "Use prompt_scaffolds.json and prepared messages for HF and deployment. Tokenizer chat-template/token-ID parity still requires the selected tokenizer on the GPU/export PC.",
             "ab_comparison": "accepted_source_rows_sha256 must match between root-first and bottom-up runs for every split.",
         }
+        if evaluation_names:
+            manifest["evaluation_splits"] = sorted(evaluation_names)
+            manifest["evaluation_length_policy"] = "Apply max_input_tokens to generation prompts; max_seq_length only gates supervised training/validation chats. Evaluation references are retained intact and never passed as generation inputs."
         if tokenizer is not None:
             vocabulary = tokenizer.get_vocab() if hasattr(tokenizer, "get_vocab") else None
             manifest["tokenizer"] = {
@@ -410,6 +437,21 @@ def prepare_splits(
                 "pad_token_id": getattr(tokenizer, "pad_token_id", None),
                 "add_special_tokens": False, "max_seq_length": max_seq_length, "max_input_tokens": max_input_tokens,
             }
+        if shared_prompt is not None:
+            shared_prompt_source = Path(__file__).with_name("shared_prompt.py")
+            manifest["implementation_sha256"]["training/src/ir_training/data/shared_prompt.py"] = _sha_file(shared_prompt_source)
+            if set(scaffolds) != {shared_prompt["scaffold_sha256"]}:
+                raise ValueError("Shared prompt preparation produced a different or mixed scaffold")
+            _write_json(temporary / "shared_prompt.json", shared_prompt)
+            _write_json(temporary / "inference_prompt.json", {
+                "version": shared_prompt["version"], "contract_sha256": shared_prompt["contract_sha256"],
+                **shared_prompt["scaffold"],
+                "instruction": "Append task_prefix + response.strip() as one user message, matching the production builder; apply the recorded tokenizer chat template with add_generation_prompt=true. Never append a reference answer.",
+            })
+            _write_json(temporary / "source_prompt_scaffolds.json", list(original_scaffolds.values()))
+            manifest["shared_prompt"] = shared_prompt
+            for artifact in ("shared_prompt.json", "inference_prompt.json", "source_prompt_scaffolds.json"):
+                manifest[artifact.removesuffix(".json") + "_sha256"] = _sha_file(temporary / artifact)
         _write_json(temporary / "prompt_scaffolds.json", list(scaffolds.values()))
         manifest["prompt_scaffolds_sha256"] = _sha_file(temporary / "prompt_scaffolds.json")
         manifest["quarantine_sha256"] = _sha_file(temporary / "quarantine.jsonl")

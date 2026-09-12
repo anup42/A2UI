@@ -1,12 +1,24 @@
 # Training pipeline inventory
 
 This is the source-grounded inventory of training paths in this checkout as of
-2026-09-04. `training/` is the current A2UI response-to-IR system. It consumes
+2026-09-12. `training/` is the current A2UI response-to-IR system. It consumes
 completed dataset Stage-3 records and targets strict A2UI Express v1; it does
 not generate Stage 1/2/3 data. `training_scripts/` and `dpo/` are separate
 historical/experimental trees described below.
 
 ## Recommended end-to-end pipelines
+
+For clone-and-run **HF capability training and checkpoint testing on both
+Golden32 and Golden35**, use `training/scripts/run_golden_training.py` and the
+[shared-prompt quickstart](GOLDEN_E2E_QUICKSTART.md). It supports dense E2B
+LoRA, 270M full SFT, and optional 270M full W8 QAT from an SFT checkpoint.
+It prepares the tracked Stage 3 source with one production scaffold, filters
+all reserved Golden sources, chooses visible GPUs, and tests selected-best
+and actual-final checkpoints on both cohorts. Golden32 selects checkpoints;
+Golden35 is final-only. This path does not export LiteRT packages or train MTP.
+
+The separate deployment/quantization workflows below use the original
+September 3 Golden32, not the archive-repeat development cohort:
 
 | Model/purpose | Entry point | Training and selection | Deployment/evaluation |
 |---|---|---|---|

@@ -40,7 +40,7 @@ def source_identity(row: dict) -> tuple[str, str]:
     return str(query), hashlib.sha256(" ".join(source.split()).encode()).hexdigest()
 
 
-def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_prompt: int) -> dict:
+def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_prompt: int, golden35: Path | None = None) -> dict:
     manifest_path = dataset / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     validation = manifest.get("validation") or {}
@@ -105,8 +105,29 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
     maxima = golden_split.get("max_accepted_token_lengths") or {}
     if int(maxima.get("prompt_tokens", max_prompt + 1)) > max_prompt:
         raise ValueError("Golden prompt exceeds inference context. Reprepare with --max-input-tokens.")
-    return {"split_rows": counts, "golden_rows": 32, "golden_unique_sources": required_unique,
-            "benchmark": benchmark, "dataset_manifest_sha256": sha256(manifest_path), "golden_sha256": sha256(golden), "tokenizer": tokenizer}
+    if manifest.get("shared_prompt") is not None or golden_manifest.get("shared_prompt") is not None:
+        from ir_training.eval.prepared_contract import checked_preparation_manifest
+
+        checked_preparation_manifest(dataset)
+        checked_preparation_manifest(golden.parent)
+        if manifest.get("shared_prompt") != golden_manifest.get("shared_prompt"):
+            raise ValueError("Training and Golden shared prompt contracts differ.")
+    report = {"split_rows": counts, "golden_rows": 32, "golden_unique_sources": required_unique,
+              "benchmark": benchmark, "dataset_manifest_sha256": sha256(manifest_path), "golden_sha256": sha256(golden), "tokenizer": tokenizer}
+    if golden35 is not None:
+        from ir_training.eval.prepared_contract import verify_golden_preparation, verify_reserved_train_validation
+
+        final_datasets = {}
+        for name, path, count, kind, role in (
+            ("golden32", golden, 32, None, "development_checkpoint_selection"),
+            ("golden35", golden35, 35, "fixed_strict_subset", "final_only_holdout"),
+        ):
+            binding = verify_golden_preparation(dataset, path, required_rows=count,
+                max_sequence=max_sequence, max_prompt=max_prompt, expected_kind=kind)
+            final_datasets[name] = {**binding, "selection_role": role}
+        verify_reserved_train_validation(dataset, [golden, golden35])
+        report["final_evaluation_datasets"] = final_datasets
+    return report
 
 
 def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
@@ -132,7 +153,10 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     run_dir = args.output_dir.resolve()
     if run_dir.exists():
         raise FileExistsError(f"Choose a new run directory: {run_dir}")
-    config["run"].update(id=run_dir.name, dataset_dir=str(dataset), output_dir=str(run_dir / "training"), prepared_manifest_required=True)
+    run_id = getattr(args, "run_id", None) or run_dir.name
+    if not isinstance(run_id, str) or not run_id.strip() or run_id in {".", ".."} or any(char in run_id for char in ("/", "\\", ":")):
+        raise ValueError("--run-id must be a nonempty directory name, not a path.")
+    config["run"].update(id=run_id, dataset_dir=str(dataset), output_dir=str(run_dir / "training"), prepared_manifest_required=True)
     config["runtime"] = {"cuda_visible_devices": gpu_profile["cuda_visible_devices"], "world_size": world_size, "gpu_profile": gpu_profile}
     config["model"].update(model_source=str(model_dir), tokenizer_source=str(model_dir), dtype=gpu_profile["dtype"],
                           attn_implementation=gpu_profile["attn_implementation"])
@@ -141,7 +165,7 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     training.update(per_device_train_batch_size=gpu_profile["microbatch"], gradient_accumulation_steps=gpu_profile["gradient_accumulation_steps"],
                     expected_effective_batch_size=effective_batch, epochs=args.epochs, max_seq_length=args.max_seq_length,
                     tensorboard_root=tensorboard_root, tensorboard_subdir="training", report_to="tensorboard",
-                    logging_dir=str(Path(tensorboard_root) / run_dir.name / "training"),
+                    logging_dir=str(Path(tensorboard_root) / run_id / "training"),
                     tf32=gpu_profile["tf32"], dataloader_num_workers=gpu_profile["dataloader_num_workers"],
                     dataloader_pin_memory=True, gradient_checkpointing=gpu_profile["gradient_checkpointing"],
                     gradient_checkpointing_kwargs={"use_reentrant": False})
@@ -185,7 +209,11 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
         if errors:
             raise ValueError("; ".join(errors))
     validate_effective_batch(training, world_size)
-    report = verify_prepared(dataset, golden, max_sequence=args.max_seq_length, max_prompt=args.max_seq_length)
+    golden35 = getattr(args, "golden35_file", None)
+    report = verify_prepared(dataset, golden, max_sequence=args.max_seq_length, max_prompt=args.max_seq_length,
+                             golden35=golden35.resolve(strict=True) if golden35 is not None else None)
+    if "final_evaluation_datasets" in report:
+        config["final_evaluation_datasets"] = copy.deepcopy(report["final_evaluation_datasets"])
     if (report.get("benchmark") or {}).get("benchmark_kind") == "explicit_repeated_case":
         config["golden_eval"]["metric_for_best_model"] = "unique_source_generation_reward_v5_4_avg"
     config["model"]["chat_template_kwargs"] = report["tokenizer"].get("chat_template_kwargs") or {}
@@ -200,6 +228,8 @@ def main() -> None:
     parser.add_argument("--profile", choices=("e2b", "270m"), required=True)
     for name in ("model-dir", "dataset-dir", "golden-file", "output-dir"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--run-id", help="Optional run identity for TensorBoard; defaults to the output directory name. Use the parent pipeline run ID for nested fit directories.")
+    parser.add_argument("--golden35-file", type=Path, help="Optional frozen Golden35 prepared with the identical training scaffold and tokenizer. Bind it as a final-only holdout; Golden32 still selects checkpoints.")
     parser.add_argument("--devices", default="auto", help="Use all CUDA-visible GPUs (default), or comma-separated visible logical indices/exact GPU or MIG UUIDs. Scheduler masks are preserved.")
     parser.add_argument("--effective-batch", type=int, help="Global examples per optimizer update; default 32 on H100 >=70 GiB, otherwise 16. Learning rate is unchanged.")
     parser.add_argument("--microbatch", type=int, help="Override per-GPU microbatch; H100 defaults: E2B 2, 270M 4, capped to divide the effective batch.")

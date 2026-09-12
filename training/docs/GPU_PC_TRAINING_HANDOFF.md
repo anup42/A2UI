@@ -1,15 +1,35 @@
 # GPU-PC handoff: E2B and 270M A2UI Express training
 
-**September 12 update:** start with [H100 + Golden training](H100_GOLDEN_TRAINING.md) for the current commands. It supersedes this document's manual GPU lists, batch defaults, 4,096-token generation budget, and the requirement to regenerate the archive's failed Golden slot. The archive development replacement is explicitly **32 occurrences / 31 unique cases**, not the original Golden32. The separate final-evaluation lane is now **Golden35**, containing the 35 passing references from the historical 50-case source. All 15 excluded sources remain reserved from training via its manifest. The older reference and diagnosis below remain historical evidence.
+**Current handoff:** follow [the end-to-end quickstart](GOLDEN_E2E_QUICKSTART.md)
+for `run_golden_training.py`. One command prepares the tracked default Stage 3
+data, aligns a single production prompt for train/validation/Golden32/Golden35,
+filters all reserved sources, selects visible GPUs, performs model preflight,
+trains, and tests selected-best and actual-final checkpoints on **both sets**.
+Supply a local complete dense model/tokenizer bundle and a fresh output path;
+add `--execute` to start, or omit it for a plan without model loading or writes.
 
-Current Golden35 source: `training/data/eval/golden35_v1/golden35.jsonl`.
-Prepare with `training/configs/datasets/golden35_stage3_eval.yaml`, producing
-`training/outputs/datasets/golden35_stage3_eval/all.jsonl`; evaluate using
-`--max-rows 35 --required-rows 35 --max-new-tokens 2048` and a distinct
-`golden35-final` evaluation name. Reserve it with `--reserve-golden35`, alongside
-`--reserve-golden32` for the archive development cohort. Current training still
-selects on the explicit Golden32 development benchmark; these cohorts are not
-interchangeable. The runnable current commands are in the linked H100 guide.
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --output-dir /runs/e2b-new --execute
+```
+
+Both Golden datasets/manifests and default `dataset_v1` source files are in Git.
+The archive development replacement is **32 occurrences / 31 unique cases**;
+Golden35 contains **35 unique passing references**. The failed original and
+all 15 excluded sources remain reserved. Raw reference pairs are unchanged;
+only prepared prompt views and their provenance/hashes are rebuilt. Selection
+uses Golden32; Golden35 is final-only. Defaults are 500-update validation/save,
+1,000-update Golden32 generation plus final, 2,048 new tokens, and
+`/tensorboard/<run-id>/` logging. A small one-epoch corpus may finish before the
+periodic boundary, but final testing still runs.
+
+The old handoff below is historical evidence, not the current clone-and-run
+recipe. Its manual GPU lists, prompt preparation, 4,096-token generation budget
+and request to regenerate the archive's failed Golden slot are superseded.
+Official retained-scale QAT, LiteRT multiformat conversion and optional MTP
+remain separate workflows with their existing gates; the new dense capability
+command does not imply their numerical/export/runtime validation has passed.
 
 ## Historical September 5 handoff
 
