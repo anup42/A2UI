@@ -46,11 +46,65 @@ def load_fixed_golden_rows(
         raise ValueError(
             f"max_rows selected {len(rows)} rows but required_rows={required_rows}."
         )
-    if require_unique_rows:
+    benchmark = benchmark_contract_for_split(resolved, rows)
+    if require_unique_rows and (benchmark or {}).get("benchmark_kind") != "explicit_repeated_case":
         identities = [_row_identity(row, index) for index, row in enumerate(rows)]
         if len(set(identities)) != len(identities):
             raise ValueError(f"Golden evaluation split has duplicate identities: {resolved}")
     return rows
+
+
+def benchmark_contract_for_split(
+    split_path: str | Path, rows: list[dict[str, Any]] | None = None,
+) -> dict[str, Any] | None:
+    """Accept a frozen subset or repeated sources only with a bound revision.
+
+    Ordinary Golden sets keep their unique-source contract. Repetition is an
+    evaluation occurrence, never a new independent case or a training example.
+    """
+    split = Path(split_path).expanduser().resolve()
+    evidence_path = split.parent / "benchmark_manifest.json"
+    contract = None
+    if evidence_path.is_file():
+        contract = json.loads(evidence_path.read_text(encoding="utf-8"))
+        if contract.get("output_sha256") != _sha256_file(split):
+            raise ValueError("Golden benchmark output differs from its manifest.")
+    else:
+        preparation_path = split.parent / "manifest.json"
+        if preparation_path.is_file():
+            preparation = json.loads(preparation_path.read_text(encoding="utf-8"))
+            entry = (preparation.get("splits") or {}).get(split.stem) or {}
+            contract = entry.get("benchmark")
+            if contract is not None and entry.get("output_sha256") != _sha256_file(split):
+                raise ValueError("Prepared Golden benchmark hash differs from its manifest.")
+    if rows is None:
+        rows = list(read_jsonl(split))
+    declared = any(
+        (row.get("metadata") or {}).get("repeated_from")
+        or (row.get("metadata") or {}).get("benchmark")
+        for row in rows
+    )
+    if contract is None:
+        if declared:
+            raise ValueError("Declared Golden occurrences require a bound benchmark manifest.")
+        return None
+    validate_benchmark_rows(rows, contract)
+    return contract
+
+
+def validate_benchmark_rows(rows: list[dict[str, Any]], contract: dict[str, Any]) -> None:
+    """Validate the complete membership, not just the advertised row count."""
+    kind = contract.get("benchmark_kind")
+    if kind == "fixed_strict_subset":
+        from ir_training.data.golden35_subset import validate_subset_rows
+
+        validate_subset_rows(rows, contract)
+    elif kind == "explicit_repeated_case":
+        from ir_training.data.golden_replacement import validate_replacement_rows
+
+        validate_replacement_rows(rows, contract)
+    else:
+        raise ValueError(f"Unsupported Golden benchmark kind: {kind!r}")
 
 
 def validate_prepared_golden_contract(

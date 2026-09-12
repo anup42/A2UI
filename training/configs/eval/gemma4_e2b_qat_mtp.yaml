@@ -12,8 +12,11 @@ source:
   device_map: auto
   trust_remote_code: false
 data:
-  split_path: outputs/datasets/golden50_stage3_eval/all.jsonl
-  max_rows: 50
+  split_path: outputs/datasets/golden35_stage3_eval/all.jsonl
+  max_rows: 35
+  required_rows: 35
+  require_exact_rows: true
+  require_unique_rows: true
 benchmark:
   # This checks target drift and end-to-end speculative decoding in Transformers.
   # It is not a packed-INT4 device benchmark.
@@ -21,7 +24,7 @@ benchmark:
   packed_int4: false
   final_runtime_validation_required: true
   max_input_tokens: 4096
-  max_new_tokens: 4096
+  max_new_tokens: 2048
   do_sample: false
   warmup_rows: 1
   repeats: 1

@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "golden35_v1",
+  "benchmark_kind": "fixed_strict_subset",
+  "row_count": 35,
+  "unique_source_count": 35,
+  "duplicate_occurrence_count": 0,
+  "original_source_row_count": 50,
+  "excluded_source_count": 15,
+  "source_run": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4",
+  "source_genui_sha256": "64946a64aab0745cf5137f4831c4ca1902bff312a01169c2bd67e27cfde6c5fe",
+  "source_responses_sha256": "5a375c0526446218ba47321c7a77ffe7979c33bcdc7ba8a59397ad14f2453fc3",
+  "output_file": "golden35.jsonl",
+  "output_sha256": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20",
+  "accepted_source_ids": [
+    "q_000002",
+    "q_000003",
+    "q_000005",
+    "q_000007",
+    "q_000008",
+    "q_000009",
+    "q_000013",
+    "q_000014",
+    "q_000015",
+    "q_000016",
+    "q_000020",
+    "q_000021",
+    "q_000022",
+    "q_000023",
+    "q_000024",
+    "q_000025",
+    "q_000026",
+    "q_000027",
+    "q_000029",
+    "q_000030",
+    "q_000031",
+    "q_000032",
+    "q_000033",
+    "q_000034",
+    "q_000036",
+    "q_000037",
+    "q_000038",
+    "q_000039",
+    "q_000040",
+    "q_000041",
+    "q_000042",
+    "q_000043",
+    "q_000045",
+    "q_000047",
+    "q_000049"
+  ],
+  "accepted_membership_sha256": "34fc3401940edf83aa85f6395bb087c42005040893a51f15a1cd52782722847e",
+  "accepted_sources": [
+    {
+      "source_id": "q_000002",
+      "query_id": "q_000002",
+      "response_id": "r_000002_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000002_01:a2ui_express_v1",
+      "response_sha256": "eada29715fca0b28cdc3f35c4bc00585796dc38dee7a44c9070d8edce34244e3",
+      "semantic_sha256": "bc43fb0bdf8695e3ced1eec1eec553819ef4f59bb4778bae6281b51e58f96245",
+      "intent_bucket": "information_retrieval"
+    },
+    {
+      "source_id": "q_000003",
+      "query_id": "q_000003",
+      "response_id": "r_000003_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000003_01:a2ui_express_v1",
+      "response_sha256": "c09249dde9d75f1d3ff877d3dbe3f93b985b27b4bcc378498fa9b67c7fb5a5ff",
+      "semantic_sha256": "46a174feb3116a2063750a91a3097acb7eee778fcdc9668abebd5c4accd64341",
+      "intent_bucket": "entertainment"
+    },
+    {
+      "source_id": "q_000005",
+      "query_id": "q_000005",
+      "response_id": "r_000005_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000005_01:a2ui_express_v1",
+      "response_sha256": "9da92d952b96e22371095ea76b89095bdc58ec8666a41e5176ff32ea31c77c02",
+      "semantic_sha256": "6ab8976182bb1b0fff8cb034ca964f8fc48b72b30eade5fd9ca2ce7e5a47b49a",
+      "intent_bucket": "product_lookup"
+    },
+    {
+      "source_id": "q_000007",
+      "query_id": "q_000007",
+      "response_id": "r_000007_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000007_01:a2ui_express_v1",
+      "response_sha256": "68cd4716cebe3fc6774ac205a0b3aae2d22aced64b4e15e4a575cd2b755f9e11",
+      "semantic_sha256": "085e511d45a36a6893b8619680ba563deac5ac7bb473b2504588d77f72bb6f99",
+      "intent_bucket": "booking"
+    },
+    {
+      "source_id": "q_000008",
+      "query_id": "q_000008",
+      "response_id": "r_000008_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000008_01:a2ui_express_v1",
+      "response_sha256": "48795b7097d09b39b666430f82e7bc719bb9e225cda942c5a8a28898ccf89163",
+      "semantic_sha256": "cd943893f0b1c963a56dad18ac3c7562b16588cbee17f696d1dde7737061e223",
+      "intent_bucket": "booking"
+    },
+    {
+      "source_id": "q_000009",
+      "query_id": "q_000009",
+      "response_id": "r_000009_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000009_01:a2ui_express_v1",
+      "response_sha256": "414dd1f6af448a8fa723edfb99f4217fc5130bc0f81e3c229312b6c9dc7c8605",
+      "semantic_sha256": "de5a0ec3333cbf406d3e4e369376302107ed581c1015be3e9525d4fc68b90e76",
+      "intent_bucket": "weather"
+    },
+    {
+      "source_id": "q_000013",
+      "query_id": "q_000013",
+      "response_id": "r_000013_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000013_01:a2ui_express_v1",
+      "response_sha256": "f8621cd0b5e33352a032d75554670c2a8b859f8e354ead98563f5e0ad5049c04",
+      "semantic_sha256": "9f3ff8106a92ce2ed32aea2921993c66fb94ec7f838cb9a28cc627d56e8d7767",
+      "intent_bucket": "planning"
+    },
+    {
+      "source_id": "q_000014",
+      "query_id": "q_000014",
+      "response_id": "r_000014_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000014_01:a2ui_express_v1",
+      "response_sha256": "c4a233a1bcaa26703ea529bc86638a5320d452182199d76d3e67f981a999a12d",
+      "semantic_sha256": "42026609ce40b7290b2579ca25a54a778efd7fd2794050f46399756745878169",
+      "intent_bucket": "planning"
+    },
+    {
+      "source_id": "q_000015",
+      "query_id": "q_000015",
+      "response_id": "r_000015_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000015_01:a2ui_express_v1",
+      "response_sha256": "4b357fb65e493c1d00a78ada3b5cc7658be6083b4cbefbb8f4d764f1939c49a6",
+      "semantic_sha256": "43504c8b70d9b91c62692dc1fb8b136602b0053e2a7afe02a5e696605560424c",
+      "intent_bucket": "productivity"
+    },
+    {
+      "source_id": "q_000016",
+      "query_id": "q_000016",
+      "response_id": "r_000016_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000016_01:a2ui_express_v1",
+      "response_sha256": "9f162636ac2c26942654b0806301c0aa01bfff7502a939f85f753bf07e6151c5",
+      "semantic_sha256": "43e43635c9424ed5e77165703a212717a3b930a56da00e94f2bacaaec306c7a0",
+      "intent_bucket": "productivity"
+    },
+    {
+      "source_id": "q_000020",
+      "query_id": "q_000020",
+      "response_id": "r_000020_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000020_01:a2ui_express_v1",
+      "response_sha256": "3790db646ba08f815176fcd7545e7c1580a6ce571c99046959ffdc9f00556d8e",
+      "semantic_sha256": "023015ac869c1184dc8962cedd2c46eead9e8850c531e885b68a521428a85b14",
+      "intent_bucket": "localization"
+    },
+    {
+      "source_id": "q_000021",
+      "query_id": "q_000021",
+      "response_id": "r_000021_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000021_01:a2ui_express_v1",
+      "response_sha256": "997547ceec643306ee9bd80b316d12499c201f6d87820a032b59f6b4d565d65a",
+      "semantic_sha256": "b1c2755ac5672e9a7b070080af60ce856c861d8ce6d5516c17469a2855885ea6",
+      "intent_bucket": "technical_support"
+    },
+    {
+      "source_id": "q_000022",
+      "query_id": "q_000022",
+      "response_id": "r_000022_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000022_01:a2ui_express_v1",
+      "response_sha256": "fc2eceb556df219e294222168c1392eeacb03df9978a200fb6f6a861307c6c48",
+      "semantic_sha256": "eced335641c62ffe1e8bfffa09e6766659ea2c393eb95fd85916a8a8beba79c9",
+      "intent_bucket": "technical_support"
+    },
+    {
+      "source_id": "q_000023",
+      "query_id": "q_000023",
+      "response_id": "r_000023_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000023_01:a2ui_express_v1",
+      "response_sha256": "ecdcc01ed2f1ced130bdf6e21d537d2758433f6d5c2b12ce95b213883f7bc4d9",
+      "semantic_sha256": "ba668a50ad1102d3d952df4a4f37cc36cfad75998d817d03d18114303ec162f2",
+      "intent_bucket": "creative_writing"
+    },
+    {
+      "source_id": "q_000024",
+      "query_id": "q_000024",
+      "response_id": "r_000024_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000024_01:a2ui_express_v1",
+      "response_sha256": "9b19f0d9e2d7f7e3b707cbaf94279e7558ef11b394f90128660de40949584652",
+      "semantic_sha256": "8bcee2772c5ec2211cb1e552fb07603281eb254cf37fc763890aa8f9dd18e90a",
+      "intent_bucket": "creative_writing"
+    },
+    {
+      "source_id": "q_000025",
+      "query_id": "q_000025",
+      "response_id": "r_000025_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000025_01:a2ui_express_v1",
+      "response_sha256": "4639b6044d2f811a6bb251ab9edc61e6ff66af7a214d6b87c520da354996001a",
+      "semantic_sha256": "a94183bb851a4f4f4943cd1257f1bb4bf2a1a9d5fe6ea1ca17354e8adf2ffd9d",
+      "intent_bucket": "event_schedule"
+    },
+    {
+      "source_id": "q_000026",
+      "query_id": "q_000026",
+      "response_id": "r_000026_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000026_01:a2ui_express_v1",
+      "response_sha256": "6db80c5778f8f06d1baf677b88374318630cc405020ff35ec192dddf9bf1691a",
+      "semantic_sha256": "917be627017a07200ec589033f34e7ecd61742246781142d8469d84ffb1c5b2f",
+      "intent_bucket": "event_schedule"
+    },
+    {
+      "source_id": "q_000027",
+      "query_id": "q_000027",
+      "response_id": "r_000027_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000027_01:a2ui_express_v1",
+      "response_sha256": "7788aa6d1fc92706b41e6c60a620e01183b57cc41e0a235b4aa7af309683d229",
+      "semantic_sha256": "b5c0277101ec946a3b2a8ce732a86c79b13779af4741f39b73f723e50611a444",
+      "intent_bucket": "research_analysis"
+    },
+    {
+      "source_id": "q_000029",
+      "query_id": "q_000029",
+      "response_id": "r_000029_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000029_01:a2ui_express_v1",
+      "response_sha256": "5caa1d2f0b7f7e410463b29ca050f7e49b605f0dcfeb71d202b81d234589f2af",
+      "semantic_sha256": "d22135000842585c4599a5f3dd115561a924b1596aca7d51b196b3740ce088c0",
+      "intent_bucket": "comparison"
+    },
+    {
+      "source_id": "q_000030",
+      "query_id": "q_000030",
+      "response_id": "r_000030_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000030_01:a2ui_express_v1",
+      "response_sha256": "39a02dc962f6457b182066004303cb4e257465e5eff0a7323126de7098f33eb5",
+      "semantic_sha256": "62909b30eda4709c835b053888705bbb8a17b8fd76b601d2cbed1b73209b911c",
+      "intent_bucket": "comparison"
+    },
+    {
+      "source_id": "q_000031",
+      "query_id": "q_000031",
+      "response_id": "r_000031_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000031_01:a2ui_express_v1",
+      "response_sha256": "9a83b607e4e3ba3c091292ff2613f93420462a958572430c4d346f528d50a9ec",
+      "semantic_sha256": "1c8173d875b38850b7c0507a9a582cfab25a86e7a25b277f9a82c106149e7dad",
+      "intent_bucket": "calculation"
+    },
+    {
+      "source_id": "q_000032",
+      "query_id": "q_000032",
+      "response_id": "r_000032_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000032_01:a2ui_express_v1",
+      "response_sha256": "e951ed298be2f377a779fa34dbe46e7536475c55d7c81630457c159e0078d2f1",
+      "semantic_sha256": "14f5ffc81711db573fa698eccde34628f3b4bb8913480dcc73478449eef5ae9d",
+      "intent_bucket": "calculation"
+    },
+    {
+      "source_id": "q_000033",
+      "query_id": "q_000033",
+      "response_id": "r_000033_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000033_01:a2ui_express_v1",
+      "response_sha256": "84a8b7cd3a0f7d9c02964a7e5651c5816eed30e6d43b0d4e30e2d11e2bf9f497",
+      "semantic_sha256": "22fadc495a33586bd1209d9a4d3729207bb4dd3497ee20e4d1f2d84106b24bc6",
+      "intent_bucket": "travel"
+    },
+    {
+      "source_id": "q_000034",
+      "query_id": "q_000034",
+      "response_id": "r_000034_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000034_01:a2ui_express_v1",
+      "response_sha256": "e13fc5e3215ccdca7e3710e781056470e42c584728ef780ec73fb561621612a1",
+      "semantic_sha256": "3598e3c37df24fa458afe71446e43004e879b9e71e15786cfc07e2417b50889d",
+      "intent_bucket": "travel"
+    },
+    {
+      "source_id": "q_000036",
+      "query_id": "q_000036",
+      "response_id": "r_000036_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000036_01:a2ui_express_v1",
+      "response_sha256": "3a65cc1f2ea0ba906bfb2e4af3b148cde0b81534c78d2731a8e2c8b8f1ac68e3",
+      "semantic_sha256": "e42e1c670d78d39d6f1e94249a55f39597fb55f2008069bb940186d16ed3ae02",
+      "intent_bucket": "navigation"
+    },
+    {
+      "source_id": "q_000037",
+      "query_id": "q_000037",
+      "response_id": "r_000037_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000037_01:a2ui_express_v1",
+      "response_sha256": "d5c047b2d75476c9b4ff2756759393dce3d6b5425e7d58edfda07e3f36a29521",
+      "semantic_sha256": "48f242cd62bed5c20cc2aad4f0540f30f3f9fa726638516c1a2258d4d2b723e9",
+      "intent_bucket": "education"
+    },
+    {
+      "source_id": "q_000038",
+      "query_id": "q_000038",
+      "response_id": "r_000038_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000038_01:a2ui_express_v1",
+      "response_sha256": "0aa93e33841ed86d600efabac37340e9fdaba449f894c57474d6bdc955639e5a",
+      "semantic_sha256": "30416981041ab893aa1d081fb207b7700f50257a3560b03461f0c1e5aa8b4f5b",
+      "intent_bucket": "education"
+    },
+    {
+      "source_id": "q_000039",
+      "query_id": "q_000039",
+      "response_id": "r_000039_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000039_01:a2ui_express_v1",
+      "response_sha256": "83696a46ae64967149b2c356da0040f7c7fbd52ca32f93385459763a121a7b11",
+      "semantic_sha256": "ba11c24e6081a3e6250bd5b9ba3b961dfe8ee49727c8a93146f421438040341a",
+      "intent_bucket": "documentation"
+    },
+    {
+      "source_id": "q_000040",
+      "query_id": "q_000040",
+      "response_id": "r_000040_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000040_01:a2ui_express_v1",
+      "response_sha256": "adeca5b9bcbfc06a930f3a747d7eb70a68e98012286f0de7741b65626864c170",
+      "semantic_sha256": "3636b6d52bd1f99664b91d11e401fcc9d041b958b99c8423f427f43efd1d3bc0",
+      "intent_bucket": "documentation"
+    },
+    {
+      "source_id": "q_000041",
+      "query_id": "q_000041",
+      "response_id": "r_000041_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000041_01:a2ui_express_v1",
+      "response_sha256": "2ef4d332a4d62e21c8833abc2e2a615da202fa9f3c08c7b6272f9a88d634d01d",
+      "semantic_sha256": "0fa14bf5e8b3d0876ed536ba6c1be1551b6dd05b846cfc37428f0142409f03e4",
+      "intent_bucket": "media_playback"
+    },
+    {
+      "source_id": "q_000042",
+      "query_id": "q_000042",
+      "response_id": "r_000042_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000042_01:a2ui_express_v1",
+      "response_sha256": "7d8902307c37a5f18ae9504f9487cec430e5c21edd73ecf3fd30b069f32a52f2",
+      "semantic_sha256": "cf3502dd2093a80a50befb6a90f2e5d78198c767e90e2f3d1cffe4e6fa48d03c",
+      "intent_bucket": "media_playback"
+    },
+    {
+      "source_id": "q_000043",
+      "query_id": "q_000043",
+      "response_id": "r_000043_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000043_01:a2ui_express_v1",
+      "response_sha256": "c30546e1edf048e9a6ea465989ec73c8647b9f79e555548ac80e251f3cfd4c95",
+      "semantic_sha256": "85bcc4b332af69f70901d867c0f996ef292a12aa9be5e45702207f4618a8b042",
+      "intent_bucket": "qr_scanner"
+    },
+    {
+      "source_id": "q_000045",
+      "query_id": "q_000045",
+      "response_id": "r_000045_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000045_01:a2ui_express_v1",
+      "response_sha256": "dcdbdc86fe9975ff1b778fa14a656d63ed034c0acdb93a856d4fcf482cb89d7c",
+      "semantic_sha256": "25978e2cd5dfe3de940f67e81f3f6ed908c168a5308fdcdfb54a9cdc9bc9ac41",
+      "intent_bucket": "status_check"
+    },
+    {
+      "source_id": "q_000047",
+      "query_id": "q_000047",
+      "response_id": "r_000047_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000047_01:a2ui_express_v1",
+      "response_sha256": "afe0fc52dbdc0435229eac29d6934d5e029ed9a3bf228849c13bec5e9265e84a",
+      "semantic_sha256": "75010d3bc9fa006b020bd88b602c1520efe6ab5b200cf4d8c56fd57f09006d0e",
+      "intent_bucket": "notification"
+    },
+    {
+      "source_id": "q_000049",
+      "query_id": "q_000049",
+      "response_id": "r_000049_01",
+      "row_id": "dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl:u_000049_01:a2ui_express_v1",
+      "response_sha256": "021fc11ebc8fb37f333d35a62229663c8fdead12df3978f82396710cc3012d81",
+      "semantic_sha256": "635673af9933bc6691a9dd9dadae7a232c8370b038c56c566c6179be37f826f6",
+      "intent_bucket": "widgets"
+    }
+  ],
+  "excluded_sources": [
+    {
+      "source_id": "q_000001",
+      "query_id": "q_000001",
+      "response_id": "r_000001_01",
+      "row_id": "",
+      "response_sha256": "82497014f69dc563513f3d126e4487eacbaceab44b7420121ade8b2094afea9b",
+      "raw_response_sha256": "c68794d163e07ed073628e89ac8962ebfa2362576357292e770058c52bae42ac",
+      "masked_response_sha256": "82497014f69dc563513f3d126e4487eacbaceab44b7420121ade8b2094afea9b",
+      "response_sha256s": [
+        "82497014f69dc563513f3d126e4487eacbaceab44b7420121ade8b2094afea9b",
+        "c68794d163e07ed073628e89ac8962ebfa2362576357292e770058c52bae42ac"
+      ],
+      "intent_bucket": "information_retrieval",
+      "reason": "wire_schema_invalid: Text.text uses unsupported $item binding (siteName)"
+    },
+    {
+      "source_id": "q_000004",
+      "query_id": "q_000004",
+      "response_id": "r_000004_01",
+      "row_id": "",
+      "response_sha256": "ca5a8f77968a59ecb7c4164f36a9bdb72d8fc6e0b500a7ed4f657b5b81df9b9c",
+      "raw_response_sha256": "6fc7cc550adc4bb28d3183e3acaf504ffa6a321ce1dd661f33cdd83625e4934d",
+      "masked_response_sha256": "ca5a8f77968a59ecb7c4164f36a9bdb72d8fc6e0b500a7ed4f657b5b81df9b9c",
+      "response_sha256s": [
+        "6fc7cc550adc4bb28d3183e3acaf504ffa6a321ce1dd661f33cdd83625e4934d",
+        "ca5a8f77968a59ecb7c4164f36a9bdb72d8fc6e0b500a7ed4f657b5b81df9b9c"
+      ],
+      "intent_bucket": "entertainment",
+      "reason": "express_materialization_error: Table props genre, mood, subtitle are unsupported"
+    },
+    {
+      "source_id": "q_000006",
+      "query_id": "q_000006",
+      "response_id": "r_000006_01",
+      "row_id": "",
+      "response_sha256": "3d3b46590ac88bcb1ae4d29445bec30d99f21676ae4368fb77f0aa7f11ddf542",
+      "raw_response_sha256": "081623c831a2b065bc3138357dcfe6c326374c496d220f94fc8b69dec622045d",
+      "masked_response_sha256": "3d3b46590ac88bcb1ae4d29445bec30d99f21676ae4368fb77f0aa7f11ddf542",
+      "response_sha256s": [
+        "081623c831a2b065bc3138357dcfe6c326374c496d220f94fc8b69dec622045d",
+        "3d3b46590ac88bcb1ae4d29445bec30d99f21676ae4368fb77f0aa7f11ddf542"
+      ],
+      "intent_bucket": "product_lookup",
+      "reason": "wire_schema_invalid: Table.entityMedia object does not satisfy the wire contract"
+    },
+    {
+      "source_id": "q_000010",
+      "query_id": "q_000010",
+      "response_id": "r_000010_01",
+      "row_id": "",
+      "response_sha256": "012598fcd80a1acbc9d47140d3b1f33eb5012280a42baa090ab9c6beea951611",
+      "raw_response_sha256": "2c1d5be0e83e9dae6b1460a33156a8e2c7f10886f21e412f7b80c261b0c7e9fb",
+      "masked_response_sha256": "012598fcd80a1acbc9d47140d3b1f33eb5012280a42baa090ab9c6beea951611",
+      "response_sha256s": [
+        "012598fcd80a1acbc9d47140d3b1f33eb5012280a42baa090ab9c6beea951611",
+        "2c1d5be0e83e9dae6b1460a33156a8e2c7f10886f21e412f7b80c261b0c7e9fb"
+      ],
+      "intent_bucket": "weather",
+      "reason": "wire_schema_invalid: Image.url uses unsupported $item binding (imageUrl)"
+    },
+    {
+      "source_id": "q_000011",
+      "query_id": "q_000011",
+      "response_id": "r_000011_01",
+      "row_id": "",
+      "response_sha256": "6c805a8a131f9cd590805451c25684829c57551ac10437230ade336fc4dd30e8",
+      "raw_response_sha256": "6c805a8a131f9cd590805451c25684829c57551ac10437230ade336fc4dd30e8",
+      "masked_response_sha256": "6c805a8a131f9cd590805451c25684829c57551ac10437230ade336fc4dd30e8",
+      "response_sha256s": [
+        "6c805a8a131f9cd590805451c25684829c57551ac10437230ade336fc4dd30e8"
+      ],
+      "intent_bucket": "data_visualization",
+      "reason": "express_materialization_error: Table.sourceFormat is unsupported"
+    },
+    {
+      "source_id": "q_000012",
+      "query_id": "q_000012",
+      "response_id": "r_000012_01",
+      "row_id": "",
+      "response_sha256": "4cf52897c70bc9b608547d114e6da56ecf7d2817aa7938f6006d26f7b6d1b002",
+      "raw_response_sha256": "b95a3e286ab4f891ff6218026376f39abdc7672bbf84e07b46f9452deb2218ec",
+      "masked_response_sha256": "4cf52897c70bc9b608547d114e6da56ecf7d2817aa7938f6006d26f7b6d1b002",
+      "response_sha256s": [
+        "4cf52897c70bc9b608547d114e6da56ecf7d2817aa7938f6006d26f7b6d1b002",
+        "b95a3e286ab4f891ff6218026376f39abdc7672bbf84e07b46f9452deb2218ec"
+      ],
+      "intent_bucket": "data_visualization",
+      "reason": "express_materialization_error: Table.sourceFormat is unsupported"
+    },
+    {
+      "source_id": "q_000017",
+      "query_id": "q_000017",
+      "response_id": "r_000017_01",
+      "row_id": "",
+      "response_sha256": "7742b587c79108cd2d8b8dfd3b326295cb8adf311dbb0873d7c7310cbc08b206",
+      "raw_response_sha256": "dee51b1f7e2e4c9519c9d893756dcb7f9cbfee73cf07dbc0be687af0725bad99",
+      "masked_response_sha256": "7742b587c79108cd2d8b8dfd3b326295cb8adf311dbb0873d7c7310cbc08b206",
+      "response_sha256s": [
+        "7742b587c79108cd2d8b8dfd3b326295cb8adf311dbb0873d7c7310cbc08b206",
+        "dee51b1f7e2e4c9519c9d893756dcb7f9cbfee73cf07dbc0be687af0725bad99"
+      ],
+      "intent_bucket": "recipe",
+      "reason": "wire_schema_invalid: Text.text uses unsupported $item binding (stepNumber)"
+    },
+    {
+      "source_id": "q_000018",
+      "query_id": "q_000018",
+      "response_id": "r_000018_01",
+      "row_id": "",
+      "response_sha256": "40bbd8ef2c3649176cba0ed4735359713bd77a695498590c87a040a724e53286",
+      "raw_response_sha256": "4ab7789d05ed2771139e056d0336a6a6473d33c9f7cea5dac86e74fa1c0cb95a",
+      "masked_response_sha256": "40bbd8ef2c3649176cba0ed4735359713bd77a695498590c87a040a724e53286",
+      "response_sha256s": [
+        "40bbd8ef2c3649176cba0ed4735359713bd77a695498590c87a040a724e53286",
+        "4ab7789d05ed2771139e056d0336a6a6473d33c9f7cea5dac86e74fa1c0cb95a"
+      ],
+      "intent_bucket": "recipe",
+      "reason": "wire_schema_invalid: Text.text uses unsupported $template binding"
+    },
+    {
+      "source_id": "q_000019",
+      "query_id": "q_000019",
+      "response_id": "r_000019_01",
+      "row_id": "",
+      "response_sha256": "4858eed370bc70815ad0ff15f561a1e407a41d4f093bc4d86d4b9d70abec37c7",
+      "raw_response_sha256": "23b0e9ee0ba7428b3035ede6f1eba52b95408e162f11f4b157635b6ee2c35fdb",
+      "masked_response_sha256": "4858eed370bc70815ad0ff15f561a1e407a41d4f093bc4d86d4b9d70abec37c7",
+      "response_sha256s": [
+        "23b0e9ee0ba7428b3035ede6f1eba52b95408e162f11f4b157635b6ee2c35fdb",
+        "4858eed370bc70815ad0ff15f561a1e407a41d4f093bc4d86d4b9d70abec37c7"
+      ],
+      "intent_bucket": "localization",
+      "reason": "wire_schema_invalid: Icon.name uses unsupported $item binding (icon)"
+    },
+    {
+      "source_id": "q_000028",
+      "query_id": "q_000028",
+      "response_id": "r_000028_01",
+      "row_id": "",
+      "response_sha256": "04ac1633f2d4dcad41ef7aa20fa5b9158a7ce852b4cbfc7ff43d518673964bfa",
+      "raw_response_sha256": "0076d589c62e5e191023115d7d4a5ba3f5ddf9eeb8d96c1bdc2ccbaf451b97ef",
+      "masked_response_sha256": "04ac1633f2d4dcad41ef7aa20fa5b9158a7ce852b4cbfc7ff43d518673964bfa",
+      "response_sha256s": [
+        "0076d589c62e5e191023115d7d4a5ba3f5ddf9eeb8d96c1bdc2ccbaf451b97ef",
+        "04ac1633f2d4dcad41ef7aa20fa5b9158a7ce852b4cbfc7ff43d518673964bfa"
+      ],
+      "intent_bucket": "research_analysis",
+      "reason": "express_materialization_error: unsupported justify distribution"
+    },
+    {
+      "source_id": "q_000035",
+      "query_id": "q_000035",
+      "response_id": "r_000035_01",
+      "row_id": "",
+      "response_sha256": "e4d2e61a4a931b3f9a419bb789b0d1cf58670a692ed2fc1496ccac9c0e8a3c31",
+      "raw_response_sha256": "1a082591deae03b9c066e021fa44cf6ea3e817b72f181d00d72a7af1536a7c1e",
+      "masked_response_sha256": "e4d2e61a4a931b3f9a419bb789b0d1cf58670a692ed2fc1496ccac9c0e8a3c31",
+      "response_sha256s": [
+        "1a082591deae03b9c066e021fa44cf6ea3e817b72f181d00d72a7af1536a7c1e",
+        "e4d2e61a4a931b3f9a419bb789b0d1cf58670a692ed2fc1496ccac9c0e8a3c31"
+      ],
+      "intent_bucket": "navigation",
+      "reason": "express_materialization_error: Table.sourceFormat is unsupported"
+    },
+    {
+      "source_id": "q_000044",
+      "query_id": "q_000044",
+      "response_id": "r_000044_01",
+      "row_id": "",
+      "response_sha256": "bb01d82a11dc96f0c4b6c6fed13d37665f4d179b78217c6542bd2d7aee91c941",
+      "raw_response_sha256": "63b0dfd26a00f0a9aa478079eee25ec3e608fa9cc86a59b1a00f22f2488313a1",
+      "masked_response_sha256": "bb01d82a11dc96f0c4b6c6fed13d37665f4d179b78217c6542bd2d7aee91c941",
+      "response_sha256s": [
+        "63b0dfd26a00f0a9aa478079eee25ec3e608fa9cc86a59b1a00f22f2488313a1",
+        "bb01d82a11dc96f0c4b6c6fed13d37665f4d179b78217c6542bd2d7aee91c941"
+      ],
+      "intent_bucket": "qr_scanner",
+      "reason": "wire_schema_invalid: conditional visible object does not satisfy the wire contract"
+    },
+    {
+      "source_id": "q_000046",
+      "query_id": "q_000046",
+      "response_id": "r_000046_01",
+      "row_id": "",
+      "response_sha256": "7aae08b126049a95bf5fdae7b47474e5011e022887ca38a5a514416948ce2e4c",
+      "raw_response_sha256": "cfd714c98714792ab0a6a291177c4d6d250b8b8492c318ddf700c55f699d445f",
+      "masked_response_sha256": "7aae08b126049a95bf5fdae7b47474e5011e022887ca38a5a514416948ce2e4c",
+      "response_sha256s": [
+        "7aae08b126049a95bf5fdae7b47474e5011e022887ca38a5a514416948ce2e4c",
+        "cfd714c98714792ab0a6a291177c4d6d250b8b8492c318ddf700c55f699d445f"
+      ],
+      "intent_bucket": "status_check",
+      "reason": "express_materialization_error: Table.sourceFormat is unsupported"
+    },
+    {
+      "source_id": "q_000048",
+      "query_id": "q_000048",
+      "response_id": "r_000048_01",
+      "row_id": "",
+      "response_sha256": "5de44d8430b88f484c380e6dcc704346c7467eb61dd83c6466113047b5b972c4",
+      "raw_response_sha256": "0c25eb177458751bd7698d8a96dfe6733236e02598a18c31ee4a837801d840a6",
+      "masked_response_sha256": "5de44d8430b88f484c380e6dcc704346c7467eb61dd83c6466113047b5b972c4",
+      "response_sha256s": [
+        "0c25eb177458751bd7698d8a96dfe6733236e02598a18c31ee4a837801d840a6",
+        "5de44d8430b88f484c380e6dcc704346c7467eb61dd83c6466113047b5b972c4"
+      ],
+      "intent_bucket": "notification",
+      "reason": "wire_schema_invalid: Text.text uses unsupported $item binding (time)"
+    },
+    {
+      "source_id": "q_000050",
+      "query_id": "q_000050",
+      "response_id": "r_000050_01",
+      "row_id": "",
+      "response_sha256": "68466473adfa4b0d60ba30035f52a4098dcf84df484cde454cdfcfb7aa1c159d",
+      "raw_response_sha256": "321ff1b0b43a756add0376e8d566de95fa5d5a8724925c5e90cecd4dc8607c61",
+      "masked_response_sha256": "68466473adfa4b0d60ba30035f52a4098dcf84df484cde454cdfcfb7aa1c159d",
+      "response_sha256s": [
+        "321ff1b0b43a756add0376e8d566de95fa5d5a8724925c5e90cecd4dc8607c61",
+        "68466473adfa4b0d60ba30035f52a4098dcf84df484cde454cdfcfb7aa1c159d"
+      ],
+      "intent_bucket": "widgets",
+      "reason": "express_materialization_error: unsupported justify distribution"
+    }
+  ],
+  "intent_counts": {
+    "booking": 2,
+    "calculation": 2,
+    "comparison": 2,
+    "creative_writing": 2,
+    "documentation": 2,
+    "education": 2,
+    "entertainment": 1,
+    "event_schedule": 2,
+    "information_retrieval": 1,
+    "localization": 1,
+    "media_playback": 2,
+    "navigation": 1,
+    "notification": 1,
+    "planning": 2,
+    "product_lookup": 1,
+    "productivity": 2,
+    "qr_scanner": 1,
+    "research_analysis": 1,
+    "status_check": 1,
+    "technical_support": 2,
+    "travel": 2,
+    "weather": 1,
+    "widgets": 1
+  },
+  "strict_validation": {
+    "express": true,
+    "wire_schema": true,
+    "root_reachability": 1.0,
+    "semantic_roundtrip": true
+  },
+  "scoring_policy": {
+    "primary": "all_35_unique_cases_macro",
+    "independent_case_count": 35,
+    "note": "A fixed 35-case strict-valid subset; do not label it Golden50 or compare its aggregate directly with the original 50-case cohort."
+  }
+}

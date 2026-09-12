@@ -51,7 +51,7 @@ def _normalized_file_records(records: Any) -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             continue
         try:
-            size = int(item.get("size", -1) or -1)
+            size = int(item.get("size", -1))
         except (TypeError, ValueError):
             size = -1
         normalized.append(
@@ -62,6 +62,23 @@ def _normalized_file_records(records: Any) -> list[dict[str, Any]]:
             }
         )
     return sorted(normalized, key=lambda item: item["path"])
+
+
+def _checkpoint_manifest_matches_adapter(
+    records: Any, *, adapter_path: Path, actual_adapter_files: list[dict[str, Any]],
+) -> bool:
+    """Accept newer manifests that also bind tokenizer files, checking all bytes."""
+    normalized = _normalized_file_records(records)
+    adapter_records = [item for item in normalized if item["path"].startswith("adapter")]
+    if not normalized or not actual_adapter_files or adapter_records != actual_adapter_files:
+        return False
+    for item in normalized:
+        path = adapter_path / item["path"]
+        if Path(item["path"]).name != item["path"] or not path.is_file():
+            return False
+        if path.stat().st_size != item["size"] or _sha256_file(path) != item["sha256"]:
+            return False
+    return True
 
 
 def _recorded_identity_is_complete(value: Any) -> bool:
@@ -452,7 +469,7 @@ def _verify_qat_training_metadata(
     if isinstance(checkpoints, list):
         checks["adapter_checkpoint_hashes_match"] = any(
             isinstance(checkpoint, dict)
-            and _normalized_file_records(checkpoint.get("files")) == actual_files
+            and _checkpoint_manifest_matches_adapter(checkpoint.get("files"), adapter_path=adapter_path, actual_adapter_files=actual_files)
             for checkpoint in checkpoints
         )
     recorded_seed = (
@@ -557,8 +574,7 @@ def _verify_qat_training_metadata(
             and any(
                 isinstance(checkpoint, dict)
                 and checkpoint.get("role") == "best_golden"
-                and _normalized_file_records(checkpoint.get("files"))
-                == actual_files
+                and _checkpoint_manifest_matches_adapter(checkpoint.get("files"), adapter_path=adapter_path, actual_adapter_files=actual_files)
                 for checkpoint in metadata["adapter_checkpoints"]
             )
         )

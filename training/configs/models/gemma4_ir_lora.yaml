@@ -9,7 +9,7 @@ model:
   load_in_4bit: true
   dtype: bfloat16
   max_context_tokens: 8192
-  max_output_tokens: 8192
+  max_output_tokens: 2048
 training:
   method: qlora_sft
   epochs: 2
@@ -28,9 +28,12 @@ lora:
   target_modules: auto
 golden_eval:
   enabled: true
-  dataset_dir: outputs/datasets/golden50_stage3_eval
+  dataset_dir: outputs/datasets/golden35_stage3_eval
   split: all
-  max_rows: 50
-  max_new_tokens: 8192
-  output_dir: outputs/eval/gemma4_ir_lora/golden50
+  max_rows: 35
+  required_rows: 35
+  require_exact_rows: true
+  require_unique_rows: true
+  max_new_tokens: 2048
+  output_dir: outputs/eval/gemma4_ir_lora/golden35
   weights_config: ../dataset/configs/run.yaml

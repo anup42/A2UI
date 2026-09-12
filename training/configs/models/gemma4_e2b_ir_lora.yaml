@@ -14,7 +14,7 @@ model:
   dtype: float16
   device_map: none
   max_context_tokens: 8192
-  max_output_tokens: 8192
+  max_output_tokens: 2048
 training:
   method: lora_sft
   epochs: 2
@@ -45,15 +45,18 @@ lora:
   target_modules: all-linear
 golden_eval:
   enabled: true
-  dataset_dir: outputs/datasets/golden50_stage3_eval
+  dataset_dir: outputs/datasets/golden35_stage3_eval
   split: all
-  max_rows: 50
+  max_rows: 35
+  required_rows: 35
+  require_exact_rows: true
+  require_unique_rows: true
   max_input_tokens: 4096
-  max_new_tokens: 4096
+  max_new_tokens: 2048
   trigger: evaluate
   interval: 1
   metric_for_best_model: overall_score
   greater_is_better: true
   save_best_checkpoint: true
-  output_dir: outputs/eval/gemma4_e2b_ir_lora/golden50
+  output_dir: outputs/eval/gemma4_e2b_ir_lora/golden35
   weights_config: ../dataset/configs/run.yaml

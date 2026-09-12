@@ -35,7 +35,7 @@ def main() -> None:
             ROOT
             / "outputs"
             / "datasets"
-            / "golden32_20260903_eval"
+            / "golden32_20260903_eval_prompt_v2"
             / "all.jsonl"
         ),
     )
@@ -47,7 +47,7 @@ def main() -> None:
     parser.add_argument("--max-rows", type=int, default=32)
     parser.add_argument("--required-rows", type=int, default=32)
     parser.add_argument("--max-input-tokens", type=int, default=4096)
-    parser.add_argument("--max-new-tokens", type=int, default=1024)
+    parser.add_argument("--max-new-tokens", type=int, default=2048)
     parser.add_argument("--mtp-enabled", action="store_true")
     parser.add_argument(
         "--weights-config",

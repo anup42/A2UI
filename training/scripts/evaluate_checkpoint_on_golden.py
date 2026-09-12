@@ -48,7 +48,7 @@ def main() -> None:
             ROOT
             / "outputs"
             / "datasets"
-            / "golden32_20260903_eval"
+            / "golden32_20260903_eval_prompt_v2"
             / "all.jsonl"
         ),
     )
@@ -60,7 +60,7 @@ def main() -> None:
     parser.add_argument("--max-rows", type=int, default=32)
     parser.add_argument("--required-rows", type=int, default=32)
     parser.add_argument("--max-input-tokens", type=int, default=4096)
-    parser.add_argument("--max-new-tokens", type=int, default=1024)
+    parser.add_argument("--max-new-tokens", type=int, default=2048)
     parser.add_argument(
         "--weights-config",
         default=str(REPO_ROOT / "dataset" / "configs" / "run.yaml"),
@@ -188,10 +188,30 @@ def _contains_tokenizer(checkpoint: Path) -> bool:
 
 
 def _checkpoint_step(checkpoint: Path) -> int:
+    metadata_path = checkpoint / "training_metadata.json"
+    if metadata_path.is_file():
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        role = metadata.get("checkpoint_role")
+        best = metadata.get("best_golden_eval") or {}
+        if role == "best_golden" or checkpoint.name == "best_golden_checkpoint":
+            step = best.get("step", metadata.get("checkpoint_step"))
+        else:
+            step = metadata.get("checkpoint_step")
+        if type(step) is int and step >= 0:
+            return step
+    for name in ("best_metric_info.json", "trainer_state.json"):
+        path = checkpoint / name
+        if path.is_file():
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            step = payload.get("step") if name == "best_metric_info.json" else payload.get("global_step")
+            if type(step) is int and step >= 0:
+                return step
     match = re.search(
         r"(?:checkpoint|step)[-_]?(\d+)", checkpoint.name, re.IGNORECASE
     )
-    return int(match.group(1)) if match else 0
+    if match:
+        return int(match.group(1))
+    raise ValueError("Checkpoint step is not recorded; provide --step explicitly instead of logging a trained model at step zero.")
 
 
 if __name__ == "__main__":

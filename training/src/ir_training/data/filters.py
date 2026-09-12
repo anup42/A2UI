@@ -88,6 +88,13 @@ class ExpressValidator:
         if not result.raw_valid:
             detail = result.errors[0] if result.errors else "express_invalid"
             return ValidationOutcome(False, detail)
+        # All training entry points must enforce the renderer's wire contract,
+        # not just native Express syntax. Validation never rewrites the target.
+        from ir_training.data.express_preparation import PreparationError, serialize_checked
+        try:
+            serialize_checked(value, "root-first")
+        except PreparationError as exc:
+            return ValidationOutcome(False, f"{exc.reason}:{exc}")
         return ValidationOutcome(True)
 
     @staticmethod

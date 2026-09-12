@@ -26,6 +26,9 @@ from ir_training.data.url_preprocess import preprocess_training_urls
 
 def prepare_dataset(config: dict[str, Any], config_path: Path | None = None) -> dict[str, Any]:
     run_cfg = config.get("run") if isinstance(config.get("run"), dict) else {}
+    if run_cfg.get("frozen_eval_source"):
+        from ir_training.data.frozen_evaluation import prepare_frozen_evaluation
+        return prepare_frozen_evaluation(config)
     filter_cfg = config.get("filters") if isinstance(config.get("filters"), dict) else {}
     split_cfg = config.get("split") if isinstance(config.get("split"), dict) else {}
     url_cfg = config.get("url_preprocessing") if isinstance(config.get("url_preprocessing"), dict) else {}

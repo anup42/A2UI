@@ -1,5 +1,18 @@
 # GPU-PC handoff: E2B and 270M A2UI Express training
 
+**September 12 update:** start with [H100 + Golden training](H100_GOLDEN_TRAINING.md) for the current commands. It supersedes this document's manual GPU lists, batch defaults, 4,096-token generation budget, and the requirement to regenerate the archive's failed Golden slot. The archive development replacement is explicitly **32 occurrences / 31 unique cases**, not the original Golden32. The separate final-evaluation lane is now **Golden35**, containing the 35 passing references from the historical 50-case source. All 15 excluded sources remain reserved from training via its manifest. The older reference and diagnosis below remain historical evidence.
+
+Current Golden35 source: `training/data/eval/golden35_v1/golden35.jsonl`.
+Prepare with `training/configs/datasets/golden35_stage3_eval.yaml`, producing
+`training/outputs/datasets/golden35_stage3_eval/all.jsonl`; evaluate using
+`--max-rows 35 --required-rows 35 --max-new-tokens 2048` and a distinct
+`golden35-final` evaluation name. Reserve it with `--reserve-golden35`, alongside
+`--reserve-golden32` for the archive development cohort. Current training still
+selects on the explicit Golden32 development benchmark; these cohorts are not
+interchangeable. The runnable current commands are in the linked H100 guide.
+
+## Historical September 5 handoff
+
 This handoff accompanies the September 5, 2026 review fixes. **No training or real checkpoint inference was run on the review PC.** Run the commands below on the GPU PC from the repository root. The small CPU tests use fixtures and mocked runtime objects; their success does not establish GPU memory fit, distributed stability, model quality, or mobile export parity.
 
 ## Instructions for the person or Codex agent on the other PC

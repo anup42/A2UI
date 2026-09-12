@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.common.config import load_yaml  # noqa: E402
+from ir_training.train.gpu_profile import visible_launch_profile
 from ir_training.pipeline.gemma4_e2b_multiformat import (  # noqa: E402
     STAGE_ORDER,
     Gemma4E2BMultiformatPipelineError,
@@ -54,6 +55,10 @@ def main() -> int:
 
     config_path = Path(args.config).expanduser().resolve()
     try:
+        num_gpus, gpu_ids = args.num_gpus, args.gpu_ids
+        if args.execute_all or "training" in args.execute_stage:
+            host_gpu_profile = visible_launch_profile(model="e2b", num_gpus=num_gpus, launch_ids=gpu_ids)
+            num_gpus, gpu_ids = host_gpu_profile["world_size"], host_gpu_profile["cuda_visible_devices"]
         plan = run_pipeline(
             load_yaml(config_path),
             config_path=config_path,
@@ -62,8 +67,8 @@ def main() -> int:
             run_id_override=args.run_id,
             source_safetensors_override=args.source_safetensors,
             base_litertlm_override=args.base_litertlm,
-            num_gpus_override=args.num_gpus,
-            gpu_ids_override=args.gpu_ids,
+            num_gpus_override=num_gpus,
+            gpu_ids_override=gpu_ids,
             mtp_enabled_override=args.mtp_enabled,
             runner_config_override=args.runner_config,
         )

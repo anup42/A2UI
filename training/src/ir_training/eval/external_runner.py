@@ -132,6 +132,11 @@ def run_external_generation(
     requests_path = out_dir / "runner_requests.jsonl"
     runner_outputs_path = out_dir / "runner_outputs.jsonl"
     predictions_path = out_dir / "predictions.jsonl"
+    if runner_outputs_path.exists():
+        raise FileExistsError(
+            "Refusing to reuse existing external runner output; choose a fresh "
+            f"evaluation output directory: {runner_outputs_path}"
+        )
     request_rows = [
         _request_from_golden_row(
             row,

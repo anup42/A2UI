@@ -50,7 +50,7 @@ def test_e2b_multiformat_plan_keeps_official_and_public_lanes_distinct():
     assert plan["validation"]["config_ok"] is True
     assert plan["golden"]["required_rows"] == 32
     assert plan["training"]["periodic_golden_evaluation"] == (
-        "every Trainer eval event"
+        "every 2 Trainer eval events, plus final weights"
     )
     assert plan["paths"]["tensorboard_root"] == str(
         (ROOT.parent / "tensorboard").resolve()

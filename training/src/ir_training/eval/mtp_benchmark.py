@@ -7,9 +7,10 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.config import resolve_path, training_root
-from ir_training.common.jsonl import read_jsonl, write_jsonl
-from ir_training.data.url_preprocess import restore_url_placeholders
+from ir_training.common.jsonl import write_jsonl
+from ir_training.eval.generate import build_prediction_record
 from ir_training.eval.compare_to_baseline import evaluate_predictions
+from ir_training.eval.golden_set import load_fixed_golden_rows
 from ir_training.models.hf_loading import load_hf_model
 from ir_training.qat_mtp.workflow import summarize_issues, validate_benchmark_config
 
@@ -24,7 +25,9 @@ def build_mtp_benchmark_plan(config: dict[str, Any]) -> dict[str, Any]:
     return {
         "run_id": run_cfg.get("id"),
         "output_dir": str(resolve_path(run_cfg.get("output_dir", "outputs/eval/gemma4_e2b_qat_mtp_reference"), base)),
-        "split_path": str(resolve_path(data_cfg.get("split_path", "outputs/datasets/golden50_stage3_eval/all.jsonl"), base)),
+        "split_path": str(resolve_path(data_cfg.get("split_path") or "outputs/datasets/golden35_stage3_eval/all.jsonl", base)),
+        "golden_contract": _golden_row_contract(data_cfg),
+        "max_new_tokens": int(benchmark_cfg.get("max_new_tokens", 2048)),
         "target_model": _resolve_model_source(source_cfg.get("target_model_id"), base, local_hint=True),
         "target_base_model": source_cfg.get("target_base_model_id"),
         "assistant_model": source_cfg.get("assistant_model_id"),
@@ -55,12 +58,6 @@ def run_mtp_benchmark(config: dict[str, Any]) -> dict[str, Any]:
     if not validation["ok"]:
         raise ValueError(f"Invalid QAT/MTP benchmark config: {json.dumps(validation, ensure_ascii=False)}")
 
-    try:
-        import torch  # type: ignore
-        from transformers import AutoProcessor  # type: ignore
-    except Exception as exc:  # pragma: no cover - dependency failure path
-        raise RuntimeError("Install training/requirements-gemma4-qat.txt before executing the benchmark.") from exc
-
     base = training_root()
     run_cfg = _section(config, "run")
     source_cfg = _section(config, "source")
@@ -69,16 +66,25 @@ def run_mtp_benchmark(config: dict[str, Any]) -> dict[str, Any]:
     evaluation_cfg = _section(config, "evaluation")
 
     output_dir = resolve_path(run_cfg.get("output_dir", "outputs/eval/gemma4_e2b_qat_mtp_reference"), base)
-    split_path = resolve_path(data_cfg.get("split_path", "outputs/datasets/golden50_stage3_eval/all.jsonl"), base)
+    split_path = resolve_path(data_cfg.get("split_path") or "outputs/datasets/golden35_stage3_eval/all.jsonl", base)
+    # Validate the configured cohort before importing the runtime or loading models.
+    # Custom diagnostic sets remain supported when no fixed-size contract is set.
+    rows = load_fixed_golden_rows(split_path, **_golden_row_contract(data_cfg))
+    if not rows:
+        raise ValueError(f"Benchmark split contains no readable JSON objects: {split_path}")
     target_source = _resolve_model_source(source_cfg.get("target_model_id"), base, local_hint=True)
-    if not split_path.exists():
-        raise FileNotFoundError(f"Missing benchmark split: {split_path}")
     if _looks_local(str(source_cfg.get("target_model_id") or "")) and not Path(target_source).exists():
         raise FileNotFoundError(
             f"Missing merged target model: {target_source}. Run merge_qat_lora.py --execute after training completes."
         )
     assistant_source = str(source_cfg.get("assistant_model_id") or "")
     processor_source = str(source_cfg.get("processor_model_id") or source_cfg.get("target_base_model_id") or "")
+
+    try:
+        import torch  # type: ignore
+        from transformers import AutoProcessor  # type: ignore
+    except Exception as exc:  # pragma: no cover - dependency failure path
+        raise RuntimeError("Install training/requirements-gemma4-qat.txt before executing the benchmark.") from exc
 
     model_config = {
         "model_loader": source_cfg.get("model_loader", "auto_causal_lm"),
@@ -100,12 +106,8 @@ def run_mtp_benchmark(config: dict[str, Any]) -> dict[str, Any]:
         benchmark_cfg.get("num_assistant_tokens_schedule", "heuristic")
     )
 
-    max_rows = int(data_cfg.get("max_rows", 50))
-    rows = list(read_jsonl(split_path))[:max_rows]
-    if not rows:
-        raise ValueError(f"Benchmark split contains no readable JSON objects: {split_path}")
     max_input_tokens = int(benchmark_cfg.get("max_input_tokens", 4096))
-    max_new_tokens = int(benchmark_cfg.get("max_new_tokens", 4096))
+    max_new_tokens = int(benchmark_cfg.get("max_new_tokens", 2048))
     repeats = max(1, int(benchmark_cfg.get("repeats", 1)))
     do_sample = bool(benchmark_cfg.get("do_sample", False))
     if do_sample:
@@ -163,9 +165,9 @@ def run_mtp_benchmark(config: dict[str, Any]) -> dict[str, Any]:
         mtp_latency = statistics.median(float(item["elapsed_seconds"]) for item in mtp_outputs)
         target_token_count = int(target_tokens.shape[-1])
         mtp_token_count = int(mtp_tokens.shape[-1])
-        common = _prediction_common(row)
-        target_predictions.append({**common, "generated_text": target_text})
-        mtp_predictions.append({**common, "generated_text": mtp_text})
+        # Repeats measure latency only: score one prediction per source and mode.
+        target_predictions.append(_prediction_common(row, target_text))
+        mtp_predictions.append(_prediction_common(row, mtp_text))
         timing_rows.append(
             {
                 "id": row.get("id"),
@@ -279,40 +281,8 @@ def _prepare_inputs(processor: Any, row: dict[str, Any], target_model: Any, max_
     return inputs.to(_model_input_device(target_model))
 
 
-def _prediction_common(row: dict[str, Any]) -> dict[str, Any]:
-    url_map = _extract_url_map(row)
-    return {
-        "id": row.get("id"),
-        "response_id": row.get("response_id"),
-        "response_text": restore_url_placeholders(_extract_user_text(row), url_map),
-        "expected": restore_url_placeholders(_extract_expected_completion(row), url_map),
-        "url_map": url_map,
-    }
-
-
-def _extract_user_text(row: dict[str, Any]) -> str:
-    for message in row.get("messages") or []:
-        if isinstance(message, dict) and message.get("role") == "user":
-            content = str(message.get("content") or "")
-            marker = "Create A2UI Express v1 GenUI IR for this response:\n\n"
-            return content.split(marker, 1)[-1]
-    return str(row.get("prompt") or "")
-
-
-def _extract_expected_completion(row: dict[str, Any]) -> str:
-    completion = row.get("completion")
-    if not isinstance(completion, str) or not completion.strip():
-        targets = row.get("completion_targets")
-        if isinstance(targets, dict):
-            completion = targets.get("a2ui_express_v1")
-    return str(completion or "")
-
-
-def _extract_url_map(row: dict[str, Any]) -> dict[str, Any]:
-    metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
-    preprocessing = metadata.get("url_preprocessing") if isinstance(metadata.get("url_preprocessing"), dict) else {}
-    url_map = preprocessing.get("url_map")
-    return url_map if isinstance(url_map, dict) else {}
+def _prediction_common(row: dict[str, Any], generated_text: str = "") -> dict[str, Any]:
+    return build_prediction_record(row, generated_text)
 
 
 def _model_input_device(model: Any):
@@ -340,6 +310,17 @@ def _resolve_model_source(value: Any, base: Path, *, local_hint: bool) -> str:
 def _looks_local(value: str) -> bool:
     normalized = value.replace("\\", "/").lower()
     return normalized.startswith(("runs/", "outputs/", "checkpoints/", "./", "../"))
+
+
+def _golden_row_contract(data_cfg: dict[str, Any]) -> dict[str, Any]:
+    default_split = not data_cfg.get("split_path")
+    required_rows = data_cfg.get("required_rows", 35 if default_split else None)
+    return {
+        "max_rows": int(data_cfg.get("max_rows", 35)),
+        "required_rows": int(required_rows) if required_rows is not None else None,
+        "require_exact_rows": bool(data_cfg.get("require_exact_rows", default_split)),
+        "require_unique_rows": bool(data_cfg.get("require_unique_rows", default_split)),
+    }
 
 
 def _section(config: dict[str, Any], name: str) -> dict[str, Any]:

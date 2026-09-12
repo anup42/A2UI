@@ -1,6 +1,6 @@
 run:
   id: eval_a2ui_express_v1
-  split: outputs/datasets/golden50_stage3_eval/all.jsonl
+  split: outputs/datasets/golden35_stage3_eval/all.jsonl
   output_dir: outputs/eval/a2ui_express_v1
   weights_config: dataset/configs/run.yaml
   target_format: a2ui_express_v1

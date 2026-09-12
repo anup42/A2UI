@@ -727,7 +727,7 @@ def build_pipeline_plan(
         "training": {
             "config": str(training_config),
             "command": training_command,
-            "periodic_golden_evaluation": "every Trainer eval event",
+            "periodic_golden_evaluation": f"every {int(_section(load_yaml(training_config), 'golden_eval').get('interval', 1))} Trainer eval events, plus final weights" if training_config.is_file() else "configured Trainer eval cadence, plus final weights",
             "periodic_metrics_logged_to_tensorboard": True,
             "checkpoint_evaluation_command_template": checkpoint_eval_command,
             "best_checkpoint": str(best_checkpoint),

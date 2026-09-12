@@ -1,11 +1,14 @@
 ﻿# Response-to-IR Training
 
-For the September 2026 reviewed E2B/270M training restart, begin with the
-[GPU-PC training handoff](docs/GPU_PC_TRAINING_HANDOFF.md) and
-[implemented fixes and validation](docs/reviews/20260905_genui_training_review/IMPLEMENTED_FIXES.md).
-It provides checked data preparation, separate capability baselines, portable
-GPU launch commands and the required Golden-reference regeneration. The code
-was CPU-tested here; real training and runtime validation belong on the GPU PC.
+For the current E2B/270M restart, begin with [H100 + Golden training](docs/H100_GOLDEN_TRAINING.md),
+[automatic GPU profiles](docs/gpu_training_profiles.md) and the
+[data filtering audit](docs/data_filtering_audit_20260912.md).
+The September 12 update adds all-visible-GPU DDP, 2,048-token generation,
+bounded distributed Golden evaluation, and an explicit 32-occurrence/31-source
+archive benchmark replacement. The separate **Golden35** evaluation set keeps
+the 35 passing references from the historical 50-case source; its 15 excluded
+sources remain reserved against training leakage. [CPU validation](docs/validation_20260912.md)
+does not establish H100 throughput, model quality or deployed-runtime parity.
 
 This folder trains local Stage 3 models that convert Stage 2 response text into the Android A2UI Express v1 IR:
 
@@ -71,10 +74,10 @@ local asset reference in both the response prompt and IR target with typed
 placeholders. The exact placeholder map is stored in row metadata and evaluation
 restores the original references before comparison or exported prediction review.
 
-Prepare the golden50 set once before training:
+Prepare the Golden35 evaluation set once before training:
 
 ```powershell
-python training/scripts/prepare_dataset.py --config training/configs/datasets/golden50_stage3_eval.yaml
+python training/scripts/prepare_dataset.py --config training/configs/datasets/golden35_stage3_eval.yaml
 ```
 
 2. Train an adapter model.
@@ -83,7 +86,13 @@ python training/scripts/prepare_dataset.py --config training/configs/datasets/go
 python training/scripts/train_sft.py --config training/configs/models/gemma_e2b_ir_lora.yaml
 ```
 
-Start Gemma 4 E2B LoRA training with golden50 evaluation at each configured
+The source artifact is `training/data/eval/golden35_v1/golden35.jsonl`; prepared
+evaluation rows are written to `training/outputs/datasets/golden35_stage3_eval/all.jsonl`.
+Its manifest retains the excluded 15 source identities as training reservations.
+Use `--max-rows 35 --required-rows 35` for explicit standalone evaluation.
+The archive-based restart above still uses its separate Golden32 development set.
+
+Start Gemma 4 E2B LoRA training with Golden35 evaluation at each configured
 Trainer evaluation event:
 
 ```powershell
@@ -96,7 +105,7 @@ runs every `training.eval_steps`, distributes generation across DDP ranks, and
 saves the highest-`overall_score` adapter under
 `training/runs/gemma4_e2b_ir_lora/best_golden_checkpoint`. Per-evaluation
 predictions and metrics remain under
-`training/outputs/eval/gemma4_e2b_ir_lora/golden50/step_*`.
+`training/outputs/eval/gemma4_e2b_ir_lora/golden35/step_*`.
 
 The callback is controlled by the `golden_eval` YAML block. Use
 `trigger: epoch` for epoch-end evaluation, increase `interval` to evaluate less
@@ -122,7 +131,7 @@ promotion gates before using it:
 The deployable Gemma 4 E2B and Gemma 3/FunctionGemma 270M QAT profiles run an
 exact, immutable Golden-100 generation test at every configured Trainer
 evaluation event. The repository intentionally does not turn the existing
-Golden-50 into a synthetic Golden-100. Prepare a separate held-out source with
+Golden35 into a synthetic Golden-100. Prepare a separate held-out source with
 exactly 100 unique accepted rows:
 
 ```powershell

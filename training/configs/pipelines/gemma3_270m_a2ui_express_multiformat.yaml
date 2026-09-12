@@ -11,14 +11,15 @@ pipeline:
 
   golden:
     dataset_config: configs/datasets/golden32_20260903_eval.yaml
-    dataset_config_sha256: 2c4c70624658f097484efda25f5f336d685fa469b13982d310a17100e3eb44d5
+    dataset_config_sha256: 726f4b9ebb84c88e1d2d10cb7351ab6094cf04959d0d81b4ec026f22c9e91810
     source_run_dir: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903
     source_jsonl: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/genui.jsonl
     source_sha256: 596f56a15a63d904423970c9768797ba795ff0528a04da37dddcba280a4f4e17
     responses_jsonl: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/responses.jsonl
     responses_sha256: 27406fa78d486ded4e9fcb2a78e987aa54d9f2ee8fe5db926874a1b2ff827089
-    split_path: outputs/datasets/golden32_20260903_eval/all.jsonl
-    split_sha256: b1a2d9c1a2b7ed6f2e052fd84b53284f706667c9ade7c6f859ba287150b28ad4
+    split_path: outputs/datasets/golden32_20260903_eval_prompt_v2/all.jsonl
+    # Current shared prompt, canonical LF serialization; rebuild old preparation.
+    split_sha256: eefdfedaca1395477d279712697843fc0324fd41cb669f2c01ecdd098c11ea52
     required_rows: 32
     require_exact_rows: true
     require_unique_rows: true
@@ -26,7 +27,7 @@ pipeline:
     metric_for_report: generation_reward_v5_4_avg
     weights_config: ../dataset/configs/run.yaml
     max_input_tokens: 3072
-    max_new_tokens: 1024
+    max_new_tokens: 2048
 
   merge:
     output_dir: outputs/pipelines/gemma3_270m_a2ui_express_multiformat/merged_best_hf
@@ -83,10 +84,10 @@ pipeline:
     command: litert-torch
     task: text_generation
     max_input_tokens: 3072
-    max_output_tokens: 1024
+    max_output_tokens: 2048
     externalize_embedder: false
     common_extra_flags:
-      - --cache_length=4096
+      - --cache_length=8192
       - --prefill_lengths=128
       - --use_jinja_template=True
       - --enable_gpu_dynamic_prefill=True

@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.common.config import load_yaml
+from ir_training.train.gpu_profile import build_gpu_profile, detect_cuda_devices
 from ir_training.pipeline.gemma270m_multiformat import (
     FORMAT_ORDER,
     Gemma270MMultiformatError,
@@ -50,6 +51,9 @@ def main() -> int:
         help="Load the real model/data, validate QAT numerics, and stop before the optimizer.",
     )
     parser.add_argument("--execute-training", action="store_true")
+    parser.add_argument("--devices", default="auto", help="Training/preflight only: all CUDA-visible GPUs or visible logical indices/GPU UUIDs.")
+    parser.add_argument("--microbatch", type=int, help="Override automatic per-GPU training microbatch.")
+    parser.add_argument("--effective-batch", type=int, help="Override global training batch (H100 default32, otherwise16).")
     parser.add_argument("--evaluate-checkpoint", action="store_true")
     parser.add_argument("--execute-merge", action="store_true")
     parser.add_argument("--evaluate-merged", action="store_true")
@@ -80,8 +84,14 @@ def main() -> int:
 
     config_path = Path(args.config).expanduser().resolve()
     try:
+        config = load_yaml(config_path)
+        if args.execute_training or args.preflight_training:
+            config.setdefault("pipeline", {}).setdefault("training", {})["host_gpu_profile"] = build_gpu_profile(
+                detect_cuda_devices(), model="270m", devices=args.devices,
+                microbatch=args.microbatch, effective_batch=args.effective_batch,
+            )
         plan = run_pipeline(
-            load_yaml(config_path),
+            config,
             config_path=config_path,
             run_id_override=args.run_id,
             formats=_parse_formats(args.formats),

@@ -135,7 +135,7 @@ python training/scripts/prepare_dataset.py --config training/configs/datasets/st
 ```
 
 Prepare Golden-100 from its separate immutable source, never from a duplicated
-Golden-50 or training source:
+Golden35 or training source:
 
 ```text
 python training/scripts/prepare_dataset.py --config training/configs/datasets/golden100_stage3_eval.yaml --source-run-dir <immutable-golden100-run>

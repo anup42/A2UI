@@ -8,7 +8,7 @@ from typing import Any
 from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.generation_policy import sha256_text, stop_express_completion
-from ir_training.eval.generate import prediction_source_context_hash
+from ir_training.eval.generate import aggregate_generation_performance, prediction_source_context_hash
 from ir_training.eval.metrics import (
     aggregate_scores,
     load_baseline_aggregate,
@@ -99,6 +99,8 @@ def evaluate_predictions(
     weights = load_dataset_weights(weights_config_path)
     baseline = load_baseline_aggregate(baseline_aggregate_path)
     aggregate = aggregate_scores(rows_out, weights=weights, baseline_aggregate=baseline)
+    aggregate.update(repeated_benchmark_scores(rows_out, weights))
+    aggregate.update(aggregate_generation_performance(rows_out))
     for label in ("raw", "serving_stopped"):
         aggregate[f"{label}_diagnostics"] = aggregate_scores(
             [{"metrics": row[f"{label}_metrics"]} for row in rows_out], weights=weights)
@@ -109,6 +111,85 @@ def evaluate_predictions(
         write_jsonl(out_dir / "scored_predictions.jsonl", rows_out)
         (out_dir / "aggregate_metrics.json").write_text(json.dumps(aggregate, indent=2, ensure_ascii=False), encoding="utf-8")
     return aggregate
+
+
+def repeated_benchmark_scores(rows: list[dict[str, Any]], weights: dict[str, float]) -> dict[str, Any]:
+    """Report source-macro scores alongside the requested 32-occurrence score.
+
+    Repeated generations are averaged within their source first. The donor
+    consequently has the same weight as each of the other 30 unique sources.
+    This is still a development benchmark, not 32 independent test cases.
+    """
+    declarations = [row.get("benchmark") for row in rows]
+    if not any(declarations):
+        return {}
+    if all(isinstance(item, dict) and item.get("kind") == "fixed_strict_subset" for item in declarations):
+        return fixed_subset_score_metadata(rows)
+    if not all(isinstance(item, dict) and item.get("kind") == "explicit_repeated_case" for item in declarations):
+        raise ValueError("Cannot mix repeated-benchmark and ordinary prediction rows")
+    benchmark_ids = {item.get("benchmark_id") for item in declarations}
+    if len(benchmark_ids) != 1 or len(rows) != 32 or any(
+        item.get("row_count") != 32 or item.get("unique_source_count") != 31 for item in declarations
+    ):
+        raise ValueError("Repeated benchmark requires one identity, 32 occurrences and 31 unique sources")
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        source = " ".join(str(row.get("response_text") or "").split())
+        if not source:
+            raise ValueError("Repeated benchmark prediction is missing its source")
+        groups.setdefault(sha256_text(source), []).append(row)
+    if len(groups) != 31 or sorted(map(len, groups.values())) != [1] * 30 + [2]:
+        raise ValueError("Repeated benchmark source multiplicity differs from 31+1 contract")
+    if sum(bool(item.get("is_repeated_occurrence")) for item in declarations) != 1:
+        raise ValueError("Repeated benchmark must declare exactly one repeated occurrence")
+    unique_rows = []
+    for group in groups.values():
+        if len({row.get("expected_sha256") or sha256_text(str(row.get("expected"))) for row in group}) != 1:
+            raise ValueError("Repeated source has conflicting reference completions")
+        metrics = dict(group[0]["metrics"])
+        keys = set().union(*(row["metrics"].keys() for row in group))
+        for key in keys:
+            values = [row["metrics"].get(key, 0) for row in group]
+            if all(isinstance(value, (int, float, bool)) for value in values):
+                metrics[key] = sum(float(value) for value in values) / len(values)
+        unique_rows.append({"metrics": metrics})
+    unique = aggregate_scores(unique_rows, weights=weights)
+    return {
+        "benchmark": {
+            "id": next(iter(benchmark_ids)), "kind": "explicit_repeated_case",
+            "row_count": 32, "unique_source_count": 31, "duplicate_occurrence_count": 1,
+            "independent_test_set": False, "selection_policy": "unique_source_macro",
+            "note": "32 rows / 31 unique cases; not comparable to either original Golden32 revision",
+        },
+        "unique_source_metrics": unique,
+        **{f"unique_source_{key}": value for key, value in unique.items() if isinstance(value, (int, float, bool))},
+    }
+
+
+def fixed_subset_score_metadata(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Retain Golden35 identity on scores and reject partial or duplicated runs."""
+    from ir_training.data.golden35_subset import APPROVED_SOURCE_IDS, BENCHMARK_ID
+
+    if len(rows) != 35 or any(
+        not isinstance(row.get("benchmark"), dict)
+        or row["benchmark"].get("benchmark_id") != BENCHMARK_ID
+        or row["benchmark"].get("kind") != "fixed_strict_subset"
+        or row["benchmark"].get("row_count") != 35
+        or row["benchmark"].get("unique_source_count") != 35
+        or row["benchmark"].get("is_repeated_occurrence") is not False
+        or row["benchmark"].get("occurrence_id") != row.get("id")
+        for row in rows
+    ):
+        raise ValueError("Golden35 predictions require the complete fixed 35-case revision")
+    sources = [" ".join(str(row.get("response_text") or "").split()) for row in rows]
+    if {row.get("source_id") for row in rows} != set(APPROVED_SOURCE_IDS) or len(set(sources)) != 35 or not all(sources):
+        raise ValueError("Golden35 prediction source membership or uniqueness differs")
+    return {"benchmark": {
+        "id": BENCHMARK_ID, "kind": "fixed_strict_subset", "row_count": 35,
+        "unique_source_count": 35, "duplicate_occurrence_count": 0,
+        "excluded_source_count": 15, "scoring_policy": "all_35_unique_cases_macro",
+        "note": "Fixed strict-valid subset; aggregate is not comparable to the original 50-case cohort",
+    }}
 
 
 def _first_mapping(*values: Any) -> Mapping[str, Any] | None:

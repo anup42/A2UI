@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "benchmark_id": "golden32_archive_repeat_v1",
+  "benchmark_kind": "explicit_repeated_case",
+  "row_count": 32,
+  "unique_source_count": 31,
+  "duplicate_occurrence_count": 1,
+  "original_source_sha256": "69344d162f6cd944c61d7c76cede6475d769b5ebe9e4591b77e1fd86aedc0824",
+  "output_sha256": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c",
+  "output_file": "golden32.jsonl",
+  "donor_selection": "first_strictly_valid",
+  "replacements": [
+    {
+      "slot_1based": 26,
+      "donor_slot_1based": 1,
+      "failed": {
+        "source_id": "q_012053",
+        "query_id": "q_012053",
+        "response_id": "r_012053_01",
+        "row_id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp6/genui.jsonl:u_012053_01:a2ui_express_v1",
+        "response_sha256": "31ec3f618385fe506920a0a780daeaa35014fa91fa75ef76e19a722f385183db"
+      },
+      "donor": {
+        "source_id": "q_017270",
+        "query_id": "q_017270",
+        "response_id": "r_017270_01",
+        "row_id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_full_20260806/dashboard_mirror/gpu_box_1/dataset_gemma4_cyclic_v5/genui.jsonl:u_017270_01:a2ui_express_v1",
+        "response_sha256": "4285931b8232c641fd04f86f2dd381bfdb5710f4209f143b54daa4669618fe5c"
+      },
+      "occurrence_id": "golden32_archive_repeat_v1:repeat:q_017270:slot26",
+      "original_failure": {
+        "reason": "wire_schema_invalid",
+        "detail": "component[l].highlightColumns: 'priority' is not valid under any of the given schemas"
+      }
+    }
+  ],
+  "excluded_sources": [
+    {
+      "source_id": "q_012053",
+      "query_id": "q_012053",
+      "response_id": "r_012053_01",
+      "row_id": "/home/k_anup/working_dir/genui-lm-qat-mtp-20260802/data/source_delta_20260806/dashboard_mirror/space_anup/dataset_gemma4_50k_cyclic_exp6/genui.jsonl:u_012053_01:a2ui_express_v1",
+      "response_sha256": "31ec3f618385fe506920a0a780daeaa35014fa91fa75ef76e19a722f385183db"
+    }
+  ],
+  "strict_validation": {
+    "express": true,
+    "wire_schema": true,
+    "root_reachability": 1.0,
+    "semantic_roundtrip": true
+  },
+  "scoring_policy": {
+    "primary": "unique_source_macro",
+    "secondary": "all_occurrences_macro",
+    "independent_case_count": 31,
+    "independent_test_set": false,
+    "note": "32 evaluation occurrences contain 31 unique cases. The repeated donor is not a new reference or independent observation."
+  }
+}

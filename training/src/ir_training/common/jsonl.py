@@ -26,7 +26,7 @@ def write_jsonl(path: str | Path, rows: Iterable[dict[str, Any]]) -> int:
     resolved = Path(path)
     resolved.parent.mkdir(parents=True, exist_ok=True)
     count = 0
-    with resolved.open("w", encoding="utf-8") as f:
+    with resolved.open("w", encoding="utf-8", newline="\n") as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
             count += 1

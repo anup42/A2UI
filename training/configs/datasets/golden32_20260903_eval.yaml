@@ -1,12 +1,12 @@
 run:
-  id: golden32_20260903_eval
+  id: golden32_20260903_eval_prompt_v2
   seed: 42
   # Paths in dataset configs are resolved from training/, so this remains
   # portable across checkouts while binding the exact provided source run.
   source_run_dir: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903
   source_genui_sha256: 596f56a15a63d904423970c9768797ba795ff0528a04da37dddcba280a4f4e17
   source_responses_sha256: 27406fa78d486ded4e9fcb2a78e987aa54d9f2ee8fe5db926874a1b2ff827089
-  output_dir: outputs/datasets/golden32_20260903_eval
+  output_dir: outputs/datasets/golden32_20260903_eval_prompt_v2
   target_format: a2ui_express_v1
   prompt_version: genui_gen_mobile_a2ui_express_v1
   schema_path: ../dataset/schema/genuicraft_a2ui_express_profile_v1.json

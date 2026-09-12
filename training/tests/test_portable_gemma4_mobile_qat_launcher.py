@@ -523,3 +523,23 @@ def test_main_default_only_prints_plan(tmp_path: Path, capsys: pytest.CaptureFix
     assert not run_root.exists()
     payload = json.loads(captured.out.split("\nPlan only:", 1)[0])
     assert payload["checks"]["contract_ok"] is True
+
+
+def test_host_gpu_profile_binds_ddp_without_changing_retained_qat(tmp_path: Path, monkeypatch) -> None:
+    from ir_training.train.gpu_profile import build_gpu_profile
+    source = _source_config(tmp_path)
+    inventory = {"version": 1, "inherited_cuda_visible_devices": "GPU-0,GPU-1,GPU-2,GPU-3", "visible_gpu_count": 4,
+        "devices": [{"visible_index": index, "launch_identifier": f"GPU-{index}", "uuid": f"GPU-{index}",
+                     "name": "NVIDIA H100 80GB", "total_memory_bytes": 80 * 1024**3, "compute_capability": [9, 0]}
+                    for index in range(4)]}
+    profile = build_gpu_profile(inventory, model="e2b")
+    monkeypatch.delenv("A2UI_TENSORBOARD_ROOT", raising=False)
+    plan, resolved, _ = launcher.build_launch_plan(source, run_id="gpu_bound", runs_root=tmp_path / "runs", num_gpus=4, host_gpu_profile=profile)
+    assert plan["checks"]["contract_ok"]
+    assert "--nproc_per_node=4" in plan["training_command"]
+    assert plan["cuda_visible_devices"] == inventory["inherited_cuda_visible_devices"]
+    assert resolved["runtime"]["world_size"] == 4
+    assert resolved["training"]["per_device_train_batch_size"] == 2
+    assert resolved["training"]["gradient_accumulation_steps"] == 4
+    assert resolved["training"]["expected_effective_batch_size"] == 32
+    assert resolved["qat"] == launcher.load_yaml(source)["qat"]

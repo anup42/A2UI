@@ -1,4 +1,4 @@
-"""Resolve a review recipe on the GPU host; filesystem checks only, no model load."""
+"""Resolve a review recipe from GPU metadata and files; no model load or training."""
 from __future__ import annotations
 
 import argparse
@@ -51,6 +51,7 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
         raise ValueError("Prepare splits with the selected tokenizer and the recipe's --max-seq-length first.")
     splits = manifest.get("splits") or {}
     train_ids, train_sources = set(), set()
+    val_ids, val_sources = set(), set()
     counts = {}
     for name in ("train", "val"):
         path = dataset / f"{name}.jsonl"
@@ -66,6 +67,8 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
             train_ids, train_sources = ids, sources
         elif ids & train_ids or sources & train_sources:
             raise ValueError("Train/val overlap by query ID or normalized response text; rebuild splits before training.")
+        else:
+            val_ids, val_sources = ids, sources
     golden_manifest = json.loads((golden.parent / "manifest.json").read_text(encoding="utf-8"))
     golden_validation = golden_manifest.get("validation") or {}
     if not all(golden_validation.get(key) is True for key in ("strict_express", "wire_schema", "semantic_roundtrip")) or golden_validation.get("root_reachability") != 1.0:
@@ -82,22 +85,34 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
         raise ValueError("Golden file must match a checked preparation manifest.")
     if golden_split.get("quarantined_rows", 0):
         raise ValueError("Golden preparation quarantined rows. Regenerate invalid targets through Stage 3; preserve all 32 cases.")
-    gold = list(rows(golden))
+    from ir_training.eval.golden_set import benchmark_contract_for_split, load_fixed_golden_rows
+    gold = load_fixed_golden_rows(golden, required_rows=32, require_exact_rows=True, require_unique_rows=True)
+    benchmark = benchmark_contract_for_split(golden, gold)
     identities = [source_identity(row) for row in gold]
-    if len(gold) != 32 or len(set(identities)) != 32 or len({key for key, _ in identities}) != 32:
-        raise ValueError("Golden32 requires exactly 32 unique query IDs and sources.")
+    required_unique = 31 if (benchmark or {}).get("benchmark_kind") == "explicit_repeated_case" else 32
+    if len(gold) != 32 or len(set(identities)) != required_unique or len({key for key, _ in identities}) != required_unique or len({source for _, source in identities}) != required_unique:
+        raise ValueError(f"Golden32 requires exactly {required_unique} unique query IDs and sources in this benchmark revision.")
     if any((query and query in train_ids) or source in train_sources for query, source in identities):
         raise ValueError("Golden32 overlaps training by query ID or normalized source response.")
+    if any(query in val_ids or source in val_sources for query, source in identities):
+        raise ValueError("Golden32 overlaps validation. Filter the ordinary validation split against reserved Golden cohorts first.")
+    for excluded in (benchmark or {}).get("excluded_sources", []):
+        if excluded.get("query_id") in train_ids | val_ids or excluded.get("response_sha256") in train_sources | val_sources:
+            raise ValueError("Replaced Golden source is still reserved and must not enter train/val.")
     gt = golden_manifest.get("tokenizer") or {}
     if any(gt.get(key) != tokenizer.get(key) for key in ("vocabulary_sha256", "chat_template_sha256", "chat_template_kwargs")):
         raise ValueError("Train and Golden tokenizer/chat-template fingerprints differ.")
     maxima = golden_split.get("max_accepted_token_lengths") or {}
     if int(maxima.get("prompt_tokens", max_prompt + 1)) > max_prompt:
         raise ValueError("Golden prompt exceeds inference context. Reprepare with --max-input-tokens.")
-    return {"split_rows": counts, "golden_rows": 32, "dataset_manifest_sha256": sha256(manifest_path), "golden_sha256": sha256(golden), "tokenizer": tokenizer}
+    return {"split_rows": counts, "golden_rows": 32, "golden_unique_sources": required_unique,
+            "benchmark": benchmark, "dataset_manifest_sha256": sha256(manifest_path), "golden_sha256": sha256(golden), "tokenizer": tokenizer}
 
 
 def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
+    import os
+    from ir_training.train.gpu_profile import build_gpu_profile, detect_cuda_devices
+
     profile = "gemma4_e2b_a2ui_express_review_sft.yaml" if args.profile == "e2b" else "gemma3_270m_a2ui_express_review_sft.yaml"
     config = copy.deepcopy(load_yaml(ROOT / "configs/models" / profile))
     model_dir, dataset, golden = args.model_dir.resolve(strict=True), args.dataset_dir.resolve(strict=True), args.golden_file.resolve(strict=True)
@@ -105,26 +120,43 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
         raise ValueError("--model-dir must contain the dense HF model config and safetensors weights.")
     if not (model_dir / "tokenizer_config.json").is_file():
         raise ValueError("The local model bundle must include its tokenizer and chat template.")
-    devices = [part.strip() for part in args.devices.split(",") if part.strip()]
-    if not devices or len(set(devices)) != len(devices):
-        raise ValueError("--devices requires a nonempty unique CUDA device list.")
-    divisor = len(devices) * args.microbatch
-    if divisor <= 0 or args.effective_batch <= 0 or args.effective_batch % divisor:
-        raise ValueError("--effective-batch must be divisible by GPU count * microbatch.")
+    gpu_profile = build_gpu_profile(
+        detect_cuda_devices(), model=args.profile, devices=getattr(args, "devices", "auto"),
+        microbatch=getattr(args, "microbatch", None), effective_batch=getattr(args, "effective_batch", None),
+        dataloader_workers=getattr(args, "dataloader_workers", None),
+    )
+    gpu_profile["gradient_checkpointing"] = bool(getattr(args, "gradient_checkpointing", True))
+    gpu_profile["attn_implementation"] = getattr(args, "attn_implementation", "sdpa")
+    world_size = gpu_profile["world_size"]
+    effective_batch = gpu_profile["effective_batch_size"]
     run_dir = args.output_dir.resolve()
     if run_dir.exists():
         raise FileExistsError(f"Choose a new run directory: {run_dir}")
     config["run"].update(id=run_dir.name, dataset_dir=str(dataset), output_dir=str(run_dir / "training"), prepared_manifest_required=True)
-    config["runtime"] = {"cuda_visible_devices": ",".join(devices), "world_size": len(devices)}
-    config["model"].update(model_source=str(model_dir), tokenizer_source=str(model_dir))
+    config["runtime"] = {"cuda_visible_devices": gpu_profile["cuda_visible_devices"], "world_size": world_size, "gpu_profile": gpu_profile}
+    config["model"].update(model_source=str(model_dir), tokenizer_source=str(model_dir), dtype=gpu_profile["dtype"],
+                          attn_implementation=gpu_profile["attn_implementation"])
     training = config["training"]
-    training.update(per_device_train_batch_size=args.microbatch, gradient_accumulation_steps=args.effective_batch // divisor,
-                    expected_effective_batch_size=args.effective_batch, epochs=args.epochs, max_seq_length=args.max_seq_length,
-                    logging_dir=str(run_dir / "tensorboard"))
+    tensorboard_root = os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard"
+    training.update(per_device_train_batch_size=gpu_profile["microbatch"], gradient_accumulation_steps=gpu_profile["gradient_accumulation_steps"],
+                    expected_effective_batch_size=effective_batch, epochs=args.epochs, max_seq_length=args.max_seq_length,
+                    tensorboard_root=tensorboard_root, tensorboard_subdir="training", report_to="tensorboard",
+                    logging_dir=str(Path(tensorboard_root) / run_dir.name / "training"),
+                    tf32=gpu_profile["tf32"], dataloader_num_workers=gpu_profile["dataloader_num_workers"],
+                    dataloader_pin_memory=True, gradient_checkpointing=gpu_profile["gradient_checkpointing"],
+                    gradient_checkpointing_kwargs={"use_reentrant": False})
+    if gpu_profile["dataloader_num_workers"] > 0:
+        training.update(dataloader_persistent_workers=True, dataloader_prefetch_factor=2)
+    eval_steps = int(getattr(args, "eval_steps", 500))
+    golden_every_steps = int(getattr(args, "golden_every_steps", 1000))
+    if eval_steps <= 0 or golden_every_steps <= 0 or golden_every_steps % eval_steps:
+        raise ValueError("--golden-every-steps must be a positive integer multiple of --eval-steps.")
+    training.update(eval_steps=eval_steps, save_steps=eval_steps)
+    config["golden_eval"].update(interval=golden_every_steps // eval_steps, requested_every_optimizer_steps=golden_every_steps)
     if args.steps is not None:
         if args.steps <= 0:
             raise ValueError("--steps must be positive")
-        training.update(max_steps=args.steps, eval_steps=min(500, args.steps), save_steps=min(500, args.steps))
+        training.update(max_steps=args.steps, eval_steps=min(eval_steps, args.steps), save_steps=min(eval_steps, args.steps))
     if args.resume is not None:
         training["resume_from_checkpoint"] = str(args.resume.resolve(strict=True))
     if args.qv_baseline:
@@ -138,7 +170,12 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
         template = load_yaml(ROOT / "configs/models/gemma3_270m_a2ui_express_qat.yaml")
         config["qat"] = copy.deepcopy(template["qat"])
         config["qat"]["profile"] = "gemma3_270m_wi8_afp32_full_finetune"
-    config["golden_eval"].update(split_path=str(golden), output_dir=str(run_dir / "golden_eval"), max_input_tokens=args.max_seq_length)
+    max_new_tokens = int(getattr(args, "max_new_tokens", 2048))
+    if max_new_tokens <= 0:
+        raise ValueError("--max-new-tokens must be positive.")
+    config["golden_eval"].update(split_path=str(golden), output_dir=str(run_dir / "golden_eval"), max_input_tokens=args.max_seq_length,
+                                 max_new_tokens=max_new_tokens, tensorboard=True)
+    config["model"]["max_output_tokens"] = max_new_tokens
     if args.max_seq_length + config["golden_eval"]["max_new_tokens"] > config["model"]["max_context_tokens"]:
         raise ValueError("Prompt + generation budget exceeds model context")
     validate_sft_recipe(config)
@@ -147,10 +184,12 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
         errors = [issue.message for issue in validate_qat_config(config) if issue.severity == "error"]
         if errors:
             raise ValueError("; ".join(errors))
-    validate_effective_batch(training, len(devices))
+    validate_effective_batch(training, world_size)
     report = verify_prepared(dataset, golden, max_sequence=args.max_seq_length, max_prompt=args.max_seq_length)
+    if (report.get("benchmark") or {}).get("benchmark_kind") == "explicit_repeated_case":
+        config["golden_eval"]["metric_for_best_model"] = "unique_source_generation_reward_v5_4_avg"
     config["model"]["chat_template_kwargs"] = report["tokenizer"].get("chat_template_kwargs") or {}
-    report.update(training_executed=False, model_loaded=False, profile=args.profile, effective_batch=args.effective_batch,
+    report.update(training_executed=False, model_loaded=False, profile=args.profile, effective_batch=effective_batch, gpu_profile=gpu_profile,
                   model_config_sha256=sha256(model_dir / "config.json"), source_config=profile,
                   model_files={path.name: sha256(path) for path in sorted(model_dir.iterdir()) if path.is_file() and (path.suffix in {".json", ".safetensors", ".model", ".jinja"})})
     return config, report
@@ -161,9 +200,15 @@ def main() -> None:
     parser.add_argument("--profile", choices=("e2b", "270m"), required=True)
     for name in ("model-dir", "dataset-dir", "golden-file", "output-dir"):
         parser.add_argument("--" + name, type=Path, required=True)
-    parser.add_argument("--devices", required=True)
-    parser.add_argument("--effective-batch", type=int, default=16)
-    parser.add_argument("--microbatch", type=int, default=1)
+    parser.add_argument("--devices", default="auto", help="Use all CUDA-visible GPUs (default), or comma-separated visible logical indices/exact GPU or MIG UUIDs. Scheduler masks are preserved.")
+    parser.add_argument("--effective-batch", type=int, help="Global examples per optimizer update; default 32 on H100 >=70 GiB, otherwise 16. Learning rate is unchanged.")
+    parser.add_argument("--microbatch", type=int, help="Override per-GPU microbatch; H100 defaults: E2B 2, 270M 4, capped to divide the effective batch.")
+    parser.add_argument("--dataloader-workers", type=int, help="Workers per GPU process; default bounds worker count by host CPU count.")
+    parser.add_argument("--attn-implementation", choices=("sdpa", "eager"), default="sdpa")
+    parser.add_argument("--gradient-checkpointing", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--max-new-tokens", type=int, default=2048, help="Golden generation budget. Token-limit failures remain scored; this never truncates source records.")
+    parser.add_argument("--eval-steps", type=int, default=500, help="Validation-loss and checkpoint cadence in optimizer updates.")
+    parser.add_argument("--golden-every-steps", type=int, default=1000, help="Full Golden generation cadence; must be divisible by --eval-steps. Final weights are always evaluated.")
     parser.add_argument("--max-seq-length", type=int, default=4096)
     parser.add_argument("--epochs", type=float, default=1)
     parser.add_argument("--steps", type=int)

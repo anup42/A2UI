@@ -305,6 +305,16 @@ def prepare_splits(
     _api()
     _wire_validator()
     source_hashes = {name: _sha_file(path) for name, path in sources.items()}
+    # Carry explicitly approved benchmark membership through token preparation.
+    # Its raw hash is checked before any transformation; the resulting split has
+    # a new preparation hash. Never silently relax ordinary Golden uniqueness.
+    benchmarks = {}
+    from ir_training.eval.golden_set import benchmark_contract_for_split
+    for name, path in sources.items():
+        if (path.parent / "benchmark_manifest.json").is_file() or (path.parent / "manifest.json").is_file():
+            contract = benchmark_contract_for_split(path)
+            if contract is not None:
+                benchmarks[name] = contract
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=f".{destination.name}.preparing-", dir=destination.parent))
     try:
@@ -370,6 +380,13 @@ def prepare_splits(
                     "scaffold_counts": dict(scaffold_counts),
                     "max_accepted_token_lengths": token_maxima,
                 }
+                if split in benchmarks:
+                    if counts["quarantined_rows"]:
+                        raise ValueError("Golden preparation must preserve all declared occurrences; no partial benchmark published")
+                    from ir_training.eval.golden_set import validate_benchmark_rows
+                    from ir_training.common.jsonl import read_jsonl
+                    validate_benchmark_rows(list(read_jsonl(temporary / f"{split}.jsonl")), benchmarks[split])
+                    stats[split]["benchmark"] = benchmarks[split]
         from pipeline.ir_formats.common import codec_identity
         tracked_sources = [Path(__file__), repo_root() / "dataset/src/pipeline/ir_formats/express.py", repo_root() / "dataset/src/pipeline/ir_formats/canonical.py", repo_root() / "dataset/src/pipeline/renderer_semantics.py", repo_root() / "dataset/schema/genuicraft_a2ui_v1_wire.schema.json", repo_root() / "dataset/schema/genuicraft_a2ui_catalog_v1.json"]
         manifest = {

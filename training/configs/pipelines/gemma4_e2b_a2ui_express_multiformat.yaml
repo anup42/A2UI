@@ -8,9 +8,10 @@ pipeline:
 
   golden:
     dataset_config: configs/datasets/golden32_20260903_eval.yaml
-    dataset_config_sha256: 2c4c70624658f097484efda25f5f336d685fa469b13982d310a17100e3eb44d5
-    split: outputs/datasets/golden32_20260903_eval/all.jsonl
-    split_sha256: b1a2d9c1a2b7ed6f2e052fd84b53284f706667c9ade7c6f859ba287150b28ad4
+    dataset_config_sha256: 726f4b9ebb84c88e1d2d10cb7351ab6094cf04959d0d81b4ec026f22c9e91810
+    split: outputs/datasets/golden32_20260903_eval_prompt_v2/all.jsonl
+    # Current shared prompt, canonical LF serialization; rebuild old preparation.
+    split_sha256: eefdfedaca1395477d279712697843fc0324fd41cb669f2c01ecdd098c11ea52
     source_genui: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/genui.jsonl
     source_genui_sha256: 596f56a15a63d904423970c9768797ba795ff0528a04da37dddcba280a4f4e17
     source_responses: ../dataset/data/runs/genui_demo_golden40_gemini38_20260903/responses.jsonl
@@ -21,7 +22,7 @@ pipeline:
     metric_version: dual
     weights_config: ../dataset/configs/run.yaml
     max_input_tokens: 4096
-    max_new_tokens: 4096
+    max_new_tokens: 2048
 
   tensorboard:
     # Resolved relative to the repository root. On an MLP host set
@@ -38,7 +39,7 @@ pipeline:
     # local packed model. Otherwise pass --source-safetensors to the runner.
     source_safetensors: ""
     checkpoint_evaluation:
-      # The trainer evaluates Golden-32 at every Trainer eval event. This
+      # The trainer evaluates Golden-32 every second Trainer eval event. This
       # additional stage evaluates and logs the selected adapter after training.
       enabled: true
       evaluation_name: checkpoint
@@ -98,10 +99,10 @@ pipeline:
     command: litert-torch
     externalize_embedder: true
     jinja_chat_template_override: training/configs/export/gemma4_e2b_training_minijinja.jinja
-    cache_length: 4096
+    cache_length: 8192
     prefill_lengths: 128,512,1024,2048
     max_input_tokens: 4096
-    max_output_tokens: 4096
+    max_output_tokens: 2048
 
   evaluation:
     checkpoint_script: scripts/evaluate_checkpoint_on_golden.py

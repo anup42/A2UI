@@ -33,6 +33,7 @@ from ir_training.eval.tensorboard_logging import (  # noqa: E402
 from ir_training.qat.mobile_training_seed import (  # noqa: E402
     OFFICIAL_MOBILE_SAFETENSORS_SHA256,
 )
+from ir_training.train.gpu_profile import apply_gpu_profile, training_environment, verify_gpu_profile, visible_launch_profile
 
 
 DEFAULT_CONFIG = ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
@@ -447,10 +448,11 @@ def _validate_launch_contract(
         "Best-checkpoint selection must use generation_reward_v5_4_avg.",
     )
     require(
-        "golden_not_every_eval",
+        "invalid_golden_eval_interval",
         str(golden.get("trigger") or "") == "evaluate"
-        and int(golden.get("interval", 0) or 0) == 1,
-        "Golden v5.4 must run at every Trainer evaluation event.",
+        and type(golden.get("interval")) is int
+        and golden["interval"] > 0,
+        "Golden v5.4 must use Trainer evaluation events with a positive integer interval.",
     )
     try:
         eval_steps = int(training.get("eval_steps", 0) or 0)
@@ -886,6 +888,7 @@ def build_launch_plan(
     runs_root: str | Path,
     num_gpus: int,
     source_safetensors: str | Path | None = None,
+    host_gpu_profile: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Path]]:
     source_path = Path(source_config_path).expanduser().resolve()
     if not source_path.is_file():
@@ -905,6 +908,8 @@ def build_launch_plan(
         raise PortableTrainingLaunchError("Resolved run root escaped --runs-root.")
 
     source_config = load_yaml(source_path)
+    if host_gpu_profile is not None:
+        source_config.setdefault("training", {})["tensorboard_root"] = os.environ.get(TENSORBOARD_ROOT_ENV) or "/tensorboard"
     packed_source_path, packed_source_origin, packed_source_error = (
         _resolve_packed_source(source_config, source_safetensors)
     )
@@ -916,6 +921,10 @@ def build_launch_plan(
     resolved_config, paths = _resolve_run_config(
         source_config, run_id=run_id, run_root=run_root
     )
+    if host_gpu_profile is not None:
+        if int(host_gpu_profile["world_size"]) != int(num_gpus):
+            raise PortableTrainingLaunchError("GPU profile and launch worker count disagree.")
+        apply_gpu_profile(resolved_config, host_gpu_profile)
     issues = _validate_launch_contract(
         resolved_config,
         source_config_path=source_path,
@@ -970,7 +979,8 @@ def build_launch_plan(
             "tracked_worktree_dirty": _git_dirty(),
         },
         "num_gpus": int(num_gpus),
-        "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
+        "cuda_visible_devices": host_gpu_profile["cuda_visible_devices"] if host_gpu_profile else os.environ.get("CUDA_VISIBLE_DEVICES"),
+        "host_gpu_profile": host_gpu_profile,
         "training_limit": _training_limit_summary(
             _section(resolved_config, "training")
         ),
@@ -1096,9 +1106,9 @@ def _normalize_gpu_ids(value: str | None, *, num_gpus: int) -> str | None:
     if value is None or not value.strip():
         return None
     values = [item.strip() for item in value.split(",") if item.strip()]
-    if any(not item.isdigit() for item in values) or len(set(values)) != len(values):
+    if not values or any(not (item.isdigit() or re.fullmatch(r"(?:GPU-|MIG-)[A-Za-z0-9_./-]+", item)) for item in values) or len(set(values)) != len(values):
         raise PortableTrainingLaunchError(
-            "--gpu-ids must be a comma-separated list of unique nonnegative integers."
+            "--gpu-ids must contain unique nonnegative physical IDs or GPU/MIG UUIDs."
         )
     if len(values) != int(num_gpus):
         raise PortableTrainingLaunchError(
@@ -1120,7 +1130,7 @@ def _write_yaml(path: Path, payload: dict[str, Any]) -> None:
     )
 
 
-def _run_live(command: list[str], *, cwd: Path, log_path: Path) -> int:
+def _run_live(command: list[str], *, cwd: Path, log_path: Path, environment: dict[str, str] | None = None) -> int:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     print(f"$ {_command_text(command)}", flush=True)
     with log_path.open("w", encoding="utf-8", buffering=1) as log:
@@ -1132,6 +1142,7 @@ def _run_live(command: list[str], *, cwd: Path, log_path: Path) -> int:
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            env=environment,
         )
         assert process.stdout is not None
         for line in process.stdout:
@@ -1157,7 +1168,11 @@ def _run_preflights(
     for item in plan["preflights"]:
         command = [str(value) for value in item["command"]]
         log_path = paths["launch_dir"] / "preflight" / f"{item['id']}.log"
-        exit_code = _run_live(command, cwd=REPO_ROOT, log_path=log_path)
+        execution_kwargs = {}
+        if plan.get("host_gpu_profile"):
+            verify_gpu_profile(plan["host_gpu_profile"])
+            execution_kwargs["environment"] = training_environment(plan["host_gpu_profile"])
+        exit_code = _run_live(command, cwd=REPO_ROOT, log_path=log_path, **execution_kwargs)
         declared_outputs = _declared_output_paths(command)
         output_identities = [
             (
@@ -1226,7 +1241,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument(
         "--runs-root", default="training/runs/portable_gemma4_mobile_qat"
     )
-    parser.add_argument("--num-gpus", type=int, default=1)
+    parser.add_argument("--num-gpus", type=int, help="Default: all CUDA-visible GPUs during execution; one worker in offline plans.")
+    parser.add_argument("--microbatch", type=int, help="Override automatic per-GPU training microbatch.")
+    parser.add_argument("--effective-batch", type=int, help="Override global training batch; H100 starting profile defaults to32.")
     parser.add_argument(
         "--source-safetensors",
         help=(
@@ -1236,7 +1253,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     )
     parser.add_argument(
         "--gpu-ids",
-        help="Optional physical CUDA indices, for example 0,1,3; count must equal --num-gpus.",
+        help="Optional exact CUDA-visible physical IDs or GPU/MIG UUIDs; hidden devices are rejected on execution.",
     )
     parser.add_argument(
         "--environment-check",
@@ -1257,22 +1274,30 @@ def main(argv: Iterable[str] | None = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     try:
-        selected_gpu_ids = _normalize_gpu_ids(
-            args.gpu_ids, num_gpus=args.num_gpus
-        )
-        if selected_gpu_ids is not None:
-            os.environ["CUDA_VISIBLE_DEVICES"] = selected_gpu_ids
+        if args.num_gpus is not None and args.num_gpus < 1:
+            raise PortableTrainingLaunchError("--num-gpus must be positive.")
         if args.environment_check:
-            report = _check_training_environment(args.num_gpus)
+            report = _check_training_environment(args.num_gpus or 1)
             print(json.dumps(report, indent=2, ensure_ascii=False))
             return 0 if report["ok"] else 2
+        host_gpu_profile = None
+        if args.preflight or args.execute:
+            host_gpu_profile = visible_launch_profile(model="e2b", num_gpus=args.num_gpus, launch_ids=args.gpu_ids,
+                microbatch=args.microbatch, effective_batch=args.effective_batch)
+            num_gpus = host_gpu_profile["world_size"]
+        else:
+            num_gpus = args.num_gpus or (len(args.gpu_ids.split(",")) if args.gpu_ids else 1)
+            selected_gpu_ids = _normalize_gpu_ids(args.gpu_ids, num_gpus=num_gpus)
         plan, resolved_config, paths = build_launch_plan(
             args.config,
             run_id=args.run_id,
             runs_root=args.runs_root,
-            num_gpus=args.num_gpus,
+            num_gpus=num_gpus,
             source_safetensors=args.source_safetensors,
+            host_gpu_profile=host_gpu_profile,
         )
+        if host_gpu_profile is None and selected_gpu_ids is not None:
+            plan["cuda_visible_devices"] = selected_gpu_ids
         print(json.dumps(plan, indent=2, ensure_ascii=False))
         if not args.preflight and not args.execute:
             print(
@@ -1311,10 +1336,12 @@ def main(argv: Iterable[str] | None = None) -> int:
                 + json.dumps(artifact_changes, ensure_ascii=False)
             )
 
+        verify_gpu_profile(host_gpu_profile)
         exit_code = _run_live(
             [str(value) for value in plan["training_command"]],
             cwd=REPO_ROOT,
             log_path=paths["training_log"],
+            environment=training_environment(host_gpu_profile),
         )
         if exit_code != 0:
             raise PortableTrainingLaunchError(

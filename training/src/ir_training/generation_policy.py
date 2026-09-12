@@ -7,11 +7,40 @@ from __future__ import annotations
 
 import hashlib
 import json
+from contextlib import contextmanager
 from numbers import Integral
 from typing import Any, Sequence
 
 EXPRESS_STOP = "</a2ui>"
 POLICY_VERSION = "a2ui-envelope-v1"
+
+
+@contextmanager
+def generation_cache_scope(model: Any, *, enabled: bool = True):
+    """Enable decoding KV caches without changing the training configuration.
+
+    Training disables use_cache for gradient checkpointing. Evaluation runs in
+    eval mode, where the cache is safe and avoids recomputing the whole prefix.
+    Restore every touched config on failure as well as successful generation.
+    """
+    configs = []
+    config = getattr(model, "config", None)
+    for candidate in (config, getattr(config, "text_config", None),
+                      getattr(model, "generation_config", None)):
+        if candidate is not None and all(candidate is not previous for previous in configs):
+            configs.append(candidate)
+    missing = object()
+    previous_values = [(config, getattr(config, "use_cache", missing)) for config in configs]
+    try:
+        for config, _ in previous_values:
+            config.use_cache = bool(enabled)
+        yield
+    finally:
+        for config, previous in reversed(previous_values):
+            if previous is missing:
+                delattr(config, "use_cache")
+            else:
+                config.use_cache = previous
 
 
 def preserve_generation_eos(

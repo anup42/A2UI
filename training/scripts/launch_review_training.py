@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from ir_training.common.config import load_yaml
 from ir_training.train.recipe import validate_effective_batch, validate_sft_recipe
+from ir_training.train.gpu_profile import verify_gpu_profile
 from prepare_review_training import sha256, verify_prepared
 
 
@@ -53,9 +54,20 @@ def launch_plan(config_path: Path, *, preflight_only: bool = False) -> tuple[lis
         command.append("--preflight-only")
     environment = dict(os.environ)
     environment.update(CUDA_VISIBLE_DEVICES=",".join(selected), A2UI_SKIP_CUDA_DEVICE_NORMALIZE="1", TOKENIZERS_PARALLELISM="false")
+    environment.setdefault("A2UI_TENSORBOARD_ROOT", str(config["training"].get("tensorboard_root") or "/tensorboard"))
+    environment.setdefault("OMP_NUM_THREADS", "1")
     environment.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
     environment.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
     return command, environment
+
+
+def verify_launch_gpu_binding(config_path: Path) -> None:
+    config = load_yaml(config_path)
+    runtime = config.get("runtime") or {}
+    profile = runtime.get("gpu_profile")
+    verify_gpu_profile(profile)
+    if runtime.get("world_size") != profile["world_size"] or runtime.get("cuda_visible_devices") != profile["cuda_visible_devices"]:
+        raise ValueError("GPU inventory disagrees with the resolved worker count or CUDA mask.")
 
 
 def main() -> None:
@@ -67,6 +79,7 @@ def main() -> None:
     command, environment = launch_plan(args.config, preflight_only=args.preflight_only)
     print(json.dumps({"command": command, "CUDA_VISIBLE_DEVICES": environment["CUDA_VISIBLE_DEVICES"], "execute": args.execute}, indent=2), flush=True)
     if args.execute:
+        verify_launch_gpu_binding(args.config.resolve())
         verify_launch_binding(args.config.resolve())
         completed = subprocess.run(command, env=environment, cwd=ROOT.parent, check=False)
         raise SystemExit(completed.returncode)

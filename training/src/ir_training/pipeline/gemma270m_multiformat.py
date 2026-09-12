@@ -38,6 +38,7 @@ from ir_training.export.edge_gallery import (
     export_edge_gallery_model,
 )
 from ir_training.export.merge_lora import merge_lora_adapter
+from ir_training.train.gpu_profile import apply_gpu_profile, build_gpu_profile, detect_cuda_devices, training_environment, verify_gpu_profile
 
 FORMAT_ORDER = ("w32", "w16", "w8", "w4")
 FORMAT_CONTRACT = {
@@ -403,6 +404,11 @@ def build_pipeline_plan(
     resolved_training_config_path = (
         training_output / "launch" / "resolved_training_config.yaml"
     )
+    host_gpu_profile = training.get("host_gpu_profile")
+    if host_gpu_profile is None and resolved_training_config_path.is_file():
+        # Later export/evaluation commands reuse the original bound execution
+        # settings without detecting GPUs or changing the training identity.
+        host_gpu_profile = _section(load_yaml(resolved_training_config_path), "runtime").get("gpu_profile")
     merged = _pipeline_section(config, "merge")
     merged_model = (
         _resolve_training_path(merged_model_override)
@@ -419,7 +425,7 @@ def build_pipeline_plan(
     golden_split = _resolve_training_path(
         golden.get("split_path", "outputs/datasets/golden32_20260903_eval/all.jsonl")
     )
-    tensorboard_value = str(training.get("tensorboard_root") or "tensorboard")
+    tensorboard_value = str(resolve_tensorboard_root("/tensorboard")) if host_gpu_profile else str(training.get("tensorboard_root") or "tensorboard")
     tensorboard_root = resolve_tensorboard_root(tensorboard_value)
     tensorboard_subdir = str(training_job.get("tensorboard_subdir") or "training")
     expected_training_tb = tensorboard_root / run_id / tensorboard_subdir
@@ -437,6 +443,9 @@ def build_pipeline_plan(
     resolved_run["id"] = run_id
     resolved_run["output_dir"] = str(training_output)
     resolved_training["logging_dir"] = str(expected_training_tb)
+    if host_gpu_profile is not None:
+        apply_gpu_profile(resolved_training_config, host_gpu_profile)
+        resolved_training["tensorboard_root"] = str(tensorboard_root)
     resolved_golden["best_checkpoint_dir"] = str(best_checkpoint)
     resolved_golden["output_dir"] = str(training_output / "golden32")
     resolved_training_config_text = yaml.safe_dump(
@@ -1086,6 +1095,8 @@ def build_pipeline_plan(
             "config": str(training_config_path),
             "resolved_config": str(resolved_training_config_path),
             "resolved_config_sha256": resolved_training_config_sha256,
+            "host_gpu_profile": host_gpu_profile,
+            "world_size": int(host_gpu_profile["world_size"]) if host_gpu_profile else 1,
             "model_id": model_id,
             "qat_profile": qat.get("profile"),
             "qat_aligned_format": "w8",
@@ -1103,6 +1114,10 @@ def build_pipeline_plan(
             ],
             "command": [
                 sys.executable,
+                "-m",
+                "torch.distributed.run",
+                "--standalone",
+                f"--nproc_per_node={int(host_gpu_profile['world_size']) if host_gpu_profile else 1}",
                 str(training_root() / "scripts" / "train_sft.py"),
                 "--config",
                 str(resolved_training_config_path),
@@ -1182,7 +1197,7 @@ def build_pipeline_plan(
     }
 
 
-def _run_command(command: list[str], log_path: Path, *, cwd: Path) -> None:
+def _run_command(command: list[str], log_path: Path, *, cwd: Path, environment: dict[str, str] | None = None) -> None:
     if log_path.exists():
         raise Gemma270MMultiformatError(
             f"Refusing to overwrite an existing stage log: {log_path}"
@@ -1197,6 +1212,7 @@ def _run_command(command: list[str], log_path: Path, *, cwd: Path) -> None:
             stderr=subprocess.STDOUT,
             text=True,
             check=False,
+            env=environment,
         )
         log.write(process.stdout or "")
     if process.returncode != 0:
@@ -1217,6 +1233,10 @@ def _materialize_resolved_training_config(plan: dict[str, Any]) -> None:
     run["id"] = plan["run_id"]
     run["output_dir"] = plan["training"]["output_dir"]
     training["logging_dir"] = plan["training"]["tensorboard_run_dir"]
+    host_gpu_profile = plan["training"].get("host_gpu_profile")
+    if host_gpu_profile is not None:
+        apply_gpu_profile(config, host_gpu_profile)
+        training["tensorboard_root"] = plan["training"]["tensorboard_root"]
     golden["best_checkpoint_dir"] = plan["training"]["best_checkpoint"]
     golden["output_dir"] = str(Path(plan["training"]["output_dir"]) / "golden32")
     text = yaml.safe_dump(config, sort_keys=False, allow_unicode=True)
@@ -1639,6 +1659,12 @@ def run_pipeline(
     runner_config_override: str | Path | None = None,
     official_q8_source_override: str | Path | None = None,
 ) -> dict[str, Any]:
+    if preflight_training or execute_training:
+        config = copy.deepcopy(config)
+        launch_training = config.setdefault("pipeline", {}).setdefault("training", {})
+        if launch_training.get("host_gpu_profile") is None:
+            launch_training["host_gpu_profile"] = build_gpu_profile(detect_cuda_devices(), model="270m")
+        verify_gpu_profile(launch_training["host_gpu_profile"])
     if execute_official_q8:
         config = copy.deepcopy(config)
         pipeline = config.setdefault("pipeline", {})
@@ -1701,21 +1727,25 @@ def run_pipeline(
         _materialize_resolved_training_config(plan)
 
     if preflight_training:
+        verify_gpu_profile(plan["training"]["host_gpu_profile"])
         _require_training_leakage_gate(plan)
         _run_command(
             [*plan["training"]["command"], "--preflight-only"],
             logs_dir / "training_preflight.log",
             cwd=repo_root(),
+            environment=training_environment(plan["training"]["host_gpu_profile"], tensorboard_root=plan["training"]["tensorboard_root"]),
         )
         plan["training"]["preflight_executed"] = True
 
     if execute_training:
+        verify_gpu_profile(plan["training"]["host_gpu_profile"])
         _require_training_leakage_gate(plan)
         _require_fresh_training_output(plan)
         _run_command(
             plan["training"]["command"],
             logs_dir / "train_sft.log",
             cwd=repo_root(),
+            environment=training_environment(plan["training"]["host_gpu_profile"], tensorboard_root=plan["training"]["tensorboard_root"]),
         )
         if not _checkpoint_ready(Path(plan["training"]["best_checkpoint"])):
             raise Gemma270MMultiformatError(

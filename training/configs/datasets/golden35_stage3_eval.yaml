@@ -1,0 +1,28 @@
+run:
+  id: golden35_stage3_eval
+  seed: 42
+  # Frozen approved subset. Never reselect a different 35 when source/code changes.
+  frozen_eval_source: data/eval/golden35_v1/golden35.jsonl
+  frozen_eval_benchmark_id: golden35_v1
+  frozen_eval_sha256: 8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20
+  output_dir: outputs/datasets/golden35_stage3_eval
+  target_format: a2ui_express_v1
+  prompt_version: genui_gen_mobile_a2ui_express_v1
+  schema_path: ../dataset/schema/genuicraft_a2ui_express_profile_v1.json
+  system_prompt: ""
+filters:
+  require_strict_express: true
+  # Golden35 is its own exact cohort, not a partial run labelled as 50 cases.
+  required_accepted_rows: 35
+  require_exact_accepted_rows: true
+  require_unique_source_ids: true
+  max_input_chars: 60000
+  max_output_chars: 60000
+  deduplicate: true
+url_preprocessing:
+  enabled: true
+split:
+  train: 1.0
+  val: 0.0
+  test: 0.0
+  stratify_by: intent_bucket

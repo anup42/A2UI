@@ -35,6 +35,7 @@ from ir_training.train.callbacks import (
     TrainingMetadataCallback,
     build_checkpoint_provenance_callback,
     build_golden_set_eval_callback,
+    _write_checkpoint_provenance,
 )
 from ir_training.train.lora_config import build_lora_config, resolve_lora_config_targets
 from ir_training.train.prepared_binding import verify_tokenizer_binding
@@ -320,7 +321,7 @@ def train_sft(
         training_args_kwargs["warmup_steps"] = math.ceil(
             max_steps_value * float(training_cfg.get("warmup_ratio", 0.03))
         )
-    for name in ("dataloader_num_workers", "dataloader_pin_memory", "optim", "ddp_broadcast_buffers", "gradient_checkpointing_kwargs"):
+    for name in ("dataloader_num_workers", "dataloader_pin_memory", "dataloader_persistent_workers", "dataloader_prefetch_factor", "tf32", "optim", "ddp_broadcast_buffers", "gradient_checkpointing_kwargs"):
         if name in training_cfg:
             if name not in args_params:
                 raise ValueError(f"Installed TrainingArguments does not support configured {name}.")
@@ -579,6 +580,7 @@ def train_sft(
         metric_logger=getattr(trainer, "log", None),
         tensorboard_root=tensorboard_root,
         tensorboard_run_id=str(run_cfg.get("id") or output_dir.name),
+        resume_checkpoint=resolved_resume_checkpoint,
     )
     if golden_callback is not None:
         trainer.add_callback(golden_callback)
@@ -680,16 +682,12 @@ def train_sft(
             best_checkpoint = Path(str(golden_summary["checkpoint_dir"]))
             if best_checkpoint.is_dir():
                 checkpoint_paths.append(("best_golden", best_checkpoint))
-        metadata["adapter_checkpoints"] = [
-            _adapter_checkpoint_manifest(path, role=role)
-            for role, path in checkpoint_paths
-        ]
-        TrainingMetadataCallback(output_dir, metadata).write()
-        metadata_path = output_dir / "training_metadata.json"
-        for _, checkpoint_path in checkpoint_paths:
-            shutil.copy2(metadata_path, checkpoint_path / "training_metadata.json")
-            if config_path is not None:
-                shutil.copy2(config_path, checkpoint_path / "training_config.yaml")
+        _write_final_checkpoint_metadata(
+            output_dir=output_dir, metadata=metadata,
+            checkpoint_paths=checkpoint_paths,
+            final_step=int(trainer.state.global_step),
+            final_epoch=trainer.state.epoch, config_path=config_path,
+        )
     _barrier_if_distributed()
     return metadata
 
@@ -809,6 +807,29 @@ def _adapter_checkpoint_manifest(path: Path, *, role: str) -> dict[str, Any]:
             for candidate in files
         ],
     }
+
+
+def _write_final_checkpoint_metadata(
+    *, output_dir: Path, metadata: dict[str, Any],
+    checkpoint_paths: list[tuple[str, Path]], final_step: int,
+    final_epoch: float | None, config_path: Path | None,
+) -> None:
+    """Preserve each saved model's own role and optimizer step at finalization."""
+    metadata.update(checkpoint_step=final_step, checkpoint_epoch=final_epoch)
+    metadata["adapter_checkpoints"] = [
+        _adapter_checkpoint_manifest(path, role=role) for role, path in checkpoint_paths
+    ]
+    TrainingMetadataCallback(output_dir, metadata).write()
+    for role, checkpoint in checkpoint_paths:
+        payload = json.loads(json.dumps(metadata, ensure_ascii=False))
+        if role == "best_golden":
+            selected = metadata.get("best_golden_eval") or {}
+            if type(selected.get("step")) is not int:
+                raise ValueError("Selected Golden checkpoint has no optimizer-step provenance.")
+            payload.update(checkpoint_step=selected["step"], checkpoint_epoch=selected.get("epoch"))
+        _write_checkpoint_provenance(checkpoint, role=role, payload=payload)
+        if config_path is not None:
+            shutil.copy2(config_path, checkpoint / "training_config.yaml")
 
 
 def _enforce_qat_mtp_training_guardrails(config: dict[str, Any]) -> None:
@@ -3003,12 +3024,13 @@ def _build_optional_golden_callback(
     metric_logger: Any | None = None,
     tensorboard_root: Path | None = None,
     tensorboard_run_id: str | None = None,
+    resume_checkpoint: Path | None = None,
 ) -> Any | None:
     if not bool(golden_eval_cfg.get("enabled", False)):
         return None
     split_path_value = golden_eval_cfg.get("split_path")
     if not split_path_value:
-        dataset_dir = resolve_path(golden_eval_cfg.get("dataset_dir", "outputs/datasets/golden50_stage3_eval"), base)
+        dataset_dir = resolve_path(golden_eval_cfg.get("dataset_dir", "outputs/datasets/golden35_stage3_eval"), base)
         split_name = str(golden_eval_cfg.get("split", "all")).strip() or "all"
         split_path = dataset_dir / f"{split_name}.jsonl"
     else:
@@ -3026,7 +3048,7 @@ def _build_optional_golden_callback(
             training_cfg.get("max_seq_length", model_cfg.get("max_context_tokens", 8192)),
         )
     )
-    max_new_tokens = int(golden_eval_cfg.get("max_new_tokens", model_cfg.get("max_output_tokens", 8192)))
+    max_new_tokens = int(golden_eval_cfg.get("max_new_tokens", model_cfg.get("max_output_tokens", 2048)))
     model_context_tokens = int(model_cfg.get("max_context_tokens", 0) or 0)
     if model_context_tokens > 0 and max_input_tokens + max_new_tokens > model_context_tokens:
         bounded_max_new_tokens = max(1, model_context_tokens - max_input_tokens)
@@ -3042,7 +3064,7 @@ def _build_optional_golden_callback(
         output_dir=eval_output_dir,
         adapter=adapter,
         tokenizer=tokenizer,
-        max_rows=int(golden_eval_cfg.get("max_rows", 50)),
+        max_rows=int(golden_eval_cfg.get("max_rows", 35)),
         required_rows=(
             int(golden_eval_cfg["required_rows"])
             if golden_eval_cfg.get("required_rows") is not None
@@ -3074,6 +3096,9 @@ def _build_optional_golden_callback(
             or golden_eval_cfg.get("metric_log_prefix", "golden")
         ),
         stop_strings=_resolve_golden_stop_strings(golden_eval_cfg),
+        evaluate_at_end=bool(golden_eval_cfg.get("evaluate_at_end", True)),
+        use_cache=bool(golden_eval_cfg.get("use_cache", True)),
+        resume_checkpoint=resume_checkpoint,
     )
 
 

@@ -5,6 +5,7 @@ import json
 import math
 import re
 import shutil
+import time
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
@@ -13,7 +14,8 @@ from ir_training.data.url_preprocess import restore_url_placeholders
 from ir_training.eval.compare_to_baseline import evaluate_predictions
 from ir_training.eval.tensorboard_logging import log_evaluation_result
 from ir_training.eval.generate import build_prediction_record, _extract_user_text as _bound_source_text
-from ir_training.generation_policy import build_stopping_criteria, generation_diagnostics, preserve_generation_eos
+from ir_training.eval.golden_set import load_fixed_golden_rows
+from ir_training.generation_policy import build_stopping_criteria, generation_diagnostics, preserve_generation_eos, generation_cache_scope
 
 
 class TrainingMetadataCallback:
@@ -43,7 +45,7 @@ def build_golden_set_eval_callback(
     require_exact_rows: bool = False,
     require_unique_rows: bool = False,
     max_input_tokens: int | None = None,
-    max_new_tokens: int = 8192,
+    max_new_tokens: int = 2048,
     weights_config_path: str | Path | None = None,
     baseline_aggregate_path: str | Path | None = None,
     metric_version: str = "legacy",
@@ -59,6 +61,9 @@ def build_golden_set_eval_callback(
     tensorboard_run_id: str | None = None,
     tensorboard_evaluation_name: str | None = None,
     stop_strings: Sequence[str] | None = None,
+    evaluate_at_end: bool = True,
+    use_cache: bool = True,
+    resume_checkpoint: str | Path | None = None,
 ) -> Any | None:
     if not enabled:
         return None
@@ -95,6 +100,21 @@ def build_golden_set_eval_callback(
         else resolved_output_dir / "best_golden_checkpoint"
     )
     resolved_stop_strings = [str(s) for s in (stop_strings or []) if str(s)]
+    callback_contract = {
+        "golden_set_sha256": golden_split_sha256,
+        "golden_set_rows": len(golden_rows),
+        "metric_version": resolved_metric_version,
+        "metric": metric_for_best_model,
+        "greater_is_better": bool(greater_is_better),
+        "weights_sha256": _sha256_file(Path(weights_config_path)) if weights_config_path else None,
+        "max_input_tokens": max_input_tokens,
+        "max_new_tokens": int(max_new_tokens),
+        "stop_strings": resolved_stop_strings or ["</a2ui>"],
+        "chat_template": str(getattr(tokenizer, "chat_template", "") or ""),
+        "chat_template_kwargs": getattr(adapter, "config", {}).get("chat_template_kwargs", {}),
+        "trigger": resolved_trigger,
+        "interval": int(interval),
+    }
 
     try:
         from transformers import TrainerCallback  # type: ignore
@@ -108,6 +128,57 @@ def build_golden_set_eval_callback(
             self.best_metric_step: int | None = None
             self.best_metric_epoch: float | None = None
             self.best_checkpoint_saved = False
+            self.best_checkpoint_path = resolved_best_checkpoint_dir
+            self.last_completed_step: int | None = None
+            if resume_checkpoint is not None:
+                self._restore_state(Path(resume_checkpoint))
+
+        def _state_payload(self) -> dict[str, Any]:
+            best_manifest = None
+            if self.best_checkpoint_saved:
+                best_manifest = _checkpoint_adapter_manifest(self.best_checkpoint_path, role="best_golden")
+            return {
+                "schema_version": 1,
+                "contract": callback_contract,
+                "evaluation_count": self.evaluation_count,
+                "last_completed_step": self.last_completed_step,
+                "best": self.summary(),
+                "best_checkpoint_manifest": best_manifest,
+            }
+
+        def _restore_state(self, checkpoint: Path) -> None:
+            state_path = checkpoint / "golden_callback_state.json"
+            if not state_path.is_file():
+                raise ValueError(f"Golden-enabled resume requires saved selector state: {state_path}; do not reset the previous best score.")
+            saved = json.loads(state_path.read_text(encoding="utf-8"))
+            if saved.get("contract") != callback_contract:
+                raise ValueError("Golden resume benchmark, generation, cadence, or selection contract changed; start a new experiment.")
+            self.evaluation_count = int(saved["evaluation_count"])
+            self.last_completed_step = saved.get("last_completed_step")
+            best = saved.get("best")
+            if not best:
+                return
+            self.best_metric_value = float(best["metric_value"])
+            self.best_metric_step = int(best["step"])
+            self.best_metric_epoch = best.get("epoch")
+            if best.get("checkpoint_dir"):
+                manifest = saved.get("best_checkpoint_manifest") or {}
+                candidates = [Path(best["checkpoint_dir"]), checkpoint.parent / Path(best["checkpoint_dir"]).name]
+                entries = manifest.get("files") or []
+                matched = next((candidate for candidate in candidates if entries and all(
+                    (candidate / entry["path"]).is_file()
+                    and _sha256_file(candidate / entry["path"]) == entry["sha256"]
+                    for entry in entries)), None)
+                if matched is None:
+                    raise ValueError("Previously selected Golden checkpoint is missing or changed; retain its original files when resuming.")
+                self.best_checkpoint_path = matched
+                self.best_checkpoint_saved = True
+
+        def on_save(self, args: Any, state: Any, control: Any, **kwargs: Any) -> Any:
+            if _distributed_context()[0] == 0:
+                checkpoint = Path(args.output_dir) / f"checkpoint-{int(state.global_step)}"
+                _atomic_write_json(checkpoint / "golden_callback_state.json", self._state_payload())
+            return control
 
         def on_epoch_end(self, args: Any, state: Any, control: Any, model: Any = None, **kwargs: Any) -> Any:
             if resolved_trigger != "epoch":
@@ -119,17 +190,29 @@ def build_golden_set_eval_callback(
                 return control
             return self._run_if_due(state=state, control=control, model=model)
 
-        def _run_if_due(self, *, state: Any, control: Any, model: Any = None) -> Any:
+        def on_train_end(self, args: Any, state: Any, control: Any, model: Any = None, **kwargs: Any) -> Any:
+            if evaluate_at_end:
+                return self._run_if_due(state=state, control=control, model=model, force=True)
+            return control
+
+        def _run_if_due(self, *, state: Any, control: Any, model: Any = None, force: bool = False) -> Any:
             if model is None:
                 return control
-            self.evaluation_count += 1
-            if self.evaluation_count % int(interval) != 0:
+            step = int(getattr(state, "global_step", 0) or 0)
+            if self.last_completed_step == step:
                 return control
+            if not force:
+                self.evaluation_count += 1
+                if self.evaluation_count % int(interval) != 0:
+                    return control
 
-            rank, _ = _distributed_context()
-            event_label = _evaluation_label(resolved_trigger, state)
+            rank, world_size = _distributed_context()
+            event_label = _evaluation_label("evaluate" if force else resolved_trigger, state)
             event_dir = resolved_output_dir / event_label
             predictions_path = event_dir / "predictions.jsonl"
+            started = time.perf_counter()
+            performance: dict[str, Any] = {}
+            evaluation_error: Exception | None = None
             try:
                 _generate_predictions_with_model(
                     model=model,
@@ -142,8 +225,11 @@ def build_golden_set_eval_callback(
                     max_new_tokens=max_new_tokens,
                     selected_rows=golden_rows,
                     stop_strings=resolved_stop_strings,
+                    use_cache=use_cache,
+                    performance_metrics=performance,
                 )
                 if rank == 0:
+                    scoring_started = time.perf_counter()
                     aggregate = evaluate_predictions(
                         predictions_path=predictions_path,
                         output_dir=event_dir,
@@ -156,6 +242,19 @@ def build_golden_set_eval_callback(
                     aggregate["evaluation_event"] = self.evaluation_count
                     aggregate["golden_set_rows"] = len(golden_rows)
                     aggregate["golden_set_sha256"] = golden_split_sha256
+                    aggregate.update(performance)
+                    aggregate["evaluation_world_size"] = world_size
+                    aggregate["evaluation_scoring_seconds"] = time.perf_counter() - scoring_started
+                    checkpoint_started = time.perf_counter()
+                    self._record_best_if_improved(
+                        model=model,
+                        state=state,
+                        event_label=event_label,
+                        event_dir=event_dir,
+                        aggregate=aggregate,
+                    )
+                    aggregate["evaluation_checkpoint_save_seconds"] = time.perf_counter() - checkpoint_started
+                    aggregate["evaluation_pause_seconds"] = time.perf_counter() - started
                     aggregate_path = event_dir / "aggregate_metrics.json"
                     aggregate_path.write_text(
                         json.dumps(aggregate, indent=2, ensure_ascii=False),
@@ -189,18 +288,22 @@ def build_golden_set_eval_callback(
                                 "trigger": resolved_trigger,
                                 "golden_set_rows": len(golden_rows),
                                 "golden_set_sha256": golden_split_sha256,
+                                "evaluation_reason": "train_end" if force else resolved_trigger,
+                                "execution": "synchronous generation sharded over training DDP ranks",
+                                "pause_scope": "generation, rank gathering, scoring and best-checkpoint save; excludes metric publishing",
+                                "use_cache": bool(use_cache),
                             },
                             source_aggregate_path=aggregate_path,
                         )
-                    self._record_best_if_improved(
-                        model=model,
-                        state=state,
-                        event_label=event_label,
-                        event_dir=event_dir,
-                        aggregate=aggregate,
-                    )
-            finally:
-                _distributed_barrier()
+                    # The best snapshot is saved before timing publication; keep
+                    # its copied score report identical to the final event file.
+                    if self.best_checkpoint_saved and self.best_metric_step == step and self.best_checkpoint_path.is_dir():
+                        shutil.copy2(aggregate_path, self.best_checkpoint_path / "aggregate_metrics.json")
+            except Exception as exc:
+                evaluation_error = exc
+            _raise_distributed_evaluation_error(evaluation_error, world_size=world_size)
+            _distributed_barrier()
+            self.last_completed_step = step
             return control
 
         def _record_best_if_improved(
@@ -251,6 +354,7 @@ def build_golden_set_eval_callback(
                     best_info=best_info,
                 )
                 self.best_checkpoint_saved = True
+                self.best_checkpoint_path = resolved_best_checkpoint_dir
             print(
                 f"New best golden eval {metric_for_best_model}={metric_value:.6f} "
                 f"at {event_label}.",
@@ -266,7 +370,7 @@ def build_golden_set_eval_callback(
                 "greater_is_better": greater_is_better,
                 "step": self.best_metric_step,
                 "epoch": self.best_metric_epoch,
-                "checkpoint_dir": str(resolved_best_checkpoint_dir) if self.best_checkpoint_saved else None,
+                "checkpoint_dir": str(self.best_checkpoint_path) if self.best_checkpoint_saved else None,
             }
 
     return GoldenSetEvalCallback()
@@ -289,6 +393,8 @@ def _generate_predictions_with_model(
     max_new_tokens: int,
     selected_rows: Sequence[dict[str, Any]] | None = None,
     stop_strings: Sequence[str] | None = None,
+    use_cache: bool = True,
+    performance_metrics: dict[str, Any] | None = None,
 ) -> int:
     try:
         import torch  # type: ignore
@@ -306,56 +412,100 @@ def _generate_predictions_with_model(
         if selected_rows is not None
         else list(read_jsonl(split_path))[: max(0, int(max_rows))]
     )
+    started = time.perf_counter()
+    generation_error: Exception | None = None
     try:
-        for idx in range(rank, len(rows_for_eval), world_size):
-            row = rows_for_eval[idx]
-            prompt_text = adapter.format_example(row, tokenizer=tokenizer, include_assistant=False)
-            _extract_user_text(row)  # Reject a mismatched source before inference.
-            inputs = tokenizer(prompt_text, return_tensors="pt", add_special_tokens=False)
-            input_length = inputs["input_ids"].shape[-1]
-            if max_input_tokens and input_length > int(max_input_tokens):
-                raise ValueError(f"Golden row {row.get('id')} exceeds max_input_tokens; source truncation is forbidden.")
-            stop_criteria = _build_stop_string_criteria(tokenizer, stop_strings, prompt_length=input_length)
-            device = _model_device(generation_model)
-            if device is not None and hasattr(inputs, "to"):
-                inputs = inputs.to(device)
-            generation_kwargs: dict[str, Any] = {
-                "max_new_tokens": int(max_new_tokens),
-                "do_sample": False,
-                "eos_token_id": eos_ids,
-                "stop_strings": None,
-                # DDP is explicitly unwrapped. Rows are sharded and may differ
-                # in count/length; do not enter generation-time collectives.
-                "synced_gpus": False,
-            }
-            pad_token_id = getattr(tokenizer, "pad_token_id", None)
-            if pad_token_id is None:
-                pad_token_id = getattr(tokenizer, "eos_token_id", None)
-            if pad_token_id is not None:
-                generation_kwargs["pad_token_id"] = pad_token_id
-            if stop_criteria is not None:
-                generation_kwargs["stopping_criteria"] = stop_criteria
-            with torch.no_grad():
-                output = generation_model.generate(**inputs, **generation_kwargs)
-            input_length = inputs["input_ids"].shape[-1]
-            generated = tokenizer.decode(output[0][input_length:], skip_special_tokens=True)
-            runtime = generation_diagnostics(tokenizer, output[0][input_length:],
-                eos_token_ids=eos_ids, max_new_tokens=max_new_tokens,
-                prompt_text=prompt_text, input_ids=inputs["input_ids"][0],
-                stop_strings=stop_strings or None)
-            record = build_prediction_record(row, generated, runtime=runtime)
-            record["_golden_index"] = idx
-            rows_out.append(record)
+        with generation_cache_scope(generation_model, enabled=use_cache):
+            for idx in range(rank, len(rows_for_eval), world_size):
+                row = rows_for_eval[idx]
+                prompt_text = adapter.format_example(
+                    row, tokenizer=tokenizer, include_assistant=False
+                )
+                _extract_user_text(row)  # Reject a mismatched source before inference.
+                inputs = tokenizer(
+                    prompt_text, return_tensors="pt", add_special_tokens=False
+                )
+                input_length = inputs["input_ids"].shape[-1]
+                if max_input_tokens and input_length > int(max_input_tokens):
+                    raise ValueError(
+                        f"Golden row {row.get('id')} exceeds max_input_tokens; source truncation is forbidden."
+                    )
+                stop_criteria = _build_stop_string_criteria(
+                    tokenizer, stop_strings, prompt_length=input_length
+                )
+                device = _model_device(generation_model)
+                if device is not None and hasattr(inputs, "to"):
+                    inputs = inputs.to(device)
+                generation_kwargs: dict[str, Any] = {
+                    "max_new_tokens": int(max_new_tokens),
+                    "do_sample": False,
+                    "use_cache": bool(use_cache),
+                    "eos_token_id": eos_ids,
+                    "stop_strings": None,
+                    # DDP is explicitly unwrapped. Rows are sharded and may differ
+                    # in count/length; do not enter generation-time collectives.
+                    "synced_gpus": False,
+                }
+                pad_token_id = getattr(tokenizer, "pad_token_id", None)
+                if pad_token_id is None:
+                    pad_token_id = getattr(tokenizer, "eos_token_id", None)
+                if pad_token_id is not None:
+                    generation_kwargs["pad_token_id"] = pad_token_id
+                if stop_criteria is not None:
+                    generation_kwargs["stopping_criteria"] = stop_criteria
+                row_started = time.perf_counter()
+                with torch.inference_mode():
+                    output = generation_model.generate(**inputs, **generation_kwargs)
+                input_length = inputs["input_ids"].shape[-1]
+                generated = tokenizer.decode(
+                    output[0][input_length:], skip_special_tokens=True
+                )
+                runtime = generation_diagnostics(
+                    tokenizer,
+                    output[0][input_length:],
+                    eos_token_ids=eos_ids,
+                    max_new_tokens=max_new_tokens,
+                    prompt_text=prompt_text,
+                    input_ids=inputs["input_ids"][0],
+                    stop_strings=stop_strings or None,
+                )
+                elapsed = time.perf_counter() - row_started
+                runtime.update(
+                    generation_seconds=elapsed,
+                    output_tokens_per_second=runtime["output_tokens"] / elapsed
+                    if elapsed
+                    else 0.0,
+                    use_cache=bool(use_cache),
+                    inference_device=str(device),
+                    generation_rank=rank,
+                )
+                record = build_prediction_record(row, generated, runtime=runtime)
+                record["_golden_index"] = idx
+                rows_out.append(record)
+    except Exception as exc:
+        generation_error = exc
     finally:
         if was_training:
             model.train()
 
+    _raise_distributed_evaluation_error(generation_error, world_size=world_size)
     gathered_rows = _gather_prediction_rows(rows_out, world_size=world_size)
     if rank != 0:
         return 0
     gathered_rows.sort(key=lambda row: int(row.get("_golden_index", 0)))
     for row in gathered_rows:
         row.pop("_golden_index", None)
+    elapsed = time.perf_counter() - started
+    if performance_metrics is not None:
+        output_tokens = sum(int((row.get("runtime") or {}).get("output_tokens", 0)) for row in gathered_rows)
+        input_tokens = sum(int((row.get("runtime") or {}).get("input_tokens", 0)) for row in gathered_rows)
+        performance_metrics.update(
+            evaluation_generation_seconds=elapsed,
+            evaluation_generated_tokens=output_tokens,
+            evaluation_input_tokens=input_tokens,
+            evaluation_rows_per_second=len(gathered_rows) / elapsed if elapsed else 0.0,
+            evaluation_output_tokens_per_second=output_tokens / elapsed if elapsed else 0.0,
+        )
     return write_jsonl(output_path, gathered_rows)
 
 
@@ -367,31 +517,16 @@ def _load_fixed_golden_rows(
     require_exact_rows: bool,
     require_unique_rows: bool,
 ) -> list[dict[str, Any]]:
-    all_rows = list(read_jsonl(split_path))
-    selected_rows = all_rows[:max_rows]
-    if required_rows is not None:
-        observed = len(all_rows) if require_exact_rows else len(selected_rows)
-        comparator = "exactly" if require_exact_rows else "at least"
-        row_count_invalid = (
-            observed != required_rows
-            if require_exact_rows
-            else observed < required_rows
-        )
-        if row_count_invalid:
-            raise ValueError(
-                f"Golden eval requires {comparator} {required_rows} valid rows, "
-                f"but {split_path} provides {observed}."
-            )
-        if len(selected_rows) != required_rows:
-            raise ValueError(
-                f"golden_eval.max_rows={max_rows} does not select the required "
-                f"{required_rows} rows from {split_path}."
-            )
-    if require_unique_rows:
-        identities = [_golden_row_identity(row, index) for index, row in enumerate(selected_rows)]
-        if len(set(identities)) != len(identities):
-            raise ValueError(f"Golden eval split contains duplicate row identities: {split_path}")
-    return selected_rows
+    try:
+        return load_fixed_golden_rows(split_path, max_rows=max_rows,
+            required_rows=required_rows, require_exact_rows=require_exact_rows,
+            require_unique_rows=require_unique_rows)
+    except ValueError as exc:
+        # Preserve the trainer's historical diagnostics while sharing the
+        # exact benchmark-membership checks with standalone evaluations.
+        message = str(exc).replace("duplicate identities", "duplicate row identities")
+        message = re.sub(r"(requires (?:exactly|at least) \d+) rows", r"\1 valid rows", message)
+        raise ValueError(message) from exc
 
 
 def build_checkpoint_provenance_callback(
@@ -706,6 +841,20 @@ def _gather_prediction_rows(rows: list[dict[str, Any]], *, world_size: int) -> l
             continue
         combined.extend(row for row in shard if isinstance(row, dict))
     return combined
+
+
+def _raise_distributed_evaluation_error(error: Exception | None, *, world_size: int) -> None:
+    """Let every rank fail together before entering the next eval collective."""
+    if world_size <= 1:
+        if error is not None:
+            raise error
+        return
+    import torch.distributed as dist
+
+    failures: list[Any] = [None] * world_size
+    dist.all_gather_object(failures, f"{type(error).__name__}: {error}" if error is not None else None)
+    if any(item is not None for item in failures):
+        raise RuntimeError(f"Distributed Golden evaluation failed by rank: {failures}")
 
 
 def _unwrap_model(model: Any) -> Any:

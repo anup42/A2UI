@@ -26,7 +26,7 @@ model:
   dtype: bfloat16
   device_map: none
   max_context_tokens: 8192
-  max_output_tokens: 4096
+  max_output_tokens: 2048
 training:
   method: qat_lora_sft
   epochs: 2
@@ -106,7 +106,7 @@ golden_eval:
   # This is the user-provided 2026-09-03 set. The portable launch plan binds
   # the prepared all.jsonl bytes and rejects a non-exact or duplicate set.
   dataset_config: configs/datasets/golden32_20260903_eval.yaml
-  dataset_dir: outputs/datasets/golden32_20260903_eval
+  dataset_dir: outputs/datasets/golden32_20260903_eval_prompt_v2
   split: all
   source_genui_sha256: 596f56a15a63d904423970c9768797ba795ff0528a04da37dddcba280a4f4e17
   source_responses_sha256: 27406fa78d486ded4e9fcb2a78e987aa54d9f2ee8fe5db926874a1b2ff827089
@@ -115,9 +115,11 @@ golden_eval:
   require_exact_rows: true
   require_unique_rows: true
   max_input_tokens: 4096
-  max_new_tokens: 4096
+  max_new_tokens: 2048
   trigger: evaluate
-  interval: 1
+  interval: 2
+  evaluate_at_end: true
+  use_cache: true
   metric_version: dual
   metric_for_best_model: generation_reward_v5_4_avg
   greater_is_better: true

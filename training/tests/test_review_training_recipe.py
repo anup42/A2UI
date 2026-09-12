@@ -30,7 +30,7 @@ def test_review_profiles_have_explicit_supported_methods(profile):
     config = load_yaml(ROOT / "configs/models" / profile)
     assert validate_sft_recipe(config) in {"lora_sft", "full_finetune_sft"}
     assert config["golden_eval"]["required_rows"] == 32
-    assert config["golden_eval"]["max_new_tokens"] == 4096
+    assert config["golden_eval"]["max_new_tokens"] == 2048
 
 
 def test_full_qat_support_keeps_contract_restrictions():
@@ -209,10 +209,16 @@ def test_resume_requires_optimizer_data_recipe_and_weight_identity(tmp_path):
         verify_resume_contract(checkpoint, contract)
 
 
-def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path):
+def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path, monkeypatch):
     import yaml
     prepare = script("prepare_review_training")
     launch = script("launch_review_training")
+    monkeypatch.setattr("ir_training.train.gpu_profile.detect_cuda_devices", lambda: {
+        "version": 1, "inherited_cuda_visible_devices": None, "visible_gpu_count": 2,
+        "devices": [{"visible_index": index, "launch_identifier": str(index), "uuid": f"GPU-{index}",
+                     "name": "NVIDIA H100 80GB", "total_memory_bytes": 80 * 1024**3, "compute_capability": [9, 0]}
+                    for index in range(2)],
+    })
     model = tmp_path / "model"
     model.mkdir()
     for name in ("config.json", "tokenizer_config.json"):

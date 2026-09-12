@@ -199,7 +199,7 @@ Key decisions:
 - PEFT Gemma 4 LM defaults instead of blanket `all-linear`;
 - frozen embeddings and LM head because this task adds no tokenizer tokens;
 - initial learning rate 1e-4, with 5e-5 as the first comparison;
-- best adapter selected through the held-out golden50 overall score;
+- best adapter selected through the fixed, strict-valid Golden35 overall score;
 - exact frozen QAT assistant recorded in the `qat_mtp` block;
 - explicit `continued_qat: false`, `train_assistant: false`, and final runtime
   validation requirement.
