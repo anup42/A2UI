@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 from pathlib import Path
 import sys
 from types import SimpleNamespace
@@ -209,7 +210,8 @@ def test_resume_requires_optimizer_data_recipe_and_weight_identity(tmp_path):
         verify_resume_contract(checkpoint, contract)
 
 
-def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path, monkeypatch):
+@pytest.mark.parametrize("profile,qv_baseline", [("270m", False), ("e2b", False), ("e2b", True)])
+def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path, monkeypatch, profile, qv_baseline):
     import yaml
     prepare = script("prepare_review_training")
     launch = script("launch_review_training")
@@ -235,22 +237,33 @@ def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path, m
         "splits": {name: {"output_sha256": prepare.sha256(data / f"{name}.jsonl"), "max_accepted_token_lengths": {"prompt_tokens": 10}} for name in ("train", "val", "golden32")}}
     (data / "manifest.json").write_text(json.dumps(manifest))
     output = tmp_path / "run"
-    args = SimpleNamespace(profile="270m", model_dir=model, dataset_dir=data, golden_file=data / "golden32.jsonl", output_dir=output,
-        devices="0,1", microbatch=1, effective_batch=16, epochs=1, steps=20, max_seq_length=4096, resume=None, qv_baseline=False, qat=False)
+    args = SimpleNamespace(profile=profile, model_dir=model, dataset_dir=data, golden_file=data / "golden32.jsonl", output_dir=output,
+        devices="0,1", microbatch=1, effective_batch=16, epochs=1, steps=20, max_seq_length=4096, resume=None, qv_baseline=qv_baseline, qat=False)
     config, report = prepare.build_config(args)
     assert not report["training_executed"] and not report["model_loaded"]
     assert config["training"]["gradient_accumulation_steps"] == 8
     assert report["optimizer_step_budget"] == 20
     assert report["effective_hyperparameters"]["learning_rate"] == 2e-5
+    if profile == "e2b":
+        selector = config["lora"]["target_modules"]
+        for prefix in ("model.layers", "model.language_model.layers"):
+            assert re.fullmatch(selector, f"{prefix}.0.self_attn.q_proj")
+            assert re.fullmatch(selector, f"{prefix}.29.self_attn.v_proj")
+            assert bool(re.fullmatch(selector, f"{prefix}.0.mlp.gate_proj")) is not qv_baseline
+            assert bool(re.fullmatch(selector, f"{prefix}.0.self_attn.k_proj")) is not qv_baseline
+        for prefix in ("model.vision_tower.layers", "model.audio_tower.layers", "model.vision_tower.language_model.layers"):
+            assert re.fullmatch(selector, f"{prefix}.0.self_attn.q_proj") is None
+        assert re.fullmatch(selector, "lm_head") is None
     args.learning_rate, args.weight_decay, args.warmup_ratio, args.seed, args.logging_steps = 1e-5, 0.05, 0.05, 123, 5
     tuned_config, tuned_report = prepare.build_config(args)
     for key in ("learning_rate", "weight_decay", "warmup_ratio", "seed", "logging_steps"):
         assert tuned_config["training"][key] == getattr(args, key)
         assert tuned_report["effective_hyperparameters"][key] == getattr(args, key)
-    args.qat = True
-    qat_config, _ = prepare.build_config(args)
-    assert qat_config["training"]["method"] == "full_finetune_qat"
-    assert qat_config["training"]["learning_rate"] == 1e-5
+    if profile == "270m":
+        args.qat = True
+        qat_config, _ = prepare.build_config(args)
+        assert qat_config["training"]["method"] == "full_finetune_qat"
+        assert qat_config["training"]["learning_rate"] == 1e-5
     output.mkdir()
     config_path = output / "training_config.yaml"
     config_path.write_text(yaml.safe_dump(config))

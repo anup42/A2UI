@@ -184,6 +184,14 @@ def train_sft(
         )
     configured_lora = None if full_finetune else build_lora_config(adapter, lora_cfg)
     resolved_lora_targets = resolve_lora_config_targets(configured_lora, model) if configured_lora is not None else []
+    if configured_lora is not None:
+        print(
+            f"LoRA target resolution: model_class={type(model).__name__}, "
+            f"model_type={getattr(getattr(model, 'config', None), 'model_type', None)!r}, "
+            f"matched_linear_modules={len(resolved_lora_targets)}, "
+            f"examples={sorted(resolved_lora_targets)[:8]}",
+            flush=True,
+        )
     resume_adapter_report: dict[str, Any] | None = None
     if full_finetune:
         for parameter in model.parameters():

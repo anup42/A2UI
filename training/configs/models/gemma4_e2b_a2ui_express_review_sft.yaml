@@ -48,9 +48,10 @@ lora:
   r: 32
   alpha: 32
   dropout: 0.0
-  # Target only language decoder attention and MLP projections. Avoid modality
-  # towers and the vocabulary head. Verify the realized module inventory on GPU.
-  target_modules: '.*language_model\.layers\.\d+\.(self_attn\.(q|k|v|o)_proj|mlp\.(gate|up|down)_proj)'
+  # Gemma4ForCausalLM uses model.layers; the multimodal model adds language_model.
+  # Anchor both language-only roots: never select modality towers or lm_head.
+  # The resolver also supports projection wrappers via their actual .linear child.
+  target_modules: 'model\.(?:language_model\.)?layers\.\d+\.(self_attn\.(q|k|v|o)_proj|mlp\.(gate|up|down)_proj)'
   modules_to_save: []
 golden_eval:
   enabled: true

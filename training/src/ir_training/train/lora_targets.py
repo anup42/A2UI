@@ -62,6 +62,16 @@ def resolve_lora_config_targets(config: Any, model: Any) -> set[str]:
             continue
         resolved.add(actual_name)
     if not resolved:
-        raise ValueError(f"LoRA selector {requested!r} matches no supported nn.Linear modules; inspect the actual model module inventory")
+        linear_names = sorted(name for name, module in modules.items() if name and isinstance(module, nn.Linear))
+        model_type = getattr(getattr(model, "config", None), "model_type", None)
+        raise ValueError(
+            f"LoRA selector {requested!r} matches no supported nn.Linear modules; "
+            f"model_class={type(model).__name__}, model_type={model_type!r}, "
+            f"linear_module_count={len(linear_names)}, "
+            f"linear_module_examples={linear_names[:12]!r}. "
+            "Compare the selector with the loaded model's module paths "
+            "(for example model.layers vs model.language_model.layers). "
+            "No fallback or target-scope widening was applied."
+        )
     config.target_modules = set(resolved)
     return set(resolved)

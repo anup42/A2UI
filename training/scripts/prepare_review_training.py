@@ -186,7 +186,7 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     if args.qv_baseline:
         if args.profile != "e2b":
             raise ValueError("--qv-baseline is an E2B LoRA ablation")
-        config["lora"].update(r=16, alpha=16, target_modules=r".*language_model\.layers\.\d+\.self_attn\.(q|v)_proj(?:\.linear)?")
+        config["lora"].update(r=16, alpha=16, target_modules=r"model\.(?:language_model\.)?layers\.\d+\.self_attn\.(q|v)_proj(?:\.linear)?")
     if args.qat:
         if args.profile != "270m":
             raise ValueError("E2B mobile QAT requires the separate retained-scale launcher and verified seed contract.")

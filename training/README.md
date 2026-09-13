@@ -13,6 +13,8 @@ Optional rare-component resampling and matched-budget, one-at-a-time trials
 are documented in [Augmentation and tuning](docs/AUGMENTATION_AND_TUNING.md).
 Use `run_golden_experiments.py` to compare settings in TensorBoard while
 keeping Golden35 out of trial selection. The unaugmented baseline stays default.
+For the E2B `LoRA selector ... matches no supported nn.Linear modules` startup
+failure, see the [fix and restart instructions](docs/E2B_LORA_STARTUP_FIX_20260914.md).
 The final v9 copy includes the source-proven separator correction and retains
 112,842 training and 2,300 validation rows; run the exact-model preflight next.
 The current `run_golden_training.py` command uses checked-in Stage 3 data and

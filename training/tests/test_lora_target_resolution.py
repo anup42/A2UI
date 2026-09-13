@@ -8,6 +8,12 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "training" / "src"))
 from ir_training.train.lora_config import resolve_lora_config_targets
+from ir_training.common.config import load_yaml
+
+
+def _review_selector():
+    path = Path(__file__).resolve().parents[1] / "configs/models/gemma4_e2b_a2ui_express_review_sft.yaml"
+    return load_yaml(path)["lora"]["target_modules"]
 
 
 def _model():
@@ -113,3 +119,64 @@ def test_unknown_peft_default_fails_with_actionable_message(monkeypatch):
     monkeypatch.setitem(sys.modules, "peft.utils.constants", constants)
     with pytest.raises(ValueError, match="choose explicit language targets"):
         resolve_lora_config_targets(SimpleNamespace(target_modules=None), _model())
+
+
+@pytest.mark.parametrize("multimodal", [False, True])
+@pytest.mark.parametrize("wrapped", [False, True])
+def test_e2b_review_selector_supports_both_language_roots_without_modality_widening(multimodal, wrapped):
+    nn = pytest.importorskip("torch.nn")
+    model = nn.Module()
+    model.model = nn.Module()
+    decoder = nn.Module()
+    decoder.layers = nn.ModuleList([nn.Module()])
+    layer = decoder.layers[0]
+    expected = set()
+    prefix = "model.language_model.layers.0" if multimodal else "model.layers.0"
+    for block, projections in (("self_attn", ("q", "k", "v", "o")), ("mlp", ("gate", "up", "down"))):
+        branch = nn.Module()
+        setattr(layer, block, branch)
+        for projection in projections:
+            module = nn.Linear(2, 2, bias=False)
+            if wrapped:
+                wrapper = nn.Module()
+                wrapper.linear = module
+                module = wrapper
+            setattr(branch, f"{projection}_proj", module)
+            expected.add(f"{prefix}.{block}.{projection}_proj" + (".linear" if wrapped else ""))
+    if multimodal:
+        model.model.language_model = decoder
+    else:
+        model.model.layers = decoder.layers
+    # Deliberately give modality towers the SAME nested language-style paths.
+    # A leading .* would accidentally select these.
+    import copy
+    for tower in ("vision_tower", "audio_tower"):
+        branch = nn.Module()
+        branch.language_model = copy.deepcopy(decoder)
+        branch.layers = copy.deepcopy(decoder.layers)
+        setattr(model.model, tower, branch)
+    model.lm_head = nn.Linear(2, 4, bias=False)
+    config = SimpleNamespace(target_modules=_review_selector())
+    assert resolve_lora_config_targets(config, model) == expected
+    assert resolve_lora_config_targets(config, model) == expected
+
+
+def test_no_match_reports_bounded_real_inventory_and_does_not_mutate_selector():
+    model = _model()
+    config = SimpleNamespace(target_modules="missing")
+    with pytest.raises(ValueError) as error:
+        resolve_lora_config_targets(config, model)
+    message = str(error.value)
+    assert "model_class=Model" in message
+    assert "model_type='mock_model'" in message
+    assert "linear_module_count=5" in message
+    assert "language_model.q_proj.linear" in message
+    assert "No fallback" in message
+    assert config.target_modules == "missing"
+    for index in range(20):
+        model.add_module(f"extra_{index:02}", pytest.importorskip("torch.nn").Linear(2, 2))
+    with pytest.raises(ValueError) as error:
+        resolve_lora_config_targets(config, model)
+    assert "linear_module_count=25" in str(error.value)
+    assert "extra_11" in str(error.value)
+    assert "extra_12" not in str(error.value)
