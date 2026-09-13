@@ -17,6 +17,14 @@ all reserved Golden sources, chooses visible GPUs, and tests selected-best
 and actual-final checkpoints on both cohorts. Golden32 selects checkpoints;
 Golden35 is final-only. This path does not export LiteRT packages or train MTP.
 
+Added 2026-09-14: `training/scripts/run_golden_experiments.py` runs bounded,
+sequential LR/weight-decay/warmup and optional rare-component-resampling
+comparisons using that capability workflow. Baseline is included; all trials
+start from the same model, seed and step budget, with TensorBoard HParams and
+comparison records. Golden32 selects the winner; only the locked winner is
+tested on Golden35. See [Augmentation and tuning](AUGMENTATION_AND_TUNING.md).
+This is opt-in screening, not a new official-QAT/export/MTP pipeline.
+
 The separate deployment/quantization workflows below use the original
 September 3 Golden32, not the archive-repeat development cohort:
 

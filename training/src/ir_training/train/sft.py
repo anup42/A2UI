@@ -12,6 +12,7 @@ from typing import Any
 
 from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
+from ir_training.common.progress import Progress
 from ir_training.eval.tensorboard_logging import (
     TENSORBOARD_ROOT_ENV,
     resolve_tensorboard_root,
@@ -131,11 +132,12 @@ def train_sft(
     try:
         from datasets import load_dataset  # type: ignore
         from peft import PeftModel, get_peft_model, prepare_model_for_kbit_training  # type: ignore
-        from transformers import Trainer, TrainingArguments  # type: ignore
+        from transformers import Trainer, TrainingArguments, set_seed  # type: ignore
     except Exception as exc:  # pragma: no cover - dependency failure path
         raise RuntimeError(
             "Install training/requirements-training.txt before running SFT training."
         ) from exc
+    initialization_seed = _initialize_training_seed(training_cfg, run_cfg, seed_setter=set_seed)
     if qat_cfg.get("enabled", False):
         _enforce_qat_training_guardrails(config)
     if qat_mtp_cfg:
@@ -162,9 +164,12 @@ def train_sft(
         load_cfg["model_source"] = str(resolved_resume_checkpoint)
         load_cfg["tokenizer_source"] = str(resolved_resume_checkpoint)
     adapter = create_adapter(load_cfg)
-    tokenizer = adapter.load_tokenizer()
-    prepared_binding = verify_tokenizer_binding(dataset_dir, tokenizer, model_cfg, required=bool(run_cfg.get("prepared_manifest_required", False)))
-    model = adapter.load_model()
+    with _sft_progress("Load tokenizer", unit="stage"):
+        tokenizer = adapter.load_tokenizer()
+    with _sft_progress("Verify prepared tokenizer binding", unit="stage"):
+        prepared_binding = verify_tokenizer_binding(dataset_dir, tokenizer, model_cfg, required=bool(run_cfg.get("prepared_manifest_required", False)))
+    with _sft_progress("Load model weights", unit="stage"):
+        model = adapter.load_model()
     _align_tokenizer_and_model(tokenizer, model)
     generation_eos_ids = preserve_generation_eos(model, tokenizer)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="initial model load")
@@ -221,8 +226,11 @@ def train_sft(
     data_files: dict[str, str] = {"train": str(train_path)}
     if val_path.exists():
         data_files["validation"] = str(val_path)
-    dataset = load_dataset("json", data_files=data_files)
-    _print_training_sample_summary(dataset)
+    with _sft_progress("Load source dataset", unit="stage"):
+        dataset = load_dataset("json", data_files=data_files)
+    if _is_world_process_zero_env():
+        with _sft_progress("Summarize source dataset", unit="stage"):
+            _print_training_sample_summary(dataset)
 
     def formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=True)
@@ -285,7 +293,7 @@ def train_sft(
         eval_strategy_name: resolve_eval_strategy(training_cfg, golden_eval_cfg, has_validation="validation" in dataset and len(dataset["validation"]) > 0),
         "save_total_limit": int(training_cfg.get("save_total_limit", 3)),
         "max_grad_norm": float(training_cfg.get("max_grad_norm", 1.0)),
-        "seed": int(training_cfg.get("seed", run_cfg.get("seed", 42))),
+        "seed": initialization_seed,
         **precision_flags,
         "report_to": report_to,
     }
@@ -341,20 +349,21 @@ def train_sft(
     if trainer_backend == "trl" and "assistant_only_loss" in args_params:
         training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
     sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func, prompt_formatting_func)
-    _print_sft_token_length_summary(
-        dataset=sft_text_dataset,
-        tokenizer=tokenizer,
-        threshold=max_seq_length,
-    )
-    _validate_sft_token_ids(
-        dataset=sft_text_dataset,
-        tokenizer=tokenizer,
-        max_seq_length=max_seq_length,
-        input_vocab_size=input_vocab_size,
-        label_vocab_size=label_vocab_size,
-        max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
-        tokenizer_size=len(tokenizer) if hasattr(tokenizer, "__len__") else None,
-    )
+    if trainer_backend == "trl":
+        # TRL owns tokenization. The explicit HF path below checks the same
+        # vocabulary constraints while building its actual masked tensors,
+        # avoiding repeated whole-corpus tokenizer passes for diagnostics.
+        with _sft_progress("TRL text token checks", unit="stage"):
+            _print_sft_token_length_summary(
+                dataset=sft_text_dataset, tokenizer=tokenizer, threshold=max_seq_length,
+            )
+            _validate_sft_token_ids(
+                dataset=sft_text_dataset, tokenizer=tokenizer,
+                max_seq_length=max_seq_length, input_vocab_size=input_vocab_size,
+                label_vocab_size=label_vocab_size,
+                max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
+                tokenizer_size=len(tokenizer) if hasattr(tokenizer, "__len__") else None,
+            )
 
     if trainer_backend == "trl":
         if SFTTrainer is None:
@@ -400,13 +409,17 @@ def train_sft(
         trainer = SFTTrainer(**trainer_kwargs)
     else:
         print("Using explicit HF Trainer causal-LM backend for SFT.", flush=True)
-        tokenized_dataset = _tokenize_sft_text_dataset(sft_text_dataset, tokenizer, max_seq_length)
-        _validate_tokenized_sft_dataset(
-            dataset=tokenized_dataset,
+        tokenized_dataset = _tokenize_sft_text_dataset(
+            sft_text_dataset, tokenizer, max_seq_length,
             input_vocab_size=input_vocab_size,
-            label_vocab_size=label_vocab_size,
-            max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
+            token_check_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
         )
+        with _sft_progress("Validate masked training tensors", unit="stage"):
+            _validate_tokenized_sft_dataset(
+                dataset=tokenized_dataset, input_vocab_size=input_vocab_size,
+                label_vocab_size=label_vocab_size,
+                max_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
+            )
         preflight_cfg = (
             config.get("preflight")
             if isinstance(config.get("preflight"), dict)
@@ -536,6 +549,10 @@ def train_sft(
                 qat_enabled=qat_controller is not None,
             )
         )
+        # Each DDP rank still validates its own exact data. Release the two
+        # earlier Arrow/text views after greedy preflight and before optimizer
+        # allocation; do not persist extra multi-gigabyte token caches.
+        del sft_text_dataset, dataset
         if preflight_only:
             if qat_controller is not None:
                 qat_controller.restore()
@@ -593,6 +610,7 @@ def train_sft(
         "training_limit": training_limit,
         "checkpoint_kind": "full_model" if full_finetune else "lora_adapter",
         "effective_batch_size": effective_batch,
+        "initialization_seed": initialization_seed,
         "generation_eos_token_ids": generation_eos_ids,
         "loss_normalization": "mean_supervised_tokens_per_microbatch_then_mean_microbatches",
         "overflow_policy": "error",
@@ -882,6 +900,28 @@ def _disable_peft_vocab_probe(model: Any) -> None:
     model.save_pretrained = save_pretrained_without_vocab_probe
 
 
+def _initialize_training_seed(
+    training_cfg: dict[str, Any], run_cfg: dict[str, Any], *, seed_setter: Callable[[int], None],
+) -> int:
+    """Seed before model/LoRA initialization, identically on every DDP rank.
+
+    Trainer's own initialization happens after get_peft_model, which is too
+    late to seed random LoRA A matrices. On resume this only controls transient
+    construction: Trainer.train(resume_from_checkpoint=...) still restores the
+    checkpoint RNG state before continuing optimizer updates.
+    """
+    seed = training_cfg.get("seed", run_cfg.get("seed", 42))
+    if type(seed) is not int or not 0 <= seed < 2**32:
+        raise ValueError("training.seed must be an integer in [0, 2**32)")
+    seed_setter(seed)
+    print(f"Training initialization seed={seed} on rank {os.environ.get('RANK', '0')} (before model/LoRA load)", flush=True)
+    return seed
+
+
+def _sft_progress(label: str, *, total: int | None = None, unit: str = "rows") -> Progress:
+    return Progress(f"{label} [rank {os.environ.get('RANK', '0')}]", total=total, unit=unit)
+
+
 def _materialize_sft_text_dataset(
     dataset: Any,
     formatting_func: Callable[[dict[str, Any]], str],
@@ -891,6 +931,7 @@ def _materialize_sft_text_dataset(
         text = formatting_func(example)
         prompt_text = prompt_formatting_func(example) if prompt_formatting_func is not None else ""
         completion_text = _completion_suffix_text(example, text, prompt_text)
+        progress.advance()
         return {"text": text, "prompt_text": prompt_text, "completion_text": completion_text}
 
     # This is an ephemeral training representation. Persisting both the
@@ -898,31 +939,60 @@ def _materialize_sft_text_dataset(
     # can duplicate multi-gigabyte corpora on small remote volumes. Keep the
     # materialized view in memory; the source JSON/Arrow dataset remains the
     # only on-disk dataset artifact.
-    return dataset.map(
-        add_text,
-        desc="Formatting SFT text",
-        keep_in_memory=True,
-        load_from_cache_file=False,
-    )
+    with _sft_progress("Format SFT text", total=sum(len(dataset[name]) for name in dataset.keys())) as progress:
+        return dataset.map(
+            add_text,
+            desc="Formatting SFT text",
+            keep_in_memory=True,
+            load_from_cache_file=False,
+        )
 
 
-def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int) -> Any:
+def _tokenize_sft_text_dataset(
+    dataset: Any, tokenizer: Any, max_seq_length: int, *,
+    input_vocab_size: int | None = None, token_check_rows: int = 0,
+) -> Any:
+    """Build masked tensors once, and reuse their IDs for validation/lengths.
+
+    A separate full-string tokenization is retained for the historical raw
+    input-vocabulary check. Completion vocabulary validation is performed on
+    these exact labels by _validate_tokenized_sft_dataset, not by retokenizing
+    completions. All DDP ranks run their own checks; no unsafe cross-rank cache.
+    """
     def tokenize_batch(batch: dict[str, list[Any]]) -> dict[str, Any]:
-        rows = [
-            _tokenize_completion_only_row(
+        rows = []
+        for prompt_text, completion_text, full_text in zip(
+            batch.get("prompt_text", []), batch.get("completion_text", []),
+            batch.get("text", []), strict=True,
+        ):
+            row = _tokenize_completion_only_row(
                 tokenizer=tokenizer,
                 prompt_text=str(prompt_text or ""),
                 completion_text=str(completion_text or ""),
                 full_text=str(full_text or ""),
                 max_seq_length=max_seq_length,
             )
-            for prompt_text, completion_text, full_text in zip(
-                batch.get("prompt_text", []),
-                batch.get("completion_text", []),
-                batch.get("text", []),
-                strict=False,
-            )
-        ]
+            row_index = stats["rows"]
+            if input_vocab_size is not None and (token_check_rows <= 0 or row_index < token_check_rows):
+                full_ids = _tokenize_text(tokenizer, str(full_text or ""))
+                if not full_ids:
+                    raise ValueError(f"SFT preflight failed: empty tokenization at {split_name}[{row_index}]")
+                for token_id in full_ids:
+                    if not isinstance(token_id, int) or token_id < 0 or token_id >= input_vocab_size:
+                        raise ValueError(
+                            "SFT preflight failed: token id outside model vocabulary (input) "
+                            f"at {split_name}[{row_index}] token={token_id} input_vocab_size={input_vocab_size}. "
+                            "Check tokenizer/model pairing before running CUDA training."
+                        )
+                stats["raw_rows_checked"] += 1
+            completion_length = sum(label != -100 for label in row["labels"])
+            full_length = len(row["input_ids"])
+            stats["rows"] += 1
+            stats["max_full_tokens"] = max(stats["max_full_tokens"], full_length)
+            stats["max_prompt_tokens"] = max(stats["max_prompt_tokens"], full_length - completion_length)
+            stats["max_completion_tokens"] = max(stats["max_completion_tokens"], completion_length)
+            progress.advance()
+            rows.append(row)
         return {
             "input_ids": [row["input_ids"] for row in rows],
             "attention_mask": [row["attention_mask"] for row in rows],
@@ -932,14 +1002,23 @@ def _tokenize_sft_text_dataset(dataset: Any, tokenizer: Any, max_seq_length: int
     tokenized_splits: dict[str, Any] = {}
     for split_name in dataset.keys():
         split = dataset[split_name]
-        tokenized_splits[split_name] = split.map(
-            tokenize_batch,
-            batched=True,
-            remove_columns=split.column_names,
-            desc=f"Tokenizing {split_name} SFT text",
-            keep_in_memory=True,
-            load_from_cache_file=False,
-        )
+        stats = {"rows": 0, "raw_rows_checked": 0, "max_full_tokens": 0, "max_prompt_tokens": 0, "max_completion_tokens": 0}
+        with _sft_progress(f"Tokenize {split_name} SFT text", total=len(split)) as progress:
+            tokenized_splits[split_name] = split.map(
+                tokenize_batch,
+                batched=True,
+                batch_size=128,
+                remove_columns=split.column_names,
+                desc=f"Tokenizing {split_name} SFT text",
+                keep_in_memory=True,
+                load_from_cache_file=False,
+            )
+        if _is_world_process_zero_env():
+            print(
+                f"SFT actual masked sequence lengths ({split_name}, no truncation, limit={max_seq_length}): "
+                + ", ".join(f"{key}={value}" for key, value in stats.items()),
+                flush=True,
+            )
     return tokenized_splits
 
 

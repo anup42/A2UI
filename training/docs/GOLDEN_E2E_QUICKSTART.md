@@ -94,6 +94,12 @@ E2B uses the review profile's rank-32 LoRA on language attention/MLP projections
 270M defaults to full-model SFT. These are documented starting recipes, not
 measured throughput or quality optima.
 
+For optional train-only rare-component resampling, matched-budget sequential
+hyperparameter experiments, and TensorBoard comparisons, see
+[Augmentation and tuning](AUGMENTATION_AND_TUNING.md). Augmentation is off by
+default. The experiment runner defers Golden35 until the winner is locked;
+ordinary single runs still test both Golden cohorts by default.
+
 Execution modes:
 
 - Omit `--execute` to print a plan only: no new files, tokenizer/model load or

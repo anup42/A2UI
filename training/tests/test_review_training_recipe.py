@@ -240,6 +240,17 @@ def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path, m
     config, report = prepare.build_config(args)
     assert not report["training_executed"] and not report["model_loaded"]
     assert config["training"]["gradient_accumulation_steps"] == 8
+    assert report["optimizer_step_budget"] == 20
+    assert report["effective_hyperparameters"]["learning_rate"] == 2e-5
+    args.learning_rate, args.weight_decay, args.warmup_ratio, args.seed, args.logging_steps = 1e-5, 0.05, 0.05, 123, 5
+    tuned_config, tuned_report = prepare.build_config(args)
+    for key in ("learning_rate", "weight_decay", "warmup_ratio", "seed", "logging_steps"):
+        assert tuned_config["training"][key] == getattr(args, key)
+        assert tuned_report["effective_hyperparameters"][key] == getattr(args, key)
+    args.qat = True
+    qat_config, _ = prepare.build_config(args)
+    assert qat_config["training"]["method"] == "full_finetune_qat"
+    assert qat_config["training"]["learning_rate"] == 1e-5
     output.mkdir()
     config_path = output / "training_config.yaml"
     config_path.write_text(yaml.safe_dump(config))

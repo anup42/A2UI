@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from ir_training.common.config import load_yaml
-from ir_training.train.recipe import validate_effective_batch, validate_sft_recipe
+from ir_training.train.recipe import optimizer_steps, validate_effective_batch, validate_sft_recipe
 
 
 def sha256(path: Path) -> str:
@@ -194,6 +194,10 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
         template = load_yaml(ROOT / "configs/models/gemma3_270m_a2ui_express_qat.yaml")
         config["qat"] = copy.deepcopy(template["qat"])
         config["qat"]["profile"] = "gemma3_270m_wi8_afp32_full_finetune"
+    # Apply explicit overrides AFTER QAT defaults so tuning is not silently reset.
+    from ir_training.train.hyperparameters import review_overrides
+    training.update(review_overrides(**{name: getattr(args, name, default) for name, default in (
+        ("learning_rate", None), ("weight_decay", None), ("warmup_ratio", None), ("logging_steps", 10), ("seed", 42))}))
     max_new_tokens = int(getattr(args, "max_new_tokens", 2048))
     if max_new_tokens <= 0:
         raise ValueError("--max-new-tokens must be positive.")
@@ -220,6 +224,12 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     report.update(training_executed=False, model_loaded=False, profile=args.profile, effective_batch=effective_batch, gpu_profile=gpu_profile,
                   model_config_sha256=sha256(model_dir / "config.json"), source_config=profile,
                   model_files={path.name: sha256(path) for path in sorted(model_dir.iterdir()) if path.is_file() and (path.suffix in {".json", ".safetensors", ".model", ".jinja"})})
+    report["effective_hyperparameters"] = {key: training.get(key) for key in (
+        "learning_rate", "weight_decay", "warmup_ratio", "seed", "epochs", "max_steps", "logging_steps",
+        "per_device_train_batch_size", "gradient_accumulation_steps", "gradient_checkpointing")}
+    report["optimizer_step_budget"] = training.get("max_steps") or optimizer_steps(
+        rows=report["split_rows"]["train"], world_size=world_size, microbatch=gpu_profile["microbatch"],
+        accumulation=gpu_profile["gradient_accumulation_steps"], epochs=args.epochs)
     return config, report
 
 
@@ -241,6 +251,11 @@ def main() -> None:
     parser.add_argument("--golden-every-steps", type=int, default=1000, help="Full Golden generation cadence; must be divisible by --eval-steps. Final weights are always evaluated.")
     parser.add_argument("--max-seq-length", type=int, default=4096)
     parser.add_argument("--epochs", type=float, default=1)
+    parser.add_argument("--learning-rate", type=float, help="Override profile learning rate (SFT 2e-5; 270M QAT 5e-6)")
+    parser.add_argument("--weight-decay", type=float, help="Override profile weight decay (0.01)")
+    parser.add_argument("--warmup-ratio", type=float, help="Override profile warmup fraction (0.03)")
+    parser.add_argument("--logging-steps", type=int, default=10, help="Console/TensorBoard training metric cadence in optimizer updates")
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--steps", type=int)
     parser.add_argument("--resume", type=Path)
     parser.add_argument("--qv-baseline", action="store_true")
@@ -254,7 +269,11 @@ def main() -> None:
     config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     report["training_config_sha256"] = sha256(config_path)
     (output / "preparation_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(json.dumps({"config": str(config_path), "training_executed": False, "next": [sys.executable, str(ROOT / "scripts/launch_review_training.py"), "--config", str(config_path)]}, indent=2))
+    print(json.dumps({"config": str(config_path), "training_executed": False,
+                      "split_rows": report["split_rows"], "optimizer_step_budget": report["optimizer_step_budget"],
+                      "effective_hyperparameters": report["effective_hyperparameters"], "gpu_profile": report["gpu_profile"],
+                      "tensorboard": config["training"]["logging_dir"],
+                      "next": [sys.executable, str(ROOT / "scripts/launch_review_training.py"), "--config", str(config_path)]}, indent=2), flush=True)
 
 
 if __name__ == "__main__":

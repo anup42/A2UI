@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+import math
+from pathlib import Path
 from typing import Any, Mapping
 
 
@@ -66,6 +68,30 @@ def select_devices(inventory: dict[str, Any], selection: str | None = "auto") ->
     return selected
 
 
+def available_cpu_count() -> int:
+    """CPU budget visible to this process, not the entire physical host."""
+    count = os.cpu_count() or 1
+    if hasattr(os, "sched_getaffinity"):
+        try:
+            count = min(count, len(os.sched_getaffinity(0)))
+        except OSError:
+            pass
+    try:
+        quota, period = Path("/sys/fs/cgroup/cpu.max").read_text().split()
+        if quota != "max":
+            count = min(count, max(1, math.ceil(int(quota) / int(period))))
+    except (OSError, ValueError, ZeroDivisionError):
+        for directory in ("/sys/fs/cgroup/cpu", "/sys/fs/cgroup/cpu,cpuacct"):
+            try:
+                quota = int((Path(directory) / "cpu.cfs_quota_us").read_text())
+                period = int((Path(directory) / "cpu.cfs_period_us").read_text())
+                if quota > 0 and period > 0:
+                    count = min(count, max(1, math.ceil(quota / period)))
+            except (OSError, ValueError):
+                pass
+    return max(1, count)
+
+
 def build_gpu_profile(
     inventory: dict[str, Any], *, model: str, devices: str | None = "auto",
     microbatch: int | None = None, effective_batch: int | None = None,
@@ -90,7 +116,9 @@ def build_gpu_profile(
         micro = int(microbatch)
     if micro <= 0 or effective % (world_size * micro):
         raise ValueError("--effective-batch must be divisible by GPU count * microbatch.")
-    available_cpus = int(cpu_count if cpu_count is not None else (os.cpu_count() or 1))
+    available_cpus = int(cpu_count if cpu_count is not None else available_cpu_count())
+    if available_cpus <= 0:
+        raise ValueError("Available CPU count must be positive.")
     workers = int(dataloader_workers) if dataloader_workers is not None else min(4, max(0, available_cpus // world_size // 2))
     if workers < 0:
         raise ValueError("--dataloader-workers must be nonnegative.")
@@ -109,6 +137,10 @@ def build_gpu_profile(
         "dtype": "bfloat16" if native_bf16 else "float16",
         "tf32": native_bf16,
         "dataloader_num_workers": workers,
+        "available_cpu_count": available_cpus,
+        "total_dataloader_workers": workers * world_size,
+        "cpu_worker_budget_overridden": dataloader_workers is not None,
+        "cpu_oversubscribed": world_size * (1 + workers) > available_cpus,
         "dataloader_pin_memory": True,
         "gradient_checkpointing": True,
         "gradient_checkpointing_kwargs": {"use_reentrant": False},
@@ -159,7 +191,13 @@ def training_environment(profile: dict[str, Any], *, tensorboard_root: str = "/t
     environment.update(CUDA_VISIBLE_DEVICES=profile["cuda_visible_devices"],
                        A2UI_SKIP_CUDA_DEVICE_NORMALIZE="1", TOKENIZERS_PARALLELISM="false")
     environment.setdefault("A2UI_TENSORBOARD_ROOT", tensorboard_root)
-    environment.setdefault("OMP_NUM_THREADS", "1")
+    # Each DDP rank and DataLoader worker is a separate process. Large default
+    # BLAS/OpenMP pools multiply across these processes and can starve CUDA
+    # feeders. Respect intentional user overrides, and print them at launch.
+    for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        environment.setdefault(name, "1")
+    environment["PYTHONUNBUFFERED"] = "1"
+    environment.setdefault("PYTHONIOENCODING", "utf-8")
     environment.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
     environment.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
     return environment

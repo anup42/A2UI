@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -12,8 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from ir_training.common.config import load_yaml
+from ir_training.common.progress import Progress
 from ir_training.train.recipe import validate_effective_batch, validate_sft_recipe
-from ir_training.train.gpu_profile import verify_gpu_profile
+from ir_training.train.gpu_profile import training_environment, verify_gpu_profile
 from prepare_review_training import sha256, verify_prepared
 
 
@@ -39,7 +39,8 @@ def verify_launch_binding(config_path: Path) -> None:
     model_dir = Path(config["model"]["model_source"])
     if not report.get("model_files"):
         raise ValueError("Preparation report has no bound model files.")
-    for name, digest in report["model_files"].items():
+    for index, (name, digest) in enumerate(report["model_files"].items(), start=1):
+        print(f"Verify model/tokenizer file {index}/{len(report['model_files'])}: {name}", flush=True)
         if not (model_dir / name).is_file() or sha256(model_dir / name) != digest:
             raise ValueError(f"Model/tokenizer bundle changed since preparation: {name}")
 
@@ -58,12 +59,10 @@ def launch_plan(config_path: Path, *, preflight_only: bool = False) -> tuple[lis
     command = [sys.executable, "-m", "torch.distributed.run", "--standalone", f"--nproc_per_node={len(selected)}", str(ROOT / "scripts/train_sft.py"), "--config", str(config_path.resolve())]
     if preflight_only:
         command.append("--preflight-only")
-    environment = dict(os.environ)
-    environment.update(CUDA_VISIBLE_DEVICES=",".join(selected), A2UI_SKIP_CUDA_DEVICE_NORMALIZE="1", TOKENIZERS_PARALLELISM="false")
-    environment.setdefault("A2UI_TENSORBOARD_ROOT", str(config["training"].get("tensorboard_root") or "/tensorboard"))
-    environment.setdefault("OMP_NUM_THREADS", "1")
-    environment.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
-    environment.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
+    environment = training_environment(
+        {"cuda_visible_devices": ",".join(selected)},
+        tensorboard_root=str(config["training"].get("tensorboard_root") or "/tensorboard"),
+    )
     return command, environment
 
 
@@ -85,8 +84,19 @@ def main() -> None:
     command, environment = launch_plan(args.config, preflight_only=args.preflight_only)
     print(json.dumps({"command": command, "CUDA_VISIBLE_DEVICES": environment["CUDA_VISIBLE_DEVICES"], "execute": args.execute}, indent=2), flush=True)
     if args.execute:
-        verify_launch_gpu_binding(args.config.resolve())
-        verify_launch_binding(args.config.resolve())
+        with Progress("Verify GPU launch inventory", unit="stage"):
+            verify_launch_gpu_binding(args.config.resolve())
+        with Progress("Verify launch dataset/model bindings", unit="stage"):
+            verify_launch_binding(args.config.resolve())
+        config = load_yaml(args.config)
+        profile = (config.get("runtime") or {}).get("gpu_profile") or {}
+        print(json.dumps({"cpu_and_gpu_execution": {
+            key: profile.get(key) for key in ("world_size", "available_cpu_count", "microbatch", "effective_batch_size",
+                "gradient_accumulation_steps", "dataloader_num_workers", "total_dataloader_workers", "cpu_oversubscribed")
+        }, "thread_environment": {key: environment[key] for key in (
+            "OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS", "TOKENIZERS_PARALLELISM")}}, indent=2), flush=True)
+        if profile.get("cpu_oversubscribed"):
+            print("WARNING: selected DDP ranks plus DataLoader workers exceed the detected CPU budget; reduce --dataloader-workers or allocate more CPUs.", flush=True)
         completed = subprocess.run(command, env=environment, cwd=ROOT.parent, check=False)
         raise SystemExit(completed.returncode)
 

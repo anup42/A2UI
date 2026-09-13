@@ -55,6 +55,9 @@ training/outputs/
 training/runs/
 training/checkpoints/
 .golden-preparation-cache/
+# Root-level generated source-review snapshots (keep intentional archives elsewhere).
+/A2UI-code-review-*.zip
+/A2UI_compact_IR_completed_*.zip
 training/wandb/
 /tensorboard/
 

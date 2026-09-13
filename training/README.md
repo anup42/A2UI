@@ -9,6 +9,10 @@ before passing the recovered `train.jsonl`/`val.jsonl` through `--input-dir`.
 The launcher now provides live console/file logs, CPU-parallel preparation,
 progress/ETA, and content-verified preparation reuse; see the quickstart's
 [startup controls](docs/GOLDEN_E2E_QUICKSTART.md#startup-progress-cpu-preparation-and-reuse).
+Optional rare-component resampling and matched-budget, one-at-a-time trials
+are documented in [Augmentation and tuning](docs/AUGMENTATION_AND_TUNING.md).
+Use `run_golden_experiments.py` to compare settings in TensorBoard while
+keeping Golden35 out of trial selection. The unaugmented baseline stays default.
 The final v9 copy includes the source-proven separator correction and retains
 112,842 training and 2,300 validation rows; run the exact-model preflight next.
 The current `run_golden_training.py` command uses checked-in Stage 3 data and
@@ -53,6 +57,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 | Pipeline | Entry point | Current status |
 |---|---|---|
 | Dense E2B LoRA / 270M full-model training with shared-prompt Golden32 and Golden35 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on both sets, logs TensorBoard and scorecard; no LiteRT export |
+| Sequential E2B / 270M hyperparameter and resampling comparisons | `training/scripts/run_golden_experiments.py` | Opt-in equal-step trials, fresh initialization, baseline included, TensorBoard HParams/comparison records, Golden32 selection and one locked-winner Golden35 test; screening, not a measured optimum |
 | Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |
 | Gemma 3 270M W8-QAT and W32/W16/W8/W4 comparisons | `training/scripts/run_gemma270m_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W8 is QAT-aligned, W16/W4 are explicit experimental conversions |
 | Checked full-model SFT/QAT and LoRA/QLoRA SFT | `training/scripts/train_sft.py` | Shared HF trainer; explicit method, complete-example loss masking, actual Linear target resolution and strict resume contract |

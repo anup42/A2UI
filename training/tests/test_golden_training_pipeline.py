@@ -346,3 +346,50 @@ def test_invalid_startup_controls_fail_before_creating_outputs(options):
         with pytest.raises(ValueError):
             workflow.build_plan(bad)
     assert not options.output_dir.exists()
+
+
+def test_tuning_controls_forwarded_and_golden35_reserved_but_deferred(options, monkeypatch):
+    options = replace(options, learning_rate=1e-5, weight_decay=0.05, warmup_ratio=0.05,
+                      seed=123, logging_steps=5, gradient_checkpointing=False, evaluate_golden35=False)
+    calls = []
+    state = workflow.run_pipeline(options, execute=True, tokenizer_loader=lambda *_: FixtureTokenizer(),
+                                  command_runner=fake_runner(options, monkeypatch, calls))
+    command = workflow.configure_command(state["plan"])
+    for flag, value in (("--learning-rate", "1e-05"), ("--weight-decay", "0.05"), ("--warmup-ratio", "0.05"),
+                        ("--seed", "123"), ("--logging-steps", "5")):
+        assert command[command.index(flag) + 1] == value
+    assert "--no-gradient-checkpointing" in command
+    assert "--golden35-file" in command  # still bind and reserve the entire holdout
+    evaluations = [call for call in calls if "evaluate_checkpoint_on_golden.py" in call[1]]
+    assert len(evaluations) == 2
+    assert all(call[call.index("--required-rows") + 1] == "32" for call in evaluations)
+    assert list(state["completed"]) == state["plan"]["stages"]
+    scorecard = json.loads((options.output_dir / "evaluation_scorecard.json").read_text())
+    assert scorecard["golden35_evaluated"] is False
+
+
+@pytest.mark.parametrize("overrides", [
+    {"learning_rate": 0}, {"learning_rate": float("nan")}, {"weight_decay": -1},
+    {"warmup_ratio": 1}, {"warmup_ratio": -0.01}, {"logging_steps": 0}, {"seed": -1},
+    {"epochs": float("nan")}, {"augmentation": "invent_ir"},
+    {"augmentation_max_extra_fraction": 0.8}, {"augmentation_max_family_repeats": 10},
+    {"attn_implementation": "unknown"},
+])
+def test_invalid_experiment_controls_fail_before_output(options, overrides):
+    with pytest.raises(ValueError):
+        workflow.build_plan(replace(options, **overrides))
+    assert not options.output_dir.exists()
+
+
+def test_optional_augmentation_routes_a_separate_copy_into_training(options, monkeypatch):
+    options = replace(options, augmentation="rare_components")
+    calls = []
+    state = workflow.run_pipeline(options, execute=True, tokenizer_loader=lambda *_: FixtureTokenizer(),
+                                  command_runner=fake_runner(options, monkeypatch, calls))
+    assert list(state["completed"]) == state["plan"]["stages"]
+    command = workflow.configure_command(state["plan"])
+    assert Path(command[command.index("--dataset-dir") + 1]) == options.output_dir / "augmented"
+    report = json.loads((options.output_dir / "augmented/augmentation.json").read_text())
+    assert report["original_rows"] == 2 and report["added_rows"] == 0
+    for name in ("val", "golden32", "golden35"):
+        assert (options.output_dir / f"prepared/{name}.jsonl").read_bytes() == (options.output_dir / f"augmented/{name}.jsonl").read_bytes()

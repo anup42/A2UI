@@ -58,6 +58,16 @@ class GoldenTrainingOptions:
     progress_seconds: float = 10
     preparation_cache: bool = True
     preparation_cache_dir: Path | None = None
+    learning_rate: float | None = None
+    weight_decay: float | None = None
+    warmup_ratio: float | None = None
+    logging_steps: int = 10
+    gradient_checkpointing: bool = True
+    attn_implementation: str = "sdpa"
+    augmentation: str = "none"
+    augmentation_max_extra_fraction: float = 0.10
+    augmentation_max_family_repeats: int = 2
+    evaluate_golden35: bool = True
 
 
 def sha256(path: Path) -> str:
@@ -97,6 +107,17 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
 def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
     """Read-only plan, requiring no CUDA, model loading or tokenizer download."""
     values = _options(options)
+    from ir_training.train.hyperparameters import review_overrides
+    review_overrides(learning_rate=options.learning_rate, weight_decay=options.weight_decay,
+                     warmup_ratio=options.warmup_ratio, logging_steps=options.logging_steps, seed=options.seed)
+    if options.augmentation not in {"none", "rare_components"}:
+        raise ValueError("--augmentation must be none or rare_components")
+    if not math.isfinite(options.augmentation_max_extra_fraction) or not 0 < options.augmentation_max_extra_fraction <= 0.5:
+        raise ValueError("--augmentation-max-extra-fraction must be in (0, 0.5]")
+    if type(options.augmentation_max_family_repeats) is not int or not 2 <= options.augmentation_max_family_repeats <= 5:
+        raise ValueError("--augmentation-max-family-repeats must be an integer from 2 to 5")
+    if options.attn_implementation not in {"sdpa", "eager"}:
+        raise ValueError("--attn-implementation must be sdpa or eager")
     resolve_prepare_workers(options.prepare_workers)
     if not math.isfinite(options.progress_seconds) or options.progress_seconds <= 0:
         raise ValueError("--progress-seconds must be positive")
@@ -104,7 +125,7 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
         raise ValueError("Profiles are e2b dense LoRA and 270m full SFT; --qat is only for 270m. Official E2B retained-scale QAT uses its separate launcher.")
     if options.input_dir and options.source_run_dir:
         raise ValueError("Choose --input-dir or --source-run-dir, not both")
-    if options.epochs <= 0 or (options.steps is not None and options.steps <= 0):
+    if not math.isfinite(options.epochs) or options.epochs <= 0 or (options.steps is not None and options.steps <= 0):
         raise ValueError("Epochs/steps must be positive")
     if options.eval_steps <= 0 or options.golden_every_steps <= 0 or options.golden_every_steps % options.eval_steps:
         raise ValueError("Golden cadence must be a positive multiple of --eval-steps")
@@ -141,11 +162,13 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
                            "benchmark_manifest_path": str((repo_root() / path).parent / "benchmark_manifest.json"),
                            "benchmark_manifest_sha256": GOLDEN_MANIFEST_SHA256[name]}
                     for name, (path, count, digest) in GOLDENS.items()},
-        "stages": ["prepare", "configure", "preflight", "training", "best_golden32", "best_golden35", "final_golden32", "final_golden35", "scorecard"],
+        "stages": ["prepare", *(["augment"] if options.augmentation != "none" else []), "configure", "preflight", "training",
+                   "best_golden32", *(["best_golden35"] if options.evaluate_golden35 else []),
+                   "final_golden32", *(["final_golden35"] if options.evaluate_golden35 else []), "scorecard"],
         "model_training": "270m W8 QAT" if options.qat else ("dense E2B LoRA SFT" if options.profile == "e2b" else "270m full SFT"),
         "exports_performed": False, "automatic_model_downloads": False,
-        "golden35_role": "final evaluation only; never checkpoint selection",
-        "note": "A short run can finish before the default 500/1000 cadence; final Golden32 and both final-evaluation cohorts still run.",
+        "golden35_role": "final evaluation only; never checkpoint selection" if options.evaluate_golden35 else "reserved, not evaluated in development trial",
+        "note": "Final Golden32 always runs. Golden35 runs unless explicitly deferred for sequential tuning. Augmentation only repeats validated training examples; no new semantic coverage.",
     }
 
 
@@ -315,17 +338,18 @@ def configure_command(plan: dict[str, Any]) -> list[str]:
     output = Path(values["output_dir"])
     command = [sys.executable, str(repo_root() / "training/scripts/prepare_review_training.py"),
                "--profile", values["profile"], "--model-dir", values["model_dir"],
-               "--dataset-dir", str(output / "prepared"), "--golden-file", str(output / "prepared/golden32.jsonl"),
+               "--dataset-dir", str(output / ("augmented" if values["augmentation"] != "none" else "prepared")), "--golden-file", str(output / "prepared/golden32.jsonl"),
                "--golden35-file", str(output / "prepared/golden35.jsonl"), "--output-dir", str(output / "fit"),
                "--run-id", output.name,
                "--devices", values["devices"], "--epochs", str(values["epochs"]),
                "--eval-steps", str(values["eval_steps"]), "--golden-every-steps", str(values["golden_every_steps"]),
                "--max-seq-length", str(values["max_seq_length"]), "--max-new-tokens", str(values["max_new_tokens"])]
-    for name in ("steps", "microbatch", "effective_batch", "dataloader_workers"):
+    for name in ("steps", "microbatch", "effective_batch", "dataloader_workers", "learning_rate", "weight_decay", "warmup_ratio", "logging_steps", "seed", "attn_implementation"):
         if values[name] is not None:
             command.extend(["--" + name.replace("_", "-"), str(values[name])])
     if values["qat"]:
         command.append("--qat")
+    command.append("--gradient-checkpointing" if values["gradient_checkpointing"] else "--no-gradient-checkpointing")
     return command
 
 
@@ -443,7 +467,7 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
                 for path, digest in completed_stage["files"].items():
                     if not Path(path).is_file() or sha256(Path(path)) != digest:
                         raise ValueError(f"Completed-stage artifact changed: {path}")
-        if state.get("active_stage") in {"prepare", "configure", "training"}:
+        if state.get("active_stage") in {"prepare", "augment", "configure", "training"}:
             raise ValueError("An interrupted preparation/configuration/training stage needs explicit recovery; this launcher will not restart its optimizer silently. Inspect the stage log and saved training config.")
         receipt_path = output / "preparation_receipt.json"
         if "prepare" in state["completed"] and receipt_path.is_file():
@@ -484,6 +508,19 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
                 *[path for path in (output / "preparation_receipt.json", output / "cache_reuse.json") if path.exists()],
                 *[Path(item[key]) for item in plan["goldens"].values() for key in ("path", "benchmark_manifest_path")]]
     stage("prepare", prepare)
+    if options.augmentation != "none":
+        def augment() -> list[Path]:
+            from ir_training.data.augmentation import augment_prepared_training
+            sys.path.insert(0, str(repo_root() / "training/scripts"))
+            from prepare_review_training import verify_prepared
+            with _console_log(output / "logs/augmentation.log"):
+                augment_prepared_training(output / "prepared", output / "augmented", seed=options.seed,
+                    max_extra_fraction=options.augmentation_max_extra_fraction,
+                    max_family_copies=options.augmentation_max_family_repeats, progress_seconds=options.progress_seconds)
+                verify_prepared(output / "augmented", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
+                                max_sequence=options.max_seq_length, max_prompt=options.max_input_tokens)
+            return sorted((output / "augmented").glob("*.json*"))
+        stage("augment", augment)
     if prepare_only:
         state.update(status="prepared", active_stage=None)
         _write(record, state)
@@ -502,8 +539,9 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
                 raise ValueError(f"Training did not publish the required checkpoint: {folder}")
         return [file for folder in folders for file in sorted(folder.iterdir()) if file.is_file()]
     stage("training", train)
+    evaluated_cohorts = list(GOLDENS) if options.evaluate_golden35 else ["golden32"]
     for role in ("best", "final"):
-        for cohort in GOLDENS:
+        for cohort in evaluated_cohorts:
             name = f"{role}_{cohort}"
             def evaluate(role=role, cohort=cohort, name=name) -> list[Path]:
                 destination = output / "evaluations" / name / f"attempt_{state['attempts'][name]:03d}"
@@ -525,7 +563,7 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
     def scorecard() -> list[Path]:
         comparisons = {}
         for role in ("best", "final"):
-            for cohort in GOLDENS:
+            for cohort in evaluated_cohorts:
                 name = f"{role}_{cohort}"
                 results = [Path(path) for path in state["completed"][name]["files"] if path.endswith("/evaluation_result.json") or path.endswith("\\evaluation_result.json")]
                 if len(results) != 1:
@@ -534,6 +572,7 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
         result = {"schema_version": 1, "status": "complete", "profile": options.profile, "shared_prompt": plan["shared_prompt"],
                   "evaluations": comparisons, "golden32_unique_sources": 31, "golden35_unique_sources": 35,
                   "golden35_used_for_selection": False, "exports_performed": False,
+                  "golden35_evaluated": options.evaluate_golden35, "augmentation": options.augmentation,
                   "warning": "New shared-prompt scores are not directly comparable to historical short-prompt runs."}
         path = output / "evaluation_scorecard.json"
         _write(path, result)
