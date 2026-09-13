@@ -1,0 +1,149 @@
+{
+  "files": [
+    {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl",
+      "bytes": 1970021858,
+      "encoding": "utf-16",
+      "sha256": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+      "limited": true
+    },
+    {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl",
+      "bytes": 11850436,
+      "encoding": "utf-16",
+      "sha256": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+      "limited": true
+    }
+  ],
+  "database": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\pilot\\ir.sqlite",
+  "source_modified": false,
+  "actual_tokenizer_loaded": false,
+  "targets_rewritten": false,
+  "limit": 100,
+  "validator": {
+    "schema_sha256": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+    "engine": "fastjsonschema, unchanged schema assertions, compatible keyword subset verified",
+    "format_checks": false,
+    "apply_defaults": false
+  },
+  "splits": {
+    "train": {
+      "target_validation_counts": {
+        "valid": 100
+      },
+      "binding_errors": {
+        "[]": 100
+      },
+      "valid_occurrence_components": {
+        "Stack": 790,
+        "Card": 250,
+        "Text": 1167,
+        "Table": 172,
+        "Button": 391,
+        "Formula": 13,
+        "Image": 5,
+        "Divider": 1,
+        "Icon": 1
+      },
+      "valid_occurrence_properties": {
+        "Stack.direction": 790,
+        "Stack.gap": 788,
+        "Stack.padding": 215,
+        "Text.text": 1167,
+        "Text.variant": 1167,
+        "Table.columns": 172,
+        "Table.statePath": 172,
+        "Table.title": 2,
+        "Table.domain": 172,
+        "Table.preferredPresentation": 172,
+        "Table.numericColumns": 112,
+        "Table.primaryColumn": 99,
+        "Table.highlightColumns": 50,
+        "Stack.justify": 29,
+        "Stack.wrap": 70,
+        "Button.label": 391,
+        "Button.variant": 388,
+        "Formula.latex": 10,
+        "Formula.title": 11,
+        "Stack.align": 10,
+        "Card.padding": 2,
+        "Image.url": 5,
+        "Image.fit": 5,
+        "Formula.text": 3,
+        "Stack.marginVertical": 3,
+        "Stack.paddingVertical": 1,
+        "Stack.paddingHorizontal": 1,
+        "Formula.display": 2,
+        "Icon.name": 1,
+        "Formula.result": 1
+      },
+      "valid_occurrence_reference_kinds": {
+        "child": 2690
+      },
+      "existing_repair_layer_candidate_changes": {}
+    },
+    "val": {
+      "target_validation_counts": {
+        "valid": 100
+      },
+      "binding_errors": {
+        "[]": 100
+      },
+      "valid_occurrence_components": {
+        "Stack": 1065,
+        "Icon": 300,
+        "Text": 1243,
+        "Table": 144,
+        "Card": 369,
+        "Button": 357,
+        "Formula": 18,
+        "Image": 1,
+        "Divider": 2,
+        "Tabs": 2,
+        "CheckBox": 1
+      },
+      "valid_occurrence_properties": {
+        "Stack.direction": 1065,
+        "Stack.gap": 1063,
+        "Stack.padding": 241,
+        "Stack.align": 310,
+        "Icon.name": 300,
+        "Text.text": 1243,
+        "Text.variant": 1243,
+        "Table.columns": 144,
+        "Table.statePath": 142,
+        "Table.domain": 143,
+        "Table.preferredPresentation": 143,
+        "Table.primaryColumn": 68,
+        "Table.numericColumns": 45,
+        "Button.label": 357,
+        "Button.variant": 357,
+        "Table.highlightColumns": 21,
+        "Stack.wrap": 48,
+        "Stack.justify": 18,
+        "Formula.latex": 14,
+        "Formula.title": 11,
+        "Image.url": 1,
+        "Image.fit": 1,
+        "Stack.paddingVertical": 10,
+        "Stack.marginVertical": 6,
+        "Tabs.tabs": 2,
+        "Formula.result": 1,
+        "Formula.display": 6,
+        "Formula.text": 4,
+        "Table.rows": 2,
+        "Stack.paddingHorizontal": 2,
+        "Card.padding": 1,
+        "CheckBox.label": 1,
+        "CheckBox.value": 1
+      },
+      "valid_occurrence_reference_kinds": {
+        "child": 3398,
+        "tab_content": 4
+      },
+      "existing_repair_layer_candidate_changes": {}
+    }
+  },
+  "unique_targets": 200,
+  "seconds": 11.3
+}

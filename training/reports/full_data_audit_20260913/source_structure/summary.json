@@ -1,0 +1,815 @@
+{
+  "schema_version": 1,
+  "completed_at_utc": "2026-09-12T19:14:54.519537+00:00",
+  "elapsed_seconds": 69.86,
+  "script_sha256": "f0698d8588561b68e32e41daff3e1084570939f5962b2a90e8b89c0ebac9b3dc",
+  "source_hashes": {
+    "train": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+    "val": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19"
+  },
+  "counts": {
+    "train": {
+      "rows": 150292,
+      "markdown_heading": 149624,
+      "numbered_list_line": 1451,
+      "bullet_list_line": 141979,
+      "blockquote_line": 5,
+      "markdown_link": 257,
+      "markdown_image": 2,
+      "media_declaration_line": 149093,
+      "named_action_line": 144598,
+      "literal_http_scheme": 77033,
+      "literal_other_action_scheme": 64,
+      "image_placeholder": 4785,
+      "icon_placeholder": 72230,
+      "action_placeholder": 69454,
+      "source_placeholder": 35091,
+      "media_placeholder": 195,
+      "generic_url_placeholder": 0,
+      "any_typed_placeholder": 72714,
+      "literal_http_and_placeholder": 134,
+      "literal_http_without_placeholder": 76899,
+      "placeholder_without_literal_http": 72580,
+      "table_separator_anywhere": 125572,
+      "table_separator_outside_fences": 125572,
+      "pipe_row_outside_fences": 141900,
+      "fenced_code": 242,
+      "unclosed_fence_at_end": 0,
+      "non_ascii_character": 47258,
+      "ascii_only": 103034
+    },
+    "val": {
+      "rows": 910,
+      "markdown_heading": 906,
+      "numbered_list_line": 9,
+      "bullet_list_line": 848,
+      "blockquote_line": 0,
+      "markdown_link": 0,
+      "markdown_image": 0,
+      "media_declaration_line": 903,
+      "named_action_line": 873,
+      "literal_http_scheme": 454,
+      "literal_other_action_scheme": 2,
+      "image_placeholder": 38,
+      "icon_placeholder": 453,
+      "action_placeholder": 435,
+      "source_placeholder": 245,
+      "media_placeholder": 2,
+      "generic_url_placeholder": 0,
+      "any_typed_placeholder": 455,
+      "literal_http_and_placeholder": 3,
+      "literal_http_without_placeholder": 451,
+      "placeholder_without_literal_http": 452,
+      "table_separator_anywhere": 759,
+      "table_separator_outside_fences": 759,
+      "pipe_row_outside_fences": 858,
+      "fenced_code": 2,
+      "unclosed_fence_at_end": 0,
+      "non_ascii_character": 285,
+      "ascii_only": 625
+    }
+  },
+  "binding_checks": "Every decoded final target SHA256 matched its IR split/line coordinate; both complete source-file SHA256 hashes matched the original inventory.",
+  "unicode_block_row_presence": {
+    "train": {
+      "greek": 27790,
+      "latin_extended": 33603,
+      "box_drawing": 27119,
+      "block_elements": 11246,
+      "currency_symbols": 186
+    },
+    "val": {
+      "box_drawing": 161,
+      "block_elements": 65,
+      "greek": 171,
+      "latin_extended": 209,
+      "currency_symbols": 1
+    }
+  },
+  "source_table_separator_count_histogram": {
+    "train": {
+      "0": 24720,
+      "1": 102311,
+      "2": 21836,
+      "3": 1355,
+      "4": 58,
+      "5": 9,
+      "9": 1,
+      "6": 1,
+      "7": 1
+    },
+    "val": {
+      "1": 605,
+      "0": 151,
+      "2": 142,
+      "3": 10,
+      "4": 2
+    }
+  },
+  "target_graph_counts": {
+    "train": {
+      "strict_valid": 150292,
+      "graph_known": 150292,
+      "graph_unknown": 0,
+      "strict_valid_with_Table": 147555
+    },
+    "val": {
+      "strict_valid": 910,
+      "graph_known": 910,
+      "graph_unknown": 0,
+      "strict_valid_with_Table": 889
+    }
+  },
+  "source_target_Table_crosstabs": {
+    "train": {
+      "table_separator_anywhere:all_parsed_targets": {
+        "source_no_target_Table_no": 2583,
+        "source_yes_target_Table_yes": 125418,
+        "source_no_target_Table_yes": 22137,
+        "source_yes_target_Table_no": 154
+      },
+      "table_separator_anywhere:strict_valid_targets": {
+        "source_no_target_Table_no": 2583,
+        "source_yes_target_Table_yes": 125418,
+        "source_no_target_Table_yes": 22137,
+        "source_yes_target_Table_no": 154
+      },
+      "table_separator_outside_fences:all_parsed_targets": {
+        "source_no_target_Table_no": 2583,
+        "source_yes_target_Table_yes": 125418,
+        "source_no_target_Table_yes": 22137,
+        "source_yes_target_Table_no": 154
+      },
+      "table_separator_outside_fences:strict_valid_targets": {
+        "source_no_target_Table_no": 2583,
+        "source_yes_target_Table_yes": 125418,
+        "source_no_target_Table_yes": 22137,
+        "source_yes_target_Table_no": 154
+      },
+      "pipe_row_outside_fences:all_parsed_targets": {
+        "source_yes_target_Table_no": 471,
+        "source_yes_target_Table_yes": 141429,
+        "source_no_target_Table_yes": 6126,
+        "source_no_target_Table_no": 2266
+      },
+      "pipe_row_outside_fences:strict_valid_targets": {
+        "source_yes_target_Table_no": 471,
+        "source_yes_target_Table_yes": 141429,
+        "source_no_target_Table_yes": 6126,
+        "source_no_target_Table_no": 2266
+      },
+      "image_placeholder:all_parsed_targets": {
+        "source_no_target_Table_no": 2736,
+        "source_no_target_Table_yes": 142771,
+        "source_yes_target_Table_yes": 4784,
+        "source_yes_target_Table_no": 1
+      },
+      "image_placeholder:strict_valid_targets": {
+        "source_no_target_Table_no": 2736,
+        "source_no_target_Table_yes": 142771,
+        "source_yes_target_Table_yes": 4784,
+        "source_yes_target_Table_no": 1
+      },
+      "markdown_image:all_parsed_targets": {
+        "source_no_target_Table_no": 2737,
+        "source_no_target_Table_yes": 147553,
+        "source_yes_target_Table_yes": 2
+      },
+      "markdown_image:strict_valid_targets": {
+        "source_no_target_Table_no": 2737,
+        "source_no_target_Table_yes": 147553,
+        "source_yes_target_Table_yes": 2
+      },
+      "media_declaration_line:all_parsed_targets": {
+        "source_no_target_Table_no": 638,
+        "source_no_target_Table_yes": 561,
+        "source_yes_target_Table_yes": 146994,
+        "source_yes_target_Table_no": 2099
+      },
+      "media_declaration_line:strict_valid_targets": {
+        "source_no_target_Table_no": 638,
+        "source_no_target_Table_yes": 561,
+        "source_yes_target_Table_yes": 146994,
+        "source_yes_target_Table_no": 2099
+      }
+    },
+    "val": {
+      "table_separator_anywhere:all_parsed_targets": {
+        "source_yes_target_Table_yes": 758,
+        "source_no_target_Table_yes": 131,
+        "source_no_target_Table_no": 20,
+        "source_yes_target_Table_no": 1
+      },
+      "table_separator_anywhere:strict_valid_targets": {
+        "source_yes_target_Table_yes": 758,
+        "source_no_target_Table_yes": 131,
+        "source_no_target_Table_no": 20,
+        "source_yes_target_Table_no": 1
+      },
+      "table_separator_outside_fences:all_parsed_targets": {
+        "source_yes_target_Table_yes": 758,
+        "source_no_target_Table_yes": 131,
+        "source_no_target_Table_no": 20,
+        "source_yes_target_Table_no": 1
+      },
+      "table_separator_outside_fences:strict_valid_targets": {
+        "source_yes_target_Table_yes": 758,
+        "source_no_target_Table_yes": 131,
+        "source_no_target_Table_no": 20,
+        "source_yes_target_Table_no": 1
+      },
+      "pipe_row_outside_fences:all_parsed_targets": {
+        "source_yes_target_Table_yes": 856,
+        "source_no_target_Table_yes": 33,
+        "source_no_target_Table_no": 19,
+        "source_yes_target_Table_no": 2
+      },
+      "pipe_row_outside_fences:strict_valid_targets": {
+        "source_yes_target_Table_yes": 856,
+        "source_no_target_Table_yes": 33,
+        "source_no_target_Table_no": 19,
+        "source_yes_target_Table_no": 2
+      },
+      "image_placeholder:all_parsed_targets": {
+        "source_yes_target_Table_yes": 38,
+        "source_no_target_Table_yes": 851,
+        "source_no_target_Table_no": 21
+      },
+      "image_placeholder:strict_valid_targets": {
+        "source_yes_target_Table_yes": 38,
+        "source_no_target_Table_yes": 851,
+        "source_no_target_Table_no": 21
+      },
+      "markdown_image:all_parsed_targets": {
+        "source_no_target_Table_yes": 889,
+        "source_no_target_Table_no": 21
+      },
+      "markdown_image:strict_valid_targets": {
+        "source_no_target_Table_yes": 889,
+        "source_no_target_Table_no": 21
+      },
+      "media_declaration_line:all_parsed_targets": {
+        "source_yes_target_Table_yes": 886,
+        "source_no_target_Table_no": 4,
+        "source_yes_target_Table_no": 17,
+        "source_no_target_Table_yes": 3
+      },
+      "media_declaration_line:strict_valid_targets": {
+        "source_yes_target_Table_yes": 886,
+        "source_no_target_Table_no": 4,
+        "source_yes_target_Table_no": 17,
+        "source_no_target_Table_yes": 3
+      }
+    }
+  },
+  "bounded_examples": {
+    "train": {
+      "target_Table_no_source_separator": [
+        {
+          "line": 5,
+          "byte_offset": 39456,
+          "byte_length": 9330,
+          "source_chars": 1197,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 10,
+          "byte_offset": 98738,
+          "byte_length": 15240,
+          "source_chars": 2557,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 11,
+          "byte_offset": 113978,
+          "byte_length": 17896,
+          "source_chars": 3002,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 18,
+          "byte_offset": 208874,
+          "byte_length": 12016,
+          "source_chars": 1860,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 24,
+          "byte_offset": 286842,
+          "byte_length": 9180,
+          "source_chars": 1161,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 28,
+          "byte_offset": 335970,
+          "byte_length": 12362,
+          "source_chars": 1983,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 29,
+          "byte_offset": 348332,
+          "byte_length": 11618,
+          "source_chars": 1908,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 33,
+          "byte_offset": 395348,
+          "byte_length": 12526,
+          "source_chars": 1917,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 34,
+          "byte_offset": 407874,
+          "byte_length": 12254,
+          "source_chars": 2019,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 39,
+          "byte_offset": 470152,
+          "byte_length": 11062,
+          "source_chars": 1698,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 41,
+          "byte_offset": 493728,
+          "byte_length": 14206,
+          "source_chars": 2385,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 42,
+          "byte_offset": 507934,
+          "byte_length": 11902,
+          "source_chars": 1768,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        }
+      ],
+      "source_separator_no_target_Table": [
+        {
+          "line": 4097,
+          "byte_offset": 51826828,
+          "byte_length": 7766,
+          "source_chars": 1676,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 41842,
+          "byte_offset": 527565222,
+          "byte_length": 14070,
+          "source_chars": 3145,
+          "source_has_pipe_row": true,
+          "source_has_bullets": false,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 42357,
+          "byte_offset": 534036038,
+          "byte_length": 13972,
+          "source_chars": 3480,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 43900,
+          "byte_offset": 553458052,
+          "byte_length": 14552,
+          "source_chars": 3446,
+          "source_has_pipe_row": true,
+          "source_has_bullets": false,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 73567,
+          "byte_offset": 955502822,
+          "byte_length": 16128,
+          "source_chars": 3638,
+          "source_has_pipe_row": true,
+          "source_has_bullets": false,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 73680,
+          "byte_offset": 956958476,
+          "byte_length": 18680,
+          "source_chars": 4497,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 74006,
+          "byte_offset": 961127760,
+          "byte_length": 18372,
+          "source_chars": 4306,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 74085,
+          "byte_offset": 962207942,
+          "byte_length": 17352,
+          "source_chars": 3753,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 74874,
+          "byte_offset": 972516300,
+          "byte_length": 18538,
+          "source_chars": 4329,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 75978,
+          "byte_offset": 987221680,
+          "byte_length": 17594,
+          "source_chars": 3565,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 76219,
+          "byte_offset": 990279210,
+          "byte_length": 16392,
+          "source_chars": 3692,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 76648,
+          "byte_offset": 995914354,
+          "byte_length": 14460,
+          "source_chars": 3205,
+          "source_has_pipe_row": true,
+          "source_has_bullets": false,
+          "source_has_numbered_list": false
+        }
+      ]
+    },
+    "val": {
+      "target_Table_no_source_separator": [
+        {
+          "line": 2,
+          "byte_offset": 14164,
+          "byte_length": 16450,
+          "source_chars": 1955,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 4,
+          "byte_offset": 46574,
+          "byte_length": 13312,
+          "source_chars": 2164,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 8,
+          "byte_offset": 95124,
+          "byte_length": 14606,
+          "source_chars": 2435,
+          "source_has_pipe_row": false,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 9,
+          "byte_offset": 109730,
+          "byte_length": 11906,
+          "source_chars": 1616,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 13,
+          "byte_offset": 156000,
+          "byte_length": 5784,
+          "source_chars": 571,
+          "source_has_pipe_row": false,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 15,
+          "byte_offset": 172418,
+          "byte_length": 8084,
+          "source_chars": 1094,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 24,
+          "byte_offset": 276134,
+          "byte_length": 10786,
+          "source_chars": 1570,
+          "source_has_pipe_row": false,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 27,
+          "byte_offset": 311618,
+          "byte_length": 13612,
+          "source_chars": 2036,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 29,
+          "byte_offset": 337814,
+          "byte_length": 13870,
+          "source_chars": 2111,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 35,
+          "byte_offset": 412708,
+          "byte_length": 14806,
+          "source_chars": 2669,
+          "source_has_pipe_row": false,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 41,
+          "byte_offset": 493258,
+          "byte_length": 9664,
+          "source_chars": 1365,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        },
+        {
+          "line": 44,
+          "byte_offset": 529466,
+          "byte_length": 13770,
+          "source_chars": 2377,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        }
+      ],
+      "source_separator_no_target_Table": [
+        {
+          "line": 767,
+          "byte_offset": 10029544,
+          "byte_length": 16268,
+          "source_chars": 3593,
+          "source_has_pipe_row": true,
+          "source_has_bullets": true,
+          "source_has_numbered_list": false
+        }
+      ]
+    }
+  },
+  "methods": {
+    "table_separator_regex": "^\\s*\\|?\\s*:?-{3,}:?\\s*(?:\\|\\s*:?-{3,}:?\\s*)+\\|?\\s*$",
+    "source_extraction": "Final user TASK_PREFIX response only, no few-shot content.",
+    "table_detection": "Markdown-like separator rows with >=2 dash columns and >=3 dashes each; count anywhere and separately outside simple backtick/tilde fences.",
+    "pipe_row_detection": "Outside fenced blocks, a line with pipe-separated columns and at least one Unicode word character; weak signal, not proof of table semantics.",
+    "unicode_blocks": {
+      "latin_extended": [
+        [
+          192,
+          591
+        ]
+      ],
+      "greek": [
+        [
+          880,
+          1023
+        ]
+      ],
+      "cyrillic": [
+        [
+          1024,
+          1327
+        ]
+      ],
+      "hebrew": [
+        [
+          1424,
+          1535
+        ]
+      ],
+      "arabic": [
+        [
+          1536,
+          1791
+        ],
+        [
+          1872,
+          1919
+        ],
+        [
+          2208,
+          2303
+        ]
+      ],
+      "devanagari": [
+        [
+          2304,
+          2431
+        ]
+      ],
+      "bengali": [
+        [
+          2432,
+          2559
+        ]
+      ],
+      "gurmukhi": [
+        [
+          2560,
+          2687
+        ]
+      ],
+      "gujarati": [
+        [
+          2688,
+          2815
+        ]
+      ],
+      "tamil": [
+        [
+          2944,
+          3071
+        ]
+      ],
+      "telugu": [
+        [
+          3072,
+          3199
+        ]
+      ],
+      "kannada": [
+        [
+          3200,
+          3327
+        ]
+      ],
+      "malayalam": [
+        [
+          3328,
+          3455
+        ]
+      ],
+      "sinhala": [
+        [
+          3456,
+          3583
+        ]
+      ],
+      "thai": [
+        [
+          3584,
+          3711
+        ]
+      ],
+      "hangul": [
+        [
+          4352,
+          4607
+        ],
+        [
+          12592,
+          12687
+        ],
+        [
+          44032,
+          55215
+        ]
+      ],
+      "hiragana": [
+        [
+          12352,
+          12447
+        ]
+      ],
+      "katakana": [
+        [
+          12448,
+          12543
+        ],
+        [
+          12784,
+          12799
+        ]
+      ],
+      "cjk_ideographs": [
+        [
+          13312,
+          19903
+        ],
+        [
+          19968,
+          40959
+        ],
+        [
+          63744,
+          64255
+        ],
+        [
+          131072,
+          191471
+        ]
+      ],
+      "box_drawing": [
+        [
+          9472,
+          9599
+        ]
+      ],
+      "block_elements": [
+        [
+          9600,
+          9631
+        ]
+      ],
+      "general_punctuation": [
+        [
+          8192,
+          8303
+        ]
+      ],
+      "currency_symbols": [
+        [
+          8352,
+          8399
+        ]
+      ],
+      "emoji_or_dingbat_range": [
+        [
+          9728,
+          10175
+        ],
+        [
+          127744,
+          129791
+        ]
+      ],
+      "replacement_character": [
+        [
+          65533,
+          65533
+        ]
+      ]
+    }
+  },
+  "limits": [
+    "Markup presence is not semantic intent classification. Table-like data can occur without Markdown separator rows; pipe rows may instead be prose, code, or structured non-table content.",
+    "Headings/list/link flags can also match literal examples inside fenced blocks; only the separately named table/pipe metrics exclude detected fences.",
+    "Simple fence recognition is not a full Markdown parser and can miss nested/indented or malformed fence semantics.",
+    "Table is a renderer component and can legitimately present non-table source lists as cards. Source/target syntax disagreement alone does not demonstrate an unjustified Table habit.",
+    "Image component absence does not prove missing pictures: images may be bound in Table rows or other properties. Review actual asset bindings and rendered output.",
+    "Unicode-block presence is not language classification; names, symbols, and mojibake can trigger ranges (especially Greek, box drawing, and block elements).",
+    "Literal URL schemes are not verified reachable URLs. Placeholder presence is not proof of usable assets or correct role binding."
+  ]
+}

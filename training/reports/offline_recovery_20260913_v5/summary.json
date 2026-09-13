@@ -1,0 +1,363 @@
+{
+  "policy_version": "messages-archive-recovery-v5-20260913",
+  "source_files": {
+    "train": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl",
+      "bytes": 1970021858,
+      "rows": 150292,
+      "sha256": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+      "mtime_ns": 1789237226023955200
+    },
+    "val": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl",
+      "bytes": 11850436,
+      "rows": 910,
+      "sha256": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+      "mtime_ns": 1789237339459474100
+    }
+  },
+  "output_dir": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v5",
+  "report_dir": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\reports\\offline_recovery_20260913_v5",
+  "workers": 16,
+  "actions": [
+    "exact reversible whole-string CP437-bytes-as-UTF8 recovery",
+    "source-identity URL normalization with exact source/graph restoration",
+    "evidence-based exact-label and same-index media-namespace placeholder rebinding",
+    "unique one-to-one same-kind media placeholder rebinding",
+    "remove only source-absent reference fields/components and generic fallback source buttons",
+    "remove non-root layout branches with no children, events, or data-bearing properties",
+    "join adjacent legacy 180-character Text chunks only at an alphanumeric mid-word boundary",
+    "strict Express validation and conservative content checks",
+    "Golden/source-family isolation and effective-pair deduplication",
+    "UTF-8/LF source-bound training candidate export"
+  ],
+  "not_performed": [
+    "Stage 3",
+    "model inference",
+    "content synthesis",
+    "guessed link-role/index aliasing",
+    "target truncation",
+    "GPU training"
+  ],
+  "model_specific_token_preflight_pending": true,
+  "bulk_validator": "compiled unchanged production schema; independently parity-tested against production",
+  "implementation_sha256": {
+    "training/scripts/recover_full_data_archive.py": "855452ff3d02583b0e32db485adc6d8e8cc236666eb6c9e2d677cf15dad56307",
+    "training/src/ir_training/data/archive_recovery.py": "866533095443ff2953e23ca6085c0319218b2fc24c7dc8387ab492548c854470",
+    "training/src/ir_training/data/url_preprocess.py": "a3cc1e551c1dd3b5304d883b5f28ccf006dbed90f0e634c8a1599c0f23335832",
+    "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+    "dataset/src/pipeline/ir_formats/express.py": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
+    "dataset/src/pipeline/renderer_semantics.py": "6a914e28d360a95ebc60027bfa9c7d1e7d9fb9a0bb337f8c457c0c54c3b481c7"
+  },
+  "runtime": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "schema_version": 1,
+  "status": "candidate_export_complete",
+  "completed_at_utc": "2026-09-12T23:25:40.296964+00:00",
+  "elapsed_seconds": 1958.75,
+  "all_rows_reconciled": 151202,
+  "categories": {
+    "train": {
+      "KEEP": 14583,
+      "REPAIR": 103258,
+      "QUARANTINE": 32451
+    },
+    "val": {
+      "KEEP": 77,
+      "REPAIR": 613,
+      "QUARANTINE": 220
+    },
+    "combined": {
+      "KEEP": 14660,
+      "REPAIR": 103871,
+      "QUARANTINE": 32671
+    }
+  },
+  "first_reason_counts": {
+    "train": {
+      "confirmed_content_defect": 7,
+      "unchanged_content_candidate": 14583,
+      "lossless_representation_repair": 64614,
+      "unresolved_content_warning": 32355,
+      "source_grounded_offline_repair": 38644,
+      "unresolved_target_reference": 59,
+      "duplicate_source_semantic_target": 3,
+      "reserved_golden_family": 27
+    },
+    "val": {
+      "unresolved_content_warning": 189,
+      "source_grounded_offline_repair": 251,
+      "unchanged_content_candidate": 77,
+      "lossless_representation_repair": 362,
+      "confirmed_content_defect": 1,
+      "reserved_golden_family": 1,
+      "validation_family_seen_in_original_training": 29
+    },
+    "combined": {
+      "confirmed_content_defect": 8,
+      "unchanged_content_candidate": 14660,
+      "lossless_representation_repair": 64976,
+      "unresolved_content_warning": 32544,
+      "source_grounded_offline_repair": 38895,
+      "unresolved_target_reference": 59,
+      "duplicate_source_semantic_target": 3,
+      "reserved_golden_family": 28,
+      "validation_family_seen_in_original_training": 29
+    }
+  },
+  "content_warnings_overlap_not_additive": {
+    "train": {
+      "missing_named_action": 27791,
+      "missing_declared_media": 13392,
+      "half_numeric_anchors_missing": 3477,
+      "lexical_recall_under_half": 955,
+      "layout_only": 3
+    },
+    "val": {
+      "missing_named_action": 175,
+      "missing_declared_media": 73,
+      "lexical_recall_under_half": 3,
+      "half_numeric_anchors_missing": 21
+    },
+    "combined": {
+      "missing_named_action": 27966,
+      "missing_declared_media": 13465,
+      "half_numeric_anchors_missing": 3498,
+      "lexical_recall_under_half": 958,
+      "layout_only": 3
+    }
+  },
+  "attempted_transformations_overlap_not_additive": {
+    "train": {
+      "target_cp437_utf8": 66341,
+      "generic_open_source_buttons_removed": 15,
+      "ungrounded_reference_elements_removed": 2059,
+      "midword_text_boundary_joins": 182,
+      "source_cp437_utf8": 46883,
+      "placeholder_label_rebindings": 35698,
+      "ungrounded_reference_fields_removed": 3723,
+      "empty_table_columns_removed": 2411,
+      "placeholder_media_namespace_rebindings": 21663,
+      "empty_layout_elements_removed": 2064,
+      "ungrounded_open_url_events_removed": 204,
+      "placeholder_unique_media_rebindings": 780,
+      "empty_tables_removed": 1,
+      "source_identity_url_normalization": 76900,
+      "unused_target_url_map_entries_removed": 2402
+    },
+    "val": {
+      "placeholder_label_rebindings": 240,
+      "ungrounded_reference_fields_removed": 33,
+      "empty_table_columns_removed": 19,
+      "placeholder_media_namespace_rebindings": 155,
+      "target_cp437_utf8": 401,
+      "ungrounded_reference_elements_removed": 12,
+      "source_cp437_utf8": 282,
+      "placeholder_unique_media_rebindings": 4,
+      "ungrounded_open_url_events_removed": 3,
+      "midword_text_boundary_joins": 1,
+      "empty_layout_elements_removed": 14,
+      "source_identity_url_normalization": 451,
+      "unused_target_url_map_entries_removed": 12
+    },
+    "combined": {
+      "target_cp437_utf8": 66742,
+      "generic_open_source_buttons_removed": 15,
+      "ungrounded_reference_elements_removed": 2071,
+      "midword_text_boundary_joins": 183,
+      "source_cp437_utf8": 47165,
+      "placeholder_label_rebindings": 35938,
+      "ungrounded_reference_fields_removed": 3756,
+      "empty_table_columns_removed": 2430,
+      "placeholder_media_namespace_rebindings": 21818,
+      "empty_layout_elements_removed": 2078,
+      "ungrounded_open_url_events_removed": 207,
+      "placeholder_unique_media_rebindings": 784,
+      "empty_tables_removed": 1,
+      "source_identity_url_normalization": 77351,
+      "unused_target_url_map_entries_removed": 2414
+    }
+  },
+  "accepted_transformations_overlap_not_additive": {
+    "train": {
+      "source_cp437_utf8": 32273,
+      "target_cp437_utf8": 50026,
+      "placeholder_label_rebindings": 27064,
+      "ungrounded_reference_elements_removed": 1082,
+      "placeholder_media_namespace_rebindings": 16222,
+      "ungrounded_reference_fields_removed": 398,
+      "empty_table_columns_removed": 187,
+      "empty_layout_elements_removed": 892,
+      "ungrounded_open_url_events_removed": 190,
+      "placeholder_unique_media_rebindings": 570,
+      "midword_text_boundary_joins": 29,
+      "generic_open_source_buttons_removed": 1,
+      "source_identity_url_normalization": 56720,
+      "unused_target_url_map_entries_removed": 1376
+    },
+    "val": {
+      "placeholder_media_namespace_rebindings": 113,
+      "placeholder_label_rebindings": 170,
+      "ungrounded_reference_elements_removed": 7,
+      "source_cp437_utf8": 184,
+      "target_cp437_utf8": 286,
+      "placeholder_unique_media_rebindings": 4,
+      "ungrounded_reference_fields_removed": 4,
+      "ungrounded_open_url_events_removed": 3,
+      "empty_table_columns_removed": 1,
+      "empty_layout_elements_removed": 4,
+      "source_identity_url_normalization": 319,
+      "unused_target_url_map_entries_removed": 8
+    },
+    "combined": {
+      "source_cp437_utf8": 32457,
+      "target_cp437_utf8": 50312,
+      "placeholder_label_rebindings": 27234,
+      "ungrounded_reference_elements_removed": 1089,
+      "placeholder_media_namespace_rebindings": 16335,
+      "ungrounded_reference_fields_removed": 402,
+      "empty_table_columns_removed": 188,
+      "empty_layout_elements_removed": 896,
+      "ungrounded_open_url_events_removed": 193,
+      "placeholder_unique_media_rebindings": 574,
+      "midword_text_boundary_joins": 29,
+      "generic_open_source_buttons_removed": 1,
+      "source_identity_url_normalization": 57039,
+      "unused_target_url_map_entries_removed": 1384
+    }
+  },
+  "attempted_repair_operation_counts": {
+    "train": {
+      "generic_open_source_buttons_removed": 15,
+      "midword_text_boundary_joins": 190,
+      "ungrounded_reference_elements_removed": 2306,
+      "empty_table_columns_removed": 2676,
+      "placeholder_label_rebindings": 83632,
+      "ungrounded_reference_fields_removed": 10236,
+      "placeholder_media_namespace_rebindings": 77111,
+      "empty_layout_elements_removed": 12319,
+      "ungrounded_open_url_events_removed": 276,
+      "placeholder_unique_media_rebindings": 806,
+      "empty_tables_removed": 1,
+      "unused_target_url_map_entries_removed": 3338
+    },
+    "val": {
+      "empty_table_columns_removed": 20,
+      "placeholder_label_rebindings": 574,
+      "ungrounded_reference_fields_removed": 96,
+      "placeholder_media_namespace_rebindings": 568,
+      "ungrounded_reference_elements_removed": 12,
+      "placeholder_unique_media_rebindings": 4,
+      "ungrounded_open_url_events_removed": 5,
+      "midword_text_boundary_joins": 1,
+      "empty_layout_elements_removed": 70,
+      "unused_target_url_map_entries_removed": 13
+    },
+    "combined": {
+      "generic_open_source_buttons_removed": 15,
+      "midword_text_boundary_joins": 191,
+      "ungrounded_reference_elements_removed": 2318,
+      "empty_table_columns_removed": 2696,
+      "placeholder_label_rebindings": 84206,
+      "ungrounded_reference_fields_removed": 10332,
+      "placeholder_media_namespace_rebindings": 77679,
+      "empty_layout_elements_removed": 12389,
+      "ungrounded_open_url_events_removed": 281,
+      "placeholder_unique_media_rebindings": 810,
+      "empty_tables_removed": 1,
+      "unused_target_url_map_entries_removed": 3351
+    }
+  },
+  "accepted_repair_operation_counts": {
+    "train": {
+      "placeholder_label_rebindings": 61677,
+      "ungrounded_reference_elements_removed": 1228,
+      "placeholder_media_namespace_rebindings": 57736,
+      "empty_table_columns_removed": 268,
+      "ungrounded_reference_fields_removed": 703,
+      "empty_layout_elements_removed": 4296,
+      "ungrounded_open_url_events_removed": 253,
+      "placeholder_unique_media_rebindings": 588,
+      "midword_text_boundary_joins": 35,
+      "generic_open_source_buttons_removed": 1,
+      "unused_target_url_map_entries_removed": 1984
+    },
+    "val": {
+      "placeholder_media_namespace_rebindings": 424,
+      "placeholder_label_rebindings": 380,
+      "ungrounded_reference_elements_removed": 7,
+      "placeholder_unique_media_rebindings": 4,
+      "ungrounded_open_url_events_removed": 5,
+      "ungrounded_reference_fields_removed": 7,
+      "empty_table_columns_removed": 1,
+      "empty_layout_elements_removed": 20,
+      "unused_target_url_map_entries_removed": 9
+    },
+    "combined": {
+      "placeholder_label_rebindings": 62057,
+      "ungrounded_reference_elements_removed": 1235,
+      "placeholder_media_namespace_rebindings": 58160,
+      "empty_table_columns_removed": 269,
+      "ungrounded_reference_fields_removed": 710,
+      "empty_layout_elements_removed": 4316,
+      "ungrounded_open_url_events_removed": 258,
+      "placeholder_unique_media_rebindings": 592,
+      "midword_text_boundary_joins": 35,
+      "generic_open_source_buttons_removed": 1,
+      "unused_target_url_map_entries_removed": 1993
+    }
+  },
+  "accepted_unique_source_families": {
+    "train": 114746,
+    "val": 690,
+    "combined": 115436
+  },
+  "accepted_known_golden_or_cross_split_family_overlaps": 0,
+  "outputs": {
+    "decisions.csv": "abcd1ccfec1dcb52ca9c782f5c9b46afcb45ea50006291ef7c832fbb1c0ab1be",
+    "quarantine.csv": "f761152bc8b92c9c00850d3b581c442a5b66a36e62a199f1591b8c1b80048bde",
+    "train.jsonl": "1ac6a236a29790295ede0a2b1c0ba2cb19b405bf0cbb20fbb4d88eb087561f24",
+    "val.jsonl": "9fc8b6c5fe9e22a917e683e64aba624b78584e2b748af3fb599de21f80a00c61"
+  },
+  "source_manifest_sha256": "e29bd7d78902a974a77f0ef1e2bd49a42d26d1cea4c05db7fe0e6b3f363f1ec2",
+  "near_duplicate_report_sha256": "8651cae837cc5e3062cad43a09fcbbed65924c08f14bc96bd157ec51cf4a19c2",
+  "shared_prompt_contract": {
+    "schema_version": 1,
+    "version": "a2ui_express_shared_prompt_v1",
+    "target_format": "a2ui_express_v1",
+    "serialization_order": "root-first",
+    "source_path": "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md",
+    "source_text_sha256": "7533bca3e6be8bc95ae54505274ee95dd78975130b375501f69916589f43d816",
+    "system_prompt_sha256": "e89c13860a8c7a6b54b2a95ab882d71e542a8e43a5a0b5661550baf5b611f547",
+    "scaffold": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "# A2UI Express v1 generated model contract\n\n<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e -->\n\nYou convert the supplied response into one rich, lossless GenUICraft A2UI\nExpress v1 program. A2UI Express is an assignment DSL, not JSON, HTML, JSX,\nCSS, or a FlatSpec object. Preserve the complete canonical UI semantics;\nsyntax optimization must never remove meaningful UI content or interactions.\n\nResponse:\n[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]\n\n## Strict output contract\n\n- Return exactly one `<a2ui>...</a2ui>` block, with no prose, JSON, markdown\n  fences, or trailing content.\n- Assign the root component to reserved variable `root`; every reference must\n  resolve, and every useful assignment must be reachable from `root`.\n- Use one assignment per line. Child lists contain assigned identifiers or\n  inline calls, never bare component type names.\n- Use positional arguments only while unambiguous; after a named argument is\n  used, use named arguments. `_` may skip only an optional final positional\n  slot. Omit trailing catalog defaults when semantics are unchanged.\n- Use explicit named properties, children, repeat, visible, watch, and action\n  arguments. Opaque `_props`, `_children`, `_repeat`, `_visible`, `_on`, and\n  `_watch` bags are forbidden for new output.\n- Event values must be action calls such as `Event(\"name\",{})` or\n  `openUrl(\"https://...\")`, never quoted URLs/event names by themselves.\n- Use `$={...}` or `$/path=value` for state and valid data bindings.\n- Reject the temptation to invent URLs, paths, values, or filler components.\n\n## Pinned catalog signatures\n\n- Alert(message, title, tone, timestamp)\n- AudioPlayer(url, description, posterUrl, title)\n- Button(label, variant, icon)\n- Card(children, title, subtitle, tone)\n- Chart(chartType, columns, statePath, rows, title, subtitle)\n- CheckBox(label, value, statePath)\n- Checklist(items, title, disclaimer, source)\n- ChoicePicker(label, options, value, statePath)\n- CodeBlock(code, language, title)\n- Column(children, gap, align, justify, wrap)\n- ConsoleLog(code, language, title)\n- DateTimeInput(label, value, mode, placeholder, statePath)\n- Divider()\n- EmailPreview(subject, body, from, to, date, title)\n- Formula(latex, title, result, display)\n- Icon(name, size, tint)\n- Image(url, alt, fit, width, height)\n- List(children, items)\n- Modal(trigger, content, title)\n- Row(children, gap, align, justify, wrap)\n- Slider(label, value, min, max, step, statePath)\n- Stack(children, direction, gap, align, justify, wrap)\n- Table(columns, statePath, rows, title, domain, preferredPresentation)\n- Tabs(tabs, activeTabId)\n- Text(text, variant)\n- TextField(label, value, statePath, placeholder)\n- Video(url, posterUrl, description, title)\n\n## Pinned actions\n\n- emitEvent(name, context, wantResponse, responsePath)\n- openUrl(url)\n- pushState(statePath, value, clearStatePath)\n- removeState(statePath, index)\n- setState(statePath, value)\n- validateForm(statePath, resultStatePath)\n\n## Shared quality policy\n\n- Preserve every requested fact, heading, section, table row, action, binding,\n  repeat, visibility rule, watch, and verified media reference.\n- Keep meaningful component richness and hierarchy; token savings must come\n  from Express syntax and default elision, never from dropping UI semantics.\n- Use specialist components such as Table, Chart, CodeBlock, ConsoleLog,\n  Formula, EmailPreview, Tabs, Modal, and forms when the response requires\n  them.\n- Every component reference must resolve and every useful assignment must be\n  reachable from `root`; preserve non-child references before pruning.\n- Table `highlightColumns` and `numericColumns` must be arrays of column keys,\n  even for one column: `highlightColumns=[\"price\"]`, never `\"price\"`. A dynamic\n  array binding must resolve to an array. Keep `primaryColumn` a single key.\n- Do not invent URLs or local paths. URL and local-asset placeholders supplied\n  by the pipeline must remain unchanged until explicit restoration.\n\n## Syntax example (do not copy its facts)\n\n<a2ui>\nroot=Column([title,details,action],gap=\"md\")\ntitle=Text(\"Result\",\"h2\")\ndetails=Table([\"Detail\",\"Value\"],rows=[[\"Status\",\"Ready\"]],title=\"Details\",domain=\"status\",preferredPresentation=\"table\")\naction=Button(\"Continue\",\"primary\",onPress=Event(\"continue\",{},true,\"/result\"))\n</a2ui>\n\nThe pipeline supplies the response in the user message and restores approved\nURL/local-asset placeholders only after strict parsing and compilation."
+        },
+        {
+          "role": "user",
+          "content": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items."
+        },
+        {
+          "role": "assistant",
+          "content": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>"
+        }
+      ],
+      "task_prefix": "Create A2UI Express v1 GenUI IR for this response:\n\n",
+      "serialization_order": "root-first"
+    },
+    "scaffold_sha256": "2da188c2ac3d8a654b5d0b6679551edfefa1eb4c85039902f4c07944fbaa3ee0",
+    "contract_sha256": "00a5af656e875f8bbe7b15e000efb4ef751f8e6223da3608648d20e94b296bf5"
+  },
+  "limitations": [
+    "KEEP/REPAIR are candidates, not proof of complete semantic fidelity.",
+    "REPAIR never adds missing content; it may remove source-absent references or rebind an exact source label.",
+    "Existing symbolic references have no recovered destination map.",
+    "Near-duplicate family evidence is bounded, not an exhaustive paraphrase search.",
+    "Intent, original IDs, asset inventory, and generator provenance are unavailable.",
+    "Exact E2B/270M tokenizer and chat-template preparation is intentionally pending.",
+    "The existing validation remainder is isolated but not a newly sampled representative split."
+  ]
+}

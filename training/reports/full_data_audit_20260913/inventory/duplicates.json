@@ -1,0 +1,272 @@
+{
+  "row_sha256": {
+    "train": {
+      "rows": 150292,
+      "unique": 150292,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "val": {
+      "rows": 910,
+      "unique": 910,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "combined": {
+      "rows": 151202,
+      "unique": 151202,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "cross_split": {
+      "shared_groups": 0,
+      "train_occurrences": 0,
+      "val_occurrences": 0
+    }
+  },
+  "canonical_row_sha256": {
+    "train": {
+      "rows": 150292,
+      "unique": 150292,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "val": {
+      "rows": 910,
+      "unique": 910,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "combined": {
+      "rows": 151202,
+      "unique": 151202,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "cross_split": {
+      "shared_groups": 0,
+      "train_occurrences": 0,
+      "val_occurrences": 0
+    }
+  },
+  "source_sha256": {
+    "train": {
+      "rows": 150292,
+      "unique": 146065,
+      "excess_occurrences": 4227,
+      "duplicate_groups": 4210,
+      "rows_in_duplicate_groups": 8437,
+      "max_multiplicity": 3
+    },
+    "val": {
+      "rows": 910,
+      "unique": 909,
+      "excess_occurrences": 1,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 2,
+      "max_multiplicity": 2
+    },
+    "combined": {
+      "rows": 151202,
+      "unique": 146946,
+      "excess_occurrences": 4256,
+      "duplicate_groups": 4239,
+      "rows_in_duplicate_groups": 8495,
+      "max_multiplicity": 3
+    },
+    "cross_split": {
+      "shared_groups": 28,
+      "train_occurrences": 28,
+      "val_occurrences": 28
+    }
+  },
+  "source_normalized_sha256": {
+    "train": {
+      "rows": 150292,
+      "unique": 146065,
+      "excess_occurrences": 4227,
+      "duplicate_groups": 4210,
+      "rows_in_duplicate_groups": 8437,
+      "max_multiplicity": 3
+    },
+    "val": {
+      "rows": 910,
+      "unique": 909,
+      "excess_occurrences": 1,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 2,
+      "max_multiplicity": 2
+    },
+    "combined": {
+      "rows": 151202,
+      "unique": 146946,
+      "excess_occurrences": 4256,
+      "duplicate_groups": 4239,
+      "rows_in_duplicate_groups": 8495,
+      "max_multiplicity": 3
+    },
+    "cross_split": {
+      "shared_groups": 28,
+      "train_occurrences": 28,
+      "val_occurrences": 28
+    }
+  },
+  "source_masked_sha256": {
+    "train": {
+      "rows": 150288,
+      "unique": 146061,
+      "excess_occurrences": 4227,
+      "duplicate_groups": 4210,
+      "rows_in_duplicate_groups": 8437,
+      "max_multiplicity": 3
+    },
+    "val": {
+      "rows": 910,
+      "unique": 909,
+      "excess_occurrences": 1,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 2,
+      "max_multiplicity": 2
+    },
+    "combined": {
+      "rows": 151198,
+      "unique": 146942,
+      "excess_occurrences": 4256,
+      "duplicate_groups": 4239,
+      "rows_in_duplicate_groups": 8495,
+      "max_multiplicity": 3
+    },
+    "cross_split": {
+      "shared_groups": 28,
+      "train_occurrences": 28,
+      "val_occurrences": 28
+    }
+  },
+  "target_sha256": {
+    "train": {
+      "rows": 150292,
+      "unique": 150277,
+      "excess_occurrences": 15,
+      "duplicate_groups": 14,
+      "rows_in_duplicate_groups": 29,
+      "max_multiplicity": 3
+    },
+    "val": {
+      "rows": 910,
+      "unique": 910,
+      "excess_occurrences": 0,
+      "duplicate_groups": 0,
+      "rows_in_duplicate_groups": 0,
+      "max_multiplicity": 1
+    },
+    "combined": {
+      "rows": 151202,
+      "unique": 151186,
+      "excess_occurrences": 16,
+      "duplicate_groups": 15,
+      "rows_in_duplicate_groups": 31,
+      "max_multiplicity": 3
+    },
+    "cross_split": {
+      "shared_groups": 1,
+      "train_occurrences": 1,
+      "val_occurrences": 1
+    }
+  },
+  "scaffold_sha256": {
+    "train": {
+      "rows": 150292,
+      "unique": 1,
+      "excess_occurrences": 150291,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 150292,
+      "max_multiplicity": 150292
+    },
+    "val": {
+      "rows": 910,
+      "unique": 1,
+      "excess_occurrences": 909,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 910,
+      "max_multiplicity": 910
+    },
+    "combined": {
+      "rows": 151202,
+      "unique": 1,
+      "excess_occurrences": 151201,
+      "duplicate_groups": 1,
+      "rows_in_duplicate_groups": 151202,
+      "max_multiplicity": 151202
+    },
+    "cross_split": {
+      "shared_groups": 1,
+      "train_occurrences": 150292,
+      "val_occurrences": 910
+    }
+  },
+  "source_multiple_text_targets": {
+    "source_sha256": {
+      "train": {
+        "groups": 4210,
+        "occurrences": 8437,
+        "max_targets_per_source": 3
+      },
+      "val": {
+        "groups": 1,
+        "occurrences": 2,
+        "max_targets_per_source": 2
+      },
+      "combined": {
+        "groups": 4239,
+        "occurrences": 8495,
+        "max_targets_per_source": 3
+      }
+    },
+    "source_normalized_sha256": {
+      "train": {
+        "groups": 4210,
+        "occurrences": 8437,
+        "max_targets_per_source": 3
+      },
+      "val": {
+        "groups": 1,
+        "occurrences": 2,
+        "max_targets_per_source": 2
+      },
+      "combined": {
+        "groups": 4239,
+        "occurrences": 8495,
+        "max_targets_per_source": 3
+      }
+    },
+    "source_masked_sha256": {
+      "train": {
+        "groups": 4210,
+        "occurrences": 8437,
+        "max_targets_per_source": 3
+      },
+      "val": {
+        "groups": 1,
+        "occurrences": 2,
+        "max_targets_per_source": 2
+      },
+      "combined": {
+        "groups": 4239,
+        "occurrences": 8495,
+        "max_targets_per_source": 3
+      }
+    }
+  }
+}

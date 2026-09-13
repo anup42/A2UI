@@ -1,0 +1,263 @@
+{
+  "source_index": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\synthesis.sqlite",
+  "original_data_modified": false,
+  "training_labels_modified": false,
+  "policy": {
+    "match": "Exact final-user source SHA256 only; no normalized or paraphrase substitution",
+    "screened_sibling": "Not reserved; strict valid; no URL preprocessing error; reconstructed sequence <=4096; canonical target <=2048; all listed warning flags zero",
+    "warning_fields": [
+      "empty_layout",
+      "layout_only",
+      "mojibake",
+      "placeholder",
+      "missing_action",
+      "low_lexical",
+      "missing_numeric"
+    ],
+    "important_limit": "No-warning does not certify semantic completeness. These are alternatives for review, not approved repairs.",
+    "new_unique_sources_recovered_if_existing_siblings_are_retained": 0,
+    "preferred_action": "Verify and retain one correct existing target per exact source; discard defective alternatives instead of copying a sibling into a second duplicate training row.",
+    "cross_split": "Cross-split candidates require regrouping and rebuilding splits; never transfer a held-out label into training while continuing to claim it as independent validation.",
+    "budget_limit": "Token screens use reconstructed Gemma3 framing, not verified E2B chat-template counts."
+  },
+  "base_counts": {
+    "train": {
+      "rows": 150292,
+      "disqualified_rows_including_reserved": 84840,
+      "no_warning_budget_screened_rows": 65452,
+      "reserved_rows": 27
+    },
+    "val": {
+      "rows": 910,
+      "disqualified_rows_including_reserved": 532,
+      "no_warning_budget_screened_rows": 378,
+      "reserved_rows": 1
+    }
+  },
+  "base_screened_unique_sources": {
+    "train": 63014,
+    "combined": 63375,
+    "val": 378
+  },
+  "base_screened_unique_semantic_pairs": {
+    "train": 65450,
+    "combined": 65828,
+    "val": 378
+  },
+  "candidate_counts": {
+    "train": {
+      "flagged_rows_with_any_split_screened_sibling": 358,
+      "flagged_rows_with_same_split_screened_sibling": 357,
+      "flagged_rows_with_other_split_sibling_only": 1,
+      "one_unique_screened_semantic_target_any_split": 355,
+      "multiple_screened_semantic_targets_any_split": 3,
+      "one_unique_screened_semantic_target_same_split": 354,
+      "candidate_reason:mojibake": 262,
+      "candidate_reason:placeholder": 9,
+      "candidate_reason:missing_action": 24,
+      "candidate_reason:empty_layout": 45,
+      "candidate_reason:low_lexical": 16,
+      "candidate_reason:missing_numeric": 27,
+      "candidate_reason:sequence_over_4096_or_unknown": 1,
+      "candidate_reason:layout_only": 1
+    },
+    "val": {
+      "flagged_rows_with_any_split_screened_sibling": 0,
+      "flagged_rows_with_same_split_screened_sibling": 0,
+      "flagged_rows_with_other_split_sibling_only": 0,
+      "one_unique_screened_semantic_target_any_split": 0,
+      "multiple_screened_semantic_targets_any_split": 0,
+      "one_unique_screened_semantic_target_same_split": 0
+    }
+  },
+  "candidate_unique_source_counts": {
+    "train_all_candidate_sources": 358,
+    "train_same_split_candidate_sources": 357,
+    "val_all_candidate_sources": 0,
+    "val_same_split_candidate_sources": 0,
+    "all_candidate_sources": 358
+  },
+  "reserved_sources_with_otherwise_screened_rows_never_use": [
+    {
+      "source_sha256": "41cde2ebffd138bb608c52ceaab104da706ad9dc69659a00ae88cea12773f4d7",
+      "otherwise_no_warning_rows": [
+        "train:73347"
+      ],
+      "all_rows": [
+        "train:73347"
+      ]
+    },
+    {
+      "source_sha256": "a1f0c93df86f83a2c79d091f0941e8bd6b93a3ca073deca9f81c443721c5879b",
+      "otherwise_no_warning_rows": [
+        "train:73348"
+      ],
+      "all_rows": [
+        "train:73348"
+      ]
+    },
+    {
+      "source_sha256": "613fbf9d7dce75ae330c47be373e90f5d998feecb064039d6dc3f5a92aa99e86",
+      "otherwise_no_warning_rows": [
+        "train:73349"
+      ],
+      "all_rows": [
+        "train:73349"
+      ]
+    },
+    {
+      "source_sha256": "0638991e45966ff50f6e1ae5ff4aeb5dec4db353b5e4b81718831f0d77af041e",
+      "otherwise_no_warning_rows": [
+        "train:73350"
+      ],
+      "all_rows": [
+        "train:73350"
+      ]
+    },
+    {
+      "source_sha256": "c5b33d7065e33791e4788a690205b5ac1a6d0f16223115ff308ba4dd089ab12e",
+      "otherwise_no_warning_rows": [
+        "train:73351"
+      ],
+      "all_rows": [
+        "train:73351"
+      ]
+    },
+    {
+      "source_sha256": "f7d19d2bf1525d23d71ac1d2d1587b0411ac5fa78fe83c42a753c093914b464d",
+      "otherwise_no_warning_rows": [
+        "train:73352"
+      ],
+      "all_rows": [
+        "train:73352"
+      ]
+    },
+    {
+      "source_sha256": "02b9d368fa50cff3f7d03948933bdd6a4f091ea0e37e575b503f48972b267782",
+      "otherwise_no_warning_rows": [
+        "train:73354"
+      ],
+      "all_rows": [
+        "train:73354"
+      ]
+    },
+    {
+      "source_sha256": "0cf52bc77c223f2145538efe9c1d1465f8cd8177950427e8b0e5bb7a0930550f",
+      "otherwise_no_warning_rows": [
+        "train:73357"
+      ],
+      "all_rows": [
+        "train:73357"
+      ]
+    },
+    {
+      "source_sha256": "1784eb1e02b7e946034d279fa43fd232c25145290e24195f42a0ee751e8177e9",
+      "otherwise_no_warning_rows": [
+        "train:73358"
+      ],
+      "all_rows": [
+        "train:73358"
+      ]
+    },
+    {
+      "source_sha256": "aea40d392bc869111b3a76fa00eaf6831995c141260ac6af22dbc61cf933728f",
+      "otherwise_no_warning_rows": [
+        "train:73359"
+      ],
+      "all_rows": [
+        "train:73359"
+      ]
+    },
+    {
+      "source_sha256": "de36e3ef329851556e34191b2592f422f552eaf241471a4b987375e7b2e2709b",
+      "otherwise_no_warning_rows": [
+        "train:73361"
+      ],
+      "all_rows": [
+        "train:73361"
+      ]
+    },
+    {
+      "source_sha256": "2e33256664686d961e89f35859e3b7e1b42b5a15816830401fdcc55e0e365439",
+      "otherwise_no_warning_rows": [
+        "train:73363"
+      ],
+      "all_rows": [
+        "train:73363"
+      ]
+    },
+    {
+      "source_sha256": "b4eff431245a0d9539a943949b142b9dc7ce00701e6d772da9f5b443e6b217fd",
+      "otherwise_no_warning_rows": [
+        "train:73365"
+      ],
+      "all_rows": [
+        "train:73365"
+      ]
+    },
+    {
+      "source_sha256": "a612e7f04f49d10e57ce922f25cdd3a9fd12fa38094dd9c70882741f60ad6ee3",
+      "otherwise_no_warning_rows": [
+        "train:73366"
+      ],
+      "all_rows": [
+        "train:73366"
+      ]
+    },
+    {
+      "source_sha256": "07870f8addd1ba56485960174949ec46952860999a1823b02eea18bb3144c6a8",
+      "otherwise_no_warning_rows": [
+        "train:73367"
+      ],
+      "all_rows": [
+        "train:73367"
+      ]
+    },
+    {
+      "source_sha256": "e0644d7ec9aa21fc335fc2643e9391c8e5ac36ca1df7f1f9cdd537514cfebc53",
+      "otherwise_no_warning_rows": [
+        "train:73368"
+      ],
+      "all_rows": [
+        "train:73368"
+      ]
+    },
+    {
+      "source_sha256": "ae34bdf3bf436d4194480be30d2f747418a8000b04c42d0f59d4568bcf037537",
+      "otherwise_no_warning_rows": [
+        "train:73375"
+      ],
+      "all_rows": [
+        "train:73375"
+      ]
+    },
+    {
+      "source_sha256": "fd3d888e9d486a44444626943c7540c0e030086fa0bf7053ba7dd247dea6a1f8",
+      "otherwise_no_warning_rows": [
+        "train:73377"
+      ],
+      "all_rows": [
+        "train:73377"
+      ]
+    },
+    {
+      "source_sha256": "ff1027b0bfe22174a5900186885f2f5379c77ac71b96cb79c4c4e02464a89334",
+      "otherwise_no_warning_rows": [
+        "train:73378"
+      ],
+      "all_rows": [
+        "train:73378"
+      ]
+    },
+    {
+      "source_sha256": "147ca59a3ab75823d95d86aa9e356d0cd0dd62a06e5ab221d89454ab74bf6530",
+      "otherwise_no_warning_rows": [
+        "train:73379"
+      ],
+      "all_rows": [
+        "train:73379"
+      ]
+    }
+  ],
+  "candidate_rows_csv": "candidate_rows.csv"
+}

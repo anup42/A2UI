@@ -1,0 +1,202 @@
+{
+  "completed_at_utc": "2026-09-12T19:18:10.440067+00:00",
+  "checkout_head": "4f0a334734509c4f7cb0c2f224cff9b4c535834e",
+  "sources": {
+    "train": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl",
+      "bytes": 1970021858,
+      "sha256": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+      "rows": 150292
+    },
+    "val": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl",
+      "bytes": 11850436,
+      "sha256": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+      "rows": 910
+    }
+  },
+  "row_reconciliation": {
+    "inventory.sqlite": {
+      "train": 150292,
+      "val": 910
+    },
+    "ir.sqlite": {
+      "train": 150292,
+      "val": 910
+    },
+    "synthesis.sqlite": {
+      "train": 150292,
+      "val": 910
+    }
+  },
+  "production_reference_parity_cases": 164,
+  "production_reference_parity_mismatches": 0,
+  "main_report_local_links_valid": true,
+  "runtime": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "jsonschema": "4.26.0",
+    "fastjsonschema": "2.21.2",
+    "tokenizers": "0.23.1",
+    "transformers": "5.16.1"
+  },
+  "report_files": {
+    "training/reports/full_data_audit_20260913/inventory/audit_manifest.json": {
+      "bytes": 1026,
+      "sha256": "97d5086ac0793621c2eb234b25cdb9ae61516678d437bff1bce9ed9e679207de"
+    },
+    "training/reports/full_data_audit_20260913/inventory/cross_split_sources.json": {
+      "bytes": 5437,
+      "sha256": "b324901cf122aecbdfd7bc3e06476d07410c33c9b3d44d4b49b2378dc9e8c8aa"
+    },
+    "training/reports/full_data_audit_20260913/inventory/duplicates.json": {
+      "bytes": 6534,
+      "sha256": "3ff75a2e58e8126992efbc4b12ed809c6309b4b37fc2bd11dfe311c6dbd385b7"
+    },
+    "training/reports/full_data_audit_20260913/inventory/files.json": {
+      "bytes": 1744,
+      "sha256": "e0a053557ae4f635cd473ae3078191acf937b648c827caa6339d7b91cbc6e657"
+    },
+    "training/reports/full_data_audit_20260913/inventory/golden_overlap.json": {
+      "bytes": 6265,
+      "sha256": "0cb42be3a80546d49b8b3439804aa3b2b16df67fced4ed7e8a4b8d2290954d3c"
+    },
+    "training/reports/full_data_audit_20260913/inventory/provenance.json": {
+      "bytes": 70178,
+      "sha256": "fd8a130de14f5ae56a5b93540b63dddfc07a719d75e15613c6d63beccc49c9e4"
+    },
+    "training/reports/full_data_audit_20260913/inventory/README.md": {
+      "bytes": 9332,
+      "sha256": "9835129695fbb7026a891e8077548cecc171c55bcf365b4ca7c134d85569bb76"
+    },
+    "training/reports/full_data_audit_20260913/inventory/structure.json": {
+      "bytes": 4326,
+      "sha256": "fbfb56f962abe15c94158023e3938ac3f5f4558f9e77f03255b73be84bc9a4e2"
+    },
+    "training/reports/full_data_audit_20260913/ir/reference_parity.json": {
+      "bytes": 67696,
+      "sha256": "2477b6da1ca23d1e4d030c5bd6dfc7d00baae6b14f5010d0ec88019bbe279856"
+    },
+    "training/reports/full_data_audit_20260913/ir/reference_parity_initial.json": {
+      "bytes": 104727,
+      "sha256": "61ee45a8bab1c165c656ebb523427a1a2a688153fe82e916c6eb9f6753d96de3"
+    },
+    "training/reports/full_data_audit_20260913/ir/summary.json": {
+      "bytes": 35910,
+      "sha256": "982586fd5ffe958e1d67c4edd51fe2d1bbce5e29585c655f9733837146a63872"
+    },
+    "training/reports/full_data_audit_20260913/ir/train_invalid_rows.csv": {
+      "bytes": 40,
+      "sha256": "eeff29bc467df81c3d46ffbc36560cd48017e374a63d38286e4420c1dbff9822"
+    },
+    "training/reports/full_data_audit_20260913/ir/val_invalid_rows.csv": {
+      "bytes": 40,
+      "sha256": "eeff29bc467df81c3d46ffbc36560cd48017e374a63d38286e4420c1dbff9822"
+    },
+    "training/reports/full_data_audit_20260913/ir/validator.json": {
+      "bytes": 15856,
+      "sha256": "1ea9275c0f8eea6f962876688b10ce2def4b38c75e1e98448f04693f0339c8c4"
+    },
+    "training/reports/full_data_audit_20260913/ir_pilot/summary.json": {
+      "bytes": 4303,
+      "sha256": "9318a73fd01a0451f3e6690bc3c4d31de40b6b4a0a3997d77bd9e9f73c3636a9"
+    },
+    "training/reports/full_data_audit_20260913/ir_pilot/train_invalid_rows.csv": {
+      "bytes": 40,
+      "sha256": "eeff29bc467df81c3d46ffbc36560cd48017e374a63d38286e4420c1dbff9822"
+    },
+    "training/reports/full_data_audit_20260913/ir_pilot/val_invalid_rows.csv": {
+      "bytes": 40,
+      "sha256": "eeff29bc467df81c3d46ffbc36560cd48017e374a63d38286e4420c1dbff9822"
+    },
+    "training/reports/full_data_audit_20260913/ir_pilot/validator.json": {
+      "bytes": 15856,
+      "sha256": "1ea9275c0f8eea6f962876688b10ce2def4b38c75e1e98448f04693f0339c8c4"
+    },
+    "training/reports/full_data_audit_20260913/near_duplicates/pairs.json": {
+      "bytes": 23152,
+      "sha256": "8651cae837cc5e3062cad43a09fcbbed65924c08f14bc96bd157ec51cf4a19c2"
+    },
+    "training/reports/full_data_audit_20260913/near_duplicates/README.md": {
+      "bytes": 4927,
+      "sha256": "054b1ce4baa9763555679b7ca38884b493d74b412834544b669cc3c09334e0d8"
+    },
+    "training/reports/full_data_audit_20260913/near_duplicates/summary.json": {
+      "bytes": 3991,
+      "sha256": "5ebfd5a1118866bc039d912cb9823555275a8a13976a949ea85d8a890902a394"
+    },
+    "training/reports/full_data_audit_20260913/quality/fallback_signature_check.json": {
+      "bytes": 53139,
+      "sha256": "5390da3a60628cfa137cb1d82c89a5393b669ea52c6f43a24de8b123d9cd52f8"
+    },
+    "training/reports/full_data_audit_20260913/quality/quality_review.md": {
+      "bytes": 20952,
+      "sha256": "bf9d89177982a90f3ec86ad5ad12cd31464c85563001e9ac252f41ab4229485f"
+    },
+    "training/reports/full_data_audit_20260913/quality/sample_quality_summary.json": {
+      "bytes": 142194,
+      "sha256": "2839f0b95dcb4dd769864e0e6e4485bb9e91eb41feabe605ea658351aeb5da08"
+    },
+    "training/reports/full_data_audit_20260913/REPORT.md": {
+      "bytes": 40069,
+      "sha256": "06930fa6688293e8fd33c705a7a0e2a4c924903eeda5faf185000c68cf919e23"
+    },
+    "training/reports/full_data_audit_20260913/source_structure/README.md": {
+      "bytes": 7353,
+      "sha256": "084fac22f73bac18fafaf2e717dd3d8f03a9dd51ae91493f909c2609205ced5b"
+    },
+    "training/reports/full_data_audit_20260913/source_structure/summary.json": {
+      "bytes": 23944,
+      "sha256": "87229c4cee65471e4a227fc4813a927bdd6963bfd3b4e7a714757942e03ffc30"
+    },
+    "training/reports/full_data_audit_20260913/synthesis/component_coverage.csv": {
+      "bytes": 703,
+      "sha256": "0211c11d4d1347f7b3de920bb3f2de4b12253355e5a61becfcefc0993227095c"
+    },
+    "training/reports/full_data_audit_20260913/synthesis/summary.json": {
+      "bytes": 29538,
+      "sha256": "10be8d51b0a2cfd2ca02fe37c381b1f263a77ad4134b6461a5d5e55b39592e5e"
+    },
+    "training/reports/full_data_audit_20260913/tokens/canonical_summary.json": {
+      "bytes": 6065,
+      "sha256": "82c1fadb1aaeaa450149be863e298036034f1282eb674bbc725924ef4271e63c"
+    },
+    "training/reports/full_data_audit_20260913/tokens/README.md": {
+      "bytes": 10834,
+      "sha256": "cae228c8029cd4224ef195191934db1bd698309b004452378203b92d2434e2df"
+    },
+    "training/reports/full_data_audit_20260913/tokens/summary.json": {
+      "bytes": 32337,
+      "sha256": "4dc39b666154565d8f43fde6d4b013a4909dbcaac88cecc4574d4a691f62ae55"
+    }
+  },
+  "source_code_sha256": {
+    "dataset/schema/genuicraft_a2ui_v1_wire.schema.json": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+    "dataset/src/pipeline/flat_spec_contract.py": "f8d8d809cb881ca969ca42ac88d70a25f1ae095e185f7d031000067461761cdf",
+    "dataset/src/pipeline/ir_formats/__init__.py": "31302293279fd2fd20e2bfac0c38f190dc0579e439be6feaed1425c612b15780",
+    "dataset/src/pipeline/ir_formats/a2ui_wire.py": "b129aa4c96ea80bda2e89eccca742e35827a35b42d705959c9912849837b6e4e",
+    "dataset/src/pipeline/ir_formats/active.py": "7ea03b3e58bddc98661589495554af05d809a679da03d1645b2581751cb12382",
+    "dataset/src/pipeline/ir_formats/canonical.py": "f520dca21a25b26e65738607fdc8be831819839695492b085b9c8e950991c29c",
+    "dataset/src/pipeline/ir_formats/catalog.py": "21c732a2de1485fd7ed98eada93b19b7b749a7d02891d882defd3ecd3de739da",
+    "dataset/src/pipeline/ir_formats/codec.py": "3a507b8b4b3c74279a881d2b0a11befc5b3f87a677bf08e871adae2886b311b9",
+    "dataset/src/pipeline/ir_formats/common.py": "9041d3eab36d89537313a64d96c7727ab31c882c87c740dda46d9370d26644d9",
+    "dataset/src/pipeline/ir_formats/express.py": "be29c0c2a45616e1e32d23ecb177a152cb432fddf04244ab0835afb680442d66",
+    "dataset/src/pipeline/ir_formats/repair.py": "6f84bb580ac33374be697796f22fd2289103e020018e5838c49129f9e5d45be4",
+    "dataset/src/pipeline/renderer_semantics.py": "6a914e28d360a95ebc60027bfa9c7d1e7d9fb9a0bb337f8c457c0c54c3b481c7",
+    "training/scripts/audits/full_data_fallback_parity_20260913.py": "a0a369245ce47ea65c8364d47d29556c6edbbe7bfbbd05a56d33d93d691257b1",
+    "training/scripts/audits/full_data_finalize_20260913.py": "4419302af8e2004ad407a4686bff02af3e758fa1c1c2683fc107fcf99038df3e",
+    "training/scripts/audits/full_data_inventory_20260913.py": "71e275e9fb621747fe8ab52c0872066e8ddaa95b84d25cd53742ac0a0d1768d5",
+    "training/scripts/audits/full_data_ir_20260913.py": "f3b127aea954ad4a875e77099728bfecbf3f22c8ca4a0cb6d4454d8cf1fda811",
+    "training/scripts/audits/full_data_near_duplicates_20260913.py": "21c5dc883ef559a4bd1fd2b3e59883b9c089b6555da5403a6d2b285ae4112062",
+    "training/scripts/audits/full_data_quality_20260913.py": "a4d868a1f114a32843126415ace7e579bceca45048f4e3c85e3b45c045b96585",
+    "training/scripts/audits/full_data_reference_parity_20260913.py": "2e022ef2ec049ce467af6216050fab2bee189fcfc3d8ce0939736e31ce885b1d",
+    "training/scripts/audits/full_data_source_structure_20260913.py": "f0698d8588561b68e32e41daff3e1084570939f5962b2a90e8b89c0ebac9b3dc",
+    "training/scripts/audits/full_data_synthesis_20260913.py": "06532d5d448f0c4b6e5e2bb305b2e5bf717a887094cedcc8e4e14a049b35270e",
+    "training/scripts/audits/full_data_tokens_20260913.py": "ef3b872b85010093716c3db5a6decf20e90b7092c43f23f8084a37a18aac00ae",
+    "training/src/ir_training/data/express_preparation.py": "971a5d4368e909221574dc72e0d268b2e3fe96db24d901b4714f5ada30323beb",
+    "training/tests/test_full_data_ir_audit.py": "aa7490e91a3c6a1c6ab07387dad4723f2f5c68c638d869f1dc60263a3b8fbef3",
+    "training/tests/test_full_data_token_audit.py": "2400abcc622e134afbca96b370e8268056b14709111bc90fb89ebe5879484ea1"
+  },
+  "source_data_modified": false,
+  "trained_or_generated_model_outputs": false,
+  "note": "Large row-level indices/queues are local ignored diagnostics, not approved training artifacts. Report hashes exclude this manifest itself."
+}

@@ -1,0 +1,3224 @@
+{
+  "scope": "Bounded varied actual-target production parity, not exhaustive reference revalidation",
+  "created_at": "2026-09-12T18:58:20.148921+00:00",
+  "source": "C:\\Users\\anupk\\Downloads\\training_data",
+  "ir_index": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\ir.sqlite",
+  "inventory": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\inventory.sqlite",
+  "snapshot": {
+    "indexed_rows_with_finished_results": 96267,
+    "split_rows": {
+      "train": 96267
+    },
+    "unique_targets": 96256,
+    "invalid_reasons": {}
+  },
+  "prior_report": null,
+  "min_train_line": 1,
+  "sample_count": 100,
+  "matched_count": 100,
+  "mismatch_count": 0,
+  "production_validator": "jsonschema.validators.Draft202012Validator",
+  "production_module_sha256": "971a5d4368e909221574dc72e0d268b2e3fe96db24d901b4714f5ada30323beb",
+  "wire_schema_sha256": "90137067429316d2ecba4997c43198bccf7241a9bbeeb34ef8c4ae52f6e14881",
+  "audit_script_sha256": "1bbbc285d0d88672636e80b9a6fd33c98fb77f776639f9b0527a02a398231110",
+  "archived_audit_script": "training/outputs/audits/full_data_20260913/reference_parity_initial_script.py",
+  "elapsed_seconds": 39.766,
+  "cases": [
+    {
+      "split": "train",
+      "line": 88713,
+      "sha": "a61eb20a0445d47a1c6c96757b1716d1d1841f0780aef015e1139a3c3f9218ad",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "797154920bf5fc7a270ce27f1aaf797af7b8034dd51cd9ed52035db8bb94c356",
+      "nodes": 4,
+      "depth": 2,
+      "canonical_chars": 2841,
+      "canonical_sha256": "a61eb20a0445d47a1c6c96757b1716d1d1841f0780aef015e1139a3c3f9218ad",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 1,
+        "Text": 2,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "smallest:nodes"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "797154920bf5fc7a270ce27f1aaf797af7b8034dd51cd9ed52035db8bb94c356",
+        "canonical_sha256": "a61eb20a0445d47a1c6c96757b1716d1d1841f0780aef015e1139a3c3f9218ad"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 41062,
+      "sha": "808d5c5b742756df67155b8c7ce54b403e7a561a58fee61072702c6518a02740",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "8a0d70dbeb4a350d962efddc9b6fe05e20a85038c4dd70e0ec50c39e5b5221cc",
+      "nodes": 5,
+      "depth": 3,
+      "canonical_chars": 877,
+      "canonical_sha256": "808d5c5b742756df67155b8c7ce54b403e7a561a58fee61072702c6518a02740",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 2,
+        "EmailPreview": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "smallest:nodes"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "8a0d70dbeb4a350d962efddc9b6fe05e20a85038c4dd70e0ec50c39e5b5221cc",
+        "canonical_sha256": "808d5c5b742756df67155b8c7ce54b403e7a561a58fee61072702c6518a02740"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 75200,
+      "sha": "a50cd4c31e4a3a95ee352f2a43e2511d71023b5e2e988cecec678491db810064",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "9195239a0a8fc2a4cd80bb04ebbc3c95a95020b0739906261ef82a98a4ca2780",
+      "nodes": 5,
+      "depth": 2,
+      "canonical_chars": 3710,
+      "canonical_sha256": "a50cd4c31e4a3a95ee352f2a43e2511d71023b5e2e988cecec678491db810064",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 1,
+        "Text": 3,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "smallest:nodes",
+        "smallest:depth"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "9195239a0a8fc2a4cd80bb04ebbc3c95a95020b0739906261ef82a98a4ca2780",
+        "canonical_sha256": "a50cd4c31e4a3a95ee352f2a43e2511d71023b5e2e988cecec678491db810064"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 65761,
+      "sha": "02161fda21db3a00a4504236add88772ac28a9ba04dd884ec81090f70f3e46e5",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "37af600c095d47c8937100c21f44e7a94fffd5975c53ec49d206a3e26eff0af0",
+      "nodes": 110,
+      "depth": 6,
+      "canonical_chars": 7452,
+      "canonical_sha256": "02161fda21db3a00a4504236add88772ac28a9ba04dd884ec81090f70f3e46e5",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 29,
+        "Card": 14,
+        "Icon": 12,
+        "Text": 52,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "largest:nodes"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "37af600c095d47c8937100c21f44e7a94fffd5975c53ec49d206a3e26eff0af0",
+        "canonical_sha256": "02161fda21db3a00a4504236add88772ac28a9ba04dd884ec81090f70f3e46e5"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 64936,
+      "sha": "4f28887cf0e79010b722896ed1371cced01d12ad6ce2b3533541c427227b0f12",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "0bff3e158a83d77977494a1ea96a1a1b4ff7cfaad77c0803a1ccbaaf9d39f5f1",
+      "nodes": 111,
+      "depth": 6,
+      "canonical_chars": 6442,
+      "canonical_sha256": "4f28887cf0e79010b722896ed1371cced01d12ad6ce2b3533541c427227b0f12",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 34,
+        "Card": 14,
+        "Icon": 15,
+        "Text": 45,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "largest:nodes"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "0bff3e158a83d77977494a1ea96a1a1b4ff7cfaad77c0803a1ccbaaf9d39f5f1",
+        "canonical_sha256": "4f28887cf0e79010b722896ed1371cced01d12ad6ce2b3533541c427227b0f12"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 33659,
+      "sha": "36fb56fcc612d769347484655fc1f9b8c8a33e0c4bb752f8d7dd580b8c9ff6b6",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "90913835c54601ce2f04aae5c26edb966007cdcef92aa5b49b5c07723bc8dc09",
+      "nodes": 112,
+      "depth": 6,
+      "canonical_chars": 6466,
+      "canonical_sha256": "36fb56fcc612d769347484655fc1f9b8c8a33e0c4bb752f8d7dd580b8c9ff6b6",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 30,
+        "Card": 13,
+        "Icon": 13,
+        "Text": 53,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "largest:nodes"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "90913835c54601ce2f04aae5c26edb966007cdcef92aa5b49b5c07723bc8dc09",
+        "canonical_sha256": "36fb56fcc612d769347484655fc1f9b8c8a33e0c4bb752f8d7dd580b8c9ff6b6"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 73474,
+      "sha": "7ad020d1ca2b0121967c37e23a14b2a18199d2677a9f9728f37897c237f37c7a",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "4647be35d855705a690666ce04a6fd81c4ad8526b136db625d5cb314b6e9f85d",
+      "nodes": 6,
+      "depth": 2,
+      "canonical_chars": 4240,
+      "canonical_sha256": "7ad020d1ca2b0121967c37e23a14b2a18199d2677a9f9728f37897c237f37c7a",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 1,
+        "Text": 3,
+        "Divider": 1,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "smallest:depth"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "4647be35d855705a690666ce04a6fd81c4ad8526b136db625d5cb314b6e9f85d",
+        "canonical_sha256": "7ad020d1ca2b0121967c37e23a14b2a18199d2677a9f9728f37897c237f37c7a"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 74675,
+      "sha": "f930d82e54bcd76108899417c0c4d3503b4214f347e92f4681379386d57ba459",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3e7d68e8ba3a15449a1bbfd89c5aa7b99db4096b7debfd5ff47a23ea6b7a5a2f",
+      "nodes": 7,
+      "depth": 2,
+      "canonical_chars": 3403,
+      "canonical_sha256": "f930d82e54bcd76108899417c0c4d3503b4214f347e92f4681379386d57ba459",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 1,
+        "Text": 4,
+        "Table": 2
+      },
+      "selection_reasons": [
+        "smallest:depth"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3e7d68e8ba3a15449a1bbfd89c5aa7b99db4096b7debfd5ff47a23ea6b7a5a2f",
+        "canonical_sha256": "f930d82e54bcd76108899417c0c4d3503b4214f347e92f4681379386d57ba459"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 95547,
+      "sha": "e5782f873cf9b4f4f4fe6e7ca70f5334b45be45694f180ab65c1bcaabb553304",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "86b53693fa9bd6ec703e14442d3929b1228dc00276d348262b027c7cc0a68d0e",
+      "nodes": 38,
+      "depth": 9,
+      "canonical_chars": 2536,
+      "canonical_sha256": "e5782f873cf9b4f4f4fe6e7ca70f5334b45be45694f180ab65c1bcaabb553304",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Card": 6,
+        "Icon": 5,
+        "Text": 9,
+        "Tabs": 1,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "largest:depth"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "86b53693fa9bd6ec703e14442d3929b1228dc00276d348262b027c7cc0a68d0e",
+        "canonical_sha256": "e5782f873cf9b4f4f4fe6e7ca70f5334b45be45694f180ab65c1bcaabb553304"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 96064,
+      "sha": "19a93d951b0efb92e8219f34c0ee2cc9dfe26b3a242119cca50a3374b2ea1562",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "19019abecbf4c6c7738bfcb25548ab82e1b532217e8e6a6c27c2f4aad6b6893b",
+      "nodes": 45,
+      "depth": 9,
+      "canonical_chars": 3928,
+      "canonical_sha256": "19a93d951b0efb92e8219f34c0ee2cc9dfe26b3a242119cca50a3374b2ea1562",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 15,
+        "Card": 7,
+        "Text": 17,
+        "Icon": 4,
+        "Tabs": 1,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "largest:depth"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "19019abecbf4c6c7738bfcb25548ab82e1b532217e8e6a6c27c2f4aad6b6893b",
+        "canonical_sha256": "19a93d951b0efb92e8219f34c0ee2cc9dfe26b3a242119cca50a3374b2ea1562"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 96069,
+      "sha": "11fb536da001e930eb4c23b1911c14274593cfcd8bf97ecd420ec53c26c46aa5",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "35fedc412f65b7f3d2ddf8268ee09671f34bb44d5aca169956789372ff04c729",
+      "nodes": 40,
+      "depth": 9,
+      "canonical_chars": 4099,
+      "canonical_sha256": "11fb536da001e930eb4c23b1911c14274593cfcd8bf97ecd420ec53c26c46aa5",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 15,
+        "Card": 6,
+        "Icon": 6,
+        "Text": 10,
+        "Table": 2,
+        "Tabs": 1
+      },
+      "selection_reasons": [
+        "largest:depth"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "35fedc412f65b7f3d2ddf8268ee09671f34bb44d5aca169956789372ff04c729",
+        "canonical_sha256": "11fb536da001e930eb4c23b1911c14274593cfcd8bf97ecd420ec53c26c46aa5"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 3669,
+      "sha": "2bb35b0aeaf7573527c0c45ae6a7cbf955d16f1db537f7b41242cf98c5cf20f8",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "20325851c9135c51a7b36744145aacc91de24548f39b27692606daa158aa746a",
+      "nodes": 10,
+      "depth": 5,
+      "canonical_chars": 375,
+      "canonical_sha256": "2bb35b0aeaf7573527c0c45ae6a7cbf955d16f1db537f7b41242cf98c5cf20f8",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 3,
+        "Card": 1,
+        "Icon": 1,
+        "Text": 3,
+        "Divider": 1,
+        "Button": 1
+      },
+      "selection_reasons": [
+        "smallest:canonical_chars"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "20325851c9135c51a7b36744145aacc91de24548f39b27692606daa158aa746a",
+        "canonical_sha256": "2bb35b0aeaf7573527c0c45ae6a7cbf955d16f1db537f7b41242cf98c5cf20f8"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 75801,
+      "sha": "0e0169ed6731f8e49ff84dae2d552e4c56c9ae47a7c6495a7d33ee9fd6d9295b",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "c15064dde80819e73b1251feb7a34fe3d07bc2acfa834dc16c9da7f77385e196",
+      "nodes": 9,
+      "depth": 4,
+      "canonical_chars": 480,
+      "canonical_sha256": "0e0169ed6731f8e49ff84dae2d552e4c56c9ae47a7c6495a7d33ee9fd6d9295b",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 2,
+        "Card": 3,
+        "Text": 3,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "smallest:canonical_chars"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "c15064dde80819e73b1251feb7a34fe3d07bc2acfa834dc16c9da7f77385e196",
+        "canonical_sha256": "0e0169ed6731f8e49ff84dae2d552e4c56c9ae47a7c6495a7d33ee9fd6d9295b"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 88380,
+      "sha": "64f1d1f24cca202008616c2c49a4151f9d8b84c8d4ef39d8169ed11865595514",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "a594815c74e75c6edba8b028d5b18b3c1376a868b7489c0fa0bedd66b9ec0e0d",
+      "nodes": 14,
+      "depth": 5,
+      "canonical_chars": 560,
+      "canonical_sha256": "64f1d1f24cca202008616c2c49a4151f9d8b84c8d4ef39d8169ed11865595514",
+      "empty_layout_leaves": 3,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Text": 3,
+        "Card": 2,
+        "Icon": 1,
+        "Button": 1
+      },
+      "selection_reasons": [
+        "smallest:canonical_chars"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "a594815c74e75c6edba8b028d5b18b3c1376a868b7489c0fa0bedd66b9ec0e0d",
+        "canonical_sha256": "64f1d1f24cca202008616c2c49a4151f9d8b84c8d4ef39d8169ed11865595514"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 18660,
+      "sha": "9a9339a8a9f1ff2954a61b380bf0f667598c81cd06a69cf2c5094876e181d715",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "5d8557f6cc0ded9472ece7d0f1d9f8049d0912dc601123895b6e9c6dbc39195f",
+      "nodes": 29,
+      "depth": 5,
+      "canonical_chars": 8152,
+      "canonical_sha256": "9a9339a8a9f1ff2954a61b380bf0f667598c81cd06a69cf2c5094876e181d715",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 2,
+        "Icon": 3,
+        "Text": 9,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "largest:canonical_chars"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "5d8557f6cc0ded9472ece7d0f1d9f8049d0912dc601123895b6e9c6dbc39195f",
+        "canonical_sha256": "9a9339a8a9f1ff2954a61b380bf0f667598c81cd06a69cf2c5094876e181d715"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 32074,
+      "sha": "b2388e4faec9fa56e35b58f87b14eaed16d32a97d8ed757b649a2706efca349a",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "1d990746c8855c4fc2a3797352ba5b7d9cd9ce450b7e8f2902034b20f5a6f850",
+      "nodes": 19,
+      "depth": 5,
+      "canonical_chars": 8497,
+      "canonical_sha256": "b2388e4faec9fa56e35b58f87b14eaed16d32a97d8ed757b649a2706efca349a",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Card": 1,
+        "Icon": 2,
+        "Text": 4,
+        "Table": 2,
+        "Button": 3
+      },
+      "selection_reasons": [
+        "largest:canonical_chars"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "1d990746c8855c4fc2a3797352ba5b7d9cd9ce450b7e8f2902034b20f5a6f850",
+        "canonical_sha256": "b2388e4faec9fa56e35b58f87b14eaed16d32a97d8ed757b649a2706efca349a"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 65757,
+      "sha": "4f6ace236f216be36b056761d26f42613123df1c6073efbd7ae018a934e149cb",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "226b05fd13cf8ef57fa701648787bb32ce81d9dd342d30d34ebff0e7e637555c",
+      "nodes": 35,
+      "depth": 6,
+      "canonical_chars": 8727,
+      "canonical_sha256": "4f6ace236f216be36b056761d26f42613123df1c6073efbd7ae018a934e149cb",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 11,
+        "Table": 4,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "largest:canonical_chars"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "226b05fd13cf8ef57fa701648787bb32ce81d9dd342d30d34ebff0e7e637555c",
+        "canonical_sha256": "4f6ace236f216be36b056761d26f42613123df1c6073efbd7ae018a934e149cb"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 107,
+      "sha": "211443e350244d4e258cd3b092d5cea389fbf697f8358b6a04f2354d5099361c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "45e8334a61328f78456bb7f0685972e8da5eaa21c53b9572b077cce5595a0191",
+      "nodes": 20,
+      "depth": 4,
+      "canonical_chars": 2442,
+      "canonical_sha256": "211443e350244d4e258cd3b092d5cea389fbf697f8358b6a04f2354d5099361c",
+      "empty_layout_leaves": 4,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Text": 6,
+        "Card": 3,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "empty_layout_leaves"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "45e8334a61328f78456bb7f0685972e8da5eaa21c53b9572b077cce5595a0191",
+        "canonical_sha256": "211443e350244d4e258cd3b092d5cea389fbf697f8358b6a04f2354d5099361c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 122,
+      "sha": "657744c3ce2f872d84d9b8062c2ccfdb7331d5839eca35d48080a06169de35da",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "17245adb35e4b64bec007e4647cb54d50f1a572649d0fe667d1dc824435f438b",
+      "nodes": 22,
+      "depth": 5,
+      "canonical_chars": 1990,
+      "canonical_sha256": "657744c3ce2f872d84d9b8062c2ccfdb7331d5839eca35d48080a06169de35da",
+      "empty_layout_leaves": 4,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Text": 2,
+        "Tabs": 1,
+        "Table": 2,
+        "Card": 5,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "empty_layout_leaves"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "17245adb35e4b64bec007e4647cb54d50f1a572649d0fe667d1dc824435f438b",
+        "canonical_sha256": "657744c3ce2f872d84d9b8062c2ccfdb7331d5839eca35d48080a06169de35da"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 123,
+      "sha": "d5d2d8efd86fa32863c4c03784a7a5006d5ed0a28cb07e4f6bd68f95ee7fabc3",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3de692ad5bedc2b0a3de920ed588aa02d1640d1c88891fc44b8ae59df541260a",
+      "nodes": 28,
+      "depth": 5,
+      "canonical_chars": 2470,
+      "canonical_sha256": "d5d2d8efd86fa32863c4c03784a7a5006d5ed0a28cb07e4f6bd68f95ee7fabc3",
+      "empty_layout_leaves": 6,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Card": 8,
+        "Text": 3,
+        "Tabs": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "empty_layout_leaves"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3de692ad5bedc2b0a3de920ed588aa02d1640d1c88891fc44b8ae59df541260a",
+        "canonical_sha256": "d5d2d8efd86fa32863c4c03784a7a5006d5ed0a28cb07e4f6bd68f95ee7fabc3"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 124,
+      "sha": "f62e2011f8430f286fbe9fa0e334038a0e02585e17cb7731960e63f0febc219c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "a002ba1e9c54dd191c221804f438ce001de44811370f8d6e416017beeac81fe5",
+      "nodes": 21,
+      "depth": 5,
+      "canonical_chars": 1564,
+      "canonical_sha256": "f62e2011f8430f286fbe9fa0e334038a0e02585e17cb7731960e63f0febc219c",
+      "empty_layout_leaves": 5,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Text": 2,
+        "Tabs": 1,
+        "Table": 1,
+        "Card": 5,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "empty_layout_leaves"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "a002ba1e9c54dd191c221804f438ce001de44811370f8d6e416017beeac81fe5",
+        "canonical_sha256": "f62e2011f8430f286fbe9fa0e334038a0e02585e17cb7731960e63f0febc219c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 262,
+      "sha": "176c80fb107bcf9b274b791eab8aa672995f1fcc0e76639a6f3a4deef35a88fe",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "6981396d9078fa6a83e4f2766ead4b2f1a2020e45196256a544109ef8b94463c",
+      "nodes": 19,
+      "depth": 3,
+      "canonical_chars": 1615,
+      "canonical_sha256": "176c80fb107bcf9b274b791eab8aa672995f1fcc0e76639a6f3a4deef35a88fe",
+      "empty_layout_leaves": 6,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Text": 7,
+        "Card": 4,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "empty_layout_leaves"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "6981396d9078fa6a83e4f2766ead4b2f1a2020e45196256a544109ef8b94463c",
+        "canonical_sha256": "176c80fb107bcf9b274b791eab8aa672995f1fcc0e76639a6f3a4deef35a88fe"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 408,
+      "sha": "81235943c80135cd5e24b3ca7dc9292098d54e73c76c3a5493170d0da8444b3c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "c8d1dd13fba2d9116aa521960cd13efa94be22bf919108e9638134b991ba046c",
+      "nodes": 19,
+      "depth": 3,
+      "canonical_chars": 1615,
+      "canonical_sha256": "81235943c80135cd5e24b3ca7dc9292098d54e73c76c3a5493170d0da8444b3c",
+      "empty_layout_leaves": 6,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Text": 7,
+        "Card": 4,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "empty_layout_leaves"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "c8d1dd13fba2d9116aa521960cd13efa94be22bf919108e9638134b991ba046c",
+        "canonical_sha256": "81235943c80135cd5e24b3ca7dc9292098d54e73c76c3a5493170d0da8444b3c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 93102,
+      "sha": "2fa2118c021e7a0c80c4f68029767873e0c0c0da09f05850c1ae8706fba6cd95",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "91b222cc0996be9673d4b08c1bcea85d6cc3fb99f78c4c3403ed55f4216dc6cf",
+      "nodes": 16,
+      "depth": 4,
+      "canonical_chars": 853,
+      "canonical_sha256": "2fa2118c021e7a0c80c4f68029767873e0c0c0da09f05850c1ae8706fba6cd95",
+      "empty_layout_leaves": 7,
+      "only_layout_or_divider": 1,
+      "components": {
+        "Stack": 10,
+        "Card": 6
+      },
+      "selection_reasons": [
+        "only_layout_or_divider"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "91b222cc0996be9673d4b08c1bcea85d6cc3fb99f78c4c3403ed55f4216dc6cf",
+        "canonical_sha256": "2fa2118c021e7a0c80c4f68029767873e0c0c0da09f05850c1ae8706fba6cd95"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 14116,
+      "sha": "60ddda9a49160321dc25e42bf6792a9610b0c4c5d4f02f987fa0061987408c68",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "7037017268cb1d19a77480a9300217f7899ce04c75a1f99a4e26c43805e39eed",
+      "nodes": 28,
+      "depth": 5,
+      "canonical_chars": 2285,
+      "canonical_sha256": "60ddda9a49160321dc25e42bf6792a9610b0c4c5d4f02f987fa0061987408c68",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Icon": 3,
+        "Text": 9,
+        "Card": 1,
+        "Image": 1,
+        "AudioPlayer": 1,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:AudioPlayer"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "7037017268cb1d19a77480a9300217f7899ce04c75a1f99a4e26c43805e39eed",
+        "canonical_sha256": "60ddda9a49160321dc25e42bf6792a9610b0c4c5d4f02f987fa0061987408c68"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 1,
+      "sha": "c44624dabd4087f4678b796ba8a321e2f564ba253734004f9e6aa12a1c9b185c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "22bc67fbcfb6a59d288869fed622faa498e4d35859a975d36e9dc42a4bd42f44",
+      "nodes": 20,
+      "depth": 3,
+      "canonical_chars": 1382,
+      "canonical_sha256": "c44624dabd4087f4678b796ba8a321e2f564ba253734004f9e6aa12a1c9b185c",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 2,
+        "Icon": 1,
+        "Text": 12,
+        "Card": 4,
+        "Button": 1
+      },
+      "selection_reasons": [
+        "component:Button",
+        "component:Card",
+        "component:Icon",
+        "component:Stack",
+        "component:Text",
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "22bc67fbcfb6a59d288869fed622faa498e4d35859a975d36e9dc42a4bd42f44",
+        "canonical_sha256": "c44624dabd4087f4678b796ba8a321e2f564ba253734004f9e6aa12a1c9b185c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 287,
+      "sha": "af2065066082b0caaec44b4fd4cfe1a45df05e4102ea8194be68f25b44d54b3a",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "499c15684a1322c9ca7188cb617aa39437be735d1ba8dda76d6dd35ac6cf3b06",
+      "nodes": 25,
+      "depth": 3,
+      "canonical_chars": 4533,
+      "canonical_sha256": "af2065066082b0caaec44b4fd4cfe1a45df05e4102ea8194be68f25b44d54b3a",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 3,
+        "Text": 9,
+        "Card": 4,
+        "Table": 2,
+        "CheckBox": 5,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:CheckBox"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "499c15684a1322c9ca7188cb617aa39437be735d1ba8dda76d6dd35ac6cf3b06",
+        "canonical_sha256": "af2065066082b0caaec44b4fd4cfe1a45df05e4102ea8194be68f25b44d54b3a"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 766,
+      "sha": "77ff3db88c679106ff2668dc517be2b5b46331cbe29c31f262551d6f402bd351",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "1a5009c52d89690c6d2d0cbd0f66af868521b64956af8d74af63aa1ebd2b59b8",
+      "nodes": 47,
+      "depth": 5,
+      "canonical_chars": 3754,
+      "canonical_sha256": "77ff3db88c679106ff2668dc517be2b5b46331cbe29c31f262551d6f402bd351",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Card": 7,
+        "Icon": 3,
+        "Text": 15,
+        "ChoicePicker": 5,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:ChoicePicker"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "1a5009c52d89690c6d2d0cbd0f66af868521b64956af8d74af63aa1ebd2b59b8",
+        "canonical_sha256": "77ff3db88c679106ff2668dc517be2b5b46331cbe29c31f262551d6f402bd351"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 288,
+      "sha": "63fe9d06c8735d4b5df77daa318783a7ec50aed4c3ac534ae6278e49ffe7bf09",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "bc0e3aa0ffec072f4ccf48fc0bf34fc4a5acd497d8e7dba659d6dbd52f38a88d",
+      "nodes": 42,
+      "depth": 5,
+      "canonical_chars": 3446,
+      "canonical_sha256": "63fe9d06c8735d4b5df77daa318783a7ec50aed4c3ac534ae6278e49ffe7bf09",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Text": 18,
+        "Card": 4,
+        "ConsoleLog": 4,
+        "CodeBlock": 1,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "component:CodeBlock",
+        "component:ConsoleLog"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "bc0e3aa0ffec072f4ccf48fc0bf34fc4a5acd497d8e7dba659d6dbd52f38a88d",
+        "canonical_sha256": "63fe9d06c8735d4b5df77daa318783a7ec50aed4c3ac534ae6278e49ffe7bf09"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 9,
+      "sha": "b930abe57f642ba79c24c278c3c9ac153013f2ea7a2f5902c1dacaaa5b9e25ca",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3667eea6e7393f7b43425ec10f065d3f6ab9f98d941cdd8db67d9a0f7ab57d56",
+      "nodes": 21,
+      "depth": 3,
+      "canonical_chars": 2676,
+      "canonical_sha256": "b930abe57f642ba79c24c278c3c9ac153013f2ea7a2f5902c1dacaaa5b9e25ca",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 3,
+        "Text": 8,
+        "Card": 4,
+        "Formula": 1,
+        "Table": 2,
+        "Divider": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:Divider"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3667eea6e7393f7b43425ec10f065d3f6ab9f98d941cdd8db67d9a0f7ab57d56",
+        "canonical_sha256": "b930abe57f642ba79c24c278c3c9ac153013f2ea7a2f5902c1dacaaa5b9e25ca"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 356,
+      "sha": "e87e2d17b13240f971489299c6d21773d92272ea9f6041958e305c80bb10971d",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "7cea2784bc0c6cfd21d35a6406ca9fbd919a097f3b92544d7b6ff84c9acc4e7f",
+      "nodes": 35,
+      "depth": 6,
+      "canonical_chars": 3111,
+      "canonical_sha256": "e87e2d17b13240f971489299c6d21773d92272ea9f6041958e305c80bb10971d",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 11,
+        "Text": 16,
+        "Card": 2,
+        "EmailPreview": 1,
+        "Button": 4,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "component:EmailPreview"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "7cea2784bc0c6cfd21d35a6406ca9fbd919a097f3b92544d7b6ff84c9acc4e7f",
+        "canonical_sha256": "e87e2d17b13240f971489299c6d21773d92272ea9f6041958e305c80bb10971d"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 4,
+      "sha": "f30b7f61b0b951aded900867c9a898fbb1abded1deef2b19bac7c7040f2c0b3e",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "ed99c6e0e2cda937fc064e370e5c3bd4b32523c5e8ed8072f3da6481b6143839",
+      "nodes": 26,
+      "depth": 5,
+      "canonical_chars": 2443,
+      "canonical_sha256": "f30b7f61b0b951aded900867c9a898fbb1abded1deef2b19bac7c7040f2c0b3e",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Text": 10,
+        "Card": 3,
+        "Table": 2,
+        "Formula": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:Formula"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "ed99c6e0e2cda937fc064e370e5c3bd4b32523c5e8ed8072f3da6481b6143839",
+        "canonical_sha256": "f30b7f61b0b951aded900867c9a898fbb1abded1deef2b19bac7c7040f2c0b3e"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 57,
+      "sha": "9d93eedd991b8de8db67074a962d5c20b854ee4a8c97dd2fdecf8936074fa710",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "2a99d71496952e48bccbe331ce5932abdafbf830c5f567875b6605c968e9ae25",
+      "nodes": 50,
+      "depth": 6,
+      "canonical_chars": 3683,
+      "canonical_sha256": "9d93eedd991b8de8db67074a962d5c20b854ee4a8c97dd2fdecf8936074fa710",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Text": 25,
+        "Card": 6,
+        "Button": 4,
+        "Table": 1,
+        "Image": 1
+      },
+      "selection_reasons": [
+        "component:Image"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "2a99d71496952e48bccbe331ce5932abdafbf830c5f567875b6605c968e9ae25",
+        "canonical_sha256": "9d93eedd991b8de8db67074a962d5c20b854ee4a8c97dd2fdecf8936074fa710"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 11473,
+      "sha": "64b37587e00fa76ee4e0a62145f3d7532cec269e0b4ddad1acec5fdf434aab92",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3884eb5ba6ec8616b04309c4ef18c516eeaa7bf8e526bc15a29da4891d85cd88",
+      "nodes": 27,
+      "depth": 6,
+      "canonical_chars": 3108,
+      "canonical_sha256": "64b37587e00fa76ee4e0a62145f3d7532cec269e0b4ddad1acec5fdf434aab92",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Icon": 3,
+        "Text": 8,
+        "List": 1,
+        "Card": 1,
+        "Button": 3,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "component:List"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3884eb5ba6ec8616b04309c4ef18c516eeaa7bf8e526bc15a29da4891d85cd88",
+        "canonical_sha256": "64b37587e00fa76ee4e0a62145f3d7532cec269e0b4ddad1acec5fdf434aab92"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 299,
+      "sha": "9efa819c5d36c220136d504e9e23d7a6f68a17ae722233322fbfc4f9824526fb",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "0cea59cb01192ffa96d9db7156615f70c336053b582a4a7a9f9a5961ac40e70f",
+      "nodes": 19,
+      "depth": 5,
+      "canonical_chars": 1502,
+      "canonical_sha256": "9efa819c5d36c220136d504e9e23d7a6f68a17ae722233322fbfc4f9824526fb",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 6,
+        "Text": 6,
+        "Card": 1,
+        "Slider": 2,
+        "Divider": 1,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:Slider"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "0cea59cb01192ffa96d9db7156615f70c336053b582a4a7a9f9a5961ac40e70f",
+        "canonical_sha256": "9efa819c5d36c220136d504e9e23d7a6f68a17ae722233322fbfc4f9824526fb"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 2,
+      "sha": "10c82bc86b761f0ccfc35312bfbf93f6a66b9481516118a6f0027b88fb6f10ee",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "fbe368371dd572271925a4e97635ed49b2a1e174a24fd7f16bbfe129f2470bc0",
+      "nodes": 24,
+      "depth": 5,
+      "canonical_chars": 2277,
+      "canonical_sha256": "10c82bc86b761f0ccfc35312bfbf93f6a66b9481516118a6f0027b88fb6f10ee",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Text": 12,
+        "Table": 1,
+        "Card": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:Table"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "fbe368371dd572271925a4e97635ed49b2a1e174a24fd7f16bbfe129f2470bc0",
+        "canonical_sha256": "10c82bc86b761f0ccfc35312bfbf93f6a66b9481516118a6f0027b88fb6f10ee"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 120,
+      "sha": "6ed14b99f0b093d035d707b1bf36f08a10d9d93d566e2c0b787aada8f9a5396c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "5017479cf793e9da5d723c10962d65349aa462aeb261cd312e44d7d8dfbea959",
+      "nodes": 20,
+      "depth": 4,
+      "canonical_chars": 3342,
+      "canonical_sha256": "6ed14b99f0b093d035d707b1bf36f08a10d9d93d566e2c0b787aada8f9a5396c",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 5,
+        "Text": 8,
+        "Card": 2,
+        "Tabs": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "component:Tabs"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "5017479cf793e9da5d723c10962d65349aa462aeb261cd312e44d7d8dfbea959",
+        "canonical_sha256": "6ed14b99f0b093d035d707b1bf36f08a10d9d93d566e2c0b787aada8f9a5396c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 802,
+      "sha": "bd5356c075bd0770750810629314d8cb555560995522d72122a3c47681aef69e",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3ca32b8521d9a86892631c0991a926dcdc24e56540bbb7eb82feda63595f7e10",
+      "nodes": 40,
+      "depth": 6,
+      "canonical_chars": 2307,
+      "canonical_sha256": "bd5356c075bd0770750810629314d8cb555560995522d72122a3c47681aef69e",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 6,
+        "Icon": 4,
+        "Text": 14,
+        "Button": 4,
+        "TextField": 1,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "component:TextField"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3ca32b8521d9a86892631c0991a926dcdc24e56540bbb7eb82feda63595f7e10",
+        "canonical_sha256": "bd5356c075bd0770750810629314d8cb555560995522d72122a3c47681aef69e"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 24876,
+      "sha": "908029e48b87a6424827b5f1648335a54547707cda87a47aeea074eb17538162",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "2fa6b58e3e459bd2edea762eb711efd35920ed479d923d4642f422deff5498e3",
+      "nodes": 49,
+      "depth": 5,
+      "canonical_chars": 3358,
+      "canonical_sha256": "908029e48b87a6424827b5f1648335a54547707cda87a47aeea074eb17538162",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 15,
+        "Icon": 5,
+        "Text": 15,
+        "Card": 5,
+        "Video": 1,
+        "Button": 6,
+        "Table": 2
+      },
+      "selection_reasons": [
+        "component:Video"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "2fa6b58e3e459bd2edea762eb711efd35920ed479d923d4642f422deff5498e3",
+        "canonical_sha256": "908029e48b87a6424827b5f1648335a54547707cda87a47aeea074eb17538162"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 973,
+      "sha": "50c1b20c01ce8b8e84c56271f2f10ab19155a197fcf2c17c51e89c235e8997e3",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "8bccf2cbb4caeb564daf351b49155ac26ef795c6c234a65adada7298f8fdab03",
+      "nodes": 58,
+      "depth": 6,
+      "canonical_chars": 4514,
+      "canonical_sha256": "50c1b20c01ce8b8e84c56271f2f10ab19155a197fcf2c17c51e89c235e8997e3",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 16,
+        "Card": 5,
+        "Icon": 5,
+        "Text": 23,
+        "Table": 1,
+        "Button": 8
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "8bccf2cbb4caeb564daf351b49155ac26ef795c6c234a65adada7298f8fdab03",
+        "canonical_sha256": "50c1b20c01ce8b8e84c56271f2f10ab19155a197fcf2c17c51e89c235e8997e3"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 1946,
+      "sha": "6a70a9d173760db4656a49dc1c01707c0c7827134cfc7b8cd825d81e567e64ab",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "72880efc0d070341d8287255907910d7ea9c20c6a65a2bad3f03b714ae4b4067",
+      "nodes": 34,
+      "depth": 5,
+      "canonical_chars": 2394,
+      "canonical_sha256": "6a70a9d173760db4656a49dc1c01707c0c7827134cfc7b8cd825d81e567e64ab",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 11,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 10,
+        "Table": 1,
+        "Button": 6
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "72880efc0d070341d8287255907910d7ea9c20c6a65a2bad3f03b714ae4b4067",
+        "canonical_sha256": "6a70a9d173760db4656a49dc1c01707c0c7827134cfc7b8cd825d81e567e64ab"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 2918,
+      "sha": "169c37be87cf5d9f21b8a924f8860919703f6d1338d6d7df6b1c0d3b614a937c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "2b3b28f1a98b2fd301892a3dbf5f2336a1c82b9f0bb7c7a064aee4d9516cc9f7",
+      "nodes": 38,
+      "depth": 5,
+      "canonical_chars": 2914,
+      "canonical_sha256": "169c37be87cf5d9f21b8a924f8860919703f6d1338d6d7df6b1c0d3b614a937c",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Icon": 4,
+        "Text": 12,
+        "Card": 3,
+        "Table": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "2b3b28f1a98b2fd301892a3dbf5f2336a1c82b9f0bb7c7a064aee4d9516cc9f7",
+        "canonical_sha256": "169c37be87cf5d9f21b8a924f8860919703f6d1338d6d7df6b1c0d3b614a937c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 3890,
+      "sha": "7cef87df963d7828c15f92a24055e9c6651fc4332dfa440ae196a33267c0fe4d",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "ff40fd4a15e985b0a6fcc9e337d837dca09c87b57eb0a0eec1edf43c40b45e74",
+      "nodes": 31,
+      "depth": 4,
+      "canonical_chars": 2480,
+      "canonical_sha256": "7cef87df963d7828c15f92a24055e9c6651fc4332dfa440ae196a33267c0fe4d",
+      "empty_layout_leaves": 5,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 7,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "ff40fd4a15e985b0a6fcc9e337d837dca09c87b57eb0a0eec1edf43c40b45e74",
+        "canonical_sha256": "7cef87df963d7828c15f92a24055e9c6651fc4332dfa440ae196a33267c0fe4d"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 4862,
+      "sha": "95060fdfa6af27f5dd4c4728e41006a465b9aeacb0bae6321b4d7350927c7a08",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "7010f3f504d2aa90de182410cc587964152438f799141d9743fd3bb3c848a117",
+      "nodes": 47,
+      "depth": 5,
+      "canonical_chars": 3825,
+      "canonical_sha256": "95060fdfa6af27f5dd4c4728e41006a465b9aeacb0bae6321b4d7350927c7a08",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Icon": 4,
+        "Text": 18,
+        "Card": 6,
+        "Table": 2,
+        "Button": 5
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "7010f3f504d2aa90de182410cc587964152438f799141d9743fd3bb3c848a117",
+        "canonical_sha256": "95060fdfa6af27f5dd4c4728e41006a465b9aeacb0bae6321b4d7350927c7a08"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 5835,
+      "sha": "43a742a4e162af7b57480608c20c38c3d2ee7165aebbe9710d28936ea200a4d2",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "f3b5de0e473e84250bd245a65f1b635a99ba9059439046cdd8de46b315de8364",
+      "nodes": 47,
+      "depth": 6,
+      "canonical_chars": 3665,
+      "canonical_sha256": "43a742a4e162af7b57480608c20c38c3d2ee7165aebbe9710d28936ea200a4d2",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 16,
+        "Card": 6,
+        "Icon": 6,
+        "Text": 14,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "f3b5de0e473e84250bd245a65f1b635a99ba9059439046cdd8de46b315de8364",
+        "canonical_sha256": "43a742a4e162af7b57480608c20c38c3d2ee7165aebbe9710d28936ea200a4d2"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 6807,
+      "sha": "886282a65be9b4d645cc7498dfe4deef1cc23fa3c0462950e72e21e3d1b47f05",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "75e85fa1c3db05581077fcb971cb60eadf2762e87de719a6e534e414a11ee833",
+      "nodes": 32,
+      "depth": 4,
+      "canonical_chars": 2565,
+      "canonical_sha256": "886282a65be9b4d645cc7498dfe4deef1cc23fa3c0462950e72e21e3d1b47f05",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 6,
+        "Card": 5,
+        "Icon": 3,
+        "Text": 14,
+        "Table": 1,
+        "Button": 3
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "75e85fa1c3db05581077fcb971cb60eadf2762e87de719a6e534e414a11ee833",
+        "canonical_sha256": "886282a65be9b4d645cc7498dfe4deef1cc23fa3c0462950e72e21e3d1b47f05"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 7779,
+      "sha": "bc5edde06fcd4c6987001c8aecdc4f9113c36c0b4066a39d1738e3864a63cfb1",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "4d08c01f8aaf4d925ad7d791186ccb3363483e3bb448dcaac43bd7388b38824d",
+      "nodes": 40,
+      "depth": 5,
+      "canonical_chars": 4418,
+      "canonical_sha256": "bc5edde06fcd4c6987001c8aecdc4f9113c36c0b4066a39d1738e3864a63cfb1",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Card": 2,
+        "Icon": 4,
+        "Text": 15,
+        "Table": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "4d08c01f8aaf4d925ad7d791186ccb3363483e3bb448dcaac43bd7388b38824d",
+        "canonical_sha256": "bc5edde06fcd4c6987001c8aecdc4f9113c36c0b4066a39d1738e3864a63cfb1"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 8751,
+      "sha": "ab5a2024f8f0e851ecc4cc30e5253fae4a402066775aaafbca695f84f35d97fe",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "f8dbf096ca12ef4cb3f8e2585ffeea5c478e15c114a4b283f0516008e7c338c0",
+      "nodes": 29,
+      "depth": 4,
+      "canonical_chars": 3444,
+      "canonical_sha256": "ab5a2024f8f0e851ecc4cc30e5253fae4a402066775aaafbca695f84f35d97fe",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Card": 5,
+        "Icon": 4,
+        "Text": 9,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "f8dbf096ca12ef4cb3f8e2585ffeea5c478e15c114a4b283f0516008e7c338c0",
+        "canonical_sha256": "ab5a2024f8f0e851ecc4cc30e5253fae4a402066775aaafbca695f84f35d97fe"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 9724,
+      "sha": "bad18258c1a00eb49d1a4b02bc7ee1f305e60b9ac67ce0ea1c403296b09501c5",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "d653aaf356d6079e28f4d300ae38f8c17d1ff2fd443c650337fa59e42b4a0885",
+      "nodes": 27,
+      "depth": 5,
+      "canonical_chars": 2674,
+      "canonical_sha256": "bad18258c1a00eb49d1a4b02bc7ee1f305e60b9ac67ce0ea1c403296b09501c5",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 8,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "d653aaf356d6079e28f4d300ae38f8c17d1ff2fd443c650337fa59e42b4a0885",
+        "canonical_sha256": "bad18258c1a00eb49d1a4b02bc7ee1f305e60b9ac67ce0ea1c403296b09501c5"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 10696,
+      "sha": "1dfa716530e469050d0a4555b22a7b93cac6f34adb4c331ca942e8beb005e871",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "c8810e327769f3f7b1a73053bbfe6f7d2dbfe17d170967fcffffa6e6db2593ad",
+      "nodes": 46,
+      "depth": 6,
+      "canonical_chars": 3523,
+      "canonical_sha256": "1dfa716530e469050d0a4555b22a7b93cac6f34adb4c331ca942e8beb005e871",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Card": 5,
+        "Icon": 5,
+        "Text": 14,
+        "Table": 1,
+        "Button": 7
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "c8810e327769f3f7b1a73053bbfe6f7d2dbfe17d170967fcffffa6e6db2593ad",
+        "canonical_sha256": "1dfa716530e469050d0a4555b22a7b93cac6f34adb4c331ca942e8beb005e871"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 11668,
+      "sha": "67cdd9c7677d8e0a7a76c699798f3461140791cd2230277a57ce65603ea872a0",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "765705aee728f6cd308b27407a7e73274b715f85915074e1e31c1db3723140dd",
+      "nodes": 27,
+      "depth": 6,
+      "canonical_chars": 1971,
+      "canonical_sha256": "67cdd9c7677d8e0a7a76c699798f3461140791cd2230277a57ce65603ea872a0",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 10,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "765705aee728f6cd308b27407a7e73274b715f85915074e1e31c1db3723140dd",
+        "canonical_sha256": "67cdd9c7677d8e0a7a76c699798f3461140791cd2230277a57ce65603ea872a0"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 12641,
+      "sha": "2fe5ba563cb48a0c9223afe7bd83a4cafa4efbe5a4f3e2ef070f023b27d65533",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "207a1ffb037ccb6704a63522e6f50c372ac3049f120e252447a1e8bf75a83165",
+      "nodes": 53,
+      "depth": 6,
+      "canonical_chars": 3906,
+      "canonical_sha256": "2fe5ba563cb48a0c9223afe7bd83a4cafa4efbe5a4f3e2ef070f023b27d65533",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 18,
+        "Card": 5,
+        "Icon": 7,
+        "Text": 15,
+        "Table": 1,
+        "Image": 3,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "207a1ffb037ccb6704a63522e6f50c372ac3049f120e252447a1e8bf75a83165",
+        "canonical_sha256": "2fe5ba563cb48a0c9223afe7bd83a4cafa4efbe5a4f3e2ef070f023b27d65533"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 13613,
+      "sha": "ccd6aa621251c2c27ac1b143cf5a79e0aa503fa2df9e716c2802fb609d69f55a",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "35db1747977c055375210d7882502b81fc0e0d6b8b50c5f1cb050edcb6796b05",
+      "nodes": 43,
+      "depth": 5,
+      "canonical_chars": 3545,
+      "canonical_sha256": "ccd6aa621251c2c27ac1b143cf5a79e0aa503fa2df9e716c2802fb609d69f55a",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Card": 6,
+        "Icon": 5,
+        "Text": 17,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "35db1747977c055375210d7882502b81fc0e0d6b8b50c5f1cb050edcb6796b05",
+        "canonical_sha256": "ccd6aa621251c2c27ac1b143cf5a79e0aa503fa2df9e716c2802fb609d69f55a"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 14585,
+      "sha": "fd0374b824a91278aa4aae107cd9e1f4517493c372a7cf182cb845462b85067f",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "5b94fb2db0dff84e4bdc67ad285c3f332562e5b4b829aef3b11d7f0fba8b7af0",
+      "nodes": 24,
+      "depth": 4,
+      "canonical_chars": 2688,
+      "canonical_sha256": "fd0374b824a91278aa4aae107cd9e1f4517493c372a7cf182cb845462b85067f",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 6,
+        "Icon": 4,
+        "Text": 6,
+        "Card": 3,
+        "Table": 3,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "5b94fb2db0dff84e4bdc67ad285c3f332562e5b4b829aef3b11d7f0fba8b7af0",
+        "canonical_sha256": "fd0374b824a91278aa4aae107cd9e1f4517493c372a7cf182cb845462b85067f"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 15557,
+      "sha": "f2e0dc2e5c540e47ba4b6d8b589cf31a71e4e96b404a4023a8566f6794ad7783",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "60811835eeb56d32261699780fe845d6cff69dfc64be074b3919a5053abcff8a",
+      "nodes": 45,
+      "depth": 6,
+      "canonical_chars": 3529,
+      "canonical_sha256": "f2e0dc2e5c540e47ba4b6d8b589cf31a71e4e96b404a4023a8566f6794ad7783",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 16,
+        "Table": 1,
+        "CodeBlock": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "60811835eeb56d32261699780fe845d6cff69dfc64be074b3919a5053abcff8a",
+        "canonical_sha256": "f2e0dc2e5c540e47ba4b6d8b589cf31a71e4e96b404a4023a8566f6794ad7783"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 16530,
+      "sha": "ef67e6a7fa44e71ef85459e195660a5960b417d5c457420ab1e1f738ebadfd29",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "b413e95a53f86e85b0ee11fe825fa171d95fc8553f50d2cb1c6214e9f767add7",
+      "nodes": 26,
+      "depth": 5,
+      "canonical_chars": 2473,
+      "canonical_sha256": "ef67e6a7fa44e71ef85459e195660a5960b417d5c457420ab1e1f738ebadfd29",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 8,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "b413e95a53f86e85b0ee11fe825fa171d95fc8553f50d2cb1c6214e9f767add7",
+        "canonical_sha256": "ef67e6a7fa44e71ef85459e195660a5960b417d5c457420ab1e1f738ebadfd29"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 17502,
+      "sha": "6a685fb92840c2ef32c9e3e046e6f86f53431939ed2839dd2a1c658ba68c4373",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "caaf02b44f9780c65a7b1b2d0c9c76ce84330bc9547160278f66abf617a4d055",
+      "nodes": 40,
+      "depth": 5,
+      "canonical_chars": 3465,
+      "canonical_sha256": "6a685fb92840c2ef32c9e3e046e6f86f53431939ed2839dd2a1c658ba68c4373",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 14,
+        "Table": 1,
+        "Button": 5
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "caaf02b44f9780c65a7b1b2d0c9c76ce84330bc9547160278f66abf617a4d055",
+        "canonical_sha256": "6a685fb92840c2ef32c9e3e046e6f86f53431939ed2839dd2a1c658ba68c4373"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 18475,
+      "sha": "f1cb2435dbdadf24399759bb214e6b1f59b9b3e42bf0234b177d1d9d99852272",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "edcd96a7117a11287fcf82c1eda653d2bf5c62e6b9ca322870e4d2969c7e0a10",
+      "nodes": 25,
+      "depth": 4,
+      "canonical_chars": 2337,
+      "canonical_sha256": "f1cb2435dbdadf24399759bb214e6b1f59b9b3e42bf0234b177d1d9d99852272",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 5,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 12,
+        "Formula": 1,
+        "Table": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "edcd96a7117a11287fcf82c1eda653d2bf5c62e6b9ca322870e4d2969c7e0a10",
+        "canonical_sha256": "f1cb2435dbdadf24399759bb214e6b1f59b9b3e42bf0234b177d1d9d99852272"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 19448,
+      "sha": "a092096fcd5d214e22cb2a1921d7fc6b127aa9d24a680f72476a402bddc5fbc8",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "1d6f40de0ebaa81f718a441eb8af9898021d8a801d47ff4a2d020a28d48a8079",
+      "nodes": 56,
+      "depth": 6,
+      "canonical_chars": 3697,
+      "canonical_sha256": "a092096fcd5d214e22cb2a1921d7fc6b127aa9d24a680f72476a402bddc5fbc8",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 18,
+        "Card": 6,
+        "Icon": 6,
+        "Text": 15,
+        "Table": 1,
+        "Button": 10
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "1d6f40de0ebaa81f718a441eb8af9898021d8a801d47ff4a2d020a28d48a8079",
+        "canonical_sha256": "a092096fcd5d214e22cb2a1921d7fc6b127aa9d24a680f72476a402bddc5fbc8"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 20421,
+      "sha": "8c3910ff471bed48e8f6dc980473583e5e1040ad6f451a791e29cbb3ab534532",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "cada73fd85d70e406cd7dc44a1cbf918e77bf2342cd1d352526a183ff31b27b4",
+      "nodes": 46,
+      "depth": 5,
+      "canonical_chars": 4108,
+      "canonical_sha256": "8c3910ff471bed48e8f6dc980473583e5e1040ad6f451a791e29cbb3ab534532",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 15,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 15,
+        "Table": 2,
+        "Button": 6
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "cada73fd85d70e406cd7dc44a1cbf918e77bf2342cd1d352526a183ff31b27b4",
+        "canonical_sha256": "8c3910ff471bed48e8f6dc980473583e5e1040ad6f451a791e29cbb3ab534532"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 21393,
+      "sha": "a87e39872866ccd747573f4ec2500e55d8807f7690ac409c75164660da17b81b",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "0628efd07c542170f2fd1f819cca1f4783d19a05f00028ff78fbad1bd8d3fa06",
+      "nodes": 35,
+      "depth": 4,
+      "canonical_chars": 3500,
+      "canonical_sha256": "a87e39872866ccd747573f4ec2500e55d8807f7690ac409c75164660da17b81b",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 4,
+        "Text": 12,
+        "Table": 1,
+        "Button": 6
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "0628efd07c542170f2fd1f819cca1f4783d19a05f00028ff78fbad1bd8d3fa06",
+        "canonical_sha256": "a87e39872866ccd747573f4ec2500e55d8807f7690ac409c75164660da17b81b"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 22365,
+      "sha": "ecac4cc9e3369fe649f627ab9e22eb6d78d6b3e449d8a1744faf4e4e229727ce",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "d5ab4d36bb57f0defa118673b79dc870bf2a1d3dbd47beb2675f6185ca9894a8",
+      "nodes": 58,
+      "depth": 6,
+      "canonical_chars": 4024,
+      "canonical_sha256": "ecac4cc9e3369fe649f627ab9e22eb6d78d6b3e449d8a1744faf4e4e229727ce",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 17,
+        "Card": 7,
+        "Icon": 6,
+        "Text": 22,
+        "Table": 1,
+        "Button": 5
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "d5ab4d36bb57f0defa118673b79dc870bf2a1d3dbd47beb2675f6185ca9894a8",
+        "canonical_sha256": "ecac4cc9e3369fe649f627ab9e22eb6d78d6b3e449d8a1744faf4e4e229727ce"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 23338,
+      "sha": "3bcca4491539c7039de07e267fc09abd1053c68f4b3e69291dd703462bf15839",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "c51af25586b81c50cfaadee07fede2f0e0922e445b679c04035694e9e9b97235",
+      "nodes": 38,
+      "depth": 6,
+      "canonical_chars": 3421,
+      "canonical_sha256": "3bcca4491539c7039de07e267fc09abd1053c68f4b3e69291dd703462bf15839",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Icon": 4,
+        "Text": 12,
+        "Card": 4,
+        "Table": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "c51af25586b81c50cfaadee07fede2f0e0922e445b679c04035694e9e9b97235",
+        "canonical_sha256": "3bcca4491539c7039de07e267fc09abd1053c68f4b3e69291dd703462bf15839"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 24310,
+      "sha": "0110dc84bedc910710fac088194fe9454003df43ba3c43dd46efd4153a47d12e",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "9389e07554a79d660cc98bd575371e22e77fcaa77a7db96193a1f0f369dd4b6a",
+      "nodes": 26,
+      "depth": 5,
+      "canonical_chars": 2358,
+      "canonical_sha256": "0110dc84bedc910710fac088194fe9454003df43ba3c43dd46efd4153a47d12e",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Icon": 3,
+        "Text": 8,
+        "Table": 1,
+        "Card": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "9389e07554a79d660cc98bd575371e22e77fcaa77a7db96193a1f0f369dd4b6a",
+        "canonical_sha256": "0110dc84bedc910710fac088194fe9454003df43ba3c43dd46efd4153a47d12e"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 25283,
+      "sha": "34245d23b882c67d3c7f82ae567578203ac35b179d2da77e13281590ede79a6e",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "9e7a951a966d670fe4354b38660f72ed11044c2ec62b58a87580cec4e1049775",
+      "nodes": 19,
+      "depth": 4,
+      "canonical_chars": 2244,
+      "canonical_sha256": "34245d23b882c67d3c7f82ae567578203ac35b179d2da77e13281590ede79a6e",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Card": 1,
+        "Icon": 3,
+        "Text": 4,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "9e7a951a966d670fe4354b38660f72ed11044c2ec62b58a87580cec4e1049775",
+        "canonical_sha256": "34245d23b882c67d3c7f82ae567578203ac35b179d2da77e13281590ede79a6e"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 26255,
+      "sha": "13dfb28b39993573197ecf628facb94335d14b415157f7d45564658030f1012b",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "c1d64821d4fca61d99e28dd5b08e871541665692c43e011ea222904997c87a7a",
+      "nodes": 26,
+      "depth": 5,
+      "canonical_chars": 1364,
+      "canonical_sha256": "13dfb28b39993573197ecf628facb94335d14b415157f7d45564658030f1012b",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 6,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "c1d64821d4fca61d99e28dd5b08e871541665692c43e011ea222904997c87a7a",
+        "canonical_sha256": "13dfb28b39993573197ecf628facb94335d14b415157f7d45564658030f1012b"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 27228,
+      "sha": "1bbc19cefee2dd082251eb3c21de723ad1b74f324d4cca3ffe7781471dc2e769",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "5fe30d9ac50251440a4c5a22ca347383bbe926a9109f2a9252d34fb403b06c29",
+      "nodes": 21,
+      "depth": 5,
+      "canonical_chars": 1344,
+      "canonical_sha256": "1bbc19cefee2dd082251eb3c21de723ad1b74f324d4cca3ffe7781471dc2e769",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Card": 2,
+        "Icon": 2,
+        "Text": 7,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "5fe30d9ac50251440a4c5a22ca347383bbe926a9109f2a9252d34fb403b06c29",
+        "canonical_sha256": "1bbc19cefee2dd082251eb3c21de723ad1b74f324d4cca3ffe7781471dc2e769"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 28202,
+      "sha": "daf6f341c45545bf8daecf358ebc22f671f0cbf21109e2d08485d992ca4d3c81",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "182dfcb7c3e9e8d3b7e6282563dc06fce6557e58c5323694d84d9e5f6c4df401",
+      "nodes": 50,
+      "depth": 5,
+      "canonical_chars": 3485,
+      "canonical_sha256": "daf6f341c45545bf8daecf358ebc22f671f0cbf21109e2d08485d992ca4d3c81",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Card": 6,
+        "Icon": 5,
+        "Text": 17,
+        "Table": 1,
+        "Button": 6,
+        "Divider": 1
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "182dfcb7c3e9e8d3b7e6282563dc06fce6557e58c5323694d84d9e5f6c4df401",
+        "canonical_sha256": "daf6f341c45545bf8daecf358ebc22f671f0cbf21109e2d08485d992ca4d3c81"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 29175,
+      "sha": "4e63b73c243649b22ff0a19d13b7b17992bde9baf8ad88be70641732db74c520",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "b75b6ae8fa0a8d0f6b964c931d38b42d88d449c8b084b0c5d7df8ec1b9ed6770",
+      "nodes": 39,
+      "depth": 4,
+      "canonical_chars": 3807,
+      "canonical_sha256": "4e63b73c243649b22ff0a19d13b7b17992bde9baf8ad88be70641732db74c520",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 6,
+        "Icon": 4,
+        "Text": 15,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "b75b6ae8fa0a8d0f6b964c931d38b42d88d449c8b084b0c5d7df8ec1b9ed6770",
+        "canonical_sha256": "4e63b73c243649b22ff0a19d13b7b17992bde9baf8ad88be70641732db74c520"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 30147,
+      "sha": "e49fa9bae378eea9b0ed3ee8768ae86779718570b42a02c55582cf39d7130f83",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "d58c9d64d7d2d6c12f731afdc8a6018cdd926a9f24c05cf04e9033d0fc5af83d",
+      "nodes": 41,
+      "depth": 5,
+      "canonical_chars": 2956,
+      "canonical_sha256": "e49fa9bae378eea9b0ed3ee8768ae86779718570b42a02c55582cf39d7130f83",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 11,
+        "Card": 6,
+        "Icon": 3,
+        "Text": 12,
+        "Table": 1,
+        "Button": 8
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "d58c9d64d7d2d6c12f731afdc8a6018cdd926a9f24c05cf04e9033d0fc5af83d",
+        "canonical_sha256": "e49fa9bae378eea9b0ed3ee8768ae86779718570b42a02c55582cf39d7130f83"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 31120,
+      "sha": "a3457bdea2972ea033182aaf78226e3a6231730cb4ac63bf692d5942837290f4",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "4a8dd6bbb3170371f071c42c6af47e137006fd03c2b398b2a58b2a446fc5c2f7",
+      "nodes": 28,
+      "depth": 4,
+      "canonical_chars": 2916,
+      "canonical_sha256": "a3457bdea2972ea033182aaf78226e3a6231730cb4ac63bf692d5942837290f4",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 10,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "4a8dd6bbb3170371f071c42c6af47e137006fd03c2b398b2a58b2a446fc5c2f7",
+        "canonical_sha256": "a3457bdea2972ea033182aaf78226e3a6231730cb4ac63bf692d5942837290f4"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 32093,
+      "sha": "2f5a25484000752930aefe6f8bcd06190f4bf547433af7af8856c75cff3c7ab6",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3f66829675f825a8d9b47d3f8e411550018cc2dd4fa269fc1bd8e79c2ac5703a",
+      "nodes": 26,
+      "depth": 4,
+      "canonical_chars": 3037,
+      "canonical_sha256": "2f5a25484000752930aefe6f8bcd06190f4bf547433af7af8856c75cff3c7ab6",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 6,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 11,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3f66829675f825a8d9b47d3f8e411550018cc2dd4fa269fc1bd8e79c2ac5703a",
+        "canonical_sha256": "2f5a25484000752930aefe6f8bcd06190f4bf547433af7af8856c75cff3c7ab6"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 33065,
+      "sha": "4ce41804f78b4952f0bf16d20c6a8ef47aaa9175cf3a8cf98d9eaf5e313e293c",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "2893b9bca85729e53d4c04bc73106f5c98b3c237ad7a86dddbe5c414a126ed54",
+      "nodes": 46,
+      "depth": 5,
+      "canonical_chars": 3633,
+      "canonical_sha256": "4ce41804f78b4952f0bf16d20c6a8ef47aaa9175cf3a8cf98d9eaf5e313e293c",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 11,
+        "Card": 5,
+        "Icon": 4,
+        "Text": 21,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "2893b9bca85729e53d4c04bc73106f5c98b3c237ad7a86dddbe5c414a126ed54",
+        "canonical_sha256": "4ce41804f78b4952f0bf16d20c6a8ef47aaa9175cf3a8cf98d9eaf5e313e293c"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 34038,
+      "sha": "d9fa1c17302460255d4d16647fb241a2669c1a330a74d371fb61b013233952ac",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "159deb1560cca9b7e19d41b0745103ecb0b476b7f32e6b725f478017cba2347d",
+      "nodes": 29,
+      "depth": 5,
+      "canonical_chars": 2351,
+      "canonical_sha256": "d9fa1c17302460255d4d16647fb241a2669c1a330a74d371fb61b013233952ac",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Card": 5,
+        "Text": 10,
+        "Table": 1,
+        "Icon": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "159deb1560cca9b7e19d41b0745103ecb0b476b7f32e6b725f478017cba2347d",
+        "canonical_sha256": "d9fa1c17302460255d4d16647fb241a2669c1a330a74d371fb61b013233952ac"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 35010,
+      "sha": "6dce533e515101826fe4bc363da40eb546c0b1d93525c9265f68d7e0cfb265b7",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "7623664f7063f0c96a58bb58f2a773e830e0f034ec57917c2862730e6f015286",
+      "nodes": 41,
+      "depth": 5,
+      "canonical_chars": 3323,
+      "canonical_sha256": "6dce533e515101826fe4bc363da40eb546c0b1d93525c9265f68d7e0cfb265b7",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 13,
+        "Table": 1,
+        "Button": 8
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "7623664f7063f0c96a58bb58f2a773e830e0f034ec57917c2862730e6f015286",
+        "canonical_sha256": "6dce533e515101826fe4bc363da40eb546c0b1d93525c9265f68d7e0cfb265b7"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 35982,
+      "sha": "29cad01207077eca916423d7756f9f44e96eb9682cb0a8990ddae6851b2277b2",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "89b2f3801b2c53b63121fd93c71616ef8549d15a99c0d167b5a1218264ce41c3",
+      "nodes": 29,
+      "depth": 5,
+      "canonical_chars": 2385,
+      "canonical_sha256": "29cad01207077eca916423d7756f9f44e96eb9682cb0a8990ddae6851b2277b2",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 9,
+        "Table": 1,
+        "Button": 5
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "89b2f3801b2c53b63121fd93c71616ef8549d15a99c0d167b5a1218264ce41c3",
+        "canonical_sha256": "29cad01207077eca916423d7756f9f44e96eb9682cb0a8990ddae6851b2277b2"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 36954,
+      "sha": "fb3d4d8286cfe01a608f55362949fb2a963753b6fdf91452b14a953f52ae0c08",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "ae1f0820aa4cb4bf1bb1e06f7a8da0518603a95db653cbd24486abb7284b0231",
+      "nodes": 52,
+      "depth": 6,
+      "canonical_chars": 3384,
+      "canonical_sha256": "fb3d4d8286cfe01a608f55362949fb2a963753b6fdf91452b14a953f52ae0c08",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Card": 7,
+        "Icon": 4,
+        "Text": 21,
+        "Table": 1,
+        "Button": 5
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "ae1f0820aa4cb4bf1bb1e06f7a8da0518603a95db653cbd24486abb7284b0231",
+        "canonical_sha256": "fb3d4d8286cfe01a608f55362949fb2a963753b6fdf91452b14a953f52ae0c08"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 37928,
+      "sha": "ce8451656eaac4b6fcedac0b40ddaf71a6b6d3851386db94694c5c36a7e0860d",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "cf683b482f19adc0d792c046807093688b142faf63554092ea98f67cfbc17c24",
+      "nodes": 22,
+      "depth": 4,
+      "canonical_chars": 2396,
+      "canonical_sha256": "ce8451656eaac4b6fcedac0b40ddaf71a6b6d3851386db94694c5c36a7e0860d",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 5,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 8,
+        "Table": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "cf683b482f19adc0d792c046807093688b142faf63554092ea98f67cfbc17c24",
+        "canonical_sha256": "ce8451656eaac4b6fcedac0b40ddaf71a6b6d3851386db94694c5c36a7e0860d"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 38900,
+      "sha": "45c49e8a66621a6b755911d39185ee7d148da3a32e05a65f9c8178f0d60cd5d1",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "0a0012f6c8345c6072d350e26c77a0cfc1996dee63204485c30a6368ca0cc45f",
+      "nodes": 27,
+      "depth": 5,
+      "canonical_chars": 3589,
+      "canonical_sha256": "45c49e8a66621a6b755911d39185ee7d148da3a32e05a65f9c8178f0d60cd5d1",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 11,
+        "Card": 1,
+        "Icon": 3,
+        "Text": 6,
+        "Table": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "0a0012f6c8345c6072d350e26c77a0cfc1996dee63204485c30a6368ca0cc45f",
+        "canonical_sha256": "45c49e8a66621a6b755911d39185ee7d148da3a32e05a65f9c8178f0d60cd5d1"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 39872,
+      "sha": "df0196da75593391e1c63164da1c01743fb91b55b2d0462daaed6f30858d05fa",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "dc656a94f0af59895afa4ad134d75fc59a6932600d61c24f48324802c3eb77ab",
+      "nodes": 23,
+      "depth": 4,
+      "canonical_chars": 3192,
+      "canonical_sha256": "df0196da75593391e1c63164da1c01743fb91b55b2d0462daaed6f30858d05fa",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Text": 6,
+        "Icon": 2,
+        "Table": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "dc656a94f0af59895afa4ad134d75fc59a6932600d61c24f48324802c3eb77ab",
+        "canonical_sha256": "df0196da75593391e1c63164da1c01743fb91b55b2d0462daaed6f30858d05fa"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 40844,
+      "sha": "3d6ac18e81a076ceb9b7bfaa1fda9f24347473c21439d5cc653bc583e0e16a29",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "e29f20b07cfb27eaefaa3254124629b75c1d8d1dab0ab81be7c5a53b88d68393",
+      "nodes": 23,
+      "depth": 5,
+      "canonical_chars": 2106,
+      "canonical_sha256": "3d6ac18e81a076ceb9b7bfaa1fda9f24347473c21439d5cc653bc583e0e16a29",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Card": 2,
+        "Icon": 3,
+        "Text": 7,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "e29f20b07cfb27eaefaa3254124629b75c1d8d1dab0ab81be7c5a53b88d68393",
+        "canonical_sha256": "3d6ac18e81a076ceb9b7bfaa1fda9f24347473c21439d5cc653bc583e0e16a29"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 41817,
+      "sha": "d7e230266d26b4823d283dd68837dc8b3aa21aec74e383c73c8b3b50a87d04c1",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "91f30f93c509b1d8c1efdeef9820082e5c3b521c2bd18ab8dca508760f96e331",
+      "nodes": 39,
+      "depth": 6,
+      "canonical_chars": 2613,
+      "canonical_sha256": "d7e230266d26b4823d283dd68837dc8b3aa21aec74e383c73c8b3b50a87d04c1",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 15,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "91f30f93c509b1d8c1efdeef9820082e5c3b521c2bd18ab8dca508760f96e331",
+        "canonical_sha256": "d7e230266d26b4823d283dd68837dc8b3aa21aec74e383c73c8b3b50a87d04c1"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 42789,
+      "sha": "284cc63c9a30754d017047147954adc1f4cb55a38c207e531fbea2985a7f6d42",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "3b96f59ecce2ce157f57bcda5ae9cd882977b7bc62b4db547b936f41a9274945",
+      "nodes": 40,
+      "depth": 5,
+      "canonical_chars": 3683,
+      "canonical_sha256": "284cc63c9a30754d017047147954adc1f4cb55a38c207e531fbea2985a7f6d42",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 16,
+        "Table": 1,
+        "Button": 3
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "3b96f59ecce2ce157f57bcda5ae9cd882977b7bc62b4db547b936f41a9274945",
+        "canonical_sha256": "284cc63c9a30754d017047147954adc1f4cb55a38c207e531fbea2985a7f6d42"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 43761,
+      "sha": "731def914ad7aef8582af4c26f61fa3523483c825fcf5ab96e76fa40cc843873",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "7a95fea6decf7fd2cdc9ae02ca58e28874617bf1bf093b8c61c34dbfcb55b09d",
+      "nodes": 25,
+      "depth": 4,
+      "canonical_chars": 2270,
+      "canonical_sha256": "731def914ad7aef8582af4c26f61fa3523483c825fcf5ab96e76fa40cc843873",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 7,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 9,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "7a95fea6decf7fd2cdc9ae02ca58e28874617bf1bf093b8c61c34dbfcb55b09d",
+        "canonical_sha256": "731def914ad7aef8582af4c26f61fa3523483c825fcf5ab96e76fa40cc843873"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 44734,
+      "sha": "232e1dc16e4cc0581b48c1ea9c36acc64ac63f4f222e9471c9c55b11c890d2c3",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "7c288a06f46da0979446ac6407472cd2c9e6ea10f49a018ff733bb8dad88d0e3",
+      "nodes": 23,
+      "depth": 5,
+      "canonical_chars": 2087,
+      "canonical_sha256": "232e1dc16e4cc0581b48c1ea9c36acc64ac63f4f222e9471c9c55b11c890d2c3",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Card": 2,
+        "Icon": 1,
+        "Text": 8,
+        "Table": 2,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "7c288a06f46da0979446ac6407472cd2c9e6ea10f49a018ff733bb8dad88d0e3",
+        "canonical_sha256": "232e1dc16e4cc0581b48c1ea9c36acc64ac63f4f222e9471c9c55b11c890d2c3"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 45706,
+      "sha": "c7b5977f3259740118c261c604508868a13eb402ae7e5ea33cf1e690feb2c5c5",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "c16e7187f91937ee2522aabcdc1342d3b767bacc612076aa0dbedccc0a1447db",
+      "nodes": 22,
+      "depth": 4,
+      "canonical_chars": 1860,
+      "canonical_sha256": "c7b5977f3259740118c261c604508868a13eb402ae7e5ea33cf1e690feb2c5c5",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 5,
+        "Card": 2,
+        "Icon": 2,
+        "Text": 8,
+        "Table": 2,
+        "Formula": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "c16e7187f91937ee2522aabcdc1342d3b767bacc612076aa0dbedccc0a1447db",
+        "canonical_sha256": "c7b5977f3259740118c261c604508868a13eb402ae7e5ea33cf1e690feb2c5c5"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 46678,
+      "sha": "5f13364b4c7f0511bd64a314c06d353fc9355dc4f8e5c76ce7791bf68e70761e",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "9fa8d743452a40103a24f5e01bf18ef9d04426e4e867aae5b8e3ded77d5f04c5",
+      "nodes": 35,
+      "depth": 5,
+      "canonical_chars": 2229,
+      "canonical_sha256": "5f13364b4c7f0511bd64a314c06d353fc9355dc4f8e5c76ce7791bf68e70761e",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 13,
+        "Table": 1,
+        "Image": 1,
+        "Button": 3
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "9fa8d743452a40103a24f5e01bf18ef9d04426e4e867aae5b8e3ded77d5f04c5",
+        "canonical_sha256": "5f13364b4c7f0511bd64a314c06d353fc9355dc4f8e5c76ce7791bf68e70761e"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 47651,
+      "sha": "51caf4cbc26e9d864db8a55458629ebea6f462f9d757d80a42a6cb9512b22fe2",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "fe91ca77667cd999a948f4da459bb7360b573789945e4bd810b54fe786b36294",
+      "nodes": 23,
+      "depth": 5,
+      "canonical_chars": 1712,
+      "canonical_sha256": "51caf4cbc26e9d864db8a55458629ebea6f462f9d757d80a42a6cb9512b22fe2",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 8,
+        "Card": 2,
+        "Icon": 3,
+        "Text": 8,
+        "Button": 1,
+        "Table": 1
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "fe91ca77667cd999a948f4da459bb7360b573789945e4bd810b54fe786b36294",
+        "canonical_sha256": "51caf4cbc26e9d864db8a55458629ebea6f462f9d757d80a42a6cb9512b22fe2"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 48624,
+      "sha": "53b329470a8b3f657469fb68974070480ac3afe07cca753f49de5f8b0135cbc0",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "8a7a4bf43edb8c97d84ca3dd01aca3976253237d69f8589a432cf1f06024a10e",
+      "nodes": 43,
+      "depth": 5,
+      "canonical_chars": 3443,
+      "canonical_sha256": "53b329470a8b3f657469fb68974070480ac3afe07cca753f49de5f8b0135cbc0",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 7,
+        "Icon": 6,
+        "Text": 15,
+        "Table": 1,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "8a7a4bf43edb8c97d84ca3dd01aca3976253237d69f8589a432cf1f06024a10e",
+        "canonical_sha256": "53b329470a8b3f657469fb68974070480ac3afe07cca753f49de5f8b0135cbc0"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 49596,
+      "sha": "261ca41d0bc81338ec0a97af49193740f2eba36d778f3add13b333f3ea7e1d98",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "d1894193f0ff30097c624bdba8efa40192ce837014e20d7e3a9119a9ee46c674",
+      "nodes": 34,
+      "depth": 5,
+      "canonical_chars": 2583,
+      "canonical_sha256": "261ca41d0bc81338ec0a97af49193740f2eba36d778f3add13b333f3ea7e1d98",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 12,
+        "Formula": 1,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "d1894193f0ff30097c624bdba8efa40192ce837014e20d7e3a9119a9ee46c674",
+        "canonical_sha256": "261ca41d0bc81338ec0a97af49193740f2eba36d778f3add13b333f3ea7e1d98"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 50568,
+      "sha": "c3287eb0ea2887b7482485cab709b49b007c60e57fd07b81fa27c2b7f92faf70",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "bf92af82264e9f8e7204151f9ae8ad24924c2cca6a6ce01e2a1b0d22091dc63b",
+      "nodes": 28,
+      "depth": 5,
+      "canonical_chars": 3217,
+      "canonical_sha256": "c3287eb0ea2887b7482485cab709b49b007c60e57fd07b81fa27c2b7f92faf70",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 10,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 9,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "bf92af82264e9f8e7204151f9ae8ad24924c2cca6a6ce01e2a1b0d22091dc63b",
+        "canonical_sha256": "c3287eb0ea2887b7482485cab709b49b007c60e57fd07b81fa27c2b7f92faf70"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 51540,
+      "sha": "2fe37a49e1bc2ddf8907b5ff9894512018f191e33bbbd481c6838ec03090fbdc",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "5258d72e26a44fceb148eec7a699adec38d5ab1217b5dc6a6762b32376b06f7e",
+      "nodes": 45,
+      "depth": 5,
+      "canonical_chars": 3023,
+      "canonical_sha256": "2fe37a49e1bc2ddf8907b5ff9894512018f191e33bbbd481c6838ec03090fbdc",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Icon": 3,
+        "Text": 15,
+        "Card": 6,
+        "Table": 1,
+        "Button": 7
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "5258d72e26a44fceb148eec7a699adec38d5ab1217b5dc6a6762b32376b06f7e",
+        "canonical_sha256": "2fe37a49e1bc2ddf8907b5ff9894512018f191e33bbbd481c6838ec03090fbdc"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 52513,
+      "sha": "b0ef2ce1ae14c0b8122c9ebaf1ff168562c59e54513adba1658d57c1e5088a6e",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "9364f2cf69437b0e43ee3a51160d9c978d07fa4557b0d1ff1cc19dfe23245eb4",
+      "nodes": 22,
+      "depth": 4,
+      "canonical_chars": 3706,
+      "canonical_sha256": "b0ef2ce1ae14c0b8122c9ebaf1ff168562c59e54513adba1658d57c1e5088a6e",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Icon": 1,
+        "Text": 6,
+        "Table": 2,
+        "Button": 4
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "9364f2cf69437b0e43ee3a51160d9c978d07fa4557b0d1ff1cc19dfe23245eb4",
+        "canonical_sha256": "b0ef2ce1ae14c0b8122c9ebaf1ff168562c59e54513adba1658d57c1e5088a6e"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 53486,
+      "sha": "89f6abc0fb4874695c4a4b9d525cab30f0617368c45e69b1c67bea2db51fefa6",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "8e4e1943aceb24a8491284f086363b81e1af05edc33722dd6aca6f9d1c40c857",
+      "nodes": 39,
+      "depth": 5,
+      "canonical_chars": 3260,
+      "canonical_sha256": "89f6abc0fb4874695c4a4b9d525cab30f0617368c45e69b1c67bea2db51fefa6",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 12,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 13,
+        "Table": 1,
+        "Button": 4,
+        "Divider": 1
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "8e4e1943aceb24a8491284f086363b81e1af05edc33722dd6aca6f9d1c40c857",
+        "canonical_sha256": "89f6abc0fb4874695c4a4b9d525cab30f0617368c45e69b1c67bea2db51fefa6"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 54458,
+      "sha": "5146dd8764b1b20f56daf64fe3d40bcd07730c2e8c8b3ad828ef5fad38acd752",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "ee281fa7be5e269b34b80b904242d271ffdb118c91f31fb5234df2ce10dcf903",
+      "nodes": 26,
+      "depth": 5,
+      "canonical_chars": 1941,
+      "canonical_sha256": "5146dd8764b1b20f56daf64fe3d40bcd07730c2e8c8b3ad828ef5fad38acd752",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 8,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "ee281fa7be5e269b34b80b904242d271ffdb118c91f31fb5234df2ce10dcf903",
+        "canonical_sha256": "5146dd8764b1b20f56daf64fe3d40bcd07730c2e8c8b3ad828ef5fad38acd752"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 55431,
+      "sha": "6f57ab8b84b8feb9b738d1b961661ce135f996a4feeb8a005004621d6f7f8fc0",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "e51b8efaef2ea28197f5e2ca6de1237acbaedb75125e2ea4ed060aea3b91657f",
+      "nodes": 45,
+      "depth": 5,
+      "canonical_chars": 4614,
+      "canonical_sha256": "6f57ab8b84b8feb9b738d1b961661ce135f996a4feeb8a005004621d6f7f8fc0",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 14,
+        "Text": 17,
+        "Card": 4,
+        "Table": 2,
+        "Icon": 3,
+        "Button": 5
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "e51b8efaef2ea28197f5e2ca6de1237acbaedb75125e2ea4ed060aea3b91657f",
+        "canonical_sha256": "6f57ab8b84b8feb9b738d1b961661ce135f996a4feeb8a005004621d6f7f8fc0"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 56403,
+      "sha": "b1df17702c41aba5042405e99897f20cccdc61b751e76ae23af72243ad026a2f",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "961e13b8b77a4a8beefc9cd7ed88115c840585888ea305e0e79a0fb0d93bcaf1",
+      "nodes": 38,
+      "depth": 6,
+      "canonical_chars": 3097,
+      "canonical_sha256": "b1df17702c41aba5042405e99897f20cccdc61b751e76ae23af72243ad026a2f",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 13,
+        "Card": 5,
+        "Icon": 5,
+        "Text": 12,
+        "Table": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "961e13b8b77a4a8beefc9cd7ed88115c840585888ea305e0e79a0fb0d93bcaf1",
+        "canonical_sha256": "b1df17702c41aba5042405e99897f20cccdc61b751e76ae23af72243ad026a2f"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 57375,
+      "sha": "57fafcea0abd7f1e6cd1524a4611a06bb03413730594922c1dd92d20ca2a5684",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "a5f29303f6253c58386eae58077391172db6d30a77b1eee16f2643f1c55608f4",
+      "nodes": 25,
+      "depth": 4,
+      "canonical_chars": 4084,
+      "canonical_sha256": "57fafcea0abd7f1e6cd1524a4611a06bb03413730594922c1dd92d20ca2a5684",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 6,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 5,
+        "Table": 3,
+        "Button": 3
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "a5f29303f6253c58386eae58077391172db6d30a77b1eee16f2643f1c55608f4",
+        "canonical_sha256": "57fafcea0abd7f1e6cd1524a4611a06bb03413730594922c1dd92d20ca2a5684"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 58347,
+      "sha": "99813230871852e009e3cc05ed6df607229e8343cfc0af400bbd5354781ba683",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "2e67d14e250835ab7c5bff7d2e91eecb7adb3e0aae57eb464afea5c58c66d861",
+      "nodes": 29,
+      "depth": 4,
+      "canonical_chars": 2901,
+      "canonical_sha256": "99813230871852e009e3cc05ed6df607229e8343cfc0af400bbd5354781ba683",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 5,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 11,
+        "Formula": 1,
+        "Table": 3,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "2e67d14e250835ab7c5bff7d2e91eecb7adb3e0aae57eb464afea5c58c66d861",
+        "canonical_sha256": "99813230871852e009e3cc05ed6df607229e8343cfc0af400bbd5354781ba683"
+      },
+      "mismatches": []
+    },
+    {
+      "split": "train",
+      "line": 59320,
+      "sha": "e0cc98c0f53ea8ad1fe59b74ca7daef87d23a3536f0b5c88129f43f41049b38b",
+      "valid": 1,
+      "reason": "valid",
+      "semantic_sha": "8b4d4d85ba0f7c38953d54b39952c20b43eee01a8c99b99a1c74b43e220edb45",
+      "nodes": 32,
+      "depth": 5,
+      "canonical_chars": 3873,
+      "canonical_sha256": "e0cc98c0f53ea8ad1fe59b74ca7daef87d23a3536f0b5c88129f43f41049b38b",
+      "empty_layout_leaves": 0,
+      "only_layout_or_divider": 0,
+      "components": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 13,
+        "Table": 2,
+        "Tabs": 1,
+        "Button": 2
+      },
+      "selection_reasons": [
+        "line_spread"
+      ],
+      "reference": {
+        "valid": true,
+        "reason": "valid",
+        "semantic_sha": "8b4d4d85ba0f7c38953d54b39952c20b43eee01a8c99b99a1c74b43e220edb45",
+        "canonical_sha256": "e0cc98c0f53ea8ad1fe59b74ca7daef87d23a3536f0b5c88129f43f41049b38b"
+      },
+      "mismatches": []
+    }
+  ]
+}

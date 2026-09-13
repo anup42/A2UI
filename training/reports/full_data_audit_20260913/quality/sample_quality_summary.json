@@ -1,0 +1,4137 @@
+{
+  "scope": "Exhaustive cheap text signals plus deterministic equally spaced samples and six low-lexical-recall cases per split. Heuristics are not a factual quality or benchmark score; sample defect prevalence is not extrapolated.",
+  "source_dir": "C:\\Users\\anupk\\Downloads\\training_data",
+  "production_prompt_contract_sha256": "00a5af656e875f8bbe7b15e000efb4ef751f8e6223da3608648d20e94b296bf5",
+  "sample_evidence": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\quality\\qualitative_samples.jsonl",
+  "row_text_signals": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\quality\\row_text_signals.csv",
+  "analysis_script_sha256": "a4d868a1f114a32843126415ace7e579bceca45048f4e3c85e3b45c045b96585",
+  "limitations": [
+    "Lexical recall allows neither paraphrase equivalence nor faithful numeric formatting; warnings require review.",
+    "Placeholder role remapping can be legitimate with a restoration map; messages-only rows lack that evidence.",
+    "Strict validation runs only on sampled rows here; use the separate exhaustive IR audit for corpus totals."
+  ],
+  "splits": {
+    "train": {
+      "sampled_rows": 46,
+      "strict_valid_rows": 46,
+      "production_scaffold_exact_matches": 0,
+      "distinct_scaffolds": 1,
+      "target_mojibake_rows": 13,
+      "source_mojibake_rows": 5,
+      "missing_source_action_label_rows_hint": 8,
+      "generic_open_source_button_rows": 1,
+      "target_only_placeholder_rows_hint": 12,
+      "word_recall_below_half_rows_hint": 6
+    },
+    "val": {
+      "sampled_rows": 21,
+      "strict_valid_rows": 21,
+      "production_scaffold_exact_matches": 0,
+      "distinct_scaffolds": 1,
+      "target_mojibake_rows": 8,
+      "source_mojibake_rows": 4,
+      "missing_source_action_label_rows_hint": 0,
+      "generic_open_source_button_rows": 0,
+      "target_only_placeholder_rows_hint": 7,
+      "word_recall_below_half_rows_hint": 1
+    }
+  },
+  "exhaustive_text_signals": {
+    "train": {
+      "encoding": "utf-16",
+      "physical_rows_scanned": 150292,
+      "signals": {
+        "source_mojibake": 20196,
+        "target_mojibake": 39036,
+        "source_replacement_character": 0,
+        "target_replacement_character": 0,
+        "target_todo_placeholder": 286,
+        "target_only_placeholder": 42808,
+        "source_only_placeholder": 47435,
+        "source_has_named_actions": 144657,
+        "source_action_label_missing": 15168,
+        "generic_open_source_button": 6,
+        "lexical_recall_under_half": 936,
+        "lexical_recall_under_three_quarters": 7347,
+        "numeric_source_with_three_anchors": 140103,
+        "numeric_half_missing_with_three_anchors": 3248,
+        "source_chars_total": 330773808,
+        "target_chars_total": 480596391
+      },
+      "target_source_char_ratio_histogram": {
+        "0.5_to_0.75": 1098,
+        "1_to_2": 141662,
+        "2_or_more": 3461,
+        "0.75_to_1": 3874,
+        "0.25_to_0.5": 196,
+        "under_0.25": 1
+      }
+    },
+    "val": {
+      "encoding": "utf-16",
+      "physical_rows_scanned": 910,
+      "signals": {
+        "source_mojibake": 118,
+        "target_mojibake": 236,
+        "source_replacement_character": 0,
+        "target_replacement_character": 0,
+        "target_todo_placeholder": 1,
+        "target_only_placeholder": 288,
+        "source_only_placeholder": 323,
+        "source_has_named_actions": 873,
+        "source_action_label_missing": 89,
+        "generic_open_source_button": 0,
+        "lexical_recall_under_half": 3,
+        "lexical_recall_under_three_quarters": 31,
+        "numeric_source_with_three_anchors": 847,
+        "numeric_half_missing_with_three_anchors": 23,
+        "source_chars_total": 1970221,
+        "target_chars_total": 2903209
+      },
+      "target_source_char_ratio_histogram": {
+        "1_to_2": 868,
+        "2_or_more": 24,
+        "0.25_to_0.5": 1,
+        "0.75_to_1": 17
+      }
+    }
+  },
+  "samples": [
+    {
+      "split": "train",
+      "line_1based": 1,
+      "byte_offset": 0,
+      "row_sha256": "27537d9385109636aca316cb992620b9c5a666398cf718e1d1f3bf69f7799a67",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1860,
+      "target_chars": 1382,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 2,
+        "Icon": 1,
+        "Text": 12,
+        "Card": 4,
+        "Button": 1
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 10
+      },
+      "distinct_word_recall_hint": 0.5798319327731093,
+      "missing_number_anchors_hint": [
+        "01:05",
+        "01:20",
+        "03:10",
+        "10:48",
+        "1950",
+        "3",
+        "4"
+      ],
+      "source_only_placeholders_hint": [
+        "[ACTION_URL_1]",
+        "[ACTION_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ICON_URL_1]"
+      ],
+      "source_headings": [
+        "90s Neo-Noir & Psychological Thriller Marathon",
+        "Curated Film Selection",
+        "Viewing Schedule",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Viewing Schedule",
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Rent Movies",
+        "Movie Trivia"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Rent Movies",
+        "Movie Trivia"
+      ],
+      "generic_open_source_button": true,
+      "response_excerpt": "## 90s Neo-Noir & Psychological Thriller Marathon\nA high-tension evening curated for adults, focusing on the rain-soaked aesthetics of neo-noir and the mind-bending puzzles of 90s psychological cinema. This selection prioritizes atmospheric dread and",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 3855,
+      "byte_offset": 48786142,
+      "row_sha256": "dd9ac81b8b083e99a1892dd8535cf0c39b65a75f15a1508ede938f8b705f284d",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2271,
+      "target_chars": 3446,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 12,
+        "Card": 6,
+        "Icon": 3,
+        "Text": 16,
+        "Table": 1,
+        "Button": 5
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "distinct_word_recall_hint": 0.9883040935672515,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_3]",
+        "[ACTION_URL_4]",
+        "[ACTION_URL_5]"
+      ],
+      "source_headings": [
+        "El Ni├▒o Climate Phenomenon",
+        "Impact on Peru and Ecuador (DecΓÇôFeb)",
+        "Regional Weather Comparison",
+        "Environmental and Economic Consequences"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "NOAA El Ni├▒o Tracker",
+        "World Meteorological Org"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "# El Ni├▒o Climate Phenomenon\n\nMedia: Icon=[ICON_URL_1]\nEl Ni├▒o is a climate pattern describing the abnormal warming of surface waters in the central and eastern tropical Pacific Ocean. It occurs when the trade winds, which usually push warm water t",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 7708,
+      "byte_offset": 97234542,
+      "row_sha256": "9208db68215813a2d63806c51b6a5f36a698369f9dde173715a306e2aab7f97e",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1544,
+      "target_chars": 2582,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 2,
+        "Icon": 1,
+        "Text": 10,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9122807017543859,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Project Timeline Overview",
+        "3-Week Implementation Roadmap",
+        "Project Schedule Data",
+        "Project Insights",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "View Project Tool",
+        "Gantt Chart Maker"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "# Project Timeline Overview\nMedia: Icon=[ICON_URL_1]\nThis 21-day project follows a linear sequential path, transitioning from initial discovery through to final quality assurance.\n\n# 3-Week Implementation Roadmap\nThe following schedule outlines the p",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 11562,
+      "byte_offset": 145743156,
+      "row_sha256": "55ee9ad71f2bdf0b4e288183c1ed416750a05f6a49f55621cdd85b08851e4f6c",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1827,
+      "target_chars": 3115,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 12,
+        "Card": 5,
+        "Icon": 3,
+        "Text": 14,
+        "Table": 1,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9850746268656716,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Gala Planning Overview",
+        "Fundraising Gala Roadmap",
+        "Key Planning Milestones",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Find Venues",
+        "Sponsor Templates",
+        "Ticketing Tools",
+        "Budget Template",
+        "Nonprofit Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Gala Planning Overview\nMedia: Icon=[ICON_URL_1]\nThis roadmap outlines a 6-month preparation cycle for a 100-guest fundraising gala on December 5, 2025, prioritizing early sponsorship and venue security to ensure financial viability.\n\n## Fundraisin",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 15415,
+      "byte_offset": 194339620,
+      "row_sha256": "0aaf255672e2e350833f28c9c9774601db474547f009933d38152159382903e4",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1752,
+      "target_chars": 3046,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 12,
+        "Card": 5,
+        "Icon": 2,
+        "Text": 14,
+        "Button": 9,
+        "Table": 1
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9836065573770492,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_7]"
+      ],
+      "source_headings": [
+        "Cooperative Mystery Gaming for Six",
+        "Top Cooperative Mystery Recommendations",
+        "Game Comparison Matrix",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View Game",
+        "Explore Cases",
+        "Learn More",
+        "See Adventures",
+        "Shop Board Game Geek",
+        "Find Local Game Store"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Cooperative Mystery Gaming for Six\nMedia: Icon=[ICON_URL_1]\nFinding cooperative games for larger groups that stay under 90 minutes can be challenging, as many mystery games are either competitive or very long. The following selections prioritize t",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 19269,
+      "byte_offset": 242790282,
+      "row_sha256": "2d9d2068ab0d26a5be870c8abb6d17b5491303006b0159203eaa0de979c34342",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1473,
+      "target_chars": 2430,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 11,
+        "Card": 2,
+        "Icon": 2,
+        "Text": 17,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9080459770114943,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Tech Company Leadership Structure",
+        "Corporate Reporting Hierarchy",
+        "Departmental Breakdown",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Export Chart",
+        "Org Templates"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Tech Company Leadership Structure\nMedia: Icon=[ICON_URL_1]\nThis organizational hierarchy defines the reporting lines for a medium-sized technology firm, centering on a functional structure where the CEO oversees three core operational pillars: Eng",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 23123,
+      "byte_offset": 291367428,
+      "row_sha256": "5d9c04d118e3f311d3c88f47f59d5410c49093fdf2e7764b29953ebba97fed1e",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1288,
+      "target_chars": 2343,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 3,
+        "Card": 3,
+        "Icon": 1,
+        "Text": 7,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9444444444444444,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Monthly Budget Overview",
+        "Spending Distribution Breakdown",
+        "Budget Insights"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Budget Planner",
+        "Savings Calculator"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Monthly Budget Overview\nMedia: Icon=[ICON_URL_1]\nYour total monthly expenditure is **$2,250**. The largest portion of your budget is dedicated to housing, accounting for over half of your total spend.\n\n## Spending Distribution Breakdown\nFormula: \\",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 26976,
+      "byte_offset": 339901342,
+      "row_sha256": "3ef6335db873eacf02ec7da75e23825437c6d2ce0a5ec940c4511bd8172b64df",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1428,
+      "target_chars": 2518,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 12,
+        "Card": 5,
+        "Icon": 3,
+        "Text": 11,
+        "Table": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 4
+      },
+      "distinct_word_recall_hint": 0.9746835443037974,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Madrid Apartment Insurance Overview",
+        "Home Insurance Plan Comparison",
+        "Flood-Prone Area Recommendation"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Select Plan C",
+        "Select Plan A",
+        "Compare More Quotes",
+        "Flood Risk Map"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Madrid Apartment Insurance Overview\nMedia: Icon=[ICON_URL_1]\nComparison for a 120sqm apartment focusing on annual cost, out-of-pocket deductibles, and critical flood coverage.\n\n## Home Insurance Plan Comparison\nMedia: Icon=[ICON_URL_2]\n\nPlan | Ann",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 30830,
+      "byte_offset": 388677400,
+      "row_sha256": "8eeee59804ea9ecbfde6e716dafcf4c5fce5e6d82129833689394380bc0bec2b",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2225,
+      "target_chars": 3582,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 14,
+        "Card": 6,
+        "Icon": 4,
+        "Text": 13,
+        "Tabs": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.875,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Vegan and Gluten-Free Lasagna for Six",
+        "Ingredient Checklist",
+        "Preparation and Baking Steps",
+        "Step 1: Dairy-Free Ricotta Blend",
+        "Step 2: Vegetable Sauce Base",
+        "Step 3: Layering the Dish",
+        "Step 4: Baking Instructions",
+        "Nutrition and Serving Guide"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Find GF Noodles",
+        "Vegan Cheese Options"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Vegan and Gluten-Free Lasagna for Six\nMedia: Icon=[ICON_URL_1]\nThis plant-based, gluten-free adaptation replaces traditional pasta with GF sheets and dairy with a nutrient-dense cashew-tofu ricotta, maintaining the hearty texture of the original.\n",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 34684,
+      "byte_offset": 437211622,
+      "row_sha256": "64d9d120bb39b52b755ec52d3dd9dc2eb70fd0fd95f536aea81bcdd285173a99",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1822,
+      "target_chars": 3000,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Icon": 1,
+        "Text": 6,
+        "Table": 2,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9423076923076923,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[ICON_URL_4]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[IMAGE_URL_3]"
+      ],
+      "source_headings": [
+        "Singapore 48-Hour Layover Overview",
+        "City and Island Exploration Schedule",
+        "Time Allocation Breakdown",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Book Gardens Tickets",
+        "Explore Sentosa",
+        "Changi Airport Guide",
+        "Visit Singapore Official"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Singapore 48-Hour Layover Overview\nMedia: Icon=[ICON_URL_1]\nA compact, high-energy exploration of the Lion City, balancing futuristic architecture, cultural dining, and island relaxation. This itinerary optimizes transit between the city center an",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 38537,
+      "byte_offset": 485752930,
+      "row_sha256": "14e0c0b3135dcffb42194ef75a51e9fb77eb85c97d550f13c94c79815d1a3871",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2156,
+      "target_chars": 3211,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 8,
+        "Card": 1,
+        "Icon": 3,
+        "Text": 4,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9788732394366197,
+      "missing_number_anchors_hint": [
+        "1",
+        "10",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "French Revolution Trivia Challenge",
+        "Trivia Questions by Difficulty",
+        "Study Quick-Reference"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Explore French History",
+        "Timeline of Events"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "# French Revolution Trivia Challenge\nMedia: Icon=[ICON_URL_1]\nTest your knowledge of the tumultuous decade that reshaped modern politics, from the storming of the Bastille to the rise of Napoleon Bonaparte.\n\n## Trivia Questions by Difficulty\nMedia: I",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 42391,
+      "byte_offset": 534466288,
+      "row_sha256": "78d1a1fa6ac9624b71904370357d72bce40d404d7bc93fe9c52e9d3610f85659",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2217,
+      "target_chars": 3047,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 9,
+        "Table": 2,
+        "Formula": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.6692307692307692,
+      "missing_number_anchors_hint": [
+        "10"
+      ],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_3]",
+        "[ACTION_URL_4]",
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]"
+      ],
+      "source_headings": [
+        "Health Insurance Comparison Framework",
+        "Health Plan Metric Comparison",
+        "Annual Effective Cost Calculation",
+        "Plan Selection Guide",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Compare OHIP Plus",
+        "Find Registered Physio"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Health Insurance Comparison Framework\nMedia: Icon=[ICON_URL_1]\nThis framework is designed for a 35-year-old non-smoker in Toronto to evaluate the trade-off between fixed monthly costs and potential out-of-pocket expenses. The focus is on balancing",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 46244,
+      "byte_offset": 582827326,
+      "row_sha256": "024737464bc3ad124f321cce3b34560511bc7daace26c3be1e51dcf14d9a165e",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2533,
+      "target_chars": 4846,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 15,
+        "Card": 8,
+        "Icon": 4,
+        "Text": 17,
+        "Table": 2,
+        "Button": 8
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9874213836477987,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_6]",
+        "[ACTION_URL_7]",
+        "[ACTION_URL_8]"
+      ],
+      "source_headings": [
+        "CKD Stage 2 Dietary Strategy",
+        "Budget-Friendly Renal Staples",
+        "Monthly Budget Breakdown",
+        "Renal-Friendly Meal Ideas",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View Recipes",
+        "Diet Guide",
+        "Nutrition Tips",
+        "CKD Diet Planner",
+        "Low-Sodium Tips"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## CKD Stage 2 Dietary Strategy\nMedia: Icon=[ICON_URL_1]\nFor Stage 2 Chronic Kidney Disease (CKD), the goal is to maintain kidney function by controlling blood pressure and reducing the workload on the kidneys. This plan focuses on high-quality prote",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 50098,
+      "byte_offset": 631922002,
+      "row_sha256": "41970a6cd826aa49c5d5b84232401682ebfb0ff287c40fcf62415b4b0cbca0d3",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1413,
+      "target_chars": 2466,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 4,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 10,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.972972972972973,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Investment Scenario: Atlanta Property Flip",
+        "Profit Calculation & Listing Price",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Atlanta Market Trends",
+        "Mortgage Calculator"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Investment Scenario: Atlanta Property Flip\nMedia: Icon=[ICON_URL_1]\nTo achieve a 20% net profit on the total capital invested, the listing price must cover the purchase cost, renovation expenses, the 6% sales commission, and the target profit marg",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 53952,
+      "byte_offset": 681081684,
+      "row_sha256": "b437a14a87cba76d168974a27a945b98b6cfccf3db253f403c88c3f8c1352200",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2086,
+      "target_chars": 3138,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 5,
+        "Icon": 2,
+        "Text": 12,
+        "Table": 1,
+        "Button": 6
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 4
+      },
+      "distinct_word_recall_hint": 0.9864864864864865,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_5]",
+        "[ACTION_URL_6]"
+      ],
+      "source_headings": [
+        "Diet Sustainability Overview",
+        "Dietary Comparison for Heart Health",
+        "Top Recommendations",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View Guidelines",
+        "Low Carb Tips",
+        "BP Tracking Tool",
+        "Heart-Healthy Recipes"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Diet Sustainability Overview\nMedia: Icon=[ICON_URL_1]\nFor a 45-year-old male with high blood pressure and a preference for grains and fruits, the **Mediterranean diet** is significantly more sustainable. It aligns with existing food preferences an",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 57805,
+      "byte_offset": 732849028,
+      "row_sha256": "ab461d62138cb23fc92ce18f784a49bbd972b45a76d12ac1c381857f54c7a518",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1268,
+      "target_chars": 2342,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Text": 11,
+        "Card": 3,
+        "Icon": 2,
+        "Table": 1,
+        "Divider": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9620253164556962,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]"
+      ],
+      "source_headings": [
+        "Nut Nutriton Overview",
+        "Nut Nutritional Comparison",
+        "Dietary Recommendation",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Nut Nutriton Overview"
+      ],
+      "source_action_labels": [
+        "USDA Food Data",
+        "Nutrition Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Nut Nutriton Overview\nThis comparison evaluates 100g servings of raw almonds, walnuts, and cashews, focusing on energy density and key heart-healthy nutrients.\n\n## Nut Nutritional Comparison\nMedia: Icon=[ICON_URL_1]\n\n| Nut Type | Calories | Protei",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 61659,
+      "byte_offset": 786773526,
+      "row_sha256": "644096584c430c0a7fc8413366534762deb3f88779892219ae465bc3eda471f9",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2609,
+      "target_chars": 4018,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 11,
+        "Card": 2,
+        "Icon": 4,
+        "Text": 9,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9808917197452229,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[ICON_URL_4]",
+        "[ICON_URL_5]",
+        "[ICON_URL_6]",
+        "[ICON_URL_7]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]",
+        "[ICON_ASSET_3]",
+        "[ICON_ASSET_4]"
+      ],
+      "source_headings": [
+        "Virtual Team Alignment Workshop Overview",
+        "Workshop Roadmap & Schedule",
+        "Brainstorming Session Structure",
+        "Implementation Checklist",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Create Calendar Invites",
+        "Set up Miro Board"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Virtual Team Alignment Workshop Overview\nMedia: Icon=[ICON_URL_1]\nThis three-day intensive is designed to synchronize 12 team members across EST and PST. To ensure inclusivity, the schedule runs from **10:00 AM to 3:00 PM EST (7:00 AM to 12:00 PM ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 65512,
+      "byte_offset": 841098870,
+      "row_sha256": "2b3777fc5c553a1b3cdf69bc1a474f92bc70f781018530799e5c2d7a63cc4f71",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2333,
+      "target_chars": 3626,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 8,
+        "Card": 4,
+        "Icon": 4,
+        "Text": 10,
+        "Table": 2,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.974025974025974,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[ICON_URL_4]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_3]",
+        "[ACTION_URL_4]",
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]",
+        "[ICON_ASSET_3]",
+        "[ICON_ASSET_4]"
+      ],
+      "source_headings": [
+        "Brake System Diagnostic Snapshot",
+        "Brake Issue Diagnostic Checklist",
+        "Estimated Repair Cost Breakdown",
+        "Brake Service Recommendation"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Find Local Mechanic",
+        "Honda Parts Catalog"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Brake System Diagnostic Snapshot\nMedia: Icon=[ICON_URL_1]\nBased on the 85,000-mile mark and the combination of high-pitched squealing and steering wheel vibration, your Honda CR-V is likely experiencing worn brake pads (triggering the wear indicat",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 69366,
+      "byte_offset": 896061450,
+      "row_sha256": "0ffeb3e0c5881429dec09b0ed19f94fb0b5c5f356e387a9df06b2046828fcb27",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2452,
+      "target_chars": 3534,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 5,
+        "Icon": 5,
+        "Text": 20,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.9012345679012346,
+      "missing_number_anchors_hint": [
+        "1.5"
+      ],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[ICON_URL_4]",
+        "[ICON_URL_5]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_3]",
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]",
+        "[ICON_ASSET_3]",
+        "[ICON_ASSET_4]",
+        "[ICON_ASSET_5]"
+      ],
+      "source_headings": [
+        "Brake Noise Diagnostic Overview",
+        "Brake System Troubleshooting Guide",
+        "Component Replacement Checklist",
+        "US Repair Cost Estimation",
+        "Repair Strategy Recommendation"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Find Local Mechanic",
+        "Buy Honda Parts"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Brake Noise Diagnostic Overview\nMedia: Icon=[ICON_URL_1]\nA high-pitched squeal during braking in a 2017 Honda CR-V is typically caused by the brake wear indicator (a small metal tab) contacting the rotor, signaling that brake pads are low. However",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 73220,
+      "byte_offset": 950731508,
+      "row_sha256": "c624256437b89e8006aead2307d74305e6b7f025df50f5e975840eb70b60af32",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 3699,
+      "target_chars": 4642,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 8,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 10,
+        "Table": 2,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.8154506437768241,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[ICON_URL_4]",
+        "[ICON_URL_5]",
+        "[ICON_URL_6]",
+        "[ICON_URL_7]",
+        "[ICON_URL_8]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_9]",
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]",
+        "[ICON_ASSET_3]"
+      ],
+      "source_headings": [
+        "Kyoto Spring Escape Overview",
+        "Recommended Neighborhoods for Stay",
+        "Zen & Traditions: 7-Day Itinerary",
+        "Budget Breakdown (Mid-Range)",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Explore Higashiyama",
+        "Zen Garden Guide",
+        "Arashiyama Map",
+        "Nara Transit",
+        "Tea Ceremony Info",
+        "Gion Etiquette",
+        "Kyoto Transport",
+        "Book Kyoto Hotels",
+        "JR Pass Info"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Kyoto Spring Escape Overview\nMedia: Icon=[ICON_URL_1]\nA refined 7-day exploration of Kyoto during the peak cherry blossom season, emphasizing mindfulness, Zen aesthetics, and traditional tea culture. This itinerary balances iconic landmarks with q",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 77073,
+      "byte_offset": 1001457756,
+      "row_sha256": "4fc0ee17a2726a4a2e5f16e55c032aa02d655e06ab893536c9db3424b50ffb1e",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1484,
+      "target_chars": 2374,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 10,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 8,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9772727272727273,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Senior Developer Hiring Pipeline Overview",
+        "Funnel Conversion Metrics",
+        "Pipeline Bottleneck Analysis",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Optimize Sourcing",
+        "Refine Interview Rubrics"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Senior Developer Hiring Pipeline Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/person-workspace.svg\nThe recruitment process for the Senior Developer role started with **450 applicants**, resulting in **3 final offe",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 80927,
+      "byte_offset": 1052011022,
+      "row_sha256": "6f6f75c71abb12d1471ca6eb09e95eb9d0d99ec49edc0024af4bef070e765b3b",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2328,
+      "target_chars": 3840,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 16,
+        "Text": 18,
+        "Icon": 4,
+        "Card": 6,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9769230769230769,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "5-Year Growth Projection Analysis",
+        "Returns Comparison and Calculation",
+        "Strategic Portfolio Selection",
+        "Financial Performance Insights",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Returns Comparison and Calculation"
+      ],
+      "source_action_labels": [
+        "View Low-Risk Bonds",
+        "Explore Index Funds",
+        "Equity Market Guide",
+        "Compound Interest Calc",
+        "Risk Tolerance Quiz"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## 5-Year Growth Projection Analysis\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/graph-up-arrow.svg\nThis analysis compares three distinct investment risk profiles based on an initial capital injection of **$10,000** held for",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 84781,
+      "byte_offset": 1102863354,
+      "row_sha256": "10d38ca74b7049cd6a7ef7674194e168cfc2600b8f5881e804d5279f27ad7fc6",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2459,
+      "target_chars": 3835,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 10,
+        "Card": 2,
+        "Icon": 1,
+        "Text": 12,
+        "Table": 3,
+        "Formula": 1,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9790209790209791,
+      "missing_number_anchors_hint": [
+        "270"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Debt Snowball Strategy Overview",
+        "Payoff Priority and Sequence",
+        "Debt Elimination Roadmap",
+        "Financial Health Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Debt Payoff Calculator",
+        "Budgeting Tools",
+        "Credit Score Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Debt Snowball Strategy Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/piggy-bank.svg\nThe Debt Snowball method prioritizes paying off debts from the **smallest balance to the largest**, regardless of interest rates. ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 88634,
+      "byte_offset": 1153781756,
+      "row_sha256": "adbb368f8f5385a0c7c9c0228e74049710d603e46332518b87c7c5b6a7f7bd82",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1600,
+      "target_chars": 2686,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 11,
+        "Card": 6,
+        "Icon": 2,
+        "Text": 11,
+        "Table": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.9764705882352941,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Berlin Housing Analysis",
+        "Rental Comparison Detail",
+        "Professional's Recommendation",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View Details",
+        "View Details",
+        "Search Berlin Rentals",
+        "Berlin Transport Map"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Berlin Housing Analysis\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/house-door.svg\nFinding the ideal balance between commute time and monthly expenditure is critical for professionals in Berlin. Based on your hard budget ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 92488,
+      "byte_offset": 1204650754,
+      "row_sha256": "22b2c9d7f364d8eb09388e8e2b81c29d3c6423abeff20adb9f7ace2acd99e14b",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2497,
+      "target_chars": 3598,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 9,
+        "Icon": 2,
+        "Text": 17,
+        "Tabs": 1,
+        "Table": 2,
+        "Button": 3
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 3
+      },
+      "distinct_word_recall_hint": 0.9414893617021277,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "GF & Nut-Free Dessert Planning",
+        "Budget & Dietary Context",
+        "Decadent Flourless Chocolate Cake",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Shop GF Ingredients",
+        "Dessert Pairing Tips"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## GF & Nut-Free Dessert Planning\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/star.svg\nHosting six guests with restricted diets requires a dessert that is naturally inclusive rather than one relying on expensive substitutes.",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 96341,
+      "byte_offset": 1255735622,
+      "row_sha256": "005907d52ed07a7b6b991c6b4af418e12eb5e16890a6573e5f889962402b651c",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 771,
+      "target_chars": 1547,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 8,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9607843137254902,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "January Expenditure Summary",
+        "Category Spending Breakdown",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Budget Planner",
+        "Expense Tracker"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## January Expenditure Summary\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wallet2.svg\nTotal Spend: **$420**\nHighest Category: **Utilities**\nTotal Transactions: **6**\n\n## Category Spending Breakdown\nMedia: Icon=https://cdn.j",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 100195,
+      "byte_offset": 1306891816,
+      "row_sha256": "328877038c25dfe6ceba937a357aeec710c817b7724da4180e6c1712ccafe96d",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2294,
+      "target_chars": 2856,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 8,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 11,
+        "Table": 1,
+        "Formula": 1
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.8214285714285714,
+      "missing_number_anchors_hint": [
+        "25-31",
+        "70%",
+        "89%"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Daily Wellness Habit Framework",
+        "Habit Tracking Matrix",
+        "Weekly Review & Reward System",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Habitica App",
+        "Notion Templates",
+        "Water Tracker"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Habitica App",
+        "Notion Templates",
+        "Water Tracker"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Daily Wellness Habit Framework\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/heart-pulse.svg\nThis system focuses on low-friction entry points to ensure long-term adherence. By combining a binary \"Yes/No\" tracking matrix wit",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 104049,
+      "byte_offset": 1357649010,
+      "row_sha256": "9edf8651fa41bc82c21c81a571660e9231672f95220a97c468b22cd4abbbc8dc",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1319,
+      "target_chars": 2403,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 11,
+        "Card": 4,
+        "Icon": 1,
+        "Text": 12,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9558823529411765,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Mortgage Payment Overview",
+        "Loan Calculation Breakdown",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Mortgage Calculator",
+        "Amortization Schedule"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Mortgage Payment Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/house.svg\n- Monthly Principal & Interest: **$1,891.18**\n- Total Interest Paid: **$380,824.80**\n- Total Lifetime Cost: **$680,824.80**\n\n## Loan Calculat",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 107902,
+      "byte_offset": 1408618656,
+      "row_sha256": "beac35d72895c4e6ddfb34f225558203fa918dabf1f49f6669f89e58eed2a1f2",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2601,
+      "target_chars": 3677,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 5,
+        "Icon": 3,
+        "Text": 10,
+        "Table": 1,
+        "Button": 6
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.9818181818181818,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "NY Freelance Consultant Launch Overview",
+        "Step-by-Step Registration Roadmap",
+        "Federal and State Tax Requirements",
+        "Quick Actions",
+        "Official Regulatory Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Apply for EIN",
+        "NY Business Express",
+        "NY Tax Registration"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## NY Freelance Consultant Launch Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/rocket-takeoff.svg\nStarting a sole proprietorship in New York is the simplest business structure for consultants, as it requires minimal ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 111756,
+      "byte_offset": 1459580786,
+      "row_sha256": "419195154ea9a27f30408573db76597b5ed616115664846bba01fbf57f893e8a",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2537,
+      "target_chars": 3433,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Text": 7,
+        "Card": 1,
+        "Table": 3,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9725274725274725,
+      "missing_number_anchors_hint": [
+        "3",
+        "4"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "History 101: Session Entry Overview",
+        "Session Context",
+        "Interface Flow & Interaction Logic",
+        "Screen Design Specifications",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Create Quiz",
+        "Student Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## History 101: Session Entry Overview\nThis interface is designed for rapid, zero-friction onboarding, allowing students to transition from a physical classroom environment to a digital interactive session in under 10 seconds.\n\n## Session Context\n- *",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 115609,
+      "byte_offset": 1510375830,
+      "row_sha256": "6e932eb1abf3ce31f26f699cfbc6f72c7b5af85d7704af37a17abfbd611c3c8b",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 946,
+      "target_chars": 1662,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 4,
+        "Icon": 1,
+        "Text": 9,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.8852459016393442,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Monthly Budget Overview",
+        "Spending Distribution Data",
+        "Top Expenditure Analysis",
+        "Financial Resources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Budget Planner",
+        "Expense Tracker"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Monthly Budget Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/currency-dollar.svg\n- Total Monthly Spend: **$2,050**\n- Highest Category: **Housing (58.5%)**\n- Lowest Category: **Entertainment (4.9%)**\n\n## Spending Di",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 119463,
+      "byte_offset": 1561334202,
+      "row_sha256": "0a899e134b74955730bdf4dfca9d41af68ebb7bd3db7f5d4ad549c0ef7111e78",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2118,
+      "target_chars": 3505,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 14,
+        "Card": 7,
+        "Icon": 6,
+        "Text": 12,
+        "Table": 1,
+        "Button": 8
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 7
+      },
+      "distinct_word_recall_hint": 0.9818181818181818,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Rental Booking Context",
+        "Mid-Size SUV Pricing Comparison",
+        "Top Recommended Vehicles",
+        "Rental Quick Actions",
+        "Booking Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Book Budget",
+        "Book Europcar",
+        "Book Sixt",
+        "Compare All MUC",
+        "Airport Map"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Rental Booking Context\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/info-circle.svg\nThis search is based on a 10-day rental at Munich Airport (MUC) for August 1ΓÇô10, 2025. Prices include mandatory VAT, unlimited mileage, ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 123317,
+      "byte_offset": 1612451356,
+      "row_sha256": "e9b275f64fe90222328b02b74f621cd4cc05f6dc5f2684321501e317419702d8",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1206,
+      "target_chars": 2212,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 5,
+        "Table": 2,
+        "Button": 3
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "distinct_word_recall_hint": 0.978494623655914,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Summer Hits: Filtered Shuffle",
+        "Playlist Processing Logic",
+        "Your Randomized Summer Queue",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Play Queue",
+        "Reset Filters",
+        "View History"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Summer Hits: Filtered Shuffle\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/music-note-beamed.svg\nA refreshing mix of sun-soaked tracks, curated to keep your listening experience diverse by automatically removing artists yo",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 127170,
+      "byte_offset": 1663261508,
+      "row_sha256": "63c2aa620b76af2819cfeaa94171d2511d4e7365ffa90742099e1ac4862cd0bc",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 3167,
+      "target_chars": 4346,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 8,
+        "Icon": 5,
+        "Text": 11,
+        "Table": 2,
+        "Button": 6
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9698492462311558,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "SF Tech Career Path Overview",
+        "Language Capability Comparison",
+        "6-Month Industry Integration Roadmap",
+        "Most In-Demand SF Frameworks",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Learn Python",
+        "Learn JS",
+        "SF Tech Jobs",
+        "FreeCodeCamp"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## SF Tech Career Path Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/building.svg\nThe San Francisco market currently splits heavily between AI/Data Science (Python) and Product/Frontend Engineering (JavaScript). For a",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 131024,
+      "byte_offset": 1714306032,
+      "row_sha256": "7c0e5b094dd62885ef105c7f8b2461e2658e69e8a96ab9b27ecafe7369527161",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2014,
+      "target_chars": 3679,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 8,
+        "Icon": 3,
+        "Text": 19,
+        "Formula": 1,
+        "Table": 2,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9814814814814815,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Couple's Monthly Financial Snapshot",
+        "Monthly Budget Calculation",
+        "Detailed Expenditure Breakdown",
+        "Discretionary Fund Allocation",
+        "Budgeting Insights",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Budget Tool",
+        "Savings Guide",
+        "Expense Tracker",
+        "Savings Calculator"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Couple's Monthly Financial Snapshot\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wallet2.svg\n- Total Monthly Income: **$6,000**\n- Total Fixed Costs: **$2,300** (38.3% of income)\n- Target Savings: **$1,000** (16.7% of incom",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 134878,
+      "byte_offset": 1765427466,
+      "row_sha256": "5816bef95fde189a035ae21c6cc061d73e035b23f17f0cba25c4a887187695fb",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 3384,
+      "target_chars": 2569,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 3,
+        "Card": 2,
+        "Icon": 1,
+        "Text": 15
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 11
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 10
+      },
+      "distinct_word_recall_hint": 0.6836363636363636,
+      "missing_number_anchors_hint": [
+        "8%"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Ares-IV Life Support Crisis",
+        "Dialogue: The Last Breath of Tank B",
+        "Narrative Analysis",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Narrative Analysis",
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Mars Mission Facts",
+        "Space Safety Protocols"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Mars Mission Facts",
+        "Space Safety Protocols"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Ares-IV Life Support Crisis\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shield-exclamation.svg\nA high-stakes dramatic sequence set within the life support hub of the Ares-IV Mars transit module. The scene captures the bre",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 138731,
+      "byte_offset": 1816487998,
+      "row_sha256": "0d61804cc6afe4e926d2071f78200bcf06a20f5f03e8db3bc04801b3283f8cfb",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 3276,
+      "target_chars": 3945,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 14,
+        "Card": 3,
+        "Icon": 6,
+        "Text": 12,
+        "Table": 1
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 10
+      },
+      "distinct_word_recall_hint": 0.9214876033057852,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Andean Dry Season Trekking Snapshot",
+        "Essential Gear & Apparel Breakdown",
+        "High-Altitude Wellness Toolkit",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_action_labels": [
+        "Peru Travel Guide",
+        "Altitude Health Tips"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Peru Travel Guide",
+        "Altitude Health Tips"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Andean Dry Season Trekking Snapshot\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/mountain.svg\nTrekking in the Peruvian Andes from June to August occurs during the winter dry season. This period offers the clearest skies an",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 142585,
+      "byte_offset": 1867619198,
+      "row_sha256": "ddbd0662671641b126eb471557a6a05425287f762133c9eb7d05b13181bf99fd",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2423,
+      "target_chars": 4139,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 17,
+        "Card": 7,
+        "Icon": 5,
+        "Text": 17,
+        "Table": 1,
+        "Button": 8
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 9
+      },
+      "distinct_word_recall_hint": 0.9857142857142858,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Amsterdam Office Availability: Aug 19, 2025",
+        "Workspace Comparison & Selection",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Book WeWork",
+        "Book Spaces",
+        "Book Regus",
+        "Compare All Sites",
+        "Amsterdam Transit Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Amsterdam Office Availability: Aug 19, 2025\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/geo-alt.svg\nFor August 19, there are several premium flexible workspaces in Amsterdam that accommodate small teams of three within a ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 146438,
+      "byte_offset": 1918502124,
+      "row_sha256": "74d9347e9b27c9d2a45db7285f4e57ead52e743065671d0583850b1eee22998b",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1379,
+      "target_chars": 2198,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 8,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9885057471264368,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Corporate Presentation Audio Sync Plan",
+        "Audio Playback Sequence",
+        "Implementation Details",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Audacity Guide",
+        "Adobe Audition"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Corporate Presentation Audio Sync Plan\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/volume-up.svg\nThis timeline provides the precise trigger points and volume levels required for the audio engineering team to synchronize t",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 150292,
+      "byte_offset": 1970010622,
+      "row_sha256": "1c25d4a815906915ae9a2ed3e2704e0e1c2c1d0f2530641db03a574ada037b7a",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1803,
+      "target_chars": 2719,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 5,
+        "Icon": 2,
+        "Text": 12,
+        "Table": 1,
+        "Button": 3
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9652173913043478,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Tokyo Dining Selection Overview",
+        "Restaurant Comparison & Top Recommendation",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Explore Tokyo Sushi",
+        "GF Tokyo Guide",
+        "Tokyo Restaurant Search"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Tokyo Dining Selection Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/shop.svg\nFinding the ideal balance between budget, dietary restrictions, and quality is key for a group of four in Tokyo. Based on your $500 limi",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "train",
+      "line_1based": 87225,
+      "byte_offset": 1135206962,
+      "row_sha256": "12dd068c83bd7015439f0c42a1824da169b29e4225fcbb37d05bc57812de2c54",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1548,
+      "target_chars": 639,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 4,
+        "Text": 3,
+        "Card": 2,
+        "Table": 1,
+        "Button": 1
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.15463917525773196,
+      "missing_number_anchors_hint": [
+        "1.11.3",
+        "375",
+        "401"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Monthly Budget Overview ($5,000 Net Income)",
+        "Budget Allocation Breakdown",
+        "Financial Insights",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Monthly Budget Overview ($5,000 Net Income)",
+        "Budget Allocation Breakdown",
+        "Financial Insights",
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Budget Planner",
+        "Savings Calculator"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Savings Calculator"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Monthly Budget Overview ($5,000 Net Income)\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wallet2.svg\n- **Total Net Income**: $5,000\n- **Total Allocation**: $5,000\n- **Monthly Savings Goal**: $1,000\n\n## Budget Allocation Br",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    },
+    {
+      "split": "train",
+      "line_1based": 93102,
+      "byte_offset": 1212796248,
+      "row_sha256": "8475750efd2a0adb1990753ea2ade8f62e6a3736e589356fa5a3156ced49a4af",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1833,
+      "target_chars": 853,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 10,
+        "Card": 6
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.10784313725490197,
+      "missing_number_anchors_hint": [
+        "1",
+        "1.11.3",
+        "115",
+        "260.64",
+        "36"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Loan Cost Analysis Overview",
+        "Calculation Basis",
+        "Comparative Loan Breakdown",
+        "Final Cost Insights",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Loan Cost Analysis Overview",
+        "Calculation Basis",
+        "Comparative Loan Breakdown",
+        "Final Cost Insights",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_action_labels": [
+        "Loan Calculator",
+        "Financial Planning Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Loan Calculator",
+        "Financial Planning Guide"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Loan Cost Analysis Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cash-coin.svg\n- **Lowest Total Cost**: Loan A (Saves $260.64)\n- **Lowest Monthly Payment**: Loan B\n- **Shortest Repayment Window**: Loan A (36 months",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    },
+    {
+      "split": "train",
+      "line_1based": 24112,
+      "byte_offset": 303862486,
+      "row_sha256": "7b29972860fafc03fb4f6ce905afc80df14dd5ae8d9374ac0fb845df566737ec",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 5121,
+      "target_chars": 1741,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 16,
+        "Text": 4,
+        "Card": 2,
+        "Icon": 2,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.1746031746031746,
+      "missing_number_anchors_hint": [
+        "1",
+        "10",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Senior DevOps Interview Guide",
+        "Core Competency Evaluation",
+        "Interviewer's Scoring Rubric",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Download Rubric",
+        "DevOps Roadmap"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "# Senior DevOps Interview Guide\n\nThis guide provides a technical and cultural framework for evaluating Senior DevOps candidates, focusing on architectural ownership, automation maturity, and reliability engineering.\n\n## Core Competency Evaluation\nMed",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    },
+    {
+      "split": "train",
+      "line_1based": 137179,
+      "byte_offset": 1795959436,
+      "row_sha256": "d628fed53d0a3aeaca4d410e608369cd36e828f76b7793ce4b7a713de15d8985",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1542,
+      "target_chars": 910,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 5,
+        "Text": 5,
+        "Table": 1,
+        "Button": 1
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.17894736842105263,
+      "missing_number_anchors_hint": [
+        "1,600",
+        "1.11.3",
+        "100",
+        "2,400",
+        "50/30/20"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Monthly Budget Overview",
+        "Detailed Expense Breakdown",
+        "Financial Health Insights",
+        "Budgeting Tools"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Detailed Expense Breakdown",
+        "Financial Health Insights",
+        "Budgeting Tools"
+      ],
+      "source_action_labels": [
+        "Track Expenses",
+        "Budget Planner"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Track Expenses",
+        "Budget Planner"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Monthly Budget Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/wallet2.svg\n- Total Monthly Income: **$5,000**\n- Total Monthly Expenses: **$5,000**\n- Monthly Savings Rate: **20%**\n\n## Detailed Expense Breakdown\nFormul",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    },
+    {
+      "split": "train",
+      "line_1based": 77098,
+      "byte_offset": 1001830628,
+      "row_sha256": "fde094b66b51932657e62fd24a7829759315cc69d8e1fce773ffc5ec828689ae",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 3940,
+      "target_chars": 1576,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 6,
+        "Text": 13,
+        "Table": 1,
+        "Card": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.182648401826484,
+      "missing_number_anchors_hint": [
+        "1",
+        "1.11.3",
+        "140",
+        "2",
+        "3",
+        "5",
+        "737"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "$500 Holiday Budget Allocation",
+        "Personalized Gift Recommendations",
+        "Person A: Tech Enthusiast",
+        "Person B: Book Lover",
+        "Person C: Gardener",
+        "Person D: Chef",
+        "Person E: Fitness Buff",
+        "Gift Shopping Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "$500 Holiday Budget Allocation",
+        "Personalized Gift Recommendations",
+        "Gift Shopping Quick Actions"
+      ],
+      "source_action_labels": [
+        "Shop Keyboards",
+        "Shop SSDs",
+        "Shop Power Banks",
+        "Shop Embossers",
+        "Shop Book Stands",
+        "Shop Reading Lamps",
+        "Shop Tool Sets",
+        "Shop Indoor Gardens",
+        "Shop Garden Kneelers",
+        "Shop Thermometers",
+        "Shop Dutch Ovens",
+        "Shop Chef Knives",
+        "Shop Yoga Mats",
+        "Shop Massage Guns",
+        "Shop Dumbbells",
+        "Compare All Gifts",
+        "Gift Wrapping Ideas"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [
+        "Shop Keyboards",
+        "Shop SSDs",
+        "Shop Power Banks",
+        "Shop Embossers",
+        "Shop Book Stands",
+        "Shop Reading Lamps",
+        "Shop Tool Sets",
+        "Shop Indoor Gardens",
+        "Shop Garden Kneelers",
+        "Shop Thermometers",
+        "Shop Dutch Ovens",
+        "Shop Chef Knives",
+        "Shop Yoga Mats",
+        "Shop Massage Guns",
+        "Shop Dumbbells",
+        "Compare All Gifts",
+        "Gift Wrapping Ideas"
+      ],
+      "generic_open_source_button": false,
+      "response_excerpt": "# $500 Holiday Budget Allocation\n\nThe following budget distribution ensures all five recipients receive high-quality gifts tailored to their specific interests while remaining strictly within the $500 total limit.\n\n| Recipient | Interest | Budget | P",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    },
+    {
+      "split": "train",
+      "line_1based": 22210,
+      "byte_offset": 279775628,
+      "row_sha256": "8197f0cffb52df7d140c5c3beb5718ed7c2ef699d04b5dc74866e8384facf23b",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 4765,
+      "target_chars": 2036,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 20,
+        "Text": 6,
+        "Card": 3,
+        "Icon": 4,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.18862275449101795,
+      "missing_number_anchors_hint": [
+        "1",
+        "2",
+        "3"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Senior Distributed Systems Engineer Interview Kit",
+        "Technical Depth: Distributed Primitives",
+        "System Design: Scalability & Reliability",
+        "Behavioral & Leadership Evaluation",
+        "Evaluation Framework",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Guide to System Design",
+        "Distributed Systems Theory"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "# Senior Distributed Systems Engineer Interview Kit\n\nThis interview set is designed to evaluate a candidate's ability to build scalable, fault-tolerant systems, their mastery of distributed primitives, and their leadership capacity in complex technic",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    },
+    {
+      "split": "val",
+      "line_1based": 1,
+      "byte_offset": 0,
+      "row_sha256": "6647a4e747406c37dedea6f1c4c4aaa8d633901932d737b626d96e5230b74690",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2362,
+      "target_chars": 3524,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 8,
+        "Text": 6,
+        "Table": 2,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.78125,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[IMAGE_URL_1]",
+        "[IMAGE_URL_2]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[IMAGE_URL_3]",
+        "[IMAGE_URL_4]",
+        "[IMAGE_URL_5]"
+      ],
+      "source_headings": [
+        "Tokyo Spring Exploration Overview",
+        "4-Day Relaxed Tokyo Itinerary",
+        "Activity Budget Breakdown",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Explore Asakusa",
+        "Visit Akihabara",
+        "Yanaka Guide",
+        "Ghibli Museum",
+        "Book JR Pass",
+        "Tokyo Travel Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Tokyo Spring Exploration Overview\nA relaxed 4-day journey balancing Tokyo's ancient heritage, cozy hidden gems, and vibrant anime hubs during the peak cherry blossom season.\n\n## 4-Day Relaxed Tokyo Itinerary\n\nDay 1: Traditional Heart & Hidden Alle",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 49,
+      "byte_offset": 585066,
+      "row_sha256": "cdac257001db46da30ef18488dca780f57c2f090e79f5dbd20ec06e607f87c56",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 3265,
+      "target_chars": 3766,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 5,
+        "Icon": 5,
+        "Text": 17,
+        "Table": 2,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.7831325301204819,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Mastering the \"Failure\" Question for Aviation Safety Roles",
+        "Strategic Framework for High-Stakes Responses",
+        "Critical Do's and Don'ts for Aviation Interviews",
+        "Sample Response Structure: Dispatcher/ATC Focus",
+        "Interview Preparation Checklist",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Mastering the \"Failure\" Question for Aviation Safety Roles",
+        "Strategic Framework for High-Stakes Responses",
+        "Critical Do's and Don'ts for Aviation Interviews",
+        "Sample Response Structure: Dispatcher/ATC Focus",
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "FAA Safety Guidelines",
+        "ICAO Safety Mgmt"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Mastering the \"Failure\" Question for Aviation Safety Roles\nMedia: Icon=[ICON_URL_1]\nIn high-stakes roles like Flight Dispatch or Air Traffic Control, \"failure\" is not viewed as a lack of skill, but as a critical opportunity for system improvement.",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 97,
+      "byte_offset": 1185014,
+      "row_sha256": "3fa8f5f4a0cd3606868c1fe73f8ca66963ddc92ac3dd381015bf61b05134d4ee",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1904,
+      "target_chars": 2848,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 15,
+        "Icon": 6,
+        "Text": 16,
+        "Card": 4,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.8688524590163934,
+      "missing_number_anchors_hint": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Gourmet Wine Pairing Guide",
+        "Course-by-Course Pairing Recommendations",
+        "Flavor Harmony Summary",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Explore Wine Regions",
+        "Pairing Tips"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Gourmet Wine Pairing Guide\nMedia: Icon=[ICON_URL_1]\nThis curated pairing sequence balances acidity, richness, and intensity, moving from crisp mineral notes to bold, decadent finishes to complement each course of your menu.\n\n## Course-by-Course Pa",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 145,
+      "byte_offset": 1787680,
+      "row_sha256": "8e15b1e3c04b74c5fef49e0b1c54eca616c13c5d2ae5d36c5ed6f65a5f94ed0d",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1712,
+      "target_chars": 3198,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 16,
+        "Card": 5,
+        "Icon": 4,
+        "Text": 13,
+        "Button": 8,
+        "Table": 1
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.9782608695652174,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_6]",
+        "[ACTION_URL_7]",
+        "[ACTION_URL_8]"
+      ],
+      "source_headings": [
+        "Secure Rugged SSD Selection",
+        "Top-Rated Secure Rugged Drives",
+        "Security and Durability Comparison",
+        "Travel Readiness Checklist",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View on Amazon",
+        "View on SanDisk",
+        "View on Crucial",
+        "Compare SSD Prices",
+        "Security Guide"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Secure Rugged SSD Selection\nMedia: Icon=[ICON_URL_1]\nBased on your requirements for 2TB capacity, AES 256-bit hardware encryption, and rugged durability under $250, these drives provide the best balance of security and physical protection.\n\n## Top",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 192,
+      "byte_offset": 2379556,
+      "row_sha256": "974389a2af15b27d71c5935805c544401ebee8b5e28a79b0b10daf93bfc47d9c",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 783,
+      "target_chars": 1649,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 9,
+        "Card": 3,
+        "Icon": 3,
+        "Text": 6,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "distinct_word_recall_hint": 0.9090909090909091,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Reykjavik Weather Outlook: Jan 10ΓÇô15",
+        "Daily Weather Breakdown",
+        "Climate Extremes",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "Local Forecast",
+        "Safe Travel Alerts"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Reykjavik Weather Outlook: Jan 10ΓÇô15\nMedia: Icon=[ICON_URL_1]\nThe period is characterized by freezing temperatures and volatile conditions, with alternating snow, rain, and significant wind gusts.\n\n## Daily Weather Breakdown\nMedia: Icon=[ICON_UR",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 240,
+      "byte_offset": 2982520,
+      "row_sha256": "03dde5810288f1cf15ab998b28631b0d0d5d29e72fd2f8d870884cbe17f2dd94",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2476,
+      "target_chars": 4188,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 5,
+        "Icon": 4,
+        "Text": 14,
+        "Table": 2,
+        "Button": 7
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9890710382513661,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Florence Wedding Overview",
+        "Florence Wedding Budget Breakdown",
+        "Planning Roadmap: 12-Month Countdown",
+        "Top Florence Venue Archetypes",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Explore Villas",
+        "View Lofts",
+        "Find Agriturismos",
+        "Florence Legal Guide",
+        "Tuscan Floral Trends"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Florence Wedding Overview\nMedia: Icon=[ICON_URL_1]\nPlanning a wedding for 100 guests in Florence on a Γé¼20,000 budget requires a strategic focus on \"smart luxury.\" By choosing a non-traditional venue and focusing on seasonal Tuscan catering, you ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 288,
+      "byte_offset": 3598510,
+      "row_sha256": "9eec211ef0d4588b1200b3e6c70e1ba7482ae79ee4157eff04bad9acf2b088c5",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1503,
+      "target_chars": 2529,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 10,
+        "Card": 5,
+        "Icon": 3,
+        "Text": 9,
+        "Table": 1,
+        "Button": 7
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.9809523809523809,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_6]",
+        "[ACTION_URL_7]"
+      ],
+      "source_headings": [
+        "Asthma Medication Overview",
+        "Medication Purpose and Side Effects Comparison",
+        "Medication Usage Guide",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View Usage Guide",
+        "View Usage Guide",
+        "View Usage Guide",
+        "Find a Specialist",
+        "Asthma Management"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Asthma Medication Overview\nMedia: Icon=[ICON_URL_1]\nAsthma medications are generally divided into \"rescue\" treatments for immediate symptom relief and \"controller\" treatments for long-term prevention and inflammation management.\n\n## Medication Pur",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 336,
+      "byte_offset": 4236288,
+      "row_sha256": "055affd4ff6696a36645edbbc9cbc5dc679aa45913ffec334c64bfea9c48846c",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1145,
+      "target_chars": 1981,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 2,
+        "Icon": 2,
+        "Text": 4,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9636363636363636,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]"
+      ],
+      "source_headings": [
+        "Berlin Tech Conference: November 15, 2024",
+        "Conference Timeline and Session Flow",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Add to Calendar",
+        "Berlin Venue Map"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Berlin Tech Conference: November 15, 2024\nMedia: Icon=[ICON_URL_1]\nA professional one-day intensive schedule focusing on emerging technologies and digital security, hosted in Berlin, Germany.\n\n## Conference Timeline and Session Flow\nMedia: Icon=[I",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 384,
+      "byte_offset": 4953616,
+      "row_sha256": "3d9dac7fb0535258f0c83a2eb03062d6d82e609d7451034a52f828000f22c0ca",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2009,
+      "target_chars": 3080,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 6,
+        "Icon": 3,
+        "Text": 11,
+        "Table": 1,
+        "Button": 8
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.8248175182481752,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]",
+        "[SOURCE_URL_3]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_6]",
+        "[ACTION_URL_7]",
+        "[ACTION_URL_8]",
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]",
+        "[ICON_ASSET_3]"
+      ],
+      "source_headings": [
+        "Premium Office Audio Options",
+        "Home Office Headset Comparison",
+        "Top Professional Recommendations",
+        "Setup Compatibility Notes",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Quick Actions"
+      ],
+      "source_action_labels": [
+        "View on Jabra",
+        "View on Poly",
+        "View on Sony",
+        "Compare All",
+        "Amazon Germany"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Premium Office Audio Options\nMedia: Icon=[ICON_URL_1]\nSearching for a professional-grade headset in Berlin involves balancing active noise cancellation (ANC) for home distractions with a high-quality boom mic for client calls. The following select",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 432,
+      "byte_offset": 5651684,
+      "row_sha256": "75057e3c2a7841f48ba43044ac6dbe4efda9183aa053dde1f0d17a8accab3502",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2775,
+      "target_chars": 4188,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 18,
+        "Table": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.975,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [
+        "[ICON_URL_1]",
+        "[ICON_URL_2]",
+        "[ICON_URL_3]",
+        "[SOURCE_URL_1]",
+        "[SOURCE_URL_2]"
+      ],
+      "target_only_placeholders_hint": [
+        "[ACTION_URL_3]",
+        "[ACTION_URL_4]",
+        "[ICON_ASSET_1]",
+        "[ICON_ASSET_2]",
+        "[ICON_ASSET_3]"
+      ],
+      "source_headings": [
+        "Linear Algebra Mastery: 12-Week Beginner Roadmap",
+        "Weekly Learning Schedule",
+        "Proficiency Milestones & Practice",
+        "Milestone 1: Foundations (End of Week 4)",
+        "Milestone 2: Space & Transformation (End of Week 8)",
+        "Milestone 3: Spectral Theory (End of Week 12)",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "MIT OCW Linear Algebra",
+        "3Blue1Brown Essence"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Linear Algebra Mastery: 12-Week Beginner Roadmap\nMedia: Icon=[ICON_URL_1]\nThis syllabus is designed for a beginner committing 5 hours per week. It balances theoretical foundations with the practical application of vector spaces, eigenvalues, and m",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 479,
+      "byte_offset": 6296818,
+      "row_sha256": "537cef29f2d2e70ef854e208525a0909adc1f3282007eec1477fe3fc11755ac0",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2780,
+      "target_chars": 3805,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 14,
+        "Card": 6,
+        "Icon": 3,
+        "Text": 14,
+        "Table": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9609756097560975,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "P0420 Diagnostic Overview",
+        "Potential Failure Points",
+        "DIY Diagnostic Checklist",
+        "Critical Repair Considerations",
+        "Quick Actions",
+        "Technical Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Buy OBD-II Scanner",
+        "Find Local Mechanic"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## P0420 Diagnostic Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/cpu.svg\nThe **P0420** code indicates that the Engine Control Module (ECM) has detected that the three-way catalytic converter (TWC) is operating below ",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 527,
+      "byte_offset": 6901340,
+      "row_sha256": "4f07d6af93c2e7d3c245a556fc4d3c2e490436c185bc952554b1eb5e074590ae",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2851,
+      "target_chars": 4453,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 18,
+        "Card": 6,
+        "Icon": 4,
+        "Text": 20,
+        "Table": 1,
+        "Button": 9
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.994535519125683,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Data Analytics Career Roadmap",
+        "Six-Month Mastery Timeline",
+        "Recommended Learning Resources",
+        "Portfolio Project Ideas",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Find Datasets",
+        "Python Guide",
+        "Tableau Public",
+        "Practice SQL",
+        "Explore Kaggle",
+        "Google Data Analytics"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Data Analytics Career Roadmap\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/graph-up-arrow.svg\nThis self-taught path is designed for a commitment of **10 hours per week** over **24 weeks**, transitioning from basic data man",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 575,
+      "byte_offset": 7516040,
+      "row_sha256": "fb8e51cc153ddfbf214fb95f6a3f69ecd42e6e55ab61720b4108a0c725adc746",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1318,
+      "target_chars": 2268,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 11,
+        "Card": 4,
+        "Icon": 3,
+        "Text": 7,
+        "Table": 1,
+        "Button": 5
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 4
+      },
+      "distinct_word_recall_hint": 0.9772727272727273,
+      "missing_number_anchors_hint": [
+        "2"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Emergency Medical Profile: Critical Access",
+        "Critical Patient Health Data",
+        "Emergency Contact Network",
+        "First Responder Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Call Mark Doe",
+        "Call Sarah Smith",
+        "Notify Nearest ER",
+        "View Full History",
+        "Update Triage Status"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Emergency Medical Profile: Critical Access\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/heart-pulse.svg\nThis profile was generated via secure QR scan. The following information is prioritized for immediate life-saving inte",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 623,
+      "byte_offset": 8130072,
+      "row_sha256": "e263bb161d2498020d667702a26c1bb859b2afd0e4f8a0aa03d2cd3536f2869a",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1558,
+      "target_chars": 2710,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 13,
+        "Card": 5,
+        "Icon": 2,
+        "Text": 19,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9186046511627907,
+      "missing_number_anchors_hint": [
+        "32,000",
+        "40,000",
+        "48,000",
+        "50,000",
+        "55,000",
+        "58,000",
+        "60,000",
+        "65,000"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Quarterly Sales Performance Metrics",
+        "Regional Target vs. Actual Comparison",
+        "Sales Visualization Data",
+        "Goal Attainment Assessment",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Sales Visualization Data"
+      ],
+      "source_action_labels": [
+        "Export Full Report",
+        "View Regional Dashboards"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Quarterly Sales Performance Metrics\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/graph-up-arrow.svg\n- **Total Global Target**: 205,000\n- **Total Global Actual**: 203,000\n- **Overall Achievement**: 99.02%\n\n## Regional Targe",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 671,
+      "byte_offset": 8748050,
+      "row_sha256": "38e96a33a4ea91886be5f02e1b78542475ba1b3f43e7c38b2bcdcfe7bfe31408",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2025,
+      "target_chars": 3184,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 15,
+        "Card": 4,
+        "Icon": 2,
+        "Text": 16,
+        "Table": 1,
+        "Button": 4
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 4
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 11
+      },
+      "distinct_word_recall_hint": 0.9849624060150376,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "2018 Honda Civic 60k-Mile Maintenance Overview",
+        "Maintenance Schedule by Interval",
+        "Projected Maintenance Cost Estimates",
+        "60,000-Mile Milestone Requirements",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Schedule Service",
+        "Order OEM Parts"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## 2018 Honda Civic 60k-Mile Maintenance Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/car-front.svg\nThe 2018 Honda Civic utilizes a Maintenance Minder system that alerts you to specific service needs. At 60,000 miles",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 719,
+      "byte_offset": 9392430,
+      "row_sha256": "977be6f0a267ef712af1193c5f23c59b1d3822736fbc4b17881d06975277b02e",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 951,
+      "target_chars": 1675,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 7,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 4,
+        "Table": 1,
+        "Button": 2
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9661016949152542,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "March 20 Maintenance Overview",
+        "Non-Overlapping Appointment Timeline",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Add to Google Calendar",
+        "Set Reminders"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## March 20 Maintenance Overview\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/calendar-check.svg\nA conflict-free schedule has been established for March 20, 2025, ensuring each professional has a full 2-hour window and a 30-m",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 766,
+      "byte_offset": 10014572,
+      "row_sha256": "5f70b7827c93ed7026fa89f361261498fb5c78dc157cbfc65c2c3c54f2081ee1",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2381,
+      "target_chars": 3901,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 16,
+        "Card": 8,
+        "Icon": 3,
+        "Text": 18,
+        "Table": 1,
+        "Button": 7
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {
+        "ΓÇ": 6
+      },
+      "distinct_word_recall_hint": 0.9802631578947368,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "4K Video Editing Hardware Evaluation",
+        "Performance and Value Comparison",
+        "Budget-Optimized Recommendations",
+        "Freelancer's Final Verdict",
+        "Quick Actions",
+        "Sources"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "View ASUS ROG",
+        "View Dell XPS",
+        "Compare GPU Benchmarks",
+        "Check Current Deals"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## 4K Video Editing Hardware Evaluation\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/laptop.svg\nFor 4K freelance editing, the primary bottlenecks are GPU acceleration for rendering and screen color accuracy. While all three m",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 814,
+      "byte_offset": 10652224,
+      "row_sha256": "60743017848eba3bbbbcb42b277c90e3fcb51a48f9b422bffdcb0003f19346fa",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1633,
+      "target_chars": 2305,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 10,
+        "Card": 3,
+        "Icon": 2,
+        "Text": 14,
+        "Button": 2
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "distinct_word_recall_hint": 0.9858156028368794,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "The Tale of Sammy's Secret Stash",
+        "A Lesson in the Whispering Woods",
+        "Bedtime Story Activities",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Read Aloud Tips",
+        "More Children's Fables"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## The Tale of Sammy's Secret Stash\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/tree.svg\nA short, whimsical fable set in the Whispering Woods, designed to teach children that seeking support is a courageous act.\n\n## A Lesson",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 862,
+      "byte_offset": 11235888,
+      "row_sha256": "5e07becc2a98d73124564a21a5fc2c4a839a1252d13a9230c01480485a7f3e04",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 2792,
+      "target_chars": 4038,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 8,
+        "Card": 6,
+        "Icon": 4,
+        "Text": 13,
+        "Table": 2,
+        "Button": 6
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9661016949152542,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Mazda 3 Audio Upgrade Strategy",
+        "Audio Component Comparison",
+        "Component Trade-off Analysis",
+        "Optimal $600 Configuration",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [
+        "Component Trade-off Analysis"
+      ],
+      "source_action_labels": [
+        "Browse Head Units",
+        "Browse Speakers",
+        "Find Mazda 3 Parts",
+        "Mazda 3 Forums"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "## Mazda 3 Audio Upgrade Strategy\nMedia: Icon=https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/music-note.svg\nWith a $600 budget for a 2010 Mazda 3, you have enough to either maximize one component or perform a balanced entry-level overhaul.",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 910,
+      "byte_offset": 11839900,
+      "row_sha256": "fd1494954aa60728790f300f863ec008628759bf6b10d44324cf0fb5d306325f",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1605,
+      "target_chars": 2543,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 10,
+        "Card": 5,
+        "Text": 12,
+        "Icon": 2,
+        "Table": 1,
+        "Image": 1,
+        "Button": 3
+      },
+      "source_mojibake_markers": {},
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.9918032786885246,
+      "missing_number_anchors_hint": [],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [],
+      "source_headings": [
+        "Digital Arrival Experience",
+        "Clinic Environment Context",
+        "Kiosk Check-in Workflow",
+        "Welcome Screen Interface",
+        "Quick Actions"
+      ],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [
+        "Confirm Arrival",
+        "Patient Portal",
+        "Clinic Map"
+      ],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "# Digital Arrival Experience\nThe patient check-in process is designed for speed and privacy, utilizing a QR-based authentication system to minimize wait times and reduce manual data entry at the front desk.\n\n## Clinic Environment Context\nThe system i",
+      "selection": "equally_spaced"
+    },
+    {
+      "split": "val",
+      "line_1based": 18,
+      "byte_offset": 210108,
+      "row_sha256": "3ffc25b95bd30066c23a4d02730e303f3f0880c6f4edc67a501ee0fc35debda6",
+      "scaffold_sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "production_scaffold_exact_match": false,
+      "top_level_fields": [
+        "messages"
+      ],
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant"
+      ],
+      "task_prefix_valid": true,
+      "response_chars": 1615,
+      "target_chars": 736,
+      "strict_valid": true,
+      "strict_error": null,
+      "component_counts": {
+        "Stack": 2,
+        "Icon": 1,
+        "Text": 7,
+        "Card": 2
+      },
+      "source_mojibake_markers": {
+        "ΓÇ": 1
+      },
+      "target_mojibake_markers": {},
+      "distinct_word_recall_hint": 0.3,
+      "missing_number_anchors_hint": [
+        "15%"
+      ],
+      "source_only_placeholders_hint": [],
+      "target_only_placeholders_hint": [
+        "[ICON_URL_1]"
+      ],
+      "source_headings": [],
+      "source_headings_not_literal_in_target_hint": [],
+      "source_action_labels": [],
+      "source_action_labels_not_literal_in_target_hint": [],
+      "generic_open_source_button": false,
+      "response_excerpt": "Subject: Application for Senior Project Manager - [Your Full Name]\n\nDear [Hiring Manager Name],\n\nI am writing to express my strong interest in the Senior Project Manager position in Berlin. With over 10 years of experience leading Agile software deve",
+      "selection": "six_lowest_lexical_recall_nonregular_samples_with_source_at_least_500_chars"
+    }
+  ]
+}

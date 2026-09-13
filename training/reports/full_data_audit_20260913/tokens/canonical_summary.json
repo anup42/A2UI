@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "raw_lengths_sha256": "d0ae09d1881b5351a72fd809436bfbcb1204539b08720b9806f21923756dd12f",
+  "strict_database": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\ir.sqlite",
+  "tokenizer_sha256": "a306777fab20c8efd76229cea1566e9ec976059a4f2fb73565bc944ff3c2df4f",
+  "counts": {
+    "train": {
+      "rows": 150292,
+      "strict_valid_target": 150292,
+      "canonical_equals_raw": 150292,
+      "canonical_sequence_lte_4096": 148347,
+      "canonical_sequence_lte_4096_target_lte_2048": 148347,
+      "canonical_sequence_lte_6144": 150292,
+      "canonical_sequence_lte_6144_target_lte_2048": 150245,
+      "canonical_sequence_lte_8192": 150292,
+      "canonical_sequence_lte_8192_target_lte_2048": 150245
+    },
+    "val": {
+      "rows": 910,
+      "strict_valid_target": 910,
+      "canonical_equals_raw": 910,
+      "canonical_sequence_lte_4096": 904,
+      "canonical_sequence_lte_4096_target_lte_2048": 904,
+      "canonical_sequence_lte_6144": 910,
+      "canonical_sequence_lte_6144_target_lte_2048": 910,
+      "canonical_sequence_lte_8192": 910,
+      "canonical_sequence_lte_8192_target_lte_2048": 910
+    }
+  },
+  "notes": [
+    "These lengths use production serializer's strict-valid canonical targets from the separate exhaustive IR audit.",
+    "They remain reconstructed Gemma3 chat-frame counts, not exact deployed E2B or missing-template 270M measurements.",
+    "Strict-valid target counts do not by themselves remove Golden leakage, semantic omissions, split leakage, or missing provenance."
+  ],
+  "lengths": {
+    "train": {
+      "canonical_target_tokens": {
+        "count": 150292,
+        "min": 162,
+        "max": 2474,
+        "mean": 998.492,
+        "p50": 1013,
+        "p75": 1158,
+        "p90": 1286,
+        "p95": 1366,
+        "p99": 1542,
+        "over": {
+          "512": 146857,
+          "1024": 72262,
+          "1536": 1573,
+          "2048": 47,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "canonical_completion_tokens": {
+        "count": 150292,
+        "min": 164,
+        "max": 2476,
+        "mean": 1000.492,
+        "p50": 1015,
+        "p75": 1160,
+        "p90": 1288,
+        "p95": 1368,
+        "p99": 1544,
+        "over": {
+          "512": 146919,
+          "1024": 72789,
+          "1536": 1603,
+          "2048": 49,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 150292,
+        "min": 1566,
+        "max": 4120,
+        "mean": 2108.316,
+        "p50": 2092,
+        "p75": 2217,
+        "p90": 2355,
+        "p95": 2457,
+        "p99": 2789,
+        "over": {
+          "512": 150292,
+          "1024": 150292,
+          "1536": 150292,
+          "2048": 89782,
+          "3072": 506,
+          "4096": 1,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 150292,
+        "min": 1731,
+        "max": 5467,
+        "mean": 3108.809,
+        "p50": 3120,
+        "p75": 3386,
+        "p90": 3622,
+        "p95": 3782,
+        "p99": 4160,
+        "over": {
+          "512": 150292,
+          "1024": 150292,
+          "1536": 150292,
+          "2048": 149572,
+          "3072": 82216,
+          "4096": 1945,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    },
+    "val": {
+      "canonical_target_tokens": {
+        "count": 910,
+        "min": 225,
+        "max": 2014,
+        "mean": 996.976,
+        "p50": 1009,
+        "p75": 1157,
+        "p90": 1294,
+        "p95": 1378,
+        "p99": 1507,
+        "over": {
+          "512": 889,
+          "1024": 426,
+          "1536": 8,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "canonical_completion_tokens": {
+        "count": 910,
+        "min": 227,
+        "max": 2016,
+        "mean": 998.976,
+        "p50": 1011,
+        "p75": 1159,
+        "p90": 1296,
+        "p95": 1380,
+        "p99": 1509,
+        "over": {
+          "512": 889,
+          "1024": 429,
+          "1536": 8,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 910,
+        "min": 1640,
+        "max": 2848,
+        "mean": 2098.295,
+        "p50": 2090,
+        "p75": 2217,
+        "p90": 2351,
+        "p95": 2429,
+        "p99": 2569,
+        "over": {
+          "512": 910,
+          "1024": 910,
+          "1536": 910,
+          "2048": 536,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 910,
+        "min": 1949,
+        "max": 4693,
+        "mean": 3097.27,
+        "p50": 3117,
+        "p75": 3375,
+        "p90": 3618,
+        "p95": 3743,
+        "p99": 4001,
+        "over": {
+          "512": 910,
+          "1024": 910,
+          "1536": 910,
+          "2048": 903,
+          "3072": 494,
+          "4096": 6,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    }
+  },
+  "row_lengths_path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\canonical_token_lengths.csv",
+  "row_lengths_sha256": "cda069e1d2ef9b223c281c4422771cb8065f2df48e4b3ee310eb835ff17f863c"
+}

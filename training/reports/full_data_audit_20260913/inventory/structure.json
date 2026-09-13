@@ -1,0 +1,185 @@
+{
+  "lengths": {
+    "train": {
+      "source_chars": {
+        "count": 150292,
+        "min": 165,
+        "mean": 2200.87,
+        "p25": 1634,
+        "p50": 2187,
+        "p75": 2679,
+        "p90": 3150,
+        "p95": 3490,
+        "p99": 4417,
+        "max": 9732
+      },
+      "target_chars": {
+        "count": 150292,
+        "min": 375,
+        "mean": 3197.75,
+        "p25": 2633,
+        "p50": 3283,
+        "p75": 3770,
+        "p90": 4160,
+        "p95": 4404,
+        "p99": 5071,
+        "max": 8727
+      },
+      "prompt_chars": {
+        "count": 150292,
+        "min": 858,
+        "mean": 2893.87,
+        "p25": 2327,
+        "p50": 2880,
+        "p75": 3372,
+        "p90": 3843,
+        "p95": 4183,
+        "p99": 5110,
+        "max": 10425
+      },
+      "byte_length": {
+        "count": 150292,
+        "min": 2946,
+        "mean": 13107.96,
+        "p25": 10832,
+        "p50": 13336,
+        "p75": 15362,
+        "p90": 16914,
+        "p95": 17896,
+        "p99": 20518,
+        "max": 35480
+      },
+      "target_extra_placeholders": {
+        "count": 150292,
+        "min": 0,
+        "mean": 0.93,
+        "p25": 0,
+        "p50": 0,
+        "p75": 1,
+        "p90": 3,
+        "p95": 5,
+        "p99": 8,
+        "max": 24
+      },
+      "target_missing_placeholders": {
+        "count": 150292,
+        "min": 0,
+        "mean": 1.26,
+        "p25": 0,
+        "p50": 0,
+        "p75": 2,
+        "p90": 4,
+        "p95": 6,
+        "p99": 11,
+        "max": 25
+      }
+    },
+    "val": {
+      "source_chars": {
+        "count": 910,
+        "min": 433,
+        "mean": 2165.08,
+        "p25": 1590,
+        "p50": 2171,
+        "p75": 2658,
+        "p90": 3132,
+        "p95": 3411,
+        "p99": 3853,
+        "max": 4597
+      },
+      "target_chars": {
+        "count": 910,
+        "min": 736,
+        "mean": 3190.34,
+        "p25": 2602,
+        "p50": 3268,
+        "p75": 3766,
+        "p90": 4166,
+        "p95": 4459,
+        "p99": 5085,
+        "max": 6557
+      },
+      "prompt_chars": {
+        "count": 910,
+        "min": 1126,
+        "mean": 2858.08,
+        "p25": 2283,
+        "p50": 2864,
+        "p75": 3351,
+        "p90": 3825,
+        "p95": 4104,
+        "p99": 4546,
+        "max": 5290
+      },
+      "byte_length": {
+        "count": 910,
+        "min": 4948,
+        "mean": 13022.46,
+        "p25": 10602,
+        "p50": 13300,
+        "p75": 15328,
+        "p90": 16842,
+        "p95": 17920,
+        "p99": 19884,
+        "max": 25054
+      },
+      "target_extra_placeholders": {
+        "count": 910,
+        "min": 0,
+        "mean": 1.12,
+        "p25": 0,
+        "p50": 0,
+        "p75": 1,
+        "p90": 4,
+        "p95": 6,
+        "p99": 10,
+        "max": 15
+      },
+      "target_missing_placeholders": {
+        "count": 910,
+        "min": 0,
+        "mean": 1.52,
+        "p25": 0,
+        "p50": 0,
+        "p75": 2,
+        "p90": 5,
+        "p95": 7,
+        "p99": 11,
+        "max": 16
+      }
+    }
+  },
+  "scaffolds": [
+    {
+      "sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "split": "train",
+      "occurrences": 150292,
+      "first_line": 1
+    },
+    {
+      "sha256": "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce",
+      "split": "val",
+      "occurrences": 910,
+      "first_line": 1
+    }
+  ],
+  "surface_quality_flags": [
+    {
+      "split": "train",
+      "rows_with_extra_target_placeholders": 42808,
+      "rows_with_missing_target_placeholders": 47435,
+      "rows_with_both": 42102,
+      "source_mojibake_marker_rows": 20196,
+      "target_mojibake_marker_rows": 39036
+    },
+    {
+      "split": "val",
+      "rows_with_extra_target_placeholders": 288,
+      "rows_with_missing_target_placeholders": 323,
+      "rows_with_both": 283,
+      "source_mojibake_marker_rows": 118,
+      "target_mojibake_marker_rows": 236
+    }
+  ],
+  "flag_limitations": "Placeholder-set differences flag missing references or ungrounded new references but are not a semantic correctness verdict. Mojibake patterns are heuristics; Ã may occur legitimately in some languages."
+}

@@ -1,0 +1,1039 @@
+{
+  "row_count": 151202,
+  "source_modified": false,
+  "training_files_created": false,
+  "interpretation": [
+    "No count in this report certifies training readiness.",
+    "Reserved removal detects known accepted/excluded exact, normalized and URL-masked source hashes, not all paraphrase families.",
+    "Hash/URL/length-screened cohorts retain semantic warnings and train/validation family overlaps; splits must still be rebuilt.",
+    "Length screens use reconstructed Gemma3 frames, not actual deployed model-template verification.",
+    "2048 target-token screen is an analytical deployment-budget scenario, not proof that every longer training label must be dropped.",
+    "Component coverage counts record occurrences; not unique sources or manually approved examples."
+  ],
+  "component_row_presence": {
+    "train": {
+      "Stack": 150292,
+      "Icon": 147340,
+      "Text": 150282,
+      "Card": 148706,
+      "Button": 134504,
+      "Table": 147555,
+      "Formula": 18689,
+      "Divider": 1696,
+      "Image": 3294,
+      "Tabs": 3550,
+      "CheckBox": 163,
+      "ConsoleLog": 500,
+      "CodeBlock": 594,
+      "Slider": 112,
+      "EmailPreview": 277,
+      "ChoicePicker": 70,
+      "TextField": 88,
+      "List": 3,
+      "AudioPlayer": 4,
+      "Video": 1
+    },
+    "train_hash_url_length_screened": {
+      "Stack": 148318,
+      "Icon": 145521,
+      "Text": 148308,
+      "Card": 146827,
+      "Button": 133385,
+      "Table": 145603,
+      "Formula": 18636,
+      "Divider": 1684,
+      "Image": 3203,
+      "Tabs": 3486,
+      "CheckBox": 160,
+      "ConsoleLog": 496,
+      "CodeBlock": 575,
+      "Slider": 112,
+      "EmailPreview": 277,
+      "ChoicePicker": 70,
+      "TextField": 88,
+      "List": 3,
+      "AudioPlayer": 4,
+      "Video": 1
+    },
+    "val": {
+      "Stack": 910,
+      "Text": 910,
+      "Table": 889,
+      "Button": 823,
+      "Card": 901,
+      "Image": 25,
+      "Icon": 887,
+      "Formula": 124,
+      "Tabs": 18,
+      "Divider": 11,
+      "CheckBox": 1,
+      "ChoicePicker": 2,
+      "TextField": 1,
+      "Slider": 1,
+      "ConsoleLog": 2,
+      "CodeBlock": 5,
+      "EmailPreview": 1
+    },
+    "val_hash_url_length_screened": {
+      "Stack": 903,
+      "Text": 903,
+      "Table": 882,
+      "Button": 816,
+      "Card": 894,
+      "Image": 25,
+      "Icon": 880,
+      "Formula": 124,
+      "Tabs": 18,
+      "Divider": 11,
+      "CheckBox": 1,
+      "ChoicePicker": 2,
+      "TextField": 1,
+      "Slider": 1,
+      "ConsoleLog": 2,
+      "CodeBlock": 5,
+      "EmailPreview": 1
+    },
+    "golden32": {
+      "Stack": 32,
+      "Icon": 31,
+      "Text": 32,
+      "Card": 32,
+      "Table": 32,
+      "Button": 29,
+      "Formula": 3,
+      "EmailPreview": 1,
+      "Tabs": 1
+    },
+    "golden35": {
+      "Stack": 35,
+      "Icon": 28,
+      "Text": 35,
+      "Image": 12,
+      "Card": 35,
+      "Table": 26,
+      "Button": 28,
+      "Divider": 1,
+      "Formula": 1
+    }
+  },
+  "component_node_instances": {
+    "train": {
+      "Stack": 1607344,
+      "Icon": 448533,
+      "Text": 1791798,
+      "Card": 617683,
+      "Button": 525437,
+      "Table": 204090,
+      "Formula": 19821,
+      "Divider": 1836,
+      "Image": 4385,
+      "Tabs": 3835,
+      "CheckBox": 644,
+      "ConsoleLog": 1424,
+      "CodeBlock": 953,
+      "Slider": 159,
+      "EmailPreview": 429,
+      "ChoicePicker": 103,
+      "TextField": 214,
+      "List": 3,
+      "AudioPlayer": 4,
+      "Video": 1
+    },
+    "train_hash_url_length_screened": {
+      "Stack": 1589327,
+      "Icon": 443034,
+      "Text": 1772462,
+      "Card": 612115,
+      "Button": 520271,
+      "Table": 200516,
+      "Formula": 19701,
+      "Divider": 1823,
+      "Image": 4233,
+      "Tabs": 3701,
+      "CheckBox": 621,
+      "ConsoleLog": 1402,
+      "CodeBlock": 918,
+      "Slider": 159,
+      "EmailPreview": 429,
+      "ChoicePicker": 103,
+      "TextField": 214,
+      "List": 3,
+      "AudioPlayer": 4,
+      "Video": 1
+    },
+    "val": {
+      "Stack": 9716,
+      "Text": 10807,
+      "Table": 1256,
+      "Button": 3156,
+      "Card": 3701,
+      "Image": 32,
+      "Icon": 2663,
+      "Formula": 128,
+      "Tabs": 21,
+      "Divider": 11,
+      "CheckBox": 1,
+      "ChoicePicker": 2,
+      "TextField": 4,
+      "Slider": 1,
+      "ConsoleLog": 8,
+      "CodeBlock": 8,
+      "EmailPreview": 3
+    },
+    "val_hash_url_length_screened": {
+      "Stack": 9617,
+      "Text": 10706,
+      "Table": 1245,
+      "Button": 3127,
+      "Card": 3672,
+      "Image": 32,
+      "Icon": 2630,
+      "Formula": 128,
+      "Tabs": 21,
+      "Divider": 11,
+      "CheckBox": 1,
+      "ChoicePicker": 2,
+      "TextField": 4,
+      "Slider": 1,
+      "ConsoleLog": 8,
+      "CodeBlock": 8,
+      "EmailPreview": 3
+    },
+    "golden32": {
+      "Stack": 346,
+      "Icon": 93,
+      "Text": 418,
+      "Card": 126,
+      "Table": 41,
+      "Button": 95,
+      "Formula": 3,
+      "EmailPreview": 1,
+      "Tabs": 1
+    },
+    "golden35": {
+      "Stack": 272,
+      "Icon": 77,
+      "Text": 461,
+      "Image": 27,
+      "Card": 130,
+      "Table": 32,
+      "Button": 86,
+      "Divider": 1,
+      "Formula": 1
+    }
+  },
+  "property_row_presence": {
+    "train": {
+      "Stack.direction": 150292,
+      "Stack.gap": 150292,
+      "Stack.align": 146597,
+      "Icon.name": 147338,
+      "Text.text": 150282,
+      "Text.variant": 150282,
+      "Button.label": 134502,
+      "Stack.padding": 137589,
+      "Table.columns": 147555,
+      "Table.statePath": 147434,
+      "Table.domain": 147390,
+      "Table.preferredPresentation": 147356,
+      "Table.primaryColumn": 105535,
+      "Table.highlightColumns": 43269,
+      "Table.numericColumns": 56564,
+      "Stack.wrap": 61293,
+      "Stack.justify": 22969,
+      "Button.variant": 134371,
+      "Formula.display": 4178,
+      "Formula.text": 2795,
+      "Stack.paddingVertical": 7680,
+      "Formula.latex": 15924,
+      "Formula.title": 11241,
+      "Stack.marginVertical": 7692,
+      "Card.padding": 316,
+      "Stack.paddingHorizontal": 1744,
+      "Image.url": 3294,
+      "Image.fit": 3292,
+      "Table.title": 240,
+      "Formula.result": 1347,
+      "Tabs.tabs": 3550,
+      "Table.rows": 756,
+      "Stack.margin": 835,
+      "CheckBox.label": 162,
+      "CheckBox.value": 160,
+      "ConsoleLog.code": 500,
+      "ConsoleLog.language": 500,
+      "CodeBlock.code": 594,
+      "CodeBlock.language": 594,
+      "CodeBlock.title": 126,
+      "Slider.label": 112,
+      "Slider.value": 112,
+      "Slider.min": 111,
+      "Slider.max": 111,
+      "EmailPreview.subject": 258,
+      "EmailPreview.body": 277,
+      "EmailPreview.title": 33,
+      "Formula.subtitle": 545,
+      "ConsoleLog.title": 127,
+      "ChoicePicker.label": 70,
+      "ChoicePicker.options": 70,
+      "ChoicePicker.value": 70,
+      "TextField.label": 88,
+      "TextField.value": 38,
+      "Image.fallbackUrl": 21,
+      "Card.flex": 5,
+      "AudioPlayer.url": 4,
+      "AudioPlayer.description": 4,
+      "Stack.flex": 4,
+      "EmailPreview.to": 20,
+      "Card.height": 4,
+      "Card.paddingVertical": 1,
+      "Video.url": 1,
+      "EmailPreview.date": 7,
+      "EmailPreview.from": 2,
+      "Stack.width": 5,
+      "Stack.height": 2,
+      "Card.title": 4,
+      "Image.width": 6,
+      "Image.height": 7,
+      "Card.paddingHorizontal": 1,
+      "Image.alt": 1,
+      "Image.aspectRatio": 1,
+      "Icon.alt": 1,
+      "Image.flex": 2,
+      "Icon.url": 2,
+      "Card.width": 1,
+      "Card.marginVertical": 2,
+      "Button.text": 2,
+      "EmailPreview.role": 1
+    },
+    "train_hash_url_length_screened": {
+      "Stack.direction": 148318,
+      "Stack.gap": 148318,
+      "Stack.align": 144842,
+      "Icon.name": 145519,
+      "Text.text": 148308,
+      "Text.variant": 148308,
+      "Button.label": 133383,
+      "Stack.padding": 135675,
+      "Table.columns": 145603,
+      "Table.statePath": 145489,
+      "Table.domain": 145438,
+      "Table.preferredPresentation": 145406,
+      "Table.primaryColumn": 103746,
+      "Table.highlightColumns": 42442,
+      "Table.numericColumns": 55699,
+      "Stack.wrap": 60741,
+      "Stack.justify": 22779,
+      "Button.variant": 133255,
+      "Formula.display": 4172,
+      "Formula.text": 2786,
+      "Stack.paddingVertical": 7598,
+      "Formula.latex": 15880,
+      "Formula.title": 11201,
+      "Stack.marginVertical": 7571,
+      "Card.padding": 311,
+      "Stack.paddingHorizontal": 1732,
+      "Image.url": 3203,
+      "Image.fit": 3203,
+      "Table.title": 240,
+      "Formula.result": 1335,
+      "Tabs.tabs": 3486,
+      "Table.rows": 724,
+      "Stack.margin": 827,
+      "CheckBox.label": 160,
+      "CheckBox.value": 158,
+      "ConsoleLog.code": 496,
+      "ConsoleLog.language": 496,
+      "CodeBlock.code": 575,
+      "CodeBlock.language": 575,
+      "CodeBlock.title": 125,
+      "Slider.label": 112,
+      "Slider.value": 112,
+      "Slider.min": 111,
+      "Slider.max": 111,
+      "EmailPreview.subject": 258,
+      "EmailPreview.body": 277,
+      "EmailPreview.title": 33,
+      "Formula.subtitle": 543,
+      "ConsoleLog.title": 126,
+      "ChoicePicker.label": 70,
+      "ChoicePicker.options": 70,
+      "ChoicePicker.value": 70,
+      "TextField.label": 88,
+      "TextField.value": 38,
+      "Image.fallbackUrl": 21,
+      "Card.flex": 3,
+      "AudioPlayer.url": 4,
+      "AudioPlayer.description": 4,
+      "Stack.flex": 4,
+      "EmailPreview.to": 20,
+      "Card.height": 4,
+      "Card.paddingVertical": 1,
+      "Video.url": 1,
+      "EmailPreview.date": 7,
+      "EmailPreview.from": 2,
+      "Stack.width": 5,
+      "Stack.height": 2,
+      "Card.title": 4,
+      "Image.width": 6,
+      "Image.height": 5,
+      "Card.paddingHorizontal": 1,
+      "Icon.url": 2,
+      "Card.width": 1,
+      "Card.marginVertical": 2,
+      "Button.text": 2,
+      "EmailPreview.role": 1
+    },
+    "val": {
+      "Stack.direction": 910,
+      "Stack.gap": 910,
+      "Stack.padding": 835,
+      "Text.text": 910,
+      "Text.variant": 910,
+      "Table.columns": 889,
+      "Table.statePath": 888,
+      "Table.domain": 888,
+      "Table.preferredPresentation": 888,
+      "Table.primaryColumn": 634,
+      "Table.highlightColumns": 259,
+      "Table.numericColumns": 356,
+      "Stack.wrap": 374,
+      "Button.label": 823,
+      "Button.variant": 823,
+      "Image.url": 25,
+      "Image.fit": 25,
+      "Stack.align": 885,
+      "Icon.name": 887,
+      "Formula.latex": 106,
+      "Formula.title": 73,
+      "Stack.justify": 123,
+      "Tabs.tabs": 18,
+      "Stack.paddingVertical": 48,
+      "Formula.text": 18,
+      "Stack.paddingHorizontal": 13,
+      "Formula.display": 27,
+      "Stack.marginVertical": 43,
+      "Table.rows": 6,
+      "Card.padding": 4,
+      "CheckBox.label": 1,
+      "CheckBox.value": 1,
+      "Formula.result": 11,
+      "Formula.subtitle": 6,
+      "ChoicePicker.label": 2,
+      "ChoicePicker.options": 2,
+      "ChoicePicker.value": 2,
+      "TextField.label": 1,
+      "Slider.label": 1,
+      "Slider.value": 1,
+      "Slider.min": 1,
+      "Slider.max": 1,
+      "Stack.margin": 5,
+      "ConsoleLog.code": 2,
+      "ConsoleLog.language": 2,
+      "ConsoleLog.title": 1,
+      "CodeBlock.code": 5,
+      "CodeBlock.language": 5,
+      "CodeBlock.title": 2,
+      "EmailPreview.subject": 1,
+      "EmailPreview.body": 1,
+      "Table.title": 1,
+      "Image.width": 1,
+      "Image.height": 1
+    },
+    "val_hash_url_length_screened": {
+      "Stack.direction": 903,
+      "Stack.gap": 903,
+      "Stack.padding": 830,
+      "Text.text": 903,
+      "Text.variant": 903,
+      "Table.columns": 882,
+      "Table.statePath": 881,
+      "Table.domain": 881,
+      "Table.preferredPresentation": 881,
+      "Table.primaryColumn": 627,
+      "Table.highlightColumns": 256,
+      "Table.numericColumns": 354,
+      "Stack.wrap": 370,
+      "Button.label": 816,
+      "Button.variant": 816,
+      "Image.url": 25,
+      "Image.fit": 25,
+      "Stack.align": 878,
+      "Icon.name": 880,
+      "Formula.latex": 106,
+      "Formula.title": 73,
+      "Stack.justify": 122,
+      "Tabs.tabs": 18,
+      "Stack.paddingVertical": 48,
+      "Formula.text": 18,
+      "Stack.paddingHorizontal": 13,
+      "Formula.display": 27,
+      "Stack.marginVertical": 43,
+      "Table.rows": 6,
+      "Card.padding": 4,
+      "CheckBox.label": 1,
+      "CheckBox.value": 1,
+      "Formula.result": 11,
+      "Formula.subtitle": 6,
+      "ChoicePicker.label": 2,
+      "ChoicePicker.options": 2,
+      "ChoicePicker.value": 2,
+      "TextField.label": 1,
+      "Slider.label": 1,
+      "Slider.value": 1,
+      "Slider.min": 1,
+      "Slider.max": 1,
+      "Stack.margin": 5,
+      "ConsoleLog.code": 2,
+      "ConsoleLog.language": 2,
+      "ConsoleLog.title": 1,
+      "CodeBlock.code": 5,
+      "CodeBlock.language": 5,
+      "CodeBlock.title": 2,
+      "EmailPreview.subject": 1,
+      "EmailPreview.body": 1,
+      "Table.title": 1,
+      "Image.width": 1,
+      "Image.height": 1
+    },
+    "golden32": {
+      "Stack.padding": 27,
+      "Icon.name": 31,
+      "Stack.direction": 32,
+      "Text.text": 32,
+      "Text.variant": 32,
+      "Stack.align": 31,
+      "Table.columns": 32,
+      "Table.domain": 32,
+      "Stack.gap": 32,
+      "Table.preferredPresentation": 32,
+      "Table.primaryColumn": 22,
+      "Button.variant": 29,
+      "Table.statePath": 32,
+      "Button.label": 29,
+      "Stack.wrap": 16,
+      "Table.highlightColumns": 8,
+      "Formula.text": 1,
+      "Stack.justify": 5,
+      "Table.numericColumns": 12,
+      "Formula.display": 2,
+      "Stack.paddingVertical": 1,
+      "EmailPreview.subject": 1,
+      "EmailPreview.body": 1,
+      "Stack.paddingHorizontal": 1,
+      "Formula.latex": 2,
+      "Formula.title": 1,
+      "Tabs.tabs": 1
+    },
+    "golden35": {
+      "Icon.name": 28,
+      "Image.url": 12,
+      "Stack.direction": 35,
+      "Table.highlightColumns": 9,
+      "Text.text": 35,
+      "Text.variant": 35,
+      "Stack.align": 29,
+      "Table.columns": 26,
+      "Table.domain": 26,
+      "Table.numericColumns": 4,
+      "Stack.gap": 35,
+      "Table.preferredPresentation": 26,
+      "Table.rows": 5,
+      "Table.primaryColumn": 11,
+      "Table.statePath": 23,
+      "Card.flex": 2,
+      "Image.fit": 10,
+      "Button.variant": 25,
+      "Button.label": 28,
+      "Stack.padding": 20,
+      "Image.alt": 1,
+      "Image.aspectRatio": 1,
+      "Icon.alt": 1,
+      "Stack.wrap": 7,
+      "Stack.justify": 2,
+      "Image.flex": 2,
+      "Image.height": 3,
+      "Formula.latex": 1,
+      "Card.padding": 1
+    }
+  },
+  "structural_distributions": {
+    "train": {
+      "nodes": {
+        "count": 150292,
+        "min": 4,
+        "max": 112,
+        "mean": 34.79024831661033,
+        "p50": 35,
+        "p90": 49,
+        "p95": 52,
+        "p99": 60
+      },
+      "depth": {
+        "count": 150292,
+        "min": 2,
+        "max": 11,
+        "mean": 5.165557714316131,
+        "p50": 5,
+        "p90": 6,
+        "p95": 7,
+        "p99": 7
+      },
+      "state_keys": {
+        "count": 150292,
+        "min": 0,
+        "max": 10,
+        "mean": 1.3563330050834377,
+        "p50": 1,
+        "p90": 2,
+        "p95": 2,
+        "p99": 3
+      },
+      "literal_chars": {
+        "count": 150292,
+        "min": 162,
+        "max": 7080,
+        "mean": 1947.3427727357412,
+        "p50": 1994,
+        "p90": 2700,
+        "p95": 2868,
+        "p99": 3284
+      },
+      "canonical_chars": {
+        "count": 150292,
+        "min": 375,
+        "max": 8727,
+        "mean": 3197.750984749687,
+        "p50": 3283,
+        "p90": 4160,
+        "p95": 4404,
+        "p99": 5071
+      },
+      "empty_layout_leaves": {
+        "count": 150292,
+        "min": 0,
+        "max": 20,
+        "mean": 0.06124743832007026,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 3
+      }
+    },
+    "val": {
+      "nodes": {
+        "count": 910,
+        "min": 10,
+        "max": 102,
+        "mean": 34.63516483516484,
+        "p50": 34,
+        "p90": 49,
+        "p95": 52,
+        "p99": 59
+      },
+      "depth": {
+        "count": 910,
+        "min": 3,
+        "max": 8,
+        "mean": 5.145054945054945,
+        "p50": 5,
+        "p90": 6,
+        "p95": 7,
+        "p99": 8
+      },
+      "state_keys": {
+        "count": 910,
+        "min": 0,
+        "max": 5,
+        "mean": 1.378021978021978,
+        "p50": 1,
+        "p90": 2,
+        "p95": 2,
+        "p99": 3
+      },
+      "literal_chars": {
+        "count": 910,
+        "min": 434,
+        "max": 4069,
+        "mean": 1937.3208791208792,
+        "p50": 1984,
+        "p90": 2725,
+        "p95": 2874,
+        "p99": 3308
+      },
+      "canonical_chars": {
+        "count": 910,
+        "min": 736,
+        "max": 6557,
+        "mean": 3190.3395604395605,
+        "p50": 3268,
+        "p90": 4166,
+        "p95": 4459,
+        "p99": 5085
+      },
+      "empty_layout_leaves": {
+        "count": 910,
+        "min": 0,
+        "max": 6,
+        "mean": 0.06263736263736264,
+        "p50": 0,
+        "p90": 0,
+        "p95": 0,
+        "p99": 3
+      }
+    }
+  },
+  "examples": {
+    "train_empty_layout": [
+      {
+        "line": 107,
+        "source_sha256": "5c9c108788b3213f304cfd1df0d497a03209066de1846e7247af51e9792d7cd9",
+        "strict_valid": true
+      },
+      {
+        "line": 122,
+        "source_sha256": "4347d4f84c9a76cf433ec08aef558406b8576fac25a63211d7b41dd408998142",
+        "strict_valid": true
+      },
+      {
+        "line": 123,
+        "source_sha256": "1e33bcd0c397f67548f9fd3dbee095046d8242c52b00d9dda666256971011442",
+        "strict_valid": true
+      },
+      {
+        "line": 124,
+        "source_sha256": "6bef9174576d298858409a45facde3e9cc2eec7cad3bd3a23708999f34423124",
+        "strict_valid": true
+      },
+      {
+        "line": 262,
+        "source_sha256": "d3bf485a58c4bbf545934cc4ef62731e00c155656331ccb01582ecd505e5b445",
+        "strict_valid": true
+      },
+      {
+        "line": 408,
+        "source_sha256": "e811544ad333adabd4618bfe6cee1d816aeea9a40a0a6b308a9e2b08f8970fb3",
+        "strict_valid": true
+      },
+      {
+        "line": 430,
+        "source_sha256": "9820dbc39f3cbefed6429b8ebe9362049bc142f38260adf74e4cdee28ac348df",
+        "strict_valid": true
+      },
+      {
+        "line": 437,
+        "source_sha256": "7721eb7d4a079798b4ae564ceb90e89f0803a171c4e3fb8d1dd21eabeeac46c0",
+        "strict_valid": true
+      },
+      {
+        "line": 446,
+        "source_sha256": "1eb0369680452cb6afafad6ab73e140112f387c289cca4a38a2dce0deb6e08b5",
+        "strict_valid": true
+      },
+      {
+        "line": 523,
+        "source_sha256": "859369ce27a83d2bfe979af7e2ecd67413485b596b14d51136381644e35789cf",
+        "strict_valid": true
+      },
+      {
+        "line": 586,
+        "source_sha256": "979c90c3c24fa612e718a2dd09dc75ae22402e66b22a05adaede2ea5842dec33",
+        "strict_valid": true
+      },
+      {
+        "line": 609,
+        "source_sha256": "5266869051614fb83e8947dda083d811ac92a7c8234f53132ad7c5dc1ff6d344",
+        "strict_valid": true
+      },
+      {
+        "line": 644,
+        "source_sha256": "4bf79198362e04fc0f3ea0d22c182022de08ca7ac55fc66516e3e7d555c49298",
+        "strict_valid": true
+      },
+      {
+        "line": 668,
+        "source_sha256": "5037b36ed8a9ed6681e195876515b2b488ea79a173b3521694214cf37d6fe831",
+        "strict_valid": true
+      },
+      {
+        "line": 776,
+        "source_sha256": "59792ccdc9b075c60bb9b81425db9a953173521884d4a478a25f57a04316bf0e",
+        "strict_valid": true
+      },
+      {
+        "line": 835,
+        "source_sha256": "cad68b6179906b26699f95fe81d6fd7b5d32458ab8b07422bd53fe729bf5b4f2",
+        "strict_valid": true
+      },
+      {
+        "line": 871,
+        "source_sha256": "0cbb7d9bcdf4fa179209781820485efa7bb1831dafc1ed94aa1510c133b1eb4f",
+        "strict_valid": true
+      },
+      {
+        "line": 938,
+        "source_sha256": "525416b3fec8c73911c322e0198dbfc188df42fcd3ae8cab3ec0e76e0246d4f8",
+        "strict_valid": true
+      },
+      {
+        "line": 972,
+        "source_sha256": "26b0521651e7f090398d739365543f7410a20a8f645d00e50b6aea44dc324dba",
+        "strict_valid": true
+      },
+      {
+        "line": 1046,
+        "source_sha256": "0e66973014d6d5e744ef339bf42d5c58f7b28d341e181486053ad9f900c40373",
+        "strict_valid": true
+      }
+    ],
+    "train_reserved": [
+      {
+        "line": 73347,
+        "source_sha256": "41cde2ebffd138bb608c52ceaab104da706ad9dc69659a00ae88cea12773f4d7",
+        "strict_valid": true
+      },
+      {
+        "line": 73348,
+        "source_sha256": "a1f0c93df86f83a2c79d091f0941e8bd6b93a3ca073deca9f81c443721c5879b",
+        "strict_valid": true
+      },
+      {
+        "line": 73349,
+        "source_sha256": "613fbf9d7dce75ae330c47be373e90f5d998feecb064039d6dc3f5a92aa99e86",
+        "strict_valid": true
+      },
+      {
+        "line": 73350,
+        "source_sha256": "0638991e45966ff50f6e1ae5ff4aeb5dec4db353b5e4b81718831f0d77af041e",
+        "strict_valid": true
+      },
+      {
+        "line": 73351,
+        "source_sha256": "c5b33d7065e33791e4788a690205b5ac1a6d0f16223115ff308ba4dd089ab12e",
+        "strict_valid": true
+      },
+      {
+        "line": 73352,
+        "source_sha256": "f7d19d2bf1525d23d71ac1d2d1587b0411ac5fa78fe83c42a753c093914b464d",
+        "strict_valid": true
+      },
+      {
+        "line": 73354,
+        "source_sha256": "02b9d368fa50cff3f7d03948933bdd6a4f091ea0e37e575b503f48972b267782",
+        "strict_valid": true
+      },
+      {
+        "line": 73355,
+        "source_sha256": "743dcf9324a75b3401bfe4ade793f909077c2b9bad08f01914ab61852b510582",
+        "strict_valid": true
+      },
+      {
+        "line": 73356,
+        "source_sha256": "7c201b67ada8687c6b4fac93461310683d4079c4c570cdee23988ab5c8b988d8",
+        "strict_valid": true
+      },
+      {
+        "line": 73357,
+        "source_sha256": "0cf52bc77c223f2145538efe9c1d1465f8cd8177950427e8b0e5bb7a0930550f",
+        "strict_valid": true
+      },
+      {
+        "line": 73358,
+        "source_sha256": "1784eb1e02b7e946034d279fa43fd232c25145290e24195f42a0ee751e8177e9",
+        "strict_valid": true
+      },
+      {
+        "line": 73359,
+        "source_sha256": "aea40d392bc869111b3a76fa00eaf6831995c141260ac6af22dbc61cf933728f",
+        "strict_valid": true
+      },
+      {
+        "line": 73361,
+        "source_sha256": "de36e3ef329851556e34191b2592f422f552eaf241471a4b987375e7b2e2709b",
+        "strict_valid": true
+      },
+      {
+        "line": 73362,
+        "source_sha256": "788417104f4e4729f820908dafc2ab9b4ee63508142ee096517feefce772d89e",
+        "strict_valid": true
+      },
+      {
+        "line": 73363,
+        "source_sha256": "2e33256664686d961e89f35859e3b7e1b42b5a15816830401fdcc55e0e365439",
+        "strict_valid": true
+      },
+      {
+        "line": 73365,
+        "source_sha256": "b4eff431245a0d9539a943949b142b9dc7ce00701e6d772da9f5b443e6b217fd",
+        "strict_valid": true
+      },
+      {
+        "line": 73366,
+        "source_sha256": "a612e7f04f49d10e57ce922f25cdd3a9fd12fa38094dd9c70882741f60ad6ee3",
+        "strict_valid": true
+      },
+      {
+        "line": 73367,
+        "source_sha256": "07870f8addd1ba56485960174949ec46952860999a1823b02eea18bb3144c6a8",
+        "strict_valid": true
+      },
+      {
+        "line": 73368,
+        "source_sha256": "e0644d7ec9aa21fc335fc2643e9391c8e5ac36ca1df7f1f9cdd537514cfebc53",
+        "strict_valid": true
+      },
+      {
+        "line": 73371,
+        "source_sha256": "81d8f17846b6c52845a6d6b71aaecb42d8be6ebeb4be6b268f0fdef82673f07f",
+        "strict_valid": true
+      }
+    ],
+    "train_layout_only": [
+      {
+        "line": 93102,
+        "source_sha256": "f2e92370b438f7deabfdecb3bcf5af746bdc164ffd3aa37e54399145e8c6b3dc",
+        "strict_valid": true
+      },
+      {
+        "line": 111526,
+        "source_sha256": "59d48f7886b46357f91afbe9a2e956da6b33280fc45e32e6f206770c63d9f050",
+        "strict_valid": true
+      },
+      {
+        "line": 121983,
+        "source_sha256": "ab74a74b44c9891ef4529a353a1b8ae3aa8d5afb2f80a5ce0a081e13d9dccb9f",
+        "strict_valid": true
+      }
+    ],
+    "val_empty_layout": [
+      {
+        "line": 74,
+        "source_sha256": "ee019bc16cfc19987161dd10d1d70070a755aa32483d4e26cb18c8c4976f97ed",
+        "strict_valid": true
+      },
+      {
+        "line": 105,
+        "source_sha256": "f8f822d8c987b32ed1bb4bbf74ef7106dab232429fadf98da74e0e0978c6f973",
+        "strict_valid": true
+      },
+      {
+        "line": 134,
+        "source_sha256": "26062669c8443d549257750f1de2c03823c32e3b72e5e971646234d39c1a4bf2",
+        "strict_valid": true
+      },
+      {
+        "line": 136,
+        "source_sha256": "345ac2f3d1e2c73b76bdea4735f0462e22d4ae4cec3bb2caa39acb195c89ec3b",
+        "strict_valid": true
+      },
+      {
+        "line": 183,
+        "source_sha256": "9a25d68a6ec658a546bbf9970cb58da1fb17207367c1226a0f92027016c55226",
+        "strict_valid": true
+      },
+      {
+        "line": 184,
+        "source_sha256": "12338c6e5e51583c78547e00d69a6b68d0db5f5b0b0093d2923f4f6fa7e30034",
+        "strict_valid": true
+      },
+      {
+        "line": 265,
+        "source_sha256": "fa71d37c04cc0858f886d320107ac76e15ee9e0febfe2d081590fe38e27ee78c",
+        "strict_valid": true
+      },
+      {
+        "line": 312,
+        "source_sha256": "98723eb2bc080fc8875fc796788c6f1a4cbc52bba8f7d05ba386f61efa60b486",
+        "strict_valid": true
+      },
+      {
+        "line": 408,
+        "source_sha256": "10c2017c7eb8252b4a5dcd35df815bfd06443820b5cbf92f99331d94931c059a",
+        "strict_valid": true
+      },
+      {
+        "line": 418,
+        "source_sha256": "94cfb330ef7915de5bec15e93634c22aeb237b17ab937b0286678abb03aa2fe3",
+        "strict_valid": true
+      },
+      {
+        "line": 674,
+        "source_sha256": "a94c0d9ced036cfd7991cdc1373c2eae30a5ec3a6722bb6a098a239edc28ae8d",
+        "strict_valid": true
+      },
+      {
+        "line": 713,
+        "source_sha256": "f8cbe0476921235df32c3c31dc2ea336f40bdcfaab137ee15ca4ea751526dc25",
+        "strict_valid": true
+      },
+      {
+        "line": 720,
+        "source_sha256": "61e8674dc020e28d9f831e6965a6796d397afc4a307fa0e42a0ffec1f6b6b00b",
+        "strict_valid": true
+      },
+      {
+        "line": 850,
+        "source_sha256": "8c462bfd408603081da19bb84c94c791f660545c6cb220bf8de117be73c62d4b",
+        "strict_valid": true
+      }
+    ],
+    "val_reserved": [
+      {
+        "line": 85,
+        "source_sha256": "93c90230e53d0ef5bcea834c693a102526caa71fb62859f8a849cb6a88667275",
+        "strict_valid": true
+      }
+    ]
+  },
+  "splits": {
+    "train": {
+      "funnel": {
+        "all_rows": 150292,
+        "after_known_reserved_golden_source_hash_removal": 150265,
+        "after_strict_target_check": 150265,
+        "after_url_preprocessor_quarantine": 150261
+      },
+      "flags_overlap_not_additive": {
+        "reserved": 27,
+        "url_error": 4,
+        "empty_layout": 1956,
+        "layout_only": 3,
+        "mojibake": 40123,
+        "placeholder": 48141,
+        "missing_action": 15168,
+        "low_lexical": 936,
+        "missing_numeric": 3248
+      },
+      "distinct_semantic_pairs_after_hash_strict_url_checks_NOT_row_count": 150259,
+      "after_objective_screen_reconstructed_sequence_lte4096_target_lte2048": 148318,
+      "after_objective_screen_with_any_review_signal": 82866,
+      "after_objective_screen_no_tested_review_signal_NOT_a_clean_quality_certificate": 65452,
+      "duplicate_semantic_pair_groups": 2,
+      "source_groups_with_multiple_semantic_targets": 4208
+    },
+    "val": {
+      "funnel": {
+        "all_rows": 910,
+        "after_known_reserved_golden_source_hash_removal": 909,
+        "after_strict_target_check": 909,
+        "after_url_preprocessor_quarantine": 909
+      },
+      "flags_overlap_not_additive": {
+        "reserved": 1,
+        "url_error": 0,
+        "empty_layout": 14,
+        "layout_only": 0,
+        "mojibake": 243,
+        "placeholder": 328,
+        "missing_action": 89,
+        "low_lexical": 3,
+        "missing_numeric": 23
+      },
+      "distinct_semantic_pairs_after_hash_strict_url_checks_NOT_row_count": 909,
+      "after_objective_screen_reconstructed_sequence_lte4096_target_lte2048": 903,
+      "after_objective_screen_with_any_review_signal": 525,
+      "after_objective_screen_no_tested_review_signal_NOT_a_clean_quality_certificate": 378,
+      "duplicate_semantic_pair_groups": 0,
+      "source_groups_with_multiple_semantic_targets": 1
+    }
+  }
+}

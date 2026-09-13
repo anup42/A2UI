@@ -1,0 +1,20 @@
+{
+  "status": "verified",
+  "dataset_dir": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v5",
+  "policy_version": "messages-archive-recovery-v5-20260913",
+  "all_original_rows": 151202,
+  "categories": {
+    "QUARANTINE": 32671,
+    "KEEP": 14660,
+    "REPAIR": 103871
+  },
+  "output_rows": {
+    "train": 117841,
+    "val": 690
+  },
+  "strict_sample_rows": 256,
+  "train_val_family_overlap": 0,
+  "duplicate_family_semantic_targets": 0,
+  "duplicate_effective_pairs": 0,
+  "target_placeholders_absent_from_source": 0
+}

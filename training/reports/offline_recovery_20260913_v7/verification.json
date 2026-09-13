@@ -1,0 +1,21 @@
+{
+  "status": "verified",
+  "policy_version": "messages-archive-final-review-v7-20260913",
+  "manifest_sha256": "7fdf880055e7e4ef7c1ff40665f4e5cbc1a4894a0a3ecb1621a702010531cf24",
+  "output_rows": {
+    "train": 112911,
+    "val": 2301
+  },
+  "strict_production_sample_rows": 512,
+  "independent_content_review_sample_rows": 512,
+  "residual_same_policy_repairs_in_sample": 0,
+  "unique_normalized_sources_checked": 112208,
+  "exact_or_normalized_golden_matches": 0,
+  "lexical_near_golden_matches": 0,
+  "train_val_source_family_overlap": 0,
+  "train_val_normalized_source_overlap": 0,
+  "train_val_lexical_near_matches": 0,
+  "all_row_hash_identity_placeholder_duplicate_checks": "passed",
+  "remaining_limit": "No model-tokenizer preflight, semantic paraphrase guarantee, device render, or training score.",
+  "verification_script_sha256": "6b52266536904b5d91f12593e11db9a93a8e8f8d35d64a2c11d6883eb9521f45"
+}

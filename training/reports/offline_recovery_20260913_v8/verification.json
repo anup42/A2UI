@@ -1,0 +1,23 @@
+{
+  "status": "verified",
+  "policy_version": "messages-archive-letter-review-v8-20260913",
+  "manifest_sha256": "f3e2b4a4cb5468fec914d7477c932735e191f9e5ba7991d7fcaf6eeb66b1d824",
+  "output_rows": {
+    "train": 112842,
+    "val": 2300
+  },
+  "strict_production_sample_rows": 512,
+  "independent_content_review_sample_rows": 512,
+  "residual_same_policy_repairs_in_sample": 0,
+  "unique_normalized_sources_checked": 112138,
+  "exact_or_normalized_golden_matches": 0,
+  "lexical_near_golden_matches": 0,
+  "train_val_source_family_overlap": 0,
+  "train_val_normalized_source_overlap": 0,
+  "train_val_lexical_near_matches": 0,
+  "all_row_hash_identity_placeholder_duplicate_checks": "passed",
+  "remaining_limit": "No model-tokenizer preflight, semantic paraphrase guarantee, device render, or training score.",
+  "verification_script_sha256": "b5b12f1e985b3998eb0e93b36839902734691138cad29ec3c820be790fe619dc",
+  "all_retained_letter_rows_checked": 14,
+  "remaining_letter_policy_gaps": 0
+}

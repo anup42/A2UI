@@ -1,0 +1,3706 @@
+{
+  "status": "profiled",
+  "manifest_sha256": "f3e2b4a4cb5468fec914d7477c932735e191f9e5ba7991d7fcaf6eeb66b1d824",
+  "baseline_manifest_sha256": "0464616051c78124c09e0dea07ea22585e9017ef5e8af6d66f028b7cf48dedb0",
+  "output_rows": {
+    "train": 112842,
+    "val": 2300
+  },
+  "transitions_from_v5": {
+    "QUARANTINE->QUARANTINE": 32541,
+    "REPAIR->REPAIR": 100609,
+    "REPAIR->QUARANTINE": 3262,
+    "KEEP->KEEP": 14403,
+    "QUARANTINE->REPAIR": 121,
+    "KEEP->QUARANTINE": 257,
+    "QUARANTINE->KEEP": 9
+  },
+  "newly_admitted_vs_v5": {
+    "REPAIR": 121,
+    "KEEP": 9
+  },
+  "newly_excluded_vs_v5": {
+    "unresolved_content_or_reference": 3442,
+    "incomplete_letter": 70,
+    "duplicate_source_family_target": 2,
+    "reserved_golden_family": 5
+  },
+  "confidence_tiers": {
+    "source_grounded_structural": 36959,
+    "lossless_representation": 63771,
+    "unchanged": 14412
+  },
+  "retained_transformations_rows_overlap": {
+    "placeholder_label_rebindings": 26304,
+    "target_cp437_utf8": 48837,
+    "source_cp437_utf8": 31285,
+    "source_identity_url_normalization": 55820,
+    "placeholder_media_namespace_rebindings": 15675,
+    "placeholder_unique_media_rebindings": 553,
+    "ungrounded_reference_elements_removed": 798,
+    "unused_target_url_map_entries_removed": 1322,
+    "empty_table_columns_removed": 175,
+    "ungrounded_reference_fields_removed": 382,
+    "empty_layout_elements_removed": 290,
+    "ungrounded_open_url_events_removed": 187,
+    "source_proven_missing_button_label": 53,
+    "midword_text_boundary_joins": 3
+  },
+  "retained_repair_operation_counts_overlap": {
+    "placeholder_label_rebindings": 59962,
+    "placeholder_media_namespace_rebindings": 55704,
+    "placeholder_unique_media_rebindings": 571,
+    "ungrounded_reference_elements_removed": 931,
+    "unused_target_url_map_entries_removed": 1899,
+    "empty_table_columns_removed": 244,
+    "ungrounded_reference_fields_removed": 676,
+    "empty_layout_elements_removed": 1071,
+    "ungrounded_open_url_events_removed": 249,
+    "source_proven_missing_button_label": 65,
+    "midword_text_boundary_joins": 3
+  },
+  "retained_review_resolutions_rows_overlap": {
+    "numeric_grouping_false_positive_resolved": 53,
+    "confirmed_encoding_defect_resolved": 1
+  },
+  "component_presence_rows": {
+    "train": {
+      "Stack": 112842,
+      "Text": 112842,
+      "Table": 111462,
+      "Card": 112694,
+      "Button": 108505,
+      "Formula": 17269,
+      "Divider": 1425,
+      "Image": 2159,
+      "Tabs": 2055,
+      "Icon": 112180,
+      "CheckBox": 123,
+      "ConsoleLog": 429,
+      "CodeBlock": 488,
+      "Slider": 65,
+      "ChoicePicker": 46,
+      "TextField": 53,
+      "EmailPreview": 166,
+      "AudioPlayer": 1
+    },
+    "val": {
+      "Stack": 2300,
+      "Text": 2300,
+      "Card": 2299,
+      "Table": 2270,
+      "Button": 2189,
+      "Formula": 351,
+      "Icon": 2283,
+      "Divider": 30,
+      "Tabs": 42,
+      "EmailPreview": 4,
+      "ConsoleLog": 12,
+      "Image": 45,
+      "CodeBlock": 10,
+      "CheckBox": 4,
+      "TextField": 1
+    }
+  },
+  "component_instances": {
+    "train": {
+      "Stack": 1234475,
+      "Text": 1400022,
+      "Table": 147214,
+      "Card": 488386,
+      "Button": 425840,
+      "Formula": 18245,
+      "Divider": 1511,
+      "Image": 2959,
+      "Tabs": 2109,
+      "Icon": 340327,
+      "CheckBox": 509,
+      "ConsoleLog": 1238,
+      "CodeBlock": 778,
+      "Slider": 88,
+      "ChoicePicker": 66,
+      "TextField": 116,
+      "EmailPreview": 268,
+      "AudioPlayer": 1
+    },
+    "val": {
+      "Stack": 25223,
+      "Text": 28689,
+      "Card": 9885,
+      "Table": 3003,
+      "Button": 8613,
+      "Formula": 370,
+      "Icon": 6937,
+      "Divider": 32,
+      "Tabs": 44,
+      "EmailPreview": 4,
+      "ConsoleLog": 25,
+      "Image": 60,
+      "CodeBlock": 16,
+      "CheckBox": 28,
+      "TextField": 3
+    }
+  },
+  "source_family_size_distribution": {
+    "train": {
+      "1": 106957,
+      "2": 2923,
+      "3": 13
+    },
+    "val": {
+      "1": 2187,
+      "2": 55,
+      "3": 1
+    }
+  },
+  "original_to_new_split": {
+    "train->train": 112165,
+    "val->train": 677,
+    "train->val": 2283,
+    "val->val": 17
+  },
+  "character_lengths_not_token_lengths": {
+    "train_source": {
+      "count": 112842,
+      "min": 165,
+      "max": 7982,
+      "p50": 1902,
+      "p90": 2618,
+      "p95": 2817,
+      "p99": 3339
+    },
+    "train_target": {
+      "count": 112842,
+      "min": 375,
+      "max": 8723,
+      "p50": 3025,
+      "p90": 3881,
+      "p95": 4125,
+      "p99": 4735
+    },
+    "val_source": {
+      "count": 2300,
+      "min": 381,
+      "max": 5341,
+      "p50": 1928,
+      "p90": 2622,
+      "p95": 2843,
+      "p99": 3431
+    },
+    "val_target": {
+      "count": 2300,
+      "min": 733,
+      "max": 6911,
+      "p50": 3058,
+      "p90": 3916,
+      "p95": 4139,
+      "p99": 4851
+    }
+  },
+  "quarantined_rows_with_retained_source_family": {
+    "unresolved_content_or_reference": 244,
+    "duplicate_source_family_target": 3
+  },
+  "sibling_note": "A known-good target already covers these source families; duplicating it over a bad sibling is not new data recovery.",
+  "letter_exclusion_evidence": [
+    {
+      "coordinate": "train:10474",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 45,
+          "matched_ordered_prefix_words": 23,
+          "source_excerpt": "To ensure a transparent transaction, please provide a comprehensive Out-the-Door (OTD) price quote including all California state taxes and registration fees. Specifically, I request that any \"dealer "
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 22,
+      "missing_distinct_words": [
+        "accessories",
+        "add",
+        "any",
+        "be",
+        "by",
+        "dealer",
+        "final",
+        "from",
+        "i",
+        "manufacturer",
+        "not",
+        "ons",
+        "optional",
+        "or",
+        "quote",
+        "removed",
+        "request",
+        "specifically",
+        "specified",
+        "that",
+        "the"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:11723",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 34,
+          "matched_ordered_prefix_words": 15,
+          "source_excerpt": "Given these circumstances, would it be possible to submit my paper by [Proposed New Date]? I am committed to delivering high-quality work and believe this additional time will allow me to do so."
+        },
+        {
+          "block": 6,
+          "source_words": 10,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your time and for considering my request."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 29,
+      "missing_distinct_words": [
+        "additional",
+        "allow",
+        "am",
+        "and",
+        "believe",
+        "committed",
+        "considering",
+        "delivering",
+        "do",
+        "for",
+        "high",
+        "i",
+        "me",
+        "my",
+        "quality",
+        "request",
+        "so",
+        "thank",
+        "this",
+        "time",
+        "to",
+        "will",
+        "work",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:13043",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 40,
+          "matched_ordered_prefix_words": 18,
+          "source_excerpt": "I understand how frustrating it is to arrive in a bustling city only to find your accommodations unavailable. Please know that we have conducted a full review of our reservation system to ensure this "
+        },
+        {
+          "block": 7,
+          "source_words": 35,
+          "matched_ordered_prefix_words": 19,
+          "source_excerpt": "We value your patronage and would be honored to have the chance to restore your confidence in our hospitality. I will personally oversee any future bookings you make with us to ensure a flawless stay."
+        },
+        {
+          "block": 9,
+          "source_words": 10,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "[Manager Name] General Manager The Grand Manhattan, New York City"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 46,
+      "missing_distinct_words": [
+        "a",
+        "again",
+        "any",
+        "bookings",
+        "city",
+        "conducted",
+        "does",
+        "ensure",
+        "failure",
+        "flawless",
+        "full",
+        "future",
+        "general",
+        "grand",
+        "happen",
+        "have",
+        "i",
+        "know",
+        "make",
+        "manager",
+        "manhattan",
+        "new",
+        "not",
+        "of",
+        "our",
+        "oversee",
+        "personally",
+        "please",
+        "reservation",
+        "review",
+        "stay",
+        "system",
+        "technical",
+        "that",
+        "the",
+        "this",
+        "to",
+        "us",
+        "we",
+        "will",
+        "with",
+        "york",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:13483",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 23,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "To ensure a sustainable transition, I would like to propose the following adjustments to my compensation and a one-time relocation assistance request:"
+        },
+        {
+          "block": 9,
+          "source_words": 8,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "[Your Name] Senior Software Engineer [Employee ID/Department]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 29,
+      "missing_distinct_words": [
+        "a",
+        "adjustments",
+        "and",
+        "assistance",
+        "compensation",
+        "department",
+        "employee",
+        "engineer",
+        "ensure",
+        "following",
+        "i",
+        "id",
+        "like",
+        "my",
+        "one",
+        "propose",
+        "relocation",
+        "request",
+        "senior",
+        "software",
+        "sustainable",
+        "the",
+        "time",
+        "to",
+        "transition",
+        "would"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:13514",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 18,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "**Response Instructions** To confirm your attendance, please complete the digital RSVP form or contact the event coordinator directly."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 12,
+      "missing_distinct_words": [
+        "1",
+        "action",
+        "button",
+        "icon",
+        "instructions",
+        "media",
+        "response",
+        "subject",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:13516",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 42,
+          "matched_ordered_prefix_words": 22,
+          "source_excerpt": "While I value the creative direction of the work so far, it is essential that we establish a reliable timeline for completion. Please provide a comprehensive status update on the current iterations an"
+        },
+        {
+          "block": 5,
+          "source_words": 24,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to receiving the updated schedule by the end of the day tomorrow so we can ensure this project stays on track."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 44,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "assets",
+        "by",
+        "can",
+        "comprehensive",
+        "current",
+        "date",
+        "day",
+        "delivery",
+        "end",
+        "ensure",
+        "final",
+        "firm",
+        "for",
+        "forward",
+        "i",
+        "iterations",
+        "look",
+        "of",
+        "on",
+        "please",
+        "project",
+        "provide",
+        "receiving",
+        "revised",
+        "schedule",
+        "so",
+        "status",
+        "stays",
+        "the",
+        "this",
+        "to",
+        "tomorrow",
+        "track",
+        "update",
+        "updated",
+        "we"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:14222",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 49,
+          "matched_ordered_prefix_words": 18,
+          "source_excerpt": "My clients truly appreciate the [mention one positive feature, e.g., spacious layout/prime location] of the home. However, to align the purchase price with the necessary immediate capital improvements"
+        },
+        {
+          "block": 7,
+          "source_words": 44,
+          "matched_ordered_prefix_words": 21,
+          "source_excerpt": "My clients are well-positioned for a smooth transaction and are prepared to offer flexible closing dates to accommodate your move. We believe this is a fair and competitive offer that accounts for the"
+        },
+        {
+          "block": 8,
+          "source_words": 17,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "We look forward to your response and are available to discuss the terms of this offer further."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 71,
+      "missing_distinct_words": [
+        "000",
+        "080",
+        "1",
+        "a",
+        "accounts",
+        "align",
+        "and",
+        "are",
+        "asset",
+        "available",
+        "believe",
+        "bring",
+        "capital",
+        "competitive",
+        "discuss",
+        "fair",
+        "for",
+        "forward",
+        "further",
+        "however",
+        "immediate",
+        "improvements",
+        "investment",
+        "is",
+        "look",
+        "modern",
+        "necessary",
+        "of",
+        "offer",
+        "preserve",
+        "price",
+        "property",
+        "proposing",
+        "purchase",
+        "required",
+        "response",
+        "standards",
+        "terms",
+        "that",
+        "the",
+        "this",
+        "to",
+        "up",
+        "value",
+        "we",
+        "with",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:14687",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 48,
+          "matched_ordered_prefix_words": 23,
+          "source_excerpt": "Under the terms of our signed lease agreement, the landlord/property manager is mandated to complete essential repairs within 48 hours of notification. Given that both hot water and ceiling integrity "
+        },
+        {
+          "block": 6,
+          "source_words": 16,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please confirm by [Time/Date] when a licensed contractor will be arriving to resolve these issues."
+        },
+        {
+          "block": 7,
+          "source_words": 9,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your prompt attention to this matter."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 50,
+      "missing_distinct_words": [
+        "a",
+        "addressed",
+        "and",
+        "are",
+        "arriving",
+        "attention",
+        "be",
+        "both",
+        "by",
+        "ceiling",
+        "confirm",
+        "contractor",
+        "date",
+        "ensure",
+        "essential",
+        "for",
+        "given",
+        "habitable",
+        "hot",
+        "i",
+        "immediately",
+        "integrity",
+        "issues",
+        "licensed",
+        "matter",
+        "please",
+        "prompt",
+        "remains",
+        "repairs",
+        "request",
+        "resolve",
+        "services",
+        "thank",
+        "that",
+        "the",
+        "these",
+        "this",
+        "time",
+        "to",
+        "unit",
+        "water",
+        "when",
+        "will",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:16014",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 25,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please let me know when a technician can be scheduled or if you have a preferred plumber you would like me to coordinate with directly."
+        },
+        {
+          "block": 7,
+          "source_words": 9,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your prompt attention to this matter."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 34,
+      "missing_distinct_words": [
+        "a",
+        "attention",
+        "be",
+        "can",
+        "coordinate",
+        "directly",
+        "for",
+        "have",
+        "if",
+        "know",
+        "let",
+        "like",
+        "matter",
+        "me",
+        "or",
+        "please",
+        "plumber",
+        "preferred",
+        "prompt",
+        "scheduled",
+        "technician",
+        "thank",
+        "this",
+        "to",
+        "when",
+        "with",
+        "would",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:18117",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 14,
+          "matched_ordered_prefix_words": 8,
+          "source_excerpt": "**Training Status: London Office** - Deadline: **2024-11-01** - Status: **Incomplete** - Remaining Work: **2 Modules**"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 15,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "action",
+        "button",
+        "icon",
+        "media",
+        "subject",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:18882",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 68,
+          "matched_ordered_prefix_words": 53,
+          "source_excerpt": "- **Full Refund**: A complete refund for the night of September 12 has been issued to your original payment method. You should see this reflected in your account within 3-5 business days. - **Complime"
+        },
+        {
+          "block": 7,
+          "source_words": 21,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We value your patronage and hope to have the opportunity to welcome you back and provide the flawless stay you deserve."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 36,
+      "missing_distinct_words": [
+        "and",
+        "back",
+        "can",
+        "contact",
+        "deserve",
+        "directly",
+        "flawless",
+        "have",
+        "hope",
+        "i",
+        "me",
+        "opportunity",
+        "oversee",
+        "patronage",
+        "personally",
+        "planning",
+        "please",
+        "provide",
+        "reservation",
+        "return",
+        "so",
+        "stay",
+        "the",
+        "to",
+        "value",
+        "we",
+        "welcome",
+        "when",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:19627",
+      "gaps": [
+        {
+          "block": 10,
+          "source_words": 9,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "[Your Name] [Your Job Title] [Company Name] [Phone Number]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 11,
+      "missing_distinct_words": [
+        "best",
+        "company",
+        "job",
+        "name",
+        "number",
+        "phone",
+        "regards",
+        "title",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:20342",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 22,
+          "matched_ordered_prefix_words": 10,
+          "source_excerpt": "If payment has already been sent, please disregard this message. Otherwise, I have attached a copy of the invoice for your convenience."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 12,
+      "missing_distinct_words": [
+        "a",
+        "attached",
+        "convenience",
+        "copy",
+        "for",
+        "have",
+        "i",
+        "invoice",
+        "of",
+        "otherwise",
+        "the",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:21297",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 10,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "Formula: Budget \\% = \\frac{\\text{Category Allocation}}{\\text{Total Monthly Income}}"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 36,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "action",
+        "actions",
+        "button",
+        "client",
+        "dear",
+        "icon",
+        "media",
+        "quick",
+        "subject",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:21475",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 24,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please let me know if you have any questions or if you would like to jump on a quick call to discuss the drafts."
+        },
+        {
+          "block": 8,
+          "source_words": 7,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "[Designer Name] Freelance Designer Mexico City, MX"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 29,
+      "missing_distinct_words": [
+        "a",
+        "any",
+        "call",
+        "city",
+        "designer",
+        "discuss",
+        "drafts",
+        "freelance",
+        "have",
+        "if",
+        "jump",
+        "know",
+        "let",
+        "like",
+        "me",
+        "mexico",
+        "mx",
+        "on",
+        "or",
+        "please",
+        "questions",
+        "quick",
+        "the",
+        "to",
+        "would",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:21957",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 36,
+          "matched_ordered_prefix_words": 21,
+          "source_excerpt": "Our recruitment team will reach out to you shortly via email to coordinate a date and time for your first interview. In the meantime, please ensure your contact information is up to date on your profi"
+        },
+        {
+          "block": 5,
+          "source_words": 8,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We look forward to speaking with you soon."
+        },
+        {
+          "block": 7,
+          "source_words": 5,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "The TechCorp Talent Acquisition Team"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 30,
+      "missing_distinct_words": [
+        "acquisition",
+        "best",
+        "contact",
+        "date",
+        "ensure",
+        "forward",
+        "in",
+        "information",
+        "is",
+        "look",
+        "meantime",
+        "on",
+        "please",
+        "profile",
+        "regards",
+        "soon",
+        "speaking",
+        "talent",
+        "team",
+        "techcorp",
+        "the",
+        "to",
+        "up",
+        "we",
+        "with",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:22079",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 49,
+          "matched_ordered_prefix_words": 29,
+          "source_excerpt": "As per the maintenance clause in our lease agreement, which stipulates that the landlord is responsible for the repair and upkeep of provided appliances, I kindly request that you arrange for a qualif"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 20,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "arrange",
+        "as",
+        "damage",
+        "for",
+        "further",
+        "inspect",
+        "possible",
+        "prevent",
+        "qualified",
+        "repair",
+        "soon",
+        "technician",
+        "the",
+        "to",
+        "unit",
+        "water"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:23885",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 5,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Safe delivery, The Courier Team"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 5,
+      "missing_distinct_words": [
+        "courier",
+        "delivery",
+        "safe",
+        "team",
+        "the"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:24427",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 72,
+          "matched_ordered_prefix_words": 56,
+          "source_excerpt": "**Menu Requirements** To accommodate our team's diverse dietary needs and the nature of the meeting, please include the following in your proposal: - **Cold Platters:** A variety of fresh options (e.g"
+        },
+        {
+          "block": 9,
+          "source_words": 11,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "[Your Name] [Your Job Title] [Your Phone Number] [Your Company Name]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 29,
+      "missing_distinct_words": [
+        "a",
+        "alcoholic",
+        "and",
+        "assorted",
+        "best",
+        "beverages",
+        "company",
+        "drinks",
+        "including",
+        "job",
+        "juices",
+        "name",
+        "non",
+        "number",
+        "of",
+        "options",
+        "phone",
+        "regards",
+        "selection",
+        "soft",
+        "sparkling",
+        "still",
+        "title",
+        "water",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:25305",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 21,
+          "matched_ordered_prefix_words": 9,
+          "source_excerpt": "**Filing Requirement Detail** - **Jurisdiction**: New South Wales, Australia - **Deadline Date**: 2024-12-15 - **Requirement**: Final Submission of Filing Documents - **Priority**: High"
+        },
+        {
+          "block": 5,
+          "source_words": 45,
+          "matched_ordered_prefix_words": 11,
+          "source_excerpt": "**Compliance Timeline** - **Internal Review**: Complete all drafts for partner review by 2024-12-08. - **Final Sign-off**: Secure lead attorney approval by 2024-12-12. - **Lodgment**: Submit via the N"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 25,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "action",
+        "button",
+        "by",
+        "date",
+        "dear",
+        "icon",
+        "later",
+        "media",
+        "no",
+        "on",
+        "subject",
+        "than",
+        "the",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:25311",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 7,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "**Access Link** - Zoom Meeting: [SOURCE_URL_1]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 25,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "3",
+        "action",
+        "button",
+        "icon",
+        "media",
+        "meeting",
+        "source",
+        "subject",
+        "url",
+        "zoom"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:27033",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 45,
+          "matched_ordered_prefix_words": 20,
+          "source_excerpt": "I understand how disruptive and frustrating such an incident can be, particularly when you are expecting a comfortable getaway. Please be assured that our maintenance team has since fully repaired the"
+        },
+        {
+          "block": 8,
+          "source_words": 21,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We value your patronage and hope to have the opportunity to welcome you back and regain your confidence in our hospitality."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 47,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "any",
+        "assured",
+        "back",
+        "be",
+        "conducted",
+        "confidence",
+        "fully",
+        "has",
+        "have",
+        "hope",
+        "hospitality",
+        "in",
+        "inspection",
+        "leak",
+        "maintenance",
+        "of",
+        "opportunity",
+        "our",
+        "patronage",
+        "please",
+        "prevent",
+        "recurrence",
+        "regain",
+        "repaired",
+        "rooms",
+        "since",
+        "surrounding",
+        "team",
+        "that",
+        "the",
+        "thorough",
+        "to",
+        "value",
+        "we",
+        "welcome",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:27278",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 11,
+          "matched_ordered_prefix_words": 4,
+          "source_excerpt": "I am available for viewings on [Insert your available dates/times]."
+        },
+        {
+          "block": 7,
+          "source_words": 15,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your time and assistance. I look forward to hearing from you soon."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 26,
+      "missing_distinct_words": [
+        "am",
+        "and",
+        "assistance",
+        "available",
+        "dates",
+        "for",
+        "forward",
+        "from",
+        "hearing",
+        "i",
+        "insert",
+        "look",
+        "on",
+        "soon",
+        "thank",
+        "time",
+        "times",
+        "to",
+        "viewings",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:27811",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 50,
+          "matched_ordered_prefix_words": 31,
+          "source_excerpt": "Based on my research of current market values and available incentives for this model, I am prepared to offer a purchase price that is $2,000 below the current sticker price. My goal is to reach an al"
+        },
+        {
+          "block": 7,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your response."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 25,
+      "missing_distinct_words": [
+        "000",
+        "28",
+        "all",
+        "an",
+        "and",
+        "fees",
+        "final",
+        "forward",
+        "goal",
+        "i",
+        "in",
+        "inclusive",
+        "is",
+        "look",
+        "my",
+        "of",
+        "price",
+        "reach",
+        "response",
+        "taxes",
+        "to",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:2806",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 19,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Would you be available to show me the property this week? I am generally available during the following times:"
+        },
+        {
+          "block": 6,
+          "source_words": 12,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "- [Insert Day/Date] at [Insert Time] - [Insert Day/Date] at [Insert Time]"
+        },
+        {
+          "block": 7,
+          "source_words": 27,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "Please let me know if any of these slots work for you, or feel free to suggest an alternative time. I look forward to hearing from you."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 58,
+      "missing_distinct_words": [
+        "alternative",
+        "am",
+        "an",
+        "any",
+        "at",
+        "available",
+        "be",
+        "date",
+        "day",
+        "during",
+        "feel",
+        "following",
+        "for",
+        "forward",
+        "free",
+        "from",
+        "generally",
+        "hearing",
+        "i",
+        "if",
+        "insert",
+        "know",
+        "let",
+        "look",
+        "me",
+        "of",
+        "or",
+        "please",
+        "property",
+        "show",
+        "slots",
+        "suggest",
+        "the",
+        "these",
+        "this",
+        "time",
+        "times",
+        "to",
+        "week",
+        "work",
+        "would",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:28287",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 40,
+          "matched_ordered_prefix_words": 19,
+          "source_excerpt": "I have found an identical model (same trim and options) at another local dealership listed for $29,500. I prefer to do business with your dealership, but I am looking for a price match to make this a "
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 22,
+      "missing_distinct_words": [
+        "a",
+        "am",
+        "business",
+        "but",
+        "competitive",
+        "deal",
+        "dealership",
+        "do",
+        "for",
+        "i",
+        "looking",
+        "make",
+        "match",
+        "prefer",
+        "price",
+        "this",
+        "to",
+        "with",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:28940",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 17,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please provide a confirmed appointment date and time for the repair by the end of this week."
+        },
+        {
+          "block": 6,
+          "source_words": 11,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your prompt response to resolve this matter."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 28,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "appointment",
+        "by",
+        "confirmed",
+        "date",
+        "end",
+        "for",
+        "forward",
+        "i",
+        "look",
+        "matter",
+        "of",
+        "please",
+        "prompt",
+        "provide",
+        "repair",
+        "resolve",
+        "response",
+        "the",
+        "this",
+        "time",
+        "to",
+        "week",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:29904",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 66,
+          "matched_ordered_prefix_words": 49,
+          "source_excerpt": "**Service Requirements** To ensure the quality and safety of the work, please confirm the following in your response: - **Certification:** Evidence of valid licensing and professional certification (e"
+        },
+        {
+          "block": 9,
+          "source_words": 8,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "[Your Name] [Your Phone Number] [Your Email Address]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 26,
+      "missing_distinct_words": [
+        "a",
+        "address",
+        "and",
+        "avoid",
+        "costs",
+        "email",
+        "estimate",
+        "estimated",
+        "fixed",
+        "for",
+        "including",
+        "labor",
+        "materials",
+        "name",
+        "number",
+        "phone",
+        "price",
+        "pricing",
+        "repair",
+        "sincerely",
+        "the",
+        "to",
+        "unexpected",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:29927",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 44,
+          "matched_ordered_prefix_words": 25,
+          "source_excerpt": "While we appreciate your work, these specific assets were created as proprietary materials for [Your Company/Brand Name] and are protected by copyright law. You do not have the legal authorization or "
+        },
+        {
+          "block": 8,
+          "source_words": 46,
+          "matched_ordered_prefix_words": 40,
+          "source_excerpt": "Please be advised that this letter serves as formal notice. Failure to comply with this request by the specified deadline will leave us with no choice but to pursue further legal action to protect our"
+        },
+        {
+          "block": 9,
+          "source_words": 13,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We trust that you will address this matter promptly to avoid further escalation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 39,
+      "missing_distinct_words": [
+        "a",
+        "address",
+        "and",
+        "authorization",
+        "avoid",
+        "damages",
+        "display",
+        "distribute",
+        "do",
+        "escalation",
+        "for",
+        "further",
+        "have",
+        "images",
+        "injunctive",
+        "legal",
+        "license",
+        "matter",
+        "monetary",
+        "not",
+        "or",
+        "promotional",
+        "promptly",
+        "publicly",
+        "purposes",
+        "relief",
+        "seeking",
+        "that",
+        "the",
+        "these",
+        "this",
+        "to",
+        "trust",
+        "we",
+        "will",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:29939",
+      "gaps": [
+        {
+          "block": 1,
+          "source_words": 15,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "CrystalClear Tech Unveils the Future: The World’s First Fully Transparent Smartphone, the Aura Glass"
+        },
+        {
+          "block": 3,
+          "source_words": 50,
+          "matched_ordered_prefix_words": 20,
+          "source_excerpt": "**SILICON VALLEY, CA** — CrystalClear Tech, a pioneer in advanced photonic materials, today announced the launch of the **Aura Glass**, the first commercially available smartphone featuring a fully tr"
+        },
+        {
+          "block": 4,
+          "source_words": 53,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "The Aura Glass utilizes a proprietary Nano-Optic substrate that allows light to pass through the device while maintaining vibrant, high-contrast imagery. By eliminating the traditional opaque screen, "
+        },
+        {
+          "block": 5,
+          "source_words": 66,
+          "matched_ordered_prefix_words": 18,
+          "source_excerpt": "\"The Aura Glass is not just a design statement; it is a fundamental shift in human-computer interaction,\" said Elena Vance, CEO of CrystalClear Tech. \"We have spent five years perfecting a device that"
+        },
+        {
+          "block": 8,
+          "source_words": 4,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "## Availability and Launch Timeline"
+        },
+        {
+          "block": 10,
+          "source_words": 44,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "## About CrystalClear Tech CrystalClear Tech is a deep-tech hardware firm specializing in transparent electronics and light-field manipulation. Headquartered in Silicon Valley, the company focuses on "
+        },
+        {
+          "block": 11,
+          "source_words": 12,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "# Media Contact Media Relations Team press@crystalcleartech.example.com [SOURCE_URL_1]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 120,
+      "missing_distinct_words": [
+        "1",
+        "a",
+        "allows",
+        "and",
+        "aura",
+        "available",
+        "between",
+        "blends",
+        "by",
+        "chassis",
+        "clarity",
+        "commercially",
+        "company",
+        "contrast",
+        "creating",
+        "crystalclear",
+        "device",
+        "digital",
+        "directly",
+        "disappears",
+        "display",
+        "do",
+        "don",
+        "eliminating",
+        "enabling",
+        "enhance",
+        "environments",
+        "featuring",
+        "first",
+        "five",
+        "focuses",
+        "fully",
+        "future",
+        "glass",
+        "hardware",
+        "have",
+        "headquartered",
+        "high",
+        "icon",
+        "imagery",
+        "immediate",
+        "in",
+        "integrated",
+        "into",
+        "is",
+        "it",
+        "light",
+        "maintaining",
+        "media",
+        "naturally",
+        "need",
+        "opaque",
+        "pass",
+        "perfecting",
+        "physical",
+        "provides",
+        "redefining",
+        "reduce",
+        "relations",
+        "relationship",
+        "release",
+        "said",
+        "screen",
+        "silicon",
+        "smartphone",
+        "source",
+        "spent",
+        "subject",
+        "t",
+        "team",
+        "tech",
+        "that",
+        "the",
+        "their",
+        "through",
+        "timeline",
+        "to",
+        "traditional",
+        "transparent",
+        "unparalleled",
+        "unveils",
+        "url",
+        "users",
+        "utilizes",
+        "valley",
+        "vibrant",
+        "we",
+        "when",
+        "while",
+        "world",
+        "years",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:30413",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 32,
+          "matched_ordered_prefix_words": 20,
+          "source_excerpt": "While we value your creative vision and the quality of your work, timely delivery is critical for our corporate operations. To move forward, please provide the following by end of day tomorrow:"
+        },
+        {
+          "block": 5,
+          "source_words": 21,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "- A revised, final delivery schedule for all remaining project milestones. - A commitment to these new dates to ensure no further slips."
+        },
+        {
+          "block": 6,
+          "source_words": 26,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Given the inconvenience and the disruption caused by these delays, we request a 10% discount on the final project invoice as a gesture of professional accountability."
+        },
+        {
+          "block": 7,
+          "source_words": 17,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We would like to see this project completed successfully and look forward to receiving your updated timeline."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 76,
+      "missing_distinct_words": [
+        "10",
+        "a",
+        "accountability",
+        "all",
+        "and",
+        "as",
+        "by",
+        "caused",
+        "commitment",
+        "completed",
+        "dates",
+        "day",
+        "delays",
+        "delivery",
+        "discount",
+        "disruption",
+        "end",
+        "ensure",
+        "final",
+        "following",
+        "for",
+        "forward",
+        "further",
+        "gesture",
+        "given",
+        "inconvenience",
+        "invoice",
+        "like",
+        "look",
+        "milestones",
+        "move",
+        "new",
+        "no",
+        "of",
+        "on",
+        "please",
+        "professional",
+        "project",
+        "provide",
+        "receiving",
+        "remaining",
+        "request",
+        "revised",
+        "schedule",
+        "see",
+        "slips",
+        "successfully",
+        "the",
+        "these",
+        "this",
+        "timeline",
+        "to",
+        "tomorrow",
+        "updated",
+        "we",
+        "would",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:30873",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 33,
+          "matched_ordered_prefix_words": 18,
+          "source_excerpt": "While I appreciate the work completed thus far, the current delay is causing significant disruption to my household. I need a clear and realistic understanding of when the remaining work will be finis"
+        },
+        {
+          "block": 5,
+          "source_words": 16,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please provide a comprehensive revised timeline for the completion of all remaining tasks by **this Friday**."
+        },
+        {
+          "block": 6,
+          "source_words": 16,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your prompt response and to seeing the project completed without further delay."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 47,
+      "missing_distinct_words": [
+        "a",
+        "all",
+        "and",
+        "be",
+        "by",
+        "clear",
+        "completed",
+        "completion",
+        "comprehensive",
+        "delay",
+        "finished",
+        "for",
+        "forward",
+        "friday",
+        "further",
+        "i",
+        "look",
+        "need",
+        "of",
+        "please",
+        "project",
+        "prompt",
+        "provide",
+        "realistic",
+        "remaining",
+        "response",
+        "revised",
+        "seeing",
+        "tasks",
+        "the",
+        "this",
+        "timeline",
+        "to",
+        "understanding",
+        "when",
+        "will",
+        "without",
+        "work",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:31819",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 20,
+          "matched_ordered_prefix_words": 6,
+          "source_excerpt": "## Remote Exception Process Employees seeking a permanent or temporary deviation from the core in-office days must follow these steps:"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 25,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "action",
+        "actions",
+        "button",
+        "icon",
+        "in",
+        "media",
+        "office",
+        "or",
+        "permanent",
+        "quick",
+        "subject",
+        "temporary",
+        "the",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:32424",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 46,
+          "matched_ordered_prefix_words": 20,
+          "source_excerpt": "I am committed to producing high-quality work for your course and would greatly appreciate your flexibility during this time. I propose a new submission deadline of [Insert Date 3 Days Later], which w"
+        },
+        {
+          "block": 5,
+          "source_words": 22,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "I am happy to provide supporting documentation regarding this emergency if required. Thank you for your time and for considering my request."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 48,
+      "missing_distinct_words": [
+        "3",
+        "a",
+        "allow",
+        "am",
+        "and",
+        "considering",
+        "current",
+        "date",
+        "days",
+        "deadline",
+        "documentation",
+        "emergency",
+        "family",
+        "finalize",
+        "for",
+        "happy",
+        "i",
+        "if",
+        "insert",
+        "later",
+        "me",
+        "my",
+        "new",
+        "of",
+        "paper",
+        "propose",
+        "provide",
+        "regarding",
+        "request",
+        "required",
+        "resolve",
+        "situation",
+        "submission",
+        "supporting",
+        "thank",
+        "the",
+        "this",
+        "time",
+        "to",
+        "which",
+        "would",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:33426",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 35,
+          "matched_ordered_prefix_words": 32,
+          "source_excerpt": "Our team was impressed with your background and experience, and we are eager to learn more about your approach to product leadership and how you can contribute to our growth in the SF tech ecosystem."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 5,
+      "missing_distinct_words": [
+        "best",
+        "ecosystem",
+        "regards",
+        "sf",
+        "tech"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:33428",
+      "gaps": [
+        {
+          "block": 8,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 4,
+          "source_excerpt": "[Your Name/Firm Name] Toronto, Ontario"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 2,
+      "missing_distinct_words": [
+        "ontario",
+        "toronto"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:33902",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 18,
+          "matched_ordered_prefix_words": 5,
+          "source_excerpt": "Curious about who's looking? Dive back in to see your recent profile activity and explore potential opportunities."
+        },
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "Best regards, The [App Name] Team"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 19,
+      "missing_distinct_words": [
+        "activity",
+        "and",
+        "app",
+        "back",
+        "best",
+        "dive",
+        "explore",
+        "in",
+        "name",
+        "opportunities",
+        "potential",
+        "profile",
+        "recent",
+        "regards",
+        "see",
+        "team",
+        "the",
+        "to",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:34181",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 48,
+          "matched_ordered_prefix_words": 6,
+          "source_excerpt": "Given these contributions and my expanded responsibilities, I am requesting a salary increase of 10%, bringing my annual compensation to [Target Salary Amount]. I believe this adjustment aligns my pay"
+        },
+        {
+          "block": 7,
+          "source_words": 29,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "I would appreciate the opportunity to discuss this further with you. Are you available for a brief meeting on [Day of the week] at [Time] or [Alternative Day/Time]?"
+        },
+        {
+          "block": 8,
+          "source_words": 16,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your time, guidance, and continued support of my professional growth at [Company Name]."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 71,
+      "missing_distinct_words": [
+        "a",
+        "adjustment",
+        "aligns",
+        "alternative",
+        "and",
+        "appreciate",
+        "are",
+        "at",
+        "available",
+        "believe",
+        "brief",
+        "company",
+        "continued",
+        "current",
+        "day",
+        "delivered",
+        "discuss",
+        "for",
+        "further",
+        "growth",
+        "guidance",
+        "have",
+        "i",
+        "impact",
+        "market",
+        "meeting",
+        "my",
+        "name",
+        "of",
+        "on",
+        "opportunity",
+        "or",
+        "over",
+        "past",
+        "pay",
+        "professional",
+        "reflects",
+        "responsibilities",
+        "role",
+        "standards",
+        "support",
+        "thank",
+        "the",
+        "this",
+        "time",
+        "to",
+        "week",
+        "with",
+        "would",
+        "year",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:34184",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 20,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We are working diligently to resolve this and now expect to deliver all final assets to you by [New Date]."
+        },
+        {
+          "block": 5,
+          "source_words": 25,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "To make up for this inconvenience, we will apply a **5% discount** to your final invoice as a token of our appreciation for your patience."
+        },
+        {
+          "block": 6,
+          "source_words": 22,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your understanding. I will keep you updated on our progress and notify you the moment the project is ready."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 67,
+      "missing_distinct_words": [
+        "5",
+        "a",
+        "all",
+        "and",
+        "apply",
+        "appreciation",
+        "are",
+        "as",
+        "assets",
+        "by",
+        "date",
+        "deliver",
+        "diligently",
+        "discount",
+        "expect",
+        "final",
+        "for",
+        "i",
+        "inconvenience",
+        "invoice",
+        "is",
+        "keep",
+        "make",
+        "moment",
+        "new",
+        "notify",
+        "now",
+        "of",
+        "on",
+        "our",
+        "patience",
+        "progress",
+        "project",
+        "ready",
+        "resolve",
+        "thank",
+        "the",
+        "this",
+        "to",
+        "token",
+        "understanding",
+        "up",
+        "updated",
+        "we",
+        "will",
+        "working",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:34298",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 23,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I propose a new submission deadline of November 20, 2024. I am happy to provide any necessary documentation regarding my situation if required."
+        },
+        {
+          "block": 6,
+          "source_words": 10,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your time and for considering my request."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 33,
+      "missing_distinct_words": [
+        "20",
+        "2024",
+        "a",
+        "am",
+        "and",
+        "any",
+        "considering",
+        "deadline",
+        "documentation",
+        "for",
+        "happy",
+        "i",
+        "if",
+        "my",
+        "necessary",
+        "new",
+        "november",
+        "of",
+        "propose",
+        "provide",
+        "regarding",
+        "request",
+        "required",
+        "situation",
+        "submission",
+        "thank",
+        "time",
+        "to",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:35789",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 26,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "If you are unable to be present, please let us know in advance so we can arrange access via the building management or a spare key."
+        },
+        {
+          "block": 7,
+          "source_words": 5,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your cooperation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 31,
+      "missing_distinct_words": [
+        "a",
+        "access",
+        "advance",
+        "are",
+        "arrange",
+        "be",
+        "building",
+        "can",
+        "cooperation",
+        "for",
+        "if",
+        "in",
+        "key",
+        "know",
+        "let",
+        "management",
+        "or",
+        "please",
+        "present",
+        "so",
+        "spare",
+        "thank",
+        "the",
+        "to",
+        "unable",
+        "us",
+        "via",
+        "we",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:3659",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 4,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "The LinkedIn Talent Team"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 6,
+      "missing_distinct_words": [
+        "best",
+        "linkedin",
+        "regards",
+        "talent",
+        "team",
+        "the"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:36928",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 65,
+          "matched_ordered_prefix_words": 29,
+          "source_excerpt": "We are looking forward to dining with you and would like to note two important requirements for our party: - **Accessibility**: One of our guests requires a wheelchair-accessible table. Please ensure "
+        },
+        {
+          "block": 5,
+          "source_words": 24,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please let us know if you have availability for this date and time. If 20:00 is unavailable, we are open to nearby alternatives."
+        },
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your confirmation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 66,
+      "missing_distinct_words": [
+        "00",
+        "20",
+        "a",
+        "accommodate",
+        "alerted",
+        "allergy",
+        "alternatives",
+        "and",
+        "appreciate",
+        "are",
+        "availability",
+        "be",
+        "comfortably",
+        "confirmation",
+        "could",
+        "culinary",
+        "date",
+        "dietary",
+        "dining",
+        "ensure",
+        "experience",
+        "for",
+        "forward",
+        "guest",
+        "has",
+        "have",
+        "i",
+        "if",
+        "is",
+        "it",
+        "know",
+        "let",
+        "look",
+        "nearby",
+        "one",
+        "open",
+        "please",
+        "positioned",
+        "restriction",
+        "safe",
+        "seating",
+        "severe",
+        "shellfish",
+        "team",
+        "the",
+        "this",
+        "time",
+        "to",
+        "unavailable",
+        "us",
+        "we",
+        "would",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:38438",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 32,
+          "matched_ordered_prefix_words": 15,
+          "source_excerpt": "Please let me know when a technician can visit the premises to assess the damage. I am generally available [mention your availability, e.g., weekday mornings] to provide access to the apartment."
+        },
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your prompt cooperation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 23,
+      "missing_distinct_words": [
+        "access",
+        "am",
+        "apartment",
+        "availability",
+        "available",
+        "cooperation",
+        "e",
+        "for",
+        "g",
+        "generally",
+        "i",
+        "mention",
+        "mornings",
+        "prompt",
+        "provide",
+        "thank",
+        "the",
+        "to",
+        "weekday",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:39195",
+      "gaps": [
+        {
+          "block": 1,
+          "source_words": 10,
+          "matched_ordered_prefix_words": 3,
+          "source_excerpt": "Letter of Intent for the Acquisition of [Target Company Name]"
+        },
+        {
+          "block": 3,
+          "source_words": 36,
+          "matched_ordered_prefix_words": 4,
+          "source_excerpt": "This Letter of Intent (\"Letter\") outlines the general terms and conditions under which [Buyer Name] (\"Buyer\") proposes to acquire the assets or equity of [Target Company Name] (\"Seller\"), a business o"
+        },
+        {
+          "block": 5,
+          "source_words": 77,
+          "matched_ordered_prefix_words": 44,
+          "source_excerpt": "- **Transaction Structure**: The Buyer proposes to acquire [100% of the outstanding shares / substantially all assets] of the Seller. - **Purchase Price**: The proposed purchase price is **$[Amount]**"
+        },
+        {
+          "block": 7,
+          "source_words": 86,
+          "matched_ordered_prefix_words": 4,
+          "source_excerpt": "- **Due Diligence Period**: The Buyer shall have **[Number, e.g., 45] days** from the signing of this Letter to conduct a full financial, legal, and operational review of the business. - **Exclusivity"
+        },
+        {
+          "block": 9,
+          "source_words": 71,
+          "matched_ordered_prefix_words": 6,
+          "source_excerpt": "- **Non-Binding Agreement**: Except for the sections regarding Exclusivity and Confidentiality, this Letter is intended solely as a summary of terms and **does not create a legally binding obligation*"
+        },
+        {
+          "block": 11,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "[Buyer Signature] [Buyer Printed Name] [Date]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 148,
+      "missing_distinct_words": [
+        "a",
+        "acquire",
+        "acquisition",
+        "agreement",
+        "agreements",
+        "aim",
+        "all",
+        "and",
+        "as",
+        "assets",
+        "be",
+        "binding",
+        "business",
+        "buyer",
+        "by",
+        "claims",
+        "close",
+        "commitment",
+        "company",
+        "complete",
+        "conditions",
+        "conduct",
+        "consideration",
+        "costs",
+        "cover",
+        "date",
+        "dear",
+        "definitive",
+        "equity",
+        "execute",
+        "exist",
+        "follows",
+        "general",
+        "have",
+        "icon",
+        "in",
+        "incurred",
+        "indemnification",
+        "intended",
+        "intent",
+        "letter",
+        "media",
+        "name",
+        "negotiate",
+        "of",
+        "ohio",
+        "only",
+        "operating",
+        "or",
+        "outlines",
+        "paid",
+        "parties",
+        "period",
+        "price",
+        "printed",
+        "proposes",
+        "purchase",
+        "regarding",
+        "sections",
+        "seller",
+        "shall",
+        "sincerely",
+        "solely",
+        "subsequent",
+        "target",
+        "terms",
+        "the",
+        "this",
+        "to",
+        "transaction",
+        "under",
+        "upon",
+        "which",
+        "will"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:39607",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Best regards, Career Platform Notifications Team"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 6,
+      "missing_distinct_words": [
+        "best",
+        "career",
+        "notifications",
+        "platform",
+        "regards",
+        "team"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:39613",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 21,
+          "matched_ordered_prefix_words": 8,
+          "source_excerpt": "**Maintenance Schedule** - Date: Tuesday, August 12, 2025 - Time: 09:00 AM to 01:00 PM AEST - Affected Area: North Shore District"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 17,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "action",
+        "button",
+        "icon",
+        "media",
+        "subject",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:40775",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 14,
+          "matched_ordered_prefix_words": 6,
+          "source_excerpt": "Let's lock in the 2nd! Let me know if that works for you."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 8,
+      "missing_distinct_words": [
+        "for",
+        "if",
+        "know",
+        "let",
+        "me",
+        "that",
+        "works",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:40958",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 21,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Additionally, if possible, I would like to request a quiet room located away from the elevator to ensure a restful stay."
+        },
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your confirmation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 27,
+      "missing_distinct_words": [
+        "a",
+        "additionally",
+        "away",
+        "confirmation",
+        "elevator",
+        "ensure",
+        "forward",
+        "from",
+        "i",
+        "if",
+        "like",
+        "located",
+        "look",
+        "possible",
+        "quiet",
+        "request",
+        "restful",
+        "room",
+        "stay",
+        "the",
+        "to",
+        "would",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:41062",
+      "gaps": [
+        {
+          "block": 2,
+          "source_words": 4,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Hi [Project Manager Name],"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 12,
+      "missing_distinct_words": [
+        "1",
+        "2",
+        "action",
+        "button",
+        "hi",
+        "subject",
+        "url"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:41129",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 28,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "If this timeframe is not possible, I am happy to coordinate an alternative date and time that suits your schedule. I look forward to hearing from you soon."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 28,
+      "missing_distinct_words": [
+        "alternative",
+        "am",
+        "an",
+        "and",
+        "coordinate",
+        "date",
+        "forward",
+        "from",
+        "happy",
+        "hearing",
+        "i",
+        "if",
+        "is",
+        "look",
+        "not",
+        "possible",
+        "schedule",
+        "soon",
+        "suits",
+        "that",
+        "this",
+        "time",
+        "timeframe",
+        "to",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:43649",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 66,
+          "matched_ordered_prefix_words": 29,
+          "source_excerpt": "After carefully reviewing the offer and comparing it with current market data for similar roles in the Sydney region, I am unable to accept the position at this time. While I am very interested in the"
+        },
+        {
+          "block": 5,
+          "source_words": 25,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I have a high regard for your organization and would have been thrilled to join the team had the compensation been aligned with industry standards."
+        },
+        {
+          "block": 6,
+          "source_words": 19,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I wish you and the company continued success, and I hope our paths may cross again in the future."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 81,
+      "missing_distinct_words": [
+        "000",
+        "110",
+        "90",
+        "a",
+        "again",
+        "aligned",
+        "am",
+        "and",
+        "aud",
+        "base",
+        "been",
+        "below",
+        "company",
+        "compensation",
+        "continued",
+        "cross",
+        "current",
+        "experience",
+        "for",
+        "future",
+        "had",
+        "have",
+        "high",
+        "hope",
+        "i",
+        "in",
+        "industry",
+        "interested",
+        "is",
+        "join",
+        "level",
+        "market",
+        "may",
+        "my",
+        "of",
+        "opportunity",
+        "organization",
+        "our",
+        "paths",
+        "professional",
+        "rate",
+        "record",
+        "regard",
+        "salary",
+        "significantly",
+        "standards",
+        "success",
+        "team",
+        "the",
+        "thrilled",
+        "to",
+        "track",
+        "very",
+        "while",
+        "wish",
+        "with",
+        "would",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:43837",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 37,
+          "matched_ordered_prefix_words": 23,
+          "source_excerpt": "Please let me know if there are any issues with the invoice or if you require any further information to process the payment. For your convenience, you can settle the balance directly through our secu"
+        },
+        {
+          "block": 7,
+          "source_words": 11,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you in advance for your prompt attention to this matter."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 28,
+      "missing_distinct_words": [
+        "advance",
+        "attention",
+        "balance",
+        "can",
+        "convenience",
+        "directly",
+        "for",
+        "in",
+        "link",
+        "matter",
+        "our",
+        "payment",
+        "portal",
+        "prompt",
+        "secure",
+        "settle",
+        "thank",
+        "the",
+        "this",
+        "through",
+        "to",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:45545",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 54,
+          "matched_ordered_prefix_words": 31,
+          "source_excerpt": "Despite the previous notification, the leak has not yet been repaired. I must bring to your attention that the situation has worsened, and water damage is now spreading to the floorboards. To prevent "
+        },
+        {
+          "block": 5,
+          "source_words": 15,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please provide a written confirmation of the scheduled repair date by this Friday, [Insert Date]."
+        },
+        {
+          "block": 6,
+          "source_words": 11,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your prompt response to resolve this issue."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 49,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "apartment",
+        "attention",
+        "by",
+        "condition",
+        "confirmation",
+        "damage",
+        "date",
+        "ensure",
+        "forward",
+        "friday",
+        "further",
+        "habitable",
+        "i",
+        "immediate",
+        "in",
+        "insert",
+        "issue",
+        "look",
+        "matter",
+        "of",
+        "please",
+        "prevent",
+        "prompt",
+        "property",
+        "provide",
+        "remains",
+        "repair",
+        "requires",
+        "resolve",
+        "response",
+        "scheduled",
+        "structural",
+        "the",
+        "this",
+        "to",
+        "written",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:46512",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 32,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please let me know by [Insert Date, e.g., 2024-10-10] when your technician will be available to carry out the work so that I can ensure access to the property."
+        },
+        {
+          "block": 6,
+          "source_words": 9,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your prompt attention to this matter."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 41,
+      "missing_distinct_words": [
+        "10",
+        "2024",
+        "access",
+        "attention",
+        "available",
+        "be",
+        "by",
+        "can",
+        "carry",
+        "date",
+        "e",
+        "ensure",
+        "for",
+        "g",
+        "i",
+        "insert",
+        "know",
+        "let",
+        "matter",
+        "me",
+        "out",
+        "please",
+        "prompt",
+        "property",
+        "so",
+        "technician",
+        "thank",
+        "that",
+        "the",
+        "this",
+        "to",
+        "when",
+        "will",
+        "work",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:49393",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 37,
+          "matched_ordered_prefix_words": 21,
+          "source_excerpt": "We understand the impact this delay has on your operations in New York City and deeply regret the inconvenience caused. To make amends for this setback, we are applying a **15% discount** to your next"
+        },
+        {
+          "block": 5,
+          "source_words": 20,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "Our team has successfully resolved the issue, and we are now conducting rigorous regression testing to prevent any further disruptions."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 37,
+      "missing_distinct_words": [
+        "15",
+        "a",
+        "amends",
+        "and",
+        "any",
+        "applying",
+        "are",
+        "conducting",
+        "discount",
+        "disruptions",
+        "for",
+        "further",
+        "has",
+        "issue",
+        "make",
+        "milestone",
+        "next",
+        "now",
+        "our",
+        "prevent",
+        "project",
+        "regression",
+        "resolved",
+        "rigorous",
+        "setback",
+        "successfully",
+        "team",
+        "testing",
+        "the",
+        "this",
+        "to",
+        "we",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:50125",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 8,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to hearing from you soon."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 8,
+      "missing_distinct_words": [
+        "forward",
+        "from",
+        "hearing",
+        "i",
+        "look",
+        "soon",
+        "to",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:50211",
+      "gaps": [
+        {
+          "block": 6,
+          "source_words": 34,
+          "matched_ordered_prefix_words": 16,
+          "source_excerpt": "Please let me know if you have availability on this date during my preferred time window. If that date is fully booked, I would appreciate it if you could suggest the nearest available alternative."
+        },
+        {
+          "block": 7,
+          "source_words": 14,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to your response regarding availability and any necessary pre-appointment instructions."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 32,
+      "missing_distinct_words": [
+        "alternative",
+        "and",
+        "any",
+        "appointment",
+        "appreciate",
+        "availability",
+        "available",
+        "booked",
+        "could",
+        "date",
+        "forward",
+        "fully",
+        "i",
+        "if",
+        "instructions",
+        "is",
+        "it",
+        "look",
+        "nearest",
+        "necessary",
+        "pre",
+        "regarding",
+        "response",
+        "suggest",
+        "that",
+        "the",
+        "to",
+        "would",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:50315",
+      "gaps": [
+        {
+          "block": 1,
+          "source_words": 18,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "FOR IMMEDIATE RELEASE: Toronto Animal Haven Announces Annual Fundraising Gala to Secure Future for City's Shelter Pets"
+        },
+        {
+          "block": 2,
+          "source_words": 54,
+          "matched_ordered_prefix_words": 28,
+          "source_excerpt": "**TORONTO, ON** — Toronto Animal Haven, a leading non-profit dedicated to the rescue and rehabilitation of homeless animals, is proud to announce its upcoming Fundraising Gala. The event will take pla"
+        },
+        {
+          "block": 3,
+          "source_words": 45,
+          "matched_ordered_prefix_words": 12,
+          "source_excerpt": "The evening will feature a silent auction, dinner, and presentations highlighting the success stories of animals rescued and rehomed within the Greater Toronto Area. All proceeds will go directly towa"
+        },
+        {
+          "block": 4,
+          "source_words": 42,
+          "matched_ordered_prefix_words": 34,
+          "source_excerpt": "\" [Insert quote from CEO regarding the mission of the shelter and the urgency of the $50,000 goal, emphasizing how these funds will specifically change the lives of the animals currently in their care"
+        },
+        {
+          "block": 5,
+          "source_words": 23,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Adding to the evening's excitement, the gala will be supported by [Local Celebrity Name], a longtime advocate for animal welfare in Toronto."
+        },
+        {
+          "block": 6,
+          "source_words": 31,
+          "matched_ordered_prefix_words": 27,
+          "source_excerpt": "\" [Insert quote from local celebrity about their passion for animal rescue and why they are encouraging the Toronto community to attend and donate to this specific cause] ,\" added [Local Celebrity Nam"
+        },
+        {
+          "block": 7,
+          "source_words": 25,
+          "matched_ordered_prefix_words": 20,
+          "source_excerpt": "**Event Details** - **Date**: September 15, 2024 - **Location**: [Insert Venue Name, Toronto, ON] - **Time**: [Insert Start Time] - **Goal**: $50,000 - **Tickets**: Available at [Insert Website/Link]"
+        },
+        {
+          "block": 9,
+          "source_words": 23,
+          "matched_ordered_prefix_words": 5,
+          "source_excerpt": "# Media Contact - **Contact Name**: [Insert PR Contact Name] - **Title**: [Insert Title] - **Email**: [Insert Email Address] - **Phone**: [Insert Phone Number] - **Website**: [Insert Website URL]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 78,
+      "missing_distinct_words": [
+        "a",
+        "added",
+        "adding",
+        "and",
+        "animal",
+        "animals",
+        "announces",
+        "area",
+        "at",
+        "available",
+        "be",
+        "bringing",
+        "by",
+        "celebrity",
+        "city",
+        "community",
+        "contact",
+        "directly",
+        "email",
+        "evening",
+        "excitement",
+        "expanding",
+        "for",
+        "future",
+        "gala",
+        "go",
+        "greater",
+        "icon",
+        "immediate",
+        "in",
+        "incoming",
+        "leaders",
+        "local",
+        "longtime",
+        "lovers",
+        "media",
+        "name",
+        "of",
+        "pets",
+        "philanthropists",
+        "phone",
+        "place",
+        "providing",
+        "rehomed",
+        "release",
+        "rescued",
+        "rescues",
+        "s",
+        "said",
+        "secure",
+        "shelter",
+        "subject",
+        "supported",
+        "take",
+        "the",
+        "title",
+        "to",
+        "together",
+        "toronto",
+        "toward",
+        "website",
+        "will",
+        "within"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:50320",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 28,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please provide a written confirmation of the scheduled repair date by **May 20, 2024**. I look forward to resolving this promptly to protect the condition of the property."
+        },
+        {
+          "block": 6,
+          "source_words": 9,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your immediate attention to this matter."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 37,
+      "missing_distinct_words": [
+        "20",
+        "2024",
+        "a",
+        "attention",
+        "by",
+        "condition",
+        "confirmation",
+        "date",
+        "for",
+        "forward",
+        "i",
+        "immediate",
+        "look",
+        "matter",
+        "may",
+        "of",
+        "please",
+        "promptly",
+        "property",
+        "protect",
+        "provide",
+        "repair",
+        "resolving",
+        "scheduled",
+        "thank",
+        "the",
+        "this",
+        "to",
+        "written",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:52504",
+      "gaps": [
+        {
+          "block": 7,
+          "source_words": 76,
+          "matched_ordered_prefix_words": 57,
+          "source_excerpt": "**Reservation of Rights** Please be advised that this letter is sent without prejudice to my rights and remedies, all of which are expressly reserved. Failure to comply with these demands within the s"
+        },
+        {
+          "block": 8,
+          "source_words": 11,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I trust that you will resolve this matter promptly and professionally."
+        },
+        {
+          "block": 11,
+          "source_words": 10,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "[Your Full Name] [Your Address] [Your Phone Number] [Your Email]"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 43,
+      "missing_distinct_words": [
+        "a",
+        "address",
+        "an",
+        "and",
+        "attorney",
+        "competent",
+        "copyright",
+        "court",
+        "damages",
+        "email",
+        "fees",
+        "full",
+        "i",
+        "in",
+        "injunction",
+        "jurisdiction",
+        "matter",
+        "name",
+        "number",
+        "of",
+        "office",
+        "phone",
+        "professionally",
+        "promptly",
+        "pursuing",
+        "resolve",
+        "s",
+        "seeking",
+        "signature",
+        "sincerely",
+        "statutory",
+        "that",
+        "this",
+        "trust",
+        "will",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:53451",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 18,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please provide a confirmed date and time for the repair by the end of the business day today."
+        },
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your prompt cooperation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 24,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "business",
+        "by",
+        "confirmed",
+        "cooperation",
+        "date",
+        "day",
+        "end",
+        "for",
+        "of",
+        "please",
+        "prompt",
+        "provide",
+        "repair",
+        "thank",
+        "the",
+        "time",
+        "today",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:54826",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 18,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please provide a confirmed date and time for the repair by the end of the business day today."
+        },
+        {
+          "block": 6,
+          "source_words": 6,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Thank you for your prompt cooperation."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 24,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "business",
+        "by",
+        "confirmed",
+        "cooperation",
+        "date",
+        "day",
+        "end",
+        "for",
+        "of",
+        "please",
+        "prompt",
+        "provide",
+        "repair",
+        "thank",
+        "the",
+        "time",
+        "today",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:6293",
+      "gaps": [
+        {
+          "block": 4,
+          "source_words": 38,
+          "matched_ordered_prefix_words": 28,
+          "source_excerpt": "I wanted to reach out and let you know that our team is currently in the process of reviewing the portfolios and case studies submitted by our finalists. We want to ensure every candidate receives a t"
+        },
+        {
+          "block": 5,
+          "source_words": 24,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "We expect to have a definitive update for you by this Friday. We appreciate your patience and your continued interest in joining our team."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 34,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "appreciate",
+        "by",
+        "candidate",
+        "continued",
+        "definitive",
+        "ensure",
+        "evaluation",
+        "every",
+        "expect",
+        "for",
+        "friday",
+        "have",
+        "in",
+        "interest",
+        "joining",
+        "our",
+        "patience",
+        "receives",
+        "team",
+        "this",
+        "thorough",
+        "to",
+        "update",
+        "want",
+        "we",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:6817",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 13,
+          "matched_ordered_prefix_words": 2,
+          "source_excerpt": "We have now prioritized your shipment and can provide a guaranteed delivery date:"
+        },
+        {
+          "block": 10,
+          "source_words": 7,
+          "matched_ordered_prefix_words": 4,
+          "source_excerpt": "[Your Name/Company Name] Customer Success Team"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 16,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "can",
+        "customer",
+        "date",
+        "delivery",
+        "guaranteed",
+        "have",
+        "now",
+        "prioritized",
+        "provide",
+        "shipment",
+        "success",
+        "team",
+        "we",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:7092",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 50,
+          "matched_ordered_prefix_words": 21,
+          "source_excerpt": "- **Set Menu Options**: Do you offer curated set menus for private groups, and if so, what are the current price ranges per person? - **Deposit Requirements**: What is your policy regarding deposits o"
+        },
+        {
+          "block": 6,
+          "source_words": 17,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to hearing from you and hope we can host our event at your establishment."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 46,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "at",
+        "availability",
+        "available",
+        "can",
+        "date",
+        "deposit",
+        "deposits",
+        "establishment",
+        "event",
+        "for",
+        "forward",
+        "from",
+        "hearing",
+        "hope",
+        "host",
+        "i",
+        "is",
+        "look",
+        "or",
+        "our",
+        "payments",
+        "per",
+        "person",
+        "policy",
+        "pre",
+        "private",
+        "regarding",
+        "requested",
+        "requirements",
+        "room",
+        "secure",
+        "the",
+        "to",
+        "we",
+        "what",
+        "you",
+        "your"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:7299",
+      "gaps": [
+        {
+          "block": 1,
+          "source_words": 16,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "FOR IMMEDIATE RELEASE: Digital Bridge Initiative Launches Partnership to Provide 1,000 Laptops to Nairobi Students"
+        },
+        {
+          "block": 2,
+          "source_words": 65,
+          "matched_ordered_prefix_words": 50,
+          "source_excerpt": "**NAIROBI, KENYA** — [Non-Profit Name], a leading advocate for educational equity, is proud to announce a strategic partnership with [Global Tech Company] to bridge the digital divide for underprivile"
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 25,
+      "missing_distinct_words": [
+        "access",
+        "and",
+        "barriers",
+        "digital",
+        "do",
+        "ensuring",
+        "essential",
+        "financial",
+        "for",
+        "global",
+        "icon",
+        "immediate",
+        "information",
+        "literacy",
+        "media",
+        "not",
+        "obstruct",
+        "release",
+        "subject",
+        "that",
+        "to"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:921",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 40,
+          "matched_ordered_prefix_words": 27,
+          "source_excerpt": "I understand that hiring timelines can shift, but I would appreciate an update on where I stand in the process or an estimated timeframe for a decision. This will help me manage my current schedule an"
+        },
+        {
+          "block": 6,
+          "source_words": 8,
+          "matched_ordered_prefix_words": 1,
+          "source_excerpt": "I look forward to hearing from you soon."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 21,
+      "missing_distinct_words": [
+        "and",
+        "commitments",
+        "current",
+        "effectively",
+        "forward",
+        "from",
+        "hearing",
+        "help",
+        "i",
+        "look",
+        "manage",
+        "me",
+        "my",
+        "other",
+        "professional",
+        "schedule",
+        "soon",
+        "this",
+        "to",
+        "will",
+        "you"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:9692",
+      "gaps": [
+        {
+          "block": 5,
+          "source_words": 32,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "As this is an essential repair to maintain the habitability and safety of the home, I request that a qualified technician visits the property to complete the repair by **2024-03-15**."
+        },
+        {
+          "block": 6,
+          "source_words": 12,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Please confirm by return email when the technician is scheduled to arrive."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 44,
+      "missing_distinct_words": [
+        "03",
+        "15",
+        "2024",
+        "a",
+        "an",
+        "and",
+        "arrive",
+        "as",
+        "by",
+        "complete",
+        "confirm",
+        "email",
+        "essential",
+        "habitability",
+        "home",
+        "i",
+        "is",
+        "maintain",
+        "of",
+        "please",
+        "property",
+        "qualified",
+        "repair",
+        "request",
+        "return",
+        "safety",
+        "scheduled",
+        "technician",
+        "that",
+        "the",
+        "this",
+        "to",
+        "visits",
+        "when"
+      ],
+      "needs_order_or_wording_review_only": false
+    },
+    {
+      "coordinate": "train:9941",
+      "gaps": [
+        {
+          "block": 3,
+          "source_words": 43,
+          "matched_ordered_prefix_words": 30,
+          "source_excerpt": "The property features expansive floor-to-ceiling windows that flood the interior with natural light and provide an uninterrupted panoramic backdrop of the Marina skyline and the sea. Every detail has "
+        },
+        {
+          "block": 7,
+          "source_words": 12,
+          "matched_ordered_prefix_words": 0,
+          "source_excerpt": "Contact me today to arrange a private viewing of this exceptional home."
+        }
+      ],
+      "source_word_occurrences_absent_from_target": 32,
+      "missing_distinct_words": [
+        "a",
+        "and",
+        "arrange",
+        "been",
+        "blend",
+        "comfort",
+        "contact",
+        "crafted",
+        "elegance",
+        "ensure",
+        "every",
+        "exceptional",
+        "has",
+        "home",
+        "icon",
+        "me",
+        "media",
+        "meticulously",
+        "of",
+        "private",
+        "seamless",
+        "subject",
+        "this",
+        "to",
+        "today",
+        "viewing",
+        "with"
+      ],
+      "needs_order_or_wording_review_only": false
+    }
+  ],
+  "profile_script_sha256": "4c29798886d2b6fc7bf09bbed5b874ca794f10771da2109011a52a1d334c45e7"
+}

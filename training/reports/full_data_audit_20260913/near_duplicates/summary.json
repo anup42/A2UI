@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "completed_at_utc": "2026-09-12T18:55:17.022037+00:00",
+  "elapsed_seconds": 98.39,
+  "script_sha256": "21c5dc883ef559a4bd1fd2b3e59883b9c089b6555da5403a6d2b285ae4112062",
+  "source_hashes": {
+    "val": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+    "train": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910"
+  },
+  "counts": {
+    "training_rows_scanned": 150292,
+    "anchor_hit_candidate_pairs": 2014621,
+    "two_anchor_candidate_pairs": 816764,
+    "candidate_pairs_shingle_scored": 122926,
+    "candidate_pairs_below_length_ratio_065": 693838
+  },
+  "validation_rows": 910,
+  "retrieval_anchor_count": 21209,
+  "anchors_per_val_min": 16,
+  "anchors_per_val_max": 24,
+  "exact_pairs": 28,
+  "exact_distinct_val_rows": 28,
+  "nonexact_pairs_retained": 4,
+  "thresholds": [
+    {
+      "word_trigram_jaccard_min": 0.95,
+      "ordered_word_sequence_ratio_min": 0.98,
+      "nonexact_pairs": 0,
+      "distinct_train_rows": 0,
+      "distinct_val_rows": 0,
+      "distinct_val_rows_not_already_exact": 0
+    },
+    {
+      "word_trigram_jaccard_min": 0.9,
+      "ordered_word_sequence_ratio_min": 0.95,
+      "nonexact_pairs": 0,
+      "distinct_train_rows": 0,
+      "distinct_val_rows": 0,
+      "distinct_val_rows_not_already_exact": 0
+    },
+    {
+      "word_trigram_jaccard_min": 0.8,
+      "ordered_word_sequence_ratio_min": 0.9,
+      "nonexact_pairs": 0,
+      "distinct_train_rows": 0,
+      "distinct_val_rows": 0,
+      "distinct_val_rows_not_already_exact": 0
+    },
+    {
+      "word_trigram_jaccard_min": 0.7,
+      "ordered_word_sequence_ratio_min": 0.85,
+      "nonexact_pairs": 3,
+      "distinct_train_rows": 3,
+      "distinct_val_rows": 1,
+      "distinct_val_rows_not_already_exact": 1
+    },
+    {
+      "word_trigram_jaccard_min": 0.6,
+      "ordered_word_sequence_ratio_min": 0.0,
+      "nonexact_pairs": 4,
+      "distinct_train_rows": 4,
+      "distinct_val_rows": 1,
+      "distinct_val_rows_not_already_exact": 1
+    }
+  ],
+  "known_pair_40160_209": [
+    {
+      "train_line": 40160,
+      "val_line": 209,
+      "train_source_sha256": "cfd47048f44dd9280d4ed4fdf22d48e76a5fa57cd2a5766a30a7ad356020e9f0",
+      "val_source_sha256": "5e5ba14dba8b46a818712eb3b47b97dabc00f83650cf8e527a96b0393971c1a2",
+      "exact_normalized_source": false,
+      "target_text_equal": true,
+      "shared_anchors": 20,
+      "word_trigram_jaccard": 0.765823,
+      "word_set_jaccard": 0.918367,
+      "ordered_word_sequence_ratio": 0.946996,
+      "word_length_ratio": 0.979021,
+      "train_source_chars": 917,
+      "val_source_chars": 908,
+      "train_byte_offset": 506274378,
+      "train_byte_length": 5516,
+      "val_byte_offset": 2579526,
+      "val_byte_length": 5498
+    }
+  ],
+  "method": "Unicode casefolded word tokens (regex \\w+), 3-word shingles. Per validation source, select up to six high inverse-validation-document-frequency trigrams from each source quarter, with starts at least 3 words apart within a quarter (up to24 anchors). Stream every training source, retrieve pairs sharing >=2 distinct anchors, discard word-length ratios<0.65, calculate full word-shingle Jaccard and retain >=0.60. Calculate exact normalized-source equality, word-set Jaccard, and ordered-token SequenceMatcher(autojunk=False) for retained pairs. Fixed few-shot turns excluded.",
+  "limits": "Complete file scan, but bounded lexical retrieval, not exhaustive all-pairs or semantic equivalence detection. Anchor selection may miss paraphrases, rewritten entities, reordered content, or very short shared segments. Case/punctuation differences are intentionally normalized by word tokenization. High overlap indicates source-family review candidates, not automatically identical task meaning. Counts are lower bounds for this method, not all possible leakage. No external embeddings, network, or model inference used."
+}

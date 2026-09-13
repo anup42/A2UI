@@ -1,0 +1,55 @@
+{
+  "train": {
+    "path": "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl",
+    "bytes": 1970021858,
+    "sha256": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+    "encoding": "utf-16-le",
+    "physical_lines": 150292,
+    "counts": {
+      "source_marker_ΓÇ_rows": 20196,
+      "target_marker_ΓÇ_rows": 39036,
+      "source_marker_â€_rows": 0,
+      "target_marker_â€_rows": 0,
+      "source_marker_Ã_rows": 0,
+      "target_marker_Ã_rows": 0,
+      "source_marker_�_rows": 0,
+      "target_marker_�_rows": 0,
+      "valid_envelope_rows": 150292,
+      "url_preprocessing_error": 4,
+      "url_preprocessing_error:'Your-Public-IP' does not appear to be an IPv4 or IPv6 address": 2,
+      "url_preprocessing_error:Invalid IPv6 URL": 2
+    },
+    "schemas": {
+      "messages": 150292
+    },
+    "role_sequences": {
+      "system,user,assistant,user,assistant": 150292
+    },
+    "seconds": 169.89
+  },
+  "val": {
+    "path": "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl",
+    "bytes": 11850436,
+    "sha256": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+    "encoding": "utf-16-le",
+    "physical_lines": 910,
+    "counts": {
+      "source_marker_ΓÇ_rows": 118,
+      "target_marker_ΓÇ_rows": 236,
+      "source_marker_â€_rows": 0,
+      "target_marker_â€_rows": 0,
+      "source_marker_Ã_rows": 0,
+      "target_marker_Ã_rows": 0,
+      "source_marker_�_rows": 0,
+      "target_marker_�_rows": 0,
+      "valid_envelope_rows": 910
+    },
+    "schemas": {
+      "messages": 910
+    },
+    "role_sequences": {
+      "system,user,assistant,user,assistant": 910
+    },
+    "seconds": 0.59
+  }
+}

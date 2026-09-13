@@ -1,0 +1,216 @@
+{
+  "completed_rows": 24725,
+  "counts": {
+    "train": {
+      "pass": 24559,
+      "production_reference_checked": 32
+    },
+    "val": {
+      "pass": 166,
+      "production_reference_checked": 0
+    }
+  },
+  "rejected_rows": [],
+  "lengths": {
+    "train": {
+      "normalized_target_tokens": {
+        "count": 24559,
+        "min": 160,
+        "max": 1549,
+        "mean": 790.417,
+        "p50": 779,
+        "p75": 940,
+        "p90": 1082,
+        "p95": 1156,
+        "p99": 1286,
+        "over": {
+          "512": 22157,
+          "1024": 3696,
+          "1536": 1,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "normalized_completion_tokens": {
+        "count": 24559,
+        "min": 162,
+        "max": 1551,
+        "mean": 792.417,
+        "p50": 781,
+        "p75": 942,
+        "p90": 1084,
+        "p95": 1158,
+        "p99": 1288,
+        "over": {
+          "512": 22204,
+          "1024": 3754,
+          "1536": 1,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 24559,
+        "min": 1576,
+        "max": 2479,
+        "mean": 1928.207,
+        "p50": 1921,
+        "p75": 2020,
+        "p90": 2117,
+        "p95": 2164,
+        "p99": 2247,
+        "over": {
+          "512": 24559,
+          "1024": 24559,
+          "1536": 24559,
+          "2048": 4908,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 24559,
+        "min": 1738,
+        "max": 3978,
+        "mean": 2720.624,
+        "p50": 2703,
+        "p75": 2962,
+        "p90": 3196,
+        "p95": 3308,
+        "p99": 3497,
+        "over": {
+          "512": 24559,
+          "1024": 24559,
+          "1536": 24559,
+          "2048": 24141,
+          "3072": 4199,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    },
+    "val": {
+      "normalized_target_tokens": {
+        "count": 166,
+        "min": 336,
+        "max": 1372,
+        "mean": 761.446,
+        "p50": 759,
+        "p75": 893,
+        "p90": 1036,
+        "p95": 1132,
+        "p99": 1254,
+        "over": {
+          "512": 152,
+          "1024": 18,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "normalized_completion_tokens": {
+        "count": 166,
+        "min": 338,
+        "max": 1374,
+        "mean": 763.446,
+        "p50": 761,
+        "p75": 895,
+        "p90": 1038,
+        "p95": 1134,
+        "p99": 1256,
+        "over": {
+          "512": 152,
+          "1024": 18,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 166,
+        "min": 1632,
+        "max": 2285,
+        "mean": 1912.807,
+        "p50": 1910,
+        "p75": 1994,
+        "p90": 2079,
+        "p95": 2119,
+        "p99": 2232,
+        "over": {
+          "512": 166,
+          "1024": 166,
+          "1536": 166,
+          "2048": 22,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 166,
+        "min": 2037,
+        "max": 3579,
+        "mean": 2676.253,
+        "p50": 2663,
+        "p75": 2893,
+        "p90": 3144,
+        "p95": 3224,
+        "p99": 3442,
+        "over": {
+          "512": 166,
+          "1024": 166,
+          "1536": 166,
+          "2048": 165,
+          "3072": 19,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    }
+  },
+  "tokenizer_sha256": "a306777fab20c8efd76229cea1566e9ec976059a4f2fb73565bc944ff3c2df4f",
+  "shared_prompt_contract_sha256": "00a5af656e875f8bbe7b15e000efb4ef751f8e6223da3608648d20e94b296bf5",
+  "frame_source": "training/scripts/audits/full_data_tokens_20260913.py::reconstructed_prefix",
+  "boundaries": "one whole-prefix boundary check per batch",
+  "row_status_sha256": "6702742d894bb7a41e82bbd4bd52c2432b2c3662048fe2701d51641d08690a9b",
+  "length_status_csv": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\offline_triage_20260913\\url_probe\\length_status.csv",
+  "length_status_sha256": "948b20f1e4f58b58b31084b1c6a37384fae5696ce6746d8f8e1bedbb3ef000f6",
+  "seconds": 101.12,
+  "limitations": [
+    "Exact local Gemma3 vocabulary plus stated reconstructed frame, not exact deployed E2B or missing-template 270M serialization.",
+    "No transformed training targets or datasets saved; hashes bind lengths to the separately strict-validated normalized text."
+  ]
+}

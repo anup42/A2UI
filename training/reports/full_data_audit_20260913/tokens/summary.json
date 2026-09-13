@@ -1,0 +1,1049 @@
+{
+  "schema_version": 1,
+  "scope": "all physical rows",
+  "runtime_seconds": 1388.49,
+  "tokenizer": {
+    "path": "C:\\Users\\anupk\\Downloads\\training\\runs\\gemma270m_ir_lora\\merged_hf\\tokenizer.json",
+    "sha256": "a306777fab20c8efd76229cea1566e9ec976059a4f2fb73565bc944ff3c2df4f",
+    "vocabulary_size": 262145,
+    "config_sha256": "036fb33e0d530a5739e221a15a1fe42dd2f64b58b5d208e0cb8606b9a7e60fc6",
+    "tokenizer_class": "TokenizersBackend",
+    "has_config_chat_template": false,
+    "has_local_chat_template_file": false,
+    "special_token_ids": {
+      "<bos>": 2,
+      "<eos>": 1,
+      "<start_of_turn>": 105,
+      "<end_of_turn>": 106
+    }
+  },
+  "measurement_notes": [
+    "source_tokens and target_tokens use the exact local tokenizer.json, without added special tokens or truncation.",
+    "content_sum_tokens sums separately encoded message bodies, not a real model chat serialization.",
+    "reconstructed counts use Gemma3-style user/model turns with system prepended to the first example user, explicit BOS and end-of-turn tokens.",
+    "No local chat_template exists: reconstructed counts are exact for the audit's stated frame, NOT proof of the original or deployed model's template.",
+    "sequence_tokens matches the repo's separately encoded generation prefix + assistant suffix convention under the reconstructed frame.",
+    "No E2B tokenizer was found: these are NOT E2B token counts. Retest with its exact deployed tokenizer/template.",
+    "Every target is measured as supplied, including targets which may fail strict semantic/schema checks. Join per-row coordinates to the validation audit.",
+    "Production scaffold normalization changes the prompt only; no target serialization or repair occurs in this audit."
+  ],
+  "shared_prompt": {
+    "contract_sha256": "00a5af656e875f8bbe7b15e000efb4ef751f8e6223da3608648d20e94b296bf5",
+    "scaffold_sha256": "2da188c2ac3d8a654b5d0b6679551edfefa1eb4c85039902f4c07944fbaa3ee0",
+    "system_tokens": 1388,
+    "content_tokens": 1469,
+    "reconstructed_prefix_tokens": 1482
+  },
+  "source_files": {
+    "train": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl",
+      "size_bytes": 1970021858,
+      "sha256": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+      "encoding": "utf-16"
+    },
+    "val": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl",
+      "size_bytes": 11850436,
+      "sha256": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+      "encoding": "utf-16"
+    },
+    "golden32": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\data\\eval\\golden32_archive_repeat_v1\\golden32.jsonl",
+      "size_bytes": 1000781,
+      "sha256": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c",
+      "encoding": "utf-8-sig"
+    },
+    "golden35": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\data\\eval\\golden35_v1\\golden35.jsonl",
+      "size_bytes": 1432560,
+      "sha256": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20",
+      "encoding": "utf-8-sig"
+    }
+  },
+  "lengths": {
+    "train": {
+      "source_tokens": {
+        "count": 150292,
+        "min": 62,
+        "max": 2616,
+        "mean": 604.316,
+        "p50": 588,
+        "p75": 713,
+        "p90": 851,
+        "p95": 953,
+        "p99": 1285,
+        "over": {
+          "512": 99804,
+          "1024": 4836,
+          "1536": 574,
+          "2048": 69,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "target_tokens": {
+        "count": 150292,
+        "min": 162,
+        "max": 2474,
+        "mean": 998.492,
+        "p50": 1013,
+        "p75": 1158,
+        "p90": 1286,
+        "p95": 1366,
+        "p99": 1542,
+        "over": {
+          "512": 146857,
+          "1024": 72262,
+          "1536": 1573,
+          "2048": 47,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "completion_tokens": {
+        "count": 150292,
+        "min": 164,
+        "max": 2476,
+        "mean": 1000.492,
+        "p50": 1015,
+        "p75": 1160,
+        "p90": 1288,
+        "p95": 1368,
+        "p99": 1544,
+        "over": {
+          "512": 146919,
+          "1024": 72789,
+          "1536": 1603,
+          "2048": 49,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_content_sum_tokens": {
+        "count": 150292,
+        "min": 430,
+        "max": 4166,
+        "mean": 1807.809,
+        "p50": 1819,
+        "p75": 2085,
+        "p90": 2321,
+        "p95": 2481,
+        "p99": 2859,
+        "over": {
+          "512": 150285,
+          "1024": 145687,
+          "1536": 111177,
+          "2048": 42263,
+          "3072": 660,
+          "4096": 2,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_content_sum_tokens": {
+        "count": 150292,
+        "min": 1709,
+        "max": 5445,
+        "mean": 3086.809,
+        "p50": 3098,
+        "p75": 3364,
+        "p90": 3600,
+        "p95": 3760,
+        "p99": 4138,
+        "over": {
+          "512": 150292,
+          "1024": 150292,
+          "1536": 150292,
+          "2048": 149420,
+          "3072": 79027,
+          "4096": 1758,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_prompt_tokens": {
+        "count": 150292,
+        "min": 287,
+        "max": 2841,
+        "mean": 829.316,
+        "p50": 813,
+        "p75": 938,
+        "p90": 1076,
+        "p95": 1178,
+        "p99": 1510,
+        "over": {
+          "512": 144420,
+          "1024": 21471,
+          "1536": 1350,
+          "2048": 172,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 150292,
+        "min": 1566,
+        "max": 4120,
+        "mean": 2108.316,
+        "p50": 2092,
+        "p75": 2217,
+        "p90": 2355,
+        "p95": 2457,
+        "p99": 2789,
+        "over": {
+          "512": 150292,
+          "1024": 150292,
+          "1536": 150292,
+          "2048": 89782,
+          "3072": 506,
+          "4096": 1,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_sequence_tokens": {
+        "count": 150292,
+        "min": 452,
+        "max": 4188,
+        "mean": 1829.809,
+        "p50": 1841,
+        "p75": 2107,
+        "p90": 2343,
+        "p95": 2503,
+        "p99": 2881,
+        "over": {
+          "512": 150286,
+          "1024": 146255,
+          "1536": 113468,
+          "2048": 45108,
+          "3072": 723,
+          "4096": 3,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 150292,
+        "min": 1731,
+        "max": 5467,
+        "mean": 3108.809,
+        "p50": 3120,
+        "p75": 3386,
+        "p90": 3622,
+        "p95": 3782,
+        "p99": 4160,
+        "over": {
+          "512": 150292,
+          "1024": 150292,
+          "1536": 150292,
+          "2048": 149572,
+          "3072": 82216,
+          "4096": 1945,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    },
+    "val": {
+      "source_tokens": {
+        "count": 910,
+        "min": 136,
+        "max": 1344,
+        "mean": 594.295,
+        "p50": 586,
+        "p75": 713,
+        "p90": 847,
+        "p95": 925,
+        "p99": 1065,
+        "over": {
+          "512": 590,
+          "1024": 16,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "target_tokens": {
+        "count": 910,
+        "min": 225,
+        "max": 2014,
+        "mean": 996.976,
+        "p50": 1009,
+        "p75": 1157,
+        "p90": 1294,
+        "p95": 1378,
+        "p99": 1507,
+        "over": {
+          "512": 889,
+          "1024": 426,
+          "1536": 8,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "completion_tokens": {
+        "count": 910,
+        "min": 227,
+        "max": 2016,
+        "mean": 998.976,
+        "p50": 1011,
+        "p75": 1159,
+        "p90": 1296,
+        "p95": 1380,
+        "p99": 1509,
+        "over": {
+          "512": 889,
+          "1024": 429,
+          "1536": 8,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_content_sum_tokens": {
+        "count": 910,
+        "min": 648,
+        "max": 3392,
+        "mean": 1796.27,
+        "p50": 1816,
+        "p75": 2074,
+        "p90": 2317,
+        "p95": 2442,
+        "p99": 2700,
+        "over": {
+          "512": 910,
+          "1024": 887,
+          "1536": 667,
+          "2048": 250,
+          "3072": 4,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_content_sum_tokens": {
+        "count": 910,
+        "min": 1927,
+        "max": 4671,
+        "mean": 3075.27,
+        "p50": 3095,
+        "p75": 3353,
+        "p90": 3596,
+        "p95": 3721,
+        "p99": 3979,
+        "over": {
+          "512": 910,
+          "1024": 910,
+          "1536": 910,
+          "2048": 903,
+          "3072": 475,
+          "4096": 6,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_prompt_tokens": {
+        "count": 910,
+        "min": 361,
+        "max": 1569,
+        "mean": 819.295,
+        "p50": 811,
+        "p75": 938,
+        "p90": 1072,
+        "p95": 1150,
+        "p99": 1290,
+        "over": {
+          "512": 879,
+          "1024": 122,
+          "1536": 1,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 910,
+        "min": 1640,
+        "max": 2848,
+        "mean": 2098.295,
+        "p50": 2090,
+        "p75": 2217,
+        "p90": 2351,
+        "p95": 2429,
+        "p99": 2569,
+        "over": {
+          "512": 910,
+          "1024": 910,
+          "1536": 910,
+          "2048": 536,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_sequence_tokens": {
+        "count": 910,
+        "min": 670,
+        "max": 3414,
+        "mean": 1818.27,
+        "p50": 1838,
+        "p75": 2096,
+        "p90": 2339,
+        "p95": 2464,
+        "p99": 2722,
+        "over": {
+          "512": 910,
+          "1024": 888,
+          "1536": 682,
+          "2048": 270,
+          "3072": 4,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 910,
+        "min": 1949,
+        "max": 4693,
+        "mean": 3097.27,
+        "p50": 3117,
+        "p75": 3375,
+        "p90": 3618,
+        "p95": 3743,
+        "p99": 4001,
+        "over": {
+          "512": 910,
+          "1024": 910,
+          "1536": 910,
+          "2048": 903,
+          "3072": 494,
+          "4096": 6,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    },
+    "golden32": {
+      "source_tokens": {
+        "count": 32,
+        "min": 296,
+        "max": 1035,
+        "mean": 600.688,
+        "p50": 536,
+        "p75": 660,
+        "p90": 895,
+        "p95": 950,
+        "p99": 1035,
+        "over": {
+          "512": 22,
+          "1024": 1,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "target_tokens": {
+        "count": 32,
+        "min": 619,
+        "max": 1430,
+        "mean": 1008.594,
+        "p50": 973,
+        "p75": 1152,
+        "p90": 1306,
+        "p95": 1401,
+        "p99": 1430,
+        "over": {
+          "512": 32,
+          "1024": 14,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "completion_tokens": {
+        "count": 32,
+        "min": 621,
+        "max": 1432,
+        "mean": 1010.594,
+        "p50": 975,
+        "p75": 1154,
+        "p90": 1308,
+        "p95": 1403,
+        "p99": 1432,
+        "over": {
+          "512": 32,
+          "1024": 14,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_content_sum_tokens": {
+        "count": 32,
+        "min": 1120,
+        "max": 2556,
+        "mean": 1814.281,
+        "p50": 1737,
+        "p75": 2017,
+        "p90": 2480,
+        "p95": 2546,
+        "p99": 2556,
+        "over": {
+          "512": 32,
+          "1024": 32,
+          "1536": 25,
+          "2048": 8,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_content_sum_tokens": {
+        "count": 32,
+        "min": 2399,
+        "max": 3835,
+        "mean": 3093.281,
+        "p50": 3016,
+        "p75": 3296,
+        "p90": 3759,
+        "p95": 3825,
+        "p99": 3835,
+        "over": {
+          "512": 32,
+          "1024": 32,
+          "1536": 32,
+          "2048": 32,
+          "3072": 14,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_prompt_tokens": {
+        "count": 32,
+        "min": 521,
+        "max": 1260,
+        "mean": 825.688,
+        "p50": 761,
+        "p75": 885,
+        "p90": 1120,
+        "p95": 1175,
+        "p99": 1260,
+        "over": {
+          "512": 32,
+          "1024": 7,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 32,
+        "min": 1800,
+        "max": 2539,
+        "mean": 2104.688,
+        "p50": 2040,
+        "p75": 2164,
+        "p90": 2399,
+        "p95": 2454,
+        "p99": 2539,
+        "over": {
+          "512": 32,
+          "1024": 32,
+          "1536": 32,
+          "2048": 15,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_sequence_tokens": {
+        "count": 32,
+        "min": 1142,
+        "max": 2578,
+        "mean": 1836.281,
+        "p50": 1759,
+        "p75": 2039,
+        "p90": 2502,
+        "p95": 2568,
+        "p99": 2578,
+        "over": {
+          "512": 32,
+          "1024": 32,
+          "1536": 26,
+          "2048": 8,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 32,
+        "min": 2421,
+        "max": 3857,
+        "mean": 3115.281,
+        "p50": 3038,
+        "p75": 3318,
+        "p90": 3781,
+        "p95": 3847,
+        "p99": 3857,
+        "over": {
+          "512": 32,
+          "1024": 32,
+          "1536": 32,
+          "2048": 32,
+          "3072": 16,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    },
+    "golden35": {
+      "source_tokens": {
+        "count": 35,
+        "min": 256,
+        "max": 1353,
+        "mean": 667.2,
+        "p50": 618,
+        "p75": 855,
+        "p90": 1076,
+        "p95": 1138,
+        "p99": 1353,
+        "over": {
+          "512": 24,
+          "1024": 6,
+          "1536": 0,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "target_tokens": {
+        "count": 35,
+        "min": 478,
+        "max": 1539,
+        "mean": 916.714,
+        "p50": 894,
+        "p75": 1070,
+        "p90": 1237,
+        "p95": 1422,
+        "p99": 1539,
+        "over": {
+          "512": 34,
+          "1024": 12,
+          "1536": 1,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "completion_tokens": {
+        "count": 35,
+        "min": 480,
+        "max": 1541,
+        "mean": 918.714,
+        "p50": 896,
+        "p75": 1072,
+        "p90": 1239,
+        "p95": 1424,
+        "p99": 1541,
+        "over": {
+          "512": 34,
+          "1024": 12,
+          "1536": 1,
+          "2048": 0,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_content_sum_tokens": {
+        "count": 35,
+        "min": 2218,
+        "max": 4376,
+        "mean": 3067.914,
+        "p50": 2988,
+        "p75": 3423,
+        "p90": 3787,
+        "p95": 4017,
+        "p99": 4376,
+        "over": {
+          "512": 35,
+          "1024": 35,
+          "1536": 35,
+          "2048": 35,
+          "3072": 15,
+          "4096": 1,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_content_sum_tokens": {
+        "count": 35,
+        "min": 2218,
+        "max": 4376,
+        "mean": 3067.914,
+        "p50": 2988,
+        "p75": 3423,
+        "p90": 3787,
+        "p95": 4017,
+        "p99": 4376,
+        "over": {
+          "512": 35,
+          "1024": 35,
+          "1536": 35,
+          "2048": 35,
+          "3072": 15,
+          "4096": 1,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_prompt_tokens": {
+        "count": 35,
+        "min": 1760,
+        "max": 2857,
+        "mean": 2171.2,
+        "p50": 2122,
+        "p75": 2359,
+        "p90": 2580,
+        "p95": 2642,
+        "p99": 2857,
+        "over": {
+          "512": 35,
+          "1024": 35,
+          "1536": 35,
+          "2048": 23,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_prompt_tokens": {
+        "count": 35,
+        "min": 1760,
+        "max": 2857,
+        "mean": 2171.2,
+        "p50": 2122,
+        "p75": 2359,
+        "p90": 2580,
+        "p95": 2642,
+        "p99": 2857,
+        "over": {
+          "512": 35,
+          "1024": 35,
+          "1536": 35,
+          "2048": 23,
+          "3072": 0,
+          "4096": 0,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "old_reconstructed_sequence_tokens": {
+        "count": 35,
+        "min": 2240,
+        "max": 4398,
+        "mean": 3089.914,
+        "p50": 3010,
+        "p75": 3445,
+        "p90": 3809,
+        "p95": 4039,
+        "p99": 4398,
+        "over": {
+          "512": 35,
+          "1024": 35,
+          "1536": 35,
+          "2048": 35,
+          "3072": 15,
+          "4096": 1,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      },
+      "new_reconstructed_sequence_tokens": {
+        "count": 35,
+        "min": 2240,
+        "max": 4398,
+        "mean": 3089.914,
+        "p50": 3010,
+        "p75": 3445,
+        "p90": 3809,
+        "p95": 4039,
+        "p99": 4398,
+        "over": {
+          "512": 35,
+          "1024": 35,
+          "1536": 35,
+          "2048": 35,
+          "3072": 15,
+          "4096": 1,
+          "6144": 0,
+          "8192": 0,
+          "16384": 0,
+          "32768": 0
+        }
+      }
+    }
+  },
+  "scaffolds": {
+    "b0ffc734d90f15ed7c5381ab8f91c9c90545ba1657650614b92012d64b85a7ce": {
+      "messages": [
+        {
+          "content": "You are a GenUICraft mobile UI generator. Convert the response into rich,\nlossless A2UI Express v1 using the pinned GenUICraft catalog.\nReturn ONLY one native Express program enclosed by <a2ui> and </a2ui>.\nUse assignments such as root=Column([a,b]) and component references.\nThis is an assignment DSL, never HTML, XML, JSX, JSON, FlatSpec, or Compact IR.\nPreserve all useful facts, tables, actions, media, and semantics.",
+          "role": "system"
+        },
+        {
+          "content": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items.",
+          "role": "user"
+        },
+        {
+          "content": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>",
+          "role": "assistant"
+        }
+      ],
+      "reconstructed_prefix_tokens": 203,
+      "content_tokens": 190,
+      "system_tokens": 109,
+      "rows_by_split": {
+        "train": 150292,
+        "val": 910
+      }
+    },
+    "06bcc583a22dc7d9f3b9991b2dea92c1ea4a0241dfd9e33491d9730d3e6e034d": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a GenUICraft mobile UI generator. Convert the response into rich,\nlossless A2UI Express v1 using the pinned GenUICraft catalog.\nReturn ONLY one native Express program enclosed by <a2ui> and </a2ui>.\nUse assignments such as root=Column([a,b]) and component references.\nThis is an assignment DSL, never HTML, XML, JSX, JSON, FlatSpec, or Compact IR.\nPreserve all useful facts, tables, actions, media, and semantics."
+        },
+        {
+          "role": "user",
+          "content": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items."
+        },
+        {
+          "role": "assistant",
+          "content": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>"
+        }
+      ],
+      "reconstructed_prefix_tokens": 203,
+      "content_tokens": 190,
+      "system_tokens": 109,
+      "rows_by_split": {
+        "golden32": 32
+      }
+    },
+    "6b16b276d622888a2bd5c79be6deba9d8f814171967dc3f9216917f956085638": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "# A2UI Express v1 generated model contract\n\n<!-- Generated from pinned grammar/catalog/profile/quality policy: grammar=37044656eb10e4c4a4a54c822432f327c5340761b5bfe914b58fa0db3581cf42 catalog=b5571b35b1af2629361d66e896d59c7dbc5b27aaea17492c274933f6125b518e profile=c0259faae3a08bdb245faf9bb2abe0798b665ddb95c1b174f7e7c5d09ae52b83 quality=299b206f0280f3a622bcab96a8f6d32d113432e473174b8790fc5a266693de0e -->\n\nYou convert the supplied response into one rich, lossless GenUICraft A2UI\nExpress v1 program. A2UI Express is an assignment DSL, not JSON, HTML, JSX,\nCSS, or a FlatSpec object. Preserve the complete canonical UI semantics;\nsyntax optimization must never remove meaningful UI content or interactions.\n\nResponse:\n[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]\n\n## Strict output contract\n\n- Return exactly one `<a2ui>...</a2ui>` block, with no prose, JSON, markdown\n  fences, or trailing content.\n- Assign the root component to reserved variable `root`; every reference must\n  resolve, and every useful assignment must be reachable from `root`.\n- Use one assignment per line. Child lists contain assigned identifiers or\n  inline calls, never bare component type names.\n- Use positional arguments only while unambiguous; after a named argument is\n  used, use named arguments. `_` may skip only an optional final positional\n  slot. Omit trailing catalog defaults when semantics are unchanged.\n- Use explicit named properties, children, repeat, visible, watch, and action\n  arguments. Opaque `_props`, `_children`, `_repeat`, `_visible`, `_on`, and\n  `_watch` bags are forbidden for new output.\n- Event values must be action calls such as `Event(\"name\",{})` or\n  `openUrl(\"https://...\")`, never quoted URLs/event names by themselves.\n- Use `$={...}` or `$/path=value` for state and valid data bindings.\n- Reject the temptation to invent URLs, paths, values, or filler components.\n\n## Pinned catalog signatures\n\n- Alert(message, title, tone, timestamp)\n- AudioPlayer(url, description, posterUrl, title)\n- Button(label, variant, icon)\n- Card(children, title, subtitle, tone)\n- Chart(chartType, columns, statePath, rows, title, subtitle)\n- CheckBox(label, value, statePath)\n- Checklist(items, title, disclaimer, source)\n- ChoicePicker(label, options, value, statePath)\n- CodeBlock(code, language, title)\n- Column(children, gap, align, justify, wrap)\n- ConsoleLog(code, language, title)\n- DateTimeInput(label, value, mode, placeholder, statePath)\n- Divider()\n- EmailPreview(subject, body, from, to, date, title)\n- Formula(latex, title, result, display)\n- Icon(name, size, tint)\n- Image(url, alt, fit, width, height)\n- List(children, items)\n- Modal(trigger, content, title)\n- Row(children, gap, align, justify, wrap)\n- Slider(label, value, min, max, step, statePath)\n- Stack(children, direction, gap, align, justify, wrap)\n- Table(columns, statePath, rows, title, domain, preferredPresentation)\n- Tabs(tabs, activeTabId)\n- Text(text, variant)\n- TextField(label, value, statePath, placeholder)\n- Video(url, posterUrl, description, title)\n\n## Pinned actions\n\n- emitEvent(name, context, wantResponse, responsePath)\n- openUrl(url)\n- pushState(statePath, value, clearStatePath)\n- removeState(statePath, index)\n- setState(statePath, value)\n- validateForm(statePath, resultStatePath)\n\n## Shared quality policy\n\n- Preserve every requested fact, heading, section, table row, action, binding,\n  repeat, visibility rule, watch, and verified media reference.\n- Keep meaningful component richness and hierarchy; token savings must come\n  from Express syntax and default elision, never from dropping UI semantics.\n- Use specialist components such as Table, Chart, CodeBlock, ConsoleLog,\n  Formula, EmailPreview, Tabs, Modal, and forms when the response requires\n  them.\n- Every component reference must resolve and every useful assignment must be\n  reachable from `root`; preserve non-child references before pruning.\n- Table `highlightColumns` and `numericColumns` must be arrays of column keys,\n  even for one column: `highlightColumns=[\"price\"]`, never `\"price\"`. A dynamic\n  array binding must resolve to an array. Keep `primaryColumn` a single key.\n- Do not invent URLs or local paths. URL and local-asset placeholders supplied\n  by the pipeline must remain unchanged until explicit restoration.\n\n## Syntax example (do not copy its facts)\n\n<a2ui>\nroot=Column([title,details,action],gap=\"md\")\ntitle=Text(\"Result\",\"h2\")\ndetails=Table([\"Detail\",\"Value\"],rows=[[\"Status\",\"Ready\"]],title=\"Details\",domain=\"status\",preferredPresentation=\"table\")\naction=Button(\"Continue\",\"primary\",onPress=Event(\"continue\",{},true,\"/result\"))\n</a2ui>\n\nThe pipeline supplies the response in the user message and restores approved\nURL/local-asset placeholders only after strict parsing and compilation."
+        },
+        {
+          "role": "user",
+          "content": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items."
+        },
+        {
+          "role": "assistant",
+          "content": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>"
+        }
+      ],
+      "reconstructed_prefix_tokens": 1482,
+      "content_tokens": 1469,
+      "system_tokens": 1388,
+      "rows_by_split": {
+        "golden35": 35
+      }
+    }
+  },
+  "rejected": {
+    "train": [],
+    "val": [],
+    "golden32": [],
+    "golden35": []
+  },
+  "long_examples": {
+    "train": [
+      {
+        "line": 396,
+        "target_sha256": "a1a49780c2138ee1d0455944ab96ec71e05d78a70672e4cdbfd752be98a00ad4",
+        "target_tokens": 2147,
+        "new_reconstructed_sequence_tokens": 4502
+      },
+      {
+        "line": 3803,
+        "target_sha256": "3e51c79935e2fd149fba3aaf74002724a7d3bff26e235b944211a15cb6d5b012",
+        "target_tokens": 2198,
+        "new_reconstructed_sequence_tokens": 5228
+      },
+      {
+        "line": 16997,
+        "target_sha256": "cfb716d1ab67e9d240825c0d6f60e3a7878ea8079a2c3e279fafdea999219ea0",
+        "target_tokens": 2205,
+        "new_reconstructed_sequence_tokens": 4731
+      },
+      {
+        "line": 29214,
+        "target_sha256": "2ff1858c51c6b10320cde283491e5b16ef652f6b7abca44e45f9f2016c3a65e7",
+        "target_tokens": 2093,
+        "new_reconstructed_sequence_tokens": 5209
+      },
+      {
+        "line": 30543,
+        "target_sha256": "bd6d2f71ceca5008bca1e3fcf1c200d2dcee71e78499732faef5db1fb8961a9b",
+        "target_tokens": 2261,
+        "new_reconstructed_sequence_tokens": 5299
+      },
+      {
+        "line": 31851,
+        "target_sha256": "d93826fccddd37902e406ab91a3d5d9293d71017b6c49e1ed0e74ebfcfbe5694",
+        "target_tokens": 2072,
+        "new_reconstructed_sequence_tokens": 4605
+      },
+      {
+        "line": 31939,
+        "target_sha256": "9b0739d23a8513f261c749072f66f53ee335e272f60585ad330d271375a9d609",
+        "target_tokens": 2177,
+        "new_reconstructed_sequence_tokens": 4757
+      },
+      {
+        "line": 32350,
+        "target_sha256": "c0cdd05fe4e0c0c8cc6ce8f9b2deebf2b03c4409df7c44c0b680b76a69333f52",
+        "target_tokens": 2193,
+        "new_reconstructed_sequence_tokens": 5209
+      },
+      {
+        "line": 35632,
+        "target_sha256": "2ad943922da9d54923cba9f8a1bbb98c298061a63d9c10b7dabf8c30cad36314",
+        "target_tokens": 2137,
+        "new_reconstructed_sequence_tokens": 4897
+      },
+      {
+        "line": 38980,
+        "target_sha256": "be94a10be4718ba324918f4ccc47470d5126162a0385f7b70e6c3c7a86ad725a",
+        "target_tokens": 2295,
+        "new_reconstructed_sequence_tokens": 4683
+      }
+    ],
+    "val": [],
+    "golden32": [],
+    "golden35": []
+  },
+  "prefix_boundary_checks": 167,
+  "row_lengths_path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\full_data_20260913\\token_lengths.csv",
+  "row_lengths_sha256": "d0ae09d1881b5351a72fd809436bfbcb1204539b08720b9806f21923756dd12f",
+  "references": [
+    "https://ai.google.dev/gemma/docs/core/prompt-structure"
+  ]
+}

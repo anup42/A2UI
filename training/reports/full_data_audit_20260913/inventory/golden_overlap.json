@@ -1,0 +1,266 @@
+{
+  "benchmarks": {
+    "golden32": {
+      "accepted_occurrences": 32,
+      "excluded_sources": 1,
+      "benchmark_sha256": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c"
+    },
+    "golden35": {
+      "accepted_occurrences": 35,
+      "excluded_sources": 15,
+      "benchmark_sha256": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20"
+    }
+  },
+  "overlaps": [
+    {
+      "benchmark": "golden32",
+      "membership": "accepted",
+      "split": "val",
+      "occurrences": 1,
+      "unique_sources": 1,
+      "matched_golden_case_ids": 1
+    },
+    {
+      "benchmark": "golden32",
+      "membership": "excluded",
+      "split": "train",
+      "occurrences": 1,
+      "unique_sources": 1,
+      "matched_golden_case_ids": 1
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "split": "train",
+      "occurrences": 26,
+      "unique_sources": 26,
+      "matched_golden_case_ids": 26
+    }
+  ],
+  "case_details": [
+    {
+      "benchmark": "golden32",
+      "membership": "accepted",
+      "case_id": "q_019461",
+      "split": "val",
+      "occurrences": 1,
+      "first_line": 85
+    },
+    {
+      "benchmark": "golden32",
+      "membership": "excluded",
+      "case_id": "q_012053",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 131726
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000002",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73347
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000003",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73348
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000005",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73349
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000007",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73350
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000008",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73351
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000009",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73352
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000014",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73354
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000015",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73355
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000016",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73356
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000021",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73357
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000022",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73358
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000023",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73359
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000025",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73361
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000026",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73362
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000027",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73363
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000030",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73365
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000031",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73366
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000032",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73367
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000033",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73368
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000037",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73371
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000039",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73373
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000040",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73374
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000041",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73375
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000043",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73377
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000047",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73378
+    },
+    {
+      "benchmark": "golden35",
+      "membership": "accepted",
+      "case_id": "q_000049",
+      "split": "train",
+      "occurrences": 1,
+      "first_line": 73379
+    }
+  ]
+}

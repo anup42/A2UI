@@ -245,6 +245,18 @@ identity/provenance are not suitable production inputs. Existing source splits
 are still filtered, prompt-aligned, token-checked and checked for leakage.
 Training itself never invokes Stage 1/2/3 generation or a cloud teacher.
 
+The external messages-only archive has a separate offline recovery and
+refinement path. Its completed v9 copy includes paragraph, letter, and join-boundary
+completeness checks, stronger Golden-source filtering, and rebuilt
+source-grouped validation. The
+large candidate is ignored by Git, so copy it to the GPU host or rebuild it
+from the exact frozen source hashes by following the
+[messages-archive final-review runbook](messages_archive_final_review.md). The
+[v9 report](../reports/offline_recovery_20260913_v9/REPORT.md) records final counts,
+repairs, verification, and remaining limitations. Run the exact-model tokenizer
+preflight before training. Do not feed the original UTF-16 messages files
+directly to this launcher.
+
 ## 5. Quantization, LiteRT and MTP are separate
 
 This command closes the **HF training plus dual-Golden checkpoint-testing**

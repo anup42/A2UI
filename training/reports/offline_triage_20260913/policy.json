@@ -1,0 +1,44 @@
+{
+  "version": "offline-conservative-v1-20260913",
+  "categories": {
+    "KEEP": "Provisional content candidate; target unchanged, no tested warning; not a semantic certificate.",
+    "REPAIR": "Only exact-reversible URL representation normalization proved in memory; not a repaired dataset or recovery of missing content.",
+    "REJECT": "Exclude/quarantine from this selected run, including valid reserved, overlap, duplicate, long, or unresolved rows. Never delete originals."
+  },
+  "universal_packaging_not_counted_as_content_repair": [
+    "UTF-16LE/BOM to UTF-8/LF",
+    "Bind final user response and final assistant target, excluding few-shot pairs",
+    "Add aliases and archive-derived hash IDs/group lineage without pretending original generator IDs were recovered",
+    "Normalize shared production prompt and retain old scaffold fingerprint"
+  ],
+  "warning_fields": [
+    "layout_only",
+    "empty_layout",
+    "mojibake",
+    "placeholder",
+    "missing_action",
+    "low_lexical",
+    "missing_numeric"
+  ],
+  "limits": {
+    "reconstructed_sequence_tokens": 4096,
+    "target_tokens": 2048
+  },
+  "tokenizer_scope": "Local Gemma3 vocabulary with reconstructed current shared prompt and chat framing; not actual E2B or authoritative chat-template preflight.",
+  "dedup": "Keep first admitted occurrence of an exact raw-source/original-semantic-target pair, and also remove identical effective source/target text pairs after URL conversion. Distinct layouts remain together within one family/split; do not duplicate cleaner siblings as repairs.",
+  "families": "Transitive exact, whitespace-normalized, production-URL-masked hashes plus every nonexact pair in the bounded near-duplicate audit. Not exhaustive semantic-family discovery.",
+  "split_policy": "Keep original training families on training side. Exclude validation families found anywhere in original training, even if corresponding training label is later rejected. No validation-to-training target transfer.",
+  "symbolic_contract": "Already-symbolic rows may be SFT candidates only when all target tokens occur in source and no mixed literal references exist. Missing destination maps remain unknown; no URL-restoration or device-render certification.",
+  "conservatism": [
+    "Initial placeholder warning gate requires identical source/target token sets, stricter than target-subset closure; unused source references may be harmless.",
+    "Original token budget is screened before URL conversion, so long rows that could shorten sufficiently are not probed.",
+    "Unsupported role aliases are quarantined even if the underlying raw destinations are available. A separately tested, source-consistent reference normalization policy could recover more without Stage3; no such change is assumed here."
+  ],
+  "no_semantic_guesses": [
+    "No clipped-word joins claimed to restore dropped content",
+    "No global mojibake replacement",
+    "No guessed placeholder aliases/destinations",
+    "No invented facts or new labels",
+    "No target truncation to meet budget"
+  ]
+}
