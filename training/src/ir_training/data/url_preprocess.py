@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
 
-
 _LOCAL_ASSET_PREFIX = (
     r"(?:[a-z]:[/\\]|/(?:data|sdcard|storage|mnt|android_asset)/|"
     r"\.{1,2}[/\\]|(?:assets?|media|images?|res|drawable|mipmap|raw)[/\\])"
@@ -27,12 +26,22 @@ _PLACEHOLDER_RE = re.compile(
     r"\[(?:IMAGE_URL|ICON_URL|ACTION_URL|SOURCE_URL|MEDIA_URL|URL|IMAGE_ASSET|ICON_ASSET|MEDIA_ASSET)_\d+\]"
 )
 _TRAILING_PUNCT = ".,;:!?"
+ROLE_SCOPED_BINDING = "role_scoped"
+SOURCE_IDENTITY_BINDING = "source_identity"
 _IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif")
 _ICON_EXTENSIONS = (".svg",)
 _ACTION_KEYS = {"url", "href", "link", "actionurl", "bookingurl", "sourceurl"}
 _IMAGE_KEYS = {"image", "imagesrc", "src", "source", "thumbnail", "photo", "url"}
 _ICON_KEYS = {"icon", "name"}
-_TEXT_KEYS = {"text", "label", "description", "subtitle", "title", "caption", "sourcetext"}
+_TEXT_KEYS = {
+    "text",
+    "label",
+    "description",
+    "subtitle",
+    "title",
+    "caption",
+    "sourcetext",
+}
 
 
 @dataclass(frozen=True)
@@ -49,8 +58,12 @@ class UrlPreprocessResult:
 
 
 class _UrlRegistry:
-    def __init__(self) -> None:
+    def __init__(self, binding_policy: str = ROLE_SCOPED_BINDING) -> None:
+        if binding_policy not in {ROLE_SCOPED_BINDING, SOURCE_IDENTITY_BINDING}:
+            raise ValueError(f"Unsupported URL binding policy: {binding_policy}")
+        self.binding_policy = binding_policy
         self._by_role_url: dict[tuple[str, str], str] = {}
+        self._by_url: dict[str, str] = {}
         self._counters: dict[str, int] = {}
         self.url_map: dict[str, dict[str, str]] = {}
         self.response_url_count = 0
@@ -60,24 +73,49 @@ class _UrlRegistry:
     def placeholder(self, raw_url: str, role: str) -> str:
         role = _normalize_role(role, raw_url)
         key = (role, raw_url)
-        existing = self._by_role_url.get(key)
+        existing = (
+            self._by_url.get(raw_url)
+            if self.binding_policy == SOURCE_IDENTITY_BINDING
+            else self._by_role_url.get(key)
+        )
         if existing:
+            self._by_role_url[key] = existing
             return existing
         placeholder_prefix = _placeholder_prefix(role)
-        self._counters[placeholder_prefix] = self._counters.get(placeholder_prefix, 0) + 1
+        self._counters[placeholder_prefix] = (
+            self._counters.get(placeholder_prefix, 0) + 1
+        )
         token = f"[{placeholder_prefix}_{self._counters[placeholder_prefix]}]"
-        parsed = urlparse(raw_url if not _is_local_asset_reference(raw_url) else "")
+        host = _reference_host(raw_url)
         self._by_role_url[key] = token
+        self._by_url[raw_url] = token
         self.url_map[token] = {
             "url": raw_url,
             "role": role,
-            "host": parsed.netloc.lower(),
+            "host": host,
             "kind": "local_asset" if _is_local_asset_reference(raw_url) else "url",
         }
         return token
 
 
-def preprocess_training_urls(response_text: str, canonical_graph: Any, *, enabled: bool = True) -> UrlPreprocessResult:
+def preprocess_training_urls(
+    response_text: str,
+    canonical_graph: Any,
+    *,
+    enabled: bool = True,
+    binding_policy: str = ROLE_SCOPED_BINDING,
+) -> UrlPreprocessResult:
+    """Mask references in source-first order with an explicit binding policy.
+
+    ``role_scoped`` preserves the historical behavior: one raw reference can
+    receive different tokens when used as a source, image, or action.
+    ``source_identity`` reuses the first source token for the exact same raw
+    reference in the target. The latter is useful for supervised data because
+    every target token can then be grounded in the model input. Callers must
+    still reject target-only references and mixed pre-tokenized input.
+    """
+    if binding_policy not in {ROLE_SCOPED_BINDING, SOURCE_IDENTITY_BINDING}:
+        raise ValueError(f"Unsupported URL binding policy: {binding_policy}")
     if not enabled:
         return UrlPreprocessResult(
             response_text=response_text,
@@ -90,9 +128,13 @@ def preprocess_training_urls(response_text: str, canonical_graph: Any, *, enable
                 "raw_visible_text_url_count": 0,
             },
         )
-    registry = _UrlRegistry()
-    processed_response = _replace_urls_in_text(response_text, registry, key=None, component_type=None, in_response=True)
-    processed_graph = _replace_urls_in_value(canonical_graph, registry, key=None, component_type=None, action_context=False)
+    registry = _UrlRegistry(binding_policy)
+    processed_response = _replace_urls_in_text(
+        response_text, registry, key=None, component_type=None, in_response=True
+    )
+    processed_graph = _replace_urls_in_value(
+        canonical_graph, registry, key=None, component_type=None, action_context=False
+    )
     return UrlPreprocessResult(
         response_text=processed_response,
         canonical_graph=processed_graph,
@@ -116,14 +158,18 @@ def restore_url_placeholders(value: Any, url_map: dict[str, Any] | None) -> Any:
     }
 
     def replace_text(text: str) -> str:
-        return _PLACEHOLDER_RE.sub(lambda match: replacement.get(match.group(0), match.group(0)), text)
+        return _PLACEHOLDER_RE.sub(
+            lambda match: replacement.get(match.group(0), match.group(0)), text
+        )
 
     if isinstance(value, str):
         return replace_text(value)
     if isinstance(value, list):
         return [restore_url_placeholders(item, url_map) for item in value]
     if isinstance(value, dict):
-        return {key: restore_url_placeholders(item, url_map) for key, item in value.items()}
+        return {
+            key: restore_url_placeholders(item, url_map) for key, item in value.items()
+        }
     return value
 
 
@@ -137,7 +183,9 @@ def _replace_urls_in_value(
 ) -> Any:
     if isinstance(value, dict):
         current_type = str(value.get("type") or component_type or "")
-        current_action = action_context or str(value.get("action") or "").lower() == "openurl"
+        current_action = (
+            action_context or str(value.get("action") or "").lower() == "openurl"
+        )
         return {
             item_key: _replace_urls_in_value(
                 item_value,
@@ -150,7 +198,13 @@ def _replace_urls_in_value(
         }
     if isinstance(value, list):
         return [
-            _replace_urls_in_value(item, registry, key=key, component_type=component_type, action_context=action_context)
+            _replace_urls_in_value(
+                item,
+                registry,
+                key=key,
+                component_type=component_type,
+                action_context=action_context,
+            )
             for item in value
         ]
     if isinstance(value, str):
@@ -177,7 +231,11 @@ def _replace_urls_in_text(
     in_response: bool,
 ) -> str:
     stripped_text = text.strip()
-    if "\n" not in text and "\r" not in text and _is_local_asset_reference(stripped_text):
+    if (
+        "\n" not in text
+        and "\r" not in text
+        and _is_local_asset_reference(stripped_text)
+    ):
         role = _classify_url(
             stripped_text,
             key=key,
@@ -263,7 +321,11 @@ def _classify_url(
         return "ICON"
     if "button:" in context_l or "action:" in context_l or "quick action" in context_l:
         return "ACTION"
-    if "source" in context_l or "reference" in context_l or key_l in {"source", "sourceurl"}:
+    if (
+        "source" in context_l
+        or "reference" in context_l
+        or key_l in {"source", "sourceurl"}
+    ):
         return "SOURCE"
     if key_l in _ACTION_KEYS:
         return "ACTION"
@@ -276,7 +338,17 @@ def _classify_url(
 
 def _normalize_role(role: str, url: str) -> str:
     role = role.upper()
-    if role in {"IMAGE", "ICON", "ACTION", "SOURCE", "MEDIA", "URL", "IMAGE_ASSET", "ICON_ASSET", "MEDIA_ASSET"}:
+    if role in {
+        "IMAGE",
+        "ICON",
+        "ACTION",
+        "SOURCE",
+        "MEDIA",
+        "URL",
+        "IMAGE_ASSET",
+        "ICON_ASSET",
+        "MEDIA_ASSET",
+    }:
         return role
     if not _is_local_asset_reference(url):
         return "URL"
@@ -290,11 +362,35 @@ def _placeholder_prefix(role: str) -> str:
 
 
 def _looks_like_image(url_l: str) -> bool:
-    return url_l.endswith(_IMAGE_EXTENSIONS) or "upload.wikimedia.org/" in url_l or "googleusercontent.com/" in url_l
+    return (
+        url_l.endswith(_IMAGE_EXTENSIONS)
+        or "upload.wikimedia.org/" in url_l
+        or "googleusercontent.com/" in url_l
+    )
 
 
 def _looks_like_icon(url_l: str) -> bool:
-    return url_l.endswith(_ICON_EXTENSIONS) or "/icons/" in url_l or "cdn.jsdelivr.net/npm/bootstrap-icons" in url_l
+    return (
+        url_l.endswith(_ICON_EXTENSIONS)
+        or "/icons/" in url_l
+        or "cdn.jsdelivr.net/npm/bootstrap-icons" in url_l
+    )
+
+
+def _reference_host(value: str) -> str:
+    """Return optional host metadata without rejecting an exact raw reference.
+
+    Instructional text can legitimately contain pseudo-URLs such as
+    ``https://[Your-Public-IP]``. ``urlparse`` treats bracketed hosts as IPv6
+    literals and raises before parsing completes. Host metadata is advisory;
+    masking and exact restoration of the raw reference are the data contract.
+    """
+    if _is_local_asset_reference(value):
+        return ""
+    try:
+        return urlparse(value).netloc.lower()
+    except ValueError:
+        return ""
 
 
 def _is_local_asset_reference(value: str) -> bool:

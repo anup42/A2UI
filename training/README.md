@@ -6,6 +6,9 @@ For the external 151,202-row messages-only archive, use the
 [final archive runbook](docs/messages_archive_final_review.md) and review its
 [policy-v9 report](reports/offline_recovery_20260913_v9/REPORT.md)
 before passing the recovered `train.jsonl`/`val.jsonl` through `--input-dir`.
+The launcher now provides live console/file logs, CPU-parallel preparation,
+progress/ETA, and content-verified preparation reuse; see the quickstart's
+[startup controls](docs/GOLDEN_E2E_QUICKSTART.md#startup-progress-cpu-preparation-and-reuse).
 The final v9 copy includes the source-proven separator correction and retains
 112,842 training and 2,300 validation rows; run the exact-model preflight next.
 The current `run_golden_training.py` command uses checked-in Stage 3 data and

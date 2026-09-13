@@ -2,18 +2,24 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
+import codecs
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import tempfile
 from typing import Any, Callable
 
 from ir_training.common.config import repo_root
-from ir_training.common.jsonl import read_jsonl, write_jsonl
+from ir_training.common.jsonl import write_jsonl
+from ir_training.common.parallel import resolve_prepare_workers
+from ir_training.common.progress import Progress, fingerprint_file, log
 
 GOLDENS = {
     "golden32": ("training/data/eval/golden32_archive_repeat_v1/golden32.jsonl", 32,
@@ -48,6 +54,10 @@ class GoldenTrainingOptions:
     dataloader_workers: int | None = None
     qat: bool = False
     seed: int = 42
+    prepare_workers: int = 0
+    progress_seconds: float = 10
+    preparation_cache: bool = True
+    preparation_cache_dir: Path | None = None
 
 
 def sha256(path: Path) -> str:
@@ -76,7 +86,7 @@ def _write(path: Path, value: Any) -> None:
 
 def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
     result = asdict(options)
-    for name in ("model_dir", "output_dir", "source_run_dir", "input_dir"):
+    for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir"):
         if result[name] is not None:
             result[name] = str(Path(result[name]).expanduser().resolve())
     if not result["input_dir"] and not result["source_run_dir"]:
@@ -87,6 +97,9 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
 def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
     """Read-only plan, requiring no CUDA, model loading or tokenizer download."""
     values = _options(options)
+    resolve_prepare_workers(options.prepare_workers)
+    if not math.isfinite(options.progress_seconds) or options.progress_seconds <= 0:
+        raise ValueError("--progress-seconds must be positive")
     if options.profile not in {"e2b", "270m"} or (options.qat and options.profile != "270m"):
         raise ValueError("Profiles are e2b dense LoRA and 270m full SFT; --qat is only for 270m. Official E2B retained-scale QAT uses its separate launcher.")
     if options.input_dir and options.source_run_dir:
@@ -114,6 +127,10 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
     output = Path(values["output_dir"])
     if output == model or output in model.parents or output == source or output in source.parents:
         raise ValueError("Output directory must not contain the model or source inputs")
+    if values["preparation_cache_dir"]:
+        cache = Path(values["preparation_cache_dir"])
+        if cache.is_relative_to(model) or cache.is_relative_to(source):
+            raise ValueError("Preparation cache must be outside the original model and source directories")
     from ir_training.data.shared_prompt import create_shared_prompt_contract
     prompt = create_shared_prompt_contract(ordering="root-first")
     return {
@@ -163,13 +180,28 @@ def _load_tokenizer(model_dir: Path, profile: str):
     return loader.from_pretrained(str(model_dir), local_files_only=True, trust_remote_code=False)
 
 
-def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable = _load_tokenizer) -> dict[str, Any]:
-    from ir_training.data.audit_filter import audit_and_filter_rows, load_reserved_cohorts
-    from ir_training.data.build_pairs import prepare_dataset
-    from ir_training.data.express_preparation import prepare_splits
+def _strict_rows(path: Path):
+    with path.open(encoding="utf-8-sig") as stream:
+        for number, line in enumerate(stream, 1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{path}:{number}: malformed JSON; no rows may be silently skipped") from exc
+            if not isinstance(row, dict):
+                raise ValueError(f"{path}:{number}: expected a JSON object")
+            yield row
+
+
+def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable | None = None) -> dict[str, Any]:
+    from ir_training.data.audit_filter import load_reserved_cohorts
     from ir_training.eval.golden_set import load_fixed_golden_rows
     options = plan["options"]
     output = Path(options["output_dir"])
+    interval = options["progress_seconds"]
+    workers = resolve_prepare_workers(options["prepare_workers"])
+    log(f"Preparation uses {workers} CPU workers; streaming input; GPUs are used only after preparation")
     golden_paths = {name: Path(item["path"]) for name, item in plan["goldens"].items()}
     for name, path in golden_paths.items():
         if sha256(path) != plan["goldens"][name]["sha256"]:
@@ -178,10 +210,52 @@ def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable = _load_tok
             raise ValueError(f"Frozen {name} benchmark manifest differs from the independently pinned revision")
         load_fixed_golden_rows(path, required_rows=plan["goldens"][name]["rows"])
     reserved = load_reserved_cohorts(golden_paths.values())
-    source_pins = {path: sha256(Path(path)) for path in plan["source_files"]}
+    fingerprints = {path: fingerprint_file(Path(path), count_rows=True, interval=interval) for path in plan["source_files"]}
+    source_pins = {path: value["sha256"] for path, value in fingerprints.items()}
+    from ir_training.pipeline import preparation_cache
+    cache = Path(options["preparation_cache_dir"] or output.parent / ".golden-preparation-cache")
+    cache_binding = None
+    reused = False
+    # Custom/in-memory tokenizers have no trustworthy on-disk identity.
+    if options["preparation_cache"] and tokenizer_loader is None:
+        with Progress("Bind preparation inputs, tokenizer assets, code and schemas", unit="stage", interval=interval):
+            cache_binding = preparation_cache.identity(plan, source_pins)
+        reused = preparation_cache.restore(cache, output, cache_binding, interval=interval)
+    if reused:
+        report = json.loads((output / "data_audit.json").read_text(encoding="utf-8"))
+    else:
+        report = _prepare_uncached(plan, tokenizer_loader or _load_tokenizer, reserved, fingerprints, workers)
+    for path, digest in source_pins.items():
+        if fingerprint_file(Path(path), interval=interval)["sha256"] != digest:
+            raise ValueError(f"Source changed during preparation: {path}")
+    # Run the same pre-model guard on both fresh and reused preparations.
+    sys.path.insert(0, str(repo_root() / "training/scripts"))
+    from prepare_review_training import verify_prepared
+    with Progress("Verify prepared splits and both Golden contracts", unit="stage", interval=interval):
+        verify_prepared(output / "prepared", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
+                        max_sequence=options["max_seq_length"], max_prompt=options["max_input_tokens"])
+    if cache_binding is not None:
+        if preparation_cache.identity(plan, source_pins) != cache_binding:
+            raise ValueError("Preparation implementation, schemas or tokenizer assets changed during preparation")
+        try:
+            preparation_cache.publish(cache, output, cache_binding, interval=interval)
+        except OSError as exc:
+            # Cache publication is optional. Do not discard an otherwise fully
+            # verified multi-hour preparation because a shared index is read-only.
+            log(f"Preparation is verified, but cache publication was unavailable: {exc}")
+    return report
+
+
+def _prepare_uncached(plan, tokenizer_loader, reserved, fingerprints, workers):
+    from ir_training.data.audit_filter import audit_and_filter_rows
+    from ir_training.data.build_pairs import prepare_dataset
+    from ir_training.data.express_preparation import prepare_splits
+    options, output = plan["options"], Path(plan["options"]["output_dir"])
+    interval = options["progress_seconds"]
+    golden_paths = {name: Path(item["path"]) for name, item in plan["goldens"].items()}
     source_manifest = None
     if options["input_dir"]:
-        originals = {name: list(read_jsonl(Path(options["input_dir"]) / f"{name}.jsonl")) for name in ("train", "val")}
+        originals = {name: _strict_rows(Path(options["input_dir"]) / f"{name}.jsonl") for name in ("train", "val")}
     else:
         raw = output / "materialized"
         if raw.exists():
@@ -192,40 +266,47 @@ def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable = _load_tok
             "filters": {"require_strict_express": True, "deduplicate": True, "max_input_chars": 60000, "max_output_chars": 60000},
             "url_preprocessing": {"enabled": True}, "split": {"train": 1.0, "val": 0.0, "test": 0.0},
         })
-        originals = {"all": list(read_jsonl(raw / "all.jsonl"))}
+        originals = {"all": _strict_rows(raw / "all.jsonl")}
     filtered, reports = {}, {}
     filtered_dir = output / "filtered"
     filtered_dir.mkdir(exist_ok=False)
     for name, rows in originals.items():
-        accepted, quarantine, report = audit_and_filter_rows(rows, reserved=reserved, require_source_identities=True)
-        filtered[name], reports[name] = accepted, report
-        write_jsonl(filtered_dir / f"{name}_quarantine.jsonl", quarantine)
+        total = fingerprints.get(str(Path(options["input_dir"]) / f"{name}.jsonl"), {}).get("rows") if options["input_dir"] else None
+        with (filtered_dir / f"{name}.jsonl").open("w", encoding="utf-8", newline="\n") as accepted_file, \
+                (filtered_dir / f"{name}_quarantine.jsonl").open("w", encoding="utf-8", newline="\n") as rejected_file, \
+                Progress(f"Strict filter {name} ({workers} CPU workers)", total=total, interval=interval) as progress:
+            def write_row(stream, value):
+                stream.write(json.dumps(value, ensure_ascii=False, separators=(",", ":")) + "\n")
+            accepted, _, report = audit_and_filter_rows(
+                rows, reserved=reserved, require_source_identities=True, workers=workers, progress=progress,
+                accepted_sink=(lambda row: write_row(accepted_file, row)) if name != "all" else None,
+                quarantine_sink=lambda row: write_row(rejected_file, row),
+            )
+        if not report["accepted_rows"]:
+            raise ValueError(f"No {name} rows remain after strict/reserved-source filtering")
+        reports[name] = report
+        if name == "all":
+            filtered[name] = accepted
     if "all" in filtered:
         filtered = _group_split(filtered["all"], options["seed"])
     for name, rows in filtered.items():
         if not rows:
             raise ValueError(f"No {name} rows remain after strict/reserved-source filtering")
         write_jsonl(filtered_dir / f"{name}.jsonl", rows)
-    tokenizer = tokenizer_loader(Path(options["model_dir"]), options["profile"])
+    with Progress("Load local tokenizer (no model weights)", unit="stage", interval=interval):
+        tokenizer = tokenizer_loader(Path(options["model_dir"]), options["profile"])
     manifest = prepare_splits(
         {**{name: filtered_dir / f"{name}.jsonl" for name in ("train", "val")}, **golden_paths},
         output / "prepared", ordering="root-first", tokenizer=tokenizer,
         max_seq_length=options["max_seq_length"], max_input_tokens=options["max_input_tokens"],
         chat_template_kwargs={"enable_thinking": False}, shared_prompt=plan["shared_prompt"],
         evaluation_splits={"golden32", "golden35"},
+        workers=workers, progress_interval=interval, show_progress=True,
     )
-    for path, digest in source_pins.items():
-        if sha256(Path(path)) != digest:
-            raise ValueError(f"Source changed during preparation: {path}")
-    report = {"source_files": source_pins, "source_materialization": source_manifest, "filtering": reports,
+    report = {"source_files": {path: value["sha256"] for path, value in fingerprints.items()}, "source_materialization": source_manifest, "filtering": reports,
               "prepared_counts": {name: {key: values.get(key, 0) for key in ("input_rows", "accepted_rows", "quarantined_rows", "quarantine_reasons")} for name, values in manifest["splits"].items()},
               "synthetic_targets_created": 0, "golden_membership_changed": False}
     _write(output / "data_audit.json", report)
-    # Run the same pre-model guard now, including --prepare-only on a CPU host.
-    sys.path.insert(0, str(repo_root() / "training/scripts"))
-    from prepare_review_training import verify_prepared
-    verify_prepared(output / "prepared", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
-                    max_sequence=options["max_seq_length"], max_prompt=options["max_input_tokens"])
     return report
 
 
@@ -266,10 +347,70 @@ def evaluation_command(plan: dict[str, Any], role: str, cohort: str, destination
 def _run_command(command: list[str], log: Path, environment: dict[str, str]) -> None:
     log.parent.mkdir(parents=True, exist_ok=True)
     print(f"Running {log.stem}; log: {log}", flush=True)
-    with log.open("w", encoding="utf-8") as stream:
-        completed = subprocess.run(command, cwd=repo_root(), env=environment, stdout=stream, stderr=subprocess.STDOUT, check=False)
-    if completed.returncode:
-        raise RuntimeError(f"Stage failed with exit {completed.returncode}; inspect {log}")
+    # Read chunks, not lines: tqdm and model loaders also emit carriage returns
+    # without newlines. Keep one combined stream in the console AND on disk.
+    env = {**environment, "PYTHONUNBUFFERED": "1", "PYTHONIOENCODING": "utf-8"}
+    with log.open("w", encoding="utf-8", newline="") as stream:
+        process = subprocess.Popen(command, cwd=repo_root(), env=env, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, bufsize=0, start_new_session=os.name == "posix")
+        decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+        try:
+            while True:
+                block = process.stdout.read(4096)
+                text = decoder.decode(block, final=not block)
+                if text:
+                    stream.write(text)
+                    stream.flush()
+                    sys.stdout.write(text)
+                    sys.stdout.flush()
+                if not block:
+                    break
+            returncode = process.wait()
+        except BaseException:
+            if process.poll() is None:
+                if os.name == "posix":
+                    os.killpg(process.pid, signal.SIGTERM)
+                else:
+                    process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    if os.name == "posix":
+                        os.killpg(process.pid, signal.SIGKILL)
+                    else:
+                        process.kill()
+                    process.wait()
+            raise
+        finally:
+            process.stdout.close()
+    if returncode:
+        raise RuntimeError(f"Stage failed with exit {returncode}; inspect {log}")
+
+
+class _Tee:
+    def __init__(self, console, stream):
+        self.console, self.stream = console, stream
+
+    def write(self, text):
+        self.console.write(text)
+        self.stream.write(text)
+        self.flush()
+        return len(text)
+
+    def flush(self):
+        self.console.flush()
+        self.stream.flush()
+
+    def __getattr__(self, name):
+        return getattr(self.console, name)
+
+
+@contextmanager
+def _console_log(path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as stream:
+        with redirect_stdout(_Tee(sys.stdout, stream)), redirect_stderr(_Tee(sys.stderr, stream)):
+            yield
 
 
 def _bindings(paths: list[Path]) -> dict[str, str]:
@@ -280,8 +421,10 @@ def _bindings(paths: list[Path]) -> dict[str, str]:
 
 
 def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepare_only: bool = False,
-                 continue_run: bool = False, tokenizer_loader: Callable = _load_tokenizer,
+                  continue_run: bool = False, tokenizer_loader: Callable | None = None,
                  command_runner: Callable = _run_command) -> dict[str, Any]:
+    if execute or prepare_only:
+        log("Golden training startup: validating options and production prompt; no training has started yet")
     plan = build_plan(options)
     if not execute and not prepare_only:
         return {**plan, "status": "plan_only", "training_executed": False}
@@ -295,12 +438,21 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
         state = json.loads(record.read_text(encoding="utf-8"))
         if state["plan"] != plan:
             raise ValueError("Workflow options or prompt contract changed; do not reuse the run")
-        for stage in state["completed"].values():
-            for path, digest in stage["files"].items():
-                if not Path(path).is_file() or sha256(Path(path)) != digest:
-                    raise ValueError(f"Completed-stage artifact changed: {path}")
+        with Progress("Verify completed stages before continuation", unit="stage", interval=options.progress_seconds):
+            for completed_stage in state["completed"].values():
+                for path, digest in completed_stage["files"].items():
+                    if not Path(path).is_file() or sha256(Path(path)) != digest:
+                        raise ValueError(f"Completed-stage artifact changed: {path}")
         if state.get("active_stage") in {"prepare", "configure", "training"}:
             raise ValueError("An interrupted preparation/configuration/training stage needs explicit recovery; this launcher will not restart its optimizer silently. Inspect the stage log and saved training config.")
+        receipt_path = output / "preparation_receipt.json"
+        if "prepare" in state["completed"] and receipt_path.is_file():
+            from ir_training.pipeline.preparation_cache import identity
+            saved = json.loads(receipt_path.read_text(encoding="utf-8"))
+            source_pins = {path: state["completed"]["prepare"]["files"][path] for path in plan["source_files"]}
+            with Progress("Verify preparation implementation and tokenizer before continuation", unit="stage", interval=options.progress_seconds):
+                if saved["identity"] != identity(plan, source_pins):
+                    raise ValueError("Preparation implementation, schemas or tokenizer changed; use a fresh run directory")
     else:
         if continue_run:
             raise FileNotFoundError("--continue-run requires an existing workflow")
@@ -310,22 +462,26 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
     environment.update(A2UI_TENSORBOARD_ROOT=plan["options"]["tensorboard_root"], PYTHONUNBUFFERED="1")
     def stage(name: str, work: Callable[[], list[Path]]) -> None:
         if name in state["completed"]:
+            log(f"Stage {name}: reuse verified completed stage")
             return
         state.update(status="running", active_stage=name)
         state["attempts"][name] = state["attempts"].get(name, 0) + 1
         _write(record, state)
         try:
-            paths = work()
-            state["completed"][name] = {"files": _bindings(paths), "finished_at": datetime.now(timezone.utc).isoformat()}
+            with Progress(f"Stage {name}", unit="stage", interval=options.progress_seconds):
+                paths = work()
+                state["completed"][name] = {"files": _bindings(paths), "finished_at": datetime.now(timezone.utc).isoformat()}
             state.update(active_stage=None)
             _write(record, state)
-        except Exception as exc:
+        except BaseException as exc:
             state.update(status="failed", error=f"{type(exc).__name__}: {exc}")
             _write(record, state)
             raise
     def prepare() -> list[Path]:
-        prepare_data(plan, tokenizer_loader=tokenizer_loader)
+        with _console_log(output / "logs/prepare.log"):
+            prepare_data(plan, tokenizer_loader=tokenizer_loader)
         return [*map(Path, plan["source_files"]), *sorted((output / "prepared").glob("*.json*")), output / "data_audit.json",
+                *[path for path in (output / "preparation_receipt.json", output / "cache_reuse.json") if path.exists()],
                 *[Path(item[key]) for item in plan["goldens"].values() for key in ("path", "benchmark_manifest_path")]]
     stage("prepare", prepare)
     if prepare_only:

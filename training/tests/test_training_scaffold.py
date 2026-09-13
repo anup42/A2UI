@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import hashlib
 import json
@@ -11,13 +11,16 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from ir_training.common.cuda_env import normalize_cuda_visible_devices
 from ir_training.data.build_pairs import prepare_dataset
-from ir_training.data.url_preprocess import preprocess_training_urls, restore_url_placeholders
+from ir_training.data.url_preprocess import (
+    preprocess_training_urls,
+    restore_url_placeholders,
+)
 from ir_training.eval.metrics import aggregate_scores
 from ir_training.export.edge_gallery import build_litert_export_command
-from ir_training.models.registry import create_adapter, supported_families
 from ir_training.export.manifest import build_manifest, write_manifest
-from ir_training.common.cuda_env import normalize_cuda_visible_devices
+from ir_training.models.registry import create_adapter, supported_families
 from ir_training.train import callbacks as callbacks_module
 from ir_training.train import sft as sft_module
 from ir_training.train.callbacks import (
@@ -25,20 +28,20 @@ from ir_training.train.callbacks import (
     build_golden_set_eval_callback,
 )
 from ir_training.train.sft import (
-    _CausalLMDataCollator,
+    _align_tokenizer_and_model,
     _build_checked_causal_lm_trainer,
+    _CausalLMDataCollator,
     _checked_shifted_causal_lm_loss,
     _disable_peft_vocab_probe,
-    _align_tokenizer_and_model,
-    _enforce_cuda_requirement,
     _effective_max_seq_length,
+    _enforce_cuda_requirement,
     _ensure_tensorboard_reporter,
     _model_output_vocab_size,
-    _model_vocab_size,
     _model_position_limit,
+    _model_vocab_size,
     _resolve_training_dtype,
-    _tokenize_completion_only_row,
     _summarize_training_sample_models,
+    _tokenize_completion_only_row,
     _training_precision_flags,
     _validate_sft_token_ids,
     _validate_tokenized_sft_dataset,
@@ -56,7 +59,9 @@ def test_checked_trainer_declares_mean_loss_does_not_accept_loss_kwargs():
     assert trainer.model_accepts_loss_kwargs is False
 
 
-def test_disable_peft_vocab_probe_preserves_adapter_origin_and_forces_save_flag(tmp_path):
+def test_disable_peft_vocab_probe_preserves_adapter_origin_and_forces_save_flag(
+    tmp_path,
+):
     calls = []
 
     class Config:
@@ -72,8 +77,12 @@ def test_disable_peft_vocab_probe_preserves_adapter_origin_and_forces_save_flag(
     _disable_peft_vocab_probe(model)
     model.save_pretrained(tmp_path, safe_serialization=True)
 
-    assert model.peft_config["default"].base_model_name_or_path == "google/gemma-4-E2B-it"
-    assert calls == [(tmp_path, (), {"safe_serialization": True, "save_embedding_layers": False})]
+    assert (
+        model.peft_config["default"].base_model_name_or_path == "google/gemma-4-E2B-it"
+    )
+    assert calls == [
+        (tmp_path, (), {"safe_serialization": True, "save_embedding_layers": False})
+    ]
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -91,12 +100,18 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
         "intent": "Weather",
         "intent_bucket": "weather",
         "response_text": "Weather in Bengaluru is mild.",
-        "gen": {"provider": "gemini", "model": "gemini-2.5-flash", "prompt_version": "response_v1"},
+        "gen": {
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "prompt_version": "response_v1",
+        },
     }
     spec = {
         "root": "root",
         "state": {},
-        "elements": {"root": {"type": "Text", "props": {"text": "Weather"}, "children": []}},
+        "elements": {
+            "root": {"type": "Text", "props": {"text": "Weather"}, "children": []}
+        },
     }
     _write_jsonl(run_dir / "responses.jsonl", [response])
     _write_jsonl(
@@ -108,23 +123,39 @@ def test_prepare_dataset_filters_and_splits(tmp_path):
                 "genui_json": spec,
                 "expected_ui_contract_v5_4": {"contract_version": "5.4.0-test"},
                 "expected_ui_contract_v5_4_source": "persisted",
-                "gen": {"provider": "azure_openai", "model": "gpt-5.4-mini", "prompt_version": "genui_v1"},
+                "gen": {
+                    "provider": "azure_openai",
+                    "model": "gpt-5.4-mini",
+                    "prompt_version": "genui_v1",
+                },
             }
         ],
     )
     out_dir = tmp_path / "prepared"
     manifest = prepare_dataset(
         {
-            "run": {"source_run_dir": str(run_dir), "output_dir": str(out_dir), "system_prompt": "Return JSON."},
-            "filters": {"require_strict_flat_spec": True, "max_input_chars": 1000, "max_output_chars": 1000},
+            "run": {
+                "source_run_dir": str(run_dir),
+                "output_dir": str(out_dir),
+                "system_prompt": "Return JSON.",
+            },
+            "filters": {
+                "require_strict_flat_spec": True,
+                "max_input_chars": 1000,
+                "max_output_chars": 1000,
+            },
             "split": {"train": 1, "val": 0, "test": 0, "stratify_by": "intent_bucket"},
         }
     )
     assert manifest["counts"]["accepted"] == 1
-    assert manifest["model_counts"]["response_generation"]["gemini/gemini-2.5-flash"] == 1
+    assert (
+        manifest["model_counts"]["response_generation"]["gemini/gemini-2.5-flash"] == 1
+    )
     assert manifest["model_counts"]["ir_generation"]["azure_openai/gpt-5.4-mini"] == 1
     assert (out_dir / "train.jsonl").exists()
-    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    row = json.loads(
+        (out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0]
+    )
     assert row["metadata"]["response_generation"]["model"] == "gemini-2.5-flash"
     assert row["metadata"]["ir_generation"]["model"] == "gpt-5.4-mini"
     assert row["expected_ui_contract_v5_4"] == {"contract_version": "5.4.0-test"}
@@ -136,7 +167,9 @@ def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
     spec = {
         "root": "root",
         "state": {},
-        "elements": {"root": {"type": "Text", "props": {"text": "Weather"}, "children": []}},
+        "elements": {
+            "root": {"type": "Text", "props": {"text": "Weather"}, "children": []}
+        },
     }
     rows = [
         {
@@ -161,8 +194,17 @@ def test_prepare_dataset_reads_stage3_folder_and_uses_90_10_split(tmp_path):
                 "seed": 123,
                 "system_prompt": "Return JSON.",
             },
-            "filters": {"require_strict_flat_spec": True, "max_input_chars": 1000, "max_output_chars": 1000},
-            "split": {"train": 0.9, "val": 0.1, "test": 0.0, "stratify_by": "intent_bucket"},
+            "filters": {
+                "require_strict_flat_spec": True,
+                "max_input_chars": 1000,
+                "max_output_chars": 1000,
+            },
+            "split": {
+                "train": 0.9,
+                "val": 0.1,
+                "test": 0.0,
+                "stratify_by": "intent_bucket",
+            },
         }
     )
 
@@ -180,7 +222,9 @@ def test_prepare_dataset_fails_closed_when_fixed_set_count_is_wrong(tmp_path):
     spec = {
         "root": "root",
         "state": {},
-        "elements": {"root": {"type": "Text", "props": {"text": "One"}, "children": []}},
+        "elements": {
+            "root": {"type": "Text", "props": {"text": "One"}, "children": []}
+        },
     }
     _write_jsonl(
         run_dir / "genui.jsonl",
@@ -209,32 +253,52 @@ def test_prepare_dataset_assigns_source_groups_before_target_materialization(tmp
     spec = {
         "root": "root",
         "state": {},
-        "elements": {"root": {"type": "Text", "props": {"text": "same"}, "children": []}},
+        "elements": {
+            "root": {"type": "Text", "props": {"text": "same"}, "children": []}
+        },
     }
     responses = []
     genui = []
     for index in range(12):
-        responses.append({
-            "response_id": f"r{index}",
-            "source_id": f"source-{index // 2}",
-            "response_text": f"Source group {index // 2}",
-            "intent_bucket": "status" if index % 2 else "weather",
-        })
-        genui.append({
-            "response_id": f"r{index}",
-            "source_id": f"source-{index // 2}",
-            "ui_id": f"u{index}",
-            "genui_json": spec,
-        })
+        responses.append(
+            {
+                "response_id": f"r{index}",
+                "source_id": f"source-{index // 2}",
+                "response_text": f"Source group {index // 2}",
+                "intent_bucket": "status" if index % 2 else "weather",
+            }
+        )
+        genui.append(
+            {
+                "response_id": f"r{index}",
+                "source_id": f"source-{index // 2}",
+                "ui_id": f"u{index}",
+                "genui_json": spec,
+            }
+        )
     _write_jsonl(run_dir / "responses.jsonl", responses)
     _write_jsonl(run_dir / "genui.jsonl", genui)
     out_dir = tmp_path / "grouped_out"
-    manifest = prepare_dataset({
-        "run": {"source_run_dir": str(run_dir), "output_dir": str(out_dir), "seed": 7},
-        "filters": {"max_input_chars": 1000, "max_output_chars": 1000},
-        "split": {"train": 0.5, "val": 0.25, "test": 0.25, "stratify_by": "intent_bucket"},
-    })
-    assert manifest["split_assignment_stage"] == "source_group_before_target_materialization"
+    manifest = prepare_dataset(
+        {
+            "run": {
+                "source_run_dir": str(run_dir),
+                "output_dir": str(out_dir),
+                "seed": 7,
+            },
+            "filters": {"max_input_chars": 1000, "max_output_chars": 1000},
+            "split": {
+                "train": 0.5,
+                "val": 0.25,
+                "test": 0.25,
+                "stratify_by": "intent_bucket",
+            },
+        }
+    )
+    assert (
+        manifest["split_assignment_stage"]
+        == "source_group_before_target_materialization"
+    )
     assignments = {}
     for split in ("train", "val", "test"):
         path = out_dir / f"{split}.jsonl"
@@ -259,7 +323,12 @@ def test_url_preprocessing_placeholderizes_and_restores_roles():
             "cta": {
                 "type": "Button",
                 "props": {"label": "Open"},
-                "on": {"press": {"action": "openUrl", "params": {"url": "https://example.org/details"}}},
+                "on": {
+                    "press": {
+                        "action": "openUrl",
+                        "params": {"url": "https://example.org/details"},
+                    }
+                },
                 "children": [],
             },
         },
@@ -271,8 +340,143 @@ def test_url_preprocessing_placeholderizes_and_restores_roles():
     assert "[IMAGE_URL_1]" in result.response_text
     assert "[ACTION_URL_1]" in result.response_text
     assert result.genui_json["elements"]["image"]["props"]["url"] == "[IMAGE_URL_1]"
-    assert result.genui_json["elements"]["cta"]["on"]["press"]["params"]["url"] == "[ACTION_URL_1]"
+    assert (
+        result.genui_json["elements"]["cta"]["on"]["press"]["params"]["url"]
+        == "[ACTION_URL_1]"
+    )
     assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
+def test_source_identity_url_binding_reuses_input_token_across_target_roles():
+    raw = "https://example.org/details"
+    spec = {
+        "root": "cta",
+        "state": {},
+        "elements": {
+            "cta": {
+                "type": "Button",
+                "props": {"label": "Open"},
+                "on": {"press": {"action": "openUrl", "params": {"url": raw}}},
+                "children": [],
+            }
+        },
+    }
+    result = preprocess_training_urls(
+        f"Source: {raw}", spec, binding_policy="source_identity"
+    )
+    source_token = next(iter(result.url_map))
+    assert source_token == "[SOURCE_URL_1]"
+    assert source_token in result.response_text
+    assert (
+        result.genui_json["elements"]["cta"]["on"]["press"]["params"]["url"]
+        == source_token
+    )
+    assert (
+        restore_url_placeholders(result.response_text, result.url_map)
+        == f"Source: {raw}"
+    )
+    assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
+def test_source_identity_url_binding_keeps_target_only_reference_detectable():
+    raw = "https://example.org/unseen"
+    spec = {
+        "root": "image",
+        "state": {},
+        "elements": {"image": {"type": "Image", "props": {"url": raw}, "children": []}},
+    }
+    result = preprocess_training_urls(
+        "No reference is declared here.", spec, binding_policy="source_identity"
+    )
+    target_token = result.genui_json["elements"]["image"]["props"]["url"]
+    assert target_token in result.url_map
+    assert target_token not in result.response_text
+    assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
+def test_url_preprocessing_round_trips_instructional_bracketed_host():
+    raw = "https://[Your-Public-IP]:8443/admin"
+    spec = {
+        "root": "cta",
+        "state": {},
+        "elements": {
+            "cta": {
+                "type": "Button",
+                "props": {"label": "Open router"},
+                "on": {"press": {"action": "openUrl", "params": {"url": raw}}},
+                "children": [],
+            }
+        },
+    }
+
+    result = preprocess_training_urls(
+        f"Example address: {raw}", spec, binding_policy="source_identity"
+    )
+
+    token = next(iter(result.url_map))
+    assert result.url_map[token]["url"] == raw
+    assert result.url_map[token]["host"] == ""
+    assert restore_url_placeholders(result.response_text, result.url_map) == (
+        f"Example address: {raw}"
+    )
+    assert restore_url_placeholders(result.genui_json, result.url_map) == spec
+
+
+def test_prepare_dataset_records_source_identity_url_binding_policy(tmp_path):
+    run_dir = tmp_path / "source-bound-run"
+    raw = "https://example.org/details"
+    _write_jsonl(
+        run_dir / "responses.jsonl",
+        [
+            {
+                "response_id": "response-1",
+                "query_id": "query-1",
+                "response_text": f"Reference: {raw}",
+            }
+        ],
+    )
+    _write_jsonl(
+        run_dir / "genui.jsonl",
+        [
+            {
+                "response_id": "response-1",
+                "ui_id": "ui-1",
+                "genui_json": {
+                    "root": "button",
+                    "state": {},
+                    "elements": {
+                        "button": {
+                            "type": "Button",
+                            "props": {"label": "Details"},
+                            "children": [],
+                            "on": {
+                                "press": {"action": "openUrl", "params": {"url": raw}}
+                            },
+                        }
+                    },
+                },
+            }
+        ],
+    )
+    output = tmp_path / "source-bound-output"
+    manifest = prepare_dataset(
+        {
+            "run": {"source_run_dir": str(run_dir), "output_dir": str(output)},
+            "filters": {"max_input_chars": 1000, "max_output_chars": 1000},
+            "url_preprocessing": {"enabled": True, "binding_policy": "source_identity"},
+            "split": {"train": 1, "val": 0, "test": 0},
+        }
+    )
+    row = json.loads((output / "train.jsonl").read_text(encoding="utf-8"))
+    token = next(iter(row["metadata"]["url_preprocessing"]["url_map"]))
+    assert token in row["response_text"] and token in row["completion"]
+    assert row["metadata"]["url_preprocessing"]["binding_policy"] == "source_identity"
+    assert manifest["url_preprocessing"]["binding_policy"] == "source_identity"
+
+
+def test_url_binding_policy_rejects_unknown_value_even_when_disabled():
+    with pytest.raises(ValueError, match="Unsupported URL binding policy"):
+        preprocess_training_urls("plain", {}, enabled=False, binding_policy="guess")
 
 
 def test_url_preprocessing_masks_all_uri_schemes_and_local_asset_paths():
@@ -303,37 +507,52 @@ def test_url_preprocessing_masks_all_uri_schemes_and_local_asset_paths():
         assert raw_reference not in result.response_text
         assert raw_reference not in json.dumps(result.genui_json)
     assert len(result.url_map) == 6, json.dumps(result.url_map, sort_keys=True)
-    assert {entry["kind"] for entry in result.url_map.values()} == {"url", "local_asset"}
+    assert {entry["kind"] for entry in result.url_map.values()} == {
+        "url",
+        "local_asset",
+    }
     assert restore_url_placeholders(result.response_text, result.url_map) == response
     assert restore_url_placeholders(result.genui_json, result.url_map) == spec
 
 
 def test_cuda_visible_devices_uses_all_detected_healthy_gpus():
     env = {"CUDA_VISIBLE_DEVICES": "0,1,2,3"}
-    old_detector = normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"]
+    old_detector = normalize_cuda_visible_devices.__globals__[
+        "_detect_queryable_gpu_indices"
+    ]
     try:
-        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = lambda: ["0", "1", "3"]
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = (
+            lambda: ["0", "1", "3"]
+        )
 
         result = normalize_cuda_visible_devices(env)
 
         assert result == "0,1,3"
         assert env["CUDA_VISIBLE_DEVICES"] == "0,1,3"
     finally:
-        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = old_detector
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = (
+            old_detector
+        )
 
 
 def test_cuda_visible_devices_detects_all_when_shell_does_not_set_it():
     env = {}
-    old_detector = normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"]
+    old_detector = normalize_cuda_visible_devices.__globals__[
+        "_detect_queryable_gpu_indices"
+    ]
     try:
-        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = lambda: ["0", "1", "3"]
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = (
+            lambda: ["0", "1", "3"]
+        )
 
         result = normalize_cuda_visible_devices(env)
 
         assert result == "0,1,3"
         assert env["CUDA_VISIBLE_DEVICES"] == "0,1,3"
     finally:
-        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = old_detector
+        normalize_cuda_visible_devices.__globals__["_detect_queryable_gpu_indices"] = (
+            old_detector
+        )
 
 
 def test_cuda_visible_devices_honors_explicit_and_excludes_bad_device():
@@ -388,11 +607,21 @@ def test_collator_preserves_completion_only_labels():
                 }
             )
 
-    collator = _CausalLMDataCollator(Tokenizer(), vocab_size=30, max_position_embeddings=8)
+    collator = _CausalLMDataCollator(
+        Tokenizer(), vocab_size=30, max_position_embeddings=8
+    )
     batch = collator(
         [
-            {"input_ids": [10, 20, 20], "attention_mask": [1, 1, 1], "labels": [-100, 20, 20]},
-            {"input_ids": [10, 10, 20], "attention_mask": [1, 1, 1], "labels": [-100, -100, 20]},
+            {
+                "input_ids": [10, 20, 20],
+                "attention_mask": [1, 1, 1],
+                "labels": [-100, 20, 20],
+            },
+            {
+                "input_ids": [10, 10, 20],
+                "attention_mask": [1, 1, 1],
+                "labels": [-100, -100, 20],
+            },
         ]
     )
 
@@ -415,7 +644,12 @@ def test_prepare_dataset_writes_url_map_metadata(tmp_path):
             "root": {
                 "type": "Button",
                 "props": {"label": "Open"},
-                "on": {"press": {"action": "openUrl", "params": {"url": "https://example.org/details"}}},
+                "on": {
+                    "press": {
+                        "action": "openUrl",
+                        "params": {"url": "https://example.org/details"},
+                    }
+                },
                 "children": [],
             }
         },
@@ -428,7 +662,11 @@ def test_prepare_dataset_writes_url_map_metadata(tmp_path):
                 "response_id": "r1",
                 "ui_id": "u1",
                 "genui_json": spec,
-                "gen": {"provider": "azure_openai", "model": "gpt-5.4-mini", "prompt_version": "genui_v1"},
+                "gen": {
+                    "provider": "azure_openai",
+                    "model": "gpt-5.4-mini",
+                    "prompt_version": "genui_v1",
+                },
             }
         ],
     )
@@ -436,14 +674,24 @@ def test_prepare_dataset_writes_url_map_metadata(tmp_path):
 
     prepare_dataset(
         {
-            "run": {"source_run_dir": str(run_dir), "output_dir": str(out_dir), "system_prompt": "Return JSON."},
-            "filters": {"require_strict_flat_spec": True, "max_input_chars": 1000, "max_output_chars": 1000},
+            "run": {
+                "source_run_dir": str(run_dir),
+                "output_dir": str(out_dir),
+                "system_prompt": "Return JSON.",
+            },
+            "filters": {
+                "require_strict_flat_spec": True,
+                "max_input_chars": 1000,
+                "max_output_chars": 1000,
+            },
             "url_preprocessing": {"enabled": True},
             "split": {"train": 1, "val": 0, "test": 0, "stratify_by": "intent_bucket"},
         }
     )
 
-    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    row = json.loads(
+        (out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0]
+    )
     assert "[ACTION_URL_1]" in row["prompt"]
     assert "[ACTION_URL_1]" in row["completion"]
     url_map = row["metadata"]["url_preprocessing"]["url_map"]
@@ -457,13 +705,25 @@ def test_prepare_dataset_masks_asset_metadata_before_training_prompt(tmp_path):
         "root": "root",
         "state": {},
         "elements": {
-            "root": {"type": "Image", "props": {"url": "https://example.org/a.png"}, "children": []}
+            "root": {
+                "type": "Image",
+                "props": {"url": "https://example.org/a.png"},
+                "children": [],
+            }
         },
     }
     _write_jsonl(run_dir / "responses.jsonl", [response])
     _write_jsonl(
         run_dir / "genui.jsonl",
-        [{"response_id": "r1", "genui_json": spec, "assets": [{"url": "https://example.org/a.png", "path": "C:/private/a.png"}]}],
+        [
+            {
+                "response_id": "r1",
+                "genui_json": spec,
+                "assets": [
+                    {"url": "https://example.org/a.png", "path": "C:/private/a.png"}
+                ],
+            }
+        ],
     )
     out_dir = tmp_path / "prepared_assets"
     prepare_dataset(
@@ -473,7 +733,9 @@ def test_prepare_dataset_masks_asset_metadata_before_training_prompt(tmp_path):
             "split": {"train": 1, "val": 0, "test": 0},
         }
     )
-    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    row = json.loads(
+        (out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0]
+    )
     serialized = json.dumps(row["prompt"], ensure_ascii=False)
     assert "https://example.org" not in serialized
     assert "C:/private" not in serialized
@@ -510,7 +772,9 @@ def test_model_adapter_can_force_fast_tokenizer_loader(monkeypatch):
     class UnexpectedAutoLoader:
         @staticmethod
         def from_pretrained(*args, **kwargs):
-            raise AssertionError("AutoTokenizer should not be used for the explicit fast-tokenizer loader")
+            raise AssertionError(
+                "AutoTokenizer should not be used for the explicit fast-tokenizer loader"
+            )
 
     monkeypatch.setitem(
         sys.modules,
@@ -568,9 +832,15 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
     def fake_save_best_checkpoint(**kwargs):
         saved_scores.append(float(kwargs["best_info"]["metric_value"]))
 
-    monkeypatch.setattr(callbacks_module, "_generate_predictions_with_model", fake_generate_predictions)
-    monkeypatch.setattr(callbacks_module, "evaluate_predictions", fake_evaluate_predictions)
-    monkeypatch.setattr(callbacks_module, "_save_best_golden_checkpoint", fake_save_best_checkpoint)
+    monkeypatch.setattr(
+        callbacks_module, "_generate_predictions_with_model", fake_generate_predictions
+    )
+    monkeypatch.setattr(
+        callbacks_module, "evaluate_predictions", fake_evaluate_predictions
+    )
+    monkeypatch.setattr(
+        callbacks_module, "_save_best_golden_checkpoint", fake_save_best_checkpoint
+    )
     monkeypatch.setattr(callbacks_module, "_distributed_context", lambda: (0, 1))
     monkeypatch.setattr(callbacks_module, "_distributed_barrier", lambda: None)
 
@@ -589,14 +859,29 @@ def test_golden_eval_callback_runs_on_evaluate_and_keeps_best(tmp_path, monkeypa
     control = object()
     model = object()
 
-    callback.on_epoch_end(None, types.SimpleNamespace(epoch=1.0, global_step=5), control, model=model)
-    callback.on_evaluate(None, types.SimpleNamespace(epoch=1.0, global_step=10), control, model=model)
-    callback.on_evaluate(None, types.SimpleNamespace(epoch=2.0, global_step=20), control, model=model)
+    callback.on_epoch_end(
+        None, types.SimpleNamespace(epoch=1.0, global_step=5), control, model=model
+    )
+    callback.on_evaluate(
+        None, types.SimpleNamespace(epoch=1.0, global_step=10), control, model=model
+    )
+    callback.on_evaluate(
+        None, types.SimpleNamespace(epoch=2.0, global_step=20), control, model=model
+    )
 
-    assert generated_dirs == [output_dir / "step_000000010", output_dir / "step_000000020"]
+    assert generated_dirs == [
+        output_dir / "step_000000010",
+        output_dir / "step_000000020",
+    ]
     assert saved_scores == [20.0]
-    assert [item["eval_golden100/v5_4_score"] for item in logged_metrics] == [20.5, 10.5]
-    assert [item["eval_golden100/overall_score"] for item in logged_metrics] == [20.0, 10.0]
+    assert [item["eval_golden100/v5_4_score"] for item in logged_metrics] == [
+        20.5,
+        10.5,
+    ]
+    assert [item["eval_golden100/overall_score"] for item in logged_metrics] == [
+        20.0,
+        10.0,
+    ]
     assert all("eval_golden100/step" not in item for item in logged_metrics)
     assert callback.summary() == {
         "metric": "overall_score",
@@ -645,9 +930,7 @@ def test_golden_eval_rejects_a_short_or_duplicate_fixed_set(tmp_path, monkeypatc
         )
 
 
-def test_each_trainer_checkpoint_gets_self_contained_provenance(
-    tmp_path, monkeypatch
-):
+def test_each_trainer_checkpoint_gets_self_contained_provenance(tmp_path, monkeypatch):
     monkeypatch.setitem(
         sys.modules,
         "transformers",
@@ -708,9 +991,9 @@ def test_each_trainer_checkpoint_gets_self_contained_provenance(
     assert len(weights["sha256"]) == 64
     assert payload["adapter_checkpoints"][0]["role"] == "trainer_intermediate"
     assert payload["adapter_checkpoints"][0]["files"][0]["size"] > 0
-    assert (checkpoint / "training_config.yaml").read_text(encoding="utf-8") == config.read_text(
+    assert (checkpoint / "training_config.yaml").read_text(
         encoding="utf-8"
-    )
+    ) == config.read_text(encoding="utf-8")
     best_payload = json.loads(
         (best_checkpoint / "training_metadata.json").read_text(encoding="utf-8")
     )
@@ -720,10 +1003,13 @@ def test_each_trainer_checkpoint_gets_self_contained_provenance(
         for item in best_payload["adapter_checkpoints"][0]["files"]
         if item["path"] == best_adapter.name
     )
-    assert best_weight_record["sha256"] == hashlib.sha256(
-        best_adapter.read_bytes()
-    ).hexdigest()
-    assert (best_checkpoint / "training_config.yaml").read_bytes() == config.read_bytes()
+    assert (
+        best_weight_record["sha256"]
+        == hashlib.sha256(best_adapter.read_bytes()).hexdigest()
+    )
+    assert (
+        best_checkpoint / "training_config.yaml"
+    ).read_bytes() == config.read_bytes()
     assert not list(checkpoint.glob("*.partial"))
     assert not list(best_checkpoint.glob("*.partial"))
 
@@ -752,9 +1038,7 @@ def test_checkpoint_provenance_callback_skips_nonzero_rank(tmp_path, monkeypatch
     assert not (tmp_path / "run").exists()
 
 
-def test_checkpoint_provenance_callback_rejects_missing_adapter(
-    tmp_path, monkeypatch
-):
+def test_checkpoint_provenance_callback_rejects_missing_adapter(tmp_path, monkeypatch):
     monkeypatch.setitem(
         sys.modules,
         "transformers",
@@ -821,9 +1105,7 @@ def test_training_limit_defaults_to_epochs_only_when_max_steps_is_absent():
 
 
 def test_bounded_golden_eval_cadence_must_fit_optimizer_step_limit():
-    limit = sft_module._training_limit_config(
-        {"epochs": 2, "max_steps": 3}
-    )
+    limit = sft_module._training_limit_config({"epochs": 2, "max_steps": 3})
     sft_module._validate_bounded_eval_save_cadence(
         {"max_steps": 3, "eval_steps": 3, "save_steps": 3}, limit
     )
@@ -1119,7 +1401,9 @@ def test_resume_lora_validation_rejects_zero_adapter(tmp_path):
         )
 
 
-def test_golden_prediction_generation_bounds_input_and_restores_training_mode(tmp_path, monkeypatch):
+def test_golden_prediction_generation_bounds_input_and_restores_training_mode(
+    tmp_path, monkeypatch
+):
     import torch
 
     split_path = tmp_path / "golden.jsonl"
@@ -1336,8 +1620,12 @@ def test_sft_model_output_vocab_size_uses_lm_head_weight_shape():
 
 
 def test_sft_effective_max_seq_length_clamps_to_position_limit():
-    assert _effective_max_seq_length(configured=8192, max_position_embeddings=4096) == 4096
-    assert _effective_max_seq_length(configured=2048, max_position_embeddings=4096) == 2048
+    assert (
+        _effective_max_seq_length(configured=8192, max_position_embeddings=4096) == 4096
+    )
+    assert (
+        _effective_max_seq_length(configured=2048, max_position_embeddings=4096) == 2048
+    )
 
 
 def test_sft_precision_falls_back_from_bf16_to_fp16_when_cuda_lacks_bf16():
@@ -1471,7 +1759,9 @@ def test_tokenized_sft_preflight_rejects_zero_trainable_labels():
     except ValueError as exc:
         assert "zero trainable labels" in str(exc)
     else:
-        raise AssertionError("Expected zero trainable labels to fail tokenized preflight")
+        raise AssertionError(
+            "Expected zero trainable labels to fail tokenized preflight"
+        )
 
 
 def test_tokenized_sft_preflight_rejects_out_of_vocab_label_id():
@@ -1517,14 +1807,26 @@ def test_sft_training_sample_summary_counts_models():
         "train": [
             {
                 "metadata": {
-                    "response_generation": {"provider": "gemini", "model": "gemini-2.5-flash"},
-                    "ir_generation": {"provider": "azure_openai", "model": "gpt-5.4-mini"},
+                    "response_generation": {
+                        "provider": "gemini",
+                        "model": "gemini-2.5-flash",
+                    },
+                    "ir_generation": {
+                        "provider": "azure_openai",
+                        "model": "gpt-5.4-mini",
+                    },
                 }
             },
             {
                 "metadata": {
-                    "response_generation": {"provider": "gemini", "model": "gemini-2.5-flash"},
-                    "ir_generation": {"provider": "azure_openai", "model": "gpt-5.4-mini"},
+                    "response_generation": {
+                        "provider": "gemini",
+                        "model": "gemini-2.5-flash",
+                    },
+                    "ir_generation": {
+                        "provider": "azure_openai",
+                        "model": "gpt-5.4-mini",
+                    },
                 }
             },
             {"metadata": {}},
@@ -1532,8 +1834,14 @@ def test_sft_training_sample_summary_counts_models():
         "validation": [
             {
                 "metadata": {
-                    "response_generation": {"provider": "gemini", "model": "gemini-3-flash"},
-                    "source_generation": {"provider": "gemini", "model": "gemini-2.5-pro"},
+                    "response_generation": {
+                        "provider": "gemini",
+                        "model": "gemini-3-flash",
+                    },
+                    "source_generation": {
+                        "provider": "gemini",
+                        "model": "gemini-2.5-pro",
+                    },
                 }
             }
         ],
@@ -1562,7 +1870,10 @@ def test_edge_gallery_export_command_for_gemma4_e2b():
     assert "--model=runs/gemma4_e2b_ir_lora/merged_hf" in command
     assert "--output_dir=outputs/export/gemma4_e2b_ir_edge_gallery/litertlm" in command
     assert "--externalize_embedder" in command
-    assert "--jinja_chat_template_override=litert-community/gemma-4-E2B-it-litert-lm" in command
+    assert (
+        "--jinja_chat_template_override=litert-community/gemma-4-E2B-it-litert-lm"
+        in command
+    )
 
 
 def test_aggregate_scores_includes_overall_and_delta():
@@ -1578,12 +1889,20 @@ def test_aggregate_scores_includes_overall_and_delta():
     ]
     aggregate = aggregate_scores(
         rows,
-        weights={"schema_valid_strict": 5.0, "content_coverage": 3.0, "lint_score": 2.0, "dup_rate": -1.0},
+        weights={
+            "schema_valid_strict": 5.0,
+            "content_coverage": 3.0,
+            "lint_score": 2.0,
+            "dup_rate": -1.0,
+        },
         baseline_aggregate={"overall_score": 10.0},
     )
     assert "overall_score" in aggregate
     assert aggregate["baseline_overall_score"] == 10.0
-    assert aggregate["overall_score_delta_vs_baseline"] == aggregate["overall_score"] - 10.0
+    assert (
+        aggregate["overall_score_delta_vs_baseline"]
+        == aggregate["overall_score"] - 10.0
+    )
 
 
 def test_export_manifest(tmp_path):

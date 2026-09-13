@@ -73,3 +73,16 @@ def test_raw_golden_urls_match_masked_training_sources(tmp_path):
     assert masked != raw
     accepted, _, report = audit_and_filter_rows([_row(900, masked)], reserved=reserved)
     assert not accepted and report["quarantine_reasons"] == {"reserved_evaluation_source": 1}
+
+
+def test_parallel_filter_and_streaming_sinks_match_serial_decisions():
+    rows = [_row(index) for index in range(40)]
+    rows += [deepcopy(rows[0]), _row(99, completion='<a2ui>\nroot=Table(columns=["A"],rows=[[1]],highlightColumns="A")\n</a2ui>')]
+    reserved = {"identities": {"q3"}, "responses": set(), "evidence": []}
+    expected = audit_and_filter_rows(rows, reserved=reserved, require_source_identities=True)
+    accepted, quarantined = [], []
+    actual = audit_and_filter_rows(iter(rows), reserved=reserved, require_source_identities=True, workers=2,
+                                  accepted_sink=accepted.append, quarantine_sink=quarantined.append)
+    assert actual[:2] == ([], [])
+    assert (accepted, quarantined, actual[2]) == expected
+    assert actual[2]["quarantine_reasons"] == {"reserved_evaluation_source": 1, "duplicate_source_target": 1, "wire_schema_invalid": 1}

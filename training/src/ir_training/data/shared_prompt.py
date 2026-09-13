@@ -96,6 +96,11 @@ def normalize_row(row: Mapping[str, Any], contract: Mapping[str, Any]) -> dict[s
     original prompt, task and scaffold hashes record that input-only change.
     """
     validated = validate_shared_prompt_contract(contract)
+    return _normalize_row_validated(row, validated)
+
+
+def _normalize_row_validated(row: Mapping[str, Any], validated: Mapping[str, Any]) -> dict[str, Any]:
+    """Preparation workers validate their immutable scaffold once at startup."""
     prepare_row(row, validated["serialization_order"])
     result = deepcopy(dict(row))
     original = source_prompt_scaffold(row)

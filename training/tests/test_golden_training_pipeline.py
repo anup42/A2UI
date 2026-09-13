@@ -51,7 +51,7 @@ def options(tmp_path):
     (model / "model.safetensors").write_bytes(b"fixture only, never loaded")
     for split in ("train", "val"):
         write_jsonl(inputs / f"{split}.jsonl", [row(f"{split}-{index}") for index in range(2)])
-    return GoldenTrainingOptions(model, tmp_path / "unique-experiment", input_dir=inputs, steps=20)
+    return GoldenTrainingOptions(model, tmp_path / "unique-experiment", input_dir=inputs, steps=20, prepare_workers=1)
 
 
 def prepare(options):
@@ -265,3 +265,84 @@ def test_invalid_cadence_and_e2b_official_qat_mislabel_fail_in_plan(options):
         workflow.build_plan(replace(options, eval_steps=500, golden_every_steps=750))
     with pytest.raises(ValueError, match="Official E2B"):
         workflow.build_plan(replace(options, qat=True))
+
+
+def test_verified_cache_reuses_new_run_and_rejects_changed_artifact(options, monkeypatch):
+    monkeypatch.setattr(workflow, "_load_tokenizer", lambda *_: FixtureTokenizer())
+    first = workflow.run_pipeline(options, prepare_only=True)
+    assert first["status"] == "prepared"
+    assert (options.output_dir / "preparation_receipt.json").is_file()
+    second_options = replace(options, output_dir=options.output_dir.with_name("second-run"), steps=40, epochs=2)
+    original = workflow._prepare_uncached
+    monkeypatch.setattr(workflow, "_prepare_uncached", lambda *args: pytest.fail("Verified cache should avoid preparing rows again"))
+    second = workflow.run_pipeline(second_options, prepare_only=True)
+    assert second["status"] == "prepared"
+    assert (second_options.output_dir / "cache_reuse.json").is_file()
+    assert (options.output_dir / "prepared/train.jsonl").read_bytes() == (second_options.output_dir / "prepared/train.jsonl").read_bytes()
+    # Reuse must be a separate copy, not a mutable hard link to the old run.
+    (second_options.output_dir / "prepared/train.jsonl").write_text("{}\n", encoding="utf-8")
+    assert (options.output_dir / "prepared/train.jsonl").read_text(encoding="utf-8") != "{}\n"
+    calls = []
+    def rebuild(*args):
+        calls.append(1)
+        return original(*args)
+    monkeypatch.setattr(workflow, "_prepare_uncached", rebuild)
+    third_options = replace(options, output_dir=options.output_dir.with_name("third-run"))
+    workflow.run_pipeline(third_options, prepare_only=True)
+    assert calls == [1]
+    assert not (third_options.output_dir / "cache_reuse.json").exists()
+
+
+def test_changed_tokenizer_assets_invalidate_cache(options, monkeypatch):
+    monkeypatch.setattr(workflow, "_load_tokenizer", lambda *_: FixtureTokenizer())
+    workflow.run_pipeline(options, prepare_only=True)
+    (options.model_dir / "tokenizer_config.json").write_text('{"changed": true}', encoding="utf-8")
+    def stop(*args):
+        raise RuntimeError("expected cache miss")
+    monkeypatch.setattr(workflow, "_prepare_uncached", stop)
+    with pytest.raises(RuntimeError, match="expected cache miss"):
+        workflow.run_pipeline(replace(options, output_dir=options.output_dir.with_name("changed-tokenizer")), prepare_only=True)
+
+
+def test_input_json_errors_are_fatal_not_silently_skipped(options):
+    with (options.input_dir / "train.jsonl").open("a", encoding="utf-8") as stream:
+        stream.write("not JSON\n")
+    with pytest.raises(ValueError, match="no rows may be silently skipped"):
+        prepare(options)
+    assert not (options.output_dir / "prepared").exists()
+
+
+def test_prepare_progress_is_both_on_console_and_in_log(options, capsys):
+    prepare(options)
+    console = capsys.readouterr().out
+    saved = (options.output_dir / "logs/prepare.log").read_text(encoding="utf-8")
+    for message in ("Strict filter train", "Prepare/tokenize train", "Verify prepared splits"):
+        assert message in console and message in saved
+    assert "rows/s" in saved and "ETA" in saved
+
+
+def test_continuation_rejects_changed_tokenizer_before_loading(options, monkeypatch):
+    monkeypatch.setattr(workflow, "_load_tokenizer", lambda *_: FixtureTokenizer())
+    workflow.run_pipeline(options, prepare_only=True)
+    (options.model_dir / "tokenizer_config.json").write_text('{"changed": true}', encoding="utf-8")
+    with pytest.raises(ValueError, match="tokenizer changed"):
+        workflow.run_pipeline(options, prepare_only=True, continue_run=True)
+
+
+def test_unwritable_optional_cache_does_not_lose_verified_preparation(options, monkeypatch):
+    from ir_training.pipeline import preparation_cache
+    monkeypatch.setattr(workflow, "_load_tokenizer", lambda *_: FixtureTokenizer())
+    def unavailable(*args, **kwargs):
+        raise PermissionError("fixture shared index is read-only")
+    monkeypatch.setattr(preparation_cache, "publish", unavailable)
+    result = workflow.run_pipeline(options, prepare_only=True)
+    assert result["status"] == "prepared"
+    assert (options.output_dir / "prepared/manifest.json").is_file()
+
+
+def test_invalid_startup_controls_fail_before_creating_outputs(options):
+    for bad in (replace(options, prepare_workers=-1), replace(options, progress_seconds=float("nan")),
+                replace(options, preparation_cache_dir=options.input_dir / "cache")):
+        with pytest.raises(ValueError):
+            workflow.build_plan(bad)
+    assert not options.output_dir.exists()

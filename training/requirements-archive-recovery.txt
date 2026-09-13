@@ -1,0 +1,5 @@
+# CPU archive recovery environment used for the 2026-09-13 v6 pass (Python 3.12.10).
+# Model training/tokenizer preparation use the separate training requirements.
+jsonschema==4.26.0
+fastjsonschema==2.21.2
+PyYAML==6.0.3

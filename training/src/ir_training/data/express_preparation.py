@@ -7,9 +7,10 @@ and canonical emitter. IDs are deliberately retained, including shared edges.
 from __future__ import annotations
 
 from collections import Counter
+from contextlib import nullcontext
 from copy import deepcopy
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import lru_cache, partial
 import hashlib
 import json
 from pathlib import Path
@@ -20,6 +21,8 @@ import tempfile
 from typing import Any, Collection, Mapping
 
 from ir_training.common.config import repo_root
+from ir_training.common.parallel import ordered_bounded_map
+from ir_training.common.progress import Progress, fingerprint_file
 
 
 PREPARATION_VERSION = "2.0.0"
@@ -277,12 +280,53 @@ def _token_lengths(row: dict[str, Any], tokenizer: Any, template_kwargs: Mapping
     }
 
 
+_WORKER_PREPARATION = ("root-first", None)
+
+
+def _init_preparation_worker(ordering, shared_prompt):
+    global _WORKER_PREPARATION
+    if shared_prompt is not None:
+        from ir_training.data.shared_prompt import validate_shared_prompt_contract
+        shared_prompt = validate_shared_prompt_contract(shared_prompt)
+    _WORKER_PREPARATION = ordering, shared_prompt
+
+
+def _prepare_candidate(item, *, context=None):
+    line_number, row = item
+    ordering, shared_prompt = context if context is not None else _WORKER_PREPARATION
+    original_scaffold = None
+    try:
+        if not isinstance(row, dict):
+            raise PreparationError("row_not_object", "Each JSONL row must be an object")
+        normalized = row
+        if shared_prompt is not None:
+            from ir_training.data.shared_prompt import _normalize_row_validated, source_prompt_scaffold
+            normalized = _normalize_row_validated(row, shared_prompt)
+            original_scaffold = source_prompt_scaffold(row)
+        prepared, target, scaffold = prepare_row(normalized, ordering)
+        if shared_prompt is not None and "response_text" in row:
+            prepared["response_text"] = row["response_text"]
+        return line_number, row, prepared, target, scaffold, original_scaffold, None
+    except PreparationError as exc:
+        return line_number, row, None, None, None, original_scaffold, (exc.reason, str(exc))
+
+
+def _source_rows(stream, source):
+    for line_number, line in enumerate(stream, start=1):
+        if line.strip():
+            try:
+                yield line_number, json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{source}:{line_number}: malformed JSON; no dataset published") from exc
+
+
 def prepare_splits(
     inputs: Mapping[str, Path], output_dir: Path, *, ordering: str = "root-first",
     tokenizer: Any | None = None, max_seq_length: int | None = None,
     max_input_tokens: int | None = None, chat_template_kwargs: Mapping[str, Any] | None = None,
     shared_prompt: Mapping[str, Any] | None = None,
     evaluation_splits: Collection[str] = (),
+    workers: int = 1, progress_interval: float = 10, show_progress: bool = False,
 ) -> dict[str, Any]:
     """Publish a complete new directory atomically; never overwrite a dataset.
 
@@ -314,7 +358,14 @@ def prepare_splits(
         raise FileExistsError(f"Output directory already exists: {destination}")
     _api()
     _wire_validator()
-    source_hashes = {name: _sha_file(path) for name, path in sources.items()}
+    if workers < 1 or progress_interval <= 0:
+        raise ValueError("workers and progress_interval must be positive")
+    fingerprints = {
+        name: fingerprint_file(path, count_rows=True, interval=progress_interval)
+        if show_progress else {"sha256": _sha_file(path), "rows": None}
+        for name, path in sources.items()
+    }
+    source_hashes = {name: value["sha256"] for name, value in fingerprints.items()}
     # Carry explicitly approved benchmark membership through token preparation.
     # Its raw hash is checked before any transformation; the resulting split has
     # a new preparation hash. Never silently relax ordinary Golden uniqueness.
@@ -341,31 +392,23 @@ def prepare_splits(
                 token_maxima: dict[str, int] = {}
                 accepted_ids = hashlib.sha256()
                 source_ids = hashlib.sha256()
-                with source.open(encoding="utf-8-sig") as stream, (temporary / f"{split}.jsonl").open("w", encoding="utf-8", newline="\n") as output:
-                    for line_number, line in enumerate(stream, start=1):
-                        if not line.strip():
-                            continue
+                progress_context = Progress(f"Prepare/tokenize {split} ({workers} CPU workers)", total=fingerprints[split]["rows"], interval=progress_interval) if show_progress else nullcontext()
+                with progress_context as progress, source.open(encoding="utf-8-sig") as stream, (temporary / f"{split}.jsonl").open("w", encoding="utf-8", newline="\n") as output:
+                    candidates = ordered_bounded_map(
+                        partial(_prepare_candidate, context=(ordering, shared_prompt)) if workers == 1 else _prepare_candidate,
+                        _source_rows(stream, source), workers=workers,
+                        initializer=None if workers == 1 else _init_preparation_worker, initargs=(ordering, shared_prompt),
+                    )
+                    for line_number, row, prepared, target, scaffold, original_scaffold, error in candidates:
+                        if progress is not None:
+                            progress.advance()
                         counts["input_rows"] += 1
-                        try:
-                            row = json.loads(line)
-                        except json.JSONDecodeError as exc:
-                            raise ValueError(f"{source}:{line_number}: malformed JSON; no dataset published") from exc
                         source_ids.update(f"{line_number}:{_sha(_json(row))}\n".encode("utf-8"))
                         try:
-                            if not isinstance(row, dict):
-                                raise PreparationError("row_not_object", "Each JSONL row must be an object")
-                            normalized = row
-                            if shared_prompt is not None:
-                                from ir_training.data.shared_prompt import normalize_row, source_prompt_scaffold
-                                normalized = normalize_row(row, shared_prompt)
-                                original_scaffold = source_prompt_scaffold(row)
+                            if error is not None:
+                                raise PreparationError(*error)
+                            if original_scaffold is not None:
                                 original_scaffolds[original_scaffold["sha256"]] = original_scaffold
-                            prepared, target, scaffold = prepare_row(normalized, ordering)
-                            if shared_prompt is not None and "response_text" in row:
-                                # Existing builders trim the task message but some
-                                # source fields retain a trailing newline. Keep the
-                                # original response bytes as well as the task turn.
-                                prepared["response_text"] = row["response_text"]
                             if tokenizer is not None:
                                 lengths = _token_lengths(prepared, tokenizer, template_kwargs)
                                 if split not in evaluation_names and max_seq_length is not None and lengths["sequence_tokens"] > max_seq_length:

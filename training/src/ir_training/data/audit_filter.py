@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 from collections import Counter
+from functools import partial
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
+
+from ir_training.common.parallel import ordered_bounded_map
 
 from ir_training.data.express_preparation import PreparationError, _token_lengths, prepare_row
 from ir_training.data.golden_replacement import read_rows_strict, response_text, source_identity_record
@@ -65,11 +68,32 @@ def load_reserved_cohorts(paths: Iterable[Path], manifests: Iterable[Path] = ())
     return {"identities": identities, "responses": responses, "evidence": evidence}
 
 
+def _filter_candidate(row, *, reserved, require_source_identities):
+    """Validate an independent row; global deduplication stays in the parent."""
+    identity, missing_identity = None, False
+    try:
+        try:
+            identity = source_identity_record(row)
+        except ValueError as exc:
+            raise PreparationError("missing_source_response", str(exc)) from exc
+        missing_identity = not identity["source_id"]
+        if _identity_keys(identity) & reserved["identities"] or _source_hashes(row) & reserved["responses"]:
+            raise PreparationError("reserved_evaluation_source", "Source occurs in a reserved evaluation cohort or its replaced-source exclusions")
+        if require_source_identities and missing_identity:
+            raise PreparationError("missing_source_identity", "Recover original Stage 2/3 identity before training")
+        _, target, _ = prepare_row(row, "root-first")
+        return row, identity, missing_identity, target.semantic_sha256, target.component_types, None
+    except PreparationError as exc:
+        return row, identity, missing_identity, None, (), (exc.reason, str(exc))
+
+
 def audit_and_filter_rows(
     rows: Iterable[dict[str, Any]], *, reserved: Mapping[str, Any] | None = None,
     tokenizer: Any | None = None, max_seq_length: int | None = None,
     max_input_tokens: int | None = None, chat_template_kwargs: Mapping[str, Any] | None = None,
     require_source_identities: bool = False,
+    workers: int = 1, progress: Any = None,
+    accepted_sink: Callable | None = None, quarantine_sink: Callable | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     """Keep original accepted rows; quarantine failures without target synthesis.
 
@@ -90,23 +114,22 @@ def audit_and_filter_rows(
     source_targets: dict[str, set[str]] = {}
     missing_identity_rows = 0
     maxima: dict[str, int] = {}
-    for index, row in enumerate(rows, 1):
+    accepted_count, quarantine_count = 0, 0
+    candidates = ordered_bounded_map(
+        partial(_filter_candidate, reserved=reserved, require_source_identities=require_source_identities),
+        rows, workers=workers,
+    )
+    for index, (row, identity, missing_identity, semantic_sha256, component_types, error) in enumerate(candidates, 1):
+        if progress is not None:
+            progress.advance()
         metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
         intent = str(row.get("intent_bucket") or metadata.get("intent_bucket") or "unknown")
         source_intents[intent] += 1
         try:
-            try:
-                identity = source_identity_record(row)
-            except ValueError as exc:
-                raise PreparationError("missing_source_response", str(exc)) from exc
-            if not identity["source_id"]:
-                missing_identity_rows += 1
-            if _identity_keys(identity) & reserved["identities"] or _source_hashes(row) & reserved["responses"]:
-                raise PreparationError("reserved_evaluation_source", "Source occurs in a reserved evaluation cohort or its replaced-source exclusions")
-            if require_source_identities and not identity["source_id"]:
-                raise PreparationError("missing_source_identity", "Recover original Stage 2/3 identity before training")
-            _, target, _ = prepare_row(row, "root-first")
-            pair = (identity["response_sha256"], target.semantic_sha256)
+            missing_identity_rows += int(missing_identity)
+            if error is not None:
+                raise PreparationError(*error)
+            pair = (identity["response_sha256"], semantic_sha256)
             if pair in seen_pairs:
                 raise PreparationError("duplicate_source_target", "Identical normalized source and semantic target already accepted")
             if tokenizer is not None:
@@ -119,16 +142,18 @@ def audit_and_filter_rows(
                     if key.endswith("_tokens"):
                         maxima[key] = max(maxima.get(key, 0), value)
             seen_pairs.add(pair)
-            source_targets.setdefault(identity["response_sha256"], set()).add(target.semantic_sha256)
-            accepted.append(row)
+            source_targets.setdefault(identity["response_sha256"], set()).add(semantic_sha256)
+            (accepted_sink or accepted.append)(row)
+            accepted_count += 1
             accepted_intents[intent] += 1
-            components.update(target.component_types)
+            components.update(component_types)
         except PreparationError as exc:
             reasons[exc.reason] += 1
-            quarantine.append({"source_line": index, "reason": exc.reason, "detail": str(exc), "row": row})
+            (quarantine_sink or quarantine.append)({"source_line": index, "reason": exc.reason, "detail": str(exc), "row": row})
+            quarantine_count += 1
     report = {
-        "schema_version": 1, "input_rows": len(accepted) + len(quarantine), "accepted_rows": len(accepted),
-        "quarantined_rows": len(quarantine), "quarantine_reasons": dict(reasons),
+        "schema_version": 1, "input_rows": accepted_count + quarantine_count, "accepted_rows": accepted_count,
+        "quarantined_rows": quarantine_count, "quarantine_reasons": dict(reasons),
         "source_intent_counts": dict(source_intents), "accepted_intent_counts": dict(accepted_intents),
         "accepted_component_counts": dict(components), "missing_source_identity_rows": missing_identity_rows,
         "same_source_multiple_target_count": sum(len(targets) > 1 for targets in source_targets.values()),

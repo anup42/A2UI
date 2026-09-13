@@ -106,6 +106,14 @@ new destinations; they do not remove old copies automatically.
 
 ## Copy to the GPU host and train
 
+The updated launcher streams logs to the console, reports preparation
+progress/ETA, and uses parallel CPU validation (`--prepare-workers 0` auto,
+or set an explicit count). It also reuses hash-verified completed preparations
+between new runs that share an output parent. See
+[startup progress and cache controls](GOLDEN_E2E_QUICKSTART.md#startup-progress-cpu-preparation-and-reuse)
+for details and the separate CPU/GPU worker settings. The first v9 preparation
+must still validate and tokenize the full archive for the chosen model.
+
 The multi-GB dataset is ignored by Git. Copy the complete final v9 directory
 or rebuild it there; a Git clone by itself does not contain this external
 archive. Neither the original archive nor the audit SQLite files are needed

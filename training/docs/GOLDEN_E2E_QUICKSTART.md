@@ -257,6 +257,67 @@ repairs, verification, and remaining limitations. Run the exact-model tokenizer
 preflight before training. Do not feed the original UTF-16 messages files
 directly to this launcher.
 
+## Startup progress, CPU preparation, and reuse
+
+`run_golden_training.py` now prints preparation progress and streams every
+subprocess's stdout/stderr to the console while retaining the same output in
+`<output-dir>/logs/`. This includes carriage-return progress displays from
+tokenizers, model loading, and training. The files are `prepare.log`,
+`configure.log`, `preflight.log`, `training.log`, and per-evaluation logs.
+Blocking stages emit a heartbeat every 10 seconds, even before the first
+training update. Row phases show completed/total rows, throughput, elapsed
+time, and ETA. Hash/copy phases show byte progress. TensorBoard training and
+Golden metrics still use `/tensorboard/<run-id>/`; console progress does not
+replace those metrics or manufacture scores during preparation.
+
+Preparation is CPU work, not H100 training. Existing `--input-dir` splits are
+streamed from disk; strict filtering and target preparation use spawned CPU
+workers with bounded batches and deterministic source ordering. The default
+`--prepare-workers 0` selects up to 16 workers using CPU affinity, common Linux
+container CPU quotas, and available memory. Use `--prepare-workers 1` for the
+serial reference path, or specify a measured host-appropriate count. These
+workers are separate from `--dataloader-workers` and `--devices`. The actual
+tokenizer runs in the parent while CPU workers prepare targets ahead of it;
+no worker loads model weights or initializes a training process.
+
+Useful optional flags:
+
+```bash
+--prepare-workers 8 --progress-seconds 10
+--preparation-cache-dir /runs/.golden-preparation-cache
+# Or explicitly turn reuse off:
+--no-preparation-cache
+```
+
+By default, new runs sharing an output parent reuse completed preparations
+through a small `.golden-preparation-cache/` receipt index. A cache hit requires
+matching source bytes, Golden memberships/manifests, prompt and token budgets,
+tokenizer/config assets, Python/library versions, and preparation code/schema
+hashes. Every saved output is rehashed before reuse and again while copying;
+the regular tokenizer/Golden/split contracts are still checked. Changed,
+missing, incomplete, or corrupted cache entries trigger full preparation.
+The output receives independent copies, not mutable hard links.
+
+Keep the earlier prepared run available: the index contains receipts, not an
+extra dataset copy. Changing epochs or training-step count does not invalidate
+the preparation, so a completed smoke preparation can be reused by a fresh
+full run with the same inputs/model/token budgets and output parent. An offline
+v9 archive is an input dataset, **not** an exact-model prepared cache; its first
+preparation still runs all checks. Cache reuse does not skip GPU preflight,
+model loading, training-time token checks, or checkpoint evaluation.
+
+`--continue-run` still requires the same saved workflow options and verifies
+completed artifacts. It does not resume a partially prepared dataset or
+silently restart an interrupted optimizer. Runs created before these new
+options were added should finish with their original checkout or use a fresh
+output directory with the updated launcher. Do not update the checkout of a
+currently running job in place.
+
+If the terminal seems quiet, inspect `pipeline_manifest.json` for `status` and
+`active_stage`, then read the matching log. Idle GPUs during `prepare` are
+expected; compare the CPU progress/ETA instead. Use the exact flags
+`--input-dir` and `--epochs` (not `--input-dit`).
+
 ## 5. Quantization, LiteRT and MTP are separate
 
 This command closes the **HF training plus dual-Golden checkpoint-testing**

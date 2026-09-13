@@ -54,6 +54,7 @@ dataset/data/runs/*/artifacts/error_*.json
 training/outputs/
 training/runs/
 training/checkpoints/
+.golden-preparation-cache/
 training/wandb/
 /tensorboard/
 

@@ -180,3 +180,31 @@ def test_explicit_prompt_order_and_eval_names_must_match_inputs(tmp_path):
                        shared_prompt=create_shared_prompt_contract())
     with pytest.raises(ValueError, match="evaluation_splits"):
         prepare_splits({"train": source}, tmp_path / "prepared", evaluation_splits={"missing"})
+
+
+def test_parallel_preparation_is_byte_identical_to_serial_including_quarantine(tmp_path):
+    source = tmp_path / "source.jsonl"
+    inputs = [row(source=f"Source {index}", completion=f'<a2ui>\nroot=Text("Target {index}")\n</a2ui>') for index in range(35)]
+    inputs.append(row(completion='<a2ui>\nroot=Table(columns=["A"],rows=[[1]],highlightColumns="A")\n</a2ui>'))
+    write_rows(source, inputs)
+    contract = create_shared_prompt_contract()
+    serial = prepare_splits({"train": source}, tmp_path / "serial", shared_prompt=contract, tokenizer=CharacterTokenizer(), max_seq_length=20000)
+    parallel = prepare_splits({"train": source}, tmp_path / "parallel", shared_prompt=contract, tokenizer=CharacterTokenizer(), max_seq_length=20000, workers=2)
+    assert serial == parallel
+    assert serial["splits"]["train"]["quarantine_reasons"] == {"wire_schema_invalid": 1}
+    for file in (tmp_path / "serial").iterdir():
+        assert file.read_bytes() == (tmp_path / "parallel" / file.name).read_bytes()
+
+
+def test_shared_contract_is_validated_once_per_worker_not_per_row(tmp_path, monkeypatch):
+    from ir_training.data import shared_prompt
+    original = shared_prompt.validate_shared_prompt_contract
+    calls = []
+    def check(contract):
+        calls.append(1)
+        return original(contract)
+    monkeypatch.setattr(shared_prompt, "validate_shared_prompt_contract", check)
+    source = tmp_path / "source.jsonl"
+    write_rows(source, [row()] * 20)
+    prepare_splits({"train": source}, tmp_path / "prepared", shared_prompt=create_shared_prompt_contract())
+    assert len(calls) == 1
