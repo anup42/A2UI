@@ -215,6 +215,17 @@ def test_runs_one_by_one_logs_hparams_then_locks_before_single_holdout(options):
     assert "--execute" not in handoff["plan_only_command_argv"]
 
 
+def test_deployment_screening_defers_holdout_until_fresh_full_training(options):
+    calls = []
+    state = module.run_experiments(replace(options, evaluate_selected_holdout=False), execute=True,
+        pipeline_runner=_fake_pipeline(calls), writer_factory=Writer,
+        command_runner=lambda *_: pytest.fail("screening must not call Golden35"))
+    assert state["status"] == "complete" and state["selected_golden35"] is None
+    assert len(calls) == 4 and all(not item.evaluate_golden35 for item in calls)
+    assert not (options.base.output_dir / "selected_golden35").exists()
+    assert (options.base.output_dir / "selection_locked.json").is_file()
+
+
 def test_ties_prefer_baseline_not_holdout_score(options):
     calls, holdouts = [], []
     state = module.run_experiments(options, execute=True, pipeline_runner=_fake_pipeline(calls, scores=[.4] * 4),

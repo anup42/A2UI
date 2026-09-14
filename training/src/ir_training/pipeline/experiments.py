@@ -37,6 +37,7 @@ class ExperimentOptions:
     trial_steps: int
     include_augmentation: bool = False
     trials_file: Path | None = None
+    evaluate_selected_holdout: bool = True
 
 
 def _defaults(base: GoldenTrainingOptions) -> dict[str, Any]:
@@ -130,7 +131,9 @@ def build_experiment_plan(options: ExperimentOptions) -> dict[str, Any]:
         "trial_steps": options.trial_steps, "total_optimizer_step_budget": options.trial_steps * len(trials),
         "max_concurrent_training_runs": 1, "trials": trials,
         "selection": {"cohort": "golden32", "metric": SELECTION_METRIC, "checkpoint": "best", "direction": "maximize", "ties": "earliest trial (baseline first)"},
-        "golden35_policy": "No per-trial Golden35 inference. Lock winner using Golden32, then evaluate its existing best checkpoint once on Golden35. Never select using Golden35.",
+        "evaluate_selected_holdout": options.evaluate_selected_holdout,
+        "golden35_policy": ("No per-trial Golden35 inference. Lock winner using Golden32, then evaluate its existing best checkpoint once on Golden35. Never select using Golden35."
+                            if options.evaluate_selected_holdout else "No Golden35 inference during screening. Lock hyperparameters using Golden32; the deployment pipeline trains a fresh full run before holdout evaluation."),
         "warning": "Screening uses equal optimizer steps, seed and requested effective batch. Short-run ranking is not proof of full-run quality; Golden32 is development data, not an unbiased final benchmark.",
     }
 
@@ -379,11 +382,11 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
         _write(selection_path, selection)
         _write(output / "selected_full_training_options.json", _full_training_handoff(plan, selected))
         holdout_bindings = {**selection["artifact_bindings"], str(selection_path): sha256(selection_path)}
-        state.update(status="holdout_evaluation", selected_trial=selected["name"])
+        state.update(status="holdout_evaluation" if options.evaluate_selected_holdout else "selection_locked", selected_trial=selected["name"])
         _write(record, state)
         log(f"Winner locked before holdout: {selected['name']}. Golden35 cannot change this selection.")
-        holdout = _evaluate_holdout(plan, selected, holdout_bindings, command_runner=command_runner, interval=options.base.progress_seconds,
-                                    execution_context=execution_context)
+        holdout = (_evaluate_holdout(plan, selected, holdout_bindings, command_runner=command_runner, interval=options.base.progress_seconds,
+                                    execution_context=execution_context) if options.evaluate_selected_holdout else None)
         state.update(status="complete", selected_golden35=holdout, finished_at=datetime.now(timezone.utc).isoformat())
         _write(record, state)
         comparison = {"status": "complete", "selected_trial": selected["name"], "selection": plan["selection"],
@@ -391,7 +394,7 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
                       "trials": [{key: value for key, value in item.items() if key != "artifact_bindings"} for item in state["trials"]],
                       "warning": plan["warning"], "tensorboard_dir": plan["tensorboard_dir"]}
         _write(output / "comparison.json", comparison)
-        for key, value in flatten_scalar_metrics(holdout.get("aggregate", {})).items():
+        for key, value in flatten_scalar_metrics((holdout or {}).get("aggregate", {})).items():
             writer.add_scalar(f"selected_holdout/golden35/{key}", value, options.trial_steps)
         writer.add_text("experiment/selection", json.dumps({"selected_trial": selected["name"], "golden35_used_for_selection": False}), options.trial_steps)
         writer.flush()

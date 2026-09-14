@@ -106,6 +106,52 @@ def test_both_actual_cohorts_share_one_prompt_and_bind_to_launch_and_final_eval(
         assert checked["required_rows"] == count
 
 
+def test_final_evaluations_reuse_overlap_scan_but_rehash_data(prepared_dual, tmp_path, monkeypatch):
+    from ir_training.eval import prepared_contract as module
+    directory, _ = prepared_dual
+    path, _, _ = bound_run(tmp_path, directory)
+    calls = []
+    original = module.verify_reserved_train_validation
+    def counted(*args):
+        calls.append(1)
+        return original(*args)
+    monkeypatch.setattr(module, "verify_reserved_train_validation", counted)
+    for count in (32, 35):
+        module.verify_evaluation_prepared_contract(path, directory / f"golden{count}.jsonl", required_rows=count, max_input_tokens=4096)
+    assert len(calls) == 1
+    # The receipt is not a substitute for current-byte hashes, even if row
+    # semantics stay unchanged and only harmless whitespace is appended.
+    with (directory / "train.jsonl").open("a") as stream:
+        stream.write("\n")
+    with pytest.raises(ValueError, match="Prepared train hash"):
+        module.verify_evaluation_prepared_contract(path, directory / "golden32.jsonl", required_rows=32, max_input_tokens=4096)
+    assert len(calls) == 1
+
+
+def test_overlap_cache_binds_omitted_source_identities_and_implementation(tmp_path, monkeypatch):
+    from ir_training.eval import prepared_contract as module
+    from ir_training.pipeline import preparation_cache
+    directory = tmp_path / "dataset"
+    directory.mkdir()
+    for name in ("train", "val"):
+        (directory / f"{name}.jsonl").write_text("{}\n")
+    hashes = {name: module.file_sha256(directory / f"{name}.jsonl") for name in ("train", "val")}
+    reserved = {"identities": {"excluded_1"}, "responses": {"response_hash"}}
+    implementation = {"code": "version1"}
+    calls = []
+    monkeypatch.setattr(module, "load_reserved_cohorts", lambda _: reserved)
+    monkeypatch.setattr(module, "verify_reserved_train_validation", lambda *_: calls.append(1))
+    monkeypatch.setattr(preparation_cache, "_implementation", lambda _: implementation)
+    for _ in range(2):
+        module._verify_reserved_cached(directory, [], hashes, tmp_path / "cache")
+    assert len(calls) == 1
+    reserved["identities"].add("newly_excluded_2")
+    module._verify_reserved_cached(directory, [], hashes, tmp_path / "cache")
+    implementation["code"] = "version2"
+    module._verify_reserved_cached(directory, [], hashes, tmp_path / "cache")
+    assert len(calls) == 3
+
+
 @pytest.mark.parametrize("kind", ["split", "shared_prompt", "training_manifest", "config", "source_model"])
 def test_bound_final_evaluation_rejects_drift_before_model_load(prepared_dual, tmp_path, kind):
     directory, _ = prepared_dual

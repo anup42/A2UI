@@ -1,5 +1,9 @@
 # E2B / 270M training with Golden32 and Golden35
 
+For the extended **train/tune → W32/W16/W8/W4 LiteRT-LM → Golden32/35 GPU tests**
+workflow, see [the full deployment runbook](GOLDEN_GPU_DEPLOYMENT.md) and
+`run_golden_deployment.py`. The command below remains the HF-only workflow.
+
 This is the current clone-and-run entry point for **dense E2B LoRA capability
 training and Gemma 3 270M full-model training**, followed by checkpoint testing
 on both Golden sets. It aligns training and evaluation to one versioned

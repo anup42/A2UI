@@ -28,7 +28,16 @@ def main() -> None:
         )
     )
     parser.add_argument("--model", required=True, help="LiteRT-LM package.")
-    parser.add_argument("--runner-config", required=True)
+    runner_choice = parser.add_mutually_exclusive_group(required=True)
+    runner_choice.add_argument("--runner-config")
+    runner_choice.add_argument("--builtin-gpu", action="store_true", help="Use the pinned, verified NVIDIA GPU runtime")
+    parser.add_argument("--model-config", help="Resolved training model config; required by --builtin-gpu for exact prompt/tokenizer parity")
+    parser.add_argument("--require-prepared-contract", action="store_true", help="Verify source/run/Golden/tokenizer bindings before inference")
+    parser.add_argument("--runtime-python", help="Separate Python with requirements-litertlm-runtime.txt installed")
+    parser.add_argument("--runtime-cache-dir")
+    parser.add_argument("--runtime-timeout-seconds", type=float, default=7200)
+    parser.add_argument("--case-timeout-seconds", type=float, default=600)
+    parser.add_argument("--load-timeout-seconds", type=float, default=1800)
     parser.add_argument(
         "--split",
         default=str(
@@ -59,36 +68,66 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    runner_config_path = Path(args.runner_config).expanduser().resolve()
-    runner = load_yaml(runner_config_path)
-    validation = validate_external_runner_config(runner)
-    if validation["placeholder"]:
-        raise ValueError("Runner config still contains a placeholder executable path.")
-    command = runner.get("command")
-    assert isinstance(command, list)
     output_dir = Path(args.output_dir).expanduser().resolve()
-    manifest = run_external_generation(
-        command_template=command,
-        model_path=args.model,
-        split_path=args.split,
-        output_dir=output_dir,
-        max_input_tokens=args.max_input_tokens,
-        max_new_tokens=args.max_new_tokens,
-        max_rows=args.max_rows,
-        required_rows=args.required_rows,
-        mtp_enabled=args.mtp_enabled,
-        timeout_seconds=(
-            int(runner["timeout_seconds"])
-            if runner.get("timeout_seconds") is not None
-            else None
-        ),
-        working_dir=runner.get("working_dir"),
-        environment=(
-            runner.get("environment")
-            if isinstance(runner.get("environment"), dict)
-            else None
-        ),
-    )
+    runner_config_path = Path(args.runner_config).expanduser().resolve() if args.runner_config else None
+    if args.builtin_gpu:
+        if not args.model_config:
+            parser.error("--builtin-gpu requires --model-config")
+        if args.max_rows != args.required_rows:
+            parser.error("Built-in Golden evaluation requires --max-rows equal --required-rows (no partial subsets)")
+        from ir_training.eval.litert_gpu import run_litert_gpu_generation
+
+        config_path = Path(args.model_config).expanduser().resolve()
+        model_config = load_yaml(config_path)
+        if args.require_prepared_contract:
+            from ir_training.eval.prepared_contract import (
+                verify_evaluation_prepared_contract,
+            )
+
+            model_config["prepared_evaluation_contract"] = verify_evaluation_prepared_contract(
+                config_path, Path(args.split).expanduser().resolve(),
+                required_rows=args.required_rows, max_input_tokens=args.max_input_tokens,
+            )
+        manifest = run_litert_gpu_generation(
+            model_path=args.model, split_path=args.split, output_dir=output_dir,
+            model_config=model_config,
+            max_input_tokens=args.max_input_tokens, max_new_tokens=args.max_new_tokens,
+            required_rows=args.required_rows, mtp_enabled=args.mtp_enabled,
+            runtime_python=args.runtime_python, cache_dir=args.runtime_cache_dir,
+            timeout_seconds=args.runtime_timeout_seconds, case_timeout_seconds=args.case_timeout_seconds,
+            load_timeout_seconds=args.load_timeout_seconds,
+        )
+    else:
+        if args.require_prepared_contract:
+            parser.error("--require-prepared-contract requires --builtin-gpu (external runner tokenizer parity is not verifiable)")
+        runner = load_yaml(runner_config_path)
+        validation = validate_external_runner_config(runner)
+        if validation["placeholder"]:
+            raise ValueError("Runner config still contains a placeholder executable path.")
+        command = runner.get("command")
+        assert isinstance(command, list)
+        manifest = run_external_generation(
+            command_template=command,
+            model_path=args.model,
+            split_path=args.split,
+            output_dir=output_dir,
+            max_input_tokens=args.max_input_tokens,
+            max_new_tokens=args.max_new_tokens,
+            max_rows=args.max_rows,
+            required_rows=args.required_rows,
+            mtp_enabled=args.mtp_enabled,
+            timeout_seconds=(
+                int(runner["timeout_seconds"])
+                if runner.get("timeout_seconds") is not None
+                else None
+            ),
+            working_dir=runner.get("working_dir"),
+            environment=(
+                runner.get("environment")
+                if isinstance(runner.get("environment"), dict)
+                else None
+            ),
+        )
     predictions_path = Path(manifest["predictions_path"])
     aggregate = evaluate_predictions(
         predictions_path,
@@ -111,7 +150,7 @@ def main() -> None:
         step=args.step,
         artifacts={
             "litertlm": model,
-            "runner_config": runner_config_path,
+            **({"runner_config": runner_config_path} if runner_config_path else {"model_config": Path(args.model_config).resolve()}),
             "golden_split": Path(args.split).expanduser().resolve(),
             "predictions": predictions_path,
             "scored_predictions": output_dir / "scored_predictions.jsonl",
@@ -121,7 +160,8 @@ def main() -> None:
         },
         metadata={
             "protocol": PROTOCOL_VERSION,
-            "runner_config": str(runner_config_path),
+            "runner_config": str(runner_config_path) if runner_config_path else "builtin_gpu",
+            "gpu_execution_evidence": manifest.get("evidence_scope"),
             "split": str(Path(args.split).expanduser().resolve()),
             "rows": manifest["row_count"],
             "metric_version": args.metric_version,

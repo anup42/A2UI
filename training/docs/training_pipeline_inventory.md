@@ -8,6 +8,15 @@ historical/experimental trees described below.
 
 ## Recommended end-to-end pipelines
 
+Added 2026-09-14: `training/scripts/run_golden_deployment.py` extends the current
+dense E2B/270M workflow through optional sequential tuning, fresh full training,
+best/final/merged HF tests, W32/W16/W8/W4 conversion and native GPU tests against
+both current Golden32/35 sets. It does not replace the cohort with the older
+demo32. Training and HF tests use all selected GPUs; native LiteRT's API limits
+the built-in runner to one verified GPU engine. Conversion is CPU-based, W16/W4
+experimental, and real model-kernel validation occurs on the host. See the
+[full deployment runbook](GOLDEN_GPU_DEPLOYMENT.md).
+
 For clone-and-run **HF capability training and checkpoint testing on both
 Golden32 and Golden35**, use `training/scripts/run_golden_training.py` and the
 [shared-prompt quickstart](GOLDEN_E2E_QUICKSTART.md). It supports dense E2B

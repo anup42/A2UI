@@ -2,18 +2,24 @@
 
 import json
 import math
+import os
 import time
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from ir_training.common.jsonl import read_jsonl, write_jsonl
+from ir_training.common.jsonl import read_jsonl
+from ir_training.common.progress import Progress, log
 from ir_training.data.url_preprocess import restore_url_placeholders
-from ir_training.models.registry import create_adapter
 from ir_training.generation_policy import (
-    build_stopping_criteria, generation_diagnostics, preserve_generation_eos,
-    generation_cache_scope, sha256_text, stop_express_completion,
+    build_stopping_criteria,
+    generation_cache_scope,
+    generation_diagnostics,
+    preserve_generation_eos,
+    sha256_text,
+    stop_express_completion,
 )
+from ir_training.models.registry import create_adapter
 
 
 def generate_predictions(
@@ -28,18 +34,40 @@ def generate_predictions(
     apply_qat: bool = False,
 ) -> int:
     try:
-        import torch  # type: ignore
+        __import__("torch")
     except Exception as exc:  # pragma: no cover - dependency failure path
         raise RuntimeError("Install training/requirements-training.txt before running generation.") from exc
 
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
     adapter = create_adapter(model_cfg)
-    tokenizer = adapter.load_tokenizer()
+    with Progress(f"Golden worker {os.environ.get('A2UI_EVAL_WORKER', '0')}: load tokenizer", unit="stage"):
+        tokenizer = adapter.load_tokenizer()
     if config.get("prepared_evaluation_contract") is not None:
-        from ir_training.eval.prepared_contract import verify_loaded_evaluation_tokenizer
+        from ir_training.eval.prepared_contract import (
+            verify_loaded_evaluation_tokenizer,
+        )
 
         verify_loaded_evaluation_tokenizer(tokenizer, model_cfg, config["prepared_evaluation_contract"])
-    model = adapter.load_model()
+    from ir_training.train.cuda_runtime import sdpa_policy
+
+    with sdpa_policy(config):
+        return _generate_predictions_loaded_tokenizer(
+            config, adapter, tokenizer, split_path, output_path, max_rows,
+            max_input_tokens=max_input_tokens, max_new_tokens=max_new_tokens,
+            adapter_checkpoint=adapter_checkpoint, apply_qat=apply_qat,
+        )
+
+
+def _generate_predictions_loaded_tokenizer(
+    config, adapter, tokenizer, split_path, output_path, max_rows, *,
+    max_input_tokens, max_new_tokens, adapter_checkpoint, apply_qat,
+) -> int:
+    import torch
+
+    model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
+    worker = os.environ.get("A2UI_EVAL_WORKER", "0")
+    with Progress(f"Golden worker {worker}: load model", unit="stage"):
+        model = adapter.load_model()
     if adapter_checkpoint is not None:
         try:
             from peft import PeftModel  # type: ignore
@@ -52,7 +80,8 @@ def generate_predictions(
             raise FileNotFoundError(
                 f"Adapter checkpoint is missing adapter_config.json: {checkpoint}"
             )
-        model = PeftModel.from_pretrained(model, str(checkpoint), is_trainable=False)
+        with Progress(f"Golden worker {worker}: load adapter", unit="stage"):
+            model = PeftModel.from_pretrained(model, str(checkpoint), is_trainable=False)
     inference_device = place_model_for_generation(model, model_cfg)
     qat_controller = None
     if apply_qat:
@@ -62,12 +91,20 @@ def generate_predictions(
     model.eval()
     eos_ids = preserve_generation_eos(model, tokenizer)
 
-    rows_out: list[dict[str, Any]] = []
+    rows = list(read_jsonl(split_path))
+    if max_rows is not None:
+        rows = rows[:max_rows]
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Never expose a partial benchmark as a completed predictions file. The
+    # flushed sidecar remains useful for diagnosis if a case fails or hangs.
+    partial = output_path.with_name(output_path.name + ".partial")
+    completed = 0
     try:
-        with generation_cache_scope(model):
-            for idx, row in enumerate(read_jsonl(split_path)):
-                if max_rows is not None and idx >= max_rows:
-                    break
+        with generation_cache_scope(model), partial.open("w", encoding="utf-8", newline="\n") as stream, Progress(
+            f"Golden worker {worker}: generation on {inference_device}", total=len(rows), unit="cases",
+        ) as progress:
+            for idx, row in enumerate(rows):
                 _extract_user_text(row)
                 prompt_text = adapter.format_example(
                     row, tokenizer=tokenizer, include_assistant=False
@@ -91,6 +128,8 @@ def generate_predictions(
                     pad_token_id = getattr(tokenizer, "eos_token_id", None)
                 if pad_token_id is not None:
                     generation_kwargs["pad_token_id"] = pad_token_id
+                log(f"Golden worker {worker}: case {idx + 1}/{len(rows)} id={row.get('id')} starting; "
+                    f"input_tokens={input_length}; max_new_tokens={generation_kwargs['max_new_tokens']}")
                 started = time.perf_counter()
                 with torch.inference_mode():
                     output = model.generate(**inputs, **generation_kwargs)
@@ -101,12 +140,20 @@ def generate_predictions(
                 elapsed = time.perf_counter() - started
                 runtime.update(generation_seconds=elapsed,
                     output_tokens_per_second=runtime["output_tokens"] / elapsed if elapsed else 0.0,
-                    inference_device=inference_device, use_cache=True)
-                rows_out.append(build_prediction_record(row, generated, runtime=runtime))
+                    inference_device=inference_device, use_cache=True, evaluation_worker=worker)
+                stream.write(json.dumps(build_prediction_record(row, generated, runtime=runtime),
+                    ensure_ascii=False, separators=(",", ":")) + "\n")
+                stream.flush()
+                completed += 1
+                progress.advance()
+                log(f"Golden worker {worker}: case {idx + 1}/{len(rows)} id={row.get('id')} finished; "
+                    f"seconds={elapsed:.2f}; output_tokens={runtime['output_tokens']}; "
+                    f"tokens/s={runtime['output_tokens_per_second']:.2f}")
     finally:
         if qat_controller is not None:
             qat_controller.restore()
-    return write_jsonl(output_path, rows_out)
+    partial.replace(output_path)
+    return completed
 
 
 def place_model_for_generation(model: Any, model_config: dict[str, Any]) -> str:

@@ -1,5 +1,13 @@
 ﻿# Response-to-IR Training
 
+For **training, optional tuning, W32/W16/W8/W4 LiteRT-LM export and GPU testing
+on both current Golden sets**, use [`run_golden_deployment.py`](scripts/run_golden_deployment.py)
+and the [full GPU deployment runbook](docs/GOLDEN_GPU_DEPLOYMENT.md). Training/HF
+evaluation use all selected GPUs; native LiteRT uses one verified GPU because
+its pinned API has no device selector. Conversion is CPU-based. W16/W4 require
+explicit experimental acknowledgment. Results include a 14-evaluation scorecard
+and TensorBoard HParams; real host kernel compatibility is still required.
+
 For **E2B / 270M training and automatic final testing on both Golden32 and
 Golden35**, start with the [end-to-end quickstart](docs/GOLDEN_E2E_QUICKSTART.md).
 For the external 151,202-row messages-only archive, use the
@@ -62,6 +70,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 
 | Pipeline | Entry point | Current status |
 |---|---|---|
+| Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and both current Goldens | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; isolated CPU export, one verified native GPU engine, precision audits, 14-result scorecard and TensorBoard HParams |
 | Dense E2B LoRA / 270M full-model training with shared-prompt Golden32 and Golden35 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on both sets, logs TensorBoard and scorecard; no LiteRT export |
 | Sequential E2B / 270M hyperparameter and resampling comparisons | `training/scripts/run_golden_experiments.py` | Opt-in equal-step trials, fresh initialization, baseline included, TensorBoard HParams/comparison records, Golden32 selection and one locked-winner Golden35 test; screening, not a measured optimum |
 | Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |
@@ -81,7 +90,7 @@ bytes are preserved while trained integer codes are transplanted. The optimizer
 and STE-QAT loop are repository implementations, not Google's private training
 or calibration recipe.
 
-The two recommended multiformat pipelines use the pinned 2026-09-03 Golden-32
+The two retained-scale/QAT multiformat pipelines use the pinned 2026-09-03 Golden-32
 only for evaluation. Older deployable profiles described below still use their
 separate Golden-100 contract; do not combine those sets or copy Golden rows into
 training data.

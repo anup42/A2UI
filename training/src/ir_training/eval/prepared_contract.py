@@ -3,16 +3,19 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
+import tempfile
 from typing import Any
 
 from ir_training.common.config import load_yaml
+from ir_training.common.progress import Progress, fingerprint_file, log
 from ir_training.data.audit_filter import (
     _identity_keys,
     _source_hashes,
     load_reserved_cohorts,
 )
-from ir_training.data.golden_replacement import read_rows_strict, source_identity_record
+from ir_training.data.golden_replacement import source_identity_record
 from ir_training.eval.golden_set import (
     benchmark_contract_for_split,
     load_fixed_golden_rows,
@@ -96,9 +99,69 @@ def verify_reserved_train_validation(dataset: Path, goldens: list[Path]) -> None
     """Reserve all source IDs, raw/masked texts, and omitted reference sources."""
     reserved = load_reserved_cohorts(goldens)
     for name in ("train", "val"):
-        for row in read_rows_strict(dataset / f"{name}.jsonl"):
-            if _identity_keys(source_identity_record(row)) & reserved["identities"] or _source_hashes(row) & reserved["responses"]:
-                raise ValueError(f"Reserved Golden source overlaps {name}; excluded cases and raw/URL-masked variants must not enter train/val.")
+        with Progress(f"Check reserved sources in {name}") as progress:
+            with (dataset / f"{name}.jsonl").open(encoding="utf-8-sig") as stream:
+                for number, line in enumerate(stream, 1):
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    if not isinstance(row, dict):
+                        raise ValueError(f"{name}:{number}: expected a JSON object")
+                    if _identity_keys(source_identity_record(row)) & reserved["identities"] or _source_hashes(row) & reserved["responses"]:
+                        raise ValueError(f"Reserved Golden source overlaps {name}; excluded cases and raw/URL-masked variants must not enter train/val.")
+                    progress.advance()
+
+
+def _verify_reserved_cached(dataset: Path, goldens: list[Path], hashes: dict[str, str], cache: Path) -> None:
+    """Reuse only the JSON/source scan, never skip current-byte hash checks.
+
+    The caller has freshly hashed train/val against their bound manifest. The
+    receipt also binds reserved *contents* (including omitted sources) and the
+    transitive preprocessing implementation, so changed cohorts/code miss.
+    """
+    from ir_training.common.cache_store import assert_no_links, cache_lock, digest
+    from ir_training.common.config import repo_root
+    from ir_training.pipeline.preparation_cache import _implementation
+
+    reserved = load_reserved_cohorts(goldens)
+    binding = {"version": 1, "splits": hashes,
+               "identities": sorted(reserved["identities"]), "responses": sorted(reserved["responses"]),
+               "implementation": _implementation(repo_root())}
+    key = digest(binding)
+    with cache_lock(cache, key):
+        receipt = cache / f"{key}.json"
+        assert_no_links(receipt)
+        if receipt.is_file():
+            try:
+                saved = json.loads(receipt.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                saved = None
+            if saved == {"binding": binding, "verified": True}:
+                log("Evaluation validation cache HIT: train/val bytes and all reserved sources verified; reuse source-overlap scan")
+                return
+        log("Evaluation validation cache MISS: checking train/val source overlap")
+        verify_reserved_train_validation(dataset, goldens)
+        # Never publish a scan receipt if inputs changed while being scanned.
+        if any(file_sha256(dataset / f"{name}.jsonl") != value for name, value in hashes.items()):
+            raise ValueError("Prepared data changed during the source-overlap scan")
+        _write_scan_receipt(receipt, {"binding": binding, "verified": True})
+
+
+def _write_scan_receipt(path: Path, value: dict) -> None:
+    # Keep this tiny writer local: importing the training orchestrator here
+    # makes its entire training graph part of preprocessing cache identity.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                          prefix=".scan-", suffix=".tmp", delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(value, stream, allow_nan=False)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
 
 
 def verify_loaded_evaluation_tokenizer(tokenizer: Any, model_config: dict[str, Any], contract: dict[str, Any]) -> None:
@@ -124,16 +187,19 @@ def verify_evaluation_prepared_contract(
     model_files = report.get("model_files")
     if not isinstance(model_files, dict) or not model_files:
         raise ValueError("Final evaluation requires the source model/tokenizer file bindings from run preparation.")
-    for name, digest in model_files.items():
-        path = model_dir / name
-        if not path.is_file() or file_sha256(path) != digest:
-            raise ValueError(f"Source model/tokenizer bundle changed after preparation: {name}.")
+    with Progress("Verify bound source model/tokenizer bytes", unit="stage"):
+        for name, digest in model_files.items():
+            path = model_dir / name
+            if not path.is_file() or file_sha256(path) != digest:
+                raise ValueError(f"Source model/tokenizer bundle changed after preparation: {name}.")
     dataset = Path(config["run"]["dataset_dir"]).resolve()
     manifest = checked_preparation_manifest(dataset)
     if file_sha256(dataset / "manifest.json") != report.get("dataset_manifest_sha256"):
         raise ValueError("Prepared training manifest changed after run preparation.")
+    hashes = {}
     for name in ("train", "val"):
-        if file_sha256(dataset / f"{name}.jsonl") != (manifest.get("splits") or {}).get(name, {}).get("output_sha256"):
+        hashes[name] = fingerprint_file(dataset / f"{name}.jsonl")["sha256"]
+        if hashes[name] != (manifest.get("splits") or {}).get(name, {}).get("output_sha256"):
             raise ValueError(f"Prepared {name} hash differs from its manifest.")
     plans = config.get("final_evaluation_datasets")
     if not isinstance(plans, dict) or plans != report.get("final_evaluation_datasets"):
@@ -152,5 +218,6 @@ def verify_evaluation_prepared_contract(
             raise ValueError(f"Final evaluation preparation binding changed: {key}.")
     if (config["model"].get("chat_template_kwargs") or {}) != actual["tokenizer"].get("chat_template_kwargs", {}):
         raise ValueError("Evaluation config changed the prepared tokenizer chat-template options.")
-    verify_reserved_train_validation(dataset, [Path(entry["split_path"]) for entry in plans.values()])
+    _verify_reserved_cached(dataset, [Path(entry["split_path"]) for entry in plans.values()], hashes,
+                            config_path.parent / "evaluation_validation_cache")
     return actual

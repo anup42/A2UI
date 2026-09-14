@@ -377,7 +377,8 @@ def evaluation_command(plan: dict[str, Any], role: str, cohort: str, destination
             "--max-rows", str(plan["goldens"][cohort]["rows"]), "--required-rows", str(plan["goldens"][cohort]["rows"]),
             "--max-input-tokens", str(values["max_input_tokens"]), "--max-new-tokens", str(values["max_new_tokens"]),
             "--run-id", output.name, "--evaluation-name", f"{role}_{cohort}", "--output-dir", str(destination),
-            "--tensorboard-root", values["tensorboard_root"], "--metric-version", "v5_4", "--require-prepared-contract"]
+            "--tensorboard-root", values["tensorboard_root"], "--metric-version", "v5_4", "--require-prepared-contract",
+            "--devices", "auto"]
 
 
 def _run_command(command: list[str], log: Path, environment: dict[str, str]) -> None:

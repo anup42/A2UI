@@ -14,9 +14,10 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(REPO_ROOT / "dataset" / "src"))
 
 from ir_training.common.config import load_yaml
+from ir_training.common.progress import Progress
 from ir_training.eval.compare_to_baseline import evaluate_predictions
-from ir_training.eval.generate import generate_predictions
 from ir_training.eval.golden_set import load_fixed_golden_rows
+from ir_training.eval.parallel_generate import generate_predictions_parallel
 from ir_training.eval.tensorboard_logging import log_evaluation_result
 
 
@@ -66,6 +67,10 @@ def main() -> None:
     parser.add_argument("--require-prepared-contract", action="store_true", help="Require a hash-bound dual-Golden run plan and the identical training scaffold/tokenizer before loading model weights.")
     parser.add_argument("--max-input-tokens", type=int, default=4096)
     parser.add_argument("--max-new-tokens", type=int, default=2048)
+    parser.add_argument("--devices", default="auto", help="All CUDA-visible GPUs by default, or visible indices/UUIDs; cpu is diagnostic-only.")
+    parser.add_argument("--require-gpu", action="store_true", help="Fail rather than silently evaluate on CPU when CUDA is unavailable.")
+    parser.add_argument("--generation-timeout-seconds", type=float, default=3600,
+        help="Bound total isolated-worker model loading/generation time; failures retain partials without publishing scores.")
     parser.add_argument(
         "--weights-config",
         default=str(REPO_ROOT / "dataset" / "configs" / "run.yaml"),
@@ -92,10 +97,13 @@ def main() -> None:
     config = copy.deepcopy(load_yaml(config_path))
     prepared_contract = None
     if args.require_prepared_contract:
-        from ir_training.eval.prepared_contract import verify_evaluation_prepared_contract
+        from ir_training.eval.prepared_contract import (
+            verify_evaluation_prepared_contract,
+        )
 
-        prepared_contract = verify_evaluation_prepared_contract(config_path, split,
-            required_rows=args.required_rows, max_input_tokens=args.max_input_tokens)
+        with Progress("Golden checkpoint/data contract verification (once before GPU workers)", unit="stage"):
+            prepared_contract = verify_evaluation_prepared_contract(config_path, split,
+                required_rows=args.required_rows, max_input_tokens=args.max_input_tokens)
         config["prepared_evaluation_contract"] = prepared_contract
     model_cfg = config.setdefault("model", {})
     if not isinstance(model_cfg, dict):
@@ -123,7 +131,8 @@ def main() -> None:
     output_dir = Path(args.output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     predictions_path = output_dir / "predictions.jsonl"
-    generated = generate_predictions(
+    performance_metrics = {}
+    generated = generate_predictions_parallel(
         config,
         split,
         predictions_path,
@@ -132,20 +141,27 @@ def main() -> None:
         max_new_tokens=args.max_new_tokens,
         adapter_checkpoint=adapter_checkpoint,
         apply_qat=apply_qat,
+        devices=args.devices,
+        require_gpu=args.require_gpu,
+        timeout_seconds=args.generation_timeout_seconds,
+        performance_metrics=performance_metrics,
     )
     if generated != args.required_rows:
         raise RuntimeError(
             f"Checkpoint evaluation generated {generated} rows; "
             f"expected {args.required_rows}."
         )
-    aggregate = evaluate_predictions(
-        predictions_path,
-        output_dir=output_dir,
-        weights_config_path=args.weights_config,
-        baseline_aggregate_path=args.baseline_aggregate,
-        metric_version=args.metric_version,
-    )
+    with Progress("Golden prediction scoring", unit="stage"):
+        aggregate = evaluate_predictions(
+            predictions_path,
+            output_dir=output_dir,
+            weights_config_path=args.weights_config,
+            baseline_aggregate_path=args.baseline_aggregate,
+            metric_version=args.metric_version,
+        )
+    aggregate.update(performance_metrics)
     aggregate_path = output_dir / "aggregate_metrics.json"
+    aggregate_path.write_text(json.dumps(aggregate, indent=2, ensure_ascii=False), encoding="utf-8")
     step = args.step if args.step is not None else _checkpoint_step(checkpoint)
     record = log_evaluation_result(
         args.tensorboard_root,
@@ -170,6 +186,7 @@ def main() -> None:
             "qat_mode": args.qat_mode,
             "qat_applied": apply_qat,
             "prepared_contract": prepared_contract,
+            "generation_execution": performance_metrics,
         },
         source_aggregate_path=aggregate_path,
     )

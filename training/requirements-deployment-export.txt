@@ -1,0 +1,13 @@
+# Isolated CPU converter environment; NEVER install into the CUDA training env.
+# API/metadata checked on 2026-09-14; real model export remains a host preflight.
+# Install matching CPU torch/torchao wheels first, as documented in
+# docs/DEPLOYMENT_EXPORT_ENVIRONMENT.md. Local +cpu version suffixes satisfy ==.
+litert-torch==0.9.4
+ai-edge-quantizer==0.9.0
+ai-edge-litert[model-utils]==2.2.0
+litert-converter==0.4.0
+litert-lm-builder==0.17.0
+torch==2.11.0
+torchao==0.17.0
+transformers==5.16.1
+PyYAML==6.0.3

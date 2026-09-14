@@ -1,0 +1,3 @@
+# Deliberately independent of training and conversion dependency environments.
+# Source/API contract: google-ai-edge/LiteRT-LM tag v0.17.0.
+litert-lm-api==0.17.0
