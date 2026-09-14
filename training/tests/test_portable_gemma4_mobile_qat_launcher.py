@@ -539,7 +539,7 @@ def test_host_gpu_profile_binds_ddp_without_changing_retained_qat(tmp_path: Path
     assert "--nproc_per_node=4" in plan["training_command"]
     assert plan["cuda_visible_devices"] == inventory["inherited_cuda_visible_devices"]
     assert resolved["runtime"]["world_size"] == 4
-    assert resolved["training"]["per_device_train_batch_size"] == 2
-    assert resolved["training"]["gradient_accumulation_steps"] == 4
+    assert resolved["training"]["per_device_train_batch_size"] == 1
+    assert resolved["training"]["gradient_accumulation_steps"] == 8
     assert resolved["training"]["expected_effective_batch_size"] == 32
     assert resolved["qat"] == launcher.load_yaml(source)["qat"]

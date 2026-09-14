@@ -16,6 +16,8 @@ model:
 training:
   method: full_finetune_sft
   trainer_backend: hf
+  disable_cudnn_sdpa: true
+  backward_preflight: true
   epochs: 1
   learning_rate: 0.00002
   weight_decay: 0.01

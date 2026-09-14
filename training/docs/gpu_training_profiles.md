@@ -6,9 +6,9 @@ These are conservative starting profiles, not measured maximum-throughput settin
 
 | Model | H100 GPUs, each at least 70 GiB | Per-GPU microbatch | Accumulation | Global batch |
 |---|---:|---:|---:|---:|
-| E2B | 2 | 2 | 8 | 32 |
-| E2B | 4 | 2 | 4 | 32 |
-| E2B | 8 | 2 | 2 | 32 |
+| E2B | 2 | 1 | 16 | 32 |
+| E2B | 4 | 1 | 8 | 32 |
+| E2B | 8 | 1 | 4 | 32 |
 | 270M | 2 | 4 | 4 | 32 |
 | 270M | 4 | 4 | 2 | 32 |
 | 270M | 8 | 4 | 1 | 32 |
@@ -16,6 +16,17 @@ These are conservative starting profiles, not measured maximum-throughput settin
 Other GPUs, mixed GPU types and smaller H100/MIG partitions start with microbatch 1 and global batch 16. Every selected GPU must divide the requested global batch; unusual GPU counts require an explicit compatible `--effective-batch`. `--effective-batch 16` preserves an older experiment's batch and caps the automatic microbatch where necessary. `--microbatch` overrides the per-GPU choice; incompatible combinations fail before training. Do not compare a new global-batch-32 run with a global-batch-16 run as if only GPU count changed.
 
 BF16 is selected on devices with native BF16 support, otherwise FP16. The profile uses SDPA, enables TF32 on supported hardware, keeps non-reentrant gradient checkpointing, and bounds dataloader workers by available CPUs and worker count. Persistent workers and prefetch are enabled only when the worker count is positive. Override with `--attn-implementation eager`, `--no-gradient-checkpointing` or `--dataloader-workers`; measure any performance change rather than assuming it helps.
+
+After the September 14 H100 failure, E2B defaults to microbatch **1**, not 2.
+Its full-vocabulary FP32 loss and attention workspace need substantial headroom
+beyond model weights. All selected GPUs still participate. Explicit larger
+microbatches remain possible and carry a memory warning in the resolved profile.
+The shared SFT runner disables only **cuDNN SDPA**, leaving existing Flash,
+memory-efficient and math backend choices intact throughout forward/backward.
+The HF non-QAT CUDA path runs a live longest-shape backward preflight at startup,
+including a second pass with resident gradients when accumulation is enabled.
+This does not certify optimizer-state memory or NCCL health. See the
+[failure analysis and restart instructions](H100_CUDNN_BACKWARD_FIX_20260914.md).
 
 `--devices auto` preserves the inherited `CUDA_VISIBLE_DEVICES` mask, including GPU and MIG UUIDs. Explicit numeric selections are **logical indices inside that visible mask**, not physical machine indices. With `CUDA_VISIBLE_DEVICES=2,5`, `--devices 1` selects physical GPU 5 and passes `CUDA_VISIBLE_DEVICES=5` to the workers. Exact visible UUIDs are also accepted. The launcher never broadens the scheduler's visibility.
 

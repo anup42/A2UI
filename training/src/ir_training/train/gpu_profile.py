@@ -108,8 +108,13 @@ def build_gpu_profile(
     effective = int(effective_batch if effective_batch is not None else (32 if h100 else 16))
     if effective <= 0 or effective % world_size:
         raise ValueError("Effective batch must be positive and divisible by selected GPU count; supply --effective-batch for this host.")
+    # E2B's large vocabulary makes full-sequence logits and FP32 loss much
+    # larger than the parameter count alone suggests. An 80 GB H100 does not
+    # establish that microbatch two fits the longest prepared training row.
+    # Keep every selected GPU active, recovering the effective batch through
+    # accumulation rather than increasing the per-rank memory requirement.
+    preferred = 4 if h100 and model == "270m" else 1
     if microbatch is None:
-        preferred = (2 if model == "e2b" else 4) if h100 else 1
         per_rank = effective // world_size
         micro = next(candidate for candidate in range(min(preferred, per_rank), 0, -1) if per_rank % candidate == 0)
     else:
@@ -122,10 +127,31 @@ def build_gpu_profile(
     workers = int(dataloader_workers) if dataloader_workers is not None else min(4, max(0, available_cpus // world_size // 2))
     if workers < 0:
         raise ValueError("--dataloader-workers must be nonnegative.")
+    memory_warning = (
+        "Explicit E2B microbatch exceeds the memory-conservative default of 1. "
+        "Full-vocabulary FP32 loss, activations and attention backward workspace "
+        "can exhaust H100 memory on long sequences. Verify the maximum-length "
+        "training microbatch with backward on this host before a long run."
+        if model == "e2b" and micro > 1 else None
+    )
     return {
         "name": f"{model}_h100_70gb_starting" if h100 else f"{model}_conservative_starting",
         "benchmark_verified": False,
-        "note": "Conservative starting profile; verify peak memory, tokens/sec and Golden quality on this host. Learning rate is unchanged.",
+        "note": "Conservative starting profile; verify maximum-length backward, peak memory, tokens/sec and Golden quality on this host. Learning rate is unchanged.",
+        "preferred_microbatch": preferred,
+        "microbatch_overridden": microbatch is not None,
+        "requires_backward_preflight": True,
+        "memory_safety": {
+            "benchmark_verified": False,
+            "maximum_sequence_verified": False,
+            "reason": (
+                "E2B defaults to one sequence per GPU to reserve space for its "
+                "large-vocabulary FP32 loss and attention backward workspace."
+                if model == "e2b" else
+                "GPU capacity alone does not verify peak training memory for the prepared sequence lengths."
+            ),
+            "warning": memory_warning,
+        },
         "inventory": inventory,
         "selection": str(devices or "auto"),
         "selected_devices": selected,

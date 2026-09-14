@@ -7,7 +7,7 @@ production A2UI Express prompt. It does not train here, download model weights,
 or establish that a GPU run has passed.
 
 The command performs data preparation, source-leakage filtering, tokenizer
-checks, automatic GPU configuration, a real-model forward preflight, training,
+checks, automatic GPU configuration, real-model forward and CUDA backward preflights, training,
 and final checkpoint evaluation. Use a short smoke run before a full run.
 
 ## 1. Clone and prepare the GPU host
@@ -125,6 +125,7 @@ original data/recipe contract. No continuation silently overwrites checkpoints.
 |---|---|
 | Epochs | 1 |
 | Training / periodic Golden32 GPUs | All scheduler-visible GPUs; H100 2/4/8 profiles selected automatically |
+| E2B H100 microbatch / effective batch | 1 per GPU / 32 globally; accumulation 16, 8, 4 for 2, 4, 8 GPUs |
 | Validation loss and checkpoint saves | Every 500 optimizer updates |
 | Golden32 generation/selection | Every 1,000 optimizer updates, plus final weights |
 | Golden35 | Final evaluation only; never used to select a checkpoint |
@@ -402,6 +403,20 @@ have their own loader and validation contracts.
 
 See the [cache/startup fix report](DATA_CACHE_AND_STARTUP_FIX_20260914.md) for
 the implementation boundaries, restart example and validation evidence.
+
+### H100 OOM, cuDNN attention backward, or peer/NVLink failure
+
+The September 14 fix lowers automatic E2B microbatch to 1, preserves global
+batch 32, and disables only cuDNN SDPA for the complete SFT call. Every non-QAT
+HF CUDA worker probes the longest prepared training shape with real backward
+and configured checkpointing before optimizer step 1, including on cache hits.
+The probe never updates weights. Stateful QAT retains its separate gates.
+
+Pull only after the failed job has exited; use a **fresh output directory** and
+the **same preparation/token caches**. Do not resume the failed HPO suite or
+edit its bound recipe. The [failure report](H100_CUDNN_BACKWARD_FIX_20260914.md)
+includes ordinary/HPO rerun commands and the hardware-health escalation path.
+CPU regression tests cannot guarantee the remote CUDA environment is healthy.
 
 ## 5. Quantization, LiteRT and MTP are separate
 

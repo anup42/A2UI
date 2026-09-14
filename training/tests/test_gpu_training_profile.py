@@ -26,18 +26,59 @@ def inventory(count: int, *, mask: str | None = None, name: str = "NVIDIA H100 8
 
 
 @pytest.mark.parametrize("count", [2, 4, 8])
-@pytest.mark.parametrize("model,micro", [("e2b", 2), ("270m", 4)])
+@pytest.mark.parametrize("model,micro", [("e2b", 1), ("270m", 4)])
 def test_h100_profiles_use_all_gpus_with_stable_batch(count, model, micro):
     profile = build_gpu_profile(inventory(count), model=model, cpu_count=64)
     assert profile["world_size"] == count
     assert profile["cuda_visible_devices"] == ",".join(map(str, range(count)))
     assert profile["microbatch"] == micro
+    assert profile["preferred_microbatch"] == micro
+    assert profile["microbatch_overridden"] is False
     assert profile["effective_batch_size"] == 32
     assert count * micro * profile["gradient_accumulation_steps"] == 32
     assert profile["dtype"] == "bfloat16" and profile["tf32"]
     assert profile["attn_implementation"] == "sdpa"
     assert not profile["benchmark_verified"]
+    assert profile["requires_backward_preflight"] is True
+    assert profile["memory_safety"]["maximum_sequence_verified"] is False
+    assert profile["memory_safety"]["benchmark_verified"] is False
+    assert profile["memory_safety"]["warning"] is None
     verify_gpu_profile(profile, inventory(count))
+
+
+@pytest.mark.parametrize("count,accumulation", [(2, 16), (4, 8), (8, 4)])
+def test_e2b_memory_safe_defaults_preserve_all_gpus_and_effective_batch(count, accumulation):
+    profile = build_gpu_profile(inventory(count), model="e2b", cpu_count=64)
+    assert profile["microbatch"] == 1
+    assert profile["gradient_accumulation_steps"] == accumulation
+    assert profile["effective_batch_size"] == 32
+    assert len(profile["selected_devices"]) == count
+    assert profile["dataloader_num_workers"] == min(4, 64 // count // 2)
+    assert profile["total_dataloader_workers"] == count * profile["dataloader_num_workers"]
+    assert profile["gradient_checkpointing"] is True
+    assert "FP32 loss" in profile["memory_safety"]["reason"]
+
+
+@pytest.mark.parametrize("count", [2, 4, 8])
+def test_explicit_e2b_microbatch_two_is_retained_with_memory_warning(count):
+    profile = build_gpu_profile(inventory(count), model="e2b", microbatch=2, cpu_count=64)
+    assert profile["microbatch"] == 2
+    assert profile["preferred_microbatch"] == 1
+    assert profile["microbatch_overridden"] is True
+    assert profile["gradient_accumulation_steps"] == 32 // (count * 2)
+    assert len(profile["selected_devices"]) == count
+    assert profile["cuda_visible_devices"] == ",".join(map(str, range(count)))
+    assert "Explicit E2B microbatch" in profile["memory_safety"]["warning"]
+    assert "backward" in profile["memory_safety"]["warning"]
+    assert profile["requires_backward_preflight"] is True
+    verify_gpu_profile(profile, inventory(count))
+
+
+def test_explicit_e2b_microbatch_one_is_not_warned_as_unsafe():
+    profile = build_gpu_profile(inventory(8), model="e2b", microbatch=1)
+    assert profile["microbatch_overridden"] is True
+    assert profile["memory_safety"]["warning"] is None
+    assert profile["memory_safety"]["maximum_sequence_verified"] is False
 
 
 @pytest.mark.parametrize("mask", ["2,5", "GPU-0,GPU-1", "MIG-aaa,MIG-bbb"])
@@ -164,8 +205,8 @@ def test_preparation_wires_hardware_logging_and_generation_without_model_load(tm
         epochs=1, steps=20, max_seq_length=4096, resume=None, qv_baseline=False, qat=False)
     config, report = module.build_config(args)
     assert config["runtime"]["world_size"] == count
-    assert config["training"]["per_device_train_batch_size"] == 2
-    assert config["training"]["gradient_accumulation_steps"] == 32 // (count * 2)
+    assert config["training"]["per_device_train_batch_size"] == 1
+    assert config["training"]["gradient_accumulation_steps"] == 32 // count
     assert config["training"]["tensorboard_root"] == "/tensorboard"
     assert config["training"]["learning_rate"] == 0.00002
     assert config["training"]["eval_steps"] == 20

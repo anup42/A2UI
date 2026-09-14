@@ -89,9 +89,47 @@ def local_fixture(tmp_path, monkeypatch):
         torch.set_num_threads(previous_threads)
 
 
-def test_train_sft_cold_warm_cache_skips_full_corpus_work_but_runs_live_gates(local_fixture, tmp_path, monkeypatch):
+@pytest.fixture
+def live_cpu_backward_gate(monkeypatch):
+    """Exercise the real gate in CPU E2E fixtures, not the production CPU skip."""
+    datasets = pytest.importorskip("datasets")
+    from ir_training.train import backward_preflight
+
+    original = backward_preflight.run_backward_preflight
+    reports = []
+
+    def run(**kwargs):
+        # Passing the DatasetDict instead of its train split previously hid
+        # behind the default CPU skip. Assert the actual trainer contract here.
+        dataset = kwargs["dataset"]
+        assert isinstance(dataset, datasets.Dataset)
+        assert set(dataset.column_names) == {"input_ids", "attention_mask", "labels"}
+        assert len(dataset) == 3
+        assert kwargs["training_cfg"]["gradient_checkpointing"] is True
+        assert kwargs["training_cfg"]["gradient_checkpointing_kwargs"] == {"use_reentrant": False}
+        report = original(**kwargs, force_cpu=True)
+        reports.append(report)
+        return report
+
+    monkeypatch.setattr(backward_preflight, "run_backward_preflight", run)
+    return reports
+
+
+def _assert_live_backward_report(result):
+    report = result["backward_preflight"]
+    assert report["status"] == "passed"
+    assert report["optimizer_steps"] == 0 and report["cached"] is False
+    assert report["gradient_checkpointing"] is True
+    assert report["gradient_checkpointing_kwargs"] == {"use_reentrant": False}
+    assert report["selection"]["rows_scanned"] == 3
+    assert all(batch["nonzero_gradient_tensors"] > 0 for batch in report["batches"])
+
+
+def test_train_sft_cold_warm_cache_skips_full_corpus_work_but_runs_live_gates(local_fixture, tmp_path, monkeypatch, live_cpu_backward_gate):
     import datasets
 
+    local_fixture["training"].update(gradient_checkpointing=True,
+                                      gradient_checkpointing_kwargs={"use_reentrant": False})
     calls = {"format": [], "tensors": [], "numeric": [], "greedy": []}
     original_formatter = ModelAdapter.format_example
     def observed_formatter(self, example, tokenizer=None, include_assistant=True):
@@ -113,6 +151,8 @@ def test_train_sft_cold_warm_cache_skips_full_corpus_work_but_runs_live_gates(lo
 
     cold = sft.train_sft(local_fixture, preflight_only=True)
     assert cold["passed"] is True and cold["training_executed"] is False
+    _assert_live_backward_report(cold)
+    assert len(live_cpu_backward_gate) == 1
     assert cold["token_cache"]["status"] == "miss"
     assert len(calls["format"]) == 2 * (3 + 2) + 1  # full/prompt per row, one greedy prefix
     assert len(calls["tensors"]) == 1 and len(calls["numeric"]) == len(calls["greedy"]) == 2
@@ -130,6 +170,10 @@ def test_train_sft_cold_warm_cache_skips_full_corpus_work_but_runs_live_gates(lo
     warm_config["runtime"] = {"world_size": 8, "cuda_visible_devices": "0,1,2,3,4,5,6,7"}
     warm = sft.train_sft(warm_config, preflight_only=True)
     assert warm["passed"] is True and warm["training_executed"] is False
+    _assert_live_backward_report(warm)
+    assert len(live_cpu_backward_gate) == 2
+    assert warm["backward_preflight"]["microbatch"] == 2
+    assert warm["backward_preflight"]["backward_passes"] == 2  # resident accumulation gradients
     assert warm["token_cache"]["status"] == "hit"
     assert warm["token_cache"]["key"] == cold["token_cache"]["key"]
     assert warm["token_cache"]["model_preflight_cached"] is False
@@ -141,7 +185,7 @@ def test_train_sft_cold_warm_cache_skips_full_corpus_work_but_runs_live_gates(lo
     assert warm["numeric_preflight"]["zero_adapter_initialization"]["verified_zero_delta"] is True
 
 
-def test_train_sft_without_token_cache_accepts_heterogeneous_metadata_and_runs_live_gates(local_fixture, monkeypatch):
+def test_train_sft_without_token_cache_accepts_heterogeneous_metadata_and_runs_live_gates(local_fixture, monkeypatch, live_cpu_backward_gate):
     import datasets
 
     def forbidden(*args, **kwargs):
@@ -156,9 +200,12 @@ def test_train_sft_without_token_cache_accepts_heterogeneous_metadata_and_runs_l
             return _original(*args, **kwargs)
         monkeypatch.setattr(sft, name, observe)
     config = deepcopy(local_fixture)
-    config["training"]["token_cache"] = False
+    config["training"].update(token_cache=False, gradient_checkpointing=True,
+                              gradient_checkpointing_kwargs={"use_reentrant": False})
     result = sft.train_sft(config, preflight_only=True)
     assert result["passed"] is True and result["training_executed"] is False
+    _assert_live_backward_report(result)
+    assert len(live_cpu_backward_gate) == 1
     assert result["token_cache"] == {"enabled": False, "status": "disabled"}
     assert result["numeric_preflight"]["passed"] is True
     assert result["numeric_preflight"]["zero_adapter_initialization"]["verified_zero_delta"] is True
@@ -171,7 +218,7 @@ def test_train_sft_without_token_cache_accepts_heterogeneous_metadata_and_runs_l
 
 
 @pytest.mark.parametrize("cache_mode", ["warm", "disabled"])
-def test_random_cpu_one_optimizer_step_evaluates_and_saves_with_both_cache_modes(local_fixture, tmp_path, monkeypatch, cache_mode):
+def test_random_cpu_one_optimizer_step_evaluates_and_saves_with_both_cache_modes(local_fixture, tmp_path, monkeypatch, cache_mode, live_cpu_backward_gate):
     """One synthetic update, not production-model training or a Golden score."""
     import datasets
     import torch
@@ -182,9 +229,12 @@ def test_random_cpu_one_optimizer_step_evaluates_and_saves_with_both_cache_modes
         pytest.fail("Raw heterogeneous metadata must not reach Arrow JSON inference")
     monkeypatch.setattr(datasets, "load_dataset", forbidden)
     config = deepcopy(local_fixture)
+    config["training"].update(gradient_checkpointing=True,
+                              gradient_checkpointing_kwargs={"use_reentrant": False})
     if cache_mode == "warm":
         cold = sft.train_sft(config, preflight_only=True)
         assert cold["passed"] is True and cold["token_cache"]["status"] == "miss"
+        _assert_live_backward_report(cold)
     else:
         config["training"]["token_cache"] = False
     run_id = f"synthetic-step-{cache_mode}"
@@ -199,6 +249,8 @@ def test_random_cpu_one_optimizer_step_evaluates_and_saves_with_both_cache_modes
         logging_dir=str(tensorboard_root / run_id / "training"),
     )
     result = sft.train_sft(config)
+    _assert_live_backward_report(result)
+    assert len(live_cpu_backward_gate) == (2 if cache_mode == "warm" else 1)
     expected_status = "hit" if cache_mode == "warm" else "disabled"
     assert result["token_cache"]["status"] == expected_status
     if cache_mode == "warm":
@@ -216,6 +268,9 @@ def test_random_cpu_one_optimizer_step_evaluates_and_saves_with_both_cache_modes
     checkpoint_saved = json.loads((checkpoint / "training_metadata.json").read_text(encoding="utf-8"))
     assert saved["checkpoint_step"] == checkpoint_saved["checkpoint_step"] == 1
     assert saved["token_cache"]["status"] == checkpoint_saved["token_cache"]["status"] == expected_status
+    _assert_live_backward_report(saved)
+    _assert_live_backward_report(checkpoint_saved)
+    assert saved["backward_preflight"] == checkpoint_saved["backward_preflight"] == result["backward_preflight"]
     final = Path(result["final_adapter"])
     assert (final / "adapter_config.json").is_file() and (final / "tokenizer_config.json").is_file()
     weights = load_file(str(final / "adapter_model.safetensors"))

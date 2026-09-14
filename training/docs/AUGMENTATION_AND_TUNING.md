@@ -221,18 +221,29 @@ are checked across trials; do not edit or pull into an active training checkout.
 
 The checked GPU path uses all scheduler-visible devices with DDP and selects
 H100 2/4/8-GPU batch/accumulation profiles. The global effective batch remains
-32 on H100 >=70 GiB rather than silently growing with GPU count. Preserve BF16,
+32 on H100 >=70 GiB rather than silently growing with GPU count. E2B now uses
+microbatch 1 with accumulation 16/8/4 for 2/4/8 H100s; 270M stays at microbatch 4.
+The shared SFT policy disables cuDNN SDPA during forward and backward, while
+retaining the other existing backend choices. Preserve BF16,
 SDPA, pinned transfers and bounded DataLoader workers. Explicit CPU worker and
 microbatch overrides remain available. These are supported performance
 techniques, not an H100 throughput measurement; see the
 [PyTorch tuning guide](https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide.html).
 
 `--no-gradient-checkpointing` can trade VRAM for speed; only use it after the
-forward/memory smoke succeeds with the intended sequence length and batch.
+training-mode backward/memory smoke succeeds with the intended sequence length and batch.
 An explicit `--microbatch` can reduce accumulation overhead if memory allows.
 Keep the global effective batch unchanged for quality comparisons. Do not
 enable experimental packing, truncation, unverified compilation or a new
 distributed checkpoint format just to improve a nominal throughput number.
+
+The non-QAT HF CUDA path now runs a live longest-shape backward preflight,
+including checkpoint recomputation and resident accumulated gradients. It
+does not update weights or reuse cached success, and does not certify NCCL or
+optimizer-memory headroom. After the September 14 cuDNN/OOM failure, use a new
+suite output directory and retain the same cache paths; do not continue the
+failed suite across this recipe change. See the
+[failure report and fresh-suite command](H100_CUDNN_BACKWARD_FIX_20260914.md).
 
 Periodic Golden generation pauses optimization and is sharded over training
 GPUs; it is not free concurrent inference. It defaults to every 1,000 updates,

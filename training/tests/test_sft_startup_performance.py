@@ -143,6 +143,10 @@ def test_auto_dataloader_budget_uses_available_cpus_and_reports_explicit_oversub
         "name": "NVIDIA H100", "total_memory_bytes": 80 * 1024**3, "compute_capability": [9, 0]}
         for index in range(8)]}
     profile = gpu_profile.build_gpu_profile(inventory, model="e2b")
+    assert profile["world_size"] == 8
+    assert profile["cuda_visible_devices"] == "0,1,2,3,4,5,6,7"
+    assert profile["microbatch"] == 1
+    assert profile["gradient_accumulation_steps"] == 4
     assert profile["available_cpu_count"] == 16
     assert profile["dataloader_num_workers"] == 1
     assert profile["total_dataloader_workers"] == 8

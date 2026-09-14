@@ -42,8 +42,10 @@ from ir_training.train.callbacks import (
 from ir_training.train.lora_config import build_lora_config, resolve_lora_config_targets
 from ir_training.train.prepared_binding import verify_tokenizer_binding
 from ir_training.train.resume_contract import build_resume_contract, verify_resume_contract
+from ir_training.train.cuda_runtime import active_attention_policy, cuda_memory_snapshot, training_attention_policy
 
 
+@training_attention_policy
 def train_sft(
     config: dict[str, Any],
     config_path: Path | None = None,
@@ -589,6 +591,22 @@ def train_sft(
                 qat_enabled=qat_controller is not None,
             )
         )
+        # Forward-only probes cannot exercise attention backward or the padded
+        # microbatch. Never use a token-cache hit as evidence for this gate.
+        if qat_controller is None:
+            from ir_training.train.backward_preflight import run_backward_preflight
+            backward_preflight_report = run_backward_preflight(
+                model=model, tokenizer=tokenizer, dataset=tokenized_dataset["train"],
+                training_cfg=training_cfg, max_seq_length=max_seq_length,
+                input_vocab_size=input_vocab_size, label_vocab_size=label_vocab_size,
+                max_position_embeddings=max_position_embeddings,
+            )
+        else:
+            backward_preflight_report = {
+                "status": "skipped_stateful_qat", "passed": False,
+                "reason": "QAT observer/scale state requires its separate backward-preflight contract; existing QAT gates remain active",
+            }
+            print(f"Training backward preflight: {backward_preflight_report}", flush=True)
         # Each rank still validates exact tensors and runs live model probes.
         # Release earlier views; with caching the text view holds only the
         # bounded greedy probe and the tensors remain shared memory-mapped data.
@@ -604,6 +622,8 @@ def train_sft(
                 "qat": qat_controller.summary() if qat_controller else {},
                 "numeric_preflight": numeric_preflight_report,
                 "token_cache": token_cache_report,
+                "attention_runtime": active_attention_policy(),
+                "backward_preflight": backward_preflight_report,
                 "training_executed": False,
             }
         checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer, training_cfg)
@@ -660,6 +680,8 @@ def train_sft(
         "resume_state": resume_state_report,
         "prepared_dataset_binding": prepared_binding,
         "token_cache": token_cache_report,
+        "attention_runtime": active_attention_policy(),
+        "backward_preflight": locals().get("backward_preflight_report"),
         "trainable_parameter_names": [name for name, parameter in trainer.model.named_parameters() if parameter.requires_grad],
         "trainable_parameter_counts": dict(zip(("trainable", "total"), _trainable_parameter_count(trainer.model))),
         "lora": lora_cfg,
@@ -1442,7 +1464,22 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
             )
             if should_report:
                 _print_lora_update_diagnostics(self, model)
-            loss = super().training_step(model, inputs, *args, **kwargs)
+            try:
+                loss = super().training_step(model, inputs, *args, **kwargs)
+            except Exception as exc:
+                # Shape inspection launches no CUDA reductions on a possibly
+                # unusable context. Never retry this step automatically.
+                shapes = {name: _tensor_shape(value) for name, value in inputs.items() if hasattr(value, "shape")}
+                diagnostic = {"optimizer_step": _trainer_global_step(self), "batch_shapes": shapes,
+                              "memory": cuda_memory_snapshot(), "attention_runtime": active_attention_policy(),
+                              "original_error": repr(exc)}
+                print("SFT TRAINING STEP FAILED: " + json.dumps(diagnostic, sort_keys=True), flush=True)
+                raise RuntimeError(
+                    "SFT training step failed; see the rank/batch/memory diagnostic above. "
+                    "Do not retry a contained CUDA/NVLink error in the same process. "
+                    "For memory failures use a new run with a smaller microbatch and unchanged effective batch; "
+                    "preserve the prepared/token caches. Original error: " + repr(exc)
+                ) from exc
             if should_report:
                 _print_lora_gradient_diagnostics(self, model)
                 _store_lora_update_snapshot(self, model)

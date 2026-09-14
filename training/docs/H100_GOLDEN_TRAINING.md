@@ -129,7 +129,7 @@ a deployment budget concern, not permission to truncate reference outputs.
 
 `--devices auto` is the default. It selects all scheduler-visible devices,
 including UUID masks, without exposing hidden GPUs. The [profile table](gpu_training_profiles.md)
-documents 2/4/8 H100 settings: E2B microbatch2, 270M microbatch4, global batch32
+documents 2/4/8 H100 settings: E2B microbatch1, 270M microbatch4, global batch32
 with the appropriate accumulation. Batch/learning rate do not silently scale
 with GPU count. These are starting profiles, not measured maximum throughput.
 
