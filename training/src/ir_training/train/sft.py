@@ -7,6 +7,7 @@ import math
 import os
 import shutil
 from collections.abc import Callable
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -130,7 +131,6 @@ def train_sft(
                 + ", ".join(failed)
             )
     try:
-        from datasets import load_dataset  # type: ignore
         from peft import PeftModel, get_peft_model, prepare_model_for_kbit_training  # type: ignore
         from transformers import Trainer, TrainingArguments, set_seed  # type: ignore
     except Exception as exc:  # pragma: no cover - dependency failure path
@@ -234,17 +234,45 @@ def train_sft(
     data_files: dict[str, str] = {"train": str(train_path)}
     if val_path.exists():
         data_files["validation"] = str(val_path)
-    with _sft_progress("Load source dataset", unit="stage"):
-        dataset = load_dataset("json", data_files=data_files)
-    if _is_world_process_zero_env():
-        with _sft_progress("Summarize source dataset", unit="stage"):
-            _print_training_sample_summary(dataset)
 
     def formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=True)
 
     def prompt_formatting_func(example: dict[str, Any]) -> str:
         return adapter.format_example(example, tokenizer=tokenizer, include_assistant=False)
+
+    trainer_backend = str(training_cfg.get("trainer_backend", "hf")).strip().lower() or "hf"
+    tokenized_dataset = None
+    sft_text_dataset = None
+    token_cache_report: dict[str, Any] = {"enabled": False, "status": "disabled"}
+    if trainer_backend == "hf" and bool(training_cfg.get("token_cache", False)):
+        from ir_training.train.token_cache import greedy_text_rows, load_or_build
+        token_cache_dir = _sft_token_cache_dir(training_cfg, dataset_dir, output_dir, adapter)
+        effective_sequence_length = _effective_max_seq_length(
+            configured=int(training_cfg.get("max_seq_length", adapter.max_context())),
+            max_position_embeddings=max_position_embeddings,
+        )
+        # Lookup BEFORE whole-corpus JSON loading/formatting. One process writes
+        # tensors; all ranks then open the same read-only memory-mapped Arrow.
+        tokenized_dataset, token_cache_report = load_or_build(
+            token_cache_dir, data_files, adapter, tokenizer,
+            max_seq_length=effective_sequence_length,
+            input_vocab_size=input_vocab_size, label_vocab_size=label_vocab_size,
+            interval=float(training_cfg.get("cache_progress_seconds", 10)),
+            lock_timeout=float(training_cfg.get("token_cache_lock_timeout_seconds", 21600)),
+        )
+        dataset = tokenized_dataset  # row counts for the schedule, not raw text
+        preflight_options = config.get("preflight") or {}
+        sft_text_dataset = {"train": greedy_text_rows(
+            train_path, adapter, tokenizer, int(preflight_options.get("greedy_probe_rows", 1)))}
+    else:
+        print("TOKEN CACHE DISABLED: " + ("TRL owns its tokenization" if trainer_backend == "trl"
+                                         else "memory-only formatting/tokenization requested"), flush=True)
+        # Do not let HF infer a corpus-wide schema for nested metadata/IR:
+        # those valid JSON values can be booleans in one row and strings in
+        # another. Stream originals to the adapter; Arrow sees text only.
+        sft_text_dataset = _load_sft_text_dataset(data_files, formatting_func, prompt_formatting_func)
+        dataset = sft_text_dataset
 
     trainer_backend = str(training_cfg.get("trainer_backend", "hf")).strip().lower() or "hf"
     if trainer_backend not in {"hf", "trl"}:
@@ -307,14 +335,15 @@ def train_sft(
     }
     _apply_training_limit_to_args(training_args_kwargs, training_limit)
     logging_dir_value = training_cfg.get("logging_dir")
+    callback_logging_dir = tensorboard_run_dir or (resolve_path(logging_dir_value, base) if logging_dir_value else None)
     if tensorboard_run_dir is not None and "logging_dir" in args_params:
         training_args_kwargs["logging_dir"] = str(tensorboard_run_dir)
     elif logging_dir_value and "logging_dir" in args_params:
         training_args_kwargs["logging_dir"] = str(resolve_path(logging_dir_value, base))
     elif logging_dir_value:
         print(
-            "Training logging_dir is not supported by this transformers build; "
-            "continuing without an explicit logging directory.",
+            "This Transformers build uses the TensorBoard integration environment "
+            f"for its log directory: {callback_logging_dir}",
             flush=True,
         )
     if "warmup_steps" in training_cfg:
@@ -356,7 +385,8 @@ def train_sft(
         training_args_kwargs["completion_only_loss"] = bool(training_cfg.get("completion_only_loss", False))
     if trainer_backend == "trl" and "assistant_only_loss" in args_params:
         training_args_kwargs["assistant_only_loss"] = bool(training_cfg.get("assistant_only_loss", False))
-    sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func, prompt_formatting_func)
+    if sft_text_dataset is None:
+        sft_text_dataset = _materialize_sft_text_dataset(dataset, formatting_func, prompt_formatting_func)
     if trainer_backend == "trl":
         # TRL owns tokenization. The explicit HF path below checks the same
         # vocabulary constraints while building its actual masked tensors,
@@ -414,14 +444,16 @@ def train_sft(
             trainer_kwargs["processing_class"] = tokenizer
         if "max_seq_length" in trainer_params and "max_seq_length" not in training_args_kwargs:
             trainer_kwargs["max_seq_length"] = max_seq_length
-        trainer = SFTTrainer(**trainer_kwargs)
+        with _training_tensorboard_environment(callback_logging_dir):
+            trainer = SFTTrainer(**trainer_kwargs)
     else:
         print("Using explicit HF Trainer causal-LM backend for SFT.", flush=True)
-        tokenized_dataset = _tokenize_sft_text_dataset(
-            sft_text_dataset, tokenizer, max_seq_length,
-            input_vocab_size=input_vocab_size,
-            token_check_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
-        )
+        if tokenized_dataset is None:
+            tokenized_dataset = _tokenize_sft_text_dataset(
+                sft_text_dataset, tokenizer, max_seq_length,
+                input_vocab_size=input_vocab_size,
+                token_check_rows=int(training_cfg.get("preflight_token_check_rows", 0)),
+            )
         with _sft_progress("Validate masked training tensors", unit="stage"):
             _validate_tokenized_sft_dataset(
                 dataset=tokenized_dataset, input_vocab_size=input_vocab_size,
@@ -557,9 +589,9 @@ def train_sft(
                 qat_enabled=qat_controller is not None,
             )
         )
-        # Each DDP rank still validates its own exact data. Release the two
-        # earlier Arrow/text views after greedy preflight and before optimizer
-        # allocation; do not persist extra multi-gigabyte token caches.
+        # Each rank still validates exact tensors and runs live model probes.
+        # Release earlier views; with caching the text view holds only the
+        # bounded greedy probe and the tensors remain shared memory-mapped data.
         del sft_text_dataset, dataset
         if preflight_only:
             if qat_controller is not None:
@@ -571,6 +603,7 @@ def train_sft(
                 "mobile_seed_architecture": mobile_seed_architecture,
                 "qat": qat_controller.summary() if qat_controller else {},
                 "numeric_preflight": numeric_preflight_report,
+                "token_cache": token_cache_report,
                 "training_executed": False,
             }
         checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer, training_cfg)
@@ -591,7 +624,8 @@ def train_sft(
             trainer_kwargs["tokenizer"] = tokenizer
         elif "processing_class" in trainer_params:
             trainer_kwargs["processing_class"] = tokenizer
-        trainer = checked_trainer_cls(**trainer_kwargs)
+        with _training_tensorboard_environment(callback_logging_dir):
+            trainer = checked_trainer_cls(**trainer_kwargs)
 
     preserve_generation_eos(trainer.model, tokenizer, extra_eos_ids=generation_eos_ids)
     golden_callback = _build_optional_golden_callback(
@@ -625,6 +659,7 @@ def train_sft(
         "resume_contract": resume_contract,
         "resume_state": resume_state_report,
         "prepared_dataset_binding": prepared_binding,
+        "token_cache": token_cache_report,
         "trainable_parameter_names": [name for name, parameter in trainer.model.named_parameters() if parameter.requires_grad],
         "trainable_parameter_counts": dict(zip(("trainable", "total"), _trainable_parameter_count(trainer.model))),
         "lora": lora_cfg,
@@ -926,8 +961,82 @@ def _initialize_training_seed(
     return seed
 
 
+def _sft_token_cache_dir(training_cfg: dict[str, Any], dataset_dir: Path,
+                         output_dir: Path, adapter: Any) -> Path:
+    directory = resolve_path(
+        training_cfg.get("token_cache_dir") or ".golden-preparation-cache/tokens",
+        training_root(),
+    ).resolve()
+    protected = [dataset_dir.resolve(), output_dir.resolve()]
+    for value in (adapter.model_source(), adapter.tokenizer_source()):
+        candidate = Path(value)
+        if candidate.exists():
+            protected.append(candidate.resolve())
+    if any(directory.is_relative_to(path) or path.is_relative_to(directory) for path in protected):
+        raise ValueError("Token cache must not overlap model, tokenizer, dataset or training output directories")
+    if directory.exists() and not directory.is_dir():
+        raise ValueError("Token cache directory points to a file")
+    return directory
+
+
 def _sft_progress(label: str, *, total: int | None = None, unit: str = "rows") -> Progress:
     return Progress(f"{label} [rank {os.environ.get('RANK', '0')}]", total=total, unit=unit)
+
+
+def _load_sft_text_dataset(
+    data_files: dict[str, str],
+    formatting_func: Callable[[dict[str, Any]], str],
+    prompt_formatting_func: Callable[[dict[str, Any]], str],
+) -> Any:
+    """Project original JSONL to three explicit strings, without raw schema inference.
+
+    Cache-disabled mode keeps only the formatted Arrow buffers in memory,
+    not a second copy of arbitrary raw metadata or a persistent text cache.
+    """
+    import pyarrow as pa
+    from datasets import Dataset, DatasetDict
+    from ir_training.train.source_data import iter_sft_rows
+
+    schema = pa.schema([(name, pa.string()) for name in ("text", "prompt_text", "completion_text")])
+    splits = {}
+    for split_name, source in data_files.items():
+        batches, pending = [], []
+        summary: dict[str, Any] = {"total": 0, "response_generation": {}, "ir_generation": {},
+                                   "response_to_ir_generation": {}}
+        with _sft_progress(f"Load and format {split_name} SFT text") as progress:
+            for row_index, example in enumerate(iter_sft_rows(Path(source))):
+                try:
+                    text = formatting_func(example)
+                    prompt = prompt_formatting_func(example)
+                    if not isinstance(text, str) or not isinstance(prompt, str):
+                        raise ValueError("Model adapter must return string SFT text and prompt")
+                    completion = _completion_suffix_text(example, text, prompt)
+                except (ValueError, TypeError) as exc:
+                    raise ValueError(f"{source}: SFT row {row_index}: {exc}") from exc
+                pending.append({"text": text, "prompt_text": prompt, "completion_text": completion})
+                metadata = example.get("metadata")
+                metadata = metadata if isinstance(metadata, dict) else {}
+                response_label = _generation_label(metadata.get("response_generation"))
+                ir_label = _generation_label(metadata.get("ir_generation") or metadata.get("source_generation"))
+                _increment_count(summary["response_generation"], response_label)
+                _increment_count(summary["ir_generation"], ir_label)
+                _increment_count(summary["response_to_ir_generation"], f"{response_label} -> {ir_label}")
+                summary["total"] += 1
+                progress.advance()
+                if len(pending) == 128:
+                    batches.append(pa.RecordBatch.from_pylist(pending, schema=schema))
+                    pending.clear()
+            if pending:
+                batches.append(pa.RecordBatch.from_pylist(pending, schema=schema))
+        if not summary["total"]:
+            raise ValueError(f"{source}: empty SFT split {split_name}")
+        splits[split_name] = Dataset(pa.Table.from_batches(batches, schema=schema))
+        if _is_world_process_zero_env():
+            print(f"Training sample source summary ({split_name}): {summary['total']} samples", flush=True)
+            for title, key in (("response models", "response_generation"), ("IR models", "ir_generation"),
+                               ("response -> IR model pairs", "response_to_ir_generation")):
+                _print_count_section(title, dict(sorted(summary[key].items())))
+    return DatasetDict(splits)
 
 
 def _materialize_sft_text_dataset(
@@ -3227,6 +3336,29 @@ def _ensure_tensorboard_reporter(value: Any) -> Any:
             reporters.append("tensorboard")
         return reporters
     return [value, "tensorboard"]
+
+
+@contextmanager
+def _training_tensorboard_environment(directory: Path | None):
+    """Bind modern HF's documented callback setting without leaking across runs.
+
+    Older HF still gets TrainingArguments.logging_dir above. Modern callbacks
+    capture TENSORBOARD_LOGGING_DIR in their constructor, before writer creation.
+    Each rank has its own environment; HF retains its rank-zero writer guard.
+    """
+    if directory is None:
+        yield
+        return
+    name = "TENSORBOARD_LOGGING_DIR"
+    previous = os.environ.get(name)
+    os.environ[name] = str(directory)
+    try:
+        yield
+    finally:
+        if previous is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = previous
 
 
 def _resolve_training_tensorboard_dir(

@@ -153,6 +153,9 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     run_dir = args.output_dir.resolve()
     if run_dir.exists():
         raise FileExistsError(f"Choose a new run directory: {run_dir}")
+    token_cache_dir = (getattr(args, "token_cache_dir", None) or run_dir.parent / ".golden-preparation-cache/tokens").expanduser().resolve()
+    if any(token_cache_dir.is_relative_to(protected) or protected.is_relative_to(token_cache_dir) for protected in (model_dir, dataset, run_dir)):
+        raise ValueError("Token cache must be outside and must not contain model, dataset or run output directories")
     run_id = getattr(args, "run_id", None) or run_dir.name
     if not isinstance(run_id, str) or not run_id.strip() or run_id in {".", ".."} or any(char in run_id for char in ("/", "\\", ":")):
         raise ValueError("--run-id must be a nonempty directory name, not a path.")
@@ -168,7 +171,8 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
                     logging_dir=str(Path(tensorboard_root) / run_id / "training"),
                     tf32=gpu_profile["tf32"], dataloader_num_workers=gpu_profile["dataloader_num_workers"],
                     dataloader_pin_memory=True, gradient_checkpointing=gpu_profile["gradient_checkpointing"],
-                    gradient_checkpointing_kwargs={"use_reentrant": False})
+                    gradient_checkpointing_kwargs={"use_reentrant": False},
+                    token_cache=bool(getattr(args, "token_cache", True)), token_cache_dir=str(token_cache_dir))
     if gpu_profile["dataloader_num_workers"] > 0:
         training.update(dataloader_persistent_workers=True, dataloader_prefetch_factor=2)
     eval_steps = int(getattr(args, "eval_steps", 500))
@@ -246,6 +250,8 @@ def main() -> None:
     parser.add_argument("--dataloader-workers", type=int, help="Workers per GPU process; default bounds worker count by host CPU count.")
     parser.add_argument("--attn-implementation", choices=("sdpa", "eager"), default="sdpa")
     parser.add_argument("--gradient-checkpointing", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--token-cache", action=argparse.BooleanOptionalAction, default=True, help="Reuse verified tokenized datasets between preflight and training")
+    parser.add_argument("--token-cache-dir", type=Path, help="Persistent token store; default: <output parent>/.golden-preparation-cache/tokens")
     parser.add_argument("--max-new-tokens", type=int, default=2048, help="Golden generation budget. Token-limit failures remain scored; this never truncates source records.")
     parser.add_argument("--eval-steps", type=int, default=500, help="Validation-loss and checkpoint cadence in optimizer updates.")
     parser.add_argument("--golden-every-steps", type=int, default=1000, help="Full Golden generation cadence; must be divisible by --eval-steps. Final weights are always evaluated.")

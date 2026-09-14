@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from contextlib import contextmanager, nullcontext, redirect_stderr, redirect_stdout
 import codecs
 from datetime import datetime, timezone
 import hashlib
@@ -68,6 +68,8 @@ class GoldenTrainingOptions:
     augmentation_max_extra_fraction: float = 0.10
     augmentation_max_family_repeats: int = 2
     evaluate_golden35: bool = True
+    token_cache: bool = True
+    token_cache_dir: Path | None = None
 
 
 def sha256(path: Path) -> str:
@@ -96,11 +98,13 @@ def _write(path: Path, value: Any) -> None:
 
 def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
     result = asdict(options)
-    for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir"):
+    for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir", "token_cache_dir"):
         if result[name] is not None:
             result[name] = str(Path(result[name]).expanduser().resolve())
     if not result["input_dir"] and not result["source_run_dir"]:
         result["source_run_dir"] = str(repo_root() / "dataset/data/runs/dataset_v1")
+    result["preparation_cache_dir"] = str(Path(result["preparation_cache_dir"] or Path(result["output_dir"]).parent / ".golden-preparation-cache").resolve())
+    result["token_cache_dir"] = str(Path(result["token_cache_dir"] or Path(result["preparation_cache_dir"]) / "tokens").resolve())
     return result
 
 
@@ -148,10 +152,10 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
     output = Path(values["output_dir"])
     if output == model or output in model.parents or output == source or output in source.parents:
         raise ValueError("Output directory must not contain the model or source inputs")
-    if values["preparation_cache_dir"]:
-        cache = Path(values["preparation_cache_dir"])
-        if cache.is_relative_to(model) or cache.is_relative_to(source):
-            raise ValueError("Preparation cache must be outside the original model and source directories")
+    for key in ("preparation_cache_dir", "token_cache_dir"):
+        cache = Path(values[key])
+        if any(cache.is_relative_to(protected) or protected.is_relative_to(cache) for protected in (model, source, output)):
+            raise ValueError(f"{key} must be outside and must not contain model, source or run output directories")
     from ir_training.data.shared_prompt import create_shared_prompt_contract
     prompt = create_shared_prompt_contract(ordering="root-first")
     return {
@@ -238,35 +242,41 @@ def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable | None = No
     from ir_training.pipeline import preparation_cache
     cache = Path(options["preparation_cache_dir"] or output.parent / ".golden-preparation-cache")
     cache_binding = None
-    reused = False
     # Custom/in-memory tokenizers have no trustworthy on-disk identity.
     if options["preparation_cache"] and tokenizer_loader is None:
         with Progress("Bind preparation inputs, tokenizer assets, code and schemas", unit="stage", interval=interval):
             cache_binding = preparation_cache.identity(plan, source_pins)
-        reused = preparation_cache.restore(cache, output, cache_binding, interval=interval)
-    if reused:
-        report = json.loads((output / "data_audit.json").read_text(encoding="utf-8"))
     else:
-        report = _prepare_uncached(plan, tokenizer_loader or _load_tokenizer, reserved, fingerprints, workers)
-    for path, digest in source_pins.items():
-        if fingerprint_file(Path(path), interval=interval)["sha256"] != digest:
-            raise ValueError(f"Source changed during preparation: {path}")
-    # Run the same pre-model guard on both fresh and reused preparations.
-    sys.path.insert(0, str(repo_root() / "training/scripts"))
-    from prepare_review_training import verify_prepared
-    with Progress("Verify prepared splits and both Golden contracts", unit="stage", interval=interval):
-        verify_prepared(output / "prepared", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
-                        max_sequence=options["max_seq_length"], max_prompt=options["max_input_tokens"])
-    if cache_binding is not None:
-        if preparation_cache.identity(plan, source_pins) != cache_binding:
-            raise ValueError("Preparation implementation, schemas or tokenizer assets changed during preparation")
-        try:
-            preparation_cache.publish(cache, output, cache_binding, interval=interval)
-        except OSError as exc:
-            # Cache publication is optional. Do not discard an otherwise fully
-            # verified multi-hour preparation because a shared index is read-only.
-            log(f"Preparation is verified, but cache publication was unavailable: {exc}")
-    return report
+        log("Preparation CACHE DISABLED: explicit opt-out or custom in-memory tokenizer")
+    # The build lock covers the whole miss path, not only publication: matching
+    # concurrent launches wait and reuse one completed, independently verified copy.
+    guard = preparation_cache.lock(cache, cache_binding, interval=interval) if cache_binding is not None else nullcontext()
+    with guard:
+        reused = cache_binding is not None and preparation_cache.restore(cache, output, cache_binding, interval=interval)
+        if reused:
+            report = json.loads((output / "data_audit.json").read_text(encoding="utf-8"))
+        else:
+            report = _prepare_uncached(plan, tokenizer_loader or _load_tokenizer, reserved, fingerprints, workers)
+        for path, digest in source_pins.items():
+            if fingerprint_file(Path(path), interval=interval)["sha256"] != digest:
+                raise ValueError(f"Source changed during preparation: {path}")
+        # Run the same pre-model guard on both fresh and reused preparations.
+        sys.path.insert(0, str(repo_root() / "training/scripts"))
+        from prepare_review_training import verify_prepared
+        with Progress("Verify prepared splits and both Golden contracts", unit="stage", interval=interval):
+            verify_prepared(output / "prepared", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
+                            max_sequence=options["max_seq_length"], max_prompt=options["max_input_tokens"])
+        if cache_binding is not None:
+            if preparation_cache.identity(plan, source_pins) != cache_binding:
+                raise ValueError("Preparation implementation, schemas or tokenizer assets changed during preparation")
+            if not reused:
+                try:
+                    preparation_cache.publish(cache, output, cache_binding, interval=interval)
+                except OSError as exc:
+                    # Do not discard an otherwise fully verified preparation
+                    # when the optional persistent store cannot be published.
+                    log(f"Preparation is verified, but cache publication was unavailable: {exc}")
+        return report
 
 
 def _prepare_uncached(plan, tokenizer_loader, reserved, fingerprints, workers):
@@ -350,6 +360,8 @@ def configure_command(plan: dict[str, Any]) -> list[str]:
     if values["qat"]:
         command.append("--qat")
     command.append("--gradient-checkpointing" if values["gradient_checkpointing"] else "--no-gradient-checkpointing")
+    command.append("--token-cache" if values["token_cache"] else "--no-token-cache")
+    command.extend(["--token-cache-dir", values["token_cache_dir"]])
     return command
 
 

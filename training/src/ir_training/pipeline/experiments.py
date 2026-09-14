@@ -107,11 +107,16 @@ def build_experiment_plan(options: ExperimentOptions) -> dict[str, Any]:
     # names do not merge their TensorBoard streams.
     safe = re.sub(r"[^A-Za-z0-9_-]+", "_", output.name).strip("_") or "experiment"
     suite_id = safe + "_" + hashlib.sha256(str(output).encode()).hexdigest()[:8]
+    cache_root = (options.base.preparation_cache_dir or output.parent / ".golden-preparation-cache").expanduser().resolve()
+    token_root = (options.base.token_cache_dir or cache_root / "tokens").expanduser().resolve()
+    if any(cache.is_relative_to(output) or output.is_relative_to(cache) for cache in (cache_root, token_root)):
+        raise ValueError("Experiment caches must be outside and must not contain the experiment output directory")
     trials = []
     for index, spec in enumerate(_trial_specs(options)):
         trial_output = output / "trials" / f"{suite_id}_{index:02d}_{spec['name']}"
         base = replace(options.base, output_dir=trial_output, steps=options.trial_steps,
-                       evaluate_golden35=False, **{key: spec[key] for key in TRIAL_FIELDS})
+                       evaluate_golden35=False, preparation_cache_dir=cache_root, token_cache_dir=token_root,
+                       **{key: spec[key] for key in TRIAL_FIELDS})
         trial_plan = build_plan(base)
         # Validate the suite root as well as child run paths. An empty parent
         # containing source/model must never become the experiment workspace.
@@ -132,7 +137,7 @@ def build_experiment_plan(options: ExperimentOptions) -> dict[str, Any]:
 
 def _options_from_plan(plan: dict[str, Any]) -> GoldenTrainingOptions:
     values = dict(plan["options"])
-    for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir"):
+    for name in ("model_dir", "output_dir", "source_run_dir", "input_dir", "preparation_cache_dir", "token_cache_dir"):
         if values[name] is not None:
             values[name] = Path(values[name])
     return GoldenTrainingOptions(**values)
@@ -158,8 +163,13 @@ def _input_bindings(plan: dict[str, Any], interval: float) -> dict[str, str]:
     from ir_training.pipeline.preparation_cache import identity
     with Progress("Bind experiment code, production prompt, recipes and schemas", unit="stage", interval=interval):
         prepared_identity = identity(first, {path: bindings[str(Path(path).absolute())] for path in first["source_files"]})
-        bindings.update({str(repo_root() / path): digest for path, digest in prepared_identity["implementation"].items()})
-        extras = set((repo_root() / "training/configs").rglob("*.yaml"))
+        # Preparation uses semantic hashes with relative.py:function keys;
+        # experiment execution deliberately pins each complete file's bytes.
+        extras = {repo_root() / key.partition(":")[0] for key in prepared_identity["implementation"]}
+        extras.update((repo_root() / "training/configs").rglob("*.yaml"))
+        # Cache reuse ignores unrelated training changes; a running experiment
+        # still requires one immutable implementation across every trial.
+        extras.update((repo_root() / "training/src/ir_training").rglob("*.py"))
         extras.add(repo_root() / first["shared_prompt"]["source_path"])
         for name in ("run_golden_experiments.py", "run_golden_training.py", "prepare_review_training.py", "launch_review_training.py", "train_sft.py", "evaluate_checkpoint_on_golden.py"):
             extras.add(repo_root() / "training/scripts" / name)
@@ -263,7 +273,7 @@ def _full_training_handoff(plan: dict[str, Any], selected: dict[str, Any]) -> di
             continue
         flag = "--" + key.replace("_", "-")
         if isinstance(value, bool):
-            if key in {"preparation_cache", "gradient_checkpointing"}:
+            if key in {"preparation_cache", "token_cache", "gradient_checkpointing"}:
                 command.append(flag if value else "--no-" + key.replace("_", "-"))
             elif value:
                 command.append(flag)

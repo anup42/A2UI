@@ -244,6 +244,17 @@ def test_prepare_and_launch_binding_end_to_end_without_loading_model(tmp_path, m
     assert config["training"]["gradient_accumulation_steps"] == 8
     assert report["optimizer_step_budget"] == 20
     assert report["effective_hyperparameters"]["learning_rate"] == 2e-5
+    assert config["training"]["token_cache"] is True
+    assert Path(config["training"]["token_cache_dir"]) == tmp_path / ".golden-preparation-cache/tokens"
+    args.token_cache = False
+    args.token_cache_dir = tmp_path / "shared-tokens"
+    uncached_config, _ = prepare.build_config(args)
+    assert uncached_config["training"]["token_cache"] is False
+    assert Path(uncached_config["training"]["token_cache_dir"]) == args.token_cache_dir
+    args.token_cache_dir = data / "unsafe-tokens"
+    with pytest.raises(ValueError, match="Token cache must be outside"):
+        prepare.build_config(args)
+    args.token_cache_dir = tmp_path / "shared-tokens"
     if profile == "e2b":
         selector = config["lora"]["target_modules"]
         for prefix in ("model.layers", "model.language_model.layers"):

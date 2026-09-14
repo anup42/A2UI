@@ -291,26 +291,75 @@ Useful optional flags:
 ```bash
 --prepare-workers 8 --progress-seconds 10
 --preparation-cache-dir /runs/.golden-preparation-cache
-# Or explicitly turn reuse off:
---no-preparation-cache
+# Optional separate fast persistent token storage:
+--token-cache-dir /fast-data/a2ui-tokens
+# Or explicitly turn either/both caches off:
+--no-preparation-cache --no-token-cache
 ```
 
 By default, new runs sharing an output parent reuse completed preparations
-through a small `.golden-preparation-cache/` receipt index. A cache hit requires
+through `.golden-preparation-cache/`. The v2 cache owns its prepared-data copy:
+earlier run folders no longer have to remain available. Old receipt-only cache
+entries require one fresh preparation with this version. A cache hit requires
 matching source bytes, Golden memberships/manifests, prompt and token budgets,
-tokenizer/config assets, Python/library versions, and preparation code/schema
-hashes. Every saved output is rehashed before reuse and again while copying;
+tokenizer assets, relevant Python/library versions, and preprocessing/schema
+identity. Every saved output is rehashed before reuse and again while copying;
 the regular tokenizer/Golden/split contracts are still checked. Changed,
 missing, incomplete, or corrupted cache entries trigger full preparation.
 The output receives independent copies, not mutable hard links.
 
-Keep the earlier prepared run available: the index contains receipts, not an
-extra dataset copy. Changing epochs or training-step count does not invalidate
-the preparation, so a completed smoke preparation can be reused by a fresh
-full run with the same inputs/model/token budgets and output parent. An offline
+The HF training path also caches the final token IDs, attention masks and
+completion-only labels, enabled by `--token-cache` (the default). It uses
+`<preparation-cache-dir>/tokens/`, or the explicit `--token-cache-dir`. One
+process builds an entry while matching processes wait; preflight, the subsequent
+training launch and every matching GPU worker load the verified memory-mapped
+tensor dataset. The cache does not save model-forward success or checkpoint
+scores. Runtime model/tokenizer compatibility, tensor checks and forward/GPU
+preflight still run. The legacy TRL tokenization path does not use this cache.
+
+Changing epochs, learning rate, GPU count or LoRA targets alone no longer
+invalidates prepared data or tokens. Changing source data, Golden exclusions,
+prompt, tokenizer/template behavior, sequence budgets, or relevant
+filtering/formatting/masking implementation invalidates the affected cache.
+Augmentation changes training occurrences, so augmented training gets its own
+token entry; repeated matching trials share it. Logs show `CACHE HIT`,
+`CACHE MISS`, disabled status, and build/wait progress. A hit still reads/hashes
+data and performs integrity checks; startup is not zero-cost.
+
+Use fast persistent storage shared by all workers on the host, outside the
+model, source and individual run directories. This trades extra disk space for
+less repeated CPU processing: the store retains prepared JSONL plus compact
+token tensors, and each run retains its independent prepared copy. No automatic
+cache eviction is performed. Keep the cache across runs; remove only an unused
+cache directory when all jobs using it have stopped, or change its location to
+start a clean cache. Both flags are independent: `--no-preparation-cache` reruns
+filtering, while an unchanged tokenized dataset may still hit the token cache.
+`--no-token-cache` reruns training tokenization even if preparation is reused.
+
+An offline
 v9 archive is an input dataset, **not** an exact-model prepared cache; its first
 preparation still runs all checks. Cache reuse does not skip GPU preflight,
-model loading, training-time token checks, or checkpoint evaluation.
+model loading, training-time tensor checks, or checkpoint evaluation. A normal
+training command needs no new flags to enable both caches:
+
+```bash
+python training/scripts/run_golden_training.py \
+  --profile e2b --model-dir /models/e2b \
+  --input-dir /data/source-bound-train-val \
+  --output-dir /runs/e2b-next --epochs 1 \
+  --preparation-cache-dir /runs/.golden-preparation-cache --execute
+```
+
+The generated `fit/training_config.yaml` records `training.token_cache: true`
+and an absolute `training.token_cache_dir`, shared by preflight and training.
+`prepare_review_training.py` also exposes `--token-cache` / `--no-token-cache`
+and `--token-cache-dir`; its default is relative to that command's output parent.
+Older/direct SFT YAML recipes without `training.token_cache` retain the uncached
+behavior; adding the option is explicit for those separate workflows.
+Persistent tokens currently support built-in Transformers fast tokenizers and
+the shared `ModelAdapter` formatter. For a custom tokenizer subclass, slow
+tokenizer, or custom adapter formatter, use `--no-token-cache`; their arbitrary
+runtime behavior cannot safely be inferred from config alone.
 
 `--continue-run` still requires the same saved workflow options and verifies
 completed artifacts. It does not resume a partially prepared dataset or
@@ -323,6 +372,36 @@ If the terminal seems quiet, inspect `pipeline_manifest.json` for `status` and
 `active_stage`, then read the matching log. Idle GPUs during `prepare` are
 expected; compare the CPU progress/ETA instead. Use the exact flags
 `--input-dir` and `--epochs` (not `--input-dit`).
+
+### `ArrowInvalid` followed by pandas `Trailing data` at startup
+
+If startup reports that a nested metadata field changed from boolean to string
+while loading `prepared/train.jsonl`, the immediate failure is the generic
+Arrow JSON loader trying to infer one fixed schema for every provenance field.
+These heterogeneous metadata values do not by themselves mean the JSONL or
+training targets are invalid. The later pandas `Trailing data` message can be
+a secondary fallback error, not the original cause.
+
+The shared SFT runner now reads each JSONL record before Arrow conversion.
+With the token cache enabled, only the validated token IDs, masks and labels
+enter Arrow. Without that cache, and for the shared runner's TRL backend, the
+loader formats the model inputs first and builds an explicit string-only
+training view. Arbitrary nested metadata no longer participates in Arrow
+schema inference. Original JSONL, provenance, references and source hashes are
+unchanged; malformed JSON and invalid model inputs still fail rather than
+being silently skipped or repaired.
+
+After updating the training checkout, rerun the same launcher command with a
+**new `--output-dir`** and the same persistent cache location. Do not use
+`--continue-run` with the failed old recipe or edit its bound generated YAML.
+The first run with the new cache version may rebuild once; subsequent matching
+runs reuse its verified data. No source-file rewriting, metadata coercion, or
+pandas dependency workaround is required for this failure. This fix applies to
+the shared E2B/270M SFT workflow described here; separate experimental runners
+have their own loader and validation contracts.
+
+See the [cache/startup fix report](DATA_CACHE_AND_STARTUP_FIX_20260914.md) for
+the implementation boundaries, restart example and validation evidence.
 
 ## 5. Quantization, LiteRT and MTP are separate
 

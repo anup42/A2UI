@@ -47,6 +47,8 @@ def main() -> int:
     parser.add_argument("--progress-seconds", type=float, default=10)
     parser.add_argument("--preparation-cache", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--preparation-cache-dir", type=Path)
+    parser.add_argument("--token-cache", action=argparse.BooleanOptionalAction, default=True, help="Share verified runtime tensors across preflight/training and matching sequential trials")
+    parser.add_argument("--token-cache-dir", type=Path, help="Persistent shared token store; default: <preparation-cache-dir>/tokens")
     parser.add_argument("--tensorboard-root", default=os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard")
     parser.add_argument("--qat", action="store_true", help="270M only. E2B official retained-scale QAT remains in its separate launcher.")
     parser.add_argument("--execute", action="store_true", help="Explicitly run all trials one by one, lock a Golden32 winner, then evaluate that checkpoint once on Golden35")

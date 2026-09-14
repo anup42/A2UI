@@ -6,8 +6,12 @@ For the external 151,202-row messages-only archive, use the
 [final archive runbook](docs/messages_archive_final_review.md) and review its
 [policy-v9 report](reports/offline_recovery_20260913_v9/REPORT.md)
 before passing the recovered `train.jsonl`/`val.jsonl` through `--input-dir`.
-The launcher now provides live console/file logs, CPU-parallel preparation,
-progress/ETA, and content-verified preparation reuse; see the quickstart's
+The launcher provides live console/file logs, CPU-parallel preparation,
+progress/ETA, and persistent, content-verified prepared-data and token caches.
+Both caches are enabled by default: preflight, training and matching GPU
+workers/trials reuse exact token IDs, attention masks and completion-only labels.
+Use the same `--preparation-cache-dir` across runs (tokens default to its
+`tokens/` child), or set `--token-cache-dir` separately; see the quickstart's
 [startup controls](docs/GOLDEN_E2E_QUICKSTART.md#startup-progress-cpu-preparation-and-reuse).
 Optional rare-component resampling and matched-budget, one-at-a-time trials
 are documented in [Augmentation and tuning](docs/AUGMENTATION_AND_TUNING.md).

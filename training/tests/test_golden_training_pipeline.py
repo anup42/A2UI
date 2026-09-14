@@ -68,6 +68,54 @@ def test_plan_has_no_runtime_or_output_side_effects(options, monkeypatch):
     command = workflow.configure_command(result)
     assert command[command.index("--run-id") + 1] == options.output_dir.name
     assert "--golden35-file" in command and "--devices" in command
+    assert result["options"]["token_cache"] is True
+    expected_cache = options.output_dir.parent / ".golden-preparation-cache"
+    assert Path(result["options"]["preparation_cache_dir"]) == expected_cache
+    assert Path(command[command.index("--token-cache-dir") + 1]) == expected_cache / "tokens"
+    assert "--token-cache" in command
+    assert not expected_cache.exists()
+
+
+def test_token_cache_flags_are_bound_and_forwarded(options, tmp_path):
+    changed = replace(options, token_cache=False, token_cache_dir=tmp_path / "persistent-tokens")
+    plan = workflow.build_plan(changed)
+    command = workflow.configure_command(plan)
+    assert plan["options"]["token_cache"] is False
+    assert "--no-token-cache" in command and "--token-cache" not in command
+    assert command[command.index("--token-cache-dir") + 1] == str(changed.token_cache_dir)
+    shared = workflow.build_plan(replace(options, preparation_cache_dir=tmp_path / "persistent-data"))
+    assert Path(shared["options"]["token_cache_dir"]) == tmp_path / "persistent-data/tokens"
+
+
+@pytest.mark.parametrize("name", ["preparation_cache_dir", "token_cache_dir"])
+@pytest.mark.parametrize("location", ["model", "source", "output", "parent"])
+def test_cache_locations_cannot_overlap_protected_directories(options, name, location):
+    protected = {"model": options.model_dir, "source": options.input_dir,
+                 "output": options.output_dir, "parent": options.output_dir.parent}[location]
+    cache = protected if location == "parent" else protected / "cache"
+    with pytest.raises(ValueError, match="must be outside"):
+        workflow.build_plan(replace(options, **{name: cache}))
+    assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("script_name", ["run_golden_training", "run_golden_experiments"])
+@pytest.mark.parametrize("enabled", [True, False])
+def test_cli_token_cache_switches_are_parseable(options, monkeypatch, capsys, script_name, enabled):
+    spec = importlib.util.spec_from_file_location(f"fixture_{script_name}", ROOT / "scripts" / f"{script_name}.py")
+    script = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(script)
+    command = [script_name, "--model-dir", str(options.model_dir), "--input-dir", str(options.input_dir),
+               "--output-dir", str(options.output_dir), "--token-cache-dir", str(options.output_dir.parent / "tokens")]
+    if not enabled:
+        command.append("--no-token-cache")
+    if script_name.endswith("experiments"):
+        command.extend(["--trial-steps", "20"])
+    monkeypatch.setattr(sys, "argv", command)
+    assert script.main() == 0
+    plan = json.loads(capsys.readouterr().out)
+    values = plan["options"] if "options" in plan else plan["trials"][0]["plan"]["options"]
+    assert values["token_cache"] is enabled
+    assert Path(values["token_cache_dir"]) == options.output_dir.parent / "tokens"
 
 
 def test_prepare_only_real_benchmarks_share_one_prompt_and_keep_all_members(options):
@@ -267,7 +315,7 @@ def test_invalid_cadence_and_e2b_official_qat_mislabel_fail_in_plan(options):
         workflow.build_plan(replace(options, qat=True))
 
 
-def test_verified_cache_reuses_new_run_and_rejects_changed_artifact(options, monkeypatch):
+def test_verified_cache_owns_copy_and_rejects_changed_cache_artifact(options, monkeypatch):
     monkeypatch.setattr(workflow, "_load_tokenizer", lambda *_: FixtureTokenizer())
     first = workflow.run_pipeline(options, prepare_only=True)
     assert first["status"] == "prepared"
@@ -289,8 +337,17 @@ def test_verified_cache_reuses_new_run_and_rejects_changed_artifact(options, mon
     monkeypatch.setattr(workflow, "_prepare_uncached", rebuild)
     third_options = replace(options, output_dir=options.output_dir.with_name("third-run"))
     workflow.run_pipeline(third_options, prepare_only=True)
+    assert calls == []
+    assert (third_options.output_dir / "cache_reuse.json").is_file()
+    # Mutating an output cannot poison the store. Only corruption in the owned
+    # cache entry forces a rebuild, never reuse of unchecked artifacts.
+    entries = list((options.output_dir.parent / ".golden-preparation-cache/prepared-v2").glob("*/prepared/train.jsonl"))
+    assert len(entries) == 1
+    entries[0].write_text("{}\n", encoding="utf-8")
+    fourth_options = replace(options, output_dir=options.output_dir.with_name("fourth-run"))
+    workflow.run_pipeline(fourth_options, prepare_only=True)
     assert calls == [1]
-    assert not (third_options.output_dir / "cache_reuse.json").exists()
+    assert not (fourth_options.output_dir / "cache_reuse.json").exists()
 
 
 def test_changed_tokenizer_assets_invalidate_cache(options, monkeypatch):

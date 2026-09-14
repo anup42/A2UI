@@ -121,6 +121,38 @@ def test_plan_is_side_effect_free_bounded_and_holdout_is_not_a_trial(options, mo
     assert all(not any("golden35" in stage for stage in item["plan"]["stages"]) for item in result["trials"])
     assert not options.base.output_dir.exists()
     assert not Path(options.base.tensorboard_root).exists()
+    shared_cache = options.base.output_dir.parent / ".golden-preparation-cache"
+    assert {item["plan"]["options"]["preparation_cache_dir"] for item in result["trials"]} == {str(shared_cache)}
+    assert {item["plan"]["options"]["token_cache_dir"] for item in result["trials"]} == {str(shared_cache / "tokens")}
+    assert not shared_cache.exists()
+
+
+def test_explicit_cache_options_survive_trials_and_full_training_handoff(options, tmp_path):
+    base = replace(options.base, token_cache=False, preparation_cache=False,
+                   preparation_cache_dir=tmp_path / "prepared-store", token_cache_dir=tmp_path / "token-store")
+    plan = module.build_experiment_plan(replace(options, base=base))
+    for trial in plan["trials"]:
+        roundtrip = module._options_from_plan(trial["plan"])
+        assert roundtrip.token_cache is False and roundtrip.preparation_cache is False
+        assert roundtrip.token_cache_dir == base.token_cache_dir
+        assert roundtrip.preparation_cache_dir == base.preparation_cache_dir
+    handoff = module._full_training_handoff(plan, {"index": 0})
+    command = handoff["plan_only_command_argv"]
+    assert "--no-token-cache" in command and "--no-preparation-cache" in command
+    assert command[command.index("--token-cache-dir") + 1] == str(base.token_cache_dir)
+
+
+@pytest.mark.parametrize("field", ["preparation_cache_dir", "token_cache_dir"])
+def test_experiment_cache_cannot_be_inside_suite_output(options, field):
+    with pytest.raises(ValueError, match="Experiment caches"):
+        module.build_experiment_plan(replace(options, base=replace(options.base, **{field: options.base.output_dir / "cache"})))
+
+
+def test_experiment_binds_training_implementation_even_when_preparation_cache_ignores_it(options):
+    plan = module.build_experiment_plan(options)
+    bindings = module._input_bindings(plan, interval=10)
+    training_source = Path(__file__).resolve().parents[1] / "src/ir_training/train/sft.py"
+    assert str(training_source) in bindings
 
 
 @pytest.mark.parametrize("profile,qat,rate", [("e2b", False, 2e-5), ("270m", False, 2e-5), ("270m", True, 5e-6)])

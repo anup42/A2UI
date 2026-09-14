@@ -189,13 +189,31 @@ optimizer budget, GPU profile and TensorBoard path. Existing subprocess output
 is streamed to console and files; blocking stages emit heartbeats. Training
 metric cadence is ten optimizer updates by default (`--logging-steps`).
 
-The HF startup path avoids diagnostic re-tokenization: actual masked tensor
-lengths supply its summary, and the historical raw-full-string vocabulary
-check remains. This reduces tokenizer calls per example from seven to three
-on rank zero, and four to three on other ranks. Every rank still checks its
-own data; preflight and training are separate processes and still each prepare
-their runtime tensors. Raw/text views are released after their final preflight
-use, without adding a second multi-GB persistent token cache.
+Prepared data and exact HF token IDs, attention masks and completion-only labels
+are now persistently cached by default. All sequential trials share
+`<suite output parent>/.golden-preparation-cache/` and its `tokens/` child, not a
+different cache under each trial. Set `--preparation-cache-dir` and optionally
+`--token-cache-dir` to reuse the same persistent storage across separate suites
+and normal full runs. The selected full-training handoff preserves those paths
+and enable/disable settings. `--no-preparation-cache` and `--no-token-cache`
+control the two layers independently.
+
+The first matching process builds and validates each token entry; preflight,
+training and other GPU ranks memory-map the completed, checksum-verified entry.
+Learning-rate, epoch, GPU and LoRA-only changes do not trigger data rebuilding.
+Source/prompt/tokenizer/sequence/masking changes invalidate affected entries;
+an augmented training split has a different occurrence identity, so it cannot
+reuse unaugmented training tokens. Matching augmented trials can share tokens.
+Raw-token admission checks occur during building, and live tensor/model checks
+still run on every launch. Forward success, scores and optimizer state are never
+reused as cache evidence. The separate legacy TRL path remains uncached.
+
+The owned prepared-data cache survives deletion of earlier run folders; old
+receipt-only entries require one fresh v2 preparation. Logs distinguish hits,
+miss reasons, build progress and waiting for another builder. Hits still require
+hashing and integrity I/O; keep caches on fast persistent storage and budget
+disk for prepared data plus token tensors. See the quickstart's
+[startup/cache controls](GOLDEN_E2E_QUICKSTART.md#startup-progress-cpu-preparation-and-reuse).
 
 The training seed is now set before model/LoRA initialization as well as passed
 to Trainer. Suite inputs, model inventory, recipe and implementation identities
