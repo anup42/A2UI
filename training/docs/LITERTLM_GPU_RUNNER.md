@@ -52,10 +52,33 @@ python3 -m venv /YOUR_RUNTIME_ENV
 ```
 
 The prerequisite probe loads the pinned native shared library and checks its
-Python API and NVIDIA inventory before
-expensive training. `status=prerequisites_passed` explicitly includes
-`model_kernel_tested=false`; it is not an execution test of a not-yet-exported
-model. Driver/GPU delegate/format compatibility is tested after export.
+Python API and NVIDIA inventory before expensive training. It also runs a
+**30-second, isolated native Vulkan probe**: load `libvulkan.so.1`, create a
+Vulkan 1.1 instance, enumerate physical devices, reject software/non-NVIDIA
+adapters, and create a logical NVIDIA GPU device with a usable compute queue.
+This catches the CUDA-only-container failure where `nvidia-smi` and Python
+imports work but the WebGPU delegate later reports `No adapters found`.
+It does not require a desktop, window, swapchain, `vkcube`, or display server.
+
+The report includes `vulkan_compute_device_verified=true` and the Vulkan
+device/queue evidence. `status=prerequisites_passed` explicitly includes
+`model_kernel_tested=false`; nested `webgpu_adapter_tested=false` makes clear
+that this is **not** a Dawn adapter-feature or model-shader test. No shader is
+dispatched during this lightweight check. Actual delegate/format/kernel and
+GPU UUID allocation checks remain required after export. H100 memory size or
+successful CUDA training alone cannot establish these capabilities.
+
+### Fix `libvulkan.so.1` missing / WebGPU `No adapters found`
+
+The screenshot failure is a runtime image/driver prerequisite problem, not a
+training loss, checkpoint, or hyperparameter problem. Install the distribution
+Vulkan loader in the image and expose the host NVIDIA Vulkan ICD libraries to
+the job. See [exact administrator setup and verification](DEPLOYMENT_EXPORT_ENVIRONMENT.md#linux-vulkan-prerequisites-required-for-native-gpu-testing).
+The pipeline does not install OS packages, change host drivers, use Mesa CPU
+rendering as a substitute, or silently retry inference on CPU. GPU engine
+failures retain the native messages and actionable context in `runner.log` and
+the final stage exception. A passed Vulkan probe is not a guarantee that every
+experimental exported precision is supported by the installed LiteRT delegate.
 
 ## Evaluate a produced package
 
@@ -141,3 +164,6 @@ receives scores and observed scalar runtime measurements through the shared logg
 - [Official Python usage](https://developers.google.com/edge/litert-lm/python)
 - [NVIDIA nvidia-smi documentation](https://docs.nvidia.com/deploy/nvidia-smi/index.html)
 - [Linux proc status namespace PID semantics](https://man7.org/linux/man-pages/man5/proc_pid_status.5.html)
+- [NVIDIA container graphics driver capability](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html#driver-capabilities)
+- [Khronos Vulkan logical device creation](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateDevice.html)
+- [Vulkan native ABI structures (header v1.3.290)](https://github.com/KhronosGroup/Vulkan-Headers/blob/v1.3.290/include/vulkan/vulkan_core.h)

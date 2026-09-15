@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from ir_training.pipeline.experiments import ExperimentOptions, run_experiments
@@ -50,6 +50,8 @@ def main() -> int:
     parser.add_argument("--token-cache", action=argparse.BooleanOptionalAction, default=True, help="Share verified runtime tensors across preflight/training and matching sequential trials")
     parser.add_argument("--token-cache-dir", type=Path, help="Persistent shared token store; default: <preparation-cache-dir>/tokens")
     parser.add_argument("--tensorboard-root", default=os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard")
+    parser.add_argument("--tensorboard-detail", choices=("minimal", "full"), default=os.environ.get("A2UI_TENSORBOARD_DETAIL", "minimal"),
+                        help="Minimal: headline training/Golden metrics and HParams; full: all diagnostic TensorBoard metrics. JSON reports always retain full detail.")
     parser.add_argument("--qat", action="store_true", help="270M only. E2B official retained-scale QAT remains in its separate launcher.")
     parser.add_argument("--execute", action="store_true", help="Explicitly run all trials one by one, lock a Golden32 winner, then evaluate that checkpoint once on Golden35")
     args = vars(parser.parse_args())
@@ -65,6 +67,7 @@ def main() -> int:
     else:
         print(json.dumps({"status": result["status"], "output_dir": result["plan"]["output_dir"],
                           "selected_trial": result.get("selected_trial"), "completed_trials": len(result["trials"]),
+                          "comparison_table": str(Path(result["plan"]["output_dir"]) / "comparison.md"),
                           "tensorboard_dir": result["plan"]["tensorboard_dir"]}, indent=2))
     return 0
 

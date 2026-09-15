@@ -12,8 +12,52 @@ from typing import Any
 
 from ir_training.common.config import repo_root
 
-
 TENSORBOARD_ROOT_ENV = "A2UI_TENSORBOARD_ROOT"
+TENSORBOARD_DETAIL_ENV = "A2UI_TENSORBOARD_DETAIL"
+
+# Deliberately do not recursively admit every numeric leaf: an aggregate also
+# contains many duplicated raw/repaired diagnostics and scorer settings.
+_IMPORTANT_EVALUATION_METRICS = frozenset({
+    "count", "overall_score", "overall_score_delta_vs_baseline",
+    "generation_reward_v5_4", "generation_reward_v5_4_avg",
+    "render_artifact_quality_v5_4", "render_artifact_quality_v5_4_avg",
+    "unique_source_generation_reward_v5_4", "unique_source_generation_reward_v5_4_avg",
+    "schema_valid_strict_rate", "standard_a2ui_valid_rate", "canonical_semantic_valid_rate",
+    "standard_a2ui_valid_avg", "canonical_semantic_valid_avg",
+    "generation_runtime_mean_row_seconds", "generation_runtime_tokens_per_row_second",
+    "evaluation_pause_seconds", "evaluation_generation_seconds", "evaluation_rows_per_second",
+    "evaluation_output_tokens_per_second", "evaluation_world_size", "generation_runtime_gpu_count",
+    "generation_runtime_wall_seconds", "generation_runtime_wall_output_tokens_per_second",
+    "runtime_latency_ms_avg",
+})
+
+
+def resolve_tensorboard_detail(configured: str | None = None) -> str:
+    """Select dashboard verbosity independently from console/JSON evidence."""
+    value = str(configured or os.environ.get(TENSORBOARD_DETAIL_ENV) or "minimal").strip().lower()
+    if value not in {"minimal", "full"}:
+        raise ValueError("TensorBoard detail must be 'minimal' or 'full'.")
+    return value
+
+
+def select_tensorboard_metrics(
+    metrics: Mapping[str, Any], *, detail: str | None = None,
+) -> dict[str, float]:
+    """Keep headline quality, validity, selection and measured runtime charts.
+
+    This only affects event-file dashboards, never the aggregate, prediction or
+    evidence JSON. Full detail remains an explicit debugging opt-in.
+    """
+    flattened = flatten_scalar_metrics(metrics)
+    if resolve_tensorboard_detail(detail) == "full":
+        return flattened
+    selected = {key: value for key, value in flattened.items() if key in _IMPORTANT_EVALUATION_METRICS}
+    # Existing _avg tags are the stable selection/comparison contract. Avoid
+    # plotting a second identical official-name alias alongside them.
+    for key in ("generation_reward_v5_4", "render_artifact_quality_v5_4", "unique_source_generation_reward_v5_4"):
+        if f"{key}_avg" in selected:
+            selected.pop(key, None)
+    return selected
 
 
 def resolve_tensorboard_root(
@@ -58,6 +102,7 @@ def log_evaluation_result(
     metadata: Mapping[str, Any] | None = None,
     source_aggregate_path: str | Path | None = None,
     writer_factory: Callable[..., Any] | None = None,
+    detail: str | None = None,
 ) -> dict[str, Any]:
     """Persist one comparable evaluation result to TensorBoard and JSON.
 
@@ -84,7 +129,8 @@ def log_evaluation_result(
         if source_aggregate_path is not None
         else None
     )
-    scalar_metrics = flatten_scalar_metrics(metrics)
+    resolved_detail = resolve_tensorboard_detail(detail)
+    scalar_metrics = select_tensorboard_metrics(metrics, detail=resolved_detail)
     record: dict[str, Any] = {
         "schema_version": 1,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -93,6 +139,7 @@ def log_evaluation_result(
         "step": resolved_step,
         "tensorboard_root": str(resolved_root),
         "tensorboard_log_dir": str(log_dir),
+        "tensorboard_detail": resolved_detail,
         "scalar_tags": {
             f"evaluation/{safe_evaluation}/{key}": value
             for key, value in scalar_metrics.items()
@@ -110,11 +157,12 @@ def log_evaluation_result(
     try:
         for tag, value in record["scalar_tags"].items():
             writer.add_scalar(tag, value, resolved_step)
-        writer.add_text(
-            f"evaluation/{safe_evaluation}/record",
-            "```json\n" + json.dumps(record, indent=2, ensure_ascii=False) + "\n```",
-            resolved_step,
-        )
+        if resolved_detail == "full":
+            writer.add_text(
+                f"evaluation/{safe_evaluation}/record",
+                "```json\n" + json.dumps(record, indent=2, ensure_ascii=False) + "\n```",
+                resolved_step,
+            )
         writer.flush()
     finally:
         writer.close()

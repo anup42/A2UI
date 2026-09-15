@@ -192,7 +192,7 @@ def test_custom_trials_preserve_global_budget_and_baseline(options, tmp_path):
     assert result["trials"][1]["plan"]["options"]["steps"] == 20
 
 
-def test_runs_one_by_one_logs_hparams_then_locks_before_single_holdout(options):
+def test_runs_one_by_one_logs_hparams_then_locks_before_single_holdout(options, capsys):
     calls, holdouts, writers = [], [], []
     def factory(**kwargs):
         writer = Writer(**kwargs)
@@ -213,6 +213,11 @@ def test_runs_one_by_one_logs_hparams_then_locks_before_single_holdout(options):
     assert handoff["options"]["steps"] is None
     assert handoff["options"]["evaluate_golden35"] is True
     assert "--execute" not in handoff["plan_only_command_argv"]
+    table = (options.base.output_dir / "comparison.md").read_text(encoding="utf-8")
+    assert "regularization [selected]" in table
+    assert "0.3000 / 0.3000" in table
+    assert "32 occurrences / 31 unique sources" in table
+    assert "holdout (not used for selection)" in capsys.readouterr().out
 
 
 def test_deployment_screening_defers_holdout_until_fresh_full_training(options):
@@ -234,7 +239,7 @@ def test_ties_prefer_baseline_not_holdout_score(options):
     assert len(holdouts) == 1
 
 
-def test_failed_trial_stops_durably_and_is_not_auto_resumed(options):
+def test_failed_trial_stops_durably_and_is_not_auto_resumed(options, capsys):
     calls = []
     def fail(trial, **kwargs):
         calls.append(trial)
@@ -244,6 +249,10 @@ def test_failed_trial_stops_durably_and_is_not_auto_resumed(options):
     state = json.loads((options.base.output_dir / "experiments_manifest.json").read_text())
     assert state["status"] == "failed" and state["active_trial"] == "baseline"
     assert len(calls) == 1 and not (options.base.output_dir / "selection_locked.json").exists()
+    table = (options.base.output_dir / "comparison.md").read_text(encoding="utf-8")
+    assert "fixture training failure" in table
+    assert "not run" in table and "unknown/32" in table
+    assert "# Hyperparameter tuning results" in capsys.readouterr().out
     with pytest.raises(FileExistsError):
         module.run_experiments(options, execute=True, pipeline_runner=fail, writer_factory=Writer)
     assert len(calls) == 1

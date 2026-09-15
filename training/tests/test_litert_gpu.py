@@ -80,6 +80,8 @@ def runtime(monkeypatch):
     monkeypatch.setattr(runner.sys, "platform", "linux")
     monkeypatch.setattr(runner.importlib.metadata, "version", lambda _: runner.RUNTIME_VERSION)
     monkeypatch.setattr(runner, "nvidia_inventory", lambda: [{"uuid": "GPU-test", "name": "H100"}])
+    monkeypatch.setattr(runner, "probe_vulkan_gpu", lambda: {"status": "passed", "usable_device_count": 1,
+                                                          "webgpu_adapter_tested": False})
     return SimpleNamespace(Engine=FakeEngine, Session=FakeSession,
                            Backend=SimpleNamespace(GPU=FakeGPU),
                            _ffi=SimpleNamespace(_get_lib=lambda: SimpleNamespace(litert_lm_engine_settings_create=lambda: None)),
@@ -115,6 +117,30 @@ def test_preflight_reports_only_prerequisites(runtime):
     assert result["model_kernel_tested"] is False
     assert result["multi_gpu_supported"] is False
     assert result["gpu_workers"] == 1
+    assert result["vulkan_compute_device_verified"] is True
+    assert result["vulkan"]["webgpu_adapter_tested"] is False
+
+
+def test_preflight_rejects_missing_vulkan_even_when_cuda_and_native_import_work(runtime, monkeypatch):
+    def broken():
+        raise RuntimeError("Vulkan loader libvulkan.so.1 could not load")
+
+    monkeypatch.setattr(runner, "probe_vulkan_gpu", broken)
+    with pytest.raises(RuntimeError, match="libvulkan.so.1"):
+        runner.runtime_preflight(runtime=runtime)
+    assert not FakeEngine.instances
+
+
+def test_engine_creation_failure_explains_prerequisite_limit(tmp_path, runtime, monkeypatch):
+    def broken(*args, **kwargs):
+        raise RuntimeError("Failed to initialize WebGPU environment: No adapters found")
+
+    monkeypatch.setattr(runner, "runtime_preflight", lambda **_: {"status": "prerequisites_passed"})
+    monkeypatch.setattr(runtime, "Engine", broken)
+    with pytest.raises(RuntimeError, match="does not certify WebGPU adapter features") as error:
+        run_worker(tmp_path, runtime)
+    assert "NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics" in str(error.value)
+    assert "No adapters found" in str(error.value.__cause__)
 
 
 @pytest.mark.parametrize("workers", [0, 2, 4, 8])

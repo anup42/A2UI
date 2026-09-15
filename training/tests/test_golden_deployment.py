@@ -1,4 +1,4 @@
-"""CPU-only orchestration contracts; never evidence of a real LiteRT/H100 run."""
+"""CPU-only orchestration/recovery contracts; never a real LiteRT/H100 run."""
 import json
 import os
 import sys
@@ -83,7 +83,7 @@ def evaluation(path, count, artifact, *, litert=False):
 def fake_pipeline(base, *, execute, command_runner):
     assert execute and base.evaluate_golden35
     output = base.output_dir
-    config = {"runtime": {"cuda_visible_devices": "0,1,2,3,4,5,6,7"},
+    config = {"runtime": {"cuda_visible_devices": "0,1,2,3,4,5,6,7", "gpu_profile": {"world_size": 8, "effective_batch_size": 32}},
               "training": {"learning_rate": base.learning_rate or 2e-5, "weight_decay": .01, "warmup_ratio": .03}}
     (output / "fit").mkdir(parents=True)
     (output / "fit/training_config.yaml").write_text(yaml.safe_dump(config))
@@ -112,11 +112,13 @@ def mock_runner(calls, *, failure=None):
         if failure and failure in logfile.stem:
             raise RuntimeError("simulated process failure")
         if "--preflight" in argv:
-            dump(Path(value("--report")), {"status": "prerequisites_passed"})
+            dump(Path(value("--report")), {"status": "prerequisites_passed", "vulkan_compute_device_verified": True})
         elif "probe" in argv:
             dump(Path(value("--report")), {"status": "passed"})
         elif "prepare" in argv:
-            dump(Path(value("--output-dir")) / "deployment_source.json", {})
+            folder = Path(value("--output-dir"))
+            dump(folder / "model.safetensors", {"fixture": True})
+            dump(folder / "deployment_source.json", {"merged_files": {"model.safetensors": sha256(folder / "model.safetensors")}})
         elif "convert" in argv:
             folder = Path(value("--output-dir"))
             dump(folder / "model.litertlm", {"variant": value("--variant")})

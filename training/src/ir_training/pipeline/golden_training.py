@@ -49,6 +49,7 @@ class GoldenTrainingOptions:
     max_input_tokens: int = 4096
     max_new_tokens: int = 2048
     tensorboard_root: str = "/tensorboard"
+    tensorboard_detail: str = "minimal"
     microbatch: int | None = None
     effective_batch: int | None = None
     dataloader_workers: int | None = None
@@ -111,6 +112,8 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
 def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
     """Read-only plan, requiring no CUDA, model loading or tokenizer download."""
     values = _options(options)
+    if options.tensorboard_detail not in {"minimal", "full"}:
+        raise ValueError("--tensorboard-detail must be minimal or full")
     from ir_training.train.hyperparameters import review_overrides
     review_overrides(learning_rate=options.learning_rate, weight_decay=options.weight_decay,
                      warmup_ratio=options.warmup_ratio, logging_steps=options.logging_steps, seed=options.seed)
@@ -361,7 +364,7 @@ def configure_command(plan: dict[str, Any]) -> list[str]:
         command.append("--qat")
     command.append("--gradient-checkpointing" if values["gradient_checkpointing"] else "--no-gradient-checkpointing")
     command.append("--token-cache" if values["token_cache"] else "--no-token-cache")
-    command.extend(["--token-cache-dir", values["token_cache_dir"]])
+    command.extend(["--token-cache-dir", values["token_cache_dir"], "--tensorboard-detail", values["tensorboard_detail"]])
     return command
 
 
@@ -496,7 +499,7 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
         output.mkdir(parents=True, exist_ok=False)
         state = {"schema_version": 1, "plan": plan, "status": "running", "completed": {}, "attempts": {}, "active_stage": None}
     environment = dict(os.environ)
-    environment.update(A2UI_TENSORBOARD_ROOT=plan["options"]["tensorboard_root"], PYTHONUNBUFFERED="1")
+    environment.update(A2UI_TENSORBOARD_ROOT=plan["options"]["tensorboard_root"], A2UI_TENSORBOARD_DETAIL=plan["options"]["tensorboard_detail"], PYTHONUNBUFFERED="1")
     def stage(name: str, work: Callable[[], list[Path]]) -> None:
         if name in state["completed"]:
             log(f"Stage {name}: reuse verified completed stage")

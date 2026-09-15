@@ -178,6 +178,22 @@ Golden32 metrics and final checkpoint scores. The sweep adds HParams entries
 and comparison scalars, backed by persistent JSON records. HParams is the
 [PyTorch TensorBoard interface for recording settings with their metrics](https://docs.pytorch.org/docs/2.14/tensorboard.html).
 
+Dashboard detail now defaults to `--tensorboard-detail minimal` in ordinary,
+tuning and full-deployment launchers. Important charts remain: training and
+validation loss, learning rate, gradient norm, epoch, measured throughput,
+Golden quality/strict-validity scores and the Golden32 unique-source selection
+score. HParams and checkpoint/LiteRT variant comparisons remain available.
+Golden metrics are written once through the evaluation writer, not duplicated
+as hundreds of Trainer charts. Scorer-internal counts, weights, nested
+raw/repaired breakdowns and full JSON text blobs are omitted from event files.
+
+Use `--tensorboard-detail full` (or `A2UI_TENSORBOARD_DETAIL=full` for standalone
+evaluation) to restore detailed diagnostic charts and text. This only changes
+TensorBoard presentation: aggregate/scored-prediction JSON, evaluation sidecars,
+Trainer log history, console logs and artifact/checkpoint identities remain
+complete. Existing event files are not deleted or rewritten; select the new run
+in TensorBoard to see the lean dashboard.
+
 Normal training curves are under `/tensorboard/<unique-trial-id>/training`;
 the sweep comparison/HParams group is
 `/tensorboard/experiments/<suite-id>/`. Select matching scalar tags across

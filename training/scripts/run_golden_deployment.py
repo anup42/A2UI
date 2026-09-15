@@ -30,11 +30,12 @@ def main() -> int:
     parser.add_argument("--generation-timeout-seconds", type=float, default=7200, help="HF/LiteRT generation worker deadline per cohort")
     parser.add_argument("--case-timeout-seconds", type=float, default=600, help="LiteRT per-case progress deadline")
     parser.add_argument("--load-timeout-seconds", type=float, default=1800, help="LiteRT model-load deadline")
+    parser.add_argument("--resume-run", action="store_true", help="Explicit post-training recovery in the same output directory; verify and reuse completed stages, never restart training/tuning")
     values = vars(parser.parse_args())
     execute = values.pop("execute")
     keys = ("exporter_python", "runtime_python", "tune", "trial_steps", "trials_file", "include_augmentation",
             "allow_experimental_formats", "cache_length", "stage_timeout_seconds", "generation_timeout_seconds",
-            "case_timeout_seconds", "load_timeout_seconds")
+            "case_timeout_seconds", "load_timeout_seconds", "resume_run")
     deployment = {key: values.pop(key) for key in keys}
     try:
         result = run_deployment(GoldenDeploymentOptions(base=GoldenTrainingOptions(**values), **deployment), execute=execute)

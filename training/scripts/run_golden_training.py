@@ -50,6 +50,7 @@ def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     parser.add_argument("--token-cache", action=argparse.BooleanOptionalAction, default=True, help="Persist exact token IDs, masks and labels for verified reuse by preflight, training and GPU workers")
     parser.add_argument("--token-cache-dir", type=Path, help="Shared token store; default: <preparation-cache-dir>/tokens. Keep on fast persistent storage outside model, source and run directories.")
     parser.add_argument("--tensorboard-root", default=os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard")
+    parser.add_argument("--tensorboard-detail", choices=("minimal", "full"), default=os.environ.get("A2UI_TENSORBOARD_DETAIL") or "minimal", help="Minimal (default): headline training/Golden/runtime metrics and HParams; full: all diagnostic charts and JSON text. Disk artifacts remain complete.")
     if not for_deployment:
         parser.add_argument("--qat", action="store_true", help="270M only: initialize from a local full SFT checkpoint and train W8 QAT. E2B official QAT remains separate.")
     mode = parser.add_mutually_exclusive_group()

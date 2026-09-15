@@ -164,6 +164,8 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
     config["model"].update(model_source=str(model_dir), tokenizer_source=str(model_dir), dtype=gpu_profile["dtype"],
                           attn_implementation=gpu_profile["attn_implementation"])
     training = config["training"]
+    from ir_training.eval.tensorboard_logging import resolve_tensorboard_detail
+    training["tensorboard_detail"] = resolve_tensorboard_detail(getattr(args, "tensorboard_detail", None))
     tensorboard_root = os.environ.get("A2UI_TENSORBOARD_ROOT") or "/tensorboard"
     training.update(per_device_train_batch_size=gpu_profile["microbatch"], gradient_accumulation_steps=gpu_profile["gradient_accumulation_steps"],
                     expected_effective_batch_size=effective_batch, epochs=args.epochs, max_seq_length=args.max_seq_length,
@@ -261,6 +263,7 @@ def main() -> None:
     parser.add_argument("--weight-decay", type=float, help="Override profile weight decay (0.01)")
     parser.add_argument("--warmup-ratio", type=float, help="Override profile warmup fraction (0.03)")
     parser.add_argument("--logging-steps", type=int, default=10, help="Console/TensorBoard training metric cadence in optimizer updates")
+    parser.add_argument("--tensorboard-detail", choices=("minimal", "full"), help="Dashboard detail; defaults to A2UI_TENSORBOARD_DETAIL or minimal. Full evidence stays on disk.")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--steps", type=int)
     parser.add_argument("--resume", type=Path)

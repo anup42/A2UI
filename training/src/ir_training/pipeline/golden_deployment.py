@@ -1,6 +1,6 @@
-"""Current dual-Golden training, optional screening, and real GPU deployment tests.
+"""Dual-Golden training, optional screening, and recoverable GPU deployment tests.
 
-No automatic retries or CPU-inference fallback.  Completion requires all eight
+No automatic retries or CPU-inference fallback. Completion requires all eight
 LiteRT evaluations, not just successful subprocess exits or export filenames.
 """
 from __future__ import annotations
@@ -13,6 +13,7 @@ import re
 import sys
 import time
 from collections.abc import Callable
+from copy import deepcopy
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,12 +24,14 @@ from ir_training.common.config import load_yaml, repo_root
 from ir_training.common.progress import Progress, log
 from ir_training.eval.tensorboard_logging import (
     _summary_writer_factory,
-    flatten_scalar_metrics,
+    resolve_tensorboard_detail,
+    select_tensorboard_metrics,
 )
 from ir_training.pipeline.deployment_export import (
     build_deployment_export_plan,
     validate_deployment_export_output,
 )
+from ir_training.pipeline.deployment_recovery import deployment_lock, validate_resume
 from ir_training.pipeline.experiments import (
     ExperimentOptions,
     build_experiment_plan,
@@ -41,6 +44,10 @@ from ir_training.pipeline.golden_training import (
     evaluation_command,
     run_pipeline,
     sha256,
+)
+from ir_training.pipeline.result_tables import (
+    publish_deployment_results,
+    render_deployment_results,
 )
 
 
@@ -59,6 +66,7 @@ class GoldenDeploymentOptions:
     generation_timeout_seconds: float = 7200
     case_timeout_seconds: float = 600
     load_timeout_seconds: float = 1800
+    resume_run: bool = False
 
 
 def _base(options: GoldenDeploymentOptions) -> GoldenTrainingOptions:
@@ -193,6 +201,52 @@ def _evaluation(path: Path, count: int, *, artifact: Path, litert: bool = False)
     return result, evidence
 
 
+def _restore_results(state: dict, plan: dict) -> None:
+    """Rebuild score rows from verified stage files rather than summary-only data."""
+    restored: dict = {}
+    training = Path(plan["training"]["options"]["output_dir"])
+    nested = _json(training / "pipeline_manifest.json")
+    stages = state["completed"]
+    locations = state.get("artifact_directories") or {}
+    for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4"):
+        for cohort, count in (("golden32", 32), ("golden35", 35)):
+            key = f"{label}_{cohort}"
+            if label.startswith("checkpoint_"):
+                role = label.removeprefix("checkpoint_")
+                entry = nested["completed"][f"{role}_{cohort}"]
+                artifact = training / "fit/training" / ("best_golden_checkpoint" if role == "best" else
+                           ("final_adapter" if plan["export"]["profile"] == "e2b" else "final_model"))
+            elif key in stages:
+                entry = stages[key]
+                if label == "merged":
+                    artifact = Path(locations.get("merged", plan["export"]["merged_model_dir"]))
+                else:
+                    artifact = Path(locations.get(label, plan["export"]["variants"][label]["output_dir"])) / "model.litertlm"
+            else:
+                continue
+            paths = [Path(path) for path in entry["files"] if Path(path).name == "evaluation_result.json"]
+            if len(paths) != 1:
+                raise ValueError(f"Cannot identify retained evaluation result: {key}")
+            result, _ = _evaluation(paths[0].parent, count, artifact=artifact, litert=label.startswith("w"))
+            if state.get("results", {}).get(key) != result:
+                raise ValueError(f"Retained summary differs from its bound evaluation: {key}")
+            restored[key] = result
+    state["results"] = restored
+    recovered_export = deepcopy(plan["export"])
+    recovered_export["merged_model_dir"] = locations.get("merged", recovered_export["merged_model_dir"])
+    verified_exports = {}
+    for variant, spec in recovered_export["variants"].items():
+        if f"export_{variant}" not in stages:
+            continue
+        spec["output_dir"] = locations.get(variant, spec["output_dir"])
+        spec["artifact"] = str(Path(spec["output_dir"]) / "model.litertlm")
+        result = validate_deployment_export_output(recovered_export, variant)
+        if result != state.get("exports", {}).get(variant):
+            raise ValueError(f"Retained export summary differs from inspected artifact: {variant}")
+        verified_exports[variant] = result
+    state["exports"] = verified_exports
+
+
 def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
                    command_runner: Callable = run_bounded_command,
                    pipeline_runner: Callable = run_pipeline, experiment_runner: Callable = run_experiments,
@@ -202,15 +256,60 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
         return {**plan, "status": "plan_only", "training_executed": False}
     if not options.allow_experimental_formats:
         raise ValueError("All four formats include experimental W16/W4. Read the deployment runbook, then explicitly pass --allow-experimental-formats")
+    with deployment_lock(Path(plan["output_dir"])):
+        return _run_deployment_locked(options, plan, command_runner=command_runner,
+            pipeline_runner=pipeline_runner, experiment_runner=experiment_runner,
+            writer_factory=writer_factory, gpu_probe=gpu_probe)
+
+
+def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
+                           experiment_runner, writer_factory, gpu_probe):
     output = Path(plan["output_dir"])
-    output.mkdir(parents=True, exist_ok=False)
     record = output / "deployment_manifest.json"
-    state: dict = {"plan": plan, "status": "running", "completed": {}, "active_stage": None,
-                   "started_at": datetime.now(timezone.utc).isoformat(), "results": {}}
+    recovery_dir = None
+    if options.resume_run:
+        state = _json(record)
+        validate_resume(state, plan)
+        _restore_results(state, plan)
+        if state["status"] == "complete":
+            tune_path = Path(plan["tuning"]["output_dir"]) / "experiments_manifest.json" if plan.get("tuning") else None
+            print(render_deployment_results(state, tuning_state=_json(tune_path) if tune_path else None), flush=True)
+            log("Deployment is already complete; no training or evaluation repeated")
+            return state
+        attempt = state.get("attempt", 1) + 1
+        recovery_dir = output / "recovery" / f"attempt_{attempt:04d}"
+        while recovery_dir.exists():
+            attempt += 1
+            recovery_dir = output / "recovery" / f"attempt_{attempt:04d}"
+        recovery_dir.mkdir(parents=True, exist_ok=False)
+        _write(recovery_dir / "previous_deployment_manifest.json", state)
+        state.update(attempt=attempt, status="running", active_stage=None, plan=plan)
+        state.pop("error", None)
+    else:
+        output.mkdir(parents=True, exist_ok=False)
+        state = {"plan": plan, "status": "running", "completed": {}, "active_stage": None,
+                 "started_at": datetime.now(timezone.utc).isoformat(), "results": {}, "attempt": 1}
     _write(record, state)
     environment = {**os.environ, "PYTHONUNBUFFERED": "1", "TOKENIZERS_PARALLELISM": "false",
-                   "A2UI_TENSORBOARD_ROOT": options.base.tensorboard_root}
+                   "A2UI_TENSORBOARD_ROOT": options.base.tensorboard_root,
+                   "A2UI_TENSORBOARD_DETAIL": options.base.tensorboard_detail}
     writer = None
+
+    def log_path(name):
+        return (recovery_dir or output) / "logs" / f"{name}.log"
+
+    def evaluation_dir(name):
+        original = output / "evaluations" / name
+        if recovery_dir is not None:
+            return recovery_dir / "evaluations" / name
+        return original
+
+    def tuning_state():
+        if plan.get("tuning"):
+            path = Path(plan["tuning"]["output_dir"]) / "experiments_manifest.json"
+            if path.is_file():
+                return _json(path)
+        return None
 
     def command(argv, logfile, env):
         argv = list(argv)
@@ -220,6 +319,9 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
                        progress_seconds=options.base.progress_seconds)
 
     def stage(name, work):
+        if name in state["completed"] and name not in {"host_preflight", "exporter_preflight", "runtime_preflight"}:
+            log(f"Reuse verified completed deployment stage: {name}")
+            return
         state.update(active_stage=name, status="running")
         _write(record, state)
         start = time.monotonic()
@@ -230,12 +332,13 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
         state["completed"][name] = {"files": _bindings(paths), "elapsed_seconds": elapsed}
         state["active_stage"] = None
         _write(record, state)
-        writer.add_scalar(f"stages/{name}/elapsed_seconds", elapsed, 0)
+        if resolve_tensorboard_detail(options.base.tensorboard_detail) == "full":
+            writer.add_scalar(f"stages/{name}/elapsed_seconds", elapsed, 0)
         writer.flush()
 
     def log_result(label, cohort, result, step):
         state["results"][f"{label}_{cohort}"] = result
-        for key, value in flatten_scalar_metrics(result["aggregate"]).items():
+        for key, value in select_tensorboard_metrics(result["aggregate"], detail=options.base.tensorboard_detail).items():
             writer.add_scalar(f"evaluation/{label}/{cohort}/{key}", value, step)
         writer.flush()
         metric = "unique_source_generation_reward_v5_4_avg" if cohort == "golden32" else "generation_reward_v5_4_avg"
@@ -244,7 +347,8 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
     try:
         factory = writer_factory or _summary_writer_factory()
         writer = factory(log_dir=plan["tensorboard_dir"])
-        writer.add_text("deployment/plan", json.dumps(plan, indent=2), 0)
+        if resolve_tensorboard_detail(options.base.tensorboard_detail) == "full":
+            writer.add_text("deployment/plan", json.dumps(plan, indent=2), 0)
         writer.flush()  # Fail on an unwritable /tensorboard before training.
 
         def host_preflight():
@@ -256,30 +360,63 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
             profile = build_gpu_profile(inventory, model=options.base.profile, devices=options.base.devices,
                                         microbatch=options.base.microbatch, effective_batch=options.base.effective_batch,
                                         dataloader_workers=options.base.dataloader_workers)
-            _write(output / "gpu_preflight.json", profile)
+            path = (recovery_dir or output) / "gpu_preflight.json"
+            _write(path, profile)
             allowed = [item.get("uuid") for item in profile["selected_devices"]]
             if any(not value for value in allowed):
                 raise ValueError("LiteRT GPU allocation checks require the selected NVIDIA GPU UUIDs")
             environment["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed)
             log(f"Training/HF evaluation: {profile['world_size']} GPUs; microbatch={profile['microbatch']}; effective batch={profile['effective_batch_size']}")
-            return [output / "gpu_preflight.json"]
+            return [path]
 
         stage("host_preflight", host_preflight)
-        export = plan["export"]
+        export = deepcopy(plan["export"])
+        locations = state.setdefault("artifact_directories", {})
+        # Failed exports/merge are recreated in fresh attempt directories. Never
+        # delete/overwrite the original package, partial graphs or engine logs.
+        if recovery_dir is not None:
+            if "merge" not in state["completed"]:
+                locations["merged"] = str(recovery_dir / "deployment/merged_hf")
+            for variant in export["variants"]:
+                if f"export_{variant}" not in state["completed"]:
+                    locations[variant] = str(recovery_dir / "deployment/variants" / variant)
+        for name, directory in locations.items():
+            path = Path(directory).resolve()
+            if not path.is_relative_to(output) or path == output:
+                raise ValueError("Recovered artifact directory escapes deployment output")
+            if name == "merged":
+                export["merged_model_dir"] = str(path)
+                argv = export["prepare_command"]
+                argv[argv.index("--output-dir") + 1] = str(path)
+            elif name in export["variants"]:
+                spec = export["variants"][name]
+                spec["output_dir"], spec["artifact"] = str(path), str(path / "model.litertlm")
+                spec["command"][spec["command"].index("--output-dir") + 1] = str(path)
+            else:
+                raise ValueError("Unknown recovered artifact directory")
+        state["effective_export_plan"] = export
+        for specification in export["variants"].values():
+            argv = specification["command"]
+            argv[argv.index("--model-dir") + 1] = export["merged_model_dir"]
         export_env = {**environment, **export["environment"]}
         def probe_exporter():
-            command(export["probe_command"], output / "logs/exporter_preflight.log", export_env)
-            path = output / "deployment/exporter_preflight.json"
+            path = (recovery_dir or output) / "deployment/exporter_preflight.json"
+            argv = list(export["probe_command"])
+            argv[argv.index("--report") + 1] = str(path)
+            command(argv, log_path("exporter_preflight"), export_env)
             if _json(path).get("status") != "passed":
                 raise ValueError("Exporter preflight did not pass")
             return [path]
         stage("exporter_preflight", probe_exporter)
 
         def probe_runtime():
-            command(plan["runtime_probe_command"], output / "logs/runtime_preflight.log", environment)
-            path = output / "runtime_preflight.json"
+            path = (recovery_dir or output) / "runtime_preflight.json"
+            argv = list(plan["runtime_probe_command"])
+            argv[argv.index("--report") + 1] = str(path)
+            command(argv, log_path("runtime_preflight"), environment)
             # The subprocess exits nonzero for unsupported package/API/host.
-            if _json(path).get("status") != "prerequisites_passed":
+            result = _json(path)
+            if result.get("status") != "prerequisites_passed" or result.get("vulkan_compute_device_verified") is not True:
                 raise ValueError("LiteRT runtime prerequisite checks did not pass")
             return [path]
         stage("runtime_preflight", probe_runtime)
@@ -287,6 +424,8 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
         training_options = replace(base, output_dir=Path(plan["training"]["options"]["output_dir"]))
         if options.tune:
             tuned: dict = {}
+            if "tuning" in state["completed"]:
+                tuned.update(_json(output / "locked_hyperparameters.json")["parameters"])
             def tune():
                 result = experiment_runner(ExperimentOptions(
                     base=replace(base, output_dir=Path(plan["tuning"]["output_dir"]), steps=None),
@@ -332,44 +471,43 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
         stage("full_training_and_checkpoint_evaluation", train)
         checkpoint = Path(export["source_checkpoint"])
         step = _checkpoint_step(checkpoint)
-        runtime = load_yaml(training_output / "fit/training_config.yaml")["runtime"]
-        eval_env = {**environment, "CUDA_VISIBLE_DEVICES": runtime["cuda_visible_devices"], "A2UI_SKIP_CUDA_DEVICE_NORMALIZE": "1"}
+        gpu_profile = _json((recovery_dir or output) / "gpu_preflight.json")
+        eval_env = {**environment, "CUDA_VISIBLE_DEVICES": gpu_profile["cuda_visible_devices"], "A2UI_SKIP_CUDA_DEVICE_NORMALIZE": "1"}
         for name in ("A2UI_CUDA_VISIBLE_DEVICES", "A2UI_EXCLUDE_CUDA_DEVICES"):
             eval_env.pop(name, None)
-        gpu_profile = _json(output / "gpu_preflight.json")
         allowed_uuids = [item.get("uuid") for item in gpu_profile["selected_devices"]]
         if any(not value for value in allowed_uuids):
             raise ValueError("LiteRT GPU allocation checks require the selected NVIDIA GPU UUIDs")
         eval_env["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed_uuids)
 
         def merge():
-            command(export["prepare_command"], output / "logs/merge.log", export_env)
+            command(export["prepare_command"], log_path("merge"), export_env)
             directory = Path(export["merged_model_dir"])
             return [directory / "deployment_source.json"]
         stage("merge", merge)
         for cohort, count in (("golden32", 32), ("golden35", 35)):
             def evaluate_merged(cohort=cohort, count=count):
-                destination = output / "evaluations" / f"merged_{cohort}"
+                destination = evaluation_dir(f"merged_{cohort}")
                 argv = evaluation_command(training_plan, "best", cohort, destination)
                 argv[argv.index("--checkpoint") + 1] = export["merged_model_dir"]
                 argv[argv.index("--checkpoint-kind") + 1] = "merged"
                 argv[argv.index("--evaluation-name") + 1] = f"merged_{cohort}"
                 argv.extend(["--step", str(step)])
-                command(argv, output / f"logs/merged_{cohort}.log", eval_env)
+                command(argv, log_path(f"merged_{cohort}"), eval_env)
                 evaluated, paths = _evaluation(destination, count, artifact=Path(export["merged_model_dir"]))
                 log_result("merged", cohort, evaluated, step)
                 return paths
             stage(f"merged_{cohort}", evaluate_merged)
         for variant, specification in export["variants"].items():
             def convert(variant=variant, specification=specification):
-                command(specification["command"], output / f"logs/export_{variant}.log", export_env)
+                command(specification["command"], log_path(f"export_{variant}"), export_env)
                 result = validate_deployment_export_output(export, variant)
                 state.setdefault("exports", {})[variant] = result
                 return [Path(path) for path in result["files"]]
             stage(f"export_{variant}", convert)
             for cohort, count in (("golden32", 32), ("golden35", 35)):
                 def evaluate_variant(variant=variant, specification=specification, cohort=cohort, count=count):
-                    destination = output / "evaluations" / f"{variant}_{cohort}"
+                    destination = evaluation_dir(f"{variant}_{cohort}")
                     argv = [sys.executable, "-u", str(repo_root() / "training/scripts/evaluate_litertlm_on_golden.py"),
                             "--builtin-gpu", "--require-prepared-contract", "--model-config", str(training_output / "fit/training_config.yaml"),
                             "--runtime-python", plan["runtime_python"], "--model", specification["artifact"],
@@ -380,7 +518,7 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
                             "--case-timeout-seconds", str(options.case_timeout_seconds), "--load-timeout-seconds", str(options.load_timeout_seconds),
                             "--runtime-timeout-seconds", str(options.generation_timeout_seconds),
                             "--runtime-cache-dir", str(output / "runtime_cache")]
-                    command(argv, output / f"logs/{variant}_{cohort}.log", eval_env)
+                    command(argv, log_path(f"{variant}_{cohort}"), eval_env)
                     evaluated, paths = _evaluation(destination, count, artifact=Path(specification["artifact"]), litert=True)
                     log_result(variant, cohort, evaluated, step)
                     return paths
@@ -405,32 +543,32 @@ def run_deployment(options: GoldenDeploymentOptions, *, execute: bool = False,
             parameters = {"profile": base.profile, "max_new_tokens": base.max_new_tokens,
                           "max_seq_length": base.max_seq_length, "seed": base.seed,
                           "epochs": base.epochs, "tuning": options.tune, "selection": "golden32_only",
-                          "augmentation": training_options.augmentation, "training_gpus": gpu_profile["world_size"],
-                          "effective_batch_size": gpu_profile["effective_batch_size"]}
+                          "augmentation": training_options.augmentation,
+                          "evaluation_gpus": gpu_profile["world_size"]}
             config = load_yaml(training_output / "fit/training_config.yaml")
+            trained_profile = config["runtime"]["gpu_profile"]
+            parameters.update(training_gpus=trained_profile["world_size"], effective_batch_size=trained_profile["effective_batch_size"])
             for name in ("learning_rate", "weight_decay", "warmup_ratio"):
                 parameters[name] = config["training"][name]
             hmetrics = {f"hparam/{label}/{key}": val for label, result in state["results"].items()
-                        for key, val in flatten_scalar_metrics(result["aggregate"]).items()}
+                        for key, val in select_tensorboard_metrics(result["aggregate"], detail=options.base.tensorboard_detail).items()}
             writer.add_hparams(parameters, hmetrics, run_name="final_comparison", global_step=step)
             writer.flush()
-            lines = ["# Deployment results", "", "Golden32 has 32 occurrences / 31 unique sources; Golden35 is the held-out cohort.", "",
-                     "| Model | Golden32 unique-source reward | Golden35 reward |", "|---|---:|---:|"]
-            for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4"):
-                g32 = state["results"][f"{label}_golden32"]["aggregate"]["unique_source_generation_reward_v5_4_avg"]
-                g35 = state["results"][f"{label}_golden35"]["aggregate"]["generation_reward_v5_4_avg"]
-                lines.append(f"| {label} | {g32:.6f} | {g35:.6f} |")
-            (output / "deployment_results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+            table_state = {**state, "status": "complete", "active_stage": None}
+            (output / "deployment_results.md").write_text(render_deployment_results(table_state, tuning_state=tuning_state()), encoding="utf-8")
             _write(output / "deployment_scorecard.json", value)
             return [output / "deployment_scorecard.json", output / "deployment_results.md"]
         stage("scorecard", scorecard)
         state.update(status="complete", finished_at=datetime.now(timezone.utc).isoformat())
         _write(record, state)
+        print(render_deployment_results(state, tuning_state=tuning_state()), flush=True)
+        log(f"Final comparison: {output / 'deployment_results.md'}")
         return state
     except BaseException as exc:
         state.update(status="failed", error=f"{type(exc).__name__}: {exc}")
         _write(record, state)
         log(f"Deployment stopped at {state['active_stage']}. Completed data/checkpoints/logs retained; no automatic training restart or CPU fallback.")
+        publish_deployment_results(state, tuning_state=tuning_state())
         raise
     finally:
         if writer is not None:

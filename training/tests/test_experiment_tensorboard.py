@@ -32,7 +32,8 @@ def _fixture_trial(name, *, learning_rate, score, loss):
     }
 
 
-def test_real_summary_writer_hparams_and_comparison_events_roundtrip(tmp_path):
+def test_real_summary_writer_hparams_and_comparison_events_roundtrip(tmp_path, monkeypatch):
+    monkeypatch.setenv("A2UI_TENSORBOARD_DETAIL", "full")
     pytest.importorskip("tensorboard", reason="Real TensorBoard event roundtrip requires the training-host tensorboard package")
     pytest.importorskip("torch", reason="Real TensorBoard writer integration requires torch")
     from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
@@ -96,3 +97,24 @@ def test_real_summary_writer_hparams_and_comparison_events_roundtrip(tmp_path):
     assert {path.parent for path in root.rglob("events.out.tfevents.*")} == {
         suite, *(suite / trial["name"] for trial in trials),
     }
+
+
+def test_minimal_real_tensorboard_keeps_headlines_and_hparams_not_diagnostics(tmp_path, monkeypatch):
+    pytest.importorskip("tensorboard")
+    pytest.importorskip("torch")
+    from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+    monkeypatch.setenv("A2UI_TENSORBOARD_DETAIL", "minimal")
+    trial = _fixture_trial("fixture_minimal", learning_rate=1e-4, score=.3, loss=.6)
+    for value in trial["evaluations"].values():
+        value["aggregate"].update(generation_reward_v5_4_avg=64.2,
+                                  unique_source_generation_reward_v5_4_avg=63.8,
+                                  schema_valid_strict_rate=.875)
+    with _summary_writer_factory()(log_dir=str(tmp_path)) as writer:
+        _record_comparison(writer, trial, budget=20)
+    parent = EventAccumulator(str(tmp_path)).Reload()
+    assert len(parent.Tags()["scalars"]) == 6
+    assert not parent.Tags()["tensors"]
+    assert not any("fixture_score" in tag or "fixture_loss" in tag for tag in parent.Tags()["scalars"])
+    assert parent.Scalars("comparison/fixture_minimal/best_golden32/schema_valid_strict_rate")[0].value == pytest.approx(.875)
+    child = EventAccumulator(str(tmp_path / "fixture_minimal")).Reload()
+    assert child.Scalars("hparam/best_golden32")[0].value == pytest.approx(.3)

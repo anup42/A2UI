@@ -40,6 +40,74 @@ mkdir -p /group-volume/k.anup/working_dir/a2ui_environment_records
 
 For reproducibility across hosts, also retain your platform/container image and wheelhouse or hash-locked requirements generated from this successfully probed environment. Do not call the core pins a full cross-platform lockfile.
 
+## Linux Vulkan prerequisites required for native GPU testing
+
+**The Python wheel and a working `nvidia-smi` are not sufficient.** The native
+WebGPU delegate dynamically loads `libvulkan.so.1` and requires a usable hardware
+NVIDIA Vulkan driver/ICD. Missing loader errors followed by `No adapters found`
+can occur in an otherwise working CUDA training container. The updated launcher
+checks these prerequisites before tuning/training, and again for native inference.
+
+For an Ubuntu/Debian runtime image, have the image owner or administrator install
+the userspace loader and diagnostic tools (these are manual setup commands, not
+commands the pipeline executes):
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libvulkan1 vulkan-tools
+```
+
+`libvulkan1` is the loader; `vulkan-tools` supplies `vulkaninfo`. Neither package
+provides the matching NVIDIA host driver by itself. Do **not** install a random
+NVIDIA kernel/display driver inside a managed training container or copy an ICD
+JSON whose referenced NVIDIA library is absent. The administrator must expose
+the host driver and its matching ICD through the platform's NVIDIA container
+runtime. [Ubuntu Vulkan loader package](https://packages.ubuntu.com/noble/libvulkan1),
+[Ubuntu diagnostic tools](https://packages.ubuntu.com/noble/vulkan-tools).
+
+For NVIDIA Container Toolkit jobs, request this driver capability set **when
+creating the container**:
+
+```text
+NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+```
+
+Keep GPU visibility restricted to the GPUs allocated by your scheduler. The
+`graphics` capability exposes Vulkan dependencies; `compute` retains CUDA/OpenCL
+and `utility` retains NVML/`nvidia-smi`. These values replace the capability list,
+not append to it. Merely exporting this variable in an already-running
+Jupyter/Kubernetes shell cannot mount libraries that were omitted at container
+creation: request an updated image/pod from the platform administrator and
+restart that container when necessary. The pipeline never changes GPU ownership,
+host drivers, or scheduler isolation. [NVIDIA container capabilities](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html#driver-capabilities).
+
+Run these checks **inside the same container/environment used for inference**:
+
+```bash
+nvidia-smi
+vulkaninfo --summary
+"$RUNTIME_PY" -u training/scripts/run_litertlm_gpu.py --preflight \
+  --report /group-volume/k.anup/working_dir/a2ui_environment_records/runtime-probe.json
+```
+
+At least one real NVIDIA GPU must appear and permit creation of a Vulkan compute
+device/queue. A software adapter such as `llvmpipe`, `lavapipe`, or `SwiftShader`
+does not satisfy this requirement. The code uses the loader directly in an
+isolated child with a 30-second deadline, so `vulkaninfo` is optional diagnostics,
+not a parser dependency. It requires no graphical window or display server.
+If the loader is present but no NVIDIA adapter is visible, have the administrator
+check the mounted ICD/library dependencies, driver compatibility, device access,
+and container policy; do not mask the problem by enabling CPU fallback.
+
+NVIDIA's data-center release notes list Vulkan support and HGX H100 platforms;
+that is not certification of a particular managed H100 image or of LiteRT's
+model kernels. The actual probe and each exported model's native evaluation are
+still mandatory. The probe report deliberately records
+`model_kernel_tested=false`, `webgpu_adapter_tested=false`, and
+`gpu_affinity_verified=false`; actual inference subsequently verifies its NVIDIA
+process allocation against the job's allowed UUIDs. [NVIDIA data-center API and
+platform support](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-550-54-15/index.html).
+
 ## Probe before spending GPU training time
 
 ```bash

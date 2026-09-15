@@ -135,6 +135,11 @@ of globally optimal settings or full-epoch quality.
 
 ## Defaults, progress and caches
 
+- TensorBoard detail: **minimal**, keeping headline quality/validity, loss,
+  learning rate, gradient norm and useful runtime/HParams comparisons. Use
+  `--tensorboard-detail full` only when debugging. Complete metrics remain in
+  JSON/console logs. This does not remove event files from older runs; filter
+  TensorBoard to the current run to avoid seeing old verbose charts.
 - Validation loss/checkpoint save: every **500 optimizer steps**.
 - Periodic Golden32: every **1,000 optimizer steps**, plus final; all ranks.
 - Golden35: post-training only, never periodic selection.
@@ -163,6 +168,14 @@ not a complete filtering rerun. Never delete a live lock to force reuse.
 Exact paths/run IDs are printed and recorded in `deployment_manifest.json`.
 Training is under `<output>/<run-id>_training`; tuning is under
 `<output>/<run-id>_tuning`.
+
+The console prints a final table of **all tuning trials** (if `--tune` was
+requested), and **all 14 checkpoint/merged/LiteRT Golden results**. It includes
+row counts, v5.4 reward, strict-valid percentages, and a separate Golden32
+31-unique-source selection score. On failure it prints the verified results
+already available, marks failed/missing slots explicitly, and does not invent
+zero scores. The same tables are saved in `deployment_results.md` and the tuning
+folder's `comparison.md`. Without `--tune`, no tuning trials are run.
 
 ```text
 <output>/deployment_manifest.json       statuses, timings, bindings, settings
@@ -194,13 +207,41 @@ not historical short-prompt scores.
 
 ## Failure/recovery and verification limits
 
-The full launcher needs a fresh output directory. It never automatically
-restarts failed optimizers, retries holdouts or overwrites artifacts. Inspect
-the manifest's active stage and named log. Completed data/checkpoints/exports
-remain. Resolve environment/driver/resource failures first. The plan retains
-individual export/evaluation commands for deliberate recovery using retained
-checkpoints and fresh destinations. The original training launcher keeps its
-separate verified `--continue-run` behavior.
+New runs require a fresh output directory. It never automatically restarts failed
+optimizers, retries holdouts or overwrites model artifacts. Inspect the
+manifest's active stage and named log. Completed data/checkpoints/exports remain.
+
+For the `libvulkan.so.1` / WebGPU `No adapters found` failure, first fix the
+[runtime image and Vulkan driver exposure](DEPLOYMENT_EXPORT_ENVIRONMENT.md#linux-vulkan-prerequisites-required-for-native-gpu-testing).
+The enhanced `run_litertlm_gpu.py --preflight` checks an actual hardware NVIDIA
+Vulkan compute device in an isolated 30-second probe. CUDA and `nvidia-smi`
+success alone are insufficient. No package install or container restart is
+performed automatically, and the probe does not certify future model kernels.
+
+After that probe passes, **reuse your exact original full deployment command**
+with the same `--output-dir`, adding:
+
+```bash
+--resume-run --tensorboard-detail minimal
+```
+
+This is explicitly **post-training recovery only**. It requires completed full
+training and all best/final checkpoint evaluations. It rechecks retained file
+hashes, merged weights, export precision and result evidence; keeps the saved
+hyperparameters/prompt/Golden contracts; reruns host/exporter/Vulkan preflights;
+and skips verified completed stages. It never retrains or reruns completed
+Golden evaluations. A failed/unfinished export or evaluation uses a fresh
+`recovery/attempt_NNNN/` destination, preserving prior partial results/logs.
+Remaining commands and paths are recorded in the manifest. A kernel lock rejects
+concurrent recovery on the same run. Keep original model/data paths accessible.
+An already-complete run is verified and its table printed without rerunning it.
+
+Do not use `--resume-run` to change model, data, token budgets, augmentation,
+training settings or tuned trial definitions. Only logging/deadlines may change.
+If training/tuning itself was incomplete, this option refuses to start it; the
+original training launcher retains its separate verified `--continue-run`
+behavior. After an intentional code/prompt/schema change, a contract mismatch
+must be investigated instead of relabeling old evaluations as comparable.
 
 See [local validation evidence](../reports/golden_deployment_20260914/README.md)
 for executed tests and unverified real-H100/native-model steps. No actual model

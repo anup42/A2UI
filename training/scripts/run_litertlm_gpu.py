@@ -16,7 +16,8 @@ from ir_training.eval.litert_gpu import run_gpu_worker, runtime_preflight
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker", action="store_true", help="Internal bounded subprocess mode")
-    parser.add_argument("--preflight", action="store_true", help="Check API/version/NVIDIA prerequisites only")
+    parser.add_argument("--preflight", action="store_true",
+                        help="Check API/native library/NVIDIA/Vulkan compute-device prerequisites (not model kernels)")
     parser.add_argument("--model")
     parser.add_argument("--requests", help="Hash-bound a2ui_external_generation_v1 JSONL")
     parser.add_argument("--outputs")

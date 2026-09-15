@@ -23,6 +23,7 @@ from typing import Any
 
 from ir_training.common.jsonl import read_jsonl, write_jsonl
 from ir_training.common.progress import Progress, fingerprint_file, log
+from ir_training.eval.vulkan_probe import REPAIR_HINT, probe_vulkan_gpu
 from ir_training.generation_policy import closing_sentinel_end, sha256_text
 
 PROTOCOL_VERSION = "a2ui_external_generation_v1"
@@ -212,6 +213,8 @@ def runtime_preflight(*, gpu_workers: int = 1, runtime: Any = None) -> dict[str,
     allowed = allowed_gpu_uuids()
     if allowed is not None and not allowed.issubset({device["uuid"] for device in inventory}):
         raise RuntimeError("The job's allowed NVIDIA GPU UUIDs are absent from the runtime inventory")
+    with Progress("Check Vulkan loader and NVIDIA compute device (30s deadline)", unit="stage"):
+        vulkan = probe_vulkan_gpu()
     return {
         "status": "prerequisites_passed", "runtime_version": installed,
         "requested_backend": "gpu", "gpu_workers": 1, "gpu_inventory": inventory,
@@ -220,6 +223,7 @@ def runtime_preflight(*, gpu_workers: int = 1, runtime: Any = None) -> dict[str,
         "multi_gpu_supported": False, "runner_cpu_fallback_allowed": False,
         "native_helpers_may_use_cpu": True,
         "native_library_loaded": True,
+        "vulkan_compute_device_verified": True, "vulkan": vulkan,
         "pid_namespace_identity": self_pid_identity(),
     }
 
@@ -349,12 +353,22 @@ def run_gpu_worker(
     output.parent.mkdir(parents=True, exist_ok=True)
     _event("engine_load", rows=len(rows), runtime_version=RUNTIME_VERSION, backend="gpu")
     with Progress("Load LiteRT-LM GPU engine", unit="stage"):
-        engine = runtime.Engine(
-            str(model), backend=runtime.Backend.GPU(),
-            max_num_tokens=first["max_input_tokens"] + first["max_new_tokens"],
-            cache_dir=str(Path(cache_dir).resolve()) if cache_dir else None,
-            enable_speculative_decoding=first["mtp_enabled"],
-        )
+        try:
+            engine = runtime.Engine(
+                str(model), backend=runtime.Backend.GPU(),
+                max_num_tokens=first["max_input_tokens"] + first["max_new_tokens"],
+                cache_dir=str(Path(cache_dir).resolve()) if cache_dir else None,
+                enable_speculative_decoding=first["mtp_enabled"],
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                "LiteRT-LM could not create the GPU engine. Passing the Vulkan prerequisite "
+                "probe does not certify WebGPU adapter features or this model's kernels. "
+                "Inspect the native messages immediately above in runner.log. If they mention "
+                f"libvulkan.so.1, WebGPU or 'No adapters found': {REPAIR_HINT} "
+                "For model/operator/precision errors, retain this variant's export_manifest.json "
+                "and package_inspection.json; do not relabel a CPU or different-precision run as passing."
+            ) from exc
     started_all = time.monotonic()
     with engine, output.open("x", encoding="utf-8") as stream:
         if engine.backend.get_name() != "gpu":
@@ -449,6 +463,7 @@ def run_bounded_worker(
             lines.put(None)
 
     reader = None
+    error_lines: list[str] = []
     try:
         reader = threading.Thread(target=read_lines, daemon=True)
         reader.start()
@@ -470,13 +485,18 @@ def run_bounded_worker(
                 print(line, end="", flush=True)
                 log_stream.write(line)
                 log_stream.flush()
+                if any(marker in line.lower() for marker in ("error", "exception", "no adapters", "libvulkan")):
+                    error_lines.append(line.strip()[:2000])
+                    del error_lines[:-6]
                 if line.startswith(EVENT_PREFIX):
                     event = json.loads(line[len(EVENT_PREFIX):])
                     phase, current_id = event["phase"], event.get("id")
                     phase_started = time.monotonic()
             process.wait(timeout=max(0.1, timeout_seconds - (time.monotonic() - started)))
             if process.returncode:
-                raise RuntimeError(f"LiteRT-LM GPU runner exited {process.returncode}; see {log_path}")
+                detail = " | ".join(error_lines)
+                raise RuntimeError(f"LiteRT-LM GPU runner exited {process.returncode}; see {log_path}"
+                                   + (f". Native failure: {detail}" if detail else ""))
             if phase != "finished":
                 raise RuntimeError("LiteRT-LM runner exited without its completion event")
     finally:

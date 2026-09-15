@@ -15,7 +15,9 @@ from ir_training.common.config import repo_root, resolve_path, training_root
 from ir_training.common.git import current_commit
 from ir_training.common.progress import Progress
 from ir_training.eval.tensorboard_logging import (
+    TENSORBOARD_DETAIL_ENV,
     TENSORBOARD_ROOT_ENV,
+    resolve_tensorboard_detail,
     resolve_tensorboard_root,
     resolve_tensorboard_run_dir,
 )
@@ -647,6 +649,9 @@ def train_sft(
         with _training_tensorboard_environment(callback_logging_dir):
             trainer = checked_trainer_cls(**trainer_kwargs)
 
+    from ir_training.train.tensorboard_callback import configure_training_tensorboard
+    tensorboard_detail = resolve_tensorboard_detail(os.environ.get(TENSORBOARD_DETAIL_ENV) or training_cfg.get("tensorboard_detail"))
+    configure_training_tensorboard(trainer, log_dir=callback_logging_dir, detail=tensorboard_detail)
     preserve_generation_eos(trainer.model, tokenizer, extra_eos_ids=generation_eos_ids)
     golden_callback = _build_optional_golden_callback(
         golden_eval_cfg=golden_eval_cfg,
@@ -694,6 +699,7 @@ def train_sft(
         "numeric_preflight": locals().get("numeric_preflight_report"),
         "dataset_dir": str(dataset_dir),
         "tensorboard": {
+            "detail": tensorboard_detail,
             "root": str(tensorboard_root) if tensorboard_root is not None else None,
             "training_log_dir": (
                 str(tensorboard_run_dir)
@@ -3324,6 +3330,7 @@ def _build_optional_golden_callback(
         metric_log_prefix=str(golden_eval_cfg.get("metric_log_prefix", "golden")),
         tensorboard_root=tensorboard_root,
         tensorboard_run_id=tensorboard_run_id,
+        tensorboard_detail=resolve_tensorboard_detail(os.environ.get(TENSORBOARD_DETAIL_ENV) or training_cfg.get("tensorboard_detail")),
         tensorboard_evaluation_name=str(
             golden_eval_cfg.get("tensorboard_evaluation_name")
             or golden_eval_cfg.get("metric_log_prefix", "golden")

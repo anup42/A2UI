@@ -60,6 +60,7 @@ def build_golden_set_eval_callback(
     tensorboard_root: str | Path | None = None,
     tensorboard_run_id: str | None = None,
     tensorboard_evaluation_name: str | None = None,
+    tensorboard_detail: str | None = None,
     stop_strings: Sequence[str] | None = None,
     evaluate_at_end: bool = True,
     use_cache: bool = True,
@@ -276,6 +277,7 @@ def build_golden_set_eval_callback(
                                 or resolved_metric_log_prefix
                             ),
                             metrics=aggregate,
+                            detail=tensorboard_detail,
                             step=int(aggregate["step"]),
                             artifacts={
                                 "predictions": predictions_path,

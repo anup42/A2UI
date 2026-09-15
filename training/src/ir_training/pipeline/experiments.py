@@ -20,11 +20,14 @@ from typing import Any, Callable
 
 from ir_training.common.config import load_yaml, repo_root
 from ir_training.common.progress import Progress, fingerprint_file, log
-from ir_training.eval.tensorboard_logging import _summary_writer_factory, flatten_scalar_metrics
+from ir_training.eval.tensorboard_logging import (
+    _summary_writer_factory, resolve_tensorboard_detail, select_tensorboard_metrics,
+)
 from ir_training.pipeline.golden_training import (
     GoldenTrainingOptions, _run_command, _write, build_plan, evaluation_command,
     run_pipeline, sha256,
 )
+from ir_training.pipeline.result_tables import publish_experiment_results
 
 SELECTION_METRIC = "unique_source_generation_reward_v5_4_avg"
 MAX_TRIALS = 12
@@ -255,14 +258,16 @@ def _trial_result(trial: dict[str, Any], state: dict[str, Any], elapsed: float) 
             "evaluations": values, "artifact_bindings": _completed_bindings(output, state)}
 
 
-def _record_comparison(writer: Any, trial: dict[str, Any], *, budget: int) -> None:
+def _record_comparison(writer: Any, trial: dict[str, Any], *, budget: int, detail: str | None = None) -> None:
+    """Keep HParams comparable while honoring the requested dashboard detail."""
     metrics = {"hparam/best_golden32": trial["selection_score"], "hparam/final_golden32": trial["final_golden32_score"],
                "hparam/pipeline_elapsed_seconds": trial["elapsed_seconds"]}
     writer.add_hparams({**trial["parameters"], "optimizer_steps": budget}, metrics, run_name=trial["name"], global_step=budget)
     for role, result in trial["evaluations"].items():
-        for key, value in flatten_scalar_metrics(result.get("aggregate", {})).items():
+        for key, value in select_tensorboard_metrics(result.get("aggregate", {}), detail=detail).items():
             writer.add_scalar(f"comparison/{trial['name']}/{role}/{key}", value, budget)
-    writer.add_text(f"comparison/{trial['name']}/summary", "```json\n" + json.dumps({key: value for key, value in trial.items() if key != "artifact_bindings"}, indent=2) + "\n```", budget)
+    if resolve_tensorboard_detail(detail) == "full":
+        writer.add_text(f"comparison/{trial['name']}/summary", "```json\n" + json.dumps({key: value for key, value in trial.items() if key != "artifact_bindings"}, indent=2) + "\n```", budget)
     writer.flush()
 
 
@@ -300,7 +305,8 @@ def _evaluate_holdout(plan: dict[str, Any], selected: dict[str, Any], bindings: 
     _verify_directory_inventory(model_dir, bindings)
     _verify_directory_inventory(checkpoint, bindings)
     runtime = load_yaml(Path(options["output_dir"]) / "fit/training_config.yaml")["runtime"]
-    environment = {**os.environ, "A2UI_TENSORBOARD_ROOT": options["tensorboard_root"], "PYTHONUNBUFFERED": "1",
+    environment = {**os.environ, "A2UI_TENSORBOARD_ROOT": options["tensorboard_root"],
+                   "A2UI_TENSORBOARD_DETAIL": options.get("tensorboard_detail", "minimal"), "PYTHONUNBUFFERED": "1",
                    "CUDA_VISIBLE_DEVICES": runtime["cuda_visible_devices"], "A2UI_SKIP_CUDA_DEVICE_NORMALIZE": "1", "TOKENIZERS_PARALLELISM": "false"}
     environment.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
     environment.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
@@ -339,7 +345,8 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
         # unavailable or the TensorBoard mount is not writable.
         factory = writer_factory or _summary_writer_factory()
         writer = factory(log_dir=plan["tensorboard_dir"])
-        writer.add_text("experiment/plan", "```json\n" + json.dumps(plan, indent=2) + "\n```", 0)
+        if resolve_tensorboard_detail(options.base.tensorboard_detail) == "full":
+            writer.add_text("experiment/plan", "```json\n" + json.dumps(plan, indent=2) + "\n```", 0)
         writer.flush()
         log(f"Sequential experiment: {len(plan['trials'])} trials x {options.trial_steps} optimizer steps; TensorBoard: {plan['tensorboard_dir']}")
         bindings = _input_bindings(plan, options.base.progress_seconds)
@@ -371,7 +378,7 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
             state["trials"].append(summary)
             state["active_trial"] = None
             _write(record, state)
-            _record_comparison(writer, summary, budget=options.trial_steps)
+            _record_comparison(writer, summary, budget=options.trial_steps, detail=options.base.tensorboard_detail)
             log(f"Trial {trial['name']} complete in {summary['elapsed_seconds']:.1f}s; best Golden32={summary['selection_score']:.6f}; final Golden32={summary['final_golden32_score']:.6f}")
         selected = max(state["trials"], key=lambda item: item["selection_score"])
         selection_path = output / "selection_locked.json"
@@ -394,7 +401,7 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
                       "trials": [{key: value for key, value in item.items() if key != "artifact_bindings"} for item in state["trials"]],
                       "warning": plan["warning"], "tensorboard_dir": plan["tensorboard_dir"]}
         _write(output / "comparison.json", comparison)
-        for key, value in flatten_scalar_metrics((holdout or {}).get("aggregate", {})).items():
+        for key, value in select_tensorboard_metrics((holdout or {}).get("aggregate", {}), detail=options.base.tensorboard_detail).items():
             writer.add_scalar(f"selected_holdout/golden35/{key}", value, options.trial_steps)
         writer.add_text("experiment/selection", json.dumps({"selected_trial": selected["name"], "golden35_used_for_selection": False}), options.trial_steps)
         writer.flush()
@@ -405,5 +412,6 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
         log("Experiment stopped. Completed trials are retained; no failed training or holdout is automatically resumed. Inspect experiments_manifest.json and logs.")
         raise
     finally:
+        publish_experiment_results(state)
         if writer is not None:
             writer.close()

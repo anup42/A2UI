@@ -300,6 +300,7 @@ def test_tensorboard_result_logs_scalars_and_full_json_record(tmp_path):
         metadata={"bits": 8},
         source_aggregate_path=artifact,
         writer_factory=Writer,
+        detail="full",
     )
 
     record_path = Path(record["record_path"])
