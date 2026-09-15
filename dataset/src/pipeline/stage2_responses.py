@@ -17,6 +17,7 @@ from pipeline.common import extract_json, load_prompt, render_prompt
 from pipeline.image_resolver import enrich_response_with_commons_media
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.cache import PromptCache
+from pipeline.source_quality import assess_source_quality, asset_verification_metadata, source_contract_prompt
 from llm.base import BaseLLMAdapter, LLMRateLimitError
 from llm.http_transport import urlopen
 from utils.hashing import normalize_text, hash_text
@@ -1142,6 +1143,7 @@ def run_stage2(
             {
                 "query_id": query_id,
                 "query_text": str(query_text),
+                "source_query": query,
                 "intent_value": query.get("intent") if isinstance(query.get("intent"), str) else "",
                 "tags_list": query.get("tags") if isinstance(query.get("tags"), list) else [],
                 "remaining": int(n_per_query),
@@ -1190,6 +1192,7 @@ def run_stage2(
             intent=state["intent_value"],
             tags=tags_value,
         )
+        prompt += source_contract_prompt(state["source_query"])
         if batch > 1:
             prompt = (
                 f"{prompt}\n\nReturn exactly {batch} distinct responses as a JSON array of strings."
@@ -1199,6 +1202,7 @@ def run_stage2(
             "state": state,
             "query_id": state["query_id"],
             "query_text": state["query_text"],
+            "source_query": state["source_query"],
             "intent_value": state["intent_value"],
             "tags_list": tags_list,
             "batch": batch,
@@ -1550,6 +1554,7 @@ def run_stage2(
                 "retry_prompt_used": selected_prompt != prompt,
             },
         }
+        _attach_source_quality(record, payload)
         writer.append(record)
         logger.info(
             "Stage2 created response_id=%s assets=%s/%s",
@@ -1608,8 +1613,22 @@ def run_stage2(
                 "retry_prompt_used": payload["selected_prompt"] != payload["prompt"],
             },
         }
+        _attach_source_quality(record, payload, processing_error=True)
         writer.append(record)
         logger.info("Stage2 created response_id=%s assets=0/error", payload["response_id"])
+
+    def _attach_source_quality(record: dict, payload: dict, *, processing_error: bool = False) -> None:
+        source_query = payload["source_query"]
+        record["source_quality"] = assess_source_quality(source_query, record["response_text"])
+        # Preserve the task for downstream constraints, without rewriting text.
+        record["query_text"] = source_query["query_text"]
+        for field in ("source_contract", "query_quality", "scenario_family_id"):
+            if field in source_query:
+                record[field] = source_query[field]
+        record["asset_stats"].update(asset_verification_metadata(
+            record["asset_stats"]["declared_asset_urls"], len(record["assets"]),
+            len(record["unresolved_assets"]), offline=_offline_mode_enabled(),
+            processing_error=processing_error))
 
     def _schedule_response_finalization(payload: dict) -> None:
         if asset_executor is None:
@@ -1691,6 +1710,7 @@ def run_stage2(
                 "query_id": query_id,
                 "n_idx": state["n_idx"],
                 "query_text": query_text,
+                "source_query": entry["source_query"],
                 "intent_value": intent_value,
                 "tags_list": tags_list,
                 "prompt": prompt,

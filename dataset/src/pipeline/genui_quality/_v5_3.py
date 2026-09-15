@@ -561,6 +561,7 @@ def _score_one(
     include_accessibility_atomic: bool = True,
     normalization_result: Any = None,
     matching_timing_callback: Callable[[str, float], None] | None = None,
+    unsupported_additions_scorer: Callable[..., Any] = unsupported_external_addition_precision_v5_3,
 ) -> RewardBreakdownV53:
     cfg = prepared.config
     normalization = (
@@ -898,7 +899,7 @@ def _score_one(
     (
         unsupported_addition_score,
         unsupported_addition_diagnostics,
-    ) = unsupported_external_addition_precision_v5_3(
+    ) = unsupported_additions_scorer(
         prepared.expected_actions,
         output.actions,
         prepared.expected_media,

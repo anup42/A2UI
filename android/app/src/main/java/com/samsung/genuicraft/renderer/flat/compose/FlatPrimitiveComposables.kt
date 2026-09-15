@@ -500,6 +500,7 @@ internal fun RenderStack(
 // moved from FlatSpecRenderer.kt (RenderList)
 @Composable
 internal fun RenderList(
+    props: Map<String, Any?>,
     children: List<String>,
     elements: Map<String, FlatElement>,
     state: Map<String, Any?>,
@@ -515,6 +516,12 @@ internal fun RenderList(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        parseFlatListItems(props["items"]).forEach { item ->
+            item.text.forEach { text -> RenderText(mapOf("text" to text)) }
+            item.links.forEach { url ->
+                TextButton(onClick = { onOpenUrl(url) }) { Text(url) }
+            }
+        }
         RenderChildren(
             children = children,
             elements = elements,

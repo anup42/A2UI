@@ -299,7 +299,7 @@ def _is_safe_url(value: Any) -> bool:
     if not isinstance(value, str) or not value.strip():
         return False
     token = value.strip()
-    if re.fullmatch(r"\[(?:ACTION|SOURCE|URL)_URL_\d+\]", token):
+    if re.fullmatch(r"\[(?:(?:ACTION|SOURCE)_URL|URL)_\d+\]", token):
         return True
     if re.fullmatch(r"tel:[+0-9().\-\s]{3,}", token, flags=re.IGNORECASE):
         return True

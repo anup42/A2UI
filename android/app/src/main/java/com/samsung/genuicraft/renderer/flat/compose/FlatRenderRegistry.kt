@@ -59,7 +59,7 @@ internal val FLAT_ELEMENT_RENDERERS: Map<String, FlatElementRenderer> = mapOf(
     },
     "list" to { c ->
         RenderList(
-            c.children, c.elements, c.state, c.repeatScope, c.repeatedChildScopes,
+            c.props, c.children, c.elements, c.state, c.repeatScope, c.repeatedChildScopes,
             c.onOpenUrl, c.onSetState, c.onAction, c.activePath, c.modifier
         )
     },

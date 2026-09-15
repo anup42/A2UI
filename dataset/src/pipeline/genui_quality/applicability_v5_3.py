@@ -114,6 +114,7 @@ def classify_action(
         return (
             "external_semantic"
             if normalized_target.startswith(("http://", "https://", "{{u"))
+            or re.fullmatch(r"\[(?:(?:action|source|url)_)?url_\d+\]", normalized_target)
             else "navigation_internal"
         )
     if name in {"setstate", "pushstate", "removestate"}:

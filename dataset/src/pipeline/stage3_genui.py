@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import math
@@ -16,7 +16,10 @@ from urllib.request import Request
 
 from pipeline.cache import PromptCache
 from pipeline.common import load_prompt, render_prompt
-from pipeline.image_resolver import repair_canonical_graph_images
+from pipeline.generation_audit import (
+    attempt_summary, compact_exception, graph_acceptance_errors,
+    incomplete_reason, record_attempt,
+)
 from pipeline.ir_formats import (
     A2UI_EXPRESS_V1,
     codec_identity,
@@ -62,6 +65,7 @@ from pipeline.metrics import (
     compute_media_score,
     compute_ui_metrics,
     compute_intent_metrics,
+    metric_diagnostic_metadata,
 )
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.toon_convert import encode_toon, roundtrip_ok
@@ -815,7 +819,7 @@ def _normalize_canonical_graph_text_content(genui_json: Any) -> Any:
 
 
 # Explicit compatibility alias for historical offline scripts.  Stage 3
-# calls the canonical-graph name after Express parsing.
+# no longer applies these transformations to training targets.
 _normalize_flat_spec_text_content = _normalize_canonical_graph_text_content
 
 def _extract_prompt_version(template: str, prompt_path: Path) -> str:
@@ -895,6 +899,7 @@ def run_stage3(
     metric_version: str = "v5_4",
     ir_formats: list[str] | tuple[str, ...] | str | None = None,
     _active_ir_format: str | None = None,
+    phase_invocation_id: str | None = None,
 ) -> None:
     if _active_ir_format is None:
         resolved_formats = _normalize_stage3_ir_formats(ir_formats)
@@ -1056,21 +1061,11 @@ def run_stage3(
         estimated_tokens = _estimated_prompt_tokens(prompt_text) + system_tokens_est
         if estimated_tokens <= effective_prompt_max_tokens:
             return prompt_text
-        word_budget = max(
-            200,
-            int((effective_prompt_max_tokens - system_tokens_est) / prompt_token_multiplier),
+        raise ValueError(
+            f"source_budget_exceeded: {label} response_id={response_id} "
+            f"estimated_tokens={estimated_tokens} budget={effective_prompt_max_tokens}; "
+            "complete source and contract retained; requeue with a sufficient context budget"
         )
-        clipped, truncated = _truncate_tokens(prompt_text, word_budget)
-        if truncated:
-            logger.warning(
-                "Stage3 %s prompt clipped response_id=%s estimated_tokens=%s effective_budget=%s word_budget=%s",
-                label,
-                response_id,
-                estimated_tokens,
-                effective_prompt_max_tokens,
-                word_budget,
-            )
-        return clipped
 
     intent_lookup: dict[str, dict[str, Any]] = {}
     if queries_path and queries_path.exists():
@@ -1235,31 +1230,14 @@ def run_stage3(
                 # First attempt: drop asset context to save tokens.
                 prompt = render_prompt(user_prompt_template, response_text=response_with_policy)
                 prompt_tokens = _estimated_prompt_tokens(prompt) + system_tokens_est
-            if prompt_tokens > effective_prompt_max_tokens:
-                base_prompt = render_prompt(user_prompt_template, response_text="")
-                base_tokens = _estimated_prompt_tokens(base_prompt) + system_tokens_est
-                budget = max(
-                    200,
-                    int((effective_prompt_max_tokens - base_tokens) / prompt_token_multiplier),
-                )
-                trimmed_text, truncated = _truncate_tokens(response_text, budget)
-                if truncated:
-                    logger.warning(
-                        "Stage3 prompt truncated response_id=%s estimated_tokens=%s effective_budget=%s response_word_budget=%s",
-                        response_id,
-                        prompt_tokens,
-                        effective_prompt_max_tokens,
-                        budget,
-                    )
-                prompt = render_prompt(
-                    user_prompt_template,
-                    response_text=f"{trimmed_text}\n\n{asset_policy}",
-                )
             prompt = _clip_prompt_to_effective_budget(prompt, response_id, "initial")
         return prompt
 
-    def _parse_completion(text: str) -> tuple[Any, Any, bool]:
+    def _parse_completion(text: str, provider_payload: Any = None) -> tuple[Any, Any, bool]:
         """Return native payload, canonical graph, and legacy-conversion flag."""
+        failure = incomplete_reason(provider_payload)
+        if failure:
+            raise ValueError(failure)
         native_payload = text.strip()
         if not native_payload.startswith("<a2ui>") or not native_payload.endswith("</a2ui>"):
             raise ValueError("A2UI Express completion must contain exactly one complete sentinel block")
@@ -1269,6 +1247,9 @@ def run_stage3(
         valid, validation_errors, validator_ok = _validate_schema(schema, canonical, schema_path.parent)
         if not valid:
             return valid, validation_errors, validator_ok
+        acceptance_errors = graph_acceptance_errors(canonical)
+        if acceptance_errors:
+            return False, acceptance_errors, True
         # Apply the production wire gate on every attempt, including repaired
         # and regenerated completions. Canonical props alone do not enforce
         # dynamicArray types such as Table.highlightColumns; accepting a repair
@@ -1276,23 +1257,55 @@ def run_stage3(
         try:
             compile_express_to_wire(native_payload)
         except Exception as exc:
-            return False, [f"standard_a2ui_compile_error: {exc}"], True
+            return False, [f"standard_a2ui_compile_error: {compact_exception(exc)}"], True
         return True, [], validator_ok
 
-    def _repair_instructions(raw_text: str, errors: list[str]) -> str:
+    def _repair_instructions(source_prompt: str, raw_text: str, errors: list[str]) -> str:
         failure_reason = "; ".join(errors[-5:]) if errors else "format validation failed"
-        shared_contract = prompt_template.replace(
-            "{response_text}", "[RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE]"
-        ).strip()
         return (
-            "The previous completion failed strict validation. Re-emit it using this generated "
-            "pinned A2UI Express contract; preserve all source facts and interactions.\n\n"
-            f"{shared_contract}\n\n"
-            f"Errors: {failure_reason}\n\nOriginal:\n{raw_text}"
+            "Repair the previous completion using the COMPLETE source and pinned contract below. "
+            "Preserve source facts and interactions; all placeholders are quoted strings.\n\n"
+            f"{source_prompt}\n\nErrors: {failure_reason[:2400]}\n\nPrevious completion:\n{raw_text}"
         )
 
     def _normalized_native_output(canonical: dict[str, Any]) -> Any:
         return encode_express_completion(canonical)
+
+    def _logged_call(task: dict[str, Any], phase: str, call_prompt: str,
+                     temperature: float, call_seed: int):
+        started = time.monotonic()
+        kwargs = dict(phase=phase, prompt=call_prompt, system=system_prompt,
+                      seed=call_seed, temperature=temperature, max_tokens=max_tokens)
+        try:
+            rate_limiter.acquire()
+            result = adapter.generate(
+                prompt=call_prompt, system=system_prompt, temperature=temperature,
+                max_tokens=max_tokens, seed=call_seed, json_mode=False,
+            )
+        except Exception as exc:
+            record_attempt(task, artifacts_dir, **kwargs,
+                           latency_ms=(time.monotonic() - started) * 1000,
+                           error=compact_exception(exc))
+            raise
+        record_attempt(task, artifacts_dir, **kwargs, text=result.text, raw=result.raw,
+                       input_tokens=result.input_tokens, output_tokens=result.output_tokens,
+                       latency_ms=result.latency_ms, error=result.error,
+                       reasoning_tokens=result.reasoning_tokens, cost_usd=result.cost_usd)
+        return result
+
+    def _audit_fields(task: dict[str, Any]) -> dict[str, Any]:
+        fields = {
+            "phase_invocation_id": phase_invocation_id,
+            "reference_map": dict(task.get("asset_placeholder_map") or {}),
+            "asset_downloads_required_for_training": False,
+            "reference_source_sha256": hash_text(task["response_text"]),
+            "generation_attempts": list(task.get("generation_attempts") or []),
+            "generation_totals": attempt_summary(task),
+        }
+        for key in ("source_quality", "query_quality", "scenario_family_id"):
+            if key in task:
+                fields[key] = task[key]
+        return fields
 
     def _append_format_rejection(
         task: dict[str, Any],
@@ -1351,6 +1364,7 @@ def run_stage3(
             },
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
+        record.update(_audit_fields(task))
         writer.append(record)
         existing_ids.add(task["ui_id"])
         total_created += 1
@@ -1388,6 +1402,13 @@ def run_stage3(
         tags_value = task.get("tags") if isinstance(task.get("tags"), list) else []
         query_text = task.get("query_text") if isinstance(task.get("query_text"), str) else ""
         prompt = task["prompt"]
+        if not task.get("generation_attempts"):
+            record_attempt(task, artifacts_dir, phase="cache" if task.get("cache_hit") else "initial",
+                           prompt=prompt, system=system_prompt, seed=task["seed"],
+                           temperature=generation_temperature, max_tokens=max_tokens,
+                           text=raw_text, raw=raw_payload, input_tokens=input_tokens,
+                           output_tokens=output_tokens, latency_ms=latency_ms,
+                           error=error, reasoning_tokens=reasoning_tokens)
         accepted_reasoning_text = reasoning_text.strip() if isinstance(reasoning_text, str) else None
         accepted_reasoning_source = reasoning_source
         accepted_reasoning_tokens = reasoning_tokens
@@ -1463,11 +1484,11 @@ def run_stage3(
         converted_from_legacy = False
         parsed_native_payload: Any = None
         try:
-            parsed_native_payload, genui_json, converted_from_legacy = _parse_completion(raw_text)
+            parsed_native_payload, genui_json, converted_from_legacy = _parse_completion(raw_text, raw_payload)
         except Exception as exc:
             parsed_ok = False
             genui_json = None
-            errors.append(f"{active_ir_format}_parse_error: {exc}")
+            errors.append(f"{active_ir_format}_parse_error: {compact_exception(exc)}")
 
         schema_valid_strict = False
         schema_valid_lenient = False
@@ -1496,27 +1517,17 @@ def run_stage3(
         while (not parsed_ok or not schema_valid_strict) and repair_attempts < max_repair_attempts:
             repair_attempts += 1
             repair_needed = True
-            repaired_text = _repair_instructions(raw_text, errors)
-            repaired_text = _clip_prompt_to_effective_budget(
-                repaired_text,
-                str(response_id),
-                "repair",
-            )
+            repaired_text = _repair_instructions(prompt, raw_text, errors)
+            try:
+                repaired_text = _clip_prompt_to_effective_budget(repaired_text, str(response_id), "repair")
+            except ValueError as exc:
+                errors.append(str(exc))
+                repair_attempts -= 1
+                break  # Regeneration retains the complete source without the failed draft.
 
             def _repair_call():
-                rate_limiter.acquire()
-                return adapter.generate(
-                    prompt=repaired_text,
-                    system=system_prompt,
-                    temperature=repair_temperature,
-                    max_tokens=max_tokens,
-                    seed=seed + 100 + repair_attempts,
-                    json_mode=(
-                        True
-                        if adapter.spec.supports_json_mode and not express_mode
-                        else False
-                    ),
-                )
+                return _logged_call(task, f"schema_repair_{repair_attempts}", repaired_text,
+                                    repair_temperature, task["seed"] + 100 + repair_attempts)
 
             try:
                 result = with_retry(_repair_call, max_attempts=max_attempts)
@@ -1545,6 +1556,8 @@ def run_stage3(
                 )
                 break
             raw_text = result.text
+            raw_payload = result.raw
+            latency_ms, input_tokens, output_tokens = result.latency_ms, result.input_tokens, result.output_tokens
             accepted_reasoning_text = (
                 result.reasoning_text.strip()
                 if isinstance(result.reasoning_text, str) and result.reasoning_text.strip()
@@ -1556,12 +1569,12 @@ def run_stage3(
                 f"repair_{repair_attempts}" if accepted_reasoning_text else None
             )
             try:
-                parsed_native_payload, genui_json, converted_from_legacy = _parse_completion(raw_text)
+                parsed_native_payload, genui_json, converted_from_legacy = _parse_completion(raw_text, raw_payload)
                 parsed_ok = True
             except Exception as exc:
                 parsed_ok = False
                 genui_json = None
-                errors.append(f"repair_{active_ir_format}_parse_error: {exc}")
+                errors.append(f"repair_{active_ir_format}_parse_error: {compact_exception(exc)}")
                 continue
 
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
@@ -1593,26 +1606,16 @@ def run_stage3(
                 "Keep the representation compact and avoid literal markdown markers in text fields."
             )
             regeneration_prompt = f"{regen_instructions}\n\nSource prompt:\n{prompt}"
-            regeneration_prompt = _clip_prompt_to_effective_budget(
-                regeneration_prompt,
-                str(response_id),
-                "final_regen",
-            )
+            try:
+                regeneration_prompt = _clip_prompt_to_effective_budget(regeneration_prompt, str(response_id), "final_regen")
+            except ValueError as exc:
+                errors.append(str(exc))
+                regen_attempt -= 1
+                break
 
             def _regen_call():
-                rate_limiter.acquire()
-                return adapter.generate(
-                    prompt=regeneration_prompt,
-                    system=system_prompt,
-                    temperature=final_regen_temperature,
-                    max_tokens=max_tokens,
-                    seed=seed + 900 + regen_attempt,
-                    json_mode=(
-                        True
-                        if adapter.spec.supports_json_mode and not express_mode
-                        else False
-                    ),
-                )
+                return _logged_call(task, f"regeneration_{regen_attempt}", regeneration_prompt,
+                                    final_regen_temperature, task["seed"] + 900 + regen_attempt)
 
             try:
                 regen_result = with_retry(_regen_call, max_attempts=max_attempts)
@@ -1631,6 +1634,8 @@ def run_stage3(
                 break
 
             raw_text = regen_result.text
+            raw_payload = regen_result.raw
+            latency_ms, input_tokens, output_tokens = regen_result.latency_ms, regen_result.input_tokens, regen_result.output_tokens
             accepted_reasoning_text = (
                 regen_result.reasoning_text.strip()
                 if isinstance(regen_result.reasoning_text, str) and regen_result.reasoning_text.strip()
@@ -1642,12 +1647,12 @@ def run_stage3(
                 f"final_regen_{regen_attempt}" if accepted_reasoning_text else None
             )
             try:
-                parsed_native_payload, genui_json, converted_from_legacy = _parse_completion(raw_text)
+                parsed_native_payload, genui_json, converted_from_legacy = _parse_completion(raw_text, raw_payload)
                 parsed_ok = True
             except Exception as exc:
                 parsed_ok = False
                 genui_json = None
-                errors.append(f"final_regen_{active_ir_format}_parse_error: {exc}")
+                errors.append(f"final_regen_{active_ir_format}_parse_error: {compact_exception(exc)}")
                 continue
 
             schema_valid_strict, schema_errors, validator_ok = _validate_completion(
@@ -1659,18 +1664,6 @@ def run_stage3(
                 errors.extend(schema_errors)
                 if not validator_ok:
                     schema_valid_lenient = True
-
-        # Reject specs that are too simple (fewer than 5 elements) -- treat as needing fallback.
-        if (
-            parsed_ok
-            and genui_json is not None
-            and canonical_graph_mode
-            and isinstance(genui_json.get("elements"), dict)
-            and len(genui_json["elements"]) < 5
-            and not _has_substantial_compact_table(genui_json)
-        ):
-            errors.append("spec_too_simple: fewer than 5 elements")
-            parsed_ok = False
 
         if not parsed_ok or genui_json is None or not schema_valid_strict:
             _append_format_rejection(
@@ -1701,16 +1694,8 @@ def run_stage3(
             if isinstance(task.get("asset_placeholder_map"), dict)
             else {},
         )
-        genui_json = _rewrite_genui_asset_urls(genui_json, assets_list)
-        if canonical_graph_mode:
-            genui_json = _normalize_canonical_graph_text_content(genui_json)
-            genui_json, resolved_images = repair_canonical_graph_images(
-                genui_json,
-                query_text,
-                response_text,
-            )
-            if resolved_images:
-                errors.append(f"dataset_image_resolver_added={resolved_images}")
+        # The training target must remain exactly the parsed completion with known
+        # references restored. Text/image rewrites would break this provenance.
 
         # The model-facing completion remains the raw/normalized Express text;
         # the graph and compiled wire payload are explicit post-parse artifacts.
@@ -1723,7 +1708,7 @@ def run_stage3(
             # Stage 3 run.  Preserve the raw payload in the error artifact and
             # let the caller continue with the remaining responses; a later
             # resume can retry this ui_id with a fresh generation.
-            compile_error = f"standard_a2ui_compile_error: {exc}"
+            compile_error = f"standard_a2ui_compile_error: {compact_exception(exc)}"
             logger.warning(
                 "Stage3 skipping invalid ui_id=%s after final compile failure: %s",
                 ui_id,
@@ -1792,19 +1777,21 @@ def run_stage3(
                 "native_catalog_valid": initial_native_catalog_valid,
                 "raw_schema_valid_strict": bool(initial_native_catalog_valid),
                 "raw_standard_a2ui_valid": bool(initial_standard_a2ui_valid),
-                "repaired_syntax_valid": bool(repair_attempts > 0 and parsed_ok),
-                "repaired_catalog_valid": bool(repair_attempts > 0 and schema_valid_strict),
-                "repaired_standard_a2ui_valid": bool(repair_attempts > 0 and final_standard_a2ui_valid),
+                "repaired_syntax_valid": bool(repair_attempts + regen_attempt > 0 and parsed_ok),
+                "repaired_catalog_valid": bool(repair_attempts + regen_attempt > 0 and schema_valid_strict),
+                "repaired_standard_a2ui_valid": bool(repair_attempts + regen_attempt > 0 and final_standard_a2ui_valid),
                 "canonical_semantic_valid": True,
                 "standard_a2ui_valid": final_standard_a2ui_valid,
-                "repair_applied": bool(repair_attempts > 0),
+                "repair_applied": bool(repair_attempts + regen_attempt > 0),
                 "schema_valid_strict": schema_valid_strict,
                 "schema_valid_lenient": schema_valid_lenient,
                 "toon_roundtrip_ok": toon_ok,
                 "converted_from_legacy": converted_from_legacy,
                 "errors": short_errors,
                 "warnings": quality_warnings,
-                "repair_attempts": repair_attempts,
+                "repair_attempts": repair_attempts + regen_attempt,
+                "schema_repair_attempts": repair_attempts,
+                "regeneration_attempts": regen_attempt,
                 "repair_needed": repair_needed,
             },
             "metrics": metrics,
@@ -1829,6 +1816,10 @@ def run_stage3(
             },
             "created_at": datetime.utcnow().isoformat() + "Z",
         }
+        record.update(_audit_fields(task))
+        record["gen"]["finish_reason"] = (task.get("generation_attempts") or [{}])[-1].get("finish_reason")
+        record["gen"]["completion_complete"] = (task.get("generation_attempts") or [{}])[-1].get("completion_complete")
+        record["metric_diagnostics"] = metric_diagnostic_metadata(A2UI_EXPRESS_V1)
         record["evaluation_metric_mode"] = metric_mode
         record["renderer_check_result"] = {
             "adapter": "android_native",
@@ -2151,6 +2142,7 @@ def run_stage3(
                 expected_ui_contract_source=contract_resolution_v5_4.source,
                 render_ok=None,
                 config=v5_4_config,
+                reference_map=task.get("asset_placeholder_map"),
             )
             artifact_v5_4 = render_artifact_quality_v5_4(
                 generation_completion,
@@ -2161,7 +2153,16 @@ def run_stage3(
                 expected_ui_contract_source=contract_resolution_v5_4.source,
                 render_ok=None,
                 config=v5_4_config,
+                reference_map=task.get("asset_placeholder_map"),
             )
+            acceptance = artifact_v5_4.evidence.get("training_acceptance")
+            if isinstance(acceptance, dict):
+                record["training_acceptance"] = acceptance
+                blockers = acceptance.get("blocking_reasons") or []
+                if blockers:
+                    record["record_status"] = "quality_rejected"
+                    record["validation"]["semantic_acceptance_errors"] = list(blockers)
+                record["validation"]["semantic_review_reasons"] = list(acceptance.get("review_reasons") or [])
             record["generation_reward_v5_4"] = breakdown_to_mapping(
                 generation_v5_4
             )
@@ -2291,6 +2292,7 @@ def run_stage3(
             "response_id": task.get("response_id"),
             "query_id": task.get("query_id"),
             "ui_id": task.get("ui_id"),
+            **_audit_fields(task),
         }
         error_path.write_text(
             json.dumps(error_payload, ensure_ascii=False, indent=2),
@@ -2319,17 +2321,7 @@ def run_stage3(
 
     def _generate_single_result(task: dict[str, Any]):
         def _call():
-            rate_limiter.acquire()
-            return adapter.generate(
-                prompt=task["prompt"],
-                system=system_prompt,
-                temperature=generation_temperature,
-                max_tokens=max_tokens,
-                seed=task["seed"],
-                json_mode=(
-                    True if adapter.spec.supports_json_mode and not express_mode else False
-                ),
-            )
+            return _logged_call(task, "initial", task["prompt"], generation_temperature, task["seed"])
 
         retry_result_errors = os.environ.get("LOCAL_VLLM_RETRY_RESULT_ERRORS", "1").strip().lower()
         retry_result_errors_enabled = retry_result_errors not in {"0", "false", "no", "off"}
@@ -2423,18 +2415,29 @@ def run_stage3(
             seeds = [task["seed"] for task in tasks]
 
             def _call_batch():
-                rate_limiter.acquire()
-                return adapter.generate_batch(
-                    prompts=prompts,
-                    system=system_prompt,
-                    temperature=generation_temperature,
-                    max_tokens=max_tokens,
-                    seeds=seeds,
-                    json_mode=(
-                        True if adapter.spec.supports_json_mode and not express_mode else False
-                    ),
-                    batch_name=f"stage3_{int(time.time())}",
-                )
+                started = time.monotonic()
+                try:
+                    rate_limiter.acquire()
+                    batch_results = adapter.generate_batch(
+                        prompts=prompts, system=system_prompt, temperature=generation_temperature,
+                        max_tokens=max_tokens, seeds=seeds, json_mode=False,
+                        batch_name=f"stage3_{int(time.time())}",
+                    )
+                except Exception as exc:
+                    for task in tasks:
+                        record_attempt(task, artifacts_dir, phase="initial_batch", prompt=task["prompt"],
+                                       system=system_prompt, seed=task["seed"], temperature=generation_temperature,
+                                       max_tokens=max_tokens, error=compact_exception(exc),
+                                       latency_ms=(time.monotonic() - started) * 1000)
+                    raise
+                for task, result in zip(tasks, batch_results):
+                    record_attempt(task, artifacts_dir, phase="initial_batch", prompt=task["prompt"],
+                                   system=system_prompt, seed=task["seed"], temperature=generation_temperature,
+                                   max_tokens=max_tokens, text=result.text, raw=result.raw,
+                                   input_tokens=result.input_tokens, output_tokens=result.output_tokens,
+                                   latency_ms=result.latency_ms, error=result.error,
+                                   reasoning_tokens=result.reasoning_tokens, cost_usd=result.cost_usd)
+                return batch_results
 
             try:
                 results = with_retry(_call_batch, max_attempts=max_attempts)
@@ -2564,20 +2567,8 @@ def run_stage3(
             if not response_id or not query_id or not response_text:
                 continue
 
-            if not assets_list:
-                auto_assets = _auto_download_response_assets(
-                    response_id=response_id,
-                    response_text=response_text,
-                    assets_dir=auto_assets_dir,
-                    logger=logger,
-                )
-                if auto_assets:
-                    assets_list = auto_assets
-                    logger.info(
-                        "Stage3 auto-downloaded assets response_id=%s count=%s",
-                        response_id,
-                        len(auto_assets),
-                    )
+            # Stage3 consumes reference metadata only. Asset downloading belongs
+            # to an explicit rendering/asset phase, never training generation.
 
             for c_idx in range(1, candidates_per_response + 1):
                 if stop:
@@ -2595,17 +2586,39 @@ def run_stage3(
                 if ui_id in existing_ids:
                     continue
 
+                source_quality = response.get("source_quality") or {}
+                if isinstance(source_quality, dict) and (
+                    source_quality.get("training_eligibility") == "exclude"
+                    or source_quality.get("status") == "failed"
+                ):
+                    source_task = {"ui_id": ui_id, "response_id": response_id, "query_id": query_id,
+                                   "response_text": response_text,
+                                   **{key: response[key] for key in ("source_quality", "query_quality", "scenario_family_id") if key in response}}
+                    writer.append({**source_task, **_audit_fields(source_task), "record_status": "quality_rejected",
+                                   "source_format": active_ir_format, "assets": assets_list,
+                                   "validation": {"generation_attempted": False, "semantic_acceptance_errors": ["source_contract_failed"]},
+                                   "training_acceptance": {"eligible": False, "blocking_reasons": ["source_contract_failed"], "review_reasons": []},
+                                   "gen": {"provider": adapter.spec.provider, "model": adapter.spec.model,
+                                           "input_tokens": 0, "output_tokens": 0, "error": "source_contract_failed"},
+                                   "created_at": datetime.utcnow().isoformat() + "Z"})
+                    existing_ids.add(ui_id)
+                    total_created += 1
+                    continue
+
                 masked_response_text, raw_to_placeholder, placeholder_to_raw = _mask_model_references(
                     response_text,
                     assets_list,
                 )
-                prompt = _build_prompt_for(
-                    response_id,
-                    response_text,
-                    assets_list,
-                    masked_response_text=masked_response_text,
-                    raw_to_placeholder=raw_to_placeholder,
-                )
+                try:
+                    prompt = _build_prompt_for(
+                        response_id, response_text, assets_list,
+                        masked_response_text=masked_response_text, raw_to_placeholder=raw_to_placeholder,
+                    )
+                except ValueError as exc:
+                    _record_generation_error({"ui_id": ui_id, "response_id": response_id, "query_id": query_id,
+                                              "response_text": response_text, "prompt": masked_response_text,
+                                              "asset_placeholder_map": placeholder_to_raw}, str(exc))
+                    continue
                 prompt_hash = hash_text(
                     f"{adapter.spec.name}:{system_prompt or ''}\n---\n{prompt}"
                 )
@@ -2625,11 +2638,16 @@ def run_stage3(
                     "query_text": intent_info.get("query_text") or "",
                     "prompt": prompt,
                     "prompt_hash": prompt_hash,
+                    "phase_invocation_id": phase_invocation_id,
                     "seed": seed + c_idx,
                 }
 
+                for quality_key in ("source_quality", "query_quality", "scenario_family_id"):
+                    if quality_key in response:
+                        task[quality_key] = response[quality_key]
                 cached = cache.get(prompt_hash)
                 if cached:
+                    task["cache_hit"] = True
                     _process_generated(
                         task,
                         cached.text,
@@ -2666,6 +2684,5 @@ def run_stage3(
             logger.info("Stage3 completed created=%s", total_created)
     finally:
         _write_aggregates()
-
 
 

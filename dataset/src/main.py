@@ -332,6 +332,27 @@ def _apply_env_int_override(run_cfg: dict, key: str, env_key: str) -> None:
         raise SystemExit(f"{env_key} must be an integer, got: {raw!r}")
 
 
+def _apply_generation_env_overrides(run_cfg: dict) -> None:
+    for key, env_key, minimum in (
+        ("stage1_intent_batch_size", "A2UI_STAGE1_INTENT_BATCH_SIZE", 1),
+        ("max_repair_attempts", "A2UI_MAX_REPAIR_ATTEMPTS", 0),
+        ("max_attempts", "A2UI_MAX_ATTEMPTS", 1),
+    ):
+        _apply_env_int_override(run_cfg, key, env_key)
+        if key in run_cfg:
+            run_cfg[key] = max(minimum, int(run_cfg[key]))
+    raw = (os.environ.get("A2UI_CALL_SLEEP_SECONDS") or "").strip()
+    if raw:
+        import math
+        try:
+            value = float(raw)
+        except ValueError:
+            raise SystemExit(f"A2UI_CALL_SLEEP_SECONDS must be a finite float, got: {raw!r}")
+        if not math.isfinite(value):
+            raise SystemExit("A2UI_CALL_SLEEP_SECONDS must be finite")
+        run_cfg["call_sleep_seconds"] = max(0.0, value)
+
+
 def _apply_env_bool_override(run_cfg: dict, key: str, env_key: str) -> None:
     raw = (os.environ.get(env_key) or "").strip().lower()
     if not raw:
@@ -527,7 +548,8 @@ def _write_run_manifest_safe(
     run_cfg_path: Path,
     models_cfg_path: Path,
     logger,
-) -> None:
+    effective_run_config: dict | None = None,
+) -> str | None:
     try:
         manifest = build_run_manifest(
             root=root,
@@ -538,10 +560,13 @@ def _write_run_manifest_safe(
             run_cfg_path=run_cfg_path,
             models_cfg_path=models_cfg_path,
             argv=sys.argv,
+            effective_run_config=effective_run_config,
         )
         write_run_manifest(run_paths.manifest_path, manifest)
+        return manifest["phase_invocation_id"]
     except Exception as exc:
         logger.warning("Failed to write run manifest: %s", exc)
+        return None
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -696,6 +721,7 @@ def main() -> None:
         run_cfg["max_genui_total"] = int(args.max_genui_total)
     if args.k_queries_per_intent is not None:
         run_cfg["k_queries_per_intent"] = int(args.k_queries_per_intent)
+    _apply_generation_env_overrides(run_cfg)
     _apply_env_int_override(run_cfg, "query_max_tokens", "A2UI_QUERY_MAX_TOKENS")
     _apply_env_int_override(run_cfg, "stage1_intent_cycle_size", "A2UI_STAGE1_INTENT_CYCLE_SIZE")
     _apply_env_int_override(run_cfg, "batch_size_queries", "A2UI_STAGE1_BATCH_SIZE")
@@ -820,7 +846,7 @@ def main() -> None:
             model_paths = get_run_paths(output_dir, model_run_id, run_cfg.get("artifact_dir", "artifacts"))
             model_logger = setup_logger(model_paths.run_dir)
             _write_subset_queries(model_paths.queries_path, subset)
-            _write_run_manifest_safe(
+            phase_invocation_id = _write_run_manifest_safe(
                 root=root,
                 run_id=model_run_id,
                 stage="benchmark",
@@ -829,6 +855,7 @@ def main() -> None:
                 run_cfg_path=run_cfg_path,
                 models_cfg_path=models_cfg_path,
                 logger=model_logger,
+                effective_run_config=run_cfg,
             )
 
             adapter = build_adapter(spec)
@@ -879,6 +906,7 @@ def main() -> None:
                 aggregate_weights=eval_cfg.get("weights", {}),
                 metric_version=eval_cfg.get("metric_version", "v5_4"),
                 ir_formats=run_cfg.get("stage3_ir_formats"),
+                phase_invocation_id=phase_invocation_id,
             )
             aggregates[model_name] = _compute_aggregates_with_backfill(
                 model_paths.genui_path,
@@ -895,7 +923,7 @@ def main() -> None:
         available = ", ".join(sorted(model_map.keys()))
         raise SystemExit(f"Unknown model '{args.model}'. Available: {available}")
     spec = model_map.get(args.model) if args.model else specs[0]
-    _write_run_manifest_safe(
+    phase_invocation_id = _write_run_manifest_safe(
         root=root,
         run_id=run_id,
         stage=args.stage or "unknown",
@@ -904,6 +932,7 @@ def main() -> None:
         run_cfg_path=run_cfg_path,
         models_cfg_path=models_cfg_path,
         logger=logger,
+        effective_run_config=run_cfg,
     )
 
     # Recompute-only fast path:
@@ -1035,6 +1064,7 @@ def main() -> None:
                 aggregate_weights=eval_cfg.get("weights", {}),
                 metric_version=eval_cfg.get("metric_version", "v5_4"),
                 ir_formats=run_cfg.get("stage3_ir_formats"),
+                phase_invocation_id=phase_invocation_id,
             )
             logger.info("Stage3 complete.")
             return

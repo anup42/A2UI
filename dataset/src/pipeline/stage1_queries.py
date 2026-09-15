@@ -8,6 +8,7 @@ from pathlib import Path
 from pipeline.common import extract_json, load_prompt, render_prompt
 from pipeline.storage import JsonlWriter, iter_jsonl
 from pipeline.cache import PromptCache
+from pipeline.source_quality import QualityQueryWriter, QueryQualityIndex
 from llm.base import BaseLLMAdapter, LLMRateLimitError
 from utils.hashing import normalize_text, hash_text, stable_id
 from utils.rate_limit import RateLimiter
@@ -84,7 +85,9 @@ def run_stage1(
     existing_hashes = set()
     existing_counts = {intent: 0 for intent in intents}
     existing_ids = set()
+    quality_index = QueryQualityIndex()
     for row in iter_jsonl(queries_path):
+        quality_index.add(row, annotate=False)
         existing_ids.add(row.get("query_id"))
         q = row.get("query_text", "")
         if q:
@@ -93,7 +96,10 @@ def run_stage1(
         if intent in existing_counts:
             existing_counts[intent] += 1
 
-    writer = JsonlWriter(queries_path)
+    writer = QualityQueryWriter(JsonlWriter(queries_path), quality_index, str(prompt_path), prompt_template)
+
+    def _query_prompt(intent: str, k: int) -> str:
+        return render_prompt(prompt_template, intent=intent, k=k) + quality_index.prompt_context(intent)
     next_idx = len(existing_ids) + 1
 
     total_created = 0
@@ -265,7 +271,7 @@ def run_stage1(
             for intent in batch_intents:
                 remaining = k_per_intent - existing_counts[intent]
                 k = min(batch_size, remaining)
-                prompt = render_prompt(prompt_template, intent=intent, k=k)
+                prompt = _query_prompt(intent, k)
                 seed_value = seed + existing_counts[intent] + failures_by_intent[intent]
                 prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}:seed={seed_value}")
                 cached = cache.get(prompt_hash)
@@ -494,7 +500,7 @@ def run_stage1(
 
                 remaining = target - existing_counts[intent]
                 k = min(batch_size, remaining, intent_cycle_size)
-                prompt = render_prompt(prompt_template, intent=intent, k=k)
+                prompt = _query_prompt(intent, k)
                 seed_value = seed + existing_counts[intent] + failures_by_intent[intent]
                 prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}:seed={seed_value}")
 
@@ -650,7 +656,7 @@ def run_stage1(
                 return
             remaining = target - existing_counts[intent]
             k = min(batch_size, remaining)
-            prompt = render_prompt(prompt_template, intent=intent, k=k)
+            prompt = _query_prompt(intent, k)
             seed_value = seed + existing_counts[intent] + failures
             prompt_hash = hash_text(f"{adapter.spec.name}:{prompt}:seed={seed_value}")
 

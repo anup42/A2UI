@@ -29,6 +29,26 @@ class LLMResult:
     reasoning_text: Optional[str] = None
     reasoning_source: Optional[str] = None
     reasoning_tokens: Optional[int] = None
+    finish_reason: Optional[str] = None
+    completion_complete: Optional[bool] = None
+
+
+def completion_metadata(payload: Any) -> tuple[Optional[str], Optional[bool]]:
+    if not isinstance(payload, dict):
+        return None, None
+    choices = payload.get("choices") or []
+    candidates = payload.get("candidates") or []
+    reason = None
+    if choices and isinstance(choices[0], dict):
+        reason = choices[0].get("finish_reason")
+    elif candidates and isinstance(candidates[0], dict):
+        reason = candidates[0].get("finishReason")
+    if reason is None:
+        return None, None
+    reason = str(reason)
+    if reason.lower() in {"length", "max_tokens", "content_filter", "safety", "recitation"}:
+        return reason, False
+    return reason, True if reason.lower() in {"stop", "end_turn", "eos_token"} else None
 
 
 def _reasoning_value_text(value: Any) -> str:
@@ -125,11 +145,11 @@ def split_reasoning_from_text(text: str) -> tuple[Optional[str], str]:
     raw = text or ""
     chunks: list[str] = []
     patterns = (
-        r"(?is)<think>\s*(.*?)\s*</think>",
-        r"(?is)<\|think\|>\s*(.*?)\s*<\|/think\|>",
-        r"(?is)<\|channel\|>\s*(?:analysis|thought|thinking)\b(.*?)(?=<\|channel\|>|<\|message\|>|$)",
-        r"(?is)<\|channel>\s*(?:analysis|thought|thinking)\b(.*?)(?:<channel\|>|$)",
-        r"(?is)<\|start\|>\s*(?:analysis|thought|thinking)\b(.*?)(?=<\|end\|>|<\|start\|>|$)",
+        r"(?is)^\s*<think>\s*(.*?)\s*</think>",
+        r"(?is)^\s*<\|think\|>\s*(.*?)\s*(?:<\|/think\|>|<\|end_think\|>)",
+        r"(?is)^\s*<\|channel\|>\s*(?:analysis|thought|thinking)\b(.*?)(?=<\|channel\|>|<\|message\|>|$)",
+        r"(?is)^\s*<\|channel>\s*(?:analysis|thought|thinking)\b(.*?)(?:<channel\|>|$)",
+        r"(?is)^\s*<\|start\|>\s*(?:analysis|thought|thinking)\b(.*?)(?=<\|end\|>|<\|start\|>|$)",
     )
     cleaned = raw
     for pattern in patterns:

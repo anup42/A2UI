@@ -32,6 +32,9 @@ VLLM_MAX_NUM_SEQS="${VLLM_MAX_NUM_SEQS:-64}"
 VLLM_MAX_NUM_BATCHED_TOKENS="${VLLM_MAX_NUM_BATCHED_TOKENS:-8192}"
 VLLM_KV_CACHE_DTYPE="${VLLM_KV_CACHE_DTYPE:-}"
 VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS:-}"
+VLLM_ENABLE_PREFIX_CACHING="${VLLM_ENABLE_PREFIX_CACHING:-}"
+VLLM_ASYNC_SCHEDULING="${VLLM_ASYNC_SCHEDULING:-}"
+VLLM_LIMIT_MM_PER_PROMPT="${VLLM_LIMIT_MM_PER_PROMPT:-}"
 VLLM_CLEAN_STALE_PROCESSES="${VLLM_CLEAN_STALE_PROCESSES:-1}"
 VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS="${VLLM_CLEAN_STALE_FORCE_AFTER_SECONDS:-10}"
 VLLM_RESTART_ON_CRASH="${VLLM_RESTART_ON_CRASH:-1}"
@@ -374,6 +377,10 @@ cleanup_stale_vllm_processes() {
   if ! is_truthy "${VLLM_CLEAN_STALE_PROCESSES}"; then
     return 0
   fi
+  if [[ "${VLLM_CLEAN_STALE_SCOPE:-}" == "gpu" ]]; then
+    echo 'Broad stale-process cleanup is incompatible with replicas; set VLLM_CLEAN_STALE_PROCESSES=0. Owned worker groups are still cleaned.' >&2
+    return 2
+  fi
 
   local -a pids=()
   local pid
@@ -407,7 +414,7 @@ fi
 
 detect_gpu_layout
 
-HELP_TEXT="$(vllm serve --help 2>&1 || true)"
+HELP_TEXT="$(vllm serve --help=all 2>&1 || vllm serve --help 2>&1 || true)"
 if grep -q "libcudart.so.13" <<<"${HELP_TEXT}"; then
   echo "vLLM failed to load libcudart.so.13." >&2
   echo "Fix: rerun setup so the CUDA 13 runtime wheel is installed and LD_LIBRARY_PATH is exported:" >&2
@@ -461,6 +468,25 @@ if [[ -n "${VLLM_KV_CACHE_DTYPE}" ]]; then
   cmd+=(--kv-cache-dtype "${VLLM_KV_CACHE_DTYPE}")
 fi
 
+for flag in enable-prefix-caching async-scheduling; do
+  enabled="${VLLM_ENABLE_PREFIX_CACHING}"
+  [[ "${flag}" == "async-scheduling" ]] && enabled="${VLLM_ASYNC_SCHEDULING}"
+  if is_truthy "${enabled}"; then
+    if ! grep -q -- "--${flag}" <<<"${HELP_TEXT}"; then
+      echo "Requested --${flag} is unsupported by this installed vLLM. Pin a compatible version or explicitly disable the setting." >&2
+      exit 2
+    fi
+    cmd+=("--${flag}")
+  fi
+done
+if [[ -n "${VLLM_LIMIT_MM_PER_PROMPT}" ]]; then
+  if ! grep -q -- '--limit-mm-per-prompt' <<<"${HELP_TEXT}"; then
+    echo "This vLLM does not support the requested text-only multimodal limits." >&2
+    exit 2
+  fi
+  cmd+=(--limit-mm-per-prompt "${VLLM_LIMIT_MM_PER_PROMPT}")
+fi
+
 if [[ "${GEMMA4_SPECULATIVE_MODE}" != "off" ]]; then
   spec_json="$(python - "${ASSISTANT_MODEL_PATH}" "${GEMMA4_SPECULATIVE_TOKENS}" <<'PY'
 import json
@@ -475,8 +501,8 @@ PY
 fi
 
 if is_truthy "${GEMMA4_ENABLE_REASONING}" && [[ "${GEMMA4_REASONING_FLAGS_MODE}" != "off" ]]; then
-  if [[ "${VLLM_HAS_ENABLE_REASONING}" = "1" && "${VLLM_HAS_REASONING_PARSER}" = "1" ]]; then
-    cmd+=(--enable-reasoning)
+  if [[ "${VLLM_HAS_REASONING_PARSER}" = "1" ]]; then
+    if [[ "${VLLM_HAS_ENABLE_REASONING}" = "1" ]]; then cmd+=(--enable-reasoning); fi
     cmd+=(--reasoning-parser gemma4)
   else
     echo "Warning: this vLLM build does not expose Gemma4 server reasoning parser flags." >&2
@@ -547,9 +573,10 @@ terminate_active_vllm() {
   echo "Stopping active vLLM process group for pid=${pid}"
   kill -TERM "-${pid}" 2>/dev/null || kill -TERM "${pid}" 2>/dev/null || true
   sleep 5
-  if pid_alive "${pid}"; then
-    kill -KILL "-${pid}" 2>/dev/null || kill -KILL "${pid}" 2>/dev/null || true
-  fi
+  # The group leader may exit before its GPU workers. Escalate to the group
+  # even when the leader is gone; ESRCH is harmless when the group is empty.
+  kill -KILL "-${pid}" 2>/dev/null || true
+  if pid_alive "${pid}"; then kill -KILL "${pid}" 2>/dev/null || true; fi
   cleanup_stale_vllm_processes
 }
 
@@ -577,7 +604,8 @@ run_vllm_once() {
   if command -v setsid >/dev/null 2>&1; then
     setsid "${cmd[@]}" > >(tee -a "${VLLM_RUN_LOG}") 2> >(tee -a "${VLLM_RUN_LOG}" >&2) &
   else
-    "${cmd[@]}" > >(tee -a "${VLLM_RUN_LOG}") 2> >(tee -a "${VLLM_RUN_LOG}" >&2) &
+    echo 'setsid is required to isolate and clean owned vLLM worker processes.' >&2
+    return 2
   fi
   VLLM_ACTIVE_PID="$!"
   echo "vLLM child pid=${VLLM_ACTIVE_PID}"
@@ -585,6 +613,9 @@ run_vllm_once() {
   wait "${VLLM_ACTIVE_PID}"
   local rc=$?
   set -e
+  # A crashed leader can leave GPU workers alive. Clean its group before
+  # clearing ownership or starting another model instance.
+  terminate_active_vllm
   VLLM_ACTIVE_PID=""
   printf '===== A2UI vLLM exit %s rc=%s =====\n' "$(date -Is)" "${rc}" >>"${VLLM_RUN_LOG}" 2>/dev/null || true
   return "${rc}"

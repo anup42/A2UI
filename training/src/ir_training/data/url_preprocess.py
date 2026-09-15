@@ -58,7 +58,7 @@ class UrlPreprocessResult:
 
 
 class _UrlRegistry:
-    def __init__(self, binding_policy: str = ROLE_SCOPED_BINDING) -> None:
+    def __init__(self, binding_policy: str = ROLE_SCOPED_BINDING, reserved_tokens: set[str] | None = None) -> None:
         if binding_policy not in {ROLE_SCOPED_BINDING, SOURCE_IDENTITY_BINDING}:
             raise ValueError(f"Unsupported URL binding policy: {binding_policy}")
         self.binding_policy = binding_policy
@@ -66,6 +66,7 @@ class _UrlRegistry:
         self._by_url: dict[str, str] = {}
         self._counters: dict[str, int] = {}
         self.url_map: dict[str, dict[str, str]] = {}
+        self._reserved_tokens = set(reserved_tokens or ())
         self.response_url_count = 0
         self.target_url_count = 0
         self.raw_visible_text_url_count = 0
@@ -86,6 +87,9 @@ class _UrlRegistry:
             self._counters.get(placeholder_prefix, 0) + 1
         )
         token = f"[{placeholder_prefix}_{self._counters[placeholder_prefix]}]"
+        while token in self._reserved_tokens:
+            self._counters[placeholder_prefix] += 1
+            token = f"[{placeholder_prefix}_{self._counters[placeholder_prefix]}]"
         host = _reference_host(raw_url)
         self._by_role_url[key] = token
         self._by_url[raw_url] = token
@@ -128,7 +132,18 @@ def preprocess_training_urls(
                 "raw_visible_text_url_count": 0,
             },
         )
-    registry = _UrlRegistry(binding_policy)
+    # Existing source-visible placeholders must never be rebound to a newly
+    # encountered URL. No asset bytes are needed to preserve these identities.
+    def tokens(value: Any) -> set[str]:
+        if isinstance(value, str):
+            return set(_PLACEHOLDER_RE.findall(value))
+        if isinstance(value, dict):
+            return set().union(*(tokens(v) for v in value.values())) if value else set()
+        if isinstance(value, list):
+            return set().union(*(tokens(v) for v in value)) if value else set()
+        return set()
+
+    registry = _UrlRegistry(binding_policy, tokens(response_text) | tokens(canonical_graph))
     processed_response = _replace_urls_in_text(
         response_text, registry, key=None, component_type=None, in_response=True
     )

@@ -183,10 +183,10 @@ DEFAULT_CAPS: dict[str, float] = {
 # Conservative tokenization for cross-format matching.  Unicode word tokens,
 # currency signs, percent and common numeric punctuation are retained.
 _TOKEN_RE = re.compile(r"[\w]+(?:[./:+\-][\w]+)*|[$€£¥₹]\s*\d[\d,]*(?:\.\d+)?|\d[\d,]*(?:\.\d+)?%?", re.UNICODE)
-_URL_RE = re.compile(r"https://[^\s)>\]}]+|\{\{u\d+\}\}", re.IGNORECASE)
-_MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\((https://[^)\s]+|\{\{u\d+\}\})\)", re.IGNORECASE)
+_URL_RE = re.compile(r"https://[^\s)>\]}]+|\{\{u\d+\}\}|\[(?:(?:ACTION|SOURCE|URL)_)?URL_\d+\]|\[URL_\d+\]", re.IGNORECASE)
+_MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\((https://[^)\s]+|\{\{u\d+\}\}|\[(?:(?:ACTION|SOURCE|URL)_)?URL_\d+\]|\[URL_\d+\])\)", re.IGNORECASE)
 _ACTION_RE = re.compile(
-    r"(?im)^\s*Action:\s*\[\s*Button\s*:\s*([^\]]+?)\s*\]\s*(https://\S+|\{\{u\d+\}\})\s*$"
+    r"(?im)^\s*Action:\s*\[\s*Button\s*:\s*([^\]]+?)\s*\]\s*(https://\S+|\{\{u\d+\}\}|\[(?:(?:ACTION|SOURCE|URL)_)?URL_\d+\]|\[URL_\d+\])\s*$"
 )
 _MEDIA_RE = re.compile(
     r"(?im)^\s*Media:\s*(Image|Icon|Video|Audio(?:Player)?)\s*=\s*(\S+?)(?:\s+Alt\s*=\s*(.+))?\s*$"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import re
 from typing import Any, Hashable, Mapping, Sequence
 
 from . import _core
@@ -13,7 +14,10 @@ from .metrics_v5_3 import (
     role_instance_similarity_v5_3,
     role_payload_v5_3,
     semantic_signature_v5_3,
+    _action_match_score,
+    _media_match_score,
 )
+from .applicability_v5_3 import classify_action, classify_media
 from .ownership_v5_4 import (
     build_output_ownership,
     build_source_ownership,
@@ -21,8 +25,81 @@ from .ownership_v5_4 import (
 )
 
 
-SCORING_POLICY_VERSION = "5.4.0"
-ROLE_MATCHING_POLICY_VERSION = "5.4.0"
+SCORING_POLICY_VERSION = "5.4.1"
+ROLE_MATCHING_POLICY_VERSION = "5.4.1"
+
+
+def normalize_formula_wrapper(value: Any) -> Any:
+    """Remove one balanced display/inline wrapper, preserving math contents."""
+    if not isinstance(value, str):
+        return value
+    text = value.strip()
+    for opening, closing in (("$$", "$$"), (r"\[", r"\]"), (r"\(", r"\)"), ("$", "$")):
+        if len(text) <= len(opening) + len(closing):
+            continue
+        if text.startswith(opening) and text.endswith(closing):
+            inner = text[len(opening):-len(closing)]
+            # Multiple separate expressions and escaped closing dollars are
+            # not a single wrapper around an equivalent formula.
+            if opening.startswith("$") and (re.search(r"(?<!\\)\$", inner) or inner.endswith("\\")):
+                continue
+            if opening.startswith("\\") and (opening in inner or closing in inner):
+                continue
+            return inner.strip()
+    return text
+
+
+def unsupported_external_addition_precision_v5_4(
+    expected_actions: Sequence[_core.ActionRef],
+    actual_actions: Sequence[_core.OutputAction],
+    expected_media: Sequence[_core.MediaRef],
+    actual_media: Sequence[_core.MediaRef],
+    *,
+    aliases: Mapping[str, set[str]],
+) -> tuple[float, dict[str, Any]]:
+    """Source-origin icons remain supported when rendered as labelled images.
+
+    All source media (including decorative icons) are passed here. This does
+    not make decorative media required, and matching still consumes instances.
+    """
+    actions = [item for item in actual_actions if classify_action(item.action_type, item.url) == "external_semantic"]
+    media = [item for item in actual_media if classify_media(item.kind, item.alt) == "source_semantic_media"]
+    remaining_actions = list(actions)
+    for expected in expected_actions:
+        for _ in range(max(0, expected.minimum_count)):
+            for index, actual in enumerate(remaining_actions):
+                if _action_match_score(expected, actual, aliases) >= 0.75:
+                    remaining_actions.pop(index)
+                    break
+    remaining_media = list(media)
+    icon_matches = 0
+    for expected in expected_media:
+        for _ in range(max(0, expected.minimum_count)):
+            for index, actual in enumerate(remaining_media):
+                source_icon = (
+                    expected.kind.casefold() == "icon"
+                    and actual.kind.casefold() in {"icon", "image"}
+                    and bool(expected.url)
+                    and _core._url_equivalent(expected.url, actual.url, aliases)
+                    and (not expected.expected_component_id or expected.expected_component_id == actual.component_id)
+                )
+                if source_icon or _media_match_score(expected, actual, aliases) >= 0.75:
+                    remaining_media.pop(index)
+                    icon_matches += int(source_icon)
+                    break
+    count = len(actions) + len(media)
+    unsupported = len(remaining_actions) + len(remaining_media)
+    value = (count - unsupported) / count if count else 1.0
+    return value, {
+        "actual_external_action_count": len(actions),
+        "unsupported_external_action_count": len(remaining_actions),
+        "actual_semantic_media_count": len(media),
+        "unsupported_semantic_media_count": len(remaining_media),
+        "source_icon_supported_count": icon_matches,
+        "supported_count": count - unsupported,
+        "candidate_count": count,
+        "precision": value,
+    }
 
 
 def _expanded_requirements(
@@ -89,6 +166,10 @@ def semantic_role_coverage_v5_4(
             and int(item.get("minimum_count", 1) or 0) > 0
         ]
         candidates = [dict(item) for item in actual.get(role, ())]
+        if role == "formula":
+            for item in [*requirements, *candidates]:
+                if "content" in item:
+                    item["content"] = normalize_formula_wrapper(item["content"])
         semantic, count_only = _expanded_requirements(requirements)
         required_count = len(semantic) + count_only
         total_required += required_count

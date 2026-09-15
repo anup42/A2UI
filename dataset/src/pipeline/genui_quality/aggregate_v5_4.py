@@ -94,9 +94,9 @@ def _score_record_variant(
     if active_express:
         candidate = _active_express_candidate(record)
     normalization = (
-        normalize_and_validate_express_candidate_v5_4(candidate)
+        normalize_and_validate_express_candidate_v5_4(candidate, reference_map=record.get("reference_map"))
         if active_express
-        else normalize_and_validate_legacy_candidate_v5_4(candidate)
+        else normalize_and_validate_legacy_candidate_v5_4(candidate, reference_map=record.get("reference_map"))
     )
     fingerprint = metric_fingerprint_v5_4(
         config, computed_registry=computed_registry
@@ -106,6 +106,7 @@ def _score_record_variant(
         "source_hash": str(resolution.contract.get("source_hash") or ""),
         "raw_candidate_hash": normalization.raw_hash,
         "canonical_candidate_hash": normalization.canonical_hash,
+        "reference_map_hash": normalization.reference_map_hash,
         "expected_contract_hash": expected_contract_hash_v5_4(
             resolution.contract
         ),
@@ -158,6 +159,7 @@ def _score_record_variant(
         "render_ok": render_ok if attempted else None,
         "config": config,
         "computed_registry": computed_registry,
+        "reference_map": record.get("reference_map"),
     }
     if not active_express:
         score_kwargs["legacy_comparison"] = True

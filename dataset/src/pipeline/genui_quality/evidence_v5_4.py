@@ -35,9 +35,10 @@ from .evidence_v5_3 import (
     kotlin_string_v5_3,
 )
 from .matching_v5_1 import PreparedTextBlock, prepare_text_block
+from .list_evidence_v5_4 import literal_list_evidence, parse_source_links, self_source_cue, source_heading
 
 
-EVIDENCE_POLICY_VERSION = "5.4.0"
+EVIDENCE_POLICY_VERSION = "5.4.1"
 DYNAMIC_SEMANTICS_VERSION = "a2ui-express-native-semantics-5.4.0"
 DYNAMIC_PARITY_VECTOR_VERSION = "3.0.0"
 COMPUTED_REGISTRY_IDENTITY_VERSION = "2.0.0"
@@ -280,6 +281,7 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
             self.state, config, computed_registry
         )
         self.effective_components: list[dict[str, Any]] = []
+        self.source_section_nodes: set[str] = set()
 
     def _collect_element(
         self,
@@ -300,6 +302,41 @@ class _EvidenceInterpreterV54(_EvidenceInterpreterV53):
         }
         super()._collect_element(element_id, element, props)
         token = str(element.get("type") or "").casefold().replace("_", "")
+        children = element.get("children") or []
+        if token in {"stack", "column", "row", "card"} and (
+            self_source_cue(element_id, props)
+            or (token == "card" and any(
+                self_source_cue(str(child), self.elements.get(child, {}).get("props", {}))
+                or source_heading(self.elements.get(child, {}).get("props", {}).get("text"))
+                for child in children if isinstance(self.elements.get(child), Mapping)
+            ))
+        ):
+            pending = list(children)
+            while pending:
+                child = pending.pop()
+                if not isinstance(child, str) or child in self.source_section_nodes:
+                    continue
+                self.source_section_nodes.add(child)
+                nested = self.elements.get(child)
+                if isinstance(nested, Mapping):
+                    pending.extend(nested.get("children") or [])
+        source_context = element_id in self.source_section_nodes
+        if token == "list":
+            blocks, links = literal_list_evidence(props.get("items"), source_context=source_context)
+            # Parent interpreters do not own literal List.items. Add only
+            # renderer-supported fields; never serialize arbitrary state/maps.
+            for block in blocks:
+                self.visible_blocks.append(block)
+                self.block_ownership.append({"component_id": element_id, "owner": "source_action" if source_context and links else "generic_visible_content", "text": block})
+        elif token == "text" and source_context:
+            blocks = [str(next((props[key] for key in ("text", "title", "label", "content", "value") if props.get(key) is not None), ""))]
+            links = [link for block in blocks for link in parse_source_links(block)]
+        else:
+            links = []
+        for index, (label, target) in enumerate(links):
+            action = _core.OutputAction(f"{element_id}[{index}]", label, target, "source_link" if source_context else "list.item", "openUrl")
+            self.actions.append(action)
+            self.action_taxonomy.append({"component_id": action.element_id, "action_type": "openUrl", "target": target, "category": "external_semantic"})
         semantic_owner = {
             "formula": "source_formula",
             "codeblock": "source_code",

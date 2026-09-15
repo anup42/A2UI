@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import sys
@@ -12,7 +13,7 @@ from pathlib import Path
 from typing import Any
 from typing import Optional
 
-from .base import BaseLLMAdapter, LLMResult, extract_reasoning_metadata, split_reasoning_from_text
+from .base import BaseLLMAdapter, LLMResult, completion_metadata, extract_reasoning_metadata, split_reasoning_from_text
 from .http_transport import urlopen
 
 
@@ -99,18 +100,10 @@ class LocalAdapter(BaseLLMAdapter):
 
     @staticmethod
     def _strip_thinking_text(text: str) -> str:
-        cleaned = re.sub(r"(?is)<think>.*?</think>", "", text or "")
-        cleaned = re.sub(
-            r"(?is)<\|think\|>.*?(?=<\|end_think\|>|<\|end\|>|\{|\[|$)",
-            "",
-            cleaned,
-        )
-        cleaned = re.sub(r"(?is)<\|end_think\|>|<\|think\|>", "", cleaned)
-        cleaned = re.sub(r"(?is)<\|channel\|>\s*(analysis|thought|thinking)\b.*?(?=<\|channel\|>|<\|message\|>|$)", "", cleaned)
-        cleaned = re.sub(r"(?is)<\|start\|>\s*(analysis|thought|thinking)\b.*?(?=<\|end\|>|<\|start\|>|$)", "", cleaned)
-        cleaned = re.sub(r"(?is)^\s*(analysis|thought|thinking)\s*:\s*.*?(?=\n\s*(final|assistant)\s*:|$)", "", cleaned)
-        cleaned = re.sub(r"(?is)^\s*final\s*:\s*", "", cleaned.strip())
-        return cleaned.strip()
+        # Only explicit complete model delimiters count as reasoning. Ordinary
+        # prose such as "Thinking: ..." is valid source content and stays intact.
+        _, cleaned = split_reasoning_from_text(text or "")
+        return cleaned
 
     @staticmethod
     def _env_float(name: str, default: float | None = None) -> float | None:
@@ -530,8 +523,9 @@ class LocalAdapter(BaseLLMAdapter):
             body["seed"] = seed
         if json_mode:
             body["response_format"] = {"type": "json_object"}
-        if thinking_enabled and send_template_kwargs:
-            body["chat_template_kwargs"] = {"enable_thinking": True}
+        if send_template_kwargs:
+            # An explicit false overrides templates whose default is thinking on.
+            body["chat_template_kwargs"] = {"enable_thinking": thinking_enabled}
 
         timeout_s = 60.0
         timeout_raw = (os.environ.get("LOCAL_VLLM_TIMEOUT_SECONDS") or "").strip()
@@ -543,7 +537,14 @@ class LocalAdapter(BaseLLMAdapter):
         elif self._model_is_large_reasoning_family():
             timeout_s = 600.0
 
+        request_attempts: list[dict[str, Any]] = []
+
         def post_once(request_body: dict[str, object]) -> str:
+            controls = {key: value for key, value in request_body.items() if key != "messages"}
+            request_meta = {"attempt_index": len(request_attempts), "controls": controls,
+                            "messages_sha256": hashlib.sha256(json.dumps(request_body.get("messages"), ensure_ascii=False).encode("utf-8")).hexdigest()}
+            request_attempts.append(request_meta)
+            started = time.monotonic()
             data = json.dumps(request_body).encode("utf-8")
             if self._is_truthy(os.environ.get("LOCAL_VLLM_LOG_REQUESTS")):
                 print(
@@ -559,8 +560,17 @@ class LocalAdapter(BaseLLMAdapter):
                 data=data,
                 headers={"Content-Type": "application/json"},
             )
-            with urlopen(req, timeout=timeout_s) as resp:
-                return resp.read().decode("utf-8")
+            try:
+                with urlopen(req, timeout=timeout_s) as resp:
+                    response_text = resp.read().decode("utf-8")
+                request_meta["status"] = "completed"
+                return response_text
+            except Exception as exc:
+                request_meta["status"] = "failed"
+                request_meta["error"] = str(exc)[:500]
+                raise
+            finally:
+                request_meta["latency_ms"] = (time.monotonic() - started) * 1000
 
         def post_with_server_retries(request_body: dict[str, object]) -> str:
             retry_enabled = self._is_truthy(
@@ -635,7 +645,7 @@ class LocalAdapter(BaseLLMAdapter):
                     )
                 return LLMResult(
                     text="",
-                    raw=None,
+                    raw={"a2ui_request_attempts": request_attempts},
                     latency_ms=(time.time() - start) * 1000,
                     input_tokens=0,
                     output_tokens=0,
@@ -647,7 +657,16 @@ class LocalAdapter(BaseLLMAdapter):
 
         elapsed = (time.time() - start) * 1000
         payload = json.loads(raw)
+        payload["a2ui_request_attempts"] = request_attempts
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if isinstance(text, list):
+            text = "\n".join(str(part.get("text", "")) for part in text if isinstance(part, dict))
+        text = text if isinstance(text, str) else ""
+        reason, complete = completion_metadata(payload)
+        incomplete_inline = (
+            (text.lstrip().startswith("<think>") and "</think>" not in text)
+            or (text.lstrip().startswith("<|think|>") and not any(marker in text for marker in ("<|/think|>", "<|end_think|>")))
+        )
         reasoning_text, reasoning_source, reasoning_tokens = extract_reasoning_metadata(payload)
         if not reasoning_text:
             inline_reasoning, cleaned_text = split_reasoning_from_text(text)
@@ -658,6 +677,15 @@ class LocalAdapter(BaseLLMAdapter):
         if self._should_strip_thinking():
             text = self._strip_thinking_text(text)
         usage = payload.get("usage", {})
+        completion_error = None
+        if complete is False:
+            completion_error = f"incomplete_completion: finish_reason={reason}"
+        elif incomplete_inline:
+            completion_error = "incomplete_completion: unclosed_reasoning_block"
+            complete = False
+        elif not text.strip():
+            completion_error = "incomplete_completion: empty_final_content"
+            complete = False
         return LLMResult(
             text=text or "",
             raw=payload,
@@ -667,7 +695,9 @@ class LocalAdapter(BaseLLMAdapter):
             cost_usd=None,
             model=self.spec.model,
             provider=self.spec.provider,
-            error=None,
+            error=completion_error,
+            finish_reason=reason,
+            completion_complete=complete,
             reasoning_text=reasoning_text,
             reasoning_source=reasoning_source,
             reasoning_tokens=reasoning_tokens,

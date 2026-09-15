@@ -51,6 +51,7 @@ from .metrics_v5_4 import (
     SCORING_POLICY_VERSION,
     semantic_duplication_score_v5_4,
     semantic_role_coverage_v5_4,
+    unsupported_external_addition_precision_v5_4,
 )
 from .ownership_v5_4 import (
     OWNERSHIP_POLICY_VERSION,
@@ -76,6 +77,7 @@ from .source_contract_v5_4 import (
     resolve_expected_ui_contract_v5_4,
 )
 from .validation_v5_4 import ensure_v5_4_validation_ready
+from .acceptance_v5_4 import ACCEPTANCE_POLICY_VERSION, training_acceptance_v5_4
 
 
 ACCESSIBILITY_POLICY_VERSION = "penalty-only-1.0.0"
@@ -250,6 +252,7 @@ def _score_one_v5_4(
     computed_registry: ComputedFunctionRegistryV54 | None,
     generation_mode: bool,
     active_express: bool = True,
+    reference_map: Mapping[str, str] | None = None,
 ) -> RewardBreakdownV54:
     started = perf_counter()
     timings: dict[str, float | int | bool | None] = {
@@ -261,9 +264,9 @@ def _score_one_v5_4(
     }
     ownership_detail: dict[str, Any] = {}
     normalization = (
-        normalize_and_validate_express_candidate_v5_4(completion)
+        normalize_and_validate_express_candidate_v5_4(completion, reference_map=reference_map)
         if active_express
-        else normalize_and_validate_legacy_candidate_v5_4(completion)
+        else normalize_and_validate_legacy_candidate_v5_4(completion, reference_map=reference_map)
     )
     matching_times: dict[str, float] = {}
 
@@ -288,6 +291,13 @@ def _score_one_v5_4(
 
     def matching_timing(domain: str, elapsed_ms: float) -> None:
         matching_times[domain] = float(elapsed_ms)
+
+    def unsupported_additions(expected_actions: Any, actual_actions: Any,
+                              expected_media: Any, actual_media: Any, **kwargs: Any) -> Any:
+        return unsupported_external_addition_precision_v5_4(
+            expected_actions, actual_actions, prepared.base.source_contract.media,
+            actual_media, **kwargs,
+        )
 
     def duplication(
         base_prepared: Any, evidence_result: Any, output: Any
@@ -349,6 +359,7 @@ def _score_one_v5_4(
         include_accessibility_atomic=False,
         normalization_result=normalization.boundary,
         matching_timing_callback=matching_timing,
+        unsupported_additions_scorer=unsupported_additions,
     )
     accessibility_multiplier, accessibility = _accessibility_adjustment(
         base, prepared.config
@@ -449,6 +460,7 @@ def _score_one_v5_4(
         "source_hash": prepared.source_hash,
         "raw_candidate_hash": normalization.raw_hash,
         "canonical_candidate_hash": normalization.canonical_hash,
+        "reference_map_hash": normalization.reference_map_hash,
         "expected_contract_hash": prepared.contract_hash,
         "computed_registry_hash": str(
             prepared.computed_registry_identity.get(
@@ -509,13 +521,16 @@ def _score_one_v5_4(
             "source_contract": V5_4_CONTRACT_VERSION,
             "source_extractor": V5_4_EXTRACTOR_VERSION,
             "source_extraction": V5_4_EXTRACTION_POLICY_VERSION,
+            "training_acceptance": ACCEPTANCE_POLICY_VERSION,
             "computed_registry_identity": (
                 COMPUTED_REGISTRY_IDENTITY_VERSION
             ),
         },
         performance=performance,
     )
-    return RewardBreakdownV54(**payload)
+    result = RewardBreakdownV54(**payload)
+    result.evidence["training_acceptance"] = training_acceptance_v5_4(result)
+    return result
 
 
 def score_completion_group_v5_4(
@@ -526,6 +541,7 @@ def score_completion_group_v5_4(
     computed_registry: ComputedFunctionRegistryV54 | None = None,
     generation_mode: bool = False,
     active_express: bool = True,
+    reference_map: Mapping[str, str] | None = None,
 ) -> tuple[RewardBreakdownV54, ...]:
     if (
         effective_registry_identity_v5_4(computed_registry)
@@ -550,6 +566,7 @@ def score_completion_group_v5_4(
             computed_registry=computed_registry,
             generation_mode=generation_mode,
             active_express=active_express,
+            reference_map=reference_map,
         )
         for index, completion in enumerate(completions)
     )
@@ -576,6 +593,7 @@ def _score(
     computed_registry: ComputedFunctionRegistryV54 | None,
     generation_mode: bool,
     active_express: bool = True,
+    reference_map: Mapping[str, str] | None = None,
 ) -> RewardBreakdownV54:
     prepared = prepare_source_context_v5_4(
         response_text,
@@ -593,6 +611,7 @@ def _score(
         computed_registry=computed_registry,
         generation_mode=generation_mode,
         active_express=active_express,
+        reference_map=reference_map,
     )[0]
 
 
@@ -608,6 +627,7 @@ def render_artifact_quality_v5_4(
     config: RewardConfigV54 | None = None,
     computed_registry: ComputedFunctionRegistryV54 | None = None,
     legacy_comparison: bool = False,
+    reference_map: Mapping[str, str] | None = None,
 ) -> RewardBreakdownV54:
     return _score(
         completion,
@@ -621,6 +641,7 @@ def render_artifact_quality_v5_4(
         computed_registry=computed_registry,
         generation_mode=False,
         active_express=not legacy_comparison,
+        reference_map=reference_map,
     )
 
 
@@ -636,6 +657,7 @@ def generation_reward_v5_4(
     config: RewardConfigV54 | None = None,
     computed_registry: ComputedFunctionRegistryV54 | None = None,
     legacy_comparison: bool = False,
+    reference_map: Mapping[str, str] | None = None,
 ) -> RewardBreakdownV54:
     return _score(
         completion,
@@ -649,6 +671,7 @@ def generation_reward_v5_4(
         computed_registry=computed_registry,
         generation_mode=True,
         active_express=not legacy_comparison,
+        reference_map=reference_map,
     )
 
 
@@ -670,6 +693,7 @@ def generation_reward_a2ui_express_v1(
         computed_registry=kwargs.pop("computed_registry", None),
         generation_mode=True,
         active_express=True,
+        reference_map=kwargs.pop("reference_map", None),
     )
 
 

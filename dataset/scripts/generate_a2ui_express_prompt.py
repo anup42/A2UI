@@ -37,6 +37,33 @@ def _signature(name: str, descriptor: dict) -> str:
     return f"{name}({', '.join(str(item) for item in positional)})"
 
 
+def _property_type(schema: dict) -> str:
+    if "enum" in schema:
+        return "|".join(json.dumps(value, ensure_ascii=False) for value in schema["enum"])
+    if "oneOf" in schema:
+        literals = [item for item in schema["oneOf"] if isinstance(item, dict) and "enum" in item]
+        if literals:
+            return _property_type(literals[0])
+    ref = schema.get("$ref", "").rsplit("/", 1)[-1]
+    if ref:
+        return {"dynamicString": "string", "dynamicNumber": "number", "dynamicBoolean": "boolean",
+                "dynamicArray": "array", "dynamicObject": "object", "dynamicValue": "JSON value"}.get(ref, ref)
+    kind = schema.get("type", "JSON value")
+    if kind == "array":
+        return "array<" + _property_type(schema.get("items", {})) + ">"
+    return str(kind)
+
+
+def _typed_properties(name: str, descriptor: dict, catalog: dict) -> str:
+    catalog_components = catalog.get("components", {})
+    canonical = catalog_components.get(name) or catalog_components.get(descriptor.get("aliasFor")) or {}
+    properties = canonical.get("schema", {}).get("properties", {})
+    names = list(dict.fromkeys((descriptor.get("positional") or []) + (canonical.get("consumedProps") or [])))
+    entries = [f"{key}: " + ("component references" if key in {"children", "trigger", "content"} else _property_type(properties[key]))
+               for key in names if key in properties]
+    return "; ".join(entries) or "no properties"
+
+
 def render_prompt() -> str:
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     profile = json.loads(PROFILE.read_text(encoding="utf-8"))
@@ -44,7 +71,7 @@ def render_prompt() -> str:
     actions = profile.get("actions") or {}
     quality = QUALITY.read_text(encoding="utf-8").strip()
     component_lines = "\n".join(
-        f"- {_signature(str(name), descriptor)}"
+        f"- {_signature(str(name), descriptor)}\n  Types: {_typed_properties(str(name), descriptor, catalog)}"
         for name, descriptor in sorted(components.items())
         if isinstance(descriptor, dict)
     )
@@ -87,8 +114,25 @@ Response:
   `openUrl("https://...")`, never quoted URLs/event names by themselves.
 - Use `$={{...}}` or `$/path=value` for state and valid data bindings.
 - Reject the temptation to invent URLs, paths, values, or filler components.
+- URL/icon/image placeholders are STRING LITERALS, including their brackets:
+  `Icon(url="[ICON_URL_1]")`, `Image("[IMAGE_URL_1]","Source image")`,
+  `openUrl("[ACTION_URL_1]")`. Never use bare `ICON_URL_1` or `[ICON_URL_1]`.
+  Copy the exact supplied token; names here are examples, not extra assets.
+- Match the catalog types below. Use `wrap="wrap"` or `wrap="nowrap"`, never a
+  boolean; gap is an enum string; width/height/padding are numbers.
+- Typed visibility is `visible=true`, `visible=false`, or
+  `visible={{path:"/consent_agreed"}}`. A quoted expression is a string and is
+  invalid for boolean visibility. State declarations and bindings are different.
+- A complete EmailPreview, compact Table, or focused control may use fewer than
+  five components. Preserve its required source content; never pad node counts.
+- `List(items=["First step","Second step"])` holds text rows. Text/link maps
+  may use `text`, `title`, `label` and `url`, `href`, `link` or `source`.
+  Put rich components in `children=[...]`; never put `Text(...)` calls in items.
 
 ## Pinned catalog signatures
+
+Types describe literal values; dynamic types also accept a typed binding object.
+Enums must use exactly a listed spelling. Optional omitted arguments retain defaults.
 
 {component_lines}
 

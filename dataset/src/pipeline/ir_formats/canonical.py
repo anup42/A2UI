@@ -15,6 +15,7 @@ import json
 from typing import Any, Mapping
 
 from ..renderer_semantics import iter_renderer_references
+from ..list_items import validate_list_items
 
 
 @dataclass(frozen=True)
@@ -321,6 +322,10 @@ def _validate_action_map(value: Any, actions: Mapping[str, Mapping[str, Any]], c
 def _validate_property_values(element_type: str, props: Mapping[str, Any], context: str) -> str | None:
     """Validate catalog/profile enum values without parser-side normalization."""
 
+    if element_type == "List" and "items" in props:
+        error = validate_list_items(props["items"])
+        if error:
+            return f"{context}.{error}"
     if element_type in {"Stack", "Row", "Column"}:
         direction = props.get("direction")
         if direction is not None and direction not in {"vertical", "horizontal"}:

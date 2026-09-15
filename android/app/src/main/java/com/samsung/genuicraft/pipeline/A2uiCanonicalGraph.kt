@@ -55,6 +55,18 @@ internal object A2uiCanonicalGraph {
                     return invalid("Element '$id' has unsupported property '$key'.")
                 }
             }
+            if (type == "List" && props.has("items")) {
+                val items = props.get("items")
+                if (!items.isJsonArray) return invalid("Element '$id' List.items must be an array; use children for components.")
+                val fields = setOf("text", "label", "title", "name", "content", "value", "description", "url", "href", "link", "source")
+                items.asJsonArray.forEach { item ->
+                    val text = item.isJsonPrimitive && item.asJsonPrimitive.isString
+                    val data = item.isJsonObject && item.asJsonObject.size() > 0 && item.asJsonObject.entrySet().all {
+                        it.key in fields && it.value.isJsonPrimitive && it.value.asJsonPrimitive.isString
+                    }
+                    if (!text && !data) return invalid("Element '$id' List.items contains unsupported data; use children for component calls.")
+                }
+            }
             if (type == "Stack") {
                 props.get("direction")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString?.let {
                     if (it !in setOf("vertical", "horizontal")) return invalid("Element '$id' has invalid Stack.direction.")

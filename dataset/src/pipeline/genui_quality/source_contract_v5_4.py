@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 from typing import Any, Mapping
 
+from . import _core
 from .ownership_v5_4 import generic_source_texts
 from .source_contract import (
     CONTRACT_VERSION,
@@ -29,8 +30,8 @@ from .source_contract_v5_3 import (
 
 
 V5_4_CONTRACT_VERSION = "2.4.0"
-V5_4_EXTRACTOR_VERSION = "2.4.0"
-V5_4_EXTRACTION_POLICY_VERSION = "1.4.0"
+V5_4_EXTRACTOR_VERSION = "2.4.1"
+V5_4_EXTRACTION_POLICY_VERSION = "1.4.1"
 V5_4_MIGRATION_POLICY_VERSION = "1.2.0"
 SOURCE_EXTRACTION_BENCHMARK_VERSION = "1.0.0"
 
@@ -371,6 +372,24 @@ def extract_expected_ui_contract_v5_4(
     mapping = extract_expected_ui_contract_v5_3(
         response_text, intent=intent, assets=assets
     )
+    # Legacy extraction treated any two inline paths as commands and demanded
+    # a ConsoleLog. Only retain that inferred role with explicit console intent
+    # or a source-derived semantic console requirement. Paths remain prose.
+    if (
+        not (mapping.get("role_requirements") or {}).get("console")
+        and not re.search(r"(?i)\b(?:console|terminal)(?:\s+(?:log|output))?\b", response_text)
+    ):
+        mapping.setdefault("expected_role_counts", {})["console"] = 0
+        mapping.setdefault("required_roles", {})["console"] = False
+    # URL versions and query IDs are reference metadata, not visible numeric
+    # facts. Keep numbers in prose, tables, formulas, code, and media labels.
+    numeric_text = _core._URL_RE.sub("", response_text)
+    mapping["exact_values"] = [
+        _core.normalize_match_text(value)
+        for pattern in (_core._EXACT_VALUE_RE, _core._DATE_RE)
+        for value in pattern.findall(numeric_text)
+        if _core.normalize_match_text(value)
+    ]
     mapping["contract_version"] = V5_4_CONTRACT_VERSION
     mapping["extractor_version"] = V5_4_EXTRACTOR_VERSION
     mapping["extraction_policy_version"] = V5_4_EXTRACTION_POLICY_VERSION

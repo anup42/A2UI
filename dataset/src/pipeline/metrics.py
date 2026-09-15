@@ -1159,6 +1159,69 @@ def lexical_token_estimate(text: str) -> int:
     return len(text.split())
 
 
+def metric_diagnostic_metadata(target_format: str | None = None) -> dict[str, Any]:
+    """Label compatibility counters without changing their historical values.
+
+    Keep this separate from the numeric ``metrics`` object: existing dashboards
+    and aggregates consume that object's numeric fields directly.
+    """
+    return {
+        "policy_version": "1.0.0",
+        "target_format": target_format,
+        "legacy_metrics": {
+            "family": "legacy_ui_heuristics",
+            "diagnostic_only": True,
+            "automatic_semantic_rejection_supported": False,
+            "active_express_note": (
+                "These counters can inspect a decoded Express graph but retain legacy heuristics; "
+                "they are not the v5.4 renderer-effective semantic metrics."
+            ),
+            "section_heading_coverage": (
+                "Heuristic source headings matched to styled Text nodes; Card titles and other "
+                "renderer headings are not a complete part of this counter."
+            ),
+            "table_cell_coverage": (
+                "Set overlap of heuristic source cells and extracted output/state cells; "
+                "it does not certify row/column association, multiplicity, or visible rendering."
+            ),
+            "actionable_elements": (
+                "Unique extracted URL count, not the number of visible buttons; historical "
+                "fallbacks may inspect URLs in unused state."
+            ),
+            "prefer_when_available": {
+                "headings": "genui_quality_v5_4.atomics.fidelity.heading_fidelity_and_order",
+                "tables": "genui_quality_v5_4.evidence.table_matching",
+                "actions": "genui_quality_v5_4.evidence.action_matching",
+                "review": "genui_quality_v5_4.evidence.training_acceptance",
+            },
+        },
+        "stage3_warning_counters": {
+            "diagnostic_only": True,
+            "source_cells": (
+                "Counts nonseparator pipe-delimited parts, including headers and non-table "
+                "option lines; this can exceed the actual table body cell count."
+            ),
+            "generated_table_cells": "Counts Table body cells, excluding column headers.",
+            "generated_h2_h3": "Counts only Text variant h2/h3; does not count Card titles.",
+            "warning_is_proof_of_content_loss": False,
+        },
+        "size_and_token_fields": {
+            "output_tokens_toon": {"unit": "non_whitespace_characters", "legacy_alias_of": "output_chars_toon", "model_token_count": False},
+            "output_tokens_json": {"unit": "non_whitespace_characters", "legacy_alias_of": "output_chars_json", "model_token_count": False},
+            "output_chars_toon": {"unit": "non_whitespace_characters"},
+            "output_chars_json": {"unit": "non_whitespace_characters"},
+            "format_metrics.characters": {"unit": "characters_including_whitespace"},
+            "format_metrics.utf8_bytes": {"unit": "utf8_bytes"},
+            "format_metrics.estimated_tokens": {"unit": "whitespace_delimited_words", "model_token_count": False, "diagnostic_only": True},
+            "format_metrics.completion_tokens": {"unit": "provider_reported_model_tokens", "unavailable_value": None},
+            "model_efficiency_comparison": (
+                "Use measured tokenizer/provider counts with a recorded model/tokenizer identity; "
+                "character aliases and lexical estimates are not comparable model token counts."
+            ),
+        },
+    }
+
+
 def count_characters(text: str) -> int:
     # Whitespace-insensitive payload size proxy.
     return len(re.sub(r"\s+", "", text or ""))
@@ -1504,6 +1567,7 @@ def aggregate_metrics(
     }
     aggregate["media_score"] = compute_media_score(aggregate)
     aggregate["evaluation_metric_mode"] = metric_mode
+    aggregate["metric_diagnostics"] = metric_diagnostic_metadata()
     if metric_mode in {"v4", "dual"}:
         aggregate["genui_quality_v4"] = aggregate_v4_records(
             rows,

@@ -8,6 +8,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
+from importlib.metadata import version, PackageNotFoundError
 
 from utils.config import load_yaml
 
@@ -90,7 +92,7 @@ def _run_git(root: Path, args: list[str]) -> str | None:
     if proc.returncode != 0:
         return None
     value = proc.stdout.strip()
-    return value or None
+    return value
 
 
 def get_git_commit(root: Path) -> str | None:
@@ -142,6 +144,7 @@ def build_run_manifest(
     run_cfg_path: Path,
     models_cfg_path: Path,
     argv: list[str] | None = None,
+    effective_run_config: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     release = load_release_version(root)
     components = load_component_versions(root)
@@ -156,7 +159,8 @@ def build_run_manifest(
     rel = lambda p: str(p.relative_to(root)) if p.is_absolute() and str(p).startswith(str(root)) else str(p)
 
     manifest: dict[str, Any] = {
-        "manifest_version": 1,
+        "manifest_version": 2,
+        "phase_invocation_id": uuid4().hex,
         "generated_at": utc_now_iso(),
         "run_id": run_id,
         "stage": stage,
@@ -192,9 +196,62 @@ def build_run_manifest(
             "cwd": os.getcwd(),
         },
     }
+    # Only non-secret generation controls enter provenance. Do not dump os.environ.
+    runtime_keys = (
+        "A2UI_CALL_SLEEP_SECONDS", "A2UI_STAGE1_INTENT_BATCH_SIZE", "A2UI_STAGE1_INTENT_CYCLE_SIZE",
+        "A2UI_MAX_REPAIR_ATTEMPTS", "A2UI_MAX_ATTEMPTS", "A2UI_QUERY_TEMPERATURE",
+        "A2UI_RESPONSE_TEMPERATURE", "A2UI_RESPONSE_TEMPERATURES", "A2UI_GENUI_TEMPERATURE",
+        "A2UI_GENUI_MAX_TOKENS", "A2UI_GENUI_PROMPT_MAX_TOKENS", "A2UI_STAGE3_BATCH_SIZE",
+        "A2UI_STAGE2_BATCH_SIZE", "A2UI_STAGE1_BATCH_SIZE", "STAGE3_FINAL_REGEN_ATTEMPTS",
+        "LOCAL_VLLM_MAX_MODEL_LEN", "LOCAL_VLLM_MAX_OUTPUT_TOKENS", "LOCAL_VLLM_ENABLE_THINKING",
+        "LOCAL_VLLM_BATCH_PARALLELISM", "LOCAL_VLLM_PARALLEL_REQUESTS", "LOCAL_VLLM_TOP_P",
+        "LOCAL_VLLM_TOP_K", "LOCAL_VLLM_MIN_P", "LOCAL_VLLM_CHAT_TEMPLATE_KWARGS",
+        "LOCAL_STAGE3_PROMPT_MAX_TOKENS", "LOCAL_STAGE3_PROMPT_TOKEN_MULTIPLIER",
+        "VLLM_MAX_MODEL_LEN", "VLLM_TENSOR_PARALLEL_SIZE", "VLLM_MAX_NUM_SEQS",
+        "VLLM_MAX_NUM_BATCHED_TOKENS", "VLLM_GPU_MEMORY_UTILIZATION",
+    )
+    manifest["runtime_overrides"] = {key: os.environ[key] for key in runtime_keys if key in os.environ}
+    manifest["config"]["effective_run_config"] = effective_run_config
+    source_files = sorted((root / "src").rglob("*.py"))
+    contract_files = sorted((root / "schema").glob("*.json"))
+    prompt_files = sorted((root / "prompts").glob("*.md"))
+    for env_key in ("A2UI_STAGE1_PROMPT_FILE", "A2UI_STAGE3_PROMPT_FILE"):
+        configured = os.environ.get(env_key)
+        if configured:
+            candidate = Path(configured)
+            prompt_files.append(candidate if candidate.is_absolute() else root / candidate)
+    manifest["implementation_files"] = {rel(path): sha256_file(path) for path in source_files}
+    manifest["contract_files"] = {rel(path): sha256_file(path) for path in contract_files + prompt_files}
+    packages = {}
+    for name in ("vllm", "torch", "transformers", "jsonschema", "google-genai"):
+        try:
+            packages[name] = version(name)
+        except PackageNotFoundError:
+            packages[name] = None
+    manifest["runtime"] = {"python": sys.version, "packages": packages}
     return manifest
 
 
 def write_run_manifest(path: Path, manifest: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    phases = path.parent / "phase_manifests"
+    phases.mkdir(parents=True, exist_ok=True)
+    # Preserve a pre-upgrade manifest once before maintaining the compatibility pointer.
+    if path.exists():
+        previous = path.read_bytes()
+        old_hash = hashlib.sha256(previous).hexdigest()
+        legacy = phases / f"previous_{old_hash}.json"
+        if not legacy.exists():
+            with legacy.open("xb") as handle:
+                handle.write(previous)
+    snapshot = dict(manifest)
+    snapshot["phase_invocation_id"] = snapshot.get("phase_invocation_id") or uuid4().hex
+    phase = str(snapshot.get("stage", "unknown")).replace("/", "_").replace("\\", "_")
+    phase_path = phases / f"stage_{phase}_{snapshot['phase_invocation_id']}.json"
+    snapshot["phase_manifest_path"] = str(phase_path.relative_to(path.parent))
+    encoded = json.dumps(snapshot, indent=2, ensure_ascii=False).encode("utf-8")
+    with phase_path.open("xb") as handle:
+        handle.write(encoded)
+    temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
+    temporary.write_bytes(encoded)
+    os.replace(temporary, path)

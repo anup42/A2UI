@@ -71,7 +71,7 @@ def test_repairs_preserve_layout_and_semantic_content() -> None:
     }
 
 
-def test_prepare_dataset_records_repairs_and_emits_strict_express(tmp_path: Path) -> None:
+def test_prepare_dataset_rejects_repairs_that_remove_actions(tmp_path: Path) -> None:
     run_dir = tmp_path / "run"
     response = {
         "response_id": "r1",
@@ -120,11 +120,6 @@ def test_prepare_dataset_records_repairs_and_emits_strict_express(tmp_path: Path
         }
     )
 
-    assert manifest["counts"]["accepted"] == 1
-    assert manifest["repair"]["accepted_records_with_repairs"] == 1
-    assert manifest["repair"]["change_counts"]["gap_normalized"] == 1
-    assert manifest["repair"]["change_counts"]["unsafe_url_action_removed"] == 1
-    row = json.loads((out_dir / "train.jsonl").read_text(encoding="utf-8").splitlines()[0])
-    assert row["repair"]["applied"] is True
-    assert row["canonical_graph"]["elements"]["root"]["props"]["gap"] == "sm"
-    assert "openUrl" not in row["completion"]
+    assert manifest["counts"]["accepted"] == 0
+    row = json.loads((out_dir / "rejected.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    assert "semantic_action_removal" in row["reason"]

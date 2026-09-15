@@ -24,11 +24,17 @@ from ir_training.data.legacy_targets import (
     canonical_graph_from_legacy_source,
 )
 from ir_training.data.repairs import RepairResult, repair_graph
+from ir_training.data.reference_binding import (
+    REFERENCE_BINDING_VERSION,
+    bind_source_target_references,
+    ground_preprocessed_references,
+)
 from ir_training.data.splits import stratified_split
 from ir_training.data.url_preprocess import (
     ROLE_SCOPED_BINDING,
     SOURCE_IDENTITY_BINDING,
     preprocess_training_urls,
+    restore_url_placeholders,
 )
 
 
@@ -66,7 +72,7 @@ def prepare_dataset(
     deduplicate = bool(filter_cfg.get("deduplicate", True))
     system_prompt = str(run_cfg.get("system_prompt") or "").strip()
     url_preprocessing_enabled = bool(url_cfg.get("enabled", True))
-    url_binding_policy = str(url_cfg.get("binding_policy") or ROLE_SCOPED_BINDING)
+    url_binding_policy = str(url_cfg.get("binding_policy") or SOURCE_IDENTITY_BINDING)
     if url_binding_policy not in {ROLE_SCOPED_BINDING, SOURCE_IDENTITY_BINDING}:
         raise ValueError(f"Unsupported URL binding policy: {url_binding_policy}")
 
@@ -95,15 +101,24 @@ def prepare_dataset(
                 genui.get("response_id") or f"{genui_path.stem}:{row_index}"
             )
             response = responses_by_id.get(response_id, {})
-            if genui.get("record_status") == "format_rejected":
+            admission = genui.get("training_acceptance") or {}
+            if genui.get("record_status") in {"format_rejected", "quality_rejected"} or (
+                isinstance(admission, dict) and admission.get("blocking_reasons")
+            ):
                 rejected.append(
                     {
                         "response_id": response_id,
                         "source_path": source_key,
-                        "reason": "format_rejected",
+                        "reason": genui.get("record_status") if genui.get("record_status") in {"format_rejected", "quality_rejected"} else "quality_rejected",
                         "source_format": genui.get("source_format"),
                     }
                 )
+                continue
+            if filter_cfg.get("require_semantic_acceptance", False) and (
+                not isinstance(admission, dict) or admission.get("eligible") is not True
+            ):
+                rejected.append({"response_id": response_id, "source_path": source_key,
+                                 "reason": "semantic_acceptance_review_required"})
                 continue
             source_format = genui.get("source_format")
             native_payload = _source_payload(genui)
@@ -117,6 +132,32 @@ def prepare_dataset(
             response_text = str(
                 genui.get("response_text") or response.get("response_text") or ""
             )
+            quality_records = [value for value in (genui.get("source_quality"), response.get("source_quality"))
+                               if isinstance(value, dict) and value]
+            source_quality = quality_records[-1] if quality_records else {}
+            # A later Stage 2 audit must not be shadowed by older Stage 3 metadata.
+            source_failed = any(value.get("training_eligibility") == "exclude"
+                                or value.get("status") == "failed"
+                                or (isinstance(value.get("eligibility"), dict)
+                                    and value["eligibility"].get("training") == "exclude")
+                                for value in quality_records)
+            quality_conflict = any(len({str(value[key]) for value in quality_records if value.get(key) is not None}) > 1
+                                   for key in ("status", "training_eligibility", "contract_sha256", "original_query_sha256"))
+            require_verified = bool(filter_cfg.get("require_source_contract_checks", False))
+            contract_passed = source_quality.get("status") == "checks_passed" and source_quality.get("training_eligibility") == "eligible"
+            if quality_conflict and not source_failed:
+                rejected.append({"response_id": response_id, "source_path": source_key,
+                                 "reason": "source_quality_metadata_conflict", "source_format": source_format})
+                continue
+            if source_failed or (require_verified and not contract_passed):
+                rejected.append({"response_id": response_id, "source_path": source_key,
+                                 "reason": "source_quality_failed" if source_failed else "source_contract_checks_required",
+                                 "source_quality": source_quality})
+                continue
+            if response.get("response_text") and genui.get("response_text") and response["response_text"] != genui["response_text"]:
+                rejected.append({"response_id": response_id, "source_path": source_key,
+                                 "reason": "source_response_text_mismatch"})
+                continue
             if not response_text.strip():
                 rejected.append(
                     {
@@ -152,8 +193,13 @@ def prepare_dataset(
                         payload_for_decode,
                         source_format=source_format,
                     )
+                references = bind_source_target_references(response_text, canonical, genui)
+                response_text = references.source
+                canonical = references.graph
                 canonical_repair = repair_graph(canonical)
                 repair = source_repair.merge(canonical_repair)
+                if any(change.kind == "unsafe_url_action_removed" for change in repair.changes):
+                    raise ValueError("semantic_action_removal:unsafe_destination_requires_review")
                 canonical = repair.graph
             except (TypeError, ValueError) as exc:
                 rejected.append(
@@ -186,6 +232,22 @@ def prepare_dataset(
                 if isinstance(processed_bundle, dict)
                 else assets
             )
+            try:
+                if url_preprocessing_enabled:
+                    grounded_response = ground_preprocessed_references(
+                        url_processed.response_text, processed_graph, masked_assets, url_processed.url_map
+                    )
+                else:
+                    # Serialization preferences cannot disable destination checks.
+                    audit = preprocess_training_urls(response_text, {"graph": canonical, "assets": assets},
+                                                     enabled=True, binding_policy=SOURCE_IDENTITY_BINDING)
+                    grounded = ground_preprocessed_references(audit.response_text, audit.canonical_graph["graph"],
+                                                             audit.canonical_graph["assets"], audit.url_map)
+                    grounded_response = restore_url_placeholders(grounded, audit.url_map)
+            except ValueError as exc:
+                rejected.append({"response_id": response_id, "source_path": source_key,
+                                 "reason": str(exc), "source_format": source_format})
+                continue
             selected_target_formats = resolve_target_formats(run_cfg, genui)
             query_id = genui.get("query_id") or response.get("query_id")
             intent = genui.get("intent") or response.get("intent")
@@ -209,6 +271,10 @@ def prepare_dataset(
                 or query_id
                 or response_id
             )
+            contract = genui.get("source_contract") or response.get("source_contract") or {}
+            family_id = str(genui.get("scenario_family_id") or response.get("scenario_family_id")
+                            or (contract.get("scenario_family_id") if isinstance(contract, dict) else None)
+                            or source_id)
             response_generation = _generation_metadata(response.get("gen"))
             ir_generation = _generation_metadata(genui.get("gen"))
             prepared_sources.append(
@@ -219,8 +285,9 @@ def prepare_dataset(
                     "response_id": response_id,
                     "query_id": query_id,
                     "source_id": source_id,
+                    "scenario_family_id": family_id,
                     "source_format": source_format,
-                    "response_text": url_processed.response_text,
+                    "response_text": grounded_response,
                     "processed_graph": processed_graph,
                     "masked_assets": masked_assets,
                     "url_map": url_processed.url_map,
@@ -236,6 +303,10 @@ def prepare_dataset(
                     "created_at": genui.get("created_at") or response.get("created_at"),
                     "target_formats": selected_target_formats,
                     "repair": repair.as_dict(),
+                    "reference_binding": references.evidence,
+                    "source_quality": source_quality,
+                    "query_quality": genui.get("query_quality") or response.get("query_quality") or {},
+                    "training_acceptance": admission,
                 }
             )
 
@@ -249,6 +320,7 @@ def prepare_dataset(
         test_ratio=float(split_cfg.get("test", 0.02)),
         stratify_key=str(split_cfg.get("stratify_by", "intent_bucket")),
         seed=int(run_cfg.get("seed", 42)),
+        group_key="scenario_family_id",
     )
     split_by_source_object = {
         id(row): split_name
@@ -335,6 +407,7 @@ def prepare_dataset(
                     "source_format": source["source_format"],
                     "semantic_hash": semantic_hash(source["processed_graph"]),
                     "source_id": source["source_id"],
+                    "scenario_family_id": source["scenario_family_id"],
                     "response_text": source["response_text"],
                     "intent_bucket": source["intent_bucket"],
                     "assets": source["masked_assets"],
@@ -344,6 +417,10 @@ def prepare_dataset(
                         "expected_ui_contract_v5_4_source"
                     ],
                     "repair": source["repair"],
+                    "reference_binding": source["reference_binding"],
+                    "source_quality": source["source_quality"],
+                    "query_quality": source["query_quality"],
+                    "training_acceptance": source["training_acceptance"],
                     "source_model_family": str(
                         source["ir_generation"].get("model")
                         or source["response_generation"].get("model")
@@ -361,6 +438,7 @@ def prepare_dataset(
                         "source_path": source["source_key"],
                         "source_row_index": source["source_row_index"],
                         "source_id": source["source_id"],
+                        "scenario_family_id": source["scenario_family_id"],
                         "assigned_split": split_name,
                         "target_format": target_format,
                         "source_format": source["source_format"],
@@ -457,9 +535,19 @@ def prepare_dataset(
         "split": split_cfg,
         "split_assignment_stage": "source_group_before_target_materialization",
         "source_group_count": len({str(row["source_id"]) for row in prepared_sources}),
+        "scenario_family_count": len({str(row["scenario_family_id"]) for row in prepared_sources}),
+        "source_quality": {
+            "require_source_contract_checks": bool(filter_cfg.get("require_source_contract_checks", False)),
+            "scope": "declared_contract_only; no automatic prose fact certification",
+            "accepted_with_contract_checks": sum(row["source_quality"].get("training_eligibility") == "eligible" for row in accepted),
+            "accepted_requiring_source_review": sum(row["source_quality"].get("training_eligibility") != "eligible" for row in accepted),
+        },
         "url_preprocessing": {
             "enabled": url_preprocessing_enabled,
             "binding_policy": url_binding_policy,
+            "reference_binding_version": REFERENCE_BINDING_VERSION,
+            "asset_bytes_required": False,
+            "semantic_action_removal_allowed": False,
         },
         "repair": _repair_summary(accepted),
     }

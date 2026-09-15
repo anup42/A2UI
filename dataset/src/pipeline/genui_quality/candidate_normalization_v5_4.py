@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 from pathlib import Path
 from typing import Any, Mapping
@@ -10,10 +10,11 @@ from typing import Any, Mapping
 from ._core import completion_to_text
 from .candidate_normalization import CandidateNormalizationResult, _canonical_json, _hash_text
 from .graph import audit_renderer_graph
+from .references_v5_4 import reference_map_hash, restore_semantic_references, validated_reference_map
 from ..ir_formats.canonical import validate_canonical_graph
 
 
-NORMALIZATION_POLICY_VERSION_V54 = "2.0.0"
+NORMALIZATION_POLICY_VERSION_V54 = "2.1.0"
 RAW_ENVELOPE_POLICY_VERSION = "1.0.0"
 CANONICAL_SCHEMA_PATH = (
     Path(__file__).resolve().parents[3]
@@ -57,7 +58,8 @@ class RawExpressEnvelopeEvidence:
 @dataclass(frozen=True)
 class CandidateNormalizationResultV54:
     boundary: CandidateNormalizationResult
-    raw_envelope: RawJsonEnvelopeEvidence
+    raw_envelope: RawJsonEnvelopeEvidence | RawExpressEnvelopeEvidence
+    reference_map_hash: str = ""
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.boundary, name)
@@ -109,10 +111,12 @@ def normalize_and_validate_express_candidate_v5_4(
     completion: Any,
     *,
     strict_schema: Mapping[str, Any] | None = None,
+    reference_map: Mapping[str, str] | None = None,
 ) -> CandidateNormalizationResultV54:
     """Strict active Express scoring boundary (no JSON extraction/fallback)."""
     from ..ir_formats import compile_express_to_wire, validate_express_completion
 
+    references = validated_reference_map(reference_map)
     raw_text = completion_to_text(completion)
     validation = validate_express_completion(completion)
     envelope = raw_express_envelope_evidence(completion)
@@ -135,6 +139,10 @@ def normalize_and_validate_express_candidate_v5_4(
     strict_valid, strict_errors = _strict_validate_express(canonical, strict_schema)
     errors.extend(strict_errors)
     production_valid = bool(validation.raw_valid and standard_valid and strict_valid)
+    # Validate the actual model output first. Restoration affects semantic
+    # evidence only and cannot rescue a malformed or invalid completion.
+    if canonical is not None and references:
+        canonical = restore_semantic_references(canonical, references)
     canonical_hash = _hash_text(_canonical_json(canonical)) if canonical is not None else None
     if not production_valid and not errors:
         errors.append("express.production_invalid")
@@ -151,6 +159,7 @@ def normalize_and_validate_express_candidate_v5_4(
             canonical_hash=canonical_hash,
         ),
         raw_envelope=envelope,
+        reference_map_hash=reference_map_hash(references),
     )
 
 
@@ -281,19 +290,26 @@ def normalize_and_validate_legacy_candidate_v5_4(
     completion: Any,
     *,
     strict_schema: Mapping[str, Any] | None = None,
+    reference_map: Mapping[str, str] | None = None,
 ) -> CandidateNormalizationResultV54:
     """Explicit offline-only legacy comparison boundary."""
     from .candidate_normalization import (
         RENDERER_V2_CANONICALIZATION,
         normalize_and_validate_candidate,
     )
+    references = validated_reference_map(reference_map)
+    boundary = normalize_and_validate_candidate(
+        completion,
+        strict_schema=strict_schema,
+        canonicalization_profile=RENDERER_V2_CANONICALIZATION,
+    )
+    if boundary.canonical_spec is not None and references:
+        restored = restore_semantic_references(boundary.canonical_spec, references)
+        boundary = replace(boundary, canonical_spec=restored, canonical_hash=_hash_text(_canonical_json(restored)))
     return CandidateNormalizationResultV54(
-        boundary=normalize_and_validate_candidate(
-            completion,
-            strict_schema=strict_schema,
-            canonicalization_profile=RENDERER_V2_CANONICALIZATION,
-        ),
+        boundary=boundary,
         raw_envelope=raw_json_envelope_evidence(completion),
+        reference_map_hash=reference_map_hash(references),
     )
 
 
@@ -301,12 +317,14 @@ def normalize_and_validate_candidate_v5_4(
     completion: Any,
     *,
     strict_schema: Mapping[str, Any] | None = None,
+    reference_map: Mapping[str, str] | None = None,
 ) -> CandidateNormalizationResultV54:
     """Active v5.4 alias: every candidate is an Express completion."""
 
     return normalize_and_validate_express_candidate_v5_4(
         completion,
         strict_schema=strict_schema,
+        reference_map=reference_map,
     )
 
 

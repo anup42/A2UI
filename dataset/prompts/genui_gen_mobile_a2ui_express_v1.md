@@ -28,36 +28,80 @@ Response:
   `openUrl("https://...")`, never quoted URLs/event names by themselves.
 - Use `$={...}` or `$/path=value` for state and valid data bindings.
 - Reject the temptation to invent URLs, paths, values, or filler components.
+- URL/icon/image placeholders are STRING LITERALS, including their brackets:
+  `Icon(url="[ICON_URL_1]")`, `Image("[IMAGE_URL_1]","Source image")`,
+  `openUrl("[ACTION_URL_1]")`. Never use bare `ICON_URL_1` or `[ICON_URL_1]`.
+  Copy the exact supplied token; names here are examples, not extra assets.
+- Match the catalog types below. Use `wrap="wrap"` or `wrap="nowrap"`, never a
+  boolean; gap is an enum string; width/height/padding are numbers.
+- Typed visibility is `visible=true`, `visible=false`, or
+  `visible={path:"/consent_agreed"}`. A quoted expression is a string and is
+  invalid for boolean visibility. State declarations and bindings are different.
+- A complete EmailPreview, compact Table, or focused control may use fewer than
+  five components. Preserve its required source content; never pad node counts.
+- `List(items=["First step","Second step"])` holds text rows. Text/link maps
+  may use `text`, `title`, `label` and `url`, `href`, `link` or `source`.
+  Put rich components in `children=[...]`; never put `Text(...)` calls in items.
 
 ## Pinned catalog signatures
 
+Types describe literal values; dynamic types also accept a typed binding object.
+Enums must use exactly a listed spelling. Optional omitted arguments retain defaults.
+
 - Alert(message, title, tone, timestamp)
+  Types: message: string; title: string; tone: string; timestamp: string; text: string; source: string; icon: string
 - AudioPlayer(url, description, posterUrl, title)
+  Types: url: string; description: string; posterUrl: string; title: string; src: string; source: string; name: string; poster: string; thumbnail: string; thumbnailUrl: string
 - Button(label, variant, icon)
+  Types: label: string; variant: string; icon: string; text: string; accessibilityLabel: string; contentDescription: string; onClickLabel: JSON value; actionLabel: string
 - Card(children, title, subtitle, tone)
+  Types: children: component references; title: string; subtitle: string; tone: string; padding: number; paddingHorizontal: number; paddingVertical: number; margin: number; marginHorizontal: number; marginVertical: number
 - Chart(chartType, columns, statePath, rows, title, subtitle)
+  Types: chartType: JSON value; columns: array; statePath: string; rows: array; title: string; subtitle: string; yLabel: string; rowsPath: JSON value; dataPath: JSON value; xKey: string; yKey: string
 - CheckBox(label, value, statePath)
+  Types: label: string; value: JSON value; statePath: string; accessibilityLabel: string; contentDescription: string
 - Checklist(items, title, disclaimer, source)
+  Types: items: array; title: string; disclaimer: JSON value; source: string
 - ChoicePicker(label, options, value, statePath)
+  Types: label: string; options: array; value: JSON value; statePath: string; accessibilityLabel: string; contentDescription: string
 - CodeBlock(code, language, title)
+  Types: code: JSON value; language: string; title: string
 - Column(children, gap, align, justify, wrap)
+  Types: children: component references; gap: "none"|"sm"|"md"|"lg"|"xl"; align: "start"|"center"|"end"|"stretch"; justify: "start"|"center"|"end"|"stretch"|"spaceAround"|"spaceBetween"|"spaceEvenly"; wrap: "nowrap"|"wrap"; spacing: JSON value; space: JSON value; padding: number; paddingHorizontal: number; paddingVertical: number; margin: number; marginHorizontal: number; marginVertical: number
 - ConsoleLog(code, language, title)
+  Types: code: JSON value; language: string; title: string
 - DateTimeInput(label, value, mode, placeholder, statePath)
+  Types: label: string; value: JSON value; mode: string; placeholder: string; statePath: string; accessibilityLabel: string; contentDescription: string
 - Divider()
+  Types: no properties
 - EmailPreview(subject, body, from, to, date, title)
+  Types: subject: string; body: JSON value; from: string; to: string; date: string; title: string; cc: JSON value; bcc: JSON value; timestamp: string; attachments: array
 - Formula(latex, title, result, display)
+  Types: latex: string; title: string; result: JSON value; display: boolean; text: string; subtitle: string
 - Icon(name, size, tint)
+  Types: name: string; size: number; tint: JSON value; icon: string; source: string; url: string; src: string; iconSize: number; accessibilityLabel: string; contentDescription: string; decorative: boolean
 - Image(url, alt, fit, width, height)
+  Types: url: string; alt: string; fit: "contain"|"cover"|"fill"|"none"|"scale-down"; width: number; height: number; src: string; source: string; name: string; contentScale: string; fallbackUrl: JSON value; accessibilityLabel: string; contentDescription: string; decorative: boolean
 - List(children, items)
+  Types: children: component references; items: array
 - Modal(trigger, content, title)
+  Types: trigger: component references; content: component references; title: string
 - Row(children, gap, align, justify, wrap)
+  Types: children: component references; gap: "none"|"sm"|"md"|"lg"|"xl"; align: "start"|"center"|"end"|"stretch"; justify: "start"|"center"|"end"|"stretch"|"spaceAround"|"spaceBetween"|"spaceEvenly"; wrap: "nowrap"|"wrap"; spacing: JSON value; space: JSON value; padding: number; paddingHorizontal: number; paddingVertical: number; margin: number; marginHorizontal: number; marginVertical: number
 - Slider(label, value, min, max, step, statePath)
+  Types: label: string; value: JSON value; min: number; max: number; step: number; statePath: string; accessibilityLabel: string; contentDescription: string
 - Stack(children, direction, gap, align, justify, wrap)
+  Types: children: component references; direction: "vertical"|"horizontal"; gap: "none"|"sm"|"md"|"lg"|"xl"; align: "start"|"center"|"end"|"stretch"; justify: "start"|"center"|"end"|"stretch"|"spaceAround"|"spaceBetween"|"spaceEvenly"; wrap: "nowrap"|"wrap"; spacing: JSON value; space: JSON value; padding: number; paddingHorizontal: number; paddingVertical: number; margin: number; marginHorizontal: number; marginVertical: number
 - Table(columns, statePath, rows, title, domain, preferredPresentation)
+  Types: columns: array; statePath: string; rows: array; title: string; domain: string; preferredPresentation: string; presentation: string; rowsPath: JSON value; dataPath: JSON value; primaryColumn: string; highlightColumns: array; numericColumns: array; entityMedia: array
 - Tabs(tabs, activeTabId)
+  Types: tabs: array; activeTabId: string
 - Text(text, variant)
+  Types: text: string; variant: string; heading: string; accessibilityLabel: string; contentDescription: string; decorative: boolean
 - TextField(label, value, statePath, placeholder)
+  Types: label: string; value: JSON value; statePath: string; placeholder: string; accessibilityLabel: string; contentDescription: string
 - Video(url, posterUrl, description, title)
+  Types: url: string; posterUrl: string; description: string; title: string; src: string; source: string; name: string; poster: string; thumbnail: string; thumbnailUrl: string
 
 ## Pinned actions
 
