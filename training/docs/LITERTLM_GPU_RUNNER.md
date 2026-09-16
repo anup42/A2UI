@@ -31,6 +31,13 @@ the isolated runtime worker is `training/scripts/run_litertlm_gpu.py`.
   of physical GPU UUIDs assigned to this job. The probe checks that inventory;
   every case rejects a native GPU choice outside the allowed set. This detects
   incorrect device selection; it does not pretend to provide missing affinity.
+  Both deployment preflight and evaluation normalize complete bare CUDA UUIDs
+  to `GPU-<uuid>` (already-prefixed IDs are not double-prefixed). Original CUDA
+  profiles and scheduler masks stay unchanged, including on `--resume-run`.
+  Missing, malformed or duplicate selected UUIDs fail before training; they are
+  never silently dropped. MIG instance IDs/masks are rejected here rather than
+  relabeled as physical GPUs. Native inventory and per-process allocation checks
+  still apply; normalization does not fix missing Vulkan libraries.
 - This is **not proof that every operator runs on GPU or that GPU utilization is
   optimal**. Native helper/sampling operations may use CPU; native logs are
   preserved. The runner never retries a failed GPU model with a CPU engine.

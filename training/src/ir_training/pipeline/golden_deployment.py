@@ -76,6 +76,32 @@ def _base(options: GoldenDeploymentOptions) -> GoldenTrainingOptions:
                    token_cache_dir=options.base.token_cache_dir or cache / "tokens")
 
 
+def _litert_allowed_gpu_uuids(profile: dict[str, Any]) -> list[str]:
+    """Map selected CUDA UUID spellings to NVIDIA physical UUIDs, without widening allocation."""
+    devices = profile.get("selected_devices")
+    if not isinstance(devices, list) or not devices:
+        raise ValueError("LiteRT GPU allocation checks require selected NVIDIA GPU UUIDs")
+    allowed = []
+    for device in devices:
+        if not isinstance(device, dict):
+            raise ValueError("LiteRT GPU allocation checks require a UUID for every selected GPU")
+        value = device.get("uuid")
+        launch = str(device.get("launch_identifier") or "").strip()
+        if launch.upper().startswith("MIG-") or (isinstance(value, str) and value.strip().upper().startswith("MIG-")):
+            raise ValueError("LiteRT GPU allocation checks require physical GPU UUIDs; MIG selection is not supported")
+        # PyTorch can stringify CUuuid without NVIDIA's GPU- prefix. Normalize
+        # only this boundary; retain the original hash-bound CUDA profile/mask.
+        if not isinstance(value, str) or not re.fullmatch(
+            r"(?:GPU-)?[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", value.strip()
+        ):
+            raise ValueError("LiteRT GPU allocation checks require a complete NVIDIA GPU UUID for every selected GPU")
+        canonical = "GPU-" + value.strip().removeprefix("GPU-").lower()
+        if canonical in allowed:
+            raise ValueError("LiteRT GPU allocation checks require unique selected NVIDIA GPU UUIDs")
+        allowed.append(canonical)
+    return allowed
+
+
 def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
     base = _base(options)
     outer = build_plan(base)  # Validate root against inputs, budgets and cache paths too.
@@ -362,9 +388,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                                         dataloader_workers=options.base.dataloader_workers)
             path = (recovery_dir or output) / "gpu_preflight.json"
             _write(path, profile)
-            allowed = [item.get("uuid") for item in profile["selected_devices"]]
-            if any(not value for value in allowed):
-                raise ValueError("LiteRT GPU allocation checks require the selected NVIDIA GPU UUIDs")
+            allowed = _litert_allowed_gpu_uuids(profile)
             environment["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed)
             log(f"Training/HF evaluation: {profile['world_size']} GPUs; microbatch={profile['microbatch']}; effective batch={profile['effective_batch_size']}")
             return [path]
@@ -475,9 +499,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
         eval_env = {**environment, "CUDA_VISIBLE_DEVICES": gpu_profile["cuda_visible_devices"], "A2UI_SKIP_CUDA_DEVICE_NORMALIZE": "1"}
         for name in ("A2UI_CUDA_VISIBLE_DEVICES", "A2UI_EXCLUDE_CUDA_DEVICES"):
             eval_env.pop(name, None)
-        allowed_uuids = [item.get("uuid") for item in gpu_profile["selected_devices"]]
-        if any(not value for value in allowed_uuids):
-            raise ValueError("LiteRT GPU allocation checks require the selected NVIDIA GPU UUIDs")
+        allowed_uuids = _litert_allowed_gpu_uuids(gpu_profile)
         eval_env["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed_uuids)
 
         def merge():

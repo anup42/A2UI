@@ -52,13 +52,17 @@ def options(tmp_path):
         allow_experimental_formats=True)
 
 
+def gpu_uuid(index):
+    return f"GPU-12345678-abcd-4321-abcd-{index:012x}"
+
+
 def inventory(count=8):
     return {"visible_gpu_count": count, "devices": [
-        {"visible_index": i, "launch_identifier": str(i), "uuid": f"GPU-{i}", "name": "NVIDIA H100 80GB",
+        {"visible_index": i, "launch_identifier": str(i), "uuid": gpu_uuid(i), "name": "NVIDIA H100 80GB",
          "total_memory_bytes": 80 * 1024**3, "compute_capability": [9, 0]} for i in range(count)]}
 
 
-def evaluation(path, count, artifact, *, litert=False):
+def evaluation(path, count, artifact, *, litert=False, gpu_uuids=None):
     aggregate = {"generation_reward_v5_4_avg": .5, "unique_source_generation_reward_v5_4_avg": .49}
     result = {"model" if litert else "checkpoint": str(artifact), "aggregate": aggregate,
               "row_count": count, "tensorboard_record": str(path / "tb.json")}
@@ -69,7 +73,7 @@ def evaluation(path, count, artifact, *, litert=False):
     if litert:
         manifest = {"row_count": count, "model_sha256": sha256(artifact),
                     "gpu_execution": {"requested_backend": "gpu", "engine_backend": "gpu", "allocation_observed": True,
-                                      "tokenizer_parity_passed": True, "gpu_uuids": ["GPU-0"]}}
+                                      "tokenizer_parity_passed": True, "gpu_uuids": [gpu_uuid(0)] if gpu_uuids is None else gpu_uuids}}
         for field in ("runner_outputs_path", "requests_path", "runner_log_path"):
             target = path / (field + ".json")
             dump(target, {})
@@ -103,7 +107,8 @@ def fake_pipeline(base, *, execute, command_runner):
     return result
 
 
-def mock_runner(calls, *, failure=None):
+def mock_runner(calls, *, failure=None, expected_gpu_uuids=None):
+    expected_gpu_uuids = [gpu_uuid(i) for i in range(8)] if expected_gpu_uuids is None else expected_gpu_uuids
     def run(argv, logfile, env, **kwargs):
         calls.append((argv, env, kwargs))
         assert kwargs["timeout_seconds"] > 0
@@ -112,6 +117,7 @@ def mock_runner(calls, *, failure=None):
         if failure and failure in logfile.stem:
             raise RuntimeError("simulated process failure")
         if "--preflight" in argv:
+            assert json.loads(env["A2UI_LITERT_ALLOWED_GPU_UUIDS"]) == expected_gpu_uuids
             dump(Path(value("--report")), {"status": "prerequisites_passed", "vulkan_compute_device_verified": True})
         elif "probe" in argv:
             dump(Path(value("--report")), {"status": "passed"})
@@ -130,9 +136,10 @@ def mock_runner(calls, *, failure=None):
             if not litert:
                 assert "--require-gpu" in argv and value("--devices") == "auto"
             else:
-                assert json.loads(env["A2UI_LITERT_ALLOWED_GPU_UUIDS"]) == [f"GPU-{i}" for i in range(8)]
+                assert json.loads(env["A2UI_LITERT_ALLOWED_GPU_UUIDS"]) == expected_gpu_uuids
             evaluation(Path(value("--output-dir")), int(value("--required-rows")),
-                       Path(value("--model" if litert else "--checkpoint")), litert=litert)
+                       Path(value("--model" if litert else "--checkpoint")), litert=litert,
+                       gpu_uuids=expected_gpu_uuids[:1])
     return run
 
 
