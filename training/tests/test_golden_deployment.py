@@ -10,7 +10,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from ir_training.pipeline import golden_deployment as deployment
-from ir_training.pipeline.golden_training import GoldenTrainingOptions, sha256
+from ir_training.pipeline.golden_training import GOLDENS, GoldenTrainingOptions, sha256
 
 
 def dump(path, value):
@@ -85,7 +85,7 @@ def evaluation(path, count, artifact, *, litert=False, gpu_uuids=None):
 
 
 def fake_pipeline(base, *, execute, command_runner):
-    assert execute and base.evaluate_golden35
+    assert execute and base.evaluate_golden35 and base.evaluate_bixby50
     output = base.output_dir
     config = {"runtime": {"cuda_visible_devices": "0,1,2,3,4,5,6,7", "gpu_profile": {"world_size": 8, "effective_batch_size": 32}},
               "training": {"learning_rate": base.learning_rate or 2e-5, "weight_decay": .01, "warmup_ratio": .03}}
@@ -97,7 +97,7 @@ def fake_pipeline(base, *, execute, command_runner):
                       ("final_adapter" if base.profile == "e2b" else "final_model"))
         dump(checkpoint / "training_metadata.json", {"checkpoint_step": 100, "checkpoint_role": role,
                                                      "best_golden_eval": {"step": 80}})
-        for cohort, count in (("golden32", 32), ("golden35", 35)):
+        for cohort, (_, count, _) in GOLDENS.items():
             path = output / "evaluations" / f"{role}_{cohort}"
             evaluation(path, count, checkpoint)
             completed[f"{role}_{cohort}"] = {"files": {str(path / "evaluation_result.json"): sha256(path / "evaluation_result.json")}}
@@ -172,17 +172,18 @@ def test_bad_options_stop_before_output(options, change, match):
 
 
 @pytest.mark.parametrize("profile", ["e2b", "270m"])
-def test_complete_orchestration_validates_14_results_and_logs_hparams(options, export_validator, profile):
+def test_complete_orchestration_validates_21_results_and_logs_hparams(options, export_validator, profile):
     options = replace(options, base=replace(options.base, profile=profile))
     calls, writer = [], Writer()
     result = deployment.run_deployment(options, execute=True, command_runner=mock_runner(calls),
                pipeline_runner=fake_pipeline, writer_factory=lambda **_: writer, gpu_probe=inventory)
     assert result["status"] == "complete"
-    assert len(result["results"]) == 14
+    assert len(result["results"]) == 21
     assert len(writer.hparams) == 1
-    assert len([call for call in calls if "--builtin-gpu" in call[0]]) == 8
+    assert len([call for call in calls if "--builtin-gpu" in call[0]]) == 12
     assert (options.base.output_dir / "deployment_results.md").is_file()
     assert result["results"]["w4_golden35"]["row_count"] == 35
+    assert result["results"]["w4_bixby50"]["row_count"] == 50
     assert result["completed"]["host_preflight"]["files"]
     assert list(result["completed"])[-1] == "scorecard"
 
@@ -236,6 +237,7 @@ def test_real_deployment_tensorboard_hparams_and_golden_scalars(options, export_
     directory = Path(result["plan"]["tensorboard_dir"])
     events = EventAccumulator(str(directory)).Reload()
     assert events.Scalars("evaluation/w4/golden35/generation_reward_v5_4_avg")[0].value == pytest.approx(.5)
+    assert events.Scalars("evaluation/w4/bixby50/generation_reward_v5_4_avg")[0].value == pytest.approx(.5)
     child = EventAccumulator(str(directory / "final_comparison")).Reload()
     assert metadata.SESSION_START_INFO_TAG in child.PluginTagToContent(metadata.PLUGIN_NAME)
     assert child.Scalars("hparam/w4_golden32/unique_source_generation_reward_v5_4_avg")[0].step == 80

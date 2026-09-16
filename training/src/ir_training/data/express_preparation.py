@@ -280,6 +280,45 @@ def _token_lengths(row: dict[str, Any], tokenizer: Any, template_kwargs: Mapping
     }
 
 
+def _prepare_source_only_candidate(item, *, shared_prompt):
+    """Prepare a pinned evaluation input without inventing a reference target."""
+    from ir_training.data.shared_prompt import build_inference_messages
+
+    line_number, row = item
+    if shared_prompt is None:
+        raise ValueError("Source-only evaluation requires the shared production prompt")
+    if row.get("reference_available") is not False or row.get("evaluation_only") is not True:
+        raise ValueError("Source-only evaluation flags are missing")
+    prepared = deepcopy(row)
+    prepared["messages"] = build_inference_messages(row["response_text"], shared_prompt)
+    prepared["prompt"] = _render_prompt(prepared["messages"])
+    prepared["target_format"] = TARGET_FORMAT
+    prepared.setdefault("metadata", {})["shared_prompt"] = {
+        "version": shared_prompt["version"], "contract_sha256": shared_prompt["contract_sha256"],
+        "scaffold_sha256": shared_prompt["scaffold_sha256"],
+    }
+    prepared["metadata"]["express_preparation"] = {
+        "version": PREPARATION_VERSION, "serialization_order": shared_prompt["serialization_order"],
+        "prompt_sha256": _sha(prepared["prompt"]), "scaffold_sha256": shared_prompt["scaffold_sha256"],
+        "reference_available": False, "evaluation_only": True,
+        "target_validation": "not_applicable_source_only", "id_repair_applied": False,
+    }
+    scaffold = {"sha256": shared_prompt["scaffold_sha256"], **shared_prompt["scaffold"]}
+    return line_number, row, prepared, None, scaffold, None, None
+
+
+def _source_only_token_lengths(row, tokenizer, template_kwargs):
+    try:
+        prompt = tokenizer.apply_chat_template(row["messages"], tokenize=False,
+                                               add_generation_prompt=True, **template_kwargs)
+        ids = list(tokenizer(prompt, add_special_tokens=False)["input_ids"])
+    except Exception as exc:
+        raise PreparationError("chat_template_invalid", str(exc)) from exc
+    if not isinstance(prompt, str) or not prompt or not ids:
+        raise PreparationError("empty_tokenized_turn", "Evaluation prompt must contain tokens")
+    return {"prompt_tokens": len(ids), "prompt_token_ids_sha256": _sha(_json(ids))}
+
+
 _WORKER_PREPARATION = ("root-first", None)
 
 
@@ -376,6 +415,11 @@ def prepare_splits(
             contract = benchmark_contract_for_split(path)
             if contract is not None:
                 benchmarks[name] = contract
+                if contract.get("benchmark_kind") == "source_only_holdout" and (
+                    name not in evaluation_names or name in {"train", "val", "test"}
+                    or shared_prompt is None
+                ):
+                    raise ValueError("Source-only holdouts require an explicit named evaluation split and shared prompt")
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=f".{destination.name}.preparing-", dir=destination.parent))
     try:
@@ -384,6 +428,7 @@ def prepare_splits(
         original_scaffolds: dict[str, Any] = {}
         with (temporary / "quarantine.jsonl").open("w", encoding="utf-8", newline="\n") as quarantine:
             for split, source in sources.items():
+                source_only = benchmarks.get(split, {}).get("benchmark_kind") == "source_only_holdout"
                 counts: Counter[str] = Counter()
                 reasons: Counter[str] = Counter()
                 types: Counter[str] = Counter()
@@ -394,11 +439,12 @@ def prepare_splits(
                 source_ids = hashlib.sha256()
                 progress_context = Progress(f"Prepare/tokenize {split} ({workers} CPU workers)", total=fingerprints[split]["rows"], interval=progress_interval) if show_progress else nullcontext()
                 with progress_context as progress, source.open(encoding="utf-8-sig") as stream, (temporary / f"{split}.jsonl").open("w", encoding="utf-8", newline="\n") as output:
-                    candidates = ordered_bounded_map(
+                    candidates = (map(partial(_prepare_source_only_candidate, shared_prompt=shared_prompt), _source_rows(stream, source))
+                                  if source_only else ordered_bounded_map(
                         partial(_prepare_candidate, context=(ordering, shared_prompt)) if workers == 1 else _prepare_candidate,
                         _source_rows(stream, source), workers=workers,
                         initializer=None if workers == 1 else _init_preparation_worker, initargs=(ordering, shared_prompt),
-                    )
+                    ))
                     for line_number, row, prepared, target, scaffold, original_scaffold, error in candidates:
                         if progress is not None:
                             progress.advance()
@@ -410,7 +456,7 @@ def prepare_splits(
                             if original_scaffold is not None:
                                 original_scaffolds[original_scaffold["sha256"]] = original_scaffold
                             if tokenizer is not None:
-                                lengths = _token_lengths(prepared, tokenizer, template_kwargs)
+                                lengths = (_source_only_token_lengths if source_only else _token_lengths)(prepared, tokenizer, template_kwargs)
                                 if split not in evaluation_names and max_seq_length is not None and lengths["sequence_tokens"] > max_seq_length:
                                     raise PreparationError("sequence_too_long", f"{lengths['sequence_tokens']} tokens > {max_seq_length}; complete row quarantined")
                                 if max_input_tokens is not None and lengths["prompt_tokens"] > max_input_tokens:
@@ -427,8 +473,9 @@ def prepare_splits(
                         output.write(_json(prepared) + "\n")
                         counts["accepted_rows"] += 1
                         accepted_ids.update(f"{line_number}:{_sha(_json(row))}\n".encode("utf-8"))
-                        types.update(target.component_types)
-                        kinds.update(target.reference_kinds)
+                        if target is not None:
+                            types.update(target.component_types)
+                            kinds.update(target.reference_kinds)
                         scaffolds[scaffold["sha256"]] = scaffold
                         scaffold_counts[scaffold["sha256"]] += 1
                 if not counts["accepted_rows"]:
@@ -454,11 +501,15 @@ def prepare_splits(
                     from ir_training.common.jsonl import read_jsonl
                     validate_benchmark_rows(list(read_jsonl(temporary / f"{split}.jsonl")), benchmarks[split])
                     stats[split]["benchmark"] = benchmarks[split]
+                if source_only:
+                    stats[split].update(reference_available=False, evaluation_only=True,
+                                        target_validation="not_applicable_source_only")
         from pipeline.ir_formats.common import codec_identity
         tracked_sources = [Path(__file__), repo_root() / "dataset/src/pipeline/ir_formats/express.py", repo_root() / "dataset/src/pipeline/ir_formats/canonical.py", repo_root() / "dataset/src/pipeline/renderer_semantics.py", repo_root() / "dataset/schema/genuicraft_a2ui_v1_wire.schema.json", repo_root() / "dataset/schema/genuicraft_a2ui_catalog_v1.json"]
         manifest = {
             "preparation_version": PREPARATION_VERSION, "ordering": ordering,
-            "validation": {"strict_express": True, "wire_schema": True, "root_reachability": 1.0, "semantic_roundtrip": True, "id_repair": False},
+            "validation": {"strict_express": True, "wire_schema": True, "root_reachability": 1.0, "semantic_roundtrip": True, "id_repair": False,
+                           "scope": "supervised targets only; source-only evaluation splits have no reference targets"},
             "codec_identity": codec_identity(),
             "implementation_sha256": {str(path.relative_to(repo_root())).replace("\\", "/"): _sha_file(path) for path in tracked_sources},
             "splits": stats, "scaffold_count": len(scaffolds),

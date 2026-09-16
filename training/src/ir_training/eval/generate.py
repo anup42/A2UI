@@ -244,9 +244,8 @@ def build_prediction_record(
         ),
         "response_text": source,
         "response_text_sha256": sha256_text(source),
-        "expected": restore_url_placeholders(
-            _extract_expected_completion(row), url_map
-        ),
+        "expected": (None if row.get("reference_available") is False else
+                     restore_url_placeholders(_extract_expected_completion(row), url_map)),
         "generated_text": serving_text,
         "raw_generated_text": str(generated_text),
         "serving_stop_applied": serving_text != str(generated_text),
@@ -260,7 +259,11 @@ def build_prediction_record(
     for key in ("benchmark", "repeated_from", "replaces"):
         if row.get(key) is not None or metadata.get(key) is not None:
             record[key] = row.get(key) if row.get(key) is not None else metadata[key]
-    record["expected_sha256"] = sha256_text(str(record["expected"]))
+    if row.get("reference_available") is False:
+        if _extract_expected_completion(row).strip():
+            raise ValueError("Source-only evaluation cannot carry a reference completion")
+        record.update(reference_available=False, evaluation_only=True, selection_role=row.get("selection_role"))
+    record["expected_sha256"] = sha256_text(str(record["expected"] or ""))
     record["source_context_sha256"] = prediction_source_context_hash(record)
     if runtime:
         record["runtime"] = runtime
@@ -273,7 +276,7 @@ def prediction_source_context_hash(record: dict[str, Any]) -> str:
                     "expected_ui_contract_v5_4", "expected_ui_contract_v5_4_source",
                     "response_text_sha256", "expected_sha256", "url_map")
     context = {key: record.get(key) for key in context_keys}
-    context.update({key: record[key] for key in ("benchmark", "repeated_from", "replaces") if key in record})
+    context.update({key: record[key] for key in ("benchmark", "repeated_from", "replaces", "reference_available", "evaluation_only", "selection_role") if key in record})
     return sha256_text(json.dumps(context, ensure_ascii=False, sort_keys=True))
 
 

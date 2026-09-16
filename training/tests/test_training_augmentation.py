@@ -160,7 +160,7 @@ def test_real_golden_preparation_remains_valid_with_actual_training_copies(tmp_p
     prepare_splits({**{name: tmp_path / "raw" / f"{name}.jsonl" for name in ("train", "val")},
                     **{name: ROOT / values[0] for name, values in GOLDENS.items()}}, source,
                    ordering="root-first", tokenizer=Tokenizer(), max_seq_length=4096, max_input_tokens=4096,
-                   evaluation_splits={"golden32", "golden35"}, shared_prompt=create_shared_prompt_contract())
+                   evaluation_splits=set(GOLDENS), shared_prompt=create_shared_prompt_contract())
     output = tmp_path / "augmented"
     report = augment(source, output)
     assert report["added_rows"] == 2
@@ -168,10 +168,13 @@ def test_real_golden_preparation_remains_valid_with_actual_training_copies(tmp_p
     preparer = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(preparer)
     verified = preparer.verify_prepared(output, source / "golden32.jsonl", max_sequence=4096,
-                                       max_prompt=4096, golden35=source / "golden35.jsonl")
+                                       max_prompt=4096, golden35=source / "golden35.jsonl",
+                                       bixby50=source / "bixby50.jsonl")
     assert verified["split_rows"]["train"] == 32
     assert verified["golden_unique_sources"] == 31
     assert verified["final_evaluation_datasets"]["golden35"]["selection_role"] == "final_only_holdout"
+    assert verified["final_evaluation_datasets"]["bixby50"]["selection_role"] == "final_only_holdout"
+    assert (output / "bixby50.jsonl").read_bytes() == (source / "bixby50.jsonl").read_bytes()
 
 
 @pytest.mark.parametrize("kwargs", [

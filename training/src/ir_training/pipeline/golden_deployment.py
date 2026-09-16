@@ -1,6 +1,6 @@
-"""Dual-Golden training, optional screening, and recoverable GPU deployment tests.
+"""Golden/Bixby training, optional screening, and recoverable GPU deployment tests.
 
-No automatic retries or CPU-inference fallback. Completion requires all eight
+No automatic retries or CPU-inference fallback. Completion requires all twelve
 LiteRT evaluations, not just successful subprocess exits or export filenames.
 """
 from __future__ import annotations
@@ -113,6 +113,8 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         raise ValueError("This full deployment workflow exports dense SFT checkpoints; retained-scale/QAT export remains in its separate pipeline")
     if not base.evaluate_golden35:
         raise ValueError("Full deployment requires Golden35 after final training; tuning defers it internally")
+    if not base.evaluate_bixby50:
+        raise ValueError("Full deployment requires Bixby50 after final training; tuning defers it internally")
     if not options.tune and (options.trials_file is not None or options.include_augmentation):
         raise ValueError("--trials-file and --include-augmentation require --tune")
     for value in (options.stage_timeout_seconds, options.generation_timeout_seconds,
@@ -139,7 +141,7 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         cache_length=options.cache_length, max_input_tokens=base.max_input_tokens,
         max_new_tokens=base.max_new_tokens)
     return {
-        "schema_version": 1, "workflow": "dual_golden_gpu_deployment_v1", "output_dir": str(output),
+        "schema_version": 2, "workflow": "golden_bixby_gpu_deployment_v2", "output_dir": str(output),
         "run_id": run_id, "training": training, "tuning": tuning, "export": export,
         # Do not resolve a venv Python symlink: its invocation path selects the venv.
         "runtime_python": str(runtime.absolute()),
@@ -149,13 +151,13 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         "tensorboard_dir": str(Path(base.tensorboard_root).expanduser().resolve() / "deployments" / run_id),
         "timeouts": {name: getattr(options, name) for name in ("stage_timeout_seconds", "generation_timeout_seconds", "case_timeout_seconds", "load_timeout_seconds")},
         "stages": ["host_preflight", "exporter_preflight", "runtime_preflight", *(["tuning", "lock_hyperparameters"] if tuning else []),
-                   "full_training_and_checkpoint_evaluation", "merge", "merged_golden32", "merged_golden35",
-                   *[stage for variant in export["variants"] for stage in (f"export_{variant}", f"{variant}_golden32", f"{variant}_golden35")], "scorecard"],
+                   "full_training_and_checkpoint_evaluation", "merge", *[f"merged_{cohort}" for cohort in training["goldens"]],
+                   *[stage for variant in export["variants"] for stage in (f"export_{variant}", *[f"{variant}_{cohort}" for cohort in training["goldens"]])], "scorecard"],
         "gpu_policy": {"training": "all selected CUDA GPUs; conservative H100 profile with backward preflight",
                        "hf_final_evaluation": "independent case shards over all selected GPUs",
                        "litert_evaluation": "one verified NVIDIA GPU; pinned native API has no device selector",
                        "conversion": "CPU in isolated exporter environment", "cpu_inference_fallback": False},
-        "selection_policy": "Golden32 (31 unique sources) only. Tuning locks settings, then starts a fresh full run. Golden35 never selects a trial/checkpoint/precision.",
+        "selection_policy": "Golden32 (31 unique sources) only. Tuning locks settings, then starts a fresh full run. Golden35 and Bixby50 never select a trial/checkpoint/precision.",
         "experimental": "W16 and W4 require explicit acknowledgement and real host export/GPU evaluation; unsupported variants fail, never skip.",
         "runtime_preflight_scope": "Dependency/device screening only; actual model kernels are verified after export, not guaranteed before training.",
         "official_retained_scale_export": False, "mtp_exported": False,
@@ -177,6 +179,11 @@ def _bindings(paths: list[Path]) -> dict[str, str]:
                 raise ValueError(f"Missing/empty stage evidence: {path}")
             values[str(path.resolve())] = sha256(path)
     return values
+
+
+def _cohorts(training_plan: dict[str, Any]) -> tuple[tuple[str, int], ...]:
+    """Use the bound training cohort inventory for every deployment evaluation."""
+    return tuple((name, item["rows"]) for name, item in training_plan["goldens"].items())
 
 
 def _checkpoint_step(checkpoint: Path) -> int:
@@ -235,7 +242,7 @@ def _restore_results(state: dict, plan: dict) -> None:
     stages = state["completed"]
     locations = state.get("artifact_directories") or {}
     for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4"):
-        for cohort, count in (("golden32", 32), ("golden35", 35)):
+        for cohort, count in _cohorts(plan["training"]):
             key = f"{label}_{cohort}"
             if label.startswith("checkpoint_"):
                 role = label.removeprefix("checkpoint_")
@@ -457,8 +464,15 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                     include_augmentation=options.include_augmentation, evaluate_selected_holdout=False), execute=True,
                     pipeline_runner=lambda child, **kwargs: pipeline_runner(child, command_runner=command, **kwargs),
                     command_runner=command)
-                if result.get("status") != "complete" or result.get("selected_golden35") is not None:
-                    raise ValueError("Screening must complete without evaluating Golden35")
+                holdouts = ("golden35", "bixby50")
+                trial_holdout_seen = any(
+                    any(name.endswith(f"_{cohort}") for cohort in holdouts)
+                    for trial in result.get("trials", [])
+                    for name in (trial.get("evaluations") or {})
+                )
+                if (result.get("status") != "complete" or trial_holdout_seen
+                        or any(result.get(f"selected_{cohort}") is not None for cohort in holdouts)):
+                    raise ValueError("Screening must complete without evaluating Golden35 or Bixby50")
                 selected = [trial for trial in result["plan"]["trials"] if trial["name"] == result["selected_trial"]]
                 if len(selected) != 1:
                     raise ValueError("Screening did not lock exactly one winner")
@@ -468,7 +482,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
             stage("tuning", tune)
             training_options = replace(training_options, **tuned)
             def lock_parameters():
-                _write(output / "locked_hyperparameters.json", {"parameters": tuned, "golden35_seen": False,
+                _write(output / "locked_hyperparameters.json", {"parameters": tuned, "golden35_seen": False, "bixby50_seen": False,
                        "training_plan": build_plan(training_options), "fresh_full_training": True})
                 return [output / "locked_hyperparameters.json"]
             stage("lock_hyperparameters", lock_parameters)
@@ -483,7 +497,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
             for role in ("best", "final"):
                 checkpoint = training_output / "fit/training" / ("best_golden_checkpoint" if role == "best" else
                               ("final_adapter" if base.profile == "e2b" else "final_model"))
-                for cohort, count in (("golden32", 32), ("golden35", 35)):
+                for cohort, count in _cohorts(training_plan):
                     entry = result["completed"][f"{role}_{cohort}"]
                     results = [Path(p) for p in entry["files"] if Path(p).name == "evaluation_result.json"]
                     if len(results) != 1 or sha256(results[0]) != entry["files"][str(results[0])]:
@@ -507,7 +521,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
             directory = Path(export["merged_model_dir"])
             return [directory / "deployment_source.json"]
         stage("merge", merge)
-        for cohort, count in (("golden32", 32), ("golden35", 35)):
+        for cohort, count in _cohorts(training_plan):
             def evaluate_merged(cohort=cohort, count=count):
                 destination = evaluation_dir(f"merged_{cohort}")
                 argv = evaluation_command(training_plan, "best", cohort, destination)
@@ -527,7 +541,7 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                 state.setdefault("exports", {})[variant] = result
                 return [Path(path) for path in result["files"]]
             stage(f"export_{variant}", convert)
-            for cohort, count in (("golden32", 32), ("golden35", 35)):
+            for cohort, count in _cohorts(training_plan):
                 def evaluate_variant(variant=variant, specification=specification, cohort=cohort, count=count):
                     destination = evaluation_dir(f"{variant}_{cohort}")
                     argv = [sys.executable, "-u", str(repo_root() / "training/scripts/evaluate_litertlm_on_golden.py"),
@@ -553,13 +567,18 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                     for name, digest in item["files"].items():
                         if sha256(Path(name)) != digest:
                             raise ValueError(f"Completed evidence changed: {name}")
-            expected = {f"{label}_{cohort}" for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4") for cohort in ("golden32", "golden35")}
+            expected = {f"{label}_{cohort}" for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4") for cohort, _ in _cohorts(training_plan)}
             if set(state["results"]) != expected:
                 raise ValueError("Deployment scorecard is missing required evaluations")
-            value = {"schema_version": 1, "status": "complete", "results": state["results"], "profile": base.profile,
+            value = {"schema_version": 2, "status": "complete", "results": state["results"], "profile": base.profile,
                      "source_checkpoint": str(checkpoint), "checkpoint_step": step, "variants": state["exports"],
                      "gpu_policy": plan["gpu_policy"], "golden35_used_for_selection": False, "golden32_unique_sources": 31,
-                     "golden35_unique_sources": 35, "tensorboard_dir": plan["tensorboard_dir"],
+                     "golden35_unique_sources": 35, "bixby50_used_for_selection": False,
+                     "evaluation_cohorts": {name: {"required_rows": count,
+                                                    "reference_available": training_plan["goldens"][name].get("reference_available", True),
+                                                    "benchmark_kind": training_plan["goldens"][name].get("benchmark_kind", "reference_holdout")}
+                                             for name, count in _cohorts(training_plan)},
+                     "tensorboard_dir": plan["tensorboard_dir"],
                      "evidence": {name: item["files"] for name, item in state["completed"].items()},
                      "official_retained_scale_export": False, "mtp_exported": False}
             parameters = {"profile": base.profile, "max_new_tokens": base.max_new_tokens,

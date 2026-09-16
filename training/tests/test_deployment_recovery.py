@@ -39,12 +39,12 @@ def test_resume_native_failure_preserves_artifacts_and_uses_fresh_attempt(option
     before = (output / "deployment/variants/w32/model.litertlm").read_bytes()
     calls = []
     result = run(replace(options, resume_run=True), calls, pipeline=no_training)
-    assert result["status"] == "complete" and len(result["results"]) == 14
+    assert result["status"] == "complete" and len(result["results"]) == 21
     assert (output / "deployment/variants/w32/model.litertlm").read_bytes() == before
     assert (output / "evaluations/w32_golden32/partial.json").exists()
     assert not any("prepare" in argv for argv, _, _ in calls)
     assert not any("convert" in argv and "w32" in argv for argv, _, _ in calls)
-    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 8
+    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 12
     assert (output / "recovery/attempt_0002/evaluations/w32_golden32/evaluation_result.json").exists()
     assert (output / "recovery/attempt_0002/previous_deployment_manifest.json").exists()
     text = capsys.readouterr().out
@@ -138,7 +138,7 @@ def test_multiple_recoveries_preserve_previous_attempts(options, export_validato
     assert result["status"] == "complete" and result["attempt"] == 3
     assert (options.base.output_dir / "recovery/attempt_0002/evaluations/w16_golden32/evaluation_result.json").exists()
     assert (options.base.output_dir / "recovery/attempt_0003/evaluations/w16_golden35/evaluation_result.json").exists()
-    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 5
+    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 8
 
 
 def test_resume_allows_only_dashboard_and_deadline_adjustment(options, export_validator):

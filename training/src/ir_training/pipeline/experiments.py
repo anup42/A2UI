@@ -1,4 +1,4 @@
-"""Sequential, bounded Golden32 development experiments with a locked Golden35 holdout.
+"""Sequential Golden32 development experiments with locked Golden35/Bixby50 holdouts.
 
 This is a small reproducible screening runner, not Bayesian search and not a
 claim that short-run winners remain best after a full training schedule.
@@ -119,7 +119,7 @@ def build_experiment_plan(options: ExperimentOptions) -> dict[str, Any]:
     for index, spec in enumerate(_trial_specs(options)):
         trial_output = output / "trials" / f"{suite_id}_{index:02d}_{spec['name']}"
         base = replace(options.base, output_dir=trial_output, steps=options.trial_steps,
-                       evaluate_golden35=False, preparation_cache_dir=cache_root, token_cache_dir=token_root,
+                       evaluate_golden35=False, evaluate_bixby50=False, preparation_cache_dir=cache_root, token_cache_dir=token_root,
                        **{key: spec[key] for key in TRIAL_FIELDS})
         trial_plan = build_plan(base)
         # Validate the suite root as well as child run paths. An empty parent
@@ -135,6 +135,7 @@ def build_experiment_plan(options: ExperimentOptions) -> dict[str, Any]:
         "max_concurrent_training_runs": 1, "trials": trials,
         "selection": {"cohort": "golden32", "metric": SELECTION_METRIC, "checkpoint": "best", "direction": "maximize", "ties": "earliest trial (baseline first)"},
         "evaluate_selected_holdout": options.evaluate_selected_holdout,
+        "bixby50_policy": "Source-only final holdout. Never evaluate per trial or select hyperparameters/checkpoints using Bixby50. Evaluate only after locking the winner, or defer to full deployment.",
         "golden35_policy": ("No per-trial Golden35 inference. Lock winner using Golden32, then evaluate its existing best checkpoint once on Golden35. Never select using Golden35."
                             if options.evaluate_selected_holdout else "No Golden35 inference during screening. Lock hyperparameters using Golden32; the deployment pipeline trains a fresh full run before holdout evaluation."),
         "warning": "Screening uses equal optimizer steps, seed and requested effective batch. Short-run ranking is not proof of full-run quality; Golden32 is development data, not an unbiased final benchmark.",
@@ -222,8 +223,8 @@ def _verify_directory_inventory(directory: Path, bindings: dict[str, str]) -> No
 def _completed_bindings(output: Path, state: dict[str, Any]) -> dict[str, str]:
     if state.get("status") != "complete":
         raise ValueError("Trial did not complete; experiment stops without advancing or silently restarting training")
-    if any("golden35" in name for name in state.get("completed", {})):
-        raise ValueError("A development trial evaluated the locked Golden35 holdout")
+    if any(cohort in name for name in state.get("completed", {}) for cohort in ("golden35", "bixby50")):
+        raise ValueError("A development trial evaluated a locked Golden35/Bixby50 holdout")
     required = {"prepare", "configure", "preflight", "training", "best_golden32", "final_golden32", "scorecard"}
     if not required.issubset(state.get("completed", {})):
         raise ValueError("Trial is missing required completed stages")
@@ -273,11 +274,11 @@ def _record_comparison(writer: Any, trial: dict[str, Any], *, budget: int, detai
 
 def _full_training_handoff(plan: dict[str, Any], selected: dict[str, Any]) -> dict[str, Any]:
     values = dict(plan["trials"][selected["index"]]["plan"]["options"])
-    values.update(steps=None, evaluate_golden35=True,
+    values.update(steps=None, evaluate_golden35=True, evaluate_bixby50=True,
                   output_dir=str(Path(plan["output_dir"]).parent / f"{plan['suite_id']}_selected_full"))
     command = [sys.executable, str(repo_root() / "training/scripts/run_golden_training.py")]
     for key, value in values.items():
-        if value is None or key == "evaluate_golden35":
+        if value is None or key in {"evaluate_golden35", "evaluate_bixby50"}:
             continue
         flag = "--" + key.replace("_", "-")
         if isinstance(value, bool):
@@ -289,15 +290,16 @@ def _full_training_handoff(plan: dict[str, Any], selected: dict[str, Any]) -> di
             command.extend((flag, str(value)))
     return {"options": values, "plan_only_command_argv": command,
             "execute_instruction": "Review the plan, then append --execute. This command has not been run.",
-            "warning": "Use an adequate full epoch budget. The hyperparameters were locked on short-run Golden32 development scores; do not revise them using the Golden35 score."}
+            "warning": "Use an adequate full epoch budget. Hyperparameters were locked on short-run Golden32 development scores; do not revise them using Golden35 or Bixby50 scores."}
 
 
-def _evaluate_holdout(plan: dict[str, Any], selected: dict[str, Any], bindings: dict[str, str], *, command_runner: Callable, interval: float, execution_context: dict[str, Any]) -> dict[str, Any]:
+def _evaluate_holdout(plan: dict[str, Any], selected: dict[str, Any], bindings: dict[str, str], *, command_runner: Callable, interval: float, execution_context: dict[str, Any], cohort: str = "golden35") -> dict[str, Any]:
     trial = plan["trials"][selected["index"]]
-    destination = Path(plan["output_dir"]) / "selected_golden35"
+    count = trial["plan"]["goldens"][cohort]["rows"]
+    destination = Path(plan["output_dir"]) / f"selected_{cohort}"
     if destination.exists():
-        raise FileExistsError("Golden35 evaluation already exists; this experiment never automatically retries the holdout")
-    _verify_bindings(bindings, label="Verify locked winner, model and source before Golden35", interval=interval)
+        raise FileExistsError(f"{cohort} evaluation already exists; this experiment never automatically retries the holdout")
+    _verify_bindings(bindings, label=f"Verify locked winner, model and source before {cohort}", interval=interval)
     _verify_execution_context(plan, bindings, execution_context)
     options = trial["plan"]["options"]
     model_dir = Path(options["model_dir"])
@@ -310,12 +312,12 @@ def _evaluate_holdout(plan: dict[str, Any], selected: dict[str, Any], bindings: 
                    "CUDA_VISIBLE_DEVICES": runtime["cuda_visible_devices"], "A2UI_SKIP_CUDA_DEVICE_NORMALIZE": "1", "TOKENIZERS_PARALLELISM": "false"}
     environment.pop("A2UI_CUDA_VISIBLE_DEVICES", None)
     environment.pop("A2UI_EXCLUDE_CUDA_DEVICES", None)
-    command = evaluation_command(trial["plan"], "best", "golden35", destination)
-    with Progress("Locked winner: Golden35 holdout evaluation (one checkpoint, one pass)", unit="stage", interval=interval):
-        command_runner(command, Path(plan["output_dir"]) / "logs/selected_golden35.log", environment)
+    command = evaluation_command(trial["plan"], "best", cohort, destination)
+    with Progress(f"Locked winner: {cohort} holdout evaluation (one checkpoint, one pass)", unit="stage", interval=interval):
+        command_runner(command, Path(plan["output_dir"]) / f"logs/selected_{cohort}.log", environment)
     result = json.loads((destination / "evaluation_result.json").read_text(encoding="utf-8"))
-    if result.get("row_count") != 35:
-        raise ValueError("Selected checkpoint did not complete all 35 holdout rows")
+    if result.get("row_count") != count:
+        raise ValueError(f"Selected checkpoint did not complete all {count} {cohort} holdout rows")
     _numeric_metric(result, "generation_reward_v5_4_avg")
     for name in ("aggregate_metrics.json", "predictions.jsonl", "scored_predictions.jsonl"):
         if not (destination / name).is_file():
@@ -337,7 +339,7 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
     output.mkdir(parents=True, exist_ok=False)
     record = output / "experiments_manifest.json"
     state: dict[str, Any] = {"schema_version": 1, "plan": plan, "status": "running", "active_trial": None,
-                             "trials": [], "started_at": datetime.now(timezone.utc).isoformat(), "golden35_used_for_selection": False}
+                             "trials": [], "started_at": datetime.now(timezone.utc).isoformat(), "golden35_used_for_selection": False, "bixby50_used_for_selection": False}
     _write(record, state)
     writer = None
     try:
@@ -358,7 +360,7 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
         for trial in plan["trials"]:
             state["active_trial"] = trial["name"]
             _write(record, state)
-            log(f"Trial {trial['index'] + 1}/{len(plan['trials'])}: {trial['name']}; {json.dumps(trial['parameters'], sort_keys=True)}; Golden35 disabled")
+            log(f"Trial {trial['index'] + 1}/{len(plan['trials'])}: {trial['name']}; {json.dumps(trial['parameters'], sort_keys=True)}; Golden35 and Bixby50 disabled")
             _verify_bindings(bindings, label="Verify common experiment inputs", interval=options.base.progress_seconds)
             _verify_execution_context(plan, bindings, execution_context)
             _verify_directory_inventory(options.base.model_dir, bindings)
@@ -384,26 +386,34 @@ def run_experiments(options: ExperimentOptions, *, execute: bool = False,
         selection_path = output / "selection_locked.json"
         selection = {"schema_version": 1, "locked_at": datetime.now(timezone.utc).isoformat(), "trial": selected["name"],
                      "selection_metric": SELECTION_METRIC, "selection_score": selected["selection_score"],
-                     "golden35_seen": False, "checkpoint": str(Path(selected["output_dir"]) / "fit/training/best_golden_checkpoint"),
+                     "golden35_seen": False, "bixby50_seen": False, "checkpoint": str(Path(selected["output_dir"]) / "fit/training/best_golden_checkpoint"),
                      "artifact_bindings": {**bindings, **selected["artifact_bindings"]}}
         _write(selection_path, selection)
         _write(output / "selected_full_training_options.json", _full_training_handoff(plan, selected))
         holdout_bindings = {**selection["artifact_bindings"], str(selection_path): sha256(selection_path)}
         state.update(status="holdout_evaluation" if options.evaluate_selected_holdout else "selection_locked", selected_trial=selected["name"])
         _write(record, state)
-        log(f"Winner locked before holdout: {selected['name']}. Golden35 cannot change this selection.")
+        log(f"Winner locked before holdout: {selected['name']}. Golden35 and Bixby50 cannot change this selection.")
         holdout = (_evaluate_holdout(plan, selected, holdout_bindings, command_runner=command_runner, interval=options.base.progress_seconds,
                                     execution_context=execution_context) if options.evaluate_selected_holdout else None)
-        state.update(status="complete", selected_golden35=holdout, finished_at=datetime.now(timezone.utc).isoformat())
+        state.update(selected_golden35=holdout)
+        _write(record, state)
+        bixby_holdout = (_evaluate_holdout(plan, selected, holdout_bindings, command_runner=command_runner,
+                                         interval=options.base.progress_seconds, execution_context=execution_context, cohort="bixby50")
+                         if options.evaluate_selected_holdout else None)
+        state.update(status="complete", selected_bixby50=bixby_holdout, finished_at=datetime.now(timezone.utc).isoformat())
         _write(record, state)
         comparison = {"status": "complete", "selected_trial": selected["name"], "selection": plan["selection"],
                       "golden35_used_for_selection": False, "selected_golden35": holdout,
+                      "bixby50_used_for_selection": False, "selected_bixby50": bixby_holdout,
                       "trials": [{key: value for key, value in item.items() if key != "artifact_bindings"} for item in state["trials"]],
                       "warning": plan["warning"], "tensorboard_dir": plan["tensorboard_dir"]}
         _write(output / "comparison.json", comparison)
-        for key, value in select_tensorboard_metrics((holdout or {}).get("aggregate", {}), detail=options.base.tensorboard_detail).items():
-            writer.add_scalar(f"selected_holdout/golden35/{key}", value, options.trial_steps)
-        writer.add_text("experiment/selection", json.dumps({"selected_trial": selected["name"], "golden35_used_for_selection": False}), options.trial_steps)
+        for cohort, evaluated in (("golden35", holdout), ("bixby50", bixby_holdout)):
+            for key, value in select_tensorboard_metrics((evaluated or {}).get("aggregate", {}), detail=options.base.tensorboard_detail).items():
+                writer.add_scalar(f"selected_holdout/{cohort}/{key}", value, options.trial_steps)
+        writer.add_text("experiment/selection", json.dumps({"selected_trial": selected["name"], "golden35_used_for_selection": False,
+                                                           "bixby50_used_for_selection": False}), options.trial_steps)
         writer.flush()
         return state
     except BaseException as exc:

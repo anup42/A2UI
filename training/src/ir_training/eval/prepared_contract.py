@@ -91,6 +91,18 @@ def verify_golden_preparation(
     benchmark = benchmark_contract_for_split(split, rows)
     if expected_kind is not None and (benchmark or {}).get("benchmark_kind") != expected_kind:
         raise ValueError(f"Golden{required_rows} requires a hash-bound {expected_kind} benchmark manifest.")
+    source_only_binding = {}
+    if (benchmark or {}).get("benchmark_kind") == "source_only_holdout":
+        if split.stem in {"train", "val", "test"} or split.stem not in (evaluation.get("evaluation_splits") or []):
+            raise ValueError("Source-only holdouts require an explicit named evaluation split, never ordinary train/val/test.")
+        if benchmark.get("reference_available") is not False or benchmark.get("evaluation_only") is not True or benchmark.get("selection_role") != "final_only_holdout":
+            raise ValueError("Source-only benchmark must explicitly declare no references and final-only evaluation.")
+        source_only_binding = {
+            "reference_available": False, "evaluation_only": True,
+            "target_validation": "not_applicable_source_only",
+        }
+        if any(entry.get(key) != value for key, value in source_only_binding.items()):
+            raise ValueError("Source-only prepared split must explicitly bind unavailable references and evaluation-only target validation.")
     return {
         "split_path": str(split.resolve()), "required_rows": required_rows,
         "split_sha256": digest, "manifest_sha256": file_sha256(split.parent / "manifest.json"),
@@ -99,6 +111,7 @@ def verify_golden_preparation(
         "benchmark_id": (benchmark or {}).get("benchmark_id"),
         "benchmark_kind": (benchmark or {}).get("benchmark_kind"),
         "tokenizer": actual,
+        **source_only_binding,
     }
 
 

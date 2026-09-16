@@ -22,3 +22,5 @@ training/data/eval/golden35_v1/*.json text eol=lf
 # Reproduction pins the historical source's supplied CRLF working-tree bytes.
 dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/genui.jsonl text eol=crlf
 dataset/data/runs/golden50_g25pro_20260309_204033_stitch_compare_20260429_hybrid_r4/responses.jsonl text eol=crlf
+training/data/eval/bixby50_v1/*.json text eol=lf
+training/data/eval/bixby50_v1/*.jsonl text eol=lf

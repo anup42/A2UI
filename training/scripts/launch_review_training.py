@@ -27,9 +27,11 @@ def verify_launch_binding(config_path: Path) -> None:
     config = load_yaml(config_path)
     final_datasets = config.get("final_evaluation_datasets") or {}
     golden35 = (final_datasets.get("golden35") or {}).get("split_path")
+    bixby50 = (final_datasets.get("bixby50") or {}).get("split_path")
     refreshed = verify_prepared(Path(config["run"]["dataset_dir"]), Path(config["golden_eval"]["split_path"]),
         max_sequence=config["training"]["max_seq_length"], max_prompt=config["golden_eval"]["max_input_tokens"],
-        golden35=Path(golden35) if golden35 is not None else None)
+        golden35=Path(golden35) if golden35 is not None else None,
+        bixby50=Path(bixby50) if bixby50 is not None else None)
     for key in ("dataset_manifest_sha256", "golden_sha256", "tokenizer"):
         if refreshed[key] != report.get(key):
             raise ValueError(f"Prepared launch binding changed: {key}")

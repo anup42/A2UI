@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare, train and test E2B/270M on shared-prompt Golden32 + Golden35."""
+"""Prepare, train and test E2B/270M on Golden32, Golden35 and Bixby50."""
 from __future__ import annotations
 
 import argparse
@@ -34,6 +34,7 @@ def build_parser(*, for_deployment: bool = False) -> argparse.ArgumentParser:
     parser.add_argument("--augmentation-max-family-repeats", type=int, default=2, help="Maximum TOTAL occurrences per source family including originals; existing larger families are never removed or repeated")
     if not for_deployment:
         parser.add_argument("--evaluate-golden35", action=argparse.BooleanOptionalAction, default=True, help="Defer holdout during tuning with --no-evaluate-golden35; it remains reserved from train/val")
+        parser.add_argument("--evaluate-bixby50", action=argparse.BooleanOptionalAction, default=True, help="Bixby50 source-only final holdout; --no-evaluate-bixby50 defers inference but keeps it excluded from train/val")
     parser.add_argument("--steps", type=int, help="Optional optimizer-step limit; use 20 for a smoke test")
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)

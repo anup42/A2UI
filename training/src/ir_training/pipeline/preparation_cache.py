@@ -28,6 +28,7 @@ CACHE_VERSION = 2
 REQUIRED_ARTIFACTS = frozenset({
     "data_audit.json", "prepared/manifest.json", "prepared/train.jsonl", "prepared/val.jsonl",
     "prepared/golden32.jsonl", "prepared/golden35.jsonl", "prepared/prompt_scaffolds.json",
+    "prepared/bixby50.jsonl",
     "prepared/shared_prompt.json", "prepared/inference_prompt.json", "prepared/source_prompt_scaffolds.json",
 })
 # These files also contain model/training configuration and orchestration.

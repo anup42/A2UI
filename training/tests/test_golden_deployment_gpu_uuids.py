@@ -78,13 +78,13 @@ def test_full_deployment_handoffs_normalized_subset_at_2_4_8_gpus(options, expor
         command_runner=fixtures.mock_runner(calls, expected_gpu_uuids=[fixtures.gpu_uuid(i) for i in indices]),
         pipeline_runner=fixtures.fake_pipeline, writer_factory=fixtures.Writer, gpu_probe=lambda: probe,
     )
-    assert result["status"] == "complete" and len(result["results"]) == 14
+    assert result["status"] == "complete" and len(result["results"]) == 21
     assert probe == before
     saved = json.loads((options.base.output_dir / "gpu_preflight.json").read_text())
     assert saved["selected_devices"] == [probe["devices"][i] for i in indices]
     assert saved["cuda_visible_devices"] == ",".join(map(str, indices))
     assert len([argv for argv, _, _ in calls if "--preflight" in argv]) == 1
-    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 8
+    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 12
 
 
 def test_missing_uuid_stops_before_subprocesses_or_training(options):
@@ -117,4 +117,4 @@ def test_recovery_normalizes_both_handoffs_without_rewriting_bound_profile(optio
     assert result["status"] == "complete"
     assert saved.read_bytes() == before
     assert len([argv for argv, _, _ in calls if "--preflight" in argv]) == 1
-    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 8
+    assert len([argv for argv, _, _ in calls if "--builtin-gpu" in argv]) == 12

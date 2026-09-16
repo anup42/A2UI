@@ -4,6 +4,12 @@ Review date: 2026-09-14. This extends the dense E2B LoRA / Gemma 3 270M
 Golden training workflow. No GPU training or measured quality improvement is
 claimed by this implementation review.
 
+Bixby50 integration update: the current dense workflow includes Golden35 and
+Bixby50 as final-only holdouts. Bixby50 has captured source responses but no
+reference IR; see [the Bixby50 evaluation guide](bixby50_evaluation.md) for its
+scoring boundary and bundled inputs. The historical v9 analysis below is not a
+new quality measurement of those holdouts.
+
 ## Review conclusion
 
 Keep the unaugmented recipe as the baseline. Test **capped rare-component
@@ -44,7 +50,7 @@ coverage or justify repeatedly memorizing the sole audio example. Validation
 has little or no support for several rare components; its aggregate loss cannot
 establish quality for those components. Keep the held-out split unchanged during
 this comparison. A future broader evaluation set needs independent examples,
-not copies of the training set or tuning against Golden35.
+not copies of the training set or tuning against Golden35/Bixby50.
 
 ## What the optional augmentation does
 
@@ -62,8 +68,9 @@ Use `--augmentation rare_components` on the ordinary training launcher.
   existing larger families remain intact but receive no additional copies.
 - Preserve response, completion, template and token bindings; only occurrence
   identity/provenance distinguishes added copies.
-- Preserve validation, Golden32 and Golden35 bytes. Recheck train/validation
-  separation and reserved Golden sources before configuring training.
+- Preserve validation, Golden32, Golden35 and Bixby50 bytes. Recheck
+  train/validation separation and all reserved test sources before configuring
+  training; Bixby50 is never an augmentation or loss-validation split.
 - Write a fresh `augmented/` directory and an augmentation manifest. The base
   prepared copy and the original v9 archive are not modified.
 
@@ -84,7 +91,7 @@ python training/scripts/run_golden_training.py \
 
 Use `--prepare-only` instead of `--execute` to inspect augmentation counts
 without loading model weights. Use a fresh output directory. The original
-multi-GB v9 archive is not included in Git; the Golden cohorts and preparation
+multi-GB v9 archive is not included in Git; the Golden/Bixby cohorts and preparation
 code are. See the [archive transfer/run instructions](messages_archive_final_review.md).
 
 ## Hyperparameters: test, do not guess an optimum
@@ -129,11 +136,18 @@ confound in the sweep.
 Selection uses the best checkpoint's
 `unique_source_generation_reward_v5_4_avg` on Golden32 (31 unique sources in
 32 occurrences). Ordinary validation loss and both best/final Golden32
-results remain visible. Trials do **not** evaluate Golden35. After all trials
-finish, the runner saves the selected trial/checkpoint identity before testing
-that checkpoint once on Golden35. Golden35 never participates in ranking.
-Treat its score as a final report, not feedback to launch another adaptive
-sweep; repeated adaptation would turn it into development data.
+results remain visible. Trials evaluate **neither Golden35 nor Bixby50**. After
+all trials finish, the standalone runner saves the selected trial/checkpoint
+identity before testing that checkpoint once on each holdout. Neither holdout
+participates in ranking. Treat their scores as final reports, not feedback to
+launch another adaptive sweep; repeated adaptation would turn them into
+development data. Bixby50 uses source-response quality/validity scoring, not
+reference-IR matching, and no synthetic target is introduced.
+
+The extended `run_golden_deployment.py --tune` workflow instead defers both
+holdouts during screening, locks the Golden32-selected settings, then runs
+fresh full training before final checkpoint and LiteRT tests. See the
+[full deployment runbook](GOLDEN_GPU_DEPLOYMENT.md).
 
 For a full follow-up run, use the saved selected settings with a fresh output
 directory and an explicit full budget. Screening rankings can change over a
@@ -144,7 +158,8 @@ at once or call a single-seed winner statistically established.
 
 The suite writes `experiments_manifest.json` (status and bindings),
 `comparison.json` (all trial results), `selection_locked.json` (winner pinned
-before holdout), `selected_golden35/` (holdout evidence), and
+before either holdout), `selected_golden35/` and `selected_bixby50/` (separate
+holdout evidence), `comparison.md` (readable final results), and
 `selected_full_training_options.json` (exact plan-only command argument list
 for a fresh full run; append `--execute` only on the training host). Failed
 trials stop the suite and preserve completed outputs; the runner never silently
@@ -181,7 +196,7 @@ and comparison scalars, backed by persistent JSON records. HParams is the
 Dashboard detail now defaults to `--tensorboard-detail minimal` in ordinary,
 tuning and full-deployment launchers. Important charts remain: training and
 validation loss, learning rate, gradient norm, epoch, measured throughput,
-Golden quality/strict-validity scores and the Golden32 unique-source selection
+Golden/Bixby quality/strict-validity scores and the Golden32 unique-source selection
 score. HParams and checkpoint/LiteRT variant comparisons remain available.
 Golden metrics are written once through the evaluation writer, not duplicated
 as hundreds of Trainer charts. Scorer-internal counts, weights, nested
@@ -200,6 +215,13 @@ the sweep comparison/HParams group is
 trial runs or open the HParams view. Run names include a suite path hash to
 avoid merging independent suites with the same folder basename.
 
+Locked-winner holdout tags include
+`selected_holdout/golden35/generation_reward_v5_4_avg` and
+`selected_holdout/bixby50/generation_reward_v5_4_avg`; these are separate from
+the per-trial Golden32 ranking metrics. Bixby50 reference-match scores are not
+applicable. The final table reports missing/failed holdouts explicitly instead
+of manufacturing zero scores or changing the locked winner.
+
 Logs identify the active trial/stage, effective settings, dataset counts,
 optimizer budget, GPU profile and TensorBoard path. Existing subprocess output
 is streamed to console and files; blocking stages emit heartbeats. Training
@@ -213,6 +235,11 @@ different cache under each trial. Set `--preparation-cache-dir` and optionally
 and normal full runs. The selected full-training handoff preserves those paths
 and enable/disable settings. `--no-preparation-cache` and `--no-token-cache`
 control the two layers independently.
+
+When upgrading an older two-cohort suite, use a new output directory. Adding
+Bixby50 changes cohort/exclusion and preparation identity, so affected cache
+entries rebuild once; matching later runs can reuse them. Do not edit old
+manifests or restart failed optimizers automatically to force compatibility.
 
 The first matching process builds and validates each token entry; preflight,
 training and other GPU ranks memory-map the completed, checksum-verified entry.

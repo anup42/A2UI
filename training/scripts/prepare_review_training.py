@@ -40,7 +40,10 @@ def source_identity(row: dict) -> tuple[str, str]:
     return str(query), hashlib.sha256(" ".join(source.split()).encode()).hexdigest()
 
 
-def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_prompt: int, golden35: Path | None = None) -> dict:
+def verify_prepared(
+    dataset: Path, golden: Path, *, max_sequence: int, max_prompt: int,
+    golden35: Path | None = None, bixby50: Path | None = None,
+) -> dict:
     manifest_path = dataset / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     golden_manifest = json.loads((golden.parent / "manifest.json").read_text(encoding="utf-8"))
@@ -117,18 +120,26 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
         raise ValueError("Golden prompt exceeds inference context. Reprepare with --max-input-tokens.")
     report = {"split_rows": counts, "golden_rows": 32, "golden_unique_sources": required_unique,
               "benchmark": benchmark, "dataset_manifest_sha256": sha256(manifest_path), "golden_sha256": sha256(golden), "tokenizer": tokenizer}
-    if golden35 is not None:
+    if golden35 is not None or bixby50 is not None:
         from ir_training.eval.prepared_contract import verify_golden_preparation, verify_reserved_train_validation
 
         final_datasets = {}
-        for name, path, count, kind, role in (
+        cohorts = [
             ("golden32", golden, 32, None, "development_checkpoint_selection"),
-            ("golden35", golden35, 35, "fixed_strict_subset", "final_only_holdout"),
-        ):
+        ]
+        if golden35 is not None:
+            cohorts.append(("golden35", golden35, 35, "fixed_strict_subset", "final_only_holdout"))
+        if bixby50 is not None:
+            cohorts.append(("bixby50", bixby50, 50, "source_only_holdout", "final_only_holdout"))
+        for name, path, count, kind, role in cohorts:
             binding = verify_golden_preparation(dataset, path, required_rows=count,
                 max_sequence=max_sequence, max_prompt=max_prompt, expected_kind=kind)
+            if name == "bixby50":
+                bixby_identities = [source_identity(row) for row in rows(path)]
+                if len({query for query, _ in bixby_identities}) != 50 or len({source for _, source in bixby_identities}) != 50:
+                    raise ValueError("Bixby50 requires exactly 50 unique query IDs and source responses.")
             final_datasets[name] = {**binding, "selection_role": role}
-        verify_reserved_train_validation(dataset, [golden, golden35])
+        verify_reserved_train_validation(dataset, [path for _, path, _, _, _ in cohorts])
         report["final_evaluation_datasets"] = final_datasets
     return report
 
@@ -223,8 +234,10 @@ def build_config(args: argparse.Namespace) -> tuple[dict, dict]:
             raise ValueError("; ".join(errors))
     validate_effective_batch(training, world_size)
     golden35 = getattr(args, "golden35_file", None)
+    bixby50 = getattr(args, "bixby50_file", None)
     report = verify_prepared(dataset, golden, max_sequence=args.max_seq_length, max_prompt=args.max_seq_length,
-                             golden35=golden35.resolve(strict=True) if golden35 is not None else None)
+                             golden35=golden35.resolve(strict=True) if golden35 is not None else None,
+                             bixby50=bixby50.resolve(strict=True) if bixby50 is not None else None)
     if "final_evaluation_datasets" in report:
         config["final_evaluation_datasets"] = copy.deepcopy(report["final_evaluation_datasets"])
     if (report.get("benchmark") or {}).get("benchmark_kind") == "explicit_repeated_case":
@@ -249,6 +262,7 @@ def main() -> None:
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--run-id", help="Optional run identity for TensorBoard; defaults to the output directory name. Use the parent pipeline run ID for nested fit directories.")
     parser.add_argument("--golden35-file", type=Path, help="Optional frozen Golden35 prepared with the identical training scaffold and tokenizer. Bind it as a final-only holdout; Golden32 still selects checkpoints.")
+    parser.add_argument("--bixby50-file", type=Path, help="Optional frozen Bixby50 prepared with the identical training scaffold and tokenizer. Requires all 50 unique cases; final-only holdout, never checkpoint selection.")
     parser.add_argument("--devices", default="auto", help="Use all CUDA-visible GPUs (default), or comma-separated visible logical indices/exact GPU or MIG UUIDs. Scheduler masks are preserved.")
     parser.add_argument("--effective-batch", type=int, help="Global examples per optimizer update; default 32 on H100 >=70 GiB, otherwise 16. Learning rate is unchanged.")
     parser.add_argument("--microbatch", type=int, help="Override per-GPU microbatch; H100 defaults: E2B 2, 270M 4, capped to divide the effective batch.")

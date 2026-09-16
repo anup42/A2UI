@@ -25,7 +25,13 @@ def evaluate_predictions(
     metric_version: str | None = None,
 ) -> dict[str, Any]:
     rows_out: list[dict[str, Any]] = []
-    for row in read_jsonl(predictions_path):
+    predictions = list(read_jsonl(predictions_path))
+    if any(row.get("reference_available") is False or
+           (isinstance(row.get("benchmark"), dict) and row["benchmark"].get("kind") == "source_only_holdout")
+           for row in predictions):
+        from ir_training.data.bixby50 import validate_source_only_predictions
+        validate_source_only_predictions(predictions)
+    for row in predictions:
         if row.get("source_context_sha256") and row["source_context_sha256"] != prediction_source_context_hash(row):
             raise ValueError(f"Scoring context hash mismatch for row {row.get('id')}")
         url_map = row.get("url_map") if isinstance(row.get("url_map"), dict) else {}
@@ -123,6 +129,13 @@ def repeated_benchmark_scores(rows: list[dict[str, Any]], weights: dict[str, flo
     declarations = [row.get("benchmark") for row in rows]
     if not any(declarations):
         return {}
+    if all(isinstance(item, dict) and item.get("kind") == "source_only_holdout" for item in declarations):
+        from ir_training.data.bixby50 import validate_source_only_predictions
+        validate_source_only_predictions(rows)
+        return {"benchmark_id": "bixby50_v1", "benchmark_kind": "source_only_holdout",
+                "reference_available": False, "reference_match_metrics_available": False,
+                "evaluation_only": True, "unique_source_count": 50,
+                "scoring_basis": "generated IR validity and source-response quality; no reference IR"}
     if all(isinstance(item, dict) and item.get("kind") == "fixed_strict_subset" for item in declarations):
         return fixed_subset_score_metadata(rows)
     if not all(isinstance(item, dict) and item.get("kind") == "explicit_repeated_case" for item in declarations):

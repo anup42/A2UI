@@ -1,12 +1,12 @@
-# E2B / 270M training with Golden32 and Golden35
+# E2B / 270M training with Golden32, Golden35 and Bixby50
 
-For the extended **train/tune → W32/W16/W8/W4 LiteRT-LM → Golden32/35 GPU tests**
+For the extended **train/tune → W32/W16/W8/W4 LiteRT-LM → Golden32/Golden35/Bixby50 GPU tests**
 workflow, see [the full deployment runbook](GOLDEN_GPU_DEPLOYMENT.md) and
 `run_golden_deployment.py`. The command below remains the HF-only workflow.
 
 This is the current clone-and-run entry point for **dense E2B LoRA capability
 training and Gemma 3 270M full-model training**, followed by checkpoint testing
-on both Golden sets. It aligns training and evaluation to one versioned
+on all three test cohorts. It aligns training and evaluation to one versioned
 production A2UI Express prompt. It does not train here, download model weights,
 or establish that a GPU run has passed.
 
@@ -57,6 +57,8 @@ The following inputs are included in Git:
   Stage 2 `responses.jsonl`. This is the default training source.
 - `training/data/eval/golden32_archive_repeat_v1/golden32.jsonl` and its manifest.
 - `training/data/eval/golden35_v1/golden35.jsonl` and its manifest.
+- `training/data/eval/bixby50_v1/bixby50.jsonl` and its manifest: source-only
+  holdout, with no reference IR. See [Bixby50 evaluation](bixby50_evaluation.md).
 - Preparation, filtering, trainer, evaluation and prompt/schema code.
 
 Prepared/tokenizer-bound splits, model weights, training checkpoints and logs
@@ -73,7 +75,7 @@ python training/scripts/run_golden_training.py \
   --output-dir /runs/e2b-smoke --steps 20 --execute
 ```
 
-The smoke still performs final tests on both complete Golden sets; `--steps 20`
+The smoke still performs final tests on all three complete cohorts; `--steps 20`
 limits optimizer updates, not benchmark membership. Require finite loss and
 gradients, real parameter updates, no OOM/distributed failure, and complete
 post-training reports. Twenty updates test wiring, not final model quality.
@@ -101,8 +103,9 @@ measured throughput or quality optima.
 For optional train-only rare-component resampling, matched-budget sequential
 hyperparameter experiments, and TensorBoard comparisons, see
 [Augmentation and tuning](AUGMENTATION_AND_TUNING.md). Augmentation is off by
-default. The experiment runner defers Golden35 until the winner is locked;
-ordinary single runs still test both Golden cohorts by default.
+default. The experiment runner defers Golden35 and Bixby50 until the winner is
+locked; ordinary single runs test all three cohorts by default. The full
+deployment's tuning screen defers both holdouts until its fresh full run.
 
 Execution modes:
 
@@ -114,6 +117,9 @@ Execution modes:
   `--execute`, using the same model, data and recipe arguments.
 - Use `--execute` for the complete workflow, including model preflight and
   training. A failed stage stops the workflow; later scores are not fabricated.
+- HF-only training supports `--no-evaluate-bixby50` to defer Bixby inference;
+  its sources remain excluded from train/validation. Full deployment requires
+  all three cohorts and does not expose this opt-out.
 
 Use `python training/scripts/run_golden_training.py --help` for supported
 overrides. Fresh runs refuse an existing output directory. `--continue-run`
@@ -133,7 +139,8 @@ original data/recipe contract. No continuation silently overwrites checkpoints.
 | Validation loss and checkpoint saves | Every 500 optimizer updates |
 | Golden32 generation/selection | Every 1,000 optimizer updates, plus final weights |
 | Golden35 | Final evaluation only; never used to select a checkpoint |
-| Final checkpoint testing | Selected best and actual final weights, each on Golden32 and Golden35 |
+| Bixby50 | Source-only final evaluation; never used to select a checkpoint |
+| Final checkpoint testing | Selected best and actual final weights, each on Golden32, Golden35 and Bixby50 |
 | New generation tokens | 2,048 |
 | Training full-sequence / evaluation prompt budget | 4,096 tokens with the exact local tokenizer |
 | TensorBoard | `/tensorboard/<run-id>/` |
@@ -147,21 +154,25 @@ Golden32's headline selection metric is
 `unique_source_generation_reward_v5_4_avg`: its 32 occurrences contain **31
 unique sources**, including the requested repeated donor. The ordinary
 32-occurrence score is separate. Golden35 has **35 unique strict-valid
-references**. The two sets are scored separately, never as a mixed 67-row
-average. The original September 3 demo Golden32 used by the separate official
+references**. Bixby50 has 50 unique captured responses, **without reference IR**:
+source-grounded reward, generated-output validity and runtime apply, but
+reference-match scores do not. The three sets are scored separately, never as a
+mixed average. The retired Golden50 is not restored by this addition.
+The original September 3 demo Golden32 used by the separate official
 export pipeline is a different cohort.
 
 After training, the workflow tests both the checkpoint selected using Golden32
-and the actual final saved checkpoint on **both** sets. Even if selected-best
+and the actual final saved checkpoint on **all three** sets. Even if selected-best
 and final correspond to the same training step, their artifact roles remain
 explicit. Per-case predictions, aggregate metrics, checkpoint identities,
 stage logs/status and a combined scorecard are retained in the output run.
-TensorBoard receives training, periodic Golden32 and final Golden32/35 metrics.
+TensorBoard receives training, periodic Golden32 and final Golden32/Golden35/Bixby50 metrics.
 No score is called complete unless the expected row count is present.
 
-The four post-training tests currently run as sequential standalone processes,
-each using the first selected CUDA device. They are not multi-rank tests; the
-all-visible-GPU setting above applies to training and periodic Golden32 passes.
+The six post-training cohort/checkpoint evaluations run sequentially; each HF
+evaluation shards cases across all selected GPUs using independent model workers.
+Launch once with Python, not torchrun: the evaluation supervisor owns its workers.
+The full LiteRT deployment keeps its existing one-verified-native-GPU behavior.
 
 Output paths below are relative to the chosen output directory:
 
@@ -172,19 +183,19 @@ Output paths below are relative to the chosen output directory:
 | Resolved training configuration | `fit/training_config.yaml` |
 | Golden32-selected checkpoint | `fit/training/best_golden_checkpoint/` |
 | Actual final weights | `fit/training/final_adapter/` for E2B; `final_model/` for 270M |
-| Per-case and aggregate final tests | `evaluations/{best,final}_{golden32,golden35}/attempt_001/` |
+| Per-case and aggregate final tests | `evaluations/{best,final}_{golden32,golden35,bixby50}/attempt_001/` |
 | Combined final comparison | `evaluation_scorecard.json` |
 | Stage command logs | `logs/` |
 
 The `prepared` directory includes `train.jsonl`, `val.jsonl`, `golden32.jsonl`,
-`golden35.jsonl`, `manifest.json`, saved shared/inference prompt contracts, and
+`golden35.jsonl`, `bixby50.jsonl`, `manifest.json`, saved shared/inference prompt contracts, and
 source prompt-scaffold evidence. Retried evaluations use distinct attempts;
 do not treat stale output from a failed attempt as a completed scorecard.
 
 All cadences count **optimizer updates**, not microbatches. The checked-in
 `dataset_v1` currently has 4,870 Stage 3 records before filtering; one epoch at
 global batch 32 may finish before step 500. In that case, final Golden32 and
-Golden35 evaluation still run, but there may be no periodic Golden pass. For a
+Golden35/Bixby50 evaluation still run, but there may be no periodic Golden pass. For a
 shorter cadence on a small dataset, explicitly use:
 
 ```bash
@@ -209,12 +220,12 @@ tensorboard --logdir /tensorboard
 The launcher materializes the completed default source through the current
 strict Express/wire/reachability checks, groups source cases into deterministic
 90/10 train/validation splits, and filters reserved Golden source identities
-and normalized source responses from both splits. It also reserves the failed
+and normalized source responses from both splits, including Bixby50. It also reserves the failed
 original Golden32 source and all 15 sources excluded from Golden35. Those
 unscored sources do not become training examples.
 
 The full system/few-shot/task scaffold is rebuilt from the versioned shared
-production prompt for **training, Golden32 and Golden35** before tokenizer-aware
+production prompt for **training, Golden32, Golden35 and Bixby50** before tokenizer-aware
 preparation. The prepared manifest binds prompt, tokenizer vocabulary, chat
 template/kwargs, split bytes and benchmark membership. Different input response
 text is expected; a different instruction scaffold is not.
@@ -225,6 +236,12 @@ reference outputs, IDs or membership. Deploy/evaluate with the saved full
 scaffold and matching chat template; do not substitute an abbreviated prompt.
 Historical scores produced with the old archive prompt are not directly
 comparable to scores from this aligned setup.
+
+Bixby50 preparation uses an inference-only path. It retains source response and
+identity, applies the same shared prompt/token budget, and does not manufacture
+an assistant completion or reference target. It is never a loss-validation or
+augmentation split. Missing or over-budget Bixby cases fail the whole cohort;
+the runner does not silently reduce it to a passing subset.
 
 Strict-invalid or overlong training rows are quarantined whole, with reasons.
 No target is silently truncated, manually repaired or synthesized. If even one
@@ -312,6 +329,13 @@ identity. Every saved output is rehashed before reuse and again while copying;
 the regular tokenizer/Golden/split contracts are still checked. Changed,
 missing, incomplete, or corrupted cache entries trigger full preparation.
 The output receives independent copies, not mutable hard links.
+
+After upgrading from a Golden32/35-only run to Bixby50 support, start with a
+**fresh output directory**. New cohort membership/exclusions and preparation
+code invalidate affected cache entries; one rebuild is expected. Retain the
+cache root for later compatible runs. Do not edit old manifests or bypass
+contract checks with `--continue-run`: adding this cohort does not authorize an
+automatic optimizer restart or relabel old scores as new three-cohort results.
 
 The HF training path also caches the final token IDs, attention masks and
 completion-only labels, enabled by `--token-cache` (the default). It uses

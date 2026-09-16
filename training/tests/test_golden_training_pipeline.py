@@ -65,9 +65,11 @@ def test_plan_has_no_runtime_or_output_side_effects(options, monkeypatch):
     assert not options.output_dir.exists()
     assert result["goldens"]["golden32"]["rows"] == 32
     assert result["goldens"]["golden35"]["rows"] == 35
+    assert result["goldens"]["bixby50"]["rows"] == 50
     command = workflow.configure_command(result)
     assert command[command.index("--run-id") + 1] == options.output_dir.name
     assert "--golden35-file" in command and "--devices" in command
+    assert "--bixby50-file" in command
     assert result["options"]["token_cache"] is True
     expected_cache = options.output_dir.parent / ".golden-preparation-cache"
     assert Path(result["options"]["preparation_cache_dir"]) == expected_cache
@@ -125,7 +127,7 @@ def test_prepare_only_real_benchmarks_share_one_prompt_and_keep_all_members(opti
     manifest = json.loads((options.output_dir / "prepared/manifest.json").read_text(encoding="utf-8"))
     assert manifest["scaffold_count"] == 1
     assert manifest["shared_prompt"] == state["plan"]["shared_prompt"]
-    for cohort, count in (("golden32", 32), ("golden35", 35)):
+    for cohort, count in (("golden32", 32), ("golden35", 35), ("bixby50", 50)):
         rows = load_fixed_golden_rows(options.output_dir / f"prepared/{cohort}.jsonl", required_rows=count)
         assert len(rows) == count
         assert manifest["splits"][cohort]["quarantined_rows"] == 0
@@ -271,7 +273,7 @@ def fake_runner(options, monkeypatch, calls, *, fail_evaluation=None, fail_train
 
 
 @pytest.mark.parametrize("profile,qat,devices", [("e2b", False, "auto"), ("270m", False, "1"), ("270m", True, "auto")])
-def test_complete_pipeline_runs_preflight_training_and_four_bound_evaluations(options, monkeypatch, profile, qat, devices):
+def test_complete_pipeline_runs_preflight_training_and_six_bound_evaluations(options, monkeypatch, profile, qat, devices):
     options = replace(options, profile=profile, qat=qat, devices=devices)
     calls = []
     state = workflow.run_pipeline(options, execute=True, tokenizer_loader=lambda *_: FixtureTokenizer(),
@@ -279,10 +281,10 @@ def test_complete_pipeline_runs_preflight_training_and_four_bound_evaluations(op
     assert state["status"] == "complete"
     assert list(state["completed"]) == state["plan"]["stages"]
     evaluations = [call for call in calls if "evaluate_checkpoint_on_golden.py" in call[1]]
-    assert len(evaluations) == 4
-    assert [call[call.index("--required-rows") + 1] for call in evaluations] == ["32", "35", "32", "35"]
+    assert len(evaluations) == 6
+    assert [call[call.index("--required-rows") + 1] for call in evaluations] == ["32", "35", "50", "32", "35", "50"]
     assert all(call[call.index("--run-id") + 1] == options.output_dir.name for call in evaluations)
-    assert len(json.loads((options.output_dir / "evaluation_scorecard.json").read_text())["evaluations"]) == 4
+    assert len(json.loads((options.output_dir / "evaluation_scorecard.json").read_text())["evaluations"]) == 6
 
 
 def test_continue_after_preparation_and_retry_evaluation_never_retrains(options, monkeypatch):
@@ -407,7 +409,7 @@ def test_invalid_startup_controls_fail_before_creating_outputs(options):
 
 def test_tuning_controls_forwarded_and_golden35_reserved_but_deferred(options, monkeypatch):
     options = replace(options, learning_rate=1e-5, weight_decay=0.05, warmup_ratio=0.05,
-                      seed=123, logging_steps=5, gradient_checkpointing=False, evaluate_golden35=False)
+                      seed=123, logging_steps=5, gradient_checkpointing=False, evaluate_golden35=False, evaluate_bixby50=False)
     calls = []
     state = workflow.run_pipeline(options, execute=True, tokenizer_loader=lambda *_: FixtureTokenizer(),
                                   command_runner=fake_runner(options, monkeypatch, calls))
@@ -417,12 +419,14 @@ def test_tuning_controls_forwarded_and_golden35_reserved_but_deferred(options, m
         assert command[command.index(flag) + 1] == value
     assert "--no-gradient-checkpointing" in command
     assert "--golden35-file" in command  # still bind and reserve the entire holdout
+    assert "--bixby50-file" in command
     evaluations = [call for call in calls if "evaluate_checkpoint_on_golden.py" in call[1]]
     assert len(evaluations) == 2
     assert all(call[call.index("--required-rows") + 1] == "32" for call in evaluations)
     assert list(state["completed"]) == state["plan"]["stages"]
     scorecard = json.loads((options.output_dir / "evaluation_scorecard.json").read_text())
     assert scorecard["golden35_evaluated"] is False
+    assert scorecard["bixby50_evaluated"] is False
 
 
 @pytest.mark.parametrize("overrides", [
@@ -448,5 +452,5 @@ def test_optional_augmentation_routes_a_separate_copy_into_training(options, mon
     assert Path(command[command.index("--dataset-dir") + 1]) == options.output_dir / "augmented"
     report = json.loads((options.output_dir / "augmented/augmentation.json").read_text())
     assert report["original_rows"] == 2 and report["added_rows"] == 0
-    for name in ("val", "golden32", "golden35"):
+    for name in ("val", "golden32", "golden35", "bixby50"):
         assert (options.output_dir / f"prepared/{name}.jsonl").read_bytes() == (options.output_dir / f"augmented/{name}.jsonl").read_bytes()

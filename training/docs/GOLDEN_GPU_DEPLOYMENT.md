@@ -1,9 +1,9 @@
-# Full Golden32/35 training and LiteRT-LM GPU deployment
+# Full Golden32/Golden35/Bixby50 training and LiteRT-LM GPU deployment
 
 Entry point: `training/scripts/run_golden_deployment.py`.
 
 This is the current **dense E2B LoRA / Gemma 3 270M full-SFT** workflow with
-the repaired archive and current Golden32/35. It adds public W32/W16/W8/W4
+the repaired archive and current Golden32/Golden35/Bixby50. It adds public W32/W16/W8/W4
 export and actual native GPU inference to `run_golden_training.py`. It does not
 switch to the older demo Golden32, retained-scale QAT topology, or MTP assistant.
 
@@ -13,17 +13,17 @@ switch to the older demo Golden32, retained-scale QAT topology, or MTP assistant
 GPU / exporter / native runtime prerequisite checks
   -> optional sequential Golden32 hyperparameter screening
   -> lock settings, then fresh full training from the original dense seed
-  -> best and final checkpoint tests: Golden32 + Golden35
-  -> merge selected-best checkpoint; merged HF tests: Golden32 + Golden35
-  -> W32 export + physical-weight audit + GPU tests on both cohorts
-  -> W16 export + physical-weight audit + GPU tests on both cohorts
-  -> W8  export + physical-weight audit + GPU tests on both cohorts
-  -> W4  export + physical-weight audit + GPU tests on both cohorts
+  -> best and final checkpoint tests: Golden32 + Golden35 + Bixby50
+  -> merge selected-best checkpoint; merged HF tests: all three cohorts
+  -> W32 export + physical-weight audit + GPU tests on all three cohorts
+  -> W16 export + physical-weight audit + GPU tests on all three cohorts
+  -> W8  export + physical-weight audit + GPU tests on all three cohorts
+  -> W4  export + physical-weight audit + GPU tests on all three cohorts
   -> evidence-bound JSON/Markdown scorecard + TensorBoard HParams
 ```
 
-The complete scorecard contains **14 evaluations**: seven model/checkpoint
-forms, each on two cohorts. Metrics come from real inference/scoring; no quality
+The complete scorecard contains **21 evaluations**: seven model/checkpoint
+forms, each on three cohorts. Metrics come from real inference/scoring; no quality
 scores are fabricated. Every format must pass export, precision, runtime and
 evidence checks. A successful converter exit alone is insufficient. `complete`
 means the evaluations executed with complete evidence, **not** that the trained
@@ -36,6 +36,13 @@ references; its score is `generation_reward_v5_4_avg`. Replaced/omitted source
 identities remain reserved from train/validation. Golden35 never selects a
 trial, checkpoint or precision. Do not repeatedly tune against its results and
 still describe it as an unseen test set.
+
+Bixby50 contains 50 captured Bixby/Perplexity responses and **no reference IR**.
+It is another final-only holdout, never used for tuning/checkpoint/precision
+selection. Its generated IR is scored for source-grounded reward, validity and
+runtime; reference-match metrics are not applicable. No placeholder or synthetic
+IR target is substituted. The current cohorts are Golden32, **Golden35** and
+Bixby50, not the retired Golden50. See [Bixby50 details](bixby50_evaluation.md).
 
 ## GPU and CPU behavior
 
@@ -87,7 +94,7 @@ experimental and require `--allow-experimental-formats`; actual weights are audi
 
 The full repaired v9 archive is external data, **not included by git clone**.
 Copy its `train.jsonl` and `val.jsonl` to the host and pass that directory.
-Both Golden sets are checked in and automatically integrated. Omitting
+All three evaluation cohorts are checked in and automatically integrated. Omitting
 `--input-dir` uses the existing smaller checked-in Stage3 source, not full v9.
 Original inputs remain untouched. Reserve RAM/disk for dense merge, W32/W16,
 converter temporary graphs and separate HPO checkpoints; GPU VRAM is not CPU RAM.
@@ -124,7 +131,9 @@ regularization. It locks the Golden32 winner, then starts **fresh full training*
 with chosen settings and the requested epochs (or explicit final `--steps`).
 Short screening weights are not silently used as the full-epoch model. Unlike
 the standalone experiment launcher, this full workflow defers all screening
-Golden35 inference until the fresh full run is trained.
+Golden35 and Bixby50 inference until the fresh full run is trained. Standalone
+`run_golden_experiments.py` instead evaluates both holdouts once for the already
+locked winning checkpoint, never for each trial.
 
 `--include-augmentation` adds a capped rare-component resampling trial. Without
 tuning, `--augmentation rare_components` enables resampling directly. Only
@@ -142,7 +151,7 @@ of globally optimal settings or full-epoch quality.
   TensorBoard to the current run to avoid seeing old verbose charts.
 - Validation loss/checkpoint save: every **500 optimizer steps**.
 - Periodic Golden32: every **1,000 optimizer steps**, plus final; all ranks.
-- Golden35: post-training only, never periodic selection.
+- Golden35 and Bixby50: post-training only, never periodic selection.
 - Sequence/prompt budget: **4,096**; generation cap: **2,048 new tokens**.
 - Export cache: **8,192**, covering prompt plus generation.
 - Training metrics: every **10 optimizer steps**; stage heartbeat: **10 seconds**.
@@ -163,6 +172,12 @@ scan under `<training-output>/fit/evaluation_validation_cache`, while **still
 rehashing current train/val and model bytes**. Progress/hash messages are expected,
 not a complete filtering rerun. Never delete a live lock to force reuse.
 
+Adding Bixby50 changes the frozen cohort inventory, source exclusions and
+preparation identity: the first run after this upgrade rebuilds affected caches.
+Retain the same cache root for later matching runs, but use a **fresh output
+directory**. Do not attach Bixby50 to an old two-cohort manifest with
+`--resume-run`, copy old prepared files, or edit manifest hashes to force reuse.
+
 ## Results and TensorBoard
 
 Exact paths/run IDs are printed and recorded in `deployment_manifest.json`.
@@ -170,7 +185,7 @@ Training is under `<output>/<run-id>_training`; tuning is under
 `<output>/<run-id>_tuning`.
 
 The console prints a final table of **all tuning trials** (if `--tune` was
-requested), and **all 14 checkpoint/merged/LiteRT Golden results**. It includes
+requested), and **all 21 checkpoint/merged/LiteRT test results**. It includes
 row counts, v5.4 reward, strict-valid percentages, and a separate Golden32
 31-unique-source selection score. On failure it prints the verified results
 already available, marks failed/missing slots explicitly, and does not invent
@@ -179,7 +194,7 @@ folder's `comparison.md`. Without `--tune`, no tuning trials are run.
 
 ```text
 <output>/deployment_manifest.json       statuses, timings, bindings, settings
-<output>/deployment_scorecard.json      complete evidence-bound 14-result scorecard
+<output>/deployment_scorecard.json      complete evidence-bound 21-result scorecard
 <output>/deployment_results.md          readable model/cohort comparison
 <output>/logs/                          export, runtime, merged/variant logs
 <output>/deployment/merged_hf/          selected-best dense checkpoint
@@ -188,6 +203,7 @@ folder's `comparison.md`. Without `--tune`, no tuning trials are run.
 <output>/deployment/variants/w8/
 <output>/deployment/variants/w4/
 <output>/evaluations/w4_golden35/        example native predictions/scores/evidence
+<output>/evaluations/w4_bixby50/         Bixby50 native predictions/scores/evidence
 <training-output>/logs/                 training, preflight, best/final tests
 <training-output>/fit/golden_eval/      periodic Golden32 results
 ```
@@ -199,11 +215,18 @@ per case to `runner_outputs.jsonl`; `runner.log` retains native logs. Its manife
 records package hash, runtime version, token parity and actual GPU UUIDs.
 
 MLP should read **`/tensorboard`**. Full comparison tags are in
-`/tensorboard/deployments/<run-id>/`, including all Golden scores, stage timings
+`/tensorboard/deployments/<run-id>/`, including headline Golden/Bixby scores
 and `final_comparison` HParams. Training, individual evaluations and sequential
 trial HParams also live under the same root. Outside MLP, use
 `tensorboard --logdir /tensorboard`. Compare matching current prompt contracts,
 not historical short-prompt scores.
+
+Bixby50 deployment tags follow the same minimal-metric policy, for example
+`evaluation/checkpoint_best/bixby50/generation_reward_v5_4_avg` and
+`evaluation/w4/bixby50/schema_valid_strict_rate`. Final HParams include
+`hparam/w4_bixby50/generation_reward_v5_4_avg`; reference-match scores are not
+reported for this source-only cohort. Stage timings are logged only in full
+TensorBoard detail mode. Full JSON artifacts are retained in either mode.
 
 ## Failure/recovery and verification limits
 
@@ -253,7 +276,7 @@ The screenshot alone does not identify which field changed on the remote host.
 
 Existing prepared runs now validate the saved contract's structure and internal
 hashes, plus `shared_prompt.json`, `prompt_scaffolds.json`, `inference_prompt.json`
-and their manifest bindings. Training and both Golden cohorts must agree on the
+and their manifest bindings. Training and all three cohorts must agree on the
 same saved prompt. Runtime never replaces prepared messages with the current
 production prompt. Small prompt checks happen before the full corpus scan.
 Tampered artifacts and mixed prompt snapshots still stop the run.

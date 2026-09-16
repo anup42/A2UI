@@ -103,6 +103,10 @@ def validate_benchmark_rows(rows: list[dict[str, Any]], contract: dict[str, Any]
         from ir_training.data.golden_replacement import validate_replacement_rows
 
         validate_replacement_rows(rows, contract)
+    elif kind == "source_only_holdout":
+        from ir_training.data.bixby50 import validate_source_only_rows
+
+        validate_source_only_rows(rows, contract)
     else:
         raise ValueError(f"Unsupported Golden benchmark kind: {kind!r}")
 

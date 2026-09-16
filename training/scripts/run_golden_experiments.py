@@ -53,7 +53,7 @@ def main() -> int:
     parser.add_argument("--tensorboard-detail", choices=("minimal", "full"), default=os.environ.get("A2UI_TENSORBOARD_DETAIL", "minimal"),
                         help="Minimal: headline training/Golden metrics and HParams; full: all diagnostic TensorBoard metrics. JSON reports always retain full detail.")
     parser.add_argument("--qat", action="store_true", help="270M only. E2B official retained-scale QAT remains in its separate launcher.")
-    parser.add_argument("--execute", action="store_true", help="Explicitly run all trials one by one, lock a Golden32 winner, then evaluate that checkpoint once on Golden35")
+    parser.add_argument("--execute", action="store_true", help="Run trials one by one, lock a Golden32 winner, then evaluate that checkpoint once on each of Golden35 and Bixby50")
     args = vars(parser.parse_args())
     execute = args.pop("execute")
     experiment = {name: args.pop(name) for name in ("trial_steps", "trials_file", "include_augmentation")}

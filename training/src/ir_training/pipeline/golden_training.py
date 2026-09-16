@@ -1,4 +1,4 @@
-"""Checked, opt-in train-to-dual-Golden workflow; no cloud data generation."""
+"""Checked training with Golden development and final holdouts; no cloud data generation."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -26,10 +26,13 @@ GOLDENS = {
                  "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c"),
     "golden35": ("training/data/eval/golden35_v1/golden35.jsonl", 35,
                  "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20"),
+    "bixby50": ("training/data/eval/bixby50_v1/bixby50.jsonl", 50,
+                "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d"),
 }
 GOLDEN_MANIFEST_SHA256 = {
     "golden32": "2b62797db7fd267c3f75e8ab1a7cb1a450d601df3f7785f5b78a62fe2657caa8",
     "golden35": "1d468e05015744b8165c03e92ed009e03aac845513471b8f0b99cbe9d93939fb",
+    "bixby50": "576ebd54f90c514ab1508626de5f4848558d04fec99b2008d392848ee6dfbdde",
 }
 
 
@@ -69,6 +72,7 @@ class GoldenTrainingOptions:
     augmentation_max_extra_fraction: float = 0.10
     augmentation_max_family_repeats: int = 2
     evaluate_golden35: bool = True
+    evaluate_bixby50: bool = True
     token_cache: bool = True
     token_cache_dir: Path | None = None
 
@@ -162,20 +166,26 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
     from ir_training.data.shared_prompt import create_shared_prompt_contract
     prompt = create_shared_prompt_contract(ordering="root-first")
     return {
-        "schema_version": 1, "workflow": "shared_prompt_dual_golden_training_v1",
+        "schema_version": 1, "workflow": "shared_prompt_golden_bixby_training_v2",
         "options": values, "source_files": [str(path) for path in source_files],
         "shared_prompt": prompt,
         "goldens": {name: {"path": str(repo_root() / path), "rows": count, "sha256": digest,
                            "benchmark_manifest_path": str((repo_root() / path).parent / "benchmark_manifest.json"),
-                           "benchmark_manifest_sha256": GOLDEN_MANIFEST_SHA256[name]}
+                           "benchmark_manifest_sha256": GOLDEN_MANIFEST_SHA256[name],
+                           "reference_available": name != "bixby50",
+                           "selection_role": "development_checkpoint_selection" if name == "golden32" else "final_only_holdout",
+                           **({"benchmark_kind": "source_only_holdout"} if name == "bixby50" else {})}
                     for name, (path, count, digest) in GOLDENS.items()},
         "stages": ["prepare", *(["augment"] if options.augmentation != "none" else []), "configure", "preflight", "training",
                    "best_golden32", *(["best_golden35"] if options.evaluate_golden35 else []),
-                   "final_golden32", *(["final_golden35"] if options.evaluate_golden35 else []), "scorecard"],
+                   *(["best_bixby50"] if options.evaluate_bixby50 else []),
+                   "final_golden32", *(["final_golden35"] if options.evaluate_golden35 else []),
+                   *(["final_bixby50"] if options.evaluate_bixby50 else []), "scorecard"],
         "model_training": "270m W8 QAT" if options.qat else ("dense E2B LoRA SFT" if options.profile == "e2b" else "270m full SFT"),
         "exports_performed": False, "automatic_model_downloads": False,
         "golden35_role": "final evaluation only; never checkpoint selection" if options.evaluate_golden35 else "reserved, not evaluated in development trial",
-        "note": "Final Golden32 always runs. Golden35 runs unless explicitly deferred for sequential tuning. Augmentation only repeats validated training examples; no new semantic coverage.",
+        "bixby50_role": "source-only final holdout; never checkpoint selection" if options.evaluate_bixby50 else "reserved, not evaluated in development trial",
+        "note": "Final Golden32 always runs. Golden35 and Bixby50 run unless deferred for sequential tuning. Bixby50 has no reference IR. Augmentation only repeats validated training examples; no new semantic coverage.",
     }
 
 
@@ -273,8 +283,9 @@ def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable | None = No
         # Run the same pre-model guard on both fresh and reused preparations.
         sys.path.insert(0, str(repo_root() / "training/scripts"))
         from prepare_review_training import verify_prepared
-        with Progress("Verify prepared splits and both Golden contracts", unit="stage", interval=interval):
+        with Progress("Verify prepared splits and all evaluation contracts", unit="stage", interval=interval):
             verify_prepared(output / "prepared", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
+                            bixby50=output / "prepared/bixby50.jsonl",
                             max_sequence=options["max_seq_length"], max_prompt=options["max_input_tokens"])
         if cache_binding is not None:
             if preparation_cache.identity(plan, source_pins) != cache_binding:
@@ -343,7 +354,7 @@ def _prepare_uncached(plan, tokenizer_loader, reserved, fingerprints, workers):
         output / "prepared", ordering="root-first", tokenizer=tokenizer,
         max_seq_length=options["max_seq_length"], max_input_tokens=options["max_input_tokens"],
         chat_template_kwargs={"enable_thinking": False}, shared_prompt=plan["shared_prompt"],
-        evaluation_splits={"golden32", "golden35"},
+        evaluation_splits=set(golden_paths),
         workers=workers, progress_interval=interval, show_progress=True,
     )
     report = {"source_files": {path: value["sha256"] for path, value in fingerprints.items()}, "source_materialization": source_manifest, "filtering": reports,
@@ -360,6 +371,7 @@ def configure_command(plan: dict[str, Any]) -> list[str]:
                "--profile", values["profile"], "--model-dir", values["model_dir"],
                "--dataset-dir", str(output / ("augmented" if values["augmentation"] != "none" else "prepared")), "--golden-file", str(output / "prepared/golden32.jsonl"),
                "--golden35-file", str(output / "prepared/golden35.jsonl"), "--output-dir", str(output / "fit"),
+               "--bixby50-file", str(output / "prepared/bixby50.jsonl"),
                "--run-id", output.name,
                "--devices", values["devices"], "--epochs", str(values["epochs"]),
                "--eval-steps", str(values["eval_steps"]), "--golden-every-steps", str(values["golden_every_steps"]),
@@ -541,6 +553,7 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
                     max_extra_fraction=options.augmentation_max_extra_fraction,
                     max_family_copies=options.augmentation_max_family_repeats, progress_seconds=options.progress_seconds)
                 verify_prepared(output / "augmented", output / "prepared/golden32.jsonl", golden35=output / "prepared/golden35.jsonl",
+                                bixby50=output / "prepared/bixby50.jsonl",
                                 max_sequence=options.max_seq_length, max_prompt=options.max_input_tokens)
             return sorted((output / "augmented").glob("*.json*"))
         stage("augment", augment)
@@ -562,7 +575,8 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
                 raise ValueError(f"Training did not publish the required checkpoint: {folder}")
         return [file for folder in folders for file in sorted(folder.iterdir()) if file.is_file()]
     stage("training", train)
-    evaluated_cohorts = list(GOLDENS) if options.evaluate_golden35 else ["golden32"]
+    evaluated_cohorts = ["golden32", *(["golden35"] if options.evaluate_golden35 else []),
+                         *(["bixby50"] if options.evaluate_bixby50 else [])]
     for role in ("best", "final"):
         for cohort in evaluated_cohorts:
             name = f"{role}_{cohort}"
@@ -595,6 +609,8 @@ def run_pipeline(options: GoldenTrainingOptions, *, execute: bool = False, prepa
         result = {"schema_version": 1, "status": "complete", "profile": options.profile, "shared_prompt": plan["shared_prompt"],
                   "evaluations": comparisons, "golden32_unique_sources": 31, "golden35_unique_sources": 35,
                   "golden35_used_for_selection": False, "exports_performed": False,
+                  "bixby50_used_for_selection": False, "bixby50_unique_sources": 50,
+                  "bixby50_evaluated": options.evaluate_bixby50, "bixby50_reference_available": False,
                   "golden35_evaluated": options.evaluate_golden35, "augmentation": options.augmentation,
                   "warning": "New shared-prompt scores are not directly comparable to historical short-prompt runs."}
         path = output / "evaluation_scorecard.json"

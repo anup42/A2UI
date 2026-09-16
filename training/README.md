@@ -1,15 +1,18 @@
 ﻿# Response-to-IR Training
 
 For **training, optional tuning, W32/W16/W8/W4 LiteRT-LM export and GPU testing
-on both current Golden sets**, use [`run_golden_deployment.py`](scripts/run_golden_deployment.py)
+on Golden32, Golden35 and Bixby50**, use [`run_golden_deployment.py`](scripts/run_golden_deployment.py)
 and the [full GPU deployment runbook](docs/GOLDEN_GPU_DEPLOYMENT.md). Training/HF
 evaluation use all selected GPUs; native LiteRT uses one verified GPU because
 its pinned API has no device selector. Conversion is CPU-based. W16/W4 require
-explicit experimental acknowledgment. Results include a 14-evaluation scorecard
+explicit experimental acknowledgment. Results include a 21-evaluation scorecard
 and TensorBoard HParams; real host kernel compatibility is still required.
 
-For **E2B / 270M training and automatic final testing on both Golden32 and
-Golden35**, start with the [end-to-end quickstart](docs/GOLDEN_E2E_QUICKSTART.md).
+For **E2B / 270M training and automatic final testing on Golden32, Golden35 and
+Bixby50**, start with the [end-to-end quickstart](docs/GOLDEN_E2E_QUICKSTART.md).
+Bixby50 is a bundled source-response holdout, not reference IR: see the
+[Bixby50 evaluation guide](docs/bixby50_evaluation.md) for scoring, logs and
+upgrade/cache boundaries. It does not restore the retired Golden50 cohort.
 For the external 151,202-row messages-only archive, use the
 [final archive runbook](docs/messages_archive_final_review.md) and review its
 [policy-v9 report](reports/offline_recovery_20260913_v9/REPORT.md)
@@ -24,7 +27,7 @@ Use the same `--preparation-cache-dir` across runs (tokens default to its
 Optional rare-component resampling and matched-budget, one-at-a-time trials
 are documented in [Augmentation and tuning](docs/AUGMENTATION_AND_TUNING.md).
 Use `run_golden_experiments.py` to compare settings in TensorBoard while
-keeping Golden35 out of trial selection. The unaugmented baseline stays default.
+keeping Golden35 and Bixby50 out of trial selection. The unaugmented baseline stays default.
 For the E2B `LoRA selector ... matches no supported nn.Linear modules` startup
 failure, see the [fix and restart instructions](docs/E2B_LORA_STARTUP_FIX_20260914.md).
 The final v9 copy includes the source-proven separator correction and retains
@@ -42,9 +45,10 @@ python training/scripts/run_golden_training.py \
 ```
 
 Defaults are validation/save every 500 optimizer updates, Golden32 every 1,000
-plus final weights, final Golden35 testing, 2,048 generated tokens and
+plus final weights, final Golden35/Bixby50 testing, 2,048 generated tokens and
 `/tensorboard/<run-id>/`. Golden32 has 32 occurrences / 31 unique sources;
-Golden35 has 35 unique references and is not used for checkpoint selection.
+Golden35 has 35 unique references; Bixby50 has 50 unique captured responses and
+no reference IR. Neither holdout is used for checkpoint selection.
 Their excluded originals remain reserved from training. This dense capability
 workflow is distinct from official retained-scale QAT/LiteRT export and MTP.
 See [GPU profiles](docs/gpu_training_profiles.md), the
@@ -70,9 +74,9 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 
 | Pipeline | Entry point | Current status |
 |---|---|---|
-| Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and both current Goldens | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; isolated CPU export, one verified native GPU engine, precision audits, 14-result scorecard and TensorBoard HParams |
-| Dense E2B LoRA / 270M full-model training with shared-prompt Golden32 and Golden35 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on both sets, logs TensorBoard and scorecard; no LiteRT export |
-| Sequential E2B / 270M hyperparameter and resampling comparisons | `training/scripts/run_golden_experiments.py` | Opt-in equal-step trials, fresh initialization, baseline included, TensorBoard HParams/comparison records, Golden32 selection and one locked-winner Golden35 test; screening, not a measured optimum |
+| Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and Golden32/Golden35/Bixby50 | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; isolated CPU export, one verified native GPU engine, precision audits, 21-result scorecard and TensorBoard HParams |
+| Dense E2B LoRA / 270M full-model training with shared-prompt Golden32/Golden35/Bixby50 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on all three sets, logs TensorBoard and scorecard; no LiteRT export |
+| Sequential E2B / 270M hyperparameter and resampling comparisons | `training/scripts/run_golden_experiments.py` | Opt-in equal-step trials, fresh initialization, baseline included, TensorBoard HParams/comparison records, Golden32 selection and locked-winner Golden35/Bixby50 tests; screening, not a measured optimum |
 | Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |
 | Gemma 3 270M W8-QAT and W32/W16/W8/W4 comparisons | `training/scripts/run_gemma270m_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W8 is QAT-aligned, W16/W4 are explicit experimental conversions |
 | Checked full-model SFT/QAT and LoRA/QLoRA SFT | `training/scripts/train_sft.py` | Shared HF trainer; explicit method, complete-example loss masking, actual Linear target resolution and strict resume contract |

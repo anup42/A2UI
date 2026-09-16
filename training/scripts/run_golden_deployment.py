@@ -20,7 +20,7 @@ def main() -> int:
     parser.description = __doc__
     parser.add_argument("--exporter-python", type=Path, required=True, help="Absolute Python in isolated compatible LiteRT Torch export environment")
     parser.add_argument("--runtime-python", type=Path, required=True, help="Absolute Python with pinned litert-lm-api GPU runtime (see runbook)")
-    parser.add_argument("--tune", action="store_true", help="Sequential equal-step Golden32 trials, lock settings, then fresh full training; no screening Golden35")
+    parser.add_argument("--tune", action="store_true", help="Sequential equal-step Golden32 trials, lock settings, then fresh full training; no screening Golden35/Bixby50")
     parser.add_argument("--trial-steps", type=int, default=1000)
     parser.add_argument("--trials-file", type=Path)
     parser.add_argument("--include-augmentation", action="store_true")

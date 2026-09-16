@@ -59,7 +59,7 @@ def _json(path, value):
 
 def _fake_pipeline(calls, *, scores=None, corrupt=None, batch=None):
     def run(options, *, execute):
-        assert execute is True and options.evaluate_golden35 is False
+        assert execute is True and options.evaluate_golden35 is False and options.evaluate_bixby50 is False
         assert options.steps == 20
         index = len(calls)
         calls.append(options)
@@ -98,14 +98,16 @@ def _holdout_runner(options, calls, *, count=35):
         assert locked["golden35_seen"] is False
         assert environment["CUDA_VISIBLE_DEVICES"] == "0,1"
         assert "--require-prepared-contract" in command
-        assert command[command.index("--required-rows") + 1] == "35"
+        required = int(command[command.index("--required-rows") + 1])
+        assert required in {35, 50}
         assert command[command.index("--checkpoint") + 1] == locked["checkpoint"]
         calls.append(command)
         output = Path(command[command.index("--output-dir") + 1])
-        _json(output / "evaluation_result.json", {"row_count": count, "aggregate": {"generation_reward_v5_4_avg": 0.123}})
+        emitted = count if required == 35 else 50
+        _json(output / "evaluation_result.json", {"row_count": emitted, "aggregate": {"generation_reward_v5_4_avg": 0.123}})
         _json(output / "aggregate_metrics.json", {})
         for name in ("predictions.jsonl", "scored_predictions.jsonl"):
-            (output / name).write_text("{}\n" * count, encoding="utf-8")
+            (output / name).write_text("{}\n" * emitted, encoding="utf-8")
     return run
 
 
@@ -201,7 +203,7 @@ def test_runs_one_by_one_logs_hparams_then_locks_before_single_holdout(options, 
     state = module.run_experiments(options, execute=True, pipeline_runner=_fake_pipeline(calls),
                                    command_runner=_holdout_runner(options, holdouts), writer_factory=factory)
     assert state["status"] == "complete"
-    assert len(calls) == 4 and len(holdouts) == 1
+    assert len(calls) == 4 and len(holdouts) == 2
     assert state["selected_trial"] == "regularization"
     assert len(writers[0].hparams) == 4 and writers[0].closed
     assert all(item.steps == 20 and item.seed == 42 for item in calls)
@@ -236,7 +238,7 @@ def test_ties_prefer_baseline_not_holdout_score(options):
     state = module.run_experiments(options, execute=True, pipeline_runner=_fake_pipeline(calls, scores=[.4] * 4),
                                    command_runner=_holdout_runner(options, holdouts), writer_factory=Writer)
     assert state["selected_trial"] == "baseline"
-    assert len(holdouts) == 1
+    assert len(holdouts) == 2
 
 
 def test_failed_trial_stops_durably_and_is_not_auto_resumed(options, capsys):

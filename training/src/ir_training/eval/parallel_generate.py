@@ -84,7 +84,7 @@ def merge_shards(rows: list[dict], shards: list[list[int]], paths: list[Path], o
                     or prediction.get("source_context_sha256") != expected["source_context_sha256"]
                     or prediction_source_context_hash(prediction) != expected["source_context_sha256"]
                     or sha256_text(str(prediction.get("response_text", ""))) != expected["response_text_sha256"]
-                    or sha256_text(str(prediction.get("expected", ""))) != expected["expected_sha256"]):
+                    or sha256_text(str(prediction.get("expected") or "")) != expected["expected_sha256"]):
                 raise ValueError(f"Golden shard source identity mismatch at case index {index}")
             if not isinstance(prediction.get("generated_text"), str):
                 raise ValueError(f"Golden shard has no generated text at case index {index}")  # noqa: TRY004 - malformed shard content
