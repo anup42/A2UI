@@ -226,7 +226,11 @@ def _strict_rows(path: Path):
 
 def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable | None = None) -> dict[str, Any]:
     from ir_training.data.audit_filter import load_reserved_cohorts
+    from ir_training.data.shared_prompt import validate_shared_prompt_contract
     from ir_training.eval.golden_set import load_fixed_golden_rows
+    # A fresh run/cache request must still target current production. Only
+    # already-prepared training/evaluation consumes its frozen snapshot.
+    validate_shared_prompt_contract(plan["shared_prompt"])
     options = plan["options"]
     output = Path(options["output_dir"])
     interval = options["progress_seconds"]
@@ -260,6 +264,9 @@ def prepare_data(plan: dict[str, Any], *, tokenizer_loader: Callable | None = No
             report = json.loads((output / "data_audit.json").read_text(encoding="utf-8"))
         else:
             report = _prepare_uncached(plan, tokenizer_loader or _load_tokenizer, reserved, fingerprints, workers)
+        prepared_manifest = json.loads((output / "prepared/manifest.json").read_text(encoding="utf-8"))
+        if prepared_manifest.get("shared_prompt") != plan["shared_prompt"]:
+            raise ValueError("Prepared/cache prompt differs from this run's bound shared prompt; use a fresh preparation directory")
         for path, digest in source_pins.items():
             if fingerprint_file(Path(path), interval=interval)["sha256"] != digest:
                 raise ValueError(f"Source changed during preparation: {path}")

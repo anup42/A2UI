@@ -43,6 +43,17 @@ def source_identity(row: dict) -> tuple[str, str]:
 def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_prompt: int, golden35: Path | None = None) -> dict:
     manifest_path = dataset / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    golden_manifest = json.loads((golden.parent / "manifest.json").read_text(encoding="utf-8"))
+    # Validate small prompt artifacts before scanning/hash-reading a large
+    # corpus. Runtime checks use the prepared snapshot, not the live builder.
+    if manifest.get("shared_prompt") is not None or golden_manifest.get("shared_prompt") is not None:
+        from ir_training.eval.prepared_contract import checked_preparation_manifest
+
+        checked_preparation_manifest(dataset)
+        if golden.parent.resolve() != dataset.resolve():
+            checked_preparation_manifest(golden.parent)
+        if manifest.get("shared_prompt") != golden_manifest.get("shared_prompt"):
+            raise ValueError("Training and Golden shared prompt contracts differ.")
     validation = manifest.get("validation") or {}
     if not all(validation.get(key) is True for key in ("strict_express", "wire_schema", "semantic_roundtrip")) or validation.get("root_reachability") != 1.0:
         raise ValueError("Dataset manifest must certify strict Express, wire schema, semantic roundtrip and complete root reachability.")
@@ -69,7 +80,6 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
             raise ValueError("Train/val overlap by query ID or normalized response text; rebuild splits before training.")
         else:
             val_ids, val_sources = ids, sources
-    golden_manifest = json.loads((golden.parent / "manifest.json").read_text(encoding="utf-8"))
     golden_validation = golden_manifest.get("validation") or {}
     if not all(golden_validation.get(key) is True for key in ("strict_express", "wire_schema", "semantic_roundtrip")) or golden_validation.get("root_reachability") != 1.0:
         raise ValueError("Golden manifest lacks strict target validation.")
@@ -105,13 +115,6 @@ def verify_prepared(dataset: Path, golden: Path, *, max_sequence: int, max_promp
     maxima = golden_split.get("max_accepted_token_lengths") or {}
     if int(maxima.get("prompt_tokens", max_prompt + 1)) > max_prompt:
         raise ValueError("Golden prompt exceeds inference context. Reprepare with --max-input-tokens.")
-    if manifest.get("shared_prompt") is not None or golden_manifest.get("shared_prompt") is not None:
-        from ir_training.eval.prepared_contract import checked_preparation_manifest
-
-        checked_preparation_manifest(dataset)
-        checked_preparation_manifest(golden.parent)
-        if manifest.get("shared_prompt") != golden_manifest.get("shared_prompt"):
-            raise ValueError("Training and Golden shared prompt contracts differ.")
     report = {"split_rows": counts, "golden_rows": 32, "golden_unique_sources": required_unique,
               "benchmark": benchmark, "dataset_manifest_sha256": sha256(manifest_path), "golden_sha256": sha256(golden), "tokenizer": tokenizer}
     if golden35 is not None:

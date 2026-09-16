@@ -99,6 +99,20 @@ If the loader is present but no NVIDIA adapter is visible, have the administrato
 check the mounted ICD/library dependencies, driver compatibility, device access,
 and container policy; do not mask the problem by enabling CPU fallback.
 
+If the console stops at `runtime_preflight` with **`libvulkan.so.1: cannot open
+shared object file`**, the loader is still missing from that container. A Git
+update or `pip install` of the Python runtime does not install this OS library.
+Use the Ubuntu/Debian commands above, or ask the managed-platform administrator
+to add the loader and NVIDIA graphics exposure to the job image. If you have no
+`sudo`, ask for the image change rather than installing a different host driver.
+Only retry the deployment after the same-container native preflight passes.
+
+When this fails **before tuning/training**, use a fresh output directory for the
+retry; no optimizer has started in this new deployment run. `--resume-run` is
+only for a run that previously completed full training and its checkpoint
+evaluations. Earlier results remain in their original folders; `not reported`
+in this run's final table means no score was produced here, not a zero score.
+
 NVIDIA's data-center release notes list Vulkan support and HGX H100 platforms;
 that is not certification of a particular managed H100 image or of LiteRT's
 model kernels. The actual probe and each exported model's native evaluation are

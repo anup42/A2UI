@@ -243,6 +243,35 @@ original training launcher retains its separate verified `--continue-run`
 behavior. After an intentional code/prompt/schema change, a contract mismatch
 must be investigated instead of relabeling old evaluations as comparable.
 
+### Prepared shared-prompt snapshots
+
+`Shared prompt contract is stale or changed` previously compared a prepared
+snapshot with a prompt rebuilt from the **live checkout** each time training or
+evaluation launched. An unchanged, fully bound preparation could therefore
+stop after an unrelated checkout update changed the production prompt/builder.
+The screenshot alone does not identify which field changed on the remote host.
+
+Existing prepared runs now validate the saved contract's structure and internal
+hashes, plus `shared_prompt.json`, `prompt_scaffolds.json`, `inference_prompt.json`
+and their manifest bindings. Training and both Golden cohorts must agree on the
+same saved prompt. Runtime never replaces prepared messages with the current
+production prompt. Small prompt checks happen before the full corpus scan.
+Tampered artifacts and mixed prompt snapshots still stop the run.
+
+**Fresh preparation still requires the current production prompt.** Cache
+identity and restored-manifest checks bind it to that run's planned prompt.
+The error reports changed fields and saved/current contract hashes when a new
+plan is stale. Do not edit manifest hashes, disable these checks, or compare
+scores across prompt revisions as if they used the same input.
+
+Do not `git pull` into a running training/tuning checkout. A tuning suite also
+pins its code, recipes, source data and tokenizer across trials; those guards
+remain. For the already-failed **tuning** run, retain its files and start the
+same command with a **new output directory** after updating. Existing compatible
+preparation/token caches can be reused; changed preprocessing identity rebuilds
+once. `--resume-run` is not a tuning/optimizer restart mechanism. This change
+does not automatically resume failed trials or erase completed checkpoints.
+
 See [local validation evidence](../reports/golden_deployment_20260914/README.md)
 for executed tests and unverified real-H100/native-model steps. No actual model
 quality or full native GPU run is claimed from CPU/mock tests.

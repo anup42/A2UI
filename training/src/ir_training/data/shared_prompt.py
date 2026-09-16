@@ -9,6 +9,7 @@ from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any, Mapping
 
 from ir_training.common.config import repo_root
@@ -57,19 +58,70 @@ def create_shared_prompt_contract(*, ordering: str = "root-first") -> dict[str, 
     return contract
 
 
-def validate_shared_prompt_contract(contract: Mapping[str, Any]) -> dict[str, Any]:
-    """Reject tampered evidence and contracts stale against current production."""
+def validate_shared_prompt_snapshot(contract: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate saved prompt integrity without rebuilding it from a live checkout.
+
+    Training and evaluation consume the exact prepared messages. Their saved
+    contract must not silently change when a repository prompt/builder changes.
+    New preparation separately requires parity with current production below.
+    """
     if not isinstance(contract, Mapping):
         raise ValueError("shared_prompt must be a versioned contract object")
-    ordering = contract.get("serialization_order")
-    expected = create_shared_prompt_contract(ordering=ordering)
-    if dict(contract) != expected:
-        raise ValueError("Shared prompt contract is stale or changed; recreate preparation with the current production prompt")
+    def invalid(reason: str) -> None:
+        raise ValueError(f"Shared prompt contract is stale or changed: {reason}; restore the original prepared artifacts, do not edit their hashes")
+
+    fields = {"schema_version", "version", "target_format", "serialization_order", "source_path",
+              "source_text_sha256", "system_prompt_sha256", "scaffold", "scaffold_sha256", "contract_sha256"}
+    if set(contract) != fields or type(contract.get("schema_version")) is not int or contract["schema_version"] != 1:
+        invalid("unsupported snapshot schema")
+    if contract["version"] != SHARED_PROMPT_VERSION or contract["target_format"] != "a2ui_express_v1":
+        invalid("unsupported snapshot version/format")
+    if (not isinstance(contract["serialization_order"], str) or contract["serialization_order"] not in {"root-first", "bottom-up"}
+            or contract["source_path"] != PRODUCTION_PROMPT):
+        invalid("invalid snapshot ordering/source")
+    for name in ("source_text_sha256", "system_prompt_sha256", "scaffold_sha256", "contract_sha256"):
+        if not isinstance(contract[name], str) or re.fullmatch(r"[0-9a-f]{64}", contract[name]) is None:
+            invalid(f"invalid {name}")
+    scaffold = contract["scaffold"]
+    if not isinstance(scaffold, dict) or set(scaffold) != {"messages", "task_prefix", "serialization_order"}:
+        invalid("invalid scaffold structure")
+    if scaffold["serialization_order"] != contract["serialization_order"] or not isinstance(scaffold["task_prefix"], str) or not scaffold["task_prefix"].strip():
+        invalid("invalid scaffold ordering/task prefix")
+    messages = scaffold["messages"]
+    if not isinstance(messages, list) or len(messages) < 3 or len(messages) % 2 != 1:
+        invalid("invalid few-shot message structure")
+    for index, message in enumerate(messages):
+        role = "system" if index == 0 else ("user" if index % 2 else "assistant")
+        if (not isinstance(message, dict) or set(message) != {"role", "content"} or message["role"] != role
+                or not isinstance(message["content"], str) or not message["content"].strip()):
+            invalid(f"invalid scaffold message {index}")
+    if _sha(messages[0]["content"]) != contract["system_prompt_sha256"]:
+        invalid("system prompt checksum mismatch")
+    if _sha(_json(scaffold)) != contract["scaffold_sha256"]:
+        invalid("scaffold checksum mismatch")
+    if _sha(_json({key: value for key, value in contract.items() if key != "contract_sha256"})) != contract["contract_sha256"]:
+        invalid("contract checksum mismatch")
+    return deepcopy(dict(contract))
+
+
+def validate_shared_prompt_contract(contract: Mapping[str, Any]) -> dict[str, Any]:
+    """New preparation must match current production as well as its own hashes."""
+    saved = validate_shared_prompt_snapshot(contract)
+    expected = create_shared_prompt_contract(ordering=saved["serialization_order"])
+    if saved != expected:
+        changed = ", ".join(key for key in expected if saved.get(key) != expected[key])
+        raise ValueError(
+            f"Shared prompt contract is stale or changed versus current production ({changed}); "
+            f"saved={saved['contract_sha256']} current={expected['contract_sha256']}. "
+            "Use a fresh preparation/run directory for the new prompt; do not modify an active job's checkout."
+        )
     return expected
 
 
-def load_shared_prompt_contract(path: str | Path) -> dict[str, Any]:
-    return validate_shared_prompt_contract(json.loads(Path(path).read_text(encoding="utf-8")))
+def load_shared_prompt_contract(path: str | Path, *, require_current: bool = False) -> dict[str, Any]:
+    """Load saved inference evidence; fresh preparation can require current parity."""
+    validate = validate_shared_prompt_contract if require_current else validate_shared_prompt_snapshot
+    return validate(json.loads(Path(path).read_text(encoding="utf-8")))
 
 
 def source_prompt_scaffold(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -80,11 +132,11 @@ def source_prompt_scaffold(row: Mapping[str, Any]) -> dict[str, Any]:
 
 def build_inference_messages(response_text: str, contract: Mapping[str, Any]) -> list[dict[str, str]]:
     """Build the exact prepared generation prefix, excluding any target answer."""
-    validated = validate_shared_prompt_contract(contract)
+    validated = validate_shared_prompt_snapshot(contract)
     if not isinstance(response_text, str) or not response_text.strip():
         raise ValueError("Inference requires a nonempty source response")
     return [*deepcopy(validated["scaffold"]["messages"]),
-            {"role": "user", "content": TASK_PREFIX + response_text.strip()}]
+            {"role": "user", "content": validated["scaffold"]["task_prefix"] + response_text.strip()}]
 
 
 def normalize_row(row: Mapping[str, Any], contract: Mapping[str, Any]) -> dict[str, Any]:

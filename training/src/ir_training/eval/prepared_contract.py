@@ -41,15 +41,22 @@ def checked_preparation_manifest(directory: Path) -> dict[str, Any]:
     if file_sha256(directory / "prompt_scaffolds.json") != manifest.get("prompt_scaffolds_sha256"):
         raise ValueError("Saved prompt scaffold changed after preparation.")
     if manifest.get("shared_prompt") is not None:
-        from ir_training.data.shared_prompt import validate_shared_prompt_contract
+        from ir_training.data.shared_prompt import validate_shared_prompt_snapshot
 
-        contract = validate_shared_prompt_contract(manifest["shared_prompt"])
+        contract = validate_shared_prompt_snapshot(manifest["shared_prompt"])
         for name in ("shared_prompt", "inference_prompt", "source_prompt_scaffolds"):
             if file_sha256(directory / f"{name}.json") != manifest.get(f"{name}_sha256"):
                 raise ValueError(f"Saved {name} changed after preparation.")
         saved = json.loads((directory / "shared_prompt.json").read_text(encoding="utf-8"))
         if saved != contract:
             raise ValueError("Saved shared prompt differs from its preparation manifest.")
+        scaffolds = json.loads((directory / "prompt_scaffolds.json").read_text(encoding="utf-8"))
+        if scaffolds != [{"sha256": contract["scaffold_sha256"], **contract["scaffold"]}]:
+            raise ValueError("Saved prompt scaffold differs from the frozen shared prompt contract.")
+        inference = json.loads((directory / "inference_prompt.json").read_text(encoding="utf-8"))
+        expected = {"version": contract["version"], "contract_sha256": contract["contract_sha256"], **contract["scaffold"]}
+        if not isinstance(inference, dict) or any(inference.get(key) != value for key, value in expected.items()):
+            raise ValueError("Saved inference prompt differs from the frozen shared prompt contract.")
     return manifest
 
 
