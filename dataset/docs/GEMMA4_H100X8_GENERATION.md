@@ -20,14 +20,15 @@ The [official Gemma 4 vLLM recipe](https://docs.vllm.ai/projects/recipes/en/stab
 | Stage 1 | 8 queries per completion, up to 32 intents requested concurrently |
 | Stage 2 | 128-query wave, 1 response per query |
 | Stage 3 | 128-response wave, 1 candidate per response |
-| Output budget | 4,096 tokens per stage initially |
-| Stage 3 prompt estimate budget | 11,776 at default context/output settings; 512-token safety reserve; explicit configured caps respected |
+| Output budget | 8,192 tokens per stage for reasoning plus the final answer |
+| Stage 3 prompt estimate budget | 7,680 at default context/output settings; 512-token safety reserve; explicit configured caps respected |
 | Invalid-output recovery | 1 schema repair and 1 final regeneration; retain failures for review |
 | Transport retry controls | 2 outer attempts; 180-second connection-retry window checked between attempts; no extra Stage 3 result-error retry loop |
 | Fixed sleeps / rate throttle | Zero |
 | Whole-run aggregate refresh | Every 1,000 new rows and at stage completion; per-row scoring remains enabled |
 | Assets | Keep declared references; skip downloads and asset retry |
-| Reasoning / speculative decoding | Off for the first speed measurement; compare reasoning on for quality |
+| Reasoning | Enabled for every stage; the profile pins server and client thinking controls on |
+| Speculative decoding | Off initially; evaluate separately while keeping reasoning enabled |
 
 `max-num-seqs` is server capacity, not guaranteed active traffic. The initial client setting sends only 32 requests per server. Increase it only when measurements justify doing so.
 
@@ -48,6 +49,10 @@ Use the updated checkout and the existing environment containing a working Gemma
 ```bash
 cd /absolute/path/to/A2UI
 source /absolute/path/to/gemma4_vllm_env/bin/activate
+# Set these in both shells after activation: older environments export 8K context.
+export VLLM_MAX_MODEL_LEN=16384
+export A2UI_QUERY_MAX_TOKENS=8192 A2UI_RESPONSE_MAX_TOKENS=8192 A2UI_GENUI_MAX_TOKENS=8192
+export LOCAL_VLLM_MAX_OUTPUT_TOKENS=8192
 unset LOCAL_VLLM_ENDPOINTS LOCAL_VLLM_MODELS_URL VLLM_PORTS
 nvidia-smi topo -m
 python -m pip freeze > /tmp/gemma4_generation_environment.txt
@@ -100,7 +105,7 @@ Compare these layouts sequentially, stopping the previous server supervisor befo
 | `4` | 2 | More memory per replica; additional synchronization |
 | `8` | 1 | Existing all-GPU model layout |
 
-Apply the same `H100_TP_SIZE` to **both** `servers` and `generate` commands. Each layout uses a separate endpoint file. Use the same frozen input/source cohort when comparing Stage 3, rather than different randomly generated questions. Keep model revision, prompt, sampling, output budgets and quality gates fixed. Exclude startup/warm-up from steady-state timing and report end-to-end time separately.
+Apply the same `H100_TP_SIZE` to **both** `servers` and `generate` commands. Each layout uses a separate endpoint file. Use the same frozen input/source cohort when comparing Stage 3, rather than different randomly generated questions. Keep reasoning enabled and model revision, prompt, sampling, output budgets and quality gates fixed. Exclude startup/warm-up from steady-state timing and report end-to-end time separately.
 
 For the selected layout, sweep `LOCAL_VLLM_REQUESTS_PER_SERVER=16`, `32`, then `64`. Record:
 
@@ -114,15 +119,15 @@ If queues grow while throughput does not improve, reduce concurrency. If GPUs ar
 
 Prefix caching can reduce repeated prompt-prefill work; it does not speed up generation of new output tokens. Keep the shared instruction prefix stable. Compare production-like warm-cache results separately from cold-cache results. [Prefix cache documentation](https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/).
 
-The archived run's recorded outputs were below the old 8,192-token cap; that supports testing a smaller cap, not assuming all future answers fit. Retain a larger budget for long/complex tasks, and increase it when actual finish reasons show truncation. Prompt character estimates are not exact tokenizer counts.
+The profile retains an 8,192-token completion budget because reasoning and the final answer share this allowance. The archived run's recorded outputs were below that cap; this does not prove all future answers fit. Increase it for long/complex tasks when actual finish reasons show truncation. Prompt character estimates are not exact tokenizer counts.
 
-The profile derives its Stage 3 prompt estimate budget from `context - requested output - 512`. At the default settings this is 11,776. It explicitly enables `STAGE3_RESPECT_CONFIG_PROMPT_MAX=1`, so a smaller user-specified cap is honored. Increasing output to 8,192 with a 16,384 context reduces the prompt budget to 7,680; raise context too if the complete source does not fit. No source is silently clipped.
+The profile derives its Stage 3 prompt estimate budget from `context - requested output - 512`. At the default settings this is 7,680. It explicitly enables `STAGE3_RESPECT_CONFIG_PROMPT_MAX=1`, so a smaller user-specified cap is honored. If complete sources or repair prompts exceed the budget, raise `VLLM_MAX_MODEL_LEN` to 24,576 or 32,768 in both shells and reassess concurrency and memory use. Raise an explicitly configured prompt cap too if needed. No source is silently clipped. Context-error retries cannot reduce the requested completion allowance: the profile sets their minimum output budget to the client output cap. Resolve those failures by adjusting context or scheduling, while retaining the source and reasoning budget.
 
 Retry budgets are explicit to limit long serial recovery tails. The connection-retry window is checked between attempts, not a hard request deadline; each in-flight request still has its separate 1,800-second timeout. Inspect failed rows and coverage after the pilot. For complex cohorts, compare `STAGE3_FINAL_REGEN_ATTEMPTS=3` against the fast default of 1 using accepted examples/hour, rather than retrying indefinitely.
 
-Run a matched quality comparison with reasoning enabled by setting `GEMMA4_ENABLE_REASONING=1` in both shells. Allow a sufficient output budget for reasoning plus final output. Non-reasoning is a speed candidate, not proven quality-equivalent. Keep BF16 as the baseline. FP8 KV cache and speculative decoding are later, independent experiments that need compatibility and quality checks.
+Keep reasoning enabled throughout speed tuning. The H100 profile explicitly sets `GEMMA4_ENABLE_REASONING=1`, parser mode, server default thinking where supported, `LOCAL_VLLM_ENABLE_THINKING=1`, and `LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS=1`. These override inherited reasoning-off settings from older activation scripts. Keep BF16 as the baseline. FP8 KV cache and speculative decoding are later, independent experiments that need compatibility and quality checks.
 
-When template kwargs are enabled, the HTTP adapter now sends explicit `enable_thinking: false` for the fast profile and `true` for the reasoning comparison. This prevents a template's default reasoning setting from silently overriding the intended experiment.
+The H100 profile sends `chat_template_kwargs: {"enable_thinking": true}` on requests. Outside this profile, an unset thinking control leaves the model's template default intact; the HTTP adapter no longer interprets an absent setting as an instruction to disable thinking.
 
 ## Further pipeline changes if measurements show GPU idle time
 

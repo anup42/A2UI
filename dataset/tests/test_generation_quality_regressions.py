@@ -175,6 +175,8 @@ def test_reasoning_delimiters_keep_prose_and_hide_complete_thought_json():
     ("1", "1", {"enable_thinking": True}),
     ("0", "0", None),
     ("1", "0", None),
+    (None, "1", None),
+    ("", "1", None),
 ])
 def test_http_thinking_control_is_explicit_when_enabled(monkeypatch, thinking, send, expected):
     requests = []
@@ -187,7 +189,10 @@ def test_http_thinking_control_is_explicit_when_enabled(monkeypatch, thinking, s
         requests.append(json.loads(request.data))
         return Response()
     monkeypatch.setattr("llm.local_adapter.urlopen", capture)
-    monkeypatch.setenv("LOCAL_VLLM_ENABLE_THINKING", thinking)
+    if thinking is None:
+        monkeypatch.delenv("LOCAL_VLLM_ENABLE_THINKING", raising=False)
+    else:
+        monkeypatch.setenv("LOCAL_VLLM_ENABLE_THINKING", thinking)
     monkeypatch.setenv("LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS", send)
     monkeypatch.delenv("LOCAL_VLLM_ENDPOINTS", raising=False)
     result = LocalAdapter(ModelSpec("fake", "local", "gemma", endpoint="http://unused.test/v1"))._http_generate(
@@ -204,6 +209,12 @@ def test_environment_overrides_clamp(monkeypatch):
     assert cfg=={'call_sleep_seconds':0.0,'stage1_intent_batch_size':1,'max_repair_attempts':0,'max_attempts':1}
     monkeypatch.setenv('A2UI_CALL_SLEEP_SECONDS','nan')
     with pytest.raises(SystemExit): _apply_generation_env_overrides({})
+
+
+def test_reasoning_budget_is_not_shrunk_after_context_error(monkeypatch):
+    monkeypatch.setenv("LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS", "8192")
+    message = "maximum context length is 16384 tokens (9000 in the messages)"
+    assert LocalAdapter._context_retry_max_tokens(message, 8192) is None
 
 
 def test_phase_manifest_is_immutable_and_records_effective_config(tmp_path,monkeypatch):

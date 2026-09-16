@@ -31,9 +31,12 @@ export VLLM_LIMIT_MM_PER_PROMPT="${VLLM_LIMIT_MM_PER_PROMPT:-'{"image":0,"audio"
 export VLLM_CLEAN_STALE_PROCESSES="${VLLM_CLEAN_STALE_PROCESSES:-0}"
 export VLLM_MAX_RESTARTS="${VLLM_MAX_RESTARTS:-2}"
 export GEMMA4_SPECULATIVE_MODE="${GEMMA4_SPECULATIVE_MODE:-off}"
-export GEMMA4_ENABLE_REASONING="${GEMMA4_ENABLE_REASONING:-0}"
-export LOCAL_VLLM_ENABLE_THINKING="${LOCAL_VLLM_ENABLE_THINKING:-${GEMMA4_ENABLE_REASONING}}"
-export LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS="${LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS:-1}"
+# Preserve reasoning quality, including when an older activation script exports 0.
+export GEMMA4_ENABLE_REASONING=1
+export GEMMA4_REASONING_FLAGS_MODE=parser
+export GEMMA4_ENABLE_DEFAULT_THINKING=1
+export LOCAL_VLLM_ENABLE_THINKING=1
+export LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS=1
 export LOCAL_VLLM_REQUESTS_PER_SERVER="${LOCAL_VLLM_REQUESTS_PER_SERVER:-32}"
 if ! [[ "${LOCAL_VLLM_REQUESTS_PER_SERVER}" =~ ^[1-9][0-9]*$ ]]; then
   echo 'LOCAL_VLLM_REQUESTS_PER_SERVER must be positive.' >&2; exit 2
@@ -54,10 +57,12 @@ export A2UI_STAGE1_INTENT_CYCLE_SIZE="${A2UI_STAGE1_INTENT_CYCLE_SIZE:-0}"
 export STAGE2_BATCH_SIZE="${STAGE2_BATCH_SIZE:-${LOCAL_VLLM_BATCH_PARALLELISM}}"
 export STAGE2_RESPONSE_BATCH_SIZE="${STAGE2_RESPONSE_BATCH_SIZE:-1}"
 export STAGE3_BATCH_SIZE="${STAGE3_BATCH_SIZE:-${LOCAL_VLLM_BATCH_PARALLELISM}}"
-export A2UI_QUERY_MAX_TOKENS="${A2UI_QUERY_MAX_TOKENS:-4096}"
-export A2UI_RESPONSE_MAX_TOKENS="${A2UI_RESPONSE_MAX_TOKENS:-4096}"
-export A2UI_GENUI_MAX_TOKENS="${A2UI_GENUI_MAX_TOKENS:-4096}"
+export A2UI_QUERY_MAX_TOKENS="${A2UI_QUERY_MAX_TOKENS:-8192}"
+export A2UI_RESPONSE_MAX_TOKENS="${A2UI_RESPONSE_MAX_TOKENS:-8192}"
+export A2UI_GENUI_MAX_TOKENS="${A2UI_GENUI_MAX_TOKENS:-8192}"
 export LOCAL_VLLM_MAX_OUTPUT_TOKENS="${LOCAL_VLLM_MAX_OUTPUT_TOKENS:-8192}"
+# A context error must not trade away the reasoning/final-answer budget.
+export LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS="${LOCAL_VLLM_MAX_OUTPUT_TOKENS}"
 export STAGE3_CONTEXT_SAFETY_TOKENS="${STAGE3_CONTEXT_SAFETY_TOKENS:-512}"
 for token_setting in VLLM_MAX_MODEL_LEN A2UI_GENUI_MAX_TOKENS STAGE3_CONTEXT_SAFETY_TOKENS; do
   if ! [[ "${!token_setting}" =~ ^[0-9]+$ ]]; then
@@ -86,7 +91,8 @@ print_plan() {
   printf 'dtype=%s context=%s sequences_per_server=%s scheduled_tokens=%s\n' "${VLLM_DTYPE}" "${VLLM_MAX_MODEL_LEN}" "${VLLM_MAX_NUM_SEQS}" "${VLLM_MAX_NUM_BATCHED_TOKENS}"
   printf 'client_parallelism=%s requests_per_server=%s rate_limit=%s sleep=%s\n' "${LOCAL_VLLM_BATCH_PARALLELISM}" "${LOCAL_VLLM_REQUESTS_PER_SERVER}" "${RATE_LIMIT_QPS}" "${A2UI_CALL_SLEEP_SECONDS}"
   printf 'queries_per_prompt=%s stage2_query_wave=%s responses_per_query=%s stage3_wave=%s\n' "${STAGE1_BATCH_SIZE}" "${STAGE2_BATCH_SIZE}" "${STAGE2_RESPONSE_BATCH_SIZE}" "${STAGE3_BATCH_SIZE}"
-  printf 'thinking=%s speculative=%s assets_offline=%s keep_asset_references=%s\n' "${GEMMA4_ENABLE_REASONING}" "${GEMMA4_SPECULATIVE_MODE}" "${DATASET_OFFLINE_MODE}" "${STAGE2_KEEP_UNRESOLVED_MEDIA}"
+  printf 'thinking=%s server_reasoning=%s template_kwargs=%s speculative=%s assets_offline=%s keep_asset_references=%s\n' "${LOCAL_VLLM_ENABLE_THINKING}" "${GEMMA4_ENABLE_REASONING}" "${LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS}" "${GEMMA4_SPECULATIVE_MODE}" "${DATASET_OFFLINE_MODE}" "${STAGE2_KEEP_UNRESOLVED_MEDIA}"
+  printf 'reasoning_parser=%s server_default_thinking=%s context_retry_min_output=%s\n' "${GEMMA4_REASONING_FLAGS_MODE}" "${GEMMA4_ENABLE_DEFAULT_THINKING}" "${LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS}"
   printf 'output_budgets: query=%s response=%s ui=%s; target=%s cycle=%s\n' "${A2UI_QUERY_MAX_TOKENS}" "${A2UI_RESPONSE_MAX_TOKENS}" "${A2UI_GENUI_MAX_TOKENS}" "${MAX_GENERATION_TOTAL}" "${GENERATION_CYCLE_SIZE}"
   printf 'stage3_prompt_cap=%s safety_reserve=%s repairs=%s final_regenerations=%s transport_attempts=%s\n' "${A2UI_GENUI_PROMPT_MAX_TOKENS}" "${STAGE3_CONTEXT_SAFETY_TOKENS}" "${A2UI_MAX_REPAIR_ATTEMPTS}" "${STAGE3_FINAL_REGEN_ATTEMPTS}" "${A2UI_MAX_ATTEMPTS}"
   printf 'Server shell: GEMMA4_MODEL_PATH=/absolute/model/path bash %s servers\n' "${BASH_SOURCE[0]}"

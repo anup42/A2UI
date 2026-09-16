@@ -26,6 +26,12 @@ No real LLM requests, GPU server startup, data regeneration, training, Android r
 
 ## H100 task completion recheck
 
-The follow-up review verified launcher-to-client configuration propagation and corrected explicit reasoning-off requests. It also aligned the prompt cap with context/output budgets, rejected mismatched endpoint counts, and made retry budgets explicit. The focused generation, reasoning and launcher suite passed **42 tests** with mocked HTTP and file-only replica children. [Recheck JUnit XML](C:/Users/anupk/Downloads/gemma_quality_cpu_tests/h100_final_recheck.xml).
+The initial follow-up review verified launcher-to-client configuration propagation, aligned the prompt cap with context/output budgets, rejected mismatched endpoint counts, and made retry budgets explicit. That revision's focused generation, reasoning and launcher suite passed **42 tests** with mocked HTTP and file-only replica children. [Recheck JUnit XML](C:/Users/anupk/Downloads/gemma_quality_cpu_tests/h100_final_recheck.xml). Its reasoning-off speed candidate was subsequently removed at the user's direction; the correction below supersedes that setting.
 
 The pipeline review, launch configuration and run instructions are complete. A claim of measured optimal speed requires executing the comparison on the actual H100 server; none was executed on this PC.
+
+## Reasoning enabled correction
+
+The H100 profile now pins thinking on for server setup and client requests, including when older activation scripts export disabled settings. It restores 8,192 completion tokens per stage, derives a 7,680-token Stage 3 prompt budget at 16,384 context, and prevents context-error retries from shrinking the completion budget. The generic adapter leaves template defaults intact when no thinking setting is supplied.
+
+**46 focused tests passed in 10.75 seconds** (19 existing deprecation warnings): launcher plans and shell syntax, inherited disabled-setting protection, mocked HTTP reasoning controls, generation regressions, and reasoning capture. [JUnit XML](C:/Users/anupk/Downloads/gemma_quality_cpu_tests/h100_reasoning_on.xml). No model serving, real generation, training or GPU benchmark was run.

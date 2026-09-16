@@ -464,7 +464,8 @@ class LocalAdapter(BaseLLMAdapter):
             except Exception:
                 pass
 
-        thinking_enabled = self._is_truthy(os.environ.get("LOCAL_VLLM_ENABLE_THINKING"))
+        thinking_setting = (os.environ.get("LOCAL_VLLM_ENABLE_THINKING") or "").strip()
+        thinking_enabled = self._is_truthy(thinking_setting)
         send_template_kwargs_raw = os.environ.get("LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS")
         if send_template_kwargs_raw is None:
             # Qwen commonly relies on per-request chat-template kwargs. Gemma vLLM
@@ -523,8 +524,8 @@ class LocalAdapter(BaseLLMAdapter):
             body["seed"] = seed
         if json_mode:
             body["response_format"] = {"type": "json_object"}
-        if send_template_kwargs:
-            # An explicit false overrides templates whose default is thinking on.
+        if send_template_kwargs and thinking_setting:
+            # Leave the model's default intact unless reasoning is explicitly set.
             body["chat_template_kwargs"] = {"enable_thinking": thinking_enabled}
 
         timeout_s = 60.0

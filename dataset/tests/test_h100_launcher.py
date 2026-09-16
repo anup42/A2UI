@@ -31,7 +31,20 @@ def test_plan_is_cpu_only_and_selects_replica_layout(tp, replicas):
     assert f"client_parallelism={replicas * 32}" in result.stdout
     assert "assets_offline=1 keep_asset_references=1" in result.stdout
     assert "queries_per_prompt=8" in result.stdout
-    assert "stage3_prompt_cap=11776 safety_reserve=512 repairs=1 final_regenerations=1 transport_attempts=2" in result.stdout
+    assert "thinking=1 server_reasoning=1 template_kwargs=1" in result.stdout
+    assert "reasoning_parser=parser server_default_thinking=1 context_retry_min_output=8192" in result.stdout
+    assert "output_budgets: query=8192 response=8192 ui=8192" in result.stdout
+    assert "stage3_prompt_cap=7680 safety_reserve=512 repairs=1 final_regenerations=1 transport_attempts=2" in result.stdout
+
+
+def test_plan_preserves_reasoning_despite_inherited_disabled_settings():
+    result = run("run_gemma4_h100x8.sh", ["plan"], GEMMA4_ENABLE_REASONING="0",
+                 LOCAL_VLLM_ENABLE_THINKING="0", LOCAL_VLLM_SEND_CHAT_TEMPLATE_KWARGS="0",
+                 GEMMA4_REASONING_FLAGS_MODE="off", GEMMA4_ENABLE_DEFAULT_THINKING="0",
+                 LOCAL_VLLM_MIN_RETRY_OUTPUT_TOKENS="256")
+    assert result.returncode == 0, result.stderr
+    assert "thinking=1 server_reasoning=1 template_kwargs=1" in result.stdout
+    assert "reasoning_parser=parser server_default_thinking=1 context_retry_min_output=8192" in result.stdout
 
 
 def test_plan_rejects_stale_endpoint_count():
@@ -41,9 +54,9 @@ def test_plan_rejects_stale_endpoint_count():
 
 
 def test_plan_recomputes_prompt_budget_for_larger_completion():
-    result = run("run_gemma4_h100x8.sh", ["plan"], A2UI_GENUI_MAX_TOKENS="8192")
+    result = run("run_gemma4_h100x8.sh", ["plan"], A2UI_GENUI_MAX_TOKENS="12288")
     assert result.returncode == 0, result.stderr
-    assert "stage3_prompt_cap=7680" in result.stdout
+    assert "stage3_prompt_cap=3584" in result.stdout
 
 
 def test_plan_rejects_output_that_exhausts_context():
