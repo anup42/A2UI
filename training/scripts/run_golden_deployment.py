@@ -19,7 +19,8 @@ def main() -> int:
     parser = build_parser(for_deployment=True)
     parser.description = __doc__
     parser.add_argument("--exporter-python", type=Path, required=True, help="Absolute Python in isolated compatible LiteRT Torch export environment")
-    parser.add_argument("--runtime-python", type=Path, required=True, help="Absolute Python with pinned litert-lm-api GPU runtime (see runbook)")
+    parser.add_argument("--runtime-python", type=Path, help="Absolute Python with pinned litert-lm-api GPU runtime; required unless --skip-litert-evaluation")
+    parser.add_argument("--skip-litert-evaluation", action="store_true", help="Train, test checkpoints/merged HF on Golden32/Golden35/Bixby50, and export all four variants; skip Vulkan/native-runtime preflight and LiteRT inference. Default tests every variant.")
     parser.add_argument("--tune", action="store_true", help="Sequential equal-step Golden32 trials, lock settings, then fresh full training; no screening Golden35/Bixby50")
     parser.add_argument("--trial-steps", type=int, default=1000)
     parser.add_argument("--trials-file", type=Path)
@@ -35,7 +36,7 @@ def main() -> int:
     execute = values.pop("execute")
     keys = ("exporter_python", "runtime_python", "tune", "trial_steps", "trials_file", "include_augmentation",
             "allow_experimental_formats", "cache_length", "stage_timeout_seconds", "generation_timeout_seconds",
-            "case_timeout_seconds", "load_timeout_seconds", "resume_run")
+            "case_timeout_seconds", "load_timeout_seconds", "resume_run", "skip_litert_evaluation")
     deployment = {key: values.pop(key) for key in keys}
     try:
         result = run_deployment(GoldenDeploymentOptions(base=GoldenTrainingOptions(**values), **deployment), execute=execute)

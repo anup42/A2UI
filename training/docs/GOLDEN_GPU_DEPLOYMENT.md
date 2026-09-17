@@ -44,6 +44,32 @@ runtime; reference-match metrics are not applicable. No placeholder or synthetic
 IR target is substituted. The current cohorts are Golden32, **Golden35** and
 Bixby50, not the retired Golden50. See [Bixby50 details](bixby50_evaluation.md).
 
+### Export without native LiteRT evaluation
+
+Append **`--skip-litert-evaluation`** when Vulkan/native LiteRT inference is
+unavailable. This changes only the deployment-testing mode:
+
+```text
+GPU + exporter prerequisite checks (no native runtime/Vulkan preflight)
+  -> optional sequential Golden32 tuning -> fresh full training
+  -> best + final + merged HF tests on Golden32, Golden35 and Bixby50
+  -> W32 + W16 + W8 + W4 export, with the same physical-weight/artifact audits
+  -> final report: 9 measured HF evaluations; 12 native evaluations skipped
+```
+
+Training and HF tests still use all selected GPUs. All four conversion formats,
+CPU exporter checks, tokenizer/template contracts and precision audits remain
+required. Only native LiteRT generation/scoring and its runtime/Vulkan
+requirements are omitted; `--runtime-python` is optional in this mode. The
+exporter environment is still required. This does **not** fall back to CPU
+inference or claim native compatibility: the exported variants remain untested
+on the target runtime. Their scorecard/table rows are explicitly skipped, with
+no quality or latency scores invented and no corresponding TensorBoard scores.
+
+Without this flag, the existing complete **21-evaluation** GPU workflow remains
+unchanged, including the required `--runtime-python` and native preflight.
+The flag also works with `--tune` and the existing augmentation options.
+
 ## GPU and CPU behavior
 
 | Operation | Resource behavior |
@@ -74,7 +100,8 @@ wrong-device or missing evidence fails. This proves selection/allocation, not
 every operator's placement or optimal utilization. See the
 [native runner contract](LITERTLM_GPU_RUNNER.md).
 
-CPU tests cannot guarantee failure-free H100 execution. The host needs compatible
+CPU tests cannot guarantee failure-free H100 execution. The default full-testing
+host needs compatible
 drivers/delegate libraries, model kernels, RAM and disk. Prerequisite probes run
 before training, but cannot certify not-yet-exported model kernels. Unsupported
 formats fail explicitly; they are never replaced or silently skipped.
@@ -83,6 +110,8 @@ formats fail explicitly; they are never replaced or silently skipped.
 
 Use the working CUDA training environment. Create **separate** export/runtime
 environments with [the pinned setup commands](DEPLOYMENT_EXPORT_ENVIRONMENT.md).
+For `--skip-litert-evaluation`, create only the training and exporter environments;
+the native runtime environment and Vulkan setup are not prerequisites.
 Do not replace training dependencies with converter dependencies. Provide local
 dense model/tokenizer files; weights are never downloaded automatically.
 
@@ -122,6 +151,25 @@ resolve Python symlinks with `readlink -f`. Use `--profile 270m`, its dense mode
 and a new output directory for Gemma 3 270M. This dense workflow does not accept
 `--qat`; retained-scale/QAT pipelines remain separate. Append `--steps 20` for a
 bounded training smoke followed by all export/tests; that is not a quality run.
+
+To train, test all three cohorts with HF checkpoints and create all four variants
+without running LiteRT/Vulkan, use this command instead (runtime Python omitted):
+
+```bash
+python -u training/scripts/run_golden_deployment.py \
+  --profile e2b \
+  --model-dir /ABSOLUTE/PATH/TO/DENSE_E2B \
+  --input-dir /ABSOLUTE/PATH/TO/full_data_archive_recovered_v9 \
+  --output-dir /group-volume/k.anup/working_dir/e2b_export_no_native_eval_001 \
+  --exporter-python /group-volume/k.anup/envs/a2ui-export-094/bin/python \
+  --devices auto --epochs 1 --tensorboard-root /tensorboard \
+  --allow-experimental-formats --skip-litert-evaluation --execute
+```
+
+Use the same flag with `--profile 270m` and its local dense seed for Gemma 3 270M.
+This remains the existing LiteRT-LM export format (`model.litertlm`, packaging
+the LiteRT/TFLite model); it does not switch the artifact type or quantization
+recipe. Review the export manifests and precision audits before device use.
 
 ## Tuning and augmentation
 
@@ -190,7 +238,11 @@ row counts, v5.4 reward, strict-valid percentages, and a separate Golden32
 31-unique-source selection score. On failure it prints the verified results
 already available, marks failed/missing slots explicitly, and does not invent
 zero scores. The same tables are saved in `deployment_results.md` and the tuning
-folder's `comparison.md`. Without `--tune`, no tuning trials are run.
+folder's `comparison.md`. Without `--tune`, no tuning trials are run. With
+`--skip-litert-evaluation`, the same comparison inventory shows nine measured
+HF results and twelve explicitly skipped native results; successful export is
+not a measured LiteRT score. Native prediction/log directories are not produced
+for intentionally skipped evaluations.
 
 ```text
 <output>/deployment_manifest.json       statuses, timings, bindings, settings
@@ -240,6 +292,9 @@ The enhanced `run_litertlm_gpu.py --preflight` checks an actual hardware NVIDIA
 Vulkan compute device in an isolated 30-second probe. CUDA and `nvidia-smi`
 success alone are insufficient. No package install or container restart is
 performed automatically, and the probe does not certify future model kernels.
+Alternatively, start a **new output directory** with `--skip-litert-evaluation`
+to complete training/HF tests and audited exports while deferring native tests.
+Do not add it to a failed full-testing run and attempt to resume that run.
 
 After that probe passes, **reuse your exact original full deployment command**
 with the same `--output-dir`, adding:
@@ -261,6 +316,12 @@ An already-complete run is verified and its table printed without rerunning it.
 
 Do not use `--resume-run` to change model, data, token budgets, augmentation,
 training settings or tuned trial definitions. Only logging/deadlines may change.
+The native-evaluation mode is also bound to the run: a resume must retain the
+original `--skip-litert-evaluation` choice. It cannot convert a full-testing run
+into export-only mode, or promote an export-only run into native-tested status.
+Changing modes requires a fresh output directory. In export-only mode, compatible
+post-training recovery rechecks exporter/GPU evidence but does not run a Vulkan
+or native-runtime preflight.
 If training/tuning itself was incomplete, this option refuses to start it; the
 original training launcher retains its separate verified `--continue-run`
 behavior. After an intentional code/prompt/schema change, a contract mismatch

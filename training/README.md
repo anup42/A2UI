@@ -8,6 +8,16 @@ its pinned API has no device selector. Conversion is CPU-based. W16/W4 require
 explicit experimental acknowledgment. Results include a 21-evaluation scorecard
 and TensorBoard HParams; real host kernel compatibility is still required.
 
+To keep training and best/final/merged HF testing on all three cohorts but
+**export all four variants without native LiteRT/Vulkan testing**, append
+`--skip-litert-evaluation`. In this mode `--runtime-python` is optional,
+Vulkan/native-runtime preflight is omitted, and all CPU export/precision audits
+remain required. The report contains nine measured HF evaluations and twelve
+explicitly skipped native slots; no quantized-model score is fabricated. The
+default without this flag still runs all 21 evaluations. This works with tuning
+and augmentation; use a fresh output directory when changing evaluation modes.
+See the [command and recovery rules](docs/GOLDEN_GPU_DEPLOYMENT.md#export-without-native-litert-evaluation).
+
 For **E2B / 270M training and automatic final testing on Golden32, Golden35 and
 Bixby50**, start with the [end-to-end quickstart](docs/GOLDEN_E2E_QUICKSTART.md).
 Bixby50 is a bundled source-response holdout, not reference IR: see the
@@ -74,7 +84,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 
 | Pipeline | Entry point | Current status |
 |---|---|---|
-| Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and Golden32/Golden35/Bixby50 | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; isolated CPU export, one verified native GPU engine, precision audits, 21-result scorecard and TensorBoard HParams |
+| Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and Golden32/Golden35/Bixby50 | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; CPU export and precision audits; default native GPU testing/21-result scorecard; `--skip-litert-evaluation` keeps nine HF results and all exports with native slots explicitly skipped; TensorBoard HParams |
 | Dense E2B LoRA / 270M full-model training with shared-prompt Golden32/Golden35/Bixby50 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on all three sets, logs TensorBoard and scorecard; no LiteRT export |
 | Sequential E2B / 270M hyperparameter and resampling comparisons | `training/scripts/run_golden_experiments.py` | Opt-in equal-step trials, fresh initialization, baseline included, TensorBoard HParams/comparison records, Golden32 selection and locked-winner Golden35/Bixby50 tests; screening, not a measured optimum |
 | Gemma 4 E2B retained-scale QAT, official-format package, and W32/W16/W8/mixed-W4-W8 comparisons | `training/scripts/run_gemma4_e2b_a2ui_express_multiformat.py` | Recommended end-to-end Golden-32 handoff; W16 is experimental; dry-run first, unique run ID, periodic/final TensorBoard scores, hash-bound scorecard |

@@ -14,6 +14,7 @@ from typing import Any
 from ir_training.common.progress import log
 
 DEPLOYMENT_LABELS = ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4")
+LITERT_LABELS = ("w32", "w16", "w8", "w4")
 REWARD_METRIC = "generation_reward_v5_4_avg"
 UNIQUE_REWARD_METRIC = "unique_source_generation_reward_v5_4_avg"
 STRICT_METRIC = "schema_valid_strict_rate"
@@ -160,11 +161,19 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
     results = _mapping(state.get("results"))
     active = state.get("active_stage")
     failed = state.get("status") == "failed"
+    skip_litert_evaluation = _mapping(state.get("plan")).get("skip_litert_evaluation") is True
     cohorts = _cohorts(state, deployment=True)
     rows = []
     for label in DEPLOYMENT_LABELS:
         for cohort, count in cohorts:
             key = f"{label}_{cohort}"
+            if skip_litert_evaluation and label in LITERT_LABELS:
+                # An intentional omission is neither missing evidence nor a
+                # successful evaluation. Never surface stale runtime scores
+                # under a plan that explicitly disables native inference.
+                rows.append([label, COHORT_LABELS.get(cohort, cohort), "skipped by request",
+                             "n/a", "n/a", "n/a", "n/a"])
+                continue
             result = _mapping(results.get(key))
             if result:
                 status = _result_status(result, count)
@@ -187,6 +196,22 @@ def render_deployment_results(state: Mapping[str, Any], *, tuning_state: Mapping
              _table(("Model", "Cohort", "Status", "Rows", "Reward v5.4", "Strict-valid %", "G32 unique reward"), rows), "",
              ("Evaluated means inference/scoring completed, not a quality-threshold pass. Unknown means missing/nonfinite evidence, not zero. "
              "Not reported means no verified result is available; consult the manifest/logs for attempted stages.")]
+    if skip_litert_evaluation:
+        lines[4:4] = ["Mode: checkpoint testing plus export-only LiteRT variants (--skip-litert-evaluation). "
+                      "Native runtime not validated: Vulkan preflight and LiteRT-LM inference/scoring were skipped by request. "
+                      "Artifact validation does not establish runtime compatibility or model quality.", ""]
+        exports = _mapping(state.get("exports"))
+        export_rows = []
+        for label in LITERT_LABELS:
+            if _mapping(exports.get(label)):
+                status = "exported; artifact validated"
+            elif active == f"export_{label}":
+                status = "failed" if failed else "running"
+            else:
+                status = "not reported"
+            export_rows.append([label.upper(), status])
+        lines.extend(["", "LiteRT export artifacts (separate from runtime evaluation):", "",
+                      _table(("Variant", "Export status"), export_rows)])
     if any(name == "bixby50" for name, _ in cohorts):
         lines.extend(["", "Bixby50 is a held-out test cohort, never used for tuning/checkpoint selection. "
                       "Bixby50 uses source-response scoring; no reference IR."])

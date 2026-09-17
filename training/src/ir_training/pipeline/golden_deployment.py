@@ -1,7 +1,8 @@
 """Golden/Bixby training, optional screening, and recoverable GPU deployment tests.
 
-No automatic retries or CPU-inference fallback. Completion requires all twelve
-LiteRT evaluations, not just successful subprocess exits or export filenames.
+No automatic retries or CPU-inference fallback. By default completion requires
+all twelve LiteRT evaluations. Explicit export-only mode retains checkpoint
+tests and export validation, but makes no native-runtime success claim.
 """
 from __future__ import annotations
 
@@ -55,7 +56,7 @@ from ir_training.pipeline.result_tables import (
 class GoldenDeploymentOptions:
     base: GoldenTrainingOptions
     exporter_python: Path
-    runtime_python: Path
+    runtime_python: Path | None = None
     tune: bool = False
     trial_steps: int = 1000
     trials_file: Path | None = None
@@ -67,6 +68,7 @@ class GoldenDeploymentOptions:
     case_timeout_seconds: float = 600
     load_timeout_seconds: float = 1800
     resume_run: bool = False
+    skip_litert_evaluation: bool = False
 
 
 def _base(options: GoldenDeploymentOptions) -> GoldenTrainingOptions:
@@ -121,9 +123,15 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
                   options.case_timeout_seconds, options.load_timeout_seconds):
         if not math.isfinite(value) or value <= 0:
             raise ValueError("Timeouts must be positive and finite")
-    runtime = options.runtime_python.expanduser()
-    if not runtime.is_absolute() or not runtime.is_file():
-        raise ValueError("--runtime-python must be an existing absolute Python executable")
+    if type(options.skip_litert_evaluation) is not bool:
+        raise ValueError("skip_litert_evaluation must be a boolean")
+    runtime = None
+    if not options.skip_litert_evaluation:
+        if options.runtime_python is None:
+            raise ValueError("--runtime-python is required unless --skip-litert-evaluation is set")
+        runtime = options.runtime_python.expanduser()
+        if not runtime.is_absolute() or not runtime.is_file():
+            raise ValueError("--runtime-python must be an existing absolute Python executable")
     run_id = (re.sub(r"[^A-Za-z0-9_-]", "_", output.name) or "deployment") + "_" + hashlib.sha256(str(output).encode()).hexdigest()[:8]
     training_output = output / (run_id + "_training")
     training = build_plan(replace(base, output_dir=training_output))
@@ -140,19 +148,25 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         training_python=sys.executable, exporter_python=options.exporter_python,
         cache_length=options.cache_length, max_input_tokens=base.max_input_tokens,
         max_new_tokens=base.max_new_tokens)
-    return {
+    if options.skip_litert_evaluation:
+        export["requires_merged_hf_and_real_litertlm_evaluation"] = False
+        export["native_runtime_validation_deferred"] = True
+    plan = {
         "schema_version": 2, "workflow": "golden_bixby_gpu_deployment_v2", "output_dir": str(output),
         "run_id": run_id, "training": training, "tuning": tuning, "export": export,
         # Do not resolve a venv Python symlink: its invocation path selects the venv.
-        "runtime_python": str(runtime.absolute()),
-        "runtime_probe_command": [str(runtime.absolute()), "-u", str(repo_root() / "training/scripts/run_litertlm_gpu.py"),
-                                  "--preflight", "--report", str(output / "runtime_preflight.json")],
+        "runtime_python": str(runtime.absolute()) if runtime is not None else None,
+        "runtime_probe_command": ([str(runtime.absolute()), "-u", str(repo_root() / "training/scripts/run_litertlm_gpu.py"),
+                                   "--preflight", "--report", str(output / "runtime_preflight.json")]
+                                  if runtime is not None else None),
         "allow_experimental_formats": options.allow_experimental_formats,
         "tensorboard_dir": str(Path(base.tensorboard_root).expanduser().resolve() / "deployments" / run_id),
         "timeouts": {name: getattr(options, name) for name in ("stage_timeout_seconds", "generation_timeout_seconds", "case_timeout_seconds", "load_timeout_seconds")},
-        "stages": ["host_preflight", "exporter_preflight", "runtime_preflight", *(["tuning", "lock_hyperparameters"] if tuning else []),
+        "stages": ["host_preflight", "exporter_preflight", *([] if options.skip_litert_evaluation else ["runtime_preflight"]),
+                   *(["tuning", "lock_hyperparameters"] if tuning else []),
                    "full_training_and_checkpoint_evaluation", "merge", *[f"merged_{cohort}" for cohort in training["goldens"]],
-                   *[stage for variant in export["variants"] for stage in (f"export_{variant}", *[f"{variant}_{cohort}" for cohort in training["goldens"]])], "scorecard"],
+                   *[stage for variant in export["variants"] for stage in (f"export_{variant}",
+                     *([] if options.skip_litert_evaluation else [f"{variant}_{cohort}" for cohort in training["goldens"]]))], "scorecard"],
         "gpu_policy": {"training": "all selected CUDA GPUs; conservative H100 profile with backward preflight",
                        "hf_final_evaluation": "independent case shards over all selected GPUs",
                        "litert_evaluation": "one verified NVIDIA GPU; pinned native API has no device selector",
@@ -162,6 +176,14 @@ def build_deployment_plan(options: GoldenDeploymentOptions) -> dict[str, Any]:
         "runtime_preflight_scope": "Dependency/device screening only; actual model kernels are verified after export, not guaranteed before training.",
         "official_retained_scale_export": False, "mtp_exported": False,
     }
+    # Do not add default-valued keys to existing full-evaluation plans: their
+    # saved semantic identity must remain compatible with --resume-run.
+    if options.skip_litert_evaluation:
+        plan.update(skip_litert_evaluation=True, completion_scope="checkpoint_tests_and_exports")
+        plan["gpu_policy"]["litert_evaluation"] = "skipped by request; no native inference or CPU fallback"
+        plan["runtime_preflight_scope"] = "Skipped by request; Vulkan/LiteRT runtime is not required or validated."
+        plan["experimental"] = "W16 and W4 require explicit acknowledgement and validated export; native runtime compatibility remains untested."
+    return plan
 
 
 def _json(path: Path) -> dict:
@@ -184,6 +206,11 @@ def _bindings(paths: list[Path]) -> dict[str, str]:
 def _cohorts(training_plan: dict[str, Any]) -> tuple[tuple[str, int], ...]:
     """Use the bound training cohort inventory for every deployment evaluation."""
     return tuple((name, item["rows"]) for name, item in training_plan["goldens"].items())
+
+
+def _evaluation_labels(plan: dict[str, Any]) -> tuple[str, ...]:
+    labels = ("checkpoint_best", "checkpoint_final", "merged")
+    return labels if plan.get("skip_litert_evaluation", False) else (*labels, *plan["export"]["variants"])
 
 
 def _checkpoint_step(checkpoint: Path) -> int:
@@ -241,7 +268,7 @@ def _restore_results(state: dict, plan: dict) -> None:
     nested = _json(training / "pipeline_manifest.json")
     stages = state["completed"]
     locations = state.get("artifact_directories") or {}
-    for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4"):
+    for label in _evaluation_labels(plan):
         for cohort, count in _cohorts(plan["training"]):
             key = f"{label}_{cohort}"
             if label.startswith("checkpoint_"):
@@ -326,6 +353,8 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
     environment = {**os.environ, "PYTHONUNBUFFERED": "1", "TOKENIZERS_PARALLELISM": "false",
                    "A2UI_TENSORBOARD_ROOT": options.base.tensorboard_root,
                    "A2UI_TENSORBOARD_DETAIL": options.base.tensorboard_detail}
+    if options.skip_litert_evaluation:
+        environment.pop("A2UI_LITERT_ALLOWED_GPU_UUIDS", None)
     writer = None
 
     def log_path(name):
@@ -380,6 +409,12 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
     try:
         factory = writer_factory or _summary_writer_factory()
         writer = factory(log_dir=plan["tensorboard_dir"])
+        if options.skip_litert_evaluation:
+            notice = ("--skip-litert-evaluation: training, checkpoint/merged HF tests on all three cohorts, "
+                      "and W32/W16/W8/W4 exports remain required. Vulkan/native preflight and "
+                      "LiteRT inference are skipped; exported variants are NOT runtime validated.")
+            log(notice)
+            writer.add_text("deployment/evaluation_scope", notice, 0)
         if resolve_tensorboard_detail(options.base.tensorboard_detail) == "full":
             writer.add_text("deployment/plan", json.dumps(plan, indent=2), 0)
         writer.flush()  # Fail on an unwritable /tensorboard before training.
@@ -395,8 +430,9 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                                         dataloader_workers=options.base.dataloader_workers)
             path = (recovery_dir or output) / "gpu_preflight.json"
             _write(path, profile)
-            allowed = _litert_allowed_gpu_uuids(profile)
-            environment["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed)
+            if not options.skip_litert_evaluation:
+                allowed = _litert_allowed_gpu_uuids(profile)
+                environment["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed)
             log(f"Training/HF evaluation: {profile['world_size']} GPUs; microbatch={profile['microbatch']}; effective batch={profile['effective_batch_size']}")
             return [path]
 
@@ -450,7 +486,8 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
             if result.get("status") != "prerequisites_passed" or result.get("vulkan_compute_device_verified") is not True:
                 raise ValueError("LiteRT runtime prerequisite checks did not pass")
             return [path]
-        stage("runtime_preflight", probe_runtime)
+        if not options.skip_litert_evaluation:
+            stage("runtime_preflight", probe_runtime)
         base = _base(options)
         training_options = replace(base, output_dir=Path(plan["training"]["options"]["output_dir"]))
         if options.tune:
@@ -513,8 +550,9 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
         eval_env = {**environment, "CUDA_VISIBLE_DEVICES": gpu_profile["cuda_visible_devices"], "A2UI_SKIP_CUDA_DEVICE_NORMALIZE": "1"}
         for name in ("A2UI_CUDA_VISIBLE_DEVICES", "A2UI_EXCLUDE_CUDA_DEVICES"):
             eval_env.pop(name, None)
-        allowed_uuids = _litert_allowed_gpu_uuids(gpu_profile)
-        eval_env["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed_uuids)
+        if not options.skip_litert_evaluation:
+            allowed_uuids = _litert_allowed_gpu_uuids(gpu_profile)
+            eval_env["A2UI_LITERT_ALLOWED_GPU_UUIDS"] = json.dumps(allowed_uuids)
 
         def merge():
             command(export["prepare_command"], log_path("merge"), export_env)
@@ -541,6 +579,9 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                 state.setdefault("exports", {})[variant] = result
                 return [Path(path) for path in result["files"]]
             stage(f"export_{variant}", convert)
+            if options.skip_litert_evaluation:
+                log(f"{variant}: export validated; native Golden32/Golden35/Bixby50 evaluation skipped by request")
+                continue
             for cohort, count in _cohorts(training_plan):
                 def evaluate_variant(variant=variant, specification=specification, cohort=cohort, count=count):
                     destination = evaluation_dir(f"{variant}_{cohort}")
@@ -567,9 +608,11 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                     for name, digest in item["files"].items():
                         if sha256(Path(name)) != digest:
                             raise ValueError(f"Completed evidence changed: {name}")
-            expected = {f"{label}_{cohort}" for label in ("checkpoint_best", "checkpoint_final", "merged", "w32", "w16", "w8", "w4") for cohort, _ in _cohorts(training_plan)}
+            expected = {f"{label}_{cohort}" for label in _evaluation_labels(plan) for cohort, _ in _cohorts(training_plan)}
             if set(state["results"]) != expected:
                 raise ValueError("Deployment scorecard is missing required evaluations")
+            if set(state.get("exports", {})) != set(export["variants"]):
+                raise ValueError("Deployment scorecard is missing required validated exports")
             value = {"schema_version": 2, "status": "complete", "results": state["results"], "profile": base.profile,
                      "source_checkpoint": str(checkpoint), "checkpoint_step": step, "variants": state["exports"],
                      "gpu_policy": plan["gpu_policy"], "golden35_used_for_selection": False, "golden32_unique_sources": 31,
@@ -581,11 +624,18 @@ def _run_deployment_locked(options, plan, *, command_runner, pipeline_runner,
                      "tensorboard_dir": plan["tensorboard_dir"],
                      "evidence": {name: item["files"] for name, item in state["completed"].items()},
                      "official_retained_scale_export": False, "mtp_exported": False}
+            if options.skip_litert_evaluation:
+                value.update(skip_litert_evaluation=True, completion_scope="checkpoint_tests_and_exports",
+                             litert_evaluation_status="skipped_by_request", native_runtime_validated=False,
+                             skipped_evaluations=[f"{variant}_{cohort}" for variant in export["variants"]
+                                                  for cohort, _ in _cohorts(training_plan)])
             parameters = {"profile": base.profile, "max_new_tokens": base.max_new_tokens,
                           "max_seq_length": base.max_seq_length, "seed": base.seed,
                           "epochs": base.epochs, "tuning": options.tune, "selection": "golden32_only",
                           "augmentation": training_options.augmentation,
                           "evaluation_gpus": gpu_profile["world_size"]}
+            if options.skip_litert_evaluation:
+                parameters["litert_evaluation_enabled"] = False
             config = load_yaml(training_output / "fit/training_config.yaml")
             trained_profile = config["runtime"]["gpu_profile"]
             parameters.update(training_gpus=trained_profile["world_size"], effective_batch_size=trained_profile["effective_batch_size"])

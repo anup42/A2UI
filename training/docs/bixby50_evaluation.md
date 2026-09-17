@@ -43,7 +43,7 @@ Existing launch commands need **no new flag** to enable Bixby50:
 |---|---|
 | `run_golden_training.py` | Tests selected-best and actual final checkpoints, after training |
 | `run_golden_experiments.py` | No per-trial Bixby inference; tests the already-locked winning best checkpoint once |
-| `run_golden_deployment.py` | Tests best/final checkpoints, merged HF, and W32/W16/W8/W4 LiteRT-LM artifacts |
+| `run_golden_deployment.py` | By default tests best/final checkpoints, merged HF, and W32/W16/W8/W4 LiteRT-LM artifacts; `--skip-litert-evaluation` retains HF tests and all exports but skips native variant tests |
 
 Use the existing commands in the [HF quickstart](GOLDEN_E2E_QUICKSTART.md) or
 [full GPU deployment guide](GOLDEN_GPU_DEPLOYMENT.md), with local model/data
@@ -53,15 +53,25 @@ are supported. As before, omitting `--execute` prints a plan and does not train.
 HF-only training permits `--no-evaluate-bixby50` to defer its final inference,
 but still excludes its sources from training/validation. Full deployment
 requires all three cohorts and has no Bixby opt-out.
+The deployment-only `--skip-litert-evaluation` flag skips native LiteRT testing
+for **all three cohorts**, not Bixby50 checkpoint testing. It still tests Bixby50
+on best/final checkpoints and the merged HF model, and creates/audits every
+W32/W16/W8/W4 artifact. It omits Vulkan and native-runtime prerequisites, so
+`--runtime-python` can be omitted; `--exporter-python` remains required. See the
+[export-without-native-evaluation command](GOLDEN_GPU_DEPLOYMENT.md#export-without-native-litert-evaluation).
 
 Tuning selects only by Golden32's unique-source v5.4 reward. Golden35 and
 Bixby50 cannot change the locked winner. In full deployment with `--tune`,
 both holdouts are deferred until a **fresh full-training run** using the locked
 settings; the screening models are not substituted for the final model.
 
-The full deployment scorecard therefore requires **21 verified evaluations**:
+The default full deployment scorecard therefore requires **21 verified evaluations**:
 seven model/artifact roles times three cohorts. Any incomplete Bixby50 pass
 blocks successful completion, just as an incomplete Golden32/Golden35 pass does.
+With `--skip-litert-evaluation`, completion instead requires **nine HF
+evaluations** and all four audited exports. The twelve native evaluation slots
+are explicitly marked skipped, not measured or passed. No quantized-model
+quality, latency or runtime compatibility is claimed without native inference.
 
 ## GPU execution and progress
 
@@ -71,6 +81,8 @@ blocks successful completion, just as an incomplete Golden32/Golden35 pass does.
 - Native LiteRT behavior is unchanged: one warm verified GPU engine per cohort,
   with allowed NVIDIA UUID, tokenizer and native-GPU execution checks. It does
   not claim multi-GPU native inference scaling or fall back to a CPU engine.
+- `--skip-litert-evaluation` bypasses that native runner/preflight entirely;
+  selected-GPU training/HF tests and isolated CPU conversion remain unchanged.
 - Conversion remains CPU work in its isolated exporter environment.
 - Default generation cap remains 2,048 new tokens. Heartbeats, deadlines,
   per-case output and failure preservation remain enabled; more test cohorts
@@ -111,6 +123,9 @@ Each completed evaluation retains `predictions.jsonl`, `scored_predictions.jsonl
 retain runner logs/outputs and verified runtime evidence. The final console and
 Markdown tables show Bixby50 beside the other cohorts, with missing/failed
 results labelled rather than converted into zero scores.
+In export-without-native-evaluation mode, `evaluations/w*_bixby50/` and their
+runner logs are not created. The final table records their intentional skip;
+only the actual HF evaluations contribute measured Bixby50 scores to TensorBoard.
 
 MLP continues to read **`/tensorboard`**. Exact run directories are recorded in
 manifests. Important examples:
@@ -143,6 +158,9 @@ that fails **after** full training and checkpoint tests, the existing explicit
 post-training recovery can reuse bound evidence and resume unfinished export/
 evaluation stages into new attempt directories. It does not rerun completed
 training or erase partial artifacts. See the deployment recovery guide above.
+The native-evaluation mode cannot change during `--resume-run`: retain the
+original `--skip-litert-evaluation` choice, or use a fresh output directory.
+In particular, do not append the flag to reuse a failed Vulkan/full-testing run.
 
 The integration is checked with CPU-only artifact, preparation, orchestration,
 reporting and recovery tests. These tests do **not** establish real H100/native
