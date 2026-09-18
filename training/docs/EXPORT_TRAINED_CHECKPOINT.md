@@ -25,8 +25,11 @@ python -u training/scripts/export_checkpoint_litertlm.py \
 ```
 
 Omit `--execute` to print a read-only plan. Planning checks local paths and
-small metadata files; execution additionally hashes weights, verifies prompt
-and tokenizer contracts, probes exporter APIs, merges and converts. Neither a
+metadata. For resumed checkpoints it also hashes the prepared data and resume
+source checkpoints to verify the lineage, with a progress heartbeat; it does
+not regenerate, filter or tokenize the data. Execution additionally hashes the
+selected weights and original base model, verifies prompt and tokenizer
+contracts, probes exporter APIs, merges and converts. Neither a
 successful plan nor exporter preflight proves a real model will convert or run.
 W16/W4 require explicit experimental acknowledgement when executing.
 
@@ -38,7 +41,7 @@ outer deployment directory or a tuning trial. The default selected checkpoint is
 
 For **270M**, change `--profile e2b` to `--profile 270m` and supply its own fit
 directory. To intentionally export another saved checkpoint from the **same
-training configuration**, append:
+training run or its verified resume lineage**, append:
 
 ```bash
 --checkpoint /ABSOLUTE/PATH/TO/COMPLETED_RUN/fit/training/final_adapter
@@ -48,6 +51,38 @@ The 270M final full-model directory is `final_model`, not `final_adapter`.
 An explicit checkpoint must retain its matching `training_metadata.json` and
 hashed tokenizer/weight inventory. The script never silently falls back to a
 different checkpoint.
+
+## Resumed SFT checkpoints
+
+Use the **same command** above after a legitimate training resume. Keep
+`--fit-dir` pointing to the original fit directory, not the resume checkpoint.
+The exporter resolves the actual config recorded in the selected checkpoint,
+such as `training_config_resume_3500.yaml`, automatically:
+
+- `preparation_report.json` remains bound to the original
+  `fit/training_config.yaml` SHA256.
+- The selected checkpoint remains bound to its actual resumed config SHA256.
+  That exact config, including `resume_from_checkpoint`, is passed to merging
+  and copied into `merged_hf/training_config.yaml`.
+- Each resume source must have its original metadata, config, weight/tokenizer
+  inventory, `trainer_state.json`, optimizer, scheduler and per-rank RNG files.
+  Keep these source checkpoints even if Trainer checkpoint retention would
+  otherwise remove them. Multiple resumes are checked back to the original run.
+- Only the resume pointer may differ between configs. Model, data hashes, LoRA,
+  training recipe, effective batch, and all other config settings must match.
+  The saved resume-state metadata hash and optimizer step must also verify.
+
+If a recorded resume config is no longer present, its byte-identical
+`training_config.yaml` snapshot inside the checkpoint can be used. If a recorded
+copy **exists but was modified**, export fails rather than hiding the change
+by using another copy. Missing source evidence or changed contracts are not
+bypassed; restore the original files from a backup, not hand-edited hashes.
+
+`checkpoint_export_manifest.json` and `merged_hf/deployment_source.json` record
+both config hashes and the verified `resume_lineage`. No training provenance
+files are rewritten. When invoking the lower-level
+`deployment_export.py prepare` directly with a resumed config, `--preparation-config` can explicitly
+identify the original `fit/training_config.yaml`.
 
 ## Required inputs and environment
 

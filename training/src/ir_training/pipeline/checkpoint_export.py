@@ -14,14 +14,13 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.bounded_command import run_bounded_command
-from ir_training.common.config import load_yaml
 from ir_training.common.progress import Progress, log
 from ir_training.pipeline.deployment_export import (
     PROFILES,
     build_deployment_export_plan,
-    file_sha256,
     validate_deployment_export_output,
 )
+from ir_training.train.resume_contract import resolve_export_training_lineage
 
 
 @dataclass(frozen=True)
@@ -72,24 +71,21 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
         )
     fit = options.fit_dir.expanduser().resolve()
     config_path = _required_file(fit / "training_config.yaml")
-    config = load_yaml(config_path)
+    checkpoint = (
+        (options.checkpoint or fit / "training/best_golden_checkpoint")
+        .expanduser()
+        .resolve()
+    )
+    _required_file(checkpoint / "training_metadata.json")
+    _required_file(fit / "preparation_report.json")
+    lineage = resolve_export_training_lineage(config_path, checkpoint)
+    config, metadata = lineage["config"], lineage["metadata"]
     model = config.get("model") or {}
     if (config.get("qat") or {}).get("enabled") or model.get(
         "mobile_training_seed_manifest"
     ):
         raise ValueError(
             "This script exports dense SFT checkpoints, not retained-scale/QAT checkpoints"
-        )
-    checkpoint = (
-        (options.checkpoint or fit / "training/best_golden_checkpoint")
-        .expanduser()
-        .resolve()
-    )
-    metadata = _json(_required_file(checkpoint / "training_metadata.json"))
-    digest = file_sha256(config_path)
-    if metadata.get("training_config_sha256") != digest:
-        raise ValueError(
-            "Checkpoint does not match this fit directory's original training_config.yaml"
         )
     if (
         type(metadata.get("checkpoint_step")) is not int
@@ -98,11 +94,6 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
         raise ValueError("Checkpoint has no positive optimizer-step provenance")
     if metadata.get("checkpoint_kind") not in {"lora_adapter", "full_model"}:
         raise ValueError("Checkpoint must be a saved dense LoRA adapter or full model")
-    preparation = _json(_required_file(fit / "preparation_report.json"))
-    if preparation.get("training_config_sha256") != digest or not preparation.get(
-        "model_files"
-    ):
-        raise ValueError("Missing or mismatched original model preparation report")
     inputs = []
     for section, name in (
         (model, "model_source"),
@@ -140,7 +131,10 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
     golden = config.get("golden_eval") or {}
     plan = build_deployment_export_plan(
         profile=options.profile,
-        training_config_path=config_path,
+        training_config_path=Path(lineage["training_config"]),
+        preparation_config_path=config_path
+        if lineage["resume_lineage"]["resumed"]
+        else None,
         checkpoint_dir=checkpoint,
         output_dir=output,
         training_python=options.training_python,
@@ -154,7 +148,10 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
         schema_version=1,
         workflow="checkpoint_export_only_v1",
         output_dir=str(output),
-        training_config_sha256=digest,
+        training_config_sha256=lineage["training_config_sha256"],
+        preparation_config=lineage["preparation_config"],
+        preparation_config_sha256=lineage["preparation_config_sha256"],
+        resume_lineage=lineage["resume_lineage"],
         checkpoint_step=metadata["checkpoint_step"],
         requires_merged_hf_and_real_litertlm_evaluation=False,
         runtime_evaluation_deferred=True,
@@ -200,6 +197,16 @@ def _validate_stage(plan: dict[str, Any], name: str) -> dict[str, Any]:
             raise ValueError("Merged checkpoint lacks matching source provenance")
         if report.get("official_retained_scale_export") is not False:
             raise ValueError("Merged checkpoint is not a dense deployment source")
+        if plan["resume_lineage"]["resumed"]:
+            for key in (
+                "preparation_config",
+                "preparation_config_sha256",
+                "resume_lineage",
+            ):
+                if report.get(key) != plan[key]:
+                    raise ValueError(
+                        f"Merged checkpoint resume provenance changed: {key}"
+                    )
     else:
         return validate_deployment_export_output(plan, name.removeprefix("export_"))
     return {}

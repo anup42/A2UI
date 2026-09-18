@@ -17,8 +17,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from ir_training.common.config import load_yaml
 from ir_training.common.progress import Progress, log
+from ir_training.train.resume_contract import resolve_export_training_lineage
 
 PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"}}
 VARIANTS = ("w32", "w16", "w8", "w4")
@@ -132,6 +132,7 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
                                  checkpoint_dir: Path, output_dir: Path,
                                  training_python: str | Path, exporter_python: str | Path,
                                  model_dir: Path | None = None,
+                                 preparation_config_path: Path | None = None,
                                  cache_length: int = 8192, max_input_tokens: int = 4096,
                                  max_new_tokens: int = 2048) -> dict[str, Any]:
     """Build subprocess contracts, including the BEFORE-training exporter probe.
@@ -157,6 +158,8 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
     prepare = [training_python, "-u", str(script), "prepare", "--profile", profile,
                "--training-config", str(training_config_path.resolve()),
                "--checkpoint", str(checkpoint_dir.resolve()), "--output-dir", str(merged)]
+    if preparation_config_path is not None:
+        prepare.extend(["--preparation-config", str(preparation_config_path.resolve())])
     for name, spec in variants.items():
         folder = output / "variants" / name
         spec.update({"output_dir": str(folder), "artifact": str(folder / "model.litertlm"),
@@ -260,13 +263,21 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
             "template_parity": template_parity}
 
 
-def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: str) -> dict[str, Any]:
+def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: str, *,
+                             preparation_config: Path | None = None) -> dict[str, Any]:
     """Bind every saved checkpoint/tokenizer file and the original dense seed."""
-    config = load_yaml(training_config)
-    metadata = _json(checkpoint / "training_metadata.json")
-    digest = file_sha256(training_config)
-    if metadata.get("training_config_sha256") != digest:
-        raise ValueError("Selected checkpoint does not match the bound training config")
+    original = preparation_config or training_config.parent / "training_config.yaml"
+    if preparation_config is None and training_config != original:
+        report_path = training_config.parent / "preparation_report.json"
+        report = _json(report_path) if report_path.is_file() else {}
+        # Preserve support for explicitly named, preparation-bound configs.
+        # A resume config instead needs the sibling original config as anchor.
+        if report.get("training_config_sha256") == file_sha256(training_config):
+            original = training_config
+    original = original.resolve()
+    binding = resolve_export_training_lineage(original, checkpoint,
+        training_config=training_config.resolve() if training_config.resolve() != original else None)
+    config, metadata = binding["config"], binding["metadata"]
     if type(metadata.get("checkpoint_step")) is not int or metadata["checkpoint_step"] <= 0:
         raise ValueError("Selected checkpoint has no positive optimizer-step provenance")
     if config.get("qat", {}).get("enabled") or config.get("model", {}).get("mobile_training_seed_manifest"):
@@ -291,9 +302,7 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
     model_type = _json(base / "config.json").get("model_type")
     if model_type not in PROFILES[profile]:
         raise ValueError(f"Base model type {model_type!r} does not match {profile}")
-    preparation = _json(training_config.parent / "preparation_report.json")
-    if preparation.get("training_config_sha256") != digest or not preparation.get("model_files"):
-        raise ValueError("Missing hash-bound original model preparation report")
+    preparation = binding["preparation"]
     with Progress("Verify original dense model before deployment merge", unit="file", total=len(preparation["model_files"])) as progress:
         for name, expected_hash in preparation["model_files"].items():
             # Standard HF snapshots reference ../blobs through symlinks. This
@@ -302,15 +311,17 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
             if file_sha256(_local_file(base, name, allow_bound_symlink=True)) != expected_hash:
                 raise ValueError(f"Original dense model changed after training: {name}")
             progress.advance()
-    return {"config": config, "metadata": metadata, "base_model_dir": str(base),
+    return {**{key: value for key, value in binding.items() if key != "preparation"}, "base_model_dir": str(base),
             "checkpoint_kind": metadata["checkpoint_kind"], "files": expected,
-            "training_config_sha256": digest, "training_metadata_sha256": file_sha256(checkpoint / "training_metadata.json")}
+            "training_metadata_sha256": file_sha256(checkpoint / "training_metadata.json")}
 
 
-def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkpoint: Path, output_dir: Path) -> dict[str, Any]:
+def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkpoint: Path, output_dir: Path,
+                                  preparation_config: Path | None = None) -> dict[str, Any]:
     if output_dir.exists() and (not output_dir.is_dir() or any(output_dir.iterdir())):
         raise ValueError(f"Deployment merged model directory must be fresh: {output_dir}")
-    binding = verify_checkpoint_source(training_config, checkpoint, profile)
+    binding = verify_checkpoint_source(training_config, checkpoint, profile, preparation_config=preparation_config)
+    training_config = Path(binding["training_config"])
     config = binding["config"]
     model_config = config["model"]
     from ir_training.eval.prepared_contract import (
@@ -345,7 +356,6 @@ def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkp
     template_parity = None
     if profile == "e2b":
         source = Path(__file__).resolve().parents[3] / "configs/export/gemma4_e2b_training_minijinja.jinja"
-        template = source.read_text(encoding="utf-8")
         # Read only the bounded prepared prefix, not the entire training JSONL.
         rows = strict_prefix_rows(Path(config["run"]["dataset_dir"]) / "train.jsonl")
         examples = []
@@ -356,7 +366,8 @@ def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkp
                     messages.pop()
                 examples.append(messages)
         template_parity = verify_deployment_template(tokenizer, chat_template_kwargs=model_config.get("chat_template_kwargs") or {}, examples=examples)
-        (output_dir / "deployment_chat_template.jinja").write_text(template, encoding="utf-8")
+        # Preserve the exact bytes verified above, including platform line endings.
+        shutil.copy2(source, output_dir / "deployment_chat_template.jinja")
         if file_sha256(output_dir / "deployment_chat_template.jinja") != template_parity["sha256"]:
             raise ValueError("Deployment template serialization changed after parity validation")
     for name in ("manifest.json", "shared_prompt.json", "inference_prompt.json", "prompt_scaffolds.json"):
@@ -522,6 +533,7 @@ def main() -> None:
     parser.add_argument("--profile", required=True, choices=tuple(PROFILES))
     parser.add_argument("--model-dir", type=Path)
     parser.add_argument("--training-config", type=Path)
+    parser.add_argument("--preparation-config", type=Path, help="Original prepared config when --training-config is a bound resume config")
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--report", type=Path)
@@ -544,7 +556,8 @@ def main() -> None:
         _write(args.report, result)
     elif args.stage == "prepare":
         result = prepare_deployment_checkpoint(profile=args.profile, training_config=args.training_config,
-                                               checkpoint=args.checkpoint, output_dir=args.output_dir)
+                                               checkpoint=args.checkpoint, output_dir=args.output_dir,
+                                               preparation_config=args.preparation_config)
     else:
         result = convert_deployment_variant(profile=args.profile, variant=args.variant, model_dir=args.model_dir,
                                              output_dir=args.output_dir, cache_length=args.cache_length)
