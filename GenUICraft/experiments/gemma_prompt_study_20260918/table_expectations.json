@@ -1,0 +1,1611 @@
+{
+  "schema_version": 1,
+  "created_date": "2026-09-18",
+  "scope": "Bixby50 source table content and mobile presentation preferences",
+  "source_corpus": {
+    "path": "genuicraft/src/test/resources/genuicraft_bixby50.jsonl",
+    "sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a"
+  },
+  "classification_basis": "Source row/column semantics, independently reviewed before evaluating prompt variants; baseline is a reference observation only.",
+  "matching": "Ordered columns and rows; exact content first, paired inline Markdown/whitespace equivalence second; no IDs or layout equality.",
+  "policy": {
+    "feature_matrix": "table preferred; cards requires review",
+    "entity_rows": "cards preferred, with documented compact numeric and technical-comparison exceptions",
+    "generic_definition": "table default; complete cards acceptable",
+    "implicit_choices": "Record for rendering review; do not infer actual route from absent hints.",
+    "choice_status": "Preferred and acceptable alternatives are distinct; neither replaces renderer evidence."
+  },
+  "counts": {
+    "cases": 50,
+    "tables": 23,
+    "no_table_cases": 27
+  },
+  "cases": {
+    "BXP-001": {
+      "source_domain": "Weather",
+      "tables": [
+        {
+          "columns": [
+            "Date",
+            "High (°C)",
+            "Low (°C)",
+            "Rain probability"
+          ],
+          "rows": [
+            [
+              "Wed, Sep 9",
+              "31",
+              "20",
+              "57%"
+            ],
+            [
+              "Thu, Sep 10",
+              "30",
+              "21",
+              "55%"
+            ],
+            [
+              "Fri, Sep 11",
+              "30",
+              "21",
+              "55%"
+            ]
+          ],
+          "source_line": 1,
+          "id": "BXP-001/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "7a29f3bb8e18008c1671872aed626ced7a5f30cf42682034b475e1605d234e04",
+          "content_fingerprint": "7a29f3bb8e18008c1671872aed626ced7a5f30cf42682034b475e1605d234e04",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "weather"
+          ],
+          "acceptable_domains": [
+            "weather",
+            "generic",
+            "schedule"
+          ],
+          "rationale": "Each date is a forecast entity with temperature and rain attributes. Weather cards are natural; a complete grid remains acceptable.",
+          "baseline_observation": {
+            "domain": "weather",
+            "presentation": "cards",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-001/revalidated.output.a2ui.json",
+            "file_sha256": "bd30e774121d520ca52a5b5c3d63ed53bbd591e871711fa9ebc22fd8fdefdeed",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-002": {
+      "source_domain": "Air quality",
+      "tables": []
+    },
+    "BXP-003": {
+      "source_domain": "Rail travel",
+      "tables": [
+        {
+          "columns": [
+            "Train service",
+            "Departure station",
+            "Typical departure time",
+            "Journey duration",
+            "Seating class"
+          ],
+          "rows": [
+            [
+              "**Shatabdi Express (12007)**",
+              "KSR Bengaluru (SBC)",
+              "**10:35–10:45**",
+              "**About 2 h 15 m to 2 h 25 m**",
+              "**CC, EC**"
+            ],
+            [
+              "**Rajya Rani Express (20660)**",
+              "KSR Bengaluru (SBC)",
+              "**11:30**",
+              "**About 2 h 30 m**",
+              "**CC, 2S, GN**"
+            ],
+            [
+              "**Wodeyar Express (12614)**",
+              "KSR Bengaluru (SBC)",
+              "**15:15**",
+              "**About 2 h 30 m**",
+              "**CC, 2S, GN**"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-003/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "00649badbb1df7609589a695012495019a6b3bd130616a108bc653b35b4595fb",
+          "content_fingerprint": "33a6c6cba792bef82304d05dfea018e4416bb817f31dc715e36b5fc5dfa415f6",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "schedule"
+          ],
+          "acceptable_domains": [
+            "schedule",
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each train service is a complete departure/duration/seating record. Schedule cards help mobile reading; a complete comparison grid is valid.",
+          "baseline_observation": {
+            "domain": "schedule",
+            "presentation": "cards",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-003/revalidated.output.a2ui.json",
+            "file_sha256": "bfd5660f302d5de55bae99f0b0b4f580bfc4cfdfb9ead7429c2cd05baf65b9f6",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-004": {
+      "source_domain": "Airline baggage",
+      "tables": []
+    },
+    "BXP-005": {
+      "source_domain": "Urban transport",
+      "tables": []
+    },
+    "BXP-006": {
+      "source_domain": "Road trips",
+      "tables": [
+        {
+          "columns": [
+            "Route",
+            "Approx. distance",
+            "Usual travel time",
+            "Road conditions",
+            "Useful stop"
+          ],
+          "rows": [
+            [
+              "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+              "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+              "About 4.5–6 hours, commonly around 5.5–6 hours",
+              "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+              "**Namdroling Monastery, Bylakuppe**[7][9]"
+            ],
+            [
+              "Bengaluru → Hassan → Kushalnagar → Madikeri",
+              "About 265 km",
+              "About 5.5–6 hours",
+              "Generally described as smoother and less traffic-heavy than the Mysuru-side route, with a more straightforward long-drive feel[13]",
+              "**Hassan** for a meal break or coffee stop"
+            ]
+          ],
+          "source_line": 5,
+          "id": "BXP-006/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "8cccec743c22d161bbe53bbc763b42413ba91218933a2bc4320ad5c048eb36fe",
+          "content_fingerprint": "46422a2ec67bee539061e87807325a69a6d00c228c7b0c24f9d6fb749436348b",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each driving route has a complete distance/time/conditions/stop profile. Long prose cells favor cards; a scrollable full grid is acceptable.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-006/revalidated.output.a2ui.json",
+            "file_sha256": "c9175c78858a94608a8d6627a18fe7ea600ab99d64c0425ff958d1db20c6a178",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-007": {
+      "source_domain": "Sightseeing",
+      "tables": [
+        {
+          "columns": [
+            "Sight",
+            "Opening hours",
+            "Usual visit duration",
+            "Published adult entry fee"
+          ],
+          "rows": [
+            [
+              "Chamundi Hill Lookout View Point",
+              "5:00 am–11:00 pm",
+              "30–45 min",
+              "Not available in the provided reliable sources[6]"
+            ],
+            [
+              "Mysuru Railway Museum",
+              "10:00 am–6:00 pm; closed Tuesday",
+              "1.5–2 hours",
+              "Not available in the provided reliable sources[2]"
+            ],
+            [
+              "Chikka Gadiyara",
+              "Open 24 hours",
+              "20–30 min",
+              "Not available in the provided reliable sources[1]"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-007/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "1314035f59622edb717647133c7c646194676f7c71fc83ac4b35670961f62bef",
+          "content_fingerprint": "1314035f59622edb717647133c7c646194676f7c71fc83ac4b35670961f62bef",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "schedule"
+          ],
+          "acceptable_domains": [
+            "schedule",
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each sight carries hours, duration, and fee uncertainty. Cards or a complete table can preserve each sight as a usable record.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-007/revalidated.output.a2ui.json",
+            "file_sha256": "c398234e35cd274c84f1148513a7a0e16ec0a6bdc21161c047d3acf515badd5c",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-008": {
+      "source_domain": "Restaurants",
+      "tables": [
+        {
+          "columns": [
+            "Restaurant",
+            "Neighborhood",
+            "Signature dish",
+            "Approx. cost per person",
+            "Opening hours"
+          ],
+          "rows": [
+            [
+              "Vidyarthi Bhavan",
+              "Basavanagudi (Gandhi Bazaar)",
+              "South Indian breakfast classics; widely known for its crisp dosas",
+              "₹1–200",
+              "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri; 6:30am–12:00pm, 2:30pm–8:00pm on Sat–Sun[2]"
+            ],
+            [
+              "Central Tiffin Room",
+              "Malleshwaram",
+              "Benne dosas, bajji, and coffee",
+              "₹1–200",
+              "7:00am–12:30pm, 4:00pm–9:30pm daily[4]"
+            ],
+            [
+              "Brahmins' Coffee Bar",
+              "Shankarapura, near Shankar Mutt Road",
+              "Idli, vada, and coffee",
+              "₹1–200",
+              "6:00am–12:00pm, 3:00pm–7:00pm Mon–Sat; closed Sun[5]"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-008/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "400bb736629d88606f673e76a47bc238f84faa62faeda18f071c710f1c0450e7",
+          "content_fingerprint": "400bb736629d88606f673e76a47bc238f84faa62faeda18f071c710f1c0450e7",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison",
+            "generic"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each restaurant is a venue record. The source-binding domain enum has no restaurant value; generic/comparison cards avoid invented booking semantics.",
+          "baseline_observation": {
+            "domain": "generic",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-008/revalidated.output.a2ui.json",
+            "file_sha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-009": {
+      "source_domain": "Accommodation",
+      "tables": []
+    },
+    "BXP-010": {
+      "source_domain": "Consumer audio",
+      "tables": []
+    },
+    "BXP-011": {
+      "source_domain": "Smartphones",
+      "tables": [
+        {
+          "columns": [
+            "Model",
+            "Indicative price",
+            "Display",
+            "Battery",
+            "Software support",
+            "Best for"
+          ],
+          "rows": [
+            [
+              "OnePlus Nord CE 5",
+              "From ₹24,999",
+              "6.77-inch AMOLED, 120Hz [9][16]",
+              "7,100mAh, 80W charging",
+              "6 years of software support",
+              "Buyers wanting a big battery and smooth everyday performance"
+            ],
+            [
+              "Samsung Galaxy A36 5G",
+              "Around ₹28,999 online; official India pricing is higher [10][21][36]",
+              "6.7-inch Super AMOLED, 120Hz [22][31]",
+              "5,000mAh[38]",
+              "6 OS upgrades and 6 years of security updates",
+              "Buyers who want the longest support and a balanced all-rounder"
+            ],
+            [
+              "iQOO Z10",
+              "From about ₹20,255–₹22,999 [37][40]",
+              "6.77-inch AMOLED, 120Hz [29]",
+              "7,300mAh, 90W charging [23]",
+              "2 Android upgrades and 3 years of security patches",
+              "Buyers prioritizing battery life and fast charging"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-011/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "ade750c4001dcc250d799e4e80f523065dd6083085ee923c0e793dd84e0280dd",
+          "content_fingerprint": "ade750c4001dcc250d799e4e80f523065dd6083085ee923c0e793dd84e0280dd",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each phone row is a whole product profile across six attributes. Cards are readable on mobile; complete side-by-side comparison remains valid.",
+          "baseline_observation": {
+            "domain": "generic",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-011/revalidated.output.a2ui.json",
+            "file_sha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-012": {
+      "source_domain": "Productivity software",
+      "tables": [
+        {
+          "columns": [
+            "App",
+            "Offline use",
+            "Synchronization",
+            "Export options",
+            "Biggest free-plan restriction"
+          ],
+          "rows": [
+            [
+              "**Microsoft OneNote**",
+              "Works offline on Android and web-backed notebooks sync when you reconnect[2][12]",
+              "Free cross-device sync through OneDrive",
+              "Export support is available, but the free plan is mainly limited by storage rather than format[1]",
+              "About **5 GB of notes** on the free plan"
+            ],
+            [
+              "**Simplenote**",
+              "Supports offline editing, with changes syncing later across devices[7]",
+              "Syncs across Android and browser-based access",
+              "Exports are supported through account data export tools, though not highlighted as a major free-tier feature in the sources",
+              "No major paid wall is emphasized in the source; the practical limitation is its *very minimal* feature set"
+            ],
+            [
+              "**Joplin**",
+              "Designed for offline-first use with local note storage[4][5]",
+              "Sync is available, but setup depends on the sync method you choose",
+              "Strong portability: notes are stored locally and can be exported as files you control",
+              "The main free-plan limitation is that advanced sync convenience is not bundled as a paid-less, turnkey service"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-012/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "df750e7b58cf1e3fd289c2f6b7925c2051299837d5229d84ab0561aa673cd3a6",
+          "content_fingerprint": "40157436c69e60259fe45ec26e1372378df2cd96c8b916db49e310267e746453",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each app is a self-contained option with several long feature/restriction cells. Cards are preferred without ruling out a full grid.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-012/revalidated.output.a2ui.json",
+            "file_sha256": "3ef11612cf64226b32444d3b76adba3a5d601b0d11329a3c5572309d5b871436",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-013": {
+      "source_domain": "Bank deposits",
+      "tables": [
+        {
+          "columns": [
+            "Bank",
+            "One-year retail FD rate",
+            "Assumed deposit size",
+            "Rate date / effective date"
+          ],
+          "rows": [
+            [
+              "SBI",
+              "6.25%",
+              "Below ₹3 crore",
+              "Current retail grid shown on SBI’s retail domestic term-deposit page"
+            ],
+            [
+              "HDFC Bank",
+              "6.25%",
+              "Below ₹3 crore",
+              "19 August 2026"
+            ],
+            [
+              "ICICI Bank",
+              "6.25%",
+              "Below ₹3 crore",
+              "Current retail grid shown in the cited rate snapshot"
+            ]
+          ],
+          "source_line": 20,
+          "id": "BXP-013/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "45ee49bb4c378a23ca673081578ad14ad9d1ea4154f55c942664a51ee6b358b5",
+          "content_fingerprint": "45ee49bb4c378a23ca673081578ad14ad9d1ea4154f55c942664a51ee6b358b5",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each bank row binds a rate to deposit assumptions and its source date. Cards or a compact complete grid are sensible; dates must remain attached.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-013/revalidated.output.a2ui.json",
+            "file_sha256": "cac942b51948f393e4e9eff1d6b6ad843f682f2f9a0d1ac24100530e8bd1bfab",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-014": {
+      "source_domain": "Foreign exchange",
+      "tables": []
+    },
+    "BXP-015": {
+      "source_domain": "Cricket",
+      "tables": []
+    },
+    "BXP-016": {
+      "source_domain": "Streaming entertainment",
+      "tables": [
+        {
+          "columns": [
+            "Title",
+            "Platform",
+            "Streaming release date",
+            "Spoiler-free description"
+          ],
+          "rows": [
+            [
+              "**Bandar**",
+              "ZEE5",
+              "**28 August 2026**",
+              "A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]"
+            ],
+            [
+              "**Gandhari**",
+              "Netflix",
+              "**3 September 2026**",
+              "An emotionally charged action-thriller about a mother’s relentless fight to protect her child. [21]"
+            ],
+            [
+              "**Before Colours**",
+              "ZEE5",
+              "**28 August 2026**",
+              "A newly added Hindi film on ZEE5’s latest releases list, available from 28 August 2026. [22]"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-016/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "bfb5aeb0dce8606b3786b6dc7f4a7bbce618fed49adcf5bd47bd69b5d1216092",
+          "content_fingerprint": "ba2d912655e85d0345152a8160836e42503b74131b6367c06b36706d000d21a6",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "schedule",
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "schedule",
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each release is a title/platform/date/description entity. Release cards or a complete grid are useful; this is not a feature matrix.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-016/revalidated.output.a2ui.json",
+            "file_sha256": "80a299424e7e852812059dcbd9bb67094a31b02715323b929c06cafb235194a9",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-017": {
+      "source_domain": "Books",
+      "tables": []
+    },
+    "BXP-018": {
+      "source_domain": "Music charts",
+      "tables": []
+    },
+    "BXP-019": {
+      "source_domain": "Video games",
+      "tables": [
+        {
+          "columns": [
+            "Game",
+            "Age rating",
+            "Co-op support",
+            "Players",
+            "Indicative India price"
+          ],
+          "rows": [
+            [
+              "**It Takes Two**",
+              "13+ for online features",
+              "Online co-op; Friend’s Pass supports inviting a friend",
+              "2",
+              "₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40]"
+            ],
+            [
+              "**Unravel Two**",
+              "13+ or 16+ to register an EA account, depending on region",
+              "Local co-op; also playable solo",
+              "2",
+              "₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31]"
+            ],
+            [
+              "**Overcooked! 2**",
+              "No formal age rating listed on the store page",
+              "Local couch co-op and online play",
+              "1-4",
+              "₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17]"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-019/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "195ea027f2077ef5040616f98438ff6eca12e5ea6407ffe17ec05fa4dddf0fa8",
+          "content_fingerprint": "a009ff54ec79c1994bf66721c7e51c6fa0f4179c2b610c65b348d44e8d10e12b",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each game row has rating, co-op, player count, and price. Cards are a mobile default; the complete grid is a legitimate alternative.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-019/revalidated.output.a2ui.json",
+            "file_sha256": "24b5019c91a96807d534d57f89956a62edb67877910e8d572e82251ae1725c86",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-020": {
+      "source_domain": "Space missions",
+      "tables": []
+    },
+    "BXP-021": {
+      "source_domain": "Archaeology",
+      "tables": []
+    },
+    "BXP-022": {
+      "source_domain": "Gardening",
+      "tables": []
+    },
+    "BXP-023": {
+      "source_domain": "Pet care",
+      "tables": []
+    },
+    "BXP-024": {
+      "source_domain": "Waste management",
+      "tables": []
+    },
+    "BXP-025": {
+      "source_domain": "Language learning",
+      "tables": [
+        {
+          "columns": [
+            "Day",
+            "10 min speaking",
+            "10 min listening"
+          ],
+          "rows": [
+            [
+              "1",
+              "Practice greetings and introduce yourself aloud.",
+              "Listen to a short beginner greeting lesson."
+            ],
+            [
+              "2",
+              "Say common classroom phrases and numbers.",
+              "Hear numbers and repeat each one."
+            ],
+            [
+              "3",
+              "Practice asking and answering “What is your name?” and “How are you?”",
+              "Listen to a short dialogue and shadow it."
+            ],
+            [
+              "4",
+              "Describe basic needs: water, food, help, bathroom.",
+              "Listen for key survival phrases and note them."
+            ],
+            [
+              "5",
+              "Practice family words and simple possessives.",
+              "Listen to a family-themed beginner audio lesson."
+            ],
+            [
+              "6",
+              "Say where you are from and where you live.",
+              "Listen to location and directions phrases."
+            ],
+            [
+              "7",
+              "Review all week’s phrases in a 1-minute self-introduction.",
+              "Replay your favorite lesson and catch every known word."
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-025/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "ecfd1a6eeb60d2903f2bc0b0baaaada2367a9f1cc36f81059184b89d2c37e863",
+          "content_fingerprint": "ecfd1a6eeb60d2903f2bc0b0baaaada2367a9f1cc36f81059184b89d2c37e863",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "schedule"
+          ],
+          "acceptable_domains": [
+            "schedule",
+            "generic",
+            "comparison"
+          ],
+          "rationale": "Each day is an ordered learning-plan step with speaking/listening activities. Schedule cards are preferred; a complete timetable is also valid.",
+          "baseline_observation": {
+            "domain": "schedule",
+            "presentation": "cards",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-025/revalidated.output.a2ui.json",
+            "file_sha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-026": {
+      "source_domain": "Artificial intelligence",
+      "tables": [
+        {
+          "columns": [
+            "Approach",
+            "Data freshness",
+            "Cost",
+            "Setup effort",
+            "Limitations"
+          ],
+          "rows": [
+            [
+              "Retrieval-augmented generation",
+              "Best for fresh content because it can pull in updated documents at query time and does not require retraining for each change [9][40].",
+              "Usually lower for knowledge lookup at scale because you index once and retrieve only relevant chunks, though you still pay retrieval and embedding costs [19][15].",
+              "Moderate; you need document ingestion, chunking, embedding, and retrieval infrastructure [1].",
+              "Quality depends on retrieval quality; bad chunking or search can cause missed or irrelevant answers, and multi-step reasoning over scattered documents can still be hard[14]."
+            ],
+            [
+              "Fine-tuning",
+              "Weak for freshness because knowledge is effectively frozen at the last training snapshot and needs retraining when facts change [35][36].",
+              "Higher upfront cost because you need curated labeled data, training runs, and ongoing retraining when the domain changes [10][29].",
+              "High; it usually requires dataset preparation, training/evaluation pipelines, and model-version management.",
+              "Best at changing behavior, tone, or output format, not at keeping fast-moving facts current; it can also increase hallucination risk on unfamiliar queries [17]."
+            ],
+            [
+              "Long-context prompting",
+              "Fresh only if the latest documents are placed into the prompt; otherwise it is just a larger static input window [3][6].",
+              "Can become expensive quickly because every query may carry many tokens, and long prompts raise per-request spend [5][16].",
+              "Lower than fine-tuning, since it mainly needs prompt design and document assembly, but it still needs careful context selection and compression[11].",
+              "Context windows are not a guarantee of accuracy; long prompts can dilute signal, hurt reasoning, and still miss source grounding[28]."
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-026/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "03aae3948b553e13d5b0760284aa30011985b3bcdd87bbf437b43c3fdc99c5dd",
+          "content_fingerprint": "03aae3948b553e13d5b0760284aa30011985b3bcdd87bbf437b43c3fdc99c5dd",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each AI approach has a complete profile. Five verbose columns favor cards; a full grid remains acceptable for cross-approach comparison.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-026/revalidated.output.a2ui.json",
+            "file_sha256": "29c8e4642cb719221327113c7ac31b99fb6bdfd97a1d7c6fafed0ca5bdcd5dbf",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-027": {
+      "source_domain": "Cybersecurity",
+      "tables": []
+    },
+    "BXP-028": {
+      "source_domain": "Digital privacy",
+      "tables": []
+    },
+    "BXP-029": {
+      "source_domain": "Income tax",
+      "tables": [
+        {
+          "columns": [
+            "Point",
+            "ITR-1 (Sahaj)",
+            "ITR-2"
+          ],
+          "rows": [
+            [
+              "Who can file",
+              "Resident individual, not RNOR or non-resident",
+              "Individual (resident or non-resident)"
+            ],
+            [
+              "Total income",
+              "Up to ₹50 lakh",
+              "Any amount, including above ₹50 lakh"
+            ],
+            [
+              "Salary/pension",
+              "Allowed",
+              "Allowed"
+            ],
+            [
+              "House property",
+              "One house property only",
+              "One or more house properties, including more than two"
+            ],
+            [
+              "Other sources",
+              "Interest and similar ordinary income",
+              "Other sources, including winnings from lotteries, racehorses, betting, gambling"
+            ],
+            [
+              "Agricultural income",
+              "Up to ₹5,000",
+              "Above ₹5,000"
+            ],
+            [
+              "Capital gains",
+              "Not allowed, except limited LTCG relief cases under current ITR-1 rules",
+              "Allowed, including short-term and long-term capital gains"
+            ],
+            [
+              "Foreign assets/income",
+              "Not allowed",
+              "Allowed"
+            ],
+            [
+              "Business/profession income",
+              "Not allowed",
+              "Not allowed"
+            ],
+            [
+              "Director / unlisted shares",
+              "Not allowed",
+              "Allowed"
+            ]
+          ],
+          "source_line": 6,
+          "id": "BXP-029/table-1",
+          "shape": "feature_matrix",
+          "fingerprint": "49694aede03e3bf129d01df41c09c439d1df0a48a108ffbe66eb82e95e36b61d",
+          "content_fingerprint": "49694aede03e3bf129d01df41c09c439d1df0a48a108ffbe66eb82e95e36b61d",
+          "preferred_presentation": "table",
+          "acceptable_presentations": [
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Rows are tax-filing features and columns are ITR forms. Keep the form-to-feature relationships together in a table.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-029/revalidated.output.a2ui.json",
+            "file_sha256": "1dbaf3359ede7babfa5a534a7a08f09fcf96dfe8c0407fb7d5ec4a9058248fcd",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-030": {
+      "source_domain": "Retirement savings",
+      "tables": [
+        {
+          "columns": [
+            "Feature",
+            "**EPF**",
+            "**PPF**",
+            "**NPS**"
+          ],
+          "rows": [
+            [
+              "**Eligibility**",
+              "Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers.",
+              "Any resident individual can open an account.",
+              "Indian citizens aged 18–70; both salaried and self-employed can join."
+            ],
+            [
+              "**Contribution rules**",
+              "Employee contributes **12% of basic pay + dearness allowance**; employer also contributes.",
+              "**₹500 minimum** per year; **₹1.5 lakh maximum** per financial year.",
+              "**₹1,000 minimum** per year for Tier I; no upper limit on contribution."
+            ],
+            [
+              "**Lock-in / tenure**",
+              "Linked to employment; full withdrawal is generally at retirement or after qualifying exit.",
+              "**15 years** initial lock-in; extendable in 5-year blocks.",
+              "Locked until **age 60** for normal exit."
+            ],
+            [
+              "**Withdrawals**",
+              "Partial withdrawals allowed for specified needs; full withdrawal is tax-favoured after **5 years of continuous service**.",
+              "Partial withdrawal allowed from the **7th year**; premature closure only after **5 completed years** and for specified reasons.",
+              "Partial withdrawal allowed after **3 years**, generally up to **25% of own contributions** for specified purposes."
+            ],
+            [
+              "**Tax treatment**",
+              "Contributions may qualify for deduction under Section 80C; interest and eligible withdrawals are generally tax-free, but interest on employee contribution above **₹2.5 lakh/year** can be taxable.",
+              "Contributions qualify under Section 80C; interest and maturity are generally **fully tax-free**.",
+              "Employee contribution can get Section 80C benefit, plus an extra **₹50,000** under Section 80CCD(1B); at exit, a lump sum portion is tax-free, while annuity income is taxable."
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-030/table-1",
+          "shape": "feature_matrix",
+          "fingerprint": "31ccd8592dc5c6b534ce63e7c4a8b38ff358766ae5d8670fbc73d0e42a76b498",
+          "content_fingerprint": "4ad7db0be9da9845ba5abf56dd7d7689c42977664af95a923e05941098c56fbb",
+          "preferred_presentation": "table",
+          "acceptable_presentations": [
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Rows are savings-plan features while EPF/PPF/NPS are column entities. A table preserves cross-plan relationships.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-030/revalidated.output.a2ui.json",
+            "file_sha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-031": {
+      "source_domain": "Property due diligence",
+      "tables": []
+    },
+    "BXP-032": {
+      "source_domain": "Health insurance",
+      "tables": [
+        {
+          "columns": [
+            "Term",
+            "What it means",
+            "Typical effect on a claim"
+          ],
+          "rows": [
+            [
+              "Deductible",
+              "A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee threshold. [3]",
+              "The insurer starts paying only after the deductible is crossed."
+            ],
+            [
+              "Co-payment",
+              "A percentage of the admissible claim that you must bear. It does not reduce the sum insured, but it reduces what the insurer pays for that claim.",
+              "You share the bill in a fixed ratio, such as 10% or 20%."
+            ],
+            [
+              "Waiting period",
+              "A period after policy start during which certain claims are not payable. Standard policies generally have a 30-day initial waiting period, and pre-existing-disease waiting periods are commonly capped at 36 months in newer IRDAI-regulated products. [5][7]",
+              "Claims during the waiting period may be fully rejected."
+            ],
+            [
+              "Room-rent limit",
+              "A cap on the hospital room charge covered by the policy, often linked to a percentage of the sum insured. [12]",
+              "If you choose a costlier room, some policies reduce payment for other hospital charges in the same proportion."
+            ],
+            [
+              "Exclusions",
+              "Treatments or situations the policy does not cover at all, such as pre-existing disease during the waiting period, many non-medical items, cosmetic care, and other listed exclusions. [13][20]",
+              "The insurer pays nothing for excluded items or events."
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-032/table-1",
+          "shape": "generic_definition",
+          "fingerprint": "877e76180c3b0cc0f990b3574b97f5084594774206e9da007b8887039dd3f519",
+          "content_fingerprint": "877e76180c3b0cc0f990b3574b97f5084594774206e9da007b8887039dd3f519",
+          "preferred_presentation": "table",
+          "acceptable_presentations": [
+            "table",
+            "cards"
+          ],
+          "preferred_domains": [
+            "generic"
+          ],
+          "acceptable_domains": [
+            "generic",
+            "comparison"
+          ],
+          "rationale": "Each term has a definition and claim effect. A compact definition table or complete term cards are both sensible; neither layout is mandated by the baseline.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-032/revalidated.output.a2ui.json",
+            "file_sha256": "4b1fa19f54f177bc4d6fc379f3726ed7c66fef7396dce8075e8deea6f6b06dc7",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-033": {
+      "source_domain": "Public health",
+      "tables": []
+    },
+    "BXP-034": {
+      "source_domain": "Nutrition",
+      "tables": [
+        {
+          "columns": [
+            "Food",
+            "Typical serving",
+            "Approx. protein"
+          ],
+          "rows": [
+            [
+              "Soy chunks, dry",
+              "30 g",
+              "15–16 g [3]"
+            ],
+            [
+              "Paneer",
+              "100 g",
+              "18 g [1][17]"
+            ],
+            [
+              "Tofu",
+              "100 g",
+              "8–10 g"
+            ],
+            [
+              "Cooked rajma",
+              "1 cup",
+              "12–15 g[6]"
+            ],
+            [
+              "Cooked chole",
+              "1 cup",
+              "14–15 g"
+            ],
+            [
+              "Cooked moong dal",
+              "1 cup",
+              "8–11 g[4]"
+            ],
+            [
+              "Roasted chana",
+              "30 g",
+              "6–7 g [2][16]"
+            ],
+            [
+              "Dahi/curd",
+              "200 g",
+              "7–8 g[18]"
+            ]
+          ],
+          "source_line": 4,
+          "id": "BXP-034/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "acc8a462d893d56c1cad53c49b31cf8fd32ee0a03f5109a80a7170e0d1dd1ad9",
+          "content_fingerprint": "acc8a462d893d56c1cad53c49b31cf8fd32ee0a03f5109a80a7170e0d1dd1ad9",
+          "preferred_presentation": "table",
+          "acceptable_presentations": [
+            "table",
+            "cards"
+          ],
+          "preferred_domains": [
+            "generic",
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "generic",
+            "comparison"
+          ],
+          "rationale": "Numeric-lookup exception: eight short food/serving/protein rows benefit from aligned values. Cards remain a valid narrow-screen alternative.",
+          "baseline_observation": {
+            "domain": "generic",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-034/revalidated.output.a2ui.json",
+            "file_sha256": "37d3ffb27b3e7b1f98e732d4d6294f550ee4a28ec31d300d0ac1b17abda9d4d7",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-035": {
+      "source_domain": "Fitness",
+      "tables": []
+    },
+    "BXP-036": {
+      "source_domain": "Mental wellbeing",
+      "tables": []
+    },
+    "BXP-037": {
+      "source_domain": "School education",
+      "tables": [
+        {
+          "columns": [
+            "Factor",
+            "CBSE",
+            "CISCE",
+            "IB"
+          ],
+          "rows": [
+            [
+              "**Curriculum**",
+              "Built around NCERT and a structured, concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE, NEET, and CUET.[1][3]",
+              "A broader, more content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics and Geography from middle school onward.",
+              "Inquiry-based, concept-led, and interdisciplinary, with programmes such as MYP and DP designed around global-minded learning.[4]"
+            ],
+            [
+              "**Assessment**",
+              "More exam-led, with longer papers and many question types covering recall, understanding, application, and evaluation.",
+              "Exam-heavy but typically more descriptive and detailed, with required external assessment and internal components.[5]",
+              "Uses a mix of internal and external assessment; MYP external assessment is optional, and DP adds essays, projects, and other coursework-heavy elements.[7]"
+            ],
+            [
+              "**Subject flexibility**",
+              "Generally more structured with fewer combinations than international curricula.[13]",
+              "Moderate flexibility, but still more fixed than IB.",
+              "Greater flexibility, especially in subject choice and in how learners connect disciplines."
+            ],
+            [
+              "**Transferability**",
+              "Transfers most cleanly between CBSE schools within India; CBSE also has the broadest domestic footprint.[8][11]",
+              "Transfers best within CISCE schools, but the smaller school network can make moves less convenient than CBSE.",
+              "Best when moving between international schools; recognition is global, but local transfer can depend on school level and subject mapping."
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-037/table-1",
+          "shape": "feature_matrix",
+          "fingerprint": "94dde73fec6e1fdfe08209c2ce0762b6a00a17bd5eac183a24503c58a8ee483e",
+          "content_fingerprint": "4425e67630a93e908e1c85ea6e266ed1f04564fa6fe0a66bdf946dae71850259",
+          "preferred_presentation": "table",
+          "acceptable_presentations": [
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Rows are factors and columns are school boards. Preserve each factor-to-board relationship in a comparison table.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-037/revalidated.output.a2ui.json",
+            "file_sha256": "78eefde8719105dccd0d426d49abcbbf359d52bf52c09bec655d04a40071ddb6",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-038": {
+      "source_domain": "Careers",
+      "tables": []
+    },
+    "BXP-039": {
+      "source_domain": "Small-business compliance",
+      "tables": []
+    },
+    "BXP-040": {
+      "source_domain": "Consumer rights",
+      "tables": []
+    },
+    "BXP-041": {
+      "source_domain": "International travel rules",
+      "tables": [
+        {
+          "columns": [
+            "Country",
+            "Visa route",
+            "Permitted stay",
+            "Published fee",
+            "Passport requirement",
+            "Rules checked"
+          ],
+          "rows": [
+            [
+              "Thailand",
+              "Visa exemption for Indian ordinary passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [21][22]",
+              "Up to 30 days from 15 September 2026 under the revised exemption scheme",
+              "Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify",
+              "Thai embassy advisory lists a passport valid on arrival and standard immigration conditions[24]",
+              "Checked against Thai embassy notices dated 26 July 2026 and 15 September 2026 rule notice"
+            ],
+            [
+              "Vietnam",
+              "E-visa is the standard route; India is not on Vietnam’s visa-exemption list [11][17]",
+              "Up to 90 days for the official e-visa",
+              "USD 25 single-entry or USD 50 multiple-entry",
+              "Passport scan required for the application; source notes at least 6 months validity and 2 blank pages[20]",
+              "Checked against sources published 30 March 2026 and 8 July 2026"
+            ],
+            [
+              "Sri Lanka",
+              "ETA is required for short visits; free ETA scheme applies to selected nationalities, but the checked sources do not show India in that free list [12][32]",
+              "Standard tourist ETA is 30 days[37]",
+              "ETA fee for SAARC countries is listed as USD 20 online or USD 25 on arrival in the old fee schedule, but current India-specific published fee was not clearly verified from official sources",
+              "Tourist ETA is applied online using passport bio-page details; the application guidance requires the passport details exactly as in the travel document [4]",
+              "Checked against Sri Lankan immigration pages and ETA guidance, including 25 May 2026 free-ETA notice and ETA guidance pages"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-041/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "d561e8c058f9955a7b7403b61fde06f24a5b9fec0bb9fb78876d9ed5e546507d",
+          "content_fingerprint": "d561e8c058f9955a7b7403b61fde06f24a5b9fec0bb9fb78876d9ed5e546507d",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison",
+            "generic"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic",
+            "booking"
+          ],
+          "rationale": "Each country is a complete entry-rule profile with long caveats. Cards are useful; booking is a broad travel-domain equivalent that still needs normal renderer verification, not flight semantics.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-041/revalidated.output.a2ui.json",
+            "file_sha256": "f77e11eb5acf558f1b058917921fa10d0772968142a1b1b56927ff5e52fda3d6",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-042": {
+      "source_domain": "Electric vehicles",
+      "tables": []
+    },
+    "BXP-043": {
+      "source_domain": "Home solar energy",
+      "tables": []
+    },
+    "BXP-044": {
+      "source_domain": "Home appliances",
+      "tables": [
+        {
+          "columns": [
+            "Device",
+            "Main problem it addresses",
+            "Best fit for Indian homes"
+          ],
+          "rows": [
+            [
+              "Air purifier",
+              "Dust, smoke, PM2.5, pollen, pet dander, and other airborne particles [3]",
+              "Homes near traffic, construction, seasonal smoke, or for allergy relief"
+            ],
+            [
+              "Humidifier",
+              "Air that is too dry, which can irritate skin, throat, and breathing comfort [10][13]",
+              "Very dry rooms, usually in heavily air-conditioned spaces or dry winter conditions"
+            ],
+            [
+              "Dehumidifier",
+              "Excess moisture, damp walls, condensation, musty smell, mould risk, and clothes that do not dry [6]",
+              "Monsoon-prone, coastal, ground-floor, or poorly ventilated rooms"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-044/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "78bb43b126259cfad03bc2331ab3b4d80ef5e2f17e1be32b6ff5d08b855d7afe",
+          "content_fingerprint": "78bb43b126259cfad03bc2331ab3b4d80ef5e2f17e1be32b6ff5d08b855d7afe",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each device type is a complete problem/use-case record. Cards or a compact complete comparison table are valid.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-044/revalidated.output.a2ui.json",
+            "file_sha256": "e99c83418a1cabfad1c968141c27816285bc9a19bb2c47c0b8889b2f7df81258",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-045": {
+      "source_domain": "Urban climate",
+      "tables": [
+        {
+          "columns": [
+            "Level",
+            "Best measures",
+            "Expected impact"
+          ],
+          "rows": [
+            [
+              "Household",
+              "Clear local inlets, secure valuables, harvest rainwater, avoid waste dumping",
+              "Lowers damage at one property"
+            ],
+            [
+              "City",
+              "Restore drains and lakes, enforce no-build buffers, remove encroachments, improve SWD maintenance and solid-waste control",
+              "Reduces flooding across neighborhoods"
+            ]
+          ],
+          "source_line": 26,
+          "id": "BXP-045/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "3ed7d5cb1eac46a348e7c37c7d7d8e03072b046d5ff50084d5de121f93b8541e",
+          "content_fingerprint": "3ed7d5cb1eac46a348e7c37c7d7d8e03072b046d5ff50084d5de121f93b8541e",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison",
+            "generic"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Household and City are complete intervention levels. Two cards or the small 2x3 table are both appropriate; weather is only the surrounding topic.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-045/revalidated.output.a2ui.json",
+            "file_sha256": "05e75a8af62d4bae17be2247aea2c1f14496dd7a0e1b10189ae9da28e27741e1",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-046": {
+      "source_domain": "Biotechnology",
+      "tables": []
+    },
+    "BXP-047": {
+      "source_domain": "Battery technology",
+      "tables": [
+        {
+          "columns": [
+            "Chemistry",
+            "Energy density",
+            "Cycle life",
+            "Safety",
+            "Cost",
+            "Maturity"
+          ],
+          "rows": [
+            [
+              "LFP",
+              "Lower than NMC; IEA says LFP packs are about one-fifth lower by mass and one-third lower by volume than NMC packs [22]",
+              "Typically long; sources cite roughly 2,000–6,000+ cycles, with some BESS-grade cells higher [3][18]",
+              "Strong; better thermal stability and lower thermal-runaway risk than NMC",
+              "Lower; IEA says LFP packs were almost 30% cheaper per kWh than NMC in 2025, and more than 40% cheaper on average in 2025 data[21]",
+              "Mature, widely deployed in EVs and especially stationary storage"
+            ],
+            [
+              "NMC",
+              "Higher; generally the best of the three for compactness and range, with IEA confirming the energy-density advantage over LFP",
+              "Moderate; commonly around 1,000–3,000 cycles, varying by design and usage [4][7]",
+              "Good but weaker than LFP; high-nickel versions have greater thermal-risk sensitivity",
+              "Higher; IEA reports LFP is substantially cheaper per kWh than NMC",
+              "Very mature and mainstream in EVs, especially where range and weight matter most"
+            ],
+            [
+              "Sodium-ion",
+              "Lower than lithium-ion; commercial ranges are often around 90–160 Wh/kg, though some newer cells are higher [5][6]",
+              "Promising; commercial ranges are broad, roughly 500–8,000 cycles depending on chemistry and duty cycle",
+              "Good; generally regarded as safer and more thermally stable than many lithium-ion chemistries",
+              "Potentially attractive, but current pricing is still variable; IRENA and industry sources place it roughly in the same order as or above today’s LFP in many cases[14]",
+              "Emerging; gaining traction, but still less mature than LFP and NMC[26]"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-047/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "8185125b44257174afe594fb6dfb6fe3d84b7aba1022996edf049e08abf9a516",
+          "content_fingerprint": "8185125b44257174afe594fb6dfb6fe3d84b7aba1022996edf049e08abf9a516",
+          "preferred_presentation": "table",
+          "acceptable_presentations": [
+            "table",
+            "cards"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Technical-comparison exception: aligned energy/cycle/safety/cost tradeoffs are central. A full grid is preferred, while complete chemistry cards remain valid on mobile.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-047/revalidated.output.a2ui.json",
+            "file_sha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-048": {
+      "source_domain": "History and heritage",
+      "tables": []
+    },
+    "BXP-049": {
+      "source_domain": "Traditional arts",
+      "tables": [
+        {
+          "columns": [
+            "Tradition",
+            "Geographical origins",
+            "Materials",
+            "Motifs",
+            "Technique",
+            "Cultural context"
+          ],
+          "rows": [
+            [
+              "**Madhubani**",
+              "Mithila region of Bihar, especially Madhubani, Darbhanga, and Sitamarhi[1][2]",
+              "Traditionally mud walls; now paper, cloth, and canvas; natural dyes, twigs/fingers/matchsticks[9][13]",
+              "Deities, wedding/fertility symbols, fish, birds, flowers, nature, village life[3][6][12]",
+              "Dense line work, geometric filling, no empty space, bold borders",
+              "Traditionally painted by women for rituals, festivals, and auspicious occasions"
+            ],
+            [
+              "**Warli**",
+              "Tribal communities of Maharashtra, especially northern Konkan and districts such as Thane and Palghar[10][14]",
+              "Mud walls or earthen surfaces; white rice paste with water/gum; often a red-brown ground",
+              "Daily village life, farming, hunting, dance, marriage, harvest, animals",
+              "Minimalist white geometric figures made from circles, triangles, and lines",
+              "Linked to community life and social rituals rather than deity-centered storytelling"
+            ],
+            [
+              "**Pattachitra**",
+              "Odisha, especially around Puri and Raghurajpur, and also parts of West Bengal",
+              "Cloth or palm leaf; prepared cloth base with chalk/gum; natural pigments and fine brushes",
+              "Jagannath, Krishna, Rama, Mahabharata/Ramayana scenes, mythological narratives",
+              "Fine outlines, intricate narrative panels, strong borders, tightly composed figures",
+              "Devotional and temple-linked art connected to Jagannath culture and ritual storytelling[8]"
+            ]
+          ],
+          "source_line": 3,
+          "id": "BXP-049/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "4715d40dfbab05690eb88e4e92a949e1a6d00cf441f60f1b12c5a6998f11324d",
+          "content_fingerprint": "10aa2b12c38a3d49fd3f54cb03f56244553badfff7d6e7a6bf6a611b1083b747",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "generic"
+          ],
+          "rationale": "Each art tradition is a complete six-attribute profile with long descriptions. Cards suit mobile reading; a complete grid is acceptable.",
+          "baseline_observation": {
+            "domain": "generic",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-049/revalidated.output.a2ui.json",
+            "file_sha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    },
+    "BXP-050": {
+      "source_domain": "Ocean and monsoon science",
+      "tables": [
+        {
+          "columns": [
+            "Signal",
+            "Typical ocean pattern",
+            "Usual effect on Indian monsoon",
+            "Why it matters"
+          ],
+          "rows": [
+            [
+              "El Niño",
+              "Warmer central/eastern Pacific",
+              "Below-normal rainfall, more dry spells, higher heat risk",
+              "Weakens moisture flow and monsoon circulation"
+            ],
+            [
+              "La Niña",
+              "Cooler central/eastern Pacific",
+              "Above-normal rainfall more often",
+              "Strengthens circulation and moisture transport"
+            ],
+            [
+              "Positive IOD",
+              "West Indian Ocean warmer than east",
+              "Often supports stronger monsoon rain",
+              "Adds moisture and can counter El Niño"
+            ],
+            [
+              "Negative IOD",
+              "East Indian Ocean warmer than west",
+              "Often weakens monsoon rain",
+              "Reduces convection near India and can worsen El Niño’s impact"
+            ]
+          ],
+          "source_line": 10,
+          "id": "BXP-050/table-1",
+          "shape": "entity_rows",
+          "fingerprint": "6c75a73945d35716a5c6c30c9bca65a7ee4c7e4065931c57662f70b84de38ee0",
+          "content_fingerprint": "6c75a73945d35716a5c6c30c9bca65a7ee4c7e4065931c57662f70b84de38ee0",
+          "preferred_presentation": "cards",
+          "acceptable_presentations": [
+            "cards",
+            "table"
+          ],
+          "preferred_domains": [
+            "comparison",
+            "weather"
+          ],
+          "acceptable_domains": [
+            "comparison",
+            "weather",
+            "generic"
+          ],
+          "rationale": "Each climate signal has a pattern/effect/explanation profile. Cards or a complete comparison table work; weather is a topical equivalent only if the renderer retains non-forecast fields.",
+          "baseline_observation": {
+            "domain": "comparison",
+            "presentation": "table",
+            "file": "tmp/genuicraft_20260918/gemma50_v9_revalidated/BXP-050/revalidated.output.a2ui.json",
+            "file_sha256": "053d111b52513031f33f5f84ca62b1b56e17c52eef1a9ead011e94c41b3f8893",
+            "note": "Observation only; not used as the presentation oracle."
+          }
+        }
+      ]
+    }
+  }
+}

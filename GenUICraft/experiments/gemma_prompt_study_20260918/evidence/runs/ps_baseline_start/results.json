@@ -1,0 +1,57 @@
+[
+  {
+    "id": "BXP-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 230832,
+    "peakPssKb": 3987514,
+    "usedFallback": false,
+    "renderWaitMs": 706,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 25398,
+    "visibleTextNodes": 27,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4035610,
+    "peakPssKb": 4089349,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Expected exactly one complete \u003ca2ui\u003e program.",
+    "elapsedMs": 47589,
+    "attempts": 1
+  },
+  {
+    "id": "BXP-032",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4089393,
+    "peakPssKb": 4127361,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Missing source-bound component \u0027j\u0027.",
+    "elapsedMs": 93135,
+    "attempts": 1
+  },
+  {
+    "id": "BXP-037",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4127517,
+    "peakPssKb": 4164769,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Expected exactly one complete \u003ca2ui\u003e program.",
+    "elapsedMs": 110221,
+    "attempts": 1
+  }
+]

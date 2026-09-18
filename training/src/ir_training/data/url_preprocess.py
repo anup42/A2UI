@@ -26,6 +26,9 @@ _PLACEHOLDER_RE = re.compile(
     r"\[(?:IMAGE_URL|ICON_URL|ACTION_URL|SOURCE_URL|MEDIA_URL|URL|IMAGE_ASSET|ICON_ASSET|MEDIA_ASSET)_\d+\]"
 )
 _TRAILING_PUNCT = ".,;:!?"
+# Slash-delimited financial prose is not a filesystem reference. Keep this
+# deliberately narrow: extensionless Android resources can be real assets.
+_NON_ASSET_PROSE = {"asset/liability", "assets/liabilities"}
 ROLE_SCOPED_BINDING = "role_scoped"
 SOURCE_IDENTITY_BINDING = "source_identity"
 _IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif")
@@ -269,6 +272,8 @@ def _replace_urls_in_text(
     def replace_match(match: re.Match[str]) -> str:
         raw = match.group("quoted_local") or match.group("reference") or match.group(0)
         stripped, suffix = _strip_trailing_punct(raw)
+        if stripped.casefold() in _NON_ASSET_PROSE:
+            return match.group(0)
         role = _classify_url(
             stripped,
             key=key,
@@ -291,6 +296,7 @@ def _find_url_like_values(text: str) -> list[str]:
     return [
         match.group("quoted_local") or match.group("reference") or match.group(0)
         for match in _REFERENCE_RE.finditer(text)
+        if _strip_trailing_punct(match.group("quoted_local") or match.group("reference") or match.group(0))[0].casefold() not in _NON_ASSET_PROSE
     ]
 
 
@@ -409,7 +415,8 @@ def _reference_host(value: str) -> str:
 
 
 def _is_local_asset_reference(value: str) -> bool:
-    return bool(_LOCAL_ASSET_START_RE.match(value.strip()))
+    unpunctuated, _ = _strip_trailing_punct(value.strip())
+    return unpunctuated.casefold() not in _NON_ASSET_PROSE and bool(_LOCAL_ASSET_START_RE.match(value.strip()))
 
 
 def _strip_trailing_punct(raw: str) -> tuple[str, str]:

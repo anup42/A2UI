@@ -1,0 +1,19 @@
+{
+  "id": "BXP-047",
+  "provider": "gemma4_e2b",
+  "firstInRun": false,
+  "baselinePssKb": 4559161,
+  "peakPssKb": 4599161,
+  "usedFallback": false,
+  "renderWaitMs": 701,
+  "screenshot": true,
+  "hierarchyCacheRefreshed": true,
+  "status": "success",
+  "elapsedMs": 23010,
+  "visibleTextNodes": 24,
+  "attempts": 1,
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+    "Model-generated layout with exact source bindings."
+  ]
+}

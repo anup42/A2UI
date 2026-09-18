@@ -1,0 +1,109 @@
+[
+  {
+    "id": "BXP-001",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 228954,
+    "peakPssKb": 3993864,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 138007,
+    "visibleTextNodes": 25,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-006",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4057972,
+    "peakPssKb": 4097488,
+    "usedFallback": false,
+    "renderWaitMs": 707,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 118313,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-008",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4107833,
+    "peakPssKb": 4136515,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 120836,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-013",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4141274,
+    "peakPssKb": 4177037,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 105080,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-017",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4129557,
+    "peakPssKb": 4139321,
+    "usedFallback": false,
+    "renderWaitMs": 706,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 73912,
+    "visibleTextNodes": 8,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-025",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4148577,
+    "peakPssKb": 4171404,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Table.rows must use a known source binding; received \u0027@.c\u0027.",
+    "elapsedMs": 131251,
+    "attempts": 1
+  }
+]

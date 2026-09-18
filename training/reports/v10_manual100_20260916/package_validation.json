@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "manual_verdicts": 100,
+  "complete_pairs": 100,
+  "unique_records": 100,
+  "manual_counts": {
+    "KEEP": 69,
+    "REPAIR": 26,
+    "REJECT": 5
+  },
+  "local_report_links_valid": true,
+  "dataset_unchanged": true,
+  "artifact_sha256": {
+    "build_report.py": "925589b04f3e16657e4dc806b23b4850ee5748cceff1bb360a6853e7d44eac68",
+    "CASE_REVIEW.md": "2c48286f09d56cb955f9b6f4c3668de33bec1b18dbaa1b8f264f6a6b91edee59",
+    "checks.json": "eb67e38f2580741149309a712cd252d096ae5647ae920037e4b146f58859411b",
+    "external_evidence.json": "f0d2ca119dec0cb00aa1fd87cfa6c8984f9d9dffee56e82fb0c62671b1a04448",
+    "integrity_after.json": "e421c5aadc85609ceb162cfd518f5472078489e9156ddae846b2b66a2c5947f0",
+    "manual_verdicts.json": "50a84f781fbe0d506d22c8217c3e43e9c6e777b46064b3b5498e5d9298a97a1e",
+    "REPORT.md": "26e9a058ae61eb2db2aa7bc53248ccf720f9c17ac98e2155a48a077ae0d97d8b",
+    "samples.jsonl": "5e27e97172008af8d07d65207a9976994399ffe153c4b28b4b10f14badb59a42",
+    "SAMPLES.md": "f1275046aefed84714278d808677c3964d7385f9fad81170d2bd217edd29194a",
+    "summary.json": "722d7040eb2d340362786b98e1b0a1d0518363250c232c1688f48209643213ac"
+  }
+}

@@ -1,0 +1,77 @@
+Starting a Gradle Daemon, 1 busy and 1 incompatible and 5 stopped Daemons could not be reused, use --status for details
+> Task :genuicraft:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :genuicraft:preBuild UP-TO-DATE
+> Task :genuicraft:preDebugBuild UP-TO-DATE
+> Task :genuicraft:generateDebugResValues UP-TO-DATE
+> Task :genuicraft:generateDebugResources UP-TO-DATE
+> Task :genuicraft:packageDebugResources UP-TO-DATE
+> Task :genuicraft:parseDebugLocalResources UP-TO-DATE
+> Task :genuicraft:generateDebugRFile UP-TO-DATE
+> Task :genuicraft:javaPreCompileDebug UP-TO-DATE
+> Task :genuicraft:preDebugUnitTestBuild UP-TO-DATE
+> Task :genuicraft:writeDebugAarMetadata UP-TO-DATE
+> Task :genuicraft:checkDebugUnitTestAarMetadata UP-TO-DATE
+> Task :genuicraft:compileDebugLibraryResources UP-TO-DATE
+> Task :genuicraft:generateDebugUnitTestResValues UP-TO-DATE
+> Task :genuicraft:mapDebugUnitTestSourceSetPaths UP-TO-DATE
+> Task :genuicraft:generateDebugUnitTestResources UP-TO-DATE
+> Task :genuicraft:mergeDebugUnitTestResources UP-TO-DATE
+> Task :genuicraft:extractDeepLinksDebug UP-TO-DATE
+> Task :genuicraft:processDebugManifest UP-TO-DATE
+> Task :genuicraft:processDebugUnitTestManifest UP-TO-DATE
+> Task :genuicraft:processDebugUnitTestResources UP-TO-DATE
+> Task :genuicraft:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :genuicraft:mergeDebugShaders UP-TO-DATE
+> Task :genuicraft:compileDebugShaders NO-SOURCE
+> Task :genuicraft:generateDebugAssets UP-TO-DATE
+> Task :genuicraft:mergeDebugAssets UP-TO-DATE
+> Task :genuicraft:generateDebugUnitTestAssets UP-TO-DATE
+> Task :genuicraft:packageDebugAssets UP-TO-DATE
+> Task :genuicraft:mergeDebugUnitTestAssets UP-TO-DATE
+> Task :genuicraft:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :genuicraft:generateDebugUnitTestConfig UP-TO-DATE
+> Task :genuicraft:preReleaseBuild UP-TO-DATE
+> Task :genuicraft:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :genuicraft:mergeReleaseNativeLibs UP-TO-DATE
+> Task :genuicraft:stripReleaseDebugSymbols UP-TO-DATE
+> Task :genuicraft:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :genuicraft:generateReleaseResValues UP-TO-DATE
+> Task :genuicraft:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :genuicraft:generateReleaseResources UP-TO-DATE
+> Task :genuicraft:packageReleaseResources UP-TO-DATE
+> Task :genuicraft:parseReleaseLocalResources UP-TO-DATE
+> Task :genuicraft:generateReleaseRFile UP-TO-DATE
+> Task :genuicraft:javaPreCompileRelease UP-TO-DATE
+> Task :genuicraft:mergeReleaseShaders UP-TO-DATE
+> Task :genuicraft:compileReleaseShaders NO-SOURCE
+> Task :genuicraft:generateReleaseAssets UP-TO-DATE
+> Task :genuicraft:packageReleaseAssets UP-TO-DATE
+> Task :genuicraft:prepareLintJarForPublish UP-TO-DATE
+> Task :genuicraft:prepareReleaseArtProfile UP-TO-DATE
+> Task :genuicraft:processReleaseManifest UP-TO-DATE
+> Task :genuicraft:writeReleaseAarMetadata UP-TO-DATE
+> Task :genuicraft:sourceReleaseJar
+> Task :genuicraft:generatePomFileForReleasePublication
+> Task :genuicraft:compileReleaseKotlin
+> Task :genuicraft:compileDebugKotlin
+> Task :genuicraft:extractReleaseAnnotations
+> Task :genuicraft:compileDebugJavaWithJavac NO-SOURCE
+> Task :genuicraft:processDebugJavaRes UP-TO-DATE
+> Task :genuicraft:compileReleaseJavaWithJavac NO-SOURCE
+> Task :genuicraft:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :genuicraft:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :genuicraft:processReleaseJavaRes UP-TO-DATE
+> Task :genuicraft:mergeReleaseJavaResource UP-TO-DATE
+> Task :genuicraft:bundleLibRuntimeToJarDebug
+> Task :genuicraft:bundleLibCompileToJarDebug
+> Task :genuicraft:syncReleaseLibJars
+> Task :genuicraft:bundleReleaseAar
+> Task :genuicraft:generateMetadataFileForReleasePublication
+> Task :genuicraft:publishReleasePublicationToLocalBuildRepository
+> Task :genuicraft:compileDebugUnitTestKotlin
+> Task :genuicraft:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :genuicraft:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :genuicraft:testDebugUnitTest
+
+BUILD SUCCESSFUL in 46s
+60 actionable tasks: 13 executed, 47 up-to-date

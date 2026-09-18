@@ -253,8 +253,23 @@ val syncIntentFixtures by tasks.registering(Copy::class) {
     into(generatedIntentFixturesDir)
 }
 
+val genUiSdkOnlyNative = providers.gradleProperty("genUiSdkOnlyNative").orNull == "true"
+val genUiCompatibleLegacyJni = layout.buildDirectory.dir("generated/genuicraft-compatible-jni")
+val stageGenUiCompatibleLegacyJni by tasks.registering(Sync::class) {
+    // The AAR owns these three libraries. Keep the original reference files intact,
+    // and avoid nondeterministic pickFirst selection between different versions.
+    from("src/main/jniLibs")
+    exclude("**/libLiteRt.so", "**/libLiteRtOpenClAccelerator.so", "**/libLiteRtTopKOpenClSampler.so")
+    into(genUiCompatibleLegacyJni)
+}
+
 android {
     namespace = "com.samsung.genuicraft"
+    // Acceptance builds can prove that GenUICraft's published dependencies supply
+    // the native runtime without relying on this reference app's legacy JNI copies.
+    sourceSets.getByName("main").jniLibs.setSrcDirs(
+        if (genUiSdkOnlyNative) emptyList<Any>() else listOf(genUiCompatibleLegacyJni)
+    )
     compileSdk = 35
     // Keep ordinary instrumentation on debug, but allow the model handoff
     // gate to target the credential-free, data-isolated judgeCapture package:
@@ -442,6 +457,7 @@ tasks.register<JacocoReport>("rendererCoverageReport") {
 }
 
 tasks.named("preBuild").configure {
+    if (!genUiSdkOnlyNative) dependsOn(stageGenUiCompatibleLegacyJni)
     dependsOn(generateRendererCapabilities)
     dependsOn(syncIntentFixtures)
 }
@@ -524,6 +540,8 @@ tasks.matching { task ->
 }
 
 dependencies {
+    // Consume the published AAR, so device validation exercises the same artifact as Bixby.
+    implementation("com.samsung.genuicraft:genuicraft:0.1.0")
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
 
     implementation("androidx.core:core-ktx:1.15.0")

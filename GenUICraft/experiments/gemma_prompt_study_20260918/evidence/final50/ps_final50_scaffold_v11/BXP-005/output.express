@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h],"md")
+a=Text("Operating hours","heading")
+b=List(items=["**Weekdays/Saturdays:** Most sources show service starting around **5:00 AM** and ending around **11:05 PM** on the Purple and Green lines; the Yellow Line runs later in the evening from RV Road, up to **11:55 PM** from that station.[1][6]","**Sundays:** Trains generally start at **7:00 AM**."])
+c=Text("Ticket and pass options","heading")
+d=List(items=["**Single-journey tokens** are available for one trip.[13]","**Smart cards** are available for repeated travel and usually give a fare discount versus tokens.","**QR-code / digital tickets** are also accepted.","**Tourist passes** listed in current fare guides include **1-day, 3-day, and 5-day** options."])
+e=Text("Interchange stations","heading")
+f=List(items=["The **main interchange** is **Nadaprabhu Kempegowda Station, Majestic**, where the **Purple Line** and **Green Line** meet.[5][8]","**RV Road** is the key interchange between the **Green Line** and **Yellow Line**.","Other important interchange points include **Jayadeva Hospital, Central Silk Board, Krishnarajapura, MG Road, Mysuru Road, J.P. Nagar,** and **Jaya Prakash Nagara**.[2][3]"])
+g=Text("First-time rider quick guide","heading")
+h=List(items=["Buy a **token** for one trip or a **smart card** if you will make multiple rides.","Check your route for the correct **interchange station** before boarding.","Expect the network to be busiest during weekday **morning and evening peak hours**.[4]","If you are changing lines, **Majestic** and **RV Road** are the simplest transfer points to remember."])
+</a2ui>

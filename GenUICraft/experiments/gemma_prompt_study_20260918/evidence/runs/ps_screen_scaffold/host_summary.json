@@ -1,0 +1,25 @@
+{
+  "run": "ps_screen_scaffold",
+  "total": 4,
+  "expected_total": 4,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 4,
+  "first_attempt_success": 4,
+  "repaired_success": 0,
+  "failures": [],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-003",
+    "status": "success",
+    "elapsedMs": 24691,
+    "attempts": 1
+  },
+  "median_success_ms": 127945.0,
+  "median_warm_success_ms": 136643,
+  "p95_success_ms": 152535,
+  "max_process_pss_kb": 4148632,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

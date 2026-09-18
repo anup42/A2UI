@@ -1,0 +1,31 @@
+{
+  "run": "ps_confirm_scaffold",
+  "total": 12,
+  "expected_total": 12,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 11,
+  "first_attempt_success": 11,
+  "repaired_success": 0,
+  "failures": [
+    {
+      "id": "BXP-013",
+      "status": "failure",
+      "message": "Table.rows must use a known source binding; received '@source.k.'."
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-001",
+    "status": "success",
+    "elapsedMs": 15435,
+    "attempts": 1
+  },
+  "median_success_ms": 111050,
+  "median_warm_success_ms": 117913.0,
+  "p95_success_ms": 169129,
+  "max_process_pss_kb": 4321814,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

@@ -1,0 +1,360 @@
+{
+  "run": "ps_final50_scaffold_v11",
+  "model_calls": 0,
+  "kind": "saved_scaffold_scope_audit",
+  "cases": [
+    {
+      "id": "BXP-001",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-002",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-003",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-004",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-005",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-006",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-007",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-008",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-009",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-010",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-011",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-012",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-013",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-014",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-015",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-016",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-017",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-018",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-019",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-020",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-021",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-022",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-023",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-024",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-025",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-026",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-027",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-028",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-029",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-030",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-031",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-032",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-033",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-034",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-035",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-036",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-037",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-038",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-039",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-040",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-041",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-042",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-043",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-044",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-045",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-046",
+      "conversion_status": "failure",
+      "scope_status": "conversion_failed"
+    },
+    {
+      "id": "BXP-047",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-048",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-049",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-050",
+      "conversion_status": "failure",
+      "scope_status": "conversion_failed"
+    }
+  ],
+  "scope": "semantic component graph and source order; declaration order recorded separately",
+  "planned": 50,
+  "complete": true,
+  "missing_ids": [],
+  "duplicate_ids": [],
+  "unexpected_ids": [],
+  "preserved": 48
+}

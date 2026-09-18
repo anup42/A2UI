@@ -1,0 +1,25 @@
+{
+  "run": "gemma_v10_gpu_mtp_smoke",
+  "total": 2,
+  "expected_total": 2,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 2,
+  "first_attempt_success": 2,
+  "repaired_success": 0,
+  "failures": [],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-003",
+    "status": "success",
+    "elapsedMs": 28504,
+    "attempts": 1
+  },
+  "median_success_ms": 42175.5,
+  "median_warm_success_ms": 55847,
+  "p95_success_ms": 55847,
+  "max_process_pss_kb": 4067311,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

@@ -1,0 +1,9 @@
+<a2ui>
+root=Column([a,b,c,d,e,f],gap="md")
+a=Text("@source.a",variant="heading")
+b=Table(columns="@source.b",rows="@source.c",domain="comparison",preferredPresentation="table")
+c=Text("@source.d")
+d=Text("@source.e",variant="heading")
+e=List(items="@source.f")
+f=Text("@source.g")
+</a2>

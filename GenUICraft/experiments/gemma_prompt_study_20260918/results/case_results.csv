@@ -1,0 +1,110 @@
+run,prompt,id,status,attempts,elapsed_ms,first_in_run,peak_pss_kb,message
+ps_baseline_end,baseline,BXP-003,success,1,99616,True,3975410,
+ps_baseline_end,baseline,BXP-030,failure,1,100715,False,4068049,Expected exactly one complete <a2ui> program.
+ps_baseline_end,baseline,BXP-032,failure,1,190789,False,4092982,Missing source-bound component 'j'.
+ps_baseline_end,baseline,BXP-037,failure,1,220753,False,4118838,Expected exactly one complete <a2ui> program.
+ps_baseline_start,baseline,BXP-003,success,1,25398,True,3987514,
+ps_baseline_start,baseline,BXP-030,failure,1,47589,False,4089349,Expected exactly one complete <a2ui> program.
+ps_baseline_start,baseline,BXP-032,failure,1,93135,False,4127361,Missing source-bound component 'j'.
+ps_baseline_start,baseline,BXP-037,failure,1,110221,False,4164769,Expected exactly one complete <a2ui> program.
+ps_confirm_baseline_targeted,baseline_targeted,BXP-001,success,1,138007,True,3993864,
+ps_confirm_baseline_targeted,baseline_targeted,BXP-006,success,1,118313,False,4097488,
+ps_confirm_baseline_targeted,baseline_targeted,BXP-008,success,1,120836,False,4136515,
+ps_confirm_baseline_targeted,baseline_targeted,BXP-013,success,1,105080,False,4177037,
+ps_confirm_baseline_targeted,baseline_targeted,BXP-017,success,1,73912,False,4139321,
+ps_confirm_baseline_targeted,baseline_targeted,BXP-025,failure,1,131251,False,4171404,Table.rows must use a known source binding; received '@.c'.
+ps_confirm_scaffold,scaffold,BXP-001,success,1,15435,True,3954669,
+ps_confirm_scaffold,scaffold,BXP-006,success,1,124776,False,4064329,
+ps_confirm_scaffold,scaffold,BXP-008,success,1,97509,False,4093803,
+ps_confirm_scaffold,scaffold,BXP-013,failure,1,150461,False,4153369,Table.rows must use a known source binding; received '@source.k.'.
+ps_confirm_scaffold,scaffold,BXP-017,success,1,64930,False,4161797,
+ps_confirm_scaffold,scaffold,BXP-025,success,1,84037,False,4182967,
+ps_confirm_scaffold,scaffold,BXP-027,success,1,145709,False,4182316,
+ps_confirm_scaffold,scaffold,BXP-033,success,1,143461,False,4231518,
+ps_confirm_scaffold,scaffold,BXP-035,success,1,152885,False,4262098,
+ps_confirm_scaffold,scaffold,BXP-038,success,1,49787,False,4270346,
+ps_confirm_scaffold,scaffold,BXP-045,success,1,111050,False,4321814,
+ps_confirm_scaffold,scaffold,BXP-047,success,1,169129,False,4264058,
+ps_final50_scaffold_v11,gemma,BXP-001,success,1,64617,True,3940486,
+ps_final50_scaffold_v11,gemma,BXP-002,success,1,75316,False,4027522,
+ps_final50_scaffold_v11,gemma,BXP-003,success,1,102035,False,4051420,
+ps_final50_scaffold_v11,gemma,BXP-004,success,1,158475,False,4093716,
+ps_final50_scaffold_v11,gemma,BXP-005,success,1,117540,False,4137632,
+ps_final50_scaffold_v11,gemma,BXP-006,success,1,151508,False,4134924,
+ps_final50_scaffold_v11,gemma,BXP-007,success,1,99204,False,4150206,
+ps_final50_scaffold_v11,gemma,BXP-008,success,1,97507,False,4190827,
+ps_final50_scaffold_v11,gemma,BXP-009,success,1,76348,False,4220253,
+ps_final50_scaffold_v11,gemma,BXP-010,success,1,103252,False,4193392,
+ps_final50_scaffold_v11,gemma,BXP-011,success,1,81640,False,4211460,
+ps_final50_scaffold_v11,gemma,BXP-012,success,1,93450,False,4245286,
+ps_final50_scaffold_v11,gemma,BXP-013,success,2,330338,False,4274474,
+ps_final50_scaffold_v11,gemma,BXP-014,success,1,87128,False,4244438,
+ps_final50_scaffold_v11,gemma,BXP-015,success,1,96467,False,4266482,
+ps_final50_scaffold_v11,gemma,BXP-016,success,1,61168,False,4280975,
+ps_final50_scaffold_v11,gemma,BXP-017,success,1,69172,False,4290487,
+ps_final50_scaffold_v11,gemma,BXP-018,success,1,95237,False,4305787,
+ps_final50_scaffold_v11,gemma,BXP-019,success,1,83538,False,4319330,
+ps_final50_scaffold_v11,gemma,BXP-020,success,1,72767,False,4336127,
+ps_final50_scaffold_v11,gemma,BXP-021,success,1,139720,False,4317097,
+ps_final50_scaffold_v11,gemma,BXP-022,success,1,128217,False,4331463,
+ps_final50_scaffold_v11,gemma,BXP-023,success,1,64594,False,4349373,
+ps_final50_scaffold_v11,gemma,BXP-024,success,1,32222,False,4379785,
+ps_final50_scaffold_v11,gemma,BXP-025,success,1,34247,False,4382337,
+ps_final50_scaffold_v11,gemma,BXP-026,success,1,55405,False,4366057,
+ps_final50_scaffold_v11,gemma,BXP-027,success,1,60545,False,4415479,
+ps_final50_scaffold_v11,gemma,BXP-028,success,1,38257,False,4423835,
+ps_final50_scaffold_v11,gemma,BXP-029,success,2,129132,False,4447579,
+ps_final50_scaffold_v11,gemma,BXP-030,success,1,60179,False,4417799,
+ps_final50_scaffold_v11,gemma,BXP-031,success,1,70509,False,4453835,
+ps_final50_scaffold_v11,gemma,BXP-032,success,1,45644,False,4473795,
+ps_final50_scaffold_v11,gemma,BXP-033,success,1,55355,False,4452743,
+ps_final50_scaffold_v11,gemma,BXP-034,success,1,61625,False,4468207,
+ps_final50_scaffold_v11,gemma,BXP-035,success,1,58715,False,4508015,
+ps_final50_scaffold_v11,gemma,BXP-036,success,2,106330,False,4527931,
+ps_final50_scaffold_v11,gemma,BXP-037,success,1,58712,False,4488407,
+ps_final50_scaffold_v11,gemma,BXP-038,success,1,20026,False,4505727,
+ps_final50_scaffold_v11,gemma,BXP-039,success,1,28627,False,4529455,
+ps_final50_scaffold_v11,gemma,BXP-040,success,1,71257,False,4541695,
+ps_final50_scaffold_v11,gemma,BXP-041,success,1,52603,False,4513079,
+ps_final50_scaffold_v11,gemma,BXP-042,success,1,50918,False,4555235,
+ps_final50_scaffold_v11,gemma,BXP-043,success,1,70762,False,4563831,
+ps_final50_scaffold_v11,gemma,BXP-044,success,1,66138,False,4576599,
+ps_final50_scaffold_v11,gemma,BXP-045,success,1,41287,False,4551299,
+ps_final50_scaffold_v11,gemma,BXP-046,failure,2,170081,False,4590651,"Preserve source block order: expected block 9, received 10."
+ps_final50_scaffold_v11,gemma,BXP-047,success,1,66132,False,4598422,
+ps_final50_scaffold_v11,gemma,BXP-048,success,1,81338,False,4608298,
+ps_final50_scaffold_v11,gemma,BXP-049,success,1,37042,False,4615346,
+ps_final50_scaffold_v11,gemma,BXP-050,failure,2,188375,False,4630948,Expected exactly one complete <a2ui> program.
+ps_screen_baseline_targeted,baseline_targeted,BXP-003,success,1,39263,True,3987526,
+ps_screen_baseline_targeted,baseline_targeted,BXP-030,failure,1,84235,False,4103904,Table.rows must use a known source binding; received '@.c'.
+ps_screen_baseline_targeted,baseline_targeted,BXP-032,success,1,156010,False,4155346,
+ps_screen_baseline_targeted,baseline_targeted,BXP-037,success,1,152373,False,4219582,
+ps_screen_compact,compact,BXP-003,failure,1,51485,True,3988524,Unclosed A2UI Express expression.
+ps_screen_compact,compact,BXP-030,failure,1,60841,False,4043535,Unexpected document delimiter outside an Express string or comment.
+ps_screen_compact,compact,BXP-032,failure,1,175213,False,4073046,Expected exactly one complete <a2ui> program.
+ps_screen_compact,compact,BXP-037,failure,1,87989,False,4121950,"A2UI Express statement is not an assignment: {""root"":""root\u003dColumn([a,b,c,d,e,f,g],gap\u0003d\""md\"")""}"
+ps_screen_completeness,completeness,BXP-003,failure,1,151018,True,3972101,"A2UI Express statement is not an assignment: {""root"":""root\u0003dColumn([a,b,c,d,e],gap\u000d\""md\"")""}"
+ps_screen_completeness,completeness,BXP-030,failure,1,125220,False,4006413,Expected exactly one complete <a2ui> program.
+ps_screen_example_first,example_first,BXP-003,success,1,121443,True,3975805,
+ps_screen_example_first,example_first,BXP-030,success,1,128635,False,4090727,
+ps_screen_example_first,example_first,BXP-032,failure,1,165216,False,4121015,Unclosed A2UI Express expression.
+ps_screen_example_first,example_first,BXP-037,failure,1,247850,False,4141511,Table.rows must use a known source binding; received '@.c'.
+ps_screen_grammar,grammar,BXP-003,failure,1,139894,True,3975665,"A2UI Express statement is not an assignment: root\u0003dColumn([a,b,c,d,e],gap""md"")"
+ps_screen_grammar,grammar,BXP-030,failure,1,109989,False,4030756,"A2UI Express statement is not an assignment: heading(a,Text(""@source.a""))"
+ps_screen_mapping,mapping,BXP-003,success,1,102564,True,3967104,
+ps_screen_mapping,mapping,BXP-030,failure,1,111519,False,4106331,A2UI Express requires reserved root component.
+ps_screen_mapping,mapping,BXP-032,failure,1,204651,False,4143191,Expected exactly one complete <a2ui> program.
+ps_screen_minimal,minimal,BXP-003,failure,1,127498,True,3977973,Unclosed A2UI Express expression.
+ps_screen_minimal,minimal,BXP-030,failure,1,138323,False,4037310,Unexpected document delimiter outside an Express string or comment.
+ps_screen_mixed_examples,mixed_examples,BXP-003,failure,1,126069,True,3989348,Trailing A2UI Express syntax at 20.
+ps_screen_mixed_examples,mixed_examples,BXP-030,success,1,118430,False,4070568,
+ps_screen_mixed_examples,mixed_examples,BXP-032,failure,1,174515,False,4156746,Missing source-bound component 'cdeafghijk'.
+ps_screen_procedural,procedural,BXP-003,failure,1,189466,True,3978032,Expected exactly one complete <a2ui> program.
+ps_screen_procedural,procedural,BXP-030,failure,1,181910,False,4011479,Expected exactly one complete <a2ui> program.
+ps_screen_scaffold,scaffold,BXP-003,success,1,24691,True,3959646,
+ps_screen_scaffold,scaffold,BXP-030,success,1,136643,False,4082580,
+ps_screen_scaffold,scaffold,BXP-032,success,1,119247,False,4092988,
+ps_screen_scaffold,scaffold,BXP-037,success,1,152535,False,4148632,
+ps_synthetic_scaffold_v11,gemma,SYN-001,success,1,24337,True,3939591,
+ps_synthetic_scaffold_v11,gemma,SYN-002,success,1,71144,False,4011069,
+ps_synthetic_scaffold_v11,gemma,SYN-003,success,1,105053,False,4034121,

@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-09-18T02:34:45.975958+00:00",
+  "expectations_sha256": "4bf0efa6ef7923677efc46723476a47df37ff8574c13634f601efec93e4bf7c2",
+  "runs": [
+    {
+      "run": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold",
+      "audit_kind": "saved_table_selection_audit",
+      "model_calls": 0,
+      "planned_cases": [
+        "BXP-001",
+        "BXP-006",
+        "BXP-008",
+        "BXP-013",
+        "BXP-017",
+        "BXP-025",
+        "BXP-027",
+        "BXP-033",
+        "BXP-035",
+        "BXP-038",
+        "BXP-045",
+        "BXP-047"
+      ],
+      "case_count": 12,
+      "missing_result_ids": [],
+      "duplicate_result_ids": [],
+      "unexpected_result_ids": [],
+      "source_non_successes": [
+        {
+          "id": "BXP-013",
+          "status": "failure",
+          "message": "Table.rows must use a known source binding; received '@source.k.'."
+        }
+      ],
+      "summary": {
+        "content_issue_cases": 1,
+        "expected_tables": 7,
+        "cases_without_source_tables": 5,
+        "missing_output_cases": 1,
+        "choice_review_cases": 0,
+        "table_content": {
+          "exact_content": 6
+        },
+        "presentation_choices": {
+          "acceptable_alternative": 3,
+          "preferred": 3
+        },
+        "domain_choices": {
+          "acceptable": 1,
+          "preferred": 5
+        }
+      },
+      "cases": [
+        {
+          "id": "BXP-001",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-001/table-1",
+              "component_id": "a",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "weather"
+              ],
+              "acceptable_domains": [
+                "weather",
+                "generic",
+                "schedule"
+              ],
+              "baseline_choice": {
+                "domain": "weather",
+                "presentation": "cards"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each date is a forecast entity with temperature and rain attributes. Weather cards are natural; a complete grid remains acceptable."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-001\\output.a2ui.json",
+          "output_sha256": "25110adf8ed886efe52cc4518c379cf28e4af5aa6bfd0ec33f8430f9759c1e11",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-006",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-006/table-1",
+              "component_id": "c",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "cards",
+              "presentation_status": "preferred",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each driving route has a complete distance/time/conditions/stop profile. Long prose cells favor cards; a scrollable full grid is acceptable."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-006\\output.a2ui.json",
+          "output_sha256": "9c9c0c19712275fe5650467dae49dbc1e76351dc31c49b8358371bb74069bec9",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-008",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-008/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison",
+                "generic"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "generic",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each restaurant is a venue record. The source-binding domain enum has no restaurant value; generic/comparison cards avoid invented booking semantics."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-008\\output.a2ui.json",
+          "output_sha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-013",
+          "source_status": "failure",
+          "expected_table_count": 1,
+          "tables": [],
+          "hard_issues": [
+            "Missing saved compiled output; case is not skipped."
+          ],
+          "output_status": "missing_output",
+          "content_status": "not_evaluable"
+        },
+        {
+          "id": "BXP-017",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-017\\output.a2ui.json",
+          "output_sha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-025",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-025/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "schedule",
+              "domain_status": "preferred",
+              "presentation": "cards",
+              "presentation_status": "preferred",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "schedule"
+              ],
+              "acceptable_domains": [
+                "schedule",
+                "generic",
+                "comparison"
+              ],
+              "baseline_choice": {
+                "domain": "schedule",
+                "presentation": "cards"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each day is an ordered learning-plan step with speaking/listening activities. Schedule cards are preferred; a complete timetable is also valid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-025\\output.a2ui.json",
+          "output_sha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-027",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-027\\output.a2ui.json",
+          "output_sha256": "fae2366dc6dbb505aebc3c669b7a6f47463249ae45c8a230d049c6100a5a7115",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-033",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-033\\output.a2ui.json",
+          "output_sha256": "f66583df72adcb5c22fbad30c14408ae2a389157c165d613afc14c6fb0d89dc2",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-035",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-035\\output.a2ui.json",
+          "output_sha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-038",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-038\\output.a2ui.json",
+          "output_sha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-045",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-045/table-1",
+              "component_id": "r",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison",
+                "generic"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Household and City are complete intervention levels. Two cards or the small 2x3 table are both appropriate; weather is only the surrounding topic."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-045\\output.a2ui.json",
+          "output_sha256": "3524755f1e353a0af96f2a298ca59728ee56d78b85b9c7fb0cbc231f54f1b0bb",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-047",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-047/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table",
+                "cards"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Technical-comparison exception: aligned energy/cycle/safety/cost tradeoffs are central. A full grid is preferred, while complete chemistry cards remain valid on mobile."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_confirm_scaffold\\BXP-047\\output.a2ui.json",
+          "output_sha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        }
+      ]
+    }
+  ],
+  "limitations": "Audits saved content and selection properties, not actual pixel layout or inference quality."
+}

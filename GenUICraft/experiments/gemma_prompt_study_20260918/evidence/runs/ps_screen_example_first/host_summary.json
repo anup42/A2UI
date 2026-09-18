@@ -1,0 +1,36 @@
+{
+  "run": "ps_screen_example_first",
+  "total": 4,
+  "expected_total": 4,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 2,
+  "first_attempt_success": 2,
+  "repaired_success": 0,
+  "failures": [
+    {
+      "id": "BXP-032",
+      "status": "failure",
+      "message": "Unclosed A2UI Express expression."
+    },
+    {
+      "id": "BXP-037",
+      "status": "failure",
+      "message": "Table.rows must use a known source binding; received '@.c'."
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-003",
+    "status": "success",
+    "elapsedMs": 121443,
+    "attempts": 1
+  },
+  "median_success_ms": 125039.0,
+  "median_warm_success_ms": 128635,
+  "p95_success_ms": 128635,
+  "max_process_pss_kb": 4141511,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

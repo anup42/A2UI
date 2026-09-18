@@ -1,0 +1,39 @@
+{
+  "run": "ps_screen_completeness",
+  "total": 2,
+  "expected_total": 4,
+  "run_complete": false,
+  "missing_ids": [
+    "BXP-032",
+    "BXP-037"
+  ],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 0,
+  "first_attempt_success": 0,
+  "repaired_success": 0,
+  "failures": [
+    {
+      "id": "BXP-003",
+      "status": "failure",
+      "message": "A2UI Express statement is not an assignment: {\"root\":\"root\\u0003dColumn([a,b,c,d,e],gap\\u000d\\\"md\\\")\"}"
+    },
+    {
+      "id": "BXP-030",
+      "status": "failure",
+      "message": "Expected exactly one complete <a2ui> program."
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-003",
+    "status": "failure",
+    "elapsedMs": 151018,
+    "attempts": 1
+  },
+  "median_success_ms": null,
+  "median_warm_success_ms": null,
+  "p95_success_ms": null,
+  "max_process_pss_kb": 4006413,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

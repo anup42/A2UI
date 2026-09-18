@@ -1,0 +1,10 @@
+{
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "outputTokens": 1212,
+  "inputTokens": 1886,
+  "decodeTokensPerSecond": 34.914077884880676,
+  "providerCallMs": 36601,
+  "metricsEnabled": true,
+  "outputCharacters": 288,
+  "inputScaffoldCount": 0
+}

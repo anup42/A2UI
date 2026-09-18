@@ -1,0 +1,68 @@
+[
+  {
+    "name": "baseline",
+    "sha256": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b",
+    "bytes": 2959,
+    "characters": 2957
+  },
+  {
+    "name": "baseline_targeted",
+    "sha256": "783a0571ed406d301721b9debc4c9b71c8176924076f88a9ec3aa31fc5e40cf7",
+    "bytes": 3577,
+    "characters": 3532
+  },
+  {
+    "name": "compact",
+    "sha256": "c9ebd2ee32865d961ca0d6d36cc22b3d14aac23a73709491c22065b46d1955a8",
+    "bytes": 2185,
+    "characters": 2185
+  },
+  {
+    "name": "completeness",
+    "sha256": "e708cf52e3e2d2236121d9f09e66f3151f4c2ed54cf12d87e842a38419499d28",
+    "bytes": 3320,
+    "characters": 3320
+  },
+  {
+    "name": "example_first",
+    "sha256": "c0878d9fb5d6fe6f45f854acd61a0c74a7bed4a52c8fdd1815370680b00315d3",
+    "bytes": 2822,
+    "characters": 2822
+  },
+  {
+    "name": "grammar",
+    "sha256": "1bd22df2a380ef7db38d96d68802e51c9b9e7dfdc1dd110bb8572840682c8d65",
+    "bytes": 2850,
+    "characters": 2850
+  },
+  {
+    "name": "mapping",
+    "sha256": "42e726b1e8167ce7e229f62898198a4725ec2517764ec043ade8cbafc81a9b67",
+    "bytes": 1807,
+    "characters": 1807
+  },
+  {
+    "name": "minimal",
+    "sha256": "fd00e896ad964648d1cfcf5c41f693507362a071e85aa48846bb7a9bee5a3fbe",
+    "bytes": 2380,
+    "characters": 2380
+  },
+  {
+    "name": "mixed_examples",
+    "sha256": "bccdb467713197038e75f47de712ed054111c36cebb89f997b077dee6d815630",
+    "bytes": 4867,
+    "characters": 4867
+  },
+  {
+    "name": "procedural",
+    "sha256": "b6b789c902dc33e58f4ea5fed94335e1c1041e2be878e6190d9acfaa4f737857",
+    "bytes": 2821,
+    "characters": 2821
+  },
+  {
+    "name": "scaffold",
+    "sha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+    "bytes": 1258,
+    "characters": 1258
+  }
+]

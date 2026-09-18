@@ -1,0 +1,45 @@
+[
+  {
+    "id": "BXP-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 229310,
+    "peakPssKb": 3967104,
+    "usedFallback": false,
+    "renderWaitMs": 1060,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 102564,
+    "visibleTextNodes": 19,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4022234,
+    "peakPssKb": 4106331,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "A2UI Express requires reserved root component.",
+    "elapsedMs": 111519,
+    "attempts": 1
+  },
+  {
+    "id": "BXP-032",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4106427,
+    "peakPssKb": 4143191,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Expected exactly one complete \u003ca2ui\u003e program.",
+    "elapsedMs": 204651,
+    "attempts": 1
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "kind": "captured_sdk_prompt_native_throughput",
+  "runId": "ps_gpu_mtp_throughput_v11",
+  "sourceRunId": "ps_final50_scaffold_v11",
+  "status": "success",
+  "totalCases": 3,
+  "completedCases": 3,
+  "failedCases": 0,
+  "runFailure": false,
+  "engineInitialized": true,
+  "engineClosed": true,
+  "runElapsedMs": 148328,
+  "systemPromptSha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+  "acceptanceEvaluated": false
+}

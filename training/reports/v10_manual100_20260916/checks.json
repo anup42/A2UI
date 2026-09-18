@@ -1,0 +1,949 @@
+{
+  "dataset": "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v10",
+  "seed": 2026091603,
+  "method": "Uniform reservoir sample without replacement within each split: 90 train, 10 val; previously manually reviewed source families and original source hashes excluded.",
+  "previous_sample_records": 110,
+  "excluded_source_families": [
+    "archive-source-family-sha256:02049e1b1c5b4555df014b910d33322a4bae989a06cda5d619ac0c03e1c6a672",
+    "archive-source-family-sha256:020c6328dc875278586e4d36699b52b44e34ba5c2112fef4b8a87c83f199c98b",
+    "archive-source-family-sha256:02de01705f0f830030ea1586afec7d02920e9e3011abc01d47c99cbe557270e6",
+    "archive-source-family-sha256:04d66d701a6fc24a05587bad11b026205fbfe3b74d81f5c9e3e4c9eff62283fe",
+    "archive-source-family-sha256:057ae7efd26704fdf1ae1e35f84bfff8f266957029c3929e35cc2b7bb92939d9",
+    "archive-source-family-sha256:06bf49b3d1d3832830ca9af5afd48ab7f1fabfcc089e8891244bc98ab5a99c23",
+    "archive-source-family-sha256:07896311be220210de7d05c848c22de41bf9e0b0582dc59bbc8febb2821aa23e",
+    "archive-source-family-sha256:079f982a6c8b9a67cab914db1590fc4b5e5aece71bdf7d5db398c21c8ba527b9",
+    "archive-source-family-sha256:08bd1a2223c735f30d35c1793ecf72daa26b14e1d17c55b8daa4163c3bb00cd8",
+    "archive-source-family-sha256:0abc080e764df1daa3c6880237bee11f473936c5100b4bb3a16ea71e00c176e2",
+    "archive-source-family-sha256:0ad7c97cc4bd25eb1b6d774126a0d29ccb5a39a5d31e34858fa353ab31a33b29",
+    "archive-source-family-sha256:0b674bf9206deb078a1f2279b6ec53db2b23df5d167b5395f77b8d083fc0d730",
+    "archive-source-family-sha256:0c2931337d409ea80364e5c82cece0a0f3040bc64d9126864f7a46930c2b98c8",
+    "archive-source-family-sha256:0c4ad410677aaa7554f1070d27cc879d5db32b645b4e24153b3f496047db3068",
+    "archive-source-family-sha256:0f540067446b86729338af24d0015ee5ef89c8cdf3a06ca401f0db570d9fd4ec",
+    "archive-source-family-sha256:117fe129ee0bde497d0f70359f684c4e895b2ca65eed0932c5b660c5c63e6cc2",
+    "archive-source-family-sha256:118353f98296ce96120368d953d9a52f8d214599d608336a64af596417fc66e7",
+    "archive-source-family-sha256:11b843e9082c280a63ee5754702cb9884673b376e51f455c7a5f38739db36f38",
+    "archive-source-family-sha256:12dd24f9eea11af68a4acff72e3ce31064524d1f3f6b375c7ebe2cec43f659c7",
+    "archive-source-family-sha256:13aef6b0e98848d7b264ca63e7ddee90c841f9bacd850a2302e404b1875a48e3",
+    "archive-source-family-sha256:14302fa135a98563ad37dc1d92bceb5c8eb81241f04a25965d89210abdb32645",
+    "archive-source-family-sha256:145f1f8bbb4a23210dbc375bb361035a7ae9dc612e47fd2e80522f426e801001",
+    "archive-source-family-sha256:14d322b9646dce5cdb724c39d7a71c4e4d53e2f210b06e419aaa2d38821874d7",
+    "archive-source-family-sha256:154a6c01ccb3418f11ed020eff87c3014838dc0272582ea1a26a1f159d07b56d",
+    "archive-source-family-sha256:167f8caf19e0290a7b6099302cd22875f6de1226cc69ffbdc360a73536815fa5",
+    "archive-source-family-sha256:17489b0f971bb1eaf2ea615dfdbeecbc8194fbce0aa7cacad871c873c8c77a82",
+    "archive-source-family-sha256:197d6bb57e50e448645c50729df9dc53a529b0154127d88f9715f6931d7c3a58",
+    "archive-source-family-sha256:1a00d943b314f477fdaec865424f1fbd61dad379abe8206917acbc7b5fde5345",
+    "archive-source-family-sha256:1d48cf365316a4f819f7c01b80e2747b0e8b58a4438f60afc27e1ae43a811e86",
+    "archive-source-family-sha256:1e640c20e5c3c4d6157965c616dc536090e8c383aeff4834b2b2478c69b36023",
+    "archive-source-family-sha256:1e7e72b00864a5855730e927e32ad4727410959eda411cc6e90b9d3d12b6dbbf",
+    "archive-source-family-sha256:20db0c098d7c6fdb1ad640fccbd02a0d70a3537a9d97546c82e7aa36a61b4264",
+    "archive-source-family-sha256:212193fe3745a3ee19c881e1aa35fd24e52099c3a6fdd3db8974c200de93c206",
+    "archive-source-family-sha256:21c6ff09e443b3bb0146a3afde882f0a284a588ed4feb5c0253b6dd4a81586f0",
+    "archive-source-family-sha256:2254fd22cc742b8f814b8699a58c7acb263187e33bd85303150bf7c47277c9f7",
+    "archive-source-family-sha256:23adc82b84aa52c49a82c426582ef6ab9b98f7bfed9f06a13ced766f09483a19",
+    "archive-source-family-sha256:241fd19c176a723acd636135bf68729a94820b7e4fc0ee3643a140d5a3e14e9b",
+    "archive-source-family-sha256:263c1e669fdc01b5db8f0173197f23c3015c9a1c285db38015a34d829a59c0e1",
+    "archive-source-family-sha256:26a76523531cc580ef5b8e7f79bdbdcc6a5107bfed3dd68048e74ff5443193c9",
+    "archive-source-family-sha256:279f017b4b12ba34ec311277127c6092458a2f6b3a3194432ae561a538439d1c",
+    "archive-source-family-sha256:29b0f7589dab07a7a59128b2414c45cbb30b903049ca1901982d717c2dba0b95",
+    "archive-source-family-sha256:2b4085ae509252816dd12acfcc30b05974c47a24ae2050dc790113c739f2d2d7",
+    "archive-source-family-sha256:2d136617ca6a02ec35cf8d755b9806f7cf296afc01da01fcc5fab30c5a23bfa3",
+    "archive-source-family-sha256:2dd96e96f9b31120bbee5bbe90a127e19097d7a1ffcaf46ab8fb7b3d6132501e",
+    "archive-source-family-sha256:2e2cf22ca57bbfe4f5d9b8fd6ae1b9f7275941fcd55fb1c851c04507895f72a9",
+    "archive-source-family-sha256:2e554d2ebce300447827fe3136d98d302f19367fe4a2f01eb2620db3b9e4c30d",
+    "archive-source-family-sha256:2f11943979bcff677916931a3560c2c241489136062301907e934f4a8984d4e7",
+    "archive-source-family-sha256:30340c2e5f212fc6439995b8be75ed154b88a8c77a6e1811d654231103f25549",
+    "archive-source-family-sha256:31efed431ed8404dcdd40021c327ecb88651424f3bfea2edb2b1555abed2b228",
+    "archive-source-family-sha256:329f6d4b43a32fec79a3a05433123d17fb3f90a28653081cb9b7ebe840da5ead",
+    "archive-source-family-sha256:35339abf29df2acce2a58ee97823066f989b20fd3d1a8fccc963444e77d6e1a4",
+    "archive-source-family-sha256:354370c9ee4ba80427609a5f08ad31032e1bbad3ed9060d2a2efbb16e2e17119",
+    "archive-source-family-sha256:3631e92941523ce871b1c526d2ac16be38e725ba8ce145142d696009d5dcd1af",
+    "archive-source-family-sha256:36e9fb9e5c09b70a4cf3aab7af291cef7893d7a48bf32ec18013c661a0bd9a81",
+    "archive-source-family-sha256:3b690be36f92f59fb5992846bb0f2592e15314bb71184147ebd2d3062c53878d",
+    "archive-source-family-sha256:3c89d41ac1abd56c90e5eca7125df76c5d3e74d155ea3d89e6bbf70c5a84bc2c",
+    "archive-source-family-sha256:3c9cdbcd55fcbfa5cf6cae55d8b40586aed5bfcaac18a8730a5e4a460704b5f6",
+    "archive-source-family-sha256:3cb8345e3003f29fcc1bebbb7ecd575b5e357c61de40032b4077ead3637c9737",
+    "archive-source-family-sha256:3df24c18f99f530f60106c9fef450d9517addaa422e6684d280a1c8e138e7c24",
+    "archive-source-family-sha256:3f25146189ac0e556e188980c34ded9ed32a7de2873b63f0b32013165c7cd83c",
+    "archive-source-family-sha256:3fe10788118809946ed8ce52c68508e4f06930e8009903b2db09140b096f8eec",
+    "archive-source-family-sha256:40e012caa601e45e1fd566a3db61dc883092eeb8a733a7ac7fb15bb9621438d0",
+    "archive-source-family-sha256:4253238fb8b7b4d5a10b2766ba989b2937a372a5f028133c78ad736bb07bd8a2",
+    "archive-source-family-sha256:43371be139a37a29963420aaffdd0f29dcdc9c1f9a9fe15db10dc6e965316926",
+    "archive-source-family-sha256:48c5391c0133c4227fef4c85a457f140d93006b80c3e82ff6935a46aa0d8fe53",
+    "archive-source-family-sha256:4954f877fed3c47955f1e7f9ee0c2741c1f5af7ae0db6de6baae010f21a406fc",
+    "archive-source-family-sha256:4e37bec3420f0304ae015c7a49664fa71a8336982f85369ffc6556d6be30e58d",
+    "archive-source-family-sha256:50a40ac54a244416bfdade2f5cb8b19399c9ece2ecc2c695d7f342b5182d6595",
+    "archive-source-family-sha256:51740fc0fb0dbcb89e13645488fa2e165b3636bb1b6909125a89c31de25542fc",
+    "archive-source-family-sha256:51cb217418b379016b917c6983e7432a3fd497bc1c522f9fe35967341a1e9265",
+    "archive-source-family-sha256:51e164914e9e04d5e8fa365eb622446716fcee5d2d6e357ba8bde1938999591a",
+    "archive-source-family-sha256:529eac18420b7aa5c2450ed40bdedc2f268519f664a6242d4a9519ae3383b9ea",
+    "archive-source-family-sha256:53d20c2e8f238fbf89126b1493783b282684c2a724eaa23f4bcbe0f5f16f10d4",
+    "archive-source-family-sha256:54e51c5cf7316dc3e08e76493bf3c441b6072e765cb03f5b2ea0d3002029b745",
+    "archive-source-family-sha256:5718aa55d31828f190c9ea7ad9643f99766f409ba80808d86b0f9fa1b033d671",
+    "archive-source-family-sha256:57c0e0c009ff95aa629b38739974e30fc3874c61e960d23a2b16da6c3f551b04",
+    "archive-source-family-sha256:57daffa73165159baac4b6889c6173b3be45bdbe2ad25a2efe0ae487da1a018d",
+    "archive-source-family-sha256:5a4ffee225860265a68e1841446ae774bf7e41a094337288271151c338f35806",
+    "archive-source-family-sha256:5c9f7c7b886f7c2e6adb8d197911c9544d7e5a811ee60c698da1261d3723736c",
+    "archive-source-family-sha256:5df6cfd2dffdae9b25d63f2b3f7fe923123c67fc469297e00cb3209616cd4751",
+    "archive-source-family-sha256:61cd0f8d32142fe30229d950f57217d76e296aeef7200b6425eb1c8cb735ed03",
+    "archive-source-family-sha256:62bfebfede7e0bed11ea704fba77c16b5d3918e9ba927507f4c75476dcc261f5",
+    "archive-source-family-sha256:6366d468bee47b610c4ac0348622b569cd3f4c44db1148041b25a9be34966121",
+    "archive-source-family-sha256:6387fd22fabd6a2ae043a22124959d340e358cf8e6f79136bb3a0512ba6fd6da",
+    "archive-source-family-sha256:71269942cc7f0d82797068384eea9707f5979ed24c1bf2aad4c7749f4441b9d9",
+    "archive-source-family-sha256:788bb751b120f70a8d7e50f15ba0d25ddbaa6182979f96f4d34721bd8f9c08d5",
+    "archive-source-family-sha256:791e0cf6bce43b62309b311d888298ee10695f678532c11eeec12501e4e9db40",
+    "archive-source-family-sha256:7a1d862474042fa0268b18942b0d6e153ff3496f9dea37b577015794d37928aa",
+    "archive-source-family-sha256:81fcb289311e6d970c0cdc28f9da291b9431a5e0bc642340ca4e8d15a1a6daed",
+    "archive-source-family-sha256:893dc3c2751c3a6b48eb1701c1519e1ae0992a52bde682d45cdbf0be40c731af",
+    "archive-source-family-sha256:8ef7fda6bfbb094fffd68b484edb33f3ff59b3d9e5f4ee4ca1bcbf28f2f5be30",
+    "archive-source-family-sha256:945c7ff1e8e0766d72a58419379006d470dd6aef67c84298050097314ddd8b59",
+    "archive-source-family-sha256:94a81174d1f33d348f08e63611aca79537f4b3af1d7df0158c47789f67e5787a",
+    "archive-source-family-sha256:94cc8aed445d61cdd4e85943fb659a53b2141859a5184152d766cd36ade466b6",
+    "archive-source-family-sha256:96270b4ce9235094d2142e3f4be40c8fe6ad262cd750bdcd31bc666a5c1e4a60",
+    "archive-source-family-sha256:9733d6a870bbc912053901489669dbaceb7d2d748c1f3915435c4049ee4821fa",
+    "archive-source-family-sha256:9953238ab3251637c1cafd125cddc0e808db50f926d67712767e18ac8f0fac17",
+    "archive-source-family-sha256:9dd29dedfc9ae4bc7376afefec7ae1fd021d8bc4b2d55156cc40bbbcf1b9d04c",
+    "archive-source-family-sha256:a0097158a96ff2db8f08dd9d87748012ea738344697f747683ba85e90afc5d14",
+    "archive-source-family-sha256:a1cbea333e7cfb34093212e6c40704e48b3c7b65ca09cbd8d353c348122f6ad1",
+    "archive-source-family-sha256:ab5a35757b6021a8708da51597e1c03306aea57e69954b8dbfe6d94ab230b9f2",
+    "archive-source-family-sha256:ae7fa443595fca3ac95b2cefa63d01bd75202d6a1f85af4ce4a20450e7c6413a",
+    "archive-source-family-sha256:afc8a3f2334dc7d0c261ddffd6ecd8b42ffa90ef0ad38118bd549f41122c0a4b",
+    "archive-source-family-sha256:b59673e17959317c322b16c1c9c71a8d90689642c76b7072052a4107de0a6471",
+    "archive-source-family-sha256:b94a915feea28f0bc02b1d97aab236d0bc86a0571b2cad541af1e0343970b012",
+    "archive-source-family-sha256:ba97a845e504fc64ca6e4c711b520e5689ee5149387f4615736ce3649ac04a14",
+    "archive-source-family-sha256:c4f85534ab0c313386d6d9acc3ac4f0e8cb8ce27e267c146e088b40bd2425b3f",
+    "archive-source-family-sha256:ccf2abe5ff40e56c6cf6c922bb3220fb292f3584dec406ec3473125aac1e9dcc",
+    "archive-source-family-sha256:d995025ed21cb56f02cb4f4f69b42f167e0252c66ebcbd15147e621331c73d0b",
+    "archive-source-family-sha256:f9e43aa8da3ded01cb9dd442c201134fa9b19716795822f5af8eeb49d91bd263"
+  ],
+  "excluded_original_source_sha256": [
+    "02049e1b1c5b4555df014b910d33322a4bae989a06cda5d619ac0c03e1c6a672",
+    "06bf49b3d1d3832830ca9af5afd48ab7f1fabfcc089e8891244bc98ab5a99c23",
+    "0abc080e764df1daa3c6880237bee11f473936c5100b4bb3a16ea71e00c176e2",
+    "0c2931337d409ea80364e5c82cece0a0f3040bc64d9126864f7a46930c2b98c8",
+    "0f540067446b86729338af24d0015ee5ef89c8cdf3a06ca401f0db570d9fd4ec",
+    "117fe129ee0bde497d0f70359f684c4e895b2ca65eed0932c5b660c5c63e6cc2",
+    "118353f98296ce96120368d953d9a52f8d214599d608336a64af596417fc66e7",
+    "11b843e9082c280a63ee5754702cb9884673b376e51f455c7a5f38739db36f38",
+    "14302fa135a98563ad37dc1d92bceb5c8eb81241f04a25965d89210abdb32645",
+    "145f1f8bbb4a23210dbc375bb361035a7ae9dc612e47fd2e80522f426e801001",
+    "14d322b9646dce5cdb724c39d7a71c4e4d53e2f210b06e419aaa2d38821874d7",
+    "154a6c01ccb3418f11ed020eff87c3014838dc0272582ea1a26a1f159d07b56d",
+    "18e1c81030a3577af46255b2c003634dc1e3f6158e26beb3dee9b146583385a7",
+    "1a00d943b314f477fdaec865424f1fbd61dad379abe8206917acbc7b5fde5345",
+    "1a62df13d060808329d71835bbb6307175cdfa9fb89712287348ec734b8bdf91",
+    "1d48cf365316a4f819f7c01b80e2747b0e8b58a4438f60afc27e1ae43a811e86",
+    "20db0c098d7c6fdb1ad640fccbd02a0d70a3537a9d97546c82e7aa36a61b4264",
+    "212193fe3745a3ee19c881e1aa35fd24e52099c3a6fdd3db8974c200de93c206",
+    "21266b66fe5388da29bc006b4ec66d56e0f7a6ea0d52baef4e980d9e47ede30f",
+    "21c6ff09e443b3bb0146a3afde882f0a284a588ed4feb5c0253b6dd4a81586f0",
+    "241fd19c176a723acd636135bf68729a94820b7e4fc0ee3643a140d5a3e14e9b",
+    "279f017b4b12ba34ec311277127c6092458a2f6b3a3194432ae561a538439d1c",
+    "27e9dfa4d9669ba0a5151f2386c8be5ead8b4a8970f80f1c5faa80f251bcf0a8",
+    "29b0f7589dab07a7a59128b2414c45cbb30b903049ca1901982d717c2dba0b95",
+    "29c7b185a714729b5dcbab2b925444e94befab6cd9715d5ef12aa5e081405191",
+    "2ad92742f3f1f11a802776031b28ed70476118bb4d6f14c413e36006bcc1f572",
+    "2b4085ae509252816dd12acfcc30b05974c47a24ae2050dc790113c739f2d2d7",
+    "2f11943979bcff677916931a3560c2c241489136062301907e934f4a8984d4e7",
+    "30340c2e5f212fc6439995b8be75ed154b88a8c77a6e1811d654231103f25549",
+    "31e31ffbe928e8847bacc96c235c6d553b88bf97a39f50ea275ffc924303c70e",
+    "31efed431ed8404dcdd40021c327ecb88651424f3bfea2edb2b1555abed2b228",
+    "3631e92941523ce871b1c526d2ac16be38e725ba8ce145142d696009d5dcd1af",
+    "3b690be36f92f59fb5992846bb0f2592e15314bb71184147ebd2d3062c53878d",
+    "3cb8345e3003f29fcc1bebbb7ecd575b5e357c61de40032b4077ead3637c9737",
+    "3df24c18f99f530f60106c9fef450d9517addaa422e6684d280a1c8e138e7c24",
+    "3ed2f928550b4a2557f89479d3508ceb76bf6d0c800c230f02627ef2e0930aae",
+    "4954f877fed3c47955f1e7f9ee0c2741c1f5af7ae0db6de6baae010f21a406fc",
+    "4e37bec3420f0304ae015c7a49664fa71a8336982f85369ffc6556d6be30e58d",
+    "4f410334846a99592d5c99b903e104067312006a620e23e9f38b2849697c8ee6",
+    "529eac18420b7aa5c2450ed40bdedc2f268519f664a6242d4a9519ae3383b9ea",
+    "53d20c2e8f238fbf89126b1493783b282684c2a724eaa23f4bcbe0f5f16f10d4",
+    "5718aa55d31828f190c9ea7ad9643f99766f409ba80808d86b0f9fa1b033d671",
+    "57c0e0c009ff95aa629b38739974e30fc3874c61e960d23a2b16da6c3f551b04",
+    "59cf9c1db9cca988ce041f9b8eed7b8f62d3ab36f4078f6e13fb70b436e79d9c",
+    "5cd8614ff082994e28e3e15d8ebcc9abd5ecc14e594fd29fa6e74b4c625312c9",
+    "5df6cfd2dffdae9b25d63f2b3f7fe923123c67fc469297e00cb3209616cd4751",
+    "62bfebfede7e0bed11ea704fba77c16b5d3918e9ba927507f4c75476dcc261f5",
+    "66260ad78b803b508e5824eeb8d36fbcc7600ab6ce3905d851d122eb4077cb47",
+    "6a89d4d537511e44bc8c0fba1b50e11b42274f8b84d0b5e549158cd44ccda277",
+    "6d6ed7d61417edbeaf84966624ea406215c2e3ef2ea4c70a5cbbd28e383d4d24",
+    "6f2ae1bf8522800756a232ee8ddcc0551a107e49401a853350bc0ff88c0b3b56",
+    "7228da320425ae298cd51d5135a916258da1cc61870c92f6aaa605d66461f586",
+    "7423ff9864c8e8618c9f625c109ddad34db8a97f215d60719fe68ae04e370530",
+    "74a114e767bc890c7cfac0074ad3d35c207b55f2b82cdab8d7d0668c70cbe3c9",
+    "79363c403416ee636325192d265fac523fa3c6b81db877226e3f7e9bf0192337",
+    "7f7258b5683e0664dc5fb360b45b0b0b42508a65472fe8baa918174f2d84e814",
+    "7f9b7497b6e88da672d15fbd3fbab0e14a6e5e64d634b890409d77d0ebdc9f1d",
+    "7fe2cfc6f772b21f1d3447120335345f9b676febcd616fa11c599bd8fb5496c8",
+    "92ee9a38aa5249037a4f3fb7834fcfd929d81d01f87c8f863d6323a24f79a634",
+    "945c7ff1e8e0766d72a58419379006d470dd6aef67c84298050097314ddd8b59",
+    "94a81174d1f33d348f08e63611aca79537f4b3af1d7df0158c47789f67e5787a",
+    "94e59e5b1c556e4009e65b239ccb7dddf7c533f4cc5cbc948f085145f30b5333",
+    "9592b2de50b128ea62e0aca83fc323b6f24ab9d7b1769afdb5c090070544f45d",
+    "96270b4ce9235094d2142e3f4be40c8fe6ad262cd750bdcd31bc666a5c1e4a60",
+    "9733d6a870bbc912053901489669dbaceb7d2d748c1f3915435c4049ee4821fa",
+    "9dd29dedfc9ae4bc7376afefec7ae1fd021d8bc4b2d55156cc40bbbcf1b9d04c",
+    "a0c3f246a38dd1d4283f21a19147222d8da857f58cd672d9896cbf520a4615bb",
+    "a6d2dd48c25211a87136765d63ac7b052eb44524f396e40cf1add8649a32509c",
+    "a7c2d68b4b2b380696088c037ca67831fa1c1c27de6ae67275ab9c5045454159",
+    "a84cb1eab210e4af13f5ed39fa7215b9ea873f52a5c51b41483f8f00ea8a82cd",
+    "ae3cee8206bf5185fb840608d3feb51d55b1807c3809c4e64fd3ee1d75631a57",
+    "ae7fa443595fca3ac95b2cefa63d01bd75202d6a1f85af4ce4a20450e7c6413a",
+    "b12d90e70bfda4fbcd24768832714e09f6deeb3eaf60dfdb7d95539dbca9043c",
+    "b59673e17959317c322b16c1c9c71a8d90689642c76b7072052a4107de0a6471",
+    "bc8a6b63d200c110af6920a2f080a7d7ceb6255e01e26b1f384c3d08dbe51f5c",
+    "c08928dc81a5134821a604450572cd54c0d04f7c327398bb70e3d2a3c4f9a00c",
+    "c1bf8cd1ebf2a4d9d08d57278adcc4e30ca527c1829ed75d0e0a71dc30132757",
+    "c2b42515452033de2d50ed9b7259982fea480cc91f22e0597538284d520459c9",
+    "c34fbba6a2ba2c3c635a3335d21046a5e028decd16ddd6c4a61fc8024231b289",
+    "c42a749f8b99348ea5c00396a07ae627fbe84b021dc239aa7587104d7843dda1",
+    "c844af9f3ced8735699bfead0cd11ff0dba68bad01bd9a78b9a7a2a961e078e2",
+    "cdea4ed577ab37dabecc1243b4840cfa9885156a73aaa6a757feeca33beffb89",
+    "d007a7294cf703671d1a4607b7bedf421fa01e3fdf7348f4caa70e9a68d25837",
+    "d27b913f3a8d9ef6cedb010f27a99d2caa780e27516c715ab40414843b0e4ae3",
+    "d3d4864481892e7f08dc5b58878445f5b0495584a4b14d34e1a7eab80fbacef9",
+    "dcd662b75f34858719d211b590e04e475e897c290848375e4e06a9c8e9c47546",
+    "e0918ce529700252ce6e9855ba39f8c624e9f19a2f06d9eefd4166114bbf63c0",
+    "e289ebae07e3c402fec07306ac8930675f7e525a144b3c67be53c3dd1ecb6840",
+    "e74112b9e553e89bcd30b6eb7618361acb2061cf1c3f2f13e279eb4d4f0f8dcf",
+    "e86dd2da819423720f96a92e8e7e7fafea885e2e324a65373f7f133841ad3b8d",
+    "ebe06c1423ccdd1c99245dcbb0398e750183ceea458c353fe4e10cd9dc3d0c81",
+    "f13fec9ee1f090bf6c7bd1b93b0706a3fbf2b07f9fb9e2683d9146533318d028",
+    "f6ac9b9db7fe239833823c7b7abcc0d60befe7f039c3cfa5f09b1fecb4be8bb7",
+    "f9e43aa8da3ded01cb9dd442c201134fa9b19716795822f5af8eeb49d91bd263",
+    "fbf45dd328246c2a0ad0b4bd16ad6945c9a4e0c23e011b79b9f431e5b019c630",
+    "fd81a00d65ff1ed7671cf26e9196d54b5ba75d924c122d5b8988c77a745bdc1a",
+    "fe72098f045820ff02675fed41e3aa4905085cf7bbe330b4e9272388d7366e02",
+    "fef6aca2ede09c853254302b4c2a2f58c76d7a189eadd0e791d4cce69302589a",
+    "ff0ea392cdc786adc29c3f7dddca9a350dc8d6cc17d735609d2df6352b60f7e8",
+    "ff34e81dec668ccca0497557239720025d8c0beaa35cc81719642828864d87fb"
+  ],
+  "excluded_row_counts": {
+    "train": 69,
+    "val": 9
+  },
+  "eligible_row_counts": {
+    "train": 91046,
+    "val": 1853
+  },
+  "population_counts": {
+    "train": 91115,
+    "val": 1862
+  },
+  "artifact_sha256_before": {
+    "train.jsonl": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+    "val.jsonl": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7",
+    "benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "boundary_repairs.json": "bf9d9b590b934be33b720e8d36982d6179e2bff5e0aceb7bbe19fb08eb0edb20",
+    "decisions.csv": "cae2439997681069288c7a1bd6c0e47516545a7c10bcd878b149306be4fc077b",
+    "letter_exclusions.json": "25a2a92e06a6ae9a5499f57a5dcfefef57c75a1aa57b7d069283f6cd96118fa4",
+    "near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "quarantine.csv": "55be8f6153edac4bed5ac1dacb07a9eaebcbfa18147d74a078643a59bcfc0cce",
+    "reviewed_findings.json": "3d9399a6fc6b439f1493884904bf08740206f3f6035bf87c6c8b5deb5efe37d8",
+    "semantic_review.jsonl": "dee3346569ae9709f21ffed6bf667ee77e2e26c6f43193bc45e2ae6f9493f7f5"
+  },
+  "manifest_sha256_before": "84db9bb4b8889f8c52f03c2645e99123be773a12b0571e9abc479835c68da3c7",
+  "selection": [
+    {
+      "sample": 1,
+      "split": "train",
+      "line": 465,
+      "coordinate": "train:17193",
+      "source_id": "archive-source-family-sha256:2ee241a6ae7156770eb3a340e47080a652eefa28d2e3a737a95c57eeb23c49ca"
+    },
+    {
+      "sample": 2,
+      "split": "train",
+      "line": 2295,
+      "coordinate": "train:47052",
+      "source_id": "archive-source-family-sha256:3cc944ccabaad3c6f065cd76bb17ec148067513423a163930ebec9516a0ae870"
+    },
+    {
+      "sample": 3,
+      "split": "train",
+      "line": 3156,
+      "coordinate": "train:136019",
+      "source_id": "archive-source-family-sha256:4634f54c314994849032048272f0a8b39bb4561770c4b2c901ee2214d911d787"
+    },
+    {
+      "sample": 4,
+      "split": "train",
+      "line": 3369,
+      "coordinate": "train:50822",
+      "source_id": "archive-source-family-sha256:b2f3a20a843687aca197189c50273619b5e0199ffb58aec3d543f9547eb73157"
+    },
+    {
+      "sample": 5,
+      "split": "train",
+      "line": 4393,
+      "coordinate": "train:59836",
+      "source_id": "archive-source-family-sha256:36901652cc06116b9ab0483513a66fdeb2e2795f2202a6607acc72d4ac9f6e12"
+    },
+    {
+      "sample": 6,
+      "split": "train",
+      "line": 4554,
+      "coordinate": "train:78255",
+      "source_id": "archive-source-family-sha256:07f07d1a5e1bf6ca0aa6c0592c885cb80b4a7b4858cbea0eb8ccba9dd274333a"
+    },
+    {
+      "sample": 7,
+      "split": "train",
+      "line": 5425,
+      "coordinate": "train:51599",
+      "source_id": "archive-source-family-sha256:1c2ff00df947ccc6e7ca6d0c64db25c5f13f9a8b90bd31628b904fb97793aa85"
+    },
+    {
+      "sample": 8,
+      "split": "train",
+      "line": 7902,
+      "coordinate": "train:91278",
+      "source_id": "archive-source-family-sha256:08dfc1e4eb958da599566498db1f7afbcdcdf9ab5a58d2b9b5899cc6b856afb4"
+    },
+    {
+      "sample": 9,
+      "split": "train",
+      "line": 7953,
+      "coordinate": "train:121588",
+      "source_id": "archive-source-family-sha256:18cbe99719c65fd6f442dfe0c67985d9e2187c2975af71e228e92c1faf1044b4"
+    },
+    {
+      "sample": 10,
+      "split": "train",
+      "line": 9062,
+      "coordinate": "train:48765",
+      "source_id": "archive-source-family-sha256:a1ef2b97da7402c13704286b8309faef143c9aa0d229e91844eae4c979b67edd"
+    },
+    {
+      "sample": 11,
+      "split": "train",
+      "line": 12097,
+      "coordinate": "train:18310",
+      "source_id": "archive-source-family-sha256:ab02a332fe9062f9f1c00c47c5eb52423d6fceddf4774162d6d7afd9b6090f77"
+    },
+    {
+      "sample": 12,
+      "split": "train",
+      "line": 12224,
+      "coordinate": "train:8928",
+      "source_id": "archive-source-family-sha256:2beb996687c1e34a67dfa7c5714fda761bc7aa3811ad9a0f217537ee57b238d1"
+    },
+    {
+      "sample": 13,
+      "split": "train",
+      "line": 12794,
+      "coordinate": "train:54230",
+      "source_id": "archive-source-family-sha256:35e380cc91592f8422328ad26513f8d06552e057c47608ae69f4588c908b1ecb"
+    },
+    {
+      "sample": 14,
+      "split": "train",
+      "line": 14433,
+      "coordinate": "train:78362",
+      "source_id": "archive-source-family-sha256:490f928f1c53fd308a0beea700e6fa77153bd483e8719381621136c5014dc1eb"
+    },
+    {
+      "sample": 15,
+      "split": "train",
+      "line": 14666,
+      "coordinate": "train:140420",
+      "source_id": "archive-source-family-sha256:671a4f2c7114a0516928ed36e26cf7dc3f9b4a39ce9e6e7c01ed79f8ee93df57"
+    },
+    {
+      "sample": 16,
+      "split": "train",
+      "line": 15227,
+      "coordinate": "train:3484",
+      "source_id": "archive-source-family-sha256:212f826de37650c55e03f707fd2b8a9c6f0cfabf628883446d58b7cb125baff5"
+    },
+    {
+      "sample": 17,
+      "split": "train",
+      "line": 15801,
+      "coordinate": "train:33709",
+      "source_id": "archive-source-family-sha256:3e0edcc5006ce12f5021c6c9a52c3393193a5350c85ad32280b3a86908b4b796"
+    },
+    {
+      "sample": 18,
+      "split": "train",
+      "line": 16898,
+      "coordinate": "train:45083",
+      "source_id": "archive-source-family-sha256:fb736afdf053801f5d73fa3c90b71ccc1baae4eb647db1d10b4344f7ecfbe5b7"
+    },
+    {
+      "sample": 19,
+      "split": "train",
+      "line": 20562,
+      "coordinate": "train:30434",
+      "source_id": "archive-source-family-sha256:2111260dd98614b4b33a316a971c7dba9429e3f9c9c78b495295214eb6d29b00"
+    },
+    {
+      "sample": 20,
+      "split": "train",
+      "line": 24797,
+      "coordinate": "train:82725",
+      "source_id": "archive-source-family-sha256:1bed0adcbae5984f1b6c73f83e505f4113898c08a9cb5832ff6a25e21ac0bae2"
+    },
+    {
+      "sample": 21,
+      "split": "train",
+      "line": 25666,
+      "coordinate": "train:539",
+      "source_id": "archive-source-family-sha256:ad0c1c39510c704b8e1ad1e972dfef4273547280fee51e8deee02a2233a8c4c7"
+    },
+    {
+      "sample": 22,
+      "split": "train",
+      "line": 26139,
+      "coordinate": "train:98944",
+      "source_id": "archive-source-family-sha256:42da00a8e085fe9f70bceb88877d2a63c85982743f153b07d44ae81f89a5f868"
+    },
+    {
+      "sample": 23,
+      "split": "train",
+      "line": 26742,
+      "coordinate": "train:149753",
+      "source_id": "archive-source-family-sha256:90bac8ee025a1d93d92939337e1e57a91d4ac745acc9e1aa453dfa5271bce843"
+    },
+    {
+      "sample": 24,
+      "split": "train",
+      "line": 27143,
+      "coordinate": "train:88903",
+      "source_id": "archive-source-family-sha256:085820347299fa7be688e49eeb3819b2dcf9b53231b9081e52d590c16e263098"
+    },
+    {
+      "sample": 25,
+      "split": "train",
+      "line": 27310,
+      "coordinate": "train:44613",
+      "source_id": "archive-source-family-sha256:35f8f4360f70618b2d2ff136fdd40ed052b2b2eb8af8b1c767713207998cfd8b"
+    },
+    {
+      "sample": 26,
+      "split": "train",
+      "line": 28780,
+      "coordinate": "train:8203",
+      "source_id": "archive-source-family-sha256:8c4489bd5e7b6858e3ebb353f4e2fed8b351f055646a108dae00200385f9d4c7"
+    },
+    {
+      "sample": 27,
+      "split": "train",
+      "line": 30879,
+      "coordinate": "train:70200",
+      "source_id": "archive-source-family-sha256:dd5d2f5a333316d13435ec7d78112fa08741f2260456339932b1dbcc3f48e794"
+    },
+    {
+      "sample": 28,
+      "split": "train",
+      "line": 30894,
+      "coordinate": "train:29166",
+      "source_id": "archive-source-family-sha256:7b0afad90b2b1ccd4451766f30ad5f6c2b18ccc81e3696447b798e947ae5ad8e"
+    },
+    {
+      "sample": 29,
+      "split": "train",
+      "line": 32320,
+      "coordinate": "train:63467",
+      "source_id": "archive-source-family-sha256:6a8e61cb034ea7fb6fd8a4fad6fe8b4c98a7ec19fc63ca8adf3058ed23bb15e1"
+    },
+    {
+      "sample": 30,
+      "split": "train",
+      "line": 35687,
+      "coordinate": "train:107112",
+      "source_id": "archive-source-family-sha256:a072477926c196406525416c0bbef26911820a565bd2b18476b04d3eafc95ffb"
+    },
+    {
+      "sample": 31,
+      "split": "train",
+      "line": 37041,
+      "coordinate": "train:4814",
+      "source_id": "archive-source-family-sha256:11ee2ece9aad33c9377a27dba6e34c8cf9a11471644134b8c305e077bb7859ab"
+    },
+    {
+      "sample": 32,
+      "split": "train",
+      "line": 37670,
+      "coordinate": "train:107289",
+      "source_id": "archive-source-family-sha256:9569e893303b290bd2f5af4eb166d1912ecb4546a336f3183dad5b1513d64e42"
+    },
+    {
+      "sample": 33,
+      "split": "train",
+      "line": 39477,
+      "coordinate": "train:135286",
+      "source_id": "archive-source-family-sha256:354ce45cf7c8b045828eca778213368945b7a7fb8530df3f954caf436b5b8c46"
+    },
+    {
+      "sample": 34,
+      "split": "train",
+      "line": 39624,
+      "coordinate": "train:76867",
+      "source_id": "archive-source-family-sha256:857a219587463723c7338d77db2c4de6c33ec07dc842812a4ae982a9dab94e10"
+    },
+    {
+      "sample": 35,
+      "split": "train",
+      "line": 40262,
+      "coordinate": "train:129773",
+      "source_id": "archive-source-family-sha256:391c42498ebf565851a75dff201412bd75f7d7a74c2ddff2a3da4af7ab1b5c0e"
+    },
+    {
+      "sample": 36,
+      "split": "train",
+      "line": 41986,
+      "coordinate": "train:40335",
+      "source_id": "archive-source-family-sha256:4d625f46258f360ae613f31010de3755ad177472529fc62fd84a9f52546c3547"
+    },
+    {
+      "sample": 37,
+      "split": "train",
+      "line": 42478,
+      "coordinate": "train:62752",
+      "source_id": "archive-source-family-sha256:4fba703a82bbca19361c11aa5edf75714756d7941f4cb518bc0ff8a8f688d149"
+    },
+    {
+      "sample": 38,
+      "split": "train",
+      "line": 43299,
+      "coordinate": "train:1214",
+      "source_id": "archive-source-family-sha256:116e898719621e90e8fd58f18f44f8046fbedc144a5d402e71fd89a9fff1452f"
+    },
+    {
+      "sample": 39,
+      "split": "train",
+      "line": 43406,
+      "coordinate": "train:122171",
+      "source_id": "archive-source-family-sha256:306970ec0c31b9d0ebda409e2f482f465ea1283128479ffd1af2934b317ca1e6"
+    },
+    {
+      "sample": 40,
+      "split": "train",
+      "line": 44153,
+      "coordinate": "train:101378",
+      "source_id": "archive-source-family-sha256:0c65e3c2e265a4558e130ea8ed126b74888e2ecbdc9e7b5a00235bf4b17d3fab"
+    },
+    {
+      "sample": 41,
+      "split": "train",
+      "line": 45106,
+      "coordinate": "train:101725",
+      "source_id": "archive-source-family-sha256:1e3abdf92043c8d625ddf65e166d936389c16406581acb81d6ea0cf5317a524d"
+    },
+    {
+      "sample": 42,
+      "split": "train",
+      "line": 45306,
+      "coordinate": "train:28904",
+      "source_id": "archive-source-family-sha256:4b9dc4e4f7807dd71539470af87676ed2a2628c7e5e07892f60a4a1cd460a2f5"
+    },
+    {
+      "sample": 43,
+      "split": "train",
+      "line": 46653,
+      "coordinate": "train:66247",
+      "source_id": "archive-source-family-sha256:1e71ef9db877c2eb32b800b0d58891ad8026df84e906b2b446cb89c7cc2c484d"
+    },
+    {
+      "sample": 44,
+      "split": "train",
+      "line": 46656,
+      "coordinate": "train:89643",
+      "source_id": "archive-source-family-sha256:001a69e717f3defbe1cded67ad9cdc5ca5e6ab68dbc34c0ce1d6c2c71bd99ecc"
+    },
+    {
+      "sample": 45,
+      "split": "train",
+      "line": 47564,
+      "coordinate": "train:98441",
+      "source_id": "archive-source-family-sha256:3babba77edf76d945c01e516d643c0c8262fc133418dfb5d104bfbcc0fbf4fe6"
+    },
+    {
+      "sample": 46,
+      "split": "train",
+      "line": 48799,
+      "coordinate": "train:45383",
+      "source_id": "archive-source-family-sha256:c80b85db2bafe4b2ed1e2f5c640b3efe1763626165671ce49966fd8dacd641ac"
+    },
+    {
+      "sample": 47,
+      "split": "train",
+      "line": 52192,
+      "coordinate": "train:123310",
+      "source_id": "archive-source-family-sha256:4daca75e718e74256f9449654d12a6e63407bacd6cf04efedd82ff615a9552b6"
+    },
+    {
+      "sample": 48,
+      "split": "train",
+      "line": 55219,
+      "coordinate": "train:79381",
+      "source_id": "archive-source-family-sha256:1523f9dc3b6498e1e1eb2a6d5c16254ad936ed3e274b919af14a92e45eb60330"
+    },
+    {
+      "sample": 49,
+      "split": "train",
+      "line": 56755,
+      "coordinate": "train:39612",
+      "source_id": "archive-source-family-sha256:21326f0338c0a75400dfcbc538f5a4c0719e6f99b58af4743dd49e534ce740f8"
+    },
+    {
+      "sample": 50,
+      "split": "train",
+      "line": 56759,
+      "coordinate": "train:515",
+      "source_id": "archive-source-family-sha256:0aa1b4af0ca4f312de93a04dcd87cc974f198b5e8fdc31d66432581492476236"
+    },
+    {
+      "sample": 51,
+      "split": "train",
+      "line": 57251,
+      "coordinate": "train:29368",
+      "source_id": "archive-source-family-sha256:a3ed71a976893c04c55ac862d179f45651d62e790c378a079ba528f608c64592"
+    },
+    {
+      "sample": 52,
+      "split": "train",
+      "line": 57394,
+      "coordinate": "train:108265",
+      "source_id": "archive-source-family-sha256:065e24f2d7cca4728723ca265c864b016affdf05b49694485fb87e094dc6fc51"
+    },
+    {
+      "sample": 53,
+      "split": "train",
+      "line": 58529,
+      "coordinate": "train:18122",
+      "source_id": "archive-source-family-sha256:51acec511743acef728ae4a04b66d7394b171a14084e6bff5cf50b1d1d959a7a"
+    },
+    {
+      "sample": 54,
+      "split": "train",
+      "line": 61089,
+      "coordinate": "train:116508",
+      "source_id": "archive-source-family-sha256:17446e54875a876fbe44880bd7bf7442d085e8a33c9395ff0dd94cdedf5fdd2d"
+    },
+    {
+      "sample": 55,
+      "split": "train",
+      "line": 61604,
+      "coordinate": "train:124801",
+      "source_id": "archive-source-family-sha256:40599a0a45164778a4a78191936e3530edc9a30b17cce118c448424a177871fd"
+    },
+    {
+      "sample": 56,
+      "split": "train",
+      "line": 62918,
+      "coordinate": "train:74345",
+      "source_id": "archive-source-family-sha256:1ddb0cf8ffe00011d15482a5a41f76f6cb3d4194080c94114608c11466a92c12"
+    },
+    {
+      "sample": 57,
+      "split": "train",
+      "line": 63180,
+      "coordinate": "train:138391",
+      "source_id": "archive-source-family-sha256:2d626efdca038ac33ce496da67e4c1fc5be829296138bea437b525c2acb80821"
+    },
+    {
+      "sample": 58,
+      "split": "train",
+      "line": 63961,
+      "coordinate": "train:114898",
+      "source_id": "archive-source-family-sha256:244754a807e89a11db3e59178bee8c538c4871087d2257a9a5fac93012365a00"
+    },
+    {
+      "sample": 59,
+      "split": "train",
+      "line": 64672,
+      "coordinate": "train:34825",
+      "source_id": "archive-source-family-sha256:3693b286951c257f705f645bcf2334b657b9c061c651cbba0f183d170b2f7b4e"
+    },
+    {
+      "sample": 60,
+      "split": "train",
+      "line": 65564,
+      "coordinate": "train:129027",
+      "source_id": "archive-source-family-sha256:52d06d19a1c861567666f8563ec4d4e7a69973b16fc987e0f63adc5c661f2b75"
+    },
+    {
+      "sample": 61,
+      "split": "train",
+      "line": 65713,
+      "coordinate": "train:129562",
+      "source_id": "archive-source-family-sha256:9e03d760b6a75d69f0f194893902e659be0e1ccaaac12d8fc93f6e6090aa456b"
+    },
+    {
+      "sample": 62,
+      "split": "train",
+      "line": 67174,
+      "coordinate": "train:7444",
+      "source_id": "archive-source-family-sha256:29929a5ecf59254bad499021172c791d74714edcf35832e91381f312e3e7eb12"
+    },
+    {
+      "sample": 63,
+      "split": "train",
+      "line": 67187,
+      "coordinate": "train:42196",
+      "source_id": "archive-source-family-sha256:44ea6edcf383ec73cf656c61ec96f694881398da4aad15375acb689973fa94de"
+    },
+    {
+      "sample": 64,
+      "split": "train",
+      "line": 68092,
+      "coordinate": "train:146181",
+      "source_id": "archive-source-family-sha256:5f0f0819c517eae61c364b85cda1d75c1f595ccef79b1be2d2733a00124b1214"
+    },
+    {
+      "sample": 65,
+      "split": "train",
+      "line": 68181,
+      "coordinate": "train:134249",
+      "source_id": "archive-source-family-sha256:4a967f386eb415b4e5b633cbcbf57ce8fe7c46c5563cea21a995d5d699075925"
+    },
+    {
+      "sample": 66,
+      "split": "train",
+      "line": 68935,
+      "coordinate": "train:134995",
+      "source_id": "archive-source-family-sha256:6c16744d8647ccaee4464e1eab7132eacabfa0e5afa8d5b9f8cd804baac6ade1"
+    },
+    {
+      "sample": 67,
+      "split": "train",
+      "line": 69481,
+      "coordinate": "train:38181",
+      "source_id": "archive-source-family-sha256:81c39514520defb775968d63f32760680ac670bbfccdd6b7152442565127cd7f"
+    },
+    {
+      "sample": 68,
+      "split": "train",
+      "line": 70836,
+      "coordinate": "train:88910",
+      "source_id": "archive-source-family-sha256:26fca90cb5e0eee8d03830f6157cc30da002e756834f2f651a1567cd63e1388b"
+    },
+    {
+      "sample": 69,
+      "split": "train",
+      "line": 71639,
+      "coordinate": "train:127138",
+      "source_id": "archive-source-family-sha256:251f0a07b97c570d1b963172337d6279555393fe1f4cfbd639d3f458bdb731b2"
+    },
+    {
+      "sample": 70,
+      "split": "train",
+      "line": 72259,
+      "coordinate": "train:24445",
+      "source_id": "archive-source-family-sha256:5609b27d741bd06de2353aab1652e3649fc4c4debf081c740a7b09184b2b682b"
+    },
+    {
+      "sample": 71,
+      "split": "train",
+      "line": 72949,
+      "coordinate": "train:69697",
+      "source_id": "archive-source-family-sha256:a642815125fda7c3cd45a018b5f63ab9a6b7b3a1f246926fcc9d68936d53e344"
+    },
+    {
+      "sample": 72,
+      "split": "train",
+      "line": 73859,
+      "coordinate": "train:2045",
+      "source_id": "archive-source-family-sha256:5670a21ba2ce0540ca0b302fd159ba094361a963b37ca040e8eab3fad767f1e2"
+    },
+    {
+      "sample": 73,
+      "split": "train",
+      "line": 74282,
+      "coordinate": "train:18468",
+      "source_id": "archive-source-family-sha256:c0d57e3c585cdd5545003ad576676f6af3ce16df29b7af31bac517f8301359d6"
+    },
+    {
+      "sample": 74,
+      "split": "train",
+      "line": 74523,
+      "coordinate": "train:139864",
+      "source_id": "archive-source-family-sha256:2a281f1aceb805113be6542937f82d8de6fbe2a7ebfe5f01ddb4c99ce1c531f5"
+    },
+    {
+      "sample": 75,
+      "split": "train",
+      "line": 74559,
+      "coordinate": "train:133864",
+      "source_id": "archive-source-family-sha256:7f0774603e751d4e629150b8af8e084c02a960bb1411d5e225b79f77bf6d7ac5"
+    },
+    {
+      "sample": 76,
+      "split": "train",
+      "line": 75220,
+      "coordinate": "train:107139",
+      "source_id": "archive-source-family-sha256:152ec6ecbdd3ea5118c4a61ba22ece0743ee44fc4e9826672163caa9a00c719e"
+    },
+    {
+      "sample": 77,
+      "split": "train",
+      "line": 76930,
+      "coordinate": "train:10747",
+      "source_id": "archive-source-family-sha256:3e106e6a19c0b58d429d08b1fe30d448f5e0ed3b85d45998e6d91b3adf385c30"
+    },
+    {
+      "sample": 78,
+      "split": "train",
+      "line": 77671,
+      "coordinate": "train:133563",
+      "source_id": "archive-source-family-sha256:3ddd484b1eacda8dd1c6f2eb85beb252e33ec7d361ce570db61ec7d9520a6f01"
+    },
+    {
+      "sample": 79,
+      "split": "train",
+      "line": 78317,
+      "coordinate": "train:147515",
+      "source_id": "archive-source-family-sha256:076e7f398b966a3b0ffedcc7ff94f131d5c14addeda6519242b1154db4c773e9"
+    },
+    {
+      "sample": 80,
+      "split": "train",
+      "line": 78334,
+      "coordinate": "train:65849",
+      "source_id": "archive-source-family-sha256:1f255dd2e2efb9d69e0479447fcf30a79cc0d7d50ef2d403d04502068ef71da9"
+    },
+    {
+      "sample": 81,
+      "split": "train",
+      "line": 78812,
+      "coordinate": "train:128321",
+      "source_id": "archive-source-family-sha256:0bcad6c51d49f64dd2827f072f36544e150d7c551aa5c566a79ec9a7edbf3bf7"
+    },
+    {
+      "sample": 82,
+      "split": "train",
+      "line": 78969,
+      "coordinate": "train:6013",
+      "source_id": "archive-source-family-sha256:714d026af905c635dd494c68bafdf81af95f9b78f00a32aacb7d86adc4d7de55"
+    },
+    {
+      "sample": 83,
+      "split": "train",
+      "line": 79642,
+      "coordinate": "train:89514",
+      "source_id": "archive-source-family-sha256:4fa53c8b0914c9d497a78eaeb38cd3b1ecf83698c792298339a0e76723acb442"
+    },
+    {
+      "sample": 84,
+      "split": "train",
+      "line": 81069,
+      "coordinate": "train:106355",
+      "source_id": "archive-source-family-sha256:3a7b8d482d37421b23b9719896ddd7403d6528f85eeb963940d261631e0026c6"
+    },
+    {
+      "sample": 85,
+      "split": "train",
+      "line": 81518,
+      "coordinate": "train:134350",
+      "source_id": "archive-source-family-sha256:46ff462365f6c02af8028313d5845fcd6b7cb5a7298b95e1c692c0d84dc991b9"
+    },
+    {
+      "sample": 86,
+      "split": "train",
+      "line": 82286,
+      "coordinate": "train:116386",
+      "source_id": "archive-source-family-sha256:d534a4da1f11f053cdcb1f9d198aeb286398be61439a457eba999c59856db1bc"
+    },
+    {
+      "sample": 87,
+      "split": "train",
+      "line": 87061,
+      "coordinate": "train:101778",
+      "source_id": "archive-source-family-sha256:6da6d0260c74d6c8e0b8e6db7401fc4c7785db1719b157befddcd7edfaa38f2d"
+    },
+    {
+      "sample": 88,
+      "split": "train",
+      "line": 87790,
+      "coordinate": "train:49929",
+      "source_id": "archive-source-family-sha256:0c57704b2d5dab7608299876f1e9e513d539d7e9610f70e7c5397830d0fcb644"
+    },
+    {
+      "sample": 89,
+      "split": "train",
+      "line": 88065,
+      "coordinate": "train:106733",
+      "source_id": "archive-source-family-sha256:0d6384b2dc3840c601ecca7a2f36a197fc3374f28b52a9965608e4bc1f3a4b78"
+    },
+    {
+      "sample": 90,
+      "split": "train",
+      "line": 88465,
+      "coordinate": "train:5673",
+      "source_id": "archive-source-family-sha256:184f36b85fd45dc4ad67e0ac24e4df27bb29106d71b3e65b5c73430b95bef8a5"
+    },
+    {
+      "sample": 91,
+      "split": "val",
+      "line": 127,
+      "coordinate": "train:69436",
+      "source_id": "archive-source-family-sha256:093740c1f88232716049571fcd981fd72b02416ae23220fd710cc043eb90f50b"
+    },
+    {
+      "sample": 92,
+      "split": "val",
+      "line": 191,
+      "coordinate": "train:103893",
+      "source_id": "archive-source-family-sha256:49cbe006a1cce33bab2e143cbb7818a2f3aad21f3d3f0799435a612a6cc3422e"
+    },
+    {
+      "sample": 93,
+      "split": "val",
+      "line": 249,
+      "coordinate": "train:39795",
+      "source_id": "archive-source-family-sha256:7040539f17cd6b46f7a8bd1977d2a1c30e59abab6fbd45a468d4ae486d2fc151"
+    },
+    {
+      "sample": 94,
+      "split": "val",
+      "line": 423,
+      "coordinate": "train:103216",
+      "source_id": "archive-source-family-sha256:9a2e835aa5c973e451734646d44111f621816d443ed0f90c1f379644057a2577"
+    },
+    {
+      "sample": 95,
+      "split": "val",
+      "line": 521,
+      "coordinate": "train:8045",
+      "source_id": "archive-source-family-sha256:0095a7816d3b3b63f4f97bbd10527f1bb8fbe43d76a92c4787913f467aa99e23"
+    },
+    {
+      "sample": 96,
+      "split": "val",
+      "line": 702,
+      "coordinate": "train:79549",
+      "source_id": "archive-source-family-sha256:3265947bf6a6c0e8fcb5ec090a0bad92cf8eb38bdaf79397b7a2aa8a44e250ec"
+    },
+    {
+      "sample": 97,
+      "split": "val",
+      "line": 770,
+      "coordinate": "train:86743",
+      "source_id": "archive-source-family-sha256:3b35a6996cd887f4e50ec54f8882cb1b817030a95a13e80918138abda7a93401"
+    },
+    {
+      "sample": 98,
+      "split": "val",
+      "line": 774,
+      "coordinate": "train:24653",
+      "source_id": "archive-source-family-sha256:1a2e18a60e40216f38bd494a7e0b9e78686d59134f7e530e29ac5f593de9de4a"
+    },
+    {
+      "sample": 99,
+      "split": "val",
+      "line": 1168,
+      "coordinate": "train:113299",
+      "source_id": "archive-source-family-sha256:1163672a02b2a31b12793ed5ede19712f907026b097c91910b9059c7bcc025a1"
+    },
+    {
+      "sample": 100,
+      "split": "val",
+      "line": 1753,
+      "coordinate": "train:70367",
+      "source_id": "archive-source-family-sha256:9179d1860725430bbbe0313606fc2bf143846c9b8b1610d3a95251de3b31f648"
+    }
+  ],
+  "all_100_strict_and_identity_pass": true,
+  "flagged_by_existing_checks": []
+}

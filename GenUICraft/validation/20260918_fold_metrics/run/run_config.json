@@ -1,0 +1,23 @@
+{
+  "provider": "gemma",
+  "cases": [
+    "BXP-003",
+    "BXP-030",
+    "BXP-047"
+  ],
+  "maxRepairAttempts": 1,
+  "temperature": 0.0,
+  "corpusPath": "asset:genuicraft_bixby50.jsonl",
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "promptPath": "aar_asset",
+  "promptSha256": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b",
+  "sourceBindings": true,
+  "inputScaffold": false,
+  "recordInputs": true,
+  "metricsEnabled": true,
+  "deviceModel": "SM-F966B",
+  "deviceHardware": "qcom",
+  "accelerator": "GPU",
+  "mtp": true,
+  "thinkingEnabled": true
+}

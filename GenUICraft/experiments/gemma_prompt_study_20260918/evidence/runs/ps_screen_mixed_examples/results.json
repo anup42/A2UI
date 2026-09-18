@@ -1,0 +1,45 @@
+[
+  {
+    "id": "BXP-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 228839,
+    "peakPssKb": 3989348,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Trailing A2UI Express syntax at 20.",
+    "elapsedMs": 126069,
+    "attempts": 1
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 3988964,
+    "peakPssKb": 4070568,
+    "usedFallback": false,
+    "renderWaitMs": 1091,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 118430,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-032",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4114849,
+    "peakPssKb": 4156746,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Missing source-bound component \u0027cdeafghijk\u0027.",
+    "elapsedMs": 174515,
+    "attempts": 1
+  }
+]

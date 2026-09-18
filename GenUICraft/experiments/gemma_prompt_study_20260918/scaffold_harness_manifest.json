@@ -1,0 +1,15 @@
+{
+  "test_apk_sha256": "6b8bc8840ac702227c90658de156bb66b6c942bd151afb9418b04d402da418ed",
+  "benchmark_source_sha256": "2333c92c808460411f3e4eb0d23fc983e98be321bb15b80832ff00a0eecd627a",
+  "status": "installed after baseline bookend",
+  "default_path_unchanged": true,
+  "input_scaffold_is_opt_in": true,
+  "contract_test": {
+    "junit_methods": 1,
+    "source_cases": 52,
+    "forced_repairs_per_case": 1,
+    "model_calls": 0,
+    "passed": true,
+    "elapsed_seconds": 1.293
+  }
+}

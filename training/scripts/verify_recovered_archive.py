@@ -204,6 +204,13 @@ def main() -> int:
     for _, coordinate, row in sorted(sample, reverse=True):
         try:
             _, checked, _ = prepare_row(row, "root-first")
+            if manifest.get("schema_version", 1) >= 6:
+                from ir_training.data.archive_semantic_review import process_graph
+                replay = process_graph(row["response_text"], checked.graph,
+                    url_map=row["metadata"].get("url_preprocessing", {}).get("url_map", {}),
+                    original_source_sha256=row["metadata"]["archive_recovery"]["original_source_sha256"])
+                if replay["proofs"] or replay["issues"]:
+                    fail(f"v10 sample has residual semantic repairs/issues: {coordinate}: {replay['issues']}")
             if manifest.get("split_rebuild"):
                 from ir_training.data.archive_refinement import (
                     repair_exact_text,

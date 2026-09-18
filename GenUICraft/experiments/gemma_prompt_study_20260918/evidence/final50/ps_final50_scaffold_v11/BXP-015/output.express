@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("Latest completed India men’s international match","heading")
+b=List(items=["**Date:** July 2026, at Galle International Stadium, Galle[13]","**Opponent:** Sri Lanka","**Format:** **Test match**","**India scores:** **462** and **193/48.5**","**Sri Lanka scores:** **284** and **206**","**Result:** **India won by 165 runs**"])
+c=Text("Standout performances","heading")
+d=List(items=["**India’s first-innings 462** set the match in control and created a large lead that Sri Lanka could not overcome.","**India’s all-round bowling effort** restricted Sri Lanka to 284 in the first innings and 206 in the chase, sealing the win by a substantial margin."])
+</a2ui>

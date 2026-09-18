@@ -1,0 +1,45 @@
+[
+  {
+    "name": "ps_confirm_scaffold",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\scaffold.txt",
+    "cases": [
+      "BXP-001",
+      "BXP-006",
+      "BXP-008",
+      "BXP-013",
+      "BXP-017",
+      "BXP-025",
+      "BXP-027",
+      "BXP-033",
+      "BXP-035",
+      "BXP-038",
+      "BXP-045",
+      "BXP-047"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 600000,
+    "inputScaffold": true
+  },
+  {
+    "name": "ps_confirm_baseline_targeted",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\baseline_targeted.txt",
+    "cases": [
+      "BXP-001",
+      "BXP-006",
+      "BXP-008",
+      "BXP-013",
+      "BXP-017",
+      "BXP-025",
+      "BXP-027",
+      "BXP-033",
+      "BXP-035",
+      "BXP-038",
+      "BXP-045",
+      "BXP-047"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 600000
+  }
+]

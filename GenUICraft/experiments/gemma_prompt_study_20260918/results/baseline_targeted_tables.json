@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-09-18T01:19:34.566345+00:00",
+  "expectations_sha256": "4bf0efa6ef7923677efc46723476a47df37ff8574c13634f601efec93e4bf7c2",
+  "runs": [
+    {
+      "run": "tmp\\genuicraft_prompt_study_20260918\\ps_screen_baseline_targeted",
+      "audit_kind": "saved_table_selection_audit",
+      "model_calls": 0,
+      "planned_cases": [
+        "BXP-003",
+        "BXP-030",
+        "BXP-032",
+        "BXP-037"
+      ],
+      "case_count": 4,
+      "missing_result_ids": [],
+      "duplicate_result_ids": [],
+      "unexpected_result_ids": [],
+      "source_non_successes": [
+        {
+          "id": "BXP-030",
+          "status": "failure",
+          "message": "Table.rows must use a known source binding; received '@.c'."
+        }
+      ],
+      "summary": {
+        "content_issue_cases": 1,
+        "expected_tables": 4,
+        "cases_without_source_tables": 0,
+        "missing_output_cases": 1,
+        "choice_review_cases": 0,
+        "table_content": {
+          "exact_content": 3
+        },
+        "presentation_choices": {
+          "acceptable_alternative": 1,
+          "preferred": 2
+        },
+        "domain_choices": {
+          "acceptable": 1,
+          "preferred": 2
+        }
+      },
+      "cases": [
+        {
+          "id": "BXP-003",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-003/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "schedule"
+              ],
+              "acceptable_domains": [
+                "schedule",
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "schedule",
+                "presentation": "cards"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each train service is a complete departure/duration/seating record. Schedule cards help mobile reading; a complete comparison grid is valid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_screen_baseline_targeted\\BXP-003\\output.a2ui.json",
+          "output_sha256": "1f03ed68566735cd645a0ec55129785a8bffc56b5b9b3127e3e5bf08b31f35df",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-030",
+          "source_status": "failure",
+          "expected_table_count": 1,
+          "tables": [],
+          "hard_issues": [
+            "Missing saved compiled output; case is not skipped."
+          ],
+          "output_status": "missing_output",
+          "content_status": "not_evaluable"
+        },
+        {
+          "id": "BXP-032",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-032/table-1",
+              "component_id": "b",
+              "shape": "generic_definition",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table",
+                "cards"
+              ],
+              "preferred_domains": [
+                "generic"
+              ],
+              "acceptable_domains": [
+                "generic",
+                "comparison"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each term has a definition and claim effect. A compact definition table or complete term cards are both sensible; neither layout is mandated by the baseline."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_screen_baseline_targeted\\BXP-032\\output.a2ui.json",
+          "output_sha256": "05ef6965987a22198f600f0f0647d34bd068614637d0f33ac4732d973e37179b",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-037",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-037/table-1",
+              "component_id": "b",
+              "shape": "feature_matrix",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Rows are factors and columns are school boards. Preserve each factor-to-board relationship in a comparison table."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_screen_baseline_targeted\\BXP-037\\output.a2ui.json",
+          "output_sha256": "78eefde8719105dccd0d426d49abcbbf359d52bf52c09bec655d04a40071ddb6",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        }
+      ]
+    }
+  ],
+  "limitations": "Audits saved content and selection properties, not actual pixel layout or inference quality."
+}

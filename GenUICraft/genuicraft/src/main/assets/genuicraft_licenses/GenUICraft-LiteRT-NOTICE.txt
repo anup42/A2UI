@@ -1,0 +1,17 @@
+GenUICraft includes ARM64 native runtime components derived from these projects:
+
+* LiteRT 2.2.0, Copyright Google LLC, Apache License 2.0.
+  Source artifact: com.google.ai.edge.litert:litert:2.2.0
+  https://dl.google.com/dl/android/maven2/com/google/ai/edge/litert/litert/2.2.0/litert-2.2.0.aar
+* LiteRT-LM v0.16.1, Copyright Google LLC, Apache License 2.0.
+  https://github.com/google-ai-edge/LiteRT-LM/tree/v0.16.1/prebuilt/android_arm64
+
+The LiteRT-LM Top-K OpenCL sampler is modified at packaging time. Its existing
+ELF DT_SONAME entry is changed to DT_NEEDED and its string is changed from
+"libLiteRtTopKOpenClSampler.so" to "libLiteRt.so". No code, section offsets,
+Android packed relocations, or hash tables are changed. The reproducible script
+is tools/prepare_gemma4_gpu_runtime.py.
+
+Full upstream, output, and license hashes are recorded in ON_DEVICE_RUNTIME.md
+and enforced by the preparation script. The upstream licenses and the LiteRT
+third-party notice are packaged beside this file.

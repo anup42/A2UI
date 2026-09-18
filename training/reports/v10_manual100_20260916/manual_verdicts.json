@@ -1,0 +1,787 @@
+[
+  [
+    1,
+    "KEEP",
+    "Hypothyroidism follow-up",
+    "All five physician questions, four tracking rows, three icons and four action/source references are preserved. Source medical advice is not clinically certified.",
+    []
+  ],
+  [
+    2,
+    "REPAIR",
+    "5k pace calculation",
+    "Source and target say 10.4% speed increase; 25/22.5 - 1 = 11.11%. The paces and rounded speeds are otherwise consistent. Correct the source percentage and regenerate the paired target.",
+    [
+      "source_arithmetic"
+    ]
+  ],
+  [
+    3,
+    "REPAIR",
+    "JFK-LHR ranking",
+    "Option 2/3/1 references have no option-ID column and conflict with displayed row order. Name the airlines explicitly or preserve original IDs. Timings/durations also need source timezone/date clarification; do not invent them.",
+    [
+      "source_ambiguous_option_ids",
+      "source_time_metadata"
+    ]
+  ],
+  [
+    4,
+    "KEEP",
+    "Video-editing laptops",
+    "All three model rows, recommendations, budget caveats and two actions are retained. Generic model assumptions are scenario data, not verified current benchmarks.",
+    []
+  ],
+  [
+    5,
+    "KEEP",
+    "Brake-noise diagnostic guide",
+    "All five diagnostic rows, five repair-process steps, three cost lines, budget caveat and source/action references are preserved; no unsafe target-only instruction added.",
+    []
+  ],
+  [
+    6,
+    "KEEP",
+    "Apartment rent reminder",
+    "Amount, due date, payment terms and three distinct payment/lease actions are preserved; historical scenario date is not itself an error.",
+    []
+  ],
+  [
+    7,
+    "KEEP",
+    "1970s progressive-rock albums",
+    "Three album recommendations, years/tracks, explanatory prose, comparison matrix and four references are retained; aesthetic descriptions are not treated as verified factual rankings.",
+    []
+  ],
+  [
+    8,
+    "KEEP",
+    "Vegan dinner plan",
+    "Three courses, all 13 grocery items and the correctly summed $80 total, preparation details and two actions are preserved.",
+    []
+  ],
+  [
+    9,
+    "KEEP",
+    "January wellness plan",
+    "Four daily targets, four roadmap rows, three tracking methods with their media/actions and both quick actions are retained.",
+    []
+  ],
+  [
+    10,
+    "REJECT",
+    "Wildlife camera budget",
+    "Source assigns an AI processing unit to the original Sony Alpha 1; Sony documents its addition in Alpha 1 II. The $4,000 body-plus-lens recommendation also lists no lens/kit totals and already asks to stretch the budget. Rebuild the recommendation from verified model generations and dated complete kit prices; not claiming every possible used/discount kit is over budget.",
+    [
+      "source_product_spec",
+      "source_budget_feasibility"
+    ]
+  ],
+  [
+    11,
+    "KEEP",
+    "Mumbai heat/hydration card",
+    "All weather readings, heat-index caveats, hydration schedule/table and two actions are preserved. Clinical suitability and historical weather truth are outside this conversion review.",
+    []
+  ],
+  [
+    12,
+    "KEEP",
+    "Tokyo typhoon alert",
+    "Alert date, wind, risk, four impact rows and emergency/source links faithfully retained; treated as a supplied scenario, not a verified historical alert.",
+    []
+  ],
+  [
+    13,
+    "REJECT",
+    "Space strategy board games",
+    "Source mixes real space titles with unsupported space versions/themes (Terra Mystica, Root, Scythe) and an unverified Void Century entry. A faithful target still teaches unreliable recommendations; verify and regenerate the source list.",
+    [
+      "source_product_theme",
+      "source_unverified_entities"
+    ]
+  ],
+  [
+    14,
+    "KEEP",
+    "Quarterly review meeting",
+    "All attendees, three time slots, goals/tasks/deliverables and calendar/template actions are retained.",
+    []
+  ],
+  [
+    15,
+    "REPAIR",
+    "Ankle return-to-jogging plan",
+    "Source roadmap introduces jogging in Week 7, while safety/frequency text authorizes impact/jogging during Weeks 6 and 7. Target copies the inconsistency. Resolve with qualified source review before regenerating; do not choose a medical schedule automatically.",
+    [
+      "source_internal_contradiction",
+      "medical_source_review"
+    ]
+  ],
+  [
+    16,
+    "KEEP",
+    "Compound-interest video script",
+    "All five timed audio/visual sections and the four-stage production roadmap survive intact. Simple-interest example is internally consistent; promotional investment language is source-authored.",
+    []
+  ],
+  [
+    17,
+    "KEEP",
+    "Dell thermal troubleshooting",
+    "Five checklist steps, three software sections, physical-maintenance instructions and four references retained. Hardware-dependent tuning claims have not been benchmark-certified.",
+    []
+  ],
+  [
+    18,
+    "KEEP",
+    "Veterinary radio advertisement",
+    "All four timed segments, voiceover/SFX/music directions, spoken call-to-action and production timeline are retained. Fictional/source business details are not verified real-world claims.",
+    []
+  ],
+  [
+    19,
+    "KEEP",
+    "Biology-to-data-science roadmap",
+    "All four phases and detailed implementation paragraphs/actions/source links retained; math arrow normalized correctly.",
+    []
+  ],
+  [
+    20,
+    "KEEP",
+    "Essay deadline alert",
+    "Urgency, assignment/date/time, six-hour remainder and all three actions preserved without invented fields.",
+    []
+  ],
+  [
+    21,
+    "KEEP",
+    "Broadway ticket choices",
+    "Five show rows and correct two-ticket totals, row/section labels, inventory caveat, three booking actions and four other links retained.",
+    []
+  ],
+  [
+    22,
+    "KEEP",
+    "Vienna opera budget",
+    "Three seat-price totals and budget statuses are correct and preserved. Shared action placeholder already exists in the source; distinct real booking destinations cannot be inferred.",
+    []
+  ],
+  [
+    23,
+    "KEEP",
+    "Daily productivity schedule",
+    "Six intervals preserve the eight activity hours plus two buffer hours; all seven icons are referenced and both actions retained.",
+    []
+  ],
+  [
+    24,
+    "KEEP",
+    "Sydney court reminder",
+    "Case number, attachment filename, date/time, AEDT, arrival guidance and three actions preserved.",
+    []
+  ],
+  [
+    25,
+    "KEEP",
+    "Seafood and wine pairings",
+    "Seven pairings with full four-column meanings, three strategy paragraphs and four action/source links retained.",
+    []
+  ],
+  [
+    26,
+    "KEEP",
+    "Senior PM onboarding",
+    "Three roadmap phases and all 12 detailed tasks retained with their five icons and two bound actions; malformed source link wrapper is safely normalized.",
+    []
+  ],
+  [
+    27,
+    "REPAIR",
+    "New York-Tokyo travel budget",
+    "Source says listed options fit a $3,000 two-person flight budget, then allocates only $2,400 to flights plus $600 transit. JAL/ANA totals ($2,700/$2,800) exceed that allocation. Clarify total-trip versus flight-only budget and which options actually fit; target copies the ambiguity.",
+    [
+      "source_budget_scope"
+    ]
+  ],
+  [
+    28,
+    "REPAIR",
+    "Wearable comparison matrix",
+    "Table j transposes entities into rows but retains device names as column labels: device is labelled Step Counter, accuracy Fitness Watch, battery Medical ECG Wearable. The focus field is unprojected. Regenerate a correctly oriented, source-faithful matrix; strict validity does not catch this.",
+    [
+      "target_table_column_semantics",
+      "target_hidden_table_field"
+    ]
+  ],
+  [
+    29,
+    "KEEP",
+    "Friday deep-work schedule",
+    "All six contiguous time slots, five table columns, prioritization explanations and two actions retained.",
+    []
+  ],
+  [
+    30,
+    "KEEP",
+    "NDA alert mockup",
+    "All document attributes/status rows, the mockup and SSO assumptions, urgency and three actions retained.",
+    []
+  ],
+  [
+    31,
+    "KEEP",
+    "Bali spa comparison",
+    "Three options are correctly compared against duration/budget, and Spa C's services, date, two-person total and actions are fully retained.",
+    []
+  ],
+  [
+    32,
+    "KEEP",
+    "Europa science-fiction story",
+    "All six story paragraphs and four fictional infrastructure details are preserved; fantastical worldbuilding is not misclassified as factual misinformation.",
+    []
+  ],
+  [
+    33,
+    "REPAIR",
+    "DocuSign field-placement guide",
+    "Target z keeps tag names but omits their positions: Signature in the main signature block, Date Signed adjacent, Initials at the bottom of each page. Restore these three short source instructions through regeneration.",
+    [
+      "target_short_instruction_omission"
+    ]
+  ],
+  [
+    34,
+    "REPAIR",
+    "$100k savings calculation",
+    "Source's stated annuity formula/rate/139 deposits do not reproduce $570.06 monthly. Recalculate under the explicit timing/rate convention, then update principal, interest and explanatory percentages together; target copies the source numbers.",
+    [
+      "source_arithmetic"
+    ]
+  ],
+  [
+    35,
+    "REPAIR",
+    "New York-London flight selection",
+    "All three rows have the same 12-hour departure/arrival clock gap on the same route/date but claim 10h/6h/8h durations. The fastest-flight selection is therefore not trustworthy without correcting source date/time/duration data.",
+    [
+      "source_time_contradiction"
+    ]
+  ],
+  [
+    36,
+    "REPAIR",
+    "12-week 5k program",
+    "Target shortens the interval header and loses 'Repeat 4-6 times' plus the Saturday association. Source also places Dec 1, 2024 race day in a Saturday column although that date is Sunday and Sunday is listed as full rest. Restore qualifiers and resolve race-day exception.",
+    [
+      "target_header_qualifier_omission",
+      "source_calendar_contradiction"
+    ]
+  ],
+  [
+    37,
+    "KEEP",
+    "Two-hour study playlist",
+    "All ten tracks with contiguous 120-minute timing, genre/description, three phases, instrumental qualifier and four links retained.",
+    []
+  ],
+  [
+    38,
+    "REJECT",
+    "Toronto emergency insulin pharmacies",
+    "Source asserts all three named pharmacies are verified, open 24 hours and stock emergency insulin, but the archive contains no verification timestamp, live stock evidence or recoverable URL map. Target is faithful. Those consequential claims could not be confirmed in this audit; quarantine pending actual pharmacy/source verification, not a declaration that each store is nonexistent.",
+    [
+      "source_unverified_medical_availability"
+    ]
+  ],
+  [
+    39,
+    "KEEP",
+    "London job-offer comparison",
+    "Five comparison rows and full recommendation/assumptions preserved. Annual time figures are explicitly rough estimates; no target-only arithmetic introduced.",
+    []
+  ],
+  [
+    40,
+    "KEEP",
+    "Rain-audio fade tools",
+    "All four tool rows, three recommendations, capability limitation, six action destinations and source links preserved.",
+    []
+  ],
+  [
+    41,
+    "KEEP",
+    "Python data-analysis roadmap",
+    "All four phases and complete skills/deliverables, three tool buttons and three source references retained; abbreviated button labels remain unambiguous.",
+    []
+  ],
+  [
+    42,
+    "KEEP",
+    "Pho preparation guide",
+    "All four cooking stages, timing matrix and serving instructions retained through the Instructions tab; source food-safety suitability is not independently certified.",
+    []
+  ],
+  [
+    43,
+    "KEEP",
+    "$5,200 budget distribution",
+    "All allocations and expense/savings details preserved; fixed costs sum to $2,050, wants to $1,560 and savings to $1,040 as stated.",
+    []
+  ],
+  [
+    44,
+    "KEEP",
+    "Needs-budget utilization",
+    "All allocations/totals and yearly savings are correct and preserved. Optional minor polish: 80.7692% is printed as 80.7% rather than rounding to 80.8%; no material change to the budget.",
+    [
+      "minor_rounding_note"
+    ]
+  ],
+  [
+    45,
+    "KEEP",
+    "$4,500 allocation strategy",
+    "50/30/20 amounts and $10,800 annual savings are correct; both tables, examples, caveats and four links retained.",
+    []
+  ],
+  [
+    46,
+    "REPAIR",
+    "Used family-SUV comparison",
+    "Target drops the short third option descriptors, notably Mazda's 'Best-in-class handling', which is absent elsewhere. Restore the full option fields rather than only the first two pipe-separated fields. Vehicle-year specifications also remain unverified.",
+    [
+      "target_short_option_omission"
+    ]
+  ],
+  [
+    47,
+    "KEEP",
+    "Tokyo-flight jazz queue",
+    "All 12 artists/albums in alphabetical order, moods, links and narrative preserved. v10's escaped literal state pointer now resolves. Claimed 12-hour total cannot be confirmed without edition durations.",
+    []
+  ],
+  [
+    48,
+    "REPAIR",
+    "Wildlife kits under $2,500",
+    "Canon RF 100-400mm is described as weather-sealed/Full Body-Lens; Canon's own specification says dust/weather-resistant construction: None. Correct that source claim and regenerate the target. Fuji partial-body sealing and all live kit prices also need verification; not asserted as independently disproved.",
+    [
+      "source_product_spec"
+    ]
+  ],
+  [
+    49,
+    "KEEP",
+    "Portfolio daily movers",
+    "Three holdings, percentages, largest-gainer/loser explanation and two links retained; internally consistent supplied snapshot.",
+    []
+  ],
+  [
+    50,
+    "KEEP",
+    "Student oil-painting supplies",
+    "All ten colors, three brush sizes/uses, canvas advice and correctly summed $92 budget retained. Optional spelling polish: source/target say 'Odorsless'.",
+    [
+      "minor_spelling_note"
+    ]
+  ],
+  [
+    51,
+    "REPAIR",
+    "Sales employee efficiency",
+    "Arithmetic is correct but source calls revenue/leads a 'conversion rate'. The displayed units are USD/lead, not a fraction of leads converting. Rename metric/formula/insights to revenue per lead or supply actual conversion counts before regeneration.",
+    [
+      "source_metric_definition"
+    ]
+  ],
+  [
+    52,
+    "KEEP",
+    "Electrical safety audit",
+    "Five diagnostic rows, three costed professional-remediation options and all action/source links retained. No target-only risky electrical procedure introduced.",
+    []
+  ],
+  [
+    53,
+    "KEEP",
+    "Chair delivery status",
+    "Order ID, delivery ETA, four progress states and both actions preserved.",
+    []
+  ],
+  [
+    54,
+    "KEEP",
+    "Degree versus bootcamp guide",
+    "All seven comparison features, both route recommendations and all decision-framework caveats retained; program eligibility claims not comprehensively verified.",
+    []
+  ],
+  [
+    55,
+    "KEEP",
+    "Home-purchase cost example",
+    "Formula inputs, cost components and totals are consistent to displayed precision and fully retained; scenario finance assumptions not personalized advice.",
+    []
+  ],
+  [
+    56,
+    "KEEP",
+    "Tokyo neighborhood comparison",
+    "Both neighborhoods, all four metrics, six profile details and action/source references preserved; property prices/safety ratings remain unverified scenario inputs.",
+    []
+  ],
+  [
+    57,
+    "KEEP",
+    "New York LLC guide",
+    "Four phases, six checklist rows and all official-link bindings retained. This is a conversion pass, not certification that every legal deadline/exception is covered.",
+    []
+  ],
+  [
+    58,
+    "KEEP",
+    "Singapore rental yields",
+    "All prices, rents, correctly calculated gross yields and ranking preserved. Optional notation polish: the 0.33 spread is percentage points, not a relative-percent increase.",
+    [
+      "minor_metric_notation_note"
+    ]
+  ],
+  [
+    59,
+    "KEEP",
+    "Patient-recovery snapshot",
+    "Day 1/3/7 observations, three proposed milestones and four action labels are fully preserved; clinical assumptions and claimed linearity are not independently certified.",
+    []
+  ],
+  [
+    60,
+    "REJECT",
+    "2018 Camry maintenance",
+    "Source mixes an engine-unspecified oil recommendation with a 24-month roadmap spanning 30,000 miles despite a stated 10,000-12,000 miles/year, plus blanket parts-replacement advice. Needs model/engine-specific maintenance-source verification and regeneration, not a target-only edit.",
+    [
+      "source_time_contradiction",
+      "source_vehicle_maintenance"
+    ]
+  ],
+  [
+    61,
+    "KEEP",
+    "Rome-Florence travel comparison",
+    "Both transport options, two-adult prices, durations, rental cost caveats and ZTL/parking guidance are preserved, with the train image actually bound to an Image component. No live price or local-regulation certification.",
+    []
+  ],
+  [
+    62,
+    "KEEP",
+    "Morning audio automation instructions",
+    "Both times, volumes, audio selections, three configuration instructions and all action/icon references are retained. These are setup instructions, not evidence of an automation actually being created.",
+    []
+  ],
+  [
+    63,
+    "KEEP",
+    "Generic product comparison",
+    "All three products' prices, ratings, review counts and the source's balanced recommendation are retained. The original query/budget cap is unavailable, so a different preferred product cannot be inferred.",
+    []
+  ],
+  [
+    64,
+    "KEEP",
+    "Cairo-Oslo January comparison",
+    "Weather table, correctly rounded Celsius/Fahrenheit values, rainfall, daylight and packing guidance are preserved. Historical/climatological inputs were not independently certified.",
+    []
+  ],
+  [
+    65,
+    "REPAIR",
+    "Photosynthesis and respiration explanation",
+    "Source calls energy a giant loop/cycle and describes oxygen-using cellular respiration as universal to all living things. Clarify that matter cycles but energy flows/dissipates, and distinguish aerobic respiration from anaerobic processes before regenerating the faithful target.",
+    [
+      "source_science_concept"
+    ]
+  ],
+  [
+    66,
+    "KEEP",
+    "Real-estate QR solution roadmap",
+    "Four implementation phases, all tasks/deliverables, three component specifications including their short third fields, and every action/resource are retained.",
+    []
+  ],
+  [
+    67,
+    "KEEP",
+    "Monthly budget variance",
+    "All four expense rows, the variance formula and summary are retained. Budget 1,950, actual 2,030 and net variance -80 reconcile.",
+    []
+  ],
+  [
+    68,
+    "KEEP",
+    "Portfolio rebalancing",
+    "All three assets, target calculations and the 300 cash transfer split into 200 stocks/100 bonds reconcile and are preserved. Optional notation polish: 1.8 percentage-point cash overweight, not a relative percentage.",
+    [
+      "minor_metric_notation_note"
+    ]
+  ],
+  [
+    69,
+    "REPAIR",
+    "VS Code Python setup",
+    "Conversion preserves the complete code block, but the source includes obsolete python.formatting.provider configuration and implies defaultInterpreterPath changes always switch an already selected interpreter. Update to supported settings and explicit interpreter selection guidance; verify against current Microsoft documentation.",
+    [
+      "source_obsolete_configuration"
+    ]
+  ],
+  [
+    70,
+    "KEEP",
+    "Madrid home-security plan",
+    "Four camera placements, six sensors, all seven budget rows and four implementation phases are preserved. Hardware totals exactly 1,200 euros; no live equipment/security-coverage certification.",
+    []
+  ],
+  [
+    71,
+    "REPAIR",
+    "Leaking water-heater assessment",
+    "Source tells the reader to touch hot-outlet fittings without a burn precaution and says to begin saving if the tank shell leaks, without making immediate safe isolation/professional inspection clear. Target is faithful, but a qualified/manufacturer-grounded safety rewrite is needed; do not invent hardware-specific shutoff instructions.",
+    [
+      "source_safety_caveat"
+    ]
+  ],
+  [
+    72,
+    "KEEP",
+    "Twelve-week strength program",
+    "All three phases, ten exercises with sets/repetitions, progression conditions, rest and RPE guidance are preserved. Suitability for a particular beginner/medical condition is not certified.",
+    []
+  ],
+  [
+    73,
+    "REPAIR",
+    "Job-offer cash comparison",
+    "The opening claims Offer C has the highest potential total cash, yet the correct table/final verdict give B 92,000 and C 89,600. Correct the contradictory opening in the source, then regenerate the target; the arithmetic rows themselves are correct.",
+    [
+      "source_internal_contradiction"
+    ]
+  ],
+  [
+    74,
+    "KEEP",
+    "Plumbing appointment confirmation",
+    "Exact date, arrival window, technician, address, confirmation wording and reschedule action are retained. Treated as supplied scenario data, not proof of a real booking.",
+    []
+  ],
+  [
+    75,
+    "KEEP",
+    "PhD-defense roadmap",
+    "All six phases, dates, tasks, deliverables, buffer week and actions are preserved; no query-specific university procedure is inferred.",
+    []
+  ],
+  [
+    76,
+    "KEEP",
+    "Renter budget allocation",
+    "All allocations, two conditions and all three renter-needs descriptions/statuses are preserved. 2,250 + 1,350 + 900 = 4,500; escaped JSON-pointer paths correctly address slash-prefixed state keys.",
+    []
+  ],
+  [
+    77,
+    "REPAIR",
+    "Stock-tracking spreadsheet guide",
+    "Source defines columns Date/Ticker/Closing Price/Daily % Change but then gives =(B2-C2)/C2, which would subtract a price from the ticker text under that layout. GOOGLEFINANCE price is also labeled a closing price without a historical-date/close request. Correct the source's column/formula mapping and quote type, then regenerate.",
+    [
+      "source_formula_reference",
+      "source_metric_definition"
+    ]
+  ],
+  [
+    78,
+    "KEEP",
+    "Fictional Vortex-9 manual",
+    "All fictional calibration values, sarcastic prose, diagnostic rows and actions are retained. Do not label explicit sci-fi absurdity as a factual hallucination; without the original query the requested tone cannot be judged. Consider genre tagging for training balance.",
+    [
+      "genre_scope_note"
+    ]
+  ],
+  [
+    79,
+    "REPAIR",
+    "Senior diabetes wellness routine",
+    "Target is faithful, but the source presents fixed twice-daily medication times and monitoring as a tailored NHS-style routine without the medicine, prescription or clinician context in the archive. Require that context or a qualified rewrite explicitly deferring medication timing to the prescription; do not automatically choose a dosing schedule.",
+    [
+      "source_needs_clinical_context"
+    ]
+  ],
+  [
+    80,
+    "KEEP",
+    "Needs-budget review",
+    "All five expenses, exact 2,250 total, 2,600 cap and 350 surplus, formula and actions are preserved. Subscription categorization is treated as supplied scenario input.",
+    []
+  ],
+  [
+    81,
+    "KEEP",
+    "Sequential-discount calculation",
+    "120 x 0.8 x 0.9 = 86.40, savings 33.60 and effective discount 28% are correct; all variables, stages, explanations and actions are retained.",
+    []
+  ],
+  [
+    82,
+    "REPAIR",
+    "Sole-proprietorship versus LLC",
+    "Target creates a separate entity column but labels it Liability, alongside the actual Liability column. Correct the generated column semantics (Business structure/Entity vs Liability); legal generalizations also need jurisdiction-specific review before being treated as advice.",
+    [
+      "target_table_column_semantics"
+    ]
+  ],
+  [
+    83,
+    "KEEP",
+    "Osaka restaurant selection",
+    "All three supplied options, price tiers, atmosphere and suitability plus the selected restaurant's reasons and actions are retained. Supplied restaurant profiles are not independently verified listings.",
+    []
+  ],
+  [
+    84,
+    "REPAIR",
+    "Monthly expense visualization",
+    "Source explicitly specifies a pie chart titled Monthly Expense Distribution; target has tables and text only, no Chart. The data is preserved but the requested visual role is absent. Current semantic gate only detects a narrower line-chart pattern. Minor rounding in food share is secondary.",
+    [
+      "target_requested_chart_missing"
+    ]
+  ],
+  [
+    85,
+    "REPAIR",
+    "Auckland home-sale plan",
+    "All dates, four investments and estimates are preserved, but the Sources section and provider names TradeMe Property, Realestate.co.nz and QV New Zealand disappear. Reusing the URLs in generically labeled action buttons preserves navigation tokens, not source attribution.",
+    [
+      "target_source_attribution_omission"
+    ]
+  ],
+  [
+    86,
+    "KEEP",
+    "Financial-planner meeting preparation",
+    "All seven document rows, three discussion options including their short purpose labels, and three named resources/actions are preserved.",
+    []
+  ],
+  [
+    87,
+    "KEEP",
+    "Bulk QR-scanning design",
+    "Four phases, all tasks, 2-second cooldown, HUD text and actions/source labels are preserved. Zero-latency/never-freezes language is an aspirational design claim, not a measured implementation guarantee.",
+    [
+      "performance_claim_note"
+    ]
+  ],
+  [
+    88,
+    "REPAIR",
+    "Paris hotel comparison",
+    "All prices, totals and recommendation logic match, but target adds bookingUrl/actionLabel for Hotel C although the source supplies booking actions only for A and B. Static table extraction projects only declared columns here: this is unsupported latent action metadata, not a demonstrated visible Book Hotel C button. Remove unsupported metadata through the pipeline/regeneration; do not invent a destination.",
+    [
+      "target_unsupported_action_metadata"
+    ]
+  ],
+  [
+    89,
+    "REPAIR",
+    "AP Biology study plan",
+    "Target is faithful, but source conflates the inner mitochondrial membrane with the proton-gradient location for photosynthesis. Distinguish mitochondrial inner membrane (respiration) from thylakoid membrane (photosynthesis) and regenerate; exam-date assumptions cannot be checked without year/query.",
+    [
+      "source_science_concept"
+    ]
+  ],
+  [
+    90,
+    "REPAIR",
+    "Sales-leadership resume examples",
+    "Target preserves all five bullets, but source says market share increased 12% as measured by new-logo acquisition alone. Customer acquisition and market share are different metrics; obtain the market denominator or rewrite as supported customer growth, without inventing resume achievements.",
+    [
+      "source_metric_definition"
+    ]
+  ],
+  [
+    91,
+    "KEEP",
+    "Berlin DevOps transition plan",
+    "All three roadmap phases, nine project tasks, market-alignment prose and actions/source labels are preserved. Salary/employer prerequisites are unverified scenario advice, not validated hiring facts.",
+    []
+  ],
+  [
+    92,
+    "KEEP",
+    "Bank-deposit eligibility",
+    "Eligibility, 15,000 minimum-deposit shortfall and one-year 420 interest/10,420 balance are internally correct and preserved. P x APY x t is only appropriate here for the specified one-year period, not a general compound-growth formula.",
+    []
+  ],
+  [
+    93,
+    "KEEP",
+    "Temperature conversion",
+    "All three temperature conversions and formula are correct and preserved. This audit verifies conversion of supplied inputs, not that the temperatures are authentic historical NYC observations.",
+    []
+  ],
+  [
+    94,
+    "KEEP",
+    "RPG narrative comparison",
+    "All four games, twelve scores, four profiles, rationale and links are retained. Ratings are subjective; no independent industry-standard scoring method is supplied. Prefer an explicit subjective/illustrative label if used as factual evaluation data.",
+    [
+      "subjective_rating_provenance_note"
+    ]
+  ],
+  [
+    95,
+    "KEEP",
+    "Account-executive onboarding",
+    "All three milestone rows, twelve detailed tasks and two actions are retained, including counts and dates.",
+    []
+  ],
+  [
+    96,
+    "REJECT",
+    "Iceland winter-parka recommendations",
+    "Source provides unsupported exact -15/-12/-10 C ratings, an underspecified Helly Hansen model and the unverified name Patagonia Tres Peaks. Patagonia's located manufacturer page identifies Tres 3-in-1, but that is not proof they are the same item. Rebuild using identified products and documented performance conditions; do not infer nonexistence from a failed lookup.",
+    [
+      "source_product_identity",
+      "source_unsupported_safety_rating"
+    ]
+  ],
+  [
+    97,
+    "REPAIR",
+    "Japan entry-document checklist",
+    "Target faithfully reproduces the source's must-present list, but Visit Japan Web is not mandatory. Separate optional digital processing from required entry documents and avoid guaranteeing admission; verify jurisdiction/date-specific guidance before regenerating.",
+    [
+      "source_optional_requirement"
+    ]
+  ],
+  [
+    98,
+    "KEEP",
+    "Berlin apartment ranking",
+    "All three apartments, sizes, rents, commute times, rank priorities and option attributes are preserved. Ranking matches the stated primary commute-time criterion.",
+    []
+  ],
+  [
+    99,
+    "KEEP",
+    "Gym-attendance analysis",
+    "All 14 dated rows preserved; 9 successes + 5 misses, 64.29%, a March 8-10 three-day streak and 4.5 weekly sessions reconcile. Every missed day is followed by attendance.",
+    []
+  ],
+  [
+    100,
+    "REPAIR",
+    "Package transit durations",
+    "Total 49.25 hours is correct, but source/target call the 18.75-hour second interval the longest. First interval (May 10 08:00 to May 11 14:30) is 30.5 hours. Correct the comparison claim, preserving all timestamps.",
+    [
+      "source_time_contradiction"
+    ]
+  ]
+]

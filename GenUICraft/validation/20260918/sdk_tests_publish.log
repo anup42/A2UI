@@ -1,0 +1,77 @@
+Starting a Gradle Daemon, 1 busy and 1 incompatible and 2 stopped Daemons could not be reused, use --status for details
+> Task :genuicraft:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :genuicraft:preBuild UP-TO-DATE
+> Task :genuicraft:preDebugBuild UP-TO-DATE
+> Task :genuicraft:generateDebugResValues UP-TO-DATE
+> Task :genuicraft:generateDebugResources UP-TO-DATE
+> Task :genuicraft:packageDebugResources UP-TO-DATE
+> Task :genuicraft:parseDebugLocalResources UP-TO-DATE
+> Task :genuicraft:generateDebugRFile UP-TO-DATE
+> Task :genuicraft:compileDebugKotlin UP-TO-DATE
+> Task :genuicraft:javaPreCompileDebug UP-TO-DATE
+> Task :genuicraft:compileDebugJavaWithJavac NO-SOURCE
+> Task :genuicraft:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :genuicraft:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :genuicraft:preDebugUnitTestBuild UP-TO-DATE
+> Task :genuicraft:writeDebugAarMetadata UP-TO-DATE
+> Task :genuicraft:checkDebugUnitTestAarMetadata UP-TO-DATE
+> Task :genuicraft:compileDebugLibraryResources UP-TO-DATE
+> Task :genuicraft:generateDebugUnitTestResValues UP-TO-DATE
+> Task :genuicraft:mapDebugUnitTestSourceSetPaths UP-TO-DATE
+> Task :genuicraft:generateDebugUnitTestResources UP-TO-DATE
+> Task :genuicraft:mergeDebugUnitTestResources UP-TO-DATE
+> Task :genuicraft:extractDeepLinksDebug UP-TO-DATE
+> Task :genuicraft:processDebugManifest UP-TO-DATE
+> Task :genuicraft:processDebugUnitTestManifest UP-TO-DATE
+> Task :genuicraft:processDebugUnitTestResources UP-TO-DATE
+> Task :genuicraft:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :genuicraft:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :genuicraft:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :genuicraft:mergeDebugShaders UP-TO-DATE
+> Task :genuicraft:compileDebugShaders NO-SOURCE
+> Task :genuicraft:generateDebugAssets UP-TO-DATE
+> Task :genuicraft:mergeDebugAssets
+> Task :genuicraft:generateDebugUnitTestAssets UP-TO-DATE
+> Task :genuicraft:packageDebugAssets
+> Task :genuicraft:mergeDebugUnitTestAssets
+> Task :genuicraft:packageDebugUnitTestForUnitTest
+> Task :genuicraft:generateDebugUnitTestConfig
+> Task :genuicraft:processDebugJavaRes UP-TO-DATE
+> Task :genuicraft:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :genuicraft:testDebugUnitTest
+> Task :genuicraft:preReleaseBuild UP-TO-DATE
+> Task :genuicraft:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :genuicraft:mergeReleaseNativeLibs UP-TO-DATE
+> Task :genuicraft:stripReleaseDebugSymbols UP-TO-DATE
+> Task :genuicraft:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :genuicraft:generateReleaseResValues UP-TO-DATE
+> Task :genuicraft:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :genuicraft:generateReleaseResources UP-TO-DATE
+> Task :genuicraft:packageReleaseResources UP-TO-DATE
+> Task :genuicraft:parseReleaseLocalResources UP-TO-DATE
+> Task :genuicraft:generateReleaseRFile UP-TO-DATE
+> Task :genuicraft:compileReleaseKotlin UP-TO-DATE
+> Task :genuicraft:extractReleaseAnnotations UP-TO-DATE
+> Task :genuicraft:javaPreCompileRelease UP-TO-DATE
+> Task :genuicraft:compileReleaseJavaWithJavac NO-SOURCE
+> Task :genuicraft:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :genuicraft:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :genuicraft:mergeReleaseShaders UP-TO-DATE
+> Task :genuicraft:compileReleaseShaders NO-SOURCE
+> Task :genuicraft:generateReleaseAssets UP-TO-DATE
+> Task :genuicraft:packageReleaseAssets
+> Task :genuicraft:prepareLintJarForPublish UP-TO-DATE
+> Task :genuicraft:prepareReleaseArtProfile UP-TO-DATE
+> Task :genuicraft:processReleaseManifest UP-TO-DATE
+> Task :genuicraft:processReleaseJavaRes UP-TO-DATE
+> Task :genuicraft:mergeReleaseJavaResource UP-TO-DATE
+> Task :genuicraft:syncReleaseLibJars UP-TO-DATE
+> Task :genuicraft:writeReleaseAarMetadata UP-TO-DATE
+> Task :genuicraft:bundleReleaseAar
+> Task :genuicraft:sourceReleaseJar UP-TO-DATE
+> Task :genuicraft:generateMetadataFileForReleasePublication
+> Task :genuicraft:generatePomFileForReleasePublication
+> Task :genuicraft:publishReleasePublicationToLocalBuildRepository
+
+BUILD SUCCESSFUL in 31s
+60 actionable tasks: 11 executed, 49 up-to-date

@@ -1,0 +1,1415 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-09-18T04:08:29.243773+00:00",
+  "expectations_sha256": "4bf0efa6ef7923677efc46723476a47df37ff8574c13634f601efec93e4bf7c2",
+  "runs": [
+    {
+      "run": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11",
+      "audit_kind": "saved_table_selection_audit",
+      "model_calls": 0,
+      "planned_cases": [
+        "BXP-001",
+        "BXP-002",
+        "BXP-003",
+        "BXP-004",
+        "BXP-005",
+        "BXP-006",
+        "BXP-007",
+        "BXP-008",
+        "BXP-009",
+        "BXP-010",
+        "BXP-011",
+        "BXP-012",
+        "BXP-013",
+        "BXP-014",
+        "BXP-015",
+        "BXP-016",
+        "BXP-017",
+        "BXP-018",
+        "BXP-019",
+        "BXP-020",
+        "BXP-021",
+        "BXP-022",
+        "BXP-023",
+        "BXP-024",
+        "BXP-025",
+        "BXP-026",
+        "BXP-027",
+        "BXP-028",
+        "BXP-029",
+        "BXP-030",
+        "BXP-031",
+        "BXP-032",
+        "BXP-033",
+        "BXP-034",
+        "BXP-035",
+        "BXP-036",
+        "BXP-037",
+        "BXP-038",
+        "BXP-039",
+        "BXP-040",
+        "BXP-041",
+        "BXP-042",
+        "BXP-043",
+        "BXP-044",
+        "BXP-045",
+        "BXP-046",
+        "BXP-047",
+        "BXP-048",
+        "BXP-049",
+        "BXP-050"
+      ],
+      "case_count": 50,
+      "missing_result_ids": [],
+      "duplicate_result_ids": [],
+      "unexpected_result_ids": [],
+      "source_non_successes": [
+        {
+          "id": "BXP-046",
+          "status": "failure",
+          "message": "Preserve source block order: expected block 9, received 10."
+        },
+        {
+          "id": "BXP-050",
+          "status": "failure",
+          "message": "Expected exactly one complete <a2ui> program."
+        }
+      ],
+      "summary": {
+        "content_issue_cases": 2,
+        "expected_tables": 23,
+        "cases_without_source_tables": 27,
+        "missing_output_cases": 2,
+        "choice_review_cases": 0,
+        "table_content": {
+          "exact_content": 22
+        },
+        "presentation_choices": {
+          "acceptable_alternative": 12,
+          "preferred": 10
+        },
+        "domain_choices": {
+          "acceptable": 6,
+          "preferred": 16
+        }
+      },
+      "cases": [
+        {
+          "id": "BXP-001",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-001/table-1",
+              "component_id": "a",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "weather"
+              ],
+              "acceptable_domains": [
+                "weather",
+                "generic",
+                "schedule"
+              ],
+              "baseline_choice": {
+                "domain": "weather",
+                "presentation": "cards"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each date is a forecast entity with temperature and rain attributes. Weather cards are natural; a complete grid remains acceptable."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-001\\output.a2ui.json",
+          "output_sha256": "25110adf8ed886efe52cc4518c379cf28e4af5aa6bfd0ec33f8430f9759c1e11",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-002",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-002\\output.a2ui.json",
+          "output_sha256": "33fefccea91d621780bf4a3d0147d3bbdf25d7a4d78200d14607b7947665cbb6",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-003",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-003/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "acceptable",
+              "presentation": "cards",
+              "presentation_status": "preferred",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "schedule"
+              ],
+              "acceptable_domains": [
+                "schedule",
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "schedule",
+                "presentation": "cards"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each train service is a complete departure/duration/seating record. Schedule cards help mobile reading; a complete comparison grid is valid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-003\\output.a2ui.json",
+          "output_sha256": "eaead719fa4c03db20f47b6b63d0c00f6fc00403259979db9da2bc1dd83447fd",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-004",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-004\\output.a2ui.json",
+          "output_sha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-005",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-005\\output.a2ui.json",
+          "output_sha256": "ed6ab0cf4b556a114882a833f76009fcd7ff748ede29420378296f17c75e4fd0",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-006",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-006/table-1",
+              "component_id": "c",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "cards",
+              "presentation_status": "preferred",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each driving route has a complete distance/time/conditions/stop profile. Long prose cells favor cards; a scrollable full grid is acceptable."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-006\\output.a2ui.json",
+          "output_sha256": "9c9c0c19712275fe5650467dae49dbc1e76351dc31c49b8358371bb74069bec9",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-007",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-007/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "schedule"
+              ],
+              "acceptable_domains": [
+                "schedule",
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each sight carries hours, duration, and fee uncertainty. Cards or a complete table can preserve each sight as a usable record."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-007\\output.a2ui.json",
+          "output_sha256": "b024415c0dbb690c4eb77138250f320469fa11e70ec4115c30e95daeb4d7e3bf",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-008",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-008/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison",
+                "generic"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "generic",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each restaurant is a venue record. The source-binding domain enum has no restaurant value; generic/comparison cards avoid invented booking semantics."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-008\\output.a2ui.json",
+          "output_sha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-009",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-009\\output.a2ui.json",
+          "output_sha256": "17759aa9078588f3c625d33f5c0f7a044a1fc1b630ef227820d63c5c7844259c",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-010",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-010\\output.a2ui.json",
+          "output_sha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-011",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-011/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "generic",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each phone row is a whole product profile across six attributes. Cards are readable on mobile; complete side-by-side comparison remains valid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-011\\output.a2ui.json",
+          "output_sha256": "456e154995c04ac62c339ac69e1ce618e4a3a134f6174b6b86e3691a90854808",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-012",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-012/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "cards",
+              "presentation_status": "preferred",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each app is a self-contained option with several long feature/restriction cells. Cards are preferred without ruling out a full grid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-012\\output.a2ui.json",
+          "output_sha256": "21012692db241ce1cf6a2e774a75dbc92407879107e849f42514ca93473ea23a",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-013",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-013/table-1",
+              "component_id": "j",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each bank row binds a rate to deposit assumptions and its source date. Cards or a compact complete grid are sensible; dates must remain attached."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-013\\output.a2ui.json",
+          "output_sha256": "cac942b51948f393e4e9eff1d6b6ad843f682f2f9a0d1ac24100530e8bd1bfab",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-014",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-014\\output.a2ui.json",
+          "output_sha256": "c0a5c3b3107df68cfdbfc6a891865450805541f81c951359f33aa60126623120",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-015",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-015\\output.a2ui.json",
+          "output_sha256": "3aa4be247b06aa7128a60dec1f27b44750ccf8f2d0340715f7d32c49df1aec10",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-016",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-016/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "schedule",
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "schedule",
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each release is a title/platform/date/description entity. Release cards or a complete grid are useful; this is not a feature matrix."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-016\\output.a2ui.json",
+          "output_sha256": "81e91cb7b27b87afe9ca97311276cd38a6f4535fcb7707b1a2af661252fdfcff",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-017",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-017\\output.a2ui.json",
+          "output_sha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-018",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-018\\output.a2ui.json",
+          "output_sha256": "2473a45bb4128fc9c6f10c4390a1921c27ff0b2844dc7e9bc4d87efc8825be4d",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-019",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-019/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each game row has rating, co-op, player count, and price. Cards are a mobile default; the complete grid is a legitimate alternative."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-019\\output.a2ui.json",
+          "output_sha256": "53e8434a996aa339880fac40c40cb7125cfaca2f2ec1f7d316cb194eace4016d",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-020",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-020\\output.a2ui.json",
+          "output_sha256": "ce2f6d724464c14eefc00cb45dd40f639364d070eedf9aed48ed3eb5ebd27a00",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-021",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-021\\output.a2ui.json",
+          "output_sha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-022",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-022\\output.a2ui.json",
+          "output_sha256": "45d8647b3c63e36e709c87ceeadfbbeb3cae380d2daac2ec961ffdd8ea904c15",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-023",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-023\\output.a2ui.json",
+          "output_sha256": "453659ae1b51ee2704ae9ac8b923f51b4345e0c776630fcea72ce6cac0e3d8c4",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-024",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-024\\output.a2ui.json",
+          "output_sha256": "7d87701f7ffb64ca2abd4eff976cb7c91db5be4df88523491510ddbdcaec938c",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-025",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-025/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "schedule",
+              "domain_status": "preferred",
+              "presentation": "cards",
+              "presentation_status": "preferred",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "schedule"
+              ],
+              "acceptable_domains": [
+                "schedule",
+                "generic",
+                "comparison"
+              ],
+              "baseline_choice": {
+                "domain": "schedule",
+                "presentation": "cards"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each day is an ordered learning-plan step with speaking/listening activities. Schedule cards are preferred; a complete timetable is also valid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-025\\output.a2ui.json",
+          "output_sha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-026",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-026/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each AI approach has a complete profile. Five verbose columns favor cards; a full grid remains acceptable for cross-approach comparison."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-026\\output.a2ui.json",
+          "output_sha256": "29c8e4642cb719221327113c7ac31b99fb6bdfd97a1d7c6fafed0ca5bdcd5dbf",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-027",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-027\\output.a2ui.json",
+          "output_sha256": "fae2366dc6dbb505aebc3c669b7a6f47463249ae45c8a230d049c6100a5a7115",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-028",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-028\\output.a2ui.json",
+          "output_sha256": "949fe3da104faf2920a03fb48ea7bf4dfce72f5b2918eb26b1896f2819ce2001",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-029",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-029/table-1",
+              "component_id": "d",
+              "shape": "feature_matrix",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Rows are tax-filing features and columns are ITR forms. Keep the form-to-feature relationships together in a table."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-029\\output.a2ui.json",
+          "output_sha256": "1dbaf3359ede7babfa5a534a7a08f09fcf96dfe8c0407fb7d5ec4a9058248fcd",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-030",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-030/table-1",
+              "component_id": "b",
+              "shape": "feature_matrix",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Rows are savings-plan features while EPF/PPF/NPS are column entities. A table preserves cross-plan relationships."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-030\\output.a2ui.json",
+          "output_sha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-031",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-031\\output.a2ui.json",
+          "output_sha256": "ea9c2c6bbf26696e1d86e9b79e8f5cd5327a8df5edca96052b60dc3c734dff15",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-032",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-032/table-1",
+              "component_id": "b",
+              "shape": "generic_definition",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table",
+                "cards"
+              ],
+              "preferred_domains": [
+                "generic"
+              ],
+              "acceptable_domains": [
+                "generic",
+                "comparison"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each term has a definition and claim effect. A compact definition table or complete term cards are both sensible; neither layout is mandated by the baseline."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-032\\output.a2ui.json",
+          "output_sha256": "05ef6965987a22198f600f0f0647d34bd068614637d0f33ac4732d973e37179b",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-033",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-033\\output.a2ui.json",
+          "output_sha256": "f66583df72adcb5c22fbad30c14408ae2a389157c165d613afc14c6fb0d89dc2",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-034",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-034/table-1",
+              "component_id": "c",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table",
+                "cards"
+              ],
+              "preferred_domains": [
+                "generic",
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "generic",
+                "comparison"
+              ],
+              "baseline_choice": {
+                "domain": "generic",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Numeric-lookup exception: eight short food/serving/protein rows benefit from aligned values. Cards remain a valid narrow-screen alternative."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-034\\output.a2ui.json",
+          "output_sha256": "37d3ffb27b3e7b1f98e732d4d6294f550ee4a28ec31d300d0ac1b17abda9d4d7",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-035",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-035\\output.a2ui.json",
+          "output_sha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-036",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-036\\output.a2ui.json",
+          "output_sha256": "8296dabf3df1f7e22606e0387a2f9be59a2feb685ecfdac5544dada8032c5221",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-037",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-037/table-1",
+              "component_id": "b",
+              "shape": "feature_matrix",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Rows are factors and columns are school boards. Preserve each factor-to-board relationship in a comparison table."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-037\\output.a2ui.json",
+          "output_sha256": "78eefde8719105dccd0d426d49abcbbf359d52bf52c09bec655d04a40071ddb6",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-038",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-038\\output.a2ui.json",
+          "output_sha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-039",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-039\\output.a2ui.json",
+          "output_sha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-040",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-040\\output.a2ui.json",
+          "output_sha256": "4df0bed7b70f5e6585155e51288536861a1266e2c26d9e9118a4d83cacc001b3",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-041",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-041/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison",
+                "generic"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic",
+                "booking"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Each country is a complete entry-rule profile with long caveats. Cards are useful; booking is a broad travel-domain equivalent that still needs normal renderer verification, not flight semantics."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-041\\output.a2ui.json",
+          "output_sha256": "3c55b947dfe876afde3508e97ec34fd8e197ebd246ddd1a6629318b6bab89168",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-042",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-042\\output.a2ui.json",
+          "output_sha256": "0a5c58f51844bf6096612bb666051f7f2d06d013631e46bacf44e76220125ec4",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-043",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-043\\output.a2ui.json",
+          "output_sha256": "489aa83a46bb74aa0c5ca47457c8bb944744f1460c4965a42ee0774667adb369",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-044",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-044/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each device type is a complete problem/use-case record. Cards or a compact complete comparison table are valid."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-044\\output.a2ui.json",
+          "output_sha256": "e99c83418a1cabfad1c968141c27816285bc9a19bb2c47c0b8889b2f7df81258",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-045",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-045/table-1",
+              "component_id": "r",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison",
+                "generic"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": true,
+              "needs_choice_review": false,
+              "rationale": "Household and City are complete intervention levels. Two cards or the small 2x3 table are both appropriate; weather is only the surrounding topic."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-045\\output.a2ui.json",
+          "output_sha256": "3524755f1e353a0af96f2a298ca59728ee56d78b85b9c7fb0cbc231f54f1b0bb",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-046",
+          "source_status": "failure",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [
+            "Missing saved compiled output; case is not skipped."
+          ],
+          "output_status": "missing_output",
+          "content_status": "not_evaluable"
+        },
+        {
+          "id": "BXP-047",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-047/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "comparison",
+              "domain_status": "preferred",
+              "presentation": "table",
+              "presentation_status": "preferred",
+              "preferred_presentation": "table",
+              "acceptable_presentations": [
+                "table",
+                "cards"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "comparison",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Technical-comparison exception: aligned energy/cycle/safety/cost tradeoffs are central. A full grid is preferred, while complete chemistry cards remain valid on mobile."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-047\\output.a2ui.json",
+          "output_sha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-048",
+          "source_status": "success",
+          "expected_table_count": 0,
+          "tables": [],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-048\\output.a2ui.json",
+          "output_sha256": "1c28ab3407ab4cc548ad80bde2b745802b6f4f8cb1ea2392d2f6a0820c6e89f8",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-049",
+          "source_status": "success",
+          "expected_table_count": 1,
+          "tables": [
+            {
+              "expectation_id": "BXP-049/table-1",
+              "component_id": "b",
+              "shape": "entity_rows",
+              "content_status": "exact_content",
+              "domain": "generic",
+              "domain_status": "acceptable",
+              "presentation": "table",
+              "presentation_status": "acceptable_alternative",
+              "preferred_presentation": "cards",
+              "acceptable_presentations": [
+                "cards",
+                "table"
+              ],
+              "preferred_domains": [
+                "comparison"
+              ],
+              "acceptable_domains": [
+                "comparison",
+                "generic"
+              ],
+              "baseline_choice": {
+                "domain": "generic",
+                "presentation": "table"
+              },
+              "selection_changed_from_baseline": false,
+              "needs_choice_review": false,
+              "rationale": "Each art tradition is a complete six-attribute profile with long descriptions. Cards suit mobile reading; a complete grid is acceptable."
+            }
+          ],
+          "hard_issues": [],
+          "output_status": "available",
+          "output_file": "tmp\\genuicraft_prompt_study_20260918\\ps_final50_scaffold_v11\\BXP-049\\output.a2ui.json",
+          "output_sha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+          "unexpected_tables": [],
+          "content_status": "preserved",
+          "needs_choice_review": false
+        },
+        {
+          "id": "BXP-050",
+          "source_status": "failure",
+          "expected_table_count": 1,
+          "tables": [],
+          "hard_issues": [
+            "Missing saved compiled output; case is not skipped."
+          ],
+          "output_status": "missing_output",
+          "content_status": "not_evaluable"
+        }
+      ]
+    }
+  ],
+  "limitations": "Audits saved content and selection properties, not actual pixel layout or inference quality."
+}

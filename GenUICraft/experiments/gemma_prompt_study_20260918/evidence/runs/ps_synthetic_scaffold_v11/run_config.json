@@ -1,0 +1,21 @@
+{
+  "provider": "gemma",
+  "cases": [
+    "SYN-001",
+    "SYN-002",
+    "SYN-003"
+  ],
+  "maxRepairAttempts": 1,
+  "temperature": 0.0,
+  "corpusPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_prompt_study/ps_synthetic_scaffold_v11.jsonl",
+  "corpusSha256": "154b36dc1c0387e32ab76abf000869fefcf250332b573a26545bc387c26521d3",
+  "promptPath": "aar_asset",
+  "promptSha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+  "sourceBindings": true,
+  "inputScaffold": false,
+  "recordInputs": true,
+  "accelerator": "GPU",
+  "mtp": true,
+  "thinkingEnabled": true,
+  "thinkingBudgetOverride": "1024"
+}

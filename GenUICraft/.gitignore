@@ -1,0 +1,16 @@
+.gradle/
+.kotlin/
+**/build/
+local.properties
+.idea/
+*.iml
+dist/
+artifacts/
+__pycache__/
+*.pyc
+# Full device logs can contain unrelated application data; keep reviewed reports/screens.
+**/logcat_raw.txt
+**/logcat_filtered.txt
+# Active file-sharing links stay in local delivery evidence.
+validation/20260918_model_download/quickshare_result.json
+validation/20260918_model_download/quickshare_window.xml

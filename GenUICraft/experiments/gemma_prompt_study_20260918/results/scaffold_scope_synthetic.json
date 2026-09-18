@@ -1,0 +1,35 @@
+{
+  "run": "ps_synthetic_scaffold_v11",
+  "model_calls": 0,
+  "kind": "saved_scaffold_scope_audit",
+  "cases": [
+    {
+      "id": "SYN-001",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "SYN-002",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "SYN-003",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    }
+  ],
+  "scope": "semantic component graph and source order; declaration order recorded separately",
+  "planned": 3,
+  "complete": true,
+  "missing_ids": [],
+  "duplicate_ids": [],
+  "unexpected_ids": [],
+  "preserved": 3
+}

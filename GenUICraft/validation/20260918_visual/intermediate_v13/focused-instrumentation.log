@@ -1,0 +1,86 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiSdkBixby50Test:
+INSTRUMENTATION_STATUS: test=converterSourceAttributionRendersAndOpensExactUrl
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=converterSourceAttributionRendersAndOpensExactUrl
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=literalSourceTextIsRenderedWithoutInterpolation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=literalSourceTextIsRenderedWithoutInterpolation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=rendererOnlySendsActionToHost
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=rendererOnlySendsActionToHost
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=explicitTableKeepsHeadersAndScrollsHorizontally
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=4
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.explicitTableKeepsHeadersAndScrollsHorizontally(GenUiSdkBixby50Test.kt:170)
+
+INSTRUMENTATION_STATUS: stream=
+Error in explicitTableKeepsHeadersAndScrollsHorizontally(com.samsung.genuicraft.GenUiSdkBixby50Test):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.explicitTableKeepsHeadersAndScrollsHorizontally(GenUiSdkBixby50Test.kt:170)
+
+INSTRUMENTATION_STATUS: test=explicitTableKeepsHeadersAndScrollsHorizontally
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 14.727
+There was 1 failure:
+1) explicitTableKeepsHeadersAndScrollsHorizontally(com.samsung.genuicraft.GenUiSdkBixby50Test)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.explicitTableKeepsHeadersAndScrollsHorizontally(GenUiSdkBixby50Test.kt:170)
+
+FAILURES!!!
+Tests run: 4,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

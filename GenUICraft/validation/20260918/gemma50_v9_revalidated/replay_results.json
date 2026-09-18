@@ -1,0 +1,2777 @@
+[
+  {
+    "id": "BXP-001",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "bd30e774121d520ca52a5b5c3d63ed53bbd591e871711fa9ebc22fd8fdefdeed",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-001/attempt_1.txt",
+    "sourceRawSha256": "2f041f2d107e78ac5c44083222bb7ba701cb1bdfe5cb2c0e986a25f053cce2b1",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "a",
+        "columns": [
+          "Date",
+          "High (°C)",
+          "Low (°C)",
+          "Rain probability"
+        ],
+        "observedHeaders": [
+          "Rain probability"
+        ],
+        "observedRepresentativeCells": [
+          "Wed, Sep 9",
+          "31",
+          "20",
+          "57%"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3390
+  },
+  {
+    "id": "BXP-002",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "33fefccea91d621780bf4a3d0147d3bbdf25d7a4d78200d14607b7947665cbb6",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-002/attempt_1.txt",
+    "sourceRawSha256": "cf589a18da7fb291145be54afc2dbeae3b0d95c7b60464b7bc3baf26c7e08767",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1851
+  },
+  {
+    "id": "BXP-003",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "bfd5660f302d5de55bae99f0b0b4f580bfc4cfdfb9ead7429c2cd05baf65b9f6",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-003/attempt_1.txt",
+    "sourceRawSha256": "7c8dbb7ef42e0a51db07eaa7423e778e0ad8add96552435be40c8472371df7a5",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedHeaders": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedRepresentativeCells": [
+          "**Shatabdi Express (12007)**",
+          "KSR Bengaluru (SBC)",
+          "**10:35–10:45**",
+          "**About 2 h 15 m to 2 h 25 m**",
+          "**CC, EC**"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 29
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3329
+  },
+  {
+    "id": "BXP-004",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-004/attempt_1.txt",
+    "sourceRawSha256": "05121c817f9f5927bc68aee97ed616fca7c7d9ff911671632e5175ae4addf378",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2985
+  },
+  {
+    "id": "BXP-005",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "6426d7f8c666f9de8b468d257dd5a19f9545b66b0d5e826c308655bd4b98cbe9",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-005/attempt_1.txt",
+    "sourceRawSha256": "92f5f8c06885de84dd967cea6de729c77c11ec5a4c8811eda8cab193a5e0a119",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2983
+  },
+  {
+    "id": "BXP-006",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "c9175c78858a94608a8d6627a18fe7ea600ab99d64c0425ff958d1db20c6a178",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-006/attempt_1.txt",
+    "sourceRawSha256": "7f8eb0efac67992f624bca2f0f387cc51703c58f65684f83ca004956d319539f",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedHeaders": [
+          "Route",
+          "Approx. distance",
+          "Usual travel time",
+          "Road conditions",
+          "Useful stop"
+        ],
+        "observedRepresentativeCells": [
+          "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+          "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+          "About 4.5–6 hours, commonly around 5.5–6 hours",
+          "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+          "**Namdroling Monastery, Bylakuppe**[7][9]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "table_1_horizontal_5",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 13188
+  },
+  {
+    "id": "BXP-007",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "c398234e35cd274c84f1148513a7a0e16ec0a6bdc21161c047d3acf515badd5c",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-007/attempt_1.txt",
+    "sourceRawSha256": "9a934e04c569232b15b64b68b3d846253ddddb4842b4c60f0ccef25312b049e0",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedHeaders": [
+          "Sight",
+          "Opening hours",
+          "Usual visit duration",
+          "Published adult entry fee"
+        ],
+        "observedRepresentativeCells": [
+          "Chamundi Hill Lookout View Point",
+          "5:00 am–11:00 pm",
+          "30–45 min",
+          "Not available in the provided reliable sources[6]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 6018
+  },
+  {
+    "id": "BXP-008",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-008/attempt_1.txt",
+    "sourceRawSha256": "190320e2ed610325c7340eb8416a712bdfc4e7a69613dfebab9d81f7e0016ae1",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Restaurant",
+          "Neighborhood",
+          "Signature dish",
+          "Approx. cost per person",
+          "Opening hours"
+        ],
+        "observedHeaders": [
+          "Restaurant",
+          "Neighborhood",
+          "Signature dish",
+          "Approx. cost per person",
+          "Opening hours"
+        ],
+        "observedRepresentativeCells": [
+          "Vidyarthi Bhavan",
+          "Basavanagudi (Gandhi Bazaar)",
+          "South Indian breakfast classics; widely known for its crisp dosas",
+          "₹1–200",
+          "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri; 6:30am–12:00pm, 2:30pm–8:00pm on Sat–Sun[2]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7821
+  },
+  {
+    "id": "BXP-009",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "17759aa9078588f3c625d33f5c0f7a044a1fc1b630ef227820d63c5c7844259c",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-009/attempt_1.txt",
+    "sourceRawSha256": "ba62d45249acdaa9bf00a9c7193f8824be9637474dcc77abc10c06d6ae775643",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2892
+  },
+  {
+    "id": "BXP-010",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-010/attempt_1.txt",
+    "sourceRawSha256": "b7f7044e7f83c607871538e5169178a117c18700f5eccc7855b8cadb94a5800e",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1790
+  },
+  {
+    "id": "BXP-011",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-011/attempt_1.txt",
+    "sourceRawSha256": "8314fa68292f7df6773fd7529127f1df5e9d78f53f3d3c8ba91317b11e4b03b2",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedHeaders": [
+          "Model",
+          "Indicative price",
+          "Display",
+          "Battery",
+          "Software support",
+          "Best for"
+        ],
+        "observedRepresentativeCells": [
+          "OnePlus Nord CE 5",
+          "From ₹24,999",
+          "6.77-inch AMOLED, 120Hz [9][16]",
+          "7,100mAh, 80W charging",
+          "6 years of software support",
+          "Buyers wanting a big battery and smooth everyday performance"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9653
+  },
+  {
+    "id": "BXP-012",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "3ef11612cf64226b32444d3b76adba3a5d601b0d11329a3c5572309d5b871436",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-012/attempt_1.txt",
+    "sourceRawSha256": "9a934e04c569232b15b64b68b3d846253ddddb4842b4c60f0ccef25312b049e0",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedHeaders": [
+          "App",
+          "Offline use",
+          "Synchronization",
+          "Export options",
+          "Biggest free-plan restriction"
+        ],
+        "observedRepresentativeCells": [
+          "**Microsoft OneNote**",
+          "Works offline on Android and web-backed notebooks sync when you reconnect[2][12]",
+          "Free cross-device sync through OneDrive",
+          "Export support is available, but the free plan is mainly limited by storage rather than format[1]",
+          "About **5 GB of notes** on the free plan"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9810
+  },
+  {
+    "id": "BXP-013",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "cac942b51948f393e4e9eff1d6b6ad843f682f2f9a0d1ac24100530e8bd1bfab",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-013/attempt_1.txt",
+    "sourceRawSha256": "4da057d3a6a402cfb74fb356cc77421d53d220df1b21934facedd315504863e0",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "j",
+        "columns": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedHeaders": [
+          "Bank",
+          "One-year retail FD rate",
+          "Assumed deposit size",
+          "Rate date / effective date"
+        ],
+        "observedRepresentativeCells": [
+          "SBI",
+          "6.25%",
+          "Below ₹3 crore",
+          "Current retail grid shown on SBI’s retail domestic term-deposit page"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7591
+  },
+  {
+    "id": "BXP-014",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "c0a5c3b3107df68cfdbfc6a891865450805541f81c951359f33aa60126623120",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-014/attempt_1.txt",
+    "sourceRawSha256": "cf589a18da7fb291145be54afc2dbeae3b0d95c7b60464b7bc3baf26c7e08767",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1777
+  },
+  {
+    "id": "BXP-015",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "3aa4be247b06aa7128a60dec1f27b44750ccf8f2d0340715f7d32c49df1aec10",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-015/attempt_1.txt",
+    "sourceRawSha256": "87f36d23276621735317220bedb2b0ca4baa2decf98f8ea64af9024dd4b8064b",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1754
+  },
+  {
+    "id": "BXP-016",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "80a299424e7e852812059dcbd9bb67094a31b02715323b929c06cafb235194a9",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-016/attempt_1.txt",
+    "sourceRawSha256": "d5692cbf26b4e66f2b07fa18ae9092e4ea9b0e203f14b15f9795c8824cd0cbe8",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Title",
+          "Platform",
+          "Streaming release date",
+          "Spoiler-free description"
+        ],
+        "observedHeaders": [
+          "Title",
+          "Platform",
+          "Streaming release date",
+          "Spoiler-free description"
+        ],
+        "observedRepresentativeCells": [
+          "**Bandar**",
+          "ZEE5",
+          "**28 August 2026**",
+          "A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 4148
+  },
+  {
+    "id": "BXP-017",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-017/attempt_1.txt",
+    "sourceRawSha256": "c27d791f21cb8673f6eac47fdbd67b142b1dc558f2bdd9c2013dea1bceb6edd8",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 4
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 4
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1742
+  },
+  {
+    "id": "BXP-018",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "2473a45bb4128fc9c6f10c4390a1921c27ff0b2844dc7e9bc4d87efc8825be4d",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-018/attempt_1.txt",
+    "sourceRawSha256": "87f36d23276621735317220bedb2b0ca4baa2decf98f8ea64af9024dd4b8064b",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1718
+  },
+  {
+    "id": "BXP-019",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "24b5019c91a96807d534d57f89956a62edb67877910e8d572e82251ae1725c86",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-019/attempt_1.txt",
+    "sourceRawSha256": "9a934e04c569232b15b64b68b3d846253ddddb4842b4c60f0ccef25312b049e0",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Game",
+          "Age rating",
+          "Co-op support",
+          "Players",
+          "Indicative India price"
+        ],
+        "observedHeaders": [
+          "Game",
+          "Age rating",
+          "Co-op support",
+          "Players",
+          "Indicative India price"
+        ],
+        "observedRepresentativeCells": [
+          "**It Takes Two**",
+          "13+ for online features",
+          "Online co-op; Friend’s Pass supports inviting a friend",
+          "2"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3823
+  },
+  {
+    "id": "BXP-020",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "ce2f6d724464c14eefc00cb45dd40f639364d070eedf9aed48ed3eb5ebd27a00",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-020/attempt_1.txt",
+    "sourceRawSha256": "7f30b0976679dc30f714f6fc5d4e77bb63942eac05ed8d6a11504bcdfce45c3e",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1745
+  },
+  {
+    "id": "BXP-021",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-021/attempt_1.txt",
+    "sourceRawSha256": "5b692eab736969a415496147592cd20c1d7038d90d0723058f3c818fd7a82d88",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2821
+  },
+  {
+    "id": "BXP-022",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "45d8647b3c63e36e709c87ceeadfbbeb3cae380d2daac2ec961ffdd8ea904c15",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-022/attempt_1.txt",
+    "sourceRawSha256": "cede6673cd820e2624752b6b3c2b8680ec0cc9691b4f080c1210e85b09ad2656",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2832
+  },
+  {
+    "id": "BXP-023",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "453659ae1b51ee2704ae9ac8b923f51b4345e0c776630fcea72ce6cac0e3d8c4",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-023/attempt_1.txt",
+    "sourceRawSha256": "05121c817f9f5927bc68aee97ed616fca7c7d9ff911671632e5175ae4addf378",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 2843
+  },
+  {
+    "id": "BXP-024",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "7d87701f7ffb64ca2abd4eff976cb7c91db5be4df88523491510ddbdcaec938c",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-024/attempt_1.txt",
+    "sourceRawSha256": "200b6ac7d66a52b055bf24fada691f18440e9a2d81d93a32ae3b24c49004763e",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5210
+  },
+  {
+    "id": "BXP-025",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "8c720b8d7e9eabbd676cf48362a54c0951d06ec6a9fceaf5152fbf8ec19025e0",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-025/attempt_1.txt",
+    "sourceRawSha256": "e821295a19aa9d686a823e847a9b783ac290b48da63e9358d11bed42c22212b9",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Day",
+          "10 min speaking",
+          "10 min listening"
+        ],
+        "observedHeaders": [
+          "Day",
+          "10 min speaking",
+          "10 min listening"
+        ],
+        "observedRepresentativeCells": [
+          "1",
+          "Practice greetings and introduce yourself aloud.",
+          "Listen to a short beginner greeting lesson."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 22
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3169
+  },
+  {
+    "id": "BXP-026",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "29c8e4642cb719221327113c7ac31b99fb6bdfd97a1d7c6fafed0ca5bdcd5dbf",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-026/attempt_1.txt",
+    "sourceRawSha256": "1f6513cef78f4439c48301c7777e7edba6b97555e488eb514b713ffa94b6bed6",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Approach",
+          "Data freshness",
+          "Cost",
+          "Setup effort",
+          "Limitations"
+        ],
+        "observedHeaders": [
+          "Approach",
+          "Data freshness",
+          "Cost",
+          "Setup effort",
+          "Limitations"
+        ],
+        "observedRepresentativeCells": [
+          "Retrieval-augmented generation",
+          "Best for fresh content because it can pull in updated documents at query time and does not require retraining for each change [9][40].",
+          "Usually lower for knowledge lookup at scale because you index once and retrieve only relevant chunks, though you still pay retrieval and embedding costs [19][15].",
+          "Moderate; you need document ingestion, chunking, embedding, and retrieval infrastructure [1].",
+          "Quality depends on retrieval quality; bad chunking or search can cause missed or irrelevant answers, and multi-step reasoning over scattered documents can still be hard[14]."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "table_1_horizontal_5",
+        "screenshot": true,
+        "visibleTextNodes": 18
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 12592
+  },
+  {
+    "id": "BXP-027",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "b2621ecaa1449161928ed896d650e5f4d4f176914082339e9a540298a372ffd6",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-027/attempt_1.txt",
+    "sourceRawSha256": "eda0a531728dc6333396888749887f438446e734e912b744ca6b0b6e761b922f",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5263
+  },
+  {
+    "id": "BXP-028",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "949fe3da104faf2920a03fb48ea7bf4dfce72f5b2918eb26b1896f2819ce2001",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-028/attempt_1.txt",
+    "sourceRawSha256": "cb2a9661013480e7db8e3d7a68258bdecd2d101b94276a99addbbe0a80034f4a",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5637
+  },
+  {
+    "id": "BXP-029",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "1dbaf3359ede7babfa5a534a7a08f09fcf96dfe8c0407fb7d5ec4a9058248fcd",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-029/attempt_1.txt",
+    "sourceRawSha256": "dafa2b2da4f9c27f05cb84d9b333de8711e74db2a4b1ee757b2da124b1359016",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "d",
+        "columns": [
+          "Point",
+          "ITR-1 (Sahaj)",
+          "ITR-2"
+        ],
+        "observedHeaders": [
+          "Point",
+          "ITR-1 (Sahaj)",
+          "ITR-2"
+        ],
+        "observedRepresentativeCells": [
+          "Who can file",
+          "Resident individual, not RNOR or non-resident",
+          "Individual (resident or non-resident)"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 26
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7522
+  },
+  {
+    "id": "BXP-030",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-030/attempt_2.txt",
+    "sourceRawSha256": "d14ce875fb592098feca783a193f5c561a255d3aaf23b3d79df775a1efd316e1",
+    "sourceSuccessfulAttempt": 2,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Feature",
+          "**EPF**",
+          "**PPF**",
+          "**NPS**"
+        ],
+        "observedHeaders": [
+          "Feature",
+          "**EPF**",
+          "**PPF**",
+          "**NPS**"
+        ],
+        "observedRepresentativeCells": [
+          "**Eligibility**",
+          "Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers.",
+          "Any resident individual can open an account."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5297
+  },
+  {
+    "id": "BXP-031",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "ea9c2c6bbf26696e1d86e9b79e8f5cd5327a8df5edca96052b60dc3c734dff15",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-031/attempt_1.txt",
+    "sourceRawSha256": "360971ac0b7785478037012ac0e7a5a7f8806656f1dd209725acba7818a464a2",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5261
+  },
+  {
+    "id": "BXP-032",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "53a1d9f75f3430d5c9fdb5b5fc180c3490f9479890ca4cb02071f36147e18a1d",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-032/attempt_2.txt",
+    "sourceRawSha256": "ac9e59ffc229e3322272cc46a03ebb3b2b72daac32f2faa52acff0a9365e038a",
+    "sourceSuccessfulAttempt": 2,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Term",
+          "What it means",
+          "Typical effect on a claim"
+        ],
+        "observedHeaders": [
+          "Term",
+          "What it means",
+          "Typical effect on a claim"
+        ],
+        "observedRepresentativeCells": [
+          "Deductible",
+          "A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee threshold. [3]",
+          "The insurer starts paying only after the deductible is crossed."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7425
+  },
+  {
+    "id": "BXP-033",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "85aa9b5377b38a62b6bb5a28af6405a89035bd2405dfbb4bd8803d0b5eb7d785",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-033/attempt_1.txt",
+    "sourceRawSha256": "7d8bf31c6eb66b93f83030af3de6ba8c5ae19ff84541011a01abf7f34ba4e889",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3131
+  },
+  {
+    "id": "BXP-034",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "0e3c6576d7dbf2fcabda1d663a4ddead3297304ee4d685526d3cb9c339e608ac",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-034/attempt_1.txt",
+    "sourceRawSha256": "a3c8191c76fe71ce8a660afe61931a6bc47736d1f30c2b9069d59addee581f7e",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "c",
+        "columns": [
+          "Food",
+          "Typical serving",
+          "Approx. protein"
+        ],
+        "observedHeaders": [
+          "Food",
+          "Typical serving",
+          "Approx. protein"
+        ],
+        "observedRepresentativeCells": [
+          "Soy chunks, dry",
+          "30 g",
+          "15–16 g [3]"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 32
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 23
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 32
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5066
+  },
+  {
+    "id": "BXP-035",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-035/attempt_1.txt",
+    "sourceRawSha256": "635ba7e918906941cf3ab9f2ce8849dc89c23af5639231fe9556dcf0deba7710",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5259
+  },
+  {
+    "id": "BXP-036",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "8296dabf3df1f7e22606e0387a2f9be59a2feb685ecfdac5544dada8032c5221",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-036/attempt_1.txt",
+    "sourceRawSha256": "bb0d47c5e983df9a7696ad16b824f6cb982da694ba548d70f804eb75f8f319aa",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5296
+  },
+  {
+    "id": "BXP-037",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "dec15005583d5d53bb470eb3407861ed6b4657e8a2f2675e17d81cf5badcfeec",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-037/attempt_2.txt",
+    "sourceRawSha256": "70251e005d65e9dc6c5a933aac00015649e1284ff9a2cd67fbe4a6ffdc5500be",
+    "sourceSuccessfulAttempt": 2,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Factor",
+          "CBSE",
+          "CISCE",
+          "IB"
+        ],
+        "observedHeaders": [
+          "Factor",
+          "CBSE",
+          "CISCE",
+          "IB"
+        ],
+        "observedRepresentativeCells": [
+          "**Curriculum**",
+          "Built around NCERT and a structured, concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE, NEET, and CUET.[1][3]",
+          "A broader, more content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics and Geography from middle school onward."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5324
+  },
+  {
+    "id": "BXP-038",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-038/attempt_1.txt",
+    "sourceRawSha256": "a7b63ac9d1278ccd8a8aec8ea96853cba59ac8fbea3467dd4249938de4f59a3c",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 1
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 1
+      }
+    ],
+    "verticalSwipes": 1,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 1681
+  },
+  {
+    "id": "BXP-039",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-039/attempt_1.txt",
+    "sourceRawSha256": "18b4b55c62d99827e8a226978b7b3e537be27f8be25995958fe6b9e191965d5e",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5234
+  },
+  {
+    "id": "BXP-040",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "4df0bed7b70f5e6585155e51288536861a1266e2c26d9e9118a4d83cacc001b3",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-040/attempt_1.txt",
+    "sourceRawSha256": "cb2a9661013480e7db8e3d7a68258bdecd2d101b94276a99addbbe0a80034f4a",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5244
+  },
+  {
+    "id": "BXP-041",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "f77e11eb5acf558f1b058917921fa10d0772968142a1b1b56927ff5e52fda3d6",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-041/attempt_1.txt",
+    "sourceRawSha256": "c2e120c2ec03464744f679330133f886e5769c6b838286e5f6571a7d8d67593a",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Country",
+          "Visa route",
+          "Permitted stay",
+          "Published fee",
+          "Passport requirement",
+          "Rules checked"
+        ],
+        "observedHeaders": [
+          "Country",
+          "Visa route",
+          "Permitted stay",
+          "Published fee",
+          "Passport requirement",
+          "Rules checked"
+        ],
+        "observedRepresentativeCells": [
+          "Thailand",
+          "Visa exemption for Indian ordinary passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [21][22]",
+          "Up to 30 days from 15 September 2026 under the revised exemption scheme",
+          "Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify",
+          "Thai embassy advisory lists a passport valid on arrival and standard immigration conditions[24]",
+          "Checked against Thai embassy notices dated 26 July 2026 and 15 September 2026 rule notice"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 10848
+  },
+  {
+    "id": "BXP-042",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "0a5c58f51844bf6096612bb666051f7f2d06d013631e46bacf44e76220125ec4",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-042/attempt_1.txt",
+    "sourceRawSha256": "360971ac0b7785478037012ac0e7a5a7f8806656f1dd209725acba7818a464a2",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5177
+  },
+  {
+    "id": "BXP-043",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "489aa83a46bb74aa0c5ca47457c8bb944744f1460c4965a42ee0774667adb369",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-043/attempt_1.txt",
+    "sourceRawSha256": "7dfc0bc9ab1645443499aeb19afb0b1227228006992ff7e5add3ba48961a62a7",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5254
+  },
+  {
+    "id": "BXP-044",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "40f49050265ed7850495bb040b760ffc013ab644d1717b9e236b8cb481608bac",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-044/attempt_1.txt",
+    "sourceRawSha256": "4a1218259b5e3de38761977f09dd822928258cf27b5cd3fcd1d69228df714352",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Device",
+          "Main problem it addresses",
+          "Best fit for Indian homes"
+        ],
+        "observedHeaders": [
+          "Device",
+          "Main problem it addresses",
+          "Best fit for Indian homes"
+        ],
+        "observedRepresentativeCells": [
+          "Air purifier",
+          "Dust, smoke, PM2.5, pollen, pet dander, and other airborne particles [3]",
+          "Homes near traffic, construction, seasonal smoke, or for allergy relief"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5251
+  },
+  {
+    "id": "BXP-045",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "05e75a8af62d4bae17be2247aea2c1f14496dd7a0e1b10189ae9da28e27741e1",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-045/attempt_1.txt",
+    "sourceRawSha256": "27c066c245ef5c1ba401f3683827a62d324be0181b3822e2f0a16513faeb2a5d",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "r",
+        "columns": [
+          "Level",
+          "Best measures",
+          "Expected impact"
+        ],
+        "observedHeaders": [
+          "Level",
+          "Best measures",
+          "Expected impact"
+        ],
+        "observedRepresentativeCells": [
+          "Household",
+          "Clear local inlets, secure valuables, harvest rainwater, avoid waste dumping",
+          "Lowers damage at one property"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 8
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 11
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7766
+  },
+  {
+    "id": "BXP-046",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "030d29ea1f27ed69739f35f87538de3fc565b23cc2e18c61b06cdfe639dbfe11",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-046/attempt_1.txt",
+    "sourceRawSha256": "cb2a9661013480e7db8e3d7a68258bdecd2d101b94276a99addbbe0a80034f4a",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5283
+  },
+  {
+    "id": "BXP-047",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-047/attempt_1.txt",
+    "sourceRawSha256": "a567b0b08ce870f5773f3bf0e7d0dcdedf62e21fd02061c71a221b7bd02bd803",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Chemistry",
+          "Energy density",
+          "Cycle life",
+          "Safety",
+          "Cost",
+          "Maturity"
+        ],
+        "observedHeaders": [
+          "Chemistry",
+          "Energy density",
+          "Cycle life",
+          "Safety",
+          "Cost",
+          "Maturity"
+        ],
+        "observedRepresentativeCells": [
+          "LFP",
+          "Lower than NMC; IEA says LFP packs are about one-fifth lower by mass and one-third lower by volume than NMC packs [22]",
+          "Typically long; sources cite roughly 2,000–6,000+ cycles, with some BESS-grade cells higher [3][18]",
+          "Strong; better thermal stability and lower thermal-runaway risk than NMC",
+          "Lower; IEA says LFP packs were almost 30% cheaper per kWh than NMC in 2025, and more than 40% cheaper on average in 2025 data[21]",
+          "Mature, widely deployed in EVs and especially stationary storage"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 12
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 10599
+  },
+  {
+    "id": "BXP-048",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "1c28ab3407ab4cc548ad80bde2b745802b6f4f8cb1ea2392d2f6a0820c6e89f8",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-048/attempt_1.txt",
+    "sourceRawSha256": "023b0de0b2587e7e0e9345f96c021746a4e94c3a9c55e1d6f955cb7bc1078fd8",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 6
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5188
+  },
+  {
+    "id": "BXP-049",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "22cb7a20d872a7916092cd3fdb0f070c41571d6076923352d4fae3e35446a95a",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-049/attempt_1.txt",
+    "sourceRawSha256": "e3b00bbf03a04ecfa7b356a6ade37b2f3a7cf9ebf439d9b50cb9736b576b6030",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Tradition",
+          "Geographical origins",
+          "Materials",
+          "Motifs",
+          "Technique",
+          "Cultural context"
+        ],
+        "observedHeaders": [
+          "Tradition",
+          "Geographical origins",
+          "Materials",
+          "Motifs",
+          "Technique",
+          "Cultural context"
+        ],
+        "observedRepresentativeCells": [
+          "**Madhubani**",
+          "Mithila region of Bihar, especially Madhubani, Darbhanga, and Sitamarhi[1][2]",
+          "Traditionally mud walls; now paper, cloth, and canvas; natural dyes, twigs/fingers/matchsticks[9][13]",
+          "Deities, wedding/fertility symbols, fish, birds, flowers, nature, village life[3][6][12]",
+          "Dense line work, geometric filling, no empty space, bold borders",
+          "Traditionally painted by women for rituals, festivals, and auspicious occasions"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_3",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "table_1_horizontal_4",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_horizontal_5",
+        "screenshot": true,
+        "visibleTextNodes": 19
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 9
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 13437
+  },
+  {
+    "id": "BXP-050",
+    "kind": "captured_model_revalidation",
+    "replayMode": "raw_model",
+    "sourceRunId": "gemma50_v7_gpu_mtp",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 1,
+    "sourceJsonSha256": "053d111b52513031f33f5f84ca62b1b56e17c52eef1a9ead011e94c41b3f8893",
+    "sourceArtifact": "gemma50_v7_gpu_mtp/BXP-050/attempt_1.txt",
+    "sourceRawSha256": "9304a7f6bb1b74c84da59193f08d475c8d41b66f94adb8ea97a95f9e958dc48f",
+    "sourceSuccessfulAttempt": 1,
+    "tables": [
+      {
+        "id": "d",
+        "columns": [
+          "Signal",
+          "Typical ocean pattern",
+          "Usual effect on Indian monsoon",
+          "Why it matters"
+        ],
+        "observedHeaders": [
+          "Signal",
+          "Typical ocean pattern",
+          "Usual effect on Indian monsoon",
+          "Why it matters"
+        ],
+        "observedRepresentativeCells": [
+          "El Niño",
+          "Warmer central/eastern Pacific",
+          "Below-normal rainfall, more dry spells, higher heat risk",
+          "Weakens moisture flow and monsoon circulation"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "table_1_horizontal_2",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9233
+  }
+]

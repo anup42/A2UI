@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],gap="md")
+a=Text("@source.a")
+b=Text("@source.b",variant="heading")
+c=Text("@source.c")
+d=Text("@source.d")
+</a2ui>

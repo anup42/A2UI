@@ -1,0 +1,127 @@
+[
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml",
+    "sha256": "ac65ff27de2aaa504673eeadff0a3bea9ad248e9680f8dd521940fe4b20b2b4e",
+    "bytes": 352
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.md5",
+    "sha256": "6cad0f7973ee16c7e4224126bd2dd5d8b8dfbfae4d2fda72591d06c47a0c2725",
+    "bytes": 32
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.sha1",
+    "sha256": "a729d32d5496e771b42efb710eabc6a7fa8c9a8421de20bda6cdecc38d7ced67",
+    "bytes": 40
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.sha256",
+    "sha256": "3fc0eca1384461eaad801b40f964a519ae5d24fcc971bacddb73ff30fea42213",
+    "bytes": 64
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.sha512",
+    "sha256": "aaea5ea57fed5a8099e354e000aa7c7e67e61ffc09bafb9bdc26bf064eb82ce1",
+    "bytes": 128
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar",
+    "sha256": "a8d59d03512013af8a3786b88363d1fef7a0c9f592e8b30e7c91642436480030",
+    "bytes": 366042
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.md5",
+    "sha256": "94967083544c7e18ecb061425c23328c4493a14f3be8538c1a1c75f89cefe1a6",
+    "bytes": 32
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.sha1",
+    "sha256": "86feeaca097b734db1993dec0362b2e7594f8b3d3c99660cff79557fd78da1c4",
+    "bytes": 40
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.sha256",
+    "sha256": "65c83c17d46f4490142acfc81b142094ece95b1dfc3b141c18654c8f3c6149b4",
+    "bytes": 64
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.sha512",
+    "sha256": "f63dedf2dbad3bff5449bd169372068bcfb3195ba90294d38c519d575f7ee843",
+    "bytes": 128
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar",
+    "sha256": "3cb4ceaab5b5bfa749356729e56cf978eb4dce01596b45aff2e53c9eb0683410",
+    "bytes": 9381091
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.md5",
+    "sha256": "f79015d3b30b99347aeb31d08064514c0225db06a29c714248664176bfaf7541",
+    "bytes": 32
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.sha1",
+    "sha256": "39ad91795671f206f9bcc416d0373ab47d9a012f50aaa3fe96a4b085778cb56d",
+    "bytes": 40
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.sha256",
+    "sha256": "ece11b410621565135fd26024a5b5cdef0b498b875a722b56bd175332ca3dc1f",
+    "bytes": 64
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.sha512",
+    "sha256": "4490a72c72382daddb793aeebf646d2b2ae55f016dd87ed83e851f81c5d2c837",
+    "bytes": 128
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module",
+    "sha256": "1f6c324f8a02715b8e669e43072749655c9cb9f7dd595204c101921ea436ff20",
+    "bytes": 5654
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.md5",
+    "sha256": "af88e83e35986c6b84d5890c9c59f6ff40487d82c98e983566f1f0fedecf89a5",
+    "bytes": 32
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.sha1",
+    "sha256": "651851f5fbb40aeeabd52d035d049739cf06727470fe3ec42067ed9e31f7a346",
+    "bytes": 40
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.sha256",
+    "sha256": "6b3dacd99a2b8f36b4133a048b421da7c2793672a7fea4e581bcd203dc0b9814",
+    "bytes": 64
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.sha512",
+    "sha256": "b0dfdb078336faeea59fc3aacdc1281eda8254d3ba6826cbbd7bc569dcc73ba4",
+    "bytes": 128
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom",
+    "sha256": "84d65c437d4f75cf0a2b336f99040d59da54456d9d220c941d57c2bbbd5d761e",
+    "bytes": 3706
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.md5",
+    "sha256": "d7e25c7474d1c9188d122668cbcb77deb61c93be2e7494ddadf93c11b486f244",
+    "bytes": 32
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.sha1",
+    "sha256": "d0d10055af669aef7fc8e57523cbafe01915782a550ab50733e5a722a422be8d",
+    "bytes": 40
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.sha256",
+    "sha256": "20d8a92025c4b108d2c1e2dd3b2ec22e7b0859ec67f447dbbecfcb3bcf6a5c67",
+    "bytes": 64
+  },
+  {
+    "path": "com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.sha512",
+    "sha256": "ab62e0861ccc37d4c0668ec922bb56ca2e149760f374d816515752d2068a9861",
+    "bytes": 128
+  }
+]

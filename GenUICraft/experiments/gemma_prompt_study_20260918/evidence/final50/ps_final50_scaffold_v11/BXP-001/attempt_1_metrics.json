@@ -1,0 +1,5 @@
+{
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "outputCharacters": 183,
+  "inputScaffoldCount": 1
+}

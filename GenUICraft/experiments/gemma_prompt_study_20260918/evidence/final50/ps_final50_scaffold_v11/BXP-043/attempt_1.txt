@@ -1,0 +1,15 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l],gap="md")
+a=Text("@source.a",variant="heading")
+b=Text("@source.b")
+c=Text("@source.c",variant="heading")
+d=Text("@source.d")
+e=Text("@source.e",variant="heading")
+f=Text("@source.f")
+g=Text("@source.g",variant="heading")
+h=Text("@source.h")
+i=Text("@source.i",variant="heading")
+j=Text("@source.j")
+k=Text("@source.k",variant="heading")
+l=Text("@source.l")
+</a2ui>

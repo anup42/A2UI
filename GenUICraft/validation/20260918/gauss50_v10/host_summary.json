@@ -1,0 +1,25 @@
+{
+  "run": "gauss50_v10",
+  "total": 50,
+  "expected_total": 50,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 50,
+  "first_attempt_success": 49,
+  "repaired_success": 1,
+  "failures": [],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-001",
+    "status": "success",
+    "elapsedMs": 7407,
+    "attempts": 1
+  },
+  "median_success_ms": 11850.5,
+  "median_warm_success_ms": 11973,
+  "p95_success_ms": 17284,
+  "max_process_pss_kb": 354323,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

@@ -1,0 +1,9 @@
+09-18 05:55:19.440 31207 31268 I tflite  : Loaded OpenCL library with dlopen.
+09-18 05:55:19.440 31207 31268 I litert  : [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+09-18 05:55:21.302 31207 31268 I native  : I0000 00:00:1789691121.302540   31268 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 05:55:21.534 31207 31268 I native  : I0000 00:00:1789691121.534115   31268 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 05:55:22.011 31207 31268 I native  : I0000 00:00:1789691122.011946   31268 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 05:55:22.122 31207 31268 I native  : I0000 00:00:1789691122.122435   31268 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 05:55:22.767 31207 31268 I native  : I0000 00:00:1789691122.767450   31268 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 05:55:23.102 31207 31268 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; modelSupportsMtp=true; thinking=true
+09-18 05:55:24.349 31207 31296 I tflite  : Loaded OpenCL library with dlopen.

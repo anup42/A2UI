@@ -1,0 +1,311 @@
+{
+  "status": "candidate_export_complete",
+  "schema_version": 6,
+  "policy_version": "messages-archive-semantic-review-v10-20260916",
+  "completed_at_utc": "2026-09-16T13:30:53.634345+00:00",
+  "all_rows_reconciled": 151202,
+  "source_files": {
+    "train": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl",
+      "bytes": 1970021858,
+      "rows": 150292,
+      "sha256": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+      "mtime_ns": 1789237226023955200
+    },
+    "val": {
+      "path": "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl",
+      "bytes": 11850436,
+      "rows": 910,
+      "sha256": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+      "mtime_ns": 1789237339459474100
+    }
+  },
+  "immutable_input_sha256": {
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\audits\\archive_refinement_v6\\review.sqlite": "2638754edc90eeba029dbd37aab26b031d5a163ece96661d503a529fb18ad33e",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\manifest.json": "ad248ad0c2939d907641f08802517dbaf472bcd12d7ce908e7a82bde3ec469e5",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\decisions.csv": "4636037df98d11d8d480bbfc2f4041d2450f5899b2c7a185233de880649afd99",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\quarantine.csv": "fd846703fca538a1594d01309e74ca770568fa8085c2e6432e1af0393cdd79c6",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\train.jsonl": "ba36f7dabac0b2129801b62f0f9414fcb1f82abc8fac4338da2329324c041c12",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v6\\val.jsonl": "829306fe5e87432b08d5bffa40cbb4c2868ddc49ab2a58d2a64eaa42e71d002a",
+    "C:\\Users\\anupk\\Downloads\\training_data\\train.jsonl": "5c47fb3f07dc6f2711ece12a1a93b4ecd6977fa8060119f329db3189c2d6b910",
+    "C:\\Users\\anupk\\Downloads\\training_data\\val.jsonl": "04e88d07003803279cea7de093bd9c69bcd35ed9a5fab057d577544b8c90ba19",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\manifest.json": "7fdf880055e7e4ef7c1ff40665f4e5cbc1a4894a0a3ecb1621a702010531cf24",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\decisions.csv": "36deb8308e4b9a5a8ab2219a8a4dd347d2c6f9d67ae611ab5587543d179d7955",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\quarantine.csv": "768f375346d05c6cd631b9111c05c0ff26bf5eb13681bac3b835f219b0f7dd1c",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\train.jsonl": "2a5d56634d97de3f3a057e0d31012b1b19f4b1ed15ae662e5fc2f3eea4a7637f",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v7\\val.jsonl": "917c05b65e390f7052584ff79eacd7927c071c66d0c327ddd147b894e6382233",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\manifest.json": "f3e2b4a4cb5468fec914d7477c932735e191f9e5ba7991d7fcaf6eeb66b1d824",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\decisions.csv": "9203eedaf124c36919d69f3830c74d42a9394edd70e2c6250bc783f31010b428",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\letter_exclusions.json": "25a2a92e06a6ae9a5499f57a5dcfefef57c75a1aa57b7d069283f6cd96118fa4",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\quarantine.csv": "3357a1b638ccccf03fba16c0c097c9d8fd9a103535a0b77c58541017f33b0c77",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\train.jsonl": "bb92091c8c9702e5151ed46c451954d209e75a34c54d0047a3afc58baea8b39a",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v8\\val.jsonl": "74029aba5c8b7f9d70bbd393847eea4305dc6da2897868a3ae385896eb51074a",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\manifest.json": "cdce0bc4c537ed222a9ad0f5822fbc5772cb0c4df97a15a51e7c88f8ce1c0251",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\boundary_repairs.json": "bf9d9b590b934be33b720e8d36982d6179e2bff5e0aceb7bbe19fb08eb0edb20",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\decisions.csv": "9203eedaf124c36919d69f3830c74d42a9394edd70e2c6250bc783f31010b428",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\letter_exclusions.json": "25a2a92e06a6ae9a5499f57a5dcfefef57c75a1aa57b7d069283f6cd96118fa4",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\quarantine.csv": "3357a1b638ccccf03fba16c0c097c9d8fd9a103535a0b77c58541017f33b0c77",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\train.jsonl": "59054776bd469b7f70f720ea1930067f7f4503650af21087a91fc8d00a23af06",
+    "C:\\Users\\anupk\\Documents\\git\\A2UI\\training\\outputs\\datasets\\full_data_archive_recovered_v9\\val.jsonl": "74029aba5c8b7f9d70bbd393847eea4305dc6da2897868a3ae385896eb51074a"
+  },
+  "benchmark_file_sha256": {
+    "training/data/eval/golden32_archive_repeat_v1/golden32.jsonl": "8c7357103e6ea52d99d66430dd4b93242e1c4a4f0bf02f2fcfdf2a2e9c48de4c",
+    "training/data/eval/golden32_archive_repeat_v1/benchmark_manifest.json": "2b62797db7fd267c3f75e8ab1a7cb1a450d601df3f7785f5b78a62fe2657caa8",
+    "training/data/eval/golden35_v1/golden35.jsonl": "8fec7fde8c31634f66e4c77dd0ca7a0e3b37d36e453398f167fd30b9604c2d20",
+    "training/data/eval/golden35_v1/benchmark_manifest.json": "1d468e05015744b8165c03e92ed009e03aac845513471b8f0b99cbe9d93939fb"
+  },
+  "benchmark_source_signature_sha256": [
+    "0670dd222d06e34d2da27fc4ff8ac40aa53381b9efe5bce43718bde00f8996d8",
+    "0d4bd1ece98f159abe2fbe951112422fe7f5e8660cef371951d538d9c6a3b844",
+    "12b5581711b3cdb511bdb7d7891c4add59d05aeea72627eddfa0997a60b5fc23",
+    "14fd27fcef63dde7cf0694a57692b9004559db8d759cb68f311bafed54492cc5",
+    "1bfbbed399669198bb8f4f7c7c3efe521000508b4f58cf787e7f7b42092ca0fe",
+    "1cf06414187cda73eafb9fa0b1e6334743c4daa679eeb0fa1f4dc650fbf6d6a1",
+    "28d1c07f017974550f26dbff7faa24f4ad8b1632ffe32d3f2e6884607973ba3e",
+    "2a3dfbe0ca7d9ae2d118bd13be25d8fb3e3dd5ab53f77b6ccd283f8c9e5e0716",
+    "2d778330e2c0c06c0efbb2b45e9d4fd862c709768b5c2dcc7a598804f110e8e8",
+    "2f4a200c899fff6bf0290cadff21cb7379e67e079a10a113659be4679167c6a3",
+    "2f751064569a122f1f10baec747f4a8cc1fff57a2bd288eb8f5359e69fa44f1a",
+    "2fb010f798bd7d2471ccdd7ba4d5593b97240d10690fbc1fac7f0c1e27438f0f",
+    "342d192287ffc620b8336603d4296898aeca24ead4397bd98bbf43d691909b82",
+    "3660e71c3260bcc0392b960fab2e79e7d8e60594e5e0c29ab752cf533a7a40f1",
+    "378f21ecbefe3e185432ec187a1d16ffa56dcb428fe59395f68971b7e5353251",
+    "38f81fcb9b54ecd00aa88b226ab582d1b44354f42c0cf60c16cb38f3827cf49a",
+    "430b0e33afd443ae179a366fec16f8dfc83da460fe3b3b5115bbbbc38a2f9f44",
+    "4378e43340bcceced2886d0131801c307e10d870fa06cb4e48abaf367ea71eee",
+    "443d49a693d01957dcf8fe512b134835c5a16c57b3715eaa31515bc2e22ff745",
+    "444fb0058e61cea91711e92cf5ddf9df8da53c1baba7652c29d7e5db90efa020",
+    "4aee35f912653063c00320ab775d757bdebf834729c42e5332c49f17d8af388f",
+    "4b40b6082cbde4fdb3ad5d93bb0e03b5c1b1fde8a595743048d1e2b601282780",
+    "52f5f19a9f2234f59cf091e4db7b0dbe9f32f26be2cca591ccbe4e0266e536fa",
+    "535e30f5b51b17c656346fed7ff3271e2c116d226486fd93c97427f4ebe6f7d2",
+    "564a5ebce146a46404d0fe45a4303b4385ee6d9cb0112765b18d62ea6d9a0564",
+    "567c333e5f870c45a372c45783043809513ebb41ef3a228fb822a68c2b8234e6",
+    "619e478553d7b906572b2c6fe04072d4eac507652b65a647b54b34fbce7b397c",
+    "67df984be34900a3d15e7bc65e02bb1db32827ea34f8b612ecce80fda634db9a",
+    "69e0226d311f1714f83c2cca0649b34452f54aefbb0f4276afe16e90959ab011",
+    "6a3bc9d00579dec675326f47bad25609fe03302de84266402d6f5577206ab846",
+    "744daca489979d73b581fcf0bb691bff1e3763a566e44a87364bc898029b84e5",
+    "801a2f40145d7c294cddca96869d5e8b20d895b48ca80ce168635e07e413a139",
+    "821df14350fa99503c6c82b93d3abeebb64a11b7ab024ef883014348c825d848",
+    "82f3b28fc38d680d96c0a850d40511b443182eb962f1d5c5df518861e0920f4f",
+    "82fa19afdc8d489ceadf64dadecd8036b7822a9688675b36011ec0233e2b923c",
+    "85b5ce3a7d7bcdd0b24edcf3d6ebea6e74f693c514dce1489d1e45b24b29a43d",
+    "88529f5e99aa9937183a1444aada616893b966e43fd23249b9767fe6214d1db3",
+    "8a5121081baec27b82eaec856c9a62074e1cdcd4fd9cb5a13bbb19775187bd14",
+    "95c5319b638ba5d931b2c54da0d137d9e2ef0337c5d9e7892dac71bef7abe90f",
+    "98e4f7964dc03cd310e9a08bef6bfb80579314cb4140139dcd0f67ff22a6ca8c",
+    "9992568a52e2ca4ba165b87fb8e0f61acce90c297b55f9f7f122a95a51a16e47",
+    "9c1fb244f39b311e13012af45a2b3bc9697e760f348c6b52e72a7004f252d79f",
+    "9da0258962ccdf8022142202546c502983be11f2f5a743774cc0de94fe2b6539",
+    "9ed7a8a057fbfd438d9e78cd82a29a3d3803bcd6fbebc34a36e6af556d6a981e",
+    "9ff0b6ca37b7b025605a22cd205e77dae39f75a8adb72e9fd20257683c15a2aa",
+    "a0d674c56106d8c2a193f9692baf33167724022ae7e430f867282d1f03f0676a",
+    "a4da37495df54ef5358858691f8b4e1d4f3dcce5c55285529a22deaf5061aed2",
+    "a64ddcb474bf0801253afe90b280aaa2010990f7bbf39dc9639544a18becb9bf",
+    "ae30d472fd44be15664d4aa6bf4939a5d45c53a4d16d8bde22221c61be51ef73",
+    "b04f94219e000480abd7f3a2b071172068e6318019049d113de2956d9f8e57de",
+    "b3e43c28c8751b93550b3c448a6a98450a9c639ffa354dff44182651d3388832",
+    "bd96f10e63281dd2462c01f758768822fd136a6f0b76bfaa27f2776849b8d2e6",
+    "c18b38261fb662195cc39e5cf9b85ae6a5e826d73b752a882ba36e0d6dfb9d13",
+    "c5a9f42f39268c3f6158df69cea03cfa738cc8147e2b757670027783824d27dc",
+    "d5e8a88ddabda7f24a585554ad0c7e89e4a15b0944e6edd0474dcea811df1780",
+    "d61b39d0fdd7c1586b647926685b232cb8e926a0695983ee96e74c0489ae1dc4",
+    "d6e0bb2c1f290f50a3b4f8e2962671cb0276fea48fa789180a4c5dde11786ce4",
+    "d7484edd720c69649d33dc283ee4e17de948d855b6e9d4ce2f0248e2c99e05bd",
+    "db57a81f1744c46103b76e24f0bb2f2bba2a4a84e7be029c44435ec164e01e5f",
+    "dc97660c0a881834a535fbe796a05c88c6dde89e4bf81a1324baeecbc7ee2e2b",
+    "dd4b93e325f774db21d9f0a786f9941b3bccfd243c4adbf2392579085ed138b5",
+    "e08c51f3398e25d8ecc16d4f365e103bd698a4d9ff5c9a9b658d3a75c1e2ded0",
+    "e87fa82ec797842226896c9fedacb11e0099da5d9b6778316f5febd2ade1fc00",
+    "ec3c5c3fafcf22b10f80e564be6a2bc99105c9850afb98d21e992ba880a3086b",
+    "edb227a29068eae226d37d4580bfb5cfb80cb7159f4415c82a0291febf27e247",
+    "f113ffc2eef03c2932450f4e1c729b8da32ec1f54f4c1174f60c492ee8d1aa9e"
+  ],
+  "categories": {
+    "train": {
+      "QUARANTINE": 57868,
+      "REPAIR": 81372,
+      "KEEP": 11052
+    },
+    "val": {
+      "QUARANTINE": 357,
+      "REPAIR": 495,
+      "KEEP": 58
+    },
+    "combined": {
+      "QUARANTINE": 58225,
+      "REPAIR": 81867,
+      "KEEP": 11110
+    }
+  },
+  "output_rows": {
+    "train": 91115,
+    "val": 1862
+  },
+  "source_families": {
+    "train": 88669,
+    "val": 1814
+  },
+  "first_reason_counts": {
+    "unresolved_content_or_reference": 35951,
+    "passed_final_content_review": 92073,
+    "semantic_review_v10": 22165,
+    "source_proven_semantic_repair_v10": 904,
+    "incomplete_letter": 70,
+    "duplicate_source_family_target": 3,
+    "reserved_golden_family": 36
+  },
+  "benchmark_excluded_rows": 36,
+  "split_rebuild": {
+    "seed": 20260913,
+    "initial_validation_family_fraction": 0.02,
+    "stratification": "observed component shape plus source character-length bins; source families indivisible",
+    "assignment": "seeded SHA256 selection and row order; near-source connected families move together to validation",
+    "near_source_passes": [
+      {
+        "pass": 1,
+        "validation_source_variants": 2244,
+        "new_family_edges": 0
+      }
+    ],
+    "new_near_family_edges": 0,
+    "near_method": "up to 24 rare trigram anchors, >=2 shared anchors, length ratio >=0.65, full trigram Jaccard >=0.60",
+    "benchmark_near_method": "same plus length ratio >=0.40 and >=0.90 trigram containment for >=50-word sources",
+    "remaining_detected_near_cross_split_matches": 0
+  },
+  "checks": {
+    "all_original_and_v5_hashes_unchanged": true,
+    "frozen_goldens_unchanged": true,
+    "all_retained_targets_reparsed_wire_validated": true,
+    "all_changed_targets_strict_roundtrip": true,
+    "train_val_family_overlap": 0,
+    "accepted_known_golden_family_matches": 0,
+    "target_placeholder_absent_source": 0
+  },
+  "limitations": [
+    "Lexical near-source retrieval is bounded, not exhaustive semantic paraphrase detection.",
+    "Valid means passed this offline schema/content policy, not proof every fact is visible or correct.",
+    "Exact model tokenizer/template and sequence-budget preparation is still required.",
+    "The archive has no original generator IDs, URL maps for premasked references, or intent labels.",
+    "Rebuilt validation is held out only for a fresh training run; an old checkpoint may already have seen it.",
+    "No Stage3, model training, device rendering, or Golden score was produced."
+  ],
+  "implementation_sha256": {
+    "training/scripts/finalize_refined_archive.py": "c08f91d582d56c140306663f0642b240eae50f7646dfc21ce244d9cc4f516914",
+    "training/src/ir_training/data/archive_final_review.py": "db31814316c0e5cb18209c45700d88e2cf951defce7432a6cb082ebfdd2fb858",
+    "training/src/ir_training/data/archive_refinement.py": "559a843d629de34566d2e05196f0aaee7e8ba12ff33047e443d3a216e2fa2f82",
+    "training/src/ir_training/data/archive_recovery.py": "866533095443ff2953e23ca6085c0319218b2fc24c7dc8387ab492548c854470",
+    "training/scripts/finalize_archive_letters.py": "8473b318bf170c3936794a4107ef665a95ae6c9d775b90840509e53c9c7517f0",
+    "training/src/ir_training/data/archive_letter_review.py": "cfbee048e5909d7b75d28c441cebc0efeadc60a300dd9f0444fccf029c26ae80",
+    "training/scripts/finalize_archive_boundaries.py": "f75721cd881d1700f414168899535b1740836e2062c94bca5dc800cf67f8629a",
+    "training/src/ir_training/data/archive_boundary_review.py": "d097bdf1fd8b6b393bee46f923f33138e7e9407cbcbee01cec806ae6b52f0881",
+    "training/scripts/finalize_archive_semantics.py": "34bb211fe769b692569e9babffebe0c8a7af311f9a380ded57dfa1c056bf2a81",
+    "training/src/ir_training/data/archive_semantic_review.py": "ba6680f40984e9391faee90eca7091b911ee22bcf9fd5c19b86ff411e2b16b40",
+    "training/src/ir_training/data/url_preprocess.py": "0aa8b5a65c4524bee712681dee5762747993dfc11648d63adb504360c9ab49a1"
+  },
+  "outputs": {
+    "benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "boundary_repairs.json": "bf9d9b590b934be33b720e8d36982d6179e2bff5e0aceb7bbe19fb08eb0edb20",
+    "decisions.csv": "cae2439997681069288c7a1bd6c0e47516545a7c10bcd878b149306be4fc077b",
+    "letter_exclusions.json": "25a2a92e06a6ae9a5499f57a5dcfefef57c75a1aa57b7d069283f6cd96118fa4",
+    "near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "quarantine.csv": "55be8f6153edac4bed5ac1dacb07a9eaebcbfa18147d74a078643a59bcfc0cce",
+    "reviewed_findings.json": "3d9399a6fc6b439f1493884904bf08740206f3f6035bf87c6c8b5deb5efe37d8",
+    "semantic_review.jsonl": "dee3346569ae9709f21ffed6bf667ee77e2e26c6f43193bc45e2ae6f9493f7f5",
+    "train.jsonl": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+    "val.jsonl": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7"
+  },
+  "final_review": {
+    "all_v6_candidates_reviewed": 118163,
+    "additional_prose_gap_rows_excluded": 2951,
+    "v6_label_rows_reconstructed": 316,
+    "v6_label_operations_reconstructed": 365,
+    "corrected_rule_operations_retained": {
+      "source_proven_missing_button_label": 65
+    },
+    "paragraph_policy": "prose block >=120 chars, >=16 distinct content words, >=8 absent words, and <50% content-word recall against props plus bound state; heuristic quarantine, not a factual verdict"
+  },
+  "letter_review": {
+    "reviewed": 84,
+    "excluded_train": 69,
+    "accepted_train": 14,
+    "excluded_val": 1,
+    "newly_excluded_rows": 70,
+    "policy": "For letter-style responses, every paragraph of at least four normalized words must be present as an ordered word subsequence in target props plus bound state. Extra headings/punctuation tolerated; shortened or rewritten letters quarantined.",
+    "originals_unchanged": true
+  },
+  "boundary_review": {
+    "historical_join_rows_checked": 3,
+    "source_proven_separator_rows_repaired": 1,
+    "membership_and_splits_unchanged": true,
+    "originals_unchanged": true
+  },
+  "disk_space_preflight": {
+    "estimated_output_bytes": 5796791350,
+    "required_bytes": 6870533174,
+    "available_bytes_before_export": 19203108864,
+    "headroom_bytes": 1073741824
+  },
+  "semantic_review": {
+    "input_rows": {
+      "train": 112842,
+      "val": 2300
+    },
+    "outcomes_from_v9": {
+      "train": {
+        "KEEP": 80906,
+        "REPAIR": 10209,
+        "QUARANTINE": 21727
+      },
+      "val": {
+        "QUARANTINE": 438,
+        "KEEP": 1659,
+        "REPAIR": 203
+      }
+    },
+    "retained_repair_rows_by_kind_overlap": {
+      "remove_unsupported_empty_media_columns": 1899,
+      "literal_state_key_pointer_escape": 2052,
+      "source_table_label_restoration": 2980,
+      "unique_source_clause_restoration": 3795,
+      "source_proven_partial_codec_repair": 136,
+      "proven_false_asset_mask": 4,
+      "source_proven_citation_binding": 24
+    },
+    "new_quarantine_reasons_overlap": {
+      "source_clause_gap": 18449,
+      "source_citation_not_visible": 3748,
+      "residual_suspicious_encoding": 89,
+      "source_media_not_bound": 1336,
+      "requested_chart_missing": 215,
+      "lost_source_qualifier": 219,
+      "inline_action_not_bound": 29,
+      "reviewed_source_requires_verification": 16,
+      "reviewed_source_fragment_missing": 11,
+      "hidden_table_date_column": 1,
+      "post_repair_duplicate": 1,
+      "source_gdpr_fixed_deadline": 1,
+      "unresolved_table_state_path": 1,
+      "source_static_qr_tracking_claim": 1,
+      "description_used_as_input_value": 1,
+      "source_allergy_scope_mismatch": 1
+    },
+    "all_retained_rows_strict_checked": 92977,
+    "all_retained_rows_idempotence_checked": 92977,
+    "split_membership_preserved_no_reshuffle": true,
+    "originals_unchanged": true,
+    "stage3_run": false,
+    "elapsed_seconds": 853.94,
+    "remaining_limit": "Heuristic content gates and a finite reviewed-source holdlist are not a full factual/semantic/device/tokenizer certification."
+  },
+  "reviewed_findings_sha256": "3d9399a6fc6b439f1493884904bf08740206f3f6035bf87c6c8b5deb5efe37d8"
+}

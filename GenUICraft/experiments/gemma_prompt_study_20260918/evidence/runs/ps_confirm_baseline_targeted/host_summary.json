@@ -1,0 +1,38 @@
+{
+  "run": "ps_confirm_baseline_targeted",
+  "total": 6,
+  "expected_total": 12,
+  "run_complete": false,
+  "missing_ids": [
+    "BXP-027",
+    "BXP-033",
+    "BXP-035",
+    "BXP-038",
+    "BXP-045",
+    "BXP-047"
+  ],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 5,
+  "first_attempt_success": 5,
+  "repaired_success": 0,
+  "failures": [
+    {
+      "id": "BXP-025",
+      "status": "failure",
+      "message": "Table.rows must use a known source binding; received '@.c'."
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-001",
+    "status": "success",
+    "elapsedMs": 138007,
+    "attempts": 1
+  },
+  "median_success_ms": 118313,
+  "median_warm_success_ms": 111696.5,
+  "p95_success_ms": 138007,
+  "max_process_pss_kb": 4177037,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

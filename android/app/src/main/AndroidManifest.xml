@@ -41,6 +41,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".GenUiSdkDemoActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".RendererHomeActivity"
             android:exported="false" />
         <activity

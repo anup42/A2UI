@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h],"md")
+a=Text("Cabin baggage","heading")
+b=List(items=["**Economy standard**: one cabin bag up to **7 kg** with maximum size **55 × 35 × 25 cm** (total **115 cm** including handles and wheels).[2][11]","One additional **personal item** up to **3 kg** is allowed, such as a handbag or laptop bag, if it fits under the seat."])
+c=Text("Checked baggage","heading")
+d=List(items=["**Standard domestic economy**: **15 kg** checked baggage per passenger.[5][6]","Maximum size for one checked piece is **158 cm** total linear dimensions (L+W+H).[13]","A single checked bag must not exceed **32 kg** for safety handling."])
+e=Text("Excess baggage charges","heading")
+f=List(items=["IndiGo states excess checked baggage is charged **per kilogram** over the allowance at check-in.[3]","Published domestic airport excess rates are commonly around **₹600 per kg** or **₹1,000 for an additional piece** depending on purchase method and route; pre-booked excess is cheaper than airport purchase.[4][7]"])
+g=Text("Important fare exceptions","heading")
+h=List(items=["**Lite** fares may have **no free checked baggage**; checked weight must be bought separately.[1]","Higher domestic bundles such as **UpFront** can include more checked allowance, and premium products may allow a higher cabin weight limit.[9][15]","Exact excess pricing can vary by route and booking channel, so the fare rules on the ticket or booking page should be checked before travel."])
+</a2ui>

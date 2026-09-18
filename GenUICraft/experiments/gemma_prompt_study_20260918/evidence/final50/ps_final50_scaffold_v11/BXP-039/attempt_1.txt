@@ -1,0 +1,16 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l,m],gap="md")
+a=Text("@source.a",variant="heading")
+b=Text("@source.b")
+c=Text("@source.c",variant="heading")
+d=Text("@source.d")
+e=List(items="@source.e")
+f=Text("@source.f",variant="heading")
+g=Text("@source.g")
+h=List(items="@source.h")
+i=Text("@source.i",variant="heading")
+j=Text("@source.j")
+k=Text("@source.k",variant="heading")
+l=List(items="@source.l")
+m=Text("@source.m")
+</a2ui>

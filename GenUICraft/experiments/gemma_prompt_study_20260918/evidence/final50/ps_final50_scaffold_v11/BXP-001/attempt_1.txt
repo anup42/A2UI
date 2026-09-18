@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a,b,c],gap="md")
+a=Table(columns="@source.a",rows="@source.b",domain="generic",preferredPresentation="table")
+b=Text("@source.c")
+c=List(items="@source.d")
+</a2ui>

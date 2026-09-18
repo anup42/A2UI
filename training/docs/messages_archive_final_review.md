@@ -1,7 +1,14 @@
 # Final repaired archive copy: v9
 
+**Superseded for new training runs by the completed v10 copy (2026-09-16):**
+91,115 training + 1,862 validation rows. See the
+[v10 dataset and reproduction instructions](messages_archive_semantic_review.md)
+and [verified results](../reports/offline_recovery_20260916_v10/REPORT.md).
+The v9 history and commands below are retained for provenance, not as the
+current dataset recommendation. The original v9 copy was not modified.
+
 The completed **v9** copy has **112,842 training rows and 2,300 validation
-rows, 115,142 total**. Use it for the next exact-model tokenizer preflight.
+rows, 115,142 total**. These are the historical v9 counts.
 The final pass corrected the false historical join at original `train:65649`:
 `oilPrep` is now `oil. Prep`, with the separator taken directly from its source.
 All three retained historical joins are independently rechecked. The earlier

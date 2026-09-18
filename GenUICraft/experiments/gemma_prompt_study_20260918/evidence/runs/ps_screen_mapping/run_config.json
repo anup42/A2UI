@@ -1,0 +1,15 @@
+{
+  "provider": "gemma",
+  "cases": [
+    "BXP-003",
+    "BXP-030",
+    "BXP-032",
+    "BXP-037"
+  ],
+  "maxRepairAttempts": 0,
+  "temperature": 0.0,
+  "accelerator": "GPU",
+  "mtp": true,
+  "thinkingEnabled": true,
+  "thinkingBudgetOverride": "1024"
+}

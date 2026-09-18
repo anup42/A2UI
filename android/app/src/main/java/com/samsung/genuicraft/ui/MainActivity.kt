@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
                     onOpenRenderer = { startActivity(Intent(this, RendererHomeActivity::class.java)) },
                     onOpenGenUi = { startActivity(Intent(this, GenUiAssistantActivity::class.java)) },
                     onOpenIrDemo = { startActivity(Intent(this, IrDemoListActivity::class.java)) },
+                    onOpenSdk = { startActivity(Intent(this, GenUiSdkDemoActivity::class.java)) },
                     onOpenSettings = { startActivity(Intent(this, SettingsActivity::class.java)) }
                 )
             }
@@ -58,6 +59,7 @@ private fun LauncherScreen(
     onOpenRenderer: () -> Unit,
     onOpenGenUi: () -> Unit,
     onOpenIrDemo: () -> Unit,
+    onOpenSdk: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
     val deviceConfig = rememberDeviceUiConfig()
@@ -119,6 +121,7 @@ private fun LauncherScreen(
                     title = stringResource(id = R.string.launcher_ir_demo_title),
                     onClick = onOpenIrDemo
                 )
+                LauncherCard(title = "GenUICraft SDK · Bixby50", onClick = onOpenSdk)
             }
         }
     }

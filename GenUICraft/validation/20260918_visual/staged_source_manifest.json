@@ -1,0 +1,467 @@
+{
+  "schemaVersion": 1,
+  "kind": "staged_revalidated_documents",
+  "stagedRunId": "gemma50_saved_v10",
+  "sourceRunId": "gemma50_v9_revalidated",
+  "originalRunRelativePath": "../../genuicraft_20260918/gemma50_v9_revalidated",
+  "caseCount": 50,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "llmInvoked": false,
+  "originalReplayResultsRelativePath": "replay_results.json",
+  "stagedReplayResultsRelativePath": "replay_results.json",
+  "replayResultsSha256": "054c716eec1f387e51ba87cd85776542dd2493253ca4825e26d6c8e263bbe6f0",
+  "cases": [
+    {
+      "id": "BXP-001",
+      "originalDocumentRelativePath": "BXP-001/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-001/output.a2ui.json",
+      "documentSha256": "bd30e774121d520ca52a5b5c3d63ed53bbd591e871711fa9ebc22fd8fdefdeed",
+      "originalReportRelativePath": "BXP-001/replay_result.json",
+      "stagedReportRelativePath": "BXP-001/replay_result.json",
+      "sourceReportSha256": "ee87e75c087251687717758edb13f7dd564849446bdf1cb0afe15358a9260cce"
+    },
+    {
+      "id": "BXP-002",
+      "originalDocumentRelativePath": "BXP-002/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-002/output.a2ui.json",
+      "documentSha256": "33fefccea91d621780bf4a3d0147d3bbdf25d7a4d78200d14607b7947665cbb6",
+      "originalReportRelativePath": "BXP-002/replay_result.json",
+      "stagedReportRelativePath": "BXP-002/replay_result.json",
+      "sourceReportSha256": "79bc77f7ffae08568a0d2412c48cb02af5ebf16fb718d408eaaa121f390081db"
+    },
+    {
+      "id": "BXP-003",
+      "originalDocumentRelativePath": "BXP-003/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-003/output.a2ui.json",
+      "documentSha256": "bfd5660f302d5de55bae99f0b0b4f580bfc4cfdfb9ead7429c2cd05baf65b9f6",
+      "originalReportRelativePath": "BXP-003/replay_result.json",
+      "stagedReportRelativePath": "BXP-003/replay_result.json",
+      "sourceReportSha256": "da35d75a8e5129db4f4550f1259867872ad78a4be73c664002bd641ee37cbb96"
+    },
+    {
+      "id": "BXP-004",
+      "originalDocumentRelativePath": "BXP-004/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-004/output.a2ui.json",
+      "documentSha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+      "originalReportRelativePath": "BXP-004/replay_result.json",
+      "stagedReportRelativePath": "BXP-004/replay_result.json",
+      "sourceReportSha256": "871dc9fc2e117d4d8deca676c7cdf19a1498920b4bcb1f005f61296e6accc066"
+    },
+    {
+      "id": "BXP-005",
+      "originalDocumentRelativePath": "BXP-005/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-005/output.a2ui.json",
+      "documentSha256": "ed6ab0cf4b556a114882a833f76009fcd7ff748ede29420378296f17c75e4fd0",
+      "originalReportRelativePath": "BXP-005/replay_result.json",
+      "stagedReportRelativePath": "BXP-005/replay_result.json",
+      "sourceReportSha256": "799cdeb48411de320d7524aa4a7c83422d32260bf978a7b4039f42f39e1813e2"
+    },
+    {
+      "id": "BXP-006",
+      "originalDocumentRelativePath": "BXP-006/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-006/output.a2ui.json",
+      "documentSha256": "c9175c78858a94608a8d6627a18fe7ea600ab99d64c0425ff958d1db20c6a178",
+      "originalReportRelativePath": "BXP-006/replay_result.json",
+      "stagedReportRelativePath": "BXP-006/replay_result.json",
+      "sourceReportSha256": "a1343cb4ff7b0f654cefcf51ab5b1f9f138cb9efb827f686793dc91f4581ab54"
+    },
+    {
+      "id": "BXP-007",
+      "originalDocumentRelativePath": "BXP-007/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-007/output.a2ui.json",
+      "documentSha256": "c398234e35cd274c84f1148513a7a0e16ec0a6bdc21161c047d3acf515badd5c",
+      "originalReportRelativePath": "BXP-007/replay_result.json",
+      "stagedReportRelativePath": "BXP-007/replay_result.json",
+      "sourceReportSha256": "a8712730f1ec68ff2be152f7f52d339569f43b3e95855de2955af02214d22971"
+    },
+    {
+      "id": "BXP-008",
+      "originalDocumentRelativePath": "BXP-008/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-008/output.a2ui.json",
+      "documentSha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+      "originalReportRelativePath": "BXP-008/replay_result.json",
+      "stagedReportRelativePath": "BXP-008/replay_result.json",
+      "sourceReportSha256": "1467fdb24f09994dece6f7ee47731ee1b82df1589c78492611a812863be845ea"
+    },
+    {
+      "id": "BXP-009",
+      "originalDocumentRelativePath": "BXP-009/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-009/output.a2ui.json",
+      "documentSha256": "17759aa9078588f3c625d33f5c0f7a044a1fc1b630ef227820d63c5c7844259c",
+      "originalReportRelativePath": "BXP-009/replay_result.json",
+      "stagedReportRelativePath": "BXP-009/replay_result.json",
+      "sourceReportSha256": "7e9b70d7db15683fb6585369bc325e5a5f278a0df97699ad8d38dbc413263d21"
+    },
+    {
+      "id": "BXP-010",
+      "originalDocumentRelativePath": "BXP-010/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-010/output.a2ui.json",
+      "documentSha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+      "originalReportRelativePath": "BXP-010/replay_result.json",
+      "stagedReportRelativePath": "BXP-010/replay_result.json",
+      "sourceReportSha256": "503ddd892155e670d80c6b80ed6766d230eb01e41cfb593a5fa8ca5faa1ca57a"
+    },
+    {
+      "id": "BXP-011",
+      "originalDocumentRelativePath": "BXP-011/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-011/output.a2ui.json",
+      "documentSha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+      "originalReportRelativePath": "BXP-011/replay_result.json",
+      "stagedReportRelativePath": "BXP-011/replay_result.json",
+      "sourceReportSha256": "2a2aa711f255b21c5fa4c84b3d45226c3e3eaab550bed8c02be4654a0d082031"
+    },
+    {
+      "id": "BXP-012",
+      "originalDocumentRelativePath": "BXP-012/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-012/output.a2ui.json",
+      "documentSha256": "3ef11612cf64226b32444d3b76adba3a5d601b0d11329a3c5572309d5b871436",
+      "originalReportRelativePath": "BXP-012/replay_result.json",
+      "stagedReportRelativePath": "BXP-012/replay_result.json",
+      "sourceReportSha256": "4fb48a904a665ac97950bb1a9934edc5fe2bd56df1132dd2773a15528dc9930f"
+    },
+    {
+      "id": "BXP-013",
+      "originalDocumentRelativePath": "BXP-013/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-013/output.a2ui.json",
+      "documentSha256": "cac942b51948f393e4e9eff1d6b6ad843f682f2f9a0d1ac24100530e8bd1bfab",
+      "originalReportRelativePath": "BXP-013/replay_result.json",
+      "stagedReportRelativePath": "BXP-013/replay_result.json",
+      "sourceReportSha256": "f8f044df3e82fc19f537400e0300e98da623640cffb7b0f3be081ab0ae76b5f9"
+    },
+    {
+      "id": "BXP-014",
+      "originalDocumentRelativePath": "BXP-014/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-014/output.a2ui.json",
+      "documentSha256": "c0a5c3b3107df68cfdbfc6a891865450805541f81c951359f33aa60126623120",
+      "originalReportRelativePath": "BXP-014/replay_result.json",
+      "stagedReportRelativePath": "BXP-014/replay_result.json",
+      "sourceReportSha256": "8a05d2ee0a69c52cb622dcf804c9b335d09beae6294049e878b125bdd39030a5"
+    },
+    {
+      "id": "BXP-015",
+      "originalDocumentRelativePath": "BXP-015/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-015/output.a2ui.json",
+      "documentSha256": "3aa4be247b06aa7128a60dec1f27b44750ccf8f2d0340715f7d32c49df1aec10",
+      "originalReportRelativePath": "BXP-015/replay_result.json",
+      "stagedReportRelativePath": "BXP-015/replay_result.json",
+      "sourceReportSha256": "ddb62f89bf8435ee75f05df0fffa9dd16e1c45978d9fb8ba33be5851959b8bb2"
+    },
+    {
+      "id": "BXP-016",
+      "originalDocumentRelativePath": "BXP-016/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-016/output.a2ui.json",
+      "documentSha256": "80a299424e7e852812059dcbd9bb67094a31b02715323b929c06cafb235194a9",
+      "originalReportRelativePath": "BXP-016/replay_result.json",
+      "stagedReportRelativePath": "BXP-016/replay_result.json",
+      "sourceReportSha256": "25029f321f96d913310e425877644299f7928e17d168d99bbb20aef638cbcaf7"
+    },
+    {
+      "id": "BXP-017",
+      "originalDocumentRelativePath": "BXP-017/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-017/output.a2ui.json",
+      "documentSha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+      "originalReportRelativePath": "BXP-017/replay_result.json",
+      "stagedReportRelativePath": "BXP-017/replay_result.json",
+      "sourceReportSha256": "8d3cfb44dd4b8103ff027eeec0ccfbdeff990ce96981db5917a8f0db28955b60"
+    },
+    {
+      "id": "BXP-018",
+      "originalDocumentRelativePath": "BXP-018/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-018/output.a2ui.json",
+      "documentSha256": "2473a45bb4128fc9c6f10c4390a1921c27ff0b2844dc7e9bc4d87efc8825be4d",
+      "originalReportRelativePath": "BXP-018/replay_result.json",
+      "stagedReportRelativePath": "BXP-018/replay_result.json",
+      "sourceReportSha256": "a7494dbe8aa84a1e1b1a75800db2494860676bf1c27735f56d0fe920043de9a8"
+    },
+    {
+      "id": "BXP-019",
+      "originalDocumentRelativePath": "BXP-019/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-019/output.a2ui.json",
+      "documentSha256": "24b5019c91a96807d534d57f89956a62edb67877910e8d572e82251ae1725c86",
+      "originalReportRelativePath": "BXP-019/replay_result.json",
+      "stagedReportRelativePath": "BXP-019/replay_result.json",
+      "sourceReportSha256": "c378ebd1e8842143f8acc21424e4da523302d62da0d53f75ceefcb4d4f0c73a6"
+    },
+    {
+      "id": "BXP-020",
+      "originalDocumentRelativePath": "BXP-020/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-020/output.a2ui.json",
+      "documentSha256": "ce2f6d724464c14eefc00cb45dd40f639364d070eedf9aed48ed3eb5ebd27a00",
+      "originalReportRelativePath": "BXP-020/replay_result.json",
+      "stagedReportRelativePath": "BXP-020/replay_result.json",
+      "sourceReportSha256": "f7d036561329334a4beba8eaa7dff075c27d7003195314d763671d4be4463cab"
+    },
+    {
+      "id": "BXP-021",
+      "originalDocumentRelativePath": "BXP-021/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-021/output.a2ui.json",
+      "documentSha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+      "originalReportRelativePath": "BXP-021/replay_result.json",
+      "stagedReportRelativePath": "BXP-021/replay_result.json",
+      "sourceReportSha256": "32b881f4cf710a075bca1ebc776545bd36fa43f17e36f3e91655de9a75e5244e"
+    },
+    {
+      "id": "BXP-022",
+      "originalDocumentRelativePath": "BXP-022/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-022/output.a2ui.json",
+      "documentSha256": "45d8647b3c63e36e709c87ceeadfbbeb3cae380d2daac2ec961ffdd8ea904c15",
+      "originalReportRelativePath": "BXP-022/replay_result.json",
+      "stagedReportRelativePath": "BXP-022/replay_result.json",
+      "sourceReportSha256": "0546e9533de1433fc42e9717ec8027642a4d5c8222e29118fc2b348a9fc9b422"
+    },
+    {
+      "id": "BXP-023",
+      "originalDocumentRelativePath": "BXP-023/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-023/output.a2ui.json",
+      "documentSha256": "453659ae1b51ee2704ae9ac8b923f51b4345e0c776630fcea72ce6cac0e3d8c4",
+      "originalReportRelativePath": "BXP-023/replay_result.json",
+      "stagedReportRelativePath": "BXP-023/replay_result.json",
+      "sourceReportSha256": "79802a710cf86476271bc5837ec91a35f5577dc99b8a90c9af6c8e770bac0adc"
+    },
+    {
+      "id": "BXP-024",
+      "originalDocumentRelativePath": "BXP-024/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-024/output.a2ui.json",
+      "documentSha256": "7d87701f7ffb64ca2abd4eff976cb7c91db5be4df88523491510ddbdcaec938c",
+      "originalReportRelativePath": "BXP-024/replay_result.json",
+      "stagedReportRelativePath": "BXP-024/replay_result.json",
+      "sourceReportSha256": "29a8a009897236e6c4230c4f4816959ca7eaa806fac69e2c41776d221488b149"
+    },
+    {
+      "id": "BXP-025",
+      "originalDocumentRelativePath": "BXP-025/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-025/output.a2ui.json",
+      "documentSha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+      "originalReportRelativePath": "BXP-025/replay_result.json",
+      "stagedReportRelativePath": "BXP-025/replay_result.json",
+      "sourceReportSha256": "c93f319e9696c1d517392df5bb2b109625ce102a111da9c2914e667ffd822af1"
+    },
+    {
+      "id": "BXP-026",
+      "originalDocumentRelativePath": "BXP-026/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-026/output.a2ui.json",
+      "documentSha256": "29c8e4642cb719221327113c7ac31b99fb6bdfd97a1d7c6fafed0ca5bdcd5dbf",
+      "originalReportRelativePath": "BXP-026/replay_result.json",
+      "stagedReportRelativePath": "BXP-026/replay_result.json",
+      "sourceReportSha256": "4d8c20bc03fe290d151d5885d1faaa2b28cde0998c6edf0853f90bedf95df8a4"
+    },
+    {
+      "id": "BXP-027",
+      "originalDocumentRelativePath": "BXP-027/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-027/output.a2ui.json",
+      "documentSha256": "fae2366dc6dbb505aebc3c669b7a6f47463249ae45c8a230d049c6100a5a7115",
+      "originalReportRelativePath": "BXP-027/replay_result.json",
+      "stagedReportRelativePath": "BXP-027/replay_result.json",
+      "sourceReportSha256": "e8debc7fd9326fda224175ab6b6fdde66caf37d0214523de06bb278f61ae1d37"
+    },
+    {
+      "id": "BXP-028",
+      "originalDocumentRelativePath": "BXP-028/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-028/output.a2ui.json",
+      "documentSha256": "949fe3da104faf2920a03fb48ea7bf4dfce72f5b2918eb26b1896f2819ce2001",
+      "originalReportRelativePath": "BXP-028/replay_result.json",
+      "stagedReportRelativePath": "BXP-028/replay_result.json",
+      "sourceReportSha256": "d44d735f369113cfd5ae82111f90e06b2e6a8fc5076ecf1b05e36cf4ab1b8a37"
+    },
+    {
+      "id": "BXP-029",
+      "originalDocumentRelativePath": "BXP-029/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-029/output.a2ui.json",
+      "documentSha256": "1dbaf3359ede7babfa5a534a7a08f09fcf96dfe8c0407fb7d5ec4a9058248fcd",
+      "originalReportRelativePath": "BXP-029/replay_result.json",
+      "stagedReportRelativePath": "BXP-029/replay_result.json",
+      "sourceReportSha256": "c29ba776b2aee12273e36c6f07505fe01d0ba6acd68ebf51ae72f20419ac625c"
+    },
+    {
+      "id": "BXP-030",
+      "originalDocumentRelativePath": "BXP-030/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-030/output.a2ui.json",
+      "documentSha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+      "originalReportRelativePath": "BXP-030/replay_result.json",
+      "stagedReportRelativePath": "BXP-030/replay_result.json",
+      "sourceReportSha256": "f1f44457da5b487dff8510173aa1ca27f1bd4220bc28dcf3276fac378913775f"
+    },
+    {
+      "id": "BXP-031",
+      "originalDocumentRelativePath": "BXP-031/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-031/output.a2ui.json",
+      "documentSha256": "ea9c2c6bbf26696e1d86e9b79e8f5cd5327a8df5edca96052b60dc3c734dff15",
+      "originalReportRelativePath": "BXP-031/replay_result.json",
+      "stagedReportRelativePath": "BXP-031/replay_result.json",
+      "sourceReportSha256": "09f8e9694f2887ed7b9a4d39bc238e6be959fc5e163db260ef80d38bb87fea2b"
+    },
+    {
+      "id": "BXP-032",
+      "originalDocumentRelativePath": "BXP-032/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-032/output.a2ui.json",
+      "documentSha256": "4b1fa19f54f177bc4d6fc379f3726ed7c66fef7396dce8075e8deea6f6b06dc7",
+      "originalReportRelativePath": "BXP-032/replay_result.json",
+      "stagedReportRelativePath": "BXP-032/replay_result.json",
+      "sourceReportSha256": "902bd4f17ed68f3ae8efcd21823391880a647ee0a052e37f6cbd2cddff527c2d"
+    },
+    {
+      "id": "BXP-033",
+      "originalDocumentRelativePath": "BXP-033/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-033/output.a2ui.json",
+      "documentSha256": "f66583df72adcb5c22fbad30c14408ae2a389157c165d613afc14c6fb0d89dc2",
+      "originalReportRelativePath": "BXP-033/replay_result.json",
+      "stagedReportRelativePath": "BXP-033/replay_result.json",
+      "sourceReportSha256": "8593ab819392bfb08eb2f499e2eecaf07c181dcf9731852639a97d78546293cd"
+    },
+    {
+      "id": "BXP-034",
+      "originalDocumentRelativePath": "BXP-034/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-034/output.a2ui.json",
+      "documentSha256": "37d3ffb27b3e7b1f98e732d4d6294f550ee4a28ec31d300d0ac1b17abda9d4d7",
+      "originalReportRelativePath": "BXP-034/replay_result.json",
+      "stagedReportRelativePath": "BXP-034/replay_result.json",
+      "sourceReportSha256": "bf4ffb0eb8df350657debd9e8680b1c22662fda60f16eb380252464e1070fcb6"
+    },
+    {
+      "id": "BXP-035",
+      "originalDocumentRelativePath": "BXP-035/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-035/output.a2ui.json",
+      "documentSha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+      "originalReportRelativePath": "BXP-035/replay_result.json",
+      "stagedReportRelativePath": "BXP-035/replay_result.json",
+      "sourceReportSha256": "9083e42239a6f2e04fbfd19e2c5fe7bfdfa2b8799d7f592a6f3e8d006aee4cb0"
+    },
+    {
+      "id": "BXP-036",
+      "originalDocumentRelativePath": "BXP-036/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-036/output.a2ui.json",
+      "documentSha256": "8296dabf3df1f7e22606e0387a2f9be59a2feb685ecfdac5544dada8032c5221",
+      "originalReportRelativePath": "BXP-036/replay_result.json",
+      "stagedReportRelativePath": "BXP-036/replay_result.json",
+      "sourceReportSha256": "a22c33b099eccc90ccaea1e252298301f69b1015ddcf7ada2ce37ef1c3d197a9"
+    },
+    {
+      "id": "BXP-037",
+      "originalDocumentRelativePath": "BXP-037/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-037/output.a2ui.json",
+      "documentSha256": "78eefde8719105dccd0d426d49abcbbf359d52bf52c09bec655d04a40071ddb6",
+      "originalReportRelativePath": "BXP-037/replay_result.json",
+      "stagedReportRelativePath": "BXP-037/replay_result.json",
+      "sourceReportSha256": "1cb85dfed6ba4f1abf48bf644035663690450397a789b63e0456f7e52a4e7ffa"
+    },
+    {
+      "id": "BXP-038",
+      "originalDocumentRelativePath": "BXP-038/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-038/output.a2ui.json",
+      "documentSha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+      "originalReportRelativePath": "BXP-038/replay_result.json",
+      "stagedReportRelativePath": "BXP-038/replay_result.json",
+      "sourceReportSha256": "8df6e48ed395d76da61cb719b64b6644910e8ab203e8d705297a0d72bdf9be80"
+    },
+    {
+      "id": "BXP-039",
+      "originalDocumentRelativePath": "BXP-039/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-039/output.a2ui.json",
+      "documentSha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+      "originalReportRelativePath": "BXP-039/replay_result.json",
+      "stagedReportRelativePath": "BXP-039/replay_result.json",
+      "sourceReportSha256": "98dc02534cd89abbae2c2d8a03fa5a380e4a84526329064cd1fb589937395cba"
+    },
+    {
+      "id": "BXP-040",
+      "originalDocumentRelativePath": "BXP-040/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-040/output.a2ui.json",
+      "documentSha256": "4df0bed7b70f5e6585155e51288536861a1266e2c26d9e9118a4d83cacc001b3",
+      "originalReportRelativePath": "BXP-040/replay_result.json",
+      "stagedReportRelativePath": "BXP-040/replay_result.json",
+      "sourceReportSha256": "5dedd994ebc86a3449d8f1f39685a105d504fe03186f3c26559c97e91042e42d"
+    },
+    {
+      "id": "BXP-041",
+      "originalDocumentRelativePath": "BXP-041/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-041/output.a2ui.json",
+      "documentSha256": "f77e11eb5acf558f1b058917921fa10d0772968142a1b1b56927ff5e52fda3d6",
+      "originalReportRelativePath": "BXP-041/replay_result.json",
+      "stagedReportRelativePath": "BXP-041/replay_result.json",
+      "sourceReportSha256": "f239d8ba541bace6730d72b94e0cf5eb82f0528d2c8e8ef0004bee7cb9d32046"
+    },
+    {
+      "id": "BXP-042",
+      "originalDocumentRelativePath": "BXP-042/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-042/output.a2ui.json",
+      "documentSha256": "0a5c58f51844bf6096612bb666051f7f2d06d013631e46bacf44e76220125ec4",
+      "originalReportRelativePath": "BXP-042/replay_result.json",
+      "stagedReportRelativePath": "BXP-042/replay_result.json",
+      "sourceReportSha256": "afbef436aba4368c9d515947083b0e46d9b57aee37aa06c47179ed5498a8dfd9"
+    },
+    {
+      "id": "BXP-043",
+      "originalDocumentRelativePath": "BXP-043/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-043/output.a2ui.json",
+      "documentSha256": "489aa83a46bb74aa0c5ca47457c8bb944744f1460c4965a42ee0774667adb369",
+      "originalReportRelativePath": "BXP-043/replay_result.json",
+      "stagedReportRelativePath": "BXP-043/replay_result.json",
+      "sourceReportSha256": "888346d5510e81e3b7afb62517e744baf9314c9d9ce164fb54d4d9ebebc0b671"
+    },
+    {
+      "id": "BXP-044",
+      "originalDocumentRelativePath": "BXP-044/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-044/output.a2ui.json",
+      "documentSha256": "e99c83418a1cabfad1c968141c27816285bc9a19bb2c47c0b8889b2f7df81258",
+      "originalReportRelativePath": "BXP-044/replay_result.json",
+      "stagedReportRelativePath": "BXP-044/replay_result.json",
+      "sourceReportSha256": "6440b7e8eda676024647e2e1f03d9b2428f24135227541d0595bf304a1425c88"
+    },
+    {
+      "id": "BXP-045",
+      "originalDocumentRelativePath": "BXP-045/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-045/output.a2ui.json",
+      "documentSha256": "05e75a8af62d4bae17be2247aea2c1f14496dd7a0e1b10189ae9da28e27741e1",
+      "originalReportRelativePath": "BXP-045/replay_result.json",
+      "stagedReportRelativePath": "BXP-045/replay_result.json",
+      "sourceReportSha256": "89212b6261d740f79e7df7a66a5009327af6a9e02476c0373cc0830f18abbc9c"
+    },
+    {
+      "id": "BXP-046",
+      "originalDocumentRelativePath": "BXP-046/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-046/output.a2ui.json",
+      "documentSha256": "030d29ea1f27ed69739f35f87538de3fc565b23cc2e18c61b06cdfe639dbfe11",
+      "originalReportRelativePath": "BXP-046/replay_result.json",
+      "stagedReportRelativePath": "BXP-046/replay_result.json",
+      "sourceReportSha256": "3602238a9b7aa6faf01351367bc9d5629b0c571b7977fe5d9017973189d17582"
+    },
+    {
+      "id": "BXP-047",
+      "originalDocumentRelativePath": "BXP-047/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-047/output.a2ui.json",
+      "documentSha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+      "originalReportRelativePath": "BXP-047/replay_result.json",
+      "stagedReportRelativePath": "BXP-047/replay_result.json",
+      "sourceReportSha256": "f50793f8fb193c5cc353955e150a95076c43342004123120b1826d75184a92d9"
+    },
+    {
+      "id": "BXP-048",
+      "originalDocumentRelativePath": "BXP-048/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-048/output.a2ui.json",
+      "documentSha256": "1c28ab3407ab4cc548ad80bde2b745802b6f4f8cb1ea2392d2f6a0820c6e89f8",
+      "originalReportRelativePath": "BXP-048/replay_result.json",
+      "stagedReportRelativePath": "BXP-048/replay_result.json",
+      "sourceReportSha256": "b938aa197460fe97525d81bb430d4f8754288d089d584cbe598bd52940aa1b40"
+    },
+    {
+      "id": "BXP-049",
+      "originalDocumentRelativePath": "BXP-049/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-049/output.a2ui.json",
+      "documentSha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+      "originalReportRelativePath": "BXP-049/replay_result.json",
+      "stagedReportRelativePath": "BXP-049/replay_result.json",
+      "sourceReportSha256": "6e6d570b7ca4489140266b937b005364180176186a87d18ef54ebfa918e07eef"
+    },
+    {
+      "id": "BXP-050",
+      "originalDocumentRelativePath": "BXP-050/revalidated.output.a2ui.json",
+      "stagedDocumentRelativePath": "BXP-050/output.a2ui.json",
+      "documentSha256": "053d111b52513031f33f5f84ca62b1b56e17c52eef1a9ead011e94c41b3f8893",
+      "originalReportRelativePath": "BXP-050/replay_result.json",
+      "stagedReportRelativePath": "BXP-050/replay_result.json",
+      "sourceReportSha256": "1259f4dbd1860f3bc930589a58dc6a48df87e18c6c068d2a8c353a21f25f6e55"
+    }
+  ],
+  "createdUtc": "2026-09-18T04:31:14.597694+00:00"
+}

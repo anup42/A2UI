@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a,b,c],"md")
+a=Text("Next publicly scheduled ISRO launch","heading")
+b=List(items=["**Mission name:** **Cartosat-3B**[2][10]","**Planned date:** **December 10, 2026**","**Launch vehicle:** **PSLV-XL**","**Payload purpose:** **Earth observation satellite**","**Schedule uncertainty:** The public schedule is presented as a launch listing rather than an official fixed ISRO mission page, so the date should be treated as **provisional** until ISRO confirms it on its own launch list or another official update."])
+c=Text("ISRO’s official launch missions page currently shows the latest completed launch as **GSLV-F17/EOS-05** on September 4, 2026, and does not yet list a later upcoming mission in the visible entries, which is why the next launch date is being inferred from third-party schedule trackers.[1][5]")
+</a2ui>

@@ -1,0 +1,25 @@
+{
+  "caseId": "BXP-041",
+  "status": "success",
+  "successfulAttempt": 1,
+  "inputSha256": "454b11cf87ccbfac602f26187614743a20f78149e3ce38de3268e871ad67ff4f",
+  "inputBytes": 3422,
+  "copiedArtifacts": {
+    "output.a2ui.json": {
+      "bytes": 2928,
+      "sha256": "3c55b947dfe876afde3508e97ec34fd8e197ebd246ddd1a6629318b6bab89168"
+    },
+    "output.express": {
+      "bytes": 2491,
+      "sha256": "c933a02854a51acdf5f2f7ebbf4f53cdeb26cf5dd6d88fa81cf6826e7996c157"
+    },
+    "attempt_1.txt": {
+      "bytes": 241,
+      "sha256": "587de46408589c366612f947ca2cd0c4697f8766f42efa1f1b67027dc1588f56"
+    },
+    "attempt_1_metrics.json": {
+      "bytes": 97,
+      "sha256": "9c63786b291dcee69d2209ec8b94dfd61aea1e20e4ad0c0db343b04bd45c7031"
+    }
+  }
+}

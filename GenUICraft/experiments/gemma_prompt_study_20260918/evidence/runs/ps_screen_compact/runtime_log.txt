@@ -1,0 +1,4 @@
+--------- beginning of main
+09-18 05:55:23.102 31207 31268 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; modelSupportsMtp=true; thinking=true
+09-18 06:07:59.800 32310 32431 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; modelSupportsMtp=true; thinking=true
+09-18 06:13:17.927 32758   387 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; modelSupportsMtp=true; thinking=true

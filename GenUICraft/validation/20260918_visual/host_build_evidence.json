@@ -1,0 +1,633 @@
+{
+  "schema": "genuicraft_visual_host_build_evidence_v1",
+  "recorded_utc": "2026-09-18T04:53:47.720978+00:00",
+  "evidence_scope": "Host source files, built archives, JVM XML, and local Maven publication only",
+  "baseline_manifest": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260918\\v10_build_manifest.json",
+    "bytes": 3212,
+    "sha256": "8dd293f2e389410470fba71b24f2bd3c10ad3ed544a86ba509f7fa3174f514cf",
+    "modified_utc": "2026-09-18T00:07:43.589803+00:00"
+  },
+  "source_delta": {
+    "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260918_visual\\source_delta.json",
+    "bytes": 21370,
+    "sha256": "3b3c61f87a156155cf0ee2746bf4c224c8534aa2f3bb1e3973f68f44d4f1fe5d",
+    "modified_utc": "2026-09-18T04:53:46.778539+00:00"
+  },
+  "artifacts": {
+    "aar": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\outputs\\aar\\genuicraft-release.aar",
+      "bytes": 9376695,
+      "sha256": "bdd8b06710e4118aa130fb506e181527b31fa6d204b858b47237fa3bff5160fd",
+      "modified_utc": "2026-09-18T04:48:50.863066+00:00"
+    },
+    "apk": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+      "bytes": 213067308,
+      "sha256": "2106fafa017c62a438c9ca4c4e5b2b13dbc42c645334f1a1e61e1d5bd3f556f1",
+      "modified_utc": "2026-09-18T04:50:48.372747+00:00"
+    },
+    "test_apk": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\android\\app\\build\\outputs\\apk\\androidTest\\debug\\app-debug-androidTest.apk",
+      "bytes": 1359040,
+      "sha256": "eac858004e7a2e844601eed2d7a6ec2fbf1ceab6fcda68e2eb0503c2e7d9c808",
+      "modified_utc": "2026-09-18T04:52:57.414251+00:00"
+    }
+  },
+  "native_closure": {
+    "aar_sha256": {
+      "jni/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+      "jni/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+      "jni/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253"
+    },
+    "apk_all_abi_sha256": {
+      "lib/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+      "lib/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+      "lib/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253",
+      "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+      "lib/arm64-v8a/liblitertlm_jni.so": "5bb19fa9d9a39098c1f8bbbe58fa78ed08454fee5fd86f2964d9f8da95e5d52a",
+      "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+      "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+      "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+      "lib/x86_64/liblitertlm_jni.so": "2e98e5cd30d0091a0277f9a9421659d779548518268eae27ea878cd629b9869e"
+    },
+    "aar_matches_v10": true,
+    "apk_matches_v10": true
+  },
+  "packaged_prompts": {
+    "expected_source_sha256": {
+      "assets/genuicraft/prompts/gauss.txt": "0e7d973403cf531877b7b0a92fcce815f4b34372360e2ef0cecd0cf9c9c77fca",
+      "assets/genuicraft/prompts/gemma.txt": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b"
+    },
+    "aar": {
+      "assets/genuicraft/prompts/gauss.txt": "0e7d973403cf531877b7b0a92fcce815f4b34372360e2ef0cecd0cf9c9c77fca",
+      "assets/genuicraft/prompts/gemma.txt": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b"
+    },
+    "apk": {
+      "assets/genuicraft/prompts/gauss.txt": "0e7d973403cf531877b7b0a92fcce815f4b34372360e2ef0cecd0cf9c9c77fca",
+      "assets/genuicraft/prompts/gemma.txt": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b"
+    },
+    "verified": true
+  },
+  "jvm_tests": {
+    "tests": 294,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suite_count": 32,
+    "suites": [
+      {
+        "name": "com.samsung.genuicraft.sdk.ContentIntegrityTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.ContentIntegrityTest.xml",
+        "bytes": 1802,
+        "sha256": "562f7ec350a2a334df6eade8b4d7a1ec6f4b996bed57965e17cf938b82495c7c",
+        "modified_utc": "2026-09-18T04:49:01.728114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.GenUiCompilerTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.GenUiCompilerTest.xml",
+        "bytes": 1054,
+        "sha256": "b337cb8b53e2f22a12d80ace2077eb02371dfbc579118a64acc5f9d410b551f7",
+        "modified_utc": "2026-09-18T04:49:01.732115+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.GenUiContentActionTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.GenUiContentActionTest.xml",
+        "bytes": 789,
+        "sha256": "c70e537cfd4724df847ee43e65b9660ad138bedad96f84be8445f9b72ca8067b",
+        "modified_utc": "2026-09-18T04:49:01.731116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.GenUiConverterTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.GenUiConverterTest.xml",
+        "bytes": 1887,
+        "sha256": "0ac6db30270012a3ed67aa954be71ec06bebb3d2d674ef360b60235e0d8de639",
+        "modified_utc": "2026-09-18T04:49:01.730114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.GenUiViewTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.GenUiViewTest.xml",
+        "bytes": 453,
+        "sha256": "5f6d03f191037d077bac9d99f83c480b8cbcc4f8a204f0ef41245dd05b218359",
+        "modified_utc": "2026-09-18T04:49:01.723601+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecContractSchemaParityTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecContractSchemaParityTest.xml",
+        "bytes": 1240,
+        "sha256": "d75c9a937bfec52bef30b80b9c4d3fc64db2a120e93c157c5dd5a2848352a054",
+        "modified_utc": "2026-09-18T04:49:01.728114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecContractTest",
+        "tests": 37,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecContractTest.xml",
+        "bytes": 6343,
+        "sha256": "7a4bbb750247bf758a3b9e8dc24f9ac92e54b480afc30a7f7edc62926f9c5d52",
+        "modified_utc": "2026-09-18T04:49:01.731116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecIngestorTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.pipeline.FlatSpecIngestorTest.xml",
+        "bytes": 1358,
+        "sha256": "7fcff138ed6e0e6b7974b5de4605ce4a7a5175b55b84aecfa047b1ae322b422a",
+        "modified_utc": "2026-09-18T04:49:01.731116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.pipeline.GenUiIrCodecTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.pipeline.GenUiIrCodecTest.xml",
+        "bytes": 1583,
+        "sha256": "484e2dca98e60739210e880fe801e74cd93d577dd8c2b6b28b8d9fe81e96856e",
+        "modified_utc": "2026-09-18T04:49:01.732115+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.pipeline.LiteralTextCodecTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.pipeline.LiteralTextCodecTest.xml",
+        "bytes": 2287,
+        "sha256": "24c4300df0a65cc3cbb8acec604829a9b6b586ba9e4a2e22370e87b102cc3190",
+        "modified_utc": "2026-09-18T04:49:01.733116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.EntityTableCardMappingTest.xml",
+        "bytes": 557,
+        "sha256": "38a6ff98b5744fac5084f7a5a0360f73ed87574d9b4d4a020edf5e83a14dc92c",
+        "modified_utc": "2026-09-18T04:49:01.723601+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.ExplicitTablePresentationTest.xml",
+        "bytes": 1940,
+        "sha256": "dc046ee8ad63e2d8c65e0b5586acaec8281f52964415d36165f8fa845f8b7c1b",
+        "modified_utc": "2026-09-18T04:49:01.734118+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatFormValidationTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.FlatFormValidationTest.xml",
+        "bytes": 1870,
+        "sha256": "2b200a57f980a3318742f7eba93d612ce0db9c4162481f6e459c2ece39c41082",
+        "modified_utc": "2026-09-18T04:49:01.727119+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatIconCatalogTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.FlatIconCatalogTest.xml",
+        "bytes": 1198,
+        "sha256": "ae679c6e81f4227bc82249bb32b6980b4d1fc111e50694bbcefc40c5043b4b88",
+        "modified_utc": "2026-09-18T04:49:01.733116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatListItemsTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.FlatListItemsTest.xml",
+        "bytes": 961,
+        "sha256": "251f6024f9df216c899b4b0d72e301937c0447758174bd4f8f43223d6696255c",
+        "modified_utc": "2026-09-18T04:49:01.733116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatRendererDiagnosticsTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.FlatRendererDiagnosticsTest.xml",
+        "bytes": 1811,
+        "sha256": "9b25266aead6655fcad8ba09832ab71d1f1a9c7c1d9eaa7d6925237ded75fa6c",
+        "modified_utc": "2026-09-18T04:49:01.729114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatRenderRegistryTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.FlatRenderRegistryTest.xml",
+        "bytes": 1401,
+        "sha256": "18eda2c293bb75adde913d64cfe8793d4045bbc8bc72f797fe006d1865288abf",
+        "modified_utc": "2026-09-18T04:49:01.734118+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.FlatSpecRendererSupportTest",
+        "tests": 60,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.FlatSpecRendererSupportTest.xml",
+        "bytes": 10656,
+        "sha256": "a10fd6ddf899c52b5a7c1e8e179d90cafe6682c1ef421611f37c4c378026d8b0",
+        "modified_utc": "2026-09-18T04:49:01.735627+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightSemanticsTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.intents.flight.NativeFlightSemanticsTest.xml",
+        "bytes": 933,
+        "sha256": "12f8025103c2a34d0543615682c66494a621237169d6c0c1bcab8e4d0f521b28",
+        "modified_utc": "2026-09-18T04:49:01.725107+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemanticsTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.intents.weather.NativeWeatherSemanticsTest.xml",
+        "bytes": 2749,
+        "sha256": "a4272ed0eabcd60276ceb3b76894be417237c5fdeb8034d5dc41db1721da96dc",
+        "modified_utc": "2026-09-18T04:49:01.728114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.NativeIrCompatibilityTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.NativeIrCompatibilityTest.xml",
+        "bytes": 1632,
+        "sha256": "69f4eeb30d4522799cca8e97440e2c24a1cb3045f449fe597810e74dfaf1d61f",
+        "modified_utc": "2026-09-18T04:49:01.733116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.NativeTextFormatterTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.NativeTextFormatterTest.xml",
+        "bytes": 1383,
+        "sha256": "ef3b4a4726be74af0b26539244301aed6b2a25e91aa3ecb6b30eb4c80f53b740",
+        "modified_utc": "2026-09-18T04:49:01.729114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeMediaParsingTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeMediaParsingTest.xml",
+        "bytes": 547,
+        "sha256": "a08547202605a2d749bc2e5950ccadfbdf6adfc6620cb0600c1fbc4de56231a3",
+        "modified_utc": "2026-09-18T04:49:01.723601+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeSourceParsingTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeSourceParsingTest.xml",
+        "bytes": 741,
+        "sha256": "9696cc75a3ecb58523f8391286a80cc98da697fa499200e5ee8b2951c6e44e0f",
+        "modified_utc": "2026-09-18T04:49:01.725107+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeTextBlockParserTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.native.parser.NativeTextBlockParserTest.xml",
+        "bytes": 742,
+        "sha256": "82327dd75be8b6a086d2855d9e5923222e9ad04b78349f51a6f036c5f26cb6dd",
+        "modified_utc": "2026-09-18T04:49:01.733116+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.RendererExtractionTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.RendererExtractionTest.xml",
+        "bytes": 691,
+        "sha256": "4c8bcece698c78308fa748a36e9ee2f5466fdefaf1f55ed54f89ac3e583f929d",
+        "modified_utc": "2026-09-18T04:49:01.732115+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.renderer.TableViewportUsabilityTest.xml",
+        "bytes": 1837,
+        "sha256": "d494b72bce94337aadd287f18ddc7295f9bc8eb81372165d43c1fa2ad830b081",
+        "modified_utc": "2026-09-18T04:49:01.734118+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.internal.security.SafeContentPolicyTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.internal.security.SafeContentPolicyTest.xml",
+        "bytes": 1381,
+        "sha256": "3fe3277b42bf1166a926a849363043376e9948d1f1bc13f4f42716494d2c40ed",
+        "modified_utc": "2026-09-18T04:49:01.723601+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.provider.Gauss30bProviderTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.provider.Gauss30bProviderTest.xml",
+        "bytes": 2067,
+        "sha256": "446943593932bb810328529f3ad45c4185fba6decf92e1238cb46fbd20c8f484",
+        "modified_utc": "2026-09-18T04:49:01.734118+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest.xml",
+        "bytes": 2195,
+        "sha256": "29be63fe8bc70dc6258adeb28fe9d583d174281c93c875ead64d5bf77e4f0c85",
+        "modified_utc": "2026-09-18T04:49:01.730114+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.SourceAttributionTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.SourceAttributionTest.xml",
+        "bytes": 658,
+        "sha256": "32b8b7fe1e3a3622e79b1bcff8bf2e70aaa79720e1fd018c35e9af1a2bcf7151",
+        "modified_utc": "2026-09-18T04:49:01.723601+00:00"
+      },
+      {
+        "name": "com.samsung.genuicraft.sdk.SourceBindingsTest",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\genuicraft\\build\\test-results\\testDebugUnitTest\\TEST-com.samsung.genuicraft.sdk.SourceBindingsTest.xml",
+        "bytes": 3979,
+        "sha256": "143bf344d7c5b91f451a0aa9b0c0ab41e4dab6fa9f9e3454aa9e9754bad8692d",
+        "modified_utc": "2026-09-18T04:49:01.731116+00:00"
+      }
+    ],
+    "expected_test_count": 294,
+    "verified": true
+  },
+  "maven_publication": {
+    "root": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo",
+    "file_count": 25,
+    "files": [
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0-sources.jar",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar",
+        "bytes": 365272,
+        "sha256": "bef1355ec8f6d611066feb1d3ba727856e89c5cfc34a960bf4c235c553fbafbd",
+        "modified_utc": "2026-09-18T04:49:01.994394+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0-sources.jar.md5",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.md5",
+        "bytes": 32,
+        "sha256": "1c5ae09307fd06eb99e702e079066eefb2335caef739ccf745c13eb7260544ef",
+        "modified_utc": "2026-09-18T04:49:01.998141+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0-sources.jar.sha1",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.sha1",
+        "bytes": 40,
+        "sha256": "1cc5ac4c6794576413b0a828c861d35e49e859c3043dc6c63eb74111ba3dfc1f",
+        "modified_utc": "2026-09-18T04:49:01.995623+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0-sources.jar.sha256",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.sha256",
+        "bytes": 64,
+        "sha256": "9ca1a0a28d0b7a4638045671b70f85f06c6c0618bbfc242f198c649ea9f040d6",
+        "modified_utc": "2026-09-18T04:49:02.000592+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0-sources.jar.sha512",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0-sources.jar.sha512",
+        "bytes": 128,
+        "sha256": "e6e79bb2005b620176892190f905a3a746d365ae9a90e7d7164b26076236ea98",
+        "modified_utc": "2026-09-18T04:49:02.002591+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.aar",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar",
+        "bytes": 9376695,
+        "sha256": "bdd8b06710e4118aa130fb506e181527b31fa6d204b858b47237fa3bff5160fd",
+        "modified_utc": "2026-09-18T04:49:01.905938+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.aar.md5",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.md5",
+        "bytes": 32,
+        "sha256": "2819351e88753859ad4014156d50058b81f7fb93bbdacfbd36ee638576ab8c03",
+        "modified_utc": "2026-09-18T04:49:01.941522+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.aar.sha1",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.sha1",
+        "bytes": 40,
+        "sha256": "cbe7b4f78d3135a1c95a4567d0b7ad88572e08cd441863d8c10232fbddb71cde",
+        "modified_utc": "2026-09-18T04:49:01.921484+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.aar.sha256",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.sha256",
+        "bytes": 64,
+        "sha256": "9c5c6123d909915440dd1fed347b7e0de7aab92e258a22ccbfb66cd554ac2f43",
+        "modified_utc": "2026-09-18T04:49:01.954548+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.aar.sha512",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.aar.sha512",
+        "bytes": 128,
+        "sha256": "75c23741eba2398aab19d18715def43a6314fb79cfa9485ef0d66c1f9244de9c",
+        "modified_utc": "2026-09-18T04:49:01.979097+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.module",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module",
+        "bytes": 5654,
+        "sha256": "dd7ea21c57acf859037a3c712dba6dd0fe0b7d95498a02ea3201ae6bcaa10a70",
+        "modified_utc": "2026-09-18T04:49:01.987540+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.module.md5",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.md5",
+        "bytes": 32,
+        "sha256": "37f7fc6c1681c125c9ac84413a7c3dade31a484ec99fcb8c35b47c3af4025352",
+        "modified_utc": "2026-09-18T04:49:01.989877+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.module.sha1",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.sha1",
+        "bytes": 40,
+        "sha256": "74e5cd423c998a38281220a3f2895307e0e5505498a6c76854ffd39b5b8bb724",
+        "modified_utc": "2026-09-18T04:49:01.988720+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.module.sha256",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.sha256",
+        "bytes": 64,
+        "sha256": "4490db406dbb1a322f74aabce1da29fa24234b56d0005d70c3bab8d94c9f3def",
+        "modified_utc": "2026-09-18T04:49:01.989877+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.module.sha512",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.module.sha512",
+        "bytes": 128,
+        "sha256": "a0e1b4d167b65676f848f229477e45147548ce7566954d554beb0c71379b8fb0",
+        "modified_utc": "2026-09-18T04:49:01.991384+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.pom",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom",
+        "bytes": 3706,
+        "sha256": "84d65c437d4f75cf0a2b336f99040d59da54456d9d220c941d57c2bbbd5d761e",
+        "modified_utc": "2026-09-18T04:49:01.980098+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.pom.md5",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.md5",
+        "bytes": 32,
+        "sha256": "d7e25c7474d1c9188d122668cbcb77deb61c93be2e7494ddadf93c11b486f244",
+        "modified_utc": "2026-09-18T04:49:01.983540+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.pom.sha1",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.sha1",
+        "bytes": 40,
+        "sha256": "d0d10055af669aef7fc8e57523cbafe01915782a550ab50733e5a722a422be8d",
+        "modified_utc": "2026-09-18T04:49:01.981098+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.pom.sha256",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.sha256",
+        "bytes": 64,
+        "sha256": "20d8a92025c4b108d2c1e2dd3b2ec22e7b0859ec67f447dbbecfcb3bcf6a5c67",
+        "modified_utc": "2026-09-18T04:49:01.984538+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/0.1.0/genuicraft-0.1.0.pom.sha512",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\0.1.0\\genuicraft-0.1.0.pom.sha512",
+        "bytes": 128,
+        "sha256": "ab62e0861ccc37d4c0668ec922bb56ca2e149760f374d816515752d2068a9861",
+        "modified_utc": "2026-09-18T04:49:01.985534+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/maven-metadata.xml",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml",
+        "bytes": 352,
+        "sha256": "1f2343ee6555e910593872f79f3d1f056c0456f42a72d5b12e32441c0901413e",
+        "modified_utc": "2026-09-18T04:49:02.011618+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/maven-metadata.xml.md5",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.md5",
+        "bytes": 32,
+        "sha256": "3efbd1f6c42dc88178dfa3653ed0a5dec21eb272439b6d7e9af9a8ca4a24e5b2",
+        "modified_utc": "2026-09-18T04:49:02.016137+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/maven-metadata.xml.sha1",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.sha1",
+        "bytes": 40,
+        "sha256": "249cba3c55b9e5d6c67033555d1810ef7e623e75243afcea25e0fa418781afb8",
+        "modified_utc": "2026-09-18T04:49:02.014138+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/maven-metadata.xml.sha256",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.sha256",
+        "bytes": 64,
+        "sha256": "888d42d41f7313e948f8189a0555d9e79c103fcdeb012b74fd4927eca8372a3c",
+        "modified_utc": "2026-09-18T04:49:02.017135+00:00"
+      },
+      {
+        "relative_path": "com/samsung/genuicraft/genuicraft/maven-metadata.xml.sha512",
+        "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\build\\repo\\com\\samsung\\genuicraft\\genuicraft\\maven-metadata.xml.sha512",
+        "bytes": 128,
+        "sha256": "7ef29c6efb51152ef0f16c21caaaf68505da35c4610bf630adb6ad61f2dcd67d",
+        "modified_utc": "2026-09-18T04:49:02.018137+00:00"
+      }
+    ],
+    "checksum_errors": [],
+    "published_aar_matches_build": true,
+    "verified": true
+  },
+  "installation_verification": {
+    "scope": "Parent agent supplied device sha256sum output; collector read the saved host file only",
+    "evidence": {
+      "path": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\validation\\20260918_visual\\final_installed_apk_sha256.txt",
+      "bytes": 161,
+      "sha256": "a356b3bb8d8fd5d3cb291978059c449b98d07ee0bf747ff54c19e07e142ba724",
+      "modified_utc": "2026-09-18T04:53:47.715983+00:00"
+    },
+    "installed_base_apk_path": "/data/app/~~Xo57icuhzBbW9ILEeVSkBw==/com.samsung.genuicraft-Wi9l2k9LeSPhWOHue7m4qg==/base.apk",
+    "installed_main_apk_sha256": "2106fafa017c62a438c9ca4c4e5b2b13dbc42c645334f1a1e61e1d5bd3f556f1",
+    "matches_local_main_apk": true
+  },
+  "inference_executed_by_collector": false,
+  "verified": true
+}

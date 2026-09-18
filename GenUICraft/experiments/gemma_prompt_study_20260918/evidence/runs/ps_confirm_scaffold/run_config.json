@@ -1,0 +1,29 @@
+{
+  "provider": "gemma",
+  "cases": [
+    "BXP-001",
+    "BXP-006",
+    "BXP-008",
+    "BXP-013",
+    "BXP-017",
+    "BXP-025",
+    "BXP-027",
+    "BXP-033",
+    "BXP-035",
+    "BXP-038",
+    "BXP-045",
+    "BXP-047"
+  ],
+  "maxRepairAttempts": 0,
+  "temperature": 0.0,
+  "corpusPath": "asset:genuicraft_bixby50.jsonl",
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "promptPath": "/sdcard/Android/data/com.samsung.genuicraft/files/sdk_prompt_study/ps_confirm_scaffold.txt",
+  "promptSha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+  "sourceBindings": true,
+  "inputScaffold": true,
+  "accelerator": "GPU",
+  "mtp": true,
+  "thinkingEnabled": true,
+  "thinkingBudgetOverride": "1024"
+}

@@ -1,0 +1,16 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l,m],"md")
+a=Text("Eligibility for a small home bakery","heading")
+b=Text("A home bakery in Karnataka generally falls under **FSSAI Basic Registration** if its annual turnover is **up to ₹12 lakh**; FSSAI states that registration is meant for petty food businesses and small or cottage-scale industry with turnover up to this limit.[12][14] For turnover above ₹12 lakh, a **State License** is required instead of registration.[1]")
+c=Text("Documents usually required","heading")
+d=Text("For a small home bakery applying for Basic Registration, the commonly required documents are:[5][11]")
+e=List(items=["**Photo ID proof** of the owner, such as Aadhaar, PAN, Passport, or Voter ID.","**Address proof** of the applicant, such as an electricity bill, rent agreement, or other official address document.","**Passport-size photograph** of the applicant.","**Proof of business premises**, such as utility bills, property documents, or an NOC from the landlord if the kitchen is rented.","**Business details and product list**, especially for bakery items and other foods made at home.[3][8]"])
+f=Text("Official application steps","heading")
+g=Text("The official application is made on the **FoSCoS** portal, which is FSSAI’s licensing and registration system.[9] The standard process is:")
+h=List(items=["Create an account on the FoSCoS portal and log in.","Select **Apply for License/Registration** and choose **Registration (Form A)** for a petty food business.[6]","Enter business details, premises address, and food activity information.","Upload the required documents in the prescribed format.","Pay the fee online and submit the application.","Track the application using the reference or UARN number, and download the certificate once approved."])
+i=Text("Published fees","heading")
+j=Text("FSSAI regulations require registration with a fee under the prescribed schedule, and the FoSCoS guidance reflects the standard registration fee structure for petty food businesses.[13] The commonly published fee is **₹100 per year**, with multiple-year options also used on the portal.[4] For a home bakery applying as a small business, this is the usual Basic Registration fee referenced by registration guides and the official fee schedule framework.")
+k=Text("Common mistakes that cause delay or rejection","heading")
+l=List(items=["**Choosing the wrong category**, such as applying for registration when turnover is above ₹12 lakh and a State License is needed.","**Missing or unclear documents**, especially address proof or landlord NOC for a rented home kitchen.","**Incorrect form selection**, since petty businesses must file **Form A**, not the licensing form used for larger units.","**Mismatch in business details**, such as inconsistent name, address, or activity description across documents and the portal form.","**Not preparing product and premises details properly**, which can slow scrutiny or lead to queries."])
+m=Text("If you want, I can also turn this into a **Karnataka home-bakery checklist** you can use before applying.")
+</a2ui>

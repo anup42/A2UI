@@ -1,0 +1,16 @@
+[
+  {
+    "id": "BXP-001",
+    "prototypeRun": "ps_confirm_scaffold",
+    "outputIdentical": true,
+    "prototypeNormalizedSha256": "c5c3f0cefc40b77e6a49c2aa998b24a63c18bfc636c31033830e2175deee43c6",
+    "packagedNormalizedSha256": "c5c3f0cefc40b77e6a49c2aa998b24a63c18bfc636c31033830e2175deee43c6"
+  },
+  {
+    "id": "BXP-003",
+    "prototypeRun": "ps_screen_scaffold",
+    "outputIdentical": true,
+    "prototypeNormalizedSha256": "4ab71eb96bee44223def6ab5ce22915a495d336dce4ff011f84d52db40e35f5c",
+    "packagedNormalizedSha256": "4ab71eb96bee44223def6ab5ce22915a495d336dce4ff011f84d52db40e35f5c"
+  }
+]

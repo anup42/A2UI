@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],gap="md")
+a=Text("@source.a")
+</a2ui>

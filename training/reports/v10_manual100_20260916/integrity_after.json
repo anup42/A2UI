@@ -1,0 +1,18 @@
+{
+  "audit_date": "2026-09-16",
+  "verified_at": "2026-09-16T19:51:06+05:30",
+  "unchanged": true,
+  "sha256": {
+    "train.jsonl": "707244a5ffe2af459605e8629055c18829c65123294191112016cd69892addf5",
+    "val.jsonl": "b5024919ea0c3557cad452193f90f7133919bb0c10e4ece05fe1a54278cb0fa7",
+    "benchmark_exclusions.json": "85c74ea76225f812b26ab5cb853bebbf4674c16b99f8a677ec450dff114d3894",
+    "boundary_repairs.json": "bf9d9b590b934be33b720e8d36982d6179e2bff5e0aceb7bbe19fb08eb0edb20",
+    "decisions.csv": "cae2439997681069288c7a1bd6c0e47516545a7c10bcd878b149306be4fc077b",
+    "letter_exclusions.json": "25a2a92e06a6ae9a5499f57a5dcfefef57c75a1aa57b7d069283f6cd96118fa4",
+    "near_source_groups.json": "efe16387423d3f89af92c24e8cfc0dbbc5c66448668b72e431e003b1b39507bd",
+    "quarantine.csv": "55be8f6153edac4bed5ac1dacb07a9eaebcbfa18147d74a078643a59bcfc0cce",
+    "reviewed_findings.json": "3d9399a6fc6b439f1493884904bf08740206f3f6035bf87c6c8b5deb5efe37d8",
+    "semantic_review.jsonl": "dee3346569ae9709f21ffed6bf667ee77e2e26c6f43193bc45e2ae6f9493f7f5",
+    "manifest.json": "84db9bb4b8889f8c52f03c2645e99123be773a12b0571e9abc479835c68da3c7"
+  }
+}

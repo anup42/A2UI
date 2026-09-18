@@ -1,0 +1,46 @@
+[
+  {
+    "name": "ps_screen_compact",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\compact.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0
+  },
+  {
+    "name": "ps_screen_example_first",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\example_first.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0
+  },
+  {
+    "name": "ps_screen_grammar",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\grammar.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0
+  },
+  {
+    "name": "ps_screen_procedural",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\procedural.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0
+  }
+]

@@ -1,0 +1,159 @@
+{
+  "checked_on": "2026-09-16",
+  "scope": "Targeted primary-source checks only; no exhaustive fact-check of all 100 sources.",
+  "sources": [
+    {
+      "key": "sony_generation",
+      "cases": [
+        10
+      ],
+      "url": "https://www.sony.com.hk/press/pdf/20241120_e.pdf",
+      "title": "Sony Alpha 1 II announcement (20 November 2024)",
+      "finding": "The manufacturer describes the AI processing unit as an addition to Alpha 1 II. This supports the generation-mixup finding; no live kit-price comparison was completed."
+    },
+    {
+      "key": "root_theme",
+      "cases": [
+        13
+      ],
+      "url": "https://ledergames.com/products/root-a-game-of-woodland-might-and-right",
+      "title": "Leder Games: Root",
+      "finding": "Publisher describes a woodland/forest game. A named space variant in the sample was not substantiated; absence of verification is not proof a fan mod cannot exist."
+    },
+    {
+      "key": "terra_theme",
+      "cases": [
+        13
+      ],
+      "url": "https://www.feuerland-spiele.de/fileadmin/game/Terra_Mystica/Terra_Mystica_rules_EN_Web.pdf",
+      "title": "Feuerland: Terra Mystica rules",
+      "finding": "Publisher rules describe fantasy factions and home terrain; the source's planetary presentation requires rebuilding or an explicit supported adaptation."
+    },
+    {
+      "key": "scythe_theme",
+      "cases": [
+        13
+      ],
+      "url": "https://europe.stonemaiergames.com/products/scythe",
+      "title": "Stonemaier: Scythe",
+      "finding": "Publisher places Scythe in alternate-history 1920s Europa; the sample's space-mod framing is unverified."
+    },
+    {
+      "key": "canon_weather",
+      "cases": [
+        48
+      ],
+      "url": "https://downloads.canon.com/DMSD/rf100-400f5.6-8-isusm/RF100-400mm-F5.6-8-IS-USM_Downloadable-Spec-Sheet_V1.0.pdf",
+      "title": "Canon RF100-400mm F5.6-8 IS USM specifications",
+      "finding": "Manufacturer specifies no dust/weather-resistant construction, contradicting the sample's weather-sealed lens claim."
+    },
+    {
+      "key": "toyota_maintenance",
+      "cases": [
+        60
+      ],
+      "url": "https://assets.sia.toyota.com/publications/en/omms-s/T-MMS-18Camry/pdf/T-MMS-18Camry.pdf",
+      "title": "Toyota 2018 Camry warranty and maintenance guide",
+      "finding": "Manufacturer distinguishes operating conditions and refers to the owner's manual for oil grade/viscosity. Supports requiring engine-specific maintenance verification; the sample's 30,000-mile/two-year conflict is independently visible in its own numbers."
+    },
+    {
+      "key": "energy_flow",
+      "cases": [
+        65
+      ],
+      "url": "https://openstax.org/books/concepts-biology/pages/20-2-biogeochemical-cycles",
+      "title": "OpenStax: Biogeochemical Cycles",
+      "finding": "Matter is recycled, while energy moves directionally through ecosystems and dissipates as heat."
+    },
+    {
+      "key": "anaerobic",
+      "cases": [
+        65
+      ],
+      "url": "https://openstax.org/books/microbiology/pages/8-3-cellular-respiration",
+      "title": "OpenStax: Cellular Respiration",
+      "finding": "Anaerobic respiration uses electron acceptors other than oxygen; oxygen-dependent respiration is not universal."
+    },
+    {
+      "key": "photosynthesis_location",
+      "cases": [
+        89
+      ],
+      "url": "https://openstax.org/books/biology-2e/pages/8-2-the-light-dependent-reactions-of-photosynthesis",
+      "title": "OpenStax: Light-Dependent Reactions",
+      "finding": "Photosynthetic proton accumulation is across the thylakoid membrane, analogous to but distinct from the mitochondrial membrane used in respiration."
+    },
+    {
+      "key": "python_interpreter",
+      "cases": [
+        69
+      ],
+      "url": "https://code.visualstudio.com/docs/python/settings-reference",
+      "title": "Microsoft: Python settings reference",
+      "finding": "defaultInterpreterPath is consulted on first workspace load; changing it after selecting an interpreter does not switch the selected interpreter."
+    },
+    {
+      "key": "python_formatter",
+      "cases": [
+        69
+      ],
+      "url": "https://github.com/microsoft/vscode-python/wiki/Migration-to-Python-Tools-Extensions",
+      "title": "Microsoft: migration to Python tool extensions",
+      "finding": "python.formatting.provider is a removed/deprecated setting; formatter-extension settings should be used."
+    },
+    {
+      "key": "googlefinance",
+      "cases": [
+        77
+      ],
+      "url": "https://support.google.com/docs/answer/3093281?hl=en",
+      "title": "Google: GOOGLEFINANCE",
+      "finding": "price without historical dates is a real-time quote (potentially delayed); historical close and closeyest are separate attributes. This is distinct from the source's internally mismatched B/C column formula."
+    },
+    {
+      "key": "conversion_rate",
+      "cases": [
+        51
+      ],
+      "url": "https://support.google.com/google-ads/answer/2684489?hl=en",
+      "title": "Google Ads: Conversion rate definition",
+      "finding": "Conversion rate uses conversion counts divided by eligible interactions, not currency per lead. The source's USD/lead dimensional mismatch is independently evident."
+    },
+    {
+      "key": "heater_safety",
+      "cases": [
+        71
+      ],
+      "url": "https://www.rheem.com/water-heating/articles/the-ultimate-guide-to-water-heater-noises-whats-normal-and-what-isnt/",
+      "title": "Rheem: water-heater warning signs",
+      "finding": "Manufacturer advises stopping use and professional inspection for dripping/leak-related warning signs. This supports the audit's safety-review hold, not model-specific DIY instructions."
+    },
+    {
+      "key": "diabetes_context",
+      "cases": [
+        79
+      ],
+      "url": "https://www.nhs.uk/conditions/type-2-diabetes/treatment/",
+      "title": "NHS: Treatment for type 2 diabetes",
+      "finding": "Medication type/timing depends on prescribed treatment and care-team instructions. Missing prescription context is a verification gap; the audit does not prove the sample's exact times wrong for every possible patient."
+    },
+    {
+      "key": "patagonia_identity",
+      "cases": [
+        96
+      ],
+      "url": "https://www.patagonia.com/product/mens-tres-3-in-1-parka/28389-NENA.html",
+      "title": "Patagonia: Men's Tres 3-in-1 Parka",
+      "finding": "Located manufacturer product is Tres 3-in-1, not the sample's Tres Peaks wording. The audit did not establish a matching product or verify any of its claimed exact minimum temperatures."
+    },
+    {
+      "key": "japan_optional",
+      "cases": [
+        97
+      ],
+      "url": "https://www.sydney.au.emb-japan.go.jp/document/english/visa_info/visa-faq-feb-2023.pdf",
+      "title": "Consulate-General of Japan in Sydney: visa FAQ",
+      "finding": "Visit Japan Web is recommended rather than mandatory. The source's must-present list incorrectly makes the QR registration a requirement."
+    }
+  ]
+}

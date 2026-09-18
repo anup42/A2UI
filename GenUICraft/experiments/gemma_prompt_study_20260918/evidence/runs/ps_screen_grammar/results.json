@@ -1,0 +1,26 @@
+[
+  {
+    "id": "BXP-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 229509,
+    "peakPssKb": 3975665,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "A2UI Express statement is not an assignment: root\\u0003dColumn([a,b,c,d,e],gap\"md\")",
+    "elapsedMs": 139894,
+    "attempts": 1
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 3975753,
+    "peakPssKb": 4030756,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "A2UI Express statement is not an assignment: heading(a,Text(\"@source.a\"))",
+    "elapsedMs": 109989,
+    "attempts": 1
+  }
+]

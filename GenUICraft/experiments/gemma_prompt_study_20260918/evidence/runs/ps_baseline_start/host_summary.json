@@ -1,0 +1,41 @@
+{
+  "run": "ps_baseline_start",
+  "total": 4,
+  "expected_total": 4,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 1,
+  "first_attempt_success": 1,
+  "repaired_success": 0,
+  "failures": [
+    {
+      "id": "BXP-030",
+      "status": "failure",
+      "message": "Expected exactly one complete <a2ui> program."
+    },
+    {
+      "id": "BXP-032",
+      "status": "failure",
+      "message": "Missing source-bound component 'j'."
+    },
+    {
+      "id": "BXP-037",
+      "status": "failure",
+      "message": "Expected exactly one complete <a2ui> program."
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-003",
+    "status": "success",
+    "elapsedMs": 25398,
+    "attempts": 1
+  },
+  "median_success_ms": 25398,
+  "median_warm_success_ms": null,
+  "p95_success_ms": 25398,
+  "max_process_pss_kb": 4164769,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

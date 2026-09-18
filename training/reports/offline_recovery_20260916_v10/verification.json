@@ -1,0 +1,79 @@
+{
+  "status": "verified",
+  "policy_version": "messages-archive-semantic-review-v10-20260916",
+  "manifest_sha256": "84db9bb4b8889f8c52f03c2645e99123be773a12b0571e9abc479835c68da3c7",
+  "output_rows": {
+    "train": 91115,
+    "val": 1862
+  },
+  "strict_production_sample_rows": 512,
+  "independent_content_review_sample_rows": 512,
+  "residual_same_policy_repairs_in_sample": 0,
+  "unique_normalized_sources_checked": 90485,
+  "exact_or_normalized_golden_matches": 0,
+  "lexical_near_golden_matches": 0,
+  "train_val_source_family_overlap": 0,
+  "train_val_normalized_source_overlap": 0,
+  "train_val_lexical_near_matches": 0,
+  "all_row_hash_identity_placeholder_duplicate_checks": "passed",
+  "remaining_limit": "No model-tokenizer preflight, semantic paraphrase guarantee, device render, or training score.",
+  "verification_script_sha256": "b4d039d0c9cc08cf4d69b5676287c0b20692b6d6e73bb5f95ffe82aebdd76d8b",
+  "all_retained_letter_rows_checked": 14,
+  "remaining_letter_policy_gaps": 0,
+  "all_retained_historical_join_rows_checked": 3,
+  "residual_join_boundary_issues": 0,
+  "semantic_review_sample_rows": 512,
+  "residual_semantic_issues_in_sample": 0,
+  "all_row_semantic_review_export_evidence": {
+    "input_rows": {
+      "train": 112842,
+      "val": 2300
+    },
+    "outcomes_from_v9": {
+      "train": {
+        "KEEP": 80906,
+        "REPAIR": 10209,
+        "QUARANTINE": 21727
+      },
+      "val": {
+        "QUARANTINE": 438,
+        "KEEP": 1659,
+        "REPAIR": 203
+      }
+    },
+    "retained_repair_rows_by_kind_overlap": {
+      "remove_unsupported_empty_media_columns": 1899,
+      "literal_state_key_pointer_escape": 2052,
+      "source_table_label_restoration": 2980,
+      "unique_source_clause_restoration": 3795,
+      "source_proven_partial_codec_repair": 136,
+      "proven_false_asset_mask": 4,
+      "source_proven_citation_binding": 24
+    },
+    "new_quarantine_reasons_overlap": {
+      "source_clause_gap": 18449,
+      "source_citation_not_visible": 3748,
+      "residual_suspicious_encoding": 89,
+      "source_media_not_bound": 1336,
+      "requested_chart_missing": 215,
+      "lost_source_qualifier": 219,
+      "inline_action_not_bound": 29,
+      "reviewed_source_requires_verification": 16,
+      "reviewed_source_fragment_missing": 11,
+      "hidden_table_date_column": 1,
+      "post_repair_duplicate": 1,
+      "source_gdpr_fixed_deadline": 1,
+      "unresolved_table_state_path": 1,
+      "source_static_qr_tracking_claim": 1,
+      "description_used_as_input_value": 1,
+      "source_allergy_scope_mismatch": 1
+    },
+    "all_retained_rows_strict_checked": 92977,
+    "all_retained_rows_idempotence_checked": 92977,
+    "split_membership_preserved_no_reshuffle": true,
+    "originals_unchanged": true,
+    "stage3_run": false,
+    "elapsed_seconds": 853.94,
+    "remaining_limit": "Heuristic content gates and a finite reviewed-source holdlist are not a full factual/semantic/device/tokenizer certification."
+  }
+}

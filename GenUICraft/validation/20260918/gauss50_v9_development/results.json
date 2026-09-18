@@ -1,0 +1,897 @@
+[
+  {
+    "id": "BXP-001",
+    "provider": "gauss_30b",
+    "firstInRun": true,
+    "baselinePssKb": 231821,
+    "peakPssKb": 262290,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 6597,
+    "visibleTextNodes": 19,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-002",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 300531,
+    "peakPssKb": 305559,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 7632,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-003",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 309055,
+    "peakPssKb": 314471,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 7681,
+    "visibleTextNodes": 24,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-004",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 337966,
+    "peakPssKb": 339734,
+    "usedFallback": false,
+    "renderWaitMs": 708,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12234,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-005",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 326973,
+    "peakPssKb": 334252,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 10148,
+    "visibleTextNodes": 17,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-006",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 310504,
+    "peakPssKb": 324665,
+    "usedFallback": false,
+    "renderWaitMs": 710,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 20255,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-007",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 320292,
+    "peakPssKb": 328388,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 10226,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-008",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 348556,
+    "peakPssKb": 350912,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 8553,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-009",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 330296,
+    "peakPssKb": 335608,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 7732,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-010",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 341568,
+    "peakPssKb": 344024,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 9884,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-011",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 328804,
+    "peakPssKb": 338280,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12464,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-012",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 325328,
+    "peakPssKb": 333540,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 11032,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-013",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 344368,
+    "peakPssKb": 347796,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 13376,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-014",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 334396,
+    "peakPssKb": 339824,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 8094,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-015",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 322532,
+    "peakPssKb": 326900,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 5992,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-016",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 330832,
+    "peakPssKb": 337328,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 8865,
+    "visibleTextNodes": 19,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-017",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 344356,
+    "peakPssKb": 345332,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 6234,
+    "visibleTextNodes": 8,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-018",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 327024,
+    "peakPssKb": 332208,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 7211,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-019",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 336688,
+    "peakPssKb": 341892,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 8776,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-020",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 329468,
+    "peakPssKb": 336440,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 9313,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-021",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 340376,
+    "peakPssKb": 345450,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 9551,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-022",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 327966,
+    "peakPssKb": 334178,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 8463,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-023",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 339946,
+    "peakPssKb": 344798,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 7598,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-024",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 327374,
+    "peakPssKb": 338066,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 14004,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-025",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 338034,
+    "peakPssKb": 339226,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 9155,
+    "visibleTextNodes": 23,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-026",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 336510,
+    "peakPssKb": 344758,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 11332,
+    "visibleTextNodes": 16,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-027",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 328694,
+    "peakPssKb": 338282,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12858,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-028",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 339340,
+    "peakPssKb": 341414,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 14256,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-029",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 324670,
+    "peakPssKb": 329546,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Added or duplicated numeric facts: [-1, -2]",
+    "elapsedMs": 33626,
+    "attempts": 2
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 316410,
+    "peakPssKb": 327814,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 15392,
+    "visibleTextNodes": 19,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-031",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 314406,
+    "peakPssKb": 331774,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12327,
+    "visibleTextNodes": 9,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-032",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 335702,
+    "peakPssKb": 337870,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 35172,
+    "visibleTextNodes": 17,
+    "attempts": 2,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k",
+      "Model output repaired after validation failure."
+    ]
+  },
+  {
+    "id": "BXP-033",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 331598,
+    "peakPssKb": 335526,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 10948,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-034",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 317770,
+    "peakPssKb": 326718,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 15928,
+    "visibleTextNodes": 35,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-035",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 323606,
+    "peakPssKb": 333114,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12495,
+    "visibleTextNodes": 16,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-036",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 315882,
+    "peakPssKb": 328598,
+    "usedFallback": false,
+    "renderWaitMs": 747,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 21455,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-037",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 321502,
+    "peakPssKb": 330928,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 13031,
+    "visibleTextNodes": 19,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-038",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 321592,
+    "peakPssKb": 323860,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 3392,
+    "visibleTextNodes": 5,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-039",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 336728,
+    "peakPssKb": 345492,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 14094,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-040",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 320536,
+    "peakPssKb": 331064,
+    "usedFallback": false,
+    "renderWaitMs": 706,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 14240,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-041",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 318604,
+    "peakPssKb": 328064,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12696,
+    "visibleTextNodes": 17,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-042",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 361112,
+    "peakPssKb": 361280,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 13090,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-043",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 337140,
+    "peakPssKb": 340440,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 13958,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-044",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 326520,
+    "peakPssKb": 332160,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 18502,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-045",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 329228,
+    "peakPssKb": 333316,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 17003,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-046",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 308556,
+    "peakPssKb": 317992,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 12942,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-047",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 330440,
+    "peakPssKb": 334532,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 21946,
+    "visibleTextNodes": 16,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-048",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 355104,
+    "peakPssKb": 355416,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 14227,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-049",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 338972,
+    "peakPssKb": 342044,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 16984,
+    "visibleTextNodes": 17,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  },
+  {
+    "id": "BXP-050",
+    "provider": "gauss_30b",
+    "firstInRun": false,
+    "baselinePssKb": 334524,
+    "peakPssKb": 338536,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 15221,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: Gauss/gaussa-30b-v0.5-128k"
+    ]
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "artifact_role": "candidate_v7_grid_measurement_scrolling",
+  "aar_sha256": "4a002cbb409a976d8b43f5d62e55030951d2857fa9f1f96c6c1d2ac81fac44a8",
+  "apk_sha256": "ccafbe29eabb2bdde1a1895202150f9e63c1fbe8f7d4c62082880e183d945813",
+  "test_apk_sha256": "0e7e157ab3bc6eefe8cb4604dc1708745b8a9545cccde5d54569d3c3a54cdb71",
+  "sdk_only_native": true,
+  "native_hashes": {
+    "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+    "lib/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+    "lib/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+    "lib/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253",
+    "lib/arm64-v8a/liblitertlm_jni.so": "5bb19fa9d9a39098c1f8bbbe58fa78ed08454fee5fd86f2964d9f8da95e5d52a"
+  },
+  "provider_defaults": {
+    "temperature": 0.0,
+    "gemma_thinking": true,
+    "gemma_thinking_budget": 1024,
+    "gemma_speculative_decoding": true
+  },
+  "query_sent_to_model": false,
+  "gemma_source_bindings": true,
+  "jvm_tests": {
+    "tests": 281,
+    "failures": 0,
+    "errors": 0
+  }
+}

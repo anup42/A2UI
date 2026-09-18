@@ -1,0 +1,969 @@
+[
+  {
+    "run": "ps_baseline_end",
+    "prompt": "baseline",
+    "prompt_sha256": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b",
+    "total": 4,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 1,
+    "repaired_success": 0,
+    "success": 1,
+    "render_failure": 0,
+    "failure": 3,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 4,
+    "reconciled_completed_case_calls": 4,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 145752.0,
+    "median_warm_all_cases_ms": 190789,
+    "p95_all_cases_ms": 220753,
+    "sum_case_ms": 611873,
+    "wall_seconds": 620.329,
+    "max_process_pss_kb": 4118838,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-030",
+        "message": "Expected exactly one complete <a2ui> program."
+      },
+      {
+        "id": "BXP-032",
+        "message": "Missing source-bound component 'j'."
+      },
+      {
+        "id": "BXP-037",
+        "message": "Expected exactly one complete <a2ui> program."
+      }
+    ]
+  },
+  {
+    "run": "ps_baseline_start",
+    "prompt": "baseline",
+    "prompt_sha256": "154ff4d27d8e37b81279e7979c18b4fd90bbdd5135a4e124917712a85438535b",
+    "total": 4,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 1,
+    "repaired_success": 0,
+    "success": 1,
+    "render_failure": 0,
+    "failure": 3,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 4,
+    "reconciled_completed_case_calls": 4,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 70362.0,
+    "median_warm_all_cases_ms": 93135,
+    "p95_all_cases_ms": 110221,
+    "sum_case_ms": 276343,
+    "wall_seconds": 282.813,
+    "max_process_pss_kb": 4164769,
+    "thermal_before": {
+      "status": 1,
+      "skinReadingsC": [
+        39.9,
+        38.2
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.6
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-030",
+        "message": "Expected exactly one complete <a2ui> program."
+      },
+      {
+        "id": "BXP-032",
+        "message": "Missing source-bound component 'j'."
+      },
+      {
+        "id": "BXP-037",
+        "message": "Expected exactly one complete <a2ui> program."
+      }
+    ]
+  },
+  {
+    "run": "ps_confirm_baseline_targeted",
+    "prompt": "baseline_targeted",
+    "prompt_sha256": "783a0571ed406d301721b9debc4c9b71c8176924076f88a9ec3aa31fc5e40cf7",
+    "total": 6,
+    "planned": 12,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-027",
+      "BXP-033",
+      "BXP-035",
+      "BXP-038",
+      "BXP-045",
+      "BXP-047"
+    ],
+    "first_attempt_success": 5,
+    "repaired_success": 0,
+    "success": 5,
+    "render_failure": 0,
+    "failure": 1,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 6,
+    "reconciled_completed_case_calls": 6,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "recorded_and_matched",
+    "median_all_cases_ms": 119574.5,
+    "median_warm_all_cases_ms": 118313,
+    "p95_all_cases_ms": 138007,
+    "sum_case_ms": 687399,
+    "wall_seconds": 817.171,
+    "max_process_pss_kb": 4177037,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-025",
+        "message": "Table.rows must use a known source binding; received '@.c'."
+      }
+    ]
+  },
+  {
+    "run": "ps_confirm_scaffold",
+    "prompt": "scaffold",
+    "prompt_sha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+    "total": 12,
+    "planned": 12,
+    "input_scaffold": true,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 11,
+    "repaired_success": 0,
+    "success": 11,
+    "render_failure": 0,
+    "failure": 1,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 12,
+    "reconciled_completed_case_calls": 12,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "effective_prompt_provenance": "recorded_and_matched",
+    "median_all_cases_ms": 117913.0,
+    "median_warm_all_cases_ms": 124776,
+    "p95_all_cases_ms": 169129,
+    "sum_case_ms": 1309169,
+    "wall_seconds": 1349.156,
+    "max_process_pss_kb": 4321814,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        42.1
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-013",
+        "message": "Table.rows must use a known source binding; received '@source.k.'."
+      }
+    ]
+  },
+  {
+    "run": "ps_final50_scaffold_v11",
+    "prompt": "gemma",
+    "prompt_sha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+    "total": 50,
+    "planned": 50,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": true,
+    "packaged_prompt": true,
+    "recorded_inputs": true,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 45,
+    "repaired_success": 3,
+    "success": 48,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 1,
+    "captured_model_calls": 55,
+    "reconciled_completed_case_calls": 55,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "effective_prompt_provenance": "recorded_and_matched",
+    "median_all_cases_ms": 71009.5,
+    "median_warm_all_cases_ms": 71257,
+    "p95_all_cases_ms": 170081,
+    "sum_case_ms": 4260701,
+    "wall_seconds": 4392.172,
+    "max_process_pss_kb": 4630948,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.7
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-046",
+        "message": "Preserve source block order: expected block 9, received 10."
+      },
+      {
+        "id": "BXP-050",
+        "message": "Expected exactly one complete <a2ui> program."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_baseline_targeted",
+    "prompt": "baseline_targeted",
+    "prompt_sha256": "783a0571ed406d301721b9debc4c9b71c8176924076f88a9ec3aa31fc5e40cf7",
+    "total": 4,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 3,
+    "repaired_success": 0,
+    "success": 3,
+    "render_failure": 0,
+    "failure": 1,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 4,
+    "reconciled_completed_case_calls": 4,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 118304.0,
+    "median_warm_all_cases_ms": 152373,
+    "p95_all_cases_ms": 156010,
+    "sum_case_ms": 431881,
+    "wall_seconds": 443.625,
+    "max_process_pss_kb": 4219582,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        42.8
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-030",
+        "message": "Table.rows must use a known source binding; received '@.c'."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_compact",
+    "prompt": "compact",
+    "prompt_sha256": "c9ebd2ee32865d961ca0d6d36cc22b3d14aac23a73709491c22065b46d1955a8",
+    "total": 4,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 0,
+    "repaired_success": 0,
+    "success": 0,
+    "render_failure": 0,
+    "failure": 4,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 4,
+    "reconciled_completed_case_calls": 4,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 74415.0,
+    "median_warm_all_cases_ms": 87989,
+    "p95_all_cases_ms": 175213,
+    "sum_case_ms": 375528,
+    "wall_seconds": 381.188,
+    "max_process_pss_kb": 4121950,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.4
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-003",
+        "message": "Unclosed A2UI Express expression."
+      },
+      {
+        "id": "BXP-030",
+        "message": "Unexpected document delimiter outside an Express string or comment."
+      },
+      {
+        "id": "BXP-032",
+        "message": "Expected exactly one complete <a2ui> program."
+      },
+      {
+        "id": "BXP-037",
+        "message": "A2UI Express statement is not an assignment: {\"root\":\"root\\u003dColumn([a,b,c,d,e,f,g],gap\\u0003d\\\"md\\\")\"}"
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_completeness",
+    "prompt": "completeness",
+    "prompt_sha256": "e708cf52e3e2d2236121d9f09e66f3151f4c2ed54cf12d87e842a38419499d28",
+    "total": 2,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-032",
+      "BXP-037"
+    ],
+    "first_attempt_success": 0,
+    "repaired_success": 0,
+    "success": 0,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 2,
+    "reconciled_completed_case_calls": 2,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 138119.0,
+    "median_warm_all_cases_ms": 125220,
+    "p95_all_cases_ms": 151018,
+    "sum_case_ms": 276238,
+    "wall_seconds": 283.954,
+    "max_process_pss_kb": 4006413,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-003",
+        "message": "A2UI Express statement is not an assignment: {\"root\":\"root\\u0003dColumn([a,b,c,d,e],gap\\u000d\\\"md\\\")\"}"
+      },
+      {
+        "id": "BXP-030",
+        "message": "Expected exactly one complete <a2ui> program."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_example_first",
+    "prompt": "example_first",
+    "prompt_sha256": "c0878d9fb5d6fe6f45f854acd61a0c74a7bed4a52c8fdd1815370680b00315d3",
+    "total": 4,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 2,
+    "repaired_success": 0,
+    "success": 2,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 4,
+    "reconciled_completed_case_calls": 4,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 146925.5,
+    "median_warm_all_cases_ms": 165216,
+    "p95_all_cases_ms": 247850,
+    "sum_case_ms": 663144,
+    "wall_seconds": 675.109,
+    "max_process_pss_kb": 4141511,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.8
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-032",
+        "message": "Unclosed A2UI Express expression."
+      },
+      {
+        "id": "BXP-037",
+        "message": "Table.rows must use a known source binding; received '@.c'."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_grammar",
+    "prompt": "grammar",
+    "prompt_sha256": "1bd22df2a380ef7db38d96d68802e51c9b9e7dfdc1dd110bb8572840682c8d65",
+    "total": 2,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-032",
+      "BXP-037"
+    ],
+    "first_attempt_success": 0,
+    "repaired_success": 0,
+    "success": 0,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 2,
+    "reconciled_completed_case_calls": 2,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 124941.5,
+    "median_warm_all_cases_ms": 109989,
+    "p95_all_cases_ms": 139894,
+    "sum_case_ms": 249883,
+    "wall_seconds": 621.015231,
+    "max_process_pss_kb": 4030756,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.8
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        42.8
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-003",
+        "message": "A2UI Express statement is not an assignment: root\\u0003dColumn([a,b,c,d,e],gap\"md\")"
+      },
+      {
+        "id": "BXP-030",
+        "message": "A2UI Express statement is not an assignment: heading(a,Text(\"@source.a\"))"
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_mapping",
+    "prompt": "mapping",
+    "prompt_sha256": "42e726b1e8167ce7e229f62898198a4725ec2517764ec043ade8cbafc81a9b67",
+    "total": 3,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-037"
+    ],
+    "first_attempt_success": 1,
+    "repaired_success": 0,
+    "success": 1,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 3,
+    "reconciled_completed_case_calls": 3,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 111519,
+    "median_warm_all_cases_ms": 158085.0,
+    "p95_all_cases_ms": 204651,
+    "sum_case_ms": 418734,
+    "wall_seconds": 433.125,
+    "max_process_pss_kb": 4143191,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-030",
+        "message": "A2UI Express requires reserved root component."
+      },
+      {
+        "id": "BXP-032",
+        "message": "Expected exactly one complete <a2ui> program."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_minimal",
+    "prompt": "minimal",
+    "prompt_sha256": "fd00e896ad964648d1cfcf5c41f693507362a071e85aa48846bb7a9bee5a3fbe",
+    "total": 2,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-032",
+      "BXP-037"
+    ],
+    "first_attempt_success": 0,
+    "repaired_success": 0,
+    "success": 0,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 2,
+    "reconciled_completed_case_calls": 2,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 132910.5,
+    "median_warm_all_cases_ms": 138323,
+    "p95_all_cases_ms": 138323,
+    "sum_case_ms": 265821,
+    "wall_seconds": 272.406,
+    "max_process_pss_kb": 4037310,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-003",
+        "message": "Unclosed A2UI Express expression."
+      },
+      {
+        "id": "BXP-030",
+        "message": "Unexpected document delimiter outside an Express string or comment."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_mixed_examples",
+    "prompt": "mixed_examples",
+    "prompt_sha256": "bccdb467713197038e75f47de712ed054111c36cebb89f997b077dee6d815630",
+    "total": 3,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-037"
+    ],
+    "first_attempt_success": 1,
+    "repaired_success": 0,
+    "success": 1,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 3,
+    "reconciled_completed_case_calls": 3,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 126069,
+    "median_warm_all_cases_ms": 146472.5,
+    "p95_all_cases_ms": 174515,
+    "sum_case_ms": 419014,
+    "wall_seconds": 433.297,
+    "max_process_pss_kb": 4156746,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-003",
+        "message": "Trailing A2UI Express syntax at 20."
+      },
+      {
+        "id": "BXP-032",
+        "message": "Missing source-bound component 'cdeafghijk'."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_procedural",
+    "prompt": "procedural",
+    "prompt_sha256": "b6b789c902dc33e58f4ea5fed94335e1c1041e2be878e6190d9acfaa4f737857",
+    "total": 2,
+    "planned": 4,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": true,
+    "unfinished_ids": [
+      "BXP-032",
+      "BXP-037"
+    ],
+    "first_attempt_success": 0,
+    "repaired_success": 0,
+    "success": 0,
+    "render_failure": 0,
+    "failure": 2,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 2,
+    "reconciled_completed_case_calls": 2,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [],
+    "effective_prompt_provenance": "legacy_config_and_host_command",
+    "median_all_cases_ms": 185688.0,
+    "median_warm_all_cases_ms": 181910,
+    "p95_all_cases_ms": 189466,
+    "sum_case_ms": 371376,
+    "wall_seconds": 384.563,
+    "max_process_pss_kb": 4011479,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.0
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": [
+      {
+        "id": "BXP-003",
+        "message": "Expected exactly one complete <a2ui> program."
+      },
+      {
+        "id": "BXP-030",
+        "message": "Expected exactly one complete <a2ui> program."
+      }
+    ]
+  },
+  {
+    "run": "ps_screen_scaffold",
+    "prompt": "scaffold",
+    "prompt_sha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+    "total": 4,
+    "planned": 4,
+    "input_scaffold": true,
+    "sdk_layout_scaffold": false,
+    "packaged_prompt": false,
+    "recorded_inputs": false,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 4,
+    "repaired_success": 0,
+    "success": 4,
+    "render_failure": 0,
+    "failure": 0,
+    "fallbacks": 0,
+    "repairs_allowed": 0,
+    "captured_model_calls": 4,
+    "reconciled_completed_case_calls": 4,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "effective_prompt_provenance": "recorded_and_matched",
+    "median_all_cases_ms": 127945.0,
+    "median_warm_all_cases_ms": 136643,
+    "p95_all_cases_ms": 152535,
+    "sum_case_ms": 433116,
+    "wall_seconds": 453.047,
+    "max_process_pss_kb": 4148632,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        42.5
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        43.9
+      ]
+    },
+    "failed_cases": []
+  },
+  {
+    "run": "ps_synthetic_scaffold_v11",
+    "prompt": "gemma",
+    "prompt_sha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+    "total": 3,
+    "planned": 3,
+    "input_scaffold": false,
+    "sdk_layout_scaffold": true,
+    "packaged_prompt": true,
+    "recorded_inputs": true,
+    "early_rejected": false,
+    "unfinished_ids": [],
+    "first_attempt_success": 3,
+    "repaired_success": 0,
+    "success": 3,
+    "render_failure": 0,
+    "failure": 0,
+    "fallbacks": 0,
+    "repairs_allowed": 1,
+    "captured_model_calls": 3,
+    "reconciled_completed_case_calls": 3,
+    "orphaned_inflight_metrics": [],
+    "effective_scaffold_counts": [
+      1,
+      1,
+      1
+    ],
+    "effective_prompt_provenance": "recorded_and_matched",
+    "median_all_cases_ms": 71144,
+    "median_warm_all_cases_ms": 88098.5,
+    "p95_all_cases_ms": 105053,
+    "sum_case_ms": 200534,
+    "wall_seconds": 221.25,
+    "max_process_pss_kb": 4034121,
+    "thermal_before": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        42.5
+      ]
+    },
+    "thermal_after": {
+      "status": 2,
+      "skinReadingsC": [
+        42.0,
+        44.1
+      ]
+    },
+    "failed_cases": []
+  }
+]

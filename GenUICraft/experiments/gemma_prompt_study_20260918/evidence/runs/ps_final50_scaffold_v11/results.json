@@ -1,0 +1,941 @@
+[
+  {
+    "id": "BXP-001",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 229158,
+    "peakPssKb": 3940486,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 64617,
+    "visibleTextNodes": 19,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-002",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 3992557,
+    "peakPssKb": 4027522,
+    "usedFallback": false,
+    "renderWaitMs": 708,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 75316,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4030334,
+    "peakPssKb": 4051420,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 102035,
+    "visibleTextNodes": 22,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-004",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4074460,
+    "peakPssKb": 4093716,
+    "usedFallback": false,
+    "renderWaitMs": 709,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 158475,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-005",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4084892,
+    "peakPssKb": 4137632,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 117540,
+    "visibleTextNodes": 16,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-006",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4114908,
+    "peakPssKb": 4134924,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 151508,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-007",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4137806,
+    "peakPssKb": 4150206,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 99204,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-008",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4169485,
+    "peakPssKb": 4190827,
+    "usedFallback": false,
+    "renderWaitMs": 706,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 97507,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-009",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4198553,
+    "peakPssKb": 4220253,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 76348,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-010",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4181496,
+    "peakPssKb": 4193392,
+    "usedFallback": false,
+    "renderWaitMs": 788,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 103252,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-011",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4196304,
+    "peakPssKb": 4211460,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 81640,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-012",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4221080,
+    "peakPssKb": 4245286,
+    "usedFallback": false,
+    "renderWaitMs": 707,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 93450,
+    "visibleTextNodes": 25,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-013",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4245588,
+    "peakPssKb": 4274474,
+    "usedFallback": false,
+    "renderWaitMs": 709,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 330338,
+    "visibleTextNodes": 13,
+    "attempts": 2,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings.",
+      "Model output repaired after validation failure."
+    ]
+  },
+  {
+    "id": "BXP-014",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4236222,
+    "peakPssKb": 4244438,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 87128,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-015",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4257578,
+    "peakPssKb": 4266482,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 96467,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-016",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4266684,
+    "peakPssKb": 4280975,
+    "usedFallback": false,
+    "renderWaitMs": 843,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 61168,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-017",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4285099,
+    "peakPssKb": 4290487,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 69172,
+    "visibleTextNodes": 8,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-018",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4291631,
+    "peakPssKb": 4305787,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 95237,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-019",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4309354,
+    "peakPssKb": 4319330,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 83538,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-020",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4327007,
+    "peakPssKb": 4336127,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 72767,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-021",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4295491,
+    "peakPssKb": 4317097,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 139720,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-022",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4319179,
+    "peakPssKb": 4331463,
+    "usedFallback": false,
+    "renderWaitMs": 704,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 128217,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-023",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4330193,
+    "peakPssKb": 4349373,
+    "usedFallback": false,
+    "renderWaitMs": 706,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 64594,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-024",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4355201,
+    "peakPssKb": 4379785,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 32222,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-025",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4376353,
+    "peakPssKb": 4382337,
+    "usedFallback": false,
+    "renderWaitMs": 849,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 34247,
+    "visibleTextNodes": 25,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-026",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4343045,
+    "peakPssKb": 4366057,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 55405,
+    "visibleTextNodes": 17,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-027",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4397757,
+    "peakPssKb": 4415479,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 60545,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-028",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4412907,
+    "peakPssKb": 4423835,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 38257,
+    "visibleTextNodes": 11,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-029",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4424695,
+    "peakPssKb": 4447579,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 129132,
+    "visibleTextNodes": 29,
+    "attempts": 2,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings.",
+      "Model output repaired after validation failure."
+    ]
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4405835,
+    "peakPssKb": 4417799,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 60179,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-031",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4431099,
+    "peakPssKb": 4453835,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 70509,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-032",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4462639,
+    "peakPssKb": 4473795,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 45644,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-033",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4435467,
+    "peakPssKb": 4452743,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 55355,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-034",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4456951,
+    "peakPssKb": 4468207,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 61625,
+    "visibleTextNodes": 35,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-035",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4491323,
+    "peakPssKb": 4508015,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 58715,
+    "visibleTextNodes": 15,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-036",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4510815,
+    "peakPssKb": 4527931,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 106330,
+    "visibleTextNodes": 8,
+    "attempts": 2,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings.",
+      "Model output repaired after validation failure."
+    ]
+  },
+  {
+    "id": "BXP-037",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4474767,
+    "peakPssKb": 4488407,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 58712,
+    "visibleTextNodes": 18,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-038",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4501215,
+    "peakPssKb": 4505727,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 20026,
+    "visibleTextNodes": 5,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-039",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4514467,
+    "peakPssKb": 4529455,
+    "usedFallback": false,
+    "renderWaitMs": 776,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 28627,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-040",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4523379,
+    "peakPssKb": 4541695,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 71257,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-041",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4504627,
+    "peakPssKb": 4513079,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 52603,
+    "visibleTextNodes": 16,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-042",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4542711,
+    "peakPssKb": 4555235,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 50918,
+    "visibleTextNodes": 13,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-043",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4551819,
+    "peakPssKb": 4563831,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 70762,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-044",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4563211,
+    "peakPssKb": 4576599,
+    "usedFallback": false,
+    "renderWaitMs": 705,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 66138,
+    "visibleTextNodes": 17,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-045",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4533863,
+    "peakPssKb": 4551299,
+    "usedFallback": false,
+    "renderWaitMs": 701,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 41287,
+    "visibleTextNodes": 10,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-046",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4571447,
+    "peakPssKb": 4590651,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Preserve source block order: expected block 9, received 10.",
+    "elapsedMs": 170081,
+    "attempts": 2
+  },
+  {
+    "id": "BXP-047",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4586262,
+    "peakPssKb": 4598422,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 66132,
+    "visibleTextNodes": 16,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-048",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4586566,
+    "peakPssKb": 4608298,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 81338,
+    "visibleTextNodes": 12,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-049",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4598374,
+    "peakPssKb": 4615346,
+    "usedFallback": false,
+    "renderWaitMs": 702,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 37042,
+    "visibleTextNodes": 17,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "BXP-050",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4622318,
+    "peakPssKb": 4630948,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Expected exactly one complete \u003ca2ui\u003e program.",
+    "elapsedMs": 188375,
+    "attempts": 2
+  }
+]

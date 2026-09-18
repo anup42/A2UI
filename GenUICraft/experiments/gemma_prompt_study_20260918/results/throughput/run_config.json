@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "kind": "captured_sdk_prompt_native_throughput",
+  "runId": "ps_gpu_mtp_throughput_v11",
+  "sourceRunId": "ps_final50_scaffold_v11",
+  "cases": [
+    "BXP-003",
+    "BXP-030",
+    "BXP-047"
+  ],
+  "modelPathArgument": "\/sdcard\/Android\/data\/com.samsung.genuicraft\/files\/sdk_models\/gemma-4-E2B-it.litertlm",
+  "outputDirectory": "\/storage\/emulated\/0\/Android\/data\/com.samsung.genuicraft\/files\/sdk_throughput\/ps_gpu_mtp_throughput_v11",
+  "startedAtEpochMs": 1789704433981,
+  "acceptanceEvaluated": false,
+  "rendererEvaluated": false,
+  "uncountedWarmupCases": 0,
+  "engineInitializationTargetCount": 1,
+  "engineReuse": "one engine; a fresh conversation for every recorded case",
+  "backend": "GPU",
+  "maxContextTokens": 16384,
+  "maxOutputTokens": 8192,
+  "samplerTemperature": 0,
+  "samplerTopK": 1,
+  "samplerTopP": 1,
+  "samplerSeed": "LiteRT-LM default; not set by this test or the SDK runtime",
+  "thinkingEnabled": true,
+  "thinkingTokenBudget": 1024,
+  "mtpRequired": true,
+  "benchmarkRequired": true,
+  "cacheDir": null,
+  "productionRuntimeComparison": {
+    "benchmarkFlag": "intentional difference: enabled before engine initialization for native metrics",
+    "cacheDir": "match: omitted\/null, the Gemma4Config production default",
+    "generation": "match: GPU+MTP, 16384 context, 8192 output, deterministic sampler, thinking 1024"
+  },
+  "modelPath": "\/storage\/emulated\/0\/Android\/data\/com.samsung.genuicraft\/files\/sdk_models\/gemma-4-E2B-it.litertlm",
+  "modelSizeBytes": 2588147712,
+  "systemPromptAsset": "genuicraft\/prompts\/gemma.txt",
+  "systemPromptSha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+  "systemPromptBytes": 1258,
+  "sourceRunConfigSha256": "dd4fb7df7b7b6bbe8e0537c9730c12086aea19a8a9675965c5ea53fb5f74466c",
+  "sourceRunConfigBytes": 1269,
+  "sourceInputSha256ByCase": {
+    "BXP-003": "9ce690176690f845b265cc6826e6cd37b670d18ac9d513149152027ec28cbad0",
+    "BXP-030": "834d17cbd280afcd255a54388706db1d70658ec63e06469bfb777572b5ee6312",
+    "BXP-047": "dd8b0568b2a6d213ebb41d9e0728d327fa05bc7faaacb366b5ebb37e942373f5"
+  },
+  "status": "running",
+  "engineInitializationElapsedMs": 4958,
+  "modelSupportsMtp": true,
+  "experimentalFlags": {
+    "previousBenchmark": false,
+    "previousMtp": null,
+    "benchmarkDuringInitialization": true,
+    "mtpDuringInitialization": true,
+    "restoredAfterInitialization": true
+  },
+  "engineInitializationCount": 1
+}

@@ -1,0 +1,26 @@
+09-18 03:43:08.925 20703 20703 D nativeloader: Configuring clns-9 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~ls0RIL6NMG54D9UyaAfUkA==/com.samsung.genuicraft.test-6dJ_g1WVMeeCnVXsyeUJLg==/base.apk:/data/app/~~5-Mne2Fz_TjgSmZHBdRNEQ==/com.samsung.genuicraft-YcQse6tgSiHpIXQRETxipg==/base.apk. target_sdk_version=35, uses_libraries=libOpenCL.so:libcdsprpc.so, library_path=/data/app/~~ls0RIL6NMG54D9UyaAfUkA==/com.samsung.genuicraft.test-6dJ_g1WVMeeCnVXsyeUJLg==/lib/arm64:/data/app/~~5-Mne2Fz_TjgSmZHBdRNEQ==/com.samsung.genuicraft-YcQse6tgSiHpIXQRETxipg==/lib/arm64:/data/app/~~ls0RIL6NMG54D9UyaAfUkA==/com.samsung.genuicraft.test-6dJ_g1WVMeeCnVXsyeUJLg==/base.apk!/lib/arm64-v8a:/data/app/~~5-Mne2Fz_TjgSmZHBdRNEQ==/com.samsung.genuicraft-YcQse6tgSiHpIXQRETxipg==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.samsung.genuicraft
+09-18 03:43:10.530 20703 20758 D nativeloader: Load /data/app/~~5-Mne2Fz_TjgSmZHBdRNEQ==/com.samsung.genuicraft-YcQse6tgSiHpIXQRETxipg==/base.apk!/lib/arm64-v8a/libLiteRtTopKOpenClSampler.so using class loader ns clns-9 (caller=/data/app/~~5-Mne2Fz_TjgSmZHBdRNEQ==/com.samsung.genuicraft-YcQse6tgSiHpIXQRETxipg==/base.apk!classes15.dex): ok
+09-18 03:43:10.564 20703 20758 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-18 03:43:10.633 20703 20758 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-18 03:43:10.678 20703 20758 I AdrenoVK-0: Vulkan was asked to load OpenCL
+09-18 03:43:10.678 20703 20758 I AdrenoVK-0: Vulkan loaded OpenCL driver
+09-18 03:43:10.685 20703 20758 I native  : I0000 00:00:1789683190.685090   20758 delegate_opencl.cc:593] options->hint_waiting_for_completion: false
+09-18 03:43:10.685 20703 20758 I native  : I0000 00:00:1789683190.685132   20758 delegate_opencl.cc:595] options->kernel_batch_size: -1
+09-18 03:43:10.689 20703 20758 I tflite  : Loaded OpenCL library with dlopen.
+09-18 03:43:10.689 20703 20758 I litert  : [gpu_environment.cc:220] Created OpenCL device from provided device id and platform id.
+09-18 03:43:12.444 20703 20758 I native  : I0000 00:00:1789683192.444846   20758 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 03:43:12.671 20703 20758 I native  : I0000 00:00:1789683192.671634   20758 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 03:43:12.880 20703 20758 I native  : I0000 00:00:1789683192.880823   20758 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 03:43:13.012 20703 20758 I native  : I0000 00:00:1789683193.012648   20758 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 03:43:13.161 20703 20758 I litert  : [gpu_registry.cc:87] Statically linked GPU accelerator registered.
+09-18 03:43:13.520 20703 20758 I native  : I0000 00:00:1789683193.520308   20758 delegate_opencl.cc:593] options->hint_waiting_for_completion: false
+09-18 03:43:13.520 20703 20758 I native  : I0000 00:00:1789683193.520340   20758 delegate_opencl.cc:595] options->kernel_batch_size: -1
+09-18 03:43:13.612 20703 20758 I native  : I0000 00:00:1789683193.612427   20758 delegate_kernel.cc:862] Initializing OpenCL-based API from serialized data.
+09-18 03:43:14.515 20703 20758 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; modelSupportsMtp=true; thinking=true
+09-18 03:43:16.837 20703 20772 I tflite  : Loaded OpenCL library with dlopen.
+09-18 03:43:16.838 20703 20772 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtGpuAccelerator.so).
+09-18 03:43:16.839 20703 20772 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtClGlAccelerator.so).
+09-18 03:43:16.840 20703 20772 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtOpenClAccelerator.so).
+09-18 03:43:16.847 20703 20772 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtWebGpuAccelerator.so).
+09-18 03:43:16.848 20703 20772 I litert  : [gpu_registry.cc:101] Attempting to load GPU accelerator(libLiteRtVulkanAccelerator.so).
+09-18 03:43:16.849 20703 20772 W litert  : [gpu_registry.cc:131] GPU accelerator could not be loaded and registered.

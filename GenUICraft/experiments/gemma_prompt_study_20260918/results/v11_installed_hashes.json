@@ -1,0 +1,13 @@
+{
+  "verifiedUtc": "2026-09-18T02:49:46.477447+00:00",
+  "packages": {
+    "com.samsung.genuicraft": {
+      "devicePath": "/data/app/~~gzrwsi8-aw_fXb6PZlKyFA==/com.samsung.genuicraft-Cd7SWU0wdQkLBuxzCGynWg==/base.apk",
+      "sha256": "d6ac37223f4d2f2f982d86baae22c42622a549051809c36dee17a8a34d445296"
+    },
+    "com.samsung.genuicraft.test": {
+      "devicePath": "/data/app/~~nI8WJmqkSHX-NzGp-fNieQ==/com.samsung.genuicraft.test-teedmHeBl6qLMsRvZRgWnQ==/base.apk",
+      "sha256": "e0f287fb26bc055b0d597ecc435c44779352bd6047e5abdcce03e66c5650fa8d"
+    }
+  }
+}

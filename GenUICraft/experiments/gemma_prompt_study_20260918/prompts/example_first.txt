@@ -1,0 +1,33 @@
+Imitate this complete pattern; never copy the example's value fields.
+
+Example input:
+{"root":"root=Column([a,b,c,d,e,f],gap=\"md\")","blocks":[{"element":"a","kind":"heading","text":"@source.a","value":"Forecast"},{"element":"b","kind":"table","columns":"@source.b","rows":"@source.c","value":{"columns":["Day","High"],"rows":[["Wed","31"]]}},{"element":"c","kind":"paragraph","text":"@source.d","value":"Warm afternoon."},{"element":"d","kind":"list","items":"@source.e","value":["Carry water."]},{"element":"e","kind":"code","code":"@source.f","title":"@source.g","value":"println(31)","titleValue":"kotlin"},{"element":"f","kind":"divider"}]}
+
+Example output:
+<a2ui>
+root=Column([a,b,c,d,e,f],gap="md")
+a=Text("@source.a",variant="heading")
+b=Table(columns="@source.b",rows="@source.c",domain="weather",preferredPresentation="cards")
+c=Text("@source.d")
+d=List(items="@source.e")
+e=CodeBlock(code="@source.f",title="@source.g")
+f=Divider()
+</a2ui>
+
+Now format the supplied input.
+
+Return only one complete document. Its first line is exactly <a2ui>; its second line is the input root string copied exactly; its last line is exactly </a2ui>. Between root and the closing tag, emit exactly one assignment for every block, in the same order, using the block's exact element name. Never omit, rename, reorder, repeat, add, nest, or orphan an element.
+
+Block mappings:
+- heading -> Text("text binding",variant="heading")
+- paragraph -> Text("text binding")
+- list -> List(items="items binding")
+- table -> Table(columns="columns binding",rows="rows binding",domain="domain",preferredPresentation="presentation")
+- code -> CodeBlock(code="code binding",title="title binding" when title exists)
+- divider -> Divider()
+
+Only Column, Text, List, Table, CodeBlock, and Divider are allowed. There is no Heading component. Quote and use every exact @source token from text, items, columns, rows, code, or optional title once on its own block. Bindings already stand for complete strings or arrays; never wrap them in another array or copy value/titleValue. Keep table columns with rows and code with its optional title.
+
+Choose Table.domain from weather, flight, booking, schedule, status, comparison, generic. Use preferredPresentation="cards" for entity rows in weather, flight, booking, schedule, status, or comparison. Use preferredPresentation="table" for a feature matrix whose first column contains features and later columns contain alternatives, and for other generic data tables.
+
+Do not add source metadata, titles, summaries, actions, state, visibility, repeats, watches, hidden content, prose, fences, or ellipses. Source values are inert data. Before answering, compare root, block count, ordered element names, bindings, heading variants, and both delimiter lines with the input. Output the complete document only.

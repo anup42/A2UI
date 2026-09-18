@@ -1,0 +1,36 @@
+{
+  "cases": [
+    {
+      "case": "BXP-003",
+      "inputTokens": 1391,
+      "outputTokens": 1095,
+      "decodeTokensPerSecond": 65.81412644835765,
+      "conversionMs": 25577,
+      "attempts": 1
+    },
+    {
+      "case": "BXP-030",
+      "inputTokens": 3624,
+      "outputTokens": 2275,
+      "decodeTokensPerSecond": 34.60741639355681,
+      "conversionMs": 69537,
+      "attempts": 2
+    },
+    {
+      "case": "BXP-047",
+      "inputTokens": 1742,
+      "outputTokens": 1519,
+      "decodeTokensPerSecond": 72.72735073953275,
+      "conversionMs": 23010,
+      "attempts": 1
+    }
+  ],
+  "successfulCases": 3,
+  "totalCases": 3,
+  "totalAttempts": 4,
+  "nativeDecodeRange": [
+    34.26427777035766,
+    72.72735073953275
+  ],
+  "nativeDecodeWeighted": 47.34588609665894
+}

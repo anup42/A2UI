@@ -1,0 +1,7 @@
+{
+  "runId": "gemma_v10_gpu_mtp_smoke",
+  "total": 2,
+  "success": 2,
+  "failure": 0,
+  "usedFallback": false
+}

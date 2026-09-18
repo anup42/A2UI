@@ -1,0 +1,5912 @@
+{
+  "schema_version": 1,
+  "kind": "host_renderer_replay_verification",
+  "model_calls": 0,
+  "inference_evaluated": false,
+  "replay_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\tmp\\genuicraft_visual_20260918\\gemma_visual_v13_full",
+  "source_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\tmp\\genuicraft_visual_20260918\\gemma50_saved_v10",
+  "expected_cases": 50,
+  "expected_tables": 23,
+  "expected_columns": 100,
+  "issues": [],
+  "cases": [
+    {
+      "id": "BXP-001",
+      "issues": [],
+      "tables": [
+        {
+          "id": "a",
+          "columns": [
+            {
+              "column": "Date",
+              "evidence": {
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Wed, Sep 9",
+                  "bounds": [
+                    118,
+                    267,
+                    298,
+                    309
+                  ]
+                }
+              }
+            },
+            {
+              "column": "High (°C)",
+              "evidence": {
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "31°C / 20°C",
+                  "bounds": [
+                    118,
+                    327,
+                    527,
+                    418
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Low (°C)",
+              "evidence": {
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "31°C / 20°C",
+                  "bounds": [
+                    118,
+                    327,
+                    527,
+                    418
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Rain probability",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Rain Probability",
+                  "bounds": [
+                    582,
+                    501,
+                    820,
+                    540
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "57%",
+                  "bounds": [
+                    582,
+                    549,
+                    651,
+                    591
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": false
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 24,
+          "png_sha256": "b58a43809296f484da8416a7796abeca942bed189f5be42883467cab4c3e3511",
+          "xml_sha256": "9a4561a626af79f69db7411dcbe8d91a909d32d1c0de272d5bebe40bd83f9400"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 22,
+          "png_sha256": "f8b0d62788f9c080c23632c7fb2b4ae1c76b6c28c7829098c60552bee456f17b",
+          "xml_sha256": "e2522e97dabfc23bd54e0b6a7de75db1e9306218c9b1599f728911d21be9d8b2"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 22,
+          "png_sha256": "6c1e67e10be2878d5dba3b668e8481019bd4f733c1f90d7d53eb023de07d7d22",
+          "xml_sha256": "e2522e97dabfc23bd54e0b6a7de75db1e9306218c9b1599f728911d21be9d8b2"
+        }
+      ],
+      "source_json_sha256": "bd30e774121d520ca52a5b5c3d63ed53bbd591e871711fa9ebc22fd8fdefdeed",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-002",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 11,
+          "png_sha256": "3a5a660db84ad742eb97ace7936845482c1e461e43f1ce2bcfb79f1911ba4263",
+          "xml_sha256": "6b4be632bd7648d8481bdacad72f365b75d2786d7af04f91296d333d3d4e5326"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 11,
+          "png_sha256": "3a5a660db84ad742eb97ace7936845482c1e461e43f1ce2bcfb79f1911ba4263",
+          "xml_sha256": "6b4be632bd7648d8481bdacad72f365b75d2786d7af04f91296d333d3d4e5326"
+        }
+      ],
+      "source_json_sha256": "33fefccea91d621780bf4a3d0147d3bbdf25d7a4d78200d14607b7947665cbb6",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-003",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Train service",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Here is a concise comparison of three daytime Bengaluru-to-Mysuru train services, using the most consistent timetable entries across the supplied sources.",
+                  "bounds": [
+                    64,
+                    198,
+                    1016,
+                    458
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Shatabdi Express (12007)",
+                  "bounds": [
+                    106,
+                    584,
+                    729,
+                    647
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Departure station",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Departure station",
+                  "bounds": [
+                    106,
+                    722,
+                    385,
+                    764
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "KSR Bengaluru (SBC)",
+                  "bounds": [
+                    106,
+                    773,
+                    472,
+                    819
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Typical departure time",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Typical departure time",
+                  "bounds": [
+                    564,
+                    722,
+                    924,
+                    764
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "10:35–10:45",
+                  "bounds": [
+                    564,
+                    773,
+                    787,
+                    819
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Journey duration",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Journey duration",
+                  "bounds": [
+                    106,
+                    855,
+                    378,
+                    897
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "About 2 h 15 m to 2 h 25 m",
+                  "bounds": [
+                    106,
+                    906,
+                    516,
+                    1012
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Seating class",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Seating class",
+                  "bounds": [
+                    564,
+                    855,
+                    779,
+                    897
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "CC, EC",
+                  "bounds": [
+                    564,
+                    906,
+                    683,
+                    952
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": false
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 34,
+          "png_sha256": "cbb24621560a6e20df9d49b506fc67a49b6b1e34639e0b3066ebd0383cb358c0",
+          "xml_sha256": "eaa62a47c03ecb6962edfa66f665d919ad9d3098fc8c25afeb0d69ced1e44b10"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 31,
+          "png_sha256": "68625ce1132d800b87f2676d5b522c86c6b2a44d94238de06970056ff4bdee63",
+          "xml_sha256": "e953fdfea767d70d66b8f64b0736029cd9a427f4c5f677dc84b9c9687166c05f"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 31,
+          "png_sha256": "7ec10c40b2d19e6ec0be35ffbcbbb539fcd9be9ca3712a4bb929436c486a19eb",
+          "xml_sha256": "e953fdfea767d70d66b8f64b0736029cd9a427f4c5f677dc84b9c9687166c05f"
+        }
+      ],
+      "source_json_sha256": "bfd5660f302d5de55bae99f0b0b4f580bfc4cfdfb9ead7429c2cd05baf65b9f6",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-004",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "f321bd5078f0f4abfafb7f65ce202bf158d86785b80a5569ead4edfc5ca25b72",
+          "xml_sha256": "fdad12dd5f5e1699b6a96a151474c4c7e4e841a9e20862e6ff74bfd0090d85be"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "2a026050a2391cd2796649c729ecc4df361e22eb09e99a3f12489fbe96969a60",
+          "xml_sha256": "c10bd88dafd8e385da22957b4bceffdf0b50f2c937d117916a3fe4f8db65e715"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "3ebeca1d82110d47df57590edb30e4fc0469f194e6e7df1ac7c27aca205e97eb",
+          "xml_sha256": "c10bd88dafd8e385da22957b4bceffdf0b50f2c937d117916a3fe4f8db65e715"
+        }
+      ],
+      "source_json_sha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-005",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 21,
+          "png_sha256": "5502d1b8dc9f82fd032be41019fe7edc1d519914831a79e0d71c3bf281566b8f",
+          "xml_sha256": "4a302220e9e9f58fb28191e6542767f734651aabe448f0aafea31eaf30c68fff"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 23,
+          "png_sha256": "cee23efdff32377c67b624ac64c4fb864511ec8eb14c30fb09ccc2eb89e10fbc",
+          "xml_sha256": "ae55a09d39fcd6b78bcff096d61f197d54988675d212754908e50312d31a85b5"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 23,
+          "png_sha256": "a0b0a42d83bc1bfb480d8e309909058efc33e2fd6c3cba9f48a12ac05caed8de",
+          "xml_sha256": "ae55a09d39fcd6b78bcff096d61f197d54988675d212754908e50312d31a85b5"
+        }
+      ],
+      "source_json_sha256": "ed6ab0cf4b556a114882a833f76009fcd7ff748ede29420378296f17c75e4fd0",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-006",
+      "issues": [],
+      "tables": [
+        {
+          "id": "c",
+          "columns": [
+            {
+              "column": "Route",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "The two main driving routes to Madikeri are the Mysuru–Hunsur–Kushalnagar route and the Hassan–Kushalnagar route. The Mysuru route is the most commonly recommended and generally the most convenient for first-time travelers, while the Hassan route is usually a good alternative when you want to avoid the Mysuru corridor.[2][4][11]",
+                  "bounds": [
+                    64,
+                    198,
+                    1016,
+                    734
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Bengaluru → Mysuru → Hunsur → Kushalnagar → Madikeri",
+                  "bounds": [
+                    94,
+                    1022,
+                    355,
+                    1318
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Approx. distance",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Approx. distance",
+                  "bounds": [
+                    415,
+                    929,
+                    985,
+                    971
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "About 250–255 km, sometimes cited up to 270 km depending on exact start point and detours[10]",
+                  "bounds": [
+                    415,
+                    1022,
+                    985,
+                    1248
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Usual travel time",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Usual travel time",
+                  "bounds": [
+                    415,
+                    929,
+                    979,
+                    971
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "About 4.5–6 hours, commonly around 5.5–6 hours",
+                  "bounds": [
+                    415,
+                    1022,
+                    979,
+                    1128
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Road conditions",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Road conditions",
+                  "bounds": [
+                    415,
+                    929,
+                    985,
+                    971
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Mostly smooth and well-maintained, especially on the Bengaluru–Mysuru Expressway; traffic can build up on the Mysuru corridor, and the final stretch near Madikeri becomes hilly/ghat road[3][8][15]",
+                  "bounds": [
+                    415,
+                    1022,
+                    985,
+                    1428
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Useful stop",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Useful stop",
+                  "bounds": [
+                    422,
+                    929,
+                    986,
+                    971
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Namdroling Monastery, Bylakuppe[7][9]",
+                  "bounds": [
+                    422,
+                    1022,
+                    986,
+                    1128
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "cad64d987f7a5903c3635c4f52866f7732c090ec90ddff9f362fcc27e00ded76",
+          "xml_sha256": "9dd4fb4dfb1006493d0939689c22eba9091bf8befe2e06262d1e85d13c808c66"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "f972a77fa968851a68e10e6e469b2c35d3f1732ff12904e45dac5d44d1148361",
+          "xml_sha256": "7843209ba013f6f95d47c2e97b703d7ee8f3f55f4e0f5f37f9184c32e9af4d50"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "2d2affd068c434658d674a90261ed021194e7f62c2d9465f2bf129af81082bdb",
+          "xml_sha256": "cc6cec1d2dacdced2fa1e94a3103138893dedeee2fc00cd4d585f9b45d1ca9ce"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "660ee06fecc1c385e8c25a788cb81ad9cfbc0148ea75084ae0c26bac14fde12a",
+          "xml_sha256": "29f20590fdae87b106bba772e6b3135c6700022aeda6510138cf109edd62c4a5"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "cad64d987f7a5903c3635c4f52866f7732c090ec90ddff9f362fcc27e00ded76",
+          "xml_sha256": "9dd4fb4dfb1006493d0939689c22eba9091bf8befe2e06262d1e85d13c808c66"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "1bbe5ecde9df8d088073f52a24639d5113f26cf9346dfd8463761ebf3b122282",
+          "xml_sha256": "242b4132534aee2e81fa7f423fec0ee54aa729bf64461f1bca496a3a28188d31"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "f6b35feb5ed18efc883c08d62444cf5195267f688159f439b113a703af59ef79",
+          "xml_sha256": "242b4132534aee2e81fa7f423fec0ee54aa729bf64461f1bca496a3a28188d31"
+        }
+      ],
+      "source_json_sha256": "c9175c78858a94608a8d6627a18fe7ea600ab99d64c0425ff958d1db20c6a178",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-007",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Sight",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Suggested one-day Mysuru sights",
+                  "bounds": [
+                    64,
+                    222,
+                    889,
+                    285
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Chamundi Hill Lookout View Point",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Opening hours",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Opening hours",
+                  "bounds": [
+                    415,
+                    357,
+                    907,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "5:00 am–11:00 pm",
+                  "bounds": [
+                    415,
+                    450,
+                    907,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Usual visit duration",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Usual visit duration",
+                  "bounds": [
+                    967,
+                    357,
+                    1016,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "30–45 min",
+                  "bounds": [
+                    967,
+                    450,
+                    1016,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Published adult entry fee",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Published adult entry fee",
+                  "bounds": [
+                    847,
+                    357,
+                    1016,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Not available in the provided reliable sources[6]",
+                  "bounds": [
+                    847,
+                    450,
+                    1016,
+                    556
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 23,
+          "png_sha256": "b6a34a92480bbedcaea5b8336dc3fbb1e936d18ed8110e29a9fd18e8270fdd89",
+          "xml_sha256": "c45df770e3d0aea5039d1113318c0c0ccba628a6887998f7d3e07dab92c5dd2a"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 23,
+          "png_sha256": "098cd6d2e488da683bd6238303f4044af8c57842f00c44751bbe21da5f7b4846",
+          "xml_sha256": "1a9f883ac162dfc9b33551ff5eb7b610a0c1c66fcdbc74ab9156a83e839bbd9c"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 23,
+          "png_sha256": "b6a34a92480bbedcaea5b8336dc3fbb1e936d18ed8110e29a9fd18e8270fdd89",
+          "xml_sha256": "c45df770e3d0aea5039d1113318c0c0ccba628a6887998f7d3e07dab92c5dd2a"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 23,
+          "png_sha256": "b6a34a92480bbedcaea5b8336dc3fbb1e936d18ed8110e29a9fd18e8270fdd89",
+          "xml_sha256": "c45df770e3d0aea5039d1113318c0c0ccba628a6887998f7d3e07dab92c5dd2a"
+        }
+      ],
+      "source_json_sha256": "c398234e35cd274c84f1148513a7a0e16ec0a6bdc21161c047d3acf515badd5c",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-008",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Restaurant",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Three established vegetarian breakfast restaurants in central Bengaluru",
+                  "bounds": [
+                    64,
+                    222,
+                    1016,
+                    360
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Vidyarthi Bhavan",
+                  "bounds": [
+                    94,
+                    525,
+                    355,
+                    631
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Neighborhood",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Neighborhood",
+                  "bounds": [
+                    415,
+                    432,
+                    907,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Basavanagudi (Gandhi Bazaar)",
+                  "bounds": [
+                    415,
+                    525,
+                    907,
+                    631
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Signature dish",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Signature dish",
+                  "bounds": [
+                    967,
+                    432,
+                    1016,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "South Indian breakfast classics; widely known for its crisp dosas",
+                  "bounds": [
+                    967,
+                    525,
+                    1016,
+                    631
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Approx. cost per person",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Approx. cost per person",
+                  "bounds": [
+                    415,
+                    432,
+                    847,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "₹1–200",
+                  "bounds": [
+                    415,
+                    525,
+                    847,
+                    571
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Opening hours",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Opening hours",
+                  "bounds": [
+                    907,
+                    432,
+                    1016,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "6:30am–11:30am, 2:00pm–8:00pm on Mon–Thu; closed Fri; 6:30am–12:00pm, 2:30pm–8:00pm on Sat–Sun[2]",
+                  "bounds": [
+                    907,
+                    525,
+                    1016,
+                    751
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "13fa2e3f903fe2ad65ecc4483df0b67c1d15ec91504cb3ff293fbb7603e6fb89",
+          "xml_sha256": "30092acdf96a6c6184021d70d3ec48da955fa4838bb2114ea2c2d9cfef822b11"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 12,
+          "png_sha256": "1de2b987b3916ffd4a89624cf7be3e573a5c5ca6ca48fc4817a0798ab71bc235",
+          "xml_sha256": "bc14895a494025ec84e683b402bf07a94a5e7b5c750dd94d1aeea1b78d6ed074"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "512fc67ffa2a713ba53563c82ec7e8ead1fbe3c8cc0bfdac581dc9b3a95500ca",
+          "xml_sha256": "2d3d563c09af831486d62d9d11c3a3599b2366e7ab0b965e68c4fed3dfb896d2"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "13fa2e3f903fe2ad65ecc4483df0b67c1d15ec91504cb3ff293fbb7603e6fb89",
+          "xml_sha256": "30092acdf96a6c6184021d70d3ec48da955fa4838bb2114ea2c2d9cfef822b11"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "13fa2e3f903fe2ad65ecc4483df0b67c1d15ec91504cb3ff293fbb7603e6fb89",
+          "xml_sha256": "30092acdf96a6c6184021d70d3ec48da955fa4838bb2114ea2c2d9cfef822b11"
+        }
+      ],
+      "source_json_sha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-009",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 21,
+          "png_sha256": "a5375e2392536e61b40b9c106b5524f3628db44722eed3de24dc463e7e5ee57b",
+          "xml_sha256": "20a028e74af65f1e64e1bfab9d25cb026ab1bfeccc719563ccab5467beb879ba"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 22,
+          "png_sha256": "e11015d2b13c860730baf609c89697bb109929b2b682bfc360230a6447ebaff8",
+          "xml_sha256": "376f2288e7dbf624952d866e15329f1d2a7a2a929ca22ab5ad2b0bda7c3efadb"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 22,
+          "png_sha256": "9508b964e171159a33cc1930806ebe22b68b54a0a4d9f8bea005c3c1c139736a",
+          "xml_sha256": "376f2288e7dbf624952d866e15329f1d2a7a2a929ca22ab5ad2b0bda7c3efadb"
+        }
+      ],
+      "source_json_sha256": "17759aa9078588f3c625d33f5c0f7a044a1fc1b630ef227820d63c5c7844259c",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-010",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 11,
+          "png_sha256": "7eb6d66148dfce0b4d29c4578a4afe3c68682d67c6c0019c43ba6f2c1a31ac0f",
+          "xml_sha256": "f5dc7903bf74901de7c6a4afcc0fba4d474bd7a2f4f1fbec753a5ada972f8df2"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 11,
+          "png_sha256": "7eb6d66148dfce0b4d29c4578a4afe3c68682d67c6c0019c43ba6f2c1a31ac0f",
+          "xml_sha256": "f5dc7903bf74901de7c6a4afcc0fba4d474bd7a2f4f1fbec753a5ada972f8df2"
+        }
+      ],
+      "source_json_sha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-011",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Model",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Model",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "OnePlus Nord CE 5",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Indicative price",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Indicative price",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "From ₹24,999",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Display",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Display",
+                  "bounds": [
+                    415,
+                    357,
+                    907,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "6.77-inch AMOLED, 120Hz [9][16]",
+                  "bounds": [
+                    415,
+                    450,
+                    907,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Battery",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Choose the Nord CE 5 if you want the best mix of price, battery, and support. Pick the Galaxy A36 5G if long-term updates matter most. Pick the iQOO Z10 if maximum battery endurance is your top priority. ",
+                  "bounds": [
+                    64,
+                    1191,
+                    1016,
+                    1520
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "7,100mAh, 80W charging",
+                  "bounds": [
+                    967,
+                    450,
+                    1016,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Software support",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Software support",
+                  "bounds": [
+                    907,
+                    357,
+                    1016,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "6 years of software support",
+                  "bounds": [
+                    907,
+                    450,
+                    1016,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Best for",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Best for",
+                  "bounds": [
+                    416,
+                    357,
+                    986,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Buyers wanting a big battery and smooth everyday performance",
+                  "bounds": [
+                    416,
+                    450,
+                    986,
+                    556
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "a66a49568c4ed157b53d0c250742b59d85235fc7d48f4e84ee1e5e7906507076",
+          "xml_sha256": "39491f47cd21f1202a3f1e9509fe7b878c7c6626a124b06f36e1634659dae4c8"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "90843bc0dc9736772b892d19e37936586cb2349765d1b05323613b88e05dff96",
+          "xml_sha256": "3216fb70b26528c67116355122ca5a09d565e2d86da7199d64f41865ccf469a8"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "5ca5ce532dfecfc0ab5df4c395647388458cb3f66060e2b694c39654f6bd5e4b",
+          "xml_sha256": "e849a64e1343e22b2f16f5417409a5d5ac413f8f13912f156e6577a2a8e53f27"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "10234dcbf47945c0e4d286c51d35462bd2a685817578b13a598f3a20b8bbdb79",
+          "xml_sha256": "6c222f7e9f16032116a1dfda2cfc04c080ec9fa3aabce6aec0769498d10d7150"
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "b9afebd04e24bde37f1526adf1adaa9f2801323e2e8bf65f8ba0245f1665a30b",
+          "xml_sha256": "f6f0d1e36e565685031fce4a61185a49b7e850cd8e780de57d499317274bb4d8"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "a66a49568c4ed157b53d0c250742b59d85235fc7d48f4e84ee1e5e7906507076",
+          "xml_sha256": "39491f47cd21f1202a3f1e9509fe7b878c7c6626a124b06f36e1634659dae4c8"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "a66a49568c4ed157b53d0c250742b59d85235fc7d48f4e84ee1e5e7906507076",
+          "xml_sha256": "39491f47cd21f1202a3f1e9509fe7b878c7c6626a124b06f36e1634659dae4c8"
+        }
+      ],
+      "source_json_sha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-012",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "App",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "App",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Microsoft OneNote",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Offline use",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Offline use",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Works offline on Android and web-backed notebooks sync when you reconnect[2][12]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Synchronization",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Synchronization",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Free cross-device sync through OneDrive",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Export options",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Export options",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Export support is available, but the free plan is mainly limited by storage rather than format[1]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Biggest free-plan restriction",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Biggest free-plan restriction",
+                  "bounds": [
+                    416,
+                    357,
+                    986,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "About 5 GB of notes on the free plan",
+                  "bounds": [
+                    416,
+                    450,
+                    986,
+                    556
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "244e0034d629e946ba9e4612979c3040064f5aab44fe3ba5e30db57caa7b0167",
+          "xml_sha256": "897fcfbd5c0216d04194be2d7d1e62ccb76c8e4a3c5cd26ff291373807df4cd0"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "3a047b86b2b50aadf1f29d6f4db8fbdc86ed6e67d3568e02097bd5df29e24f6a",
+          "xml_sha256": "0030746c0cbe55ec2da7242cc5d0a9addf54a91744003e6272d8132455e3d176"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "b50221f4af03b53ba8ccb9451a759fd182f04e3ca24a05b0da9fff7cc3cdcbeb",
+          "xml_sha256": "a94a318c7f734290962e736869bf0410814cd800c3223af9d597133348eecf11"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "d6c1d1b53cec1dac5b0f7321142f1dc6fad73307249496cce1dfaa31e65165d8",
+          "xml_sha256": "1f3cbb5ebfe51a4050d40ad81d7a8b1cc78e2363ba812a90007721e77aab3d0e"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "244e0034d629e946ba9e4612979c3040064f5aab44fe3ba5e30db57caa7b0167",
+          "xml_sha256": "897fcfbd5c0216d04194be2d7d1e62ccb76c8e4a3c5cd26ff291373807df4cd0"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "244e0034d629e946ba9e4612979c3040064f5aab44fe3ba5e30db57caa7b0167",
+          "xml_sha256": "897fcfbd5c0216d04194be2d7d1e62ccb76c8e4a3c5cd26ff291373807df4cd0"
+        }
+      ],
+      "source_json_sha256": "3ef11612cf64226b32444d3b76adba3a5d601b0d11329a3c5572309d5b871436",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-013",
+      "issues": [],
+      "tables": [
+        {
+          "id": "j",
+          "columns": [
+            {
+              "column": "Bank",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "For regular adult retail customers, SBI, HDFC Bank, and ICICI Bank are all showing a one-year rate of 6.25% for the relevant retail deposit bucket [1][6][9].",
+                  "bounds": [
+                    64,
+                    324,
+                    1016,
+                    584
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "For regular adult retail customers, SBI, HDFC Bank, and ICICI Bank are all showing a one-year rate of 6.25% for the relevant retail deposit bucket [1][6][9].",
+                  "bounds": [
+                    64,
+                    324,
+                    1016,
+                    584
+                  ]
+                }
+              }
+            },
+            {
+              "column": "One-year retail FD rate",
+              "evidence": {
+                "header": {
+                  "capture": "vertical_2",
+                  "text": "One-year retail FD rate",
+                  "bounds": [
+                    415,
+                    1414,
+                    847,
+                    1456
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "For regular adult retail customers, SBI, HDFC Bank, and ICICI Bank are all showing a one-year rate of 6.25% for the relevant retail deposit bucket [1][6][9].",
+                  "bounds": [
+                    64,
+                    324,
+                    1016,
+                    584
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Assumed deposit size",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Assumed deposit sizes",
+                  "bounds": [
+                    64,
+                    644,
+                    623,
+                    707
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "SBI: Retail domestic term deposits below ₹3 crore; the one-year slab is 1 year to less than 2 years and the rate is 6.25% for general customers .",
+                  "bounds": [
+                    103,
+                    746,
+                    1016,
+                    1006
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Rate date / effective date",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Rate date / effective date",
+                  "bounds": [
+                    847,
+                    1414,
+                    1016,
+                    1456
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Current retail grid shown on SBI’s retail domestic term-deposit page",
+                  "bounds": [
+                    847,
+                    1507,
+                    1016,
+                    1673
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "3fd8fe47d858bb3c6ef2681fa9374e9a98e2faf519fb64878aeae5a5af8d68b7",
+          "xml_sha256": "1b4ec5c3a72689b0d91bf1f1b5d37afea8f8f3c4e245e7aa7002614d4bfa3814"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 11,
+          "png_sha256": "3f52c11e01cb2f3086149891f9759a2b319725ba20c7aa41d24325a2a9624e72",
+          "xml_sha256": "ded07ea1002034d90d3057a4268090e7bc91419241626f4a04b2ba60925e54fd"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "9667ba03b321cbe1455bee7a07f5ad71d64cd6326cc07abaf08d000cb536b2d9",
+          "xml_sha256": "f8df0f9776a6970cffaffa68471d295e3e6dd26003b3b1efeacd1942c3fb52ac"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "2fe801961d625d814052c1d550971debec77362eb9fec61a61eb04b935ce2434",
+          "xml_sha256": "d2663734ba17f4bf6f02e603c894d31563dc4af87dce4a5d489360506f1e90cc"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "9667ba03b321cbe1455bee7a07f5ad71d64cd6326cc07abaf08d000cb536b2d9",
+          "xml_sha256": "f8df0f9776a6970cffaffa68471d295e3e6dd26003b3b1efeacd1942c3fb52ac"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "fe63181c63749d0106449b0a84ba60b66b34d07a789c6a51fb54abc3124ea537",
+          "xml_sha256": "f8df0f9776a6970cffaffa68471d295e3e6dd26003b3b1efeacd1942c3fb52ac"
+        }
+      ],
+      "source_json_sha256": "cac942b51948f393e4e9eff1d6b6ad843f682f2f9a0d1ac24100530e8bd1bfab",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-014",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "a7394e30c8f75f525452c93ef21dccc4487d46717f12b9418dce6eb8d9b36f08",
+          "xml_sha256": "fc6cd5cf2fbe4353ec70f1f3bfc3653e8ba4c4af5632b2f0ea3047b1e045bb95"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "a7394e30c8f75f525452c93ef21dccc4487d46717f12b9418dce6eb8d9b36f08",
+          "xml_sha256": "fc6cd5cf2fbe4353ec70f1f3bfc3653e8ba4c4af5632b2f0ea3047b1e045bb95"
+        }
+      ],
+      "source_json_sha256": "c0a5c3b3107df68cfdbfc6a891865450805541f81c951359f33aa60126623120",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-015",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "f3415dc6881b9442172b767953c7db1e068ae8ec6fbc17c63378938eba0b6f1e",
+          "xml_sha256": "f9132cd3e739f66ed88a6e4cc09cdd4a139bf8f2ba743cecf7570688670b4db3"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "f3415dc6881b9442172b767953c7db1e068ae8ec6fbc17c63378938eba0b6f1e",
+          "xml_sha256": "f9132cd3e739f66ed88a6e4cc09cdd4a139bf8f2ba743cecf7570688670b4db3"
+        }
+      ],
+      "source_json_sha256": "3aa4be247b06aa7128a60dec1f27b44750ccf8f2d0340715f7d32c49df1aec10",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-016",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Title",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Title",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Bandar",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Platform",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Platform",
+                  "bounds": [
+                    415,
+                    357,
+                    715,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "ZEE5",
+                  "bounds": [
+                    415,
+                    450,
+                    715,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Streaming release date",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Streaming release date",
+                  "bounds": [
+                    775,
+                    357,
+                    1016,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "28 August 2026",
+                  "bounds": [
+                    775,
+                    450,
+                    1016,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Spoiler-free description",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Spoiler-free description",
+                  "bounds": [
+                    907,
+                    357,
+                    1016,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33]",
+                  "bounds": [
+                    907,
+                    450,
+                    1016,
+                    616
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "7d6ac6d783620b8c40d67fcbfa5c57188bbbcabc87451b51daa845fc7714edcc",
+          "xml_sha256": "9d53d95ba6ee59285ea392b0d1834a4ff76c76b81527f56e1acbda28d9a56403"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "de9ffa802fbfa46d4ff32e0dbe448f4bade65582ffad0958c37c77aacd4a900b",
+          "xml_sha256": "89a90663a843281569c135ed7bf0974bfdd8716094ae2ce5d2147a9df19763f2"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "10bce54c662940120b9e9be4c303b4269f3409ffa3463dd58c3f304f8715010a",
+          "xml_sha256": "74e7ae68c47c4f4871d96849aff86c4fbe06b3993f14aae8837c691c6252bbb3"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "10bce54c662940120b9e9be4c303b4269f3409ffa3463dd58c3f304f8715010a",
+          "xml_sha256": "74e7ae68c47c4f4871d96849aff86c4fbe06b3993f14aae8837c691c6252bbb3"
+        }
+      ],
+      "source_json_sha256": "80a299424e7e852812059dcbd9bb67094a31b02715323b929c06cafb235194a9",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-017",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 4,
+          "png_sha256": "2b92c7fdb73c17d801d69eeeef712d015d105760351afdc09a43b52ad50c326c",
+          "xml_sha256": "212bc8152d98d63de7215a148f0be96c67de55c262d54e3cc294eb53762f7f0e"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 4,
+          "png_sha256": "2b92c7fdb73c17d801d69eeeef712d015d105760351afdc09a43b52ad50c326c",
+          "xml_sha256": "212bc8152d98d63de7215a148f0be96c67de55c262d54e3cc294eb53762f7f0e"
+        }
+      ],
+      "source_json_sha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-018",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "a977685ad76e5b5b3efcd6108bbfce50922b9794c618061dce96bca1bab200d3",
+          "xml_sha256": "e2e3d52c307fb4e5176c58ae62220de8b9b767d895381b338f4ac43beaec8b3c"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "a977685ad76e5b5b3efcd6108bbfce50922b9794c618061dce96bca1bab200d3",
+          "xml_sha256": "e2e3d52c307fb4e5176c58ae62220de8b9b767d895381b338f4ac43beaec8b3c"
+        }
+      ],
+      "source_json_sha256": "2473a45bb4128fc9c6f10c4390a1921c27ff0b2844dc7e9bc4d87efc8825be4d",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-019",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Game",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Game",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "It Takes Two",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Age rating",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Age rating",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "13+ for online features",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Co-op support",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Co-op support",
+                  "bounds": [
+                    415,
+                    357,
+                    979,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Online co-op; Friend’s Pass supports inviting a friend",
+                  "bounds": [
+                    415,
+                    450,
+                    979,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Players",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Best larger-group party game: *Overcooked! 2*, especially if you want chaotic family sessions for up to four players.",
+                  "bounds": [
+                    103,
+                    1645,
+                    1016,
+                    1836
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Overcooked! 2",
+                  "bounds": [
+                    94,
+                    758,
+                    355,
+                    804
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Indicative India price",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "*Indicative India prices are based on current Steam/SteamDB records and may change with sales or regional updates.*",
+                  "bounds": [
+                    64,
+                    1872,
+                    1016,
+                    2063
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "0535f213b6b29f3f2b7008221cf342bbb50576f71d203603e6a52790aec2dbea",
+          "xml_sha256": "cb882c6ba595e5f3b0ac56c0c7203812fe8916c616a42f0f802b9af256aa4270"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "d6e35cd36b42172ec1db5f127b366a1568c1f61dc76f30480ff11cd386de7894",
+          "xml_sha256": "a491d6b6b43597388cbea38731afbc2a478379a348ea178163910e0df33ce6b5"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "0535f213b6b29f3f2b7008221cf342bbb50576f71d203603e6a52790aec2dbea",
+          "xml_sha256": "cb882c6ba595e5f3b0ac56c0c7203812fe8916c616a42f0f802b9af256aa4270"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "0535f213b6b29f3f2b7008221cf342bbb50576f71d203603e6a52790aec2dbea",
+          "xml_sha256": "cb882c6ba595e5f3b0ac56c0c7203812fe8916c616a42f0f802b9af256aa4270"
+        }
+      ],
+      "source_json_sha256": "24b5019c91a96807d534d57f89956a62edb67877910e8d572e82251ae1725c86",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-020",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 12,
+          "png_sha256": "fb91a7d4699c7d7e08d32c2b5e7c13f08f8fed69de589377dc7b5ea3a7543e7d",
+          "xml_sha256": "c10896d168f188a3b65a6f643fe3a3ff4bee4f372db290fe789b5ae717bc23f0"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 12,
+          "png_sha256": "fb91a7d4699c7d7e08d32c2b5e7c13f08f8fed69de589377dc7b5ea3a7543e7d",
+          "xml_sha256": "c10896d168f188a3b65a6f643fe3a3ff4bee4f372db290fe789b5ae717bc23f0"
+        }
+      ],
+      "source_json_sha256": "ce2f6d724464c14eefc00cb45dd40f639364d070eedf9aed48ed3eb5ebd27a00",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-021",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 7,
+          "png_sha256": "10676a3792317a9d86d0ee239f108fbe12687c99dfbd15dc2ea74b4a92961c29",
+          "xml_sha256": "0118f607e7352b56f3c3a02eb3f1dd98e46fb4435d9dcd248f90a1fa6cffe645"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 7,
+          "png_sha256": "c1fbf73aad7e7df2f691578145e50ebd1a8eb5db8dcb1433470121cc62fc56a9",
+          "xml_sha256": "38d2313c1f03a1b3dc62897e72c3d51cbf2546e507e7955688d27a9325822dfb"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 7,
+          "png_sha256": "dddf4b692402628fe6b3098585ba8323d08caeee60615271b1f9121d629c9866",
+          "xml_sha256": "38d2313c1f03a1b3dc62897e72c3d51cbf2546e507e7955688d27a9325822dfb"
+        }
+      ],
+      "source_json_sha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-022",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "8cd435284d2a7ce7388e7e7921caf3cac91e95d7035d40678a6ebbc3deda7433",
+          "xml_sha256": "54ceba369c6076fca70f1c6776bd125fb488d8e79156c2172e2fc8c744396bea"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "f46841be3f46d5632f3fc93a56ee32928afb1a8843afce98f190ab586a97e1e4",
+          "xml_sha256": "c0f2db6daaa535ade2acb727ebc6b379dc601f13c7d4e0b5d884c38e5a83b011"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "c5cffae4ee3a739751f93d142005111c918a9595a26d370508bb7ff6cb708a92",
+          "xml_sha256": "c0f2db6daaa535ade2acb727ebc6b379dc601f13c7d4e0b5d884c38e5a83b011"
+        }
+      ],
+      "source_json_sha256": "45d8647b3c63e36e709c87ceeadfbbeb3cae380d2daac2ec961ffdd8ea904c15",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-023",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "c8a1075501a4b5d5c1b20cfc1b8dd7e82f6b32cc64d058c0a8821bf301c8b388",
+          "xml_sha256": "951a61b2d825ca0e5ea31d69cbb395a17ef29a0a1bc1083e5c947b27fdb7be00"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "c8afc70ac4ae26e8f62dcbaeb15ac23ee9315a95967a56802e401a798f18e60c",
+          "xml_sha256": "846085fae9e658570706bb1ea8c0d1ecfdf4b41a8f444316ff38d7ba2aef501d"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "2a5373f48924c83486152ad91cc305cf0ae9def1ccaf85a342b4c086b25c50ff",
+          "xml_sha256": "846085fae9e658570706bb1ea8c0d1ecfdf4b41a8f444316ff38d7ba2aef501d"
+        }
+      ],
+      "source_json_sha256": "453659ae1b51ee2704ae9ac8b923f51b4345e0c776630fcea72ce6cac0e3d8c4",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-024",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "549031ef45e587ad4a697afa25b2c23cc8e995d709d08eae16d4ca8a0aa9ca83",
+          "xml_sha256": "229137ffd6488ef58ea1b1ea75f14a4efd8dc550afedf48e8aa98224fab7bfe3"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 20,
+          "png_sha256": "e5ae0959cac385551a008e95a7ce99207f3720e7e1ae5a1a1cfdb8cd5d3e9f73",
+          "xml_sha256": "fb61d627d7fb75f3a4595e7a4673829155f365c76db6644c8ab81fe90ef1c4cc"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "406fe8ab0c9bda04d0b65167579d1870dc60df0fdc73b1abd470ccafee10e87a",
+          "xml_sha256": "f71b82c6f45fbd29806a5c975cc49d467f5404c3bd21467dfed3d831d71c1656"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "bc0a4289f1dc2a26b0a328b44105eb418ed112e7c309337e24b0cc3a2a7cb754",
+          "xml_sha256": "f71b82c6f45fbd29806a5c975cc49d467f5404c3bd21467dfed3d831d71c1656"
+        }
+      ],
+      "source_json_sha256": "7d87701f7ffb64ca2abd4eff976cb7c91db5be4df88523491510ddbdcaec938c",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-025",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Day",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "7-Day Hindi Plan",
+                  "bounds": [
+                    64,
+                    222,
+                    467,
+                    285
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Day: 1",
+                  "bounds": [
+                    136,
+                    378,
+                    228,
+                    417
+                  ]
+                }
+              }
+            },
+            {
+              "column": "10 min speaking",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "10 min speaking",
+                  "bounds": [
+                    288,
+                    366,
+                    551,
+                    408
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Practice greetings and introduce yourself aloud.",
+                  "bounds": [
+                    288,
+                    414,
+                    974,
+                    552
+                  ]
+                }
+              }
+            },
+            {
+              "column": "10 min listening",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "10 min listening",
+                  "bounds": [
+                    106,
+                    627,
+                    363,
+                    669
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Listen to a short beginner greeting lesson.",
+                  "bounds": [
+                    106,
+                    678,
+                    837,
+                    724
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": false
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 21,
+          "png_sha256": "0a9964cd3b28c2c1e224edf588675b110ea40009c2cb6c557625157a628bb530",
+          "xml_sha256": "446f6936400d3755e4e355a59b862994f3802ad73149874bedb17734728e08fd"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 21,
+          "png_sha256": "3e128bc0555c5606a5e5ae99262d2d953177839e98ab0001ac82bbe0fb410a2b",
+          "xml_sha256": "906b70830e0e89da8536262656e9d0847c1b0a3f49afe0558b659a5d77714b18"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "bdc90dfdea3b7bc592abbece58e80e8f3b09df6ca8925f6a34830e6f5646a82f",
+          "xml_sha256": "0bfbdd337d2598d7d7599333db6b2d8b0b4505f2c317e5867b125c3ac2a2faf5"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "b0376555e50215877957b38829f8cdbd89de2623447769495808308a04edaa0f",
+          "xml_sha256": "0bfbdd337d2598d7d7599333db6b2d8b0b4505f2c317e5867b125c3ac2a2faf5"
+        }
+      ],
+      "source_json_sha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-026",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Approach",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Approach",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Retrieval-augmented generation",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Data freshness",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Data freshness",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Best for fresh content because it can pull in updated documents at query time and does not require retraining for each change [9][40].",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    736
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Cost",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Cost",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Usually lower for knowledge lookup at scale because you index once and retrieve only relevant chunks, though you still pay retrieval and embedding costs [19][15].",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    796
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Setup effort",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Setup effort",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Moderate; you need document ingestion, chunking, embedding, and retrieval infrastructure [1].",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Limitations",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Limitations",
+                  "bounds": [
+                    416,
+                    357,
+                    986,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Quality depends on retrieval quality; bad chunking or search can cause missed or irrelevant answers, and multi-step reasoning over scattered documents can still be hard[14].",
+                  "bounds": [
+                    416,
+                    450,
+                    986,
+                    796
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "578774354fb7027d6c7058274e040a86061733f7f8a6a50c119bec4ced64ec4d",
+          "xml_sha256": "1d4e434051c6415c361f42f291e45940395a40e5c2e95fd3abb66b05f5fd8a13"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "b737ba5eeac7caec989f4488b6eb2f9aa6e0d51c6d117accb1d43864aeb08135",
+          "xml_sha256": "1a125611b2a90aca22ea6b44be18dab853f8a5e682015271cfe05a57009f90de"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "33b1bf3a92365084c1015f2d9e06871b888daf500ed541abf23b1f73fc4f6e4b",
+          "xml_sha256": "6a192236dccf75ae629a730e59f8fc3093b9c19e157e467068ac86e4f0b83a83"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "b7667c10eb8c4052a04cc59cc93f69389e8442a998d4a896ef4e24c89cef40b2",
+          "xml_sha256": "a1daf29a0c319eda5e378643c49a64137661412571a8083cebb3cc1fb00ca757"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "578774354fb7027d6c7058274e040a86061733f7f8a6a50c119bec4ced64ec4d",
+          "xml_sha256": "1d4e434051c6415c361f42f291e45940395a40e5c2e95fd3abb66b05f5fd8a13"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "98742fb0e2f5481d6701214c7b9f4a1b9c858fec38547fb86c9838bbe0fb3f82",
+          "xml_sha256": "d2a00839e29cba67dd1127621c8061a96ae4a13660760d4527ba39d6253ba3d3"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "16becc96c789be8f7653e97735f5341c2d6515496154d97ffc81bca595a5c606",
+          "xml_sha256": "d2a00839e29cba67dd1127621c8061a96ae4a13660760d4527ba39d6253ba3d3"
+        }
+      ],
+      "source_json_sha256": "29c8e4642cb719221327113c7ac31b99fb6bdfd97a1d7c6fafed0ca5bdcd5dbf",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-027",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "cae912c793e562ba029ae09a97a716a55174733b8fba560be8ffed2c39f0b46c",
+          "xml_sha256": "4cc022e51097f0feb9e7464b7ec0d3c7ff0005a88c09692d49b81310bbfc2470"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "1bc202b2d791b901a2c0fd798f18393ef6c89b514f2f68553da930bc7b1e394f",
+          "xml_sha256": "bacb0040d633d2ed89f41c239658b47a1cfbc225bc30d3ef62585e277f3dd11b"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "2becd50c175e4cde132fdc57e44bade805439af54b123405c7f48a70e7c09b63",
+          "xml_sha256": "16b9b722d687c2befaf1e0423cc5454f46cda6401ceb8314ca6d7fe75c177f2d"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "653eef9fe67fb85f8f8fd55ee7b5a1ae48a01dccebb9915bb044e5fe6673b650",
+          "xml_sha256": "16b9b722d687c2befaf1e0423cc5454f46cda6401ceb8314ca6d7fe75c177f2d"
+        }
+      ],
+      "source_json_sha256": "fae2366dc6dbb505aebc3c669b7a6f47463249ae45c8a230d049c6100a5a7115",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-028",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "9dde7b953774e7d043216c6d9109224881bfc1778db6042dad6d672f30d599d7",
+          "xml_sha256": "a503f7d74f0a3222cd24094d0f7a03fe65af0ab8cad986c9bb5e4173ab5604c2"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "8f8ff7e026ed35341f950b69c8df9b2ee69bce287fb8d404ec5dcc3dc12d6bd4",
+          "xml_sha256": "700dd81597ecfbd1d1d1c96ad144bdfea1bfcca22c15c3913eb5a050f316d705"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "c25ac6da141f87c76a2e28689cf6f31b7f217d4765e7857d1cc136062fe54ead",
+          "xml_sha256": "ffb6c828a94c74fb010dd33f78914901453c2e7483e52cf0271c7149a09e4c02"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "77f66373af4d7df135a1959beabaa5aa884f2297f02cd087e42798f7651dd054",
+          "xml_sha256": "e5658d1af7a5675bd86f9635060d5146014557e7bcdcea759a4a920634cbc340"
+        },
+        {
+          "name": "vertical_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "7ff7e03bcc323fc1fcb4f354052ca58e38936cb12282b5a2323e2347a4ce0c0e",
+          "xml_sha256": "e5658d1af7a5675bd86f9635060d5146014557e7bcdcea759a4a920634cbc340"
+        }
+      ],
+      "source_json_sha256": "949fe3da104faf2920a03fb48ea7bf4dfce72f5b2918eb26b1896f2819ce2001",
+      "vertical_swipes": 4,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-029",
+      "issues": [],
+      "tables": [
+        {
+          "id": "d",
+          "columns": [
+            {
+              "column": "Point",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Point",
+                  "bounds": [
+                    94,
+                    779,
+                    526,
+                    821
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Who can file",
+                  "bounds": [
+                    94,
+                    872,
+                    526,
+                    918
+                  ]
+                }
+              }
+            },
+            {
+              "column": "ITR-1 (Sahaj)",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "ITR-1 (Sahaj)",
+                  "bounds": [
+                    586,
+                    779,
+                    1016,
+                    821
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Resident individual, not RNOR or non-resident",
+                  "bounds": [
+                    586,
+                    872,
+                    1016,
+                    978
+                  ]
+                }
+              }
+            },
+            {
+              "column": "ITR-2",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "AY 2026-27 (relevant to income earned in FY 2025-26). The Income Tax Department’s current guidance for ITR-1 and ITR-2 applies to this assessment year.[4][14]",
+                  "bounds": [
+                    64,
+                    324,
+                    1016,
+                    584
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Individual (resident or non-resident)",
+                  "bounds": [
+                    478,
+                    872,
+                    1016,
+                    918
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 27,
+          "png_sha256": "8287171e774408ce2523fa26e0827ab28723fdcaf34f54efa805f65cfc9d82ad",
+          "xml_sha256": "a6466137c411bc1c7400e22936f14ea62e257fa16f9c1f831b2a843a324dcfc7"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 27,
+          "png_sha256": "0dfabecf9c925f96b643b4ec476c92eac9731c135d158fc4fbdff5ef5adfbfe4",
+          "xml_sha256": "2811540b71ee97ddc235f1cf29fedf465cb8dc30e8ac2a24a38c7e0ae57ca0b0"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 27,
+          "png_sha256": "8287171e774408ce2523fa26e0827ab28723fdcaf34f54efa805f65cfc9d82ad",
+          "xml_sha256": "a6466137c411bc1c7400e22936f14ea62e257fa16f9c1f831b2a843a324dcfc7"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 12,
+          "png_sha256": "894ed3b9ca76fd0edf0c5c1a77ddb43ceb475019da21f764a8b57f478a7a8ff7",
+          "xml_sha256": "8f3011b082f23476250f24da5c29df61ece9f6c58ea0598721bbffee989287de"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "e25b51b234d17c07e3a6990e4f83d14f7fa09071d9c7b3e7a9bfa4a1e8249a07",
+          "xml_sha256": "b780e41f49d6842689551090af1357828beeae7e64851c464a3da4821e34af0c"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "14a158be87fc5f92293bf284f205951680e86c5daf4fb11e343fbf0d6b97ba75",
+          "xml_sha256": "b9f4109cc39102db8f49bc2b37207dcb2ae15d0960e894969b8b142fa2c55670"
+        }
+      ],
+      "source_json_sha256": "1dbaf3359ede7babfa5a534a7a08f09fcf96dfe8c0407fb7d5ec4a9058248fcd",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-030",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Feature",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Feature",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Eligibility",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "**EPF**",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "EPF vs PPF vs NPS",
+                  "bounds": [
+                    64,
+                    222,
+                    527,
+                    285
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers.",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    676
+                  ]
+                }
+              }
+            },
+            {
+              "column": "**PPF**",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "EPF vs PPF vs NPS",
+                  "bounds": [
+                    64,
+                    222,
+                    527,
+                    285
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Any resident individual can open an account.",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    556
+                  ]
+                }
+              }
+            },
+            {
+              "column": "**NPS**",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "EPF vs PPF vs NPS",
+                  "bounds": [
+                    64,
+                    222,
+                    527,
+                    285
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "992cb111e2659ac53d084197d5414594bfa907e2407fbadda434c436df73f395",
+          "xml_sha256": "d9a6cce22773c25ff9228581ff91f9d820c2274a095b6e97a521ecff54c3aade"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "43709b6e0b74481372bd28f12759377872a5ca6f3fddf4cf7fde62af72b730bc",
+          "xml_sha256": "dfa8d9a6f3b13d5cb27f29a4d0049674fa02c2f1383837674bcf71b4d59feb3b"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "992cb111e2659ac53d084197d5414594bfa907e2407fbadda434c436df73f395",
+          "xml_sha256": "d9a6cce22773c25ff9228581ff91f9d820c2274a095b6e97a521ecff54c3aade"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "41b16d3826f256d82c396d46e590fc3139bcf2d303eb079b8a7021f53e6138db",
+          "xml_sha256": "716e1b4723f0714745a1f1a62b023ffd587760f786d6715e12c4800dd15b35e6"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "8d0affd42ed7ac716cfe2acf5ee064a071d5db9eeed306ae1ea2ae6e20c065dd",
+          "xml_sha256": "1457e6aa36a744dc07a3ff9b62e2412e596b10855f88177811d9f4e312e11544"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "d537c40706f73dec009db60815dbb659594d1d14dab7c20f7eee2f53b90d5e28",
+          "xml_sha256": "1457e6aa36a744dc07a3ff9b62e2412e596b10855f88177811d9f4e312e11544"
+        }
+      ],
+      "source_json_sha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-031",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 11,
+          "png_sha256": "d7b68dd605413a9911c834806de011712345e3c226fd7faf35be77f872a979af",
+          "xml_sha256": "12e3d7ef52256b936f762a88e77ffa432bd56bed5ce91332947aa1f35ec9579d"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "e92f8df783169f4d2e405ee80592fe606121d4f9141d019cea02198f398ccb60",
+          "xml_sha256": "170c6f53fc28d8ca2a7860f96e36270f414fa80bd1277e8fcbcdb06519830780"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 22,
+          "png_sha256": "724148c16fecb8e0d15ed9e10245e3d626743e76ae9f8d5341d8b90d27a13f23",
+          "xml_sha256": "cc91803c9d68b24a9d7c43efe21119c7a1289528673c231795165f4b1b416383"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 22,
+          "png_sha256": "122e5a1084e11f81c043ef16a1b1b67012e1385a5423603f79b887f139a7edf3",
+          "xml_sha256": "cc91803c9d68b24a9d7c43efe21119c7a1289528673c231795165f4b1b416383"
+        }
+      ],
+      "source_json_sha256": "ea9c2c6bbf26696e1d86e9b79e8f5cd5327a8df5edca96052b60dc3c734dff15",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-032",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Term",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Key terms",
+                  "bounds": [
+                    64,
+                    222,
+                    308,
+                    285
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Deductible",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "What it means",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "What it means",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "A fixed amount you must pay before the insurer pays any admissible claim. In indemnity plans, it is a rupee threshold. [3]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    676
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Typical effect on a claim",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Typical effect on a claim",
+                  "bounds": [
+                    416,
+                    357,
+                    986,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "The insurer starts paying only after the deductible is crossed.",
+                  "bounds": [
+                    416,
+                    450,
+                    986,
+                    556
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "4b0f490e30dd086dd68761e3c375d7f651e976d4fd3dcc9dc6aee9fac6140894",
+          "xml_sha256": "a436d9fbe01bc9a81db041a4a1819f8d57dee2bc157eb839c2065ccc24263c82"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "df557883db4fb01c44b3c65cd386ec580bf453269427687626d2ecea62a7dce0",
+          "xml_sha256": "d8c0a007a208f082a0c3bef8b1ec993f17bc9ebe88b5f558632afdcc7db6376f"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "4b0f490e30dd086dd68761e3c375d7f651e976d4fd3dcc9dc6aee9fac6140894",
+          "xml_sha256": "a436d9fbe01bc9a81db041a4a1819f8d57dee2bc157eb839c2065ccc24263c82"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "1243169a3c0e01cf7fd87608eeafbdd1ae418c4dbd14d4b02ec2637420c9c149",
+          "xml_sha256": "953f4fea8be987b5ceeec520fc1bd649381b2946eaab4ff38209c19b660b131a"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "b0e94379c21f190eab2d95b8a6ffaa15f12a91662b12c3c3914a17151bcffc49",
+          "xml_sha256": "9779d2c22379f776f5d559a6911cac420dce5cfab42918472f93c591e82ca2d4"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "013e107bea4d7a396faf8d4afa30d1eebe8b51919dc744e021d638dae2b5ed84",
+          "xml_sha256": "9779d2c22379f776f5d559a6911cac420dce5cfab42918472f93c591e82ca2d4"
+        }
+      ],
+      "source_json_sha256": "4b1fa19f54f177bc4d6fc379f3726ed7c66fef7396dce8075e8deea6f6b06dc7",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-033",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "b53f7742d6196693608dc9c4764908f42e4ebe1fed78743ee222f018180de9bb",
+          "xml_sha256": "d4f32a0ce87bdb2e5374aebafb88ad3f609e338ab9513e632722f7225296ce6f"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 6,
+          "png_sha256": "0f80c2b68babb0f47c0b4133524cdc537638817e2e2257bfc38f844109d9dff8",
+          "xml_sha256": "92a2c47b06e50a10fff2f1ec375de1e8018073ece186c5fdfa53b0f746b559d0"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 6,
+          "png_sha256": "f2903cf26d5349a88444dffae4651e44b2b35cdd43b5bc93d0227af26e4b7a6b",
+          "xml_sha256": "9c239bf09cc678501a61695f34530991d705984a87f118452b3e99d879a8db88"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 6,
+          "png_sha256": "867c6251fa39880987d59ac310c2d3a1da1a4c3db65c408dbc4d0908968428c8",
+          "xml_sha256": "9c239bf09cc678501a61695f34530991d705984a87f118452b3e99d879a8db88"
+        }
+      ],
+      "source_json_sha256": "f66583df72adcb5c22fbad30c14408ae2a389157c165d613afc14c6fb0d89dc2",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-034",
+      "issues": [],
+      "tables": [
+        {
+          "id": "c",
+          "columns": [
+            {
+              "column": "Food",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Common, easy-to-find vegetarian protein foods in India include dals and legumes, soy foods, dairy, nuts, and seeds. For healthy adults, ICMR-NIN recommends about 0.83 g protein per kg body weight per day, which is roughly 54 g/day for a 65 kg man and 46 g/day for a 55 kg woman. [21][22][25]",
+                  "bounds": [
+                    64,
+                    324,
+                    1016,
+                    791
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Soy chunks, dry",
+                  "bounds": [
+                    94,
+                    953,
+                    466,
+                    999
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Typical serving",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Typical serving",
+                  "bounds": [
+                    526,
+                    860,
+                    898,
+                    902
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "30 g",
+                  "bounds": [
+                    526,
+                    953,
+                    898,
+                    999
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Approx. protein",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Approx. protein",
+                  "bounds": [
+                    958,
+                    860,
+                    1016,
+                    902
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "15–16 g [3]",
+                  "bounds": [
+                    958,
+                    953,
+                    1016,
+                    999
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 33,
+          "png_sha256": "3ad95f498328b149c074f30ee3f027a45b73571fc7817395726e00e7a6eaba91",
+          "xml_sha256": "8e722e1c682bbeb6759683f210fe97a1184b7a156a58b224965e240a3a4cbd8d"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 33,
+          "png_sha256": "8c9502e5689a61b1fed3de03ef9b2c0d5b8ff1332e1abfdad3e742b0d47da651",
+          "xml_sha256": "38b351c45bc34de655ff09bc5259dfe7b2e9ff36cc7ccf1899c163679cc72191"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 33,
+          "png_sha256": "3ad95f498328b149c074f30ee3f027a45b73571fc7817395726e00e7a6eaba91",
+          "xml_sha256": "8e722e1c682bbeb6759683f210fe97a1184b7a156a58b224965e240a3a4cbd8d"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 8,
+          "png_sha256": "430b7e8da00294067d0f5dd9f92a4e79068bcae2da0e83fc92624965984b5d5e",
+          "xml_sha256": "17e8e6d838e2453974ba99cf56ccbf7b724200e16cf6149ac6d085bd346eeff8"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 8,
+          "png_sha256": "d047479bd4c9694103e020af9dd8300bafd2b844f03d7ed294e5bcd82ed4472e",
+          "xml_sha256": "17e8e6d838e2453974ba99cf56ccbf7b724200e16cf6149ac6d085bd346eeff8"
+        }
+      ],
+      "source_json_sha256": "37d3ffb27b3e7b1f98e732d4d6294f550ee4a28ec31d300d0ac1b17abda9d4d7",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-035",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 21,
+          "png_sha256": "fd83aea9db9e257ec1ce00f3876e11be5232f42309c9b25a823500a945b42d56",
+          "xml_sha256": "c2de23a04cbeda7728a53aa0afc56ab4286039cd42f0fb0de552cec50d3c01b8"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 26,
+          "png_sha256": "1f60274db92372547e4e47afa734c4f61abe3aaa1a4c6789a28c0502f7657199",
+          "xml_sha256": "33b6c2b7977c792e53bcc04e349c5bef300baba43f67cc9dac087231c768519d"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 26,
+          "png_sha256": "fe1cd74fcb13c82e5546cce042eda620da6a4c5e6a086d32bbae765789f0b379",
+          "xml_sha256": "1a3046aa6b7cd228cfba735ae9e6a4200bd143384e519bf4fc07feb299ccd6e1"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 26,
+          "png_sha256": "87b61ac945bd04b2268062cd11e3e9e97fb340190c999ac9c9abf485c5e0e3f3",
+          "xml_sha256": "1a3046aa6b7cd228cfba735ae9e6a4200bd143384e519bf4fc07feb299ccd6e1"
+        }
+      ],
+      "source_json_sha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-036",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 4,
+          "png_sha256": "acea43fe58320b3767c6f20a4ce46de56bf5051c124fb57be079132b3b6ce9ac",
+          "xml_sha256": "4d33ce7736a2a544285707cb4bf3f25bad9c286604b17d40cf48aff9e7a35f11"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "c78ac90d83690e35c3ec31f5a8e88c896b111f8e26cdc12a3b21ab6d9163f2f2",
+          "xml_sha256": "a735629a173ddbbfbf781855bd11b43930fb21c54d0cfa974ccb757aa72c4980"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "d881d510ad2ba046165edca3188a307d0ca4dfd73ae9542c80668e3c76c4129f",
+          "xml_sha256": "9f1f291514f8471eb637c5ac487e96104a959b27c636b2d583b0d76711745bf2"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "d5683c749ad98a9e926595b430271921a4f334c27173402659b94a911523166e",
+          "xml_sha256": "9f1f291514f8471eb637c5ac487e96104a959b27c636b2d583b0d76711745bf2"
+        }
+      ],
+      "source_json_sha256": "8296dabf3df1f7e22606e0387a2f9be59a2feb685ecfdac5544dada8032c5221",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-037",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Factor",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Factor",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Curriculum",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "CBSE",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "CBSE",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Built around NCERT and a structured, concept-based syllabus; it is widely aligned with Indian competitive exams such as JEE, NEET, and CUET.[1][3]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    736
+                  ]
+                }
+              }
+            },
+            {
+              "column": "CISCE",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "CISCE suits students who want more depth, stronger English exposure, and a broader academic experience across sciences, humanities, and languages.",
+                  "bounds": [
+                    103,
+                    2301,
+                    1016,
+                    2376
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "A broader, more content-rich syllabus with strong language depth and separate treatment of subjects such as History/Civics and Geography from middle school onward.",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    796
+                  ]
+                }
+              }
+            },
+            {
+              "column": "IB",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Subject flexibility",
+                  "bounds": [
+                    94,
+                    1238,
+                    355,
+                    1344
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "c1244080da816859999269052252f61b832180f1166995403d160d81d3fc1e75",
+          "xml_sha256": "fba0600fd0c7d6380b16d42a83b2e997312a3818540c293ee0b510af791d82d4"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "dd066bc5e4efa45d8fa6d52713088e86d9283fe768b706bbe64365e3d6879cc4",
+          "xml_sha256": "ced3665453b043becd32664f18e0fa3f2412118f135ab0ec9a1484758e386933"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "c1244080da816859999269052252f61b832180f1166995403d160d81d3fc1e75",
+          "xml_sha256": "fba0600fd0c7d6380b16d42a83b2e997312a3818540c293ee0b510af791d82d4"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "38a4f1c8ba9167c4f8f1dddfa6f625aea5de149c8fceb15c8332519c63506f3a",
+          "xml_sha256": "2ca3d19b4196ff3cc5bca5bc5f8e59655d737e136cd81391d71ec3c7bb768880"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "6bf4465c1a16feca6a409b6df8a1ec23a9804f35f2db272fcc6a07fc5d7d34e4",
+          "xml_sha256": "4edd5731c664b787ba69c17d9543b8e5bc402b1f45502d90f613e719d80a5534"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "0a5ca41a4e2f114f444c99fa8635cb6f6ce3ef45d5b0e165f0c3f5dfba930462",
+          "xml_sha256": "4edd5731c664b787ba69c17d9543b8e5bc402b1f45502d90f613e719d80a5534"
+        }
+      ],
+      "source_json_sha256": "78eefde8719105dccd0d426d49abcbbf359d52bf52c09bec655d04a40071ddb6",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-038",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 1,
+          "png_sha256": "a29a14ab1b3df8d7b50fc63884835b8b299778d3fe6863ced4b77532dcb3f653",
+          "xml_sha256": "0880ebea6f22316e017a92ed042ba7b41fc54c3854dfcf759b72b95c2c0107a4"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 1,
+          "png_sha256": "a29a14ab1b3df8d7b50fc63884835b8b299778d3fe6863ced4b77532dcb3f653",
+          "xml_sha256": "0880ebea6f22316e017a92ed042ba7b41fc54c3854dfcf759b72b95c2c0107a4"
+        }
+      ],
+      "source_json_sha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+      "vertical_swipes": 1,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-039",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "322387b5a2e932276299aa0a9d38ac41ba0d4d2211c66393bc53f49778f1a754",
+          "xml_sha256": "f26884cee949f17a65af8673e4964480123bb1b14bf1637129533d16b846bd39"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "0817e5fce2bdab7f4febd8f84eec710a7103c2f252c1bf2dedf83bea3d62deab",
+          "xml_sha256": "fa675bad6e8ee5aa6279a49fc43bb243a4be2d263061e908981742f60da3ad76"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "5a024e4722905b0ccc14a16578317f7f9b9b99bbc79a6559bc92873a365522ff",
+          "xml_sha256": "f98c06b537c7443f5816a572b31e7804cb42af8ccf7ebc7e6fba46e0f1a4424e"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "2f32bfa259310f506ea2a0752e4e97fb298244c2fd6176fa1ad6c05ef6193c51",
+          "xml_sha256": "f98c06b537c7443f5816a572b31e7804cb42af8ccf7ebc7e6fba46e0f1a4424e"
+        }
+      ],
+      "source_json_sha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-040",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "811e667b913357c76e70975b8e6b6ee0df25a77c54e27a21a2a19b7f4bae2869",
+          "xml_sha256": "8ca8cc2f22a714a4365e3dda1256af1696da90a7b6d0667c6ad36775cd3d0750"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "51877fd4cb1e4f5b646a8cf0611c61e02b710fa28d5ed7adc07185b2be3df049",
+          "xml_sha256": "7656ebdaceb43175a1094ddc3b70691cafc120f55f897259ccc37b7b889a50bd"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "3ac597863c15c2a4d72c88fa6c2610c0cefc71645a9ebfcfc7a7ce4bf6f49681",
+          "xml_sha256": "cbe3767ac0719d0d55d90f247aedadf6b59da1afb10f54a7505e8bb77105abd8"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "0297dc2e94442e7f815d213afce21c291d526ab999ea715470629e35cd9b6b24",
+          "xml_sha256": "cbe3767ac0719d0d55d90f247aedadf6b59da1afb10f54a7505e8bb77105abd8"
+        }
+      ],
+      "source_json_sha256": "4df0bed7b70f5e6585155e51288536861a1266e2c26d9e9118a4d83cacc001b3",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-041",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Country",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Country",
+                  "bounds": [
+                    94,
+                    432,
+                    355,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Thailand",
+                  "bounds": [
+                    94,
+                    525,
+                    355,
+                    571
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Visa route",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Visa route",
+                  "bounds": [
+                    415,
+                    432,
+                    985,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Visa exemption for Indian ordinary passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [21][22]",
+                  "bounds": [
+                    415,
+                    525,
+                    985,
+                    811
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Permitted stay",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Permitted stay",
+                  "bounds": [
+                    415,
+                    432,
+                    985,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Up to 30 days from 15 September 2026 under the revised exemption scheme",
+                  "bounds": [
+                    415,
+                    525,
+                    985,
+                    691
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Published fee",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Published fee",
+                  "bounds": [
+                    415,
+                    432,
+                    985,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify",
+                  "bounds": [
+                    415,
+                    525,
+                    985,
+                    751
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Passport requirement",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Passport requirement",
+                  "bounds": [
+                    415,
+                    432,
+                    985,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Thai embassy advisory lists a passport valid on arrival and standard immigration conditions[24]",
+                  "bounds": [
+                    415,
+                    525,
+                    985,
+                    751
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Rules checked",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Rules checked",
+                  "bounds": [
+                    416,
+                    432,
+                    986,
+                    474
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Checked against Thai embassy notices dated 26 July 2026 and 15 September 2026 rule notice",
+                  "bounds": [
+                    416,
+                    525,
+                    986,
+                    691
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "4f1c10caabd46057ee84dfe338990a65904d20e4f825ce34cf13a8526ab5a8bc",
+          "xml_sha256": "4666f77ab27d74d0aedc84282edfed524671f82f98e66739b64428d9f692cee9"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "fec4f1efccf8010f5db4cfa069eedce963e24a3dc1cd0d3db8300d8365f3840a",
+          "xml_sha256": "8932c76519e154ad5268e125952b7b199b2e1b3d262fad33cc3c1ab238f72cc7"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "b0542fcff7d13e643334b7e901e09b41e2605ff66ce961a94af164855fd300a7",
+          "xml_sha256": "06f836ecd0bbb5e115fdd8c9954c7db0da61be4da4673cd99a75032e9476ea31"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "4c15d2cb71cab000d2bc6cea1c394bf25bdc932bd7b3632ba8651a1860d4d5d7",
+          "xml_sha256": "a12bee832ee7eb931087c52e42c5159c1773611b3d43fa40ee4a80660f9f346d"
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "98be7a8a858c8e9abb33b21affac511cc553658162488f0d8dad015583de8ac7",
+          "xml_sha256": "ef3d40b8f8cce6061fc020aea7f5ba50f58b9f835d82d11165a8b51927b176dd"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "4f1c10caabd46057ee84dfe338990a65904d20e4f825ce34cf13a8526ab5a8bc",
+          "xml_sha256": "4666f77ab27d74d0aedc84282edfed524671f82f98e66739b64428d9f692cee9"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "1b1a6b4f9f575ff1e27daa6f0cc229226bd111010b095c638d790a84ae66a470",
+          "xml_sha256": "c01849ba5890ef41ee5dc82a79c369d244049b03c43a017aa8f8334775290b0c"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "89bcdb64db1ead973855557abd9e23af328c7acd7f5b3d631a2e0950c6d69342",
+          "xml_sha256": "c01849ba5890ef41ee5dc82a79c369d244049b03c43a017aa8f8334775290b0c"
+        }
+      ],
+      "source_json_sha256": "f77e11eb5acf558f1b058917921fa10d0772968142a1b1b56927ff5e52fda3d6",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-042",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "9807ac13bbbf4f86070ee9293ec253e46e056bfbb712dda2a61178e6edee7fbc",
+          "xml_sha256": "adce9e208d013eb043a22999ed1940d325d2dc42cf0c28bd46a1ddcbe0ba46f4"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "91de97565d74a34806526870737746c6590e7346d15194d835fda4a71154495f",
+          "xml_sha256": "a1f1371edc3ecabd881157dac12bb35cb7918bd44526ef6fe9ff07552267a3b9"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "0d9823209f7ed4b0dfc6fbbd25bdadec8714047463a9b74d5d16e8a600ed8efd",
+          "xml_sha256": "6d3177038c8756b62ef8111dafc3cdddda12020d96482892eb2e6725eb9b6ff0"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "3458f2cd83020e90d06d5d5244d8c0f5b62e7c13437a11f0a62d0aea388ff626",
+          "xml_sha256": "6d3177038c8756b62ef8111dafc3cdddda12020d96482892eb2e6725eb9b6ff0"
+        }
+      ],
+      "source_json_sha256": "0a5c58f51844bf6096612bb666051f7f2d06d013631e46bacf44e76220125ec4",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-043",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 6,
+          "png_sha256": "f4411e9a7c6cb3701c8917347108430c784cc4e8dd9301eb415fef80df95b559",
+          "xml_sha256": "fc7367540c02b24ac94a6715ac3541df5247108e0f50dd245a17697fd71b8bc4"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "f9597fb0d877084267b43ca39135deab4ab276abe171f7768024d0ae57a6350b",
+          "xml_sha256": "da67ba559887df1010388fcfcd447ecbefda448479a4818fe46d6aa0c60c2856"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "5b9ec0f9f796a2b8248b2f4e02a8b12c74654450a23f5e534d3e471ae84735b2",
+          "xml_sha256": "ca14f051f6db210ef4e732e7f0b014091e2876ddefff4cbf6378fa7f52f54712"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "50a6d0446b906e1c180b90e38c38bec5f07febd71871f62de30dc7931da6b2e1",
+          "xml_sha256": "ca14f051f6db210ef4e732e7f0b014091e2876ddefff4cbf6378fa7f52f54712"
+        }
+      ],
+      "source_json_sha256": "489aa83a46bb74aa0c5ca47457c8bb944744f1460c4965a42ee0774667adb369",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-044",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Device",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Device",
+                  "bounds": [
+                    94,
+                    357,
+                    394,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Air purifier",
+                  "bounds": [
+                    94,
+                    450,
+                    394,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Main problem it addresses",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Main problem it addresses",
+                  "bounds": [
+                    454,
+                    357,
+                    1016,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Dust, smoke, PM2.5, pollen, pet dander, and other airborne particles [3]",
+                  "bounds": [
+                    454,
+                    450,
+                    1016,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Best fit for Indian homes",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Best fit for Indian homes",
+                  "bounds": [
+                    363,
+                    357,
+                    999,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Homes near traffic, construction, seasonal smoke, or for allergy relief",
+                  "bounds": [
+                    363,
+                    450,
+                    999,
+                    556
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "32895b2a2b99873a2716a0bf156713857d2e86768847093789789bca6123f2c0",
+          "xml_sha256": "26083bb1b0284513de3e5b2442924d3c5af08b42224116ead5371491ff182842"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "972715abf080c2e5191aae3e4d80515d0c8647060a39cad74a911b4f352c52e9",
+          "xml_sha256": "5490628ce04ab8020b8b27bcfb98be75d73386943966b718692f64810c47f3ef"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "32895b2a2b99873a2716a0bf156713857d2e86768847093789789bca6123f2c0",
+          "xml_sha256": "26083bb1b0284513de3e5b2442924d3c5af08b42224116ead5371491ff182842"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "3687b8c31fa24aa9681f9232e1a0d95e60085da3f70471d1c244c9ef89789237",
+          "xml_sha256": "af1b1be6f542f2f722ffca588fbbe111d98aadd2fac81e795e4a59a15d869f9a"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "bd204517a7be16ba4d0a8a9ba160a498834d65edcaf5c0ffeb1a8301c3add793",
+          "xml_sha256": "6990d9aea34f309cabfe5bee4f8dfa0eb231830cccb52989915e5bfb191f422b"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 9,
+          "png_sha256": "8edbb4e5c99f6c72974615818ee4893c08c4226d0e7e27a577bc6b6c22d22d81",
+          "xml_sha256": "6990d9aea34f309cabfe5bee4f8dfa0eb231830cccb52989915e5bfb191f422b"
+        }
+      ],
+      "source_json_sha256": "e99c83418a1cabfad1c968141c27816285bc9a19bb2c47c0b8889b2f7df81258",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-045",
+      "issues": [],
+      "tables": [
+        {
+          "id": "r",
+          "columns": [
+            {
+              "column": "Level",
+              "evidence": {
+                "header": {
+                  "capture": "vertical_2",
+                  "text": "At the household level, the most useful steps are practical and low-cost: keep roof drains, courtyard drains, and roadside inlets clear; avoid dumping waste into streets; elevate critical appliances and documents above known flood levels; and use rainwater harvesting where feasible. These actions reduce local damage, but they cannot by themselves fix upstream drainage failures or lake encroachment .",
+                  "bounds": [
+                    64,
+                    378,
+                    1016,
+                    1052
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "vertical_2",
+                  "text": "Household precautions",
+                  "bounds": [
+                    64,
+                    276,
+                    622,
+                    339
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Best measures",
+              "evidence": {
+                "header": {
+                  "capture": "vertical_2",
+                  "text": "Best measures",
+                  "bounds": [
+                    415,
+                    2221,
+                    985,
+                    2263
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "vertical_2",
+                  "text": "Clear local inlets, secure valuables, harvest rainwater, avoid waste dumping",
+                  "bounds": [
+                    415,
+                    2314,
+                    985,
+                    2376
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Expected impact",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Expected impact",
+                  "bounds": [
+                    494,
+                    2221,
+                    986,
+                    2263
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Lowers damage at one property",
+                  "bounds": [
+                    494,
+                    2314,
+                    986,
+                    2376
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 6,
+          "png_sha256": "04f18ad51f58ef71192363d36ed32fb2ed3d83050552f8cd0bab4c6dd46f4332",
+          "xml_sha256": "0f5c63a2eb7f36832bf1f46fed8cc109f83b7327659caaefc48cd5d239a84b95"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 7,
+          "png_sha256": "bb82db06875c9df8b575f905b3ece9cba3e21ba61a8e3dced3362974f17eef02",
+          "xml_sha256": "1f99e13ed693743ff8cc6135089259b83f69aeaf08a337e798e6536a0529af1a"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 10,
+          "png_sha256": "466066a29d2dc122dafa34dc16ca3aee71d4fa3b10d43f0dfdba063fe120a6cd",
+          "xml_sha256": "4d70b48363a9b2cd1426eb3da11038029f5401c1e0cc6fc41fc1a221a6da225b"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 12,
+          "png_sha256": "3a70763892df91765c36183478c7af189360c8729de479ea93b29c2fee7cf94b",
+          "xml_sha256": "96a9bb33028190a9e410e2539e0fe36258e41a2b380dd337fda48a6f3d696118"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 10,
+          "png_sha256": "302e72709b234dcf8d0cb94d145159e60a143ebc10178bc41f80168f63652313",
+          "xml_sha256": "4d70b48363a9b2cd1426eb3da11038029f5401c1e0cc6fc41fc1a221a6da225b"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "a1f39190939e201d29e7307840034b0473053d1bb5e628a1243602ea50ee8b98",
+          "xml_sha256": "97e5280282854f9917562612c58e2d806c4ff4c9902db76e61475f49c99b6dc7"
+        },
+        {
+          "name": "vertical_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "01e066d397f96d03f7c429cb5eabe4c6e87cfca95ceb1b0f58cdc2c42591a4a8",
+          "xml_sha256": "97e5280282854f9917562612c58e2d806c4ff4c9902db76e61475f49c99b6dc7"
+        }
+      ],
+      "source_json_sha256": "05e75a8af62d4bae17be2247aea2c1f14496dd7a0e1b10189ae9da28e27741e1",
+      "vertical_swipes": 4,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-046",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 14,
+          "png_sha256": "9109f592aefd161549f6268a335c7e72bad8814d0006efdf9dfb052f654774ce",
+          "xml_sha256": "1ab25eff0a0a8398f6c2bdd88fa45533f6e9cb77d68083192f531b556fe5f11b"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "0f0291c9d0e89db4726f24537c8aaaf542e1dad5ada21056f7e005ec34cebb15",
+          "xml_sha256": "73feec75e5287bb28137698e7def7c2fde3609742a918ed7ed880ef3928d5cea"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "fcef91a3a90d65ab125b2468d086364c4f58ac5a60b9596d4d2cf623851bd549",
+          "xml_sha256": "e8f10296d3fa516b5fa800b2bc07904d6b9b9fcbf26933814ac8f565ff9a7e9b"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "a972d4afddf895e2841b86f0b1108db7043749704d5f04e3555966122f40b7b8",
+          "xml_sha256": "16275d43cc3f6b8f011d5c456d0a5898b92f679181605a7a24d7821c40f8a817"
+        },
+        {
+          "name": "vertical_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 17,
+          "png_sha256": "f0609f00188c47e299c8a958fc5f63f1f7fccc860573edcdfa95217825319483",
+          "xml_sha256": "16275d43cc3f6b8f011d5c456d0a5898b92f679181605a7a24d7821c40f8a817"
+        }
+      ],
+      "source_json_sha256": "030d29ea1f27ed69739f35f87538de3fc565b23cc2e18c61b06cdfe639dbfe11",
+      "vertical_swipes": 4,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-047",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Chemistry",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Chemistry",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "LFP",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Energy density",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Energy density",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Lower than NMC; IEA says LFP packs are about one-fifth lower by mass and one-third lower by volume than NMC packs [22]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    676
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Cycle life",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Cycle life",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Typically long; sources cite roughly 2,000–6,000+ cycles, with some BESS-grade cells higher [3][18]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    676
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Safety",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "For EVs, NMC is best when maximum range, lower pack weight, and compact packaging are priorities, such as premium cars and long-range models. LFP is better for cost-sensitive EVs, fleet vehicles, and urban cars where safety, durability, and lower lifetime cost matter more than peak energy density. Sodium-ion is a good fit for short-range EVs, cold-climate use cases, and low-cost mobility, but its lower energy density still limits it in long-range vehicles.",
+                  "bounds": [
+                    64,
+                    1731,
+                    1016,
+                    2376
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Strong; better thermal stability and lower thermal-runaway risk than NMC",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Cost",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "For EVs, NMC is best when maximum range, lower pack weight, and compact packaging are priorities, such as premium cars and long-range models. LFP is better for cost-sensitive EVs, fleet vehicles, and urban cars where safety, durability, and lower lifetime cost matter more than peak energy density. Sodium-ion is a good fit for short-range EVs, cold-climate use cases, and low-cost mobility, but its lower energy density still limits it in long-range vehicles.",
+                  "bounds": [
+                    64,
+                    1731,
+                    1016,
+                    2376
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Lower; IEA says LFP packs were almost 30% cheaper per kWh than NMC in 2025, and more than 40% cheaper on average in 2025 data[21]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    736
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Maturity",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Maturity",
+                  "bounds": [
+                    416,
+                    357,
+                    986,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Mature, widely deployed in EVs and especially stationary storage",
+                  "bounds": [
+                    416,
+                    450,
+                    986,
+                    556
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "9ca7eac3deaf00bc7a514a153609ef646cc4e40e25451948985ac4e4df2218da",
+          "xml_sha256": "90966e4973fd5649bd265581227cac5eb09ac272090c54a3bfd7a9e47fc7fdc5"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "cf95e73d57ad35cccb3e3562e2dcbf08355807d591906947a52e308a58125df4",
+          "xml_sha256": "ae840d976b94e14656588cebaadd5d29a3bdf475ee1bc471e23c58090d9a26c4"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "af761ad6b23a32848e6b73f4eafa29fdfec89331da08a5272f092af963de6151",
+          "xml_sha256": "e137ebb5f1d6699d5c3ca937d267bb2a4053b440548e49b8c1bb8c950fa1ef28"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "b89236e33b3cbd38610492d0182d94e3fdcc60433e7b1d5f920817fd6fcfce97",
+          "xml_sha256": "cf390ac5e35d725adb957584524232dcebb2571a0e83ed31f5dce4c1b0310479"
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "ff38df2ae30d0f2f22b1e21b24123270f683372fafd36471e7398e1cc4552c6c",
+          "xml_sha256": "8bf3bbfedbc337f0746c7aac504b71b39fd29218563e34c7ea8768d6cef0561b"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "9ca7eac3deaf00bc7a514a153609ef646cc4e40e25451948985ac4e4df2218da",
+          "xml_sha256": "90966e4973fd5649bd265581227cac5eb09ac272090c54a3bfd7a9e47fc7fdc5"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "8ae0230945ecc5eec4fa9ab2bbbfb4a761be58baa8e9bc29e94b3e10974e1997",
+          "xml_sha256": "d6c171ab89966d21c72c86733bb36555ada27ae08ac1f681612bc4b0c1af49be"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "b44186518bcd074cba0479da723388b48f3cbb0d6a03408d69c44e19545fe537",
+          "xml_sha256": "d6c171ab89966d21c72c86733bb36555ada27ae08ac1f681612bc4b0c1af49be"
+        }
+      ],
+      "source_json_sha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+      "vertical_swipes": 2,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-048",
+      "issues": [],
+      "tables": [],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 12,
+          "png_sha256": "f10e0f6460b92344b34da0aac11459f8b460573242b98819e0046d31b9969011",
+          "xml_sha256": "be7ec17e6863558f60393b96c8a30e136a0f9030cc1a2c4d324ff6efcd3c1ddd"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "2a3187aed6688fc7293e08f97e7263da989cf4adca5e476674c910b9f8aaa016",
+          "xml_sha256": "b679d806190efc6f91611190993f7fb847e2109d9b700e2216a65862463bf190"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "a19061f093d3c87931b796838927a96892be8a90086b0a2fbe6ac512b9ce48af",
+          "xml_sha256": "3d6b9583d1b5febd0d26089e3e061f0e501efa9a4ec501693d8f62cc35265dcc"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 5,
+          "png_sha256": "3570f7a119590c2858dfdff984b8c3ef851080c57497edd4a5aa5c164778f79a",
+          "xml_sha256": "3d6b9583d1b5febd0d26089e3e061f0e501efa9a4ec501693d8f62cc35265dcc"
+        }
+      ],
+      "source_json_sha256": "1c28ab3407ab4cc548ad80bde2b745802b6f4f8cb1ea2392d2f6a0820c6e89f8",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-049",
+      "issues": [],
+      "tables": [
+        {
+          "id": "b",
+          "columns": [
+            {
+              "column": "Tradition",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Tradition",
+                  "bounds": [
+                    94,
+                    357,
+                    355,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Madhubani",
+                  "bounds": [
+                    94,
+                    450,
+                    355,
+                    496
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Geographical origins",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Geographical origins",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Mithila region of Bihar, especially Madhubani, Darbhanga, and Sitamarhi[1][2]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Materials",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Materials",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_1",
+                  "text": "Traditionally mud walls; now paper, cloth, and canvas; natural dyes, twigs/fingers/matchsticks[9][13]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    676
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Motifs",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Madhubani: look for a surface packed edge to edge with pattern, bold outlines, double-line borders, and symbolic motifs like fish, birds, lotuses, and deity figures.",
+                  "bounds": [
+                    103,
+                    1491,
+                    1016,
+                    1751
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Deities, wedding/fertility symbols, fish, birds, flowers, nature, village life[3][6][12]",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Technique",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Technique",
+                  "bounds": [
+                    415,
+                    357,
+                    985,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_3",
+                  "text": "Dense line work, geometric filling, no empty space, bold borders",
+                  "bounds": [
+                    415,
+                    450,
+                    985,
+                    616
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Cultural context",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Cultural context",
+                  "bounds": [
+                    416,
+                    357,
+                    986,
+                    399
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_4",
+                  "text": "Traditionally painted by women for rituals, festivals, and auspicious occasions",
+                  "bounds": [
+                    416,
+                    450,
+                    986,
+                    616
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "94b63fdd213fed541ccdb32a8c6d71efe174af3cdad7ea19b6718ea4e4fbf2ae",
+          "xml_sha256": "db30b4e80a4c473ab298d4a02021552a3690f3420e1f8cf13d23e4e164fbf8bb"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "0fb495799a3d2a64a27a89dd6b03019e26d29f293876e1345fbd82d8a5f97e26",
+          "xml_sha256": "c4f249fcb73ce08ca66838d197d3839b986a12232c473b69dec19b0fa82b3919"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "71351a694c2b7f756397c7d7250b17dfdae682370ae2c34051ea1a446ddbf49c",
+          "xml_sha256": "da0bc41a0628d0e8575c1e119cb24d29fb22a90787cffa00b8fcc382e1b7a7b2"
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "e9a866f21fb6e3b1d139d4d44b4d69a45a7f2edf8bbe8ddf5f4aea41c30ee16e",
+          "xml_sha256": "934f8f00501be75423d27cb10257a25f4499b965795f6793a36f5c4b299e9c42"
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "9fa10d68746ab420522d6b26ff304dc24e74a463cf264ee67f31c05530e3b5e2",
+          "xml_sha256": "6310d559a71b2af21d8ba7d43c2dfa69e30cd790f722f53a8c4f6c618013eabf"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 18,
+          "png_sha256": "94b63fdd213fed541ccdb32a8c6d71efe174af3cdad7ea19b6718ea4e4fbf2ae",
+          "xml_sha256": "db30b4e80a4c473ab298d4a02021552a3690f3420e1f8cf13d23e4e164fbf8bb"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 15,
+          "png_sha256": "0fb2ed3f39f47be8eb35699bb29904c37c255a9fbde6af63d7246f12023bb937",
+          "xml_sha256": "1ab1bdb0bb45195f1b3b9199679712be4f7ec6c9adb47d45417e59a05d324e3e"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "81a5807e926d387c64a7428c9e560255e916379e2d5bbaf8e484fa5a98294a4e",
+          "xml_sha256": "792ff92f145da0871b00140dbb535e124a56ac047bcf15a8966db094304ccc69"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 13,
+          "png_sha256": "126e2dc8b37e1efd47767aecdaf62b313d13a2cda7382d398af7539c3eda117b",
+          "xml_sha256": "792ff92f145da0871b00140dbb535e124a56ac047bcf15a8966db094304ccc69"
+        }
+      ],
+      "source_json_sha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    },
+    {
+      "id": "BXP-050",
+      "issues": [],
+      "tables": [
+        {
+          "id": "d",
+          "columns": [
+            {
+              "column": "Signal",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "How these climate signals affect the Indian monsoon",
+                  "bounds": [
+                    64,
+                    222,
+                    1016,
+                    360
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "El Niño is the warm phase of ENSO in the tropical Pacific, and it usually suppresses the Indian summer monsoon by weakening large-scale circulation and moisture transport toward India.[4][10]",
+                  "bounds": [
+                    103,
+                    399,
+                    1016,
+                    728
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Typical ocean pattern",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Typical ocean pattern",
+                  "bounds": [
+                    415,
+                    2018,
+                    907,
+                    2060
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Warmer central/eastern Pacific",
+                  "bounds": [
+                    415,
+                    2111,
+                    907,
+                    2217
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Usual effect on Indian monsoon",
+              "evidence": {
+                "header": {
+                  "capture": "initial",
+                  "text": "Usual effect on Indian monsoon",
+                  "bounds": [
+                    967,
+                    2018,
+                    1016,
+                    2060
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "initial",
+                  "text": "Below-normal rainfall, more dry spells, higher heat risk",
+                  "bounds": [
+                    967,
+                    2111,
+                    1016,
+                    2217
+                  ]
+                }
+              }
+            },
+            {
+              "column": "Why it matters",
+              "evidence": {
+                "header": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Why it matters",
+                  "bounds": [
+                    416,
+                    2018,
+                    986,
+                    2060
+                  ]
+                },
+                "representative_cell": {
+                  "capture": "table_1_horizontal_2",
+                  "text": "Weakens moisture flow and monsoon circulation",
+                  "bounds": [
+                    416,
+                    2111,
+                    986,
+                    2217
+                  ]
+                }
+              }
+            }
+          ],
+          "horizontal_scroll_observed": true
+        }
+      ],
+      "captures": [
+        {
+          "name": "initial",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "53f9df54b214c488bf087fa19b69fedb81494bb89fceafd54561817a1d6af059",
+          "xml_sha256": "7ba1f40e78392522402dddf691ba9e4e87eb7db0e9fa07bdb45fe959242d896c"
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "2b36f70b4d03795c5ed6d45e0746413f7051268a69d9e0a533908949c72746f0",
+          "xml_sha256": "063ab6e6cb89f1c3a91c7cc54a6933f58db8bc7c74803ba77875bab3b7c7664b"
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "da2281bd7b39042dbebe510cc2598038eec2103911c8e48e7e85045ed2ea61da",
+          "xml_sha256": "759f0462d85af0e5a005f3f6f2a5f50110b30bb47a9cf0b1ccbd51df5acad1f9"
+        },
+        {
+          "name": "table_1_reset",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 19,
+          "png_sha256": "53f9df54b214c488bf087fa19b69fedb81494bb89fceafd54561817a1d6af059",
+          "xml_sha256": "7ba1f40e78392522402dddf691ba9e4e87eb7db0e9fa07bdb45fe959242d896c"
+        },
+        {
+          "name": "vertical_1",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 21,
+          "png_sha256": "d63e2833d50b92083c29ffa0ae8115d3d15baa98a1ea705ec60cd8cbdd99b5a4",
+          "xml_sha256": "fe397cfe640841eb5b974190fb58db6ef4615f9a493597dda0656663c21c7416"
+        },
+        {
+          "name": "vertical_2",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "27602773c225b6839c8253f3a378be6c3cd88fbe39dae51323b1759363a8125d",
+          "xml_sha256": "754ea5378aa2779d1de1633d723993bd6f2e0ded9315a41a137e7dfa568819fc"
+        },
+        {
+          "name": "vertical_3",
+          "viewport": [
+            16,
+            144,
+            1064,
+            2376
+          ],
+          "visible_text_nodes": 16,
+          "png_sha256": "77f14062e860dd637dd1589c23bf0e0151228d71c1a5c486a2268e4f6af411a9",
+          "xml_sha256": "754ea5378aa2779d1de1633d723993bd6f2e0ded9315a41a137e7dfa568819fc"
+        }
+      ],
+      "source_json_sha256": "053d111b52513031f33f5f84ca62b1b56e17c52eef1a9ead011e94c41b3f8893",
+      "vertical_swipes": 3,
+      "vertical_end_observed": true,
+      "vertical_limit_reached": false,
+      "status": "verified"
+    }
+  ],
+  "created_utc": "2026-09-18T04:45:48.343480+00:00",
+  "limitations": [
+    "Visibility means an intersecting accessibility text node (>8px each dimension), not OCR or full text visibility.",
+    "Each column needs a visible header or first nonblank representative cell; this does not prove every table cell is visible.",
+    "Matching follows the instrumentation's case/whitespace/Markdown/citation normalization; repeated values or prose can be ambiguous.",
+    "Vertical end is the instrumentation's unchanged text/bounds heuristic, not an independent proof of all prose coverage.",
+    "Viewport is derived from the saved outer GenUiView ScrollView; screenshot/XML consistency is structural, not pixel-semantic verification."
+  ],
+  "provenance": {
+    "corpus_sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+    "source_kind": "staged_revalidated_documents",
+    "source_manifest_sha256": "085f83a3a7998df4770694531ab2959f68174bf8074b010b81f1d2bb5b068a5c",
+    "source_replay_results_sha256": "054c716eec1f387e51ba87cd85776542dd2493253ca4825e26d6c8e263bbe6f0",
+    "original_revalidation_run": "C:\\Users\\anupk\\Documents\\git\\A2UI\\tmp\\genuicraft_20260918\\gemma50_v9_revalidated",
+    "original_replay_results_sha256": "054c716eec1f387e51ba87cd85776542dd2493253ca4825e26d6c8e263bbe6f0",
+    "replay_config_sha256": "cd94262f561c3c7540d07a2a3e9e6f5a0d85a1c6bfc2af144a54e2bba5e5cea3",
+    "replay_results_sha256": "37275a41ca6006ce579542421e5f44e4e9735ffdd7a9928b858f7e5e5a1ee53e"
+  },
+  "counts": {
+    "cases_verified": 50,
+    "cases_failed": 0,
+    "source_hashes_verified": 50,
+    "tables_evidenced": 23,
+    "columns_evidenced": 100,
+    "columns_with_header_evidence": 97,
+    "columns_with_representative_cell_evidence": 97,
+    "captures_verified": 222,
+    "vertical_swipes": 112,
+    "vertical_end_observed": 50,
+    "vertical_limit_reached": 0,
+    "horizontal_captures": 40
+  },
+  "passed": true
+}

@@ -1,0 +1,17 @@
+{
+  "apk": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\artifacts\\GenUICraft-TestApp-E2B-Download-20260918.apk",
+  "bytes": 213067308,
+  "sha256": "03768961d0de3a937bfbfa83bd7c8dbc21a3a548e5fbdc29949619fbb8928b68",
+  "devices": [
+    {
+      "serial": "R3CY30QFWLP",
+      "installedPath": "/data/app/~~hjL7a_05b7NGvx6Z2QI6Mw==/com.samsung.genuicraft-1Vkb9vFI86lOsokEs8qpUQ==/base.apk",
+      "sha256": "03768961d0de3a937bfbfa83bd7c8dbc21a3a548e5fbdc29949619fbb8928b68"
+    },
+    {
+      "serial": "R3GL203AKSF",
+      "installedPath": "/data/app/~~vK4qopUL_bwfpffGP9UA3w==/com.samsung.genuicraft-8zRsjAcAuFsFy6Q2FJj9-Q==/base.apk",
+      "sha256": "03768961d0de3a937bfbfa83bd7c8dbc21a3a548e5fbdc29949619fbb8928b68"
+    }
+  ]
+}

@@ -1,0 +1,314 @@
+[
+  {
+    "id": "BXP-001",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "gemma50_saved_v10",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "bd30e774121d520ca52a5b5c3d63ed53bbd591e871711fa9ebc22fd8fdefdeed",
+    "sourceArtifact": "gemma50_saved_v10/BXP-001/output.a2ui.json",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [
+      {
+        "id": "a",
+        "columns": [
+          "Date",
+          "High (°C)",
+          "Low (°C)",
+          "Rain probability"
+        ],
+        "observedHeaders": [
+          "Rain probability"
+        ],
+        "observedRepresentativeCells": [
+          "Wed, Sep 9",
+          "31",
+          "20",
+          "57%"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 24
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3084
+  },
+  {
+    "id": "BXP-003",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "gemma50_saved_v10",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "bfd5660f302d5de55bae99f0b0b4f580bfc4cfdfb9ead7429c2cd05baf65b9f6",
+    "sourceArtifact": "gemma50_saved_v10/BXP-003/output.a2ui.json",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedHeaders": [
+          "Train service",
+          "Departure station",
+          "Typical departure time",
+          "Journey duration",
+          "Seating class"
+        ],
+        "observedRepresentativeCells": [
+          "**Shatabdi Express (12007)**",
+          "KSR Bengaluru (SBC)",
+          "**10:35–10:45**",
+          "**About 2 h 15 m to 2 h 25 m**",
+          "**CC, EC**"
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 20
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 21
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 17
+      }
+    ],
+    "verticalSwipes": 3,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 5488
+  },
+  {
+    "id": "BXP-004",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "gemma50_saved_v10",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+    "sourceArtifact": "gemma50_saved_v10/BXP-004/output.a2ui.json",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 15
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 10
+      }
+    ],
+    "verticalSwipes": 2,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 3782
+  },
+  {
+    "id": "BXP-025",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "gemma50_saved_v10",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+    "sourceArtifact": "gemma50_saved_v10/BXP-025/output.a2ui.json",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Day",
+          "10 min speaking",
+          "10 min listening"
+        ],
+        "observedHeaders": [
+          "Day",
+          "10 min speaking",
+          "10 min listening"
+        ],
+        "observedRepresentativeCells": [
+          "1",
+          "Practice greetings and introduce yourself aloud.",
+          "Listen to a short beginner greeting lesson."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": false
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 16
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 14
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_4",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      }
+    ],
+    "verticalSwipes": 4,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 7771
+  },
+  {
+    "id": "BXP-030",
+    "kind": "renderer_replay",
+    "replayMode": "json",
+    "sourceRunId": "gemma50_saved_v10",
+    "modelCalls": 0,
+    "inferenceEvaluated": false,
+    "capturedProviderCalls": 0,
+    "sourceJsonSha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+    "sourceArtifact": "gemma50_saved_v10/BXP-030/output.a2ui.json",
+    "renderFontScale": 1.3,
+    "renderDark": true,
+    "tables": [
+      {
+        "id": "b",
+        "columns": [
+          "Feature",
+          "**EPF**",
+          "**PPF**",
+          "**NPS**"
+        ],
+        "observedHeaders": [
+          "Feature",
+          "**EPF**",
+          "**PPF**",
+          "**NPS**"
+        ],
+        "observedRepresentativeCells": [
+          "**Eligibility**",
+          "Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers.",
+          "Any resident individual can open an account."
+        ],
+        "missingColumns": [],
+        "horizontalScrollObserved": true
+      }
+    ],
+    "captures": [
+      {
+        "name": "initial",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_horizontal_1",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "table_1_reset",
+        "screenshot": true,
+        "visibleTextNodes": 13
+      },
+      {
+        "name": "vertical_1",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_2",
+        "screenshot": true,
+        "visibleTextNodes": 7
+      },
+      {
+        "name": "vertical_3",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      },
+      {
+        "name": "vertical_4",
+        "screenshot": true,
+        "visibleTextNodes": 5
+      }
+    ],
+    "verticalSwipes": 4,
+    "verticalEndObserved": true,
+    "verticalLimitReached": false,
+    "issues": [],
+    "status": "rendered",
+    "replayElapsedMs": 9744
+  }
+]

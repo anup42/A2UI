@@ -1,0 +1,42 @@
+{
+  "run": "ps_screen_scaffold",
+  "model_calls": 0,
+  "kind": "saved_scaffold_scope_audit",
+  "cases": [
+    {
+      "id": "BXP-003",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-030",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-032",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    },
+    {
+      "id": "BXP-037",
+      "conversion_status": "success",
+      "scope_status": "preserved",
+      "assignment_order_preserved": true,
+      "differing_components": []
+    }
+  ],
+  "scope": "semantic component graph and source order; declaration order recorded separately",
+  "planned": 4,
+  "complete": true,
+  "missing_ids": [],
+  "duplicate_ids": [],
+  "unexpected_ids": [],
+  "preserved": 4
+}

@@ -1,0 +1,22 @@
+{
+  "id": "BXP-030",
+  "order": 2,
+  "status": "success",
+  "firstGenerationAfterInitialization": false,
+  "engineReused": true,
+  "sourceRunId": "ps_final50_scaffold_v11",
+  "sourceInputRelativePath": "ps_final50_scaffold_v11\/BXP-030\/attempt_1_input.txt",
+  "sourceInputSha256": "834d17cbd280afcd255a54388706db1d70658ec63e06469bfb777572b5ee6312",
+  "sourceInputBytes": 4471,
+  "systemPromptSha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+  "generationElapsedMs": 57355,
+  "rawResponseSha256": "d14ce875fb592098feca783a193f5c561a255d3aaf23b3d79df775a1efd316e1",
+  "rawResponseBytes": 288,
+  "caseElapsedMs": 57367,
+  "prefillTokenCount": 1337,
+  "decodeTokenCount": 1721,
+  "benchmarkInitSeconds": 9.949508590999999,
+  "timeToFirstTokenSeconds": 1.435733224,
+  "prefillTokensPerSecond": 952.7952080686489,
+  "decodeTokensPerSecond": 30.7753013654492
+}

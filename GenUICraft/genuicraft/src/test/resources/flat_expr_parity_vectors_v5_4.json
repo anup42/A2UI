@@ -1,0 +1,125 @@
+{
+  "version": "3.0.0",
+  "vectors": [
+    {
+      "name": "different null-valued map keys are unequal",
+      "state": {"left": {"a": null}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {"$state": "left", "eq": {"b": null}},
+        "$then": "same",
+        "$else": "different"
+      },
+      "expected_value": "different",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "integral and floating values are unequal",
+      "state": {"value": 3},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {"$state": "value", "eq": 3.0},
+        "$then": "same",
+        "$else": "different"
+      },
+      "expected_value": "different",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "nested maps and lists compare deeply",
+      "state": {"value": {"items": [1, {"ok": true}]}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$cond": {
+          "$state": "value",
+          "eq": {"items": [1, {"ok": true}]}
+        },
+        "$then": "same",
+        "$else": "different"
+      },
+      "expected_value": "same",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "state path without leading slash",
+      "state": {"user": {"name": "Ada"}},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {"$state": "user/name"},
+      "expected_value": "Ada",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "concat uses Kotlin-compatible stringification",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "concat",
+        "args": {"a": "A", "b": 2, "c": null, "d": true}
+      },
+      "expected_value": "A2true",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "sum ignores booleans and strings",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "sum",
+        "args": {"values": [1, 2.5, true, "4"]}
+      },
+      "expected_value": 3.5,
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "uppercase builtin",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "uppercase",
+        "args": {"value": "Ada Lovelace"}
+      },
+      "expected_value": "ADA LOVELACE",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "lowercase builtin",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "lowercase",
+        "args": {"value": "Ada Lovelace"}
+      },
+      "expected_value": "ada lovelace",
+      "expected_unknown_codes": []
+    },
+    {
+      "name": "coalesce skips null and blank",
+      "state": {},
+      "item": null,
+      "index": null,
+      "base_path": null,
+      "expression": {
+        "$computed": "coalesce",
+        "args": {"values": [null, " ", "first", "second"]}
+      },
+      "expected_value": "first",
+      "expected_unknown_codes": []
+    }
+  ]
+}

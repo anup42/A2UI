@@ -1,0 +1,59 @@
+[
+  {
+    "id": "SYN-001",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 230876,
+    "peakPssKb": 3939591,
+    "usedFallback": false,
+    "renderWaitMs": 703,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 24337,
+    "visibleTextNodes": 14,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "SYN-002",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 3984014,
+    "peakPssKb": 4011069,
+    "usedFallback": false,
+    "renderWaitMs": 780,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 71144,
+    "visibleTextNodes": 9,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  },
+  {
+    "id": "SYN-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 4014521,
+    "peakPssKb": 4034121,
+    "usedFallback": false,
+    "renderWaitMs": 706,
+    "screenshot": true,
+    "hierarchyCacheRefreshed": true,
+    "status": "success",
+    "elapsedMs": 105053,
+    "visibleTextNodes": 22,
+    "attempts": 1,
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+      "Model-generated layout with exact source bindings."
+    ]
+  }
+]

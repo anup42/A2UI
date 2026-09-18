@@ -1,0 +1,11 @@
+{
+  "captured_model_calls": 3,
+  "reconciled_completed_case_calls": 3,
+  "orphaned_inflight_metrics": [],
+  "effective_scaffold_counts": [
+    1,
+    1,
+    1
+  ],
+  "effective_prompt_provenance": "recorded_and_matched"
+}

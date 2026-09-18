@@ -1,0 +1,28 @@
+{
+  "kind": "native_throughput_on_v11_candidate_prompts",
+  "main_apk_identity_from_prior_verified_install": {
+    "verifiedUtc": "2026-09-18T02:49:46.477447+00:00",
+    "packages": {
+      "com.samsung.genuicraft": {
+        "devicePath": "/data/app/~~gzrwsi8-aw_fXb6PZlKyFA==/com.samsung.genuicraft-Cd7SWU0wdQkLBuxzCGynWg==/base.apk",
+        "sha256": "d6ac37223f4d2f2f982d86baae22c42622a549051809c36dee17a8a34d445296"
+      },
+      "com.samsung.genuicraft.test": {
+        "devicePath": "/data/app/~~nI8WJmqkSHX-NzGp-fNieQ==/com.samsung.genuicraft.test-teedmHeBl6qLMsRvZRgWnQ==/base.apk",
+        "sha256": "e0f287fb26bc055b0d597ecc435c44779352bd6047e5abdcce03e66c5650fa8d"
+      }
+    }
+  },
+  "test_apk_sha256": "664fff4db64be5a13abb3a31cd7cb47925a373f46722a7c29539cb549a7d489a",
+  "test_source_sha256": "4e28c409b4ae6d34302bc4d3f108669f154288cfd2ad82623af199cbd8fcd709",
+  "cases": [
+    "BXP-003",
+    "BXP-030",
+    "BXP-047"
+  ],
+  "median_native_decode_tps": 31.9921856945843,
+  "min_native_decode_tps": 30.7753013654492,
+  "max_native_decode_tps": 57.62422665190989,
+  "input_and_raw_hashes_verified": true,
+  "acceptance_or_baseline_latency_measurement": false
+}

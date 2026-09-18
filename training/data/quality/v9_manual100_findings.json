@@ -1,0 +1,650 @@
+{
+  "policy": "v9-random100-manual-review-20260916",
+  "selection_seed": 2026091602,
+  "description": "Hash-bound findings from a manual non-Golden 100-pair audit; source holds cannot be auto-cleared, target holds require source-proven corrections. No samples are selected using Golden scores.",
+  "findings": [
+    {
+      "case": 9,
+      "coordinate": "train:58759",
+      "original_source_sha256": "e289ebae07e3c402fec07306ac8930675f7e525a144b3c67be53c3dd1ecb6840",
+      "effective_source_sha256": "a97eab8267cc39bab6d4e06ab1ae28171a021d12fd47d605ed358997aa273150",
+      "reviewed_target_sha256": "4177ef4a3ed6354efe2da9b6a7ddce1ca4f34313b5c2e7fbef72c294ba93b42f",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "New York health-plan costs",
+      "reason": "Source and target have an internal arithmetic contradiction: stated formula gives Plan A 4800+1000+240=6040, not 7040. Savings versus Plan B should be 440, not 1440; 'most expensive' conclusion also needs revision. Correct paired source/target consistently under the explicitly stated formula, or regenerate if procedure-cost assumptions differ.",
+      "issue_tags": [
+        "source_internal_arithmetic"
+      ]
+    },
+    {
+      "case": 19,
+      "coordinate": "train:40178",
+      "original_source_sha256": "ae7fa443595fca3ac95b2cefa63d01bd75202d6a1f85af4ce4a20450e7c6413a",
+      "effective_source_sha256": "36bc4bc4f58a03e132c2bf6b9b471bf628c54fe6b457d83a2b4de78323e4784f",
+      "reviewed_target_sha256": "98e50bc95f21ad5dd3fe6b928e209fb1daf8279915947b60a72ed741f79877fb",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Family keto menu",
+      "reason": "Seven-day meals, prep times and grocery quantities retained, but menu Table declares image and imageAlt columns absent from every state row and unsupported by source. Remove these unused columns using a schema-aware pipeline repair; no images should be invented.",
+      "issue_tags": [
+        "empty_unsupported_columns"
+      ]
+    },
+    {
+      "case": 21,
+      "coordinate": "train:108278",
+      "original_source_sha256": "c2b42515452033de2d50ed9b7259982fea480cc91f22e0597538284d520459c9",
+      "effective_source_sha256": "fd6f9d3d00df7c1e4154cd99cf9d48ce437cf0e0e71c2cf49858661d8e54eec9",
+      "reviewed_target_sha256": "a1732d01abc6106a4b93d89c79ee65f9af2ceb0db06152943f3f5093ab6c9b3a",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "Avg MPG (Combined)",
+        "Maintenance Cost"
+      ],
+      "subject": "Student sedan comparison",
+      "reason": "Facts/actions retained, but table label 'Avg MPG (Combined)' becomes 'Avg MPG', removing the stated combined-driving basis. Restore the full source column label (and Maintenance Cost) without changing values.",
+      "issue_tags": [
+        "lost_qualifier"
+      ]
+    },
+    {
+      "case": 24,
+      "coordinate": "train:66913",
+      "original_source_sha256": "6d6ed7d61417edbeaf84966624ea406215c2e3ef2ea4c70a5cbbd28e383d4d24",
+      "effective_source_sha256": "6d6ed7d61417edbeaf84966624ea406215c2e3ef2ea4c70a5cbbd28e383d4d24",
+      "reviewed_target_sha256": "db764180b86fd314fdf27419ab48ddad02231dbe8121c271f277b065f49dadda",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "mid-range ceramic pads",
+        "vented rotors",
+        "2018 Civic"
+      ],
+      "subject": "Brake diagnosis and toolkit",
+      "reason": "Five diagnostic rows, eight tools and cost table intact, but source paragraphs at lines 7, 19, 32 omitted. In particular, budget assumptions 'mid-range ceramic pads and vented rotors for a 2018 Civic' disappear. Restore these source-proven context sentences via the generation/preparation pipeline.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 25,
+      "coordinate": "train:35799",
+      "original_source_sha256": "a7c2d68b4b2b380696088c037ca67831fa1c1c27de6ae67275ab9c5045454159",
+      "effective_source_sha256": "a7c2d68b4b2b380696088c037ca67831fa1c1c27de6ae67275ab9c5045454159",
+      "reviewed_target_sha256": "7fc7d644e3ce90f809200fc12bac5c87f215aea5abe887f5eaae7aadc6f0eecf",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "November watering alerts",
+      "reason": "Monstera 2024-11-29 is stored in alert_5 but no Table column displays it. Source header itself lacks Date 5. Also 14-day Succulent series stops at Nov15 although Nov29 is within the stated period. Repair header/column binding; correct the simple source/target recurrence together after confirming inclusive November scope.",
+      "issue_tags": [
+        "hidden_state_column",
+        "source_internal_schedule"
+      ]
+    },
+    {
+      "case": 30,
+      "coordinate": "train:104229",
+      "original_source_sha256": "59cf9c1db9cca988ce041f9b8eed7b8f62d3ab36f4078f6e13fb70b436e79d9c",
+      "effective_source_sha256": "6e18ddeb7922919dee09da6d01e01519a6ed5a5ddc33044397e9d7a422fd0ed1",
+      "reviewed_target_sha256": "800490e465fdb3c14b5751a99a7fd1348e58be902e91e98cf7192057b87cc7d9",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Switch RPG list",
+      "reason": "Source promises a Chrono Trigger Switch/eShop product, but retained URL points to an unverified chrono-trigger-switch page and official Square Enix material found lists other platforms. Quarantine for source verification/regeneration; changing only the button would not fix the platform-specific recommendation.",
+      "issue_tags": [
+        "source_unverified_platform"
+      ]
+    },
+    {
+      "case": 31,
+      "coordinate": "train:84728",
+      "original_source_sha256": "57c0e0c009ff95aa629b38739974e30fc3874c61e960d23a2b16da6c3f551b04",
+      "effective_source_sha256": "e55ce0b3938f80c893245154fb03e98ac72d3413187ddf9fd252c04dfa71b493",
+      "reviewed_target_sha256": "8033ab3df8a579a325c561c14b12c1a806fc02a332e4c8905163df5c8ea1cfd3",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "The Hobbit reading status",
+      "reason": "Source's Chapter 14 summary is materially wrong: publisher guide has Smaug attacking Lake-town and Bard slaying him, not Bilbo arriving there or mediating. Requires replacement source summary and regeneration, not a mechanical IR edit.",
+      "issue_tags": [
+        "source_incorrect_narrative"
+      ]
+    },
+    {
+      "case": 38,
+      "coordinate": "train:120412",
+      "original_source_sha256": "fd81a00d65ff1ed7671cf26e9196d54b5ba75d924c122d5b8988c77a745bdc1a",
+      "effective_source_sha256": "1efe64e297e2112db8891241d9e881b88691639d4fdb1700b57d3a196ed074a3",
+      "reviewed_target_sha256": "22540451ab4d693973065518c480fa28ecf8d48b2ddf7c584ab2f66d998e8fd3",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "New York retail lease",
+      "reason": "SBA Business Guide [SOURCE_URL_1] citation is omitted. Both source/target also mask ordinary phrase asset/liability as [MEDIA_ASSET_1]; retained URL map proves this was not an asset. Tighten normalization to preserve prose and restore the source-proven citation.",
+      "issue_tags": [
+        "omitted_citation",
+        "false_asset_masking"
+      ]
+    },
+    {
+      "case": 40,
+      "coordinate": "train:100460",
+      "original_source_sha256": "6a89d4d537511e44bc8c0fba1b50e11b42274f8b84d0b5e549158cd44ccda277",
+      "effective_source_sha256": "629ebdaef6dbecce7dd7d38ed884c455f09fdd99cdb655a6d6913c8d3797a8d8",
+      "reviewed_target_sha256": "dffc2c4f1909f8ebe1d902ac7e9a8c8b0eb02992bd98d2f87c188013362e1bbc",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "typically exceeds",
+        "shedding dogs"
+      ],
+      "subject": "Berlin pet-focused cleaning",
+      "reason": "Drops source qualification that a normal professional 3-bedroom deep clean typically exceeds EUR200, and omits two-shedding-dogs context. Ten tasks and all links remain. Restore source paragraphs rather than leaving the budget sounding sufficient for a full service.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 41,
+      "coordinate": "train:16961",
+      "original_source_sha256": "c34fbba6a2ba2c3c635a3335d21046a5e028decd16ddd6c4a61fc8024231b289",
+      "effective_source_sha256": "c34fbba6a2ba2c3c635a3335d21046a5e028decd16ddd6c4a61fc8024231b289",
+      "reviewed_target_sha256": "f1f69152d4528cf6dc01e4d3ee35ebd6d5296cffee5bef2d81bb341b09aa9d78",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "Price-to-Earnings",
+        "Price-to-Sales"
+      ],
+      "subject": "TechCorp stock-growth tutorial",
+      "reason": "P/E and P/S option names lose '(Price-to-Earnings)' and '(Price-to-Sales)' expansions, specifically useful in this beginner explanation. Restore source labels; numerical growth/formula and other content intact.",
+      "issue_tags": [
+        "lost_qualifier"
+      ]
+    },
+    {
+      "case": 45,
+      "coordinate": "train:27540",
+      "original_source_sha256": "529eac18420b7aa5c2450ed40bdedc2f268519f664a6242d4a9519ae3383b9ea",
+      "effective_source_sha256": "529eac18420b7aa5c2450ed40bdedc2f268519f664a6242d4a9519ae3383b9ea",
+      "reviewed_target_sha256": "6a408dd60a68dc0b7e11ddeb3b866a080c8a95e97fca0c4e2b3c4cd473ca3bb8",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Data deletion rights",
+      "reason": "Target faithfully repeats source legal guidance, but GDPR is stated as a fixed 30-day deadline (twice) and downstream erasure notification is unconditional. EDPB specifies one month, conditional extension and recipient-notification exceptions. Quarantine this legal checklist for qualified source review, including its CCPA comparisons, then regenerate the target; do not silently patch the target alone.",
+      "issue_tags": [
+        "source_legal_precision"
+      ]
+    },
+    {
+      "case": 46,
+      "coordinate": "train:22027",
+      "original_source_sha256": "4e37bec3420f0304ae015c7a49664fa71a8336982f85369ffc6556d6be30e58d",
+      "effective_source_sha256": "95fce7957aef8874e84c075318cc3b8a279000552158a58c518fb249ed9276cf",
+      "reviewed_target_sha256": "5d136b0a908753b3cdf57349d75b35b9553c48fd508db0c341f153429391a363",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "2, 5, or 10 years",
+        "disposable income"
+      ],
+      "subject": "Fixed versus tracker mortgage",
+      "reason": "Risk section drops fixed-term examples (2/5/10 years), tracker base-rate-plus-margin explanation and payment-shock/disposable-income definition. Restore complete source risk paragraphs; tables, options, amounts and links otherwise match.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 49,
+      "coordinate": "train:136592",
+      "original_source_sha256": "fef6aca2ede09c853254302b4c2a2f58c76d7a189eadd0e791d4cce69302589a",
+      "effective_source_sha256": "b4e6237d0be60b207b62cd8f48114ed71820145e759e922f147d1ff1ef7c85bf",
+      "reviewed_target_sha256": "ff94081d39a31b76944df1a03f824d5c110f049ade3c2400fefec0e736111176",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "London jazz venues",
+      "reason": "The London concert recommendation names Blue Note and sends Book Tickets to https://www.bluenote.com, the Blue Note Records record-label site, not evidence for the stated London event. Dates, distance and booking recommendation cannot be validated from the available original-query-less record. Quarantine for venue/event provenance correction; do not invent a replacement venue or URL.",
+      "issue_tags": [
+        "source_location_claim",
+        "source_destination_mismatch"
+      ]
+    },
+    {
+      "case": 51,
+      "coordinate": "train:124258",
+      "original_source_sha256": "0f540067446b86729338af24d0015ee5ef89c8cdf3a06ca401f0db570d9fd4ec",
+      "effective_source_sha256": "c325e068a469ca107bf9900fa902ccefc525c095151f4236e9bac749e85173fb",
+      "reviewed_target_sha256": "2bef001fd9c2d2821aab10bbd11950af49799705ff5fe490da0b9a68f74234f1",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "HYSA versus CD liquidity",
+      "reason": "Source/target label rates APY but divide them by 12 as nominal rates; six-month earnings are inconsistent with that label. If quoted APYs are authoritative, use 10000*((1+APY)^0.5-1), yielding 207.84 and 246.95. Correct formula/labels/earnings together after rate-basis verification, not just target numbers.",
+      "issue_tags": [
+        "source_internal_arithmetic",
+        "source_rate_basis"
+      ]
+    },
+    {
+      "case": 52,
+      "coordinate": "train:32264",
+      "original_source_sha256": "18e1c81030a3577af46255b2c003634dc1e3f6158e26beb3dee9b146583385a7",
+      "effective_source_sha256": "18e1c81030a3577af46255b2c003634dc1e3f6158e26beb3dee9b146583385a7",
+      "reviewed_target_sha256": "484216edef4286845ed519d89625991192f38941b02ea5077da443182e6d4fc5",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "seasonal produce",
+        "high-quality Greek feta",
+        "rustic",
+        "uniform"
+      ],
+      "subject": "Greek salad instructions",
+      "reason": "Table has unsupported image/imageAlt columns with no row values. Also drops ripe/seasonal produce/high-quality-feta instruction and 'rustic rather than uniform' slicing goal. All ingredients and five assembly steps remain. Source-grounded repair can restore context and prune unused columns.",
+      "issue_tags": [
+        "empty_unsupported_columns",
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 53,
+      "coordinate": "train:10638",
+      "original_source_sha256": "21266b66fe5388da29bc006b4ec66d56e0f7a6ea0d52baef4e980d9e47ede30f",
+      "effective_source_sha256": "21266b66fe5388da29bc006b4ec66d56e0f7a6ea0d52baef4e980d9e47ede30f",
+      "reviewed_target_sha256": "03bfdf8cf3cc05255abb1b673964d2521b71c5c4743c26d65c8320b87775ac3a",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "SSID",
+        "first boot",
+        "crucial for SSH access"
+      ],
+      "subject": "Raspberry Pi SSH setup",
+      "reason": "Step 4 compression drops explicit Wi-Fi SSID/password and first-boot network instruction, plus SSH credential rationale. Restore complete source step; other steps/checklist/actions intact.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 54,
+      "coordinate": "train:14435",
+      "original_source_sha256": "3df24c18f99f530f60106c9fef450d9517addaa422e6684d280a1c8e138e7c24",
+      "effective_source_sha256": "3df24c18f99f530f60106c9fef450d9517addaa422e6684d280a1c8e138e7c24",
+      "reviewed_target_sha256": "b275e909ded755da1850ec6482043676439bb20d8f3c5d435446970cf6ccf8e8",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "battery-powered",
+        "End Devices",
+        "saturate",
+        "receiver"
+      ],
+      "subject": "Zigbee interference guide",
+      "reason": "Compression drops distinction that battery-powered end devices do not repeat, receiver-saturation explanation and beyond-a-few-feet symptom. Restore source technical paragraphs rather than teaching shortened incomplete guidance.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 55,
+      "coordinate": "train:117937",
+      "original_source_sha256": "1d48cf365316a4f819f7c01b80e2747b0e8b58a4438f60afc27e1ae43a811e86",
+      "effective_source_sha256": "0b476657d0e71ca70bcdb437f2de6927f07af9a1815c79d421c00dff1e367f5f",
+      "reviewed_target_sha256": "36a6c1b6355ba7d104e230de0a9e024ee236108338f23555293f8d59b550532e",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Weekly sleep analysis",
+      "reason": "Total-sleep variable label is mojibake '╬ú Hours' instead of sum/Sigma Hours. Source formula proves intended symbol, making a localized encoding repair possible; all seven-day data and mean arithmetic correct.",
+      "issue_tags": [
+        "residual_mojibake"
+      ]
+    },
+    {
+      "case": 57,
+      "coordinate": "train:64326",
+      "original_source_sha256": "c08928dc81a5134821a604450572cd54c0d04f7c327398bb70e3d2a3c4f9a00c",
+      "effective_source_sha256": "c08928dc81a5134821a604450572cd54c0d04f7c327398bb70e3d2a3c4f9a00c",
+      "reviewed_target_sha256": "76828ee680a3a3311eb7a75dbf943ec020303fcabd13dfc30fb557960a42a93c",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Quarterly regional sales",
+      "reason": "Source/target annual total says 17100 but 5600+4700+6200=16500 (also sum of quarterly totals). Requested line chart with Q4 peak highlight is absent; target substitutes a Table only. Correct paired total and regenerate a Chart bound to supplied data.",
+      "issue_tags": [
+        "source_internal_arithmetic",
+        "requested_component_missing"
+      ]
+    },
+    {
+      "case": 59,
+      "coordinate": "train:9341",
+      "original_source_sha256": "94e59e5b1c556e4009e65b239ccb7dddf7c533f4cc5cbc948f085145f30b5333",
+      "effective_source_sha256": "94e59e5b1c556e4009e65b239ccb7dddf7c533f4cc5cbc948f085145f30b5333",
+      "reviewed_target_sha256": "b605dd70247a3dad7a804d8720b89db4e4a6e495e7a1b4f38311ab4c4e3761d6",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "Node/Python/Java",
+        "staging",
+        "database",
+        "addressing feedback"
+      ],
+      "subject": "Junior engineer onboarding",
+      "reason": "Compresses all three milestone sections, omitting runtime/cloud examples, launch-application verification, API-to-database walkthrough scope, addressing PR feedback and staging path. Restore the source-proven instructions; roadmap/actions already intact.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 60,
+      "coordinate": "train:86769",
+      "original_source_sha256": "53d20c2e8f238fbf89126b1493783b282684c2a724eaa23f4bcbe0f5f16f10d4",
+      "effective_source_sha256": "0bc973e34dd79ae9830fa21931ad99979b72ccfc4237e0a78c117c2ffea4472e",
+      "reviewed_target_sha256": "53d51020b7d776577b81200bf6857f297dcb14579b4af37c26c254234c1d0106",
+      "disposition": "target_review",
+      "requires_regeneration": true,
+      "required_visible_fragments": [],
+      "subject": "Playlist queue controls",
+      "reason": "Three source per-track removal URLs survive only in state.queue[*].actionUrl. The explicit Table columns omit that field; only the cross symbol actionLabel is projected, and the playlist renderer consumes projected columns. Restore three correctly bound source-URL actions through the generation pipeline; do not invent queue mutation semantics. Shuffle/Clear buttons are already preserved.",
+      "issue_tags": [
+        "inert_action_binding"
+      ]
+    },
+    {
+      "case": 61,
+      "coordinate": "train:69384",
+      "original_source_sha256": "3631e92941523ce871b1c526d2ac16be38e725ba8ce145142d696009d5dcd1af",
+      "effective_source_sha256": "3631e92941523ce871b1c526d2ac16be38e725ba8ce145142d696009d5dcd1af",
+      "reviewed_target_sha256": "5d610426334e77212e07028d1ed89d777e71795b8f6c804bb32f41d591937a00",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "before any work commences",
+        "remaining 50%",
+        "7 days",
+        "social media",
+        "consolidated list of feedback",
+        "per-revision"
+      ],
+      "subject": "Freelance design contract",
+      "reason": "Clause compression drops before-work retainer timing, remaining-50-percent payments, 7-day grace example, social-media right, consolidated-feedback definition and per-revision alternative. NYC source reference is also bound to ACTION_URL_1 instead of supplied SOURCE_URL_2. Restore full source clauses and exact citation binding; legal appropriateness remains separate.",
+      "issue_tags": [
+        "omitted_source_context",
+        "citation_binding_changed"
+      ]
+    },
+    {
+      "case": 62,
+      "coordinate": "train:112798",
+      "original_source_sha256": "e86dd2da819423720f96a92e8e7e7fafea885e2e324a65373f7f133841ad3b8d",
+      "effective_source_sha256": "6d51b88cb7622841a6b27b89f55a0862bb76598da6eab6a16feea88f413cb21d",
+      "reviewed_target_sha256": "7ec448de18731bbfabd34b25b74241c86c0027b5bab4325057e28c0d68e68a1e",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Static versus dynamic QR",
+      "reason": "Source and target claim static QR codes have no tracking capabilities and dynamic codes are the only viable tracking option. Official Google Analytics guidance supports campaign-tagged destination URLs; a fixed/static QR can encode such a URL (inference), so the absolute premise is unsound. Scan visits also do not by themselves establish an exact count of people. Quarantine for substantive source rewrite and target regeneration.",
+      "issue_tags": [
+        "source_technical_claim"
+      ]
+    },
+    {
+      "case": 63,
+      "coordinate": "train:19173",
+      "original_source_sha256": "94a81174d1f33d348f08e63611aca79537f4b3af1d7df0158c47789f67e5787a",
+      "effective_source_sha256": "1707aac2255eb52cb3eb6522db41e7593b9dab23aeb775c00a2e5a2a911967a5",
+      "reviewed_target_sha256": "aeb48f2db28ed84ce94519688270903ff378b9beca57d1237fb5555517978c11",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Raised-bed soil volume",
+      "reason": "Source/target introductory 3.7 cubic yards contradicts 12*10*1/27=4.44 and existing table. Correct paired intro to 4.44; all planting data/actions are otherwise preserved.",
+      "issue_tags": [
+        "source_internal_arithmetic"
+      ]
+    },
+    {
+      "case": 64,
+      "coordinate": "train:117970",
+      "original_source_sha256": "14302fa135a98563ad37dc1d92bceb5c8eb81241f04a25965d89210abdb32645",
+      "effective_source_sha256": "a3c72420d554452ab0f540a4dfac70f70331663cc38596b6cf6eb3477335501b",
+      "reviewed_target_sha256": "c63f278ecf685b53c70b520dc94c590424b4f53069105e868bf9071b7daaef1a",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "at least 20%",
+        "cabaret",
+        "classroom",
+        "wrap",
+        "simultaneous"
+      ],
+      "subject": "London workshop plan",
+      "reason": "Budget sums correctly, but requirements lose 'at least' in 20-percent dietary provision, cabaret/classroom layouts, wrap-lunch alternative and 'simultaneous' in 50 Wi-Fi connections. Restore exact source requirements; roadmap/actions intact.",
+      "issue_tags": [
+        "lost_qualifier",
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 67,
+      "coordinate": "train:21462",
+      "original_source_sha256": "96270b4ce9235094d2142e3f4be40c8fe6ad262cd750bdcd31bc666a5c1e4a60",
+      "effective_source_sha256": "96270b4ce9235094d2142e3f4be40c8fe6ad262cd750bdcd31bc666a5c1e4a60",
+      "reviewed_target_sha256": "322cc67fa8adb030bd0fa87052e4dc848836196e69ddec74c88d2b89db2e9d62",
+      "disposition": "target_review",
+      "requires_regeneration": true,
+      "required_visible_fragments": [],
+      "subject": "QR recruiter capture form",
+      "reason": "The source describes a recruiter-interface design; the target turns descriptive phrases into actual field values ('Auto-filled from QR', 'Optional short-text field') and invents a preselected 3/5 rating. Preserve the design as descriptive content, or use clearly unpopulated controls under an explicit contract; do not invent a candidate, QR payload or backend binding. This is source-grounded target repair, not a reason to require or fabricate backend data.",
+      "issue_tags": [
+        "invented_default_values",
+        "description_as_input_value"
+      ]
+    },
+    {
+      "case": 69,
+      "coordinate": "train:25438",
+      "original_source_sha256": "cdea4ed577ab37dabecc1243b4840cfa9885156a73aaa6a757feeca33beffb89",
+      "effective_source_sha256": "5d84b51b8a9e015ccdea3c0f1919f497e5141fc98c99036b561e5256cb78d5d2",
+      "reviewed_target_sha256": "0bb85501aa4421bd828ae0a6829d9d33ae402ff88fe46c16d2eabd3ec8c030a4",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "JFK-LHR flight comparison",
+      "reason": "The same JFK-to-LHR comparison gives departure/arrival/duration combinations implying UTC offsets of 5, 8 and 7 hours when arrivals are next day. No dates/timezones clarify the discrepancy; a stop does not reconcile total elapsed duration. Economic totals are correct ($1,150 each), but actual schedules cannot be reconstructed safely. Quarantine until verified departure, arrival and duration data are supplied.",
+      "issue_tags": [
+        "source_schedule_inconsistent"
+      ]
+    },
+    {
+      "case": 70,
+      "coordinate": "train:130849",
+      "original_source_sha256": "31efed431ed8404dcdd40021c327ecb88651424f3bfea2edb2b1555abed2b228",
+      "effective_source_sha256": "c1fe8f27234d19bcdc054ab9f34be8901f13421c12216238ff440ece7b217f07",
+      "reviewed_target_sha256": "8067f90bcf7e2aaecf6d53ea4eaec2ce43e2b34ce21515929eda19444d478d2f",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Portfolio profit",
+      "reason": "Two tables use statePath /portfolio/variables and /portfolio/assets, but root state stores these as literal slash-containing keys instead of nested portfolio data. The checked Android JSON-pointer resolver traverses nested keys, so neither table resolves. Canonicalize the state/path relationship through a tested pipeline fix; all portfolio values and 4.29% return are otherwise consistent.",
+      "issue_tags": [
+        "unresolved_state_path"
+      ]
+    },
+    {
+      "case": 72,
+      "coordinate": "train:63332",
+      "original_source_sha256": "21c6ff09e443b3bb0146a3afde882f0a284a588ed4feb5c0253b6dd4a81586f0",
+      "effective_source_sha256": "21c6ff09e443b3bb0146a3afde882f0a284a588ed4feb5c0253b6dd4a81586f0",
+      "reviewed_target_sha256": "894de7c9ae9475f6cf3d14ac8e0681d94b4aed071665bd98ec263d216a3cc3b0",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Seattle hybrid SUV affordability",
+      "reason": "Source/target claim a choice fits a strict 450/month loan-plus-insurance budget while its loan estimate alone is 440-480, with no insurance quote, down payment, term or APR. Recommendation is not supported by supplied numbers; quarantine until source assumptions are verified and regenerated.",
+      "issue_tags": [
+        "source_unsupported_budget_conclusion"
+      ]
+    },
+    {
+      "case": 74,
+      "coordinate": "train:144180",
+      "original_source_sha256": "79363c403416ee636325192d265fac523fa3c6b81db877226e3f7e9bf0192337",
+      "effective_source_sha256": "90eda77cbf63f5688c1c4910ba0c8f4a018e1ca88021f0191fba621a661e644b",
+      "reviewed_target_sha256": "99b68cd2d102509cfdbbbf9bb8d12f418e52fa2557d1ef875ef92ec07217eee5",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Mumbai monsoon explainer",
+      "reason": "National Geographic citation is downgraded to a bare label with no SOURCE_URL_1, and Britannica label/SOURCE_URL_2 disappear completely. Restore both source-bound citations; scientific paragraphs and wind rows otherwise retained.",
+      "issue_tags": [
+        "omitted_citation"
+      ]
+    },
+    {
+      "case": 78,
+      "coordinate": "train:120943",
+      "original_source_sha256": "29c7b185a714729b5dcbab2b925444e94befab6cd9715d5ef12aa5e081405191",
+      "effective_source_sha256": "76b0e5450d4cc08f9d8d436f9e84ea92170349f57f139eb7a12fad03e436773f",
+      "reviewed_target_sha256": "e64285da323cb43ff29db80197e5ca58226786dd9c1fd9cb630a90fe670a266f",
+      "disposition": "target_review",
+      "requires_regeneration": true,
+      "required_visible_fragments": [],
+      "subject": "Daily deep-work timeline",
+      "reason": "Eight timeline entries retain their seven distinct source icons only in state-row icon fields. Table projects only time/activity/details and has no entityMedia mapping or explicit icon nodes. Bind the existing source icons visibly through a supported generated layout; all times, activity text and analysis rows are preserved.",
+      "issue_tags": [
+        "hidden_media_binding"
+      ]
+    },
+    {
+      "case": 79,
+      "coordinate": "train:87882",
+      "original_source_sha256": "20db0c098d7c6fdb1ad640fccbd02a0d70a3537a9d97546c82e7aa36a61b4264",
+      "effective_source_sha256": "5a8daeee55cc2780531ca613099660ffdcccc9670ffe050700d665401479f5dc",
+      "reviewed_target_sha256": "ce5de5e98de03b89cf3c8d64d3da7fa8f977550389af1d860a9acadfbc6371f4",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Hydration calculation",
+      "reason": "The source and target claim 120-150 oz, although their own stated components are 90 + 30 + (10-30) = 130-150 oz; the liters summary must also agree if the formula is retained. Both tables additionally use /hydration_variables and /fluid_breakdown against literal slash-prefixed state keys, which the checked Android JSON-pointer lookup cannot resolve. Repair paired numerical consistency and state bindings, with source medical review before treating the hydration guidance as authoritative.",
+      "issue_tags": [
+        "source_arithmetic",
+        "unresolved_state_path"
+      ]
+    },
+    {
+      "case": 82,
+      "coordinate": "train:26962",
+      "original_source_sha256": "7228da320425ae298cd51d5135a916258da1cc61870c92f6aaa605d66461f586",
+      "effective_source_sha256": "7228da320425ae298cd51d5135a916258da1cc61870c92f6aaa605d66461f586",
+      "reviewed_target_sha256": "5312d42f9d86fad49d63dbd4ff34ed1a7df50e1326b411c7088708610c39de25",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "higher cost",
+        "before or after your shift",
+        "company landing page",
+        "10 superficial screens"
+      ],
+      "subject": "Graphic designer to UX",
+      "reason": "Target drops NN/g higher-cost/intensity caveat, before/after-shift boundary, company-landing-page example and contrast against 10 superficial screens. Restore complete source guidance; six-month roadmap intact.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 84,
+      "coordinate": "train:111169",
+      "original_source_sha256": "02049e1b1c5b4555df014b910d33322a4bae989a06cda5d619ac0c03e1c6a672",
+      "effective_source_sha256": "33e4b8dc336e9c6885432eeefc4ab53a28860027d224b7d0db6c89a7b0202f11",
+      "reviewed_target_sha256": "6653f3d18fd241aa53039546eeef2df689380c5f966307f9232591288d2672bc",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "Rating-to-Price Ratio"
+      ],
+      "subject": "Paris pool hotels",
+      "reason": "Values and pool/budget filtering correct, but 'Rating-to-Price Ratio' becomes unexplained 'Ratio'. Restore full metric label so the derived numbers have their intended meaning.",
+      "issue_tags": [
+        "lost_qualifier"
+      ]
+    },
+    {
+      "case": 88,
+      "coordinate": "train:40476",
+      "original_source_sha256": "145f1f8bbb4a23210dbc375bb361035a7ae9dc612e47fd2e80522f426e801001",
+      "effective_source_sha256": "145f1f8bbb4a23210dbc375bb361035a7ae9dc612e47fd2e80522f426e801001",
+      "reviewed_target_sha256": "d2c4620f08c5b9afbf969372cec8b38fad3e495ebd88f8e475d22c697bca9d2a",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Backpacker insurance priorities",
+      "reason": "First comparison-column header is 'Medical Evacuation' even though it holds multiple coverage types (evacuation/theft/cancellation). This source error is reproduced in target; relabel paired header to Coverage/Coverage Type. All priority prose and links retained.",
+      "issue_tags": [
+        "misleading_source_header"
+      ]
+    },
+    {
+      "case": 93,
+      "coordinate": "train:79046",
+      "original_source_sha256": "7423ff9864c8e8618c9f625c109ddad34db8a97f215d60719fe68ae04e370530",
+      "effective_source_sha256": "4da87e787e1241a6a213dfd50cc092ce27c8bfbd175ab23aa1b99bc12b458622",
+      "reviewed_target_sha256": "23a5b093bf7276736bf5d4edff9e3b24786a620dae9068d5dce45fee4c316f9c",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "uncompensated risk",
+        "dividends"
+      ],
+      "subject": "Aggressive portfolio review",
+      "reason": "Target drops the definition of uncompensated risk and the value/dividend-versus-capital-growth explanation underpinning the allocation recommendation. Restore complete source reasoning; allocations/options/actions retained.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    },
+    {
+      "case": 94,
+      "coordinate": "train:28205",
+      "original_source_sha256": "f13fec9ee1f090bf6c7bd1b93b0706a3fbf2b07f9fb9e2683d9146533318d028",
+      "effective_source_sha256": "ade8791d67e691008dc79802435770a5f6ccd9d30b9f8c5f0b4a72bc6aa0848a",
+      "reviewed_target_sha256": "6fe732a95735b11ada30f4047149b24ff7fb08516a06cb28f861ccb09b836e44",
+      "disposition": "source_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [],
+      "subject": "Tokyo allergy translation",
+      "reason": "The English severe-allergy phrases say 'shellfish', while the Japanese/romaji specify only crustaceans (甲殻類 / koukaku-rui). A Japanese Consumer Affairs Agency report distinguishes crustaceans from molluscan shellfish, so the claimed translation narrows the allergy scope. Quarantine both source and target for qualified allergy-translation validation and regeneration; do not use the card as safety guidance.",
+      "issue_tags": [
+        "source_safety_translation"
+      ]
+    },
+    {
+      "case": 95,
+      "coordinate": "train:70539",
+      "original_source_sha256": "66260ad78b803b508e5824eeb8d36fbcc7600ab6ce3905d851d122eb4077cb47",
+      "effective_source_sha256": "66260ad78b803b508e5824eeb8d36fbcc7600ab6ce3905d851d122eb4077cb47",
+      "reviewed_target_sha256": "cdce74c9919f640ac07e9ce50c2c18b459b223f62a51f9cf16c2a2a6b87f8c50",
+      "disposition": "target_review",
+      "requires_regeneration": false,
+      "required_visible_fragments": [
+        "storage is lower than the ASUS",
+        "premium chassis",
+        "stunning display",
+        "unless upgraded"
+      ],
+      "subject": "Design-student laptops",
+      "reason": "Compressed cards omit Dell storage-versus-ASUS and premium-price explanation, Mac display benefit and 'not recommended unless upgraded' condition; ASUS comparison scope also shortened. Restore full source option descriptions rather than training these omissions.",
+      "issue_tags": [
+        "omitted_source_context"
+      ]
+    }
+  ]
+}

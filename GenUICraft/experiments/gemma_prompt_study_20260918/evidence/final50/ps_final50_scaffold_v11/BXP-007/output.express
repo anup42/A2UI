@@ -1,0 +1,8 @@
+<a2ui>
+root=Column([a,b,c,d,e],"md")
+a=Text("Suggested one-day Mysuru sights","heading")
+b=Table(columns=["Sight","Opening hours","Usual visit duration","Published adult entry fee"],rows=[["Chamundi Hill Lookout View Point","5:00 am–11:00 pm","30–45 min","Not available in the provided reliable sources[6]"],["Mysuru Railway Museum","10:00 am–6:00 pm; closed Tuesday","1.5–2 hours","Not available in the provided reliable sources[2]"],["Chikka Gadiyara","Open 24 hours","20–30 min","Not available in the provided reliable sources[1]"]],domain="generic",preferredPresentation="table")
+c=Text("Sensible visit order","heading")
+d=List(items=["**Chamundi Hill Lookout View Point** early in the morning for the clearest views and cooler weather.","**Mysuru Railway Museum** next, since it opens at 10:00 am and fits a mid-morning visit well.","**Chikka Gadiyara** last for a short city-centre stop and easy wrap-up."])
+e=Text("If you want a more landmark-heavy day, **Mysuru Railway Museum** is the strongest museum stop, while **Chamundi Hill** gives the best panoramic experience from the options above.")
+</a2ui>

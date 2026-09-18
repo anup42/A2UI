@@ -1,0 +1,20 @@
+{
+  "id": "BXP-030",
+  "provider": "gemma4_e2b",
+  "firstInRun": false,
+  "baselinePssKb": 4445258,
+  "peakPssKb": 4531907,
+  "usedFallback": false,
+  "renderWaitMs": 704,
+  "screenshot": true,
+  "hierarchyCacheRefreshed": true,
+  "status": "success",
+  "elapsedMs": 69537,
+  "visibleTextNodes": 24,
+  "attempts": 2,
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU+MTP",
+    "Model-generated layout with exact source bindings.",
+    "Model output repaired after validation failure."
+  ]
+}

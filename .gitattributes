@@ -29,3 +29,9 @@ training/data/train/v10/*.gz -text -diff
 training/data/train/v10/*.json text eol=lf
 training/data/train/v10/*.py text eol=lf
 training/data/train/v10/*.md text eol=lf
+# New audit catalogs and artifact manifests are SHA-256 bound.
+training/data/quality/*.json text eol=lf
+training/reports/v10_manual100_20260916/* -text whitespace=cr-at-eol
+training/reports/offline_recovery_20260916_v10/*.json text eol=lf
+# Keep the Android benchmark corpus byte-identical to its validated snapshot.
+android/app/src/main/assets/genuicraft_bixby50.jsonl -text whitespace=cr-at-eol

@@ -1,0 +1,11 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "json",
+  "runId": "gemma_visual_v14_dark_large",
+  "sourceRunId": "gemma50_saved_v10",
+  "total": 5,
+  "rendered": 5,
+  "failed": 0,
+  "modelCalls": 0,
+  "inferenceEvaluated": false
+}

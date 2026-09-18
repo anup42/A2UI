@@ -1,0 +1,49 @@
+{
+  "artifact_role": "candidate_v11_gemma_source_layout_scaffold",
+  "recorded_utc": "2026-09-18T02:26:39.519383+00:00",
+  "aar_sha256": "d9e16c12a3b7f0663d291cbd8c75d6af6bdf9959f423c622ee8a61ab9a9edafe",
+  "aar_bytes": 9355964,
+  "apk_sha256": "d6ac37223f4d2f2f982d86baae22c42622a549051809c36dee17a8a34d445296",
+  "test_apk_sha256": "e0f287fb26bc055b0d597ecc435c44779352bd6047e5abdcce03e66c5650fa8d",
+  "gemma_prompt_sha256": "712889a3554ac211ef367eacf8989cf8cd2a8eacb2ec73060f019bacacddc695",
+  "sdk_only_native": true,
+  "all_abi_native_hashes": {
+    "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+    "lib/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+    "lib/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+    "lib/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253",
+    "lib/arm64-v8a/liblitertlm_jni.so": "5bb19fa9d9a39098c1f8bbbe58fa78ed08454fee5fd86f2964d9f8da95e5d52a",
+    "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+    "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+    "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+    "lib/x86_64/liblitertlm_jni.so": "2e98e5cd30d0091a0277f9a9421659d779548518268eae27ea878cd629b9869e"
+  },
+  "aar_native_hashes": {
+    "jni/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+    "jni/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+    "jni/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253"
+  },
+  "jvm_tests": {
+    "tests": 289,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 32
+  },
+  "main_source_delta_from_v10": [
+    "genuicraft/src/main/assets/genuicraft/prompts/gemma.txt",
+    "genuicraft/src/main/java/com/samsung/genuicraft/sdk/GenUiConverter.kt",
+    "genuicraft/src/main/java/com/samsung/genuicraft/sdk/SourceLayoutScaffold.kt"
+  ],
+  "provider_native_source_unchanged_from_v10": true,
+  "provider_defaults": {
+    "temperature": 0.0,
+    "gemma_thinking": true,
+    "gemma_thinking_budget": 1024,
+    "gemma_speculative_decoding": true
+  },
+  "query_sent_to_model": false,
+  "gemma_source_bindings": true,
+  "bundled_gemma_layout_scaffold": true,
+  "custom_prompt_layout_scaffold_default": false
+}

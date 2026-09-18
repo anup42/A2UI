@@ -1,0 +1,11 @@
+{
+  "kind": "captured_model_revalidation",
+  "replayMode": "raw_model",
+  "runId": "gemma50_v9_revalidated",
+  "sourceRunId": "gemma50_v7_gpu_mtp",
+  "total": 50,
+  "rendered": 50,
+  "failed": 0,
+  "modelCalls": 0,
+  "inferenceEvaluated": false
+}

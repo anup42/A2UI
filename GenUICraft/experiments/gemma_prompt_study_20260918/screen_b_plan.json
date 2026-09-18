@@ -1,0 +1,92 @@
+[
+  {
+    "name": "ps_screen_baseline_targeted",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\baseline_targeted.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 300000
+  },
+  {
+    "name": "ps_screen_mapping",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\mapping.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 300000
+  },
+  {
+    "name": "ps_screen_mixed_examples",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\mixed_examples.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 300000
+  },
+  {
+    "name": "ps_screen_minimal",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\minimal.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 300000
+  },
+  {
+    "name": "ps_screen_completeness",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\completeness.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 300000
+  },
+  {
+    "name": "ps_screen_procedural",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\procedural.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "stopAfterFailures": 2,
+    "caseTimeoutMs": 300000
+  },
+  {
+    "name": "ps_baseline_end",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\baseline.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0,
+    "caseTimeoutMs": 300000
+  }
+]

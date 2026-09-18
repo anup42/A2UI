@@ -1,0 +1,25 @@
+{
+  "run": "ps_synthetic_scaffold_v11",
+  "total": 3,
+  "expected_total": 3,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 3,
+  "first_attempt_success": 3,
+  "repaired_success": 0,
+  "failures": [],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "SYN-001",
+    "status": "success",
+    "elapsedMs": 24337,
+    "attempts": 1
+  },
+  "median_success_ms": 71144,
+  "median_warm_success_ms": 88098.5,
+  "p95_success_ms": 105053,
+  "max_process_pss_kb": 4034121,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

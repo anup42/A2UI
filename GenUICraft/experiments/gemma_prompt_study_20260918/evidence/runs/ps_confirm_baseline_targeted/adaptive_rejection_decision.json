@@ -1,0 +1,22 @@
+{
+  "decidedUtc": "2026-09-18T02:47:52.231145+00:00",
+  "rule": "adaptive_combined_screen_confirmation_upper_bound",
+  "knownScreenFailures": [
+    "BXP-030"
+  ],
+  "knownConfirmationFailures": [
+    "BXP-025"
+  ],
+  "completedIdsAtDecision": [
+    "BXP-001",
+    "BXP-006",
+    "BXP-008",
+    "BXP-013",
+    "BXP-017",
+    "BXP-025"
+  ],
+  "combinedPlanned": 16,
+  "bestPossibleCombinedSuccess": 14,
+  "scaffoldObservedCombinedSuccess": 15,
+  "reason": "The targeted system-only candidate cannot equal the completed scaffold score of 15/16 even if all remaining planned cases pass. Stop deliberately; preserve completed rows and exclude in-flight work."
+}

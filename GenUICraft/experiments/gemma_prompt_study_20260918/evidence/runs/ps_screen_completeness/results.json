@@ -1,0 +1,26 @@
+[
+  {
+    "id": "BXP-003",
+    "provider": "gemma4_e2b",
+    "firstInRun": true,
+    "baselinePssKb": 228917,
+    "peakPssKb": 3972101,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "A2UI Express statement is not an assignment: {\"root\":\"root\\u0003dColumn([a,b,c,d,e],gap\\u000d\\\"md\\\")\"}",
+    "elapsedMs": 151018,
+    "attempts": 1
+  },
+  {
+    "id": "BXP-030",
+    "provider": "gemma4_e2b",
+    "firstInRun": false,
+    "baselinePssKb": 3971665,
+    "peakPssKb": 4006413,
+    "usedFallback": false,
+    "status": "failure",
+    "message": "Expected exactly one complete \u003ca2ui\u003e program.",
+    "elapsedMs": 125220,
+    "attempts": 1
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-16",
+  "python_environment": "tmp/tensorboard_validation_20260914",
+  "full_training_suite": {
+    "passed": 1311,
+    "skipped": 3,
+    "warnings": 3,
+    "elapsed_seconds": 753.58,
+    "exit_code": 0,
+    "scope": "training/tests; collected before the last integration and URL edge-case additions"
+  },
+  "final_focused_regression": {
+    "passed": 188,
+    "elapsed_seconds": 14.0,
+    "exit_code": 0,
+    "modules": [
+      "training/tests/test_archive_semantic_review.py",
+      "training/tests/test_archive_recovery.py",
+      "training/tests/test_archive_refinement.py",
+      "training/tests/test_archive_final_review.py",
+      "training/tests/test_archive_boundary_review.py",
+      "training/tests/test_archive_letter_review.py",
+      "training/tests/test_reference_binding.py",
+      "training/tests/test_training_scaffold.py"
+    ]
+  },
+  "note": "Runs overlap and must not be added. CPU tests do not certify GPU training, device rendering or model quality."
+}

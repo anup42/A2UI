@@ -1,0 +1,46 @@
+{
+  "run": "ps_screen_compact",
+  "total": 4,
+  "expected_total": 4,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 0,
+  "first_attempt_success": 0,
+  "repaired_success": 0,
+  "failures": [
+    {
+      "id": "BXP-003",
+      "status": "failure",
+      "message": "Unclosed A2UI Express expression."
+    },
+    {
+      "id": "BXP-030",
+      "status": "failure",
+      "message": "Unexpected document delimiter outside an Express string or comment."
+    },
+    {
+      "id": "BXP-032",
+      "status": "failure",
+      "message": "Expected exactly one complete <a2ui> program."
+    },
+    {
+      "id": "BXP-037",
+      "status": "failure",
+      "message": "A2UI Express statement is not an assignment: {\"root\":\"root\\u003dColumn([a,b,c,d,e,f,g],gap\\u0003d\\\"md\\\")\"}"
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-003",
+    "status": "failure",
+    "elapsedMs": 51485,
+    "attempts": 1
+  },
+  "median_success_ms": null,
+  "median_warm_success_ms": null,
+  "p95_success_ms": null,
+  "max_process_pss_kb": 4121950,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

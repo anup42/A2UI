@@ -1,0 +1,13 @@
+[
+  {
+    "name": "ps_baseline_start",
+    "prompt": "C:\\Users\\anupk\\Documents\\git\\A2UI\\GenUICraft\\experiments\\gemma_prompt_study_20260918\\prompts\\baseline.txt",
+    "cases": [
+      "BXP-003",
+      "BXP-030",
+      "BXP-032",
+      "BXP-037"
+    ],
+    "repairs": 0
+  }
+]

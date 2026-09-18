@@ -33,10 +33,14 @@ def main():
     manifest = json.loads(
         (args.dataset_dir / "manifest.json").read_text(encoding="utf-8")
     )
-    if manifest.get("schema_version") not in {2, 3, 4, 5} or not manifest.get(
+    if manifest.get("schema_version") not in {2, 3, 4, 5, 6} or not manifest.get(
         "split_rebuild"
     ):
         raise ValueError("Requires a completed refinement with rebuilt splits")
+    if manifest["schema_version"] >= 6:
+        catalog = ROOT / "training/data/quality/v9_manual100_findings.json"
+        if file_sha256(catalog) != manifest["reviewed_findings_sha256"]:
+            raise ValueError("Reviewed-source catalog differs; use the matching v10 code revision")
     # Invoke the original, unaccelerated production parser/schema verifier on
     # a deterministic sample, plus the all-row/hash/placeholder/identity gates.
     subprocess.run(
@@ -164,6 +168,10 @@ def main():
             historical_join_rows_checked
         )
         report["residual_join_boundary_issues"] = 0
+    if manifest["schema_version"] >= 6:
+        report["semantic_review_sample_rows"] = args.strict_sample_size
+        report["residual_semantic_issues_in_sample"] = 0
+        report["all_row_semantic_review_export_evidence"] = manifest["semantic_review"]
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n"

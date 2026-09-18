@@ -1,0 +1,9 @@
+<a2ui>
+root=Column([a,b,c,d,e,f],"md")
+a=Text("Civil Lines","heading")
+b=List(items=["**Access to sights:** Good for reaching central Jaipur and many major sights by taxi or auto, with a practical location near the city center.[3]","**Transport:** Strong road access and usually easier ride-hailing connectivity than outer areas.","**Atmosphere:** Quieter, more residential, and typically less hectic than the old-city core.","**Main drawback:** Not the most walkable or characterful area if you want bazaars and heritage streets right outside the hotel."])
+c=Text("C-Scheme / central Jaipur","heading")
+d=List(items=["**Access to sights:** One of the best all-around bases for a first visit because it sits close to core attractions and city amenities.[6]","**Transport:** Easy to move around by cab, auto, and local roads, making day planning straightforward.","**Atmosphere:** Busy, urban, and convenient, with a more modern city feel.","**Main drawback:** Less historic atmosphere than staying nearer the old city, so it can feel more generic."])
+e=Text("Vaishali Nagar","heading")
+f=List(items=["**Access to sights:** Useful for outer-west Jaipur and still workable for major attractions by car, but farther from the heritage core.[4]","**Transport:** Well connected by road, though trips to older sights usually take longer.","**Atmosphere:** Residential, popular, and generally comfortable for mid-range hotels.","**Main drawback:** Distance from Amber, the old city, and central monuments makes sightseeing less efficient."])
+</a2ui>

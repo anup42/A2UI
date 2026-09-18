@@ -7,6 +7,10 @@ dist
 .vscode
 .idea
 __pycache__
+# Local Codex attachments, scratch work, and raw device captures.
+/.codex-remote-attachments/
+/tmp/
+/android-diagnostics/
 outputs/
 *.py[cod]
 .pytest_cache/

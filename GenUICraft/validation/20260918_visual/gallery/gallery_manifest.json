@@ -1,0 +1,3615 @@
+{
+  "schemaVersion": 1,
+  "kind": "byte_preserving_renderer_visual_gallery",
+  "beforeRun": "tmp/genuicraft_20260918/gemma50_v9_revalidated",
+  "afterRun": "tmp/genuicraft_visual_20260918/gemma_visual_v14_full",
+  "beforeRunId": "gemma50_v9_revalidated",
+  "afterRunId": "gemma_visual_v14_full",
+  "caseCount": 50,
+  "modelCalls": {
+    "before": 0,
+    "after": 0
+  },
+  "sameAcceptedJson": true,
+  "imageTransformations": false,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "assetCount": 426,
+  "cases": [
+    {
+      "id": "BXP-001",
+      "domain": "Weather",
+      "query": "Search the web and use reliable sources. Find Bengaluru's weather forecast for the next three days. Show the date, high and low temperature in Celsius, and rain probability in a table, followed by two planning tips. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "bd30e774121d520ca52a5b5c3d63ed53bbd591e871711fa9ebc22fd8fdefdeed",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-001/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "220b74bf541caf8edb0088a01bb939a49f446c1be97cb785ed689a4074ffdd25"
+          },
+          "after": {
+            "path": "assets/BXP-001/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8112463d7a5e61c20888fae02569cc4ef7d1c47a5c1c860d3098f50c4b3db7e0"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-001/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "20147ba5cd94ee9343138a0ad2e5789cd5bd64d62e0ac390b9401ad6bd98e624"
+          },
+          "after": {
+            "path": "assets/BXP-001/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "39caf8f6eba3ac812cc0c36727d6d240b8d6469bcb6e1a49a90d2d8e79a6c5fb"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-001/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ca0309f2a7271cd3694f988142f20759993192fae94ee6f4445dac0709cea271"
+          },
+          "after": {
+            "path": "assets/BXP-001/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "daa55c5bea497b2cfd1332d33a24a2a558c96416c790be943986aa02a0056286"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-002",
+      "domain": "Air quality",
+      "query": "Search the web and use reliable sources. Find the latest reported Delhi AQI. Give the observation time, reporting scale, pollution category and main pollutant, then briefly explain the outdoor-activity guidance for that category. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "33fefccea91d621780bf4a3d0147d3bbdf25d7a4d78200d14607b7947665cbb6",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-002/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4146fdd8049b5da327cf86aba11235bbc7daf35338359949a20016677b6993ef"
+          },
+          "after": {
+            "path": "assets/BXP-002/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "42161ffce11baa32697c34a5f4c9f9b2a856827f4d0614b3465c4a3e5a6447fd"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-002/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4146fdd8049b5da327cf86aba11235bbc7daf35338359949a20016677b6993ef"
+          },
+          "after": {
+            "path": "assets/BXP-002/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "42161ffce11baa32697c34a5f4c9f9b2a856827f4d0614b3465c4a3e5a6447fd"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-003",
+      "domain": "Rail travel",
+      "query": "Search the web and use reliable sources. Compare three daytime train services from Bengaluru to Mysuru by departure station, typical departure time, journey duration and seating class. Flag any timetable uncertainty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "bfd5660f302d5de55bae99f0b0b4f580bfc4cfdfb9ead7429c2cd05baf65b9f6",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-003/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "813142ee65aad57b4e5d3126b2444ee725cd5a14b5bd433f13775abe53fac3cd"
+          },
+          "after": {
+            "path": "assets/BXP-003/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "580a8124931509d0b3faff886f2845f065e8ed4ecb5fc8a5b0527b57fdf5f90d"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-003/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2b6667359e208d82e5b4df5e6d00c3923268da58574129e39a94051a7cd07e5d"
+          },
+          "after": {
+            "path": "assets/BXP-003/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f3039cab27a6ace11003a37591c331e261c12effabc59590e684c6707be9e5dd"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-003/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6bfefc576078d21b3609da44a79b9bad19887b8d8858a12b999f24f92647e10d"
+          },
+          "after": {
+            "path": "assets/BXP-003/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4311c2f5d9e4ec358928932872344485312347b4702ad28e1b7036ef0567d5e8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-004",
+      "domain": "Airline baggage",
+      "query": "Search the web and use reliable sources. Summarize IndiGo's current standard domestic economy cabin-baggage and checked-baggage rules. Include weight limits, size limits, excess-baggage charges and important fare exceptions. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "9cb24ac441dd8d682886506ab5ffbefb7f7b4b0949f5375bc16d436d75b0c55f",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-004/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1a91a746d9f5f524351ce316040b61f3409cc0795354d5b42e8afa657649d77f"
+          },
+          "after": {
+            "path": "assets/BXP-004/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "19b385540751f71542ed7458c89bc07f1cf7726c7e9062b67b4e4da027da900e"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-004/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "482e1a43ecb165217e243d23c803e03c16f97482ee410b742961ee20de6f05a8"
+          },
+          "after": {
+            "path": "assets/BXP-004/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9ff5e789999750db0af6586ac4358e523d359f1caea1221c1a3b6b9df7edea26"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-004/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "bbe135cc10f32ea37927d166dff9c46f9866d8aa7af01156d7daea804bd7ac95"
+          },
+          "after": {
+            "path": "assets/BXP-004/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "64d9bd967edaaced79d4e83bfdd189b988795871efe7f78e9d1b738fcf31877e"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-005",
+      "domain": "Urban transport",
+      "query": "Search the web and use reliable sources. Summarize Bengaluru Metro's current operating hours, ticket and pass options, and interchange stations. Present a compact first-time-rider guide. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "ed6ab0cf4b556a114882a833f76009fcd7ff748ede29420378296f17c75e4fd0",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-005/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "afc7320453be1bae77953f81e246f8c82ebcb5010bd6409f7c841aaa09082ac3"
+          },
+          "after": {
+            "path": "assets/BXP-005/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9e1bd8393f00fcfc3a527ca30ec5cba2a9f8a35b5fa8ea51f0d15e507a022722"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-005/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e4a8a3d6a20fe3e6a5728af98abe96bf90412e63ee951fafc39a5747faa55e30"
+          },
+          "after": {
+            "path": "assets/BXP-005/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "90c13e9b1b4dd41b31e9381055c8a05bd73157b7dc8881b5ddfa320f7bb0f1de"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-005/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c12b376194ac7636795e3bde2bd5c5a0a53c96d66124ed222db0f8cab597f660"
+          },
+          "after": {
+            "path": "assets/BXP-005/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "701d9e97d7cc69418dca131f475bef42aeb445c8e8e92e3ea960d85a88ff85c8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-006",
+      "domain": "Road trips",
+      "query": "Search the web and use reliable sources. Compare the two main driving routes from Bengaluru to Madikeri in Coorg. Include approximate distance, usual travel time, road conditions and one useful stop on each route. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "c9175c78858a94608a8d6627a18fe7ea600ab99d64c0425ff958d1db20c6a178",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-006/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0e829acbad17fc3772f970ccbc07ef212427d4f43ce50bee64b42f33ae2c8459"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0a5965752d3c5b633c5e8413d044e5784c9044b69f55b3c74a30082341748a18"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-006/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a8585d3f1404b4d713d5006ac63a4ba66e590bb129dfc35b69e72004be91f7bb"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3d97d16831c05bbe579900beeab5ff6f09023d93131c1717da571a5cd4bd9494"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-006/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6f2fff061d064f49a7475f8fc386ee97d3a4c767ece2e513192b1d9354048d85"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "29a4a857dd23332791d19385455a6fb3e39fb8ef518782dd41b2a1f9ae4b41d5"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-006/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "bf22121310221685c41ffee0478fe1cbb505423d100c35e29faf8c9230a53add"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "53e38f7d93f4e93f1808cb4c5363ae7f2df057b414871a5b889fa09a09c5fc21"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-006/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6641833c9fcf1b2b5c1f02ec0ff2ade0b1c765a3ea6dce36ba8b07cc91df276c"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0a5965752d3c5b633c5e8413d044e5784c9044b69f55b3c74a30082341748a18"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-006/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "32f0d80b8bd66425a60121a0bc802a14f124d3797b9e2569c07ef256b73fd9e1"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "592bf8d4e92c385ba43ff531097e3720a0c3702389cff77f1c7a66522dd07670"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-006/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "58e279991252931a246198db5b0935583f48dd6d90d136cafb0b4c7377c0d98f"
+          },
+          "after": {
+            "path": "assets/BXP-006/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5a5703219f7b49b4f5aca7b9c852b2c6d89237f0dce6f275d84b95d26c721ba5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-007",
+      "domain": "Sightseeing",
+      "query": "Search the web and use reliable sources. Suggest three major sights for a one-day Mysuru visit. Give opening hours, usual visit duration and published adult entry fees in a table, followed by a sensible visit order. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "c398234e35cd274c84f1148513a7a0e16ec0a6bdc21161c047d3acf515badd5c",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-007/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "720e728a893c78877683c3759508369bc79590b2eee421c19d59ff7dab9e1ad3"
+          },
+          "after": {
+            "path": "assets/BXP-007/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "af9aed9f055047538d339ed9924f73019e0941e0b574599ec79da7f52981e69b"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-007/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "15fad0a6d1e7655140643c3da5a08d066353a2a62c85e7c4844075d23e027fde"
+          },
+          "after": {
+            "path": "assets/BXP-007/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e6bd2614100565d5f76c87dd31c3ec6ee3b21f06c917f086bf4806d24659a5ca"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-007/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "720e728a893c78877683c3759508369bc79590b2eee421c19d59ff7dab9e1ad3"
+          },
+          "after": {
+            "path": "assets/BXP-007/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "af9aed9f055047538d339ed9924f73019e0941e0b574599ec79da7f52981e69b"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-007/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "720e728a893c78877683c3759508369bc79590b2eee421c19d59ff7dab9e1ad3"
+          },
+          "after": {
+            "path": "assets/BXP-007/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "af9aed9f055047538d339ed9924f73019e0941e0b574599ec79da7f52981e69b"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-008",
+      "domain": "Restaurants",
+      "query": "Search the web and use reliable sources. Find three established vegetarian breakfast restaurants in central Bengaluru. Compare neighborhood, signature dish, approximate cost per person and opening hours. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "47b4c4a50dc942a0d13a501129242760f7353fa1b5e03338d3a20adf9937392f",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-008/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "fb57c5f724055ffc78f6c96542afd26fdde0081d9bc3eae661c4c57dfeaf3e09"
+          },
+          "after": {
+            "path": "assets/BXP-008/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "155cb594712209956794c44e54ffefd49ba0ed84ddba2428201cb7780c872118"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-008/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "309d0f849bd8ee4698de44d4d4b4278c34514ab716777fcfc2e80fc16fbcd54b"
+          },
+          "after": {
+            "path": "assets/BXP-008/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a030f61d88ed402c390d5fca3b3bbd95249327f38e4f6e897c575878835799db"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-008/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "39d1fc16c47c85ef7665a5ba300b6e6ce76d95b479a1b7a25d49d760f052f210"
+          },
+          "after": {
+            "path": "assets/BXP-008/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "74d6031ec49469bfeff8f18acbc12b8f12225709279f0632c81ce35ea7f530d0"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-008/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "fb57c5f724055ffc78f6c96542afd26fdde0081d9bc3eae661c4c57dfeaf3e09"
+          },
+          "after": {
+            "path": "assets/BXP-008/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "155cb594712209956794c44e54ffefd49ba0ed84ddba2428201cb7780c872118"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-008/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "fb57c5f724055ffc78f6c96542afd26fdde0081d9bc3eae661c4c57dfeaf3e09"
+          },
+          "after": {
+            "path": "assets/BXP-008/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "155cb594712209956794c44e54ffefd49ba0ed84ddba2428201cb7780c872118"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-009",
+      "domain": "Accommodation",
+      "query": "Search the web and use reliable sources. Compare three Jaipur neighborhoods for a first-time visitor staying in a mid-range hotel. Cover access to sights, transport, atmosphere and the main drawback of each. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "17759aa9078588f3c625d33f5c0f7a044a1fc1b630ef227820d63c5c7844259c",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-009/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "aac3e561543c8f32538ea758f60cc71a83df900f366085fc584e74e794b0e560"
+          },
+          "after": {
+            "path": "assets/BXP-009/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d9acf5a22d0a60bb8454043939513f3de6d886f1a4beef3ca7ddcbf851dccb8a"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-009/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4e21a19257628071b3b6d731308a9ddb646e05ec39ee988d7ada7c96d8242969"
+          },
+          "after": {
+            "path": "assets/BXP-009/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7a09411fb11dedbcd6672cda37a8fc7f07978ec22212f2e09fb0e9d6c92f7329"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-009/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9b56fe856a7c4e99950b01fa305ccccf816055679ec4230c39690c01e96e3039"
+          },
+          "after": {
+            "path": "assets/BXP-009/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e100490d54f2335bc20a2895301ed53bb078ea17a02852e6c2ad938bfe40a2e7"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-010",
+      "domain": "Consumer audio",
+      "query": "Search the web and use reliable sources. Compare three wireless earbuds currently sold in India for under INR 5000. Include current indicative price, noise cancellation, advertised battery life and the main trade-off. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "c1a223fb48e7a7584423d5185bd5b24644a86d72980336f493bd1b3e40bd300d",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-010/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b3a09d85e118549e1953dc29c862055c02363d750a5e74508ae13e16cfe9d13b"
+          },
+          "after": {
+            "path": "assets/BXP-010/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8c6c6a25536cc2dff17caa9fcddd4f33babc7bcdb408bcb901155ed54b825bd8"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-010/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b3a09d85e118549e1953dc29c862055c02363d750a5e74508ae13e16cfe9d13b"
+          },
+          "after": {
+            "path": "assets/BXP-010/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8c6c6a25536cc2dff17caa9fcddd4f33babc7bcdb408bcb901155ed54b825bd8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-011",
+      "domain": "Smartphones",
+      "query": "Search the web and use reliable sources. Compare three smartphones currently sold in India for under INR 30000. Include indicative price, display, battery, software-support policy and the type of buyer each suits. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "a5a9922d5ccebc09dc8b699cb5788b2138a5384be6a03b3e168c1402a15b5908",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-011/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "38b60f28e219a0206c021265d8ec3c5327326096097bab172d9b920e9e4b8d8f"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "73df0984642c26974412971dd2143165e7d15af75a0dbbaa3fdf01d880291175"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-011/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "29aaa7a16cc42f5317efcdf1495457beff0bf41f9ad8ee35a71735f4b0baedfc"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "cc502a708d2a03178b43254b1fbee0f7e0c65b7370f215e6dcfa4ce95f3b9fc0"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-011/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2c216b616e7453084e538aa3fc0a29344a0c39ff70f058d42e8b66e0032b1889"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e230fffd668db5458da84c70f152360baa93b00c22024de26ddab4ead249c04e"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-011/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9b20561770ed453d2a84118c6a250a7fe177635cb80d3e837d4b4ff276975171"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "850040832117e0f37a266a1227214de667fccb213780e81af2fd3ec0ad38849a"
+          }
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "before": {
+            "path": "assets/BXP-011/before/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "849a001d670a19406eb7d709e82e312864c81424344d2e14b9180511c67652a4"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5c838dbdcc4aa0bbd8db10473b857b58d0814283ab8ce1b67372b89c2abe684c"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-011/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a29289edd19263f89cdf1687378ca2fbf2c2dd709ed7f97fef70175380017da7"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b0d94af0eb8042e01f97f28d9cc9954d0620bc495e74f015511bffac1b5875ce"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-011/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a29289edd19263f89cdf1687378ca2fbf2c2dd709ed7f97fef70175380017da7"
+          },
+          "after": {
+            "path": "assets/BXP-011/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b0d94af0eb8042e01f97f28d9cc9954d0620bc495e74f015511bffac1b5875ce"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-012",
+      "domain": "Productivity software",
+      "query": "Search the web and use reliable sources. Compare three free note-taking apps with both Android and web access. Cover offline use, synchronization, export options and the most significant free-plan restriction. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "3ef11612cf64226b32444d3b76adba3a5d601b0d11329a3c5572309d5b871436",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-012/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d5e1ab62a30619ea9ff39c28e8673252914cbd7ac511118c5f22611a1dbd0350"
+          },
+          "after": {
+            "path": "assets/BXP-012/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e11fc9c9a3f1780fbae9b9cf294791167731c49913e33a41216099e8c02243b4"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-012/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1ea008e7daec11af52b1b456a8331becaaab8dff0870751f503140ef34c39c2a"
+          },
+          "after": {
+            "path": "assets/BXP-012/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "80ef7b5306a35c0573685e63832ca05a597bbc6f999e8852e0670d03a22d958d"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-012/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2af148b3701021191411407a6233f2958688689f3125c030278fe77fc60afc1c"
+          },
+          "after": {
+            "path": "assets/BXP-012/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "96351b0f902bd66d4b59dfe51e6cd0e8cd0e67fc14b80f7f006209f8bde591fb"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-012/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9ff47dc195dd26add7bc64fbe93b58ee5d395f4cce3d219980fe7265d31387fc"
+          },
+          "after": {
+            "path": "assets/BXP-012/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d3ea91fa653997f91f0af1d7c902edad968060e1364107cb891cdbc9cf8056c5"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-012/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "cadfdb1af429d19d62d22821882dc635da5663922a8e62c305d796f986a63b7b"
+          },
+          "after": {
+            "path": "assets/BXP-012/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e11fc9c9a3f1780fbae9b9cf294791167731c49913e33a41216099e8c02243b4"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-012/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "cadfdb1af429d19d62d22821882dc635da5663922a8e62c305d796f986a63b7b"
+          },
+          "after": {
+            "path": "assets/BXP-012/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e11fc9c9a3f1780fbae9b9cf294791167731c49913e33a41216099e8c02243b4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-013",
+      "domain": "Bank deposits",
+      "query": "Search the web and use reliable sources. Compare current one-year fixed-deposit rates for regular adult retail customers at SBI, HDFC Bank and ICICI Bank. State the deposit-size assumptions, rate dates and premature-withdrawal caveats. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "cac942b51948f393e4e9eff1d6b6ad843f682f2f9a0d1ac24100530e8bd1bfab",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-013/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4ff910c19e3ad3b9462a48e3354cdb07a262d26ccb4abed5f83d8703a4076732"
+          },
+          "after": {
+            "path": "assets/BXP-013/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "024ea2b34f988ad1a50bf3d54455eecbf57107957fc23e68d0c825141392e9e5"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-013/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e62d03b83bce9b2dc4c3f31819fea4a7c81fed6dc4f8c0c5c9c2ae15e4164dee"
+          },
+          "after": {
+            "path": "assets/BXP-013/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "750ed32d227d12e103074e7d25c1dc2f63849dec7e678767cd8a728a85ca564e"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-013/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9b7ba4c94634655c89a977b9431a9df1d536c31bd4f5a01c605d90f0b6422f36"
+          },
+          "after": {
+            "path": "assets/BXP-013/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "36e108dc179503d8b18360f1f45b6cccf6cab33a94e1158f13f1b936d3486e37"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-013/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "bcda8bdfe1ec76d34875ffd8c53cb09115ea0d5fc8689510970f492c78842357"
+          },
+          "after": {
+            "path": "assets/BXP-013/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "02781d56263edbe0b9d0628c57146bd14c3ec91adf6e4b308513ff714359ea5d"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-013/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "961742a68614410b16da3a02c1dc5cc64b2b1b4f80807736f4b05a940cc62546"
+          },
+          "after": {
+            "path": "assets/BXP-013/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "36e108dc179503d8b18360f1f45b6cccf6cab33a94e1158f13f1b936d3486e37"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-013/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "af99287e032e730a1f5c8bb34965136b20a43ae1c82cc5fafb947494183205b3"
+          },
+          "after": {
+            "path": "assets/BXP-013/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2b592c9fd6e0e9f9a5e2da19ca605205db51da31b9ce275115e895a2174ecbac"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-014",
+      "domain": "Foreign exchange",
+      "query": "Search the web and use reliable sources. Find the latest publicly quoted USD/INR, EUR/INR and GBP/INR exchange rates. Show the quote timestamps and explain briefly how reference rates differ from rates a traveler receives. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "c0a5c3b3107df68cfdbfc6a891865450805541f81c951359f33aa60126623120",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-014/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4c24c7bf31a3224575af3eaf671c65b1454b4345448918702f1f40a1fe97f0b7"
+          },
+          "after": {
+            "path": "assets/BXP-014/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7847bbc757ec334e985778c7358a314290326c0c4df5435d0f13ce879764bfd9"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-014/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4c24c7bf31a3224575af3eaf671c65b1454b4345448918702f1f40a1fe97f0b7"
+          },
+          "after": {
+            "path": "assets/BXP-014/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7847bbc757ec334e985778c7358a314290326c0c4df5435d0f13ce879764bfd9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-015",
+      "domain": "Cricket",
+      "query": "Search the web and use reliable sources. Summarize India's latest completed men's international cricket match. Include match date, opponent, format, team scores, result and two standout performances. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "3aa4be247b06aa7128a60dec1f27b44750ccf8f2d0340715f7d32c49df1aec10",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-015/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a3827de5ad1ebffb480f22ac35bbb3a4b26c4b00654762bdf864937351b275ba"
+          },
+          "after": {
+            "path": "assets/BXP-015/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "784e03d178fe0d9e95849453be4ba14c0e910d5dc093080c446ce898b2c0873d"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-015/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a3827de5ad1ebffb480f22ac35bbb3a4b26c4b00654762bdf864937351b275ba"
+          },
+          "after": {
+            "path": "assets/BXP-015/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "784e03d178fe0d9e95849453be4ba14c0e910d5dc093080c446ce898b2c0873d"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-016",
+      "domain": "Streaming entertainment",
+      "query": "Search the web and use reliable sources. Find three Hindi films newly added to major streaming services in India within the past 30 days. Give title, platform, streaming-release date and a spoiler-free one-sentence description. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "80a299424e7e852812059dcbd9bb67094a31b02715323b929c06cafb235194a9",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-016/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4f77e3e1943e80f4035e937952518eb46b842c41b4d073b4bf68c5eb211a66ad"
+          },
+          "after": {
+            "path": "assets/BXP-016/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9501d2fc604bb2d158b49cac4d55931f6ea1ce933d6241b7a688c4a8b6e539ea"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-016/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "42c1b14a66b7fcc8c2598821292eb8030969656c6d03e4dca99cc737f53a353f"
+          },
+          "after": {
+            "path": "assets/BXP-016/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ffa968c36b67efceb9e0e0259b795e20b16c1e4b79d510ad34f07c251fec84aa"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-016/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4f77e3e1943e80f4035e937952518eb46b842c41b4d073b4bf68c5eb211a66ad"
+          },
+          "after": {
+            "path": "assets/BXP-016/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9501d2fc604bb2d158b49cac4d55931f6ea1ce933d6241b7a688c4a8b6e539ea"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-016/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5421ae31c039635349024a447878715a5df53bfbab3cc49388d3a7e4ff4cdce0"
+          },
+          "after": {
+            "path": "assets/BXP-016/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9501d2fc604bb2d158b49cac4d55931f6ea1ce933d6241b7a688c4a8b6e539ea"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-017",
+      "domain": "Books",
+      "query": "Search the web and use reliable sources. Recommend three nonfiction books published in 2025 or 2026 about technology and society. Give author, publication year, central topic and the reader each book suits. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "d26f4a543982d7387b643ca98084cc8094c46fa0055988f97ca03675d848836e",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-017/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "976f5de0258f88de7068d766732549dd2c578efcb51c9fb7be139ae442327ffe"
+          },
+          "after": {
+            "path": "assets/BXP-017/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0754282e3d406d5dd65aaac2ecec51eb0bcb2a05465b34791a6df005d65ff64c"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-017/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "976f5de0258f88de7068d766732549dd2c578efcb51c9fb7be139ae442327ffe"
+          },
+          "after": {
+            "path": "assets/BXP-017/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0754282e3d406d5dd65aaac2ecec51eb0bcb2a05465b34791a6df005d65ff64c"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-018",
+      "domain": "Music charts",
+      "query": "Search the web and use reliable sources. List the top five songs on the latest published Billboard Global 200 chart. Include artist, rank and chart-week date, followed by two observations about the chart. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "2473a45bb4128fc9c6f10c4390a1921c27ff0b2844dc7e9bc4d87efc8825be4d",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-018/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3ccf110057c44550b2de46e30a34338fef7a88f4fefb09c265aa12b3defc643f"
+          },
+          "after": {
+            "path": "assets/BXP-018/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0f4c76295c7672aa99265e587c7b5ecdf1382da372fb831be83b2df098e3011c"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-018/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3ccf110057c44550b2de46e30a34338fef7a88f4fefb09c265aa12b3defc643f"
+          },
+          "after": {
+            "path": "assets/BXP-018/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0f4c76295c7672aa99265e587c7b5ecdf1382da372fb831be83b2df098e3011c"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-019",
+      "domain": "Video games",
+      "query": "Search the web and use reliable sources. Compare three family-friendly PC games suitable for cooperative play. Include age rating, local or online co-op support, player count and indicative Indian price. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "24b5019c91a96807d534d57f89956a62edb67877910e8d572e82251ae1725c86",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-019/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f15b49db11200bbb2802624d55465bf34e7ab329f2271182db090d26afd2e960"
+          },
+          "after": {
+            "path": "assets/BXP-019/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "06a6c404f111f7ce792bac587ad3c85ac8655f3efdfcb73008fc19a2ff2c4fb6"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-019/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e0c64f5093dac1ad5ca2ae42df5ff1d6c8296ba0f723b9bdb6cbe4523c759397"
+          },
+          "after": {
+            "path": "assets/BXP-019/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ad1dce79708f328444cd640de9917b05fa61fddace7c9030bf325da7f833e39b"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-019/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f15b49db11200bbb2802624d55465bf34e7ab329f2271182db090d26afd2e960"
+          },
+          "after": {
+            "path": "assets/BXP-019/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "06a6c404f111f7ce792bac587ad3c85ac8655f3efdfcb73008fc19a2ff2c4fb6"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-019/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f15b49db11200bbb2802624d55465bf34e7ab329f2271182db090d26afd2e960"
+          },
+          "after": {
+            "path": "assets/BXP-019/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "06a6c404f111f7ce792bac587ad3c85ac8655f3efdfcb73008fc19a2ff2c4fb6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-020",
+      "domain": "Space missions",
+      "query": "Search the web and use reliable sources. Describe the next publicly scheduled ISRO launch. Include mission name, planned date, launch vehicle, payload purpose and any official schedule uncertainty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "ce2f6d724464c14eefc00cb45dd40f639364d070eedf9aed48ed3eb5ebd27a00",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-020/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "014c3a79a149bb8c8fc9854f3e0ae716fef6ae396fc9ece8b534fdd22b1fc118"
+          },
+          "after": {
+            "path": "assets/BXP-020/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "879fc53f318bd244ff0f5b326f54e93e4012210ad884b6609f571ddd6bb2cab4"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-020/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "014c3a79a149bb8c8fc9854f3e0ae716fef6ae396fc9ece8b534fdd22b1fc118"
+          },
+          "after": {
+            "path": "assets/BXP-020/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "879fc53f318bd244ff0f5b326f54e93e4012210ad884b6609f571ddd6bb2cab4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-021",
+      "domain": "Archaeology",
+      "query": "Search the web and use reliable sources. Summarize one significant archaeological discovery announced in India within the past 12 months. Explain the location, dating evidence, discovery and why it matters, distinguishing findings from speculation. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "8eccf2bda4e2c107bf059dc48186fe31d1b61e36a712c4609d3ea55d63daae57",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-021/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "711e2c10c4f73046ae7f2d125a855d6468ff48e21c5315f28e2d976fa9b52ffc"
+          },
+          "after": {
+            "path": "assets/BXP-021/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2feaa9386d205c02d7c25bde378380163d60a36cb007839444455e12f4d3f373"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-021/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "55cb5a7d57cdb0ad99a8f28b9d231ff862b9f4afa8f0369221f6dc9fa15d197a"
+          },
+          "after": {
+            "path": "assets/BXP-021/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c847315097dd885f492bd272ddc5298859a79578938d126dd20c829a892d5d3a"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-021/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5df9140902e5750bfe3f328fc90c02010cfb97f81508b1ba18cc5afe251cd433"
+          },
+          "after": {
+            "path": "assets/BXP-021/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "65f685caa1241f97fec97b4a329b65d8e5b710c7705df0e9834ea93bc20ac6dc"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-022",
+      "domain": "Gardening",
+      "query": "Search the web and use reliable sources. Explain how to grow tomatoes in containers on a Bengaluru balcony. Cover suitable planting season, container size, sunlight, watering and two common problems. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "45d8647b3c63e36e709c87ceeadfbbeb3cae380d2daac2ec961ffdd8ea904c15",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-022/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a505d5c6409f31db16717b13c09a89c389ecf111af0446deeba3a051ecdf5ee9"
+          },
+          "after": {
+            "path": "assets/BXP-022/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a8122c3f8ae9f3adf627fd0347a4d6d32f92deb546e855feac026c64f0ecda29"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-022/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0bad3388cf0ea415529e631d04fd3d56f7622816f04b64f6dceb1313e8ffc1fa"
+          },
+          "after": {
+            "path": "assets/BXP-022/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "472d96a9a1613bb994eb712ff2ea2f4b75cabfdf4f68811d8fd4d4c35265f616"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-022/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e28d0bab44e1f212053ee61424ec3167ae4890d1b40269987e32b235545433a2"
+          },
+          "after": {
+            "path": "assets/BXP-022/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7ce294ad4f960e48361a03087fd5055f555e4d9ec9ca9d12eb0943086418aeb4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-023",
+      "domain": "Pet care",
+      "query": "Search the web and use reliable sources. Summarize routine preventive care for a healthy adult indoor cat in India. Cover veterinary checkups, vaccination discussions, parasite prevention, nutrition and dental care using veterinary sources. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "453659ae1b51ee2704ae9ac8b923f51b4345e0c776630fcea72ce6cac0e3d8c4",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-023/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8b666f59123c06f1963e61c8b976dcabda66bfcb6ab8091eaece9e0bdc43da13"
+          },
+          "after": {
+            "path": "assets/BXP-023/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a61a5e5b5b2babe755c2a0e89c2ad1aa4a8ccbee185ffffded844a044e26221d"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-023/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4bef98ceb0aab16bc747b427dfb40a94109eb90f0ac7b53b3629293acbbc6d71"
+          },
+          "after": {
+            "path": "assets/BXP-023/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e3585ffed1bbaec8191390feb28aded647f21d453ecac08661a8601bf28c0744"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-023/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a928033e9771223bf57b99374c41cd4d81c3e5647841fbd954a7bc0ca08656b9"
+          },
+          "after": {
+            "path": "assets/BXP-023/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a79f5bd5317e6893f8ec37c5c422c98226e85e4c9a72e9ef8143c59f89b7aaa8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-024",
+      "domain": "Waste management",
+      "query": "Search the web and use reliable sources. Explain how a Bengaluru resident can safely dispose of a used laptop battery. Include approved collection options, storage precautions and what to verify before handing it over. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "7d87701f7ffb64ca2abd4eff976cb7c91db5be4df88523491510ddbdcaec938c",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-024/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9f89fce34a773f17681deb631d8a70a4d73991e4a2e17b2f8016e939dcbdd4a4"
+          },
+          "after": {
+            "path": "assets/BXP-024/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b267defd03f590fa15a72a696eabc27336ccd9c927e67e14b6dcd895fadd4c60"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-024/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9a798462d4b83b5776f4e1507b927fe92466e5dfed2164871acf475ea81f3842"
+          },
+          "after": {
+            "path": "assets/BXP-024/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2098742c5098336e5cc50e64feb7d684ec67caacb007aa190f08bbc74d33625f"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-024/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "35f88aa278276a35ef7fda46d5a7a4f4489fa9dd2084eb9a3d935e2b5a2de08d"
+          },
+          "after": {
+            "path": "assets/BXP-024/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "30ca85d7e2efb5704801b5a0c0cdb72c27fe373e49368f8de865b9a12fb3cda6"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-024/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "82c834eab8146f2b6a804e1d122fbb60b2bb386740411104781e5894c2326cc6"
+          },
+          "after": {
+            "path": "assets/BXP-024/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "97af16fbbd2a37d8f25c6e08906897b5112f749c1b084b1bdd279f3592654e86"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-025",
+      "domain": "Language learning",
+      "query": "Search the web and use reliable sources. Create a seven-day beginner Hindi practice plan requiring 20 minutes daily. Give one speaking task and one listening task per day, and suggest two free learning resources. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "2566375f1f897fa0aa434cd88bc30c623a356be7b707493a5625b57ab47ca8dd",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-025/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6b1db567812f9627370b485681ebeac887aad8192275129eb4f00cc20913c3da"
+          },
+          "after": {
+            "path": "assets/BXP-025/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "33914cb5ac8c9dcb21df993b59bc07e54f18e8e9e4df174b0a9e4b85e5e387b5"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-025/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "15e79cce4c4a8b48c04468fe90e9d71add585304f49d93677519e3f4fd56428c"
+          },
+          "after": {
+            "path": "assets/BXP-025/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "85aadab048113603c4d088a0c7782df87916544d219a30e78b847291527877b5"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-025/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e57262bf11d70aecb37fdf07f22a19b337fda4e217f98f4289b776ffe92aec7b"
+          },
+          "after": {
+            "path": "assets/BXP-025/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "04077f64147fb110f8c93eba0baf5d2c6d9ec06277499abbb7a9be2a601bf7ca"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-026",
+      "domain": "Artificial intelligence",
+      "query": "Search the web and use reliable sources. Compare retrieval-augmented generation, fine-tuning and long-context prompting for a company knowledge assistant. Use a comparison table covering data freshness, cost, setup effort and limitations, then give three concrete use cases. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "29c8e4642cb719221327113c7ac31b99fb6bdfd97a1d7c6fafed0ca5bdcd5dbf",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-026/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1dd275b0515c2e565fdc7344e79e5dac8ce879839fbf8b489401f24f44f559ef"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "871bf836697fcb0f1cae85cca5f4429daacb0b4dd2ada844ac86d0bcc01585eb"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-026/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e00d9fb0737d6ba30ecc6a7f92c3cdf6bbe62bb7569682861a63c69374646b28"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7566e1748abe50ab9baaa5d0a45ed835503167aff0812e84d2974a305adee694"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-026/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "056fd12ac953f84ede1cd79eb71a521106bac0e8feb55b1d8f48689e2ab32930"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3d7b3aa302c1386d9f850904fb51fbdbd6c862b5da16fba82168d600019323f9"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-026/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9424a5a16844f639d579e57d2cb8f78f4893e7e4f3ed277e4b4c2435793bd391"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "67cbd08f01d9505629da7b2684c59032f5311dd54775cd34fd77da66c591549e"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-026/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "67a804b68cbb786d0eefde878b5669a2309ff3967e2291030767744f810ae3e2"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6d8faa7cc78012ad34d11a18237f86f20e85d344438099b409b718af9c30da28"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-026/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "cc78af4e245f387e83de7d17df3253de23354ddbc28757f6e00a8c99e0f2b2c6"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6652ddd6c3a83d12a35f96ca95bf99dad1849acc3379d1230bb42b98a571fb64"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-026/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d65ae352706366fdc735fd8f9d8e3eb3a7f1bee353fb7a622e0ef615a594a90c"
+          },
+          "after": {
+            "path": "assets/BXP-026/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a39652ee64a238d5a38be79ef50d25b50a433f2af008c8bf26defa1e1de40f43"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-027",
+      "domain": "Cybersecurity",
+      "query": "Search the web and use reliable sources. Create a phishing-awareness guide for office employees using authoritative security sources. Include warning signs, a harmless example email, verification steps and what to do after clicking a suspicious link. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "fae2366dc6dbb505aebc3c669b7a6f47463249ae45c8a230d049c6100a5a7115",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-027/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "77fe6bd5a5b3f1aff5e98203b886c28f4a6975d7987b61abc1b5e908f87a527b"
+          },
+          "after": {
+            "path": "assets/BXP-027/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "86794c856704f946171eb9e90dae105f7905e67b08ac362b0ee638fc8f7c503f"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-027/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "360d799e79e3ed9d2b9cebbe0c4ade1794d11591366aca0e14ddec40dba874e7"
+          },
+          "after": {
+            "path": "assets/BXP-027/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "847a1c8b016f50d8f0d2bc351aa5f1a556076031347548a9b3203d6075ca3d99"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-027/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e273367abb8ef88f586e91e7b3b665f66b3eade742deb51637e3b857016649a5"
+          },
+          "after": {
+            "path": "assets/BXP-027/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "03fdedffaa5fc985426d10c6b25a89f7b67ed68ce9ac2663f14051ee287ce019"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-027/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8e56a3f5b79a1e452516fed4e660d9efe36b1ac1257d962db4bf64d0f6257e83"
+          },
+          "after": {
+            "path": "assets/BXP-027/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f70e8bc3900bcc17b0e8b6cae2b79b59eef5178df1e5ce25a5f2476d2633639d"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-028",
+      "domain": "Digital privacy",
+      "query": "Search the web and use reliable sources. Compare how Android and iOS currently handle app permissions, approximate location, tracking controls and privacy reports. Include a practical settings checklist and explain the limits of these controls. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "949fe3da104faf2920a03fb48ea7bf4dfce72f5b2918eb26b1896f2819ce2001",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-028/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c0129bf740181bb60802a22e62225d8e4f022e13c90dbfece682e087d25deffa"
+          },
+          "after": {
+            "path": "assets/BXP-028/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1e5b2263c2042ae41b97a65e14ce3244528b5ccfe3330b9ee68de23d75341a85"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-028/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "fce00f2e6e9738e83fbcf43e50078a2ebe2c25381540f128d5a21ebe46b18fac"
+          },
+          "after": {
+            "path": "assets/BXP-028/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ed1bc53431ed67d4446b1ca6d7ecba156596b4f9943c5f26dfc956d1cdedc4e4"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-028/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f50686ba9ca0d7000441cafdf30ab8d6ece540b692e29126be4d887e4415e90d"
+          },
+          "after": {
+            "path": "assets/BXP-028/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "33e22aa8d6e2e3f31ffecfc682669ef68897d206ad3996cc1adcb4e35b37b45b"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-028/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0ef30bfe791c5c1c50e17c80f2dd0fff47155cd4a92fa449c25b2743e75c1f5d"
+          },
+          "after": {
+            "path": "assets/BXP-028/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "dbf16f680b99ea817c4d748b6aefdb0eb356ea2d680dad45c1f33f3b13d23efa"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-029",
+      "domain": "Income tax",
+      "query": "Search the web and use reliable sources. Compare ITR-1 and ITR-2 eligibility for individuals for India's current income-tax assessment year. Cover common income types, key exclusions and three illustrative cases using official tax sources. State the assessment year. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "1dbaf3359ede7babfa5a534a7a08f09fcf96dfe8c0407fb7d5ec4a9058248fcd",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-029/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "fbf79bd7d720cda3ccd375f1d813874fb9ef65f5a24e5a61278baf1f9d5086c4"
+          },
+          "after": {
+            "path": "assets/BXP-029/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "385f987da5a7aa2ba1d03427773433c1efbdfea6dfb927328a3e46da03e6596c"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-029/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "773fc271df5a74be50e7a43dc29e6b54bbf121e86b67e868c1fc3c5f06e9f7fc"
+          },
+          "after": {
+            "path": "assets/BXP-029/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "57c8899f8e4bb8f7b3a3eca4b0c2020d3f847833d9c4c6a2f3c1d1b32d751681"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-029/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "45461ac794b546aa69a77ac18bb028ac916980708a9d316e0d5d7c3c6aa70785"
+          },
+          "after": {
+            "path": "assets/BXP-029/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a54c3916bbf301602b63db4c0d528864339867eada3caf8da4b9237b1df6d376"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-029/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a4b5300872538bce507cfff2afc6b00d70133b4b0cfb0ccf0cb73e5bd9a98816"
+          },
+          "after": {
+            "path": "assets/BXP-029/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8ee26fd1b1e90dcc2512a0400077f8355b642bece672489574bd0ba825331d80"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-029/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9e43c514dd01fa4e5e0bf04e1f3599b4c0c9a9d00fc8ec5201e5ec44dcd1dbf5"
+          },
+          "after": {
+            "path": "assets/BXP-029/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "42d444049b348c60ce5601fca0de52d8095080b93a46b6e8c5d6b5c65317df33"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-029/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "517f8399bfd57f853d03c3af52f1a4e4a5c64a71056ab1a5cf88f3e131a78b31"
+          },
+          "after": {
+            "path": "assets/BXP-029/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "87816cac23c688c257cb6b0ea0710e6b1fd1dcb8a895265f435af82f5211c76d"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-030",
+      "domain": "Retirement savings",
+      "query": "Search the web and use reliable sources. Compare EPF, PPF and NPS under current Indian rules. Cover eligibility, contribution rules, lock-in, withdrawals and tax-treatment differences in a table, followed by three illustrative saver situations. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "89fed1c18ee240f9cacb97603cf280b75e1c86ab9ab58a59d6ed9db101d01ee6",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-030/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3c1d4453bd1d3afdf50787b58df367f816812da9d76dcc71827f1d03897f4622"
+          },
+          "after": {
+            "path": "assets/BXP-030/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5580344825b9ea69485da9dbd88069a9398e39c755a1b861154b5b48e329a273"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-030/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a6b4d9e8baf8ea9b09d260606d900cf0fec551963538f64a883156ed920fe6ec"
+          },
+          "after": {
+            "path": "assets/BXP-030/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "26384c37bd21c1e9611b61ed40a2150a1b507f1c35b229502906d8a76d8756fe"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-030/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0a2dc866c97d4fcbb31d463d670b1dfe0d5cb6670f9de93b11e958996b3b1736"
+          },
+          "after": {
+            "path": "assets/BXP-030/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5580344825b9ea69485da9dbd88069a9398e39c755a1b861154b5b48e329a273"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-030/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "247bcb158cfc4b2d249990138dcc92d576a9fd1d3ec0bb9e4c2dc6a321a7028e"
+          },
+          "after": {
+            "path": "assets/BXP-030/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9210380d86fd5f27eca66a15b2aecc616e3992e3355c3dd6f7965323a2a88656"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-030/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "97a2b7e3734bc6d1681409e5970b738366041562bc9ef6a283475c8141d54b77"
+          },
+          "after": {
+            "path": "assets/BXP-030/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d16e8fc7d59cef0911f1f0c9f7afff6d591aca25e492b611ba2b43e3754ca780"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-031",
+      "domain": "Property due diligence",
+      "query": "Search the web and use reliable sources. Create a pre-purchase document checklist for an apartment in Karnataka. Explain RERA registration, sanctioned plans, title documents, occupancy certificate and encumbrance certificate, including where each can be verified. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "ea9c2c6bbf26696e1d86e9b79e8f5cd5327a8df5edca96052b60dc3c734dff15",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-031/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "82b6bc9637ea56865db08663893455e17890bdf13d50c8f8ec4862891db967ab"
+          },
+          "after": {
+            "path": "assets/BXP-031/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a2c75dd22e5d1740a9bb2bc3fb4fed9f3c7682b2a1222746d000f2589dfe6fc3"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-031/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "401e9538f4e0573f19bf943094f3e48ab98fbeb61d1a4a5c7ff359bba024e29d"
+          },
+          "after": {
+            "path": "assets/BXP-031/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b0cbf784d16ea5405ef57bc632be3e4d418b10c52a572731b21706bba243448b"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-031/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3da1b661f02b7b6a24e4ba31f4c133087d6428c80ded15ee9f05d9ee6e53cffb"
+          },
+          "after": {
+            "path": "assets/BXP-031/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4ecd75026383ec252a547e7fc2c7604db87d3586b3c48a733f0659298540b139"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-031/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b1bdb431612e816b64fec9f9c7ebb99ec41cfb1cf1957056a1c69f6982bc70d6"
+          },
+          "after": {
+            "path": "assets/BXP-031/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1d63ffe56f625f9111d11f4af0093de0c4a5f354a7428d9c1c46e95ab652e436"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-032",
+      "domain": "Health insurance",
+      "query": "Search the web and use reliable sources. Explain deductibles, co-payments, waiting periods, room-rent limits and exclusions in Indian health insurance. Use a comparison table and two clearly hypothetical INR 100000 claim examples to show their effects. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "4b1fa19f54f177bc4d6fc379f3726ed7c66fef7396dce8075e8deea6f6b06dc7",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-032/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "87082e0fe1f5d10266013fde24ec8134fc83848d17fab7e06e544965d8325132"
+          },
+          "after": {
+            "path": "assets/BXP-032/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "46d47e058aacbd752f29d8509a352565c5cdd40bc52d5f101c1a924d1f417dcd"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-032/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6f2f4c4d7345e1d71447e2b603e720c453cf5346ca58dc31c202a69f0d66605a"
+          },
+          "after": {
+            "path": "assets/BXP-032/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c1c6652e865b901b74f54091d4f5bf9a0f2c08a068414ac6a59c44a581a11fa5"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-032/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "87082e0fe1f5d10266013fde24ec8134fc83848d17fab7e06e544965d8325132"
+          },
+          "after": {
+            "path": "assets/BXP-032/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "46d47e058aacbd752f29d8509a352565c5cdd40bc52d5f101c1a924d1f417dcd"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-032/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "401c2ef829ea5b3969f7575c7860ee9ffa43ec21396b8a176abe8da3a2ef993e"
+          },
+          "after": {
+            "path": "assets/BXP-032/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6a0060e90c12128f9e414d90460ca361e03c30bcacde9ac613190a749afd84ef"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-032/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d3dd8d0df3467792267586aa5eb785c1b405f00b7d0359934479e696b881c1ed"
+          },
+          "after": {
+            "path": "assets/BXP-032/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "27ee2e285ce72d94c9fb7fa19fbe6647636d829c734aef8fe837d65ccc920566"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-032/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8d2f9b74d00ac587e7ccc68d909ccf7a21e0d41bf37ecde2c31ece09a3b21b77"
+          },
+          "after": {
+            "path": "assets/BXP-032/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "95e89fc9f5949ab9a56fb0f339ff5a072d598b820027b8c2d24a19e4d4e20109"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-033",
+      "domain": "Public health",
+      "query": "Search the web and use reliable sources. Compare dengue and chikungunya using current WHO or Indian public-health guidance. Cover transmission, common symptoms, warning signs requiring medical attention and prevention, while explaining why symptoms alone cannot establish a diagnosis. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "f66583df72adcb5c22fbad30c14408ae2a389157c165d613afc14c6fb0d89dc2",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-033/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9d1a9771dc9953baf346db455333d39d28ec90404afb9a4b3dc469f107059b13"
+          },
+          "after": {
+            "path": "assets/BXP-033/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "59ebe60e60bff7f7705f8a4bee524173fb5a0592c7dc5360d3d0e47012e4144c"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-033/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8402dc48e5315a7976edbc2a3ca6addbea2123fe713beb6a0cc98e25258ef4d4"
+          },
+          "after": {
+            "path": "assets/BXP-033/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b023bdb5e368fe3126216c8a19a3d456012e36bd5bf5de8a58a92d884051e7d6"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-033/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "23064aac8590cfe5f8a283ded6697f6f62f6512b9451c2b8bbc51ce4fab9f530"
+          },
+          "after": {
+            "path": "assets/BXP-033/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "91d8bc5e38fb7b507f2a80a5dc1cb6749d3f877229c003dfea885703219908ff"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-034",
+      "domain": "Nutrition",
+      "query": "Search the web and use reliable sources. Explain practical vegetarian protein sources commonly available in India. Include a table of eight foods with serving sizes and approximate protein, a sample day of meals, and the factors that change an adult's protein needs. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "37d3ffb27b3e7b1f98e732d4d6294f550ee4a28ec31d300d0ac1b17abda9d4d7",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-034/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "97eb30fdb25f894daa9ff3f09c0737eca1ce61b9e2da315dca7d486623dababb"
+          },
+          "after": {
+            "path": "assets/BXP-034/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "94e5441334523bf81973c8149fb72496f06abbee20ae759753d505200bffb47b"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-034/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3457cae1fff48985567650a27ebc7c4106812db7d13dd27935821c04f509cb2c"
+          },
+          "after": {
+            "path": "assets/BXP-034/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "54b026e14c3d1c0eb8a641cc72b164dfc951a85b4666d946064e4f3f308bfc0b"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-034/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "97eb30fdb25f894daa9ff3f09c0737eca1ce61b9e2da315dca7d486623dababb"
+          },
+          "after": {
+            "path": "assets/BXP-034/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "94e5441334523bf81973c8149fb72496f06abbee20ae759753d505200bffb47b"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-034/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7ac9135cee9ebe20644ef19219c41315f08fba7b630f27c709694aa526528387"
+          },
+          "after": {
+            "path": "assets/BXP-034/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "69813a106e0acaa8fd0a2705500a826f42c22832ff7a3a1fb5771e6efc6c55d3"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-034/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2b71a3fc4e1cf23e2ca0153b40ec88b0d2f7e0ae28c74cc6ee9dc7e25604d0c4"
+          },
+          "after": {
+            "path": "assets/BXP-034/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a6eacd2f703f31ec710e3f3d0700b5dceec6fb63e86db3cc08467f743e1a892e"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-035",
+      "domain": "Fitness",
+      "query": "Search the web and use reliable sources. Create a general four-week beginner walking and basic strength plan for a healthy sedentary adult. Include weekly progression, recovery days, simple exercises, signs to stop and ways to adjust difficulty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "d28ceac7b2850dfbf31d9446e09d447ccf920876c7501769b7f5a02afaf38031",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-035/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f6fc684a7412ea9780db756c86af1848436e849ef7ec1badc96f42ac397238d8"
+          },
+          "after": {
+            "path": "assets/BXP-035/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "52ec2178ce9c32a7ea0492f3ba105c86dd7824f10a9b8d9848206d45126177d6"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-035/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4aff8c485e4782a7bb057a28fa11a2142c2bcc13084f2aec261675249cba72d9"
+          },
+          "after": {
+            "path": "assets/BXP-035/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1f7b1f0fd8fa636da2b6c601fb65d1309b54b3b2558a9acebd89c4743d723dce"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-035/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2d088952cfc7ec98bc05f67682a14903cda33dac41e519a8d06a8548e9f4573b"
+          },
+          "after": {
+            "path": "assets/BXP-035/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f48ab66994d6a6c8becf9eb7fbc9999c7ae9eec8ec11b49bff8d5409bba89be0"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-035/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "eac2c218c9fd72365fc8981f70801796f0248a770644144046869858a8c788d1"
+          },
+          "after": {
+            "path": "assets/BXP-035/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e882d5d2237486ce8191e0ac3332dcf412c9769cc964ac8479bb39e9611c94f3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-036",
+      "domain": "Mental wellbeing",
+      "query": "Search the web and use reliable sources. Explain the difference between everyday work stress and occupational burnout using authoritative health sources. Include common signs, a practical one-week coping routine, workplace changes and when professional support may help. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "8296dabf3df1f7e22606e0387a2f9be59a2feb685ecfdac5544dada8032c5221",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-036/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d72d4778542733d56131d5015d9c98d3e1b2413429c3431bcdd078d9dacf5a01"
+          },
+          "after": {
+            "path": "assets/BXP-036/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ccfbf91d51632a4e680927107b49b44d5438d9b8db1ccb55b124caf2739c7bf7"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-036/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9d7bfce9ef54452bbc338448cfc51219f3330e4fab98a8dcc4eaf0ece36a7632"
+          },
+          "after": {
+            "path": "assets/BXP-036/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9fc05f2b880801aa91fa7b153b87032abaea914ac3a7daefb83ad992d2aec504"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-036/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c0a588f54d757f8d04881c40582c94cddd02abdd5ae2e856b1f8eba7086d6e97"
+          },
+          "after": {
+            "path": "assets/BXP-036/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a7d79ec0879b7c109245e55b125b03fa08aff93556279fb99941068e172cf87c"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-036/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2b8c6930ffb0270558211d78d3332d82107461160a307050aad1eb1cd0b033f8"
+          },
+          "after": {
+            "path": "assets/BXP-036/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6513485e9b400d30a0f4f1ce432b020be48d0a760ffa548525555b44e95aed31"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-037",
+      "domain": "School education",
+      "query": "Search the web and use reliable sources. Compare CBSE, CISCE and the International Baccalaureate for families choosing secondary education in India. Cover curriculum, assessment, subject flexibility, transferability and questions to ask prospective schools. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "78eefde8719105dccd0d426d49abcbbf359d52bf52c09bec655d04a40071ddb6",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-037/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "720e44e74bb4dbdb74a61d3c00f0d2b05043d0d5027a4dac635d9f219b6a3bba"
+          },
+          "after": {
+            "path": "assets/BXP-037/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "75cdf6730ca98bdf4fcba2167041f429c272d86b38b7968483a6d052fe6c4054"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-037/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "82b2fa878440226b5b61b3475aefc181a460734a4758e9d4bdc02e0d4baafb4c"
+          },
+          "after": {
+            "path": "assets/BXP-037/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "453bcd56637bc471ddcda3822520a8911ca1e64ae7e7dc91b48fb5a7c33e317b"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-037/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "41e728e50f18ac18bca45d06890143534f752a073f525f9ec8d3c9aa4311f884"
+          },
+          "after": {
+            "path": "assets/BXP-037/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "75cdf6730ca98bdf4fcba2167041f429c272d86b38b7968483a6d052fe6c4054"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-037/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7b60207fef9bf887290a8898abfc273bba1f42aea5b74e16ebec27d4323acdd6"
+          },
+          "after": {
+            "path": "assets/BXP-037/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "864d8fb21504e5c5ad4be0d6cfa1992fcca506de5166dcb83534911b5b161bfc"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-037/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0855ce0f4f85b2409a73d1872ab102182c777178f602f6c9b7705699aa89583c"
+          },
+          "after": {
+            "path": "assets/BXP-037/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "44a6ec3d745681904064955f381874565b2acc8d196db0a379704726aa263bf9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-038",
+      "domain": "Careers",
+      "query": "Search the web and use reliable sources. Compare entry-level data analyst, data engineer and machine-learning engineer roles. Include typical tasks, core skills, one portfolio project per role and a three-month learning outline for each. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "e5150e53ee6718f31eda1d7baa876aa774dddc3906e8a9492a4c737f2544d4a7",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-038/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9f8c77080cee17651cb0130fcef9cc3865b2eb52ae312ad5a2f7ddc9fc562d19"
+          },
+          "after": {
+            "path": "assets/BXP-038/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3996195161f39dd65037f31b836607b27f7f6c4f33df83747cc7bc7f15941b2e"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-038/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9f8c77080cee17651cb0130fcef9cc3865b2eb52ae312ad5a2f7ddc9fc562d19"
+          },
+          "after": {
+            "path": "assets/BXP-038/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3996195161f39dd65037f31b836607b27f7f6c4f33df83747cc7bc7f15941b2e"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-039",
+      "domain": "Small-business compliance",
+      "query": "Search the web and use reliable sources. Explain the current FSSAI registration or licensing process for a small home bakery in Karnataka. Include eligibility categories, documents, official application steps, published fees and common mistakes. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "9495a074d2ab53eb85c1d071521d14d0a75c48dc53b101b1c6f041c0b0db9f83",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-039/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b67829b9943fdc552e544d7ccfa2c1a66e2799b4174d090e4e10ab63060f963c"
+          },
+          "after": {
+            "path": "assets/BXP-039/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "298e23800b15096b6c8741c62929a65d8f99cad8041b78d70372fe62ed9e02b4"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-039/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1accd93645946fadcb3174673210671c7ab5b78b1fb5cb684ce939f252aa2879"
+          },
+          "after": {
+            "path": "assets/BXP-039/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f459a6175332fb5b54c500e8b7d7a0f330356624ad6549d4380d160668318cec"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-039/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c68f653653f5a418b5f502d69bcbd599574e42c2f2ff8c73d3f94378662ef07d"
+          },
+          "after": {
+            "path": "assets/BXP-039/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "861a57c69daeb1014d274f9940788183f6ad924589cfe0f7979f184e3cbbccf0"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-039/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c6ea4e6b5c6b4cfd0742b555f5f977d829822375e5f8758ee314f09900b8b906"
+          },
+          "after": {
+            "path": "assets/BXP-039/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "99cf03a99c9efc97f67909f47025a5fc145f796ac1b7603f2e6a4861932657f1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-040",
+      "domain": "Consumer rights",
+      "query": "Search the web and use reliable sources. Explain how an Indian consumer can handle a defective product bought online. Cover evidence to keep, seller and platform complaints, official grievance channels, escalation steps and relevant deadlines using current official guidance. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "4df0bed7b70f5e6585155e51288536861a1266e2c26d9e9118a4d83cacc001b3",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-040/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "80a5fed4411040418892dbbcc4f1ed7d54358de9164190ba4904662a3e190869"
+          },
+          "after": {
+            "path": "assets/BXP-040/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "145913ceba091cdf9fc5101f79871e2ec6c975c6d7cd02e2b60201b7121759d7"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-040/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "976486c3720ee91102d3312a5a054faa566886dc1d3d0704b45ba8b2e289755a"
+          },
+          "after": {
+            "path": "assets/BXP-040/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "03b6874d1a155e052f3e3726b67f9eacb5152dac94529f6a4bf6057250ae064c"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-040/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "567121438f1286232f23d2ac3703dfb575f425323240f9d0959c6167946963cf"
+          },
+          "after": {
+            "path": "assets/BXP-040/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6b0c65b7403bc847090e269845e7c0172e49b66a4295c83a2a6c086bf5736d86"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-040/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "75f7acbf235c989e617e531092e5ac168f1df863b5d4201520e97131f6a96e18"
+          },
+          "after": {
+            "path": "assets/BXP-040/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f0812b96277abaf4e379d760ef10b1655786ea026cd4a95c2631b7b1ecba16d5"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-041",
+      "domain": "International travel rules",
+      "query": "Search the web and use reliable sources. Compare current tourist-entry requirements for Indian ordinary-passport holders visiting Thailand, Vietnam and Sri Lanka. Include visa route, permitted stay, published fees, passport requirements and the date the rules were checked. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "f77e11eb5acf558f1b058917921fa10d0772968142a1b1b56927ff5e52fda3d6",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-041/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ffd780fb21eb50fdd547a0f4c467a7aa02e41179d3fe8549714ec630f9f174ab"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f5467a915daa0051d5df9827346ff9b5a74807f1703d385538c607eb87c6af88"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-041/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8521cc0b0358e7df898aa5f8600b167497a2d4d505f164e099c599d0baf898ca"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a48761bd22e28d18363d508a9377950b39b1c73db4df46c778ef330c3c4541c3"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-041/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6a9a59428e8f208463b6137bdce183f840dace1d7e50cb1ada51cb3bea0c6702"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "475846960887fd42d1f8ee5b3f8b360f4250dcfd9fd845f7e4324a3ea1602b31"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-041/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "250ca836afdd76efbaeffa1b0a45257077919f4ee9ff9078b62b1e9340a80dba"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b194d4b741fd5afa60cb9141bb52971adcd705a4f92571810363ebdf15dcdcfb"
+          }
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "before": {
+            "path": "assets/BXP-041/before/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "7d4c7585e9676732819f6e258030692364e84c949f131765c69c82b7aac01a45"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "45036c3cfad097293219539543d596c5bc8026f6deb82f772903abd8639de6a6"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-041/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0e97e63ecf5257c4232bddb20cbc5b0557883e37e30f99309364595426229282"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f5467a915daa0051d5df9827346ff9b5a74807f1703d385538c607eb87c6af88"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-041/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "89e5918bc71ddef537bd3852845dbed5182de1432c3d366b450505b291e92584"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "764e8aabe146cf9d45f3982336205d2d318033cd4daacba85fddc19b25c2532b"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-041/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8c3c1a6006e4d7ac6b40d8457aa9198471af4242f0003c97051997304b46481e"
+          },
+          "after": {
+            "path": "assets/BXP-041/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "feed0365f2619cc575b58b55c0271a2f41b916dbe7cd2dde634a9c9181b3cf2a"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-042",
+      "domain": "Electric vehicles",
+      "query": "Search the web and use reliable sources. Compare three electric cars currently sold in India with starting ex-showroom prices below INR 1500000. Cover indicative price, claimed versus independently reported range, charging, battery warranty and suitable use cases. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "0a5c58f51844bf6096612bb666051f7f2d06d013631e46bacf44e76220125ec4",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-042/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "30f9c939c825729573dc7722e5ef1282b0802c19ed653f2d39a540230c33628a"
+          },
+          "after": {
+            "path": "assets/BXP-042/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "89edbe972939249ee79a532b6a32c49f1f5d57a876a81ca763a24140ae300098"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-042/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8c21376a57f752c9666b9b53c68b5ec89081d0da0a75c5260bb5fb44fb11ed39"
+          },
+          "after": {
+            "path": "assets/BXP-042/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "aba91450dda5a13cb770c1cf3f73eae6e181baabaf68d6bc2ad0d402f32f4f31"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-042/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4b58e77a0582c0651882d863118280ef516aea1c27a94b5dda3c6c585a852eaa"
+          },
+          "after": {
+            "path": "assets/BXP-042/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "fff6e8c32018f882e2e5c80e5f990c6a990e01919dcce73fe695a905e6394abc"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-042/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0b0982777992484826ed26a070d9ed805bc93e36b665a8f8b5a51561d8271713"
+          },
+          "after": {
+            "path": "assets/BXP-042/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ddb266bebbf9c0c66032acae15069cfc57292af59bfbf6152ecccb27850fc5a1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-043",
+      "domain": "Home solar energy",
+      "query": "Search the web and use reliable sources. Explain a typical 3 kW grid-connected residential rooftop-solar installation in Bengaluru. Cover roof area, expected generation, cost components, current subsidy eligibility, maintenance and a payback example with explicit assumptions. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "489aa83a46bb74aa0c5ca47457c8bb944744f1460c4965a42ee0774667adb369",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-043/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "61784310f9ad24aa29eb4f1792ed13af370b0b56d69d8a346b8b05a57d67cb20"
+          },
+          "after": {
+            "path": "assets/BXP-043/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1565074fcb8b05d432738a9fa71ef4c0b743ae11da9b24e6f9acabe8f2227d02"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-043/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "753c8ef053bc94aee12d308d42130acda2044658901c31aafde0d6b95f0739fa"
+          },
+          "after": {
+            "path": "assets/BXP-043/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "926c8083c87aad59f572dc86818114ffde4cc9878001672203cf86c9e4d1fc78"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-043/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "455ca89555f01204ff17f3b6da9e7a0d606e9ff7b9b29f3cee474a56ce91fbe2"
+          },
+          "after": {
+            "path": "assets/BXP-043/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "75f79aabf68d662332c9bf0e44e101ce9c9f46c4e71ba9cf88a92c0507fa35d3"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-043/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1679c4aec8c8cc202e5fa9cae559e5de0065b1031d9ba93b71cfab7411ec76a2"
+          },
+          "after": {
+            "path": "assets/BXP-043/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0c31721e738d1501497b6ba4b800c710441a844690856ae56fe970ae1b3202e7"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-044",
+      "domain": "Home appliances",
+      "query": "Search the web and use reliable sources. Compare an air purifier, humidifier and dehumidifier for Indian homes. Explain the problem each addresses, selection criteria, maintenance and running-cost factors, followed by three household examples. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "e99c83418a1cabfad1c968141c27816285bc9a19bb2c47c0b8889b2f7df81258",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-044/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6bdb59fb4ea43bf7cae906e0586b3e5db52fa67189a937af21ec740b1af09136"
+          },
+          "after": {
+            "path": "assets/BXP-044/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "844c39ce0ca93121c7af4b47f25f2844f9aef7b94165f5869cc2aee626f826f4"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-044/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8841993bf5d0ce82bfbdb764f083ad99d3a93fa2c3b68321f5a9a0aa9f0b5fb9"
+          },
+          "after": {
+            "path": "assets/BXP-044/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e5db8f07a29c1a747559f56b5cce1d2e0773d53429a976b8a3f335a3e7190237"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-044/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6bdb59fb4ea43bf7cae906e0586b3e5db52fa67189a937af21ec740b1af09136"
+          },
+          "after": {
+            "path": "assets/BXP-044/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "81482b8ed5a86fa66c130f4f935017c849bffcd1393c0e19fb76486416537ff2"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-044/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "e86a3516f2db61a628c2a4d4ca2352c5cd738eed3b04c72ac18b8bfa20d47116"
+          },
+          "after": {
+            "path": "assets/BXP-044/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f1044ef4638b937bf8932ead44d802a4d54a805f5ad81685ef1e950535c12246"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-044/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "0a49fe1000990757085dcf8016473a449b5f67c6ee9c0e32a7d6b3e7264e542a"
+          },
+          "after": {
+            "path": "assets/BXP-044/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "07f488e82b6c3d68b59b3510e1ca75d3b55804381c4bafd766c9ecac51868615"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-045",
+      "domain": "Urban climate",
+      "query": "Search the web and use reliable sources. Explain the main causes of urban flooding in Bengaluru using recent research and official reports. Cover rainfall, drainage, lakes, construction and solid waste, then compare household precautions with city-level interventions. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "05e75a8af62d4bae17be2247aea2c1f14496dd7a0e1b10189ae9da28e27741e1",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-045/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9cfefae2dac488a1b327ab0215084781b27e759f2c286cd9df725efb8a7f0bf5"
+          },
+          "after": {
+            "path": "assets/BXP-045/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d5db7dcae867ba3747b7d86b61da11b58446ef7d9bf2e3872cc8a5f868c4113a"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-045/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d504d9ca6a1720df57cb889130c489b993bdb333ee86c0d4b3b11347ae9d7d7d"
+          },
+          "after": {
+            "path": "assets/BXP-045/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f62d9042f68f12f405f96926f48c6788593d1748e422dd76673ef0eafd8a86c7"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-045/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3419745c648ca2c764a8c999acf09f64f8a6974108fd098408e919ca87164baf"
+          },
+          "after": {
+            "path": "assets/BXP-045/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "24c458319fd0ce70bac4e417f1cc7d6d766869842109d8ce77a5a5b02e289fb8"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-045/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "deb348d0a0a2fcd5d29ed72855707c90fd56a084119908664fea5aa3ab1d9d69"
+          },
+          "after": {
+            "path": "assets/BXP-045/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f012d0e7a95e23145de473cfa75e057d0ede379abf25693a0e27de995294105a"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-045/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3419745c648ca2c764a8c999acf09f64f8a6974108fd098408e919ca87164baf"
+          },
+          "after": {
+            "path": "assets/BXP-045/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "747fa53683335801b5c11b4a2f7f132e37fd8194cc98e1c623e4b93cbaad333b"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-045/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "171751f6c2743d6935a213687be485b0e6bc6b011489e07ed2e8793842335012"
+          },
+          "after": {
+            "path": "assets/BXP-045/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5d5babffc8145f9040031027f4612dd8713ac8ddd445dc4d2a7de9b9ee65b6ee"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-046",
+      "domain": "Biotechnology",
+      "query": "Search the web and use reliable sources. Compare gene therapy and CRISPR gene editing. Explain the mechanisms, delivery methods, established clinical examples, limitations and ethical questions, distinguishing approved treatments from experimental work. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "030d29ea1f27ed69739f35f87538de3fc565b23cc2e18c61b06cdfe639dbfe11",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-046/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "731bb27721c2af3774b50f581746a189dc4a4f8d3c3c82e61815f66fa81607bc"
+          },
+          "after": {
+            "path": "assets/BXP-046/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f07499a97f139f36c28ea6e36e3aaf66d37ae95abd681201860ebe719b266167"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-046/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9ca89aa28081ec6419d437697c553d2bd1fa1d749ada9e4bc3430c3c072ec6fd"
+          },
+          "after": {
+            "path": "assets/BXP-046/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2d10ac6ef4b509bf1655b5040da449374491edda80cb1ff59cddb3a3ea11cbc0"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-046/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "dc7d98b5f32e62cd8f1afcb122dd38286af2d1f8358dcd6a147fd72b6e548d27"
+          },
+          "after": {
+            "path": "assets/BXP-046/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1fb07d2dee11e4b475d0cae28c441f11df3a18e577ad6f570ef2155bdce426b9"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-046/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "932f973c4a06b037ba834b0a3c49b02f976f05bf18d76236395bdc8e05c6f362"
+          },
+          "after": {
+            "path": "assets/BXP-046/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5c217178f5b17f4b10ca34b3179887026da6a9d6c70e8b01027141ea612750b1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-047",
+      "domain": "Battery technology",
+      "query": "Search the web and use reliable sources. Compare LFP, NMC and sodium-ion batteries. Include energy density, cycle life, safety, cost and maturity in a table, then explain suitable electric-vehicle and stationary-storage applications. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "0f6eb14862d4e8f13ff5fafc491e8048e04318bdbae45cb1a7bd4554ee2a2bfa",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-047/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "09ee8fca7fd4701c0ed5f46941044f0390f1c810d5f41cd65da48efe1f1090be"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "dac60051e87319137e3cfd68eb243df304a1cc4087fefa6f83f8b3397519a1c0"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-047/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "42cdf60d8f2dba13308b4e0b5db1552c7db6daa9ec04cd2eb2a24ee88d8b921e"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6f5a5320be46c3976439c6a8eb95b4e161151896f03ac197faa5e8295708e2b8"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-047/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "07c2a92d990aa425ec116a19f09c88d023a7c53af9d95b094063dcf3c684e8c4"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3d53b68883bb564a6c988eeda0221fe4763e1ded9502d9d10cbfc2a71f15d113"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-047/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3bb5e0b691a4fb182541a18975e05fc6837e65d64c353eb9957ce3f8d17e0aeb"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "16ed11030460be6b48a0a9f1ada5ffe79878c9292404457398aae6c89d780633"
+          }
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "before": {
+            "path": "assets/BXP-047/before/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b49702b84cef2571feebf6c1ac310ecb4dac7a27333629c78f57c64afeb49742"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "48c55538bb09f8b16189be9eef6135fc438df3859c240d44d2751520df9232dc"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-047/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "9a0bec0d974a5ee20859bb177b22884948eb1b8b33d376954196be2e6059b24f"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "dac60051e87319137e3cfd68eb243df304a1cc4087fefa6f83f8b3397519a1c0"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-047/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "922be085281436392e19dab6a58caa45a15dbfa67ee3a32ed95d81bd0f5e562e"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2a1b4811b453684eb422032aaf58b0aac2df90c3bfc398ac44da4827b691030d"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-047/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "8518aa2715d30db7044d0070c5872ca86a1afadf89aa7165cae20b76c85bea4e"
+          },
+          "after": {
+            "path": "assets/BXP-047/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "176e6d1424d0553c78598b02976debb97dfa53c21380083ce1f80df7194e6fc8"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-048",
+      "domain": "History and heritage",
+      "query": "Search the web and use reliable sources. Explain Hampi's role in the Vijayanagara Empire. Include a short timeline, its urban and water systems, trade, major monuments and what archaeological evidence reveals about everyday life. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "1c28ab3407ab4cc548ad80bde2b745802b6f4f8cb1ea2392d2f6a0820c6e89f8",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-048/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "79b367cb7a6a30185fb387ba4c5e16b1103dfaeeeb4bab6752247aa04e40da7e"
+          },
+          "after": {
+            "path": "assets/BXP-048/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "cc52e7287b7b177d66bad6ab9830cef8cc8b03d50d7766ee56a3c6636531ed53"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-048/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c307e1aedadf9f848f795a93759b0750100df3db66530316eb3ece24090c9df5"
+          },
+          "after": {
+            "path": "assets/BXP-048/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "6695ab3df58d37188acfa754b8e724270bc03cb503bcaf3acc77ed6118259faf"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-048/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "745141af415058cfcda8c99f98117ef1dc6b17513ac3b5733164bd719ee63781"
+          },
+          "after": {
+            "path": "assets/BXP-048/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "48cc8ecee612907566eb8c8fac84641f6c8bf66fce0b63a380a557ea93bdc19f"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-048/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f5011e034123fb5b58d987de8989ab1d2c7760916c6b0bafdc8cee01f3c6efd8"
+          },
+          "after": {
+            "path": "assets/BXP-048/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "5e2e5a65e06ce02b8e0d5f60e755db61ad7eea679c2963173249a89a5cc6d596"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-049",
+      "domain": "Traditional arts",
+      "query": "Search the web and use reliable sources. Compare Madhubani, Warli and Pattachitra painting traditions. Cover geographical origins, materials, motifs, techniques and cultural context, then explain how to recognize each and support authentic practitioners. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "e39825dd8e82552dcfdd33245a3cc74d3a3f15112e1a41db83faf07a9cbe95b6",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-049/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "35c74831281f9ab6106fc9fad6c46bfcbaefc5d068eb4e2e97df6e4ffed208c9"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3e0a5c4a182b0c7f20a5e9c965ef25bc4fd3f5150e87ed2f6e88997327002e0a"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-049/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "20919a4ef14a23beacfcaef3a52d079b9fe86b621e6a1d4e0a24f3e0be9f5393"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "4f8d437faa5e757fae8c0396d831b3de68e8676c780af2714a6533b83b4654fc"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-049/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2fc15c91c23c0548627330745989e0998dbbd256ca4303f38951ed714ddc5b6e"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ae6f802ee585b05c4f732285d96daced143626c1d5c930109c89aea4d34144d4"
+          }
+        },
+        {
+          "name": "table_1_horizontal_3",
+          "before": {
+            "path": "assets/BXP-049/before/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "cf2b0890600c7f84c683d7714eb6e3ce2fbe026bc67dc72f23a6af54d1e5e594"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/table_1_horizontal_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "68a0d04b79923a8cb79914dcfb192ee088c17f2bcba802e20c5676a60ce79b6f"
+          }
+        },
+        {
+          "name": "table_1_horizontal_4",
+          "before": {
+            "path": "assets/BXP-049/before/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "f8023b0fee26a83882724c0b240adb81483f3a7f0e70d61dee777cca25bd3cda"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/table_1_horizontal_4.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d1c917728a5f290a0b46d1cf0b081302b979f4924c0bf61851dff9515440fe0c"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-049/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "751f9e2bc7648d81009afd80661734be8dd46c8a3d6ef5beaedae7b96eebbbfa"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "3e0a5c4a182b0c7f20a5e9c965ef25bc4fd3f5150e87ed2f6e88997327002e0a"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-049/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a655437dd7d4b9ba8b168bf156785fba5bfef48f288da3067c0639dd58e7e366"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "d16f28fdd051d816e3cf5d8b6426d01eac93660f58ef972d06d176b62be2981f"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-049/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "c64f2abb3fe1fcfb2c87120b7914899953ded2eec91b695660f1c8205448175d"
+          },
+          "after": {
+            "path": "assets/BXP-049/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a2708d7c05420ec12acbdedc4a48cdde12d2c2cc895a5b3c91bec9c1c6bdeb88"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BXP-050",
+      "domain": "Ocean and monsoon science",
+      "query": "Search the web and use reliable sources. Explain how El Nino, La Nina and the Indian Ocean Dipole influence the Indian monsoon. Include a comparison table, historical examples and why these signals cannot predict rainfall for one city with certainty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+      "documentSha256": "053d111b52513031f33f5f84ca62b1b56e17c52eef1a9ead011e94c41b3f8893",
+      "captures": [
+        {
+          "name": "initial",
+          "before": {
+            "path": "assets/BXP-050/before/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "140eb07515bd0ff2a0cb7a7e64c71fa6f27553ba2959d05cfabb720dbd4a6295"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/initial.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "29b3b0f2617a8e2aa9cd0d3c376e44b602a61405c0dbbb8380782526768d463c"
+          }
+        },
+        {
+          "name": "table_1_horizontal_1",
+          "before": {
+            "path": "assets/BXP-050/before/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "ed6791202313c92b09aea9a43e11a85f9ff3b72a2abe2dcf7180f7f7d756460e"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/table_1_horizontal_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b6ac4334a29fd93afe91a1815a4f63ed4f43d6ab53cc5869a779ff4fcb82f903"
+          }
+        },
+        {
+          "name": "table_1_horizontal_2",
+          "before": {
+            "path": "assets/BXP-050/before/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "2650bc7b9113d651a7c91c37115cf949aa9d280672f982a0d9c3ee47ce95f844"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/table_1_horizontal_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "be5bc8cb5fb5a62a82daaec92078d7f3bcddca6c88ec69456a72ddfc3036f31d"
+          }
+        },
+        {
+          "name": "table_1_reset",
+          "before": {
+            "path": "assets/BXP-050/before/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "797140bd7315455f08f578b46b03954e277cdda5260fa9a018b26e423dbd70f7"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/table_1_reset.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "29b3b0f2617a8e2aa9cd0d3c376e44b602a61405c0dbbb8380782526768d463c"
+          }
+        },
+        {
+          "name": "vertical_1",
+          "before": {
+            "path": "assets/BXP-050/before/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "04349694d993f6712efe7c2250c5dc849f84996fe8c3ea2d9dd14b59be147d8d"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/vertical_1.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "86446968afabfb0ea41d51c219bda0f4b8c74c8f42da8ef7dff87bebe92cce01"
+          }
+        },
+        {
+          "name": "vertical_2",
+          "before": {
+            "path": "assets/BXP-050/before/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "862ded0f3fbe3bfe511ec5d2da9c3929c2dd02ea87ae5627b6aa7cd27df24a30"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/vertical_2.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "b91cdb28cc44dd8679d5b7daedfe5465e7f2e64ed48c876e035783e6131a7cfe"
+          }
+        },
+        {
+          "name": "vertical_3",
+          "before": {
+            "path": "assets/BXP-050/before/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "a45d736ca2f9737b5a2e85a999c76289150e5150d1c409d705aa16c95ae723d5"
+          },
+          "after": {
+            "path": "assets/BXP-050/after/vertical_3.png",
+            "width": 1080,
+            "height": 2520,
+            "sha256": "1ac8756038db2ab59242d91a60fa2603495da4e42c8e8cbe863ce35ac23e6f7b"
+          }
+        }
+      ]
+    }
+  ],
+  "createdUtc": "2026-09-18T04:59:57.972231+00:00"
+}

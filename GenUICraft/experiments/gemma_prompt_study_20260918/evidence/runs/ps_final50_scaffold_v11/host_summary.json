@@ -1,0 +1,36 @@
+{
+  "run": "ps_final50_scaffold_v11",
+  "total": 50,
+  "expected_total": 50,
+  "run_complete": true,
+  "missing_ids": [],
+  "unexpected_ids": [],
+  "duplicate_ids": [],
+  "success": 48,
+  "first_attempt_success": 45,
+  "repaired_success": 3,
+  "failures": [
+    {
+      "id": "BXP-046",
+      "status": "failure",
+      "message": "Preserve source block order: expected block 9, received 10."
+    },
+    {
+      "id": "BXP-050",
+      "status": "failure",
+      "message": "Expected exactly one complete <a2ui> program."
+    }
+  ],
+  "fallbacks": 0,
+  "first_case": {
+    "id": "BXP-001",
+    "status": "success",
+    "elapsedMs": 64617,
+    "attempts": 1
+  },
+  "median_success_ms": 70635.5,
+  "median_warm_success_ms": 70762,
+  "p95_success_ms": 151508,
+  "max_process_pss_kb": 4630948,
+  "note": "PSS is whole-app memory sampled during conversion. Render checks are smoke checks, not a semantic/visual correctness proof."
+}

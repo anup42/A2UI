@@ -1,0 +1,1258 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-16",
+  "scope": "Policy replay of the prior manual 100, not a new random audit or population quality estimate",
+  "seed": 2026091602,
+  "sample_split": {
+    "train": 90,
+    "val": 10
+  },
+  "previous_manual_counts": {
+    "KEEP": 62,
+    "REPAIR": 30,
+    "REJECT": 8
+  },
+  "outcomes": {
+    "KEEP": 57,
+    "REPAIR": 9,
+    "QUARANTINE": 34
+  },
+  "retained": 66,
+  "all_38_known_findings_repaired_or_held": true,
+  "previous_keep_conservative_holds": [
+    65,
+    80,
+    100
+  ],
+  "rows": [
+    {
+      "case": 1,
+      "coordinate": "train:136304",
+      "v9_split": "train",
+      "v9_line": 2308,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Lesson scanner UX",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 2,
+      "coordinate": "train:15277",
+      "v9_split": "train",
+      "v9_line": 2652,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Monthly budget",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 3,
+      "coordinate": "train:19682",
+      "v9_split": "train",
+      "v9_line": 3430,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Spain digital nomad visa",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 4,
+      "coordinate": "train:132020",
+      "v9_split": "train",
+      "v9_line": 4812,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Portfolio snapshot",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 5,
+      "coordinate": "train:36717",
+      "v9_split": "train",
+      "v9_line": 5021,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Crime film marathon",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 6,
+      "coordinate": "train:117802",
+      "v9_split": "train",
+      "v9_line": 5531,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Compact baking kit",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 7,
+      "coordinate": "train:141895",
+      "v9_split": "train",
+      "v9_line": 7038,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Dining budget alert",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 8,
+      "coordinate": "train:110941",
+      "v9_split": "train",
+      "v9_line": 8380,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Chess learning roadmap",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 9,
+      "coordinate": "train:58759",
+      "v9_split": "train",
+      "v9_line": 14181,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "New York health-plan costs",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 10,
+      "coordinate": "train:134548",
+      "v9_split": "train",
+      "v9_line": 14771,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Hypertension diet comparison",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 11,
+      "coordinate": "train:21621",
+      "v9_split": "train",
+      "v9_line": 14826,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Berlin relocation",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 12,
+      "coordinate": "train:29155",
+      "v9_split": "train",
+      "v9_line": 15253,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Diabetes comparison",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 13,
+      "coordinate": "train:70045",
+      "v9_split": "train",
+      "v9_line": 15507,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Berlin neighborhood comparison",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 14,
+      "coordinate": "train:143671",
+      "v9_split": "train",
+      "v9_line": 17034,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Oslo and Singapore climate",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 15,
+      "coordinate": "train:137813",
+      "v9_split": "train",
+      "v9_line": 17362,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Retirement allocation",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 16,
+      "coordinate": "train:74349",
+      "v9_split": "train",
+      "v9_line": 18725,
+      "prior_manual_verdict": "KEEP",
+      "subject": "London properties",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 17,
+      "coordinate": "train:94931",
+      "v9_split": "train",
+      "v9_line": 21318,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Toronto vegan dinner",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 18,
+      "coordinate": "train:2930",
+      "v9_split": "train",
+      "v9_line": 21350,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Berlin five-day forecast",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 19,
+      "coordinate": "train:40178",
+      "v9_split": "train",
+      "v9_line": 21516,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Family keto menu",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "remove_unsupported_empty_media_columns"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 20,
+      "coordinate": "train:110650",
+      "v9_split": "train",
+      "v9_line": 22722,
+      "prior_manual_verdict": "KEEP",
+      "subject": "London business hotel",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 21,
+      "coordinate": "train:108278",
+      "v9_split": "train",
+      "v9_line": 22796,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Student sedan comparison",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "source_table_label_restoration"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 22,
+      "coordinate": "train:119844",
+      "v9_split": "train",
+      "v9_line": 27302,
+      "prior_manual_verdict": "KEEP",
+      "subject": "PhD to biotech sales",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 23,
+      "coordinate": "train:46320",
+      "v9_split": "train",
+      "v9_line": 30145,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Sydney security upgrade",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 24,
+      "coordinate": "train:66913",
+      "v9_split": "train",
+      "v9_line": 31915,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Brake diagnosis and toolkit",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 25,
+      "coordinate": "train:35799",
+      "v9_split": "train",
+      "v9_line": 32665,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "November watering alerts",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "hidden_table_date_column",
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 26,
+      "coordinate": "train:23105",
+      "v9_split": "train",
+      "v9_line": 34027,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Seoul coworking",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 27,
+      "coordinate": "train:15990",
+      "v9_split": "train",
+      "v9_line": 34387,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Swiss hiking packing",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 28,
+      "coordinate": "train:55936",
+      "v9_split": "train",
+      "v9_line": 35833,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Birthday movie music",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 29,
+      "coordinate": "train:138197",
+      "v9_split": "train",
+      "v9_line": 37894,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Savings-yield comparison",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 30,
+      "coordinate": "train:104229",
+      "v9_split": "train",
+      "v9_line": 38360,
+      "prior_manual_verdict": "REJECT",
+      "subject": "Switch RPG list",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 31,
+      "coordinate": "train:84728",
+      "v9_split": "train",
+      "v9_line": 39089,
+      "prior_manual_verdict": "REJECT",
+      "subject": "The Hobbit reading status",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 32,
+      "coordinate": "train:115199",
+      "v9_split": "train",
+      "v9_line": 39469,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Berlin flat choice",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 33,
+      "coordinate": "train:50552",
+      "v9_split": "train",
+      "v9_line": 41469,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Seattle home inspection",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 34,
+      "coordinate": "train:148319",
+      "v9_split": "train",
+      "v9_line": 41746,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Magnesium comparison",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 35,
+      "coordinate": "train:146825",
+      "v9_split": "train",
+      "v9_line": 41811,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Nutrition gap audit",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 36,
+      "coordinate": "train:110121",
+      "v9_split": "train",
+      "v9_line": 41844,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Meal protein calculation",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 37,
+      "coordinate": "train:103958",
+      "v9_split": "train",
+      "v9_line": 43374,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Louvre walking route",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 38,
+      "coordinate": "train:120412",
+      "v9_split": "train",
+      "v9_line": 44517,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "New York retail lease",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "proven_false_asset_mask",
+        "source_table_label_restoration"
+      ],
+      "reason_codes": [
+        "source_citation_not_visible"
+      ]
+    },
+    {
+      "case": 39,
+      "coordinate": "train:83739",
+      "v9_split": "train",
+      "v9_line": 44529,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Dividend reinvestment",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 40,
+      "coordinate": "train:100460",
+      "v9_split": "train",
+      "v9_line": 45585,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Berlin pet-focused cleaning",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": [
+        "reviewed_source_fragment_missing"
+      ]
+    },
+    {
+      "case": 41,
+      "coordinate": "train:16961",
+      "v9_split": "train",
+      "v9_line": 46465,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "TechCorp stock-growth tutorial",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_fragment_missing"
+      ]
+    },
+    {
+      "case": 42,
+      "coordinate": "train:144301",
+      "v9_split": "train",
+      "v9_line": 47542,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Cotswold cottage",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 43,
+      "coordinate": "train:78577",
+      "v9_split": "train",
+      "v9_line": 52733,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Marketing to fintech PM",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 44,
+      "coordinate": "train:90052",
+      "v9_split": "train",
+      "v9_line": 53510,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Utility valuation explainer",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 45,
+      "coordinate": "train:27540",
+      "v9_split": "train",
+      "v9_line": 61171,
+      "prior_manual_verdict": "REJECT",
+      "subject": "Data deletion rights",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_gdpr_fixed_deadline"
+      ]
+    },
+    {
+      "case": 46,
+      "coordinate": "train:22027",
+      "v9_split": "train",
+      "v9_line": 61530,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Fixed versus tracker mortgage",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 47,
+      "coordinate": "train:109073",
+      "v9_split": "train",
+      "v9_line": 64241,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Weighted semester grade",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 48,
+      "coordinate": "train:13854",
+      "v9_split": "train",
+      "v9_line": 65985,
+      "prior_manual_verdict": "KEEP",
+      "subject": "AI PM coaching",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 49,
+      "coordinate": "train:136592",
+      "v9_split": "train",
+      "v9_line": 70163,
+      "prior_manual_verdict": "REJECT",
+      "subject": "London jazz venues",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 50,
+      "coordinate": "train:10884",
+      "v9_split": "train",
+      "v9_line": 70268,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Spanish e-commerce privacy",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 51,
+      "coordinate": "train:124258",
+      "v9_split": "train",
+      "v9_line": 70805,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "HYSA versus CD liquidity",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 52,
+      "coordinate": "train:32264",
+      "v9_split": "train",
+      "v9_line": 70964,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Greek salad instructions",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "remove_unsupported_empty_media_columns"
+      ],
+      "reason_codes": [
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 53,
+      "coordinate": "train:10638",
+      "v9_split": "train",
+      "v9_line": 73761,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Raspberry Pi SSH setup",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 54,
+      "coordinate": "train:14435",
+      "v9_split": "train",
+      "v9_line": 74599,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Zigbee interference guide",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": [
+        "lost_source_qualifier",
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 55,
+      "coordinate": "train:117937",
+      "v9_split": "train",
+      "v9_line": 75740,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Weekly sleep analysis",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "source_proven_partial_codec_repair"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 56,
+      "coordinate": "train:29833",
+      "v9_split": "train",
+      "v9_line": 76904,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Phoenix versus Miami heat",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 57,
+      "coordinate": "train:64326",
+      "v9_split": "train",
+      "v9_line": 76905,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Quarterly regional sales",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 58,
+      "coordinate": "train:107025",
+      "v9_split": "train",
+      "v9_line": 77198,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Paris hotel budget",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 59,
+      "coordinate": "train:9341",
+      "v9_split": "train",
+      "v9_line": 77523,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Junior engineer onboarding",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": [
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 60,
+      "coordinate": "train:86769",
+      "v9_split": "train",
+      "v9_line": 77770,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Playlist queue controls",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "inline_action_not_bound"
+      ]
+    },
+    {
+      "case": 61,
+      "coordinate": "train:69384",
+      "v9_split": "train",
+      "v9_line": 80045,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Freelance design contract",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "unique_source_clause_restoration",
+        "source_proven_citation_binding"
+      ],
+      "reason_codes": [
+        "lost_source_qualifier",
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 62,
+      "coordinate": "train:112798",
+      "v9_split": "train",
+      "v9_line": 80659,
+      "prior_manual_verdict": "REJECT",
+      "subject": "Static versus dynamic QR",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_static_qr_tracking_claim"
+      ]
+    },
+    {
+      "case": 63,
+      "coordinate": "train:19173",
+      "v9_split": "train",
+      "v9_line": 84291,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Raised-bed soil volume",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification"
+      ]
+    },
+    {
+      "case": 64,
+      "coordinate": "train:117970",
+      "v9_split": "train",
+      "v9_line": 87010,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "London workshop plan",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "lost_source_qualifier",
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 65,
+      "coordinate": "train:11884",
+      "v9_split": "train",
+      "v9_line": 87383,
+      "prior_manual_verdict": "KEEP",
+      "subject": "HVAC leak call checklist",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 66,
+      "coordinate": "train:80837",
+      "v9_split": "train",
+      "v9_line": 88917,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Kyoto culture itinerary",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 67,
+      "coordinate": "train:21462",
+      "v9_split": "train",
+      "v9_line": 89513,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "QR recruiter capture form",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "description_used_as_input_value"
+      ]
+    },
+    {
+      "case": 68,
+      "coordinate": "train:44314",
+      "v9_split": "train",
+      "v9_line": 89765,
+      "prior_manual_verdict": "KEEP",
+      "subject": "SATA versus NVMe",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 69,
+      "coordinate": "train:25438",
+      "v9_split": "train",
+      "v9_line": 91095,
+      "prior_manual_verdict": "REJECT",
+      "subject": "JFK-LHR flight comparison",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 70,
+      "coordinate": "train:130849",
+      "v9_split": "train",
+      "v9_line": 91854,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Portfolio profit",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "literal_state_key_pointer_escape"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 71,
+      "coordinate": "train:84664",
+      "v9_split": "train",
+      "v9_line": 95966,
+      "prior_manual_verdict": "KEEP",
+      "subject": "New-hire portal navigation",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 72,
+      "coordinate": "train:63332",
+      "v9_split": "train",
+      "v9_line": 96519,
+      "prior_manual_verdict": "REJECT",
+      "subject": "Seattle hybrid SUV affordability",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 73,
+      "coordinate": "train:132988",
+      "v9_split": "train",
+      "v9_line": 97722,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Kyoto tea visit",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 74,
+      "coordinate": "train:144180",
+      "v9_split": "train",
+      "v9_line": 97929,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Mumbai monsoon explainer",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "source_table_label_restoration"
+      ],
+      "reason_codes": [
+        "source_citation_not_visible"
+      ]
+    },
+    {
+      "case": 75,
+      "coordinate": "train:77462",
+      "v9_split": "train",
+      "v9_line": 98246,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Miami drainage options",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 76,
+      "coordinate": "train:120487",
+      "v9_split": "train",
+      "v9_line": 98902,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Rome wedding-weather planning",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 77,
+      "coordinate": "train:49695",
+      "v9_split": "train",
+      "v9_line": 98969,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Berlin home-office rentals",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 78,
+      "coordinate": "train:120943",
+      "v9_split": "train",
+      "v9_line": 100562,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Daily deep-work timeline",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "source_media_not_bound"
+      ]
+    },
+    {
+      "case": 79,
+      "coordinate": "train:87882",
+      "v9_split": "train",
+      "v9_line": 100733,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Hydration calculation",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "literal_state_key_pointer_escape"
+      ],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 80,
+      "coordinate": "train:32717",
+      "v9_split": "train",
+      "v9_line": 101314,
+      "prior_manual_verdict": "KEEP",
+      "subject": "New York partnership checklist",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 81,
+      "coordinate": "train:93803",
+      "v9_split": "train",
+      "v9_line": 101690,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Berlin 900-euro rent cap",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 82,
+      "coordinate": "train:26962",
+      "v9_split": "train",
+      "v9_line": 102784,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Graphic designer to UX",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": [
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 83,
+      "coordinate": "train:88495",
+      "v9_split": "train",
+      "v9_line": 104339,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Victorian exterior paint",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 84,
+      "coordinate": "train:111169",
+      "v9_split": "train",
+      "v9_line": 105386,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Paris pool hotels",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "source_table_label_restoration"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 85,
+      "coordinate": "train:22865",
+      "v9_split": "train",
+      "v9_line": 105495,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Grief support model",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 86,
+      "coordinate": "train:118090",
+      "v9_split": "train",
+      "v9_line": 106415,
+      "prior_manual_verdict": "KEEP",
+      "subject": "2800-calorie macros",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 87,
+      "coordinate": "train:127671",
+      "v9_split": "train",
+      "v9_line": 106971,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Sleep hygiene",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 88,
+      "coordinate": "train:40476",
+      "v9_split": "train",
+      "v9_line": 108829,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Backpacker insurance priorities",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 89,
+      "coordinate": "train:132763",
+      "v9_split": "train",
+      "v9_line": 110477,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Final-exam study week",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 90,
+      "coordinate": "train:725",
+      "v9_split": "train",
+      "v9_line": 110544,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Paris five-night budget",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 91,
+      "coordinate": "train:135615",
+      "v9_split": "val",
+      "v9_line": 101,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Camry service reminder",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 92,
+      "coordinate": "train:95266",
+      "v9_split": "val",
+      "v9_line": 253,
+      "prior_manual_verdict": "KEEP",
+      "subject": "May budget",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 93,
+      "coordinate": "train:79046",
+      "v9_split": "val",
+      "v9_line": 892,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Aggressive portfolio review",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "unique_source_clause_restoration"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 94,
+      "coordinate": "train:28205",
+      "v9_split": "val",
+      "v9_line": 934,
+      "prior_manual_verdict": "REJECT",
+      "subject": "Tokyo allergy translation",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "reviewed_source_requires_verification",
+        "source_allergy_scope_mismatch"
+      ]
+    },
+    {
+      "case": 95,
+      "coordinate": "train:70539",
+      "v9_split": "val",
+      "v9_line": 958,
+      "prior_manual_verdict": "REPAIR",
+      "subject": "Design-student laptops",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "lost_source_qualifier",
+        "reviewed_source_fragment_missing",
+        "source_clause_gap"
+      ]
+    },
+    {
+      "case": 96,
+      "coordinate": "train:73971",
+      "v9_split": "val",
+      "v9_line": 1318,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Mumbai transport in monsoon",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 97,
+      "coordinate": "train:146637",
+      "v9_split": "val",
+      "v9_line": 1520,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Ukulele learning checklist",
+      "v10_policy_outcome": "REPAIR",
+      "repair_kinds": [
+        "source_table_label_restoration"
+      ],
+      "reason_codes": []
+    },
+    {
+      "case": 98,
+      "coordinate": "train:44879",
+      "v9_split": "val",
+      "v9_line": 1581,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Baking conversions",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 99,
+      "coordinate": "train:110372",
+      "v9_split": "val",
+      "v9_line": 1941,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Third-grade weekly curriculum",
+      "v10_policy_outcome": "KEEP",
+      "repair_kinds": [],
+      "reason_codes": []
+    },
+    {
+      "case": 100,
+      "coordinate": "train:83157",
+      "v9_split": "val",
+      "v9_line": 2298,
+      "prior_manual_verdict": "KEEP",
+      "subject": "Japan tourist-entry checklist",
+      "v10_policy_outcome": "QUARANTINE",
+      "repair_kinds": [],
+      "reason_codes": [
+        "source_clause_gap"
+      ]
+    }
+  ]
+}

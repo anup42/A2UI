@@ -1,0 +1,173 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiSdkBixby50Test:
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=BXP-001 renderer_replay rendered (1/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-002 renderer_replay rendered (2/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-003 renderer_replay rendered (3/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-004 renderer_replay rendered (4/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-005 renderer_replay rendered (5/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-006 renderer_replay rendered (6/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-007 renderer_replay rendered (7/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-008 renderer_replay rendered (8/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-009 renderer_replay rendered (9/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-010 renderer_replay rendered (10/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-011 renderer_replay rendered (11/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-012 renderer_replay rendered (12/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-013 renderer_replay rendered (13/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-014 renderer_replay rendered (14/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-015 renderer_replay rendered (15/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-016 renderer_replay rendered (16/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-017 renderer_replay rendered (17/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-018 renderer_replay rendered (18/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-019 renderer_replay rendered (19/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-020 renderer_replay rendered (20/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-021 renderer_replay rendered (21/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-022 renderer_replay rendered (22/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-023 renderer_replay rendered (23/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-024 renderer_replay rendered (24/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-025 renderer_replay rendered (25/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-026 renderer_replay rendered (26/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-027 renderer_replay rendered (27/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-028 renderer_replay rendered (28/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-029 renderer_replay rendered (29/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-030 renderer_replay rendered (30/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-031 renderer_replay rendered (31/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-032 renderer_replay rendered (32/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-033 renderer_replay rendered (33/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-034 renderer_replay rendered (34/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-035 renderer_replay rendered (35/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-036 renderer_replay rendered (36/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-037 renderer_replay rendered (37/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-038 renderer_replay rendered (38/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-039 renderer_replay rendered (39/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-040 renderer_replay rendered (40/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-041 renderer_replay rendered (41/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-042 renderer_replay rendered (42/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-043 renderer_replay rendered (43/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-044 renderer_replay rendered (44/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-045 renderer_replay rendered (45/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-046 renderer_replay rendered (46/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-047 renderer_replay rendered (47/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-048 renderer_replay rendered (48/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-049 renderer_replay rendered (49/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-050 renderer_replay rendered (50/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 272.615
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

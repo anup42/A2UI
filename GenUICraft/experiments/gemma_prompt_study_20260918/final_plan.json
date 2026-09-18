@@ -1,0 +1,34 @@
+[
+  {
+    "name": "ps_synthetic_scaffold_v11",
+    "prompt": "GenUICraft/genuicraft/src/main/assets/genuicraft/prompts/gemma.txt",
+    "corpus": "GenUICraft/experiments/gemma_prompt_study_20260918/synthetic_source_blocks.jsonl",
+    "cases": ["SYN-001", "SYN-002", "SYN-003"],
+    "repairs": 1,
+    "caseTimeoutMs": 600000,
+    "packagedPrompt": true,
+    "sdkLayoutScaffold": true,
+    "recordInputs": true
+  },
+  {
+    "name": "ps_final50_scaffold_v11",
+    "prompt": "GenUICraft/genuicraft/src/main/assets/genuicraft/prompts/gemma.txt",
+    "cases": [
+      "BXP-001", "BXP-002", "BXP-003", "BXP-004", "BXP-005",
+      "BXP-006", "BXP-007", "BXP-008", "BXP-009", "BXP-010",
+      "BXP-011", "BXP-012", "BXP-013", "BXP-014", "BXP-015",
+      "BXP-016", "BXP-017", "BXP-018", "BXP-019", "BXP-020",
+      "BXP-021", "BXP-022", "BXP-023", "BXP-024", "BXP-025",
+      "BXP-026", "BXP-027", "BXP-028", "BXP-029", "BXP-030",
+      "BXP-031", "BXP-032", "BXP-033", "BXP-034", "BXP-035",
+      "BXP-036", "BXP-037", "BXP-038", "BXP-039", "BXP-040",
+      "BXP-041", "BXP-042", "BXP-043", "BXP-044", "BXP-045",
+      "BXP-046", "BXP-047", "BXP-048", "BXP-049", "BXP-050"
+    ],
+    "repairs": 1,
+    "caseTimeoutMs": 600000,
+    "packagedPrompt": true,
+    "sdkLayoutScaffold": true,
+    "recordInputs": true
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "json",
+  "sourceRunId": "gemma50_saved_v10",
+  "runId": "gemma_visual_v14_dark_large",
+  "cases": [
+    "BXP-001",
+    "BXP-003",
+    "BXP-004",
+    "BXP-025",
+    "BXP-030"
+  ],
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "maxVerticalSwipes": 12,
+  "maxHorizontalSwipesPerTable": 8,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "hierarchyPolicy": "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
+  "columnCheck": "Visible text header or representative cell; content descriptions are excluded.",
+  "renderFontScale": 1.3,
+  "renderDark": true
+}
