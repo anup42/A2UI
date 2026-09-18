@@ -2,6 +2,11 @@
 
 Entry point: `training/scripts/run_golden_deployment.py`.
 
+**Already trained and only need the four model files?** Use the separate
+[checkpoint-only export command](EXPORT_TRAINED_CHECKPOINT.md). It does not
+retrain or run HF/native evaluation and does not need Vulkan. The
+`--skip-litert-evaluation` mode below still includes training and HF tests.
+
 This is the current **dense E2B LoRA / Gemma 3 270M full-SFT** workflow with
 the repaired archive and current Golden32/Golden35/Bixby50. It adds public W32/W16/W8/W4
 export and actual native GPU inference to `run_golden_training.py`. It does not

@@ -1,5 +1,12 @@
 ﻿# Response-to-IR Training
 
+For **W32/W16/W8/W4 export from an already trained checkpoint, without any
+retraining or inference**, use [`export_checkpoint_litertlm.py`](scripts/export_checkpoint_litertlm.py)
+and the [checkpoint-only export guide](docs/EXPORT_TRAINED_CHECKPOINT.md).
+It verifies/merges the saved best checkpoint, exports sequentially on CPU, and
+records precision audits, live logs and a final artifact table. No Vulkan is
+required; outputs are explicitly marked as not evaluated.
+
 For **training, optional tuning, W32/W16/W8/W4 LiteRT-LM export and GPU testing
 on Golden32, Golden35 and Bixby50**, use [`run_golden_deployment.py`](scripts/run_golden_deployment.py)
 and the [full GPU deployment runbook](docs/GOLDEN_GPU_DEPLOYMENT.md). Training/HF
@@ -84,6 +91,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 
 | Pipeline | Entry point | Current status |
 |---|---|---|
+| Existing dense checkpoint to all four LiteRT-LM variants | `training/scripts/export_checkpoint_litertlm.py` | Export only; no training, Golden/Bixby inference or Vulkan; CPU merge/conversion, W16/W4 acknowledgement, hash/precision checks, live logs and artifact summary |
 | Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and Golden32/Golden35/Bixby50 | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; CPU export and precision audits; default native GPU testing/21-result scorecard; `--skip-litert-evaluation` keeps nine HF results and all exports with native slots explicitly skipped; TensorBoard HParams |
 | Dense E2B LoRA / 270M full-model training with shared-prompt Golden32/Golden35/Bixby50 tests | `training/scripts/run_golden_training.py` | Current clone-and-run capability workflow; prepares tracked source data, filters held-out sources, runs GPU preflight/training, tests selected-best and final checkpoints on all three sets, logs TensorBoard and scorecard; no LiteRT export |
 | Sequential E2B / 270M hyperparameter and resampling comparisons | `training/scripts/run_golden_experiments.py` | Opt-in equal-step trials, fresh initialization, baseline included, TensorBoard HParams/comparison records, Golden32 selection and locked-winner Golden35/Bixby50 tests; screening, not a measured optimum |
