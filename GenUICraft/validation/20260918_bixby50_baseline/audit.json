@@ -1,0 +1,15 @@
+{
+  "validated_records": 50,
+  "png_dimensions": "1080x2520",
+  "unique_screenshot_hashes": 50,
+  "exact_query_dom_matches": 50,
+  "completion_timing_seconds": {
+    "count": 49,
+    "min": 7.0,
+    "median": 12.171,
+    "mean": 12.213,
+    "p95_nearest_rank": 17.922,
+    "max": 23.297
+  },
+  "issues": []
+}

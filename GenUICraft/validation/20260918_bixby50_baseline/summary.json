@@ -1,0 +1,24 @@
+{
+  "captured": 50,
+  "expected": 50,
+  "state_counts": {
+    "renderer_stuck_after_completion": 49,
+    "completion_timeout": 1
+  },
+  "device_serial": "R3GL203AKSF",
+  "device_model": "SM-F776U",
+  "bixby_version": "5.0.10.28",
+  "corpus_sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "completed_at_utc": "2026-09-18T06:43:45.483699+00:00",
+  "visible_answer_count": 0,
+  "active_keyboard_obstructed_captures": 0,
+  "completion_timing_seconds": {
+    "count": 49,
+    "min": 7.0,
+    "median": 12.171,
+    "mean": 12.213,
+    "p95_nearest_rank": 17.922,
+    "max": 23.297
+  },
+  "artifact_audit": "audit.json"
+}

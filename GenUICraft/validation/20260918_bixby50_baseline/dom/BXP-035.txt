@@ -1,0 +1,3 @@
+Search the web and use reliable sources. Create a general four-week beginner walking and basic strength plan for a healthy sedentary adult. Include weekly progression, recovery days, simple exercises, signs to stop and ways to adjust difficulty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.
+Generating an answer with AI
+Searching the web for reliable sources on beginner walking and basic strength plans

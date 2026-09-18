@@ -1,0 +1,3 @@
+Search the web and use reliable sources. Explain practical vegetarian protein sources commonly available in India. Include a table of eight foods with serving sizes and approximate protein, a sample day of meals, and the factors that change an adult's protein needs. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.
+Generating an answer with AI
+Searching the web for practical vegetarian protein sources in India

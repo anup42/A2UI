@@ -1,0 +1,3 @@
+Search the web and use reliable sources. Compare Madhubani, Warli and Pattachitra painting traditions. Cover geographical origins, materials, motifs, techniques and cultural context, then explain how to recognize each and support authentic practitioners. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.
+Generating an answer with AI
+Searching the web for reliable sources on Madhubani, Warli, and Pattachitra painting traditions

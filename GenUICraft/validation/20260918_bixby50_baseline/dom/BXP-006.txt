@@ -1,0 +1,3 @@
+Search the web and use reliable sources. Compare the two main driving routes from Bengaluru to Madikeri in Coorg. Include approximate distance, usual travel time, road conditions and one useful stop on each route. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.
+Generating an answer with AI
+Searching the web for reliable sources to compare the two main driving routes from Bengaluru to Madikeri in Coorg
