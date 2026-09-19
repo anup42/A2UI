@@ -1,0 +1,12 @@
+<a2ui>
+$/={phones:[{model:"OnePlus Nord CE 5",price:"From ₹24,999",display:"6.7-inch AMOLED, 20Hz",battery:"7,10mAh, 8W charging",software:"66 years of software support",best_for:"Buyers wanting a big battery and smooth everyday"},{model:"Samsung Galaxy A3655G",price:"Around ₹28,999 online; official India is higher",display:"6.7-inch Super AMOLED,12120Hz",battery:"5,0000mAh",software:"6 OS upgrades and 6 years security updates",best_for:"Buyers who want longest support and a balanced all-rounder"},{model:"iQOO Z1",price:"From about ₹20005555–2999",display:"6.7.7-inch AMOLED,12120Hz",battery:"7,3000mAh, 0W charging",software:"2 Android upgrades and 3 years of security patches",best_for_:"Buyers prioritizing battery life and fast charging"}]}
+root=Column([a,b,c,d,e],gap="md")
+a=Text("Three phones under ₹3,00","h2")
+b=Table(columns=["Model","Indicative price","Display","Battery","Software support","Best for"],state="/phones",domain="comparison",preferredPresentation="table",numericColumns=["Indicative price"])
+c=Text("Quick pick","h3")
+d=Card([e])
+e=Column([f,g,h],gap="md",padding=16))
+f=Text("Choose the Nord CE 5 if you want the best mix of price, battery, and support.",variant="body")
+g=Text("Pick the Galaxy A365G if long-term updates matter most.",variant="body")
+h=Text("Pick the iQOOZ1 if maximum battery endurance is your top priority.",variant="body")
+</a2ui>

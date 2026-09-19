@@ -8,7 +8,7 @@ plugins {
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 group = "com.samsung.genuicraft"
-version = "0.1.0"
+version = "0.2.0"
 
 android {
     namespace = "com.samsung.genuicraft.sdk"
@@ -55,7 +55,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    implementation("com.google.ai.edge.litertlm:litertlm-android:0.15.0")
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.16.1")
 
     api(composeBom)
     api("androidx.compose.ui:ui")

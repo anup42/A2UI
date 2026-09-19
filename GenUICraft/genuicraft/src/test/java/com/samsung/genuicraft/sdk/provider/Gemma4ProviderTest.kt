@@ -1,6 +1,8 @@
 package com.samsung.genuicraft.sdk.provider
 
 import com.samsung.genuicraft.sdk.GenUiPrompt
+import com.samsung.genuicraft.sdk.GenUiPromptMessage
+import com.samsung.genuicraft.sdk.GenUiPromptRole
 import com.samsung.genuicraft.sdk.GenUiGenerationMetrics
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -25,6 +27,19 @@ import org.junit.rules.TemporaryFolder
 class Gemma4ProviderTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
+
+    @Test fun `fewshot history counts toward context preflight`() = runBlocking {
+        val runtime = RecordingRuntime()
+        provider(runtime, maxContextTokens = 1024, maxOutputTokens = 128).use { provider ->
+            assertThrows(IllegalArgumentException::class.java) {
+                runBlocking {
+                    provider.generate(GenUiPrompt("system", "short request", maxOutputTokens = 128,
+                        initialMessages = listOf(GenUiPromptMessage(GenUiPromptRole.USER, "x".repeat(2400)))))
+                }
+            }
+            assertTrue(runtime.maxOutputTokens.isEmpty())
+        }
+    }
 
     @Test
     fun `generation returns explicit runtime metadata and respects output boundary`() = runBlocking {

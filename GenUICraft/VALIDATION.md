@@ -1,5 +1,14 @@
 # GenUICraft validation — 18 September 2026
 
+The separate **19 September trained E2B v10 W4 pilot** is documented in
+[its report](validation/20260919_e2b_v10_w4/REPORT.md). The user stopped it after
+12 completed cases: one compiled/rendered with poor content/layout, ten returned
+invalid Express, and one timed out. Native GPU decode median was **6.38 tokens/sec**
+across 11 returned outputs. This package has no MTP drafter and is an additional
+app option, not a replacement for the accepted official E2B prompt. SDK 0.2.0
+updates LiteRT-LM to 0.16.1 and adds the training-compatible prompt adapter.
+The historical acceptance results below remain attached to their original builds.
+
 The library and reference consumer are built and tested. Both providers completed the 50-case corpus, with the build-specific evidence below. Bixby source integration is prepared; Bixby is not built or installed because its private dependencies are unavailable.
 
 The subsequent **v14 renderer visual update** is recorded in [the visual review report](validation/20260918_visual/REPORT.md). The v10 evidence below remains the conversion baseline. V14 changes eight renderer/theme/wrapper files, retains the accepted conversion prompts and native runtime, and replaces the copied AAR in Bixby. Its AAR SHA-256 is `bdd8b06710e4118aa130fb506e181527b31fa6d204b858b47237fa3bff5160fd`; 294 JVM tests and four focused device checks pass. Current build and publication hashes are in [the v14 evidence](validation/20260918_visual/host_build_evidence.json).

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "BXP-001",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 27623,
+    "firstInRun": true,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3389,
+      "outputTokens": 240,
+      "decodeTokensPerSecond": 14.584464125200135,
+      "providerCallMs": 27617
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "error": "Expected exactly one complete <a2ui> program.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 27628
+  }
+]

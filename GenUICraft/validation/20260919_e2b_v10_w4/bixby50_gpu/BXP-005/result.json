@@ -1,0 +1,22 @@
+{
+  "id": "BXP-005",
+  "status": "strict_invalid",
+  "strictValid": false,
+  "renderValid": false,
+  "elapsedMs": 168865,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": 3381,
+    "outputTokens": 1017,
+    "decodeTokensPerSecond": 6.38235639554667,
+    "providerCallMs": 168856
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "runtime": "LiteRT-LM/Gemma4/GPU",
+  "renderedPromptSha256": "baf89861dfe3cf7a31040f2b8eabcc9c996c64977914968c3227893b79de4e35",
+  "error": "Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+  "rawOutputCaptured": true,
+  "caseElapsedMs": 168868
+}

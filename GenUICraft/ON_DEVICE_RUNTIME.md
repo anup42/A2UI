@@ -4,7 +4,7 @@
 
 ## Host setup
 
-The published `com.samsung.genuicraft:genuicraft:0.1.0` POM declares `com.google.ai.edge.litertlm:litertlm-android:0.15.0` and `kotlinx-coroutines-android:1.9.0` as runtime dependencies. Consume the Maven publication rather than copying only `genuicraft-0.1.0.aar`; a bare AAR does not carry transitive dependencies. LiteRT-LM 0.15.0 supplies its JNI bridge for `arm64-v8a` and `x86_64`. The GenUICraft AAR supplies the additional ARM64 LiteRT/OpenCL libraries described below.
+The published `com.samsung.genuicraft:genuicraft:0.2.0` POM declares `com.google.ai.edge.litertlm:litertlm-android:0.16.1` and `kotlinx-coroutines-android:1.9.0` as runtime dependencies. Consume the Maven publication rather than copying only `genuicraft-0.2.0.aar`; a bare AAR does not carry transitive dependencies. LiteRT-LM supplies its JNI bridge for `arm64-v8a` and `x86_64`. The GenUICraft AAR supplies the additional ARM64 LiteRT/OpenCL libraries described below.
 
 Pass an absolute path to a readable, nonempty `.litertlm` file that the host app has permission to access:
 
@@ -16,7 +16,7 @@ val provider = Gemma4Provider(
 )
 ```
 
-GPU with MTP speculative decoding and thinking enabled is the default and the required delivery configuration. CPU remains available only as an explicit diagnostic/host choice:
+GPU with MTP speculative decoding and thinking enabled is the default for the official E2B profile. The separate trained E2B v10 W4 profile uses GPU with MTP disabled (the package has no drafter) and thinking disabled to match its training workflow. CPU remains available only as an explicit diagnostic/host choice:
 
 ```kotlin
 val cpuProvider = Gemma4Provider(
@@ -36,15 +36,15 @@ The provider initializes its engine on the first request and reuses it. It seria
 
 `maxContextTokens` sizes the LiteRT-LM engine. `maxOutputTokens` is the provider ceiling; each `GenUiPrompt.maxOutputTokens` must fit under it. A conservative prompt estimate plus a chat-template reserve is checked before native generation, while LiteRT-LM remains the authoritative tokenizer and enforces the configured engine window.
 
-The provider passes thinking explicitly: `enableThinking = true` and a formatting budget of `thinkingTokenBudget = 1024`. Reasoning remains enabled; this bound reserves room for the final layout and prevents long repairs from exhausting the shared output budget. A null native thinking optional can resolve to reasoning disabled. Hosts may set `thinkingTokenBudget = -1` for the unlimited runtime default; reasoning and final-answer tokens share `GenUiPrompt.maxOutputTokens`.
+The provider passes thinking explicitly. The official profile defaults to `enableThinking = true` and a formatting budget of `thinkingTokenBudget = 1024`; this bound reserves room for the final layout and prevents long repairs from exhausting the shared output budget. The trained W4 profile explicitly sets thinking off with budget zero, matching its training workflow. A null native thinking optional can resolve to reasoning disabled. Hosts may set `thinkingTokenBudget = -1` for the unlimited runtime default; reasoning and final-answer tokens share `GenUiPrompt.maxOutputTokens`.
 
-`enableSpeculativeDecoding` defaults to `true`. GPU initialization verifies the model package's MTP capability and fails clearly if MTP was requested but is unavailable; it never silently disables MTP. It sets `ExperimentalFlags.enableSpeculativeDecoding` before `Engine.initialize()` and restores the prior process-global flag afterward. This matches the capability/initialization ordering in [Google AI Edge Gallery, pinned commit 4006d61](https://github.com/google-ai-edge/gallery/blob/4006d61ccb68533e974e2a23c10ab63e3205c29d/Android/src/app/src/main/java/com/google/ai/edge/gallery/ui/llmchat/LlmChatModelHelper.kt). The Gallery revision declares LiteRT-LM 0.11.0; this SDK uses 0.15.0 to retain its explicit thinking configuration and validated lifecycle implementation. We did not copy an unpinned Gallery binary or claim the two dependency closures are identical. CPU never enables MTP. Thinking remains enabled by default in both modes.
+`enableSpeculativeDecoding` defaults to `true`. GPU initialization verifies the model package's MTP capability and fails clearly if MTP was requested but is unavailable; it never silently disables MTP. It sets `ExperimentalFlags.enableSpeculativeDecoding` before `Engine.initialize()` and restores the prior process-global flag afterward. This matches the capability/initialization ordering in [Google AI Edge Gallery, pinned commit 4006d61](https://github.com/google-ai-edge/gallery/blob/4006d61ccb68533e974e2a23c10ab63e3205c29d/Android/src/app/src/main/java/com/google/ai/edge/gallery/ui/llmchat/LlmChatModelHelper.kt). The Gallery revision declares LiteRT-LM 0.11.0; this SDK uses 0.16.1, which retains explicit thinking configuration and reads dynamic GPU prefill sizes after compilation. We did not copy an unpinned Gallery binary or claim the two dependency closures are identical. CPU never enables MTP. Thinking remains enabled by default in both modes.
 
 Direct-copy development probes produced numeric changes on GPU both with and without MTP; this is not evidence that MTP alone caused the issue. The bundled Gemma formatting prompt therefore generates layout with typed source references. The converter inserts original text/list/table values, then compiles and validates the complete ordinary Express document. It rejects missing, duplicated, reordered or misused references. This is model-generated layout with deterministic source values, not a failed-generation text fallback.
 
 ## Reproducible ARM64 GPU package
 
-The LiteRT-LM 0.15.0 Maven AAR contains only `liblitertlm_jni.so`; it does not contain the dynamic LiteRT runtime, OpenCL accelerator, or OpenCL Top-K sampler required by the tested GPU path. GenUICraft therefore packages this minimal ARM64 closure:
+The LiteRT-LM 0.16.1 Maven AAR contains only `liblitertlm_jni.so`; it does not contain the dynamic LiteRT runtime, OpenCL accelerator, or OpenCL Top-K sampler required by the tested GPU path. GenUICraft therefore packages this minimal ARM64 closure:
 
 | Packaged file | Provenance | SHA-256 |
 | --- | --- | --- |
@@ -62,10 +62,39 @@ The AAR packages the upstream Apache 2.0 licenses and the 1,915,758-byte LiteRT 
 
 The SDK intentionally omits `libLiteRtClGlAccelerator.so`, which can win the runtime registry ahead of the OpenCL path; `libLiteRtGpuAccelerator.so`, whose audited parent copy requires an absent `libwebgpu_dawn.so`; and the earlier local `libLiteRtRuntimeBuiltin.so`/`libc++_shared.so` shim pair. The patched sampler depends directly on the pinned official `libLiteRt.so`, which exports `kLiteRtRuntimeBuiltin` and all 165 versioned LiteRT symbols referenced by the earlier shim.
 
-### SDK-only device verification
+### Historical SDK-only device verification
 
 The reference app was built with `-PgenUiSdkOnlyNative=true`, disabling every parent-owned JNI directory. Its APK contains the three ARM64 libraries listed above, the Maven LiteRT-LM JNI bridge, and AndroidX's graphics-path library. ZIP-entry SHA-256 checks match the pinned SDK libraries; the legacy ClGl/GPU accelerators and shim pair are absent.
 
 On the connected SM-F776U, this APK initialized OpenCL and reported `Gemma4 backend=GPU; MTP=true; modelSupportsMtp=true; thinking=true`. Successful conversions identify `LiteRT-LM/Gemma4/GPU+MTP`. This verifies the selected backend, capability check and initialized MTP flag; it does not measure the speculative-token acceptance rate. Corpus quality, latency, artifact hashes and selected screenshot review are recorded separately in [VALIDATION.md](VALIDATION.md).
 
 The repository's optional `working_dir/litertlm-android-0.16.1-gpu-fixed-with-provider-v6.aar` was absent during implementation and is not part of the SDK. Validate GPU generation on each target device and model export; JVM lifecycle tests cannot establish native kernel, model-quality, or device-memory compatibility.
+
+## Trained E2B v10 W4 compatibility
+
+The trained model uses `GenUiTrainedConverter` with the frozen production system
+prompt and one worked example. The complete response is the final user message;
+no source-binding conversion or model repair is used. Its 8192-token context and
+2048-token output cap follow the current export/evaluation workflow. The supplied
+package has no MTP assistant, so its explicit profile disables speculative
+execution and thinking. The official E2B profile keeps its existing defaults.
+
+Two Android compatibility fixes are needed:
+
+1. LiteRT-LM 0.15 builds its prefill runner map before compilation. This export
+   uses magic dimension 131, which LiteRT changes to 128; the stale map sends
+   130 embedding rows into a 128-row buffer. Version 0.16.1 derives the map
+   after compilation. See the official [0.15 executor](https://github.com/google-ai-edge/LiteRT-LM/blob/v0.15.0/runtime/executor/llm_litert_compiled_model_executor.cc)
+   and [0.16.1 executor](https://github.com/google-ai-edge/LiteRT-LM/blob/v0.16.1/runtime/executor/llm_litert_compiled_model_executor.cc).
+2. Android serializes a message as typed content parts, but the export's Jinja
+   template expects a string. A conversation-scoped template adapter extracts
+   the text and preserves the training template's exact framing. Before every
+   trained inference the SDK checks the native rendered prompt plus the BOS
+   token against the expected full training prefix. It returns a SHA-256 of
+   that verified prefix for benchmark provenance. The override is restored
+   immediately after conversation creation, including on failure.
+
+The model file is unchanged. Template parity does not prove the checkpoint's
+original training provenance: no original training manifest accompanied it.
+See the [device Bixby50 report](validation/20260919_e2b_v10_w4/REPORT.md) for actual
+model outputs, compiler/render results, native token speed, and limitations.

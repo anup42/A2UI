@@ -1,0 +1,22 @@
+{
+  "id": "BXP-004",
+  "status": "strict_invalid",
+  "strictValid": false,
+  "renderValid": false,
+  "elapsedMs": 102781,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": 3327,
+    "outputTokens": 597,
+    "decodeTokensPerSecond": 6.377142472251682,
+    "providerCallMs": 102760
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "runtime": "LiteRT-LM/Gemma4/GPU",
+  "renderedPromptSha256": "dadbcb9430c73961b4a1b5d20c7c9f1314d613926ee65c9211b9bd4cf704075e",
+  "error": "Invalid GenUI Express: Expected identifier at 142.",
+  "rawOutputCaptured": true,
+  "caseElapsedMs": 102785
+}

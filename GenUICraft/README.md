@@ -42,8 +42,13 @@ dependencyResolutionManagement {
     }
 }
 // consumer module
-implementation("com.samsung.genuicraft:genuicraft:0.1.0")
+implementation("com.samsung.genuicraft:genuicraft:0.2.0")
 ```
+
+Version 0.2.0 adds fields to the public prompt/output data classes. Rebuild
+consumer code when upgrading; do not replace a 0.1.0 binary in an already
+compiled consumer. The trained W4 profile's measured results are in the
+[12-case device pilot](validation/20260919_e2b_v10_w4/REPORT.md).
 
 Use the Maven POM/module metadata: an AAR copied alone does not automatically install Compose, Coil, Gson, OkHttp, coroutines or LiteRT dependencies. Keep Gemma model weights external to the AAR. Renderer-only calls never initialize a model, though the combined artifact declares its runtime dependency.
 
@@ -83,13 +88,57 @@ val provider = Gemma4Provider(Gemma4Config(
 val converter = GenUiConverter(context, provider)
 ```
 
+### Trained E2B v10 W4 option
+
+The SDK test screen also offers **Trained E2B v10 · W4 · GPU**. Place the separate
+model at the displayed app-accessible path, normally
+`Android/data/com.samsung.genuicraft/files/sdk_models/e2b_v10_w4.litertlm`.
+The model stays outside the APK/AAR. Its selection and path are persisted
+separately from the official E2B model and download settings.
+
+```kotlin
+val provider = Gemma4Provider(Gemma4Config(
+    modelPath = trainedModelPath,
+    accelerator = "GPU",
+    maxContextTokens = 8192,
+    maxOutputTokens = 2048,
+    enableThinking = false,
+    thinkingTokenBudget = 0,
+    enableSpeculativeDecoding = false,
+    enableMetrics = true,
+))
+val converter = GenUiTrainedConverter(context, provider)
+val result = converter.convert(GenUiRequest(perplexityResponse))
+```
+
+This profile uses the full production training contract, one user/model worked
+example, and the complete response text. It does not use the official model's
+source bindings. The snapshot is pinned in `e2b_v10_shared_prompt.json`; verify
+parity with the current training workflow using
+`python GenUICraft/tools/sync_trained_prompt.py --check` from the A2UI root.
+The supplied export has mixed W4/W8 weights and no MTP drafter. Thinking is
+disabled to match the current training workflow. It gets one generation attempt
+with a 2048-token cap; invalid output is returned as a failure without a fallback.
+Successful compilation alone does not establish lossless content preservation.
+
+LiteRT-LM 0.16.1 is required for this export's dynamic prefill dimensions.
+Version 0.15 schedules prefill from dimensions read before GPU compilation and
+can fail with a 130-token/128-row embedding mismatch. The upgrade leaves the
+model weights and embedded chat template unchanged. A conversation-scoped adapter
+unwraps Android text parts; the SDK verifies its rendered prompt bytes match the
+training prefix before inference. Device results and prompt
+provenance limits are recorded in the
+[trained W4 Bixby50 report](validation/20260919_e2b_v10_w4/REPORT.md).
+
+### Official E2B profile
+
 The runtime initializes lazily and is reused. Keep the provider for the owner's lifetime and call `provider.close()` when that owner is destroyed. This is nonblocking; await `provider.closeAndAwait()` before constructing a replacement that requires the old engine to be fully released. The model must be accessible to the consumer app. GPU, MTP speculative decoding and thinking are enabled by default; the packaged GPU runtime requires `arm64-v8a`, and an incompatible MTP model fails clearly. The formatting prompt uses a 1,024-token thinking budget, configurable through `Gemma4Config.thinkingTokenBudget`. See [ON_DEVICE_RUNTIME.md](ON_DEVICE_RUNTIME.md) for the Gallery comparison, runtime/backend support and lifecycle details. Gemma has a separately versioned compact prompt in `genuicraft/src/main/assets/genuicraft/prompts/gemma.txt`.
 
 The accepted v10 Gemma path segments source content conservatively into headings, paragraphs, lists, tables, code and dividers. It supplies ordered blocks, typed source-binding tokens, component names and the required root assignment. The model generates the complete Express program using those bindings, including each table's domain and presentation. The SDK inserts the exact original values before compilation, avoiding numeric copying errors. Missing, reordered, repeated or misused bindings and malformed Express fail validation and receive a bounded model repair. Failed inference is never replaced with a deterministic layout. Returned Express/JSON contains the actual content and needs no binding service to render.
 
 `GenUiConverter.withPrompt` accepts a custom reviewed prompt. Pass `useSourceBindings=true` when that prompt uses the typed binding contract; the default is `false`. The accepted production API and bundled Gemma prompt do not supply a complete Express scaffold.
 
-Ten new prompt/input strategies were evaluated separately from the baseline controls. The scaffold candidate was rejected after its full-corpus run finished at 48/50 successes, with two unrepaired failures and zero fallbacks. The accepted production source, prompt and AAR remain v10. Research and candidate sources are retained under [the prompt study](experiments/gemma_prompt_study_20260918/REPORT.md).
+Ten new prompt/input strategies were evaluated separately from the baseline controls. The scaffold candidate was rejected after its full-corpus run finished at 48/50 successes, with two unrepaired failures and zero fallbacks. That study did not replace the accepted v10 conversion prompt. Later renderer and runtime changes have their own validation records. Research and candidate sources are retained under [the prompt study](experiments/gemma_prompt_study_20260918/REPORT.md).
 
 In the test app, select **Gemma 4 E2B** and **Download model** to fetch the official
 2.59 GB GPU+MTP package. The download continues through Android's download service
@@ -115,7 +164,8 @@ consumers must provision their own accessible model path.
 Open **GenUICraft SDK · Bixby50** and use **Token metrics** to enable or disable
 the measurements. The preference persists across app restarts and is enabled by
 default in the demo. With Gemma, changing it takes effect on the next conversion
-and recreates the engine as needed; GPU, MTP, and thinking remain enabled.
+and recreates the engine as needed. The official profile keeps GPU, MTP, and
+thinking enabled; the trained W4 profile keeps its GPU-only, no-thinking settings.
 
 SDK hosts opt in with `Gemma4Config(enableMetrics = true, modelPath = modelPath)`.
 Each `GenUiProvider.generate` result exposes nullable `metrics` with actual
@@ -150,10 +200,10 @@ GenUiContent(document = document, onAction = ::handleAction)
 - Output exposes both Express and JSON, with explicit profile/schema versions. `GenUiCompiler.compile()` accepts strict `<a2ui>` Express or supported A2UI v0.9 wire envelopes (object/array). It rejects legacy `{root,state,elements}` input. `a2uiJson` is a v0.9 message array using catalog `com.samsung.genuicraft.catalog.v1`; the renderer's internal canonical graph is not the public JSON format.
 - Source text that resembles a state expression is escaped using the catalog's literal-string convention. It stays valid v0.9 JSON and replays literally in this renderer; see [LITERAL_TEXT_PROFILE.md](LITERAL_TEXT_PROFILE.md) before sending these exceptional values to another renderer.
 - No LLM is used to compile Express to JSON. Invalid schemas, unresolved references or unsupported properties are rejected.
-- Conversion preserves source wording, numeric facts, citation markers and supplied links. Mechanical preservation checks complement human review; they do not prove semantic correctness.
-- Model repair is bounded and reported by `attempts`. There is no hidden fallback that turns a failed generation into a successful rich-UI result.
+- `GenUiConverter` validates source wording, numeric facts, citation markers and supplied links. Mechanical preservation checks complement human review; they do not prove semantic correctness. The separate `GenUiTrainedConverter` uses the direct training prompt and checks compilation, without a source-fidelity guarantee.
+- `GenUiConverter` bounds model repair and reports `attempts`. `GenUiTrainedConverter` makes one attempt without repair. Neither turns a failed generation into a successful rich-UI result through a fallback.
 - Citation markers without supplied URLs remain markers. The library does not invent source links.
-- Supplied source IDs, titles and safe public HTTP(S) URLs are appended deterministically as source buttons. Unsupported or blocked source URLs fail before model execution. Model-generated actions are restricted to exact supplied links; renderer-only documents support local state actions and host callbacks as described above.
+- Supplied source IDs, titles and safe public HTTP(S) URLs are appended deterministically as source buttons. Unsupported or blocked source URLs fail before model execution. `GenUiConverter` also restricts model-generated actions to exact supplied links. Trained-model and renderer-only documents use the renderer's action policy and host callbacks; hosts must review external actions.
 - Requests are bounded before serialization (100,000 text characters, 8,000 query characters, 100 sources and 110,000 combined characters). Transport responses are bounded before allocation, and server redirects are rejected.
 - The host owns history, provider selection, model provisioning, permission decisions and external action execution.
 - Conversion uses deterministic sampling by default (`temperature=0.0`). The optional request query is host context and is excluded from formatting prompts so its instructions cannot override preservation of the supplied answer.

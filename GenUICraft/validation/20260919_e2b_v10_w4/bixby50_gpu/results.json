@@ -1,0 +1,272 @@
+[
+  {
+    "id": "BXP-001",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 46323,
+    "firstInRun": true,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3174,
+      "outputTokens": 330,
+      "decodeTokensPerSecond": 9.79609773909447,
+      "providerCallMs": 46289
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+    "error": "Invalid GenUI Express: Expected '}' at 87.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 46327
+  },
+  {
+    "id": "BXP-002",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 39317,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3112,
+      "outputTokens": 196,
+      "decodeTokensPerSecond": 6.40762314517586,
+      "providerCallMs": 39299
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "d8ce97fc3365a2fb2439760db49142b81be5c064e1ce0b9548863b4f6127ccde",
+    "error": "Invalid GenUI Express: Element 'root' references missing 'i'.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 39323
+  },
+  {
+    "id": "BXP-003",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 89567,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3394,
+      "outputTokens": 512,
+      "decodeTokensPerSecond": 6.386930662417193,
+      "providerCallMs": 89542
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+    "error": "Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 89570
+  },
+  {
+    "id": "BXP-004",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 102781,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3327,
+      "outputTokens": 597,
+      "decodeTokensPerSecond": 6.377142472251682,
+      "providerCallMs": 102760
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "dadbcb9430c73961b4a1b5d20c7c9f1314d613926ee65c9211b9bd4cf704075e",
+    "error": "Invalid GenUI Express: Expected identifier at 142.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 102785
+  },
+  {
+    "id": "BXP-005",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 168865,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3381,
+      "outputTokens": 1017,
+      "decodeTokensPerSecond": 6.38235639554667,
+      "providerCallMs": 168856
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "baf89861dfe3cf7a31040f2b8eabcc9c996c64977914968c3227893b79de4e35",
+    "error": "Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 168868
+  },
+  {
+    "id": "BXP-006",
+    "status": "timeout",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 300006,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": null,
+      "outputTokens": null,
+      "decodeTokensPerSecond": null,
+      "providerCallMs": 299995
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "error": "Timed out after 300000 ms.",
+    "rawOutputCaptured": false,
+    "caseElapsedMs": 300007
+  },
+  {
+    "id": "BXP-007",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 76129,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3276,
+      "outputTokens": 426,
+      "decodeTokensPerSecond": 6.353224693896683,
+      "providerCallMs": 76114
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "415ad0f8d75a8a719b9432b3fc5d15a23592fc1408c6c753ec4c0e84e50a21ec",
+    "error": "Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 76135
+  },
+  {
+    "id": "BXP-008",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 80247,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3329,
+      "outputTokens": 450,
+      "decodeTokensPerSecond": 6.3539054354417335,
+      "providerCallMs": 80232
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "edac8f85e9eb4167770d8ab649f415541b6c643e23703dcfd562381ee3e0394b",
+    "error": "Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 80251
+  },
+  {
+    "id": "BXP-009",
+    "status": "valid",
+    "strictValid": true,
+    "renderValid": true,
+    "elapsedMs": 85771,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3307,
+      "outputTokens": 487,
+      "decodeTokensPerSecond": 6.357754866750638,
+      "providerCallMs": 85727
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+    "warnings": [
+      "Runtime: LiteRT-LM/Gemma4/GPU",
+      "Trained E2B v10 prompt; generated content is not source-bound. Review content fidelity."
+    ],
+    "rendererContractValid": true,
+    "rendererWarnings": [],
+    "screenCaptured": true,
+    "scrolledScreenCaptured": true,
+    "currentCaseVisible": true,
+    "rendererErrorVisible": false,
+    "caseElapsedMs": 88256
+  },
+  {
+    "id": "BXP-010",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 84667,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3288,
+      "outputTokens": 481,
+      "decodeTokensPerSecond": 6.361225721868555,
+      "providerCallMs": 84651
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "4ff5b054bc9a55c04fc870be5137fadbd9174990952d7a9833ad49bffbec3964",
+    "error": "Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 84670
+  },
+  {
+    "id": "BXP-011",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 80978,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3353,
+      "outputTokens": 455,
+      "decodeTokensPerSecond": 6.364250788879937,
+      "providerCallMs": 80970
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "aefa04156da508086f9754cabce019045f9b0733bec472c69b10eac48f77bd94",
+    "error": "Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 80985
+  },
+  {
+    "id": "BXP-012",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 100383,
+    "firstInRun": false,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3361,
+      "outputTokens": 580,
+      "decodeTokensPerSecond": 6.378677787214692,
+      "providerCallMs": 100375
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "05b89c9168130cb73c9ddc502dcb6fa084e30bdfd78a22f92ab7ceccbc44a630",
+    "error": "Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 100386
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "id": "BXP-006",
+  "status": "timeout",
+  "strictValid": false,
+  "renderValid": false,
+  "elapsedMs": 300006,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": null,
+    "outputTokens": null,
+    "decodeTokensPerSecond": null,
+    "providerCallMs": 299995
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "error": "Timed out after 300000 ms.",
+  "rawOutputCaptured": false,
+  "caseElapsedMs": 300007
+}

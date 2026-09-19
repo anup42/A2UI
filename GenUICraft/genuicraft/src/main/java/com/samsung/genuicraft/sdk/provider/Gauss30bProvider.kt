@@ -5,6 +5,7 @@ import com.google.gson.JsonParser
 import com.samsung.genuicraft.sdk.GenUiModelOutput
 import com.samsung.genuicraft.sdk.GenUiGenerationMetrics
 import com.samsung.genuicraft.sdk.GenUiPrompt
+import com.samsung.genuicraft.sdk.GenUiPromptRole
 import com.samsung.genuicraft.sdk.GenUiProvider
 import java.io.FilterInputStream
 import java.io.IOException
@@ -69,6 +70,12 @@ class Gauss30bProvider(private val config: GaussConfig = GaussConfig()) : GenUiP
             add("chat_template_kwargs", JsonObject().apply { addProperty("reasoning_strength", config.reasoningStrength) })
             add("messages", com.google.gson.JsonArray().apply {
                 add(JsonObject().apply { addProperty("role", "system"); addProperty("content", prompt.system) })
+                prompt.initialMessages.forEach { message ->
+                    add(JsonObject().apply {
+                        addProperty("role", if (message.role == GenUiPromptRole.USER) "user" else "assistant")
+                        addProperty("content", message.text)
+                    })
+                }
                 add(JsonObject().apply { addProperty("role", "user"); addProperty("content", prompt.user) })
             })
         }

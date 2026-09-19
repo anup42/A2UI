@@ -15,8 +15,10 @@ import com.google.ai.edge.litertlm.Message
 import com.google.ai.edge.litertlm.SamplerConfig
 import com.google.ai.edge.litertlm.ThinkingConfig
 import com.samsung.genuicraft.sdk.GenUiPrompt
+import com.samsung.genuicraft.sdk.GenUiPromptRole
 import com.samsung.genuicraft.sdk.GenUiGenerationMetrics
 import java.io.File
+import java.security.MessageDigest
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
@@ -46,6 +48,7 @@ internal data class Gemma4RuntimeOutput(
     val runtimeIdentity: String,
     val outputTokens: Int?,
     val metrics: GenUiGenerationMetrics? = null,
+    val renderedPromptSha256: String? = null,
 )
 
 /** LiteRT-LM implementation isolated behind [Gemma4Runtime] so lifecycle behavior is testable. */
@@ -72,9 +75,15 @@ internal class LiteRtGemma4Runtime(
         val deterministic = prompt.temperature <= 0.0
         // Pass thinking explicitly: a null native optional can resolve to thinking disabled.
         // The formatting default bounds reasoning while leaving a generous final layout budget.
-        val conversation = state.engine.createConversation(
+        val conversationConfig =
             ConversationConfig(
                 systemInstruction = prompt.system.takeIf { it.isNotBlank() }?.let(Contents::of),
+                initialMessages = prompt.initialMessages.map { message ->
+                    when (message.role) {
+                        GenUiPromptRole.USER -> Message.user(message.text)
+                        GenUiPromptRole.MODEL -> Message.model(message.text)
+                    }
+                },
                 samplerConfig = SamplerConfig(
                     temperature = prompt.temperature,
                     topK = if (deterministic) 1 else 32,
@@ -85,8 +94,16 @@ internal class LiteRtGemma4Runtime(
                     enableThinking = config.enableThinking,
                     thinkingTokenBudget = config.thinkingTokenBudget,
                 ),
-            ),
-        )
+            )
+        val conversation = synchronized(experimentalFlagsLock) {
+            val previousTemplate = ExperimentalFlags.overwritePromptTemplate
+            try {
+                ExperimentalFlags.overwritePromptTemplate = prompt.chatTemplateOverride
+                state.engine.createConversation(conversationConfig)
+            } finally {
+                ExperimentalFlags.overwritePromptTemplate = previousTemplate
+            }
+        }
         if (requestCancelled.get() || closed.get()) {
             runCatching { conversation.cancelProcess() }
             conversation.close()
@@ -99,6 +116,18 @@ internal class LiteRtGemma4Runtime(
         }
         try {
             throwIfRequestStopped(requestCancelled)
+            val renderedPromptSha256 = prompt.expectedRenderedPrompt?.let { expected ->
+                val message = conversation.renderMessageIntoString(Message.user(prompt.user))
+                // On the first turn native rendering returns the full history, but leaves
+                // bos_token empty. The session inserts Gemma's BOS token separately.
+                val rendered = "<bos>" + message
+                check(rendered == expected) {
+                    "Native prompt differs from the pinned training template " +
+                        "(expected=${promptSha256(expected)}, actual=${promptSha256(rendered)}, " +
+                        "messageChars=${message.length})."
+                }
+                promptSha256(rendered)
+            }
             val response = conversation.sendMessage(prompt.user)
             val metrics = if (config.enableMetrics) readGemma4GenerationMetrics(conversation) else null
             Gemma4RuntimeOutput(
@@ -106,6 +135,7 @@ internal class LiteRtGemma4Runtime(
                 runtimeIdentity = state.runtimeIdentity,
                 outputTokens = metrics?.outputTokens ?: conversation.outputTokenCount(),
                 metrics = metrics,
+                renderedPromptSha256 = renderedPromptSha256,
             )
         } finally {
             activeConversation.compareAndSet(conversation, null)
@@ -260,6 +290,9 @@ internal class LiteRtGemma4Runtime(
         val experimentalFlagsLock = Any()
     }
 }
+
+private fun promptSha256(text: String): String = MessageDigest.getInstance("SHA-256")
+    .digest(text.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
 
 /** Loads the two libraries whose initialization must precede LiteRT-LM GPU engine creation. */
 internal object Gemma4NativeLibraries {

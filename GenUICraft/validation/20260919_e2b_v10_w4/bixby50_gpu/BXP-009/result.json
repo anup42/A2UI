@@ -1,0 +1,30 @@
+{
+  "id": "BXP-009",
+  "status": "valid",
+  "strictValid": true,
+  "renderValid": true,
+  "elapsedMs": 85771,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": 3307,
+    "outputTokens": 487,
+    "decodeTokensPerSecond": 6.357754866750638,
+    "providerCallMs": 85727
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "runtime": "LiteRT-LM/Gemma4/GPU",
+  "renderedPromptSha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+  "warnings": [
+    "Runtime: LiteRT-LM/Gemma4/GPU",
+    "Trained E2B v10 prompt; generated content is not source-bound. Review content fidelity."
+  ],
+  "rendererContractValid": true,
+  "rendererWarnings": [],
+  "screenCaptured": true,
+  "scrolledScreenCaptured": true,
+  "currentCaseVisible": true,
+  "rendererErrorVisible": false,
+  "caseElapsedMs": 88256
+}

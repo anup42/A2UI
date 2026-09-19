@@ -1,0 +1,10 @@
+{
+  "providerCallMs": 299995,
+  "runtime": null,
+  "outputCharacters": null,
+  "outputTokens": null,
+  "inputTokens": null,
+  "actualOutputTokens": null,
+  "decodeTokensPerSecond": null,
+  "error": "Timed out waiting for 300000 ms"
+}

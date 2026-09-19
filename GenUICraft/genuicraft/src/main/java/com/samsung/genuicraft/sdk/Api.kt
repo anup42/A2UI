@@ -23,7 +23,17 @@ data class GenUiPrompt(
     val user: String,
     val maxOutputTokens: Int = 8192,
     val temperature: Double = 0.0,
+    /** Prior turns, for profiles whose training contract includes a worked example. */
+    val initialMessages: List<GenUiPromptMessage> = emptyList(),
+    /** Optional native template adapter; scoped to this conversation only. */
+    val chatTemplateOverride: String? = null,
+    /** When supplied, native rendering must match this exact training prefix before inference. */
+    val expectedRenderedPrompt: String? = null,
 )
+
+enum class GenUiPromptRole { USER, MODEL }
+
+data class GenUiPromptMessage(val role: GenUiPromptRole, val text: String)
 
 /** Actual native measurements or server-reported usage; unavailable values are null, never estimated. */
 data class GenUiGenerationMetrics(
@@ -40,6 +50,7 @@ data class GenUiModelOutput(
     val runtime: String,
     val outputTokens: Int? = null,
     val metrics: GenUiGenerationMetrics? = null,
+    val renderedPromptSha256: String? = null,
 )
 
 interface GenUiProvider : AutoCloseable {

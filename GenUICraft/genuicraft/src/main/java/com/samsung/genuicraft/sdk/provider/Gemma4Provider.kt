@@ -71,6 +71,7 @@ class Gemma4Provider private constructor(
                 runtime = generation.runtimeIdentity,
                 outputTokens = generation.outputTokens,
                 metrics = generation.metrics.takeIf { validatedConfig.enableMetrics },
+                renderedPromptSha256 = generation.renderedPromptSha256,
             )
         } finally {
             generationMutex.unlock()
@@ -186,7 +187,8 @@ internal object Gemma4PromptLimits {
             "Gemma 4 maxOutputTokens must be between 1 and ${config.maxOutputTokens}."
         }
 
-        val estimatedInputTokens = estimateTokens(prompt.system) + estimateTokens(prompt.user)
+        val estimatedInputTokens = estimateTokens(prompt.system).toLong() + estimateTokens(prompt.user) +
+            prompt.initialMessages.sumOf { estimateTokens(it.text).toLong() + 8 }
         val estimatedTotal = estimatedInputTokens.toLong() +
             prompt.maxOutputTokens.toLong() +
             CHAT_TEMPLATE_RESERVE_TOKENS

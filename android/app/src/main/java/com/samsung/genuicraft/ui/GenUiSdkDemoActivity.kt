@@ -97,7 +97,36 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                         )
                     )
                 }
-                var modelPath by remember { mutableStateOf(preferences.getString("model_path", java.io.File(getExternalFilesDir(null), "sdk_models/gemma-4-E2B-it.litertlm").absolutePath).orEmpty()) }
+                var e2bModelChoice by remember {
+                    mutableStateOf(
+                        E2bModelChoice.fromPreference(
+                            preferences.getString(PREFERENCE_E2B_MODEL_CHOICE, null)
+                        )
+                    )
+                }
+                var officialModelPath by remember {
+                    mutableStateOf(
+                        preferences.getString(
+                            PREFERENCE_OFFICIAL_E2B_MODEL_PATH,
+                            java.io.File(
+                                getExternalFilesDir(null),
+                                "sdk_models/gemma-4-E2B-it.litertlm",
+                            ).absolutePath,
+                        ).orEmpty()
+                    )
+                }
+                var trainedModelPath by remember {
+                    mutableStateOf(
+                        preferences.getString(
+                            PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
+                            java.io.File(
+                                getExternalFilesDir(null),
+                                "sdk_models/e2b_v10_w4.litertlm",
+                            ).absolutePath,
+                        ).orEmpty()
+                    )
+                }
+                var trainedModelCheckRevision by remember { mutableIntStateOf(0) }
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("GenUICraft SDK · Bixby50", style = MaterialTheme.typography.titleLarge)
@@ -128,11 +157,19 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                         }
                         val managedReadyFile =
                             (managedModelState as? SdkGemmaModelDownload.State.Ready)?.file
-                        val actionAvailability = demoActionAvailability(
+                        val trainedModelReadiness = remember(
+                            trainedModelPath,
+                            trainedModelCheckRevision,
+                        ) {
+                            trainedE2bW4Readiness(trainedModelPath)
+                        }
+                        val actionAvailability = sdkDemoActionAvailability(
                             working = working,
                             useGemma = useGemma,
-                            modelSource = gemmaModelSource,
-                            managedModelReady = managedReadyFile != null,
+                            e2bModelChoice = e2bModelChoice,
+                            officialModelSource = gemmaModelSource,
+                            managedOfficialModelReady = managedReadyFile != null,
+                            trainedModelReady = trainedModelReadiness.usable,
                         )
                         if (editorVisible) {
                             Column(
@@ -178,64 +215,156 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     )
                                 }
                                 if (useGemma) {
-                                    Text("Gemma model", style = MaterialTheme.typography.titleSmall)
+                                    Text("E2B model", style = MaterialTheme.typography.titleSmall)
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         RadioButton(
-                                            selected = gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD,
+                                            selected = e2bModelChoice == E2bModelChoice.OFFICIAL_E2B,
                                             onClick = {
-                                                gemmaModelSource = GemmaModelSource.MANAGED_DOWNLOAD
+                                                e2bModelChoice = E2bModelChoice.OFFICIAL_E2B
                                                 preferences.edit().putString(
-                                                    PREFERENCE_GEMMA_MODEL_SOURCE,
-                                                    GemmaModelSource.MANAGED_DOWNLOAD.preferenceValue,
+                                                    PREFERENCE_E2B_MODEL_CHOICE,
+                                                    E2bModelChoice.OFFICIAL_E2B.preferenceValue,
                                                 ).apply()
                                             },
                                             enabled = !working,
-                                            modifier = Modifier.testTag("gemma_model_source_managed"),
+                                            modifier = Modifier.testTag("e2b_model_official"),
                                         )
-                                        Text("Download model")
+                                        Text("Official E2B · GPU")
                                     }
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         RadioButton(
-                                            selected = gemmaModelSource == GemmaModelSource.LOCAL_FILE,
+                                            selected =
+                                                e2bModelChoice == E2bModelChoice.TRAINED_E2B_V10_W4,
                                             onClick = {
-                                                gemmaModelSource = GemmaModelSource.LOCAL_FILE
+                                                e2bModelChoice = E2bModelChoice.TRAINED_E2B_V10_W4
                                                 preferences.edit().putString(
-                                                    PREFERENCE_GEMMA_MODEL_SOURCE,
-                                                    GemmaModelSource.LOCAL_FILE.preferenceValue,
+                                                    PREFERENCE_E2B_MODEL_CHOICE,
+                                                    E2bModelChoice.TRAINED_E2B_V10_W4.preferenceValue,
                                                 ).apply()
                                             },
                                             enabled = !working,
-                                            modifier = Modifier.testTag("gemma_model_source_local"),
+                                            modifier = Modifier.testTag("e2b_model_trained_v10_w4"),
                                         )
-                                        Text("Use local file · advanced")
+                                        Text("Trained E2B v10 · W4 · GPU")
                                     }
-                                    if (gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD) {
-                                        ManagedModelDownloadPanel(
-                                            state = managedModelState,
-                                            modelFile = managedModelDownload.modelFile,
-                                            enabled = !working,
-                                            onStart = {
-                                                lifecycleScope.launch {
-                                                    managedModelState = managedModelDownload.start()
-                                                }
-                                            },
-                                            onCancel = {
-                                                lifecycleScope.launch {
-                                                    managedModelState = managedModelDownload.cancel()
-                                                }
-                                            },
+                                    if (e2bModelChoice == E2bModelChoice.OFFICIAL_E2B) {
+                                        Text(
+                                            "Official model source",
+                                            style = MaterialTheme.typography.titleSmall,
                                         )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            RadioButton(
+                                                selected =
+                                                    gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD,
+                                                onClick = {
+                                                    gemmaModelSource = GemmaModelSource.MANAGED_DOWNLOAD
+                                                    preferences.edit().putString(
+                                                        PREFERENCE_GEMMA_MODEL_SOURCE,
+                                                        GemmaModelSource.MANAGED_DOWNLOAD.preferenceValue,
+                                                    ).apply()
+                                                },
+                                                enabled = !working,
+                                                modifier = Modifier.testTag(
+                                                    "gemma_model_source_managed"
+                                                ),
+                                            )
+                                            Text("Download model")
+                                        }
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            RadioButton(
+                                                selected =
+                                                    gemmaModelSource == GemmaModelSource.LOCAL_FILE,
+                                                onClick = {
+                                                    gemmaModelSource = GemmaModelSource.LOCAL_FILE
+                                                    preferences.edit().putString(
+                                                        PREFERENCE_GEMMA_MODEL_SOURCE,
+                                                        GemmaModelSource.LOCAL_FILE.preferenceValue,
+                                                    ).apply()
+                                                },
+                                                enabled = !working,
+                                                modifier = Modifier.testTag(
+                                                    "gemma_model_source_local"
+                                                ),
+                                            )
+                                            Text("Use local file · advanced")
+                                        }
+                                        if (gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD) {
+                                            ManagedModelDownloadPanel(
+                                                state = managedModelState,
+                                                modelFile = managedModelDownload.modelFile,
+                                                enabled = !working,
+                                                onStart = {
+                                                    lifecycleScope.launch {
+                                                        managedModelState = managedModelDownload.start()
+                                                    }
+                                                },
+                                                onCancel = {
+                                                    lifecycleScope.launch {
+                                                        managedModelState = managedModelDownload.cancel()
+                                                    }
+                                                },
+                                            )
+                                        } else {
+                                            OutlinedTextField(
+                                                officialModelPath,
+                                                {
+                                                    officialModelPath = it
+                                                    preferences.edit().putString(
+                                                        PREFERENCE_OFFICIAL_E2B_MODEL_PATH,
+                                                        it,
+                                                    ).apply()
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                                label = { Text("Official .litertlm model path") },
+                                                singleLine = true,
+                                            )
+                                        }
                                     } else {
+                                        Text(
+                                            "GPU · MTP unavailable in this target-only export.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                        )
                                         OutlinedTextField(
-                                            modelPath,
+                                            trainedModelPath,
                                             {
-                                                modelPath = it
-                                                preferences.edit().putString("model_path", it).apply()
+                                                trainedModelPath = it
+                                                preferences.edit().putString(
+                                                    PREFERENCE_TRAINED_E2B_W4_MODEL_PATH,
+                                                    it,
+                                                ).apply()
                                             },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            label = { Text("Local .litertlm model path") },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .testTag("trained_e2b_w4_model_path"),
+                                            label = { Text("Trained .litertlm model path") },
                                             singleLine = true,
                                         )
+                                        Text(
+                                            trainedModelReadiness.message,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = if (trainedModelReadiness.usable) {
+                                                MaterialTheme.colorScheme.onSurface
+                                            } else {
+                                                MaterialTheme.colorScheme.error
+                                            },
+                                            modifier = Modifier.testTag(
+                                                "trained_e2b_w4_model_readiness"
+                                            ),
+                                        )
+                                        Text(
+                                            "Place the exported model at the path above. " +
+                                                "No download URL is configured.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                        )
+                                        OutlinedButton(
+                                            onClick = { trainedModelCheckRevision += 1 },
+                                            enabled = !working,
+                                            modifier = Modifier.testTag(
+                                                "trained_e2b_w4_check_model"
+                                            ),
+                                        ) {
+                                            Text("Check model")
+                                        }
                                     }
                                 }
                             }
@@ -244,19 +373,33 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                     enabled = actionAvailability.convertEnabled,
                                     modifier = Modifier.testTag("convert_render_button"),
                                     onClick = {
+                                        // Compose can deliver a second tap before the disabled state recomposes.
+                                        if (working) return@Button
                                         val useGemmaForRun = useGemma
+                                        val e2bModelChoiceForRun = e2bModelChoice
                                         val modelPathForRun = if (
                                             useGemmaForRun &&
+                                            e2bModelChoiceForRun == E2bModelChoice.OFFICIAL_E2B &&
                                             gemmaModelSource == GemmaModelSource.MANAGED_DOWNLOAD
                                         ) {
                                             managedReadyFile?.absolutePath ?: run {
                                                 status = "Download and verify the Gemma model first."
                                                 return@Button
                                             }
+                                        } else if (
+                                            useGemmaForRun &&
+                                            e2bModelChoiceForRun ==
+                                                E2bModelChoice.TRAINED_E2B_V10_W4
+                                        ) {
+                                            val readiness = trainedE2bW4Readiness(trainedModelPath)
+                                            if (!readiness.usable) {
+                                                status = readiness.message
+                                                return@Button
+                                            }
+                                            trainedModelPath.trim()
                                         } else {
-                                            modelPath
+                                            officialModelPath
                                         }
-                                        activeJob?.cancel()
                                         document = null
                                         generationMetrics = null
                                         working = true
@@ -264,63 +407,98 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         val sourceForRun = source
                                         val metricsForRun = tokenMetricsEnabled
                                         activeJob = lifecycleScope.launch {
-                                        try {
-                                            val providerKey = if (useGemmaForRun) {
-                                                "gemma:$modelPathForRun:metrics=$metricsForRun"
-                                            } else {
-                                                "gauss:metrics=$metricsForRun"
-                                            }
-                                            val provider = if (providerKey == activeProviderKey && activeProvider != null) activeProvider!! else {
-                                                activeProvider?.closeAndAwait()
-                                                activeProvider = null
-                                                activeProviderKey = null
-                                                (if (useGemmaForRun) {
-                                                    Gemma4Provider(
-                                                        Gemma4Config(
-                                                            modelPath = modelPathForRun,
-                                                            enableMetrics = metricsForRun,
-                                                        )
-                                                    )
+                                            try {
+                                                val providerKey = sdkDemoProviderKey(
+                                                    useGemma = useGemmaForRun,
+                                                    e2bModelChoice = e2bModelChoiceForRun,
+                                                    modelPath = modelPathForRun,
+                                                    enableMetrics = metricsForRun,
+                                                )
+                                                val provider = if (
+                                                    providerKey == activeProviderKey &&
+                                                    activeProvider != null
+                                                ) {
+                                                    activeProvider!!
                                                 } else {
-                                                    Gauss30bProvider()
-                                                }).also {
-                                                    activeProvider = it
-                                                    activeProviderKey = providerKey
+                                                    val providerToClose = activeProvider
+                                                    activeProvider = null
+                                                    activeProviderKey = null
+                                                    closeProviderBeforeReplacement(providerToClose)
+                                                    (if (useGemmaForRun) {
+                                                        Gemma4Provider(
+                                                            if (
+                                                                e2bModelChoiceForRun ==
+                                                                    E2bModelChoice.TRAINED_E2B_V10_W4
+                                                            ) {
+                                                                trainedE2bW4Config(
+                                                                    modelPath = modelPathForRun,
+                                                                    enableMetrics = metricsForRun,
+                                                                )
+                                                            } else {
+                                                                Gemma4Config(
+                                                                    modelPath = modelPathForRun,
+                                                                    enableMetrics = metricsForRun,
+                                                                )
+                                                            }
+                                                        )
+                                                    } else {
+                                                        Gauss30bProvider()
+                                                    }).also {
+                                                        activeProvider = it
+                                                        activeProviderKey = providerKey
+                                                    }
                                                 }
+                                                val metricsProvider = if (metricsForRun) {
+                                                    MetricsRecordingProvider(provider)
+                                                } else {
+                                                    null
+                                                }
+                                                val converterProvider = metricsProvider ?: provider
+                                                val result = if (
+                                                    useGemmaForRun &&
+                                                    e2bModelChoiceForRun ==
+                                                        E2bModelChoice.TRAINED_E2B_V10_W4
+                                                ) {
+                                                    GenUiTrainedConverter(
+                                                        this@GenUiSdkDemoActivity,
+                                                        converterProvider,
+                                                    ).convert(GenUiRequest(sourceForRun))
+                                                } else {
+                                                    GenUiConverter(
+                                                        this@GenUiSdkDemoActivity,
+                                                        converterProvider,
+                                                    ).convert(GenUiRequest(sourceForRun))
+                                                }
+                                                when (result) {
+                                                    is GenUiConversionResult.Success -> {
+                                                        showDocument(
+                                                            result.document,
+                                                            "${result.provider} · " +
+                                                                "${result.elapsedMs} ms · " +
+                                                                "${result.attempts} attempt(s)"
+                                                        )
+                                                        generationMetrics = metricsProvider?.toUiState(
+                                                            reportedAttempts = result.attempts,
+                                                            conversionElapsedMs = result.elapsedMs,
+                                                        )
+                                                    }
+                                                    is GenUiConversionResult.Failure -> {
+                                                        status = "Conversion failed: ${result.message}"
+                                                        generationMetrics = metricsProvider?.toUiState(
+                                                            reportedAttempts = result.attempts,
+                                                            conversionElapsedMs = result.elapsedMs,
+                                                        )
+                                                    }
+                                                }
+                                            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                                                generationMetrics = null
+                                                throw cancel
+                                            } catch (error: Exception) {
+                                                generationMetrics = null
+                                                status = "Error: ${error.message}"
+                                            } finally {
+                                                working = false
                                             }
-                                            val metricsProvider = if (metricsForRun) MetricsRecordingProvider(provider) else null
-                                            val converterProvider = metricsProvider ?: provider
-                                            when (
-                                                val result = GenUiConverter(this@GenUiSdkDemoActivity, converterProvider)
-                                                    .convert(GenUiRequest(sourceForRun))
-                                            ) {
-                                                is GenUiConversionResult.Success -> {
-                                                    showDocument(
-                                                        result.document,
-                                                        "${result.provider} · ${result.elapsedMs} ms · ${result.attempts} attempt(s)"
-                                                    )
-                                                    generationMetrics = metricsProvider?.toUiState(
-                                                        reportedAttempts = result.attempts,
-                                                        conversionElapsedMs = result.elapsedMs,
-                                                    )
-                                                }
-                                                is GenUiConversionResult.Failure -> {
-                                                    status = "Conversion failed: ${result.message}"
-                                                    generationMetrics = metricsProvider?.toUiState(
-                                                        reportedAttempts = result.attempts,
-                                                        conversionElapsedMs = result.elapsedMs,
-                                                    )
-                                                }
-                                            }
-                                        } catch (cancel: kotlinx.coroutines.CancellationException) {
-                                            generationMetrics = null
-                                            throw cancel
-                                        } catch (error: Exception) {
-                                            generationMetrics = null
-                                            status = "Error: ${error.message}"
-                                        } finally {
-                                            working = false
-                                        }
                                         }
                                     },
                                 ) { Text("Convert + render") }

@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "audit_scope": "Read-only inspection of the supplied LiteRT-LM package plus reconstruction from the current repository contract. No checkpoint lineage or original training manifest was present in the package.",
+  "artifact": {
+    "path": "C:\\Users\\anupk\\Downloads\\e2b_v10_w4.litertlm",
+    "size_bytes": 2859767952,
+    "sha256": "64e3944babb7a95e6ece432d316dc26da65bb328c9a1a146de3befbdabe6c751"
+  },
+  "package_verified": {
+    "format_version": "1.6.0",
+    "header_sha256": "8aed8d3832baab3a674e2310deff7bc4440fe7621b8dad5d268dd46ae9165941",
+    "created_at": "2026-09-19T08:10:13.422139+00:00",
+    "author": "ODML",
+    "uuid": "e1ba3ee0-be39-4eaf-9095-9a7362f8a06a",
+    "llm_metadata_max_num_tokens": 8209,
+    "sections": [
+      {
+        "index": 0,
+        "type": "LlmMetadataProto",
+        "begin": 16384,
+        "end": 17015,
+        "size_bytes": 631
+      },
+      {
+        "index": 1,
+        "type": "ExecutorMetadataProto",
+        "begin": 32768,
+        "end": 34764,
+        "size_bytes": 1996
+      },
+      {
+        "index": 2,
+        "type": "HF_Tokenizer_Zlib",
+        "begin": 49152,
+        "end": 5594688,
+        "size_bytes": 5545536
+      },
+      {
+        "index": 3,
+        "type": "TFLiteModel",
+        "name": "tf_lite_prefill_decode",
+        "begin": 5603328,
+        "end": 1312038272,
+        "size_bytes": 1306434944
+      },
+      {
+        "index": 4,
+        "type": "TFLiteModel",
+        "name": "tf_lite_embedder",
+        "begin": 1312047104,
+        "end": 1538545232,
+        "size_bytes": 226498128
+      },
+      {
+        "index": 5,
+        "type": "TFLiteModel",
+        "name": "tf_lite_per_layer_embedder",
+        "begin": 1538555904,
+        "end": 2859767952,
+        "size_bytes": 1321212048
+      }
+    ],
+    "mtp_assistant_present": false,
+    "mtp_evidence": "No tf_lite_mtp_drafter section or separate drafter model is present.",
+    "chat_template": {
+      "format": "Jinja",
+      "sha256": "4f1c04ca25bdd7108cf206147826f11807acf62c8ae136fd945b92560ac6af25",
+      "byte_for_byte_repo_match": "training/configs/export/gemma4_e2b_training_minijinja.jinja",
+      "text": "{{- bos_token -}}\n{%- for message in messages -%}\n{%- set role = 'model' if message['role'] == 'assistant' else message['role'] -%}\n{{- '<|turn>' + role + '\\n' -}}\n{{- message['content'] | trim -}}\n{{- '<turn|>\\n' -}}\n{%- endfor -%}\n{%- if add_generation_prompt -%}\n{{- '<|turn>model\\n' -}}\n{%- endif -%}"
+    },
+    "tokenizer": {
+      "compressed_payload_layout": "8-byte little-endian uncompressed length followed by zlib data",
+      "uncompressed_size_bytes": 32169626,
+      "json_sha256": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+      "verified_library": "tokenizers 0.23.1",
+      "special_token_ids": {
+        "pad": 0,
+        "eos": 1,
+        "bos": 2,
+        "unk": 3,
+        "tool_response": 50,
+        "think": 98,
+        "channel_start": 100,
+        "channel_end": 101,
+        "turn_start": 105,
+        "turn_end": 106
+      }
+    },
+    "stop_conditions": {
+      "token_ids": [1, 106, 50],
+      "string_variants": [
+        ",<turn|>\n",
+        "'<turn|>\n",
+        ")<turn|>\n",
+        "\"<turn|>\n",
+        "*<turn|>\n",
+        "?<turn|>\n",
+        ";<turn|>\n",
+        "]<turn|>\n",
+        " <turn|>\n",
+        "<turn|>\n",
+        ":<turn|>\n",
+        ".<turn|>\n",
+        "!<turn|>\n",
+        "}<turn|>\n"
+      ]
+    },
+    "thinking_metadata": {
+      "channel_name": "thought",
+      "start": "<|channel>thought\n",
+      "end": "\n<channel|>",
+      "interpretation": "Generic tokenizer/package channel metadata only; it does not prove that thinking was enabled during training or export."
+    },
+    "graphs": [
+      {
+        "name": "tf_lite_prefill_decode",
+        "subgraphs": 360,
+        "operators": 4700,
+        "tensors": 7520,
+        "buffers": 816,
+        "constant_tensor_types": {
+          "FLOAT16": 306,
+          "FLOAT32": 717,
+          "INT32": 605,
+          "INT4": 306,
+          "INT8": 100
+        },
+        "signatures": {
+          "prefill_131": {
+            "embeddings": [1, 131, 1536],
+            "input_pos": [131],
+            "mask": [1, 1, 131, 8209],
+            "per_layer_embeddings": [1, 131, 35, 256]
+          },
+          "decode": "single-token decode shapes"
+        }
+      },
+      {
+        "name": "tf_lite_embedder",
+        "subgraphs": 2,
+        "operators": 10,
+        "tensors": 24,
+        "buffers": 13,
+        "constant_tensor_types": {
+          "FLOAT16": 2,
+          "FLOAT32": 2,
+          "INT32": 6,
+          "INT4": 2
+        },
+        "signatures": {
+          "decode_embedder": "single-token decode",
+          "prefill_embedder_131": {
+            "input": [1, 131],
+            "output": [1, 131, 1536]
+          }
+        }
+      },
+      {
+        "name": "tf_lite_per_layer_embedder",
+        "subgraphs": 2,
+        "operators": 10,
+        "tensors": 24,
+        "buffers": 13,
+        "constant_tensor_types": {
+          "FLOAT16": 2,
+          "FLOAT32": 2,
+          "INT32": 6,
+          "INT4": 2
+        },
+        "signatures": {
+          "decode_per_layer_embedder": "single-token decode",
+          "prefill_per_layer_embedder_131": {
+            "output": [1, 131, 35, 256]
+          }
+        }
+      }
+    ],
+    "quantization_summary": "Mixed W4/W8 target graph: 306 INT4 and 100 INT8 constant tensors. Each embedder graph contains 2 INT4 constant tensors. No separate TFLiteWeights section is present."
+  },
+  "current_repo_workflow_reconstruction": {
+    "status": "Reconstructed current contract, not a package-embedded original training manifest.",
+    "contract_snapshot": "tmp/e2b_v10_w4_20260919/shared_prompt.json",
+    "contract_version": "a2ui_express_shared_prompt_v1",
+    "target_format": "a2ui_express_v1",
+    "serialization_order": "root-first",
+    "source_prompt": {
+      "path": "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md",
+      "size_bytes": 10522,
+      "line_count": 142,
+      "sha256": "f354f2e6e65cd18fa72984f5e3eff7c60b99ccec660c2710c970a7d8eab60b13"
+    },
+    "system_prompt": {
+      "construction": "Trim the source prompt and replace {response_text} with [RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE].",
+      "sha256": "123de4de3558a7e70c30e6df147278b08d73630e6af47f25e2e1b7c09d082d39"
+    },
+    "task_prefix": "Create A2UI Express v1 GenUI IR for this response:\n\n",
+    "fixed_few_shot": {
+      "user": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items.",
+      "assistant": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>"
+    },
+    "message_order": ["system", "fixed_demo_user", "fixed_demo_assistant", "request_user", "assistant_generation_prompt"],
+    "scaffold_sha256": "12069fdeb556058a67a439f87a36abcb1c67f54753df5cff5cd2bbff1809a512",
+    "contract_sha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2",
+    "thinking_enabled": false,
+    "budgets": {
+      "training_max_sequence_length": 4096,
+      "training_max_input_length": 4096,
+      "generation_max_output_tokens": 2048,
+      "runtime_context_tokens": 8192,
+      "note": "These are current repository/runtime defaults. The package itself records max_num_tokens=8209."
+    },
+    "decoding": {
+      "top_k": 1,
+      "top_p": 1.0,
+      "temperature": 0.0,
+      "seed": 42
+    },
+    "mtp_requested": false,
+    "output_contract": "Exactly one root-first <a2ui>...</a2ui> A2UI Express v1 block with no prose, markdown fence, JSON wrapper, or trailing content.",
+    "source_pointers": [
+      "training/src/ir_training/data/shared_prompt.py:20-58",
+      "training/src/ir_training/data/chat_templates.py:36-91",
+      "training/src/ir_training/pipeline/golden_training.py:51-53",
+      "training/src/ir_training/pipeline/golden_training.py:143-150",
+      "training/src/ir_training/pipeline/golden_training.py:350-359",
+      "training/src/ir_training/pipeline/golden_deployment.py:149-177",
+      "training/src/ir_training/pipeline/deployment_export.py:140-178",
+      "training/configs/models/gemma4_e2b_a2ui_express_official_qat.yaml:28-43",
+      "training/configs/models/gemma4_e2b_a2ui_express_official_qat.yaml:117-118",
+      "training/configs/export/gemma4_e2b_training_minijinja.jinja:1-10"
+    ]
+  },
+  "android_typed_content_adapter": {
+    "observed_issue": "The first LiteRT-LM 0.16.1 GPU smoke completed generation but reported 3389 native input tokens instead of the expected 3174 for BXP-001, and the decoded output was wrapped as a text-content JSON array beginning [{\"type\": \"text\", \"text\": \"<a2ui>....",
+    "root_cause": "LiteRT-LM Kotlin Message.toJson serializes Contents.of(text) as content:[{type:text,text:...}]. The package's training Jinja applies trim directly to message['content'], which renders the array representation instead of the raw text.",
+    "android_0_16_1_aar_verification": {
+      "path": "C:/Users/anupk/.gradle/caches/modules-2/files-2.1/com.google.ai.edge.litertlm/litertlm-android/0.16.1/c24b069fd071e01029fe76217eb64af320fa042c/litertlm-android-0.16.1.aar",
+      "size_bytes": 20189426,
+      "sha256": "e407719c1a29f2685fcb6aa3feea0b9f7155fe316c66dae053c1b5b2f54cda73",
+      "javap_result": "Message.toJson calls Contents.toJson; Contents.toJson constructs a JsonArray and adds each Content.toJson object. Conversation.renderMessageIntoString passes Message.toJson directly to nativeConversationRenderMessageIntoString."
+    },
+    "adapter_path": "GenUICraft/genuicraft/src/main/java/com/samsung/genuicraft/sdk/GenUiTrainedConverter.kt:89-108",
+    "adapter_sha256": "5fd66ec1b2437e9a756d2da9d296a277bf311c2a5b761347710b9f0f683704c1",
+    "adapter_size_bytes": 497,
+    "behavior": "Preserve the original scalar string path; for Android typed content, iterate the array and emit each text part through the same trim filter. Role normalization and all turn delimiters remain unchanged.",
+    "offline_parity": {
+      "corpus": "android/app/src/main/assets/genuicraft_bixby50.jsonl",
+      "corpus_sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+      "cases": 50,
+      "typed_content_byte_equal_cases": 50,
+      "scalar_content_byte_equal_cases": 50,
+      "token_id_equal_cases": 50,
+      "tokenizer": "Package-embedded tokenizer loaded with tokenizers 0.23.1",
+      "token_count_range": [3031, 3759],
+      "token_count_median": 3536,
+      "token_count_mean": 3468.62,
+      "bxp_001": {
+        "tokens": 3174,
+        "full_training_prompt_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+        "native_render_without_bos_sha256": "5ea6b46744f887b66bc20f0a0a0e00f708491419f0bb7650cf0686b6ce83bcd3"
+      }
+    },
+    "native_render_contract": {
+      "bos_token": "<bos>",
+      "bos_token_id": 2,
+      "render_message_behavior": "With prefillPrefaceOnInit=false and empty history, renderMessageIntoString(Message.user(...)) returns the complete first-turn template including the preface and generation marker. It must not be concatenated with renderPrefaceIntoString().",
+      "bos_behavior": "PromptTemplateInput supplies an empty bos_token to native MiniJinja. The session separately inserts token id 2 on the first turn. Therefore '<bos>' + renderMessageIntoString(...) must equal the full Hugging Face training prompt.",
+      "all_50_empty_template_bos_plus_session_bos_byte_equal": true
+    },
+    "source_pointers": [
+      "GenUICraft/genuicraft/src/main/java/com/samsung/genuicraft/sdk/GenUiTrainedConverter.kt:71-108",
+      "GenUICraft/genuicraft/src/main/java/com/samsung/genuicraft/sdk/provider/Gemma4Runtime.kt:78-130",
+      "tmp/e2b_v10_w4_20260919/runtime_source/Message.kt:35-49",
+      "tmp/e2b_v10_w4_20260919/runtime_source/Message.kt:110-120",
+      "LiteRT-LM runtime/conversation/conversation.cc:254-320",
+      "LiteRT-LM runtime/conversation/conversation.cc:896-926",
+      "LiteRT-LM runtime/components/prompt_template.h:74-97",
+      "LiteRT-LM runtime/core/session_utils.cc:90-110"
+    ],
+    "verification_limit": "The 50-case adapter comparison is an offline byte/token parity check using Jinja2 3.1.6 and the package tokenizer. Runtime MiniJinja support for the same string/iterable pattern is evidenced by LiteRT-LM's bundled Gemma templates; the corrected device-generation rerun was not part of this read-only audit."
+  },
+  "bixby50_prompt_token_audit": {
+    "basis": "Exact current repository scaffold rendered with the package's embedded chat template and tokenizer; add_special_tokens=false.",
+    "sample_count": 50,
+    "minimum": {
+      "tokens": 3031,
+      "sample_id": "BXP-038"
+    },
+    "median_tokens": 3536,
+    "mean_tokens": 3468.62,
+    "maximum": {
+      "tokens": 3759,
+      "sample_id": "BXP-032"
+    },
+    "maximum_plus_output_budget": 5807,
+    "bxp_001": {
+      "tokens": 3174,
+      "rendered_prompt_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+      "token_id_json_sha256": "bd37b994b5099da4071ab6ca5d9b5ca0a97e67bebd9ec89b9ab8095c9b9bdddb"
+    }
+  },
+  "native_stop_semantics": {
+    "semantic_boundary": "The first quote-aware closing </a2ui> tag.",
+    "generation_behavior": "The LiteRT evaluator appends each returned chunk, detects the closing tag, then calls session.cancel_process(). The accumulated raw chunk is preserved and can include a suffix returned in that same chunk.",
+    "scoring_behavior": "External evaluation separately trims the serving/scored generated_text at the first quote-aware </a2ui>, while raw_generated_text preserves the exact runtime text.",
+    "source_pointers": [
+      "training/src/ir_training/generation_policy.py:84-113",
+      "training/src/ir_training/eval/litert_gpu.py:391-415",
+      "training/src/ir_training/eval/generate.py:215-252"
+    ]
+  },
+  "runtime_compatibility": {
+    "observed_runtime": "LiteRT-LM Android 0.15.0",
+    "observed_failure": "INVALID_ARGUMENT: output tensor Embedding model 1st dim 128 but number tokens 130",
+    "device_log": "tmp/e2b_v10_w4_20260919/ui_smoke/20260919_151341/logcat_filtered.txt:823-939",
+    "package_shape": 131,
+    "compiled_shape": 128,
+    "root_cause": "In v0.15.0 the prefill runner-size map is read from the uncompiled model before LiteRT compilation. The original 131-token signature is retained in scheduling even though magic-number compilation rewrites 131 to 128. PrefillInternal retains one pending token, so a 131-token work group attempts to place 130 token embeddings into a 128-row destination.",
+    "signature_selection_warning": "The embedder has decode and prefill signatures, while initialization without a signature key warns and chooses decode. This warning is real, but the 130-versus-128 exception is explained by the stale prefill runner-size map.",
+    "prefill_preface_on_init": "false is already the v0.15.0 default and does not change the runner-size map.",
+    "public_chunk_size_override": false,
+    "no_model_mutation_recommendation": "Use LiteRT-LM >=0.16 where the prefill runner map is derived after model compilation. Android 0.16.1 is the minimum source-confirmed compatible upgrade selected for this app and completed the GPU prefill/decode smoke without the 130-versus-128 shape failure. If runtime upgrade cannot be used, export a package whose exposed and compiled prefill dimensions agree.",
+    "upgrade_validation": "LiteRT-LM Android 0.16.1 ran the supplied package on GPU. Its first decoded result exposed a separate typed-content chat-template mismatch, documented in android_typed_content_adapter; this does not invalidate the runtime shape fix.",
+    "source_evidence": [
+      "tmp/e2b_v10_w4_20260919/runtime_source/llm_litert_compiled_model_executor.cc",
+      "tmp/e2b_v10_w4_20260919/runtime_source/v0.17.1_llm_litert_compiled_model_executor.cc",
+      "tmp/e2b_v10_w4_20260919/runtime_source/embedding_lookup_text.cc",
+      "tmp/e2b_v10_w4_20260919/runtime_source/Config.kt"
+    ]
+  },
+  "reproduction": {
+    "package_inspection": "$env:PYTHONPATH=(Resolve-Path training/src).Path; python training/scripts/audit_litertlm_package.py C:\\Users\\anupk\\Downloads\\e2b_v10_w4.litertlm --include-hashes --output <path>",
+    "tokenizer_extraction_python": "payload=package_bytes[49152:5594688]; expected=struct.unpack('<Q', payload[:8])[0]; raw=zlib.decompress(payload[8:]); assert len(raw)==expected; tokenizer=Tokenizer.from_str(raw.decode('utf-8'))",
+    "prompt_tokenization": "Render the verified Jinja template over the current four-message scaffold, append the assistant generation prompt, then call tokenizer.encode(rendered, add_special_tokens=False)."
+  },
+  "provenance_limit": {
+    "package_does_not_contain": [
+      "system prompt text",
+      "Bixby50 dataset or scores",
+      "v10 dataset snapshot identifier",
+      "training manifest",
+      "checkpoint lineage",
+      "enable_thinking training flag"
+    ],
+    "conclusion": "Only package fields, embedded tokenizer/template, graph structure, signatures, hashes, and section contents are package-proven. Prompt text, few-shot messages, thinking=false, 8192/2048 budgets, deterministic decoding, and A2UI profile are the current checked-out workflow contract reconstructed from repository source. Exact Jinja parity strongly supports compatibility but does not prove original training provenance."
+  }
+}

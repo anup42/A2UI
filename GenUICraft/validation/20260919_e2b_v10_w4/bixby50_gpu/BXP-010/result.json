@@ -1,0 +1,22 @@
+{
+  "id": "BXP-010",
+  "status": "strict_invalid",
+  "strictValid": false,
+  "renderValid": false,
+  "elapsedMs": 84667,
+  "firstInRun": false,
+  "attempts": 1,
+  "metrics": {
+    "inputTokens": 3288,
+    "outputTokens": 481,
+    "decodeTokensPerSecond": 6.361225721868555,
+    "providerCallMs": 84651
+  },
+  "provider": "gemma4_e2b",
+  "providerCalls": 1,
+  "runtime": "LiteRT-LM/Gemma4/GPU",
+  "renderedPromptSha256": "4ff5b054bc9a55c04fc870be5137fadbd9174990952d7a9833ad49bffbec3964",
+  "error": "Invalid GenUI Express: Unclosed A2UI Express expression.",
+  "rawOutputCaptured": true,
+  "caseElapsedMs": 84670
+}

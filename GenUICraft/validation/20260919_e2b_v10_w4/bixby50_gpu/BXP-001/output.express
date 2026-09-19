@@ -1,0 +1,12 @@
+<a2ui>
+$/={forecast_data:[{date:"Wed, Sep 9",high:"31",low:"20",rain:"57%"},{date:"Thu, Sep 10",high:"30",low:"21",rain:"5%"},{date:"Fri, 1 Sep1",high:"30",low:"21",rain:"5%"}]}
+root=Column([a,b,c,d,e],gap="md",padding=16)
+a=Text("AccuWeather’s Bengaluru forecast","h2")
+b=Text("cloudy or sunny interval conditions through next three days with highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.[7][14]",variant="body")
+c=Table(columns=[{key:"date",label:"Date"},{key:"high",label:"High (°C)"},{key:"lowlabel":"Low (°C)"},{key:"rain",label:"probability"}],state="/forecast_data",domain="weather",preferredPresentation="cards",primaryColumn="date",numericColumns=["high","low"])
+d=Card([e])
+e=Column([f,g,h],"sm",padding=8)
+f=Text("Carry an umbrella or light rain jacket, especially for afternoon and evening plans.",variant="body")
+g=Divider()
+h=Text("Plan outdoor activities earlier in the day, when conditions are more likely to stay drier and slightly cooler.",variant="body")
+</a2ui>

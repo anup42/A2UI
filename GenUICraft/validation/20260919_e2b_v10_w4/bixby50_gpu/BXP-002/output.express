@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j],gap="md",padding=16)
+a=Text("Delhi AQI","h3")
+b=Text("Observation time: 8:3:0 AM IST","label")
+c=Text("Reported AQI scale: AQI 197","label")
+d=Text("Pollution category: Poor","label")
+e=Text("Main pollutant: PM 2.5[5.5][7]","label")
+f=Divider()
+g=Text("Outdoor-activity guidance","h2")
+h=Text("For the Poor category, air pollution can cause breathing discomfort, so children, older adults and people with respiratory issues should limit outdoor activities and wear a mask if they must go out.",variant="body")
+</a2ui>

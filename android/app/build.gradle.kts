@@ -541,7 +541,7 @@ tasks.matching { task ->
 
 dependencies {
     // Consume the published AAR, so device validation exercises the same artifact as Bixby.
-    implementation("com.samsung.genuicraft:genuicraft:0.1.0")
+    implementation("com.samsung.genuicraft:genuicraft:0.2.0")
     val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
 
     implementation("androidx.core:core-ktx:1.15.0")
@@ -566,7 +566,7 @@ dependencies {
     } else {
         // Keep clean checkouts buildable; the patched AAR enables the optional
         // v0.16.1 GPU-provider path documented under android/tools.
-        implementation("com.google.ai.edge.litertlm:litertlm-android:0.15.0")
+        implementation("com.google.ai.edge.litertlm:litertlm-android:0.16.1")
     }
 
     debugImplementation(composeBom)

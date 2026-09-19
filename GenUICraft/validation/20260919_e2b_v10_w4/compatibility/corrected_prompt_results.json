@@ -1,0 +1,24 @@
+[
+  {
+    "id": "BXP-001",
+    "status": "strict_invalid",
+    "strictValid": false,
+    "renderValid": false,
+    "elapsedMs": 38819,
+    "firstInRun": true,
+    "attempts": 1,
+    "metrics": {
+      "inputTokens": 3174,
+      "outputTokens": 330,
+      "decodeTokensPerSecond": 11.283636521110546,
+      "providerCallMs": 38787
+    },
+    "provider": "gemma4_e2b",
+    "providerCalls": 1,
+    "runtime": "LiteRT-LM/Gemma4/GPU",
+    "renderedPromptSha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+    "error": "Invalid GenUI Express: Expected '}' at 87.",
+    "rawOutputCaptured": true,
+    "caseElapsedMs": 38822
+  }
+]

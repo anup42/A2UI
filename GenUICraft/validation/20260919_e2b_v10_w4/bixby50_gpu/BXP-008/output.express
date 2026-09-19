@@ -1,0 +1,10 @@
+<a2ui>
+$/={restaurants:[{restaurant:"Vidyarthi Bhavan",neighborhood:"Basavanagudi (Gandhi Bazaar)",dish:"Indian breakfast classics; widely known for its crisp dosdosas",cost:"₹1000",hours:"6:300am–12:0pm,2:3:30pm–8:0:0pm on Mon–Sun"},{restaurant:"Central Tiffin Room",neighborhood:"Malleshwaram",dish:"Benne dosdosas, bajji, and coffee",cost:"₹12000",hours:"7:000am–2:30pm,4:0:0pm–9:000pm daily"},{restaurant:"Brahmins Coffee Bar",neighborhood:"Shankarapura, near Shankar Mutt Road",dish:"Idli, vada, and coffee",cost:"₹1000",hours:"6:000am–12:0pm,3:0:0pm–7:000pm Mon–Sat"}]}
+root=Column([a,b,c,d],gap="md")
+a=Text("Three vegetarian breakfast restaurants in central Bengaluru","h2")
+b=Table(columns=["restaurant","neighborhood","dish","cost","hours"],state="/restaurants",domain="restaurants",preferredPresentation="cards)
+c=Card([d])
+d=Column([e,f])
+e=Text("Vidyarthi Bhavan is the best fit you want a classic breakfast institution in Basavanavanagudi while Central Tiffin Room is most famous Malleshwaram stop for benne dosne dosa. Brahmins' Coffee Bar is a compact, long-running Shankarapura option with the earliest opening among three.",variant="body")
+f=Text("Vidyarthi Bhavan is the best fit you want a classic breakfast institution in Basavanavanagudi while Central Tiffin Room is most famous Malleshwaram stop for benne dosa. Brahmins' Coffee Bar is a compact, long-running Shankarapura option with the earliest opening among three.",variant="body")
+</a2ui>

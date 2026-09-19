@@ -1,0 +1,49 @@
+{
+  "litert_lm": "0.16.1",
+  "sdk_only_native": true,
+  "artifacts": {
+    "aar": {
+      "path": "GenUICraft\\genuicraft\\build\\outputs\\aar\\genuicraft-release.aar",
+      "bytes": 9405287,
+      "sha256": "741781185242498b5b3c32ff0564ec4e2305ebcb1b0775d84decd7c39ee93923"
+    },
+    "app_apk": {
+      "path": "android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+      "bytes": 213494926,
+      "sha256": "d8c13564c30d870ea55f024e89622efacb61eff74351cff14a5a488a00a17f79"
+    },
+    "test_apk": {
+      "path": "android\\app\\build\\outputs\\apk\\androidTest\\debug\\app-debug-androidTest.apk",
+      "bytes": 1401925,
+      "sha256": "f7cc15c186af7bd7b5ed9114ad25f5e504bbb4408117a464a8670884b7ea674c"
+    }
+  },
+  "apk_native_libraries": {
+    "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+    "lib/arm64-v8a/libLiteRt.so": "97355a36cb8ac7628cf407773291e98da79f3ef184cc43cb0e57dedf5f0c0637",
+    "lib/arm64-v8a/libLiteRtOpenClAccelerator.so": "dfdcb6a551dc78a9dab88883ad6e8e2d9b090ecda383a5cea3731c6b9561d244",
+    "lib/arm64-v8a/libLiteRtTopKOpenClSampler.so": "743371dcc1ee57d4e2d14e6d50075c424f6ba0df554f6bb94a8b0afc1e76e253",
+    "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+    "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+    "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+    "lib/arm64-v8a/liblitertlm_jni.so": "371cdedd8a3b24cfb81a21c0a760b89bc3e3d22e03e7402c518e4d8fe1d1402e",
+    "lib/x86_64/liblitertlm_jni.so": "ba9be2a15aafc14103a303753d403b92dcde3991798c72be2d973fdef4cbce31"
+  },
+  "apk_prompt_asset_sha256": "96803a39869fb21f9f58a0f0adccab6f7746a32f124dc9da83d7df62a9f7ccb8",
+  "maven_jni_sha256": "371cdedd8a3b24cfb81a21c0a760b89bc3e3d22e03e7402c518e4d8fe1d1402e",
+  "apk_jni_matches_maven": true,
+  "tests": {
+    "sdk": {
+      "tests": 312,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app_focused": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  }
+}

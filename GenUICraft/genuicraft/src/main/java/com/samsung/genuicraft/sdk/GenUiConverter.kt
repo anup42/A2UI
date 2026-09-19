@@ -108,7 +108,7 @@ class GenUiConverter private constructor(
     }
 
     companion object {
-        private fun requestProblem(request: GenUiRequest): String? {
+        internal fun requestProblem(request: GenUiRequest): String? {
             if (request.text.length > 100_000 || (request.query?.length ?: 0) > 8_000 || request.sources.size > 100) return "Input exceeds text (100,000), query (8,000), or source count (100) limit."
             if (request.sources.any { it.id.isBlank() || it.id.length > 64 || (it.title?.length ?: 0) > 1_000 || it.url.length > 4_096 }) return "Source metadata exceeds field limits or has an empty ID."
             if (request.sources.map { it.id }.distinct().size != request.sources.size) return "Source IDs must be unique."
