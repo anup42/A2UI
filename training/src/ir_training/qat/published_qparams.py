@@ -264,9 +264,17 @@ def verify_published_activation_scales(
                     )
                 scope_counts[scope] += 1
         if actual_source_roles != expected_source_roles:
+            extra_source_roles = sorted(actual_source_roles - expected_source_roles)
+            missing_source_roles = sorted(expected_source_roles - actual_source_roles)
             raise PublishedQParamsError(
                 "Packed source contains missing or extra activation-scale tensors "
-                "relative to the mapped qparams contract."
+                "relative to the mapped qparams contract. "
+                f"actual_source_roles_count={len(actual_source_roles)}, "
+                f"expected_source_roles_count={len(expected_source_roles)}; "
+                f"actual_source_roles - expected_source_roles "
+                f"(extra_count={len(extra_source_roles)})={json.dumps(extra_source_roles)}; "
+                f"expected_source_roles - actual_source_roles "
+                f"(missing_count={len(missing_source_roles)})={json.dumps(missing_source_roles)}"
             )
 
     expected_counts = {

@@ -149,6 +149,63 @@ def test_rejects_missing_or_extra_published_role(tmp_path, monkeypatch, change):
         published.verify_published_activation_scales(source, manifest, contract)
 
 
+@pytest.mark.parametrize("unmapped_modules", [1, 40])
+def test_role_mismatch_reports_counts_and_every_sorted_extra_name(
+    tmp_path, monkeypatch, unmapped_modules
+):
+    source, manifest, contract, tensors = _fixture(tmp_path, monkeypatch)
+    extra_names = [
+        f"model.language_model.unmapped.{index}.{role}_activation_scale"
+        for index in reversed(range(unmapped_modules))
+        for role in ("output", "input")
+    ]
+    tensors.update({name: np.array(1.0, dtype=np.float32) for name in extra_names})
+    save_file(tensors, source)
+    monkeypatch.setattr(
+        published,
+        "OFFICIAL_MOBILE_SAFETENSORS_SHA256",
+        hashlib.sha256(source.read_bytes()).hexdigest(),
+    )
+
+    with pytest.raises(published.PublishedQParamsError) as failure:
+        published.verify_published_activation_scales(source, manifest, contract)
+
+    assert str(failure.value) == (
+        "Packed source contains missing or extra activation-scale tensors "
+        "relative to the mapped qparams contract. "
+        f"actual_source_roles_count={6 + len(extra_names)}, expected_source_roles_count=6; "
+        "actual_source_roles - expected_source_roles "
+        f"(extra_count={len(extra_names)})={json.dumps(sorted(extra_names))}; "
+        "expected_source_roles - actual_source_roles (missing_count=0)=[]"
+    )
+
+
+def test_role_mismatch_reports_expected_names_excluded_by_source_filter(tmp_path, monkeypatch):
+    source, manifest, contract, _ = _fixture(tmp_path, monkeypatch)
+    missing_name = "model.language_model.layers.0.self_attn.q_proj.output_activation_scale"
+    original_filter = published._is_text_activation_scale_key
+    # Simulate a source-role filter omitting a mapped tensor: the diagnostic
+    # must distinguish this direction from extra source tensors. Production
+    # filtering and all provenance/scale checks stay unchanged.
+    monkeypatch.setattr(
+        published,
+        "_is_text_activation_scale_key",
+        lambda key: original_filter(key) and key != missing_name,
+    )
+
+    with pytest.raises(published.PublishedQParamsError) as failure:
+        published.verify_published_activation_scales(source, manifest, contract)
+
+    assert str(failure.value) == (
+        "Packed source contains missing or extra activation-scale tensors "
+        "relative to the mapped qparams contract. "
+        "actual_source_roles_count=5, expected_source_roles_count=6; "
+        "actual_source_roles - expected_source_roles (extra_count=0)=[]; "
+        "expected_source_roles - actual_source_roles "
+        f"(missing_count=1)={json.dumps([missing_name])}"
+    )
+
+
 @pytest.mark.parametrize(
     ("weight_key", "role", "value"),
     [
