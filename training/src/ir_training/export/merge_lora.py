@@ -9,9 +9,13 @@ from typing import Any
 
 from ir_training.common.config import resolve_path, training_root
 from ir_training.models.hf_loading import load_hf_model
-from ir_training.qat.mobile_qparams import verify_mobile_qparams_contract
-from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
-
+from ir_training.qat.mobile_qparams import (
+    decode_activation_scale_f32,
+    verify_mobile_qparams_contract,
+)
+from ir_training.qat.mobile_training_seed import (
+    verify_configured_mobile_training_seed,
+)
 
 _RETAINED_MOBILE_PROJECTION_COUNT = 205
 _REQUIRED_PORTABLE_PREFLIGHTS = {
@@ -232,6 +236,39 @@ def _retained_projection_keys(qparams: dict[str, Any]) -> set[str]:
     }
 
 
+def _binding_matches_inventory_entry(
+    binding: dict[str, Any], entry: dict[str, Any]
+) -> bool:
+    """Compare recorded binding metadata to the verified source f32 values."""
+
+    try:
+        input_scale = float(binding.get("input_activation_scale"))
+        output_scale = float(binding.get("output_activation_scale"))
+        expected_input = decode_activation_scale_f32(entry, "input")
+        expected_output = decode_activation_scale_f32(entry, "output")
+        bits_match = int(binding.get("bits", -1)) == int(entry.get("bits", -2))
+        binding_group = binding.get("group_size")
+        entry_group = entry.get("group_size")
+        group_match = (
+            (binding_group is None and entry_group is None)
+            or int(binding_group) == int(entry_group)
+        )
+        shape_match = [int(value) for value in binding.get("scale_shape", [])] == [
+            int(value) for value in entry.get("scale_shape", [])
+        ]
+    except (TypeError, ValueError):
+        return False
+    return bool(
+        bits_match
+        and group_match
+        and shape_match
+        and expected_input is not None
+        and expected_output is not None
+        and input_scale == expected_input
+        and output_scale == expected_output
+    )
+
+
 def _retained_binding_contract_matches(
     qat: dict[str, Any], qparams: dict[str, Any]
 ) -> bool:
@@ -255,33 +292,124 @@ def _retained_binding_contract_matches(
         entry = inventory.get(weight_key)
         if not isinstance(entry, dict):
             return False
-        try:
-            input_scale = float(binding.get("input_activation_scale"))
-            output_scale = float(binding.get("output_activation_scale"))
-            bits_match = int(binding.get("bits", -1)) == int(entry.get("bits", -2))
-            binding_group = binding.get("group_size")
-            entry_group = entry.get("group_size")
-            group_match = (
-                (binding_group is None and entry_group is None)
-                or int(binding_group) == int(entry_group)
-            )
-            shape_match = [int(value) for value in binding.get("scale_shape", [])] == [
-                int(value) for value in entry.get("scale_shape", [])
-            ]
-        except (TypeError, ValueError):
-            return False
-        if not (
-            bits_match
-            and group_match
-            and shape_match
-            and math.isfinite(input_scale)
-            and input_scale > 0
-            and math.isfinite(output_scale)
-            and output_scale > 0
-        ):
+        if not _binding_matches_inventory_entry(binding, entry):
             return False
         bound_weight_keys.add(weight_key)
     return bound_weight_keys == _retained_projection_keys(qparams)
+
+
+def _strict_mobile_srq_contract_required(config_qat: dict[str, Any]) -> bool:
+    """Keep legacy retained-scale configs valid unless they opt into new SRQ."""
+
+    return bool(
+        config_qat.get("activation_quantizer") == "gemma_mobile_srq"
+        or config_qat.get("simulate_frozen_activations") is True
+        or config_qat.get("expected_frozen_activation_modules") is not None
+        or config_qat.get("require_lora_trainable_scope") is True
+    )
+
+
+def _frozen_activation_keys(qparams: dict[str, Any]) -> set[str]:
+    inventory = qparams.get("inventory")
+    if not isinstance(inventory, dict):
+        return set()
+    return {
+        str(key)
+        for key, entry in inventory.items()
+        if isinstance(entry, dict)
+        and str(key).startswith("model.layers.")
+        and str(key).endswith(
+            (".per_layer_input_gate.weight", ".per_layer_projection.weight")
+        )
+        and int(entry.get("bits", 0) or 0) == 8
+        and entry.get("input_activation_scale_f32_le_hex") is not None
+        and entry.get("output_activation_scale_f32_le_hex") is not None
+    }
+
+
+def _frozen_binding_contract_matches(
+    qat: dict[str, Any], qparams: dict[str, Any], *, expected_count: int
+) -> bool:
+    bindings = qat.get("frozen_activation_bindings")
+    inventory = qparams.get("inventory")
+    if not isinstance(bindings, dict) or not isinstance(inventory, dict):
+        return False
+    if len(bindings) != expected_count:
+        return False
+    bound_weight_keys: set[str] = set()
+    for binding in bindings.values():
+        if not isinstance(binding, dict):
+            return False
+        weight_key = str(binding.get("weight_key") or "")
+        entry = inventory.get(weight_key)
+        if (
+            not isinstance(entry, dict)
+            or weight_key in bound_weight_keys
+            or not _binding_matches_inventory_entry(binding, entry)
+        ):
+            return False
+        bound_weight_keys.add(weight_key)
+    return bound_weight_keys == _frozen_activation_keys(qparams)
+
+
+def _strict_mobile_srq_metadata_checks(
+    config_qat: dict[str, Any],
+    qat: dict[str, Any],
+    qparams: dict[str, Any],
+) -> dict[str, bool]:
+    """Validate the explicit SRQ/frozen-scope contract against resolved config."""
+
+    if not _strict_mobile_srq_contract_required(config_qat):
+        return {}
+    spec = qat.get("spec") if isinstance(qat.get("spec"), dict) else {}
+    try:
+        configured_frozen = int(
+            config_qat.get("expected_frozen_activation_modules", 0) or 0
+        )
+        recorded_frozen = int(
+            spec.get("expected_frozen_activation_modules", 0) or 0
+        )
+        live_frozen = int(qat.get("frozen_activation_module_count", 0) or 0)
+    except (TypeError, ValueError):
+        configured_frozen = recorded_frozen = live_frozen = -1
+    trainable_scope = (
+        qat.get("trainable_scope")
+        if isinstance(qat.get("trainable_scope"), dict)
+        else {}
+    )
+    try:
+        expected_trainable = int(trainable_scope.get("expected_lora_tensors", -1))
+        actual_trainable = int(trainable_scope.get("trainable_lora_tensors", -1))
+    except (TypeError, ValueError):
+        expected_trainable = actual_trainable = -1
+    return {
+        "mobile_srq_spec_matches_resolved_config": bool(
+            config_qat.get("activation_quantizer") == "gemma_mobile_srq"
+            and spec.get("activation_quantizer")
+            == config_qat.get("activation_quantizer")
+            and config_qat.get("simulate_frozen_activations") is True
+            and spec.get("simulate_frozen_activations") is True
+            and configured_frozen == recorded_frozen == 70
+            and config_qat.get("require_lora_trainable_scope") is True
+            and spec.get("require_lora_trainable_scope") is True
+        ),
+        "exact_70_frozen_activation_bindings": bool(
+            live_frozen == configured_frozen == 70
+            and _frozen_binding_contract_matches(
+                qat, qparams, expected_count=configured_frozen
+            )
+        ),
+        "trainable_lora_ab_scope_bound": bool(
+            trainable_scope.get("verified") is True
+            and trainable_scope.get("all_adapters_trainable") is True
+            and trainable_scope.get("all_parameters_frozen") is False
+            and expected_trainable == actual_trainable
+            == _RETAINED_MOBILE_PROJECTION_COUNT * 2
+        ),
+        "native_kv_cache_simulation_not_claimed": (
+            qat.get("native_kv_cache_simulated") is False
+        ),
+    }
 
 
 def _portable_launcher_contract_matches(
@@ -526,6 +654,15 @@ def _verify_qat_training_metadata(
         and isinstance(training_config.get("qat"), dict)
         and training_config["qat"].get("scale_mode") == "retained_mobile"
     )
+    resolved_qat = (
+        training_config.get("qat", {})
+        if isinstance(training_config, dict)
+        else {}
+    )
+    resolved_qat = resolved_qat if isinstance(resolved_qat, dict) else {}
+    strict_mobile_srq_required = bool(
+        retained_required and _strict_mobile_srq_contract_required(resolved_qat)
+    )
     if retained_required:
         checks.update(
             {
@@ -543,6 +680,15 @@ def _verify_qat_training_metadata(
                 "portable_launcher_artifacts_bound": False,
             }
         )
+        if strict_mobile_srq_required:
+            checks.update(
+                {
+                    "mobile_srq_spec_matches_resolved_config": False,
+                    "exact_70_frozen_activation_bindings": False,
+                    "trainable_lora_ab_scope_bound": False,
+                    "native_kv_cache_simulation_not_claimed": False,
+                }
+            )
     report: dict[str, Any] = {
         "required": True,
         "path": str(metadata_path) if metadata_path else None,
@@ -651,7 +797,7 @@ def _verify_qat_training_metadata(
             and architecture.get("training_executed") is False
         )
     if retained_required:
-        config_qat = training_config.get("qat", {})  # type: ignore[union-attr]
+        config_qat = resolved_qat
         config_preflight = training_config.get("preflight", {})  # type: ignore[union-attr]
         config_qat = config_qat if isinstance(config_qat, dict) else {}
         config_preflight = (
@@ -740,6 +886,12 @@ def _verify_qat_training_metadata(
             and int(retained.get("tensor_count", 0) or 0)
             == int(qparams_report.get("tensor_count", -1) or -1)
         )
+        if strict_mobile_srq_required:
+            checks.update(
+                _strict_mobile_srq_metadata_checks(
+                    config_qat, qat, qparams_report
+                )
+            )
         checks["zero_adapter_initialization_verified"] = bool(
             zero_adapter.get("verified_zero_delta") is True
             and int(zero_adapter.get("wrapper_count", 0) or 0)

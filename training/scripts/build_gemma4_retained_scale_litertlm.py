@@ -71,6 +71,9 @@ from ir_training.export.litertlm_inspector import inspect_litertlm
 from ir_training.export.merge_lora import (
     _checkpoint_manifest_matches_adapter,
     _golden_selection_binding,
+    _retained_binding_contract_matches,
+    _strict_mobile_srq_contract_required,
+    _strict_mobile_srq_metadata_checks,
 )
 from ir_training.qat.fake_quant import QATSpec
 from ir_training.qat.mobile_qparams import MobileQParams
@@ -753,6 +756,8 @@ def _best_adapter_provenance_report(
         else {}
     )
     config = load_yaml(training_config)
+    config_qat = config.get("qat") if isinstance(config.get("qat"), dict) else {}
+    strict_mobile_srq_required = _strict_mobile_srq_contract_required(config_qat)
     golden_selection = _golden_selection_binding(metadata, config)
     actual_adapter_files = _adapter_file_records(adapter_checkpoint)
     manifests = metadata.get("adapter_checkpoints")
@@ -820,6 +825,17 @@ def _best_adapter_provenance_report(
         and int(qat.get("retained_qparams_binding_count", 0) or 0)
         == EXPECTED_MUTABLE_COUNT,
     }
+    if strict_mobile_srq_required:
+        qparams_report = {
+            "inventory": qparams.inventory,
+            "verified": True,
+        }
+        checks["retained_qparams_binding_values_match_source"] = (
+            _retained_binding_contract_matches(qat, qparams_report)
+        )
+        checks.update(
+            _strict_mobile_srq_metadata_checks(config_qat, qat, qparams_report)
+        )
     return {
         "path": str(metadata_path),
         "sha256": _sha256_file(metadata_path) if metadata_path.is_file() else None,

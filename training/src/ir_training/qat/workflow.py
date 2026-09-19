@@ -91,6 +91,30 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
             )
         )
     ste_gradient = str(qat.get("ste_gradient", "identity")).strip().lower()
+    activation_quantizer = str(qat.get("activation_quantizer", "legacy")).strip().lower()
+    if activation_quantizer not in {"legacy", "gemma_mobile_srq"}:
+        issues.append(WorkflowIssue("error", "unsupported_activation_quantizer", "Unknown activation quantizer."))
+    if activation_quantizer == "gemma_mobile_srq" and (
+        scale_mode != "retained_mobile" or qat.get("activation_bits", 8) != 8
+        or qat.get("activation_symmetric", True) is not True
+    ):
+        issues.append(WorkflowIssue("error", "mobile_srq_contract_mismatch", "Mobile SRQ requires symmetric retained-mobile A8."))
+    if qat.get("simulate_frozen_activations", False) and (
+        activation_quantizer != "gemma_mobile_srq"
+        or _positive_int(qat.get("expected_frozen_activation_modules")) != 70
+        or qat.get("require_lora_trainable_scope") is not True
+    ):
+        issues.append(WorkflowIssue("error", "frozen_mobile_activation_contract_mismatch", "Frozen mobile SRQ requires all 70 inventoried W8 paths and strict LoRA-only trainables."))
+    # A new pipeline run must not silently fall back to the historical A8 path.
+    # Saved legacy configurations remain valid and retain their old semantics.
+    if _section(config, "run").get("purpose") == "e2b_retained_mobile_golden_bixby_no_mtp_v2" and (
+        activation_quantizer != "gemma_mobile_srq"
+        or qat.get("simulate_frozen_activations") is not True
+        or _positive_int(qat.get("expected_frozen_activation_modules")) != 70
+        or qat.get("require_lora_trainable_scope") is not True
+    ):
+        issues.append(WorkflowIssue("error", "official_mobile_v2_activation_contract_required",
+            "Official mobile v2 requires explicit SRQ, all 70 frozen A8 paths and strict LoRA-only trainables."))
     if ste_gradient not in {"identity", "clipped"}:
         issues.append(
             WorkflowIssue(

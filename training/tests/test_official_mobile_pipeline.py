@@ -5,12 +5,12 @@ trains, merges weights, exports LiteRT-LM, or invokes adb.
 """
 from __future__ import annotations
 
-from dataclasses import replace
 import importlib.util
 import json
 import os
-from pathlib import Path
 import sys
+from dataclasses import replace
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -18,10 +18,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ir_training.pipeline import official_mobile as workflow
-from ir_training.pipeline.official_mobile import OfficialMobileOptions
 from ir_training.common.jsonl import write_jsonl
 from ir_training.data.chat_templates import build_messages, build_prompt
+from ir_training.pipeline import official_mobile as workflow
+from ir_training.pipeline.official_mobile import OfficialMobileOptions
 from ir_training.train.gpu_profile import build_gpu_profile
 
 
@@ -107,6 +107,26 @@ def _plan(options: OfficialMobileOptions) -> dict:
     return plan
 
 
+def _no_op_report(plan: dict) -> dict:
+    """Synthetic boundary report only; real materialization is tested separately."""
+    seed = Path(plan["options"]["model_dir"])
+    config = Path(plan["paths"]["config"])
+    return {
+        "passed": True, "gate_status": "PASSED", "mode": "retained_scale_pretraining_noop_v1",
+        "checks": dict.fromkeys(workflow.NO_OP_CHECKS, True),
+        "official_source_after_sha256": workflow.OFFICIAL_LITERTLM_SHA256,
+        "official_litertlm": plan["options"]["official_litertlm"],
+        "resolved_training_config_identity": {
+            "verified": True, "path": str(config), "sha256": workflow.sha256(config)},
+        "mobile_training_seed": {
+            "verified": True, "path": str(seed / "mobile_training_seed_manifest.json"),
+            "manifest_sha256": workflow.sha256(seed / "mobile_training_seed_manifest.json")},
+        "mobile_qparams": {
+            "verified": True, "contract_path": str(seed / "mobile_qparams.json"),
+            "contract_sha256": workflow.sha256(seed / "mobile_qparams.json")},
+    }
+
+
 def _h100_inventory(count: int) -> dict:
     devices = [
         {
@@ -150,6 +170,7 @@ def test_plan_only_requires_official_mobile_artifacts_and_has_no_writes(options)
         "official_section_preserved_but_unused": True,
     }
     assert plan["stages"][-2:] == ["merge", "export"]
+    assert plan["stages"].index("configure") < plan["stages"].index("no_op_export") < plan["stages"].index("preflight")
     assert plan["native_litert_golden_tests"] is False
 
 
@@ -333,6 +354,12 @@ def test_generated_h100_config_keeps_batch32_microbatch1_and_retained_qat(
     assert config["qat"]["fixed_activation_scale_required"] is True
     assert config["qat"]["effective_lora_only"] is True
     assert config["qat"]["expected_effective_lora_modules"] == 205
+    assert config["qat"]["activation_quantizer"] == "gemma_mobile_srq"
+    assert config["qat"]["simulate_frozen_activations"] is True
+    assert config["qat"]["expected_frozen_activation_modules"] == 70
+    assert config["qat"]["require_lora_trainable_scope"] is True
+    assert config["qat"]["saturation"]["sample_every_optimizer_steps"] == 20
+    assert config["qat"]["saturation"]["max_values_per_module"] == 2048
     assert "qat_mtp" not in config
 
 
@@ -376,8 +403,8 @@ def test_real_cpu_prepare_and_portable_configure_bind_all_evaluation_contracts(
     assert launch["checks"]["contract_ok"] is True
     assert launch["checks"]["issues"] == []
 
-    from launch_review_training import verify_launch_binding
     from ir_training.eval.prepared_contract import verify_evaluation_prepared_contract
+    from launch_review_training import verify_launch_binding
 
     verify_launch_binding(launch_paths["resolved_config"])
     for cohort, (_, count, _) in workflow.GOLDENS.items():
@@ -457,7 +484,8 @@ def test_optional_android_benchmark_is_target_only_and_does_not_enable_mtp(optio
     assert "mtp" not in " ".join(command).lower()
 
 
-def test_assets_bind_seed_qparams_and_both_official_inputs(options, monkeypatch):
+@pytest.mark.parametrize("published_valid", [True, False])
+def test_assets_bind_seed_qparams_and_both_official_inputs(options, monkeypatch, published_valid):
     plan = _plan(options)
     seen = {}
 
@@ -471,15 +499,27 @@ def test_assets_bind_seed_qparams_and_both_official_inputs(options, monkeypatch)
 
     import ir_training.qat.mobile_qparams as qparams_module
     import ir_training.qat.mobile_training_seed as seed_module
+    import ir_training.qat.published_qparams as published_module
+
+    def verify_published(source, manifest, contract, *, verified_source_sha256):
+        assert "official_inputs" in seen  # Hash the actual source before reusing its digest.
+        seen["published"] = (source, manifest, contract, verified_source_sha256)
+        return {"verified": published_valid, "a8_scalar_count": 552}
 
     monkeypatch.setattr(seed_module, "verify_configured_mobile_training_seed", verify_seed)
     monkeypatch.setattr(qparams_module, "verify_mobile_qparams_contract", verify_qparams)
+    monkeypatch.setattr(published_module, "verify_published_activation_scales", verify_published)
     monkeypatch.setattr(workflow, "run_bounded_command", lambda *args, **kwargs: None)
 
     def verify_bindings(records):
         seen["official_inputs"] = records
 
     monkeypatch.setattr(workflow, "_verify_bindings", verify_bindings)
+    if not published_valid:
+        with pytest.raises(ValueError, match="pinned public mobile checkpoint"):
+            workflow._assets(plan)
+        assert not (options.output_dir / "mobile_assets_verified.json").exists()
+        return
     files = workflow._assets(plan)
 
     assert seen["seed"][0]["mobile_training_seed_manifest"].endswith("mobile_training_seed_manifest.json")
@@ -491,9 +531,16 @@ def test_assets_bind_seed_qparams_and_both_official_inputs(options, monkeypatch)
     }
     assert options.model_dir / "mobile_training_seed_manifest.json" in files
     assert options.model_dir / "mobile_qparams.json" in files
+    assert seen["published"] == (
+        options.source_safetensors.resolve(),
+        options.model_dir / "mobile_training_seed_manifest.json",
+        options.model_dir / "mobile_qparams.json",
+        workflow.OFFICIAL_MOBILE_SAFETENSORS_SHA256,
+    )
     report = json.loads((options.output_dir / "mobile_assets_verified.json").read_text(encoding="utf-8"))
     assert report["seed"]["verified"] is True
     assert report["qparams"]["verified"] is True
+    assert report["published_activation_scales"] == {"verified": True, "a8_scalar_count": 552}
     assert report["mtp_training"] is report["mtp_inference"] is False
 
 
@@ -534,7 +581,7 @@ def test_bounded_stage_failure_stops_before_export_and_always_writes_summary(opt
     with pytest.raises(RuntimeError, match="synthetic bounded training failure"):
         workflow.run_pipeline(options, execute=True, command_runner=runner)
 
-    assert [stage for stage, _, _ in calls] == ["assets", "prepare", "configure", "preflight", "training"]
+    assert [stage for stage, _, _ in calls] == ["assets", "prepare", "configure", "no_op_export", "preflight", "training"]
     assert all(call[1]["timeout_seconds"] == options.stage_timeout_seconds for call in calls)
     assert all(call[1]["progress_seconds"] == options.progress_seconds for call in calls)
     assert "export" not in {stage for stage, _, _ in calls}
@@ -542,7 +589,7 @@ def test_bounded_stage_failure_stops_before_export_and_always_writes_summary(opt
     assert manifest["status"] == "failed"
     assert manifest["active_stage"] == "training"
     assert "synthetic bounded training failure" in manifest["error"]
-    assert list(manifest["completed"]) == ["assets", "prepare", "configure", "preflight"]
+    assert list(manifest["completed"]) == ["assets", "prepare", "configure", "no_op_export", "preflight"]
     summary = (options.output_dir / "results.md").read_text(encoding="utf-8")
     assert "Run status: failed" in summary
     assert "LiteRT-LM export: not completed" in summary
@@ -649,6 +696,7 @@ def test_direct_training_stage_rejects_bad_best_checkpoint_metadata(
     config = Path(plan["paths"]["config"])
     config.parent.mkdir(parents=True)
     config.write_text("fixture: true\n", encoding="utf-8")
+    workflow._write(Path(plan["paths"]["no_op_export_report"]), _no_op_report(plan))
     preflight = config.parent / "preflight_report.json"
     workflow._write(preflight, {"all_passed": True})
     best = Path(plan["paths"]["best_checkpoint"])
@@ -707,3 +755,77 @@ def test_cli_plan_mode_forwards_options_without_execution(options, monkeypatch, 
     assert '"status": "plan-only-fixture"' in output
     assert "Plan only. Nothing trained/exported" in output
     assert not options.output_dir.exists()
+
+
+def test_no_op_export_stage_uses_isolated_cpu_exporter_and_validates_report(options, monkeypatch):
+    plan = _plan(options)
+    _write(Path(plan["paths"]["config"]), b"fixture: true\n")
+    captured = {}
+
+    def runner(command, log_path, env, **kwargs):
+        captured.update(command=command, env=env, kwargs=kwargs)
+        workflow._write(Path(plan["paths"]["no_op_export_report"]), _no_op_report(plan))
+
+    monkeypatch.setattr(workflow, "run_bounded_command", runner)
+    files = workflow.run_stage(plan, "no_op_export")
+    command = captured["command"]
+    assert command[0] == os.path.abspath(options.exporter_python)
+    assert command[command.index("--zero-adapter-checkpoint") + 1] == str(options.model_dir.resolve())
+    assert captured["env"]["CUDA_VISIBLE_DEVICES"] == ""
+    assert captured["kwargs"]["timeout_seconds"] == options.stage_timeout_seconds
+    assert files == [Path(plan["paths"]["no_op_export_report"])]
+
+
+@pytest.mark.parametrize("stage", ["preflight", "training"])
+def test_training_and_preflight_cannot_start_without_real_noop_gate(options, monkeypatch, stage):
+    plan = _plan(options)
+    monkeypatch.setattr(workflow, "_launch", lambda *_: pytest.fail("must not launch"))
+    with pytest.raises(FileNotFoundError):
+        workflow.run_stage(plan, stage)
+
+
+@pytest.mark.parametrize("tamper", ["missing_check", "false_check", "source_sha", "config", "seed", "qparams", "package_path"])
+def test_noop_gate_rejects_incomplete_or_stale_evidence(options, tamper):
+    plan = _plan(options)
+    config = _write(Path(plan["paths"]["config"]), b"fixture: true\n")
+    report = _no_op_report(plan)
+    if tamper == "missing_check":
+        report["checks"].pop("zero_adapter_target_byte_exact")
+    elif tamper == "false_check":
+        report["checks"]["frozen_72_byte_exact"] = False
+    elif tamper == "source_sha":
+        report["official_source_after_sha256"] = "0" * 64
+    elif tamper == "config":
+        _write(config, b"fixture: changed\n")
+    elif tamper == "seed":
+        _write(options.model_dir / "mobile_training_seed_manifest.json", b"changed")
+    elif tamper == "qparams":
+        _write(options.model_dir / "mobile_qparams.json", b"changed")
+    else:
+        report["official_litertlm"] = str(options.output_dir / "other.litertlm")
+    workflow._write(Path(plan["paths"]["no_op_export_report"]), report)
+    with pytest.raises(ValueError):
+        workflow._require_no_op_export(plan)
+
+
+def test_native_quality_handoff_is_separate_plan_only_command(options):
+    plan = _plan(options)
+    command = workflow.native_quality_command(plan)
+    assert "--execute" not in command
+    assert "--serial" in command and "<ANDROID_SERIAL>" in command
+    assert command[command.index("--run-dir") + 1] == str(options.output_dir.resolve())
+    assert "native_quality" not in plan["stages"]
+
+
+@pytest.mark.parametrize("field", ["activation_quantizer", "simulate_frozen_activations",
+                                  "expected_frozen_activation_modules", "require_lora_trainable_scope"])
+def test_new_pipeline_cannot_silently_revert_to_legacy_activation_path(options, field):
+    from ir_training.qat.workflow import validate_qat_config
+
+    plan = _plan(options)
+    profile = build_gpu_profile(_h100_inventory(2), model="e2b", cpu_count=32)
+    config = workflow.training_config(plan, profile, {"tokenizer": {}, "final_evaluation_datasets": {}})
+    assert validate_qat_config(config) == []
+    config["qat"].pop(field)
+    codes = {item.code for item in validate_qat_config(config)}
+    assert "official_mobile_v2_activation_contract_required" in codes

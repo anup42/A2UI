@@ -74,6 +74,15 @@ qat:
   fixed_scale_required: true
   fixed_activation_scale_required: true
   effective_lora_only: true
+  # Explicit v2 activation contract; old saved configs keep legacy arithmetic.
+  activation_quantizer: gemma_mobile_srq
+  simulate_frozen_activations: true
+  expected_frozen_activation_modules: 70
+  require_lora_trainable_scope: true
+  saturation:
+    enabled: true
+    sample_every_optimizer_steps: 20
+    max_values_per_module: 2048
   # 35 layers: q/k/v/o in layers 0-14, q/o in shared-KV layers 15-34,
   # plus gate/up/down in all layers = exactly 205 merged projections.
   expected_effective_lora_modules: 205

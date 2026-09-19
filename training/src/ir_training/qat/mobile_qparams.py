@@ -24,6 +24,7 @@ from ir_training.qat.mobile_training_seed import (
 )
 
 EXPECTED_QPARAM_TENSOR_COUNT = 278
+CANONICAL_ZERO_ACTIVATION_SCALE_WEIGHT_KEY = "lm_head.weight"
 
 
 class MobileQParamsError(RuntimeError):
@@ -65,6 +66,57 @@ def _safe_relative_file(directory: Path, value: Any) -> Path | None:
     return candidate
 
 
+def decode_activation_scale_f32(
+    entry: dict[str, Any], role: str
+) -> float | None:
+    """Decode one present source A8 scalar without conflating zero with missing."""
+
+    normalized_role = str(role).strip().lower()
+    if normalized_role not in {"input", "output"}:
+        raise ValueError("Activation scale role must be 'input' or 'output'.")
+    raw_hex = entry.get(f"{normalized_role}_activation_scale_f32_le_hex")
+    if raw_hex is None:
+        return None
+    try:
+        raw = bytes.fromhex(str(raw_hex))
+        value = struct.unpack("<f", raw)[0]
+    except (ValueError, struct.error) as exc:
+        raise ValueError(
+            f"Invalid retained {normalized_role} activation-scale bytes."
+        ) from exc
+    if not math.isfinite(value) or value < 0:
+        raise ValueError(
+            "Retained activation scale must be finite and non-negative."
+        )
+    return float(value)
+
+
+def canonical_activation_scale_schema_valid(
+    weight_key: str, entry: dict[str, Any]
+) -> bool:
+    """Enforce the zero-scale scope observed in the pinned public checkpoint.
+
+    The SRQ primitive intentionally supports a zero bypass in general.  This
+    narrower verifier rule applies only to contracts claiming provenance from
+    the canonical published Gemma 4 mobile checkpoint, whose reconstruction
+    accepts zero A8 scales only for ``lm_head.weight``.
+    """
+
+    try:
+        values = (
+            decode_activation_scale_f32(entry, "input"),
+            decode_activation_scale_f32(entry, "output"),
+        )
+    except ValueError:
+        return False
+    return all(
+        value is None
+        or value != 0.0
+        or weight_key == CANONICAL_ZERO_ACTIVATION_SCALE_WEIGHT_KEY
+        for value in values
+    )
+
+
 def verify_mobile_qparams_contract(
     contract_path: str | Path | None,
     *,
@@ -86,6 +138,7 @@ def verify_mobile_qparams_contract(
         "inventory_unique": False,
         "inventory_digest": False,
         "inventory_numeric_schema": False,
+        "canonical_activation_zero_scope": False,
         "scale_storage_present": False,
         "scale_storage_size": False,
         "scale_storage_sha256": False,
@@ -181,22 +234,12 @@ def verify_mobile_qparams_contract(
             and raw_entry.get("signed_range")
             == ("narrow" if bits == 8 else "full")
         )
-        for role in ("input", "output"):
-            raw_hex = raw_entry.get(f"{role}_activation_scale_f32_le_hex")
-            if raw_hex is None:
-                continue
-            try:
-                raw = bytes.fromhex(str(raw_hex))
-                value = struct.unpack("<f", raw)[0]
-            except (ValueError, struct.error):
-                numeric_schema_ok = False
-                break
-            if not math.isfinite(value) or value < 0:
-                numeric_schema_ok = False
-                break
+        if not canonical_activation_scale_schema_valid(str(weight_key), raw_entry):
+            numeric_schema_ok = False
         if not numeric_schema_ok:
             break
     checks["inventory_numeric_schema"] = numeric_schema_ok
+    checks["canonical_activation_zero_scope"] = numeric_schema_ok
 
     storage = payload.get("scale_storage")
     storage = storage if isinstance(storage, dict) else {}
@@ -379,6 +422,21 @@ class MobileQParams:
             self._cpu_cache[weight_key] = cached
         return cached
 
+    def frozen_activation_weight_keys(self) -> tuple[str, ...]:
+        """Published W8 per-layer FC paths whose activations still need SRQ.
+
+        The head's zero-scale floating edges and the exporter-only global
+        per-layer-model projection are intentionally not inferred as A8 here.
+        """
+        return tuple(sorted(
+            key for key, entry in self.inventory.items()
+            if key.startswith("model.layers.")
+            and key.endswith((".per_layer_input_gate.weight", ".per_layer_projection.weight"))
+            and int(entry["bits"]) == 8
+            and self.activation_scale(key, "input") is not None
+            and self.activation_scale(key, "output") is not None
+        ))
+
     def activation_scale(self, weight_key: str, role: str) -> float | None:
         """Return the exact published scalar A8 scale for input or output."""
 
@@ -390,22 +448,15 @@ class MobileQParams:
             raise MobileQParamsError(
                 f"No retained qparams entry exists for {weight_key!r}."
             )
-        raw_hex = entry.get(
-            f"{normalized_role}_activation_scale_f32_le_hex"
-        )
-        if raw_hex is None:
-            return None
         try:
-            raw = bytes.fromhex(str(raw_hex))
-            value = struct.unpack("<f", raw)[0]
-        except (ValueError, struct.error) as exc:
+            value = decode_activation_scale_f32(entry, normalized_role)
+        except ValueError as exc:
             raise MobileQParamsError(
                 f"Invalid retained {normalized_role} activation scale for "
                 f"{weight_key!r}."
             ) from exc
-        if not math.isfinite(value) or value <= 0:
-            return None
-        return float(value)
+        # A present zero is the published SRQ bypass, not a missing scale.
+        return value
 
     def summary(self) -> dict[str, Any]:
         return {

@@ -227,6 +227,8 @@ def train_sft(
     _disable_model_cache_for_training(model)
     _enable_input_grads_for_kbit_lora(model)
     qat_controller: QATController | None = None
+    saturation_preflight_report: dict[str, Any] | None = None
+    saturation_preflight_path: Path | None = None
     _align_tokenizer_and_model(tokenizer, model)
     _assert_tokenizer_model_vocab_alignment(tokenizer, model, context="after LoRA wrapping")
     input_vocab_size = _require_model_input_vocab_size(model)
@@ -527,6 +529,12 @@ def train_sft(
             # retained scales. Any catastrophic zero-adapter change stops the
             # run before Trainer/optimizer construction.
             qat_controller = prepare_qat_model(model, config)
+            _require_trainable_qat_scope(qat_cfg, qat_controller)
+            saturation_monitor = getattr(
+                qat_controller, "saturation_monitor", None
+            )
+            if saturation_monitor is not None:
+                saturation_monitor.begin_step(0, force=True)
             print(
                 "True QAT enabled: "
                 f"wrapped {qat_controller.wrapped_count} modules "
@@ -570,6 +578,20 @@ def train_sft(
                 else "qat_disabled"
             ),
         )
+        saturation_monitor = (
+            getattr(qat_controller, "saturation_monitor", None)
+            if qat_controller is not None
+            else None
+        )
+        if saturation_monitor is not None:
+            from ir_training.qat.saturation import write_saturation_report
+
+            saturation_monitor.end_step()
+            saturation_preflight_report = saturation_monitor.drain()
+            saturation_preflight_path = output_dir / "saturation_preflight.json"
+            write_saturation_report(
+                saturation_preflight_path, saturation_preflight_report
+            )
         numeric_preflight_report = _compare_initial_numeric_reports(
             baseline_numeric_report,
             qat_numeric_report,
@@ -593,6 +615,23 @@ def train_sft(
                 qat_enabled=qat_controller is not None,
             )
         )
+        numeric_preflight_report["saturation_telemetry"] = {
+            "report_path": (
+                str(saturation_preflight_path)
+                if saturation_preflight_path is not None
+                else None
+            ),
+            "summary": (
+                saturation_preflight_report.get("summary")
+                if saturation_preflight_report is not None
+                else None
+            ),
+            "scalars": (
+                saturation_preflight_report.get("scalars")
+                if saturation_preflight_report is not None
+                else None
+            ),
+        }
         # Forward-only probes cannot exercise attention backward or the padded
         # microbatch. Never use a token-cache hit as evidence for this gate.
         if qat_controller is None:
@@ -649,6 +688,23 @@ def train_sft(
         with _training_tensorboard_environment(callback_logging_dir):
             trainer = checked_trainer_cls(**trainer_kwargs)
 
+    saturation_callback = None
+    saturation_monitor = (
+        getattr(qat_controller, "saturation_monitor", None)
+        if qat_controller is not None
+        else None
+    )
+    if saturation_monitor is not None:
+        from ir_training.qat.saturation import build_saturation_trainer_callback
+
+        saturation_callback = build_saturation_trainer_callback(
+            saturation_monitor,
+            report_path=output_dir / "saturation_telemetry.json",
+            log_dir=callback_logging_dir,
+        )
+        if saturation_callback is not None:
+            trainer.add_callback(saturation_callback)
+
     from ir_training.train.tensorboard_callback import configure_training_tensorboard
     tensorboard_detail = resolve_tensorboard_detail(os.environ.get(TENSORBOARD_DETAIL_ENV) or training_cfg.get("tensorboard_detail"))
     configure_training_tensorboard(trainer, log_dir=callback_logging_dir, detail=tensorboard_detail)
@@ -697,6 +753,19 @@ def train_sft(
         "mobile_training_seed": mobile_training_seed,
         "mobile_seed_architecture": mobile_seed_architecture,
         "numeric_preflight": locals().get("numeric_preflight_report"),
+        "saturation_telemetry": {
+            "enabled": saturation_callback is not None,
+            "preflight_report": (
+                str(saturation_preflight_path)
+                if saturation_preflight_path is not None
+                else None
+            ),
+            "training_report": (
+                str(output_dir / "saturation_telemetry.json")
+                if saturation_callback is not None
+                else None
+            ),
+        },
         "dataset_dir": str(dataset_dir),
         "tensorboard": {
             "detail": tensorboard_detail,
@@ -919,6 +988,24 @@ def _write_final_checkpoint_metadata(
         _write_checkpoint_provenance(checkpoint, role=role, payload=payload)
         if config_path is not None:
             shutil.copy2(config_path, checkpoint / "training_config.yaml")
+
+
+def _require_trainable_qat_scope(
+    qat_cfg: dict[str, Any], controller: QATController
+) -> None:
+    if qat_cfg.get("require_lora_trainable_scope") is not True:
+        return
+    trainable_scope = controller.trainable_scope or {}
+    if (
+        trainable_scope.get("verified") is True
+        and trainable_scope.get("all_adapters_trainable") is True
+        and int(trainable_scope.get("trainable_lora_tensors", 0)) > 0
+    ):
+        return
+    raise RuntimeError(
+        "Retained mobile training requires every expected LoRA A/B tensor to "
+        "be trainable; an all-frozen scope is valid for evaluation only."
+    )
 
 
 def _enforce_qat_mtp_training_guardrails(config: dict[str, Any]) -> None:

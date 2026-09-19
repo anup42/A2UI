@@ -73,6 +73,14 @@ qat:
   fixed_scale_required: true
   fixed_activation_scale_required: true
   effective_lora_only: true
+  activation_quantizer: gemma_mobile_srq
+  simulate_frozen_activations: true
+  expected_frozen_activation_modules: 70
+  require_lora_trainable_scope: true
+  saturation:
+    enabled: true
+    sample_every_optimizer_steps: 1
+    max_values_per_module: 2048
   expected_effective_lora_modules: 205
   ste_gradient: clipped
   eps: 1.0e-9

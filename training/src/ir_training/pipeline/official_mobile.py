@@ -13,24 +13,44 @@ import math
 import os
 import re
 import sys
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from ir_training.common.bounded_command import run_bounded_command
-from ir_training.common.config import load_yaml, repo_root, training_root
+from ir_training.common.config import load_yaml, training_root
 from ir_training.common.progress import Progress, log
 from ir_training.pipeline.golden_training import (
-    GOLDENS, GoldenTrainingOptions, _write, build_plan as build_preparation_plan,
-    prepare_data, sha256,
+    GOLDENS,
+    GoldenTrainingOptions,
+    _write,
+    prepare_data,
+    sha256,
+)
+from ir_training.pipeline.golden_training import (
+    build_plan as build_preparation_plan,
 )
 from ir_training.qat.mobile_training_seed import (
-    OFFICIAL_LITERTLM_SHA256, OFFICIAL_MOBILE_MODEL_ID,
+    OFFICIAL_LITERTLM_SHA256,
+    OFFICIAL_MOBILE_MODEL_ID,
     OFFICIAL_MOBILE_SAFETENSORS_SHA256,
 )
 
 SELECTOR = "unique_source_generation_reward_v5_4_avg"
-WORKFLOW = "e2b_retained_mobile_golden_bixby_no_mtp_v1"
+WORKFLOW = "e2b_retained_mobile_golden_bixby_no_mtp_v2"
+NO_OP_CHECKS = frozenset({
+    "official_artifact_sha256_pinned", "retained_training_config_verified",
+    "materialized_seed_provenance_verified", "retained_qparams_verified",
+    "exact_205_key_buffer_bijection", "materialized_seed_mapping_205",
+    "materialized_seed_projections_processed_205", "materialized_seed_quantization_verified",
+    "unique_materialized_code_buffers_205", "every_materialized_code_buffer_matches_official",
+    "zero_adapter_target_byte_exact", "frozen_72_byte_exact", "no_target_buffer_changed",
+    "official_retained_weight_scales_exact", "official_retained_a8_scales_exact",
+    "weight_qparams_byte_exact", "activation_a8_qparams_byte_exact",
+    "all_tensor_qparams_byte_exact", "graph_layout_execution_identity",
+    "virtual_package_identity", "official_source_untouched",
+})
 
 
 @dataclass(frozen=True)
@@ -67,7 +87,7 @@ class OfficialMobileOptions:
 def _json(path: Path) -> dict:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"Expected a JSON object: {path}")
+        raise ValueError(f"Expected a JSON object: {path}")  # noqa: TRY004 -- invalid file content
     return value
 
 
@@ -125,6 +145,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         "config": train_root / "launch/resolved_training_config.yaml",
         "launch_plan": train_root / "launch/launch_plan.json",
         "preflight_report": train_root / "launch/preflight_report.json",
+        "no_op_export_report": output / "pretraining_noop_export.json",
         "best_checkpoint": train_root / "best_golden_checkpoint",
         "merged": output / "merged_best_hf",
         "export_dir": output / "retained_scale_export",
@@ -136,7 +157,7 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
     return {
         "schema_version": 1, "workflow": WORKFLOW, "options": values,
         "preparation": preparation, "paths": {key: str(path) for key, path in paths.items()},
-        "stages": ["assets", "prepare", "configure", "preflight", "training",
+        "stages": ["assets", "prepare", "configure", "no_op_export", "preflight", "training",
                    *[f"best_{name}" for name in GOLDENS], "merge", "export",
                    *(["android_benchmark"] if options.benchmark_android else [])],
         "selection": {"cohort": "golden32", "metric": SELECTOR, "golden35_used": False, "bixby50_used": False},
@@ -146,6 +167,10 @@ def build_plan(options: OfficialMobileOptions) -> dict[str, Any]:
         "mtp": {"training": False, "inference": False, "official_section_preserved_but_unused": True},
         "speed_parity": "unverified until matched Android GPU target-only benchmark passes",
         "native_litert_golden_tests": False,
+        "native_quality_validation": "separate Android command; required before native quality promotion",
+        "training_numeric_contract": {"activation_quantizer": "gemma_mobile_srq",
+            "frozen_w8_activation_modules": 70, "native_kv_cache_simulated": False,
+            "native_numeric_parity_verified": False},
     }
 
 
@@ -246,6 +271,7 @@ def _configure(plan: dict) -> list[Path]:
     _scripts()
     import run_gemma4_mobile_qat as mobile
     from prepare_review_training import verify_prepared
+
     from ir_training.train.gpu_profile import build_gpu_profile, detect_cuda_devices
     values, output = plan["options"], Path(plan["options"]["output_dir"])
     profile = build_gpu_profile(detect_cuda_devices(), model="e2b", devices=values["devices"],
@@ -319,12 +345,65 @@ def benchmark_command(plan: dict) -> list[str]:
         "--adb", values["adb"], "--serial", values["serial"] or "<ANDROID_SERIAL>"]
 
 
+def native_quality_command(plan: dict) -> list[str]:
+    """Separate post-export gate; never needs Vulkan on the training host."""
+    values = plan["options"]
+    output = Path(values["output_dir"])
+    return [sys.executable, str(training_root() / "scripts/evaluate_official_mobile_native.py"),
+            "--run-dir", str(output), "--output-dir", str(output.parent / f"{output.name}_native_quality"),
+            "--adb", values["adb"], "--serial", values["serial"] or "<ANDROID_SERIAL>"]
+
+
+def no_op_export_command(plan: dict) -> list[str]:
+    values, paths = plan["options"], plan["paths"]
+    seed = Path(values["model_dir"])
+    return [values["exporter_python"], str(training_root() / "scripts/verify_gemma4_retained_scale_pretraining.py"),
+            "--official-litertlm", values["official_litertlm"],
+            "--official-artifact-sha256", OFFICIAL_LITERTLM_SHA256,
+            "--training-config", paths["config"],
+            "--mobile-training-seed-manifest", str(seed / "mobile_training_seed_manifest.json"),
+            "--mobile-qparams-contract", str(seed / "mobile_qparams.json"),
+            "--zero-adapter-checkpoint", str(seed), "--report", paths["no_op_export_report"]]
+
+
+def _require_no_op_export(plan: dict) -> dict:
+    report = _json(Path(plan["paths"]["no_op_export_report"]))
+    checks = report.get("checks") or {}
+    if (report.get("passed") is not True or report.get("gate_status") != "PASSED"
+            or report.get("mode") != "retained_scale_pretraining_noop_v1"
+            or report.get("official_source_after_sha256") != OFFICIAL_LITERTLM_SHA256
+            or not isinstance(checks, dict) or not NO_OP_CHECKS.issubset(checks)
+            or not all(value is True for value in checks.values())):
+        raise ValueError("Training requires a passing real retained-scale no-op export gate")
+    values, paths = plan["options"], plan["paths"]
+    config_identity = report.get("resolved_training_config_identity") or {}
+    seed_identity = report.get("mobile_training_seed") or {}
+    qparams_identity = report.get("mobile_qparams") or {}
+    seed = Path(values["model_dir"])
+    bindings = (
+        (config_identity, "path", "sha256", Path(paths["config"])),
+        (seed_identity, "path", "manifest_sha256", seed / "mobile_training_seed_manifest.json"),
+        (qparams_identity, "contract_path", "contract_sha256", seed / "mobile_qparams.json"),
+    )
+    for identity, path_key, hash_key, expected in bindings:
+        if (identity.get("verified") is not True
+                or Path(str(identity.get(path_key) or "")).resolve() != expected.resolve()
+                or identity.get(hash_key) != sha256(expected)):
+            raise ValueError(f"Pretraining no-op report is stale or bound to different inputs: {expected}")
+    if Path(str(report.get("official_litertlm") or "")).resolve() != Path(values["official_litertlm"]).resolve():
+        raise ValueError("Pretraining no-op report belongs to a different official package path")
+    return report
+
+
 def _environment(plan: dict, *, gpu: bool = False) -> dict[str, str]:
     values = plan["options"]
     env = {**os.environ, "PYTHONUNBUFFERED": "1", "A2UI_TENSORBOARD_ROOT": values["tensorboard_root"],
            "A2UI_TENSORBOARD_DETAIL": "minimal", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1"}
     if gpu:
-        from ir_training.train.gpu_profile import training_environment, verify_gpu_profile
+        from ir_training.train.gpu_profile import (
+            training_environment,
+            verify_gpu_profile,
+        )
         _, launch, _ = _launch(plan)
         verify_gpu_profile(launch["host_gpu_profile"])
         env.update(training_environment(launch["host_gpu_profile"], tensorboard_root=values["tensorboard_root"]))
@@ -337,8 +416,9 @@ def probe_export_environment(official_litertlm: Path | None = None) -> dict:
     """Cheap schema roundtrip in the actual exporter interpreter, without a model."""
     _scripts()
     import importlib.metadata
-    import flatbuffers
+
     import build_gemma4_retained_scale_litertlm as exporter
+    import flatbuffers
     import run_gemma4_e2b_mobile_mtp  # noqa: F401 -- entry point used by this lane
     from tflite_schema_compat import schema_module
     schema = schema_module("Model")
@@ -380,8 +460,11 @@ def probe_export_environment(official_litertlm: Path | None = None) -> dict:
 
 
 def _assets(plan: dict) -> list[Path]:
-    from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
     from ir_training.qat.mobile_qparams import verify_mobile_qparams_contract
+    from ir_training.qat.mobile_training_seed import (
+        verify_configured_mobile_training_seed,
+    )
+    from ir_training.qat.published_qparams import verify_published_activation_scales
     values = plan["options"]
     seed, output = Path(values["model_dir"]), Path(values["output_dir"])
     model = {"model_id": OFFICIAL_MOBILE_MODEL_ID, "model_source": str(seed),
@@ -394,17 +477,26 @@ def _assets(plan: dict) -> list[Path]:
     inputs = {values["source_safetensors"]: OFFICIAL_MOBILE_SAFETENSORS_SHA256,
               values["official_litertlm"]: OFFICIAL_LITERTLM_SHA256}
     _verify_bindings(inputs)
+    published_a8 = verify_published_activation_scales(
+        Path(values["source_safetensors"]),
+        seed / "mobile_training_seed_manifest.json",
+        seed / "mobile_qparams.json",
+        verified_source_sha256=OFFICIAL_MOBILE_SAFETENSORS_SHA256,
+    )
+    if published_a8.get("verified") is not True:
+        raise ValueError("Retained activation scales do not match the pinned public mobile checkpoint")
     result = output / "mobile_assets_verified.json"
     _write(result, {"seed": report, "qparams": qparams, "official_inputs": inputs,
+                    "published_activation_scales": published_a8,
                     "mtp_training": False, "mtp_inference": False})
     # Verify imports, schema APIs and static official graph decoding before
     # expensive training. This does not prove kernel/runtime compatibility.
     environment_report = output / "logs/export_environment.json"
     command = [values["exporter_python"], "-c",
-        "import sys,json; from pathlib import Path; sys.path.insert(0, 'training/src'); "
+        ("import sys,json; from pathlib import Path; sys.path.insert(0, 'training/src'); "
         "from ir_training.pipeline.official_mobile import probe_export_environment,_write; "
         "report=probe_export_environment(Path(sys.argv[1])); _write(Path(sys.argv[2]),report); "
-        "print(json.dumps(report, indent=2))", values["official_litertlm"], str(environment_report)]
+        "print(json.dumps(report, indent=2))"), values["official_litertlm"], str(environment_report)]
     run_bounded_command(command, output / "logs/export_environment.log", _environment(plan),
                         timeout_seconds=300, progress_seconds=values["progress_seconds"])
     return [result, environment_report, *map(Path, inputs), seed / "mobile_training_seed_manifest.json", seed / "mobile_qparams.json"]
@@ -422,7 +514,15 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
                 *map(Path, plan["preparation"]["source_files"])]
     if stage == "configure":
         return _configure(plan)
+    if stage == "no_op_export":
+        env = _environment(plan)
+        env["CUDA_VISIBLE_DEVICES"] = ""
+        run_bounded_command(no_op_export_command(plan), output / "logs/no_op_export_worker.log", env,
+                            timeout_seconds=values["stage_timeout_seconds"], progress_seconds=values["progress_seconds"])
+        _require_no_op_export(plan)
+        return [Path(paths["no_op_export_report"])]
     if stage in {"preflight", "training"}:
+        _require_no_op_export(plan)
         _scripts()
         from launch_review_training import verify_launch_binding
         mobile, launch, launch_paths = _launch(plan)
@@ -479,6 +579,7 @@ def run_stage(plan: dict, stage: str) -> list[Path]:
                 "required_mtp_enabled": False, "official_drafter_present_but_not_validated_for_this_target": True,
                 "native_quality_evaluated": False, "speed_parity_measured_at_export": False,
                 "subsequent_speed_report": paths["android_report"],
+                "native_quality_command": native_quality_command(plan),
                 "benchmark_command": benchmark_command(plan)})
             return [Path(paths["export_report"]), Path(paths["litertlm"]), runtime]
         from ir_training.eval.android_gpu_report import load_android_gpu_parity_report
@@ -506,7 +607,7 @@ def _summary(state: dict) -> str:
         f"LiteRT-LM export: {'verified official layout' if 'export' in state['completed'] else 'not completed'}.",
         f"MTP: disabled; unused official drafter bytes preserved. Artifact: {plan['paths']['litertlm']}",
         f"Device speed parity: {'passed target-only benchmark (within 10%)' if 'android_benchmark' in state['completed'] else 'not measured'}.",
-        "Native LiteRT golden/Bixby evaluation is not performed by this variant.",
+        "Native LiteRT golden/Bixby scores require the separate native_quality_command.json handoff (plan-only until --execute).",
         *(["", f"Failure: {state['error']}"] if state.get("error") else []), "",
     ])
 
@@ -527,6 +628,8 @@ def run_pipeline(options: OfficialMobileOptions, *, execute: bool = False,
         manifest = output / "official_mobile_manifest.json"
         _write(output / "benchmark_command.json", {"command": benchmark_command(plan), "mtp": False,
                "note": "Run on a host with the app + instrumentation installed. Speed is unverified until this passes."})
+        _write(output / "native_quality_command.json", {"command": native_quality_command(plan), "mtp": False,
+               "execute": False, "note": "Separate Android quality gate. Review plan, set serial, then append --execute. No desktop Vulkan required."})
         try:
             for index, stage in enumerate(plan["stages"], 1):
                 state["active_stage"] = stage
@@ -581,6 +684,8 @@ def worker(plan_path: Path, stage: str) -> None:
         receipt = manifest["completed"][name]
         if receipt.get("plan_sha256") != plan_digest:
             raise ValueError(f"Prior stage belongs to a different plan: {name}")
+        if name == "no_op_export":
+            _verify_bindings(receipt.get("files") or {})
         if stage in {"merge", "export"} and (name == "training" or name.startswith("best_")):
             _verify_bindings(receipt.get("files") or {})
     with Progress(f"Mobile {stage}", unit="stage", interval=plan["options"]["progress_seconds"]):

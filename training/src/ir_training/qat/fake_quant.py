@@ -17,6 +17,10 @@ AI_EDGE_MIN_SCALE = 1e-9
 AI_EDGE_SCALE_COMPUTE_DTYPE = "float32"
 AI_EDGE_BLOCKWISE_SCALE_CAST = ("bfloat16", "float16", "float32")
 AI_EDGE_ROUNDING = "ties_to_even"
+MOBILE_SRQ_REFERENCE = (
+    "huggingface/transformers@c587bc884db2c2e31fc2b8102314656b17aa07b1:"
+    "src/transformers/integrations/gemma_quant.py:apply_srq"
+)
 
 
 @dataclass(frozen=True)
@@ -59,6 +63,12 @@ class QATSpec:
     fixed_activation_scale_required: bool = False
     effective_lora_only: bool = False
     ste_gradient: str = "identity"
+    # Separate the released mobile activation consumer from the generic
+    # AI Edge *weight* quantizer. Old configs retain their historical behavior.
+    activation_quantizer: str = "legacy"
+    simulate_frozen_activations: bool = False
+    expected_frozen_activation_modules: int | None = None
+    require_lora_trainable_scope: bool = False
     eps: float = 1e-8
 
     @classmethod
@@ -151,6 +161,13 @@ class QATSpec:
                 qat.get("effective_lora_only", cls.effective_lora_only)
             ),
             ste_gradient=ste_gradient,
+            activation_quantizer=str(qat.get("activation_quantizer", "legacy")).strip().lower(),
+            simulate_frozen_activations=bool(qat.get("simulate_frozen_activations", False)),
+            expected_frozen_activation_modules=(
+                int(qat["expected_frozen_activation_modules"])
+                if qat.get("expected_frozen_activation_modules") is not None else None
+            ),
+            require_lora_trainable_scope=bool(qat.get("require_lora_trainable_scope", False)),
             eps=float(qat.get("eps", default_eps)),
         )
 
@@ -547,12 +564,60 @@ def fake_quantize_weight(
     )
 
 
+def mobile_srq_ste(
+    values: Any, scale: Any, *, ste_gradient: str = "clipped", validate_scale: bool = True,
+) -> Any:
+    """Published mobile HF A8 forward, with an explicitly independent STE.
+
+    This is a pinned *HF consumer* oracle, not a claim of native kernel parity
+    or Google's unpublished training backward rule. Scales stay immutable;
+    arithmetic casts them to the activation dtype just as ``apply_srq`` does.
+    Zero scales bypass quantization. Validation can be skipped only by wrappers
+    that have already validated their immutable retained-scale contract.
+    """
+    import torch
+
+    if not values.is_floating_point():
+        return values
+    if scale is None:
+        raise ValueError("Mobile SRQ requires an explicit retained activation scale (zero means bypass).")
+    tensor = torch.as_tensor(scale, device=values.device).detach()
+    if tensor.numel() != 1:
+        raise ValueError("Mobile SRQ requires a scalar activation scale.")
+    if validate_scale and (not bool(torch.isfinite(tensor).all()) or bool((tensor < 0).any())):
+        raise ValueError("Mobile SRQ scale must be finite and non-negative.")
+    tensor = tensor.reshape(()).to(dtype=values.dtype)
+    calibrated = tensor != 0
+    safe_scale = torch.where(calibrated, tensor, torch.ones_like(tensor))
+    rounded = torch.clamp(torch.round(values / safe_scale), -128.0, 127.0) * safe_scale
+    quantized = torch.where(calibrated, rounded, values)
+    if ste_gradient == "clipped":
+        mask = (~calibrated | ((values >= -128 * safe_scale) & (values <= 127 * safe_scale))).to(values.dtype)
+    elif ste_gradient == "identity":
+        mask = 1.0
+    else:
+        raise ValueError(f"Unsupported mobile SRQ STE: {ste_gradient!r}")
+    # Adding a zero-valued surrogate preserves the exact low-precision forward
+    # value. x + (q - x).detach() can introduce a second BF16 rounding error.
+    return quantized.detach() + (values - values.detach()) * mask
+
+
 def fake_quantize_activation(
     activation: Any,
     spec: QATSpec,
     *,
     scale_override: Any | None = None,
+    validated_scale: bool = False,
 ) -> Any:
+    if spec.activation_quantizer == "gemma_mobile_srq":
+        if spec.activation_bits != 8 or spec.scale_mode != "retained_mobile":
+            raise ValueError("gemma_mobile_srq requires retained_mobile A8 scales.")
+        return mobile_srq_ste(
+            activation, scale_override, ste_gradient=spec.ste_gradient,
+            validate_scale=not validated_scale,
+        )
+    if spec.activation_quantizer != "legacy":
+        raise ValueError(f"Unknown activation quantizer: {spec.activation_quantizer!r}")
     return fake_quantize_ste(
         activation,
         bits=spec.activation_bits,
@@ -571,9 +636,7 @@ def _mobile_weight_key_candidates(module_name: str) -> tuple[str, ...]:
         normalized = module_candidate
         if normalized.startswith("language_model."):
             normalized = "model." + normalized[len("language_model.") :]
-        elif normalized.startswith("layers.") or normalized.startswith(
-            ("embed_tokens", "embed_tokens_per_layer", "per_layer_model_projection")
-        ):
+        elif normalized.startswith(("layers.", "embed_tokens", "embed_tokens_per_layer", "per_layer_model_projection")):
             normalized = "model." + normalized
         for value in (module_candidate, normalized):
             if not value:
@@ -603,12 +666,16 @@ class QATController:
         self._detected_lora_adapter_linear_count = 0
         self._uncovered_lora_adapter_linear_names: list[str] = []
         self._retained_qparams_bindings: dict[str, dict[str, Any]] = {}
+        self._frozen_activation_bindings: dict[str, dict[str, Any]] = {}
+        self.saturation_monitor: Any | None = None
+        self.trainable_scope: dict[str, Any] | None = None
 
     def _retained_qparams_for_module(
         self,
         module_name: str,
         module_spec: QATSpec,
         weight_shape: tuple[int, ...],
+        *, frozen: bool = False,
     ) -> dict[str, Any] | None:
         if module_spec.scale_mode != "retained_mobile":
             return None
@@ -658,7 +725,8 @@ class QATController:
             "input_activation_scale": input_activation_scale,
             "output_activation_scale": output_activation_scale,
         }
-        self._retained_qparams_bindings[module_name] = binding
+        bindings = self._frozen_activation_bindings if frozen else self._retained_qparams_bindings
+        bindings[module_name] = binding
         return {**binding, "scale": scale}
 
     @property
@@ -673,6 +741,79 @@ class QATController:
     @property
     def wrapped_effective_lora_count(self) -> int:
         return len(self._wrapped_effective_lora_names)
+
+    def _observe(self, name: str, values: Any, scale: Any, *, role: str, spec: QATSpec) -> None:
+        if (self.saturation_monitor is None or scale is None
+                or not getattr(self.saturation_monitor, "active", True)):
+            return
+        if role == "weight":
+            qmin, qmax = _quant_bounds_for_quantizer(spec.weight_bits, spec.weight_symmetric, spec.quantizer)
+        elif spec.activation_quantizer == "gemma_mobile_srq":
+            qmin, qmax = -128, 127
+            scale = scale.to(dtype=values.dtype)
+        else:
+            qmin, qmax = _quant_bounds_for_quantizer(spec.activation_bits, spec.activation_symmetric, spec.quantizer)
+        self.saturation_monitor.observe(name, values, scale, qmin=qmin, qmax=qmax, role=role)
+
+    def _prepare_frozen_activations(self, model: Any) -> None:
+        """Wrap only inventoried frozen mobile FC edges; never re-quantize weights."""
+        import torch
+        from torch import nn
+
+        if self.spec.scale_mode != "retained_mobile" or self.spec.activation_quantizer != "gemma_mobile_srq":
+            raise ValueError("Frozen mobile activation simulation requires retained_mobile gemma_mobile_srq.")
+        if self.mobile_qparams is None:
+            raise ValueError("Frozen mobile activation simulation requires verified qparams.")
+        expected = set(self.mobile_qparams.frozen_activation_weight_keys())
+        count = self.spec.expected_frozen_activation_modules
+        if count is None or len(expected) != count or count <= 0:
+            raise ValueError(f"Frozen activation inventory must contain exactly {count} modules; found {len(expected)}.")
+        for name, module in list(model.named_modules()):
+            key = self.mobile_qparams.resolve_weight_key(_mobile_weight_key_candidates(name))
+            if key not in expected:
+                continue
+            if not isinstance(module, nn.Linear) or module in self._original_forwards:
+                raise ValueError(f"Expected an ordinary frozen Linear for {key}, not an adapter or unsupported layer.")
+            if any(parameter.requires_grad for parameter in module.parameters()):
+                raise ValueError(f"Frozen mobile activation layer {name!r} has trainable weights/bias.")
+            bits = self.spec.weight_bits_for_module(name)
+            if bits != 8:
+                raise ValueError(f"Frozen mobile activation layer {name!r} must retain its W8 inventory.")
+            module_spec = _module_spec_for_module(self.spec, name, bits)
+            binding = self._retained_qparams_for_module(name, module_spec, tuple(module.weight.shape), frozen=True)
+            original_forward = module.forward
+            cache: dict[tuple[str, str], Any] = {}
+
+            def frozen_forward(
+                inputs: Any, *args: Any, _name: str = name,
+                _original: Callable = original_forward, _spec: QATSpec = module_spec,
+                _binding: dict = binding, _cache: dict = cache, **kwargs: Any,
+            ) -> Any:
+                if args or kwargs:
+                    raise TypeError(f"Unexpected arguments for frozen mobile Linear {_name!r}.")
+
+                def scale_for(role: str, tensor: Any) -> Any:
+                    cache_key = (role, str(tensor.device))
+                    if cache_key not in _cache:
+                        _cache[cache_key] = torch.tensor(
+                            _binding[f"{role}_activation_scale"], dtype=torch.float32, device=tensor.device,
+                        )
+                    return _cache[cache_key]
+
+                input_scale = scale_for("input", inputs)
+                self._observe(_name, inputs, input_scale, role="input", spec=_spec)
+                output = _original(fake_quantize_activation(inputs, _spec, scale_override=input_scale, validated_scale=True))
+                output_scale = scale_for("output", output)
+                self._observe(_name, output, output_scale, role="output", spec=_spec)
+                return fake_quantize_activation(output, _spec, scale_override=output_scale, validated_scale=True)
+
+            module.forward = frozen_forward
+            self._original_forwards[module] = original_forward
+            self._wrapped_names.append(name)
+            self._wrapped_linear_names.append(name)
+        bound = [binding["weight_key"] for binding in self._frozen_activation_bindings.values()]
+        if len(bound) != count or set(bound) != expected:
+            raise ValueError(f"Frozen A8 scope mismatch: missing={sorted(expected-set(bound))}, extra={sorted(set(bound)-expected)}.")
 
     def prepare(self, model: Any) -> QATController:
         from torch import nn
@@ -756,18 +897,23 @@ class QATController:
                             f"arguments for {_module_name!r}; mixed-adapter batches "
                             "would bypass the deployment-equivalent forward."
                         )
+                    input_scale = _retained_scale("input", input_tensor)
+                    self._observe(_module_name, input_tensor, input_scale, role="input", spec=_module_spec)
                     quantized_input = fake_quantize_activation(
                         input_tensor,
                         _module_spec,
-                        scale_override=_retained_scale("input", input_tensor),
+                        scale_override=input_scale,
+                        validated_scale=_has_retained_qparams,
                     )
                     effective_weight = _effective_lora_weight(
                         _module, _adapter_names
                     )
+                    weight_scale = _retained_scale("weight", effective_weight)
+                    self._observe(_module_name, effective_weight, weight_scale, role="weight", spec=_module_spec)
                     quantized_weight = fake_quantize_weight(
                         effective_weight,
                         _module_spec,
-                        scale_override=_retained_scale("weight", effective_weight),
+                        scale_override=weight_scale,
                     )
                     output = functional.linear(
                         quantized_input,
@@ -775,10 +921,13 @@ class QATController:
                         _module.base_layer.bias,
                     )
                     if _has_retained_qparams:
+                        output_scale = _retained_scale("output", output)
+                        self._observe(_module_name, output, output_scale, role="output", spec=_module_spec)
                         return fake_quantize_activation(
                             output,
                             _module_spec,
-                            scale_override=_retained_scale("output", output),
+                            scale_override=output_scale,
+                            validated_scale=True,
                         )
                     return output
 
@@ -801,6 +950,10 @@ class QATController:
             )
         ]
 
+        if self.spec.simulate_frozen_activations:
+            self._prepare_frozen_activations(model)
+        if self.spec.require_lora_trainable_scope:
+            self.trainable_scope = self._check_trainable_scope(model)
         if self.spec.effective_lora_only:
             return self
 
@@ -895,6 +1048,25 @@ class QATController:
             module.forward = original_forward
         self._original_forwards.clear()
 
+    def _check_trainable_scope(self, model: Any) -> dict[str, Any]:
+        modules = dict(model.named_modules())
+        expected: set[int] = set()
+        for name in self._wrapped_effective_lora_names:
+            module = modules[name]
+            for adapter in _active_lora_adapter_names(module):
+                for container in (module.lora_A, module.lora_B):
+                    weight = container[adapter].weight
+                    expected.add(id(weight))
+        actual = {id(value) for value in model.parameters() if value.requires_grad}
+        unexpected = [name for name, value in model.named_parameters() if value.requires_grad and id(value) not in expected]
+        # An entirely frozen model is the supported standalone evaluation path.
+        # A partially trainable adapter is never a supported training recipe.
+        if unexpected or (actual and actual != expected) or not expected:
+            raise ValueError(f"Retained mobile trainable scope must be exactly the active LoRA A/B weights; unexpected={unexpected[:12]}.")
+        return {"verified": True, "expected_lora_tensors": len(expected),
+                "trainable_lora_tensors": len(actual), "all_adapters_trainable": actual == expected,
+                "all_parameters_frozen": not actual}
+
     def summary(self) -> dict[str, Any]:
         bit_histogram: dict[str, int] = {}
         for bits in self._wrapped_weight_bits.values():
@@ -938,6 +1110,10 @@ class QATController:
                 self._retained_qparams_bindings
             ),
             "retained_qparams_bindings": dict(self._retained_qparams_bindings),
+            "frozen_activation_module_count": len(self._frozen_activation_bindings),
+            "frozen_activation_bindings": dict(self._frozen_activation_bindings),
+            "trainable_scope": self.trainable_scope,
+            "native_kv_cache_simulated": False,
             "spec": self.spec.to_dict(),
         }
 
@@ -1193,6 +1369,13 @@ def qat_numeric_contract(spec: QATSpec) -> dict[str, Any]:
         "ste_gradient": spec.ste_gradient,
         "scales_recomputed_from_weight_absmax": spec.scale_mode == "dynamic",
         "private_google_observer_recovered": False,
+        "activation_quantizer": spec.activation_quantizer,
+        "activation_reference": MOBILE_SRQ_REFERENCE if spec.activation_quantizer == "gemma_mobile_srq" else None,
+        "activation_signed_range": [-128, 127] if spec.activation_quantizer == "gemma_mobile_srq" else None,
+        "activation_scale_arithmetic": "input_dtype" if spec.activation_quantizer == "gemma_mobile_srq" else "legacy",
+        "zero_activation_scale": "bypass" if spec.activation_quantizer == "gemma_mobile_srq" else "legacy",
+        "frozen_activation_simulation": spec.simulate_frozen_activations,
+        "native_runtime_numeric_parity_verified": False,
     }
 
 
@@ -1238,7 +1421,22 @@ def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
         from ir_training.qat.mobile_qparams import MobileQParams
 
         mobile_qparams = MobileQParams(contract_path)
-    controller = QATController(spec, mobile_qparams=mobile_qparams).prepare(model)
+    controller = QATController(spec, mobile_qparams=mobile_qparams)
+    try:
+        controller.prepare(model)
+    except Exception:
+        controller.restore()
+        raise
+    qat_config = config.get("qat", config)
+    saturation_config = qat_config.get("saturation") if isinstance(qat_config, dict) else None
+    if isinstance(saturation_config, dict) and saturation_config.get("enabled", False):
+        from ir_training.qat.saturation import SaturationMonitor
+
+        monitor = SaturationMonitor.from_config(qat_config)
+        # Nonzero ranks must not publish disabled snapshots over rank zero's
+        # preflight/telemetry files in a shared DDP output directory.
+        if monitor.enabled:
+            controller.saturation_monitor = monitor
     if spec.scale_mode == "retained_mobile":
         expected_keys = set(mobile_qparams.trainable_projection_weight_keys())
         bound_keys = {

@@ -12,6 +12,11 @@ plan-only unless `--execute` is passed. Every execution requires a fresh
 `--output-dir`; do not overwrite or silently resume an earlier run. Output must
 be outside the model and input directories, and must not contain them.
 
+The current workflow identifier is
+`e2b_retained_mobile_golden_bixby_no_mtp_v2`. Existing plan and execute commands
+remain unchanged, but v2 must start in a fresh output directory because it adds
+new bound stages and evidence.
+
 ## What this lane is, and is not
 
 The training source is not a normal dense Gemma checkpoint and it is not the
@@ -41,6 +46,40 @@ This workflow does not reproduce Google's private QAT data, calibration,
 observer, optimizer, or exporter recipe. It also does not promise a speedup.
 Training quality, exact package structure, Android GPU delegation, and measured
 throughput are separate gates.
+
+### Training numeric contract
+
+The official-mobile YAML explicitly opts into
+`activation_quantizer: gemma_mobile_srq`. Its forward pass follows the
+[public Hugging Face `apply_srq` implementation](https://github.com/huggingface/transformers/blob/c587bc884db2c2e31fc2b8102314656b17aa07b1/src/transformers/integrations/gemma_quant.py)
+shape: convert the retained scalar scale to the activation dtype, compute
+`round(x / scale)`, clamp to the signed A8 range `[-128, 127]`, multiply by the
+same scale, and bypass quantization when the scale is zero. The backward pass is
+this repository's configured straight-through estimator (STE), not evidence of
+Google's private training recipe or observer behavior.
+
+This opt-in also applies retained input/output A8 simulation to the inventoried
+70 frozen per-layer W8 linear modules without fake-quantizing their frozen
+weights. The 205 mutable W2/W4 projections use effective merged-weight LoRA QAT.
+The run fails closed unless the exact 205-projection scope is covered and every
+expected LoRA A/B tensor is actually trainable. Legacy configs that omit
+`activation_quantizer: gemma_mobile_srq`, frozen activation simulation, and the
+strict trainable-scope requirement retain their previous behavior.
+
+The v2 `assets` gate also reads the retained input/output activation scalars
+directly from the SHA-pinned published packed checkpoint and compares their
+FP32 bytes with the seed contract. This covers the 205 mutable projections,
+70 frozen per-layer modules, and the zero-scale head placeholders. A rewritten
+but internally self-consistent local A8 sidecar is not sufficient provenance.
+Only scalar tensors are loaded by this check; no model weight is materialized.
+
+No runtime KV-cache simulation occurs during training or the pretraining gate.
+The pretraining report only inventories statically named TFLite cache boundary
+tensors, shapes, dtypes, serialized qparams, and identifiable prefill/decode
+stages. That inventory can report `not_established_unidentified`; even an
+established inventory does not establish cross-signature cache-buffer mapping
+or prove cache mutation, reuse, or runtime
+prefill/decode correctness.
 
 ## Required inputs
 
@@ -269,26 +308,36 @@ python training/scripts/run_official_mobile_pipeline.py \
   --execute
 ```
 
-The wrapper owns a bounded, fail-closed stage graph:
+The wrapper owns a bounded, fail-closed stage graph. In v2 the resolved order is
+`assets`, `prepare`, `configure`, `no_op_export`, `preflight`, `training`, the
+three best-checkpoint evaluations, `merge`, `export`, and the optional Android
+speed benchmark:
 
-1. Validate the packed source hash, reconstructed-seed manifest, retained scale
-   contract, model architecture, input data, holdout exclusion, prompt/tokenizer
-   bindings, CUDA/BF16 environment, and zero-adapter numeric/greedy parity.
-2. Train retained-scale effective-weight LoRA QAT from the reconstructed mobile
+1. Validate assets, prepare the bound datasets, and resolve the immutable
+   training/deployment configs and GPU profile.
+2. Before numeric preflight or training, run the real retained-scale exporter
+   as a zero-adapter no-op. It re-encodes all 205 materialized seed projections,
+   requires every target code buffer to match the official bytes, and proves
+   byte-exact target-section and whole virtual-package identity. It does not
+   publish a package copy or prove runtime inference.
+3. Validate the reconstructed-seed manifest, retained-scale contract, model
+   architecture, input data, holdout exclusion, prompt/tokenizer bindings,
+   CUDA/BF16 environment, and zero-adapter numeric/greedy parity.
+4. Train retained-scale effective-weight LoRA QAT from the reconstructed mobile
    seed using DDP and immutable published weight/A8 scales.
-3. Evaluate Golden32 at the configured cadence and save the callback-created
+5. Evaluate Golden32 at the configured cadence and save the callback-created
    `best_golden_checkpoint` only when the metric improves.
-4. Lock checkpoint selection using
+6. Lock checkpoint selection using
    `unique_source_generation_reward_v5_4_avg`. Golden32 contains 32 occurrences
    but 31 unique sources, so raw occurrence-weighted reward is diagnostic and
    must not select the checkpoint.
-5. Evaluate the locked best checkpoint on the complete Golden32, Golden35, and
+7. Evaluate the locked best checkpoint on the complete Golden32, Golden35, and
    Bixby50 cohorts. Golden35 and Bixby50 are final-only holdouts and cannot
    change checkpoint or hyperparameter selection.
-6. Merge that exact adapter into its bound reconstructed BF16 seed.
-7. Re-encode exactly the 205 trained W2/W4 projection code buffers using the
+8. Merge that exact adapter into its bound reconstructed BF16 seed.
+9. Re-encode exactly the 205 trained W2/W4 projection code buffers using the
    retained official scales, then patch a copy of the official package.
-8. Revalidate provenance, code/scale parity, frozen buffers, package bytes,
+10. Revalidate provenance, code/scale parity, frozen buffers, package bytes,
    graph/layout/execution-contract identity, and the preserved MTP section
    before atomically publishing the final `.litertlm`.
 
@@ -311,11 +360,16 @@ writes:
   hashes;
 - `<run>/logs/<stage>.log` and stage-specific worker logs;
 - `<run>/mobile_assets_verified.json` and `<run>/data_audit.json`;
+- `<run>/pretraining_noop_export.json` — the pre-training 205-buffer,
+  target-section, virtual-package, qparam, graph, and static cache-inventory
+  gate;
 - `<run>/prepared/{train,val,golden32,golden35,bixby50}.jsonl` plus preparation
   manifests;
 - `<run>/configs/mobile_training.yaml` and
   `<run>/configs/mobile_deployment.yaml`;
 - `<run>/training/<run-id>/launch/{resolved_training_config.yaml,launch_plan.json,preflight_report.json,training.log}`;
+- `<run>/training/<run-id>/saturation_preflight.json` and
+  `<run>/training/<run-id>/saturation_telemetry.json`;
 - `<run>/training/<run-id>/best_golden_checkpoint/`;
 - `<run>/evaluations/best_{golden32,golden35,bixby50}/` with predictions,
   scored predictions, aggregate metrics, and `evaluation_result.json`;
@@ -324,6 +378,8 @@ writes:
   `gemma4_retained_scale_code_only_report.json`;
 - `<run>/benchmark_command.json`, which is written even when device benchmarking
   is not requested;
+- `<run>/native_quality_command.json` — the separate plan-first Android native
+  quality handoff;
 - `<run>/android_gpu/target_only/android_litertlm_gpu_parity_report.json` when
   `--benchmark-android` runs successfully;
 - `<run>/results.md`, written on success or failure with only verified completed
@@ -332,7 +388,19 @@ writes:
 TensorBoard data is written under `<tensorboard-root>/<run-id>/`. Training uses
 the `training/` subdirectory, while standalone best-checkpoint evaluations add
 `evaluation_records/best_<cohort>/` JSON records and evaluation scalar tags to
-the same run ID.
+the same run ID. Retained-scale saturation telemetry samples at most 2,048
+values per module/role on rank zero once per active window and, in the full official profile,
+opens a window every 20 optimizer steps. The three-step smoke profile samples
+every optimizer step. It emits only these six aggregate TensorBoard scalars
+under `train/qat_saturation/`: overall, weight, input, and output saturation
+fractions, sampled values, and sampled windows. These measurements are
+diagnostic; the pipeline does not invent a saturation quality threshold.
+
+Configure these limits through `qat.saturation.sample_every_optimizer_steps`
+and `qat.saturation.max_values_per_module`, or disable monitoring with
+`qat.saturation.enabled: false`. Grouped weight scales are sampled without
+expanding the complete scale matrix. Telemetry detaches its samples and never
+retains a training autograd graph.
 
 ## Evaluation contract
 
@@ -354,6 +422,9 @@ Do not repair generated IDs or malformed model output during capability scoring.
 
 The retained-scale export is valid only when all of these are proven:
 
+- the pre-training `no_op_export` report passed all 205 code-buffer,
+  target-section, virtual-package, qparam, graph, frozen-buffer, and provenance
+  checks before numeric preflight or training began;
 - the adapter is the callback-created Golden32 best checkpoint and its bytes,
   resolved training config, seed manifest, qparams contract, and numeric
   preflights are self-bound;
@@ -369,6 +440,11 @@ The retained-scale export is valid only when all of these are proven:
 - at least one trained code changes, while restoring the 205 selected payloads
   reconstructs the official target section byte-for-byte.
 
+The early no-op gate does not replace this final trained-export gate. The first
+proves that the untouched reconstructed seed can make the exact official bytes;
+the second proves that the selected trained adapter is the artifact exported and
+that only its allowed 205 payloads changed.
+
 The generated deployment config represents MTP as runtime-disabled,
 official-preserved, and unused.
 The package intentionally still contains `tf_lite_mtp_drafter`; absence of the
@@ -383,7 +459,62 @@ of the structural, quantization-layout, and execution-contract hashes. If the
 inspector cannot decode an execution contract completely, or any graph/layout
 hash changes, stop; package parseability and matching file size are insufficient.
 
-## Optional Android target-only benchmark
+## Separate Android native quality evaluation
+
+Host Hugging Face evaluation and native LiteRT quality are deliberately separate.
+After the complete pipeline succeeds, plan the native run into a fresh sibling
+directory and review the printed plan before allowing any device action:
+
+```powershell
+python training/scripts/evaluate_official_mobile_native.py `
+  --run-dir <run> `
+  --output-dir <run>_native_quality
+```
+
+Plan-only mode writes nothing. To execute the reviewed plan, repeat the command
+with an explicit device and `--execute`:
+
+```powershell
+python training/scripts/evaluate_official_mobile_native.py `
+  --run-dir <run> `
+  --output-dir <run>_native_quality `
+  --serial <adb-serial> `
+  --execute
+```
+
+The Android app and instrumentation runner must already be installed. The
+command does not build, install, download, train, or use desktop Vulkan; it
+stages the exported package and bound requests with MTP disabled, requires full
+Android GPU delegation with no CPU fallback, uses a fresh conversation per
+case, and cleans only its own temporary device files. Before generation, the
+runtime-rendered prompt must exactly match the bound Hugging Face prompt,
+including template options. The pinned conversation API enforces the output
+token limit; asynchronous decoding stops at the quote-aware A2UI closing
+envelope. Output token counts come from native benchmark information, not the
+number of decode calls. A failed or timed-out run preserves available raw
+diagnostics but never publishes partial scores as a pass.
+
+The native output directory contains `requests.jsonl`,
+`device_requests.jsonl`, raw `device_outputs.jsonl`,
+`native_runtime_rows.jsonl` with both raw generated and serving-stopped text,
+instrumentation/logcat evidence, and separate
+`cohorts/{golden32,golden35,bixby50}/` prediction, scored-prediction, and
+aggregate files. The saved, hash-bound HF checkpoint predictions are rescored
+with the same scorer and weights used for the native outputs; their results
+are stored under each cohort's `checkpoint_rescored/` directory.
+`comparison.json` and `results.md` compare those checkpoint metrics with fresh
+native metrics, and the CLI prints the final table. The two runtimes' scores
+remain distinct. Native input/output token IDs are unavailable through the pinned public
+Android LiteRT API, so host prompt token IDs and hashes are retained but native
+token parity is not claimed. This evaluates generated text and strict A2UI
+scores, not native UI rendering; rendering remains a separate unvalidated gate.
+
+Minimal native Golden32, Golden35, and Bixby50 metrics are logged in a separate
+TensorBoard run named after the native output directory. The default root comes
+from the completed training plan (`/tensorboard` by default); pass
+`--tensorboard-root <path>` to change it when evaluating on another host.
+
+## Optional Android target-only speed benchmark
 
 Android work is opt-in and occurs only after the host export and structural
 gates pass. `--benchmark-android` always requires an explicit
@@ -421,7 +552,8 @@ Full GPU delegation proves that the graph ran through the Android GPU delegate;
 it does not prove A2UI semantic quality. Conversely, the Golden scores do not
 prove Android delegation or speed. A target-only trained-Express semantic probe
 must separately establish strict decode, canonical validation, response-fact
-coverage, and native rendering before a deployment claim.
+coverage, and native rendering before a deployment claim. The native quality
+command above establishes the text/scoring portion only, not rendering.
 
 ## Promotion checklist
 
@@ -435,19 +567,23 @@ A run is eligible for review only when:
   was atomically published to a fresh path;
 - the official MTP section is byte-exact and runtime MTP is disabled;
 - host graph-equivalence validation passed;
+- any claimed native LiteRT quality result has a separate passing fresh-sibling
+  native-quality report with exact coverage for all three cohorts;
 - any claimed Android GPU or throughput result has its own passing device
   report.
 
 Until those conditions are met, report the result as training, evaluation, or
 serialization evidence only—not a production-ready mobile model.
 
-## Local verification (2026-09-19)
+## Historical local verification (2026-09-19)
 
-- Regression run across the new runner, portable launcher, retained exporter,
+- Before the v2 no-op, mobile-SRQ, saturation, and native-quality additions, a
+  regression run across the runner, portable launcher, retained exporter,
   merge/QAT provenance, existing mobile/multiformat workflows, Golden/Bixby
   preparation and scoring, GPU profiles, and parallel generation: **295 passed,
   2 skipped**.
-- After the final early-exporter graph probe was added, the affected runner,
+- In that same historical implementation, after the early-exporter graph probe
+  was added, the affected runner,
   retained exporter and merge/QAT subset passed again: **66 passed, 1 skipped**.
 - The skips were the Windows executable-symlink test (host permission) and the
   optional PEFT adapter worker smoke test (dependency unavailable). A separate
@@ -459,7 +595,47 @@ serialization evidence only—not a production-ready mobile model.
 - Python compilation, CLI help and whitespace checks passed. The local schema
   roundtrip ran without loading model weights.
 
-No full H100 training, retained-scale model export, or Android speed benchmark
-was executed for this change. Run-time scores and throughput remain unmeasured;
-the pipeline's real artifact, numeric and device gates must still pass on the
-training/deployment hosts.
+## Current v2 verification (2026-09-19)
+
+The integrated regression run completed with **359 passed, 1 skipped**. The
+skip was the executable-symlink test because this Windows host cannot create
+that symlink. This count includes the new mobile-SRQ numerical oracles,
+frozen A8 hooks, strict trainable scope, source-bound scalar provenance,
+no-op export gates, saturation telemetry, native-quality orchestration, and
+existing mobile/legacy training/export regression coverage. These are local
+CPU tests with small fixtures and mocked expensive/device boundaries, not
+measured model-quality or device-runtime results.
+
+Reproduce from the repository root:
+
+```bash
+python -m pytest \
+  training/tests/test_mobile_srq_contract.py \
+  training/tests/test_qat_training.py \
+  training/tests/test_official_mobile_pipeline.py \
+  training/tests/test_training_scaffold.py \
+  training/tests/test_portable_gemma4_mobile_qat_launcher.py \
+  training/tests/test_qat_mtp_workflow.py \
+  training/tests/test_mobile_seed_architecture.py \
+  training/tests/test_sft_startup_performance.py \
+  training/tests/test_mobile_srq_provenance.py \
+  training/tests/test_gemma4_retained_scale_pretraining_gate.py \
+  training/tests/test_gemma4_retained_scale_exporter.py \
+  training/tests/test_qat_saturation.py \
+  training/tests/test_gemma4_mobile_training_seed.py \
+  training/tests/test_gemma4_mobile_mtp_pipeline.py \
+  training/tests/test_android_native_quality.py \
+  training/tests/test_published_qparams.py -q -rs -p no:cacheprovider
+```
+
+The changed/new core Python modules and focused tests passed scoped Ruff
+checks. Python compilation, all three relevant CLI `--help` checks, and
+`git diff --check` also passed. The Kotlin probe was reviewed against the
+pinned LiteRT-LM v0.16.1 API but **was not compiled or run on Android**.
+
+No full H100 training, real retained-scale model conversion, Android build or
+installation, device quality test, or speed benchmark was executed for this
+change. Runtime scores and throughput remain unmeasured; the pipeline's real
+artifact, numeric and device gates must still pass on the training/deployment
+hosts. This is not evidence that Google's private recipe or native KV-cache
+numerics have been reproduced.
