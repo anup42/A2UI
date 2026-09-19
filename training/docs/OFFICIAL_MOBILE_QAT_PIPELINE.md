@@ -464,6 +464,17 @@ proves that the untouched reconstructed seed can make the exact official bytes;
 the second proves that the selected trained adapter is the artifact exported and
 that only its allowed 205 payloads changed.
 
+Both gates obtain target and MTP sections from the canonical full-package
+`inspect_litertlm()` report using the unique-section lookup. The weight helper
+`_extract_inventory()` returns only `(selected_section, weight_records)`, not
+the package report; passing its first result to package section lookup causes
+a misleading `Available: []` failure after a successful 277-weight inventory.
+The gates now inspect the full header separately and require the inventory's
+target section to match it exactly. Missing/duplicate target or MTP sections,
+invalid header ranges and differing inventory section identities still fail
+closed. This is a reader-contract correction, not a change to model artifacts,
+retained scales, graph checks or the byte-exact no-op requirement.
+
 The generated deployment config represents MTP as runtime-disabled,
 official-preserved, and unused.
 The package intentionally still contains `tf_lite_mtp_drafter`; absence of the
@@ -616,7 +627,7 @@ serialization evidence only—not a production-ready mobile model.
 
 ## Current v2 verification (2026-09-19)
 
-The integrated regression run completed with **372 passed, 1 skipped**. The
+The integrated regression run completed with **382 passed, 1 skipped**. The
 skip was the executable-symlink test because this Windows host cannot create
 that symlink. This count includes the new mobile-SRQ numerical oracles,
 frozen A8 hooks, strict trainable scope, source-bound scalar provenance,
@@ -624,6 +635,13 @@ no-op export gates, saturation telemetry, native-quality orchestration, and
 existing mobile/legacy training/export regression coverage. These are local
 CPU tests with small fixtures and mocked expensive/device boundaries, not
 measured model-quality or device-runtime results.
+
+The package-inspection regression subset (inspector, pretraining gate,
+retained-scale exporter and mobile pipeline) completed with **91 passed,
+1 skipped**. It covers the real inventory helper's section-only return
+contract, both consuming paths, missing/duplicate sections, canonical reader
+errors and mismatched section identities. The two corrected script entrypoints
+also passed `--help` and Python compilation checks; no real model was exported.
 
 The published-qparams subset has **22 passing tests**, including a synthetic
 632-scale source with exactly 552 mapped roles plus all 80 shared-KV extras.

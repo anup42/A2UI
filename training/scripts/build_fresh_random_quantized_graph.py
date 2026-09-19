@@ -154,6 +154,11 @@ def _extract_inventory(
     include_embeddings: bool,
     max_weights: int | None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Return the selected TFLite section and its unique weight records.
+
+    The first result is not the full package inspection report. To locate
+    sibling sections (such as MTP), inspect the package separately.
+    """
     artifact_path = Path(artifact).expanduser().resolve()
     if not artifact_path.is_file():
         raise FreshGraphParityError(f"Official artifact does not exist: {artifact_path}")

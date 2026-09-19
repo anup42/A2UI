@@ -287,13 +287,23 @@ def _patch_synthetic_run(monkeypatch, tmp_path, *, one_buffer_differs=False):
 
     monkeypatch.setattr(gate, "MobileQParams", QParams)
     monkeypatch.setattr(gate, "SafetensorCheckpoint", Reader)
-    records = [{"ordinal": 0}]
+    records = [{"ordinal": index} for index in range(exporter.EXPECTED_TARGET_COUNT)]
     mutable = [{"hf_weight_key": "w", "official_buffer": 0}]
+    target = {
+        "index": 0, "data_type_name": "TFLiteModel",
+        "items": [{"key": "model_type", "value": exporter.TARGET_MODEL_TYPE}],
+        "begin_offset": 10, "end_offset": 18, "size": 8,
+    }
+    mtp = {
+        "index": 1, "data_type_name": "TFLiteModel",
+        "items": [{"key": "model_type", "value": exporter.MTP_MODEL_TYPE}],
+        "begin_offset": 50, "end_offset": 60, "size": 10,
+    }
     monkeypatch.setattr(
         gate,
         "_extract_inventory",
         lambda *_args, **_kwargs: (
-            {"sections": []},
+            target,  # Real helper contract: ONE section, not a package report.
             records,
         ),
     )
@@ -302,15 +312,14 @@ def _patch_synthetic_run(monkeypatch, tmp_path, *, one_buffer_differs=False):
         "_scope_report",
         lambda *_args, **_kwargs: ({"verified": True}, mutable, []),
     )
-    monkeypatch.setattr(
-        gate,
-        "_section_by_model_type",
-        lambda _package, model_type: (
-            {"begin_offset": 10, "size": 8}
-            if model_type == exporter.TARGET_MODEL_TYPE
-            else {"begin_offset": 50, "size": 10}
-        ),
-    )
+    def inspect_package(path, *, inspect_tflite):
+        assert path == official
+        assert inspect_tflite is False
+        return {"sections": [mtp, target]}
+
+    # Do not mock section selection: exercise the canonical lookup against
+    # the full report with the target deliberately not at position zero.
+    monkeypatch.setattr(exporter, "inspect_litertlm", inspect_package)
     monkeypatch.setattr(
         exporter,
         "_checkpoint_mapping_report",

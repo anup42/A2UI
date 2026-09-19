@@ -55,7 +55,6 @@ from build_converter_random_topology_injection_parity import (
 from build_converter_topology_parity import (
     _FULLY_CONNECTED,
     _read_section,
-    _section_by_model_type,
 )
 from build_fresh_random_quantized_graph import (
     _extract_inventory,
@@ -67,7 +66,14 @@ from build_random_official_topology_parity import (
     _unpack_low_bit,
 )
 from ir_training.common.config import load_yaml, resolve_path
-from ir_training.export.litertlm_inspector import inspect_litertlm
+from ir_training.export.litertlm_inspector import (
+    LiteRTLMInspectionError,
+    inspect_litertlm,
+)
+from ir_training.export.litertlm_mtp import LiteRTLMMTPPackagingError
+from ir_training.export.litertlm_mtp import (
+    find_model_section as _section_by_model_type,
+)
 from ir_training.export.merge_lora import (
     _checkpoint_manifest_matches_adapter,
     _golden_selection_binding,
@@ -103,6 +109,31 @@ _LORA_KEY = re.compile(r"^(?P<module>.+)\.lora_(?P<side>[AB])(?:\.[^.]+)?\.weigh
 
 class RetainedScaleExportError(RuntimeError):
     """Raised when an exact retained-scale export gate cannot be proven."""
+
+
+def _inspect_official_model_sections(
+    official_path: Path, inventory_section: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Resolve target/MTP from the full report, never from a weight section.
+
+    ``_extract_inventory`` returns (one selected section, weight records), not
+    the whole package. Both inspections use header-only canonical decoding;
+    bind their target identities before using any section offsets or weights.
+    """
+    try:
+        package = inspect_litertlm(official_path, inspect_tflite=False)
+        target = _section_by_model_type(package, TARGET_MODEL_TYPE)
+        mtp = _section_by_model_type(package, MTP_MODEL_TYPE)
+    except (LiteRTLMInspectionError, LiteRTLMMTPPackagingError) as exc:
+        raise RetainedScaleExportError(
+            f"Could not inspect official target/MTP sections: {exc}"
+        ) from exc
+    if inventory_section != target:
+        raise RetainedScaleExportError(
+            "Extracted weight inventory section differs from the canonical "
+            "official target section."
+        )
+    return package, target, mtp
 
 
 def _official_artifact_sha_report(declared: str, observed: str) -> dict[str, Any]:
@@ -1852,11 +1883,14 @@ def _build_plan(
             "--zero-adapter-checkpoint must be the exact materialized directory bound by the seed manifest."
         )
     qparams = MobileQParams(qparams_path, base=ROOT)
-    package, records = _extract_inventory(
+    inventory_section, records = _extract_inventory(
         official_path,
         TARGET_MODEL_TYPE,
         include_embeddings=True,
         max_weights=None,
+    )
+    package, target_section, mtp_section = _inspect_official_model_sections(
+        official_path, inventory_section
     )
     scope, mutable_records, frozen_records = _scope_report(records, qparams)
     checkpoint_reader = SafetensorCheckpoint(checkpoint_path)
@@ -1925,8 +1959,6 @@ def _build_plan(
             "selection metric, config, and cohort."
         )
 
-    target_section = _section_by_model_type(package, TARGET_MODEL_TYPE)
-    mtp_section = _section_by_model_type(package, MTP_MODEL_TYPE)
     plan_checks = {
         "required_inputs_present": all(required_files.values()),
         "official_artifact_sha256_pinned": official_identity["verified"],

@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import build_gemma4_retained_scale_litertlm as exporter
 from build_checkpoint_official_topology import SafetensorCheckpoint
-from build_converter_topology_parity import _read_section, _section_by_model_type
+from build_converter_topology_parity import _read_section
 from build_fresh_random_quantized_graph import _extract_inventory, _schema_model
 from ir_training.qat.mobile_qparams import MobileQParams
 from ir_training.qat.mobile_training_seed import (
@@ -474,19 +474,16 @@ def run(
         raise exporter.RetainedScaleExportError(
             "Retained mobile qparams contract is not verified."
         )
-    package, records = _extract_inventory(
+    inventory_section, records = _extract_inventory(
         official_path,
         exporter.TARGET_MODEL_TYPE,
         include_embeddings=True,
         max_weights=None,
     )
     scope, mutable_records, _frozen_records = exporter._scope_report(records, qparams)
-    target_section = _section_by_model_type(package, exporter.TARGET_MODEL_TYPE)
-    mtp_section = _section_by_model_type(package, exporter.MTP_MODEL_TYPE)
-    if not target_section or not mtp_section:
-        raise exporter.RetainedScaleExportError(
-            "Official package does not contain both target and MTP sections."
-        )
+    _package, target_section, mtp_section = exporter._inspect_official_model_sections(
+        official_path, inventory_section
+    )
 
     zero_reader = SafetensorCheckpoint(zero_path)
     zero_mapping, zero_mappings = exporter._checkpoint_mapping_report(

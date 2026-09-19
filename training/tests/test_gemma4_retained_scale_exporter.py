@@ -5,6 +5,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -13,7 +14,171 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import build_fresh_random_quantized_graph as inventory_builder
 import build_gemma4_retained_scale_litertlm as exporter
+
+
+def _package_sections():
+    target = {
+        "index": 1, "data_type_name": "TFLiteModel",
+        "items": [{"key": "model_type", "value": exporter.TARGET_MODEL_TYPE}],
+        "begin_offset": 20, "end_offset": 40, "size": 20,
+    }
+    mtp = {
+        "index": 0, "data_type_name": "TFLiteModel",
+        "items": [{"key": "model_type", "value": exporter.MTP_MODEL_TYPE}],
+        "begin_offset": 10, "end_offset": 20, "size": 10,
+    }
+    return {"sections": [mtp, target]}, target, mtp
+
+
+def test_real_inventory_return_is_a_section_and_requires_separate_package_inspection(
+    tmp_path, monkeypatch
+):
+    official = tmp_path / "official.litertlm"
+    official.write_bytes(b"P" * 100)
+    package, target, mtp = _package_sections()
+    inspections = []
+
+    def inspect(path, *, inspect_tflite):
+        assert path == official
+        assert inspect_tflite is False
+        inspections.append(path)
+        return copy.deepcopy(package)
+
+    monkeypatch.setattr(inventory_builder, "inspect_litertlm", inspect)
+    monkeypatch.setattr(inventory_builder, "_operator_names", dict)
+    monkeypatch.setattr(
+        inventory_builder, "_schema_model",
+        lambda _data: SimpleNamespace(SubgraphsLength=lambda: 0),
+    )
+    # Exercise the real extractor control flow, mocking only the tiny package
+    # and graph readers. Do not replace its (section, records) return contract.
+    section, records = inventory_builder._extract_inventory(
+        official, exporter.TARGET_MODEL_TYPE, include_embeddings=True, max_weights=None
+    )
+    assert section == target
+    assert "sections" not in section
+    assert records == []
+    monkeypatch.setattr(exporter, "inspect_litertlm", inspect)
+
+    resolved_package, resolved_target, resolved_mtp = exporter._inspect_official_model_sections(
+        official, section
+    )
+
+    assert resolved_package == package
+    assert resolved_target == target
+    assert resolved_mtp == mtp
+    assert len(inspections) == 2
+
+
+@pytest.mark.parametrize("model_type", [exporter.TARGET_MODEL_TYPE, exporter.MTP_MODEL_TYPE])
+@pytest.mark.parametrize("change", ["missing", "duplicate"])
+def test_official_sections_fail_closed_when_missing_or_ambiguous(monkeypatch, model_type, change):
+    package, target, mtp = _package_sections()
+    section = target if model_type == exporter.TARGET_MODEL_TYPE else mtp
+    if change == "missing":
+        package["sections"].remove(section)
+    else:
+        package["sections"].append(copy.deepcopy(section))
+    monkeypatch.setattr(exporter, "inspect_litertlm", lambda *_args, **_kwargs: package)
+    with pytest.raises(exporter.RetainedScaleExportError, match="official target/MTP sections"):
+        exporter._inspect_official_model_sections(Path("unused"), target)
+
+
+@pytest.mark.parametrize("change", ["package", "range", "metadata"])
+def test_official_sections_require_exact_inventory_target_identity(monkeypatch, change):
+    package, target, _ = _package_sections()
+    section = copy.deepcopy(target)
+    if change == "package":
+        section = package
+    elif change == "range":
+        section["begin_offset"] += 1
+    else:
+        section["items"][0]["value"] = exporter.MTP_MODEL_TYPE
+    monkeypatch.setattr(exporter, "inspect_litertlm", lambda *_args, **_kwargs: package)
+    with pytest.raises(exporter.RetainedScaleExportError, match="inventory section differs"):
+        exporter._inspect_official_model_sections(Path("unused"), section)
+
+
+def test_official_sections_preserve_canonical_inspection_failure(monkeypatch):
+    def inspect(*_args, **_kwargs):
+        raise exporter.LiteRTLMInspectionError("Invalid section range")
+
+    monkeypatch.setattr(exporter, "inspect_litertlm", inspect)
+    with pytest.raises(exporter.RetainedScaleExportError, match="Invalid section range"):
+        exporter._inspect_official_model_sections(Path("unused"), {})
+
+
+def test_export_plan_uses_full_package_report_not_277_weight_section(tmp_path, monkeypatch):
+    official = tmp_path / "official.litertlm"
+    config = tmp_path / "train.yaml"
+    seed_manifest = tmp_path / "seed.json"
+    qparams_path = tmp_path / "qparams.json"
+    for path in (official, config, seed_manifest, qparams_path):
+        path.write_bytes(b"fixture")
+    zero, merged, adapter = (tmp_path / name for name in ("seed", "merged", "adapter"))
+    for path in (zero, merged, adapter):
+        path.mkdir()
+    (adapter / "adapter_model.safetensors").write_bytes(b"fixture")
+    package, target, mtp = _package_sections()
+    records = [{"ordinal": index} for index in range(277)]
+    mutable, frozen = records[:205], records[205:]
+    qparams = SimpleNamespace(
+        path=qparams_path, contract_sha256="q" * 64,
+        storage_path=tmp_path / "scales.safetensors", scale_storage_sha256="s" * 64,
+        report={"verified": True}, summary=lambda: {"verified": True},
+    )
+    monkeypatch.setattr(exporter, "_sha256_file", lambda *_a, **_k: exporter.OFFICIAL_LITERTLM_SHA256)
+    monkeypatch.setattr(exporter, "_config_report", lambda *_a, **_k: (
+        {"verified": True, "path": str(config), "sha256": "c" * 64}, {"model": {}}
+    ))
+    monkeypatch.setattr(exporter, "verify_configured_mobile_training_seed", lambda *_a, **_k: {
+        "verified": True, "output": {"directory": str(zero)},
+    })
+    monkeypatch.setattr(exporter, "MobileQParams", lambda *_a, **_k: qparams)
+    monkeypatch.setattr(exporter, "_extract_inventory", lambda *_a, **_k: (target, records))
+
+    def inspect(path, *, inspect_tflite):
+        assert path == official and inspect_tflite is False
+        return copy.deepcopy(package)
+
+    monkeypatch.setattr(exporter, "inspect_litertlm", inspect)
+
+    def scope(actual_records, actual_qparams):
+        assert actual_records is records and actual_qparams is qparams
+        assert len(actual_records) == 277
+        return {"verified": True}, mutable, frozen
+
+    monkeypatch.setattr(exporter, "_scope_report", scope)
+    monkeypatch.setattr(exporter, "SafetensorCheckpoint", lambda path: SimpleNamespace(path=path))
+    monkeypatch.setattr(exporter, "_checkpoint_mapping_report", lambda *_a, **_k: ({"verified": True}, {}))
+    monkeypatch.setattr(exporter, "_adapter_mapping_report", lambda *_a, **_k: ({"verified": True}, {}, 1.0))
+    selection = {"verified": True, "selected": {"metric": "unique_source_generation_reward_v5_4_avg"}}
+    adapter_files = [{"path": "adapter_model.safetensors", "size": 7, "sha256": "a" * 64}]
+    monkeypatch.setattr(exporter, "_best_adapter_provenance_report", lambda *_a, **_k: {
+        "verified": True, "adapter_files": adapter_files, "golden_selection": selection,
+    })
+    monkeypatch.setattr(exporter, "_merge_provenance_report", lambda *_a, **_k: {
+        "verified": True,
+        "metadata": {"adapter_files": adapter_files, "training_run_metadata": {"golden_selection": selection}},
+    })
+    output = tmp_path / "export"
+    plan, context = exporter._build_plan(
+        official_litertlm=official, official_artifact_sha256=exporter.OFFICIAL_LITERTLM_SHA256,
+        checkpoint=merged, adapter_checkpoint=adapter, training_config=config,
+        mobile_training_seed_manifest=seed_manifest, mobile_qparams_contract=qparams_path,
+        zero_adapter_checkpoint=zero, output_dir=output, output_litertlm=None, report=None,
+    )
+
+    assert plan["plan_passed"] is True
+    assert plan["executed"] is False
+    assert plan["passed"] is False  # A plan is not an executed export gate.
+    assert plan["checks"]["target_and_mtp_sections_present"] is True
+    assert plan["target_section"] == target and plan["mtp_section"] == mtp
+    assert context["package"] == package
+    assert context["records"] is records
+    assert not output.exists()
 
 
 @pytest.mark.parametrize(
