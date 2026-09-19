@@ -5,8 +5,9 @@ This exporter is intentionally separate from ``build_checkpoint_official_topolog
 The legacy exporter invokes the public AI Edge converter and replaces all 277 target
 constants plus their scales.  That is incompatible with retained-scale mobile QAT.
 
-This path accepts only a provenance-bound, callback-selected Golden-100 adapter and
-its merged floating checkpoint.  It re-encodes exactly the 205 trained projection
+This path accepts only a provenance-bound, callback-selected Golden adapter and
+its merged floating checkpoint (including pinned Golden32's unique-source selector
+and ordinary unique Golden100). It re-encodes exactly the 205 trained projection
 matrices with the immutable published per-row scales, patches only their existing
 LiteRT code buffers, and proves that restoring those 205 payloads recovers the
 complete official target section byte-for-byte.  The 72 frozen target constants,
@@ -67,6 +68,10 @@ from build_random_official_topology_parity import (
 )
 from ir_training.common.config import load_yaml, resolve_path
 from ir_training.export.litertlm_inspector import inspect_litertlm
+from ir_training.export.merge_lora import (
+    _checkpoint_manifest_matches_adapter,
+    _golden_selection_binding,
+)
 from ir_training.qat.fake_quant import QATSpec
 from ir_training.qat.mobile_qparams import MobileQParams
 from ir_training.qat.mobile_training_seed import (
@@ -747,13 +752,19 @@ def _best_adapter_provenance_report(
         if isinstance(metadata.get("best_golden_eval"), dict)
         else {}
     )
+    config = load_yaml(training_config)
+    golden_selection = _golden_selection_binding(metadata, config)
     actual_adapter_files = _adapter_file_records(adapter_checkpoint)
     manifests = metadata.get("adapter_checkpoints")
     manifests = manifests if isinstance(manifests, list) else []
     adapter_hash_match = any(
         isinstance(item, dict)
         and item.get("role") == "best_golden"
-        and _normalized_file_records(item.get("files")) == actual_adapter_files
+        and _checkpoint_manifest_matches_adapter(
+            item.get("files"),
+            adapter_path=adapter_checkpoint,
+            actual_adapter_files=actual_adapter_files,
+        )
         for item in manifests
     )
     seed_metadata = (
@@ -766,9 +777,8 @@ def _best_adapter_provenance_report(
         "metadata_v4_or_newer": int(metadata.get("training_metadata_version", 0) or 0)
         >= 4,
         "checkpoint_role_best_golden": metadata.get("checkpoint_role") == "best_golden",
-        "best_golden_v5_4_selected": golden.get("metric")
-        == "generation_reward_v5_4_avg"
-        and math.isfinite(float(golden.get("metric_value", float("nan")))),
+        "best_golden_v5_4_selected": golden_selection["verified"],
+        "golden_selection_binding_matches": golden_selection["verified"],
         "adapter_hashes_self_bound": bool(actual_adapter_files and adapter_hash_match),
         "training_config_hash_matches": str(
             metadata.get("training_config_sha256") or ""
@@ -817,8 +827,55 @@ def _best_adapter_provenance_report(
         "verified": all(checks.values()),
         "adapter_files": actual_adapter_files,
         "golden": golden,
+        "golden_selection": golden_selection,
         "bound_key_sha256": _json_sha256(sorted(bound_keys)),
     }
+
+
+def _merged_golden_selection_matches(
+    merge_provenance: dict[str, Any], adapter_selection: Any
+) -> bool:
+    """Require exact new binding, with a narrow verified Golden100 fallback.
+
+    Historical ordinary-Golden100 merge manifests predate the embedded
+    ``golden_selection`` report. They remain acceptable only because the merge
+    already binds the same adapter bytes and training-config hash and carries a
+    fully verified training-run provenance report. Repeated Golden32 has no
+    legacy fallback: its unique-source metric/cohort binding must match exactly.
+    """
+
+    if not isinstance(adapter_selection, dict):
+        return False
+    merge_metadata = (
+        merge_provenance.get("metadata")
+        if isinstance(merge_provenance.get("metadata"), dict)
+        else {}
+    )
+    run_metadata = (
+        merge_metadata.get("training_run_metadata")
+        if isinstance(merge_metadata.get("training_run_metadata"), dict)
+        else {}
+    )
+    merged_selection = run_metadata.get("golden_selection")
+    if isinstance(merged_selection, dict):
+        return merged_selection == adapter_selection
+    selected = (
+        adapter_selection.get("selected")
+        if isinstance(adapter_selection.get("selected"), dict)
+        else {}
+    )
+    checks = (
+        run_metadata.get("checks")
+        if isinstance(run_metadata.get("checks"), dict)
+        else {}
+    )
+    return bool(
+        selected.get("metric") == "generation_reward_v5_4_avg"
+        and adapter_selection.get("verified") is True
+        and run_metadata.get("verified") is True
+        and checks.get("best_golden_v5_4_selected") is True
+        and checks.get("portable_launcher_artifacts_bound") is True
+    )
 
 
 def _config_report(
@@ -1842,6 +1899,15 @@ def _build_plan(
         raise RetainedScaleExportError(
             "Merged checkpoint was not produced from the supplied best-Golden adapter bytes."
         )
+    adapter_selection = adapter_provenance.get("golden_selection")
+    selection_matches = _merged_golden_selection_matches(
+        merge_provenance, adapter_selection
+    )
+    if not selection_matches:
+        raise RetainedScaleExportError(
+            "Merged checkpoint and supplied adapter do not bind the same Golden "
+            "selection metric, config, and cohort."
+        )
 
     target_section = _section_by_model_type(package, TARGET_MODEL_TYPE)
     mtp_section = _section_by_model_type(package, MTP_MODEL_TYPE)
@@ -1858,6 +1924,7 @@ def _build_plan(
         "best_golden_adapter_provenance": adapter_provenance["verified"],
         "merged_checkpoint_provenance": merge_provenance["verified"],
         "merged_adapter_bytes_match": merged_adapter_files == adapter_files,
+        "merged_golden_selection_matches": selection_matches,
         "target_and_mtp_sections_present": bool(target_section and mtp_section),
         "output_paths_new_and_not_official": not collisions
         and output_path != official_path,

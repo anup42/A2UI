@@ -10,6 +10,9 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
+
+import build_gemma4_retained_scale_litertlm as retained_exporter
 
 from ir_training.common.config import load_yaml
 from ir_training.eval.mtp_benchmark import build_mtp_benchmark_plan
@@ -545,6 +548,71 @@ def test_retained_mobile_merge_requires_full_best_golden_provenance(tmp_path):
 
     assert report["verified"] is True
     assert all(report["checks"].values())
+
+
+def test_merge_and_export_reports_share_exact_golden_selection_shape(tmp_path):
+    adapter_dir, config, qparams, _ = _write_retained_mobile_metadata_fixture(
+        tmp_path
+    )
+    config_path = tmp_path / "resolved_training_config.yaml"
+    config_path.write_text(
+        "qat:\n"
+        "  scale_mode: retained_mobile\n"
+        "  expected_effective_lora_modules: 205\n"
+        "preflight:\n"
+        "  min_top1_probe_match: 0.90\n"
+        "  min_baseline_qat_greedy_prefix_tokens: 8\n"
+        "golden_eval:\n"
+        "  metric_for_best_model: generation_reward_v5_4_avg\n",
+        encoding="utf-8",
+    )
+    config_sha256 = hashlib.sha256(config_path.read_bytes()).hexdigest()
+
+    metadata_path = adapter_dir / "training_metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    launch_path = Path(metadata["launcher_provenance"]["launch_plan"]["path"])
+    launch_plan = json.loads(launch_path.read_text(encoding="utf-8"))
+    launch_plan["bound_artifacts"]["resolved_training_config"] = {
+        "sha256": config_sha256,
+        "size_bytes": config_path.stat().st_size,
+    }
+    launch_path.write_text(json.dumps(launch_plan), encoding="utf-8")
+    metadata["training_config_sha256"] = config_sha256
+    metadata["launcher_provenance"]["launch_plan"] = _identity(launch_path)
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+
+    merge_report = _verify_qat_training_metadata(
+        adapter_dir,
+        training_config_sha256=config_sha256,
+        training_method="qat_lora_sft",
+        mobile_training_seed={"required": False},
+        training_config=config,
+        mobile_qparams=qparams,
+    )
+
+    class FixtureQParams:
+        contract_sha256 = qparams["contract_sha256"]
+        scale_storage_sha256 = qparams["scale_storage_sha256"]
+
+        def trainable_projection_weight_keys(self):
+            return tuple(sorted(qparams["inventory"]))
+
+    export_report = retained_exporter._best_adapter_provenance_report(
+        adapter_dir,
+        config_path,
+        qparams=FixtureQParams(),
+        seed_report={},
+    )
+    merge_provenance = {
+        "metadata": {"training_run_metadata": merge_report}
+    }
+
+    assert merge_report["verified"] is True
+    assert merge_report["golden_selection"] == export_report["golden_selection"]
+    assert "launcher" in merge_report["golden_selection"]
+    assert retained_exporter._merged_golden_selection_matches(
+        merge_provenance, export_report["golden_selection"]
+    )
 
 
 def test_retained_mobile_merge_rejects_partial_204_projection_metadata(tmp_path):

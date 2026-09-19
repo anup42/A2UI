@@ -9,8 +9,8 @@ from typing import Any
 
 from ir_training.common.config import resolve_path, training_root
 from ir_training.models.hf_loading import load_hf_model
-from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
 from ir_training.qat.mobile_qparams import verify_mobile_qparams_contract
+from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
 
 
 _RETAINED_MOBILE_PROJECTION_COUNT = 205
@@ -21,6 +21,19 @@ _REQUIRED_PORTABLE_PREFLIGHTS = {
     "scale_preserving_qat",
     "model_numeric_preflight",
 }
+_ORDINARY_GOLDEN_METRIC = "generation_reward_v5_4_avg"
+_REPEATED_GOLDEN_METRIC = "unique_source_generation_reward_v5_4_avg"
+_GOLDEN_BINDING_FIELDS = (
+    "dataset_dir",
+    "split",
+    "split_path",
+    "max_rows",
+    "required_rows",
+    "require_exact_rows",
+    "require_unique_rows",
+    "metric_version",
+    "metric_for_best_model",
+)
 
 
 def _sha256_file(path: Path) -> str:
@@ -109,6 +122,90 @@ def _load_bound_json(identity: Any) -> dict[str, Any] | None:
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
         return None
     return payload if isinstance(payload, dict) else None
+
+
+def _expected_golden_metric(benchmark_kind: Any) -> str | None:
+    normalized = str(benchmark_kind or "ordinary_unique")
+    if normalized == "explicit_repeated_case":
+        return _REPEATED_GOLDEN_METRIC
+    if normalized == "ordinary_unique":
+        return _ORDINARY_GOLDEN_METRIC
+    return None
+
+
+def _golden_selection_binding(
+    metadata: dict[str, Any], training_config: dict[str, Any]
+) -> dict[str, Any]:
+    """Bind the selected score to the exact saved cohort configuration."""
+
+    configured = (
+        training_config.get("golden_eval")
+        if isinstance(training_config.get("golden_eval"), dict)
+        else {}
+    )
+    saved = (
+        metadata.get("golden_eval")
+        if isinstance(metadata.get("golden_eval"), dict)
+        else {}
+    )
+    best = (
+        metadata.get("best_golden_eval")
+        if isinstance(metadata.get("best_golden_eval"), dict)
+        else {}
+    )
+    configured_binding = {key: configured.get(key) for key in _GOLDEN_BINDING_FIELDS}
+    saved_binding = {key: saved.get(key) for key in _GOLDEN_BINDING_FIELDS}
+    metric = str(configured.get("metric_for_best_model") or "")
+    legacy_golden100_binding = bool(
+        metric == _ORDINARY_GOLDEN_METRIC
+        and not saved
+        and all(
+            configured_binding[key] is None
+            for key in _GOLDEN_BINDING_FIELDS
+            if key != "metric_for_best_model"
+        )
+    )
+    try:
+        metric_value = float(best.get("metric_value"))
+    except (TypeError, ValueError):
+        metric_value = math.nan
+    try:
+        step_matches = int(best.get("step", -1)) == int(
+            metadata.get("checkpoint_step", -2)
+        )
+    except (TypeError, ValueError):
+        step_matches = False
+    checks = {
+        "configured_metric_supported": metric
+        in {_ORDINARY_GOLDEN_METRIC, _REPEATED_GOLDEN_METRIC},
+        "saved_config_binding_matches": configured_binding == saved_binding
+        or legacy_golden100_binding,
+        "selected_metric_matches_config": best.get("metric") == metric,
+        "selected_metric_finite": math.isfinite(metric_value),
+        "selected_step_matches_checkpoint": step_matches,
+    }
+    return {
+        "configured": configured_binding,
+        "saved": saved_binding,
+        "selected": {
+            "metric": best.get("metric"),
+            "metric_value": metric_value if math.isfinite(metric_value) else None,
+            "step": best.get("step"),
+        },
+        "checks": checks,
+        "legacy_golden100_binding": legacy_golden100_binding,
+        "launcher": _portable_launcher_selection_contract(metadata),
+        "verified": all(checks.values()),
+    }
+
+
+def _portable_launcher_selection_contract(metadata: dict[str, Any]) -> dict[str, Any] | None:
+    launcher = metadata.get("launcher_provenance")
+    if not isinstance(launcher, dict):
+        return None
+    launch_plan = _load_bound_json(launcher.get("launch_plan"))
+    selection = launch_plan.get("golden_eval_contract") if launch_plan else None
+    return selection if isinstance(selection, dict) else None
 
 
 def _retained_projection_keys(qparams: dict[str, Any]) -> set[str]:
@@ -213,7 +310,7 @@ def _portable_launcher_contract_matches(
     except (TypeError, ValueError):
         config_hash_matches = False
     # New launch plans bind an explicitly sized, exact Golden contract under
-    # ``golden_eval``.  Keep accepting ``golden100`` so already trained,
+    # ``golden_eval``. Keep accepting ``golden100`` so already trained,
     # provenance-bound checkpoints remain mergeable.
     golden_role = (
         "golden_eval"
@@ -248,6 +345,13 @@ def _portable_launcher_contract_matches(
         and launch_golden_contract.get("dataset_config_bound") is True
     ):
         required_bound.add("golden_dataset_config")
+    if (
+        golden_role == "golden_eval"
+        and isinstance(launch_golden_contract, dict)
+        and launch_golden_contract.get("benchmark_kind")
+        == "explicit_repeated_case"
+    ):
+        required_bound.add("golden_benchmark_evidence")
 
     def bound_identity_complete(role: str) -> bool:
         identity = bound.get(role)
@@ -283,12 +387,19 @@ def _portable_launcher_contract_matches(
     if golden_role == "golden_eval":
         golden_contract = launch_golden_contract
         configured_golden = metadata.get("golden_eval")
+        selected_golden = metadata.get("best_golden_eval")
         if not isinstance(golden_contract, dict):
             golden_contract = {}
         if not isinstance(configured_golden, dict):
             configured_golden = {}
+        if not isinstance(selected_golden, dict):
+            selected_golden = {}
         required_rows = golden_contract.get("required_rows")
         bound_golden = bound.get(golden_role)
+        benchmark_kind = golden_contract.get("benchmark_kind", "ordinary_unique")
+        expected_metric = _expected_golden_metric(benchmark_kind)
+        repeated = benchmark_kind == "explicit_repeated_case"
+        bound_benchmark = bound.get("golden_benchmark_evidence")
         expected_source_sha256 = str(
             golden_contract.get("source_genui_sha256") or ""
         ).strip().lower()
@@ -319,19 +430,38 @@ def _portable_launcher_contract_matches(
             type(required_rows) is int
             and required_rows > 0
             and golden_contract.get("artifact_role") == golden_role
+            and golden_contract.get("selection_role")
+            in {None, "development_checkpoint_selection"}
             and golden_contract.get("max_rows") == required_rows
             and golden_contract.get("require_exact_rows") is True
             and golden_contract.get("require_unique_rows") is True
             and golden_contract.get("metric_for_best_model")
-            == "generation_reward_v5_4_avg"
+            == expected_metric
             and configured_golden.get("required_rows") == required_rows
             and configured_golden.get("max_rows") == required_rows
             and configured_golden.get("require_exact_rows") is True
             and configured_golden.get("require_unique_rows") is True
             and configured_golden.get("metric_for_best_model")
-            == "generation_reward_v5_4_avg"
+            == expected_metric
+            and selected_golden.get("metric") == expected_metric
             and isinstance(bound_golden, dict)
             and len(str(bound_golden.get("sha256") or "")) == 64
+            and (
+                not str(golden_contract.get("split_sha256") or "")
+                or str(bound_golden.get("sha256") or "").lower()
+                == str(golden_contract.get("split_sha256") or "").lower()
+            )
+            and (
+                not repeated
+                or (
+                    isinstance(bound_benchmark, dict)
+                    and str(bound_benchmark.get("sha256") or "").lower()
+                    == str(
+                        golden_contract.get("benchmark_evidence_sha256") or ""
+                    ).lower()
+                    and len(str(bound_benchmark.get("sha256") or "")) == 64
+                )
+            )
             and source_contract_ok
         )
     return bool(
@@ -402,6 +532,7 @@ def _verify_qat_training_metadata(
                 "retained_metadata_v4": False,
                 "best_golden_checkpoint_role": False,
                 "best_golden_v5_4_selected": False,
+                "golden_selection_binding_matches": False,
                 "retained_mobile_qat_spec": False,
                 "exact_205_effective_lora_modules": False,
                 "exact_205_retained_qparams_bindings": False,
@@ -522,12 +653,10 @@ def _verify_qat_training_metadata(
     if retained_required:
         config_qat = training_config.get("qat", {})  # type: ignore[union-attr]
         config_preflight = training_config.get("preflight", {})  # type: ignore[union-attr]
-        config_golden = training_config.get("golden_eval", {})  # type: ignore[union-attr]
         config_qat = config_qat if isinstance(config_qat, dict) else {}
         config_preflight = (
             config_preflight if isinstance(config_preflight, dict) else {}
         )
-        config_golden = config_golden if isinstance(config_golden, dict) else {}
         retained = (
             qat.get("retained_qparams")
             if isinstance(qat.get("retained_qparams"), dict)
@@ -548,11 +677,7 @@ def _verify_qat_training_metadata(
             if isinstance(numeric.get("greedy_generation"), dict)
             else {}
         )
-        golden = (
-            metadata.get("best_golden_eval")
-            if isinstance(metadata.get("best_golden_eval"), dict)
-            else {}
-        )
+        golden_selection = _golden_selection_binding(metadata, training_config)
         expected_count = int(
             config_qat.get(
                 "expected_effective_lora_modules",
@@ -578,23 +703,8 @@ def _verify_qat_training_metadata(
                 for checkpoint in metadata["adapter_checkpoints"]
             )
         )
-        try:
-            golden_metric_value = float(golden.get("metric_value"))
-        except (TypeError, ValueError):
-            golden_metric_value = math.nan
-        try:
-            golden_step_matches = int(golden.get("step", -1)) == int(
-                metadata.get("checkpoint_step", -2)
-            )
-        except (TypeError, ValueError):
-            golden_step_matches = False
-        checks["best_golden_v5_4_selected"] = bool(
-            golden.get("metric") == "generation_reward_v5_4_avg"
-            and config_golden.get("metric_for_best_model")
-            == "generation_reward_v5_4_avg"
-            and math.isfinite(golden_metric_value)
-            and golden_step_matches
-        )
+        checks["best_golden_v5_4_selected"] = golden_selection["verified"]
+        checks["golden_selection_binding_matches"] = golden_selection["verified"]
         checks["retained_mobile_qat_spec"] = bool(
             qat_spec.get("scale_mode") == "retained_mobile"
             and qat_spec.get("fixed_scale_required") is True
@@ -666,6 +776,7 @@ def _verify_qat_training_metadata(
                 metadata, training_config_sha256=training_config_sha256
             )
         )
+        report["golden_selection"] = golden_selection
     report["training_git_commit"] = git_commit or None
     report["adapter_files"] = actual_files
     report["verified"] = bool(all(checks.values()))

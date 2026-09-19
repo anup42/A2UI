@@ -415,7 +415,11 @@ def test_portable_launcher_leakage_uses_response_content_not_run_local_ids(
         "golden_eval": {
             "dataset_dir": str(golden),
             "split": "all",
+            "max_rows": 1,
             "required_rows": 1,
+            "require_exact_rows": True,
+            "require_unique_rows": True,
+            "metric_for_best_model": "generation_reward_v5_4_avg",
         },
     }
 
@@ -507,6 +511,11 @@ def test_merge_provenance_accepts_new_exact_golden_role_and_rejects_weakening(
     )
     metadata = {
         "run_id": "new-golden-contract",
+        "best_golden_eval": {
+            "metric": "generation_reward_v5_4_avg",
+            "metric_value": 1.0,
+            "step": 500,
+        },
         "golden_eval": {
             "required_rows": 32,
             "max_rows": 32,
@@ -524,6 +533,41 @@ def test_merge_provenance_accepts_new_exact_golden_role_and_rejects_weakening(
         metadata, training_config_sha256=config_sha
     )
     metadata["golden_eval"]["require_exact_rows"] = False
+    assert not _portable_launcher_contract_matches(
+        metadata, training_config_sha256=config_sha
+    )
+
+    benchmark = tmp_path / "golden32_benchmark.json"
+    benchmark.write_text('{"benchmark_kind":"explicit_repeated_case"}')
+    bound["golden_benchmark_evidence"] = _identity(benchmark)
+    launch_plan["golden_eval_contract"].update(
+        benchmark_kind="explicit_repeated_case",
+        selection_role="development_checkpoint_selection",
+        metric_for_best_model="unique_source_generation_reward_v5_4_avg",
+        benchmark_evidence_sha256=bound["golden_benchmark_evidence"]["sha256"],
+    )
+    launch_path.write_text(json.dumps(launch_plan))
+    metadata["launcher_provenance"]["launch_plan"] = {
+        "present": True,
+        **_identity(launch_path),
+    }
+    metadata["golden_eval"].update(
+        require_exact_rows=True,
+        metric_for_best_model="unique_source_generation_reward_v5_4_avg",
+    )
+    metadata["best_golden_eval"]["metric"] = (
+        "unique_source_generation_reward_v5_4_avg"
+    )
+    assert _portable_launcher_contract_matches(
+        metadata, training_config_sha256=config_sha
+    )
+
+    del launch_plan["bound_artifacts"]["golden_benchmark_evidence"]
+    launch_path.write_text(json.dumps(launch_plan))
+    metadata["launcher_provenance"]["launch_plan"] = {
+        "present": True,
+        **_identity(launch_path),
+    }
     assert not _portable_launcher_contract_matches(
         metadata, training_config_sha256=config_sha
     )

@@ -26,6 +26,10 @@ REPO_ROOT = ROOT.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.common.config import load_yaml, resolve_path  # noqa: E402
+from ir_training.eval.golden_set import (  # noqa: E402
+    benchmark_contract_for_split,
+    load_fixed_golden_rows,
+)
 from ir_training.eval.tensorboard_logging import (  # noqa: E402
     TENSORBOARD_ROOT_ENV,
     resolve_tensorboard_root,
@@ -42,6 +46,8 @@ ARCHITECTURE_VALIDATOR = ROOT / "scripts" / "validate_gemma4_mobile_seed_archite
 STATIC_QAT_VALIDATOR = ROOT / "scripts" / "validate_qat_training.py"
 TRAIN_ENTRYPOINT = ROOT / "scripts" / "train_sft.py"
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")
+ORDINARY_GOLDEN_METRIC = "generation_reward_v5_4_avg"
+REPEATED_GOLDEN_METRIC = "unique_source_generation_reward_v5_4_avg"
 
 
 class PortableTrainingLaunchError(RuntimeError):
@@ -112,6 +118,96 @@ def _configured_golden_source_file(
 
 def _configured_golden_source(golden: dict[str, Any]) -> Path | None:
     return _configured_golden_source_file(golden, "genui.jsonl")
+
+
+def _configured_golden_split(golden: dict[str, Any]) -> Path:
+    split_path = golden.get("split_path")
+    if split_path is not None and str(split_path).strip():
+        return _resolve_training_path(split_path)
+    dataset_dir = _resolve_training_path(golden.get("dataset_dir", ""))
+    split_name = str(golden.get("split", "all")).strip() or "all"
+    return dataset_dir / f"{split_name}.jsonl"
+
+
+def _benchmark_evidence_path(split: Path, benchmark: dict[str, Any] | None) -> Path | None:
+    if benchmark is None:
+        return None
+    sidecar = split.parent / "benchmark_manifest.json"
+    if sidecar.is_file():
+        return sidecar
+    prepared = split.parent / "manifest.json"
+    if prepared.is_file():
+        return prepared
+    return None
+
+
+def _validated_golden_selection(
+    golden: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Validate the exact selection cohort and derive its only valid metric.
+
+    ``load_fixed_golden_rows`` keeps ordinary cohorts unique and accepts a
+    repeated occurrence only after ``benchmark_contract_for_split`` validates
+    the pinned explicit-repeated-case manifest.  There is no general duplicate
+    bypass here.
+    """
+
+    required_rows = golden.get("required_rows")
+    max_rows = golden.get("max_rows")
+    if type(required_rows) is not int or required_rows < 1:
+        raise ValueError("golden_eval.required_rows must be a positive integer")
+    if max_rows != required_rows:
+        raise ValueError("golden_eval.max_rows must equal required_rows")
+    if golden.get("require_exact_rows") is not True:
+        raise ValueError("golden_eval.require_exact_rows must remain true")
+    if golden.get("require_unique_rows") is not True:
+        raise ValueError("golden_eval.require_unique_rows must remain true")
+    split = _configured_golden_split(golden)
+    rows = load_fixed_golden_rows(
+        split,
+        max_rows=required_rows,
+        required_rows=required_rows,
+        require_exact_rows=True,
+        require_unique_rows=True,
+    )
+    benchmark = benchmark_contract_for_split(split, rows)
+    benchmark_kind = (benchmark or {}).get("benchmark_kind")
+    if benchmark_kind not in {None, "explicit_repeated_case"}:
+        raise ValueError(
+            "Mobile checkpoint selection supports an ordinary unique cohort or "
+            "a pinned explicit_repeated_case cohort only"
+        )
+    expected_metric = (
+        REPEATED_GOLDEN_METRIC
+        if benchmark_kind == "explicit_repeated_case"
+        else ORDINARY_GOLDEN_METRIC
+    )
+    evidence = _benchmark_evidence_path(split, benchmark)
+    if benchmark_kind == "explicit_repeated_case" and evidence is None:
+        raise ValueError("Repeated Golden selection is missing bound benchmark evidence")
+    contract = {
+        "artifact_role": "golden_eval",
+        "selection_role": "development_checkpoint_selection",
+        "split": str(golden.get("split", "all")).strip() or "all",
+        "split_path": str(split.resolve()),
+        "split_sha256": _sha256_file(split),
+        "required_rows": required_rows,
+        "max_rows": max_rows,
+        "require_exact_rows": True,
+        "require_unique_rows": True,
+        "benchmark_kind": benchmark_kind or "ordinary_unique",
+        "benchmark_id": (benchmark or {}).get("benchmark_id"),
+        "unique_source_count": (
+            int(benchmark.get("unique_source_count"))
+            if isinstance(benchmark, dict)
+            and type(benchmark.get("unique_source_count")) is int
+            else len(rows)
+        ),
+        "metric_for_best_model": expected_metric,
+        "benchmark_evidence_path": str(evidence.resolve()) if evidence else None,
+        "benchmark_evidence_sha256": _sha256_file(evidence) if evidence else None,
+    }
+    return contract, rows
 
 
 def _resolve_packed_source(
@@ -422,6 +518,18 @@ def _validate_launch_contract(
         "Golden evaluation must declare a positive exact row count, select all "
         "of those rows, and require unique held-out identities.",
     )
+    golden_selection: dict[str, Any] | None = None
+    golden_selection_error: str | None = None
+    try:
+        golden_selection, _ = _validated_golden_selection(golden)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as exc:
+        golden_selection_error = str(exc)
+    require(
+        "invalid_golden_selection_contract",
+        golden_selection is not None,
+        "Golden checkpoint-selection cohort validation failed: "
+        + (golden_selection_error or "unknown error"),
+    )
     golden_dataset_configured = bool(
         str(golden.get("dataset_config") or "").strip()
     )
@@ -443,9 +551,12 @@ def _validate_launch_contract(
     )
     require(
         "wrong_best_metric",
-        str(golden.get("metric_for_best_model") or "")
-        == "generation_reward_v5_4_avg",
-        "Best-checkpoint selection must use generation_reward_v5_4_avg.",
+        golden_selection is not None
+        and str(golden.get("metric_for_best_model") or "")
+        == golden_selection["metric_for_best_model"],
+        "Best-checkpoint selection must use the metric required by the validated "
+        "cohort: ordinary unique cohorts use generation_reward_v5_4_avg; pinned "
+        "explicit repeated cohorts use unique_source_generation_reward_v5_4_avg.",
     )
     require(
         "invalid_golden_eval_interval",
@@ -541,7 +652,6 @@ def _artifact_contract_issues(config: dict[str, Any]) -> list[dict[str, Any]]:
     )
     qparams = _resolve_training_path(model.get("mobile_qparams_contract", ""))
     dataset_dir = _resolve_training_path(run.get("dataset_dir", ""))
-    golden_dir = _resolve_training_path(golden.get("dataset_dir", ""))
 
     if not model_source.is_dir():
         missing(
@@ -586,7 +696,7 @@ def _artifact_contract_issues(config: dict[str, Any]) -> list[dict[str, Any]]:
             "Prepared train and validation splits share normalized response content.",
         )
 
-    golden_path = golden_dir / f"{str(golden.get('split', 'all')).strip() or 'all'}.jsonl"
+    golden_path = _configured_golden_split(golden)
     golden_source = _configured_golden_source(golden)
     golden_responses = _configured_golden_source_file(golden, "responses.jsonl")
     configured_source_sha256 = str(
@@ -632,35 +742,19 @@ def _artifact_contract_issues(config: dict[str, Any]) -> list[dict[str, Any]]:
                 "golden_responses_identity_mismatch",
                 f"Golden responses SHA-256 does not match {golden_responses}.",
             )
-    required_rows = golden.get("required_rows")
-    required_rows = required_rows if type(required_rows) is int else 0
-    if not golden_path.is_file():
-        missing(
-            "golden_eval_missing",
-            f"Immutable Golden evaluation split is missing: {golden_path}",
-        )
-        return issues
     try:
-        identities = _jsonl_identities(golden_path)
+        selection, _ = _validated_golden_selection(golden)
         response_signatures = _jsonl_response_signatures(golden_path)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
         missing(
-            "golden_eval_unreadable",
-            f"Could not validate Golden evaluation split {golden_path}: {exc}",
+            "golden_eval_contract_invalid",
+            f"Could not validate Golden selection split {golden_path}: {exc}",
         )
         return issues
-    if required_rows <= 0 or len(identities) != required_rows:
-        missing(
-            "golden_eval_wrong_count",
-            "Golden split must contain exactly the configured positive "
-            f"required_rows={required_rows}; observed {len(identities)}.",
-        )
-    if len(set(identities)) != len(identities):
-        missing(
-            "golden_eval_duplicate_identity",
-            "Golden split contains duplicate source/response/row identities.",
-        )
-    if len(set(response_signatures)) != len(response_signatures):
+    if (
+        selection["benchmark_kind"] != "explicit_repeated_case"
+        and len(set(response_signatures)) != len(response_signatures)
+    ):
         missing(
             "golden_eval_duplicate_response_content",
             "Golden split contains duplicate normalized response content.",
@@ -753,8 +847,7 @@ def _bound_artifacts(
     run = _section(config, "run")
     golden = _section(config, "golden_eval")
     dataset_dir = _resolve_training_path(run.get("dataset_dir", ""))
-    golden_dir = _resolve_training_path(golden.get("dataset_dir", ""))
-    golden_name = f"{str(golden.get('split', 'all')).strip() or 'all'}.jsonl"
+    golden_path = _configured_golden_split(golden)
     candidates = {
         "mobile_seed_manifest": _resolve_training_path(
             model.get("mobile_training_seed_manifest", "")
@@ -764,7 +857,7 @@ def _bound_artifacts(
         ),
         "training_train": dataset_dir / "train.jsonl",
         "training_val": dataset_dir / "val.jsonl",
-        "golden_eval": golden_dir / golden_name,
+        "golden_eval": golden_path,
     }
     if str(golden.get("dataset_config") or "").strip():
         candidates["golden_dataset_config"] = _resolve_training_path(
@@ -776,6 +869,13 @@ def _bound_artifacts(
     golden_responses = _configured_golden_source_file(golden, "responses.jsonl")
     if golden_responses is not None:
         candidates["golden_source_responses"] = golden_responses
+    try:
+        selection, _ = _validated_golden_selection(golden)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+        selection = {}
+    evidence = selection.get("benchmark_evidence_path")
+    if evidence:
+        candidates["golden_benchmark_evidence"] = Path(str(evidence))
     result: dict[str, dict[str, Any]] = {}
     for role, path in candidates.items():
         if path.is_file():
@@ -934,6 +1034,21 @@ def build_launch_plan(
         packed_source_error=packed_source_error,
         packed_source_identity=packed_source_identity,
     )
+    try:
+        golden_selection, _ = _validated_golden_selection(
+            _section(resolved_config, "golden_eval")
+        )
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
+        golden_selection = {
+            "artifact_role": "golden_eval",
+            "selection_role": "development_checkpoint_selection",
+            "split": str(_section(resolved_config, "golden_eval").get("split", "all")),
+            "required_rows": _section(resolved_config, "golden_eval").get("required_rows"),
+            "max_rows": _section(resolved_config, "golden_eval").get("max_rows"),
+            "require_exact_rows": _section(resolved_config, "golden_eval").get("require_exact_rows"),
+            "require_unique_rows": _section(resolved_config, "golden_eval").get("require_unique_rows"),
+            "metric_for_best_model": _section(resolved_config, "golden_eval").get("metric_for_best_model"),
+        }
     preflight_dir = paths["launch_dir"] / "preflight"
     preflights = _preflight_commands(
         resolved_config=paths["resolved_config"],
@@ -994,22 +1109,10 @@ def build_launch_plan(
             packed_source_identity=packed_source_identity,
         ),
         "golden_eval_contract": {
-            "artifact_role": "golden_eval",
+            **golden_selection,
             "dataset_config_bound": bool(
                 str(_section(resolved_config, "golden_eval").get("dataset_config") or "").strip()
             ),
-            "split": str(_section(resolved_config, "golden_eval").get("split", "all")),
-            "required_rows": _section(resolved_config, "golden_eval").get("required_rows"),
-            "max_rows": _section(resolved_config, "golden_eval").get("max_rows"),
-            "require_exact_rows": _section(resolved_config, "golden_eval").get(
-                "require_exact_rows"
-            ),
-            "require_unique_rows": _section(resolved_config, "golden_eval").get(
-                "require_unique_rows"
-            ),
-            "metric_for_best_model": _section(
-                resolved_config, "golden_eval"
-            ).get("metric_for_best_model"),
             "source_genui_sha256": _section(resolved_config, "golden_eval").get(
                 "source_genui_sha256"
             ),

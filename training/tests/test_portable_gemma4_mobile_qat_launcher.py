@@ -158,6 +158,103 @@ def test_plan_is_dry_run_unique_and_uses_torchrun(tmp_path: Path) -> None:
     }
 
 
+def test_pinned_repeated_golden32_uses_unique_source_metric(tmp_path: Path) -> None:
+    import yaml
+
+    source = _source_config(tmp_path)
+    config = launcher.load_yaml(source)
+    golden32 = ROOT / "data/eval/golden32_archive_repeat_v1"
+    config["golden_eval"].update(
+        dataset_dir=str(golden32),
+        split="golden32",
+        split_path=str(golden32 / "golden32.jsonl"),
+        max_rows=32,
+        required_rows=32,
+        metric_for_best_model="unique_source_generation_reward_v5_4_avg",
+        metric_log_prefix="golden32",
+    )
+    source.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+
+    plan, _, _ = launcher.build_launch_plan(
+        source,
+        run_id="pinned_repeated_golden32",
+        runs_root=tmp_path / "runs",
+        num_gpus=1,
+    )
+
+    assert plan["checks"]["contract_ok"] is True
+    contract = plan["golden_eval_contract"]
+    assert contract["benchmark_kind"] == "explicit_repeated_case"
+    assert contract["required_rows"] == 32
+    assert contract["unique_source_count"] == 31
+    assert (
+        contract["metric_for_best_model"]
+        == "unique_source_generation_reward_v5_4_avg"
+    )
+    evidence = plan["bound_artifacts"]["golden_benchmark_evidence"]
+    assert evidence["path"] == str((golden32 / "benchmark_manifest.json").resolve())
+    assert evidence["sha256"] == contract["benchmark_evidence_sha256"]
+
+
+def test_repeated_golden32_rejects_ordinary_mean_metric(tmp_path: Path) -> None:
+    import yaml
+
+    source = _source_config(tmp_path)
+    config = launcher.load_yaml(source)
+    config["golden_eval"].update(
+        dataset_dir=str(ROOT / "data/eval/golden32_archive_repeat_v1"),
+        split="golden32",
+        max_rows=32,
+        required_rows=32,
+        metric_for_best_model="generation_reward_v5_4_avg",
+    )
+    source.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+
+    plan, _, _ = launcher.build_launch_plan(
+        source,
+        run_id="repeated_wrong_metric",
+        runs_root=tmp_path / "runs",
+        num_gpus=1,
+    )
+
+    assert plan["checks"]["contract_ok"] is False
+    assert "wrong_best_metric" in {
+        issue["code"] for issue in plan["checks"]["issues"]
+    }
+
+
+def test_unbound_duplicate_cohort_is_not_a_general_bypass(tmp_path: Path) -> None:
+    import yaml
+
+    source = _source_config(tmp_path)
+    config = launcher.load_yaml(source)
+    golden = tmp_path / "unbound-repeat"
+    golden.mkdir()
+    rows = [{"id": f"case-{index}"} for index in range(31)]
+    rows.append(dict(rows[0]))
+    (golden / "all.jsonl").write_text(
+        "".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8"
+    )
+    config["golden_eval"].update(
+        dataset_dir=str(golden),
+        max_rows=32,
+        required_rows=32,
+        metric_for_best_model="unique_source_generation_reward_v5_4_avg",
+    )
+    source.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+
+    plan, _, _ = launcher.build_launch_plan(
+        source,
+        run_id="unbound_duplicate",
+        runs_root=tmp_path / "runs",
+        num_gpus=1,
+    )
+
+    issue_codes = {issue["code"] for issue in plan["checks"]["issues"]}
+    assert "invalid_golden_selection_contract" in issue_codes
+    assert "golden_eval_contract_invalid" in issue_codes
+
+
 def test_three_step_smoke_config_is_bounded_visible_and_non_promotable(
     tmp_path: Path,
 ) -> None:

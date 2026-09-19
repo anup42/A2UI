@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import sys
@@ -603,8 +604,22 @@ def test_best_adapter_provenance_requires_retained_best_golden_metadata(tmp_path
     adapter.mkdir()
     adapter_file = adapter / "adapter_model.safetensors"
     adapter_file.write_bytes(b"adapter")
+    tokenizer_file = adapter / "tokenizer.json"
+    tokenizer_file.write_text('{"fixture": true}', encoding="utf-8")
     config = tmp_path / "resolved_training_config.yaml"
-    config.write_text("qat: {}\n", encoding="utf-8")
+    config.write_text(
+        "qat: {}\n"
+        "golden_eval:\n"
+        "  dataset_dir: /bound/golden100\n"
+        "  split: all\n"
+        "  max_rows: 100\n"
+        "  required_rows: 100\n"
+        "  require_exact_rows: true\n"
+        "  require_unique_rows: true\n"
+        "  metric_version: dual\n"
+        "  metric_for_best_model: generation_reward_v5_4_avg\n",
+        encoding="utf-8",
+    )
     keys = sorted(_mutable_key_bits())
     bindings = {
         f"module_{index}": {"weight_key": key} for index, key in enumerate(keys)
@@ -614,15 +629,37 @@ def test_best_adapter_provenance_requires_retained_best_golden_metadata(tmp_path
         "size": adapter_file.stat().st_size,
         "sha256": hashlib.sha256(adapter_file.read_bytes()).hexdigest(),
     }
+    tokenizer_record = {
+        "path": tokenizer_file.name,
+        "size": tokenizer_file.stat().st_size,
+        "sha256": hashlib.sha256(tokenizer_file.read_bytes()).hexdigest(),
+    }
     metadata = {
         "training_metadata_version": 4,
         "checkpoint_role": "best_golden",
+        "checkpoint_step": 500,
         "training_config_sha256": hashlib.sha256(config.read_bytes()).hexdigest(),
         "best_golden_eval": {
             "metric": "generation_reward_v5_4_avg",
             "metric_value": 80.0,
+            "step": 500,
         },
-        "adapter_checkpoints": [{"role": "best_golden", "files": [adapter_record]}],
+        "golden_eval": {
+            "dataset_dir": "/bound/golden100",
+            "split": "all",
+            "max_rows": 100,
+            "required_rows": 100,
+            "require_exact_rows": True,
+            "require_unique_rows": True,
+            "metric_version": "dual",
+            "metric_for_best_model": "generation_reward_v5_4_avg",
+        },
+        "adapter_checkpoints": [
+            {
+                "role": "best_golden",
+                "files": [adapter_record, tokenizer_record],
+            }
+        ],
         "numeric_preflight": {
             "passed": True,
             "greedy_generation": {"passed": True},
@@ -664,7 +701,25 @@ def test_best_adapter_provenance_requires_retained_best_golden_metadata(tmp_path
     )
     assert report["verified"] is True
     assert report["checks"]["legacy_metadata_rejected"] is True
+    assert report["checks"]["adapter_hashes_self_bound"] is True
+    assert report["checks"]["golden_selection_binding_matches"] is True
 
+    metadata["best_golden_eval"]["metric"] = (
+        "unique_source_generation_reward_v5_4_avg"
+    )
+    (adapter / "training_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
+    mismatched_selection = exporter._best_adapter_provenance_report(
+        adapter, config, qparams=_MetadataQParams(), seed_report=seed_report
+    )
+    assert mismatched_selection["verified"] is False
+    assert (
+        mismatched_selection["checks"]["golden_selection_binding_matches"]
+        is False
+    )
+
+    metadata["best_golden_eval"]["metric"] = "generation_reward_v5_4_avg"
     metadata["qat"]["spec"]["scale_mode"] = "dynamic"
     (adapter / "training_metadata.json").write_text(
         json.dumps(metadata), encoding="utf-8"
@@ -674,3 +729,36 @@ def test_best_adapter_provenance_requires_retained_best_golden_metadata(tmp_path
     )
     assert rejected["verified"] is False
     assert rejected["checks"]["legacy_metadata_rejected"] is False
+
+
+def test_merged_selection_legacy_fallback_is_ordinary_golden100_only():
+    ordinary = {
+        "verified": True,
+        "selected": {
+            "metric": "generation_reward_v5_4_avg",
+            "metric_value": 80.0,
+            "step": 500,
+        },
+    }
+    legacy_merge = {
+        "metadata": {
+            "training_run_metadata": {
+                "verified": True,
+                "checks": {
+                    "best_golden_v5_4_selected": True,
+                    "portable_launcher_artifacts_bound": True,
+                },
+            }
+        }
+    }
+    assert exporter._merged_golden_selection_matches(legacy_merge, ordinary)
+
+    repeated = copy.deepcopy(ordinary)
+    repeated["selected"]["metric"] = (
+        "unique_source_generation_reward_v5_4_avg"
+    )
+    assert not exporter._merged_golden_selection_matches(legacy_merge, repeated)
+
+    exact_merge = copy.deepcopy(legacy_merge)
+    exact_merge["metadata"]["training_run_metadata"]["golden_selection"] = repeated
+    assert exporter._merged_golden_selection_matches(exact_merge, repeated)
