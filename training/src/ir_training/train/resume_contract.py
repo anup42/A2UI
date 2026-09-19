@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 from ir_training.common.config import load_yaml, resolve_path, training_root
-from ir_training.common.progress import Progress
+from ir_training.common.progress import Progress, log
 
 
 def file_sha256(path: Path) -> str:
@@ -188,13 +189,76 @@ def _verify_source_inventory(checkpoint: Path, metadata: dict[str, Any]) -> None
         raise ValueError("Resume source checkpoint weights/tokenizer inventory changed")
 
 
+def _resume_source_directory_absent(recorded_source: str, source: Path) -> bool:
+    # Inspect the saved, unresolved path: a dangling symlink or a damaged source
+    # directory is not retention. Never turn permission/I/O errors into absence.
+    path = Path(recorded_source)
+    if not path.is_absolute():
+        path = training_root() / path
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        try:
+            source.lstat()
+        except FileNotFoundError:
+            return True
+    return False
+
+
+def _verify_retained_resume_evidence(*, checkpoint: Path, metadata: dict[str, Any],
+                                     config: dict[str, Any], config_path: Path,
+                                     source: Path, expected: dict[str, Any]) -> dict[str, Any]:
+    """Export-only compatibility with Trainer retention; never resume training.
+
+    The caller has already checked the full config delta, resume contract and
+    current train/val bytes. Trust the surviving training record's historical
+    verification, not a fabricated reconstruction of deleted metadata.
+    """
+    state = metadata["resume_state"]
+    step, digest = state.get("global_step"), state.get("metadata_sha256")
+    if type(step) is not int or step <= 0:
+        raise ValueError("Missing positive integer resume_state.global_step for retained-source export")
+    if (not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+            or len(set(digest)) == 1):
+        raise ValueError("Missing or malformed resume_state.metadata_sha256 for retained-source export")
+    # Trainer retention deletes numbered checkpoints in this run's output, not
+    # arbitrary paths, unavailable volumes, or weight-only best/final folders.
+    output = (config.get("run") or {}).get("output_dir")
+    if (not isinstance(output, str) or not output.strip()
+            or source.parent != resolve_path(output, training_root()).resolve()
+            or source.name != f"checkpoint-{step}" or not source.parent.is_dir()):
+        raise ValueError("Missing resume source path/step does not identify a retained Trainer checkpoint in this run")
+    current_step = metadata.get("checkpoint_step")
+    if type(current_step) is not int or current_step < step:
+        raise ValueError("Retained-source export needs a surviving checkpoint at or after the recorded resume step")
+    if set(expected.get("splits", {})) != {"train", "val"}:
+        raise ValueError("Retained-source export requires both prepared train and val hashes")
+    _verify_source_inventory(checkpoint, metadata)
+    names = {item["path"] for item in metadata["checkpoint_adapter_files"]}
+    if not any(name.startswith("tokenizer") for name in names):
+        raise ValueError("Retained-source export requires a hash-bound surviving tokenizer inventory")
+    # Preserve optional stronger evidence if present; the legacy writer stored
+    # the path separately in metadata, so it cannot be mandatory in resume_state.
+    if "checkpoint" in state and state["checkpoint"] != str(source):
+        raise ValueError("Recorded resume_state checkpoint path differs from the missing source")
+    return {"checkpoint": str(checkpoint), "training_config": str(config_path),
+            "training_config_sha256": file_sha256(config_path), "resume_source": str(source),
+            "resume_state": dict(state), "verification_mode": "saved_resume_evidence",
+            "source_files_rechecked": False, "source_metadata_rehashed": False,
+            "surviving_metadata_sha256": file_sha256(checkpoint / "training_metadata.json"),
+            "surviving_checkpoint_files_rechecked": True,
+            "prepared_split_sha256": dict(expected["splits"])}
+
+
 def resolve_export_training_lineage(preparation_config: Path, checkpoint: Path, *,
                                     training_config: Path | None = None) -> dict[str, Any]:
     """Resolve the actual config without rewriting any saved provenance.
 
     Preparation stays bound to the original config. Each resume edge must keep
     every setting except the resume pointer identical and prove the saved source
-    contract, metadata digest and optimizer step. No model is instantiated.
+    contract, metadata digest and optimizer step. If retention removed the whole
+    source, explicitly report reliance on surviving verified resume evidence.
+    No model is instantiated and no provenance files are modified.
     """
     original_path, checkpoint = preparation_config.resolve(), checkpoint.resolve()
     original = load_yaml(original_path)
@@ -243,10 +307,21 @@ def resolve_export_training_lineage(preparation_config: Path, checkpoint: Path, 
                 raise ValueError("Resume source differs between metadata and bound config")
             if source in visited:
                 raise ValueError("Cycle in checkpoint resume lineage")
-            source_meta = _read_object(source / "training_metadata.json")
             recorded_state = current_meta.get("resume_state")
             if not isinstance(recorded_state, dict) or recorded_state.get("verified") is not True:
                 raise ValueError("Missing verified resume_state provenance")
+            if _resume_source_directory_absent(recorded_source, source):
+                hop = _verify_retained_resume_evidence(checkpoint=current, metadata=current_meta,
+                    config=current_config, config_path=current_path, source=source, expected=expected)
+                if not _resume_source_directory_absent(recorded_source, source):
+                    raise ValueError("Resume source reappeared during export verification; retry for full physical-source checks")
+                hops.append(hop)
+                result["resume_lineage"].update({"verification_mode": "saved_resume_evidence",
+                    "physical_chain_complete": False, "missing_sources": [str(source)]})
+                log(f"WARNING: Resume source is absent: {source}; export relies on saved verified resume evidence. "
+                    "Surviving config/data/weight/tokenizer hashes checked; deleted source bytes cannot be rechecked.")
+                return result
+            source_meta = _read_object(source / "training_metadata.json")
             if recorded_state.get("metadata_sha256") != file_sha256(source / "training_metadata.json"):
                 raise ValueError("Resume source metadata changed since training resumed")
             _verify_source_inventory(source, source_meta)
@@ -259,7 +334,8 @@ def resolve_export_training_lineage(preparation_config: Path, checkpoint: Path, 
             hops.append({"checkpoint": str(current), "training_config": str(current_path),
                          "training_config_sha256": file_sha256(current_path), "resume_source": str(source),
                          "source_config": str(source_config_path), "source_config_sha256": file_sha256(source_config_path),
-                         "resume_state": verified})
+                         "resume_state": verified, "verification_mode": "physical_source",
+                         "source_files_rechecked": True, "source_metadata_rehashed": True})
             current, current_meta, current_path = source, source_meta, source_config_path
             current_config = load_yaml(current_path)
         raise ValueError("Resume lineage exceeds the 64-hop safety limit")

@@ -25,8 +25,10 @@ python -u training/scripts/export_checkpoint_litertlm.py \
 ```
 
 Omit `--execute` to print a read-only plan. Planning checks local paths and
-metadata. For resumed checkpoints it also hashes the prepared data and resume
-source checkpoints to verify the lineage, with a progress heartbeat; it does
+metadata. For resumed checkpoints it also hashes the prepared data and available
+resume sources to verify the lineage. If retention removed a source, planning
+checks the surviving checkpoint's file inventory and saved resume evidence.
+These checks have a progress heartbeat; planning does
 not regenerate, filter or tokenize the data. Execution additionally hashes the
 selected weights and original base model, verifies prompt and tokenizer
 contracts, probes exporter APIs, merges and converts. Neither a
@@ -64,10 +66,11 @@ such as `training_config_resume_3500.yaml`, automatically:
 - The selected checkpoint remains bound to its actual resumed config SHA256.
   That exact config, including `resume_from_checkpoint`, is passed to merging
   and copied into `merged_hf/training_config.yaml`.
-- Each resume source must have its original metadata, config, weight/tokenizer
+- Each **existing** resume source must have its original metadata, config, weight/tokenizer
   inventory, `trainer_state.json`, optimizer, scheduler and per-rank RNG files.
-  Keep these source checkpoints even if Trainer checkpoint retention would
-  otherwise remove them. Multiple resumes are checked back to the original run.
+  A missing file, damaged directory or permission error never activates the
+  deleted-source fallback. Multiple resumes are checked back through available
+  sources; a missing source uses the separately labelled evidence policy below.
 - Only the resume pointer may differ between configs. Model, data hashes, LoRA,
   training recipe, effective batch, and all other config settings must match.
   The saved resume-state metadata hash and optimizer step must also verify.
@@ -77,6 +80,44 @@ If a recorded resume config is no longer present, its byte-identical
 copy **exists but was modified**, export fails rather than hiding the change
 by using another copy. Missing source evidence or changed contracts are not
 bypassed; restore the original files from a backup, not hand-edited hashes.
+
+### Source checkpoint removed by Trainer retention
+
+The same export command automatically supports an already-saved checkpoint
+whose entire numbered resume-source directory is absent. For example, a best
+checkpoint at step 7000 can reference a deleted `checkpoint-3500` when it retains:
+
+- `resume_state.verified: true`, a positive integer `global_step: 3500`, and a
+  well-formed, non-placeholder `metadata_sha256` from the training-time check;
+- matching resume paths in its metadata and its hash-bound resume config, with
+  the path identifying `checkpoint-3500` in this run's still-accessible training
+  output directory;
+- the full unchanged resume contract, matching original/resumed configs apart
+  from the resume pointer, and both prepared train/validation files whose hashes
+  still match that contract;
+- a surviving checkpoint at or beyond the recorded resume step, with its full
+  weight/tokenizer inventory passing fresh hash checks.
+
+No dummy checkpoint, replacement metadata, rewritten hash, or edited resume
+pointer is created. The normal original-model and tokenizer/prompt checks still
+run during merging. This is **export only**: resuming training still requires
+the physical optimizer, scheduler, RNG, weights and provenance files.
+
+The console warns when this fallback is used. Both export manifests record
+`resume_lineage.verification_mode: saved_resume_evidence`,
+`physical_chain_complete: false`, the missing source path, the surviving metadata
+hash, the checked train/validation hashes, and the original saved resume record.
+The missing hop explicitly has `source_files_rechecked: false` and
+`source_metadata_rehashed: false`; available hops use `physical_source`.
+
+**Evidence limitation:** a saved digest cannot be recalculated or authenticated
+without the deleted metadata. This compatibility policy trusts the surviving
+training-time verification record and validates its consistency with the files
+that remain. It is not proof that deletion was caused by retention, nor a
+cryptographic signature against a coordinated rewrite of saved provenance.
+Keep source checkpoints/backups if fresh verification of all historical bytes
+is required. An older retained best checkpoint that predates the resume step
+still requires the physical source for export under this policy.
 
 `checkpoint_export_manifest.json` and `merged_hf/deployment_source.json` record
 both config hashes and the verified `resume_lineage`. No training provenance
