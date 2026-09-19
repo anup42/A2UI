@@ -3,7 +3,9 @@
 The mobile qparams contract is self-hashed, but that alone cannot establish
 that its activation scalars came from the published Safetensors.  This module
 checks every mapped activation-scale scalar against that source byte-for-byte
-without materializing any model weight.
+without materializing any model weight. The SHA-pinned source can also contain
+valid activation scales for weights omitted from the verified seed mapping;
+those are reported separately, not treated as retained training bindings.
 """
 
 from __future__ import annotations
@@ -196,12 +198,20 @@ def verify_published_activation_scales(
     role_records: dict[str, list[dict[str, str]]] = {role: [] for role in _ROLES}
     scope_counts = {"mutable": 0, "frozen": 0, "zero_head": 0}
     expected_source_roles: set[str] = set()
+    mapped_role_keys = {
+        f"{mapping['source_key'][:-len('.weight')]}.{role}_activation_scale"
+        for mapping in mapped.values()
+        if mapping["source_key"].endswith(".weight")
+        for role in _ROLES
+    }
     with safe_open(str(source_path), framework="np") as handle:
         source_keys = set(handle.keys())
-        # The packed multimodal artifact can contain activation scales outside
-        # the reconstructed text model. Restrict unexpected-role detection to
-        # the same language-model/lm_head source boundary as reconstruction.
-        actual_source_roles = {key for key in source_keys if _is_text_activation_scale_key(key)}
+        # The verified transformation mapping, not a broad text prefix or a
+        # hard-coded layer exclusion, defines the retained A8 contract. Packed
+        # shared-KV duplicates can have source scales without mapped weights.
+        source_text_roles = {key for key in source_keys if _is_text_activation_scale_key(key)}
+        actual_source_roles = source_keys & mapped_role_keys
+        unmapped_source_text_roles = sorted(source_text_roles - mapped_role_keys)
         for weight_key in sorted(mapped):
             mapping = mapped[weight_key]
             if mapping["source_key"] not in source_keys or mapping["scale_key"] not in source_keys:
@@ -268,7 +278,7 @@ def verify_published_activation_scales(
             missing_source_roles = sorted(expected_source_roles - actual_source_roles)
             raise PublishedQParamsError(
                 "Packed source contains missing or extra activation-scale tensors "
-                "relative to the mapped qparams contract. "
+                "within the verified seed mapping relative to the mapped qparams contract. "
                 f"actual_source_roles_count={len(actual_source_roles)}, "
                 f"expected_source_roles_count={len(expected_source_roles)}; "
                 f"actual_source_roles - expected_source_roles "
@@ -304,5 +314,9 @@ def verify_published_activation_scales(
         "scaled_weight_mapping_count": len(mapped),
         "a8_weight_scope_counts": scope_counts,
         "a8_scalar_count": sum(item["count"] for item in role_summary.values()),
+        "activation_validation_scope": "verified_seed_tensor_mappings",
+        "source_text_a8_scalar_count": len(source_text_roles),
+        "unmapped_source_text_a8_scalar_count": len(unmapped_source_text_roles),
+        "unmapped_source_text_a8_keys": unmapped_source_text_roles,
         "roles": role_summary,
     }

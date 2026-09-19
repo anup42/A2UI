@@ -73,6 +73,25 @@ FP32 bytes with the seed contract. This covers the 205 mutable projections,
 but internally self-consistent local A8 sidecar is not sufficient provenance.
 Only scalar tensors are loaded by this check; no model weight is materialized.
 
+The verified seed transformation mapping defines the validation boundary, not
+every activation-scale name in the packed text checkpoint. Reconstruction
+already omits duplicated `k_proj`/`v_proj` weights in shared-KV layers 15–34;
+their 80 packed input/output scale tensors are consequently outside the
+276-weight retained A8 contract. The packed text inventory can therefore have
+632 scalars while the mapped contract has 552. This is not a missing-scale
+failure. The validator derives membership from the verified mapping rather
+than hard-coding a layer range to ignore.
+
+`mobile_assets_verified.json` records the total text-scale count and the exact
+sorted unmapped names under `published_activation_scales`, alongside the
+552 validated mapped scalars. Unmapped scales remain covered by the pinned
+whole-source SHA but are not treated as training bindings. All mapped roles
+still require exact presence, scalar F32 type, bytes and valid values; the
+205 mutable / 70 frozen / one zero-head scope counts, canonical mapping and
+provenance checks are unchanged. Do not edit the seed, qparams or hashes to
+resolve this inventory mismatch. After updating the code, rerun the same
+pipeline command with a fresh output directory (for example, a `_v6` suffix).
+
 No runtime KV-cache simulation occurs during training or the pretraining gate.
 The pretraining report only inventories statically named TFLite cache boundary
 tensors, shapes, dtypes, serialized qparams, and identifiable prefill/decode
@@ -597,7 +616,7 @@ serialization evidence only—not a production-ready mobile model.
 
 ## Current v2 verification (2026-09-19)
 
-The integrated regression run completed with **359 passed, 1 skipped**. The
+The integrated regression run completed with **372 passed, 1 skipped**. The
 skip was the executable-symlink test because this Windows host cannot create
 that symlink. This count includes the new mobile-SRQ numerical oracles,
 frozen A8 hooks, strict trainable scope, source-bound scalar provenance,
@@ -605,6 +624,12 @@ no-op export gates, saturation telemetry, native-quality orchestration, and
 existing mobile/legacy training/export regression coverage. These are local
 CPU tests with small fixtures and mocked expensive/device boundaries, not
 measured model-quality or device-runtime results.
+
+The published-qparams subset has **22 passing tests**, including a synthetic
+632-scale source with exactly 552 mapped roles plus all 80 shared-KV extras.
+Missing, modified, wrong-type or contract-omitted mapped scales still fail;
+so do wrong source hashes and removal of a required mapped weight. These tests
+do not run a real packed model export or retrain the model.
 
 Reproduce from the repository root:
 
