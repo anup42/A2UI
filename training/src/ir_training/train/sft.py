@@ -33,6 +33,13 @@ from ir_training.qat.mobile_seed_architecture import (
     validate_mobile_seed_architecture,
 )
 from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
+from ir_training.qat.numeric_preflight import (
+    RETAINED_MOBILE_POLICY,
+    greedy_mandatory_checks,
+    numeric_mandatory_checks,
+    numeric_policy,
+    resolve_numeric_policy,
+)
 from ir_training.qat.workflow import validate_qat_config
 from ir_training.qat_mtp.workflow import validate_training_config
 from ir_training.train.callbacks import (
@@ -57,6 +64,8 @@ def train_sft(
     *,
     preflight_only: bool = False,
 ) -> dict[str, Any]:
+    # Validate explicit policy before loading any model/seed or constructing PEFT.
+    resolved_numeric_policy = resolve_numeric_policy(config)
     _stabilize_torch_runtime()
     run_cfg = config.get("run") if isinstance(config.get("run"), dict) else {}
     model_cfg = config.get("model") if isinstance(config.get("model"), dict) else {}
@@ -486,6 +495,7 @@ def train_sft(
             if isinstance(config.get("preflight"), dict)
             else {}
         )
+        print(f"SFT numeric preflight policy: {resolved_numeric_policy}", flush=True)
         zero_adapter_initialization = (
             {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
             if full_finetune else _verify_zero_lora_initialization(model)
@@ -647,6 +657,17 @@ def train_sft(
                 else None
             ),
         }
+        print(
+            "SFT numeric preflight passed: "
+            f"policy={resolved_numeric_policy}, "
+            f"cross_mode_comparison={numeric_preflight_report['cross_mode_comparison']}, "
+            f"loss_increase={numeric_preflight_report['loss_increase']:.8f}, "
+            f"loss_ratio={numeric_preflight_report['loss_ratio']:.8f}, "
+            f"top1_match={numeric_preflight_report['top1_probe_match_fraction']:.6f}, "
+            f"top_token_equal={numeric_preflight_report['top_token_probe_equal']}, "
+            f"greedy_prefix={numeric_preflight_report['greedy_generation']['baseline_qat_min_common_prefix_tokens']}",
+            flush=True,
+        )
         # Forward-only probes cannot exercise attention backward or the padded
         # microbatch. Never use a token-cache hit as evidence for this gate.
         if qat_controller is None:
@@ -1866,6 +1887,10 @@ def _run_forward_numeric_gate(
                 _drop_trivial_attention_mask(model_inputs)
                 outputs = model(**model_inputs)
                 logits = _extract_logits(outputs)
+                if not bool(torch.isfinite(logits).all().item()):
+                    raise ValueError(
+                        f"Numeric gate row {row_index} produced non-finite logits."
+                    )
                 labels_device = labels.to(logits.device)
                 _validate_labels_against_logits_vocab(
                     labels_device, int(logits.shape[-1])
@@ -1927,6 +1952,7 @@ def _run_forward_numeric_gate(
             "completion_tokens": total_loss_tokens,
             "completion_loss": total_loss_numerator / total_loss_tokens,
             "row_losses": row_losses,
+            "logits_finite": True,
             "top_token_probe_sha256": probe_hash.hexdigest(),
             "top1_probe_ids": top1_probe_ids,
         }
@@ -1958,8 +1984,8 @@ def _compare_initial_numeric_reports(
     preflight_cfg: dict[str, Any],
     qat_enabled: bool,
 ) -> dict[str, Any]:
-    import math
-
+    policy = numeric_policy(preflight_cfg)
+    diagnostic = policy == RETAINED_MOBILE_POLICY
     baseline_loss = float(baseline["completion_loss"])
     qat_loss = float(qat_on["completion_loss"])
     if not math.isfinite(baseline_loss) or not math.isfinite(qat_loss):
@@ -1993,6 +2019,8 @@ def _compare_initial_numeric_reports(
     min_top1_match = float(preflight_cfg.get("min_top1_probe_match", 0.90))
     report = {
         "passed": True,
+        "policy": policy,
+        "cross_mode_comparison": "diagnostic" if diagnostic else "required",
         "qat_enabled": qat_enabled,
         "baseline": baseline,
         "qat_on": qat_on,
@@ -2006,6 +2034,16 @@ def _compare_initial_numeric_reports(
         "top1_probe_match_fraction": top1_match_fraction,
         "min_top1_probe_match": min_top1_match,
     }
+    if diagnostic:
+        checks = numeric_mandatory_checks(baseline, qat_on, preflight_cfg)
+        report["mandatory_checks"] = checks
+        if not qat_enabled or not all(checks.values()):
+            raise RuntimeError(
+                "Retained-mobile numeric safety gate failed before optimizer step 1: "
+                f"qat_enabled={qat_enabled}, checks={checks}, qat_loss={qat_loss:.8f}, "
+                f"absolute_max={max_absolute}. BF16-vs-QAT similarity is diagnostic only."
+            )
+        return report
     if qat_loss > max_absolute or (
         qat_enabled
         and (
@@ -2164,6 +2202,8 @@ def _compare_initial_greedy_reports(
     preflight_cfg: dict[str, Any],
     qat_enabled: bool,
 ) -> dict[str, Any]:
+    policy = numeric_policy(preflight_cfg)
+    diagnostic = policy == RETAINED_MOBILE_POLICY
     baseline_runs = baseline.get("generated_token_ids") or []
     qat_runs = qat_on.get("generated_token_ids") or []
     baseline_first = baseline_runs[0] if baseline_runs else []
@@ -2193,6 +2233,8 @@ def _compare_initial_greedy_reports(
     deterministic = bool(qat_on.get("deterministic"))
     report = {
         "passed": True,
+        "policy": policy,
+        "cross_mode_comparison": "diagnostic" if diagnostic else "required",
         "qat_enabled": qat_enabled,
         "require_greedy_determinism": require_determinism,
         "qat_greedy_deterministic": deterministic,
@@ -2212,6 +2254,16 @@ def _compare_initial_greedy_reports(
             "Zero-adapter retained-scale QAT greedy generation was not "
             "deterministic across identical repeated probes."
         )
+    if diagnostic:
+        checks = greedy_mandatory_checks(baseline, qat_on, preflight_cfg)
+        report["mandatory_checks"] = checks
+        if not qat_enabled or not require_determinism or not all(checks.values()):
+            raise RuntimeError(
+                "Retained-mobile QAT-on greedy safety gate failed: "
+                f"qat_enabled={qat_enabled}, checks={checks}. "
+                "Repeated QAT-on determinism remains mandatory."
+            )
+        return report
     row_counts_match = bool(
         baseline_first
         and qat_first

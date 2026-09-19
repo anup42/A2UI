@@ -66,6 +66,55 @@ expected LoRA A/B tensor is actually trainable. Legacy configs that omit
 `activation_quantizer: gemma_mobile_srq`, frozen activation simulation, and the
 strict trainable-scope requirement retain their previous behavior.
 
+### Numeric preflight: safety gates versus BF16 diagnostics
+
+The v2 wrapper writes `preflight.numeric_policy: retained_mobile_safety_v1`
+into the generated, hash-bound training config. This policy is accepted **only**
+with `run.purpose: e2b_retained_mobile_golden_bixby_no_mtp_v2` and the explicit
+retained-scale/SRQ/205-mutable/70-frozen contract. Missing or unknown policies,
+using the policy in another workflow, or disabling mandatory gates fail closed.
+Historical standalone configurations keep their existing BF16 parity behavior.
+
+The BF16 reconstruction is not the same forward computation as QAT-on: the
+latter applies retained W2/W4 effective-weight fake quantization, A8 SRQ, and
+frozen W8-path activation simulation. Near-identical BF16/QAT outputs are not a
+valid universal prerequisite for this workflow.
+
+| Check | Official v2 behavior |
+| --- | --- |
+| BF16/QAT top-1 match, top-token hash equality | Diagnostic only |
+| BF16/QAT completion-loss increase and ratio | Diagnostic only |
+| BF16/QAT greedy common prefix and positional match | Diagnostic only |
+| Finite logits and completion losses on both paths | Mandatory |
+| Absolute QAT completion loss | Mandatory; default maximum 15.0, finite positive limit no greater than 15 |
+| Nonempty comparable numeric probes and valid greedy probes | Mandatory |
+| Identical repeated QAT-on greedy generation | Mandatory; checked from actual token sequences |
+| Exactly zero fresh LoRA delta, exact 205 trainable projections and 70 frozen activation modules | Mandatory; existing scope checks retained |
+| Published qparams, artifact hashes, no-op/package identity and export provenance | Mandatory; unchanged |
+
+The previous `0.90` top-1, `0.35` loss-increase, `1.10` loss-ratio, and eight-token
+cross-mode-prefix references are not lowered. They remain visible in diagnostics
+but do not gate this explicitly selected policy. For example, the reported H100
+losses `1.32057861` (BF16) and `0.62379508` (QAT), with top-1 match `0.742188`, no
+longer fail *just because* their top-1 match is below 90%. All mandatory checks
+must still succeed; this does not certify model quality or device throughput.
+
+The console prints the policy and comparison summary. The numeric JSON report in
+`<run>/training/<run-id>/launch/preflight/model_numeric_preflight.log` and
+checkpoint `training_metadata.json` retain all numeric/greedy comparison metrics,
+raw probe evidence, named mandatory checks, and policy identity. The launcher's
+aggregate `preflight_report.json` hash-binds that log. Merge and export
+independently validate that evidence against the hash-bound config, recompute the
+safety gates, and reject missing/failed evidence rather than accepting only a
+`passed: true` summary. Existing 205/70 scope, scale-byte, and package checks are
+still enforced separately. QAT-on determinism is not BF16-vs-QAT determinism.
+
+After pulling this change, rerun the same official-mobile command with a **new
+output directory** so its immutable generated config contains the policy. Do not
+edit old run configs/metadata, hashes, qparams or seed artifacts to bypass a
+failure. No training or full conversion was run locally for this change; use the
+real H100 preflight to validate the live runtime.
+
 ### Retained-mobile LoRA target resolution
 
 The reconstructed seed is `Gemma4ForCausalLM` / `gemma4_text`. PEFT 0.20's
@@ -376,7 +425,8 @@ speed benchmark:
    publish a package copy or prove runtime inference.
 3. Validate the reconstructed-seed manifest, retained-scale contract, model
    architecture, input data, holdout exclusion, prompt/tokenizer bindings,
-   CUDA/BF16 environment, and zero-adapter numeric/greedy parity.
+   CUDA/BF16 environment, and zero-adapter numeric safety / repeated QAT-on
+   greedy determinism. BF16-vs-QAT comparisons are recorded as diagnostics.
 4. Train retained-scale effective-weight LoRA QAT from the reconstructed mobile
    seed using DDP and immutable published weight/A8 scales.
 5. Evaluate Golden32 at the configured cadence and save the callback-created
@@ -767,3 +817,69 @@ run-directory modification was performed. Model artifacts, seed manifests,
 qparams, hashes and export contracts were not changed. Pull the fix and retry
 the pipeline on the training host; all its real-data/runtime gates must still
 pass. This result proves the LoRA setup/contract fix, not end-to-end GPU success.
+
+## Numeric preflight policy fix verification (2026-09-20)
+
+The prior hard BF16 top-1 and greedy-prefix comparisons were inappropriate for
+the explicitly enabled retained-mobile SRQ simulation. The policy fix separates
+those diagnostics from the mandatory gates described above; it does not lower
+the 90% threshold or bypass any scope, qparam, artifact or package check.
+
+Changed implementation files (relative to `training/`):
+
+- `src/ir_training/qat/numeric_preflight.py`: named policy, mandatory-gate
+  recomputation, and shared fail-closed export/provenance validation.
+- `src/ir_training/train/sft.py`: policy binding, finite-logit validation,
+  numeric/greedy diagnostic reports and concise console summary.
+- `src/ir_training/qat/workflow.py` and `scripts/run_gemma4_mobile_qat.py`:
+  static/launcher policy validation; legacy parity gates preserved.
+- `src/ir_training/pipeline/official_mobile.py`: explicit policy in generated
+  v2 configs.
+- `src/ir_training/export/merge_lora.py` and
+  `scripts/build_gemma4_retained_scale_litertlm.py`: require policy-matched,
+  successful mandatory probe evidence at both merge and final export.
+- `configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml`: comments only;
+  existing threshold values unchanged.
+- `tests/test_retained_numeric_preflight.py`,
+  `tests/test_official_mobile_pipeline.py`, and
+  `tests/test_portable_gemma4_mobile_qat_launcher.py`: numeric, provenance,
+  policy-propagation and backward-compatibility regressions.
+- This runbook: gate semantics, retry guidance and verification evidence.
+
+Validation results:
+
+- Focused eight-file command below: **325 passed, 1 skipped** (Windows symlink
+  restriction).
+- Extended 20-file suite (the previous 18-file LoRA/mobile suite plus
+  `test_retained_numeric_preflight.py` and `test_sft_token_cache_integration.py`):
+  **546 passed, 6 skipped**, with two dependency deprecation warnings. Skips:
+  one Windows symlink test, four tests requiring unavailable `datasets`, and
+  one integration test requiring Transformers 5.16.1 instead of the isolated
+  5.14.1 stack used to match the reported H100 environment.
+- All ten changed/new Python files compiled. Seven changed/new Python files
+  pass Ruff; the existing findings in `sft.py` (62), `merge_lora.py` (2), and
+  `run_gemma4_mobile_qat.py` (12) are unchanged, with **zero new findings**.
+  `git diff --check` passed.
+- Tests cover the reported 0.742188 top-1 result, large but finite relative loss
+  changes, non-finite logits/losses, excessive absolute loss, repeated greedy
+  nondeterminism even with a forged summary flag, missing/unknown/mismatched
+  policies, nonzero adapter evidence, and wrong 205/70/qparams bindings at
+  **both** merge and export boundaries. Legacy failure tests still pass.
+
+```bash
+python -m pytest \
+  training/tests/test_retained_numeric_preflight.py \
+  training/tests/test_qat_training.py \
+  training/tests/test_official_mobile_pipeline.py \
+  training/tests/test_training_scaffold.py \
+  training/tests/test_portable_gemma4_mobile_qat_launcher.py \
+  training/tests/test_mobile_srq_provenance.py \
+  training/tests/test_gemma4_retained_scale_pretraining_gate.py \
+  training/tests/test_gemma4_retained_scale_exporter.py \
+  -q -rs -p no:cacheprovider
+```
+
+No training, full-model conversion, H100 job, or existing-run modification was
+performed. Model artifacts, qparams, hashes, retained scales, MTP and the exact
+205/70 module scopes were not changed. The real hardware preflight remains
+required before training; passing local regressions is not a GPU-success claim.

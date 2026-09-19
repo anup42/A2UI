@@ -36,9 +36,14 @@ from ir_training.qat.mobile_training_seed import (
     OFFICIAL_MOBILE_MODEL_ID,
     OFFICIAL_MOBILE_SAFETENSORS_SHA256,
 )
+from ir_training.qat.numeric_preflight import (
+    OFFICIAL_MOBILE_WORKFLOW,
+    RETAINED_MOBILE_POLICY,
+    resolve_numeric_policy,
+)
 
 SELECTOR = "unique_source_generation_reward_v5_4_avg"
-WORKFLOW = "e2b_retained_mobile_golden_bixby_no_mtp_v2"
+WORKFLOW = OFFICIAL_MOBILE_WORKFLOW
 NO_OP_CHECKS = frozenset({
     "official_artifact_sha256_pinned", "retained_training_config_verified",
     "materialized_seed_provenance_verified", "retained_qparams_verified",
@@ -186,6 +191,10 @@ def training_config(plan: dict, profile: dict, preparation_report: dict) -> dict
     apply_gpu_profile(config, profile)
     config["run"].update(dataset_dir=str(output / "prepared"), prepared_manifest_required=True,
                          dataset_format="a2ui_express_v1", purpose=WORKFLOW)
+    # Deliberate v2 opt-in, not an implicit model-name exception. Standalone
+    # historical YAMLs keep their BF16 parity thresholds unchanged.
+    config["preflight"]["numeric_policy"] = RETAINED_MOBILE_POLICY
+    resolve_numeric_policy(config)
     config["model"].update(model_source=str(seed), tokenizer_source=str(seed),
         mobile_training_seed_manifest=str(seed / "mobile_training_seed_manifest.json"),
         mobile_qparams_contract=str(seed / "mobile_qparams.json"),

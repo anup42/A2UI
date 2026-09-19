@@ -37,6 +37,10 @@ from ir_training.eval.tensorboard_logging import (  # noqa: E402
 from ir_training.qat.mobile_training_seed import (  # noqa: E402
     OFFICIAL_MOBILE_SAFETENSORS_SHA256,
 )
+from ir_training.qat.numeric_preflight import (
+    RETAINED_MOBILE_POLICY,
+    resolve_numeric_policy,
+)
 from ir_training.train.gpu_profile import apply_gpu_profile, training_environment, verify_gpu_profile, visible_launch_profile
 
 
@@ -427,6 +431,11 @@ def _validate_launch_contract(
         "qat.ste_gradient must be clipped at the representable retained-scale range.",
     )
     preflight = _section(config, "preflight")
+    diagnostic_numeric_policy = False
+    try:
+        diagnostic_numeric_policy = resolve_numeric_policy(config) == RETAINED_MOBILE_POLICY
+    except (TypeError, ValueError) as exc:
+        require("invalid_numeric_preflight_policy", False, str(exc))
     require(
         "zero_adapter_parity_not_required",
         preflight.get("require_zero_adapter_parity") is True,
@@ -445,7 +454,7 @@ def _validate_launch_contract(
         min_top1_probe_match = 0.0
     require(
         "weak_top1_numeric_gate",
-        min_top1_probe_match >= 0.90,
+        diagnostic_numeric_policy or min_top1_probe_match >= 0.90,
         "preflight.min_top1_probe_match must be at least 0.90.",
     )
     try:
@@ -469,8 +478,9 @@ def _validate_launch_contract(
         and greedy_new_tokens >= 8
         and minimum_greedy_tokens >= 8
         and minimum_greedy_tokens <= greedy_new_tokens
-        and minimum_greedy_prefix >= 8
-        and minimum_greedy_prefix <= greedy_new_tokens,
+        and (diagnostic_numeric_policy or (
+            minimum_greedy_prefix >= 8 and minimum_greedy_prefix <= greedy_new_tokens
+        )),
         "A repeated nontrivial zero-adapter greedy-generation gate is required.",
     )
     require(

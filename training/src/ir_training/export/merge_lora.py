@@ -16,6 +16,10 @@ from ir_training.qat.mobile_qparams import (
 from ir_training.qat.mobile_training_seed import (
     verify_configured_mobile_training_seed,
 )
+from ir_training.qat.numeric_preflight import (
+    RETAINED_MOBILE_POLICY,
+    numeric_preflight_provenance,
+)
 
 _RETAINED_MOBILE_PROJECTION_COUNT = 205
 _REQUIRED_PORTABLE_PREFLIGHTS = {
@@ -706,6 +710,11 @@ def _verify_qat_training_metadata(
     if not isinstance(metadata, dict):
         report["error"] = "Training metadata root is not an object."
         return report
+    numeric_policy_report = numeric_preflight_provenance(
+        training_config or {}, metadata.get("numeric_preflight") or {},
+    )
+    checks["numeric_preflight_policy_verified"] = numeric_policy_report["verified"]
+    report["numeric_preflight_policy"] = numeric_policy_report
     qat = metadata.get("qat") if isinstance(metadata.get("qat"), dict) else {}
     qat_spec = qat.get("spec") if isinstance(qat.get("spec"), dict) else {}
     lora = metadata.get("lora") if isinstance(metadata.get("lora"), dict) else {}
@@ -923,6 +932,12 @@ def _verify_qat_training_metadata(
             and observed_prefix >= minimum_prefix
             and minimum_prefix >= 8
         )
+        if numeric_policy_report.get("policy") == RETAINED_MOBILE_POLICY:
+            # BF16 parity is diagnostic in v2. Require recomputed safety gates,
+            # exact policy binding and raw repeated QAT-on probe evidence instead.
+            del checks["initial_numeric_parity_passed"]
+            del checks["deterministic_greedy_prefix_passed"]
+            checks["numeric_preflight_mandatory_gates_passed"] = numeric_policy_report["verified"]
         checks["portable_launcher_artifacts_bound"] = (
             _portable_launcher_contract_matches(
                 metadata, training_config_sha256=training_config_sha256

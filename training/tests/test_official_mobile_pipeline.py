@@ -253,6 +253,17 @@ def test_short_run_records_rounded_cadence_and_still_evaluates_at_end(options):
     assert config["golden_eval"]["requested_every_optimizer_steps"] == 1000
     assert config["golden_eval"]["resolved_every_optimizer_steps"] == 1200
     assert config["golden_eval"]["evaluate_at_end"] is True
+    from ir_training.qat.numeric_preflight import (
+        RETAINED_MOBILE_POLICY,
+        resolve_numeric_policy,
+    )
+
+    assert config["preflight"]["numeric_policy"] == RETAINED_MOBILE_POLICY
+    assert resolve_numeric_policy(config) == RETAINED_MOBILE_POLICY
+    # Cross-mode references remain visible; the fix did not lower thresholds.
+    assert config["preflight"]["min_top1_probe_match"] == 0.90
+    assert config["preflight"]["max_qat_loss_ratio"] == 1.10
+    assert config["preflight"]["min_baseline_qat_greedy_prefix_tokens"] == 8
 
 
 def test_export_environment_roundtrip_without_loading_model():

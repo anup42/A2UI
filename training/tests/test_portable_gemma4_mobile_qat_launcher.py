@@ -391,6 +391,30 @@ def test_plan_rejects_weakened_numeric_and_provenance_gates(
     }
 
 
+@pytest.mark.parametrize("policy", ["retained_mobile_safety_v1", None, "legacy_bf16_parity_v1", "typo"])
+def test_official_v2_launcher_requires_explicit_numeric_safety_policy(tmp_path, policy):
+    import yaml
+    from ir_training.qat.numeric_preflight import (
+        OFFICIAL_MOBILE_WORKFLOW,
+        RETAINED_MOBILE_POLICY,
+    )
+
+    source = _source_config(tmp_path)
+    config = launcher.load_yaml(source)
+    config["run"]["purpose"] = OFFICIAL_MOBILE_WORKFLOW
+    if policy is not None:
+        config["preflight"]["numeric_policy"] = policy
+    source.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    plan, resolved, _ = launcher.build_launch_plan(
+        source, run_id="explicit_numeric_policy", runs_root=tmp_path / "runs", num_gpus=1,
+    )
+    codes = {item["code"] for item in plan["checks"]["issues"]}
+    assert ("invalid_numeric_preflight_policy" not in codes) is (policy == RETAINED_MOBILE_POLICY)
+    if policy == RETAINED_MOBILE_POLICY:
+        assert plan["checks"]["contract_ok"] is True
+        assert resolved["preflight"]["numeric_policy"] == policy
+
+
 def test_copied_seed_requires_and_binds_local_packed_source_override(
     tmp_path: Path,
 ) -> None:

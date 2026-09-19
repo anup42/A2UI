@@ -110,6 +110,8 @@ qat:
   final_quantization: mobile_wna8o8
   final_runtime_validation_required: true
 preflight:
+  # Legacy standalone parity defaults. The official-mobile v2 wrapper explicitly
+  # sets numeric_policy: retained_mobile_safety_v1 in its generated config only.
   # These gates run before Trainer.train. QAT-on zero-adapter completion loss
   # must remain close to the reconstructed seed and finite on fixed rows.
   require_zero_adapter_parity: true

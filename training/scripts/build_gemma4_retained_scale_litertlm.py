@@ -87,6 +87,7 @@ from ir_training.qat.mobile_training_seed import (
     OFFICIAL_MOBILE_MODEL_ID,
     verify_configured_mobile_training_seed,
 )
+from ir_training.qat.numeric_preflight import numeric_preflight_provenance
 from reconstruct_gemma4_mobile_training_seed import _output_key
 
 MODE = "retained_scale_code_only_v1"
@@ -787,6 +788,7 @@ def _best_adapter_provenance_report(
         else {}
     )
     config = load_yaml(training_config)
+    numeric_policy_report = numeric_preflight_provenance(config, numeric)
     config_qat = config.get("qat") if isinstance(config.get("qat"), dict) else {}
     strict_mobile_srq_required = _strict_mobile_srq_contract_required(config_qat)
     golden_selection = _golden_selection_binding(metadata, config)
@@ -822,6 +824,7 @@ def _best_adapter_provenance_report(
         == _sha256_file(training_config),
         "numeric_preflight_passed": numeric.get("passed") is True,
         "greedy_preflight_passed": greedy.get("passed") is True,
+        "numeric_preflight_policy_verified": numeric_policy_report["verified"],
         "retained_scale_mode": spec.get("scale_mode") == "retained_mobile",
         "fixed_weight_scales": spec.get("fixed_scale_required") is True,
         "fixed_activation_scales": spec.get("fixed_activation_scale_required") is True,
@@ -875,6 +878,7 @@ def _best_adapter_provenance_report(
         "adapter_files": actual_adapter_files,
         "golden": golden,
         "golden_selection": golden_selection,
+        "numeric_preflight_policy": numeric_policy_report,
         "bound_key_sha256": _json_sha256(sorted(bound_keys)),
     }
 

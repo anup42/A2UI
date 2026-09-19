@@ -4,6 +4,10 @@ from typing import Any
 
 from ir_training.qat.fake_quant import QATSpec, qat_numeric_contract
 from ir_training.qat.mobile_training_seed import OFFICIAL_MOBILE_MODEL_ID
+from ir_training.qat.numeric_preflight import (
+    RETAINED_MOBILE_POLICY,
+    resolve_numeric_policy,
+)
 from ir_training.qat_mtp.workflow import WorkflowIssue
 
 
@@ -15,6 +19,11 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
     lora = _section(config, "lora")
     qat = _section(config, "qat")
     issues: list[WorkflowIssue] = []
+    diagnostic_numeric_policy = False
+    try:
+        diagnostic_numeric_policy = resolve_numeric_policy(config) == RETAINED_MOBILE_POLICY
+    except (TypeError, ValueError) as exc:
+        issues.append(WorkflowIssue("error", "invalid_numeric_preflight_policy", str(exc)))
 
     if qat.get("enabled") is not True:
         issues.append(
@@ -269,7 +278,7 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
                 )
             except (TypeError, ValueError):
                 top1_floor = 0.0
-            if top1_floor < 0.90:
+            if not diagnostic_numeric_policy and top1_floor < 0.90:
                 issues.append(
                     WorkflowIssue(
                         "error",
@@ -283,10 +292,10 @@ def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
                 or _positive_int(preflight.get("greedy_probe_rows")) < 1
                 or _positive_int(preflight.get("greedy_probe_new_tokens")) < 8
                 or _positive_int(preflight.get("min_greedy_tokens")) < 8
-                or _positive_int(
-                    preflight.get("min_baseline_qat_greedy_prefix_tokens")
+                or (
+                    not diagnostic_numeric_policy
+                    and _positive_int(preflight.get("min_baseline_qat_greedy_prefix_tokens")) < 8
                 )
-                < 8
             ):
                 issues.append(
                     WorkflowIssue(
