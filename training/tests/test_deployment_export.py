@@ -48,9 +48,11 @@ def test_plan_rejects_path_aliases(tmp_path):
 def test_explicit_none_avoids_upstream_default_int8(tmp_path):
     for variant in ("w32", "w16"):
         kwargs = de.export_kwargs("e2b", variant, tmp_path, tmp_path / "out", 8192)
-        assert kwargs["quantization_recipe"] == "none"
+        assert kwargs["quantization_recipe"] == ("none" if variant == "w32" else str(de.W16_RECIPE_PATH))
         assert kwargs["externalize_embedder"] is True
-        assert kwargs["experimental_use_fp16"] is (variant == "w16")
+        assert kwargs["experimental_use_fp16"] is False
+        if variant == "w16":
+            assert kwargs["experimental_use_mixed_precision"] is False
         assert kwargs["prefill_lengths"] == [128]
         assert kwargs["enable_gpu_dynamic_prefill"] is True
     assert de.deployment_variants("270m")["w4"]["recipe"] == "dynamic_wi4b32_afp32"
@@ -122,6 +124,8 @@ def install_fake_exporter(monkeypatch, tmp_path, *, text_type=False, support_tex
     quantizer = types.ModuleType("ai_edge_quantizer")
     quantizer.recipe = types.SimpleNamespace(**{name: dict for name in ("dynamic_wi8_afp32", "gemma4_mixed48_b32") if name != missing_recipe})
     monkeypatch.setitem(sys.modules, "ai_edge_quantizer", quantizer)
+    monkeypatch.setattr(de, "probe_w16_recipe", lambda: {
+        "path": str(de.W16_RECIPE_PATH), "sha256": de.file_sha256(de.W16_RECIPE_PATH)})
     export = types.ModuleType("litert_torch.generative.export_hf.export")
     export.export = lambda **kwargs: None
     monkeypatch.setitem(sys.modules, export.__name__, export)
@@ -134,6 +138,8 @@ def test_probe_is_no_weights_screening_and_checks_dataclass_fp16(monkeypatch, tm
     assert result["model_loaded"] is False
     assert result["runtime_gpu_tested"] is False
     assert result["recipes"]["gemma4_mixed48_b32"] is True
+    assert result["recipes"][de.W16_RECIPE] is True
+    assert result["recipe_files"][de.W16_RECIPE]["sha256"] == de.file_sha256(de.W16_RECIPE_PATH)
     assert result["template_parity"]["passed"] is True
     assert result["template_parity"]["tested_prompts"] == 3
 

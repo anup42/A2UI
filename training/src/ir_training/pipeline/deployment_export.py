@@ -22,6 +22,8 @@ from ir_training.train.resume_contract import resolve_export_training_lineage
 
 PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"}}
 VARIANTS = ("w32", "w16", "w8", "w4")
+W16_RECIPE = "weight_only_fp16"
+W16_RECIPE_PATH = Path(__file__).resolve().parents[3] / "configs/export/weight_only_fp16.json"
 
 
 def deployment_variants(profile: str) -> dict[str, dict[str, Any]]:
@@ -29,7 +31,7 @@ def deployment_variants(profile: str) -> dict[str, dict[str, Any]]:
         raise ValueError("Deployment profile must be e2b or 270m")
     return {
         "w32": {"weight_bits": 32, "kind": "fp32", "recipe": "none", "experimental": False},
-        "w16": {"weight_bits": 16, "kind": "fp16", "recipe": "none", "experimental": True},
+        "w16": {"weight_bits": 16, "kind": "fp16", "recipe": W16_RECIPE, "experimental": True},
         "w8": {"weight_bits": 8, "kind": "int8", "recipe": "dynamic_wi8_afp32", "experimental": False},
         "w4": {"weight_bits": 4, "kind": "mixed_w4_w8" if profile == "e2b" else "int4_block32",
                "recipe": "gemma4_mixed48_b32" if profile == "e2b" else "dynamic_wi4b32_afp32", "experimental": True},
@@ -182,13 +184,47 @@ def export_kwargs(profile: str, variant: str, model_dir: Path, output_dir: Path,
         "cache_length": cache_length, "prefill_lengths": [128],
         "enable_gpu_dynamic_prefill": True, "enable_gpu_dynamic_cache": True,
         "externalize_embedder": profile == "e2b", "bundle_litert_lm": True,
-        "use_jinja_template": True, "experimental_use_fp16": variant == "w16",
+        "use_jinja_template": True, "experimental_use_fp16": False,
         "keep_temporary_files": False, "trust_remote_code": False,
     }
+    if variant == "w16":
+        # W16 describes physical weight storage, not FP16 activations/KV cache.
+        # The fp16 flag alone leaves weights FP32. The whole-graph mixed pass
+        # breaks Gemma4's RMSNorm composite types and misses external embedders.
+        # AEQ's public FLOAT_CASTING recipe applies to every exported model,
+        # including E2B's token and per-layer embedders, with FP32 boundaries.
+        kwargs["quantization_recipe"] = str(W16_RECIPE_PATH)
+        kwargs["experimental_use_mixed_precision"] = False
     if profile == "e2b":
         template = model_dir / "deployment_chat_template.jinja"
         kwargs["jinja_chat_template_override"] = str(template.resolve())
     return kwargs
+
+
+def probe_w16_recipe() -> dict[str, Any]:
+    """Validate the installed quantizer's weight-casting API without a model."""
+    from ai_edge_quantizer import qtyping, recipe_manager
+
+    payload = W16_RECIPE_PATH.read_bytes()
+    manager = recipe_manager.RecipeManager()
+    manager.load_quantization_recipe(json.loads(payload))
+    operations = (qtyping.TFLOperationName.FULLY_CONNECTED, qtyping.TFLOperationName.EMBEDDING_LOOKUP)
+    for operation in operations:
+        algorithm, config = manager.get_quantization_configs(operation, "a2ui_w16_probe")
+        weight = config.weight_tensor_config
+        if (algorithm != "float_casting" or weight is None or weight.num_bits != 16
+                or weight.dtype != qtyping.TensorDataType.FLOAT
+                or config.compute_precision != qtyping.ComputePrecision.FLOAT
+                or config.activation_tensor_config is not None
+                or config.explicit_dequantize is not True or config.skip_checks
+                or config.min_weight_elements != 0):
+            raise ValueError(f"Installed quantizer/recipe cannot guarantee W16 weight-only casting for {operation}")
+    if manager.need_calibration():
+        raise ValueError("W16 float casting must not require calibration")
+    return {"path": str(W16_RECIPE_PATH), "sha256": hashlib.sha256(payload).hexdigest(),
+            "algorithm": "float_casting", "weight_storage": "FLOAT16",
+            "activation_contract": "FLOAT32", "calibration_required": False,
+            "validated_operations": [str(op.value) for op in operations]}
 
 
 def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -> dict[str, Any]:
@@ -240,9 +276,14 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
             tokenizer = PreTrainedTokenizerFast.from_pretrained(str(model_dir), local_files_only=True, trust_remote_code=False)
             template_parity = verify_deployment_template(tokenizer)
     recipes = {}
+    recipe_files = {}
     for spec in variants.values():
         name = spec["recipe"]
         if name == "none":
+            continue
+        if name == W16_RECIPE:
+            recipe_files[name] = probe_w16_recipe()
+            recipes[name] = True
             continue
         factory = getattr(recipe, name, None)
         if not callable(factory):
@@ -258,6 +299,7 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
     return {"status": "passed", "screening_only": True, "model_loaded": False,
             "conversion_tested": False, "runtime_gpu_tested": False, "model_type": model_type,
             "model_class": model_class.__name__, "profile": profile, "recipes": recipes,
+            "recipe_files": recipe_files,
             "config_sha256": file_sha256(model_dir / "config.json"), "versions": versions,
             "python": sys.executable, "experimental_variants": ["w16", "w4"],
             "template_parity": template_parity}
@@ -469,9 +511,16 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
     source = Path(plan["merged_model_dir"]) / "deployment_source.json"
     if file_sha256(source) != report.get("source_manifest_sha256"):
         raise ValueError("Export source manifest differs from merged checkpoint")
+    files = [str(artifact), str(manifest_path), str(inspection_path)]
+    recipe_file = report.get("quantization_recipe_file")
+    if recipe_file is not None:
+        recipe_path = _local_file(folder, recipe_file["name"])
+        if file_sha256(recipe_path) != recipe_file["sha256"]:
+            raise ValueError("Export quantization recipe changed after conversion")
+        files.append(str(recipe_path))
     return {"artifact": str(artifact), "manifest": str(manifest_path), "inspection": str(inspection_path),
             "sha256": report["sha256"], "actual_precision": precision,
-            "files": [str(artifact), str(manifest_path), str(inspection_path)]}
+            "files": files}
 
 
 def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, output_dir: Path,
@@ -495,8 +544,20 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
         parity = source.get("template_parity") or {}
         if parity.get("passed") is not True or parity.get("sha256") != file_sha256(model_dir / "deployment_chat_template.jinja"):
             raise ValueError("Deployment chat-template parity is missing or changed")
-    from litert_torch.generative.export_hf import export
+    export = importlib.import_module("litert_torch.generative.export_hf.export")
     kwargs = export_kwargs(profile, variant, model_dir, output_dir, cache_length)
+    recipe_file = None
+    if variant == "w16":
+        output_dir.mkdir(parents=True, exist_ok=True)
+        recipe_path = output_dir / "w16_quantization_recipe.json"
+        shutil.copy2(W16_RECIPE_PATH, recipe_path)
+        digest = file_sha256(recipe_path)
+        if digest != preflight["recipe_files"][W16_RECIPE]["sha256"]:
+            raise ValueError("W16 quantization recipe changed after preflight")
+        kwargs["quantization_recipe"] = str(recipe_path.resolve())
+        recipe_file = {"name": recipe_path.name, "sha256": digest}
+        log("W16: FLOAT16 stored FC/embedding weights; FLOAT32 activations, RMSNorm and KV cache; "
+            "whole-graph mixed precision disabled")
     log(f"Convert {profile} {variant}: {deployment_variants(profile)[variant]['kind']}; CPU conversion, no GPU speed claim")
     with Progress(f"LiteRT Torch conversion {variant}", unit="stage"):
         export.export(**kwargs)
@@ -522,6 +583,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
               "runtime_gpu_tested": False, "actual_precision": actual_precision,
               "inspection_sha256": file_sha256(output_dir / "package_inspection.json"),
               "official_retained_scale_export": False, "mtp_exported": False}
+    if recipe_file is not None:
+        result["quantization_recipe_file"] = recipe_file
     _write(output_dir / "export_manifest.json", result)
     return result
 

@@ -200,6 +200,44 @@ For an individual failed format, the existing lower-level
 `deployment_export.py convert` can use an already verified `merged_hf` and a
 fresh variant output directory. Do not delete a successful export to retry.
 
+## Retry only W16 from an existing `merged_hf`
+
+From the updated repository root on the Linux training PC, replace the two
+placeholder paths below. `--model-dir` must be the **existing merged_hf** with
+its `deployment_source.json`, hashed dense weights, tokenizer and deployment
+template, not the adapter or `best_golden_checkpoint` directory.
+
+```bash
+/group-volume/k.anup/envs/a2ui-export-094/bin/python -u \
+  training/scripts/deployment_export.py convert \
+  --profile e2b --variant w16 \
+  --model-dir /ABSOLUTE/PATH/TO/EXISTING_EXPORT/merged_hf \
+  --output-dir /ABSOLUTE/PATH/TO/NEW_w16_retry \
+  --cache-length 8192
+```
+
+Use the original larger cache length if the run required more than 8192 tokens.
+Use a **new/empty output directory**; leave the failed W16 evidence and successful
+W32/W8/W4 exports intact. This command hashes/verifies the existing merged source
+and runs **only W16 conversion and physical inspection**. It does not retrain,
+re-merge, process the dataset, convert other variants, initialize Vulkan, or
+evaluate a Golden set. It does not update a previously failed top-level run's
+status; its result is a standalone validated variant folder.
+
+W16 now uses real FLOAT16 **weight storage**, with FLOAT32 activations, RMSNorm
+and KV cache, via the repository's weight-only float-casting recipe. Do not add
+`experimental_use_fp16=True` or `experimental_use_mixed_precision=True`, and do
+not modify the installed exporter. The standalone `convert` command is already
+an explicit choice of W16; the all-variant wrapper's
+`--allow-experimental-formats` is not an option on this lower-level command.
+See [W16 implementation and root cause](DEPLOYMENT_EXPORT_ENVIRONMENT.md#w16-weight-casting-not-whole-graph-mixed-precision).
+
+Success produces `model.litertlm`, `package_inspection.json`,
+`w16_quantization_recipe.json`, and `export_manifest.json`. The manifest must
+show `actual_precision.verified: true` with only `FLOAT16` matrix-weight type
+counts. FLOAT32 activations are expected. `exported_not_yet_evaluated` is not a
+GPU-runtime or quality-test result.
+
 To run training and all evaluations instead, use the
 [full deployment workflow](GOLDEN_GPU_DEPLOYMENT.md). Its
 `--skip-litert-evaluation` flag is a different mode: it still trains and tests HF

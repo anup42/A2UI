@@ -145,12 +145,87 @@ A passing prerequisite probe does **not** certify all model shapes, native GPU d
 | Requested variant | Conversion request | Required observed matrix-weight storage |
 |---|---|---|
 | W32 | `quantization_recipe=none` | FP32 |
-| W16 | `none` plus `experimental_use_fp16=True` | FP16 |
+| W16 | Repository `weight_only_fp16.json` / AEQ `float_casting`; both experimental precision flags **false** | FP16; activations and KV cache remain FP32 |
 | W8 | `dynamic_wi8_afp32` | INT8 |
 | E2B W4 | `gemma4_mixed48_b32` | INT4 present; INT8 permitted (mixed W4/W8) |
 | 270M W4 | `dynamic_wi4b32_afp32` | INT4 |
 
 W16 and W4 require the full launcher's experimental-format acknowledgment. A failed format is not silently replaced by W8 or counted as passing. FP32 activations/shape constants are not counted as FP32 model weights. The inspector follows constant-weight dequantization/cast/reshape/transpose chains and checks physical fully-connected and embedding weight storage. Unknown or mismatched weights fail closed. This is not a guarantee of every operator's arithmetic precision or placement.
+
+### W16: weight casting, not whole-graph mixed precision
+
+The current deployment/export-only entry points use
+[`weight_only_fp16.json`](../configs/export/weight_only_fp16.json) for both E2B
+and 270M W16. AI Edge Quantizer's public `float_casting` algorithm physically
+stores FC/embedding constants as FLOAT16 and inserts dequantization to the
+unchanged FLOAT32 graph. No calibration set is required. Both
+`experimental_use_fp16` and `experimental_use_mixed_precision` are explicitly
+false for W16. W32/W8/W4 requests are unchanged. This is **W16 storage with
+FP32 activation/cache contracts**, not a promise of all-FP16 arithmetic, lower
+KV-cache memory, or faster native inference. [Pinned float-casting implementation](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/algorithms/nonlinear_quantize/float_casting.py).
+
+Why the previous E2B W16 request failed:
+
+1. `experimental_use_fp16=True` controls embedding-input/cache types and bundle
+   activation metadata; the HF loader still loads FLOAT32 weights. With recipe
+   `none`, that flag alone does not produce W16 weight storage.
+2. The additional whole-graph mixed-precision pass is a different operation.
+   Gemma4's projection norm uses an `odml.rms_norm` composite, explicit FP32
+   normalization, and FP32 scale tensors. The pass protects RMSNorm by casting
+   its operands to FP32, skips existing CAST operations, and preserves its
+   decomposition without normalizing the preserved function's argument types.
+   An FP16 decomposition can therefore disagree with the FP32 composite input.
+   The reported cleanup error at `per_layer_projection_norm / mark_tensor_2`
+   shows exactly such an F32/F16 interface mismatch. We have not reproduced the
+   complete remote E2B MLIR graph locally or claimed to repair the upstream
+   mixed-precision optimizer itself.
+3. That whole-graph pass is applied to the main text graph, not automatically
+   to the token/per-layer embedding exports. Enabling it alone would still be
+   insufficient to establish FLOAT16 storage for the complete E2B package.
+
+The weight-only recipe avoids rewriting any RMSNorm composite/interface types.
+The standard exporter passes the recipe through its text, token-embedder, and
+additional per-layer-embedder conversion paths before bundling. It uses no
+runtime monkeypatches, changes no installed package, and leaves the original
+merged weights/provenance untouched. [Pinned loader and export paths](https://github.com/google-ai-edge/litert-torch/blob/v0.9.4/litert_torch/generative/export_hf/core/export_lib.py),
+[FP16 input flag](https://github.com/google-ai-edge/litert-torch/blob/v0.9.4/litert_torch/generative/export_hf/core/exportable_module.py),
+[mixed-precision pass](https://github.com/google-ai-edge/litert-torch/blob/v0.9.4/litert_torch/generative/export_hf/core/mu/mixed_precision.py),
+[Gemma4 RMSNorm/projection](https://github.com/google-ai-edge/litert-torch/blob/v0.9.4/litert_torch/generative/export_hf/model_ext/gemma4/patch.py).
+
+Preflight validates the recipe against the installed quantizer for **both FC
+and embedding operators**, without loading weights. W16 copies the validated
+recipe to `w16_quantization_recipe.json` in its fresh output folder and records
+its SHA256 in `export_manifest.json`. Output validation rechecks that file as
+well as the unchanged physical precision gate. An unconverted FLOAT32 matrix,
+including an external embedding or unsupported GATHER lowering, still fails;
+it is never labelled W16 merely because conversion returned successfully.
+
+Focused regression tests perform real float casting of tiny TFLite FC and
+embedding graphs, compare physical half-precision bytes and CPU numerical
+outputs, check unchanged graph I/O types, and exercise recipe/provenance
+failures. They do **not** convert a full E2B model or certify native GPU kernels.
+See [retry only W16 from an existing merge](EXPORT_TRAINED_CHECKPOINT.md#retry-only-w16-from-an-existing-merged_hf).
+
+Local verification for this fix (2026-09-19): the focused W16 suite passed
+**22 tests**; the broader export/resume/deployment/QAT/inspection regression
+suite passed **442 tests with 4 skips** (PEFT and TensorBoard unavailable,
+Windows symlink permission, and a POSIX-only test). Ruff and `git diff --check`
+passed. Tiny real graph tests used the already-installed AI Edge Quantizer
+0.8.0 and LiteRT 2.1.6 on this Windows host; the pinned 0.9.0 quantizer source/API
+was separately checked. This does not establish execution of the Linux 0.9.4
+exporter stack or of a full E2B conversion.
+
+To rerun the inexpensive focused tests from the repository root:
+
+```bash
+PYTHONPATH=training/src:training/scripts:dataset/src \
+  python -m pytest training/tests/test_deployment_w16.py \
+  training/tests/test_deployment_export.py -q -rs
+```
+
+The real tiny-graph tests require AI Edge Quantizer and LiteRT; run them in the
+isolated exporter environment, not by installing converter dependencies over
+the training environment. They do not import/download E2B weights.
 
 The source preparation stage validates saved checkpoint hashes, positive optimizer-step provenance, original dense source hashes and tokenizer/template fingerprints. It copies the checked prompt metadata; E2B's LiteRT-compatible template must render identically to the training template on checked examples, including a bounded three-row prefix of the prepared training data. This check does not read the entire training JSONL into memory. A real, random-weight tiny CPU regression checks that the full Gemma4 wrapper survives the training loader, PEFT adapter save/reload, merge, and full checkpoint save/reload with an unchanged tensor-key inventory and exact merged tensor values. This is not a full E2B model export test. The native GPU runner additionally compares every Golden prompt's runtime token IDs with the HF-formatted input contract. The original checkpoint, data and tokenizer are never overwritten.
 
