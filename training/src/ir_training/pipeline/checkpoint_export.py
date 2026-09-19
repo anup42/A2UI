@@ -35,6 +35,7 @@ class CheckpointExportOptions:
     allow_experimental_formats: bool = False
     stage_timeout_seconds: float = 172800
     progress_seconds: float = 10
+    variants: tuple[str, ...] | None = None
 
 
 def _json(path: Path) -> dict[str, Any]:
@@ -143,6 +144,7 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
         cache_length=options.cache_length,
         max_input_tokens=golden.get("max_input_tokens", 4096),
         max_new_tokens=golden.get("max_new_tokens", 2048),
+        selected_variants=options.variants,
     )
     plan.update(
         schema_version=1,
@@ -180,6 +182,8 @@ def _validate_stage(plan: dict[str, Any], name: str) -> dict[str, Any]:
             raise ValueError(
                 "Exporter preflight did not produce a matching successful report"
             )
+        if "w248" in plan["variants"] and report.get("variants") != list(plan["variants"]):
+            raise ValueError("W248 exporter preflight did not screen the requested variants")
     elif name == "merge":
         report = _json(Path(plan["merged_model_dir"]) / "deployment_source.json")
         expected = {
@@ -244,9 +248,9 @@ def run_checkpoint_export(
     plan = build_checkpoint_export_plan(options)
     if not execute:
         return {**plan, "status": "plan_only"}
-    if not options.allow_experimental_formats:
+    if not options.allow_experimental_formats and any(spec["experimental"] for spec in plan["variants"].values()):
         raise ValueError(
-            "All four exports include experimental W16/W4; explicitly pass --allow-experimental-formats"
+            "Selected exports include experimental W16/W4/W248; explicitly pass --allow-experimental-formats"
         )
     output = Path(plan["output_dir"])
     # Exclusive creation also prevents two launchers from sharing the same output.

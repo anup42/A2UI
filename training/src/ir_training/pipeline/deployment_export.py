@@ -18,26 +18,41 @@ from pathlib import Path
 from typing import Any
 
 from ir_training.common.progress import Progress, log
+from ir_training.export import gemma4_mixed248
 from ir_training.train.resume_contract import resolve_export_training_lineage
 
 PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"}}
 VARIANTS = ("w32", "w16", "w8", "w4")
+OPTIONAL_VARIANTS = ("w248",)
 W16_RECIPE = "weight_only_fp16"
 W16_RECIPE_PATH = Path(__file__).resolve().parents[3] / "configs/export/weight_only_fp16.json"
 E2B_W4_RECIPE = "gemma4_mixed48_b32"
 E2B_W4_RECIPE_PATH = Path(__file__).resolve().parents[3] / "configs/export/gemma4_mixed48_b32_flat.json"
 
 
-def deployment_variants(profile: str) -> dict[str, dict[str, Any]]:
+def deployment_variants(profile: str, selected: tuple[str, ...] | None = None) -> dict[str, dict[str, Any]]:
     if profile not in PROFILES:
         raise ValueError("Deployment profile must be e2b or 270m")
-    return {
+    supported = {
         "w32": {"weight_bits": 32, "kind": "fp32", "recipe": "none", "experimental": False},
         "w16": {"weight_bits": 16, "kind": "fp16", "recipe": W16_RECIPE, "experimental": True},
         "w8": {"weight_bits": 8, "kind": "int8", "recipe": "dynamic_wi8_afp32", "experimental": False},
         "w4": {"weight_bits": 4, "kind": "mixed_w4_w8" if profile == "e2b" else "int4_block32",
                "recipe": E2B_W4_RECIPE if profile == "e2b" else "dynamic_wi4b32_afp32", "experimental": True},
     }
+    if profile == "e2b":
+        supported["w248"] = {
+            "weight_bits": [2, 4, 8], "kind": "experimental_mixed_w2_w4_w8",
+            "recipe": gemma4_mixed248.RECIPE_NAME, "experimental": True,
+            "official_graph": False, "official_qat": False,
+            "activation_contract": "dynamic_FLOAT32_not_official_static_A8",
+        }
+    names = VARIANTS if selected is None else selected
+    if not names or isinstance(names, str) or len(set(names)) != len(names):
+        raise ValueError("Select a nonempty list of unique export variants")
+    if any(name not in supported for name in names):
+        raise ValueError(f"Unsupported export variants for {profile}: {names}; w248 is E2B-only")
+    return {name: supported[name] for name in names}
 
 
 def file_sha256(path: Path) -> str:
@@ -138,13 +153,14 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
                                  model_dir: Path | None = None,
                                  preparation_config_path: Path | None = None,
                                  cache_length: int = 8192, max_input_tokens: int = 4096,
-                                 max_new_tokens: int = 2048) -> dict[str, Any]:
+                                 max_new_tokens: int = 2048,
+                                 selected_variants: tuple[str, ...] | None = None) -> dict[str, Any]:
     """Build subprocess contracts, including the BEFORE-training exporter probe.
 
     Future selected-checkpoint/config paths may not exist during a plan.  The
     prepare subprocess validates them against actual saved training provenance.
     """
-    variants = deployment_variants(profile)
+    variants = deployment_variants(profile, selected_variants)
     if type(cache_length) is not int or cache_length < max_input_tokens + max_new_tokens:
         raise ValueError("Export cache_length must cover max_input_tokens + max_new_tokens")
     for value in (max_input_tokens, max_new_tokens):
@@ -159,6 +175,8 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
     probe = [exporter_python, "-u", str(script), "probe", *common,
              "--model-dir", str((model_dir or checkpoint_dir).resolve()),
              "--report", str(output / "exporter_preflight.json")]
+    if selected_variants is not None:
+        probe.extend(["--variants", *variants])
     prepare = [training_python, "-u", str(script), "prepare", "--profile", profile,
                "--training-config", str(training_config_path.resolve()),
                "--checkpoint", str(checkpoint_dir.resolve()), "--output-dir", str(merged)]
@@ -179,7 +197,7 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
 
 
 def export_kwargs(profile: str, variant: str, model_dir: Path, output_dir: Path, cache_length: int) -> dict[str, Any]:
-    spec = deployment_variants(profile)[variant]
+    spec = deployment_variants(profile, (variant,))[variant]
     kwargs: dict[str, Any] = {
         "model": str(model_dir.resolve()), "output_dir": str(output_dir.resolve()),
         "task": "text_generation", "quantization_recipe": spec["recipe"],
@@ -202,6 +220,9 @@ def export_kwargs(profile: str, variant: str, model_dir: Path, output_dir: Path,
         # not a single TFLite recipe list. Use its checked equivalent operator
         # rules here; passing the mapping to Quantizer directly raises TypeError.
         kwargs["quantization_recipe"] = str(E2B_W4_RECIPE_PATH)
+    elif variant == "w248":
+        kwargs["quantization_recipe"] = str(gemma4_mixed248.RECIPE_PATH)
+        kwargs["experimental_use_mixed_precision"] = False
     if profile == "e2b":
         template = model_dir / "deployment_chat_template.jinja"
         kwargs["jinja_chat_template_override"] = str(template.resolve())
@@ -297,18 +318,21 @@ def probe_e2b_w4_recipe(mapping: Any, *, recipe_path: Path | None = None) -> dic
                        "token_embedder": "INT4_BLOCK32", "per_layer_embedder": "INT4_BLOCK32"}}
 
 
-def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -> dict[str, Any]:
+def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
+                   selected_variants: tuple[str, ...] | None = None) -> dict[str, Any]:
     """Check actual installed APIs/recipes/model routing without loading weights.
 
     This is compatibility screening, not a claim a real model converted or ran.
     In particular do not accept generic Gemma4 exportables which omit its
     additional per-layer embedding model.
     """
-    variants = deployment_variants(profile)
+    variants = deployment_variants(profile, selected_variants)
     local_config = _json(model_dir / "config.json")
     model_type = local_config.get("model_type")
     if model_type not in PROFILES[profile]:
         raise ValueError(f"Profile {profile} cannot export model_type={model_type!r}")
+    if "w248" in variants:
+        gemma4_mixed248.check_model_config(local_config)
     from ai_edge_quantizer import recipe
     from litert_torch.generative.export_hf.core.exportable_module_config import (
         ExportableModuleConfig,
@@ -322,7 +346,8 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
     if not callable(getattr(export_module, "export", None)):
         raise TypeError("Installed LiteRT Torch has no export_hf.export callable")
     fields = {field.name for field in dataclasses.fields(ExportableModuleConfig)}
-    required = set(export_kwargs(profile, "w16", model_dir, model_dir / "unused", cache_length))
+    required = set().union(*(export_kwargs(profile, name, model_dir, model_dir / "unused", cache_length)
+                             for name in variants))
     missing = sorted(required - fields)
     if missing:
         raise ValueError(f"Installed exporter lacks requested options: {missing}; use a compatible isolated export environment")
@@ -355,6 +380,11 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
             recipe_files[name] = probe_w16_recipe()
             recipes[name] = True
             continue
+        if name == gemma4_mixed248.RECIPE_NAME:
+            actual_recipe = export_kwargs(profile, "w248", model_dir, model_dir / "unused", cache_length)["quantization_recipe"]
+            recipe_files[name] = gemma4_mixed248.probe_recipe(Path(actual_recipe))
+            recipes[name] = True
+            continue
         factory = getattr(recipe, name, None)
         if not callable(factory):
             raise TypeError(f"Installed AI Edge Quantizer lacks required recipe {name}")
@@ -374,7 +404,8 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
             "model_class": model_class.__name__, "profile": profile, "recipes": recipes,
             "recipe_files": recipe_files,
             "config_sha256": file_sha256(model_dir / "config.json"), "versions": versions,
-            "python": sys.executable, "experimental_variants": ["w16", "w4"],
+            "python": sys.executable, "variants": list(variants),
+            "experimental_variants": [name for name, spec in variants.items() if spec["experimental"]],
             "template_parity": template_parity}
 
 
@@ -509,7 +540,10 @@ def inspect_variant_precision(package: dict[str, Any], profile: str, variant: st
     FLOAT32 activations and INT32 shape constants are not model weight precision.
     Unknown FC weight producers are rejected rather than inferred from filenames.
     """
-    deployment_variants(profile)[variant]
+    deployment_variants(profile, (variant,))[variant]
+    if variant == "w248":
+        # A dtype histogram alone would allow the wrong layers to be 2-bit.
+        return gemma4_mixed248.inspect_policy(package)
     counts: Counter[str] = Counter()
     fc_counts: Counter[str] = Counter()
     unresolved = []
@@ -574,6 +608,15 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
     artifact = Path(plan["variants"][variant]["artifact"])
     if report.get("variant") != variant or report.get("profile") != plan["profile"]:
         raise ValueError("Export result profile/variant binding differs from plan")
+    if variant == "w248":
+        expected = {
+            **deployment_variants(plan["profile"], (variant,))[variant],
+            "mtp_exported": False, "official_retained_scale_export": False,
+            "runtime_gpu_tested": False, "status": "exported_not_yet_evaluated",
+        }
+        if any(type(report.get(key)) is not type(value) or report.get(key) != value
+               for key, value in expected.items()):
+            raise ValueError("W248 manifest claims differ from the experimental dense PTQ/no-MTP contract")
     if report.get("artifact") != str(artifact.resolve()) or report.get("sha256") != file_sha256(artifact):
         raise ValueError("Export artifact path/hash differs from manifest")
     if report.get("inspection_sha256") != file_sha256(inspection_path):
@@ -586,10 +629,14 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
         raise ValueError("Export source manifest differs from merged checkpoint")
     files = [str(artifact), str(manifest_path), str(inspection_path)]
     recipe_file = report.get("quantization_recipe_file")
+    if variant == "w248" and not isinstance(recipe_file, dict):
+        raise ValueError("W248 export is missing its bound quantization recipe")
     if recipe_file is not None:
         recipe_path = _local_file(folder, recipe_file["name"])
         if file_sha256(recipe_path) != recipe_file["sha256"]:
             raise ValueError("Export quantization recipe changed after conversion")
+        if variant == "w248" and json.loads(recipe_path.read_bytes()) != gemma4_mixed248.canonical_recipe():
+            raise ValueError("W248 export recipe differs from its experimental bit policy")
         files.append(str(recipe_path))
     return {"artifact": str(artifact), "manifest": str(manifest_path), "inspection": str(inspection_path),
             "sha256": report["sha256"], "actual_precision": precision,
@@ -598,6 +645,9 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
 
 def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, output_dir: Path,
                                cache_length: int = 8192) -> dict[str, Any]:
+    spec = deployment_variants(profile, (variant,))[variant]
+    if variant == "w248":
+        gemma4_mixed248.check_model_config(_json(model_dir / "config.json"))
     source = _json(model_dir / "deployment_source.json")
     if source.get("profile") != profile or source.get("official_retained_scale_export") is not False:
         raise ValueError("Deployment model lacks matching dense source provenance")
@@ -612,7 +662,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
                 raise ValueError(f"Merged deployment source changed: {name}")
     if output_dir.exists() and any(output_dir.iterdir()):
         raise ValueError(f"Variant destination must be fresh: {output_dir}")
-    preflight = probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length)
+    preflight = probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
+                               selected_variants=(variant,))
     if profile == "e2b":
         parity = source.get("template_parity") or {}
         if parity.get("passed") is not True or parity.get("sha256") != file_sha256(model_dir / "deployment_chat_template.jinja"):
@@ -621,13 +672,14 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     kwargs = export_kwargs(profile, variant, model_dir, output_dir, cache_length)
     recipe_file = None
     local_recipe = W16_RECIPE_PATH if variant == "w16" else (
-        E2B_W4_RECIPE_PATH if profile == "e2b" and variant == "w4" else None)
+        E2B_W4_RECIPE_PATH if profile == "e2b" and variant == "w4" else (
+            gemma4_mixed248.RECIPE_PATH if variant == "w248" else None))
     if local_recipe is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
         recipe_path = output_dir / f"{variant}_quantization_recipe.json"
         shutil.copy2(local_recipe, recipe_path)
         digest = file_sha256(recipe_path)
-        recipe_name = deployment_variants(profile)[variant]["recipe"]
+        recipe_name = spec["recipe"]
         if digest != preflight["recipe_files"][recipe_name]["sha256"]:
             raise ValueError(f"{variant.upper()} quantization recipe changed after preflight")
         kwargs["quantization_recipe"] = str(recipe_path.resolve())
@@ -641,15 +693,27 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
                 raise ValueError("E2B W4 quantization recipe changed while validating its snapshot")
             preflight["recipe_files"][E2B_W4_RECIPE] = copied_probe
             log(f"E2B W4 recipe file verified: {kwargs['quantization_recipe']}; sha256={digest}")
+        elif variant == "w248":
+            copied_probe = gemma4_mixed248.probe_recipe(recipe_path)
+            if copied_probe["sha256"] != digest:
+                raise ValueError("W248 recipe changed while validating its snapshot")
+            preflight["recipe_files"][recipe_name] = copied_probe
+            log(f"Experimental W248 recipe file verified: {kwargs['quantization_recipe']}; sha256={digest}")
     if variant == "w16":
         log("W16: FLOAT16 stored FC/embedding weights; FLOAT32 activations, RMSNorm and KV cache; "
             "whole-graph mixed precision disabled")
     elif profile == "e2b" and variant == "w4":
         log("E2B W4: equivalent flat Gemma4 recipe; INT4 block-32 FC/embedding weights, "
             "INT8 per-layer FC projections; physical package inspection required")
-    log(f"Convert {profile} {variant}: {deployment_variants(profile)[variant]['kind']}; CPU conversion, no GPU speed claim")
+    elif variant == "w248":
+        log("EXPERIMENTAL dense W248 PTQ: channelwise W2 token/head + late MLP, W4 attention/early MLP/"
+            "per-layer embeddings, W8 per-layer projections; new scales, no official static-A8 graph, no MTP. "
+            "Quality may regress; device speed and Golden evaluation are required before adoption.")
+    log(f"Convert {profile} {variant}: {spec['kind']}; CPU conversion, no GPU speed claim")
     with Progress(f"LiteRT Torch conversion {variant}", unit="stage"):
         export.export(**kwargs)
+    if recipe_file is not None and file_sha256(output_dir / recipe_file["name"]) != recipe_file["sha256"]:
+        raise ValueError("Export quantization recipe changed during conversion")
     artifacts = list(output_dir.rglob("*.litertlm"))
     if len(artifacts) != 1 or artifacts[0].stat().st_size < 8:
         raise ValueError(f"Expected one nonempty real .litertlm artifact, found {len(artifacts)}")
@@ -665,7 +729,7 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
         _write(output_dir / "package_inspection.json", inspection)
         actual_precision = inspect_variant_precision(inspection, profile, variant)
     result = {"status": "exported_not_yet_evaluated", "profile": profile, "variant": variant,
-              **deployment_variants(profile)[variant], "artifact": str(canonical.resolve()),
+              **spec, "artifact": str(canonical.resolve()),
               "size_bytes": canonical.stat().st_size, "sha256": file_sha256(canonical),
               "source_manifest_sha256": file_sha256(model_dir / "deployment_source.json"),
               "exporter_preflight": preflight, "export_kwargs": kwargs,
@@ -689,11 +753,17 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--report", type=Path)
-    parser.add_argument("--variant", choices=VARIANTS)
+    parser.add_argument("--variant", choices=VARIANTS + OPTIONAL_VARIANTS)
+    parser.add_argument("--variants", nargs="+", choices=VARIANTS + OPTIONAL_VARIANTS,
+                        help="Probe only these variants; default: w32 w16 w8 w4. w248 is E2B-only experimental PTQ.")
     parser.add_argument("--cache-length", type=int, default=8192)
     args = parser.parse_args()
     if args.cache_length <= 0:
         parser.error("--cache-length must be positive")
+    if args.variants is not None and args.stage != "probe":
+        parser.error("--variants is only for probe; convert takes --variant")
+    if args.variant is not None and args.stage != "convert":
+        parser.error("--variant is only for convert; probe takes --variants")
     required = {"probe": ("model_dir", "report"), "prepare": ("training_config", "checkpoint", "output_dir"),
                 "convert": ("model_dir", "output_dir", "variant")}[args.stage]
     for name in required:
@@ -704,7 +774,8 @@ def main() -> None:
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
     if args.stage == "probe":
-        result = probe_exporter(profile=args.profile, model_dir=args.model_dir, cache_length=args.cache_length)
+        result = probe_exporter(profile=args.profile, model_dir=args.model_dir, cache_length=args.cache_length,
+                                selected_variants=tuple(args.variants) if args.variants is not None else None)
         _write(args.report, result)
     elif args.stage == "prepare":
         result = prepare_deployment_checkpoint(profile=args.profile, training_config=args.training_config,

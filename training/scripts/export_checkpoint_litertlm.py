@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export W32/W16/W8/W4 from an existing SFT checkpoint, without training or tests."""
+"""Export W32/W16/W8/W4 (or opt-in E2B W248) from SFT, without training or tests."""
 
 from __future__ import annotations
 
@@ -19,6 +19,10 @@ from ir_training.pipeline.checkpoint_export import (
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=("e2b", "270m"), required=True)
+    parser.add_argument(
+        "--variants", nargs="+", choices=("w32", "w16", "w8", "w4", "w248"),
+        help="Default: w32 w16 w8 w4. Use w248 for experimental E2B W2/W4/W8 PTQ, not the official mobile graph.",
+    )
     parser.add_argument(
         "--fit-dir",
         type=Path,
@@ -57,7 +61,7 @@ def main() -> int:
     parser.add_argument(
         "--allow-experimental-formats",
         action="store_true",
-        help="Required to execute W16/W4 exports",
+        help="Required to execute W16/W4/W248 exports",
     )
     parser.add_argument(
         "--stage-timeout-seconds",
@@ -78,6 +82,8 @@ def main() -> int:
     )
     values = vars(parser.parse_args())
     execute = values.pop("execute")
+    if values["variants"] is not None:
+        values["variants"] = tuple(values["variants"])
     try:
         result = run_checkpoint_export(
             CheckpointExportOptions(**values), execute=execute

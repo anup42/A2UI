@@ -24,7 +24,7 @@ RUNTIME_PY=/group-volume/k.anup/envs/a2ui-litert-017/bin/python
 "$RUNTIME_PY" -m pip check
 ```
 
-The core converter pins are deliberate: LiteRT Torch 0.9.4, AI Edge Quantizer 0.9.0, LiteRT 2.2.0, converter 0.4.0, builder 0.17.0, Transformers 5.16.1, and the documented Torch 2.11.0 / TorchAO 0.17.0 pairing. These are **source/API/dependency-metadata checked**, not a claim that this complete environment or all four real E2B exports have been exercised here. Python 3.12 is the recommended deployment setup; the upstream runtime Linux wheel requires glibc 2.27 or newer. [LiteRT Torch release](https://pypi.org/project/litert-torch/0.9.4/), [TorchAO compatibility matrix](https://github.com/pytorch/ao/issues/2919), [LiteRT-LM API release](https://pypi.org/project/litert-lm-api/0.17.0/).
+The core converter pins are deliberate: LiteRT Torch 0.9.4, AI Edge Quantizer 0.9.0, LiteRT 2.2.0, converter 0.4.0, builder 0.17.0, Transformers 5.16.1, and the documented Torch 2.11.0 / TorchAO 0.17.0 pairing. These are **source/API/dependency-metadata checked**, not a claim that this complete environment, the four established real E2B exports, or optional W248 has been exercised here. Python 3.12 is the recommended deployment setup; the upstream runtime Linux wheel requires glibc 2.27 or newer. [LiteRT Torch release](https://pypi.org/project/litert-torch/0.9.4/), [TorchAO compatibility matrix](https://github.com/pytorch/ao/issues/2919), [LiteRT-LM API release](https://pypi.org/project/litert-lm-api/0.17.0/).
 
 CPU wheels avoid unnecessary CUDA converter allocations. TorchAO documents the CPU wheel index. Do not mix a wheel compiled for another Torch ABI; import failures may abort the process rather than raise a recoverable Python error. [TorchAO installation](https://github.com/pytorch/ao#installation).
 
@@ -148,9 +148,26 @@ A passing prerequisite probe does **not** certify all model shapes, native GPU d
 | W16 | Repository `weight_only_fp16.json` / AEQ `float_casting`; both experimental precision flags **false** | FP16; activations and KV cache remain FP32 |
 | W8 | `dynamic_wi8_afp32` | INT8 |
 | E2B W4 | Repository `gemma4_mixed48_b32_flat.json`, checked against upstream `gemma4_mixed48_b32` | INT4 present; INT8 permitted (mixed W4/W8) |
+| E2B W248 (opt-in) | Repository `gemma4_dense_mixed248.json`; public output-scope API, dynamic channelwise PTQ | Role-checked packed INT2/INT4/INT8; no MTP section |
 | 270M W4 | `dynamic_wi4b32_afp32` | INT4 |
 
-W16 and W4 require the full launcher's experimental-format acknowledgment. A failed format is not silently replaced by W8 or counted as passing. FP32 activations/shape constants are not counted as FP32 model weights. The inspector follows constant-weight dequantization/cast/reshape/transpose chains and checks physical fully-connected and embedding weight storage. Unknown or mismatched weights fail closed. This is not a guarantee of every operator's arithmetic precision or placement.
+W16, W4 and W248 require the full launcher's experimental-format
+acknowledgment. A failed format is not silently replaced by W8 or counted as
+passing. FP32 activations/shape constants are not counted as FP32 model weights.
+The inspector follows constant-weight dequantization/cast/reshape/transpose
+chains and checks physical fully-connected and embedding weight storage. Unknown
+or mismatched weights fail closed. This is not a guarantee of every operator's
+arithmetic precision or placement.
+
+W248 is E2B-only and optional; omitting `--variants` keeps the existing
+W32/W16/W8/W4 export set unchanged. It applies a public-API, channelwise
+W2/W4/W8 PTQ policy to a verified dense checkpoint/`merged_hf`, not to an
+existing `.litertlm`, and does not change source weights on disk. It is not the
+official QAT graph, static-A8/scales contract, per-layer embedding group-256
+layout, or an MTP export. Preflight and output inspection bind the exact recipe
+hash, validate all 35 layers and physical packed widths/scales, and reject a
+drafter section; they do not run GPU inference or quality evaluation. See
+[experimental E2B W248 PTQ, commands and limitations](EXPORT_TRAINED_CHECKPOINT.md#experimental-e2b-w248-ptq).
 
 ### W16: weight casting, not whole-graph mixed precision
 
@@ -274,6 +291,12 @@ passed. Tiny real graph tests used the already-installed AI Edge Quantizer
 0.8.0 and LiteRT 2.1.6 on this Windows host; the pinned 0.9.0 quantizer source/API
 was separately checked. This does not establish execution of the Linux 0.9.4
 exporter stack or of a full E2B conversion.
+
+A subsequent isolated AI Edge Quantizer 0.9.0 run passed **80 focused
+tiny-graph, recipe, W248, W4 and W16 tests**. It still did not run a full
+Hugging Face conversion because `litert_converter` was unavailable in that
+local environment. This is recipe and physical-storage regression evidence,
+not a successful full-stack export, GPU result, or quality result.
 
 To rerun the inexpensive focused tests from the repository root:
 

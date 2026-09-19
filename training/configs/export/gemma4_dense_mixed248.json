@@ -1,0 +1,121 @@
+[
+  {
+    "regex": "(?:Gemma4TextAttention_self_attn/|\\.self_attn\\.)",
+    "operation": "FULLY_CONNECTED",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 4,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  },
+  {
+    "regex": "(?:Gemma4TextDecoderLayer_(?:[0-9]|1[0-4])/[^;]*Gemma4TextMLP_mlp/|\\.layers\\.(?:[0-9]|1[0-4])\\.mlp\\.)",
+    "operation": "FULLY_CONNECTED",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 4,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  },
+  {
+    "regex": "(?:Gemma4TextDecoderLayer_(?:1[5-9]|2[0-9]|3[0-4])/[^;]*Gemma4TextMLP_mlp/|\\.layers\\.(?:1[5-9]|2[0-9]|3[0-4])\\.mlp\\.)",
+    "operation": "FULLY_CONNECTED",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 2,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  },
+  {
+    "regex": "per_layer_(?:model_projection|input_gate|projection)(?:[;/.]|$)",
+    "operation": "FULLY_CONNECTED",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 8,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  },
+  {
+    "regex": "(?:Linear_lm_head(?:[;/]|$)|(?:^|[.;/])lm_head(?:[.;/]|$)|(?:^|;)(?:prefill_[0-9]+|decode)_logits_output(?:;|$))",
+    "operation": "FULLY_CONNECTED",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 2,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  },
+  {
+    "regex": "(?:LiteRTExportableModuleForEmbedder/|(?:^|[./])embed_tokens(?:[;/.]|$))",
+    "operation": "EMBEDDING_LOOKUP",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 2,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  },
+  {
+    "regex": "(?:LiteRTExportableModuleForPerLayerEmbedder/|embed_tokens_per_layer(?:[;/.]|$))",
+    "operation": "EMBEDDING_LOOKUP",
+    "algorithm_key": "min_max_uniform_quantize",
+    "op_config": {
+      "weight_tensor_config": {
+        "num_bits": 4,
+        "symmetric": true,
+        "granularity": "CHANNELWISE",
+        "dtype": "INT"
+      },
+      "compute_precision": "INTEGER",
+      "explicit_dequantize": false,
+      "skip_checks": false,
+      "min_weight_elements": 0
+    }
+  }
+]

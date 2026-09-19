@@ -7,7 +7,9 @@ initialize Vulkan, or require the native LiteRT runtime environment.
 Supported inputs are the current **dense E2B LoRA SFT** and **Gemma 3 270M
 full-SFT** checkpoints. Retained-scale/QAT checkpoints use their separate
 pipelines; a base model name containing `qat` does not make this QAT export.
-MTP assistants are not exported.
+MTP assistants are not exported. The default variants remain W32, W16, W8 and
+W4. E2B additionally has an explicitly selected experimental `w248` PTQ
+variant; it is not included by default.
 
 ## One command on the Linux training PC
 
@@ -33,7 +35,26 @@ not regenerate, filter or tokenize the data. Execution additionally hashes the
 selected weights and original base model, verifies prompt and tokenizer
 contracts, probes exporter APIs, merges and converts. Neither a
 successful plan nor exporter preflight proves a real model will convert or run.
-W16/W4 require explicit experimental acknowledgement when executing.
+W16/W4/W248 require explicit experimental acknowledgement when executing.
+
+To export only the experimental E2B W248 variant, add this option to the same
+command:
+
+```bash
+--variants w248
+```
+
+To request it together with every established variant, specify the complete
+list explicitly:
+
+```bash
+--variants w32 w16 w8 w4 w248
+```
+
+`--variants` accepts one or more names. Omitting it preserves the established
+W32/W16/W8/W4 default. Execution with W248 requires all three of
+`--profile e2b`, `--allow-experimental-formats`, and `--execute`; a planning run
+omits only `--execute`. W248 is rejected for 270M.
 
 `--fit-dir` is the directory containing `training_config.yaml`,
 `preparation_report.json`, and `training/`. In a full deployment run it is
@@ -139,7 +160,7 @@ identify the original `fit/training_config.yaml`.
   select the interpreter used for merge; otherwise it is the Python launching
   the script. Both interpreter paths must exist. Venv symlinks are preserved.
 - Merge and conversion run on **CPU**, with CUDA hidden and model downloads
-  disabled. Allow enough host RAM and disk for merged weights, four packages
+  disabled. Allow enough host RAM and disk for merged weights, the selected packages
   and converter temporary files; H100 VRAM does not replace CPU RAM.
 - Default `--cache-length 8192` must cover the saved prompt plus generation
   budgets. Increase it if the original run used a larger budget.
@@ -151,11 +172,18 @@ through a different training/export contract.
 
 ## Execution and results
 
-The six stages run **one at a time**:
+The default six stages run **one at a time**:
 
 ```text
 Exporter preflight -> verify/merge checkpoint -> W32 -> W16 -> W8 -> W4
 ```
+
+When `--variants` is present, the same preflight and verified merge run first,
+followed only by the requested conversion stages in the stated order. For
+example, `--variants w248` runs preflight, merge and W248; adding W248 to the
+explicit five-name list adds it after W4. The established W32/W16/W8/W4
+requests and all checkpoint, tokenizer, prompt and resume-lineage provenance
+checks are unchanged.
 
 The console streams child-process logs and shows a heartbeat every 10 seconds
 (`--progress-seconds`). Each stage has a hard 48-hour deadline
@@ -174,11 +202,13 @@ training resumes, inference fallbacks or package installations occur.
     export_w16.log
     export_w8.log
     export_w4.log
+    export_w248.log                 # only when selected
   variants/
     w32/model.litertlm
     w16/model.litertlm
     w8/model.litertlm
     w4/model.litertlm
+    w248/model.litertlm             # only when selected
 ```
 
 Each variant also has `export_manifest.json` and `package_inspection.json`.
@@ -186,6 +216,10 @@ The converter inspects actual physical matrix-weight storage, and the launcher
 rechecks package hashes and precision evidence before recording success. E2B
 W4 is **mixed W4/W8**, whereas 270M W4 uses block-32 INT4. W32/W16 describe
 weight storage precision, not model parameter counts.
+
+E2B W248 is a different, experimental dynamic channelwise PTQ export. It is
+validated as a mixed W2/W4/W8 artifact, but it is not an official mobile QAT
+graph and must not be compared to W4 merely by its directory name.
 
 At the end, a console table lists each variant's format, size, status and path.
 The top-level manifest records source paths, commands, stage timings, logs and
@@ -199,6 +233,127 @@ wrapper has no resume flag: use a new output directory for another full attempt.
 For an individual failed format, the existing lower-level
 `deployment_export.py convert` can use an already verified `merged_hf` and a
 fresh variant output directory. Do not delete a successful export to retry.
+
+## Experimental E2B W248 PTQ
+
+W248 re-quantizes an ordinary, provenance-bound **dense merged Hugging Face
+checkpoint** into new LiteRT/TFLite package sections. It does not modify the
+checkpoint or `merged_hf` weights on disk. An existing `.litertlm` is an output
+artifact, **not** a supported source for re-quantization: use the original
+trained checkpoint through `export_checkpoint_litertlm.py`, or an existing
+verified `merged_hf` through the lower-level commands below.
+
+The public bit allocation used by this experiment is:
+
+| E2B text role | W248 weight storage request |
+|---|---|
+| Token embedding and tied/output `lm_head` | W2 |
+| MLP gate/up/down in layers 15-34 | W2 |
+| Self-attention in layers 0-34 | W4 |
+| MLP gate/up/down in layers 0-14 | W4 |
+| Per-layer embedding table | W4 |
+| Per-layer input gates and projections, including the model projection | W8 |
+
+The exporter requires the 35-layer E2B text architecture and fails before
+conversion if the model/config does not match it. The layer split and most role
+widths are derived from Google's public Gemma 4 E2B mobile checkpoint policy.
+The model-level per-layer projection is W8 in the released LiteRT-LM text
+artifact inspected for this repository, although Google's public Transformers
+config excludes that tensor; this distinction is recorded rather than presented
+as a private Google recipe. [Google's public packed mobile checkpoint
+configuration](https://huggingface.co/google/gemma-4-E2B-it-qat-mobile-ct/blob/main/config.json),
+[Google's public mobile-Transformers checkpoint
+configuration](https://huggingface.co/google/gemma-4-E2B-it-qat-mobile-transformers/blob/main/config.json).
+
+W248 uses AI Edge Quantizer 0.9.0's public **dynamic channelwise PTQ** recipe
+schema. Rules match LiteRT operation output scopes, including distinct token
+and per-layer embedder output names; they do not match generic physical weight
+names such as `arith.constant`. The pinned API supports W2, W4 and W8 dynamic
+integer-weight recipes, and the quantizer serializes two-bit weights as TFLite
+`INT2`. [Pinned recipe API](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/recipe.py),
+[pinned output-scope matcher](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/utils/tfl_flatbuffer_utils.py),
+[pinned low-bit serialization](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/transformations/quantize_tensor.py).
+
+This only establishes a supported experimental serialization route. W248 does
+**not** recreate Google's official graph, QAT observations/scales, static INT8
+activation contract, or the official per-layer embedding's group-size-256 W4
+layout. It is not a claim about Google's private training/calibration process.
+Aggressive W2 weight quantization and runtime-dependent dynamic activation
+quantization can reduce quality, and W2 kernels may be slow or unsupported on a
+target accelerator even when the package is valid.
+No MTP assistant/drafter is added.
+
+Before a full export, the following low-level probe screens the installed
+exporter's required APIs and reports its versions; it does not enforce the
+documented package versions by number. It also checks the exact JSON recipe
+loader, all 35 layer boundaries, output-scope matching, tokenizer and
+deployment-template compatibility without loading model weights:
+
+```bash
+/ABSOLUTE/PATH/TO/a2ui-export-094/bin/python -u \
+  training/scripts/deployment_export.py probe \
+  --profile e2b \
+  --variants w248 \
+  --model-dir /ABSOLUTE/PATH/TO/EXISTING_EXPORT/merged_hf \
+  --cache-length 8192 \
+  --report /ABSOLUTE/PATH/TO/REPORTS/w248_exporter_probe.json
+```
+
+When starting from the original checkpoint, first run this command without its
+final `--execute` line to obtain a read-only plan. After reviewing the paths and
+provenance, rerun the complete command:
+
+```bash
+python -u training/scripts/export_checkpoint_litertlm.py \
+  --profile e2b \
+  --variants w248 \
+  --fit-dir /ABSOLUTE/PATH/TO/COMPLETED_RUN/fit \
+  --exporter-python /ABSOLUTE/PATH/TO/a2ui-export-094/bin/python \
+  --output-dir /ABSOLUTE/PATH/TO/NEW_w248_export \
+  --allow-experimental-formats \
+  --execute
+```
+
+For a standalone retry from an already verified merge, use a fresh output
+directory:
+
+```bash
+/ABSOLUTE/PATH/TO/a2ui-export-094/bin/python -u \
+  training/scripts/deployment_export.py convert \
+  --profile e2b --variant w248 \
+  --model-dir /ABSOLUTE/PATH/TO/EXISTING_EXPORT/merged_hf \
+  --output-dir /ABSOLUTE/PATH/TO/NEW_w248_retry \
+  --cache-length 8192
+```
+
+The explicit lower-level `convert` command does not accept or need
+`--allow-experimental-formats`. It verifies the existing
+`merged_hf/deployment_source.json` and source hashes before conversion. It does
+not train, re-merge, alter source weights, quantize an existing `.litertlm`, run
+other variants, add MTP, initialize a GPU, or evaluate quality.
+
+Before conversion, the canonical recipe is copied to
+`w248_quantization_recipe.json`; its exact bytes and SHA-256 are bound into the
+variant manifest. After bundling, validation checks every physical FC and
+embedding matrix against its unique role and expected layer set, verifies
+packed INT2/INT4/INT8 buffer sizes, symmetric channelwise scales and zero
+points, serialized FLOAT32 FC inputs/outputs and embedding outputs, all
+35-layer coverage, both external embedding sections and the output head. The
+manifest must also retain the experimental dense-PTQ, no-official-QAT, no-MTP
+and not-GPU-tested labels. Validation requires exactly the target, token-embedder and per-layer-embedder
+graphs and rejects any MTP drafter section. Unknown, ambiguous, float or
+wrong-width target matrices fail closed. Counts are not forced to match the
+official graph because dense-export fusion and prefill/decode aliases differ.
+Repeated valid matrix uses are allowed; this is precision-policy and layer
+coverage validation, not graph-identity or functional-equivalence certification.
+
+A successful result remains `exported_not_yet_evaluated`. This export-only
+workflow performs no native GPU evaluation and makes no speed, delegation or
+quality claim. Before deployment, run native target-device/runtime checks and
+compare the trained dense checkpoint and W248 package on Golden32, Golden35 and
+Bixby50. Treat material regression, incomplete acceleration/delegation, failed
+allocation, or unacceptable latency as a failed experiment rather than silently
+substituting W248 for a working W8/W4 package.
 
 ## Retry only W16 from an existing `merged_hf`
 
