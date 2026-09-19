@@ -23,13 +23,13 @@ def test_w16_casts_weights_without_changing_graph_precision(profile, tmp_path):
     assert kwargs == baseline  # Keep the same source graph as working W32.
 
 
-@pytest.mark.parametrize("profile", ["e2b", "270m"])
-@pytest.mark.parametrize("variant", ["w32", "w8", "w4"])
-def test_other_variants_keep_their_existing_export_options(profile, variant, tmp_path):
+@pytest.mark.parametrize("profile,variant", [
+    ("e2b", "w32"), ("e2b", "w8"), ("270m", "w32"), ("270m", "w8"), ("270m", "w4")])
+def test_w32_w8_and_270m_w4_keep_their_existing_export_options(profile, variant, tmp_path):
     kwargs = de.export_kwargs(profile, variant, tmp_path, tmp_path / "out", 8192)
     recipes = {
         "w32": "none", "w8": "dynamic_wi8_afp32",
-        "w4": "gemma4_mixed48_b32" if profile == "e2b" else "dynamic_wi4b32_afp32",
+        "w4": "dynamic_wi4b32_afp32",
     }
     assert kwargs["quantization_recipe"] == recipes[variant]
     assert kwargs["experimental_use_fp16"] is False

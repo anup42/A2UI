@@ -217,8 +217,8 @@ template, not the adapter or `best_golden_checkpoint` directory.
 ```
 
 Use the original larger cache length if the run required more than 8192 tokens.
-Use a **new/empty output directory**; leave the failed W16 evidence and successful
-W32/W8/W4 exports intact. This command hashes/verifies the existing merged source
+Use a **new/empty output directory**; leave previous failure evidence and
+successful exports intact. This command hashes/verifies the existing merged source
 and runs **only W16 conversion and physical inspection**. It does not retrain,
 re-merge, process the dataset, convert other variants, initialize Vulkan, or
 evaluate a Golden set. It does not update a previously failed top-level run's
@@ -237,6 +237,57 @@ Success produces `model.litertlm`, `package_inspection.json`,
 show `actual_precision.verified: true` with only `FLOAT16` matrix-weight type
 counts. FLOAT32 activations are expected. `exported_not_yet_evaluated` is not a
 GPU-runtime or quality-test result.
+
+## Retry only W4 from an existing `merged_hf`
+
+Use the same existing merged model as above, with its unchanged
+`deployment_source.json`, weights, tokenizer and deployment template. Replace
+both placeholder paths, and choose a fresh W4 output directory:
+
+```bash
+/group-volume/k.anup/envs/a2ui-export-094/bin/python -u \
+  training/scripts/deployment_export.py convert \
+  --profile e2b --variant w4 \
+  --model-dir /ABSOLUTE/PATH/TO/EXISTING_EXPORT/merged_hf \
+  --output-dir /ABSOLUTE/PATH/TO/NEW_w4_retry \
+  --cache-length 8192
+```
+
+Use the original larger cache length if needed. This command verifies the
+existing merge and runs **only W4 conversion and physical inspection**: no
+training, re-merge, data preparation, other formats, Vulkan, or Golden/Bixby
+evaluation. Do not delete or overwrite the working W32/W8 packages. W16 and W4
+retries can be run separately, one at a time, using their respective commands.
+The all-variant wrapper's `--allow-experimental-formats` flag is not accepted
+by this explicit lower-level `convert` command.
+
+E2B W4 retains the upstream mixed policy: block-32 INT4 ordinary FC and embedding
+weights, with channelwise INT8 for `per_layer` FC projections. The repository
+adapts the upstream package-section mapping to the exporter's supported
+per-TFLite JSON recipe API; do not patch the installed packages or replace it
+with an all-INT8 recipe. See [W4 implementation and root cause](DEPLOYMENT_EXPORT_ENVIRONMENT.md#e2b-w4-adapt-the-package-mapping-to-the-per-tflite-recipe-api).
+
+Before expensive conversion starts, confirm the console shows:
+
+```text
+E2B W4 recipe file verified: .../NEW_w4_retry/w4_quantization_recipe.json; sha256=...
+```
+
+The actual `export_kwargs.quantization_recipe` must be this JSON path, **not**
+the bare string `gemma4_mixed48_b32`. The logical `recipe` label may still use
+that upstream name; it is not the argument sent to the converter. If the bare
+name is still being passed or the new message is absent, check that this fix is
+present in the repository checkout used by the absolute script path in your
+launch command. Updating another checkout or only the Python packages is not
+enough. No changes to the working W16 implementation are needed.
+
+Success produces `model.litertlm`, `package_inspection.json`,
+`w4_quantization_recipe.json`, and `export_manifest.json`. The manifest must
+show `actual_precision.verified: true` with INT4/UINT4 matrix weights present;
+INT8 is permitted. FLOAT16 block scales and FLOAT32 activations are expected
+and are not FLOAT32 model matrices. A standalone retry does not change a
+previously failed top-level run's status. Its `exported_not_yet_evaluated`
+status is not a claim that native GPU inference or quality testing passed.
 
 To run training and all evaluations instead, use the
 [full deployment workflow](GOLDEN_GPU_DEPLOYMENT.md). Its

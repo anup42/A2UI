@@ -126,6 +126,8 @@ def install_fake_exporter(monkeypatch, tmp_path, *, text_type=False, support_tex
     monkeypatch.setitem(sys.modules, "ai_edge_quantizer", quantizer)
     monkeypatch.setattr(de, "probe_w16_recipe", lambda: {
         "path": str(de.W16_RECIPE_PATH), "sha256": de.file_sha256(de.W16_RECIPE_PATH)})
+    monkeypatch.setattr(de, "probe_e2b_w4_recipe", lambda mapping, *, recipe_path=None: {
+        "path": str(recipe_path or de.E2B_W4_RECIPE_PATH), "sha256": de.file_sha256(recipe_path or de.E2B_W4_RECIPE_PATH)})
     export = types.ModuleType("litert_torch.generative.export_hf.export")
     export.export = lambda **kwargs: None
     monkeypatch.setitem(sys.modules, export.__name__, export)
@@ -140,6 +142,7 @@ def test_probe_is_no_weights_screening_and_checks_dataclass_fp16(monkeypatch, tm
     assert result["recipes"]["gemma4_mixed48_b32"] is True
     assert result["recipes"][de.W16_RECIPE] is True
     assert result["recipe_files"][de.W16_RECIPE]["sha256"] == de.file_sha256(de.W16_RECIPE_PATH)
+    assert result["recipe_files"][de.E2B_W4_RECIPE]["sha256"] == de.file_sha256(de.E2B_W4_RECIPE_PATH)
     assert result["template_parity"]["passed"] is True
     assert result["template_parity"]["tested_prompts"] == 3
 

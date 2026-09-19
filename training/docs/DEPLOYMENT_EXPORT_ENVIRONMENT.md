@@ -147,7 +147,7 @@ A passing prerequisite probe does **not** certify all model shapes, native GPU d
 | W32 | `quantization_recipe=none` | FP32 |
 | W16 | Repository `weight_only_fp16.json` / AEQ `float_casting`; both experimental precision flags **false** | FP16; activations and KV cache remain FP32 |
 | W8 | `dynamic_wi8_afp32` | INT8 |
-| E2B W4 | `gemma4_mixed48_b32` | INT4 present; INT8 permitted (mixed W4/W8) |
+| E2B W4 | Repository `gemma4_mixed48_b32_flat.json`, checked against upstream `gemma4_mixed48_b32` | INT4 present; INT8 permitted (mixed W4/W8) |
 | 270M W4 | `dynamic_wi4b32_afp32` | INT4 |
 
 W16 and W4 require the full launcher's experimental-format acknowledgment. A failed format is not silently replaced by W8 or counted as passing. FP32 activations/shape constants are not counted as FP32 model weights. The inspector follows constant-weight dequantization/cast/reshape/transpose chains and checks physical fully-connected and embedding weight storage. Unknown or mismatched weights fail closed. This is not a guarantee of every operator's arithmetic precision or placement.
@@ -160,7 +160,8 @@ and 270M W16. AI Edge Quantizer's public `float_casting` algorithm physically
 stores FC/embedding constants as FLOAT16 and inserts dequantization to the
 unchanged FLOAT32 graph. No calibration set is required. Both
 `experimental_use_fp16` and `experimental_use_mixed_precision` are explicitly
-false for W16. W32/W8/W4 requests are unchanged. This is **W16 storage with
+false for W16. W32/W8 requests are unchanged; the E2B W4 recipe transport fix is
+described below. This is **W16 storage with
 FP32 activation/cache contracts**, not a promise of all-FP16 arithmetic, lower
 KV-cache memory, or faster native inference. [Pinned float-casting implementation](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/algorithms/nonlinear_quantize/float_casting.py).
 
@@ -206,9 +207,68 @@ outputs, check unchanged graph I/O types, and exercise recipe/provenance
 failures. They do **not** convert a full E2B model or certify native GPU kernels.
 See [retry only W16 from an existing merge](EXPORT_TRAINED_CHECKPOINT.md#retry-only-w16-from-an-existing-merged_hf).
 
-Local verification for this fix (2026-09-19): the focused W16 suite passed
-**22 tests**; the broader export/resume/deployment/QAT/inspection regression
-suite passed **442 tests with 4 skips** (PEFT and TensorBoard unavailable,
+### E2B W4: adapt the package mapping to the per-TFLite recipe API
+
+`gemma4_mixed48_b32()` returns a mapping with three LiteRT-LM section keys:
+`tf_lite_prefill_decode`, `tf_lite_embedder`, and `tf_lite_per_layer_embedder`.
+The LiteRT Torch HF exporter instead calls `Quantizer.load_quantization_recipe`
+separately for each TFLite graph. Passing that mapping directly to its
+list-of-rules loader iterates string keys and raises
+`TypeError: string indices must be integers, not 'str'`, wrapped as an invalid
+recipe error. Constructing the recipe without loading it did not catch this
+in the previous preflight. [Pinned Gemma4 recipe](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/recipe.py),
+[pinned per-graph exporter](https://github.com/google-ai-edge/litert-torch/blob/v0.9.4/litert_torch/generative/export_hf/core/export_lib.py).
+
+The repository now supplies
+[`gemma4_mixed48_b32_flat.json`](../configs/export/gemma4_mixed48_b32_flat.json)
+through the supported JSON-file recipe API. It preserves the upstream rules:
+
+- Ordinary fully-connected matrices: symmetric INT4, block size 32.
+- Fully-connected matrices matching `per_layer`: symmetric INT8, channelwise.
+- Token and per-layer embedding tables: symmetric INT4, block size 32.
+
+This is a deliberately limited compatibility adaptation, not an arbitrary
+mapping flattener. The current graph sections use disjoint FC/embedding
+operators, and both embedding sections have the same policy. Preflight checks
+the expected sections, operator separation, equal embedding policies, exact
+upstream rule order/content, and the installed recipe manager's selected
+configs. If any of these assumptions change, it fails before conversion rather
+than silently substituting a different quantization policy. Norm operations are
+not targeted. W32/W8, 270M W4, and the W16 weight-casting path are unchanged.
+
+Preflight takes the JSON path from the actual W4 `export_kwargs`, resolves it
+through AEQ's public `recipe_utils.resolve_recipe`, then loads the result through
+`RecipeManager.load_quantization_recipe`: the same file-resolution and rule-loader
+sequence used by `Quantizer.load_quantization_recipe(str_path)` in the pinned
+0.9.0 API. It rejects a bare recipe name or a file resolver that returns a mapping
+instead of the checked rule list. [Pinned quantizer file loading](https://github.com/google-ai-edge/ai-edge-quantizer/blob/v0.9.0/ai_edge_quantizer/quantizer.py).
+
+The validated recipe is copied to `w4_quantization_recipe.json` in the fresh
+variant output folder. That exact destination is reloaded and checked **before
+HF graph conversion starts**, logged as `E2B W4 recipe file verified`, and passed
+as `export_kwargs.quantization_recipe`. Its path and SHA256 are recorded in
+`export_manifest.json`. Validation rechecks the snapshot and the **unchanged
+physical precision inspector**: actual
+INT4/UINT4 matrix weights must be present, INT8 is allowed for this mixed format,
+and all-INT8 or residual FLOAT32 matrix weights fail. FLOAT16 block-scale tensors
+are not model matrix weights. No installed environment files are modified.
+
+Tiny real-quantizer tests reproduce the old loader failure, compare flat and
+section-specific policies, and verify physical INT4 ordinary FC/token/per-layer
+embedding buffers plus the INT8 projection exception. They also exercise
+changed upstream mappings, tampered recipe files, and rejected output precision.
+An integration regression mocks only HF conversion/package bundling; the exact
+snapshot path passed to the exporter is loaded and quantized with real AEQ on
+tiny graphs. A separate test proves snapshot-loading failure stops before HF
+conversion, even when the upstream factory succeeds.
+See [retry only W4 from an existing merge](EXPORT_TRAINED_CHECKPOINT.md#retry-only-w4-from-an-existing-merged_hf).
+
+### Local verification and test commands
+
+Local verification of the combined W16/W4 fixes (2026-09-19): focused
+W16/W4/export tests passed **81 tests with 2 skips**; the broader
+export/resume/deployment/QAT/inspection regression suite passed
+**469 tests with 4 skips** (PEFT and TensorBoard unavailable,
 Windows symlink permission, and a POSIX-only test). Ruff and `git diff --check`
 passed. Tiny real graph tests used the already-installed AI Edge Quantizer
 0.8.0 and LiteRT 2.1.6 on this Windows host; the pinned 0.9.0 quantizer source/API
@@ -220,6 +280,7 @@ To rerun the inexpensive focused tests from the repository root:
 ```bash
 PYTHONPATH=training/src:training/scripts:dataset/src \
   python -m pytest training/tests/test_deployment_w16.py \
+  training/tests/test_deployment_w4.py \
   training/tests/test_deployment_export.py -q -rs
 ```
 

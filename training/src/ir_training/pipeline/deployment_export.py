@@ -24,6 +24,8 @@ PROFILES = {"e2b": {"gemma4", "gemma4_text"}, "270m": {"gemma3", "gemma3_text"}}
 VARIANTS = ("w32", "w16", "w8", "w4")
 W16_RECIPE = "weight_only_fp16"
 W16_RECIPE_PATH = Path(__file__).resolve().parents[3] / "configs/export/weight_only_fp16.json"
+E2B_W4_RECIPE = "gemma4_mixed48_b32"
+E2B_W4_RECIPE_PATH = Path(__file__).resolve().parents[3] / "configs/export/gemma4_mixed48_b32_flat.json"
 
 
 def deployment_variants(profile: str) -> dict[str, dict[str, Any]]:
@@ -34,7 +36,7 @@ def deployment_variants(profile: str) -> dict[str, dict[str, Any]]:
         "w16": {"weight_bits": 16, "kind": "fp16", "recipe": W16_RECIPE, "experimental": True},
         "w8": {"weight_bits": 8, "kind": "int8", "recipe": "dynamic_wi8_afp32", "experimental": False},
         "w4": {"weight_bits": 4, "kind": "mixed_w4_w8" if profile == "e2b" else "int4_block32",
-               "recipe": "gemma4_mixed48_b32" if profile == "e2b" else "dynamic_wi4b32_afp32", "experimental": True},
+               "recipe": E2B_W4_RECIPE if profile == "e2b" else "dynamic_wi4b32_afp32", "experimental": True},
     }
 
 
@@ -195,6 +197,11 @@ def export_kwargs(profile: str, variant: str, model_dir: Path, output_dir: Path,
         # including E2B's token and per-layer embedders, with FP32 boundaries.
         kwargs["quantization_recipe"] = str(W16_RECIPE_PATH)
         kwargs["experimental_use_mixed_precision"] = False
+    elif profile == "e2b" and variant == "w4":
+        # The named Gemma4 recipe returns a LiteRT-LM section->recipe mapping,
+        # not a single TFLite recipe list. Use its checked equivalent operator
+        # rules here; passing the mapping to Quantizer directly raises TypeError.
+        kwargs["quantization_recipe"] = str(E2B_W4_RECIPE_PATH)
     if profile == "e2b":
         template = model_dir / "deployment_chat_template.jinja"
         kwargs["jinja_chat_template_override"] = str(template.resolve())
@@ -225,6 +232,69 @@ def probe_w16_recipe() -> dict[str, Any]:
             "algorithm": "float_casting", "weight_storage": "FLOAT16",
             "activation_contract": "FLOAT32", "calibration_required": False,
             "validated_operations": [str(op.value) for op in operations]}
+
+
+def probe_e2b_w4_recipe(mapping: Any, *, recipe_path: Path | None = None) -> dict[str, Any]:
+    """Prove the flat TFLite recipe preserves the installed Gemma4 LM policy.
+
+    This is intentionally NOT a generic dictionary flattener. The two embedding
+    sections must share a policy, and their rules must be disjoint from the FC
+    rules in prefill/decode. Changed/unknown mappings fail before conversion.
+    """
+    from ai_edge_quantizer import qtyping, recipe_manager
+    from ai_edge_quantizer.utils import recipe_utils
+
+    sections = {"tf_lite_prefill_decode", "tf_lite_embedder", "tf_lite_per_layer_embedder"}
+    if not isinstance(mapping, dict) or set(mapping) != sections:
+        raise ValueError("E2B W4 expects the upstream three-section Gemma4 recipe mapping")
+    for section, rules in mapping.items():
+        operation = "FULLY_CONNECTED" if section == "tf_lite_prefill_decode" else "EMBEDDING_LOOKUP"
+        if (not isinstance(rules, list) or not rules
+                or any(not isinstance(rule, dict) or rule.get("operation") != operation for rule in rules)):
+            raise ValueError(f"E2B W4 cannot safely flatten changed operator rules for {section}")
+    if mapping["tf_lite_embedder"] != mapping["tf_lite_per_layer_embedder"]:
+        raise ValueError("E2B W4 embedding section policies differ; require explicit section routing")
+    recipe_path = (recipe_path or E2B_W4_RECIPE_PATH).resolve()
+    if recipe_path.suffix != ".json":
+        raise ValueError("E2B W4 export requires a JSON recipe file, not a named package mapping")
+    payload = recipe_path.read_bytes()
+    flat_recipe = json.loads(payload)
+    expected = mapping["tf_lite_prefill_decode"] + mapping["tf_lite_embedder"]
+    if flat_recipe != expected:
+        raise ValueError("Repository E2B W4 recipe differs from the installed upstream Gemma4 policy")
+    # Exercise the same public file resolver and rule loader used by
+    # Quantizer.load_quantization_recipe(str_path), not only factory()/json.loads.
+    loaded_recipe = recipe_utils.resolve_recipe(str(recipe_path))
+    if loaded_recipe != flat_recipe or file_sha256(recipe_path) != hashlib.sha256(payload).hexdigest():
+        raise ValueError("E2B W4 JSON recipe resolution differs from the checked file")
+    manager = recipe_manager.RecipeManager()
+    manager.load_quantization_recipe(loaded_recipe)
+    checks = [
+        (qtyping.TFLOperationName.FULLY_CONNECTED, "model.layers.0.mlp.up_proj", 4, "BLOCKWISE_32"),
+        (qtyping.TFLOperationName.FULLY_CONNECTED, "per_layer_model_projection", 8, "CHANNELWISE"),
+        (qtyping.TFLOperationName.EMBEDDING_LOOKUP, "embed_tokens", 4, "BLOCKWISE_32"),
+        (qtyping.TFLOperationName.EMBEDDING_LOOKUP, "per_layer_embedder", 4, "BLOCKWISE_32"),
+    ]
+    for operation, scope, bits, granularity in checks:
+        algorithm, config = manager.get_quantization_configs(operation, scope)
+        weight = config.weight_tensor_config
+        if (algorithm != "min_max_uniform_quantize" or weight is None or weight.num_bits != bits
+                or weight.dtype != qtyping.TensorDataType.INT or weight.granularity != granularity
+                or config.activation_tensor_config is not None
+                or config.compute_precision != qtyping.ComputePrecision.INTEGER
+                or config.explicit_dequantize is not False or config.skip_checks
+                or config.min_weight_elements != 0):
+            raise ValueError(f"Installed quantizer cannot apply E2B W4 policy at {scope}")
+    if manager.need_calibration():
+        raise ValueError("E2B mixed W4/W8 dynamic recipe must not require calibration")
+    mapping_bytes = json.dumps(mapping, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    return {"path": str(recipe_path), "sha256": hashlib.sha256(payload).hexdigest(),
+            "upstream_recipe": E2B_W4_RECIPE, "upstream_mapping_sha256": hashlib.sha256(mapping_bytes).hexdigest(),
+            "transport": "equivalent_flat_operator_rules", "sections": sorted(sections),
+            "representation": "json_file", "file_loading_tested": True,
+            "rule_count": len(flat_recipe), "calibration_required": False,
+            "policy": {"fully_connected": "INT4_BLOCK32", "per_layer_fully_connected": "INT8_CHANNELWISE",
+                       "token_embedder": "INT4_BLOCK32", "per_layer_embedder": "INT4_BLOCK32"}}
 
 
 def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -> dict[str, Any]:
@@ -288,7 +358,10 @@ def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192) -
         factory = getattr(recipe, name, None)
         if not callable(factory):
             raise TypeError(f"Installed AI Edge Quantizer lacks required recipe {name}")
-        factory()  # Construction catches incompatible recipe/quantizer dependency APIs.
+        resolved = factory()
+        if profile == "e2b" and name == E2B_W4_RECIPE:
+            actual_recipe = export_kwargs(profile, "w4", model_dir, model_dir / "unused", cache_length)["quantization_recipe"]
+            recipe_files[name] = probe_e2b_w4_recipe(resolved, recipe_path=Path(actual_recipe))
         recipes[name] = True
     versions = {}
     for name in ("litert-torch", "ai-edge-quantizer", "ai-edge-litert", "transformers", "torch"):
@@ -547,17 +620,33 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     export = importlib.import_module("litert_torch.generative.export_hf.export")
     kwargs = export_kwargs(profile, variant, model_dir, output_dir, cache_length)
     recipe_file = None
-    if variant == "w16":
+    local_recipe = W16_RECIPE_PATH if variant == "w16" else (
+        E2B_W4_RECIPE_PATH if profile == "e2b" and variant == "w4" else None)
+    if local_recipe is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
-        recipe_path = output_dir / "w16_quantization_recipe.json"
-        shutil.copy2(W16_RECIPE_PATH, recipe_path)
+        recipe_path = output_dir / f"{variant}_quantization_recipe.json"
+        shutil.copy2(local_recipe, recipe_path)
         digest = file_sha256(recipe_path)
-        if digest != preflight["recipe_files"][W16_RECIPE]["sha256"]:
-            raise ValueError("W16 quantization recipe changed after preflight")
+        recipe_name = deployment_variants(profile)[variant]["recipe"]
+        if digest != preflight["recipe_files"][recipe_name]["sha256"]:
+            raise ValueError(f"{variant.upper()} quantization recipe changed after preflight")
         kwargs["quantization_recipe"] = str(recipe_path.resolve())
         recipe_file = {"name": recipe_path.name, "sha256": digest}
+        if profile == "e2b" and variant == "w4":
+            from ai_edge_quantizer import recipe
+            # Verify the exact destination file passed to export.export before
+            # the expensive base conversion starts. Preserve W16's working path.
+            copied_probe = probe_e2b_w4_recipe(recipe.gemma4_mixed48_b32(), recipe_path=recipe_path)
+            if copied_probe["sha256"] != digest:
+                raise ValueError("E2B W4 quantization recipe changed while validating its snapshot")
+            preflight["recipe_files"][E2B_W4_RECIPE] = copied_probe
+            log(f"E2B W4 recipe file verified: {kwargs['quantization_recipe']}; sha256={digest}")
+    if variant == "w16":
         log("W16: FLOAT16 stored FC/embedding weights; FLOAT32 activations, RMSNorm and KV cache; "
             "whole-graph mixed precision disabled")
+    elif profile == "e2b" and variant == "w4":
+        log("E2B W4: equivalent flat Gemma4 recipe; INT4 block-32 FC/embedding weights, "
+            "INT8 per-layer FC projections; physical package inspection required")
     log(f"Convert {profile} {variant}: {deployment_variants(profile)[variant]['kind']}; CPU conversion, no GPU speed claim")
     with Progress(f"LiteRT Torch conversion {variant}", unit="stage"):
         export.export(**kwargs)
