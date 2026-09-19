@@ -66,6 +66,41 @@ expected LoRA A/B tensor is actually trainable. Legacy configs that omit
 `activation_quantizer: gemma_mobile_srq`, frozen activation simulation, and the
 strict trainable-scope requirement retain their previous behavior.
 
+### Retained-mobile LoRA target resolution
+
+The reconstructed seed is `Gemma4ForCausalLM` / `gemma4_text`. PEFT 0.20's
+`gemma4` query/value default is not the mobile contract, and its missing
+`gemma4_text` mapping previously stopped preflight with `Cannot resolve PEFT
+default targets`. The three retained-mobile YAMLs keep `target_modules:
+peft-default` for config compatibility, but **only** the official retained-mobile
+SFT route resolves it from verified seed-bound qparams before constructing PEFT.
+Ordinary model/default/explicit-selector behavior is unchanged.
+
+`MobileQParams.trainable_projection_weight_keys()` is the common authority for
+target resolution and the subsequent live QAT exact-scope check. It derives
+names from the retained inventory, not a second hard-coded layer rule:
+
+- Layers 0-14: q/k/v/o and gate/up/down (105 projections).
+- Shared-KV layers 15-34: q/o and gate/up/down (100 projections).
+- Head, per-layer W8 projections, embeddings, and unrelated linears stay outside
+  the adapter scope. Shared-KV k/v duplicates are absent from the mapped seed.
+
+The resolver requires all 205 exact Linear paths (including a wrapper's actual
+`.linear` child, when applicable). Missing, unexpected, duplicate/shared-weight,
+ambiguous or non-Linear projections fail before PEFT construction. Explicit
+selectors/exclusions must still produce that exact set; there is no all-linear
+fallback or `gemma4_text -> gemma4` alias. The selected qparams contract, scale
+storage and inventory hashes must also match the already verified seed. Existing
+resume, trainable-scope, provenance and export gates remain enabled.
+
+PEFT 0.20 can condense a long target list into suffixes during attachment. The
+retained-mobile route verifies that the actual attached A/B pairs are exactly
+the same 205 paths, then restores those exact paths to the in-memory PEFT config
+for serialization/resume comparison. This normalization does not rewrite an
+existing checkpoint or relax rank/alpha/dropout, adapter hash or resume checks.
+
+### Published activation-scale provenance
+
 The v2 `assets` gate also reads the retained input/output activation scalars
 directly from the SHA-pinned published packed checkpoint and compares their
 FP32 bytes with the seed contract. This covers the 205 mutable projections,
@@ -625,7 +660,7 @@ serialization evidence only—not a production-ready mobile model.
 - Python compilation, CLI help and whitespace checks passed. The local schema
   roundtrip ran without loading model weights.
 
-## Current v2 verification (2026-09-19)
+## v2 verification (2026-09-19)
 
 The integrated regression run completed with **382 passed, 1 skipped**. The
 skip was the executable-symlink test because this Windows host cannot create
@@ -682,3 +717,53 @@ change. Runtime scores and throughput remain unmeasured; the pipeline's real
 artifact, numeric and device gates must still pass on the training/deployment
 hosts. This is not evidence that Google's private recipe or native KV-cache
 numerics have been reproduced.
+
+## LoRA resolution fix verification (2026-09-20)
+
+- Requested five-file regression: **180 passed, 1 skipped**.
+- Extended mobile/QAT/export regression (the 16-file command above plus
+  `test_lora_target_resolution.py` and `test_e2b_lora_hf_integration.py`):
+  **436 passed, 1 skipped**. The skip remains the Windows executable-symlink
+  restriction; two dependency deprecation warnings were also reported.
+- Resolver-specific tests: **48 passed**. A tiny, randomly initialized, real
+  35-layer `Gemma4ForCausalLM` with 20 shared-KV layers attaches exactly 205 PEFT
+  adapters, passes live QAT scope binding, saves/reloads those adapters, and
+  passes the existing strict resume validator. Wrong alpha still fails. The
+  qparams values in this test are synthetic; it is not a real seed export.
+- These tests ran with isolated **Transformers 5.14.1 / PEFT 0.20.0**, matching
+  the reported failure, plus tokenizers 0.22.2, Accelerate 1.15.0 and CPU PyTorch
+  2.13.0. Installed host packages were not replaced.
+- All six changed Python files compiled; whitespace checks passed. Scoped Ruff
+  ran on all six. The resolver/config/new tests are clean; the unchanged lint
+  baseline remains in `sft.py` (62), `mobile_qparams.py` (2), and
+  `test_qat_training.py` (2). No new findings were introduced.
+
+Reproduce the requested subset in the training environment:
+
+```bash
+python -m pytest \
+  training/tests/test_lora_target_resolution.py \
+  training/tests/test_qat_training.py \
+  training/tests/test_official_mobile_pipeline.py \
+  training/tests/test_mobile_seed_architecture.py \
+  training/tests/test_gemma4_retained_scale_exporter.py \
+  -q -rs -p no:cacheprovider
+```
+
+Changed implementation files: `train/lora_targets.py` (exact resolution and
+post-PEFT binding), `train/lora_config.py` (seed-bound qparams loading), and
+`train/sft.py` (integration), all under `training/src/ir_training`. The
+`qat/mobile_qparams.py` change is documentation only; its canonical key
+selection logic is unchanged. Regression changes are in
+`training/tests/test_lora_target_resolution.py` and `test_qat_training.py`.
+Only comments changed in the three retained-mobile configs
+(`gemma4_e2b_mobile_seed_ir_qat_sft.yaml`,
+`gemma4_e2b_a2ui_express_official_qat.yaml`, and
+`gemma4_e2b_mobile_seed_ir_qat_sft_smoke_3_steps.yaml`). This runbook and
+`gemma4_e2b_qat_mtp_knowledge.md` clarify the PEFT/mobile scope distinction.
+
+No training job, full E2B checkpoint inference/export, H100 run or generated
+run-directory modification was performed. Model artifacts, seed manifests,
+qparams, hashes and export contracts were not changed. Pull the fix and retry
+the pipeline on the training host; all its real-data/runtime gates must still
+pass. This result proves the LoRA setup/contract fix, not end-to-end GPU success.

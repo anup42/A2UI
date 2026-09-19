@@ -831,14 +831,18 @@ def test_golden100_preparation_config_fails_closed_on_count_and_identity():
     assert config["filters"]["require_unique_source_ids"] is True
 
 
-def test_gemma4_true_qat_keeps_peft_language_model_default_scope():
-    config = load_yaml(
-        ROOT / "configs" / "models" / "gemma4_e2b_mobile_seed_ir_qat_sft.yaml"
-    )
+@pytest.mark.parametrize("name", [
+    "gemma4_e2b_mobile_seed_ir_qat_sft.yaml",
+    "gemma4_e2b_a2ui_express_official_qat.yaml",
+    "gemma4_e2b_mobile_seed_ir_qat_sft_smoke_3_steps.yaml",
+])
+def test_gemma4_retained_qat_default_is_resolved_from_verified_mobile_contract(name):
+    config = load_yaml(ROOT / "configs" / "models" / name)
 
-    # PEFT 0.19+ owns the Gemma 4 language_model q_proj/v_proj regex. The
-    # GemmaAdapter `.linear` fallback targets clipped modality wrappers instead.
+    # This spelling is kept for saved-config compatibility. The official mobile
+    # SFT path resolves it from seed-bound qparams, not PEFT's narrower q/v map.
     assert config["lora"]["target_modules"] == "peft-default"
+    assert config["qat"]["scale_mode"] == "retained_mobile"
     assert config["qat"]["expected_effective_lora_modules"] == 205
 
 

@@ -348,7 +348,11 @@ class MobileQParams:
         return None
 
     def trainable_projection_weight_keys(self) -> tuple[str, ...]:
-        """Return the exact seven-projection-per-layer LoRA deployment scope."""
+        """Return mapped language projections with retained input/output scales.
+
+        Shared-KV k/v duplicates are absent from this seed inventory. Both LoRA
+        target resolution and live QAT scope validation consume these same keys.
+        """
 
         suffixes = (
             "self_attn.q_proj.weight",

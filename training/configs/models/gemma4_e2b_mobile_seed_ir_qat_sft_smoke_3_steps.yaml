@@ -63,6 +63,8 @@ lora:
   r: 16
   alpha: 16
   dropout: 0.0
+  # Official retained-mobile SFT resolves this from verified qparams: exactly
+  # 205 language projections, NOT PEFT's ordinary Gemma 4 q/v default.
   target_modules: peft-default
   modules_to_save: []
 qat:

@@ -41,7 +41,10 @@ from ir_training.train.callbacks import (
     build_golden_set_eval_callback,
     _write_checkpoint_provenance,
 )
-from ir_training.train.lora_config import build_lora_config, resolve_lora_config_targets
+from ir_training.train.lora_config import (
+    build_lora_config, load_retained_mobile_lora_qparams, resolve_lora_config_targets,
+)
+from ir_training.train.lora_targets import bind_retained_mobile_peft_targets
 from ir_training.train.prepared_binding import verify_tokenizer_binding
 from ir_training.train.resume_contract import build_resume_contract, verify_resume_contract
 from ir_training.train.cuda_runtime import active_attention_policy, cuda_memory_snapshot, training_attention_policy
@@ -187,11 +190,19 @@ def train_sft(
             use_gradient_checkpointing=gradient_checkpointing,
         )
     configured_lora = None if full_finetune else build_lora_config(adapter, lora_cfg)
-    resolved_lora_targets = resolve_lora_config_targets(configured_lora, model) if configured_lora is not None else []
+    retained_lora_qparams = (
+        load_retained_mobile_lora_qparams(model_cfg, qat_cfg, verified_seed=mobile_training_seed)
+        if configured_lora is not None else None
+    )
+    resolved_lora_targets = (
+        resolve_lora_config_targets(configured_lora, model, retained_mobile_qparams=retained_lora_qparams)
+        if configured_lora is not None else []
+    )
     if configured_lora is not None:
         print(
             f"LoRA target resolution: model_class={type(model).__name__}, "
             f"model_type={getattr(getattr(model, 'config', None), 'model_type', None)!r}, "
+            f"scope={'verified retained-mobile qparams' if retained_lora_qparams is not None else 'configured/PEFT'}, "
             f"matched_linear_modules={len(resolved_lora_targets)}, "
             f"examples={sorted(resolved_lora_targets)[:8]}",
             flush=True,
@@ -207,6 +218,8 @@ def train_sft(
             str(resolved_resume_checkpoint),
             is_trainable=True,
         )
+        if retained_lora_qparams is not None:
+            bind_retained_mobile_peft_targets(model, resolved_lora_targets)
         resume_adapter_report = _validate_resumed_lora_model(
             model,
             expected_config=configured_lora,
@@ -222,6 +235,8 @@ def train_sft(
         )
     else:
         model = get_peft_model(model, configured_lora)
+        if retained_lora_qparams is not None:
+            bind_retained_mobile_peft_targets(model, resolved_lora_targets)
     if not full_finetune:
         _disable_peft_vocab_probe(model)
     _disable_model_cache_for_training(model)

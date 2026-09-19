@@ -126,13 +126,16 @@ adapter dropout mask cannot be represented by one final merged inference
 matrix. DoRA and mixed-adapter forward arguments fail closed for the same
 reason.
 
-For Gemma 4 E2B, keep `target_modules: peft-default` with the pinned PEFT
-0.19+ environment. Its Gemma 4 mapping is scoped to `language_model` query and
-value projections. Do not substitute the adapter's historical `.linear`
-fallback: current Transformers uses those inner linears for clipped audio and
-vision wrappers, while the language decoder projections are ordinary
-`nn.Linear` modules. Any future PEFT scope change must be verified against the
-actual loaded module names before training.
+Ordinary Gemma 4 `target_modules: peft-default` continues to use PEFT's mapping;
+its query/value-only scope does **not** establish the 205-module retained-mobile
+contract, and `gemma4_text` may have no PEFT default. For the verified official
+mobile seed with `qat.scale_mode: retained_mobile`, SFT keeps the saved config
+spelling but resolves the exact projection names from seed-bound
+`MobileQParams.trainable_projection_weight_keys()` before PEFT construction.
+The live QAT binding gate uses that same key source. No `gemma4_text -> gemma4`
+alias, all-linear fallback, or modality/head widening is applied. Actual Linear
+paths must match all 205 mapped projections (including q/o and gate/up/down),
+and missing, duplicate, unexpected or non-Linear projections fail closed.
 
 The implementation is reversible: wrappers are restored before the final PEFT
 adapter is saved, and `qat` metadata records the wrapped module count, exact
