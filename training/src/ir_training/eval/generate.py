@@ -20,6 +20,7 @@ from ir_training.generation_policy import (
     stop_express_completion,
 )
 from ir_training.models.registry import create_adapter
+from ir_training.qat.full_model_contract import full_parameter_autocast
 
 
 def generate_predictions(
@@ -131,7 +132,7 @@ def _generate_predictions_loaded_tokenizer(
                 log(f"Golden worker {worker}: case {idx + 1}/{len(rows)} id={row.get('id')} starting; "
                     f"input_tokens={input_length}; max_new_tokens={generation_kwargs['max_new_tokens']}")
                 started = time.perf_counter()
-                with torch.inference_mode():
+                with torch.inference_mode(), full_parameter_autocast(model):
                     output = model.generate(**inputs, **generation_kwargs)
                 generated = tokenizer.decode(output[0][input_length:], skip_special_tokens=True)
                 runtime = generation_diagnostics(tokenizer, output[0][input_length:],

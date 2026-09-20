@@ -1403,6 +1403,14 @@ def prepare_qat_model(model: Any, config: dict[str, Any]) -> QATController:
     """Apply configured fake quantization and fail if no base weights match."""
 
     spec = QATSpec.from_config(config)
+    from ir_training.qat.full_model_contract import (
+        is_full_qat,
+        validate_full_qat_config,
+    )
+
+    if is_full_qat(config):
+        validate_full_qat_config(config)
+        model._a2ui_full_parameter_amp = True
     mobile_qparams = None
     if spec.scale_mode == "retained_mobile":
         contract_path = spec.mobile_qparams_contract

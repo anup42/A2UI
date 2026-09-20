@@ -426,8 +426,37 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
     config, metadata = binding["config"], binding["metadata"]
     if type(metadata.get("checkpoint_step")) is not int or metadata["checkpoint_step"] <= 0:
         raise ValueError("Selected checkpoint has no positive optimizer-step provenance")
-    if config.get("qat", {}).get("enabled") or config.get("model", {}).get("mobile_training_seed_manifest"):
-        raise ValueError("Dense deployment export does not accept retained-scale or fake-QAT training; use its separate verified pipeline")
+    full_qat_contract = None
+    qat_or_mobile = bool(
+        config.get("qat", {}).get("enabled")
+        or config.get("model", {}).get("mobile_training_seed_manifest")
+    )
+    if qat_or_mobile:
+        # This is the sole dense-export exception to the historical rejection
+        # above.  The contract module owns the exact workflow, FP32/full-model
+        # scope, checkpoint inventory and QAT-metadata checks.  In particular,
+        # retained-mobile LoRA configurations still fail here.
+        try:
+            from ir_training.qat.full_model_contract import (
+                validate_full_qat_checkpoint,
+                validate_full_qat_config,
+            )
+
+            validate_full_qat_config(config)
+            full_qat_contract = validate_full_qat_checkpoint(
+                config, metadata, checkpoint
+            )
+            if not isinstance(full_qat_contract, dict) or full_qat_contract.get("verified") is not True:
+                raise ValueError("all-parameter QAT checkpoint contract was not verified")
+        except (ImportError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "Dense deployment export rejects retained-scale/QAT checkpoints "
+                "unless the separate all-parameter QAT contract is verified"
+            ) from exc
+        if profile != "e2b" or metadata.get("checkpoint_kind") != "full_model":
+            raise ValueError(
+                "All-parameter QAT dense export requires profile=e2b and a full_model checkpoint"
+            )
     saved = metadata.get("checkpoint_adapter_files")
     if not isinstance(saved, list) or not saved:
         raise ValueError("Selected checkpoint lacks hashed checkpoint and tokenizer inventory")
@@ -459,6 +488,7 @@ def verify_checkpoint_source(training_config: Path, checkpoint: Path, profile: s
             progress.advance()
     return {**{key: value for key, value in binding.items() if key != "preparation"}, "base_model_dir": str(base),
             "checkpoint_kind": metadata["checkpoint_kind"], "files": expected,
+            "full_qat_contract": full_qat_contract,
             "training_metadata_sha256": file_sha256(checkpoint / "training_metadata.json")}
 
 
@@ -526,6 +556,13 @@ def prepare_deployment_checkpoint(*, profile: str, training_config: Path, checkp
     report.update({"profile": profile, "source_checkpoint": str(checkpoint.resolve()),
                    "merged_model_dir": str(output_dir.resolve()), "template_parity": template_parity,
                    "official_retained_scale_export": False, "mtp_exported": False,
+                   "full_qat_contract": binding.get("full_qat_contract"),
+                   "qat_aware_training": binding.get("full_qat_contract") is not None,
+                   "quantization_export_contract": (
+                       "dynamic_ptq_fresh_graph"
+                       if binding.get("full_qat_contract") is not None
+                       else "dense_deployment"
+                   ),
                    "checkpoint_step": binding["metadata"].get("checkpoint_step"),
                    "requires_merged_checkpoint_evaluation": True})
     with Progress("Bind merged model and deployment prompt files", unit="stage"):
@@ -651,6 +688,13 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     source = _json(model_dir / "deployment_source.json")
     if source.get("profile") != profile or source.get("official_retained_scale_export") is not False:
         raise ValueError("Deployment model lacks matching dense source provenance")
+    if source.get("full_qat_contract") is not None:
+        if variant != "w248":
+            raise ValueError("All-parameter QAT dense export supports only W248")
+        if source.get("qat_aware_training") is not True or source.get(
+            "quantization_export_contract"
+        ) != "dynamic_ptq_fresh_graph":
+            raise ValueError("All-parameter QAT dense export provenance is incomplete")
     if not source.get("merged_files"):
         raise ValueError("Deployment model lacks hashed merged weights and tokenizer")
     with Progress(f"Verify merged source for {variant}", unit="stage"):

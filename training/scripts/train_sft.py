@@ -23,7 +23,8 @@ def main() -> None:
         action="store_true",
         help=(
             "Load the real model/dataset, run QAT-off versus zero-adapter QAT-on "
-            "numeric gates, then exit without constructing an optimizer or training."
+            "numeric gates and exit. The separate all-parameter lane additionally performs "
+            "one disposable optimizer probe; no checkpoint is saved and its model is discarded."
         ),
     )
     args = parser.parse_args()

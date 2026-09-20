@@ -196,7 +196,12 @@ def run_backward_preflight(model: Any, tokenizer: Any, dataset: Any, training_cf
                     f"microstep={planned['accumulation_microstep']}/{passes}; no optimizer step.")
                 with Progress(f"SFT backward preflight {kind}", unit="stage", interval=interval):
                     phase = "forward"
-                    outputs = model(**batch)
+                    from ir_training.qat.full_model_contract import (
+                        full_parameter_autocast,
+                    )
+
+                    with full_parameter_autocast(model):
+                        outputs = model(**batch)
                     phase = "loss"
                     loss = _checked_shifted_causal_lm_loss(_extract_logits(outputs), labels)
                     if not bool(torch.isfinite(loss).all().item()):

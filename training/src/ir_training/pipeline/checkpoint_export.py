@@ -82,12 +82,39 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
     lineage = resolve_export_training_lineage(config_path, checkpoint)
     config, metadata = lineage["config"], lineage["metadata"]
     model = config.get("model") or {}
-    if (config.get("qat") or {}).get("enabled") or model.get(
-        "mobile_training_seed_manifest"
-    ):
-        raise ValueError(
-            "This script exports dense SFT checkpoints, not retained-scale/QAT checkpoints"
-        )
+    full_qat_contract = None
+    qat_or_mobile = bool(
+        (config.get("qat") or {}).get("enabled")
+        or model.get("mobile_training_seed_manifest")
+    )
+    if qat_or_mobile:
+        try:
+            from ir_training.qat.full_model_contract import (
+                validate_full_qat_checkpoint,
+                validate_full_qat_config,
+            )
+
+            validate_full_qat_config(config)
+            full_qat_contract = validate_full_qat_checkpoint(
+                config, metadata, checkpoint
+            )
+            if not isinstance(full_qat_contract, dict) or full_qat_contract.get("verified") is not True:
+                raise ValueError("all-parameter QAT checkpoint contract was not verified")
+        except (ImportError, TypeError, ValueError) as exc:
+            raise ValueError(
+                "This script exports dense SFT checkpoints, not retained-scale/QAT "
+                "checkpoints, unless the separate all-parameter QAT contract is verified"
+            ) from exc
+        if options.profile != "e2b" or metadata.get("checkpoint_kind") != "full_model":
+            raise ValueError(
+                "All-parameter QAT export requires profile=e2b and a full_model checkpoint"
+            )
+        if options.variants != ("w248",):
+            raise ValueError("All-parameter QAT export requires exactly variants=('w248',)")
+        if not options.allow_experimental_formats:
+            raise ValueError(
+                "All-parameter QAT W248 export requires explicit experimental-format acknowledgement"
+            )
     if (
         type(metadata.get("checkpoint_step")) is not int
         or metadata["checkpoint_step"] <= 0
@@ -160,6 +187,11 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
         training_executed=False,
         quality_evaluation_performed=False,
         runtime_gpu_tested=False,
+        full_qat_contract=full_qat_contract,
+        qat_aware_training=full_qat_contract is not None,
+        quantization_export_contract=(
+            "dynamic_ptq_fresh_graph" if full_qat_contract is not None else "dense_deployment"
+        ),
         allow_experimental_formats=options.allow_experimental_formats,
         stage_timeout_seconds=options.stage_timeout_seconds,
         progress_seconds=options.progress_seconds,

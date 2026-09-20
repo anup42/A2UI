@@ -80,7 +80,7 @@ def verify_launch_gpu_binding(config_path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--preflight-only", action="store_true", help="GPU host: real model forward checks, no optimizer.")
+    parser.add_argument("--preflight-only", action="store_true", help="GPU checks only; all-parameter QAT also runs a disposable optimizer step, never saves a trained checkpoint.")
     parser.add_argument("--execute", action="store_true", help="Actually launch GPU workers. Omit to print only.")
     args = parser.parse_args()
     command, environment = launch_plan(args.config, preflight_only=args.preflight_only)

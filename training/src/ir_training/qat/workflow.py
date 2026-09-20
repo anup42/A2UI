@@ -14,6 +14,18 @@ from ir_training.qat_mtp.workflow import WorkflowIssue
 def validate_qat_config(config: dict[str, Any]) -> list[WorkflowIssue]:
     """Validate the opt-in true-QAT SFT profile without loading a model."""
 
+    from ir_training.qat.full_model_contract import (
+        is_full_qat,
+        validate_full_qat_config,
+    )
+
+    if is_full_qat(config):
+        try:
+            validate_full_qat_config(config)
+        except (TypeError, ValueError, KeyError) as exc:
+            return [WorkflowIssue("error", "invalid_all_parameter_qat_contract", str(exc))]
+        return []
+
     model = _section(config, "model")
     training = _section(config, "training")
     lora = _section(config, "lora")

@@ -456,7 +456,8 @@ def _generate_predictions_with_model(
                 if stop_criteria is not None:
                     generation_kwargs["stopping_criteria"] = stop_criteria
                 row_started = time.perf_counter()
-                with torch.inference_mode():
+                from ir_training.qat.full_model_contract import full_parameter_autocast
+                with torch.inference_mode(), full_parameter_autocast(generation_model):
                     output = generation_model.generate(**inputs, **generation_kwargs)
                 input_length = inputs["input_ids"].shape[-1]
                 generated = tokenizer.decode(

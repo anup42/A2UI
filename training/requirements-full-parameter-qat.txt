@@ -1,0 +1,6 @@
+# Separate experimental all-parameter lane; do not upgrade the official LoRA
+# environment in place. CPU Trainer/API regression tested with this pair.
+# The mandatory H100 preflight is still required; these pins do not prove GPU fit.
+-r requirements-gemma4-qat.txt
+transformers==5.16.1
+accelerate==1.15.0

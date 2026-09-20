@@ -9,6 +9,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+import yaml
 from ir_training.pipeline import checkpoint_export as ce
 from ir_training.pipeline import deployment_export as de
 
@@ -64,6 +65,20 @@ def change_config(options, update):
     config = json.loads(path.read_text())
     update(config)
     write_json(path, config)
+    for bound in (
+        options.fit_dir / "preparation_report.json",
+        options.fit_dir / "training/best_golden_checkpoint/training_metadata.json",
+    ):
+        value = json.loads(bound.read_text())
+        value["training_config_sha256"] = de.file_sha256(path)
+        write_json(bound, value)
+
+
+def rewrite_config_as_yaml(options):
+    """Preserve scientific-notation floats that PyYAML treats as strings in JSON."""
+    path = options.fit_dir / "training_config.yaml"
+    config = json.loads(path.read_text())
+    path.write_text(yaml.safe_dump(config), encoding="utf-8")
     for bound in (
         options.fit_dir / "preparation_report.json",
         options.fit_dir / "training/best_golden_checkpoint/training_metadata.json",
@@ -366,6 +381,101 @@ def test_rejects_qat_or_mobile_seed(tmp_path, value):
         )
     with pytest.raises(ValueError, match="not retained-scale/QAT"):
         ce.run_checkpoint_export(options)
+
+
+def test_verified_all_parameter_qat_is_w248_only_and_preserves_honest_metadata(
+    monkeypatch, tmp_path
+):
+    from ir_training.qat import full_model_contract as full_contract
+
+    options = inputs(tmp_path)
+    checkpoint = options.fit_dir / "training/best_golden_checkpoint"
+    def configure(config):
+        config["model"].update(
+            model_id=full_contract.OFFICIAL_MOBILE_MODEL_ID,
+            mobile_training_seed_manifest="bound.json",
+            mobile_qparams_contract="qparams.json",
+        )
+        config["training"] = {}
+        config["preflight"] = {
+            "rows": 1,
+            "logit_probe_tokens": 1,
+            "greedy_probe_rows": 1,
+            "greedy_probe_new_tokens": 8,
+            "min_greedy_tokens": 8,
+        }
+        configured = full_contract.configure_full_qat(config)
+        config.clear()
+        config.update(configured)
+
+    change_config(options, configure)
+    rewrite_config_as_yaml(options)
+    metadata_path = checkpoint / "training_metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata["checkpoint_kind"] = "full_model"
+    write_json(metadata_path, metadata)
+    monkeypatch.setattr(
+        full_contract,
+        "validate_full_qat_checkpoint",
+        lambda config, saved, path: {
+            "verified": True,
+            "workflow": full_contract.WORKFLOW,
+        },
+    )
+
+    selected = replace(options, variants=("w248",))
+    plan = ce.build_checkpoint_export_plan(selected)
+    assert set(plan["variants"]) == {"w248"}
+    assert plan["qat_aware_training"] is True
+    assert plan["quantization_export_contract"] == "dynamic_ptq_fresh_graph"
+    assert plan["official_retained_scale_export"] is False
+    assert plan["mtp_exported"] is False
+
+    with pytest.raises(ValueError, match="exactly variants"):
+        ce.build_checkpoint_export_plan(replace(selected, variants=("w8",)))
+    with pytest.raises(ValueError, match="experimental-format acknowledgement"):
+        ce.build_checkpoint_export_plan(
+            replace(selected, allow_experimental_formats=False)
+        )
+
+
+def test_all_parameter_qat_rejects_unverified_checkpoint_contract(monkeypatch, tmp_path):
+    from ir_training.qat import full_model_contract as full_contract
+
+    options = inputs(tmp_path)
+    checkpoint = options.fit_dir / "training/best_golden_checkpoint"
+    def configure(config):
+        config["model"].update(
+            model_id=full_contract.OFFICIAL_MOBILE_MODEL_ID,
+            mobile_training_seed_manifest="bound.json",
+            mobile_qparams_contract="qparams.json",
+        )
+        config["training"] = {}
+        config["preflight"] = {
+            "rows": 1,
+            "logit_probe_tokens": 1,
+            "greedy_probe_rows": 1,
+            "greedy_probe_new_tokens": 8,
+            "min_greedy_tokens": 8,
+        }
+        configured = full_contract.configure_full_qat(config)
+        config.clear()
+        config.update(configured)
+
+    change_config(options, configure)
+    rewrite_config_as_yaml(options)
+    metadata_path = checkpoint / "training_metadata.json"
+    metadata = json.loads(metadata_path.read_text())
+    metadata["checkpoint_kind"] = "full_model"
+    write_json(metadata_path, metadata)
+    monkeypatch.setattr(
+        full_contract,
+        "validate_full_qat_checkpoint",
+        lambda config, saved, path: {"verified": False},
+    )
+
+    with pytest.raises(ValueError, match="not retained-scale/QAT"):
+        ce.build_checkpoint_export_plan(replace(options, variants=("w248",)))
 
 
 def test_rejects_profile_mismatch_and_modified_config(tmp_path):

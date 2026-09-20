@@ -9,6 +9,15 @@ FULL_METHODS = {"full_finetune_sft", "full_finetune_qat"}
 
 
 def validate_sft_recipe(config: dict[str, Any]) -> str:
+    from ir_training.qat.full_model_contract import (
+        is_full_qat,
+        validate_full_qat_config,
+    )
+
+    if is_full_qat(config):
+        validate_full_qat_config(config)
+    elif (config.get("training") or {}).get("full_parameter_training"):
+        raise ValueError("Explicit all-parameter mode requires its separate full-QAT workflow")
     training = config.get("training") or {}
     method = str(training.get("method", "lora_sft")).strip().lower()
     if method not in LORA_METHODS | FULL_METHODS:

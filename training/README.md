@@ -11,6 +11,14 @@ checkpoint tests. Export requires no Vulkan. Optional matched Android testing
 measures speed with MTP disabled on both models; format parity alone is not a
 throughput guarantee. The unchanged official drafter remains packaged but unused.
 
+For **true all-parameter E2B QAT SFT**, use the separate
+[`run_full_parameter_qat_pipeline.py`](scripts/run_full_parameter_qat_pipeline.py)
+and [all-parameter runbook](docs/FULL_PARAMETER_QAT_PIPELINE.md). It trains every
+text-model parameter (including embeddings and norms), selects/evaluates the
+full checkpoint on the same three cohorts, and exports experimental dense
+W2/W4/W8. This is not the official retained-scale mobile graph and makes no
+Google-speed claim. The official LoRA pipeline and its defaults remain unchanged.
+
 For **W32/W16/W8/W4 export from an already trained checkpoint, without any
 retraining or inference**, use [`export_checkpoint_litertlm.py`](scripts/export_checkpoint_litertlm.py)
 and the [checkpoint-only export guide](docs/EXPORT_TRAINED_CHECKPOINT.md).
@@ -102,6 +110,7 @@ The detailed, file-by-file status and legacy boundaries are maintained in
 
 | Pipeline | Entry point | Current status |
 |---|---|---|
+| True all-parameter E2B QAT SFT, three-cohort best-checkpoint tests, experimental W248 | `training/scripts/run_full_parameter_qat_pipeline.py` | Separate FP32-master/BF16-compute Adafactor lane; 2/4/8 H100, mandatory disposable optimizer preflight, complete full-model checkpoints, fresh dense export; no native-runtime or speed-parity claim |
 | E2B mobile-seed retained-scale QAT, three-cohort best-checkpoint tests, official-layout export, MTP off | `training/scripts/run_official_mobile_pipeline.py` | New isolated fresh-run workflow; cached/decontaminated preparation, 2/4/8-GPU profiles, Golden32 unique-source selection, held-out Golden35/Bixby50, strict code-only mobile export, optional target-only Android throughput gate; no native LiteRT Golden testing |
 | Existing dense checkpoint to all four LiteRT-LM variants | `training/scripts/export_checkpoint_litertlm.py` | Export only; no training, Golden/Bixby inference or Vulkan; CPU merge/conversion, W16/W4 acknowledgement, hash/precision checks, live logs and artifact summary |
 | Current dense E2B / 270M training, optional tuning, W32/W16/W8/W4 and Golden32/Golden35/Bixby50 | `training/scripts/run_golden_deployment.py` | All selected GPUs for training/HF tests; CPU export and precision audits; default native GPU testing/21-result scorecard; `--skip-litert-evaluation` keeps nine HF results and all exports with native slots explicitly skipped; TensorBoard HParams |

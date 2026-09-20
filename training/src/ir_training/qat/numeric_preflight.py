@@ -10,6 +10,9 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from ir_training.qat.full_model_contract import NUMERIC_POLICY as FULL_QAT_POLICY
+from ir_training.qat.full_model_contract import is_full_qat
+
 OFFICIAL_MOBILE_WORKFLOW = "e2b_retained_mobile_golden_bixby_no_mtp_v2"
 LEGACY_POLICY = "legacy_bf16_parity_v1"
 RETAINED_MOBILE_POLICY = "retained_mobile_safety_v1"
@@ -17,7 +20,7 @@ RETAINED_MOBILE_POLICY = "retained_mobile_safety_v1"
 
 def numeric_policy(preflight: dict[str, Any]) -> str:
     policy = preflight.get("numeric_policy", LEGACY_POLICY)
-    if policy not in (LEGACY_POLICY, RETAINED_MOBILE_POLICY):
+    if policy not in (LEGACY_POLICY, RETAINED_MOBILE_POLICY, FULL_QAT_POLICY):
         raise ValueError(f"Unknown preflight.numeric_policy: {policy!r}")
     return policy
 
@@ -28,6 +31,11 @@ def resolve_numeric_policy(config: dict[str, Any]) -> str:
     if not isinstance(preflight, dict):
         raise TypeError("preflight must be an object")
     policy = numeric_policy(preflight)
+    if is_full_qat(config) or policy == FULL_QAT_POLICY:
+        from ir_training.qat.full_model_contract import validate_full_qat_config
+
+        validate_full_qat_config(config)
+        return policy
     official = (config.get("run") or {}).get("purpose") == OFFICIAL_MOBILE_WORKFLOW
     if official != (policy == RETAINED_MOBILE_POLICY):
         raise ValueError(
@@ -224,6 +232,12 @@ def numeric_preflight_provenance(config: dict, numeric: dict) -> dict[str, Any]:
                 and zero.get("nonzero_or_invalid_pairs") == []
             ),
         }
+        if policy == FULL_QAT_POLICY:
+            checks.pop("zero_adapter_initialization_verified")
+            checks["full_model_initialization_verified"] = bool(
+                numeric.get("adapter_initialization_mode") == "full_model"
+                and zero == {"required": False, "reason": "full_finetune", "verified_zero_delta": False}
+            )
         report.update(checks=checks, verified=all(checks.values()))
     except (AttributeError, KeyError, TypeError, ValueError, OverflowError) as exc:
         report["error"] = str(exc)

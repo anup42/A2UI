@@ -28,12 +28,14 @@ from ir_training.train.recipe import (
     validate_effective_batch, validate_sft_recipe,
 )
 from ir_training.qat.fake_quant import QATController, prepare_qat_model
+from ir_training.qat.full_model_contract import full_parameter_autocast
 from ir_training.qat.mobile_seed_architecture import (
     MobileSeedArchitectureError,
     validate_mobile_seed_architecture,
 )
 from ir_training.qat.mobile_training_seed import verify_configured_mobile_training_seed
 from ir_training.qat.numeric_preflight import (
+    FULL_QAT_POLICY,
     RETAINED_MOBILE_POLICY,
     greedy_mandatory_checks,
     numeric_mandatory_checks,
@@ -77,6 +79,11 @@ def train_sft(
     qat_mtp_cfg = config.get("qat_mtp") if isinstance(config.get("qat_mtp"), dict) else {}
     method = validate_sft_recipe(config)
     full_finetune = method in FULL_METHODS
+    from ir_training.qat.full_model_contract import (
+        is_full_qat, verify_full_model_inventory, verify_full_qat_coverage,
+    )
+    all_parameter_qat = is_full_qat(config)
+    full_parameter_scope, full_model_inventory, full_qat_coverage = {}, {}, {}
     effective_batch = validate_effective_batch(training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
     # Validate an explicitly bounded run before loading multi-gigabyte model
     # artifacts. Invalid max_steps must not silently fall back to epochs.
@@ -153,6 +160,10 @@ def train_sft(
         raise RuntimeError(
             "Install training/requirements-training.txt before running SFT training."
         ) from exc
+    if all_parameter_qat:
+        from ir_training.train.full_parameters import validate_full_training_runtime
+
+        validate_full_training_runtime(Trainer)
     initialization_seed = _initialize_training_seed(training_cfg, run_cfg, seed_setter=set_seed)
     if qat_cfg.get("enabled", False):
         _enforce_qat_training_guardrails(config)
@@ -167,6 +178,10 @@ def train_sft(
 
     dataset_dir = resolve_path(run_cfg.get("dataset_dir", "outputs/datasets/dataset_v1_stage3"), base)
     output_dir = resolve_path(run_cfg.get("output_dir", "runs/gemma_e2b_ir_lora"), base)
+    full_optimizer_preflight = {}
+    if all_parameter_qat and not preflight_only:
+        from ir_training.qat.full_model_contract import require_optimizer_preflight
+        full_optimizer_preflight = require_optimizer_preflight(config, config_path)
     train_path = dataset_dir / "train.jsonl"
     val_path = dataset_dir / "val.jsonl"
     if not train_path.exists():
@@ -218,8 +233,16 @@ def train_sft(
         )
     resume_adapter_report: dict[str, Any] | None = None
     if full_finetune:
-        for parameter in model.parameters():
-            parameter.requires_grad_(True)
+        if all_parameter_qat:
+            from ir_training.train.full_parameters import enable_full_parameter_training
+            full_model_inventory = verify_full_model_inventory(model, config)
+            full_parameter_scope = enable_full_parameter_training(model)
+            # Used only by this lane's probes and generation helpers. Trainer
+            # itself receives explicit BF16 AMP with FP32 optimizer parameters.
+            model._a2ui_full_parameter_amp = True
+        else:
+            for parameter in model.parameters():
+                parameter.requires_grad_(True)
     elif resolved_resume_checkpoint is not None:
         _require_peft_resume_checkpoint(resolved_resume_checkpoint)
         model = PeftModel.from_pretrained(
@@ -554,6 +577,8 @@ def train_sft(
             # retained scales. Any catastrophic zero-adapter change stops the
             # run before Trainer/optimizer construction.
             qat_controller = prepare_qat_model(model, config)
+            if all_parameter_qat:
+                full_qat_coverage = verify_full_qat_coverage(model, qat_controller.summary())
             _require_trainable_qat_scope(qat_cfg, qat_controller)
             saturation_monitor = getattr(
                 qat_controller, "saturation_monitor", None
@@ -670,7 +695,7 @@ def train_sft(
         )
         # Forward-only probes cannot exercise attention backward or the padded
         # microbatch. Never use a token-cache hit as evidence for this gate.
-        if qat_controller is None:
+        if qat_controller is None or all_parameter_qat:
             from ir_training.train.backward_preflight import run_backward_preflight
             backward_preflight_report = run_backward_preflight(
                 model=model, tokenizer=tokenizer, dataset=tokenized_dataset["train"],
@@ -687,6 +712,50 @@ def train_sft(
         # Each rank still validates exact tensors and runs live model probes.
         # Release earlier views; with caching the text view holds only the
         # bounded greedy probe and the tensors remain shared memory-mapped data.
+        if all_parameter_qat and preflight_only:
+            from ir_training.train.full_parameters import probe_full_optimizer_step
+            if backward_preflight_report.get("status") != "passed":
+                raise ValueError("All-parameter QAT requires successful real CUDA backward preflight")
+            # This is a disposable worker: the optimizer probe intentionally
+            # changes weights, then returns below without saving any checkpoint.
+            # The training stage always starts a fresh process and reloads seed.
+            longest = backward_preflight_report["selection"]["longest_index"]
+            model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+            model.train()
+            import torch
+            probe_model = model
+            if int(os.environ.get("WORLD_SIZE", "1")) > 1:
+                torch.cuda.set_device(int(os.environ.get("LOCAL_RANK", "0")))
+                if not torch.distributed.is_initialized():
+                    torch.distributed.init_process_group(backend="nccl")
+                # Match the new lane's production DDP memory policy, including
+                # initial gradient bucket allocation and real all-reduces.
+                probe_model = torch.nn.parallel.DistributedDataParallel(
+                    model, device_ids=[int(os.environ.get("LOCAL_RANK", "0"))],
+                    broadcast_buffers=False, find_unused_parameters=False,
+                    gradient_as_bucket_view=True,
+                )
+
+            def optimizer_probe_backward():
+                collator = _CausalLMDataCollator(tokenizer, input_vocab_size=input_vocab_size,
+                    label_vocab_size=label_vocab_size, max_position_embeddings=max_position_embeddings)
+                batch = {key: value.to(_model_input_device(model))
+                         for key, value in collator([tokenized_dataset["train"][longest]]).items()}
+                labels = batch.pop("labels")
+                _drop_trivial_attention_mask(batch)
+                with full_parameter_autocast(model):
+                    outputs = probe_model(**batch)
+                    loss = _checked_shifted_causal_lm_loss(_extract_logits(outputs), labels)
+                loss.backward()
+
+            with _sft_progress("Disposable full-parameter optimizer/memory probe", unit="stage"):
+                probe = probe_full_optimizer_step(model, backward=optimizer_probe_backward,
+                    learning_rate=float(training_cfg["learning_rate"]))
+            probe["ddp_probe"] = {"world_size": int(os.environ.get("WORLD_SIZE", "1")),
+                "all_reduce_exercised": probe_model is not model, "gradient_as_bucket_view": True,
+                "scope": "one longest-batch step, not a guarantee for every future shape"}
+            from ir_training.qat.full_model_contract import write_optimizer_preflight
+            full_optimizer_preflight = write_optimizer_preflight(config, config_path, probe)
         del sft_text_dataset, dataset
         if preflight_only:
             if qat_controller is not None:
@@ -697,6 +766,10 @@ def train_sft(
                 "mobile_training_seed": mobile_training_seed,
                 "mobile_seed_architecture": mobile_seed_architecture,
                 "qat": qat_controller.summary() if qat_controller else {},
+                "full_parameter_scope": full_parameter_scope,
+                "full_model_inventory": full_model_inventory,
+                "full_qat_coverage": full_qat_coverage,
+                "full_optimizer_preflight": full_optimizer_preflight,
                 "numeric_preflight": numeric_preflight_report,
                 "token_cache": token_cache_report,
                 "attention_runtime": active_attention_policy(),
@@ -768,6 +841,10 @@ def train_sft(
         "training": training_cfg,
         "training_limit": training_limit,
         "checkpoint_kind": "full_model" if full_finetune else "lora_adapter",
+        "full_parameter_scope": full_parameter_scope,
+        "full_model_inventory": full_model_inventory,
+        "full_qat_coverage": full_qat_coverage,
+        "full_optimizer_preflight": full_optimizer_preflight,
         "effective_batch_size": effective_batch,
         "initialization_seed": initialization_seed,
         "generation_eos_token_ids": generation_eos_ids,
@@ -1575,8 +1652,54 @@ def _enable_input_grads_for_kbit_lora(model: Any) -> None:
 def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[str, Any] | None = None) -> Any:
     lora_diagnostics_steps = int((training_cfg or {}).get("lora_diagnostics_steps", 0) or 0)
     lora_diagnostics_all_ranks = bool((training_cfg or {}).get("lora_diagnostics_all_ranks", False))
+    full_parameter_training = (training_cfg or {}).get("full_parameter_training") is True
+    if (
+        full_parameter_training
+        and int(os.environ.get("WORLD_SIZE", "1")) > 1
+        and not callable(getattr(base_trainer_cls, "_build_accelerator_args", None))
+    ):
+        raise ValueError(
+            "Full-parameter multi-rank training requires Trainer._build_accelerator_args "
+            "so DDP bucket views can be configured before Accelerator construction"
+        )
 
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
+        def _build_accelerator_args(self, **kwargs: Any) -> dict[str, Any]:
+            """Inject DDP kwargs before Trainer constructs Accelerator/DDP."""
+            parent_hook = getattr(super(), "_build_accelerator_args", None)
+            args = parent_hook(**kwargs) if callable(parent_hook) else dict(kwargs)
+            if not full_parameter_training:
+                return args
+            handlers = args.get("kwargs_handlers")
+            handlers = handlers if isinstance(handlers, (list, tuple)) else []
+            ddp_handler = next(
+                (
+                    handler
+                    for handler in handlers
+                    if type(handler).__name__ == "DistributedDataParallelKwargs"
+                    or (
+                        hasattr(handler, "find_unused_parameters")
+                        and hasattr(handler, "broadcast_buffers")
+                        and hasattr(handler, "gradient_as_bucket_view")
+                    )
+                ),
+                None,
+            )
+            world_size = int(os.environ.get("WORLD_SIZE", "1"))
+            if ddp_handler is None or not hasattr(ddp_handler, "gradient_as_bucket_view"):
+                self._a2ui_full_ddp_handler_configured = False
+                if world_size > 1:
+                    raise ValueError(
+                        "Installed Trainer/Accelerate cannot configure full-parameter "
+                        "DDP gradient bucket views before Accelerator construction"
+                    )
+                return args
+            ddp_handler.gradient_as_bucket_view = True
+            ddp_handler.broadcast_buffers = False
+            ddp_handler.find_unused_parameters = False
+            self._a2ui_full_ddp_handler_configured = True
+            return args
+
         def __init__(self, *args: Any, **kwargs: Any) -> None:
             super().__init__(*args, **kwargs)
             # compute_loss below deliberately returns a per-token mean and
@@ -1584,8 +1707,23 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
             # gradient-accumulation divisor; otherwise recent Trainer versions
             # treat the custom signature as token-aware and skip that divisor.
             self.model_accepts_loss_kwargs = False
+            if (
+                full_parameter_training
+                and int(os.environ.get("WORLD_SIZE", "1")) > 1
+                and getattr(self, "_a2ui_full_ddp_handler_configured", False) is not True
+            ):
+                raise ValueError(
+                    "Full-parameter multi-rank Trainer did not apply its DDP bucket-view "
+                    "policy before Accelerator construction"
+                )
 
         def training_step(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+            if (
+                full_parameter_training
+                and int(os.environ.get("WORLD_SIZE", "1")) > 1
+                and getattr(model, "gradient_as_bucket_view", False) is not True
+            ):
+                raise ValueError("Full-parameter training requires live DDP gradient bucket views")
             should_report = _should_report_lora_diagnostics(
                 trainer=self,
                 max_reports=lora_diagnostics_steps,
@@ -1880,7 +2018,7 @@ def _run_forward_numeric_gate(
                 f"hf_device_map={_summarize_device_map(getattr(model, 'hf_device_map', None))}",
                 flush=True,
             )
-            with torch.no_grad():
+            with torch.no_grad(), full_parameter_autocast(model):
                 model_inputs = {"input_ids": input_ids}
                 if attention_mask is not None:
                     model_inputs["attention_mask"] = attention_mask
@@ -1985,7 +2123,7 @@ def _compare_initial_numeric_reports(
     qat_enabled: bool,
 ) -> dict[str, Any]:
     policy = numeric_policy(preflight_cfg)
-    diagnostic = policy == RETAINED_MOBILE_POLICY
+    diagnostic = policy in {RETAINED_MOBILE_POLICY, FULL_QAT_POLICY}
     baseline_loss = float(baseline["completion_loss"])
     qat_loss = float(qat_on["completion_loss"])
     if not math.isfinite(baseline_loss) or not math.isfinite(qat_loss):
@@ -2147,7 +2285,7 @@ def _run_deterministic_greedy_gate(
                     pad_token_id = getattr(tokenizer, "eos_token_id", None)
                 if pad_token_id is not None:
                     generation_kwargs["pad_token_id"] = int(pad_token_id)
-                with torch.no_grad():
+                with torch.no_grad(), full_parameter_autocast(model):
                     output = model.generate(**generation_kwargs)
                 generated = [
                     int(value)
@@ -2203,7 +2341,7 @@ def _compare_initial_greedy_reports(
     qat_enabled: bool,
 ) -> dict[str, Any]:
     policy = numeric_policy(preflight_cfg)
-    diagnostic = policy == RETAINED_MOBILE_POLICY
+    diagnostic = policy in {RETAINED_MOBILE_POLICY, FULL_QAT_POLICY}
     baseline_runs = baseline.get("generated_token_ids") or []
     qat_runs = qat_on.get("generated_token_ids") or []
     baseline_first = baseline_runs[0] if baseline_runs else []
