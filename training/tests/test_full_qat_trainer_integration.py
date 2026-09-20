@@ -1,8 +1,10 @@
 """Small CPU integration checks for the isolated all-parameter trainer lane."""
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import sys
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -25,6 +27,76 @@ from ir_training.train.sft import (
     _build_checked_causal_lm_trainer,
     _checked_shifted_causal_lm_loss,
 )
+
+
+def _spawn_with_timeout(target, args, *, nprocs: int, timeout_seconds: float = 120.0) -> None:
+    import torch.multiprocessing as mp
+
+    process_context = mp.spawn(target, args=args, nprocs=nprocs, join=False)
+    deadline = time.monotonic() + timeout_seconds
+    try:
+        while not process_context.join(timeout=max(0.0, deadline - time.monotonic())):
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f"spawned test workers exceeded {timeout_seconds:.0f}s")
+    except BaseException:
+        for process in process_context.processes:
+            if process.is_alive():
+                process.terminate()
+        for process in process_context.processes:
+            process.join(timeout=5)
+        raise
+
+
+def _run_tiny_ddp_accumulation_worker(
+    rank: int,
+    world_size: int,
+    init_method: str,
+    sync_each_batch: bool,
+    result_path: str,
+) -> None:
+    """Exercise the storage distinction that caused the full-QAT first-backward OOM."""
+    import torch.distributed as dist
+    from torch.nn.parallel import DistributedDataParallel
+
+    dist.init_process_group(
+        "gloo",
+        init_method=init_method,
+        rank=rank,
+        world_size=world_size,
+    )
+    try:
+        torch.manual_seed(1234)
+        model = DistributedDataParallel(
+            torch.nn.Linear(4, 3, bias=True),
+            gradient_as_bucket_view=True,
+        )
+        first_backward_uses_bucket_views = None
+        for microstep in range(4):
+            values = torch.arange(8, dtype=torch.float32).reshape(2, 4)
+            values = values + float(rank + microstep)
+            context = (
+                model.no_sync()
+                if not sync_each_batch and microstep < 3
+                else contextlib.nullcontext()
+            )
+            with context:
+                (model(values).square().mean() / 4.0).backward()
+            if microstep == 0:
+                first_backward_uses_bucket_views = all(
+                    getattr(parameter.grad, "_base", None) is not None
+                    for parameter in model.parameters()
+                )
+
+        if rank == 0:
+            torch.save(
+                {
+                    "first_backward_uses_bucket_views": first_backward_uses_bucket_views,
+                    "gradients": [parameter.grad.detach().clone() for parameter in model.parameters()],
+                },
+                result_path,
+            )
+    finally:
+        dist.destroy_process_group()
 
 
 def _base_config() -> dict:
@@ -62,10 +134,21 @@ def test_full_contract_selects_fixed_lr_adafactor_and_disables_external_clip():
 
 
 class _FakeBaseTrainer:
-    def __init__(self, *, handler=None):
+    def __init__(self, *, handler=None, gradient_accumulation_plugin=None):
         self.handler = handler
-        self.accelerator_args = self._build_accelerator_args()
-        self.accelerator = SimpleNamespace()
+        self.gradient_accumulation_plugin = gradient_accumulation_plugin or SimpleNamespace(
+            sync_each_batch=False
+        )
+        self.accelerator_args = self._build_accelerator_args(
+            gradient_accumulation_plugin=self.gradient_accumulation_plugin
+        )
+        self.accelerator = SimpleNamespace(
+            gradient_state=SimpleNamespace(
+                plugin_kwargs={
+                    "sync_each_batch": self.gradient_accumulation_plugin.sync_each_batch
+                }
+            )
+        )
         self.model_accepts_loss_kwargs = True
         self.state = SimpleNamespace(global_step=0)
         self.model = None
@@ -97,6 +180,8 @@ def test_checked_trainer_sets_full_ddp_handler_policy():
     assert handler.broadcast_buffers is False
     assert handler.find_unused_parameters is False
     assert checked.accelerator_args["kwargs_handlers"][0] is handler
+    assert checked.gradient_accumulation_plugin.sync_each_batch is True
+    assert checked.accelerator.gradient_state.plugin_kwargs["sync_each_batch"] is True
     assert checked._a2ui_full_ddp_handler_configured is True
     assert checked.model_accepts_loss_kwargs is False
 
@@ -114,10 +199,94 @@ def test_checked_trainer_requires_live_bucket_view_under_multi_rank(monkeypatch)
     monkeypatch.setenv("WORLD_SIZE", "2")
 
     with pytest.raises(ValueError, match="live DDP gradient bucket views"):
-        checked.training_step(SimpleNamespace(gradient_as_bucket_view=False), {})
+        checked.training_step(
+            SimpleNamespace(
+                gradient_as_bucket_view=False,
+                require_backward_grad_sync=True,
+            ),
+            {},
+        )
     assert checked.training_step(
-        SimpleNamespace(gradient_as_bucket_view=True), {}
+        SimpleNamespace(
+            gradient_as_bucket_view=True,
+            require_backward_grad_sync=True,
+        ),
+        {},
     ) == "trained"
+
+
+def test_checked_trainer_rejects_live_no_sync_under_multi_rank(monkeypatch):
+    handler = SimpleNamespace(
+        gradient_as_bucket_view=False,
+        broadcast_buffers=True,
+        find_unused_parameters=True,
+    )
+    checked = _build_checked_causal_lm_trainer(
+        _FakeBaseTrainer,
+        {"full_parameter_training": True, "lora_diagnostics_steps": 0},
+    )(handler=handler)
+    monkeypatch.setenv("WORLD_SIZE", "2")
+
+    with pytest.raises(ValueError, match="sync|no_sync"):
+        checked.training_step(
+            SimpleNamespace(
+                gradient_as_bucket_view=True,
+                require_backward_grad_sync=False,
+            ),
+            {},
+        )
+
+
+def test_checked_trainer_rejects_live_accumulation_plugin_without_sync_each_batch(monkeypatch):
+    handler = SimpleNamespace(
+        gradient_as_bucket_view=False,
+        broadcast_buffers=True,
+        find_unused_parameters=True,
+    )
+    checked = _build_checked_causal_lm_trainer(
+        _FakeBaseTrainer,
+        {"full_parameter_training": True, "lora_diagnostics_steps": 0},
+    )(handler=handler)
+    checked.accelerator.gradient_state.plugin_kwargs["sync_each_batch"] = False
+    monkeypatch.setenv("WORLD_SIZE", "2")
+
+    with pytest.raises(ValueError, match="sync_each_batch"):
+        checked.training_step(
+            SimpleNamespace(
+                gradient_as_bucket_view=True,
+                require_backward_grad_sync=True,
+            ),
+            {},
+        )
+
+
+@pytest.mark.skipif(
+    not torch.distributed.is_available(),
+    reason="two-rank bucket-view regression requires torch.distributed",
+)
+def test_two_rank_sync_each_batch_uses_bucket_views_from_first_backward_and_preserves_mean(tmp_path):
+    results = {}
+    for sync_each_batch in (False, True):
+        init_file = tmp_path / f"gloo_{sync_each_batch}"
+        result_file = tmp_path / f"result_{sync_each_batch}.pt"
+        _spawn_with_timeout(
+            _run_tiny_ddp_accumulation_worker,
+            (
+                2,
+                init_file.resolve().as_uri(),
+                sync_each_batch,
+                str(result_file),
+            ),
+            nprocs=2,
+        )
+        results[sync_each_batch] = torch.load(result_file, weights_only=True)
+
+    assert results[False]["first_backward_uses_bucket_views"] is False
+    assert results[True]["first_backward_uses_bucket_views"] is True
+    for default_gradient, synchronized_gradient in zip(
+        results[False]["gradients"], results[True]["gradients"], strict=True
+    ):
+        torch.testing.assert_close(default_gradient, synchronized_gradient)
 
 
 def test_full_checkpoint_roundtrip_keeps_embedding_and_norm_updates(tmp_path):
@@ -161,8 +330,28 @@ def test_checked_trainer_rejects_missing_ddp_handler_capability():
         {"full_parameter_training": True, "lora_diagnostics_steps": 0},
     )
     checked = checked_cls(handler=None)
-    assert checked.accelerator_args == {"sentinel": "ordinary"}
+    assert checked.accelerator_args["sentinel"] == "ordinary"
+    assert (
+        checked.accelerator_args["gradient_accumulation_plugin"].sync_each_batch
+        is True
+    )
     assert checked._a2ui_full_ddp_handler_configured is False
+
+
+def test_checked_trainer_rejects_missing_accumulation_plugin_capability():
+    class MissingAccumulationPluginTrainer:
+        def __init__(self):
+            self._build_accelerator_args()
+
+        def _build_accelerator_args(self, **kwargs):
+            return dict(kwargs)
+
+    checked_cls = _build_checked_causal_lm_trainer(
+        MissingAccumulationPluginTrainer,
+        {"full_parameter_training": True, "lora_diagnostics_steps": 0},
+    )
+    with pytest.raises(ValueError, match="sync_each_batch accumulation policy"):
+        checked_cls()
 
 
 def test_checked_trainer_rejects_missing_preconstruction_handler_for_multirank(monkeypatch):
@@ -189,6 +378,8 @@ def test_ordinary_checked_trainer_does_not_modify_accelerator_handlers():
     assert handler.gradient_as_bucket_view is False
     assert handler.broadcast_buffers is True
     assert handler.find_unused_parameters is True
+    assert checked.gradient_accumulation_plugin.sync_each_batch is False
+    assert checked.accelerator.gradient_state.plugin_kwargs["sync_each_batch"] is False
     assert not hasattr(checked, "_a2ui_full_ddp_handler_configured")
 
 

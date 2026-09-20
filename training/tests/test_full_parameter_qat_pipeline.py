@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.pipeline import full_parameter_qat as workflow
 from ir_training.pipeline.full_parameter_qat import FullParameterQATOptions
+from ir_training.qat import full_model_contract as full_contract
 from ir_training.train.gpu_profile import build_gpu_profile
 
 
@@ -71,6 +72,48 @@ def _inventory(count: int, *, name: str = "NVIDIA H100 80GB HBM3", gib: int = 80
         "inherited_cuda_visible_devices": None,
         "visible_gpu_count": count,
         "devices": devices,
+    }
+
+
+def _optimizer_probe(*, world_size: int, accumulation_steps: int, local_rank: int = 0) -> dict:
+    microsteps = full_contract.OPTIMIZER_PREFLIGHT_STEPS * accumulation_steps
+    return {
+        "schema_version": 2,
+        "probe": full_contract.OPTIMIZER_PREFLIGHT_KIND,
+        "passed": True,
+        "disposable_worker_required": True,
+        "model_must_not_be_reused": True,
+        "checkpoint_writes": 0,
+        "disposable_optimizer_steps": full_contract.OPTIMIZER_PREFLIGHT_STEPS,
+        "optimizer": {
+            "name": "Adafactor", "learning_rate": 1e-4, "beta1": None,
+            "scale_parameter": False, "relative_step": False,
+            "warmup_init": False, "weight_decay": 0.0,
+            "clip_threshold": 1.0,
+            "external_max_grad_norm_required": 0.0,
+            "state_tensor_count": 4, "state_numel": 100,
+        },
+        "scope": {
+            "unique_parameter_count": 506, "trainable_numel": 100,
+            "all_trainable_fp32": True, "all_gradients_finite": True,
+            "all_parameters_finite_after_step": True,
+        },
+        "ddp_probe": {
+            "world_size": world_size, "all_reduce_exercised": world_size > 1,
+            "gradient_as_bucket_view": True, "sync_each_batch": True,
+            "trainer_backend": "transformers", "trainer_path": "checked_causal_lm_trainer",
+            "gradient_accumulation_steps": accumulation_steps, "microsteps": microsteps,
+            "synchronized_microsteps": microsteps,
+            "optimizer_steps": full_contract.OPTIMIZER_PREFLIGHT_STEPS,
+        },
+        "memory": {
+            "device": f"cuda:{local_rank}", "cuda_local_rank_only": True,
+            "ddp_collectives_certified": world_size > 1,
+            "baseline_allocated_bytes": 100, "baseline_reserved_bytes": 200,
+            "peak_allocated_bytes": 500, "peak_reserved_bytes": 600,
+            "device_total_bytes": 1000, "device_free_bytes_min": 200,
+            "peak_reserved_fraction": 0.6, "max_reserved_fraction": 0.90,
+        },
     }
 
 
@@ -173,6 +216,7 @@ def test_full_recipe_keeps_fp32_all_parameter_qat_and_safe_h100_batch(
     assert config["training"]["optim"] == "adafactor"
     assert config["training"]["per_device_train_batch_size"] == 1
     assert config["training"]["gradient_accumulation_steps"] == accumulation
+    assert config["training"]["ddp_sync_each_batch"] is True
     assert config["training"]["expected_effective_batch_size"] == 32
     assert config["qat"]["scale_mode"] == "dynamic"
     assert config["qat"]["quantize_embeddings"] is True
@@ -365,9 +409,10 @@ def test_preflight_receipt_requires_one_disposable_step_from_every_rank(options)
     config_path.parent.mkdir(parents=True)
     import yaml
 
-    config_path.write_text(
-        yaml.safe_dump({"runtime": {"gpu_profile": profile}}), encoding="utf-8"
-    )
+    config_path.write_text(yaml.safe_dump({
+        "runtime": {"gpu_profile": profile},
+        "training": {"gradient_accumulation_steps": 16},
+    }), encoding="utf-8")
     training = Path(plan["paths"]["training"])
     training.mkdir()
     for rank in range(2):
@@ -377,12 +422,9 @@ def test_preflight_receipt_requires_one_disposable_step_from_every_rank(options)
                     "training_config_sha256": workflow.sha256(config_path),
                     "rank": rank,
                     "world_size": 2,
-                    "probe": {
-                        "passed": True,
-                        "disposable_optimizer_steps": 1,
-                        "checkpoint_writes": 0,
-                        "model_must_not_be_reused": True,
-                    },
+                    "probe": _optimizer_probe(
+                        world_size=2, accumulation_steps=16, local_rank=rank
+                    ),
                 }
             ),
             encoding="utf-8",
@@ -395,8 +437,41 @@ def test_preflight_receipt_requires_one_disposable_step_from_every_rank(options)
     ]
 
     payload = json.loads(reports[1].read_text(encoding="utf-8"))
-    payload["probe"]["disposable_optimizer_steps"] = 0
+    payload["probe"]["disposable_optimizer_steps"] = 1
     reports[1].write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="Rank 1 optimizer preflight"):
+        workflow._optimizer_preflight_files(plan)
+
+
+@pytest.mark.parametrize("failure", ["missing_ddp", "wrong_accumulation", "nonfinite_memory", "memory_exceeded"])
+def test_preflight_receipt_rejects_incomplete_trainer_memory_evidence(options, failure):
+    plan = workflow.build_plan(options)
+    profile = build_gpu_profile(_inventory(2), model="e2b", cpu_count=64)
+    config_path = Path(plan["paths"]["config"])
+    config_path.parent.mkdir(parents=True)
+    import yaml
+
+    config_path.write_text(yaml.safe_dump({
+        "runtime": {"gpu_profile": profile},
+        "training": {"gradient_accumulation_steps": 16},
+    }), encoding="utf-8")
+    training = Path(plan["paths"]["training"])
+    training.mkdir()
+    for rank in range(2):
+        probe = _optimizer_probe(world_size=2, accumulation_steps=16, local_rank=rank)
+        if rank == 1:
+            if failure == "missing_ddp":
+                probe.pop("ddp_probe")
+            elif failure == "wrong_accumulation":
+                probe["ddp_probe"]["gradient_accumulation_steps"] = 8
+            elif failure == "nonfinite_memory":
+                probe["memory"]["peak_reserved_fraction"] = float("nan")
+            else:
+                probe["memory"].update(peak_reserved_bytes=900, peak_reserved_fraction=0.9)
+        (training / f"full_optimizer_preflight_rank{rank}.json").write_text(json.dumps({
+            "training_config_sha256": workflow.sha256(config_path),
+            "rank": rank, "world_size": 2, "probe": probe,
+        }), encoding="utf-8")
     with pytest.raises(ValueError, match="Rank 1 optimizer preflight"):
         workflow._optimizer_preflight_files(plan)
 

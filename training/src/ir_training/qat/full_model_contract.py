@@ -10,6 +10,7 @@ import copy
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,8 @@ from ir_training.qat.mobile_training_seed import (
 WORKFLOW = "e2b_all_parameter_qat_v1"
 NUMERIC_POLICY = "all_parameter_qat_safety_v1"
 PROFILE = "e2b_all_parameter_dynamic_w248"
+OPTIMIZER_PREFLIGHT_STEPS = 2
+OPTIMIZER_PREFLIGHT_KIND = "disposable_full_parameter_trainer_v2"
 EXPECTED_PARAMETER_TENSOR_COUNT = 506
 EXPECTED_PERSISTENT_BUFFER_NAMES = frozenset(
     f"model.layers.{layer}.layer_scalar" for layer in range(35)
@@ -57,15 +60,140 @@ def _preflight_path(config: dict, rank: int) -> Path:
     return resolve_path(config["run"]["output_dir"], training_root()) / f"full_optimizer_preflight_rank{rank}.json"
 
 
+def _strict_int(value: Any, *, minimum: int = 0) -> bool:
+    return type(value) is int and value >= minimum
+
+
+def _finite_number(value: Any) -> bool:
+    return not isinstance(value, bool) and isinstance(value, (int, float)) and math.isfinite(value)
+
+
+def validate_optimizer_probe(
+    probe: dict,
+    *,
+    accumulation_steps: int,
+    world_size: int,
+    local_rank: int | None = None,
+) -> None:
+    """Fail closed on production-equivalent Trainer/Accelerate probe evidence."""
+    if not _strict_int(accumulation_steps, minimum=1) or not _strict_int(world_size, minimum=1):
+        raise ValueError("Optimizer preflight requires positive integer accumulation and world size")
+    if local_rank is not None and not _strict_int(local_rank):
+        raise ValueError("Optimizer preflight local rank must be a nonnegative integer")
+    if not isinstance(probe, dict):
+        raise ValueError("Optimizer preflight probe must be an object")  # noqa: TRY004 -- persisted contract
+    expected_microsteps = OPTIMIZER_PREFLIGHT_STEPS * accumulation_steps
+    if (type(probe.get("schema_version")) is not int or probe.get("schema_version") != 2
+            or probe.get("probe") != OPTIMIZER_PREFLIGHT_KIND
+            or probe.get("passed") is not True
+            or probe.get("disposable_worker_required") is not True
+            or probe.get("model_must_not_be_reused") is not True
+            or not _strict_int(probe.get("checkpoint_writes"))
+            or probe.get("checkpoint_writes") != 0
+            or not _strict_int(probe.get("disposable_optimizer_steps"), minimum=1)
+            or probe.get("disposable_optimizer_steps") != OPTIMIZER_PREFLIGHT_STEPS):
+        raise ValueError("Optimizer preflight is not a passing disposable Trainer v2 probe")
+
+    optimizer = probe.get("optimizer")
+    if not isinstance(optimizer, dict):
+        raise ValueError("Optimizer preflight optimizer evidence must be an object")  # noqa: TRY004 -- persisted contract
+    if (optimizer.get("name") != "Adafactor"
+            or not _finite_number(optimizer.get("learning_rate"))
+            or optimizer.get("learning_rate") <= 0
+            or optimizer.get("beta1") is not None
+            or optimizer.get("scale_parameter") is not False
+            or optimizer.get("relative_step") is not False
+            or optimizer.get("warmup_init") is not False
+            or not _finite_number(optimizer.get("weight_decay"))
+            or optimizer.get("weight_decay") != 0.0
+            or not _finite_number(optimizer.get("external_max_grad_norm_required"))
+            or optimizer.get("external_max_grad_norm_required") != 0.0
+            or not _finite_number(optimizer.get("clip_threshold"))
+            or optimizer.get("clip_threshold") != 1.0
+            or not _strict_int(optimizer.get("state_tensor_count"), minimum=1)
+            or not _strict_int(optimizer.get("state_numel"), minimum=1)):
+        raise ValueError("Optimizer preflight did not materialize the exact Adafactor recipe")
+
+    scope = probe.get("scope")
+    if not isinstance(scope, dict):
+        raise ValueError("Optimizer preflight scope evidence must be an object")  # noqa: TRY004 -- persisted contract
+    if (not _strict_int(scope.get("unique_parameter_count"), minimum=1)
+            or not _strict_int(scope.get("trainable_numel"), minimum=1)
+            or scope.get("all_trainable_fp32") is not True
+            or scope.get("all_gradients_finite") is not True
+            or scope.get("all_parameters_finite_after_step") is not True):
+        raise ValueError("Optimizer preflight full-parameter scope evidence is incomplete")
+
+    ddp = probe.get("ddp_probe")
+    if not isinstance(ddp, dict):
+        raise ValueError("Optimizer preflight DDP evidence must be an object")  # noqa: TRY004 -- persisted contract
+    if (not _strict_int(ddp.get("world_size"), minimum=1)
+            or ddp.get("world_size") != world_size
+            or ddp.get("all_reduce_exercised") is not (world_size > 1)
+            or ddp.get("gradient_as_bucket_view") is not True
+            or ddp.get("sync_each_batch") is not True
+            or ddp.get("trainer_backend") != "transformers"
+            or ddp.get("trainer_path") != "checked_causal_lm_trainer"
+            or not _strict_int(ddp.get("gradient_accumulation_steps"), minimum=1)
+            or ddp.get("gradient_accumulation_steps") != accumulation_steps
+            or not _strict_int(ddp.get("microsteps"), minimum=1)
+            or ddp.get("microsteps") != expected_microsteps
+            or not _strict_int(ddp.get("synchronized_microsteps"), minimum=1)
+            or ddp.get("synchronized_microsteps") != expected_microsteps
+            or not _strict_int(ddp.get("optimizer_steps"), minimum=1)
+            or ddp.get("optimizer_steps") != OPTIMIZER_PREFLIGHT_STEPS):
+        raise ValueError("Optimizer preflight lacks matching Trainer/DDP accumulation evidence")
+
+    memory = probe.get("memory")
+    if not isinstance(memory, dict):
+        raise ValueError("Optimizer preflight memory evidence must be an object")  # noqa: TRY004 -- persisted contract
+    device_name = memory.get("device")
+    device_match = re.fullmatch(r"cuda:([0-9]+)", device_name) if isinstance(device_name, str) else None
+    if (device_match is None
+            or (local_rank is not None and int(device_match.group(1)) != local_rank)
+            or memory.get("cuda_local_rank_only") is not True
+            or memory.get("ddp_collectives_certified") is not (world_size > 1)):
+        raise ValueError("Optimizer preflight lacks matching CUDA/DDP memory evidence")
+    byte_names = (
+        "baseline_allocated_bytes", "baseline_reserved_bytes", "peak_allocated_bytes",
+        "peak_reserved_bytes", "device_total_bytes", "device_free_bytes_min",
+    )
+    if any(not _strict_int(memory.get(name), minimum=0) for name in byte_names):
+        raise ValueError("Optimizer preflight memory byte counters must be finite nonnegative integers")
+    baseline_allocated = memory["baseline_allocated_bytes"]
+    baseline_reserved = memory["baseline_reserved_bytes"]
+    peak_allocated = memory["peak_allocated_bytes"]
+    peak_reserved = memory["peak_reserved_bytes"]
+    total = memory["device_total_bytes"]
+    free_min = memory["device_free_bytes_min"]
+    fraction = memory.get("peak_reserved_fraction")
+    ceiling = memory.get("max_reserved_fraction")
+    if (total <= 0 or peak_allocated < baseline_allocated or peak_reserved < baseline_reserved
+            or baseline_reserved < baseline_allocated or peak_reserved < peak_allocated
+            or peak_reserved > total or free_min > total
+            or not _finite_number(fraction) or not _finite_number(ceiling)
+            or float(ceiling) != 0.90
+            or not math.isclose(float(fraction), peak_reserved / total, rel_tol=1e-12, abs_tol=1e-12)
+            or peak_reserved / total >= 0.90 or free_min / total <= 0.10):
+        raise ValueError("Optimizer preflight exceeded or misreported the CUDA memory gate")
+
+
 def write_optimizer_preflight(config: dict, config_path: Path | None, probe: dict) -> dict:
     import os
 
     from ir_training.pipeline.golden_training import _write, sha256
-    if config_path is None or probe.get("passed") is not True:
-        raise ValueError("Disposable optimizer preflight requires a file-bound config and passing probe")
+    accumulation_steps = (config.get("training") or {}).get("gradient_accumulation_steps")
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
     rank = int(os.environ.get("RANK", "0"))
+    local_rank = int(os.environ.get("LOCAL_RANK", str(rank)))
+    if config_path is None:
+        raise ValueError("Disposable optimizer preflight requires a file-bound config and passing probe")
+    validate_optimizer_probe(
+        probe, accumulation_steps=accumulation_steps, world_size=world_size,
+        local_rank=local_rank,
+    )
     report = {"training_config_sha256": sha256(config_path), "rank": rank,
-              "world_size": int(os.environ.get("WORLD_SIZE", "1")), "probe": probe}
+              "world_size": world_size, "probe": probe}
     path = _preflight_path(config, rank)
     _write(path, report)
     return {"path": str(path), "sha256": sha256(path), **report}
@@ -80,12 +208,24 @@ def require_optimizer_preflight(config: dict, config_path: Path | None) -> dict:
     path = _preflight_path(config, rank)
     report = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
     probe = report.get("probe") or {}
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+    local_rank = int(os.environ.get("LOCAL_RANK", str(rank)))
+    accumulation_steps = (config.get("training") or {}).get("gradient_accumulation_steps")
     if (config_path is None or report.get("training_config_sha256") != sha256(config_path)
+            or not _strict_int(report.get("rank"))
             or report.get("rank") != rank
-            or report.get("world_size") != int(os.environ.get("WORLD_SIZE", "1"))
-            or probe.get("passed") is not True or probe.get("disposable_optimizer_steps") != 1
-            or probe.get("checkpoint_writes") != 0 or probe.get("model_must_not_be_reused") is not True):
+            or not _strict_int(report.get("world_size"), minimum=1)
+            or report.get("world_size") != world_size):
         raise ValueError("Full-parameter training requires a matching disposable optimizer preflight on every rank")
+    try:
+        validate_optimizer_probe(
+            probe, accumulation_steps=accumulation_steps, world_size=world_size,
+            local_rank=local_rank,
+        )
+    except ValueError as exc:
+        raise ValueError(
+            "Full-parameter training requires a matching disposable optimizer preflight on every rank"
+        ) from exc
     return {"path": str(path), "sha256": sha256(path), **report}
 
 
@@ -117,6 +257,7 @@ def configure_full_qat(config: dict) -> dict:
         mixed_precision="bf16", optim="adafactor", weight_decay=0.0, max_grad_norm=0.0,
         gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
         backward_preflight=True, lora_diagnostics_steps=0, refuse_resume=True,
+        ddp_sync_each_batch=True,
         per_device_train_batch_size=1, per_device_eval_batch_size=1,
     )
     result["qat"] = _qat_config()
@@ -144,7 +285,7 @@ def validate_full_qat_config(config: dict) -> None:
         "mixed_precision": "bf16", "optim": "adafactor", "weight_decay": 0.0, "max_grad_norm": 0.0,
         "gradient_checkpointing": True, "backward_preflight": True,
         "per_device_train_batch_size": 1, "per_device_eval_batch_size": 1,
-        "refuse_resume": True,
+        "refuse_resume": True, "ddp_sync_each_batch": True,
     }
     for section, expected in ((model, required_model), (training, required_training)):
         for key, value in expected.items():
@@ -384,10 +525,27 @@ def validate_full_qat_checkpoint(config: dict, metadata: dict, checkpoint: Path)
         raise ValueError("Full-QAT numeric/backward preflight evidence is missing or failed")
     optimizer = metadata.get("full_optimizer_preflight") or {}
     probe = optimizer.get("probe") or {}
+    accumulation_steps = (config.get("training") or {}).get("gradient_accumulation_steps")
+    report_world_size = optimizer.get("world_size")
+    configured_world_size = ((config.get("runtime") or {}).get("gpu_profile") or {}).get("world_size")
+    if (not _strict_int(report_world_size, minimum=1)
+            or not _strict_int(optimizer.get("rank"))
+            or optimizer.get("rank") >= report_world_size
+            or (configured_world_size is not None
+                and (not _strict_int(configured_world_size, minimum=1)
+                     or configured_world_size != report_world_size))):
+        raise ValueError("Full-QAT checkpoint optimizer preflight world size is missing or inconsistent")
+    validate_optimizer_probe(
+        probe,
+        accumulation_steps=accumulation_steps,
+        world_size=report_world_size,
+        local_rank=optimizer.get("rank"),
+    )
     optimizer_spec = probe.get("optimizer") or {}
     optimizer_scope = probe.get("scope") or {}
     if (optimizer.get("training_config_sha256") != metadata.get("training_config_sha256")
-            or probe.get("passed") is not True or probe.get("disposable_optimizer_steps") != 1
+            or probe.get("passed") is not True
+            or probe.get("disposable_optimizer_steps") != OPTIMIZER_PREFLIGHT_STEPS
             or probe.get("checkpoint_writes") != 0
             or probe.get("model_must_not_be_reused") is not True
             or probe.get("disposable_worker_required") is not True

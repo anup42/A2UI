@@ -555,11 +555,14 @@ def _evaluation_files(plan: dict[str, Any], stage: str) -> list[Path]:
 
 
 def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
+    from ir_training.qat.full_model_contract import validate_optimizer_probe
+
     config_path = Path(plan["paths"]["config"])
     config = load_yaml(config_path)
     profile = (config.get("runtime") or {}).get("gpu_profile") or {}
     validate_h100_profile(profile)
     world_size = profile["world_size"]
+    accumulation_steps = (config.get("training") or {}).get("gradient_accumulation_steps")
     result = []
     for rank in range(world_size):
         path = Path(plan["paths"]["training"]) / f"full_optimizer_preflight_rank{rank}.json"
@@ -567,14 +570,21 @@ def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
         probe = report.get("probe") or {}
         if (
             report.get("training_config_sha256") != sha256(config_path)
+            or type(report.get("rank")) is not int
             or report.get("rank") != rank
+            or type(report.get("world_size")) is not int
             or report.get("world_size") != world_size
-            or probe.get("passed") is not True
-            or probe.get("disposable_optimizer_steps") != 1
-            or probe.get("checkpoint_writes") != 0
-            or probe.get("model_must_not_be_reused") is not True
         ):
             raise ValueError(f"Rank {rank} optimizer preflight evidence is incomplete")
+        try:
+            validate_optimizer_probe(
+                probe,
+                accumulation_steps=accumulation_steps,
+                world_size=world_size,
+                local_rank=rank,
+            )
+        except ValueError as exc:
+            raise ValueError(f"Rank {rank} optimizer preflight evidence is incomplete") from exc
         result.append(path)
     return result
 

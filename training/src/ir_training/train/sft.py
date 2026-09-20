@@ -272,7 +272,8 @@ def train_sft(
     if not full_finetune:
         _disable_peft_vocab_probe(model)
     _disable_model_cache_for_training(model)
-    _enable_input_grads_for_kbit_lora(model)
+    if not full_finetune:
+        _enable_input_grads_for_kbit_lora(model)
     qat_controller: QATController | None = None
     saturation_preflight_report: dict[str, Any] | None = None
     saturation_preflight_path: Path | None = None
@@ -712,48 +713,39 @@ def train_sft(
         # Each rank still validates exact tensors and runs live model probes.
         # Release earlier views; with caching the text view holds only the
         # bounded greedy probe and the tensors remain shared memory-mapped data.
+        checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer, training_cfg)
+        trainer_params = inspect.signature(Trainer.__init__).parameters
+        trainer_kwargs = {
+            "model": model,
+            "train_dataset": tokenized_dataset["train"],
+            "eval_dataset": tokenized_dataset.get("validation"),
+            "args": args,
+            "data_collator": _CausalLMDataCollator(
+                tokenizer,
+                input_vocab_size=input_vocab_size,
+                label_vocab_size=label_vocab_size,
+                max_position_embeddings=max_position_embeddings,
+            ),
+        }
+        if "tokenizer" in trainer_params:
+            trainer_kwargs["tokenizer"] = tokenizer
+        elif "processing_class" in trainer_params:
+            trainer_kwargs["processing_class"] = tokenizer
         if all_parameter_qat and preflight_only:
-            from ir_training.train.full_parameters import probe_full_optimizer_step
+            from ir_training.train.full_trainer_preflight import (
+                run_full_trainer_preflight,
+            )
             if backward_preflight_report.get("status") != "passed":
                 raise ValueError("All-parameter QAT requires successful real CUDA backward preflight")
-            # This is a disposable worker: the optimizer probe intentionally
-            # changes weights, then returns below without saving any checkpoint.
-            # The training stage always starts a fresh process and reloads seed.
+            # Use exactly the production Trainer/Accelerate path, not a manual
+            # DDP wrapper or a different optimizer/backward implementation.
+            # These are disposable updates; training reloads the untouched seed.
             longest = backward_preflight_report["selection"]["longest_index"]
-            model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
-            model.train()
-            import torch
-            probe_model = model
-            if int(os.environ.get("WORLD_SIZE", "1")) > 1:
-                torch.cuda.set_device(int(os.environ.get("LOCAL_RANK", "0")))
-                if not torch.distributed.is_initialized():
-                    torch.distributed.init_process_group(backend="nccl")
-                # Match the new lane's production DDP memory policy, including
-                # initial gradient bucket allocation and real all-reduces.
-                probe_model = torch.nn.parallel.DistributedDataParallel(
-                    model, device_ids=[int(os.environ.get("LOCAL_RANK", "0"))],
-                    broadcast_buffers=False, find_unused_parameters=False,
-                    gradient_as_bucket_view=True,
+            with _sft_progress("Disposable full-parameter Trainer/DDP accumulation probe", unit="stage"):
+                probe = run_full_trainer_preflight(
+                    checked_trainer_cls, trainer_kwargs,
+                    longest_row=tokenized_dataset["train"][longest],
                 )
-
-            def optimizer_probe_backward():
-                collator = _CausalLMDataCollator(tokenizer, input_vocab_size=input_vocab_size,
-                    label_vocab_size=label_vocab_size, max_position_embeddings=max_position_embeddings)
-                batch = {key: value.to(_model_input_device(model))
-                         for key, value in collator([tokenized_dataset["train"][longest]]).items()}
-                labels = batch.pop("labels")
-                _drop_trivial_attention_mask(batch)
-                with full_parameter_autocast(model):
-                    outputs = probe_model(**batch)
-                    loss = _checked_shifted_causal_lm_loss(_extract_logits(outputs), labels)
-                loss.backward()
-
-            with _sft_progress("Disposable full-parameter optimizer/memory probe", unit="stage"):
-                probe = probe_full_optimizer_step(model, backward=optimizer_probe_backward,
-                    learning_rate=float(training_cfg["learning_rate"]))
-            probe["ddp_probe"] = {"world_size": int(os.environ.get("WORLD_SIZE", "1")),
-                "all_reduce_exercised": probe_model is not model, "gradient_as_bucket_view": True,
-                "scope": "one longest-batch step, not a guarantee for every future shape"}
             from ir_training.qat.full_model_contract import write_optimizer_preflight
             full_optimizer_preflight = write_optimizer_preflight(config, config_path, probe)
         del sft_text_dataset, dataset
@@ -776,24 +768,6 @@ def train_sft(
                 "backward_preflight": backward_preflight_report,
                 "training_executed": False,
             }
-        checked_trainer_cls = _build_checked_causal_lm_trainer(Trainer, training_cfg)
-        trainer_params = inspect.signature(Trainer.__init__).parameters
-        trainer_kwargs = {
-            "model": model,
-            "train_dataset": tokenized_dataset["train"],
-            "eval_dataset": tokenized_dataset.get("validation"),
-            "args": args,
-            "data_collator": _CausalLMDataCollator(
-                tokenizer,
-                input_vocab_size=input_vocab_size,
-                label_vocab_size=label_vocab_size,
-                max_position_embeddings=max_position_embeddings,
-            ),
-        }
-        if "tokenizer" in trainer_params:
-            trainer_kwargs["tokenizer"] = tokenizer
-        elif "processing_class" in trainer_params:
-            trainer_kwargs["processing_class"] = tokenizer
         with _training_tensorboard_environment(callback_logging_dir):
             trainer = checked_trainer_cls(**trainer_kwargs)
 
@@ -1670,6 +1644,16 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
             args = parent_hook(**kwargs) if callable(parent_hook) else dict(kwargs)
             if not full_parameter_training:
                 return args
+            # Trainer normally enters no_sync for the first G-1 microbatches.
+            # On the first backward that retains a standalone FP32 gradient set
+            # in addition to DDP buckets, even with gradient_as_bucket_view.
+            # Synchronizing each microbatch lets the reducer install/use views.
+            # Trainer still divides loss by G and steps the optimizer every G
+            # microbatches; this changes communication frequency, not batch size.
+            plugin = args.get("gradient_accumulation_plugin")
+            if plugin is None or not hasattr(plugin, "sync_each_batch"):
+                raise ValueError("Full-parameter Trainer requires the sync_each_batch accumulation policy")
+            plugin.sync_each_batch = True
             handlers = args.get("kwargs_handlers")
             handlers = handlers if isinstance(handlers, (list, tuple)) else []
             ddp_handler = next(
@@ -1707,6 +1691,8 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
             # gradient-accumulation divisor; otherwise recent Trainer versions
             # treat the custom signature as token-aware and skip that divisor.
             self.model_accepts_loss_kwargs = False
+            if full_parameter_training:
+                self._check_full_accumulation_policy()
             if (
                 full_parameter_training
                 and int(os.environ.get("WORLD_SIZE", "1")) > 1
@@ -1717,13 +1703,35 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
                     "policy before Accelerator construction"
                 )
 
+        def _check_full_accumulation_policy(self) -> None:
+            gradient_state = getattr(self.accelerator, "gradient_state", None)
+            plugin_kwargs = getattr(gradient_state, "plugin_kwargs", {})
+            if plugin_kwargs.get("sync_each_batch") is not True:
+                raise ValueError("Full-parameter training requires live sync_each_batch=True; no_sync is unsafe")
+
         def training_step(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+            if full_parameter_training:
+                self._check_full_accumulation_policy()
             if (
                 full_parameter_training
                 and int(os.environ.get("WORLD_SIZE", "1")) > 1
                 and getattr(model, "gradient_as_bucket_view", False) is not True
             ):
                 raise ValueError("Full-parameter training requires live DDP gradient bucket views")
+            if (
+                full_parameter_training
+                and int(os.environ.get("WORLD_SIZE", "1")) > 1
+                and getattr(model, "require_backward_grad_sync", False) is not True
+            ):
+                raise ValueError("Full-parameter training must synchronize every DDP microbatch; no_sync is unsafe")
+            if full_parameter_training and not getattr(self, "_a2ui_full_ddp_policy_logged", False):
+                print(
+                    f"Full-parameter DDP memory policy: rank={_rank_label()}, "
+                    "sync_each_batch=True, gradient_as_bucket_view=True; "
+                    "optimizer accumulation and effective batch unchanged.",
+                    flush=True,
+                )
+                self._a2ui_full_ddp_policy_logged = True
             should_report = _should_report_lora_diagnostics(
                 trainer=self,
                 max_reports=lora_diagnostics_steps,
@@ -1744,7 +1752,7 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
                 raise RuntimeError(
                     "SFT training step failed; see the rank/batch/memory diagnostic above. "
                     "Do not retry a contained CUDA/NVLink error in the same process. "
-                    "For memory failures use a new run with a smaller microbatch and unchanged effective batch; "
+                    "For memory failures use fresh workers and inspect the DDP/accumulation memory policy; "
                     "preserve the prepared/token caches. Original error: " + repr(exc)
                 ) from exc
             if should_report:

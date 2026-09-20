@@ -172,6 +172,12 @@ here; no official-device speed or quality claim follows from these tests.
 - Native BF16 support.
 - Per-rank microbatch fixed at 1. The default effective batch is 32, recovered
   through gradient accumulation (16/8/4 steps for 2/4/8 GPUs).
+- Full-QAT sets `ddp_sync_each_batch: true`: DDP synchronizes **every** microbatch
+  with `gradient_as_bucket_view=True`, but Trainer still divides the loss by the
+  accumulation count and updates the optimizer only at the accumulation boundary.
+  On eight GPUs, this is still 1 x 8 x 4 = 32 samples per optimizer update.
+  This trades more frequent all-reduces for lower peak gradient memory. The
+  official retained-scale LoRA pipeline keeps its existing accumulation policy.
 - DDP only; no FSDP/DeepSpeed fallback and no silent CPU fallback.
 - This is replicated DDP: 8 x H100 80 GB is supported, but each rank still holds
   a full model, gradients, and optimizer state. Eight GPUs do not pool their
@@ -180,12 +186,32 @@ here; no official-device speed or quality claim follows from these tests.
 
 The preflight is intentionally stronger than a forward smoke test. Each rank
 first runs the existing independent numeric, coverage, and backward checks.
-The disposable one-Adafactor-step memory probe then wraps the model with the
-same production DDP settings, including gradient bucket views. Regular training
-starts later in a new process and reloads the untouched seed; the disposable
-probe is never continued as user training. A passing probe covers those tested
-maximum shapes and that host allocation; it does not guarantee every later
-kernel shape or eliminate the possibility of a runtime OOM.
+The disposable memory probe then runs the **same checked Trainer, Accelerate
+preparation, BF16 AMP, DDP wrapper, collator, and Adafactor creation path** as
+training. Every rank repeats the real longest prepared row for two complete
+optimizer updates (eight microbatches per rank with eight GPUs and accumulation
+4). This tests both startup and a subsequent update with optimizer state and
+rebuilt DDP buckets resident. Saving, evaluation, and external metric reporters
+are disabled for this disposable run. Regular training starts later in a new
+process and reloads the untouched seed; probe weights are never continued or
+saved as a user checkpoint.
+
+The previous single-backward raw-DDP probe did not reproduce Trainer's
+`no_sync()` accumulation. At the first accumulated backward, `no_sync` left a
+standalone FP32 gradient set in addition to the DDP buckets: about 18.74 GiB for
+5,031,222,528 parameters. A true `gradient_as_bucket_view` flag alone did not
+prevent that allocation. Syncing each microbatch allows the reducer to attach
+bucket views immediately. See [PyTorch's DDP documentation](https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html).
+Full-parameter training no longer installs the unnecessary k-bit LoRA input
+gradient hook; trainable embeddings already propagate gradients.
+
+Each rank's version-2 receipt must prove both complete accumulation windows,
+the live synchronization policy, all-parameter finite gradients/weights and
+Adafactor state, peak reserved memory below 90%, and sampled device free memory
+above 10%. Training, pipeline orchestration, and checkpoint validation share
+the same fail-closed validator. Old single-step receipts cannot pass. A passing
+probe covers the tested maximum shape and host allocation, not every future
+kernel shape, external GPU workload, or possible runtime OOM.
 
 Backward gradient validation and the disposable optimizer probe's gradient and
 post-step parameter checks inspect every value in chunks of at most 1,048,576
@@ -205,11 +231,11 @@ fragmentation mitigation, not additional GPU capacity or proof of memory fit;
 see [PyTorch allocator documentation](https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-alloc-conf).
 The official retained-scale LoRA launch policy is unchanged.
 
-For the reported rank-7 OOM during `count_nonzero(gradient)`, rerun the same
+For the gradient-validation OOM or the first Trainer/DDP backward OOM, rerun the same
 full-parameter command in a **fresh output directory** after pulling this fix.
 Keep microbatch 1 and the requested 6,144-token context; do not bypass preflight
 or continue the failed CUDA workers. The real longest-shape backward and
-disposable DDP/Adafactor step on all eight H100s must still pass before training.
+disposable Trainer/DDP accumulation gate on all eight H100s must still pass before training.
 CPU regression tests cannot certify that live H100 allocation.
 
 ## Plan first
@@ -322,7 +348,7 @@ A real tiny Transformers Trainer/Accelerate test also exercised one Adafactor
 update and full safetensor checkpoint save, including changed embeddings and
 normalization weights. An additional two-layer Gemma 4 CPU test exercised 22
 actual Linear/Embedding QAT wrappers, finite gradients for every parameter,
-one Adafactor probe step, and a full FP32 checkpoint round trip. These synthetic
+Adafactor probe steps, and a full FP32 checkpoint round trip. These synthetic
 CPU tests are not an E2B training run.
 The original official-mobile entry point, orchestration module and recipe YAML
 were not edited.

@@ -51,6 +51,48 @@ def numeric_evidence(config):
     return result
 
 
+def optimizer_probe(*, accumulation_steps=4, world_size=2, trainable_numel=100):
+    microsteps = contract.OPTIMIZER_PREFLIGHT_STEPS * accumulation_steps
+    return {
+        "schema_version": 2,
+        "probe": contract.OPTIMIZER_PREFLIGHT_KIND,
+        "passed": True,
+        "disposable_worker_required": True,
+        "model_must_not_be_reused": True,
+        "checkpoint_writes": 0,
+        "disposable_optimizer_steps": contract.OPTIMIZER_PREFLIGHT_STEPS,
+        "optimizer": {
+            "name": "Adafactor", "learning_rate": 1e-4, "beta1": None,
+            "scale_parameter": False, "relative_step": False,
+            "warmup_init": False, "weight_decay": 0.0,
+            "clip_threshold": 1.0,
+            "external_max_grad_norm_required": 0.0,
+            "state_tensor_count": 4, "state_numel": trainable_numel,
+        },
+        "scope": {
+            "unique_parameter_count": 506, "trainable_numel": trainable_numel,
+            "all_trainable_fp32": True, "all_gradients_finite": True,
+            "all_parameters_finite_after_step": True,
+        },
+        "ddp_probe": {
+            "world_size": world_size, "all_reduce_exercised": world_size > 1,
+            "gradient_as_bucket_view": True, "sync_each_batch": True,
+            "trainer_backend": "transformers", "trainer_path": "checked_causal_lm_trainer",
+            "gradient_accumulation_steps": accumulation_steps, "microsteps": microsteps,
+            "synchronized_microsteps": microsteps,
+            "optimizer_steps": contract.OPTIMIZER_PREFLIGHT_STEPS,
+        },
+        "memory": {
+            "device": "cuda:0", "cuda_local_rank_only": True,
+            "ddp_collectives_certified": world_size > 1,
+            "baseline_allocated_bytes": 100, "baseline_reserved_bytes": 200,
+            "peak_allocated_bytes": 500, "peak_reserved_bytes": 600,
+            "device_total_bytes": 1000, "device_free_bytes_min": 200,
+            "peak_reserved_fraction": 0.6, "max_reserved_fraction": 0.90,
+        },
+    }
+
+
 def test_recipe_is_isolated_and_original_unchanged():
     original = load_yaml(ROOT / "configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml")
     snapshot = copy.deepcopy(original)
@@ -65,12 +107,14 @@ def test_recipe_is_isolated_and_original_unchanged():
     assert config["model"]["dtype"] == "float32"
     assert config["training"]["mixed_precision"] == "bf16"
     assert config["training"]["optim"] == "adafactor"
+    assert config["training"]["ddp_sync_each_batch"] is True
 
 
 @pytest.mark.parametrize("section,key,value", [
     ("training", "method", "qat_lora_sft"), ("training", "full_parameter_training", False),
     ("training", "mixed_precision", "auto"), ("training", "optim", "adamw_torch"),
     ("training", "max_grad_norm", 1.0), ("training", "backward_preflight", False),
+    ("training", "ddp_sync_each_batch", False),
     ("model", "dtype", "bfloat16"), ("model", "load_in_4bit", True),
     ("qat", "scale_mode", "retained_mobile"), ("qat", "quantize_embeddings", False),
     ("qat", "effective_lora_only", True), ("qat", "exclude_modules", ["lm_head"]),
@@ -153,11 +197,11 @@ def test_probe_receipt_is_config_rank_and_world_size_bound(tmp_path, monkeypatch
     path = tmp_path / "config.yaml"
     path.write_text("bound", encoding="utf-8")
     monkeypatch.setenv("RANK", "0")
+    monkeypatch.setenv("LOCAL_RANK", "0")
     monkeypatch.setenv("WORLD_SIZE", "2")
     with pytest.raises(ValueError, match="preflight"):
         contract.require_optimizer_preflight(config, path)
-    probe = {"passed": True, "disposable_optimizer_steps": 1, "checkpoint_writes": 0,
-             "model_must_not_be_reused": True}
+    probe = optimizer_probe()
     report = contract.write_optimizer_preflight(config, path, probe)
     assert contract.require_optimizer_preflight(config, path) == report
     path.write_text("changed", encoding="utf-8")
@@ -209,16 +253,8 @@ def test_export_full_inventory_checks_all_541_tensors_and_norm_changes(tmp_path,
             name: contract._buffer_value_sha256(tensors[name]) for name in contract.EXPECTED_PERSISTENT_BUFFER_NAMES}),
         "training_config_sha256": "a" * 64,
         "full_optimizer_preflight": {"training_config_sha256": "a" * 64,
-            "probe": {"passed": True, "disposable_optimizer_steps": 1,
-                "checkpoint_writes": 0, "model_must_not_be_reused": True,
-                "disposable_worker_required": True,
-                "optimizer": {"name": "Adafactor", "scale_parameter": False,
-                    "relative_step": False, "warmup_init": False, "weight_decay": 0.0,
-                    "external_max_grad_norm_required": 0.0, "state_tensor_count": 4,
-                    "state_numel": trainable_numel},
-                "scope": {"unique_parameter_count": 506, "trainable_numel": trainable_numel,
-                    "all_trainable_fp32": True, "all_gradients_finite": True,
-                    "all_parameters_finite_after_step": True}}}}
+            "rank": 0, "world_size": 2,
+            "probe": optimizer_probe(trainable_numel=trainable_numel)}}
     # Exercise the exact JSON round-trip used by checkpoint provenance.
     metadata = json.loads(json.dumps(metadata))
     report = contract.validate_full_qat_checkpoint(config, metadata, tmp_path)
@@ -240,8 +276,24 @@ def test_export_full_inventory_checks_all_541_tensors_and_norm_changes(tmp_path,
         contract.validate_full_qat_checkpoint(config, missing_matrix, tmp_path)
     weak_optimizer = copy.deepcopy(metadata)
     weak_optimizer["full_optimizer_preflight"]["probe"]["optimizer"]["state_tensor_count"] = 0
-    with pytest.raises(ValueError, match="optimizer preflight"):
+    with pytest.raises(ValueError, match="[Oo]ptimizer preflight"):
         contract.validate_full_qat_checkpoint(config, weak_optimizer, tmp_path)
+    for mutate in (
+        lambda probe: probe.update(disposable_optimizer_steps=1),
+        lambda probe: probe.pop("ddp_probe"),
+        lambda probe: probe["ddp_probe"].update(gradient_accumulation_steps=8),
+        lambda probe: probe["memory"].update(peak_reserved_fraction=float("nan")),
+        lambda probe: probe["memory"].update(
+            peak_reserved_bytes=900, peak_reserved_fraction=0.9
+        ),
+        lambda probe: probe.update(schema_version=2.0),
+        lambda probe: probe.update(optimizer=[]),
+        lambda probe: probe["memory"].update(device="cuda:1"),
+    ):
+        invalid = copy.deepcopy(metadata)
+        mutate(invalid["full_optimizer_preflight"]["probe"])
+        with pytest.raises(ValueError, match="optimizer preflight|Optimizer preflight"):
+            contract.validate_full_qat_checkpoint(config, invalid, tmp_path)
     buffer_as_parameter = copy.deepcopy(metadata)
     buffer_name = "model.layers.0.layer_scalar"
     buffer_as_parameter["full_parameter_scope"]["parameters"].append({
