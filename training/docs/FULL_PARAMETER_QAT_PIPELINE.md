@@ -42,6 +42,104 @@ seed and must include its verified `mobile_training_seed_manifest.json`,
 `mobile_qparams.json`, and `mobile_qparams.safetensors`. The qparams bind seed
 provenance; they are not reused as fixed training scales in this lane.
 
+## Architecture comparison and parameter scope
+
+The two training/export lanes start from related weights but deliberately do
+different work:
+
+| Property | Official retained-scale LoRA lane | Experimental all-parameter QAT lane |
+| --- | --- | --- |
+| Training scope | LoRA adapters on the exact 205 mutable projection matrices | Every unique parameter in the reconstructed text model, with no frozen parameter or adapter |
+| Training graph | Reconstructed `Gemma4ForCausalLM` text seed, followed by adapter merge | Reconstructed `Gemma4ForCausalLM` text seed, trained directly in FP32 master weights |
+| Export graph | The published official target topology | A newly converted dense `gemma4_text` graph; it is not the official target graph |
+| Weight materialization | Merge into the reconstructed text seed, then patch the 205 corresponding W2/W4 fully-connected code buffers in the official target | Convert all trained dense matrices using a new experimental W2/W4/W8 allocation |
+| Preserved official data | All 72 frozen target constants, all 263 direct-BF16/non-dequantized seed entries, the external embedders, and the published static-A8/fixed-scale contract | The complete trained checkpoint identity; published fixed scales and the official graph topology are intentionally not reused |
+| What success would establish | A topology- and retained-scale-preserving candidate, subject to its existing fail-closed parity gates | A physically verified dense mixed-precision artifact, still requiring native/device validation |
+
+Count the full-QAT scope precisely. The reconstructed checkpoint has **541
+named state entries**: **278** entries reconstructed by dequantizing packed
+published matrices and **263** direct BF16 copies. The 278 dequantized entries
+include both embedding-table entries and the output-head entry. The live
+model additionally has the direct-BF16 `per_layer_model_projection` matrix, so
+matrix coverage is **279 Linear/Embedding modules**, plus **262 non-matrix
+parameters**. The reconstructed config explicitly sets `tie_word_embeddings:
+false`; do not infer tied trained storage from packed-source aliases. The scope
+gate records both alias-aware named-parameter and unique-parameter coverage.
+All underlying unique parameters
+must remain trainable FP32 masters, including both embedding modules, norms,
+layer scalars, and every fully connected weight.
+
+| Parameter family | Named tensors | LoRA export | Full export |
+| --- | ---: | --- | --- |
+| Retained attention/MLP projections | 205 | Patch code buffers with fixed published scales | Serialize trained matrices with recomputed W2/W4 scales |
+| Output head and layer-local input-gate/projection matrices | 71 | Preserve official bytes | Serialize trained W2 head and W8 layer-local matrices |
+| Global per-layer-model projection | 1 | Preserve official bytes (BF16 seed source; W8 target) | Serialize trained W8 matrix |
+| Token and per-layer embedding tables | 2 | Preserve separate official embedding sections | Serialize each trained table into its own new W2/W4 section |
+| Norms, layer scalars, other non-matrix parameters | 262 | Preserve official values/compiled constants | Require exact trained FP32 constants at verified graph use sites |
+
+## Why full QAT needs a fresh converted graph
+
+The official retained-scale exporter is intentionally a narrow patcher. It can
+replace the 205 projection code buffers because the other 72 official target
+constants, external embedding sections, static activation quantization, and
+published fixed weight scales remain invariant. Full QAT breaks that premise:
+embeddings, per-layer projections, norms, layer scalars, and all other model
+parameters can change, and training uses dynamic weight fake quantization with
+floating-point activations. Reusing only those 205 buffers would silently drop
+trained state and would falsely present a dynamic experimental recipe as the
+official fixed-scale topology. Full QAT must therefore load the complete saved
+checkpoint into a fresh dense HF graph and convert that graph in full.
+
+## Standalone-text export fix and verification boundary
+
+Pinned LiteRT Torch 0.9.4 has Gemma 4-specific routing for top-level
+`model_type: gemma4`, but no standalone `model_type: gemma4_text` route. Its
+Gemma 4 exportable wrappers are also written for the multimodal wrapper shape:
+they read `config.text_config` and traverse `model.language_model`. The honest
+full-QAT checkpoint instead uses `Gemma4TextConfig` directly and
+`Gemma4ForCausalLM.model`. Relabeling the config or transplanting these weights
+into the official graph would violate checkpoint identity and is not an
+acceptable workaround.
+
+The repository implementation is therefore scoped to a temporary,
+version-pinned `gemma4_text` compatibility route. It reuses the upstream Gemma
+4 cache, patch, metadata, and converter machinery, but supplies exportables for
+the standalone text topology and restores every upstream registry/function on
+exit. It does not modify installed packages, reuse the 205-buffer retained-
+scale patch path, change model type, or allow missing checkpoint state.
+
+The full lane explicitly opts into this route during its before-training
+exporter probe. Ordinary dense export and official retained-scale LoRA do not.
+The route additionally pins AI Edge Quantizer 0.9.0 and LiteRT 2.2.0 for physical
+verification. During conversion it:
+
+1. Checks every loaded FP32 tensor against the selected checkpoint's exact bytes.
+2. Requires all 541 source tensors at their corresponding consumed graph use
+   sites in the actual floating TFLite files, including both external embedders.
+3. Recomputes W2/W4/W8 codes and channelwise scales from selected-checkpoint
+   weights using the pinned quantizer. Every corresponding quantized buffer,
+   scale, zero point and dtype must match; non-matrix constants remain exact FP32.
+4. Checks that the final package contains exactly those three audited model
+   sections, byte-for-byte. Existing physical-precision inspection still runs.
+5. Binds `full_parameter_serialization.json` into `export_manifest.json` and the
+   parent export receipts. Missing or changed proof prevents success.
+
+Weight fusion and whole-graph FP16 conversion are disabled for this lane to
+preserve auditable parameter mappings. Unknown compiler folds, transpositions,
+or opaque/unrecognized use-site names **fail closed**, not by matching a value
+elsewhere in the model. A real converter may expose such an unsupported mapping;
+that requires a reviewed mapping/transform backed by actual converter evidence,
+not disabling the gate. Quantized weights are of course not byte-identical to
+FP32 masters: the proof concerns their exact specified quantization.
+
+Floating and quantized intermediate TFLites are retained beside the final
+package for audit. Budget substantial additional disk space. They are not
+training inputs and are never committed automatically.
+
+This is an implementation with local regression coverage, not a completed E2B
+conversion result. No full E2B conversion or native-device run was performed
+here; no official-device speed or quality claim follows from these tests.
+
 ## Host contract
 
 - Use a separate training environment with
@@ -112,6 +210,30 @@ Useful bounded smoke options are `--steps`, `--eval-steps`, and
 `--golden-every-steps`. The Golden cadence must remain a positive multiple of
 the validation cadence. Do not use a smoke result as final model evidence.
 
+## Retry export without retraining
+
+If training already completed and the selected full checkpoint exists, run the
+existing export-only entry point from the training environment. Use its original
+`fit/` directory and a **new** export destination:
+
+```bash
+python training/scripts/export_checkpoint_litertlm.py \
+  --profile e2b \
+  --fit-dir /runs/e2b_all_parameter_qat_001/fit \
+  --output-dir /runs/e2b_all_parameter_qat_001_w248_retry \
+  --exporter-python /opt/litert-export/bin/python \
+  --variants w248 \
+  --allow-experimental-formats \
+  --execute
+```
+
+It defaults to `fit/training/best_golden_checkpoint` and detects the full-QAT
+route from verified checkpoint provenance. It does not retrain, merge adapters,
+or rerun Golden/Bixby evaluation. Do not manually edit model type, manifests, or
+proof files. If the original run stopped at the before-training exporter probe,
+there is no trained checkpoint to export; launch the full pipeline into a fresh
+run directory instead.
+
 ## Outputs and stage order
 
 Every stage runs in a bounded subprocess with console/file progress and a
@@ -143,7 +265,7 @@ run separately on the intended device/runtime.
 
 ## Regression evidence and remaining gates
 
-Local CPU validation on 2026-09-20 included a broad existing-pipeline suite
+Earlier all-parameter training-lane CPU validation on 2026-09-20 included a broad existing-pipeline suite
 (943 passed, 24 skipped) and a fresh affected-suite rerun (370 passed, 9 skipped).
 A real tiny Transformers Trainer/Accelerate test also exercised one Adafactor
 update and full safetensor checkpoint save, including changed embeddings and
@@ -154,6 +276,20 @@ CPU tests are not an E2B training run.
 The original official-mobile entry point, orchestration module and recipe YAML
 were not edited.
 
+The standalone-text export fix was separately checked with a final combined
+regression suite: **586 passed, 7 skipped**. New tests cover an actual tiny Gemma 4 forward
+pass (both embedders, final norm and output head), schema-generated physical
+TFLite constants (including external buffers), missing/changed/wrong-scope
+weights, W2/W4/W8 code and scale corruption, exact packaged-section binding,
+converter-hook restoration, and root receipt rejection of missing/modified
+proof or the wrong full-parameter variant. Schema fixtures test physical serialization;
+they are not executable E2B graphs. Converter orchestration is mocked, not a
+full conversion. Pinned 0.9.4 converter source was inspected, and the 14 physical
+serialization tests were additionally rerun successfully against the extracted
+AI Edge Quantizer 0.9.0 wheel via process-local `PYTHONPATH` (no installed-package
+changes). These tests do not claim successful execution of the complete pinned
+conversion environment.
+
 Useful focused checks after installing the new training environment:
 
 ```bash
@@ -162,7 +298,10 @@ python -m pytest -q -p no:cacheprovider \
   training/tests/test_full_parameters.py \
   training/tests/test_full_parameter_qat_pipeline.py \
   training/tests/test_full_qat_trainer_integration.py \
-  training/tests/test_official_mobile_pipeline.py
+  training/tests/test_official_mobile_pipeline.py \
+  training/tests/test_gemma4_text_export_compat.py \
+  training/tests/test_full_parameter_serialization.py \
+  training/tests/test_full_parameter_export.py
 ```
 
 No actual H100/DDP run, full-model conversion, Android inference, or measured

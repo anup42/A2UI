@@ -347,6 +347,7 @@ def _assets(plan: dict[str, Any]) -> list[Path]:
         max_input_tokens=values["max_seq_length"],
         max_new_tokens=values["max_new_tokens"],
         selected_variants=("w248",),
+        full_parameter_export=True,
     )
     run_bounded_command(
         export_plan["probe_command"],
@@ -363,6 +364,8 @@ def _assets(plan: dict[str, Any]) -> list[Path]:
         or probe.get("variants") != ["w248"]
         or probe.get("model_loaded") is not False
         or probe.get("conversion_tested") is not False
+        or probe.get("full_parameter_export") is not True
+        or probe.get("all_parameter_serialization_required") is not True
     ):
         raise ValueError("Experimental W248 exporter preflight did not pass exactly")
     return [

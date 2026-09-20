@@ -154,13 +154,16 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
                                  preparation_config_path: Path | None = None,
                                  cache_length: int = 8192, max_input_tokens: int = 4096,
                                  max_new_tokens: int = 2048,
-                                 selected_variants: tuple[str, ...] | None = None) -> dict[str, Any]:
+                                 selected_variants: tuple[str, ...] | None = None,
+                                 full_parameter_export: bool = False) -> dict[str, Any]:
     """Build subprocess contracts, including the BEFORE-training exporter probe.
 
     Future selected-checkpoint/config paths may not exist during a plan.  The
     prepare subprocess validates them against actual saved training provenance.
     """
     variants = deployment_variants(profile, selected_variants)
+    if full_parameter_export and (profile != "e2b" or tuple(variants) != ("w248",)):
+        raise ValueError("Full-parameter export requires exactly E2B W248")
     if type(cache_length) is not int or cache_length < max_input_tokens + max_new_tokens:
         raise ValueError("Export cache_length must cover max_input_tokens + max_new_tokens")
     for value in (max_input_tokens, max_new_tokens):
@@ -175,6 +178,8 @@ def build_deployment_export_plan(*, profile: str, training_config_path: Path,
     probe = [exporter_python, "-u", str(script), "probe", *common,
              "--model-dir", str((model_dir or checkpoint_dir).resolve()),
              "--report", str(output / "exporter_preflight.json")]
+    if full_parameter_export:
+        probe.append("--full-parameter-export")
     if selected_variants is not None:
         probe.extend(["--variants", *variants])
     prepare = [training_python, "-u", str(script), "prepare", "--profile", profile,
@@ -319,7 +324,32 @@ def probe_e2b_w4_recipe(mapping: Any, *, recipe_path: Path | None = None) -> dic
 
 
 def probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
-                   selected_variants: tuple[str, ...] | None = None) -> dict[str, Any]:
+                   selected_variants: tuple[str, ...] | None = None,
+                   full_parameter_export: bool = False) -> dict[str, Any]:
+    """Opt in to the standalone text bridge only for the separate full-QAT lane."""
+    if not full_parameter_export:
+        return _probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
+                               selected_variants=selected_variants)
+    if (profile != "e2b" or selected_variants != ("w248",)
+            or _json(model_dir / "config.json").get("model_type") != "gemma4_text"):
+        raise ValueError("Full-parameter export requires an unchanged gemma4_text E2B W248 checkpoint")
+    from ir_training.export.full_parameter_export import (
+        check_serialization_dependencies,
+    )
+    from ir_training.export.gemma4_text_compat import gemma4_text_export_context
+    dependencies = check_serialization_dependencies()
+    with gemma4_text_export_context() as compatibility:
+        result = _probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
+                                 selected_variants=selected_variants)
+    result["full_parameter_export"] = True
+    result["text_export_compatibility"] = compatibility
+    result["all_parameter_serialization_required"] = True
+    result["serialization_versions"] = dependencies
+    return result
+
+
+def _probe_exporter(*, profile: str, model_dir: Path, cache_length: int = 8192,
+                    selected_variants: tuple[str, ...] | None = None) -> dict[str, Any]:
     """Check actual installed APIs/recipes/model routing without loading weights.
 
     This is compatibility screening, not a claim a real model converted or ran.
@@ -675,6 +705,19 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
         if variant == "w248" and json.loads(recipe_path.read_bytes()) != gemma4_mixed248.canonical_recipe():
             raise ValueError("W248 export recipe differs from its experimental bit policy")
         files.append(str(recipe_path))
+    if plan.get("full_qat_contract") is not None or _json(source).get("full_qat_contract") is not None:
+        if variant != "w248" or plan["profile"] != "e2b":
+            raise ValueError("Full-parameter serialization requires E2B W248")
+        from ir_training.export.full_parameter_export import (
+            validate_serialization_report,
+        )
+        proof = report.get("full_parameter_serialization") or {}
+        proof_path = _local_file(folder, "full_parameter_serialization.json")
+        if (proof.get("verified") is not True or proof.get("parameter_count") != 541
+                or proof.get("path") != str(proof_path.resolve()) or proof.get("sha256") != file_sha256(proof_path)):
+            raise ValueError("Full-parameter serialization proof is missing or changed")
+        validate_serialization_report(_json(proof_path), report["sha256"])
+        files.append(str(proof_path))
     return {"artifact": str(artifact), "manifest": str(manifest_path), "inspection": str(inspection_path),
             "sha256": report["sha256"], "actual_precision": precision,
             "files": files}
@@ -693,7 +736,7 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
             raise ValueError("All-parameter QAT dense export supports only W248")
         if source.get("qat_aware_training") is not True or source.get(
             "quantization_export_contract"
-        ) != "dynamic_ptq_fresh_graph":
+        ) != "dynamic_ptq_fresh_graph" or source["full_qat_contract"].get("verified") is not True:
             raise ValueError("All-parameter QAT dense export provenance is incomplete")
     if not source.get("merged_files"):
         raise ValueError("Deployment model lacks hashed merged weights and tokenizer")
@@ -707,7 +750,8 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
     if output_dir.exists() and any(output_dir.iterdir()):
         raise ValueError(f"Variant destination must be fresh: {output_dir}")
     preflight = probe_exporter(profile=profile, model_dir=model_dir, cache_length=cache_length,
-                               selected_variants=(variant,))
+                               selected_variants=(variant,),
+                               full_parameter_export=source.get("full_qat_contract") is not None)
     if profile == "e2b":
         parity = source.get("template_parity") or {}
         if parity.get("passed") is not True or parity.get("sha256") != file_sha256(model_dir / "deployment_chat_template.jinja"):
@@ -754,8 +798,18 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
             "per-layer embeddings, W8 per-layer projections; new scales, no official static-A8 graph, no MTP. "
             "Quality may regress; device speed and Golden evaluation are required before adoption.")
     log(f"Convert {profile} {variant}: {spec['kind']}; CPU conversion, no GPU speed claim")
+    serialization_report = None
     with Progress(f"LiteRT Torch conversion {variant}", unit="stage"):
-        export.export(**kwargs)
+        if source.get("full_qat_contract") is not None:
+            from ir_training.export.full_parameter_export import (
+                export_full_parameter_checkpoint,
+            )
+            serialization_report = export_full_parameter_checkpoint(kwargs)
+            if serialization_report.get("verified") is not True:
+                raise ValueError("All-parameter checkpoint serialization proof is incomplete")
+            kwargs = serialization_report["export_kwargs"]
+        else:
+            export.export(**kwargs)
     if recipe_file is not None and file_sha256(output_dir / recipe_file["name"]) != recipe_file["sha256"]:
         raise ValueError("Export quantization recipe changed during conversion")
     artifacts = list(output_dir.rglob("*.litertlm"))
@@ -782,6 +836,18 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
               "official_retained_scale_export": False, "mtp_exported": False}
     if recipe_file is not None:
         result["quantization_recipe_file"] = recipe_file
+    if serialization_report is not None:
+        if serialization_report["evidence"]["package"]["artifact_sha256"] != result["sha256"]:
+            raise ValueError("Artifact changed after the full-parameter serialization audit")
+        for name, digest in source["merged_files"].items():
+            if file_sha256(_local_file(model_dir, name)) != digest:
+                raise ValueError(f"Full checkpoint source changed during export: {name}")
+        proof = output_dir / "full_parameter_serialization.json"
+        _write(proof, serialization_report)
+        result["full_parameter_serialization"] = {
+            "verified": True, "parameter_count": serialization_report["parameter_count"],
+            "path": str(proof.resolve()), "sha256": file_sha256(proof),
+        }
     _write(output_dir / "export_manifest.json", result)
     return result
 
@@ -801,6 +867,8 @@ def main() -> None:
     parser.add_argument("--variants", nargs="+", choices=VARIANTS + OPTIONAL_VARIANTS,
                         help="Probe only these variants; default: w32 w16 w8 w4. w248 is E2B-only experimental PTQ.")
     parser.add_argument("--cache-length", type=int, default=8192)
+    parser.add_argument("--full-parameter-export", action="store_true",
+                        help="Probe the separate all-parameter gemma4_text W248 route; not the retained LoRA exporter")
     args = parser.parse_args()
     if args.cache_length <= 0:
         parser.error("--cache-length must be positive")
@@ -808,6 +876,8 @@ def main() -> None:
         parser.error("--variants is only for probe; convert takes --variant")
     if args.variant is not None and args.stage != "convert":
         parser.error("--variant is only for convert; probe takes --variants")
+    if args.full_parameter_export and args.stage != "probe":
+        parser.error("--full-parameter-export is probe-only; conversion requires bound full-QAT provenance")
     required = {"probe": ("model_dir", "report"), "prepare": ("training_config", "checkpoint", "output_dir"),
                 "convert": ("model_dir", "output_dir", "variant")}[args.stage]
     for name in required:
@@ -819,7 +889,8 @@ def main() -> None:
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
     if args.stage == "probe":
         result = probe_exporter(profile=args.profile, model_dir=args.model_dir, cache_length=args.cache_length,
-                                selected_variants=tuple(args.variants) if args.variants is not None else None)
+                                selected_variants=tuple(args.variants) if args.variants is not None else None,
+                                full_parameter_export=args.full_parameter_export)
         _write(args.report, result)
     elif args.stage == "prepare":
         result = prepare_deployment_checkpoint(profile=args.profile, training_config=args.training_config,

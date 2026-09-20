@@ -289,6 +289,8 @@ def test_assets_probe_w248_exporter_before_training(options, monkeypatch):
                     "variants": ["w248"],
                     "model_loaded": False,
                     "conversion_tested": False,
+                    "full_parameter_export": True,
+                    "all_parameter_serialization_required": True,
                 }
             ),
             encoding="utf-8",
@@ -301,6 +303,7 @@ def test_assets_probe_w248_exporter_before_training(options, monkeypatch):
     command, environment = calls[0]
     assert command[0] == str(options.exporter_python)
     assert command[command.index("--variants") + 1 :] == ["w248"]
+    assert "--full-parameter-export" in command
     assert environment["CUDA_VISIBLE_DEVICES"] == ""
     assert options.output_dir / "exporter_preflight/exporter_preflight.json" in files
 

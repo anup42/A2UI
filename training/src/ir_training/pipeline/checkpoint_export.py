@@ -172,6 +172,7 @@ def build_checkpoint_export_plan(options: CheckpointExportOptions) -> dict[str, 
         max_input_tokens=golden.get("max_input_tokens", 4096),
         max_new_tokens=golden.get("max_new_tokens", 2048),
         selected_variants=options.variants,
+        full_parameter_export=full_qat_contract is not None,
     )
     plan.update(
         schema_version=1,
@@ -216,6 +217,11 @@ def _validate_stage(plan: dict[str, Any], name: str) -> dict[str, Any]:
             )
         if "w248" in plan["variants"] and report.get("variants") != list(plan["variants"]):
             raise ValueError("W248 exporter preflight did not screen the requested variants")
+        if plan.get("full_qat_contract") is not None and (
+            report.get("full_parameter_export") is not True
+            or report.get("all_parameter_serialization_required") is not True
+        ):
+            raise ValueError("Full-QAT exporter preflight did not require standalone routing and serialization proof")
     elif name == "merge":
         report = _json(Path(plan["merged_model_dir"]) / "deployment_source.json")
         expected = {
@@ -233,6 +239,8 @@ def _validate_stage(plan: dict[str, Any], name: str) -> dict[str, Any]:
             raise ValueError("Merged checkpoint lacks matching source provenance")
         if report.get("official_retained_scale_export") is not False:
             raise ValueError("Merged checkpoint is not a dense deployment source")
+        if plan.get("full_qat_contract") is not None and report.get("full_qat_contract") != plan["full_qat_contract"]:
+            raise ValueError("Prepared full checkpoint lost its all-parameter contract")
         if plan["resume_lineage"]["resumed"]:
             for key in (
                 "preparation_config",
