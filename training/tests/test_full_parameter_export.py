@@ -36,15 +36,23 @@ def test_package_gate_binds_all_three_exact_section_payloads(tmp_path):
 
 def _proof():
     keys = ["model.embed_tokens.weight", "model.embed_tokens_per_layer.weight"] + [
-        f"p{i}" for i in range(539)
+        f"p{i}" for i in range(504)
+    ] + [
+        f"model.layers.{i}.layer_scalar" for i in range(35)
     ]
     inventory = {
-        key: {"value_sha256": hashlib.sha256(key.encode()).hexdigest()} for key in keys
+        key: {
+            "shape": [1],
+            "value_sha256": hashlib.sha256(key.encode()).hexdigest(),
+        }
+        for key in keys
     }
-    full = {"verified": True, "parameter_count": 541}
+    full = {"verified": True, "state_tensor_count": 541}
     return {
         "verified": True,
-        "parameter_count": 541,
+        "state_tensor_count": 541,
+        "named_parameter_count": 506,
+        "persistent_buffer_count": 35,
         "policy": "full_checkpoint_physical_w248_v1",
         "checkpoint_inventory": inventory,
         "evidence": {
@@ -56,7 +64,7 @@ def _proof():
             },
             "physical": {
                 **full,
-                "parameters": dict.fromkeys(keys),
+                "state_tensors": dict.fromkeys(keys),
                 "float_audit": {**full, "mappings": dict.fromkeys(keys)},
             },
             "package": {
@@ -79,11 +87,19 @@ def test_downstream_proof_rejects_partial_evidence(mutation):
     elif mutation == "loaded":
         report["evidence"]["loaded"]["value_hashes"]["p0"] = "wrong"
     elif mutation == "physical":
-        report["evidence"]["physical"]["parameters"].pop("p0")
+        report["evidence"]["physical"]["state_tensors"].pop("p0")
     elif mutation == "float":
         report["evidence"]["physical"]["float_audit"]["verified"] = False
     else:
         report["evidence"]["package"]["artifact_sha256"] = "wrong"
+    with pytest.raises(ValueError, match="complete source-to-package"):
+        export.validate_serialization_report(report, "artifact")
+
+
+@pytest.mark.parametrize("inventory", [["not-a-mapping"], {"bad": None}])
+def test_downstream_proof_rejects_malformed_inventory_as_value_error(inventory):
+    report = _proof()
+    report["checkpoint_inventory"] = inventory
     with pytest.raises(ValueError, match="complete source-to-package"):
         export.validate_serialization_report(report, "artifact")
 
@@ -173,7 +189,7 @@ def _successful_fake_task_sequence(tmp_path, monkeypatch):
         "verify_loaded_model",
         lambda actual, inventory: {
             "verified": actual is model,
-            "parameter_count": len(inventory),
+            "state_tensor_count": len(inventory),
         },
     )
     monkeypatch.setattr(
@@ -182,7 +198,7 @@ def _successful_fake_task_sequence(tmp_path, monkeypatch):
         lambda floats, quantized, inventory: {
             "verified": set(floats) == set(export.SECTION_TYPES)
             and set(quantized) == set(export.SECTION_TYPES),
-            "parameter_count": len(inventory),
+            "state_tensor_count": len(inventory),
         },
     )
     monkeypatch.setattr(
@@ -363,7 +379,9 @@ def _deployment_proof_fixture(tmp_path, monkeypatch, *, plan_trigger, source_tri
         },
         "full_parameter_serialization": {
             "verified": True,
-            "parameter_count": 541,
+            "state_tensor_count": 541,
+            "named_parameter_count": 506,
+            "persistent_buffer_count": 35,
             "path": str(proof_path.resolve()),
             "sha256": export._sha(proof_path),
         },

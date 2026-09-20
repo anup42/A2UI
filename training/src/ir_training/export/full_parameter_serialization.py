@@ -22,7 +22,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-EXPECTED_PARAMETER_COUNT = 541
+EXPECTED_STATE_TENSOR_COUNT = 541
 SECTION_ROLES = ("target", "token_embedder", "per_layer_embedder")
 
 
@@ -59,13 +59,13 @@ def _read_safetensors(path: Path) -> tuple[dict[str, Any], int]:
 
 
 def build_checkpoint_inventory(
-    model_dir: str | Path, *, expected_count: int = EXPECTED_PARAMETER_COUNT
+    model_dir: str | Path, *, expected_count: int = EXPECTED_STATE_TENSOR_COUNT
 ) -> dict[str, dict[str, Any]]:
     """Inventory exact FP32 checkpoint bytes across ``model*.safetensors``.
 
-    Full-QAT master parameters are FP32.  Accepting BF16 here would make an
-    exact floating serialization audit incapable of proving those masters were
-    preserved.
+    Full-QAT parameters and persistent buffers are FP32. Accepting BF16 here
+    would make an exact floating serialization audit incapable of proving that
+    complete state was preserved.
     """
 
     root = Path(model_dir)
@@ -117,7 +117,7 @@ def build_checkpoint_inventory(
                 }
     if len(result) != expected_count:
         raise FullParameterSerializationError(
-            f"Checkpoint contains {len(result)} parameters; expected {expected_count}"
+            f"Checkpoint contains {len(result)} state tensors; expected {expected_count}"
         )
     return dict(sorted(result.items()))
 
@@ -135,18 +135,18 @@ def verify_loaded_model(model: Any, inventory: Mapping[str, Mapping[str, Any]]) 
     for key in sorted(inventory):
         tensor = state[key]
         if str(getattr(tensor, "dtype", "")) not in {"torch.float32", "float32"}:
-            raise FullParameterSerializationError(f"Loaded parameter is not FP32: {key}")
+            raise FullParameterSerializationError(f"Loaded state tensor is not FP32: {key}")
         if list(tensor.shape) != list(inventory[key]["shape"]):
-            raise FullParameterSerializationError(f"Loaded parameter shape differs: {key}")
+            raise FullParameterSerializationError(f"Loaded state tensor shape differs: {key}")
         try:
             payload = tensor.detach().cpu().contiguous().numpy().astype("<f4", copy=False).tobytes()
         except Exception as exc:
-            raise FullParameterSerializationError(f"Cannot materialize loaded parameter: {key}") from exc
+            raise FullParameterSerializationError(f"Cannot materialize loaded state tensor: {key}") from exc
         digest = _sha(payload)
         if digest != inventory[key]["value_sha256"]:
-            raise FullParameterSerializationError(f"Loaded parameter value differs: {key}")
+            raise FullParameterSerializationError(f"Loaded state tensor value differs: {key}")
         hashes[key] = digest
-    return {"verified": True, "parameter_count": len(hashes), "value_hashes": hashes}
+    return {"verified": True, "state_tensor_count": len(hashes), "value_hashes": hashes}
 
 
 def _schema_model(data: bytes) -> tuple[Any, Any]:
@@ -313,12 +313,12 @@ def audit_float_sections(
         if not candidates or any(r["dtype"] != "FLOAT32" or r["nbytes"] != source["nbytes"]
                                  or r["payload_sha256"] != source["value_sha256"] for r in candidates):
             raise FullParameterSerializationError(
-                f"Parameter {key} is missing, changed, or has unsupported folded/ambiguous use-site scope"
+                f"State tensor {key} is missing, changed, or has unsupported folded/ambiguous use-site scope"
             )
         # Prefill/decode signatures legitimately duplicate a constant. Prove
         # every duplicate is byte-identical rather than requiring one buffer.
         matches[key] = {"copies": candidates, "copy_count": len(candidates)}
-    return {"verified": True, "parameter_count": len(matches), "mappings": matches,
+    return {"verified": True, "state_tensor_count": len(matches), "mappings": matches,
             "unsupported_transforms": [], "folding_detected": False}
 
 
@@ -407,7 +407,7 @@ def audit_quantized_sections(
 ) -> dict[str, Any]:
     """Audit final quantized files without accepting an exporter-side claim.
 
-    Non-matrix parameters must remain exact FP32 constants. Matrix verification
+    Non-matrix state tensors must remain exact FP32 constants. Matrix verification
     must be an executable auditor which receives source bytes and the actual
     final tensor record and returns true only after recomputing codes/scales.
     There is intentionally no hash-manifest-only escape hatch.
@@ -423,7 +423,7 @@ def audit_quantized_sections(
         if len(source["shape"]) != 2:
             if not role_records or any(r["dtype"] != "FLOAT32" or r["payload_sha256"] != source["value_sha256"]
                                        for r in role_records):
-                raise FullParameterSerializationError(f"Non-matrix parameter changed or is ambiguous: {key}")
+                raise FullParameterSerializationError(f"Non-matrix state tensor changed or is ambiguous: {key}")
             results[key] = {"mode": "exact_float", "copy_count": len(role_records),
                             "tensor_names": [item["tensor_name"] for item in role_records]}
             continue
@@ -440,5 +440,5 @@ def audit_quantized_sections(
         if not _default_matrix_audit(key, source, source_payload, role_records):
             raise FullParameterSerializationError(f"Deterministic quantization audit failed: {key}")
         results[key] = {"mode": "recomputed_quantized", "candidate_count": len(role_records)}
-    return {"verified": True, "parameter_count": len(results), "float_audit": float_report,
-            "parameters": results}
+    return {"verified": True, "state_tensor_count": len(results), "float_audit": float_report,
+            "state_tensors": results}

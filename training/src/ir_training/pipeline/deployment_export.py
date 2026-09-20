@@ -711,9 +711,15 @@ def validate_deployment_export_output(plan: dict[str, Any], variant: str) -> dic
         from ir_training.export.full_parameter_export import (
             validate_serialization_report,
         )
+        from ir_training.qat.full_model_contract import (
+            EXPECTED_PARAMETER_TENSOR_COUNT,
+            EXPECTED_PERSISTENT_BUFFER_NAMES,
+        )
         proof = report.get("full_parameter_serialization") or {}
         proof_path = _local_file(folder, "full_parameter_serialization.json")
-        if (proof.get("verified") is not True or proof.get("parameter_count") != 541
+        if (proof.get("verified") is not True or proof.get("state_tensor_count") != 541
+                or proof.get("named_parameter_count") != EXPECTED_PARAMETER_TENSOR_COUNT
+                or proof.get("persistent_buffer_count") != len(EXPECTED_PERSISTENT_BUFFER_NAMES)
                 or proof.get("path") != str(proof_path.resolve()) or proof.get("sha256") != file_sha256(proof_path)):
             raise ValueError("Full-parameter serialization proof is missing or changed")
         validate_serialization_report(_json(proof_path), report["sha256"])
@@ -845,7 +851,9 @@ def convert_deployment_variant(*, profile: str, variant: str, model_dir: Path, o
         proof = output_dir / "full_parameter_serialization.json"
         _write(proof, serialization_report)
         result["full_parameter_serialization"] = {
-            "verified": True, "parameter_count": serialization_report["parameter_count"],
+            "verified": True, "state_tensor_count": serialization_report["state_tensor_count"],
+            "named_parameter_count": serialization_report["named_parameter_count"],
+            "persistent_buffer_count": serialization_report["persistent_buffer_count"],
             "path": str(proof.resolve()), "sha256": file_sha256(proof),
         }
     _write(output_dir / "export_manifest.json", result)

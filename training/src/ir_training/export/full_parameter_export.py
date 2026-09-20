@@ -51,19 +51,45 @@ def check_serialization_dependencies() -> dict[str, str]:
 def validate_serialization_report(report: dict, artifact_sha256: str) -> None:
     """Downstream receipts require the complete proof, not a success flag alone."""
     inventory = report.get("checkpoint_inventory") or {}
+    inventory_valid = isinstance(inventory, dict) and all(
+        isinstance(key, str) and isinstance(value, dict)
+        for key, value in inventory.items()
+    )
     evidence = report.get("evidence") or {}
     loaded = evidence.get("loaded") or {}
     physical = evidence.get("physical") or {}
     package = evidence.get("package") or {}
     floating = physical.get("float_audit") or {}
-    if (report.get("verified") is not True or report.get("parameter_count") != 541
+    from ir_training.qat.full_model_contract import (
+        EXPECTED_PARAMETER_TENSOR_COUNT,
+        EXPECTED_PERSISTENT_BUFFER_NAMES,
+        split_full_model_state_shapes,
+    )
+    try:
+        if not inventory_valid:
+            raise TypeError("Malformed checkpoint inventory")
+        parameter_shapes, persistent_buffer_shapes = split_full_model_state_shapes(
+            {key: value.get("shape") for key, value in inventory.items()}
+        )
+    except (TypeError, ValueError):
+        parameter_shapes, persistent_buffer_shapes = {}, {}
+    expected_hashes = (
+        {key: value.get("value_sha256") for key, value in inventory.items()}
+        if inventory_valid else {}
+    )
+    if (not inventory_valid
+            or report.get("verified") is not True or report.get("state_tensor_count") != 541
+            or report.get("named_parameter_count") != EXPECTED_PARAMETER_TENSOR_COUNT
+            or report.get("persistent_buffer_count") != len(EXPECTED_PERSISTENT_BUFFER_NAMES)
             or report.get("policy") != "full_checkpoint_physical_w248_v1"
             or len(inventory) != 541
+            or len(parameter_shapes) != EXPECTED_PARAMETER_TENSOR_COUNT
+            or set(persistent_buffer_shapes) != EXPECTED_PERSISTENT_BUFFER_NAMES
             or not {"model.embed_tokens.weight", "model.embed_tokens_per_layer.weight"} <= set(inventory)
             or any(part.get("verified") is not True for part in (loaded, physical, floating, package))
-            or any(part.get("parameter_count") != 541 for part in (loaded, physical, floating))
-            or loaded.get("value_hashes") != {key: value.get("value_sha256") for key, value in inventory.items()}
-            or set(physical.get("parameters") or {}) != set(inventory)
+            or any(part.get("state_tensor_count") != 541 for part in (loaded, physical, floating))
+            or loaded.get("value_hashes") != expected_hashes
+            or set(physical.get("state_tensors") or {}) != set(inventory)
             or set(floating.get("mappings") or {}) != set(inventory)
             or set(package.get("sections") or {}) != set(SECTION_TYPES)
             or package.get("artifact_sha256") != artifact_sha256):
@@ -118,7 +144,7 @@ def _audited_converter(model_dir: Path, output_dir: Path, recipe_path: Path, inv
         artifacts = original_load(model_path, export_config, **kwargs)
         from ir_training.export.gemma4_text_compat import _require_model
         _require_model(artifacts.model)
-        with Progress("Verify every loaded FP32 checkpoint parameter before conversion", unit="stage"):
+        with Progress("Verify every loaded FP32 checkpoint state tensor before conversion", unit="stage"):
             state["loaded"] = serialization.verify_loaded_model(artifacts.model, inventory)
         return artifacts
 
@@ -154,7 +180,7 @@ def _audited_converter(model_dir: Path, output_dir: Path, recipe_path: Path, inv
                 or state["package"] is not None or _sha(recipe_path) != recipe_sha
                 or any(_sha(path) != input_hashes[role] for role, path in floats.items())):
             raise ValueError("Full export package inputs differ from the checked converter outputs")
-        with Progress("Prove all trained parameters in float and W248 physical constants", unit="stage"):
+        with Progress("Prove all parameters and buffers in float and W248 physical constants", unit="stage"):
             state["physical"] = serialization.audit_quantized_sections(floats, quantized, inventory)
         if state["physical"].get("verified") is not True:
             raise ValueError("Full checkpoint serialization did not pass")
@@ -186,6 +212,10 @@ def export_full_parameter_checkpoint(kwargs: dict[str, Any]) -> dict[str, Any]:
     recipe = Path(kwargs["quantization_recipe"])
     with Progress("Index selected full FP32 checkpoint for serialization proof", unit="stage"):
         inventory = serialization.build_checkpoint_inventory(model_dir)
+    from ir_training.qat.full_model_contract import split_full_model_state_shapes
+    parameter_shapes, persistent_buffer_shapes = split_full_model_state_shapes(
+        {key: value["shape"] for key, value in inventory.items()}
+    )
     checked_kwargs = dict(kwargs)
     # Keep separate pre- and post-quantization references for audit/review.
     # Fusing independent weights obscures the one-to-one source proof.
@@ -197,7 +227,10 @@ def export_full_parameter_checkpoint(kwargs: dict[str, Any]) -> dict[str, Any]:
         export = importlib.import_module("litert_torch.generative.export_hf.export")
         export.export(**checked_kwargs)
     result = {"verified": True, "policy": "full_checkpoint_physical_w248_v1",
-            "parameter_count": len(inventory), "compatibility": compatibility,
+            "state_tensor_count": len(inventory),
+            "named_parameter_count": len(parameter_shapes),
+            "persistent_buffer_count": len(persistent_buffer_shapes),
+            "compatibility": compatibility,
             "checkpoint_inventory": inventory, "evidence": evidence,
             "export_kwargs": checked_kwargs, "recipe_sha256": _sha(recipe),
             "serialization_versions": versions, "runtime_tested": False}

@@ -21,6 +21,10 @@ from ir_training.qat.mobile_training_seed import (
 WORKFLOW = "e2b_all_parameter_qat_v1"
 NUMERIC_POLICY = "all_parameter_qat_safety_v1"
 PROFILE = "e2b_all_parameter_dynamic_w248"
+EXPECTED_PARAMETER_TENSOR_COUNT = 506
+EXPECTED_PERSISTENT_BUFFER_NAMES = frozenset(
+    f"model.layers.{layer}.layer_scalar" for layer in range(35)
+)
 # HF module paths, not converter operation names. These implement the SAME
 # allocation as export/gemma4_mixed248.py, including channelwise embeddings.
 MODULE_BITS = {
@@ -210,8 +214,45 @@ def seed_shapes(config: dict) -> dict:
     return shapes
 
 
+def split_full_model_state_shapes(shapes: dict) -> tuple[dict, dict]:
+    """Partition the pinned text seed, not arbitrary state, into parameters/buffers."""
+    buffers = {name: shape for name, shape in shapes.items() if name in EXPECTED_PERSISTENT_BUFFER_NAMES}
+    if (len(shapes) != EXPECTED_TENSOR_COUNT
+            or set(buffers) != EXPECTED_PERSISTENT_BUFFER_NAMES
+            or any(shape != [1] for shape in buffers.values())
+            or {name for name in shapes if name.endswith(".layer_scalar")} != set(buffers)):
+        raise ValueError("Full-QAT requires exactly 35 persistent layer_scalar buffers of shape [1] in 541 state tensors")
+    parameters = {name: shape for name, shape in shapes.items() if name not in buffers}
+    if len(parameters) != EXPECTED_PARAMETER_TENSOR_COUNT:
+        raise ValueError("Full-QAT requires exactly 506 named parameter state entries")
+    return parameters, buffers
+
+
+def _buffer_value_sha256(tensor: Any) -> str:
+    import torch
+
+    if (isinstance(tensor, torch.nn.Parameter) or tensor.dtype != torch.float32
+            or tensor.requires_grad or list(tensor.shape) != [1]
+            or not bool(torch.isfinite(tensor).all().item())):
+        raise ValueError("Full-QAT layer_scalar buffers must be finite non-trainable FP32 tensors of shape [1]")
+    return hashlib.sha256(tensor.detach().cpu().contiguous().numpy().astype("<f4", copy=False).tobytes()).hexdigest()
+
+
+def _model_inventory_evidence(shapes: dict, buffer_hashes: dict[str, str]) -> dict:
+    parameters, buffers = split_full_model_state_shapes(shapes)
+    if (set(buffer_hashes) != set(buffers)
+            or any(not isinstance(value, str) or len(value) != 64
+                   or any(char not in "0123456789abcdef" for char in value) for value in buffer_hashes.values())):
+        raise ValueError("Full-QAT requires value hashes for exactly the expected persistent buffers")
+    return {"verified": True, "state_tensor_count": len(shapes), "state_shapes_sha256": _shape_digest(shapes),
+            "named_parameter_count": len(parameters), "parameter_shapes_sha256": _shape_digest(parameters),
+            "persistent_buffer_count": len(buffers), "persistent_buffer_shapes_sha256": _shape_digest(buffers),
+            "persistent_buffer_value_sha256": dict(sorted(buffer_hashes.items()))}
+
+
 def verify_full_model_inventory(model: Any, config: dict) -> dict:
     expected = seed_shapes(config)
+    expected_parameters, expected_buffers = split_full_model_state_shapes(expected)
     actual = {name: list(tensor.shape) for name, tensor in model.state_dict().items()}
     if actual != expected:
         raise ValueError("Loaded full model is not the complete reconstructed text seed")
@@ -220,12 +261,23 @@ def verify_full_model_inventory(model: Any, config: dict) -> dict:
     except TypeError as exc:  # pragma: no cover - unsupported old torch
         raise ValueError("Full-QAT inventory requires alias-aware named parameters") from exc
     parameter_shapes = {name: list(parameter.shape) for name, parameter in named_parameters}
-    if parameter_shapes != expected:
+    if len(parameter_shapes) != len(named_parameters) or parameter_shapes != expected_parameters:
         raise ValueError(
-            "Full-QAT seed state must consist exactly of named model parameters; "
-            "buffers or missing parameter aliases are unsupported"
+            "Full-QAT requires exactly the 506 named parameter entries/aliases, "
+            "excluding the 35 persistent layer_scalar buffers"
         )
-    return {"verified": True, "state_tensor_count": len(actual), "state_shapes_sha256": _shape_digest(actual)}
+    # Inspect registration rather than treating every named buffer as persistent:
+    # Gemma4 also has derived rotary/embed-scale buffers that are not saved.
+    persistent = {}
+    for prefix, module in model.named_modules(remove_duplicate=False):
+        for local_name, tensor in module._buffers.items():
+            if local_name not in module._non_persistent_buffers_set:
+                name = f"{prefix}.{local_name}" if prefix else local_name
+                persistent[name] = tensor
+    if set(persistent) != set(expected_buffers):
+        raise ValueError("Full-QAT persistent buffer registrations differ from the exact 35 layer_scalar buffers")
+    buffer_hashes = {name: _buffer_value_sha256(tensor) for name, tensor in persistent.items()}
+    return _model_inventory_evidence(actual, buffer_hashes)
 
 
 def _seed_matrix_allocation(shapes: dict[str, list[int]]) -> dict[str, int]:
@@ -247,7 +299,7 @@ def _seed_matrix_allocation(shapes: dict[str, list[int]]) -> dict[str, int]:
 
 
 def _verify_scope_against_seed(scope: dict, shapes: dict[str, list[int]], metadata: dict) -> None:
-    """Prove scope evidence covers each seed parameter, including tied aliases."""
+    """Prove scope covers each named parameter shape (not persistent buffers)."""
     records = scope.get("parameters")
     if not isinstance(records, list) or not records:
         raise ValueError("Checkpoint full-parameter scope has no parameter records")
@@ -308,7 +360,8 @@ def validate_full_qat_checkpoint(config: dict, metadata: dict, checkpoint: Path)
             or scope.get("frozen_parameter_count") != 0 or scope.get("adapter_parameter_count") != 0):
         raise ValueError("Checkpoint lacks verified all-parameter FP32 scope")
     expected = seed_shapes(config)
-    _verify_scope_against_seed(scope, expected, metadata)
+    parameter_shapes, buffer_shapes = split_full_model_state_shapes(expected)
+    _verify_scope_against_seed(scope, parameter_shapes, metadata)
     names = [item["canonical_name"] for item in scope["parameters"]]
     qat = metadata.get("qat") or {}
     coverage = metadata.get("full_qat_coverage") or {}
@@ -354,6 +407,7 @@ def validate_full_qat_checkpoint(config: dict, metadata: dict, checkpoint: Path)
             or optimizer_scope.get("all_parameters_finite_after_step") is not True):
         raise ValueError("Full-QAT checkpoint lacks a bound successful optimizer preflight")
     actual = {}
+    buffer_hashes = {}
     for path in sorted(checkpoint.glob("*.safetensors")):
         if not path.name.startswith("model"):
             raise ValueError("Full checkpoint contains unexpected adapter/auxiliary weights")
@@ -363,12 +417,14 @@ def validate_full_qat_checkpoint(config: dict, metadata: dict, checkpoint: Path)
                 if name in actual or view.get_dtype() != "F32":
                     raise ValueError("Full checkpoint must contain each FP32 tensor exactly once")
                 actual[name] = list(view.get_shape())
+                if name in buffer_shapes:
+                    buffer_hashes[name] = _buffer_value_sha256(handle.get_tensor(name))
     inventory = metadata.get("full_model_inventory") or {}
-    if (actual != expected or inventory != {"verified": True, "state_tensor_count": len(expected),
-                                           "state_shapes_sha256": _shape_digest(expected)}):
+    if (actual != expected or inventory != _model_inventory_evidence(expected, buffer_hashes)):
         raise ValueError("Full checkpoint lost/changed a seed tensor or inventory evidence")
     if not set(names).issubset(actual):
         raise ValueError("Trainable parameter absent from saved full checkpoint")
     return {"verified": True, "workflow": WORKFLOW, "state_tensor_count": len(actual),
+            "named_parameter_count": len(parameter_shapes), "persistent_buffer_count": len(buffer_shapes),
             "state_shapes_sha256": _shape_digest(actual), "trainable_numel": scope["trainable_numel"],
             "official_graph": False, "official_retained_scale_export": False, "mtp_exported": False}

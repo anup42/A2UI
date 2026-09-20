@@ -11,7 +11,8 @@ retained-scale LoRA pipeline in `official_mobile.py`.
 - Trains every unique text-model parameter, including the ordinary token
   embedding, per-layer embedding, every fully connected weight, norms, and
   other text-model parameters. LoRA/PEFT and frozen model parameters are
-  rejected.
+  rejected. The persistent per-layer `layer_scalar` tensors are buffers, not
+  parameters: they remain in model state but are not made trainable.
 - Keeps master parameters and saved checkpoint tensors in FP32, with BF16 AMP
   for execution.
 - Uses Adafactor to avoid AdamW's two full FP32 moment tensors. This is still a
@@ -57,17 +58,33 @@ different work:
 | What success would establish | A topology- and retained-scale-preserving candidate, subject to its existing fail-closed parity gates | A physically verified dense mixed-precision artifact, still requiring native/device validation |
 
 Count the full-QAT scope precisely. The reconstructed checkpoint has **541
-named state entries**: **278** entries reconstructed by dequantizing packed
-published matrices and **263** direct BF16 copies. The 278 dequantized entries
-include both embedding-table entries and the output-head entry. The live
-model additionally has the direct-BF16 `per_layer_model_projection` matrix, so
-matrix coverage is **279 Linear/Embedding modules**, plus **262 non-matrix
-parameters**. The reconstructed config explicitly sets `tie_word_embeddings:
-false`; do not infer tied trained storage from packed-source aliases. The scope
-gate records both alias-aware named-parameter and unique-parameter coverage.
-All underlying unique parameters
+named state entries**: **506 actual named parameters** and **35 persistent
+`model.layers.{0..34}.layer_scalar` buffers**. The parameters comprise **279
+matrix parameters** and **227 non-matrix parameters**. The 541 checkpoint
+entries still originate as **278** entries reconstructed by dequantizing packed
+published matrices and **263** direct BF16 copies; those provenance counts do
+not make every state entry a parameter. The 278 dequantized entries include
+both embedding-table entries and the output-head entry, while the live model
+also has the direct-BF16 `per_layer_model_projection` matrix. The reconstructed
+config explicitly sets `tie_word_embeddings: false`; do not infer tied trained
+storage from packed-source aliases. The scope gate records both alias-aware
+named-parameter and unique-parameter coverage. All underlying unique parameters
 must remain trainable FP32 masters, including both embedding modules, norms,
-layer scalars, and every fully connected weight.
+and every fully connected weight. The 35 `layer_scalar` buffers remain
+persistent model state and must not be promoted to parameters or described as
+trained.
+
+The full-QAT preflight verifies the exact parameter-name/shape inventory and
+the exact 35 persistent buffer registrations separately. Each scalar buffer
+must be finite FP32 with shape `[1]` and must not require gradients. Its value
+hash is retained in checkpoint provenance; checkpoint validation rejects a
+missing, extra, retyped or changed buffer rather than counting it as a trainable
+parameter. The six derived rotary/embedding buffers are nonpersistent and are
+not included in the 541-entry checkpoint state. Export proof reports use
+`state_tensor_count: 541`, `named_parameter_count: 506` and
+`persistent_buffer_count: 35`; every state entry still requires physical export
+verification. Seed files and buffer registrations are never rewritten to pass
+these checks.
 
 | Parameter family | Named tensors | LoRA export | Full export |
 | --- | ---: | --- | --- |
@@ -75,7 +92,8 @@ layer scalars, and every fully connected weight.
 | Output head and layer-local input-gate/projection matrices | 71 | Preserve official bytes | Serialize trained W2 head and W8 layer-local matrices |
 | Global per-layer-model projection | 1 | Preserve official bytes (BF16 seed source; W8 target) | Serialize trained W8 matrix |
 | Token and per-layer embedding tables | 2 | Preserve separate official embedding sections | Serialize each trained table into its own new W2/W4 section |
-| Norms, layer scalars, other non-matrix parameters | 262 | Preserve official values/compiled constants | Require exact trained FP32 constants at verified graph use sites |
+| Norms and other non-matrix parameters | 227 | Preserve official values/compiled constants | Serialize the trained FP32 parameters at verified graph use sites |
+| Persistent `model.layers.{0..34}.layer_scalar` buffers | 35 | Preserve official values/compiled constants | Preserve the expected buffer values in saved/exported model state; do not train or promote them to parameters |
 
 ## Why full QAT needs a fresh converted graph
 
@@ -83,12 +101,14 @@ The official retained-scale exporter is intentionally a narrow patcher. It can
 replace the 205 projection code buffers because the other 72 official target
 constants, external embedding sections, static activation quantization, and
 published fixed weight scales remain invariant. Full QAT breaks that premise:
-embeddings, per-layer projections, norms, layer scalars, and all other model
-parameters can change, and training uses dynamic weight fake quantization with
-floating-point activations. Reusing only those 205 buffers would silently drop
-trained state and would falsely present a dynamic experimental recipe as the
-official fixed-scale topology. Full QAT must therefore load the complete saved
-checkpoint into a fresh dense HF graph and convert that graph in full.
+embeddings, per-layer projections, norms, and all other model parameters can
+change, while the persistent layer-scalar buffers must be preserved, and
+training uses dynamic weight fake quantization with
+floating-point activations. Reusing only the 205-code patcher would silently omit
+trained parameter changes outside its scope and would falsely present a dynamic
+experimental recipe as the official fixed-scale topology.
+Full QAT must therefore load the complete saved checkpoint into a fresh dense
+HF graph and convert that graph in full.
 
 ## Standalone-text export fix and verification boundary
 
@@ -113,8 +133,9 @@ exporter probe. Ordinary dense export and official retained-scale LoRA do not.
 The route additionally pins AI Edge Quantizer 0.9.0 and LiteRT 2.2.0 for physical
 verification. During conversion it:
 
-1. Checks every loaded FP32 tensor against the selected checkpoint's exact bytes.
-2. Requires all 541 source tensors at their corresponding consumed graph use
+1. Checks every loaded FP32 state tensor against the selected checkpoint's exact
+   bytes, including the expected persistent buffers.
+2. Requires all 541 source state tensors at their corresponding consumed graph use
    sites in the actual floating TFLite files, including both external embedders.
 3. Recomputes W2/W4/W8 codes and channelwise scales from selected-checkpoint
    weights using the pinned quantizer. Every corresponding quantized buffer,
@@ -250,10 +271,12 @@ content-bound receipt:
 7. Export experimental W248 into `experimental_w248_export/`.
 8. Write `evaluation_scorecard.json` and the three-cohort `results.md` table.
 
-The selected checkpoint must contain verified all-parameter scope, complete
-matrix QAT coverage, successful numeric/backward preflight evidence, a complete
-FP32 541-tensor inventory, positive optimizer-step provenance, and immutable
-checkpoint/config/data hashes before evaluation or export proceeds.
+The selected checkpoint must contain verified scope for all 506 actual
+parameters, complete 279-matrix QAT coverage, successful numeric/backward
+preflight evidence, and a complete FP32 541-entry model-state inventory that
+also preserves the 35 expected persistent `layer_scalar` buffers. Positive
+optimizer-step provenance and immutable checkpoint/config/data hashes are also
+required before evaluation or export proceeds.
 
 ## Interpreting completion
 
@@ -290,11 +313,21 @@ AI Edge Quantizer 0.9.0 wheel via process-local `PYTHONPATH` (no installed-packa
 changes). These tests do not claim successful execution of the complete pinned
 conversion environment.
 
+The subsequent persistent-buffer correction passed a combined **603 tests,
+7 skipped** regression run. A real tiny-width, 35-layer Transformers Gemma 4
+model reproduces the exact 541-state/506-parameter/35-persistent-buffer split,
+including six nonpersistent buffers, BF16 seed loading into FP32, and a complete
+save/reload round trip. Negative tests cover missing/extra/wrong-shape buffers,
+buffers promoted to parameters, nonfinite or non-FP32 buffers, changed saved
+buffer values, and incomplete checkpoint/export evidence. No seed or existing
+run artifacts were modified. This is CPU regression evidence, not H100 execution.
+
 Useful focused checks after installing the new training environment:
 
 ```bash
 python -m pytest -q -p no:cacheprovider \
   training/tests/test_full_model_contract.py \
+  training/tests/test_full_model_buffer_integration.py \
   training/tests/test_full_parameters.py \
   training/tests/test_full_parameter_qat_pipeline.py \
   training/tests/test_full_qat_trainer_integration.py \

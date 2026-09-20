@@ -157,6 +157,27 @@ def test_checkpoint_inventory_rejects_wrong_model_type(tmp_path):
         fps.build_checkpoint_inventory(tmp_path, expected_count=1)
 
 
+def test_loaded_model_verification_includes_persistent_buffers(tmp_path):
+    torch = pytest.importorskip("torch")
+    payload = struct.pack("<f", 0.75)
+    key = "model.layers.0.layer_scalar"
+    _checkpoint(tmp_path, {key: ([1], payload)})
+    inventory = fps.build_checkpoint_inventory(tmp_path, expected_count=1)
+
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            layer = torch.nn.Module()
+            layer.register_buffer("layer_scalar", torch.tensor([0.75]))
+            layers = torch.nn.ModuleList([layer])
+            self.model = torch.nn.Module()
+            self.model.layers = layers
+
+    report = fps.verify_loaded_model(Model(), inventory)
+    assert report["state_tensor_count"] == 1
+    assert set(report["value_hashes"]) == {key}
+
+
 def test_real_flatbuffer_float_audit_covers_all_roles_and_duplicate_decode(tmp_path):
     checkpoint = tmp_path / "checkpoint"
     tensors = {
@@ -264,7 +285,33 @@ def test_real_flatbuffer_same_value_norms_are_disambiguated_by_scope(tmp_path):
     ])
     report = fps.audit_float_sections(paths, inventory)
     assert report["verified"] is True
-    assert report["parameter_count"] == 2
+    assert report["state_tensor_count"] == 2
+
+
+def test_real_flatbuffer_preserves_persistent_layer_scalar_exactly(tmp_path):
+    checkpoint = tmp_path / "checkpoint"
+    key = "model.layers.0.layer_scalar"
+    payload = struct.pack("<f", 0.75)
+    _checkpoint(checkpoint, {key: ([1], payload)})
+    inventory = fps.build_checkpoint_inventory(checkpoint, expected_count=1)
+    paths = _paths(tmp_path, "layer_scalar")
+    _write_empty_sections(paths)
+    _real_tflite(paths["target"], [{
+        "name": "Gemma4TextDecoderLayer_0/layer_scalar",
+        "shape": [1],
+        "payload": payload,
+    }])
+    report = fps.audit_float_sections(paths, inventory)
+    assert report["verified"] is True
+    assert report["mappings"][key]["copy_count"] == 1
+
+    _real_tflite(paths["target"], [{
+        "name": "Gemma4TextDecoderLayer_0/layer_scalar",
+        "shape": [1],
+        "payload": struct.pack("<f", 0.5),
+    }])
+    with pytest.raises(fps.FullParameterSerializationError, match="missing|changed"):
+        fps.audit_float_sections(paths, inventory)
 
 
 def test_real_flatbuffer_rejects_bad_duplicate_in_same_parameter_scope(tmp_path):
