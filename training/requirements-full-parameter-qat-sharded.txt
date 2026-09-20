@@ -2,3 +2,6 @@
 # Keep this separate from the unchanged replicated-DDP environment.
 -r requirements-full-parameter-qat.txt
 deepspeed==0.19.7
+# .14's no-profiler DummyDomain rejects DeepSpeed's message/category keywords.
+# Must resolve inside the dedicated venv, not inherited /usr/local packages.
+nvtx==0.2.15

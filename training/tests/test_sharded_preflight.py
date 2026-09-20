@@ -307,15 +307,30 @@ class _FakeTrainer:
         gradient_accumulation_plugin=None,
     ):
         self.is_deepspeed_enabled = is_deepspeed_enabled
+        self.args = SimpleNamespace(gradient_accumulation_steps=4)
         self.handler = handler
         self.gradient_accumulation_plugin = gradient_accumulation_plugin or SimpleNamespace(
-            sync_each_batch=False
+            sync_each_batch=False, num_steps=1
         )
         self.accelerator_args = self._build_accelerator_args(
             gradient_accumulation_plugin=self.gradient_accumulation_plugin
         )
         self.accelerator = SimpleNamespace(
-            gradient_state=SimpleNamespace(plugin_kwargs={"sync_each_batch": False})
+            gradient_state=SimpleNamespace(
+                plugin_kwargs={"sync_each_batch": False}, num_steps=4
+            ),
+            gradient_accumulation_steps=4,
+            distributed_type="DEEPSPEED" if is_deepspeed_enabled else "NO",
+            state=SimpleNamespace(
+                distributed_type="DEEPSPEED" if is_deepspeed_enabled else "NO",
+                deepspeed_plugin=SimpleNamespace(
+                    get_value=lambda key: 4
+                    if key == "gradient_accumulation_steps"
+                    else None
+                )
+                if is_deepspeed_enabled
+                else None,
+            ),
         )
         self.model_accepts_loss_kwargs = True
         self.state = SimpleNamespace(global_step=0)
@@ -353,7 +368,7 @@ def test_checked_sharded_trainer_does_not_mutate_ddp_handlers():
         broadcast_buffers=True,
         find_unused_parameters=True,
     )
-    plugin = SimpleNamespace(sync_each_batch=False)
+    plugin = SimpleNamespace(sync_each_batch=False, num_steps=1)
     checked = _build_checked_causal_lm_trainer(_FakeTrainer, _checked_sharded_config())
     trainer = checked(
         is_deepspeed_enabled=True,

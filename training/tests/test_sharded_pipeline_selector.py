@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -65,6 +66,8 @@ def test_offline_plan_selects_backend_without_writing_output(tmp_path: Path):
     ddp = workflow.build_plan(ddp_options)
     assert ddp["distributed_training"] == {"backend": "ddp", "optimizer": "adafactor"}
     assert ddp["training_contract"]["optimizer"] == "adafactor"
+    assert ddp["stages"][0] == "assets"
+    assert "environment" not in ddp["stages"]
     assert not ddp_options.output_dir.exists()
 
     sharded_options = replace(
@@ -78,7 +81,54 @@ def test_offline_plan_selects_backend_without_writing_output(tmp_path: Path):
         "optimizer": "adamw_torch",
     }
     assert sharded["training_contract"]["optimizer"] == "adamw_torch"
+    assert sharded["stages"] == ["environment", *ddp["stages"]]
     assert not sharded_options.output_dir.exists()
+
+
+def test_environment_stage_records_probe_evidence_without_touching_seed(tmp_path, monkeypatch):
+    options = _options(tmp_path, backend="sharded")
+    plan = workflow.build_plan(options)
+    report = {"nvtx": {"passed": True, "module": "/venv/lib/nvtx/__init__.py"}}
+    monkeypatch.setattr("ir_training.train.sharded_contract.validate_sharded_runtime", lambda: report)
+    files = workflow.run_stage(plan, "environment")
+    assert files == [options.output_dir / "sharded_environment.json"]
+    assert json.loads(files[0].read_text()) == report
+    assert not (options.output_dir / "fit").exists()
+
+
+def test_ddp_cannot_invoke_sharded_environment_stage(tmp_path, monkeypatch):
+    plan = workflow.build_plan(_options(tmp_path))
+
+    def forbidden_probe():
+        raise AssertionError("DDP must not probe sharded packages")
+
+    monkeypatch.setattr("ir_training.train.sharded_contract.validate_sharded_runtime", forbidden_probe)
+    with pytest.raises(ValueError, match="must not run in the DDP lane"):
+        workflow.run_stage(plan, "environment")
+
+
+def test_environment_failure_stops_pipeline_before_expensive_stages(tmp_path, monkeypatch):
+    options = replace(_options(tmp_path, backend="sharded"), allow_experimental_export=True)
+    calls = []
+
+    def failing_probe():
+        raise RuntimeError("incompatible NVTX")
+
+    monkeypatch.setattr("ir_training.train.sharded_contract.validate_sharded_runtime", failing_probe)
+
+    def command_runner(command, log_path, environment, **kwargs):
+        stage = command[command.index("--worker-stage") + 1]
+        calls.append((stage, kwargs["timeout_seconds"]))
+        workflow.worker(Path(command[-1]), stage)
+
+    with pytest.raises(RuntimeError, match="incompatible NVTX"):
+        workflow.run_pipeline(options, execute=True, command_runner=command_runner)
+    assert calls == [("environment", 120.0)]
+    manifest = json.loads((options.output_dir / "full_parameter_qat_manifest.json").read_text())
+    assert manifest["status"] == "failed"
+    assert manifest["completed"] == {}
+    assert not (options.output_dir / "sharded_environment.json").exists()
+    assert not (options.output_dir / "prepared").exists()
 
 
 def test_offline_plan_rejects_unknown_backend_before_output_write(tmp_path: Path):

@@ -189,12 +189,50 @@ here; no official-device speed or quality claim follows from these tests.
 The statements above describe the unchanged default, selected explicitly with
 `--distributed-backend ddp` or implicitly when the option is omitted. There is
 also an opt-in `--distributed-backend sharded` mode for Linux. It must be
-installed in a separate environment so the established DDP dependency set is
-not modified:
+installed in a separate Python venv so the established DDP/LoRA dependency sets
+are not modified. Activate that dedicated sharded venv before these commands:
 
 ```bash
 python -m pip install -r training/requirements-full-parameter-qat-sharded.txt
+# Force a venv-local copy even if a matching version is visible system-wide.
+# This does not uninstall or patch the system package.
+python -m pip install --ignore-installed --no-deps nvtx==0.2.15
+
+# Tiny environment/API check; no model loading or Trainer memory probe.
+python training/scripts/check_sharded_training_env.py --world-size 4 --effective-batch 32
 ```
+
+The sharded overlay pins `nvtx==0.2.15` as well as DeepSpeed 0.19.7. DeepSpeed
+uses `domain.push_range(message=..., category=...)`; NVTX 0.2.14's no-profiler
+`DummyDomain` rejects those keywords. Version 0.2.15 supports them. The gate
+verifies both the version and that the imported NVTX module and distribution
+metadata resolve inside the active venv, not inherited `/usr/local` packages.
+An inherited system 0.2.15 copy is also rejected: install the venv-local copy
+with the explicit command above. Do not uninstall system NVTX, patch
+`site-packages`, or set `NVTX_DISABLE` to bypass instrumentation.
+
+The quick check exercises a balanced direct NVTX push/pop **and the actual
+DeepSpeed NVTX range wrappers**, and reports the import path. It also checks
+the accumulation configuration: for microbatch 1 and effective batch 32,
+Trainer, the Accelerate plugin, and DeepSpeed all configure 8 steps on 4 GPUs
+(4 on 8 GPUs; 16 on 2 GPUs). Set `--world-size` to the intended GPU count.
+This does not create a distributed engine or prove memory fit or GPU count.
+
+Sharded pipeline execution automatically runs the same dependency/NVTX probe
+in a bounded, at-most-120-second `environment` stage **before** seed inspection,
+data preparation, or model loading. Evidence is saved in
+`sharded_environment.json` and `logs/environment.log`; a failure stops the run.
+Each actual SFT worker repeats the check before loading weights. Run the tiny
+check successfully before retrying the expensive full preflight, then use a
+fresh pipeline output directory as usual. The DDP stage list and dependencies
+remain unchanged.
+
+Only the sharded Trainer hook aligns Accelerate's accumulation plugin before
+Accelerator construction; live checks require Trainer, Accelerate, and the
+DeepSpeed config to agree. Trainer continues dividing loss once and supplying
+`scale_wrt_gas=False`; Accelerate's DeepSpeed branch does not divide it again.
+Optimizer boundaries remain controlled by Trainer. The DDP path retains its
+original Accelerate accumulation behavior and synchronization policy.
 
 The sharded mode is narrowly defined as DeepSpeed ZeRO-2 with PyTorch AdamW.
 FP32 master parameters and BF16 `torch.autocast` compute are unchanged. Only
@@ -233,7 +271,7 @@ a bare-model backward. This gate inspects existing rank-local gradient fragments
 and verifies their exact cross-rank coverage; it never gathers a full embedding
 gradient just for validation. Its separate version-3 receipt binds the exact
 ZeRO configuration, accumulation count, AdamW state, and memory headroom. The
-Golden32 selector, final-only Golden35/Bixby50 evaluations, stage order, export
+Golden32 selector, final-only Golden35/Bixby50 evaluations, downstream stage order, export
 route, H100 counts, effective batch, and checkpoint provenance remain the same.
 
 The previous single-backward raw-DDP probe did not reproduce Trainer's

@@ -209,7 +209,7 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
         "options": values,
         "preparation": preparation,
         "paths": {key: str(value) for key, value in paths.items()},
-        "stages": [
+        "stages": (["environment"] if values["distributed_backend"] == "sharded" else []) + [
             "assets",
             "prepare",
             "configure",
@@ -736,6 +736,17 @@ def _environment(plan: dict[str, Any]) -> dict[str, str]:
 def run_stage(plan: dict[str, Any], stage: str) -> list[Path]:
     values = plan["options"]
     output = Path(values["output_dir"])
+    if stage == "environment":
+        if values.get("distributed_backend") != "sharded":
+            raise ValueError("The sharded environment stage must not run in the DDP lane")
+        from ir_training.train.sharded_contract import validate_sharded_runtime
+
+        # Before seed inspection, preparation, or any weight allocation. SFT
+        # repeats this in each actual torchrun worker before loading its model.
+        report = validate_sharded_runtime()
+        path = output / "sharded_environment.json"
+        _write(path, report)
+        return [path]
     if stage == "assets":
         return _assets(plan)
     if stage == "prepare":
@@ -844,7 +855,8 @@ def run_pipeline(
                 command,
                 output / f"logs/{stage}.log",
                 _environment(plan),
-                timeout_seconds=options.stage_timeout_seconds,
+                timeout_seconds=(min(options.stage_timeout_seconds, 120.0)
+                                 if stage == "environment" else options.stage_timeout_seconds),
                 progress_seconds=options.progress_seconds,
             )
             receipt = _json(output / f"stage_receipts/{stage}.json")

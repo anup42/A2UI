@@ -84,6 +84,11 @@ def train_sft(
     )
     all_parameter_qat = is_full_qat(config)
     sharded_training = all_parameter_qat and training_cfg.get("distributed_backend", "ddp") == "sharded"
+    if sharded_training:
+        from ir_training.train.sharded_contract import validate_sharded_runtime
+        # Check imported environment/APIs before reading the large seed or
+        # running architecture/numeric/backward probes on every rank.
+        validate_sharded_runtime()
     full_parameter_scope, full_model_inventory, full_qat_coverage = {}, {}, {}
     effective_batch = validate_effective_batch(training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
     # Validate an explicitly bounded run before loading multi-gigabyte model
@@ -164,10 +169,7 @@ def train_sft(
     if all_parameter_qat:
         from ir_training.train.full_parameters import validate_full_training_runtime
 
-        if sharded_training:
-            from ir_training.train.sharded_contract import validate_sharded_runtime
-            validate_sharded_runtime()
-        else:
+        if not sharded_training:
             validate_full_training_runtime(Trainer)
     initialization_seed = _initialize_training_seed(training_cfg, run_cfg, seed_setter=set_seed)
     if qat_cfg.get("enabled", False):
@@ -1679,20 +1681,29 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
     # optimizer probe, not DDP bucket views or DDP no_sync accumulation.
     full_parameter_training = (training_cfg or {}).get("full_parameter_training") is True and not sharded_training
     if (
-        full_parameter_training
+        (full_parameter_training or sharded_training)
         and int(os.environ.get("WORLD_SIZE", "1")) > 1
         and not callable(getattr(base_trainer_cls, "_build_accelerator_args", None))
     ):
         raise ValueError(
             "Full-parameter multi-rank training requires Trainer._build_accelerator_args "
-            "so DDP bucket views can be configured before Accelerator construction"
+            "so backend-specific accumulation/bucket policies are set before Accelerator construction"
         )
 
     class CheckedCausalLMTrainer(base_trainer_cls):  # type: ignore[misc, valid-type]
         def _build_accelerator_args(self, **kwargs: Any) -> dict[str, Any]:
-            """Inject DDP kwargs before Trainer constructs Accelerator/DDP."""
+            """Set backend-specific policy before Trainer constructs Accelerator."""
             parent_hook = getattr(super(), "_build_accelerator_args", None)
             args = parent_hook(**kwargs) if callable(parent_hook) else dict(kwargs)
+            if sharded_training:
+                from ir_training.train.sharded_contract import (
+                    configure_sharded_accumulation,
+                )
+                configure_sharded_accumulation(
+                    args, training_cfg,
+                    trainer_accumulation_steps=self.args.gradient_accumulation_steps,
+                )
+                return args
             if not full_parameter_training:
                 return args
             # Trainer normally enters no_sync for the first G-1 microbatches.
@@ -1744,6 +1755,8 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
             self.model_accepts_loss_kwargs = False
             if sharded_training and not getattr(self, "is_deepspeed_enabled", False):
                 raise ValueError("Requested sharded training did not activate DeepSpeed; DDP fallback is forbidden")
+            if sharded_training:
+                self._check_sharded_accumulation_policy()
             if full_parameter_training:
                 self._check_full_accumulation_policy()
             if (
@@ -1756,6 +1769,13 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
                     "policy before Accelerator construction"
                 )
 
+        def _check_sharded_accumulation_policy(self) -> None:
+            from ir_training.train.sharded_contract import assert_sharded_accumulation
+            assert_sharded_accumulation(
+                self.accelerator, training_cfg,
+                trainer_accumulation_steps=self.args.gradient_accumulation_steps,
+            )
+
         def _check_full_accumulation_policy(self) -> None:
             gradient_state = getattr(self.accelerator, "gradient_state", None)
             plugin_kwargs = getattr(gradient_state, "plugin_kwargs", {})
@@ -1764,6 +1784,7 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
 
         def training_step(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
             if sharded_training:
+                self._check_sharded_accumulation_policy()
                 from ir_training.train.sharded_contract import assert_sharded_engine
                 assert_sharded_engine(model, training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
                 if not getattr(self, "_a2ui_sharded_policy_logged", False):

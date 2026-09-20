@@ -129,20 +129,27 @@ def build_deepspeed_config(
 
 def validate_sharded_runtime() -> dict[str, Any]:
     """Require the reviewed Linux/CUDA package set before loading weights."""
+    from ir_training.train.sharded_environment import (
+        NVTX_REPAIR,
+        NVTX_VERSION,
+        probe_nvtx_compatibility,
+    )
 
-    required = {"deepspeed": "0.19.7", "transformers": "5.16.1", "accelerate": "1.15.0"}
+    required = {"deepspeed": "0.19.7", "transformers": "5.16.1", "accelerate": "1.15.0",
+                "nvtx": NVTX_VERSION}
     installed: dict[str, str] = {}
     for package, version in required.items():
+        repair = f" {NVTX_REPAIR}" if package == "nvtx" else ""
         try:
             installed[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError as exc:
             raise RuntimeError(
-                f"Sharded training requires {package} {version}; it is not installed."
+                f"Sharded training requires {package} {version}; it is not installed.{repair}"
             ) from exc
         if installed[package] != version:
             raise RuntimeError(
                 f"Sharded training requires reviewed {package} {version}; "
-                f"found {installed[package]}."
+                f"found {installed[package]}.{repair}"
             )
     if not sys.platform.startswith("linux"):
         raise RuntimeError("Sharded training requires the reviewed Linux/CUDA runtime.")
@@ -150,8 +157,57 @@ def validate_sharded_runtime() -> dict[str, Any]:
 
     if not torch.cuda.is_available() or not torch.cuda.is_bf16_supported():
         raise RuntimeError("Sharded training requires CUDA with native BF16 support.")
+    nvtx_probe = probe_nvtx_compatibility()
     return {"packages": installed, "platform": sys.platform,
-            "cuda_available": True, "native_bf16": True}
+            "cuda_available": True, "native_bf16": True, "nvtx": nvtx_probe}
+
+
+def configure_sharded_accumulation(
+    accelerator_args: dict[str, Any], training_cfg: Mapping[str, Any], *,
+    trainer_accumulation_steps: int,
+) -> None:
+    """Align Accelerate's plugin before construction, only for DeepSpeed.
+
+    Pinned Trainer creates num_steps=1 because it normalizes loss itself.
+    Accelerate's DEEPSPEED branch does not divide loss a second time, and
+    Trainer passes scale_wrt_gas=False to DeepSpeed. Thus matching the plugin
+    to the configured accumulation removes the mismatch without changing
+    normalization or optimizer boundaries. Never apply this to DDP.
+    """
+    validate_sharded_config(training_cfg)
+    expected = training_cfg["gradient_accumulation_steps"]
+    if type(trainer_accumulation_steps) is not int or trainer_accumulation_steps != expected:
+        raise ValueError("Sharded Trainer accumulation differs from the configured recipe")
+    plugin = accelerator_args.get("gradient_accumulation_plugin")
+    if plugin is None or not hasattr(plugin, "num_steps"):
+        raise ValueError("Sharded Trainer requires a configurable GradientAccumulationPlugin")
+    if accelerator_args.get("gradient_accumulation_steps", 1) != 1:
+        raise ValueError("Configure sharded accumulation through its plugin only")
+    plugin.num_steps = expected
+
+
+def assert_sharded_accumulation(
+    accelerator: Any, training_cfg: Mapping[str, Any], *,
+    trainer_accumulation_steps: int,
+) -> dict[str, int]:
+    """Reject live Trainer/Accelerate/DeepSpeed divergence, including fallback."""
+    validate_sharded_config(training_cfg)
+    expected = training_cfg["gradient_accumulation_steps"]
+    state = getattr(accelerator, "state", None)
+    distributed_type = getattr(accelerator, "distributed_type", None)
+    if getattr(distributed_type, "value", distributed_type) != "DEEPSPEED":
+        raise ValueError("Sharded accumulation requires the live DEEPSPEED backend")
+    ds_plugin = getattr(state, "deepspeed_plugin", None)
+    if ds_plugin is None or not callable(getattr(ds_plugin, "get_value", None)):
+        raise ValueError("Sharded accumulation requires the live DeepSpeed plugin")
+    values = {
+        "trainer": trainer_accumulation_steps,
+        "accelerate": getattr(accelerator, "gradient_accumulation_steps", None),
+        "deepspeed": ds_plugin.get_value("gradient_accumulation_steps"),
+    }
+    if any(type(value) is not int or value != expected for value in values.values()):
+        raise ValueError(f"Sharded accumulation mismatch: expected {expected}, found {values}")
+    return values
 
 
 def _runtime_value(engine: Any, method: str, attribute: str | None = None) -> Any:

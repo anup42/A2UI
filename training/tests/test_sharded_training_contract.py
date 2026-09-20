@@ -101,13 +101,18 @@ def test_sharded_validation_fails_closed(change, message):
         validate_sharded_config(config)
 
 
-def test_runtime_version_gate_uses_metadata_without_importing_deepspeed(monkeypatch):
-    versions = {"deepspeed": "0.19.7", "transformers": "5.16.1", "accelerate": "1.15.0"}
+def test_runtime_version_gate_calls_nvtx_probe_only_after_runtime_checks(monkeypatch):
+    versions = {"deepspeed": "0.19.7", "transformers": "5.16.1", "accelerate": "1.15.0",
+                "nvtx": "0.2.15"}
+    probes = []
+    monkeypatch.setattr("ir_training.train.sharded_environment.probe_nvtx_compatibility",
+                        lambda: probes.append(True) or {"passed": True})
     monkeypatch.setattr("importlib.metadata.version", versions.__getitem__)
     monkeypatch.setattr(sys, "platform", "linux")
     monkeypatch.setitem(sys.modules, "torch", SimpleNamespace(cuda=SimpleNamespace(
         is_available=lambda: True, is_bf16_supported=lambda: True)))
     assert validate_sharded_runtime()["packages"] == versions
+    assert probes == [True]
 
 
 def test_runtime_version_gate_rejects_unreviewed_release(monkeypatch):
