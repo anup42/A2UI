@@ -173,6 +173,9 @@ here; no official-device speed or quality claim follows from these tests.
 - Per-rank microbatch fixed at 1. The default effective batch is 32, recovered
   through gradient accumulation (16/8/4 steps for 2/4/8 GPUs).
 - DDP only; no FSDP/DeepSpeed fallback and no silent CPU fallback.
+- This is replicated DDP: 8 x H100 80 GB is supported, but each rank still holds
+  a full model, gradients, and optimizer state. Eight GPUs do not pool their
+  memory into a single 640 GB device or remove the per-rank memory requirement.
 - A separate compatible CPU LiteRT Torch / AI Edge Quantizer Python for export.
 
 The preflight is intentionally stronger than a forward smoke test. Each rank
@@ -183,6 +186,31 @@ starts later in a new process and reloads the untouched seed; the disposable
 probe is never continued as user training. A passing probe covers those tested
 maximum shapes and that host allocation; it does not guarantee every later
 kernel shape or eliminate the possibility of a runtime OOM.
+
+Backward gradient validation and the disposable optimizer probe's gradient and
+post-step parameter checks inspect every value in chunks of at most 1,048,576
+elements. They do not allocate a whole-embedding finite/nonzero mask, call
+`count_nonzero` on an entire gradient, or flatten/copy a noncontiguous tensor.
+Backward outputs are released before validation. NaN/Inf, missing gradients in
+the optimizer probe, and an entirely zero backward pass still fail closed;
+these checks do not sample values or skip later chunks after finding a nonzero.
+The reports record `exhaustive_bounded_chunks` and the chunk-element limit.
+
+Only this full-parameter launcher defaults child workers to
+`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` before importing PyTorch.
+An explicit `PYTORCH_ALLOC_CONF` or legacy `PYTORCH_CUDA_ALLOC_CONF` value is
+preserved unchanged. Requested settings appear in the SDPA runtime log and
+CUDA-failure diagnostics. Expandable segments are an experimental PyTorch
+fragmentation mitigation, not additional GPU capacity or proof of memory fit;
+see [PyTorch allocator documentation](https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-alloc-conf).
+The official retained-scale LoRA launch policy is unchanged.
+
+For the reported rank-7 OOM during `count_nonzero(gradient)`, rerun the same
+full-parameter command in a **fresh output directory** after pulling this fix.
+Keep microbatch 1 and the requested 6,144-token context; do not bypass preflight
+or continue the failed CUDA workers. The real longest-shape backward and
+disposable DDP/Adafactor step on all eight H100s must still pass before training.
+CPU regression tests cannot certify that live H100 allocation.
 
 ## Plan first
 

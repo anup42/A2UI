@@ -689,6 +689,11 @@ def _scorecard(plan: dict[str, Any]) -> list[Path]:
 
 def _environment(plan: dict[str, Any]) -> dict[str, str]:
     environment = dict(os.environ)
+    # Set before the disposable probe/training subprocesses import torch. Scope
+    # this fragmentation mitigation to the full-parameter lane, and preserve
+    # both current and legacy explicit user/scheduler allocator settings.
+    if not any(name in environment for name in ("PYTORCH_ALLOC_CONF", "PYTORCH_CUDA_ALLOC_CONF")):
+        environment["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
     environment.update(
         A2UI_TENSORBOARD_ROOT=plan["options"]["tensorboard_root"],
         A2UI_TENSORBOARD_DETAIL="minimal",

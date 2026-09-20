@@ -13,6 +13,10 @@ import random
 from typing import Any
 
 from ir_training.common.progress import Progress, log
+from ir_training.train.tensor_checks import (
+    DEFAULT_CHECK_CHUNK_ELEMENTS,
+    tensor_finite_and_nonzero,
+)
 
 _MISSING = object()
 _CHECKPOINT_ATTRIBUTES = ("gradient_checkpointing", "_gradient_checkpointing_func", "_require_grads_hook")
@@ -209,16 +213,19 @@ def run_backward_preflight(model: Any, tokenizer: Any, dataset: Any, training_cf
                     loss_value = float(loss.detach().item())
                     phase = "backward"
                     (loss / accumulation).backward()
+                    # Backward is complete. Release forward outputs before
+                    # inspecting gradients, as the production step also does.
+                    del outputs, loss
                     phase = "gradient_validation"
                     present = nonzero = 0
                     for name, parameter in parameters:
                         if not parameter.requires_grad or parameter.grad is None:
                             continue
                         present += 1
-                        gradient = parameter.grad._values() if parameter.grad.is_sparse else parameter.grad
-                        if not bool(torch.isfinite(gradient).all().item()):
+                        finite, has_nonzero = tensor_finite_and_nonzero(parameter.grad)
+                        if not finite:
                             raise ValueError(f"Backward preflight produced non-finite gradient in {name}.")
-                        nonzero += int(bool(torch.count_nonzero(gradient).item()))
+                        nonzero += int(has_nonzero)
                     if not nonzero:
                         raise ValueError("Backward preflight produced no nonzero trainable gradients.")
                     phase = "synchronize"
@@ -232,13 +239,14 @@ def run_backward_preflight(model: Any, tokenizer: Any, dataset: Any, training_cf
                                     "accumulation_microstep": planned["accumulation_microstep"],
                                     "completion_loss": loss_value, "gradient_tensors": present,
                                     "nonzero_gradient_tensors": nonzero, "memory": _memory(torch, device)})
-                    del gradient
                     if not planned["keep_gradients"]:
                         model.zero_grad(set_to_none=True)
-                    del outputs, loss, labels, batch
+                    del labels, batch
         report = {**base, "status": "passed", "device": str(device), "microbatch": microbatch,
                   "gradient_accumulation_steps": accumulation, "backward_passes": len(results),
                   "gradient_checkpointing": checkpointing, "gradient_checkpointing_kwargs": checkpoint_kwargs,
+                  "gradient_validation": {"method": "exhaustive_bounded_chunks",
+                                          "chunk_elements": DEFAULT_CHECK_CHUNK_ELEMENTS},
                   "selection": selection, "batches": results, "memory_before": memory_before,
                   "scope": "local worst-shape forward/backward only; optimizer memory, all shapes and NCCL are not certified"}
         log(f"SFT backward preflight passed: {len(results)} backward passes; no optimizer step; weights and RNG preserved.")
@@ -249,7 +257,8 @@ def run_backward_preflight(model: Any, tokenizer: Any, dataset: Any, training_cf
             f"rank={os.environ.get('RANK', '0')}, device={device}, phase={phase}, "
             f"batch={kind}, shape={batch_shape}, microbatch={microbatch}, "
             f"checkpointing={checkpointing}, error={exc!r}. "
-            "Use a new worker process after a CUDA failure; reduce microbatch or select a healthy GPU allocation."
+            "Use a new worker process after a CUDA failure; inspect per-rank memory, allocator settings "
+            "and GPU health. Replicated DDP does not pool GPU memory."
         ) from exc
     finally:
         model.zero_grad(set_to_none=True)

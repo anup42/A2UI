@@ -333,6 +333,31 @@ def test_gpu_environment_uses_only_bound_selected_devices(options, monkeypatch):
     assert "A2UI_EXCLUDE_CUDA_DEVICES" not in environment
 
 
+def test_full_lane_defaults_expandable_allocator_before_child_launch(options, monkeypatch):
+    monkeypatch.delenv("PYTORCH_ALLOC_CONF", raising=False)
+    monkeypatch.delenv("PYTORCH_CUDA_ALLOC_CONF", raising=False)
+    environment = workflow._environment(workflow.build_plan(options))
+    assert environment["PYTORCH_CUDA_ALLOC_CONF"] == "expandable_segments:True"
+    assert "PYTORCH_ALLOC_CONF" not in environment
+    # Environment construction must not change the caller or the LoRA lane.
+    assert "PYTORCH_CUDA_ALLOC_CONF" not in workflow.os.environ
+
+
+@pytest.mark.parametrize("settings", [
+    {"PYTORCH_ALLOC_CONF": "backend:cudaMallocAsync"},
+    {"PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:False"},
+    {"PYTORCH_ALLOC_CONF": "", "PYTORCH_CUDA_ALLOC_CONF": "max_split_size_mb:128"},
+])
+def test_full_lane_preserves_explicit_allocator_settings(options, monkeypatch, settings):
+    for name in ("PYTORCH_ALLOC_CONF", "PYTORCH_CUDA_ALLOC_CONF"):
+        monkeypatch.delenv(name, raising=False)
+    for name, value in settings.items():
+        monkeypatch.setenv(name, value)
+    environment = workflow._environment(workflow.build_plan(options))
+    assert {name: environment[name] for name in ("PYTORCH_ALLOC_CONF", "PYTORCH_CUDA_ALLOC_CONF")
+            if name in environment} == settings
+
+
 def test_preflight_receipt_requires_one_disposable_step_from_every_rank(options):
     plan = workflow.build_plan(options)
     profile = build_gpu_profile(_inventory(2), model="e2b", cpu_count=64)

@@ -10,12 +10,14 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 torch = pytest.importorskip("torch")
 
+import ir_training.train.full_parameters as full_parameters_module
 from ir_training.train.full_parameters import (
     FullParameterScopeError,
     enable_full_parameter_training,
     probe_full_optimizer_step,
     validate_full_training_runtime,
 )
+from ir_training.train.tensor_checks import tensor_all_finite
 
 
 def test_runtime_guard_rejects_old_trainer_before_loading_a_model():
@@ -183,6 +185,68 @@ def test_optimizer_probe_rejects_invalid_gradients(failure):
             model, backward=backward, learning_rate=1e-4, force_cpu=True
         )
     assert all(value.grad is None for value in model.parameters())
+
+
+def test_cpu_optimizer_probe_checks_gradients_and_post_step_parameters(monkeypatch):
+    torch.manual_seed(17)
+    model = torch.nn.Linear(3, 2)
+    enable_full_parameter_training(model)
+    parameter_ids = {id(parameter) for parameter in model.parameters()}
+    before = {id(parameter): parameter.detach().clone() for parameter in model.parameters()}
+    checked_ids = []
+
+    def checked_in_small_chunks(tensor):
+        checked_ids.append(id(tensor))
+        return tensor_all_finite(tensor, chunk_elements=2)
+
+    monkeypatch.setattr(full_parameters_module, "tensor_all_finite", checked_in_small_chunks)
+
+    def backward():
+        model(torch.ones(2, 3)).square().mean().backward()
+
+    report = probe_full_optimizer_step(
+        model, backward=backward, learning_rate=1e-4, force_cpu=True
+    )
+
+    assert report["passed"] is True
+    assert parameter_ids.issubset(checked_ids)
+    assert any(checked_id not in parameter_ids for checked_id in checked_ids)
+    assert any(
+        not torch.equal(before[id(parameter)], parameter)
+        for parameter in model.parameters()
+    )
+    assert all(parameter.grad is None for parameter in model.parameters())
+
+
+def test_cpu_optimizer_probe_rejects_late_post_step_nan_via_chunked_check(monkeypatch):
+    from transformers.optimization import Adafactor
+
+    model = torch.nn.Linear(3, 2)
+    enable_full_parameter_training(model)
+    original_step = Adafactor.step
+
+    def step_with_late_nan(optimizer, *args, **kwargs):
+        result = original_step(optimizer, *args, **kwargs)
+        optimizer.param_groups[0]["params"][0].data.reshape(-1)[-1] = float("nan")
+        return result
+
+    monkeypatch.setattr(Adafactor, "step", step_with_late_nan)
+    monkeypatch.setattr(
+        full_parameters_module,
+        "tensor_all_finite",
+        lambda tensor: tensor_all_finite(tensor, chunk_elements=2),
+    )
+
+    def backward():
+        model(torch.ones(1, 3)).sum().backward()
+
+    with pytest.raises(FullParameterScopeError, match="non-finite parameters"):
+        probe_full_optimizer_step(
+            model, backward=backward, learning_rate=1e-4, force_cpu=True
+        )
+
+    assert torch.isnan(model.weight.reshape(-1)[-1])
+    assert all(parameter.grad is None for parameter in model.parameters())
 
 
 @pytest.mark.parametrize("value", [0.0, 1.0, float("nan")])

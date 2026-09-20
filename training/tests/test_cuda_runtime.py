@@ -83,6 +83,18 @@ def test_memory_diagnostic_survives_failed_cuda_context_and_never_synchronizes()
     assert "cudaErrorContained" in report["free_memory_error"]
 
 
+def test_allocator_environment_is_reported_without_changing_settings(monkeypatch):
+    monkeypatch.setenv("PYTORCH_ALLOC_CONF", "backend:cudaMallocAsync")
+    monkeypatch.setenv("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:False")
+    expected = {"PYTORCH_ALLOC_CONF": "backend:cudaMallocAsync",
+                "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:False"}
+    torch, _ = fake_torch()
+    with runtime.sdpa_policy({}, torch_module=torch) as report:
+        assert report["allocator_environment"] == expected
+    assert runtime.cuda_memory_snapshot(torch_module=torch)["allocator_environment"] == expected
+    assert runtime.allocator_environment() == expected
+
+
 def test_failed_training_step_reports_shapes_and_never_retries(monkeypatch, capsys):
     calls = []
     class BaseTrainer:

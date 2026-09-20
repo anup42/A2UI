@@ -10,6 +10,11 @@ import math
 from collections.abc import Callable
 from typing import Any
 
+from ir_training.train.tensor_checks import (
+    DEFAULT_CHECK_CHUNK_ELEMENTS,
+    tensor_all_finite,
+)
+
 
 class FullParameterScopeError(ValueError):
     """Raised when a model cannot satisfy the true full-parameter contract."""
@@ -240,7 +245,7 @@ def probe_full_optimizer_step(
     nonfinite = [
         name
         for name, parameter in unique.values()
-        if parameter.grad is not None and not bool(torch.isfinite(parameter.grad).all().item())
+        if parameter.grad is not None and not tensor_all_finite(parameter.grad)
     ]
     if missing or nonfinite:
         optimizer.zero_grad(set_to_none=True)
@@ -254,7 +259,7 @@ def probe_full_optimizer_step(
     nonfinite_parameters = [
         name
         for name, parameter in unique.values()
-        if not bool(torch.isfinite(parameter).all().item())
+        if not tensor_all_finite(parameter)
     ]
     if nonfinite_parameters:
         raise FullParameterScopeError(
@@ -308,6 +313,10 @@ def probe_full_optimizer_step(
             "all_trainable_fp32": True,
             "all_gradients_finite": True,
             "all_parameters_finite_after_step": True,
+        },
+        "tensor_validation": {
+            "method": "exhaustive_bounded_chunks",
+            "chunk_elements": DEFAULT_CHECK_CHUNK_ELEMENTS,
         },
         "memory": {
             "device": str(device),

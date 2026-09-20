@@ -12,7 +12,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 torch = pytest.importorskip("torch")
+import ir_training.train.backward_preflight as backward_preflight_module
 from ir_training.train.backward_preflight import run_backward_preflight
+from ir_training.train.tensor_checks import tensor_finite_and_nonzero
 
 
 class TinyTokenizer:
@@ -207,6 +209,54 @@ def test_invalid_gradients_fail_closed(option, message):
     model = TinyLoRA(**{option: True})
     with pytest.raises(RuntimeError, match=message):
         probe(model)
+    assert all(parameter.grad is None for parameter in model.parameters())
+
+
+def test_cpu_preflight_uses_chunked_tensor_check_and_preserves_model(monkeypatch):
+    model = TinyLoRA()
+    weights = {name: value.detach().clone() for name, value in model.state_dict().items()}
+    calls = []
+
+    def checked_in_small_chunks(tensor):
+        calls.append((tensor.device.type, tensor.numel()))
+        return tensor_finite_and_nonzero(tensor, chunk_elements=2)
+
+    monkeypatch.setattr(
+        backward_preflight_module, "tensor_finite_and_nonzero", checked_in_small_chunks
+    )
+    result = probe(model)
+
+    assert result["status"] == "passed"
+    assert calls and all(device == "cpu" for device, _ in calls)
+    assert {numel for _, numel in calls} == {8, 32}
+    assert all(parameter.grad is None for parameter in model.parameters())
+    assert all(
+        torch.equal(model.state_dict()[name], value) for name, value in weights.items()
+    )
+
+
+def test_cpu_preflight_chunked_check_rejects_nan_in_final_chunk(monkeypatch):
+    model = TinyLoRA()
+
+    def add_late_nan(gradient):
+        gradient = gradient.clone()
+        gradient.reshape(-1)[-1] = float("nan")
+        return gradient
+
+    model.lora_B.register_hook(add_late_nan)
+    calls = []
+
+    def checked_in_small_chunks(tensor):
+        calls.append(tensor.numel())
+        return tensor_finite_and_nonzero(tensor, chunk_elements=3)
+
+    monkeypatch.setattr(
+        backward_preflight_module, "tensor_finite_and_nonzero", checked_in_small_chunks
+    )
+    with pytest.raises(RuntimeError, match="non-finite gradient"):
+        probe(model)
+
+    assert calls
     assert all(parameter.grad is None for parameter in model.parameters())
 
 
