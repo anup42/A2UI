@@ -15,9 +15,10 @@ retained-scale LoRA pipeline in `official_mobile.py`.
   parameters: they remain in model state but are not made trainable.
 - Keeps master parameters and saved checkpoint tensors in FP32, with BF16 AMP
   for execution.
-- Uses Adafactor to avoid AdamW's two full FP32 moment tensors. This is still a
-  large replicated DDP job; the live maximum-shape backward/optimizer probe is
-  mandatory and planning alone does not establish that memory fits.
+- Uses Adafactor in the default replicated-DDP lane. The opt-in sharded lane
+  uses PyTorch AdamW with DeepSpeed ZeRO-2. In both cases the live
+  maximum-shape backward/optimizer probe is mandatory and planning alone does
+  not establish that memory fits.
 - Applies dynamic `ste_ai_edge` weight fake quantization to every Linear and
   both embedding matrices using the experimental W2/W4/W8 allocation.
 - Selects the best full-model checkpoint only with Golden32
@@ -178,15 +179,41 @@ here; no official-device speed or quality claim follows from these tests.
   On eight GPUs, this is still 1 x 8 x 4 = 32 samples per optimizer update.
   This trades more frequent all-reduces for lower peak gradient memory. The
   official retained-scale LoRA pipeline keeps its existing accumulation policy.
-- DDP only; no FSDP/DeepSpeed fallback and no silent CPU fallback.
+- The default lane is DDP only; it has no automatic FSDP/DeepSpeed fallback
+  and no silent CPU fallback.
 - This is replicated DDP: 8 x H100 80 GB is supported, but each rank still holds
   a full model, gradients, and optimizer state. Eight GPUs do not pool their
   memory into a single 640 GB device or remove the per-rank memory requirement.
 - A separate compatible CPU LiteRT Torch / AI Edge Quantizer Python for export.
 
-The preflight is intentionally stronger than a forward smoke test. Each rank
-first runs the existing independent numeric, coverage, and backward checks.
-The disposable memory probe then runs the **same checked Trainer, Accelerate
+The statements above describe the unchanged default, selected explicitly with
+`--distributed-backend ddp` or implicitly when the option is omitted. There is
+also an opt-in `--distributed-backend sharded` mode for Linux. It must be
+installed in a separate environment so the established DDP dependency set is
+not modified:
+
+```bash
+python -m pip install -r training/requirements-full-parameter-qat-sharded.txt
+```
+
+The sharded mode is narrowly defined as DeepSpeed ZeRO-2 with PyTorch AdamW.
+FP32 master parameters and BF16 `torch.autocast` compute are unchanged. Only
+gradients and optimizer state are sharded; model parameters remain replicated.
+CPU/NVMe optimizer or parameter offload is disabled. This mode is not FSDP or
+ZeRO-3, and it does not pool all GPU memory into one logical device.
+
+The sharded optimizer choice is an explicit experimental contract, not a claim
+that AdamW is superior to the default Adafactor recipe. It changes optimizer
+semantics, so results must not be presented as a direct optimizer-controlled
+comparison without a dedicated experiment. Neither backend promises that a
+6,144-token context fits, and neither has a throughput or speed advantage
+claim. Both must pass the same strict live maximum-shape, numeric, checkpoint,
+Golden holdout, provenance, and export gates. Resume remains unsupported; a
+failed or changed run starts in a fresh output directory.
+
+The preflight is intentionally stronger than a forward smoke test. In DDP mode,
+each rank first runs the existing independent numeric, coverage, and backward
+checks. The disposable memory probe then runs the **same checked Trainer, Accelerate
 preparation, BF16 AMP, DDP wrapper, collator, and Adafactor creation path** as
 training. Every rank repeats the real longest prepared row for two complete
 optimizer updates (eight microbatches per rank with eight GPUs and accumulation
@@ -195,6 +222,19 @@ rebuilt DDP buckets resident. Saving, evaluation, and external metric reporters
 are disabled for this disposable run. Regular training starts later in a new
 process and reloads the untouched seed; probe weights are never continued or
 saved as a user checkpoint.
+
+With `--distributed-backend sharded`, the corresponding disposable probe uses
+the production DeepSpeed ZeRO-2 wrapper and PyTorch AdamW path instead. It must
+demonstrate the selected backend and sharded gradient/optimizer-state contract
+on every rank; it is not permitted to satisfy the gate with DDP evidence. The
+numeric and coverage checks still run independently, but the backward gate runs
+inside this real sharded Trainer rather than allocating replicated gradients in
+a bare-model backward. This gate inspects existing rank-local gradient fragments
+and verifies their exact cross-rank coverage; it never gathers a full embedding
+gradient just for validation. Its separate version-3 receipt binds the exact
+ZeRO configuration, accumulation count, AdamW state, and memory headroom. The
+Golden32 selector, final-only Golden35/Bixby50 evaluations, stage order, export
+route, H100 counts, effective batch, and checkpoint provenance remain the same.
 
 The previous single-backward raw-DDP probe did not reproduce Trainer's
 `no_sync()` accumulation. At the first accumulated backward, `no_sync` left a
@@ -205,7 +245,7 @@ bucket views immediately. See [PyTorch's DDP documentation](https://docs.pytorch
 Full-parameter training no longer installs the unnecessary k-bit LoRA input
 gradient hook; trainable embeddings already propagate gradients.
 
-Each rank's version-2 receipt must prove both complete accumulation windows,
+Each DDP rank's version-2 receipt must prove both complete accumulation windows,
 the live synchronization policy, all-parameter finite gradients/weights and
 Adafactor state, peak reserved memory below 90%, and sampled device free memory
 above 10%. Training, pipeline orchestration, and checkpoint validation share
@@ -231,12 +271,12 @@ fragmentation mitigation, not additional GPU capacity or proof of memory fit;
 see [PyTorch allocator documentation](https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-alloc-conf).
 The official retained-scale LoRA launch policy is unchanged.
 
-For the gradient-validation OOM or the first Trainer/DDP backward OOM, rerun the same
-full-parameter command in a **fresh output directory** after pulling this fix.
-Keep microbatch 1 and the requested 6,144-token context; do not bypass preflight
-or continue the failed CUDA workers. The real longest-shape backward and
-disposable Trainer/DDP accumulation gate on all eight H100s must still pass before training.
-CPU regression tests cannot certify that live H100 allocation.
+For an OOM, use a **fresh output directory** and fresh CUDA workers. Keep
+microbatch 1 and explicitly choose the requested context and backend; do not
+bypass preflight or silently reduce the effective batch. A DDP context that
+does not fit is not made safe by allocator settings alone. Both backends must
+pass their real longest-shape, all-rank Trainer gate before training. CPU
+regression tests cannot certify that live H100 allocation.
 
 ## Plan first
 
@@ -284,6 +324,23 @@ python training/scripts/run_full_parameter_qat_pipeline.py \
 Useful bounded smoke options are `--steps`, `--eval-steps`, and
 `--golden-every-steps`. The Golden cadence must remain a positive multiple of
 the validation cadence. Do not use a smoke result as final model evidence.
+
+For example, this plans an opt-in bounded sharded run while preserving the
+existing cadence relationship. Add `--execute --allow-experimental-export`
+only after reviewing the plan, and use a fresh output directory:
+
+```bash
+python training/scripts/run_full_parameter_qat_pipeline.py \
+  --model-dir /models/gemma4_e2b_mobile_dequantized_text_hf \
+  --input-dir /data/a2ui_prepared_source \
+  --output-dir /runs/e2b_all_parameter_qat_sharded_smoke_001 \
+  --exporter-python /opt/litert-export/bin/python \
+  --devices auto \
+  --distributed-backend sharded \
+  --steps 20 \
+  --eval-steps 5 \
+  --golden-every-steps 10
+```
 
 ## Retry export without retraining
 
@@ -395,3 +452,20 @@ No actual H100/DDP run, full-model conversion, Android inference, or measured
 quality/throughput comparison was performed locally. Run the mandatory live
 preflight on the target host; do not disable a failed memory, scope, or
 provenance check to continue.
+
+The new sharded contract has CPU regression tests for backend selection,
+gradient-partition coverage, strict memory receipts, checkpoint provenance,
+and unchanged default DDP behavior. A separate opt-in integration test runs
+the real two-GPU ZeRO-2 preflight, then training and an exact FP32 checkpoint
+round trip in fresh worker processes:
+
+```bash
+A2UI_RUN_SHARDED_GPU_TESTS=1 python -m pytest -q \
+  training/tests/test_sharded_training_gpu.py
+```
+
+Run this in the pinned Linux sharded environment with two visible BF16-capable
+CUDA GPUs. It uses a tiny QAT model, not E2B, and cannot establish full-model
+memory fit or throughput. It is skipped by default; no local CUDA/DeepSpeed run
+is claimed. The real pipeline's maximum-shape preflight remains mandatory on
+all selected H100 ranks.

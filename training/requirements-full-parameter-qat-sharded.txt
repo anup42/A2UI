@@ -1,0 +1,4 @@
+# Linux-only opt-in DeepSpeed ZeRO-2 environment for all-parameter QAT.
+# Keep this separate from the unchanged replicated-DDP environment.
+-r requirements-full-parameter-qat.txt
+deepspeed==0.19.7

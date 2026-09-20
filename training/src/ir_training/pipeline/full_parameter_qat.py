@@ -59,6 +59,7 @@ class FullParameterQATOptions:
     stage_timeout_seconds: float = 172800.0
     generation_timeout_seconds: float = 7200.0
     allow_experimental_export: bool = False
+    distributed_backend: str = "ddp"
 
 
 def _json(path: Path) -> dict[str, Any]:
@@ -106,6 +107,8 @@ def _verify_bindings(records: dict[str, str]) -> None:
 def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
     """Create a read-only plan without importing torch or probing CUDA."""
     values = asdict(options)
+    if values["distributed_backend"] not in {"ddp", "sharded"}:
+        raise ValueError("distributed_backend must be one of: ddp, sharded")
     for key in ("model_dir", "input_dir", "output_dir", "preparation_cache_dir"):
         if values[key] is not None:
             values[key] = str(Path(values[key]).expanduser().resolve())
@@ -187,6 +190,19 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
         "scorecard": output / "evaluation_scorecard.json",
         "results": output / "results.md",
     }
+    training_contract = {
+        "parameter_scope": "all_unique_text_model_parameters",
+        "master_parameter_dtype": "float32",
+        "autocast": "bfloat16",
+        "optimizer": "adafactor",
+        "quantizer": "ste_ai_edge",
+        "quantized_modules": "all fully-connected weights and both token embeddings",
+        "activation_quantization": False,
+        "retained_mobile_scales": False,
+        "lora": False,
+    }
+    if values["distributed_backend"] == "sharded":
+        training_contract["optimizer"] = "adamw_torch"
     return {
         "schema_version": 1,
         "workflow": WORKFLOW,
@@ -205,17 +221,11 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
             "export",
             "scorecard",
         ],
-        "training_contract": {
-            "parameter_scope": "all_unique_text_model_parameters",
-            "master_parameter_dtype": "float32",
-            "autocast": "bfloat16",
-            "optimizer": "adafactor",
-            "quantizer": "ste_ai_edge",
-            "quantized_modules": "all fully-connected weights and both token embeddings",
-            "activation_quantization": False,
-            "retained_mobile_scales": False,
-            "lora": False,
+        "distributed_training": {
+            "backend": values["distributed_backend"],
+            "optimizer": training_contract["optimizer"],
         },
+        "training_contract": training_contract,
         "gpu_contract": {
             "allowed_world_sizes": sorted(ALLOWED_H100_COUNTS),
             "accelerator": "NVIDIA H100 with at least 79 GiB per selected rank",
@@ -292,7 +302,9 @@ def training_config(plan: dict[str, Any], profile: dict[str, Any], report: dict[
     base["training"]["logging_dir"] = str(
         Path(paths["training"]) / "tensorboard"
     )
-    config = configure_full_qat(base)
+    config = configure_full_qat(
+        base, distributed_backend=values.get("distributed_backend", "ddp")
+    )
     validate_full_qat_config(config)
     return config
 
@@ -562,6 +574,10 @@ def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
     profile = (config.get("runtime") or {}).get("gpu_profile") or {}
     validate_h100_profile(profile)
     world_size = profile["world_size"]
+    distributed_backend = (config.get("training") or {}).get("distributed_backend", "ddp")
+    if distributed_backend != plan["options"].get("distributed_backend", "ddp"):
+        raise ValueError("Optimizer preflight backend does not match the planned backend")
+    log(f"Validate optimizer preflight: distributed_backend={distributed_backend}")
     accumulation_steps = (config.get("training") or {}).get("gradient_accumulation_steps")
     result = []
     for rank in range(world_size):
@@ -582,7 +598,10 @@ def _optimizer_preflight_files(plan: dict[str, Any]) -> list[Path]:
                 accumulation_steps=accumulation_steps,
                 world_size=world_size,
                 local_rank=rank,
+                distributed_backend=distributed_backend,
             )
+            from ir_training.qat.full_model_contract import _validate_sharded_binding
+            _validate_sharded_binding(config, probe, world_size)
         except ValueError as exc:
             raise ValueError(f"Rank {rank} optimizer preflight evidence is incomplete") from exc
         result.append(path)

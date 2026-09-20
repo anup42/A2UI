@@ -36,6 +36,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--epochs", type=float, default=2.0)
     parser.add_argument("--steps", type=int, help="Optional optimizer-step cap for a bounded smoke run")
     parser.add_argument("--learning-rate", type=float, default=1e-5)
+    parser.add_argument(
+        "--distributed-backend",
+        choices=("ddp", "sharded"),
+        default="ddp",
+        help="DDP with Adafactor (default), or opt-in DeepSpeed ZeRO-2 with AdamW.",
+    )
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)
     parser.add_argument("--max-seq-length", type=int, default=4096)

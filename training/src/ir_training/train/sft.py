@@ -83,6 +83,7 @@ def train_sft(
         is_full_qat, verify_full_model_inventory, verify_full_qat_coverage,
     )
     all_parameter_qat = is_full_qat(config)
+    sharded_training = all_parameter_qat and training_cfg.get("distributed_backend", "ddp") == "sharded"
     full_parameter_scope, full_model_inventory, full_qat_coverage = {}, {}, {}
     effective_batch = validate_effective_batch(training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
     # Validate an explicitly bounded run before loading multi-gigabyte model
@@ -163,7 +164,11 @@ def train_sft(
     if all_parameter_qat:
         from ir_training.train.full_parameters import validate_full_training_runtime
 
-        validate_full_training_runtime(Trainer)
+        if sharded_training:
+            from ir_training.train.sharded_contract import validate_sharded_runtime
+            validate_sharded_runtime()
+        else:
+            validate_full_training_runtime(Trainer)
     initialization_seed = _initialize_training_seed(training_cfg, run_cfg, seed_setter=set_seed)
     if qat_cfg.get("enabled", False):
         _enforce_qat_training_guardrails(config)
@@ -356,6 +361,10 @@ def train_sft(
         else "evaluation_strategy"
     )
     precision_flags = _training_precision_flags(resolved_dtype, training_cfg)
+    if sharded_training:
+        # DeepSpeed owns torch.autocast. Its native BF16 mode would downcast
+        # our FP32 model, violating the full-parameter checkpoint contract.
+        precision_flags = {"bf16": False, "fp16": False}
     report_to = training_cfg.get("report_to", "none")
     if bool(golden_eval_cfg.get("tensorboard", False)):
         report_to = _ensure_tensorboard_reporter(report_to)
@@ -388,6 +397,16 @@ def train_sft(
         "report_to": report_to,
     }
     _apply_training_limit_to_args(training_args_kwargs, training_limit)
+    if sharded_training:
+        from ir_training.train.sharded_contract import build_deepspeed_config
+        if "deepspeed" not in args_params:
+            raise ValueError("Installed TrainingArguments lacks DeepSpeed support")
+        sharded_binding = build_deepspeed_config(training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
+        training_args_kwargs.update(
+            deepspeed=sharded_binding,
+            adam_beta1=training_cfg["adam_beta1"], adam_beta2=training_cfg["adam_beta2"],
+            adam_epsilon=training_cfg["adam_epsilon"],
+        )
     logging_dir_value = training_cfg.get("logging_dir")
     callback_logging_dir = tensorboard_run_dir or (resolve_path(logging_dir_value, base) if logging_dir_value else None)
     if tensorboard_run_dir is not None and "logging_dir" in args_params:
@@ -696,7 +715,26 @@ def train_sft(
         )
         # Forward-only probes cannot exercise attention backward or the padded
         # microbatch. Never use a token-cache hit as evidence for this gate.
-        if qat_controller is None or all_parameter_qat:
+        if sharded_training:
+            from ir_training.train.backward_preflight import _select_probe_batches
+            _, selection = _select_probe_batches(
+                tokenized_dataset["train"], 1, max_seq_length,
+                float(training_cfg.get("cache_progress_seconds", 10)),
+            )
+            # A replicated backward would defeat sharding before the engine is
+            # constructed. The disposable production Trainer performs the full
+            # backward/accumulation/update gate instead, on every selected rank.
+            backward_preflight_report = {
+                "status": "pending" if preflight_only else "passed",
+                "selection": selection, "backend": "sharded",
+                "scope": "disposable_production_trainer_zero2",
+                "optimizer_preflight_sha256": full_optimizer_preflight.get("sha256"),
+            }
+            if not preflight_only:
+                prior_selection = full_optimizer_preflight["probe"]["selection"]
+                if prior_selection.get("longest_sequence_length") != selection["longest_length"]:
+                    raise ValueError("Sharded preflight no longer matches the longest prepared row")
+        elif qat_controller is None or all_parameter_qat:
             from ir_training.train.backward_preflight import run_backward_preflight
             backward_preflight_report = run_backward_preflight(
                 model=model, tokenizer=tokenizer, dataset=tokenized_dataset["train"],
@@ -735,17 +773,27 @@ def train_sft(
             from ir_training.train.full_trainer_preflight import (
                 run_full_trainer_preflight,
             )
-            if backward_preflight_report.get("status") != "passed":
+            if not sharded_training and backward_preflight_report.get("status") != "passed":
                 raise ValueError("All-parameter QAT requires successful real CUDA backward preflight")
             # Use exactly the production Trainer/Accelerate path, not a manual
             # DDP wrapper or a different optimizer/backward implementation.
             # These are disposable updates; training reloads the untouched seed.
             longest = backward_preflight_report["selection"]["longest_index"]
-            with _sft_progress("Disposable full-parameter Trainer/DDP accumulation probe", unit="stage"):
-                probe = run_full_trainer_preflight(
-                    checked_trainer_cls, trainer_kwargs,
-                    longest_row=tokenized_dataset["train"][longest],
-                )
+            with _sft_progress("Disposable full-parameter Trainer accumulation probe", unit="stage"):
+                if sharded_training:
+                    from ir_training.train.sharded_preflight import (
+                        run_sharded_trainer_preflight,
+                    )
+                    probe = run_sharded_trainer_preflight(
+                        checked_trainer_cls, trainer_kwargs, training_cfg=training_cfg,
+                        longest_row=tokenized_dataset["train"][longest],
+                    )
+                    backward_preflight_report["status"] = "passed"
+                else:
+                    probe = run_full_trainer_preflight(
+                        checked_trainer_cls, trainer_kwargs,
+                        longest_row=tokenized_dataset["train"][longest],
+                    )
             from ir_training.qat.full_model_contract import write_optimizer_preflight
             full_optimizer_preflight = write_optimizer_preflight(config, config_path, probe)
         del sft_text_dataset, dataset
@@ -1626,7 +1674,10 @@ def _enable_input_grads_for_kbit_lora(model: Any) -> None:
 def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[str, Any] | None = None) -> Any:
     lora_diagnostics_steps = int((training_cfg or {}).get("lora_diagnostics_steps", 0) or 0)
     lora_diagnostics_all_ranks = bool((training_cfg or {}).get("lora_diagnostics_all_ranks", False))
-    full_parameter_training = (training_cfg or {}).get("full_parameter_training") is True
+    sharded_training = (training_cfg or {}).get("distributed_backend", "ddp") == "sharded"
+    # Keep the original DDP policy isolated. ZeRO-2 has its own live engine and
+    # optimizer probe, not DDP bucket views or DDP no_sync accumulation.
+    full_parameter_training = (training_cfg or {}).get("full_parameter_training") is True and not sharded_training
     if (
         full_parameter_training
         and int(os.environ.get("WORLD_SIZE", "1")) > 1
@@ -1691,6 +1742,8 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
             # gradient-accumulation divisor; otherwise recent Trainer versions
             # treat the custom signature as token-aware and skip that divisor.
             self.model_accepts_loss_kwargs = False
+            if sharded_training and not getattr(self, "is_deepspeed_enabled", False):
+                raise ValueError("Requested sharded training did not activate DeepSpeed; DDP fallback is forbidden")
             if full_parameter_training:
                 self._check_full_accumulation_policy()
             if (
@@ -1710,6 +1763,17 @@ def _build_checked_causal_lm_trainer(base_trainer_cls: Any, training_cfg: dict[s
                 raise ValueError("Full-parameter training requires live sync_each_batch=True; no_sync is unsafe")
 
         def training_step(self, model: Any, inputs: dict[str, Any], *args: Any, **kwargs: Any) -> Any:
+            if sharded_training:
+                from ir_training.train.sharded_contract import assert_sharded_engine
+                assert_sharded_engine(model, training_cfg, int(os.environ.get("WORLD_SIZE", "1")))
+                if not getattr(self, "_a2ui_sharded_policy_logged", False):
+                    print(
+                        f"Full-parameter sharded policy: rank={_rank_label()}, "
+                        "DeepSpeed ZeRO-2, AdamW, FP32 parameter replicas, "
+                        "sharded gradients/optimizer state, BF16 autocast; "
+                        "effective batch unchanged.", flush=True,
+                    )
+                    self._a2ui_sharded_policy_logged = True
             if full_parameter_training:
                 self._check_full_accumulation_policy()
             if (

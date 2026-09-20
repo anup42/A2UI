@@ -13,7 +13,10 @@ def validate_sft_recipe(config: dict[str, Any]) -> str:
         is_full_qat,
         validate_full_qat_config,
     )
-
+    from ir_training.train.sharded_contract import validate_backend
+    backend = validate_backend(config.get("training") or {})
+    if backend == "sharded" and not is_full_qat(config):
+        raise ValueError("Sharded training is supported only by the separate all-parameter QAT workflow")
     if is_full_qat(config):
         validate_full_qat_config(config)
     elif (config.get("training") or {}).get("full_parameter_training"):
