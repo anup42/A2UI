@@ -1,0 +1,23 @@
+[
+  {
+    "name": "com.samsung.genuicraft.GenerationMetricsUiTest",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "time": "0.215"
+  },
+  {
+    "name": "com.samsung.genuicraft.GenUiSdkModelUiTest",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "time": "0.519"
+  },
+  {
+    "name": "com.samsung.genuicraft.SdkStreamingProviderTest",
+    "tests": "5",
+    "failures": "0",
+    "errors": "0",
+    "time": "0.068"
+  }
+]

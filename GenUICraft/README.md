@@ -195,6 +195,15 @@ Native Gemma callbacks run on a worker thread and must return promptly; dispatch
 UI updates to the main thread. Gemma uses native streaming chunks. Providers without a
 streaming implementation emit one final snapshot through this overload.
 
+The **GenUICraft SDK · Bixby50** screen also streams Gemma output directly from
+the AAR. Its **IR** view keeps each generated attempt, then shows the repaired
+Express program in a separate panel; **Preview** opens the rendered result.
+Code panels provide copy controls, character counts, and scrolling that follows
+live output. Conversion notes retain repair and source-fidelity diagnostics.
+The trained SDK demo uses generated-DSL repair with source-text fallback disabled,
+matching the trained Pipeline and IR Demo routes. Token metrics remain optional
+and do not control whether text streams.
+
 Open **GenUICraft SDK · Bixby50 → Settings → MTP drafter** to enable or disable
 speculative decoding. It defaults to on, persists across app restarts, and applies
 to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.

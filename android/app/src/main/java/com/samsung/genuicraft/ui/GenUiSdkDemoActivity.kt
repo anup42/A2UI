@@ -3,6 +3,9 @@ package com.samsung.genuicraft
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -49,12 +52,40 @@ class GenUiSdkDemoActivity : ComponentActivity() {
     private var activeProviderKey: String? = null
     private var activeJob: Job? = null
     private var lastRuntime by mutableStateOf<String?>(null)
+    private var generationTrace by mutableStateOf(SdkGenerationTrace())
+    private val streamHandler = Handler(Looper.getMainLooper())
+    private var generationRunId = 0L
+
+    internal fun generationTraceForTest(): SdkGenerationTrace = generationTrace
+    internal fun runtimeForTest(): String? = lastRuntime
+    internal fun renderedDocumentForTest(): GenUiDocument? = document
+    internal fun statusForTest(): String = status
+
+    private fun postGenerationUpdate(runId: Long, update: () -> Unit) {
+        streamHandler.post {
+            if (generationRunId == runId && working &&
+                generationTrace.phase != SdkGenerationPhase.CANCELLED
+            ) update()
+        }
+    }
+
+    private fun updateGenerationAttempt(number: Int, rawText: String, complete: Boolean) {
+        val attempts = generationTrace.attempts.toMutableList()
+        val item = SdkGenerationAttempt(number, rawText, complete)
+        val index = attempts.indexOfFirst { it.number == number }
+        if (index >= 0) attempts[index] = item else attempts += item
+        generationTrace = generationTrace.copy(
+            attempts = attempts,
+            phase = if (complete) SdkGenerationPhase.REPAIRING else SdkGenerationPhase.GENERATING,
+        )
+    }
     /** Optional host override used by integration tests; default opens approved web links. */
     var onSdkAction: ((GenUiAction) -> Unit)? = null
 
     fun showDocument(value: GenUiDocument, message: String = "A2UI rendered by GenUICraft AAR") {
         generationMetrics = null
         lastRuntime = null
+        generationTrace = SdkGenerationTrace()
         document = value
         status = message
         editorVisible = false
@@ -138,6 +169,15 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("GenUICraft SDK · Bixby50", style = MaterialTheme.typography.titleLarge)
+                        if (editorVisible || generationTrace.phase != SdkGenerationPhase.IDLE) {
+                            Text(
+                                "Sample ${cases[caseIndex].get("id").asString} · ${cases[caseIndex].get("query").asString}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                            )
+                        }
                         Text(status, style = MaterialTheme.typography.bodySmall)
                         lastRuntime?.let {
                             Text(it, style = MaterialTheme.typography.bodySmall,
@@ -145,16 +185,27 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                         }
                         if (working) LinearProgressIndicator(Modifier.fillMaxWidth())
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { editorVisible = !editorVisible }) { Text(if (editorVisible) "Hide input" else "Edit input") }
+                            OutlinedButton(
+                                onClick = { editorVisible = !editorVisible },
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                            ) {
+                                Text(if (editorVisible) "Hide input" else "Edit input", maxLines = 1,
+                                    style = MaterialTheme.typography.labelMedium)
+                            }
                             OutlinedButton(
                                 onClick = { settingsVisible = true },
-                                modifier = Modifier.testTag("sdk_settings_button"),
-                            ) { Text("Settings") }
-                            if (working) OutlinedButton(onClick = {
+                                modifier = Modifier.weight(1f).testTag("sdk_settings_button"),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                            ) { Text("Settings", maxLines = 1, style = MaterialTheme.typography.labelMedium) }
+                            if (working) OutlinedButton(modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                                onClick = {
                                 activeJob?.cancel()
                                 generationMetrics = null
-                                status = "Cancelled"
-                            }) { Text("Cancel") }
+                                generationTrace = generationTrace.copy(phase = SdkGenerationPhase.CANCELLED)
+                                status = "Cancelled · generated text retained"
+                            }) { Text("Cancel", maxLines = 1, style = MaterialTheme.typography.labelMedium) }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Switch(
@@ -420,11 +471,15 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                         generationMetrics = null
                                         lastRuntime = null
                                         working = true
-                                        status = "Generating A2UI…"
+                                        editorVisible = false
+                                        generationTrace = SdkGenerationTrace(phase = SdkGenerationPhase.GENERATING)
+                                        val runId = ++generationRunId
+                                        status = "Generating IR…"
                                         val sourceForRun = source
                                         val metricsForRun = tokenMetricsEnabled
                                         val mtpForRun = mtpEnabled
                                         activeJob = lifecycleScope.launch {
+                                            var captureForRun: SdkStreamingProvider? = null
                                             try {
                                                 val providerKey = sdkDemoProviderKey(
                                                     useGemma = useGemmaForRun,
@@ -477,13 +532,34 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 // Runtime identity comes from the initialized engine, even with metrics off.
                                                 var runtimeForRun: String? = null
                                                 val measuredProvider = metricsProvider ?: provider
-                                                val converterProvider = object : GenUiProvider {
-                                                    override val id = measuredProvider.id
-                                                    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
-                                                        measuredProvider.generate(prompt).also {
-                                                            runtimeForRun = it.runtime
+                                                var lastPartialAtMs = 0L
+                                                val converterProvider = SdkStreamingProvider(
+                                                    delegate = measuredProvider,
+                                                    onAttemptStarted = { number ->
+                                                        lastPartialAtMs = 0L
+                                                        postGenerationUpdate(runId) {
+                                                            updateGenerationAttempt(number, "", complete = false)
+                                                            status = "Generating IR · attempt $number"
                                                         }
-                                                }
+                                                    },
+                                                    onPartialText = { number, rawText ->
+                                                        val now = SystemClock.elapsedRealtime()
+                                                        if (lastPartialAtMs == 0L || now - lastPartialAtMs >= 75L) {
+                                                            lastPartialAtMs = now
+                                                            postGenerationUpdate(runId) {
+                                                                updateGenerationAttempt(number, rawText, complete = false)
+                                                            }
+                                                        }
+                                                    },
+                                                    onAttemptCompleted = { number, output ->
+                                                        runtimeForRun = output.runtime
+                                                        postGenerationUpdate(runId) {
+                                                            updateGenerationAttempt(number, output.text, complete = true)
+                                                            lastRuntime = output.runtime
+                                                            status = "Validating and repairing IR…"
+                                                        }
+                                                    },
+                                                ).also { captureForRun = it }
                                                 val result = if (
                                                     useGemmaForRun &&
                                                     e2bModelChoiceForRun ==
@@ -492,6 +568,9 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                     GenUiTrainedConverter(
                                                         this@GenUiSdkDemoActivity,
                                                         converterProvider,
+                                                        allowSourceTextFallback = false,
+                                                        allowGeneratedDslRepair = true,
+                                                        requireSourceIntegrity = false,
                                                     ).convert(GenUiRequest(sourceForRun))
                                                 } else {
                                                     GenUiConverter(
@@ -499,13 +578,21 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                         converterProvider,
                                                     ).convert(GenUiRequest(sourceForRun))
                                                 }
+                                                generationTrace = generationTrace.copy(
+                                                    attempts = converterProvider.attemptSnapshots.map {
+                                                        SdkGenerationAttempt(it.number, it.rawText, it.complete)
+                                                    },
+                                                )
                                                 when (result) {
                                                     is GenUiConversionResult.Success -> {
-                                                        showDocument(
-                                                            result.document,
-                                                            "${result.provider} · " +
-                                                                "${result.elapsedMs} ms · " +
-                                                                "${result.attempts} attempt(s)"
+                                                        document = result.document
+                                                        editorVisible = false
+                                                        status = "Ready · ${result.elapsedMs} ms · ${result.attempts} attempt(s)"
+                                                        generationTrace = generationTrace.copy(
+                                                            phase = SdkGenerationPhase.COMPLETE,
+                                                            finalIr = result.document.express,
+                                                            repairKind = result.repairKind,
+                                                            warnings = result.warnings,
                                                         )
                                                         generationMetrics = metricsProvider?.toUiState(
                                                             reportedAttempts = result.attempts,
@@ -513,7 +600,11 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                         )
                                                     }
                                                     is GenUiConversionResult.Failure -> {
-                                                        status = "Conversion failed: ${result.message}"
+                                                        status = "Conversion failed"
+                                                        generationTrace = generationTrace.copy(
+                                                            phase = SdkGenerationPhase.FAILED,
+                                                            error = result.message,
+                                                        )
                                                         generationMetrics = metricsProvider?.toUiState(
                                                             reportedAttempts = result.attempts,
                                                             conversionElapsedMs = result.elapsedMs,
@@ -523,11 +614,24 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                 lastRuntime = runtimeForRun
                                             } catch (cancel: kotlinx.coroutines.CancellationException) {
                                                 generationMetrics = null
+                                                generationTrace = generationTrace.copy(phase = SdkGenerationPhase.CANCELLED)
+                                                status = "Cancelled · generated text retained"
                                                 throw cancel
                                             } catch (error: Exception) {
                                                 generationMetrics = null
-                                                status = "Error: ${error.message}"
+                                                generationTrace = generationTrace.copy(
+                                                    phase = SdkGenerationPhase.FAILED,
+                                                    error = error.message ?: error.javaClass.simpleName,
+                                                )
+                                                status = "Generation failed"
                                             } finally {
+                                                captureForRun?.let { capture ->
+                                                    generationTrace = generationTrace.copy(
+                                                        attempts = capture.attemptSnapshots.map {
+                                                            SdkGenerationAttempt(it.number, it.rawText, it.complete)
+                                                        },
+                                                    )
+                                                }
                                                 working = false
                                             }
                                         }
@@ -545,21 +649,24 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                 ) { Text("Render A2UI") }
                             }
                         }
-                        if (tokenMetricsEnabled) {
-                            generationMetrics?.let { metrics -> GenerationMetricsPanel(metrics) }
-                        }
-                        document?.let { output ->
-                          key(output) {
-                            GenUiContent(output, Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) { action ->
+                        SdkGenerationWorkspace(
+                            trace = generationTrace,
+                            document = document,
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                            metrics = {
+                                if (tokenMetricsEnabled) {
+                                    generationMetrics?.let { metrics -> GenerationMetricsPanel(metrics) }
+                                }
+                            },
+                            onAction = { action ->
                                 val handler = onSdkAction
                                 if (handler != null) handler(action)
                                 else if (action.name == "openUrl") {
                                     val uri = Uri.parse(action.parameters["url"].orEmpty())
                                     if (uri.scheme in listOf("http", "https")) runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
                                 }
-                            }
-                          }
-                        }
+                            },
+                        )
                     }
                 }
                 if (settingsVisible) {
@@ -596,7 +703,9 @@ class GenUiSdkDemoActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        ++generationRunId
         activeJob?.cancel()
+        streamHandler.removeCallbacksAndMessages(null)
         activeProvider?.close()
         super.onDestroy()
     }
@@ -698,11 +807,19 @@ private class MetricsRecordingProvider(
 
     private val attempts = mutableListOf<GenerationAttemptUiMetrics>()
 
-    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput {
+    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+        recordAttempt { delegate.generate(prompt) }
+
+    override suspend fun generate(
+        prompt: GenUiPrompt,
+        onPartialText: (String) -> Unit,
+    ): GenUiModelOutput = recordAttempt { delegate.generate(prompt, onPartialText) }
+
+    private suspend fun recordAttempt(generate: suspend () -> GenUiModelOutput): GenUiModelOutput {
         val started = System.nanoTime()
         var output: GenUiModelOutput? = null
         try {
-            return delegate.generate(prompt).also { output = it }
+            return generate().also { output = it }
         } finally {
             val elapsedNanos = (System.nanoTime() - started).coerceAtLeast(0L)
             val attempt = output?.toUiMetrics(elapsedNanos) ?: GenerationAttemptUiMetrics(
