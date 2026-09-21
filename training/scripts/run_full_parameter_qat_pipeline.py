@@ -44,7 +44,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--eval-steps", type=int, default=500)
     parser.add_argument("--golden-every-steps", type=int, default=1000)
-    parser.add_argument("--max-seq-length", type=int, default=4096)
+    parser.add_argument("--max-seq-length", type=int, default=4096,
+                        help="Training/validation prompt + response limit (default: 4096).")
+    parser.add_argument("--max-input-tokens", type=int, default=5120,
+                        help="Independent Golden32/Golden35/Bixby50 evaluation prompt limit (default: 5120).")
     parser.add_argument("--max-new-tokens", type=int, default=2048)
     parser.add_argument(
         "--microbatch",

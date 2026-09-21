@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ir_training.pipeline import full_parameter_qat as workflow
 from ir_training.pipeline.full_parameter_qat import FullParameterQATOptions
+from ir_training.pipeline.golden_training import GoldenTrainingOptions
 from ir_training.qat import full_model_contract as full_contract
 from ir_training.train.gpu_profile import build_gpu_profile
 
@@ -156,6 +157,65 @@ def test_plan_is_offline_separate_and_explicit_about_experimental_topology(optio
     ]
     assert Path(plan["paths"]["config"]) == options.output_dir / "fit/training_config.yaml"
     assert Path(plan["paths"]["preparation_report"]) == options.output_dir / "fit/preparation_report.json"
+    for values in (plan["options"], plan["preparation"]["options"]):
+        assert values["max_seq_length"] == 4096
+        assert values["max_input_tokens"] == 5120
+        assert values["max_new_tokens"] == 2048
+
+
+def test_independent_limits_are_preparation_only_and_leave_legacy_launcher_unchanged(options):
+    legacy = GoldenTrainingOptions(model_dir=options.model_dir, input_dir=options.input_dir,
+                                   output_dir=options.output_dir)
+    default = workflow.build_preparation_plan(legacy)
+    assert default["options"]["max_seq_length"] == default["options"]["max_input_tokens"] == 4096
+    assert "stages" in default
+    separate = replace(legacy, max_input_tokens=5120)
+    with pytest.raises(ValueError, match="max-input-tokens == --max-seq-length"):
+        workflow.build_preparation_plan(separate)
+    prepared = workflow.build_preparation_plan(separate, preparation_only=True)
+    assert set(prepared) == {"options", "source_files", "shared_prompt", "goldens"}
+    assert prepared["options"]["max_seq_length"] == 4096
+    assert prepared["options"]["max_input_tokens"] == 5120
+
+
+@pytest.mark.parametrize("changes", [
+    {"max_seq_length": 0}, {"max_input_tokens": 0}, {"max_new_tokens": -1},
+    {"max_seq_length": 8193}, {"max_input_tokens": 6145}, {"max_input_tokens": True},
+])
+def test_independent_limits_reject_invalid_or_oversized_budgets(options, changes):
+    with pytest.raises(ValueError, match="positive integer|exceeds.*context"):
+        workflow.build_plan(replace(options, **changes))
+    assert not options.output_dir.exists()
+
+
+@pytest.mark.parametrize("backend", ["ddp", "sharded"])
+def test_explicit_training_and_evaluation_limits_are_independent(options, backend):
+    plan = workflow.build_plan(replace(options, distributed_backend=backend,
+                                      max_seq_length=3072, max_input_tokens=6144, max_new_tokens=1024))
+    profile = build_gpu_profile(_inventory(4), model="e2b", cpu_count=64)
+    config = workflow.training_config(plan, profile, {"tokenizer": {}, "final_evaluation_datasets": {}})
+    assert config["training"]["max_seq_length"] == 3072
+    assert config["golden_eval"]["max_input_tokens"] == 6144
+    assert config["golden_eval"]["max_new_tokens"] == 1024
+    assert config["training"].get("distributed_backend", "ddp") == backend
+    assert config["training"]["expected_effective_batch_size"] == 32
+    for cohort, stage in (("golden32", "best_golden32"), ("golden35", "final_golden35"),
+                          ("bixby50", "final_bixby50")):
+        command = workflow.evaluation_command(plan, cohort, stage)
+        assert command[command.index("--max-input-tokens") + 1] == "6144"
+        assert command[command.index("--max-new-tokens") + 1] == "1024"
+
+
+def test_saved_plans_without_evaluation_option_preserve_their_original_limit(options):
+    plan = workflow.build_plan(replace(options, max_seq_length=6144, max_input_tokens=6144))
+    del plan["options"]["max_input_tokens"]
+    profile = build_gpu_profile(_inventory(4), model="e2b", cpu_count=64)
+    config = workflow.training_config(plan, profile, {"tokenizer": {}, "final_evaluation_datasets": {}})
+    assert config["training"]["max_seq_length"] == 6144
+    assert config["golden_eval"]["max_input_tokens"] == 6144
+    for cohort in ("golden32", "golden35", "bixby50"):
+        command = workflow.evaluation_command(plan, cohort, f"final_{cohort}")
+        assert command[command.index("--max-input-tokens") + 1] == "6144"
 
 
 @pytest.mark.parametrize(
@@ -218,6 +278,9 @@ def test_full_recipe_keeps_fp32_all_parameter_qat_and_safe_h100_batch(
     assert config["training"]["gradient_accumulation_steps"] == accumulation
     assert config["training"]["ddp_sync_each_batch"] is True
     assert config["training"]["expected_effective_batch_size"] == 32
+    assert config["training"]["max_seq_length"] == 4096
+    assert config["golden_eval"]["max_input_tokens"] == 5120
+    assert config["golden_eval"]["max_new_tokens"] == 2048
     assert config["qat"]["scale_mode"] == "dynamic"
     assert config["qat"]["quantize_embeddings"] is True
     assert config["qat"]["activation_bits"] == 32
@@ -250,6 +313,31 @@ def test_generated_writable_paths_are_isolated_between_runs(options):
     ]
 
 
+def test_configure_verifies_separate_training_and_evaluation_limits(options, monkeypatch):
+    workflow._scripts()
+    import launch_review_training
+    import prepare_review_training
+    from ir_training.common.config import load_yaml
+    from ir_training.train import gpu_profile
+
+    plan = workflow.build_plan(options)
+
+    def verify(dataset, golden, **kwargs):
+        assert kwargs["max_sequence"] == 4096
+        assert kwargs["max_prompt"] == 5120
+        assert kwargs["golden35"].name == "golden35.jsonl"
+        assert kwargs["bixby50"].name == "bixby50.jsonl"
+        return {"tokenizer": {}, "final_evaluation_datasets": {}}
+
+    monkeypatch.setattr(prepare_review_training, "verify_prepared", verify)
+    monkeypatch.setattr(gpu_profile, "detect_cuda_devices", lambda: _inventory(4))
+    monkeypatch.setattr(launch_review_training, "verify_launch_binding", lambda _path: None)
+    workflow._configure(plan)
+    config = load_yaml(Path(plan["paths"]["config"]))
+    assert config["training"]["max_seq_length"] == 4096
+    assert config["golden_eval"]["max_input_tokens"] == 5120
+
+
 @pytest.mark.parametrize(
     "inventory,expected",
     [
@@ -279,14 +367,20 @@ def test_gpu_gate_rejects_explicit_microbatch_above_one():
         workflow.validate_h100_profile(profile)
 
 
-def test_evaluations_all_use_selected_full_checkpoint_with_qat_enabled(options):
+@pytest.mark.parametrize("cohort,stage,rows", [
+    ("golden32", "best_golden32", 32), ("golden35", "final_golden35", 35),
+    ("bixby50", "final_bixby50", 50),
+])
+def test_evaluations_all_use_selected_full_checkpoint_with_qat_enabled(options, cohort, stage, rows):
     plan = workflow.build_plan(options)
-    command = workflow.evaluation_command(plan, "bixby50", "final_bixby50")
+    command = workflow.evaluation_command(plan, cohort, stage)
 
     assert command[command.index("--checkpoint") + 1] == plan["paths"]["best_checkpoint"]
     assert command[command.index("--checkpoint-kind") + 1] == "merged"
     assert command[command.index("--qat-mode") + 1] == "on"
-    assert command[command.index("--required-rows") + 1] == "50"
+    assert command[command.index("--required-rows") + 1] == str(rows)
+    assert command[command.index("--max-input-tokens") + 1] == "5120"
+    assert command[command.index("--max-new-tokens") + 1] == "2048"
     assert "--require-prepared-contract" in command
     assert "--require-gpu" in command
 
@@ -307,8 +401,18 @@ def test_assets_probe_w248_exporter_before_training(options, monkeypatch):
     options.output_dir.mkdir()
     calls = []
 
+    import ir_training.pipeline.deployment_export as deployment
     import ir_training.qat.mobile_qparams as qparams
     import ir_training.qat.mobile_training_seed as seed
+
+    build_export_plan = deployment.build_deployment_export_plan
+
+    def checked_export_plan(**kwargs):
+        assert kwargs["max_input_tokens"] == 5120
+        assert kwargs["max_new_tokens"] == 2048
+        return build_export_plan(**kwargs)
+
+    monkeypatch.setattr(deployment, "build_deployment_export_plan", checked_export_plan)
 
     monkeypatch.setattr(
         seed,
@@ -511,6 +615,12 @@ def test_cli_refuses_execute_without_experimental_acknowledgement(tmp_path):
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)
+    defaults = module.build_parser().parse_args([])
+    assert defaults.max_seq_length == 4096
+    assert defaults.max_input_tokens == 5120
+    explicit = module.build_parser().parse_args(["--max-seq-length", "3072", "--max-input-tokens", "6144"])
+    assert explicit.max_seq_length == 3072
+    assert explicit.max_input_tokens == 6144
 
     with pytest.raises(SystemExit, match="2"):
         module.main(

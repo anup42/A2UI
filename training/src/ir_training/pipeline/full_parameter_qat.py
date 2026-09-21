@@ -60,6 +60,7 @@ class FullParameterQATOptions:
     generation_timeout_seconds: float = 7200.0
     allow_experimental_export: bool = False
     distributed_backend: str = "ddp"
+    max_input_tokens: int = 5120
 
 
 def _json(path: Path) -> dict[str, Any]:
@@ -126,6 +127,9 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
             raise ValueError(f"{name} must be positive and finite")
     if options.microbatch not in (None, 1):
         raise ValueError("All-parameter E2B QAT permits only --microbatch 1")
+    for name in ("max_seq_length", "max_input_tokens", "max_new_tokens"):
+        if type(values[name]) is not int or values[name] <= 0:
+            raise ValueError(f"{name} must be a positive integer")
     output = Path(values["output_dir"])
     seed = Path(values["model_dir"])
     inputs = Path(values["input_dir"])
@@ -162,7 +166,7 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
             eval_steps=options.eval_steps,
             golden_every_steps=options.golden_every_steps,
             max_seq_length=options.max_seq_length,
-            max_input_tokens=options.max_seq_length,
+            max_input_tokens=options.max_input_tokens,
             max_new_tokens=options.max_new_tokens,
             tensorboard_root=options.tensorboard_root,
             microbatch=options.microbatch,
@@ -173,12 +177,9 @@ def build_plan(options: FullParameterQATOptions) -> dict[str, Any]:
             preparation_cache=options.preparation_cache,
             preparation_cache_dir=options.preparation_cache_dir,
             learning_rate=options.learning_rate,
-        )
+        ),
+        preparation_only=True,
     )
-    preparation = {
-        key: preparation[key]
-        for key in ("options", "source_files", "shared_prompt", "goldens")
-    }
     fit = output / "fit"
     paths = {
         "config": fit / "training_config.yaml",
@@ -299,6 +300,8 @@ def training_config(plan: dict[str, Any], profile: dict[str, Any], report: dict[
     base["golden_eval"]["output_dir"] = str(
         Path(paths["training"]) / "periodic_golden32"
     )
+    # Older saved plans used one shared limit; keep those runs consistent.
+    base["golden_eval"]["max_input_tokens"] = values.get("max_input_tokens", values["max_seq_length"])
     base["training"]["logging_dir"] = str(
         Path(paths["training"]) / "tensorboard"
     )
@@ -356,7 +359,7 @@ def _assets(plan: dict[str, Any]) -> list[Path]:
         exporter_python=values["exporter_python"],
         model_dir=seed,
         cache_length=8192,
-        max_input_tokens=values["max_seq_length"],
+        max_input_tokens=values.get("max_input_tokens", values["max_seq_length"]),
         max_new_tokens=values["max_new_tokens"],
         selected_variants=("w248",),
         full_parameter_export=True,
@@ -411,7 +414,7 @@ def _configure(plan: dict[str, Any]) -> list[Path]:
         golden35=output / "prepared/golden35.jsonl",
         bixby50=output / "prepared/bixby50.jsonl",
         max_sequence=values["max_seq_length"],
-        max_prompt=values["max_seq_length"],
+        max_prompt=values.get("max_input_tokens", values["max_seq_length"]),
     )
     config_path = Path(plan["paths"]["config"])
     _yaml(config_path, training_config(plan, profile, report))
@@ -496,7 +499,7 @@ def evaluation_command(plan: dict[str, Any], cohort: str, stage: str) -> list[st
         "--required-rows",
         str(rows),
         "--max-input-tokens",
-        str(values["max_seq_length"]),
+        str(values.get("max_input_tokens", values["max_seq_length"])),
         "--max-new-tokens",
         str(values["max_new_tokens"]),
         "--output-dir",

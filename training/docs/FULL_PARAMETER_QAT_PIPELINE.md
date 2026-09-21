@@ -391,7 +391,15 @@ but does not probe CUDA, load the model, train, or export.
 
 Defaults: 2 epochs, learning rate `1e-5`, 3% warmup, validation/save every 500
 optimizer updates, Golden32 every 1,000 updates plus the end, and 2,048 generated
-tokens. TensorBoard uses `/tensorboard/<run-id>/`. These are conservative starting
+tokens. `--max-seq-length` defaults to **4096** for complete training/validation
+sequences (prompt + response). The independent `--max-input-tokens` defaults to
+**5120** for periodic Golden32 and final Golden32/Golden35/Bixby50 generation
+prompts, including the prompt scaffold/chat template. Evaluation references are
+retained intact; overlength supervised rows are quarantined, never truncated.
+The default evaluation budget is 5120 + 2048 = 7168 within the 8192-token model
+context. Both limits apply in DDP and sharded mode; other launchers are unchanged.
+Use fresh output directories; existing run configs are not rewritten and explicit
+CLI limits override these defaults. TensorBoard uses `/tensorboard/<run-id>/`. These are conservative starting
 settings, not a measured optimum. Full checkpoints are substantially larger than
 LoRA adapters; budget disk space for retained Trainer checkpoints, best/final
 copies, and the dense export staging copy. This lane deliberately requires fresh

@@ -113,8 +113,12 @@ def _options(options: GoldenTrainingOptions) -> dict[str, Any]:
     return result
 
 
-def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
-    """Read-only plan, requiring no CUDA, model loading or tokenizer download."""
+def build_plan(options: GoldenTrainingOptions, *, preparation_only: bool = False) -> dict[str, Any]:
+    """Read-only plan; preparation-only callers may bind separate eval limits.
+
+    Such callers own training/evaluation configuration. Do not return runnable
+    legacy stages, whose configure command still requires a shared limit.
+    """
     values = _options(options)
     if options.tensorboard_detail not in {"minimal", "full"}:
         raise ValueError("--tensorboard-detail must be minimal or full")
@@ -144,8 +148,10 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
         raise ValueError("Token budgets must be positive")
     # Review recipes intentionally bind one context limit through preparation,
     # preflight and standalone inference. Do not silently rewrite just one side.
-    if options.max_input_tokens != options.max_seq_length:
+    if not preparation_only and options.max_input_tokens != options.max_seq_length:
         raise ValueError("This launcher requires --max-input-tokens == --max-seq-length")
+    if preparation_only and options.max_seq_length > (8192 if options.profile == "e2b" else 32768):
+        raise ValueError("Training sequence budget exceeds the selected recipe context")
     if options.max_input_tokens + options.max_new_tokens > (8192 if options.profile == "e2b" else 32768):
         raise ValueError("Prompt plus generation budget exceeds the selected recipe context")
     model = Path(values["model_dir"])
@@ -165,7 +171,7 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
             raise ValueError(f"{key} must be outside and must not contain model, source or run output directories")
     from ir_training.data.shared_prompt import create_shared_prompt_contract
     prompt = create_shared_prompt_contract(ordering="root-first")
-    return {
+    plan = {
         "schema_version": 1, "workflow": "shared_prompt_golden_bixby_training_v2",
         "options": values, "source_files": [str(path) for path in source_files],
         "shared_prompt": prompt,
@@ -187,6 +193,9 @@ def build_plan(options: GoldenTrainingOptions) -> dict[str, Any]:
         "bixby50_role": "source-only final holdout; never checkpoint selection" if options.evaluate_bixby50 else "reserved, not evaluated in development trial",
         "note": "Final Golden32 always runs. Golden35 and Bixby50 run unless deferred for sequential tuning. Bixby50 has no reference IR. Augmentation only repeats validated training examples; no new semantic coverage.",
     }
+    if preparation_only:
+        return {key: plan[key] for key in ("options", "source_files", "shared_prompt", "goldens")}
+    return plan
 
 
 def _group_split(rows: list[dict[str, Any]], seed: int) -> dict[str, list[dict[str, Any]]]:
