@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-049",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Traditional arts",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare Madhubani, Warli and Pattachitra painting traditions. Cover geographical origins, materials, motifs, techniques and cultural context, then explain how to recognize each and support authentic practitioners. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-049",
+  "response_text": "## At a glance\n\n| Tradition | Geographical origins | Materials | Motifs | Technique | Cultural context |\n|---|---|---|---|---|---|\n| **Madhubani** | Mithila region of Bihar, especially Madhubani, Darbhanga, and Sitamarhi[1][2] | Traditionally mud walls; now paper, cloth, and canvas; natural dyes, twigs/fingers/matchsticks[9][13] | Deities, wedding/fertility symbols, fish, birds, flowers, nature, village life[3][6][12] | Dense line work, geometric filling, no empty space, bold borders | Traditionally painted by women for rituals, festivals, and auspicious occasions |\n| **Warli** | Tribal communities of Maharashtra, especially northern Konkan and districts such as Thane and Palghar[10][14] | Mud walls or earthen surfaces; white rice paste with water/gum; often a red-brown ground | Daily village life, farming, hunting, dance, marriage, harvest, animals | Minimalist white geometric figures made from circles, triangles, and lines | Linked to community life and social rituals rather than deity-centered storytelling |\n| **Pattachitra** | Odisha, especially around Puri and Raghurajpur, and also parts of West Bengal | Cloth or palm leaf; prepared cloth base with chalk/gum; natural pigments and fine brushes | Jagannath, Krishna, Rama, Mahabharata/Ramayana scenes, mythological narratives | Fine outlines, intricate narrative panels, strong borders, tightly composed figures | Devotional and temple-linked art connected to Jagannath culture and ritual storytelling[8] |\n\n## How to recognize each\n\n- **Madhubani**: look for a surface packed edge to edge with pattern, bold outlines, double-line borders, and symbolic motifs like fish, birds, lotuses, and deity figures.\n- **Warli**: look for a restrained palette, usually white on brown, with stick-like human figures built from circles and triangles, often arranged in circles around dances or work scenes.\n- **Pattachitra**: look for smooth, highly detailed composition, stylized faces with large eyes, decorative borders, mythological storytelling, and a painted surface that often resembles a prepared cloth scroll.\n\n## Cultural differences in meaning\n\n- **Madhubani** is closely tied to domestic ritual, marriage, fertility, and seasonal festivals, which is why its imagery often feels intimate and ceremonial.\n- **Warli** documents lived community practice: work, celebration, and collective identity, usually through a very spare visual language.\n- **Pattachitra** serves as a visual vehicle for religious narration, especially around Jagannath devotion and epic stories.\n\n## Supporting authentic practitioners\n\n- Buy from **recognized artisan communities** and makers who can identify their village or lineage, such as Mithila artists for Madhubani, Warli artists from Maharashtra’s tribal belt, and Chitrakar/Pattachitra practitioners in Odisha and Bengal.\n- Prefer works made with **traditional methods and materials** when available: natural pigments, hand-prepared surfaces, and hand-drawn outlines rather than mass-printed reproductions.\n- Ask whether the artist signs the work, where it was made, and how it was produced; genuine practitioners usually welcome questions about process and cultural background.\n- Purchase through **artisan cooperatives, museum shops, craft fairs, or verified platforms** that document the maker and locality; current reliable market data on individual artists is limited, so provenance matters more than brand names.\n- Avoid pricing that undercuts handmade labor; fair payment helps keep these traditions viable across generations.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-049"
+}

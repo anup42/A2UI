@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-028",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Digital privacy",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare how Android and iOS currently handle app permissions, approximate location, tracking controls and privacy reports. Include a practical settings checklist and explain the limits of these controls. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-028",
+  "response_text": "## App permissions\n- **iOS** asks for sensitive permissions when an app needs them, not at install time, and lets you decide per feature such as location, contacts, photos, microphone, and Bluetooth.[2][15]\n- **Android** also uses runtime permissions on modern versions, but the interface is more device-dependent; users typically review permissions in the Location or Permission Manager screens and can switch access off per app.[3][14]\n- In practice, both platforms now support granular controls, but iOS is usually described as more consistent and clearer in how it presents those choices.\n\n## Approximate location\n- **iOS** lets you choose **Precise Location** on or off for each app, so you can share only an approximate area when exact coordinates are unnecessary.\n- **Android** location controls are usually organized around whether an app may access location at all, plus system location services and app-level permission toggles; some Android guidance also refers to background, while-in-use, and deny options depending on device and version.[6][10]\n- For broad privacy, both systems also allow turning location services off at the device level, which stops apps from using the phone’s location altogether.\n\n## Tracking controls\n- **iOS** includes a **Tracking** setting that lets you block apps from requesting tracking, and it can also prompt about ongoing location access in a way that is easy to review later.[13]\n- **Android** does not provide the same app-tracking prompt model in the cited sources, but it does offer controls for app location permissions and related location-history features through Google or device settings.[12]\n- On both platforms, the strongest control is to deny unnecessary location access and limit apps to *while using* where possible.\n\n## Privacy reports\n- **Apple** provides a **Privacy Report** feature in newer iOS versions that summarizes how often apps access sensors and network domains, helping users audit app behavior; this feature is distinct from the location permission screen.\n- The supplied Android sources do not show an equivalent built-in privacy report with the same scope and presentation, although Android does provide per-app permission history and location-related settings on many devices.\n- Because device vendors and OS versions vary, the exact report features on Android can differ more than on iPhone.[9]\n\n## Practical settings checklist\n- Review **Location** permissions for every app and remove access that is not needed.\n- Set maps, rideshare, delivery, and weather apps to **While Using** or equivalent, not **Always**.\n- Turn **Precise Location** off on iPhone for apps that only need an approximate area.\n- Disable device-wide **location services** when they are not needed.\n- Check **tracking** permissions on iPhone and block apps from requesting tracking unless you trust the app.\n- Review related **location history** or system location features tied to Google or Apple accounts.\n\n## Limits of these controls\n- Permission systems reduce exposure, but they do **not** guarantee that an app cannot infer location through other signals such as IP address, Wi-Fi, Bluetooth, or account activity.\n- Some apps will not function fully if you restrict core permissions, so privacy often involves a trade-off with app features.\n- Vendor and OS differences matter: Android controls can vary by phone maker and version, while iOS controls are more standardized across devices.\n- A permission denial also does not erase data already collected, so account-level privacy settings and data deletion controls still matter.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-028"
+}

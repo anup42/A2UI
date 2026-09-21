@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-035",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Fitness",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Create a general four-week beginner walking and basic strength plan for a healthy sedentary adult. Include weekly progression, recovery days, simple exercises, signs to stop and ways to adjust difficulty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-035",
+  "response_text": "## Four-Week Plan\nThis plan is designed for a healthy sedentary adult and follows public guidance to build toward about 150 minutes of moderate walking per week plus strength work at least 2 days weekly. [1][5][8]\n\n### Week 1\n- Walk 5 days: 10 minutes at a comfortable brisk pace; use the “can talk, not sing” test to stay moderate. [40]\n- Strength 2 days, after a walk or on separate days: chair sit-to-stands, wall push-ups, glute bridges, standing calf raises, and bird-dogs. Do 1 set of 6-8 reps each.[13]\n- Recovery: 2 full rest days, with light stretching or easy strolling only. [6][16]\n\n### Week 2\n- Walk 5 days: 12-15 minutes per session.\n- Strength 2 days: the same exercises, 1-2 sets of 8 reps each.[10]\n- Recovery: keep one day completely off and one day very light if you feel sore.\n\n### Week 3\n- Walk 5 days: 18-20 minutes per session, or split into two short walks if needed.\n- Strength 2 days: 2 sets of 8-10 reps each, moving slowly and with control.[11]\n- Add 3-5 minutes of balance work after one or two sessions: tandem walking, side steps, or single-leg stands near a wall.\n\n### Week 4\n- Walk 5 days: 20-25 minutes per session. If this feels easy, add a few one-minute faster intervals.\n- Strength 2-3 days: 2 sets of 10-12 reps, keeping form first and stopping before failure.\n- Recovery: keep at least 1-2 easier days each week.\n\n## Simple Exercises\n- Chair sit-to-stand.\n- Wall push-up.\n- Glute bridge.\n- Standing calf raise.\n- Bird-dog or dead bug for core control.\n- Side step, heel-to-toe walk, or single-leg stand for balance.\n\n## When To Stop\nStop exercise right away if you have chest pain or tightness, dizziness, faintness, unusual shortness of breath that stops you talking comfortably, palpitations, nausea, or feel cold and clammy. [21][26][35]\n\n## How To Adjust\n- Too hard: shorten the walk, slow the pace, reduce to 1 set, or use a higher chair or wall support.\n- Too easy: add 5 minutes to walking, add a set, or use slower lowering on strength moves.\n- If sore: keep moving lightly, but skip hard sessions until normal soreness settles.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-035"
+}

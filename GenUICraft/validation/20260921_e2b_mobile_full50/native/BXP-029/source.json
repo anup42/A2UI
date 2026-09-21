@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-029",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Income tax",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare ITR-1 and ITR-2 eligibility for individuals for India's current income-tax assessment year. Cover common income types, key exclusions and three illustrative cases using official tax sources. State the assessment year. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-029",
+  "response_text": "## Assessment year\n**AY 2026-27** (relevant to income earned in FY 2025-26). The Income Tax Department’s current guidance for ITR-1 and ITR-2 applies to this assessment year.[4][14]\n\n## ITR-1 vs ITR-2: eligibility for individuals\n\n| Point | ITR-1 (Sahaj) | ITR-2 |\n|---|---|---|\n| Who can file | Resident individual, not RNOR or non-resident | Individual (resident or non-resident) |\n| Total income | Up to ₹50 lakh | Any amount, including above ₹50 lakh |\n| Salary/pension | Allowed | Allowed |\n| House property | One house property only | One or more house properties, including more than two |\n| Other sources | Interest and similar ordinary income | Other sources, including winnings from lotteries, racehorses, betting, gambling |\n| Agricultural income | Up to ₹5,000 | Above ₹5,000 |\n| Capital gains | Not allowed, except limited LTCG relief cases under current ITR-1 rules | Allowed, including short-term and long-term capital gains |\n| Foreign assets/income | Not allowed | Allowed |\n| Business/profession income | Not allowed | Not allowed |\n| Director / unlisted shares | Not allowed | Allowed |\n\nThe Department states that ITR-1 is for ordinary resident individuals with income up to ₹50 lakh from salary/pension, one house property, family pension, or other sources not taxed at special rates, with restrictions such as no business income, no foreign assets, and no capital gains beyond the permitted limited case. The Department also lists ITR-2 for individuals and HUFs having income other than business or profession income, including salary or pension, house property income, capital gains, other sources, and agricultural income exceeding ₹5,000, irrespective of total income.[2]\n\n## Common income types and key exclusions\n\n- **ITR-1 commonly covers:** salary or pension, interest income, one house property, and agricultural income up to ₹5,000.\n- **ITR-2 commonly covers:** salary or pension plus capital gains, more than one house property, foreign income or assets, and agricultural income above ₹5,000.\n- **ITR-1 exclusions:** any business or profession income, foreign assets/income, director in a company, unlisted equity shares, and capital gains outside the limited permitted scope.\n- **ITR-2 exclusions:** any income from business or profession.\n\n## Three illustrative cases\n\n- **Case 1:** A resident salaried employee earning ₹18 lakh, with interest income and one self-occupied house, and no capital gains or foreign assets — **file ITR-1**.\n- **Case 2:** A resident individual earning ₹42 lakh from salary, plus long-term capital gains from mutual funds and a second house property — **file ITR-2** because capital gains and multiple house properties move the case out of ITR-1.\n- **Case 3:** A non-resident individual with salary income in India and foreign bank interest, but no business income — **file ITR-2** because ITR-1 is not available to non-residents and ITR-2 covers non-resident individuals with eligible income types.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-029"
+}

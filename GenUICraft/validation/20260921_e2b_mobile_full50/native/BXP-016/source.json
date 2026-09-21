@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-016",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Streaming entertainment",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Find three Hindi films newly added to major streaming services in India within the past 30 days. Give title, platform, streaming-release date and a spoiler-free one-sentence description. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-016",
+  "response_text": "## Three recent Hindi films\n\n| Title | Platform | Streaming release date | Spoiler-free description |\n|---|---|---:|---|\n| **Bandar** | ZEE5 | **28 August 2026** | A tense drama centered on accusation, accountability, and justice, led by Bobby Deol. [33] |\n| **Gandhari** | Netflix | **3 September 2026** | An emotionally charged action-thriller about a mother’s relentless fight to protect her child. [21] |\n| **Before Colours** | ZEE5 | **28 August 2026** | A newly added Hindi film on ZEE5’s latest releases list, available from 28 August 2026. [22] |\n\nThese titles were listed in recent India OTT release coverage and platform release pages published in late August and early September 2026. [1]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-016"
+}

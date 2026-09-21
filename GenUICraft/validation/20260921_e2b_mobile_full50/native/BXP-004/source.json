@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-004",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Airline baggage",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Summarize IndiGo's current standard domestic economy cabin-baggage and checked-baggage rules. Include weight limits, size limits, excess-baggage charges and important fare exceptions. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-004",
+  "response_text": "## Cabin baggage\n- **Economy standard**: one cabin bag up to **7 kg** with maximum size **55 × 35 × 25 cm** (total **115 cm** including handles and wheels).[2][11]\n- One additional **personal item** up to **3 kg** is allowed, such as a handbag or laptop bag, if it fits under the seat.\n\n## Checked baggage\n- **Standard domestic economy**: **15 kg** checked baggage per passenger.[5][6]\n- Maximum size for one checked piece is **158 cm** total linear dimensions (L+W+H).[13]\n- A single checked bag must not exceed **32 kg** for safety handling.\n\n## Excess baggage charges\n- IndiGo states excess checked baggage is charged **per kilogram** over the allowance at check-in.[3]\n- Published domestic airport excess rates are commonly around **₹600 per kg** or **₹1,000 for an additional piece** depending on purchase method and route; pre-booked excess is cheaper than airport purchase.[4][7]\n\n## Important fare exceptions\n- **Lite** fares may have **no free checked baggage**; checked weight must be bought separately.[1]\n- Higher domestic bundles such as **UpFront** can include more checked allowance, and premium products may allow a higher cabin weight limit.[9][15]\n- Exact excess pricing can vary by route and booking channel, so the fare rules on the ticket or booking page should be checked before travel.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-004"
+}

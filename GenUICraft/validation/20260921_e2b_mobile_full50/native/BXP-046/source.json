@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-046",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Biotechnology",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare gene therapy and CRISPR gene editing. Explain the mechanisms, delivery methods, established clinical examples, limitations and ethical questions, distinguishing approved treatments from experimental work. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-046",
+  "response_text": "## Mechanism\n- **Gene therapy** treats disease by delivering a therapeutic gene, or by replacing, supplementing, or silencing a faulty gene; it does not necessarily cut the genome at a specific DNA sequence.[2][14]\n- **CRISPR gene editing** uses a guide RNA to bring a Cas nuclease to a chosen DNA site, where it creates a double-strand break; repair by **NHEJ** often disrupts a gene, while **HDR** can make a precise sequence change.\n- In practice, CRISPR is a *gene-editing platform* that can be used inside a gene-therapy strategy, but the terms are not interchangeable.\n\n## Delivery methods\n- **Gene therapy** commonly uses **viral vectors**, especially adeno-associated virus and lentiviral systems, because they efficiently carry therapeutic DNA into cells.\n- This delivery approach can cause **immunogenic toxicity** and, with integrating vectors, **insertional oncogenesis**.\n- **CRISPR** can be delivered by viral vectors, lipid nanoparticles, or by direct delivery of Cas protein and guide RNA as a ribonucleoprotein complex; the core challenge is getting the editing machinery into the right cells long enough to act.\n\n## Established clinical examples\n- **Approved gene therapy** includes several established products for inherited disease and hematologic disorders, such as *AAV-based gene replacement* and *lentiviral ex vivo modification*; these are now standard clinical categories rather than experimental concepts.\n- **Approved CRISPR-based therapy** is now also a reality: ex vivo CRISPR editing of patient cells has reached clinical approval in some regions for severe hemoglobin disorders, showing that CRISPR is no longer limited to research.\n- By contrast, **germline CRISPR editing** of embryos or reproductive cells is not an approved clinical treatment and remains broadly restricted.[3][10]\n\n## Limitations\n- **Gene therapy** may give durable benefit, but it can be limited by immune responses, vector size constraints, and imperfect control of where and how strongly the added gene is expressed.\n- **CRISPR** offers site-specific editing, but limitations include **off-target edits**, incomplete editing, dependence on repair pathways, and difficulty achieving uniform correction in all target cells.[13]\n- Both approaches face major delivery barriers, but CRISPR adds an extra layer of risk because a cut can create unintended DNA changes rather than simply adding a gene.\n\n## Ethical questions\n- For **somatic** treatments, ethics focuses mainly on safety, efficacy, informed consent, and fair access.[6][7]\n- For **germline** editing, the concerns become sharper: future people cannot consent, edits may be inherited, and there are worries about unpredictable harms, enhancement uses, and eugenics.[8][12]\n- Broader concerns also include justice, affordability, regulation, and whether powerful editing tools will widen health inequities.[1]\n\n## Approved vs. experimental\n- **Approved today:** conventional gene therapies and some **somatic** CRISPR therapies.\n- **Experimental or highly restricted:** embryo editing, germline editing, enhancement applications, and many in vivo CRISPR programs still in trials.\n- Current data on long-term safety and population-level effects remain limited, so many advanced CRISPR applications are still under close study rather than routine care.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-046"
+}

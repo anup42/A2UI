@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-024",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Waste management",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Explain how a Bengaluru resident can safely dispose of a used laptop battery. Include approved collection options, storage precautions and what to verify before handing it over. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-024",
+  "response_text": "A Bengaluru resident should dispose of a used laptop battery through a **certified e-waste recycler, authorised collection centre, or verified manufacturer take-back/pickup service** that explicitly accepts batteries.[1][2][14] RecycleKaro lists Bengaluru drop-off and pickup options, EcoFlyp lists multiple Bengaluru organisations and drop-off points that accept batteries, and RecycleKaro’s guidance specifically says to use **CPCB or KSPCB-authorized** recyclers.\n\n## Approved collection options\n- **Drop-off at a certified recycler or collection centre**: Bengaluru options listed in the search results include RecycleKaro’s Bengaluru facility, Saahas, Croma stores, and other listed recyclers/collection points that accept batteries.[9]\n- **Scheduled home pickup**: RecycleKaro and EcoFlyp both describe pickup services, and Zolopik also offers pickup for battery/e-waste collection in Bengaluru.[7][10]\n- **Manufacturer or brand take-back**: Some brands and authorised partners offer battery/e-waste return programs, including brand-linked collection or pickup arrangements.[5]\n\n## Storage precautions before handing it over\n- **Keep the battery separate from regular waste** and do not put it in household garbage.\n- **Store it in a cool, dry place** away from heat, sunlight, and moisture; keep it out of reach of children and pets.\n- **Do not puncture, crush, bend, or open it**; if it is swollen or damaged, handle it especially carefully and do not force it.\n- **Tape the terminals if it is loose** and place it in a non-conductive container or bag to reduce the risk of short-circuiting.\n- **Do not keep it near metal objects** such as coins, keys, or tools that could bridge the terminals.\n\n## What to verify before handing it over\n- **Authorization**: Confirm that the recycler or pickup service is **CPCB/KSPCB-authorized** or otherwise clearly certified.\n- **Battery acceptance**: Verify that the centre accepts **laptop batteries specifically**, since some points accept only certain categories of e-waste.[4]\n- **Pickup/drop-off terms**: Check whether it is a **free drop-off, scheduled pickup, or paid service**, and whether any minimum quantity applies.\n- **Receipt or confirmation**: Ask for written or digital proof that the battery was received for lawful recycling or disposal.[11]\n- **Data-related items**: If you are also handing over the laptop, back up data, sign out of accounts, and factory reset the device first; this is less relevant for the battery alone but important if the laptop is included.[3]\n- **Condition reporting**: Tell the handler whether the battery is **swollen, leaking, or physically damaged** so they can apply the right handling process.\n\nIf you want, I can also help you find the nearest Bengaluru drop-off option from the listed centres and pick the most convenient one.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-024"
+}

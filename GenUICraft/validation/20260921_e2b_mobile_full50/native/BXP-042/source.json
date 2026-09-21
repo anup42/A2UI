@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-042",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Electric vehicles",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare three electric cars currently sold in India with starting ex-showroom prices below INR 1500000. Cover indicative price, claimed versus independently reported range, charging, battery warranty and suitable use cases. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-042",
+  "response_text": "## Tata Nexon EV\n- **Indicative starting price:** ₹12.49 lakh ex-showroom. The model is listed with a claimed range of **275–489 km** on Autocar India. [1]\n- **Claimed vs independently reported range:** Tata’s own materials have previously cited an ARAI-certified range of **312 km** for the Nexon EV, while Autocar India currently lists **275–489 km** depending on variant. [13]\n- **Charging and warranty:** Tata has offered an **8-year or 1.60 lakh km** battery warranty for the Nexon EV.\n- **Best fit:** A practical all-rounder for families and regular intercity use, especially if you want a higher-riding SUV with broader variant choice.\n\n## Tata Tigor EV\n- **Indicative starting price:** ₹12.49 lakh ex-showroom. Autocar India lists a claimed range of **315 km**.\n- **Claimed vs independently reported range:** The Tigor EV’s range is commonly quoted at **315 km**, and Autocar India’s current listing matches that figure.[4]\n- **Charging and warranty:** Reliable current battery-warranty information was not clearly available in the sources reviewed, so I cannot verify the latest official warranty term here.\n- **Best fit:** Best for buyers who want a conventional sedan body, easy city driving, and a lower entry price than larger EVs.\n\n## MG Windsor EV\n- **Indicative starting price:** ₹14.10 lakh ex-showroom. Autocar India lists a claimed range of **332–449 km**.\n- **Claimed vs independently reported range:** Reported range is broadly aligned with the current claimed figures; a 2026 market roundup also describes the Windsor as offering a competitive long-range setup for its class.[17]\n- **Charging and warranty:** Current battery-warranty details were not clearly verifiable from the sources reviewed, so I cannot confirm the exact term with confidence.\n- **Best fit:** Good for buyers prioritizing cabin space, a modern feature set, and relatively strong range at a sub-₹15 lakh starting price.\n\n## Quick take\n- **Best value SUV:** Tata Nexon EV, because it combines a sub-₹15 lakh starting price, wide range coverage, and a well-established battery warranty.\n- **Best sedan choice:** Tata Tigor EV, if you prefer a more compact, traditional car shape for urban use.\n- **Best range-focused pick:** MG Windsor EV, if you want the highest starting-range flexibility among these three.\n\nCurrent data on charging specifications and battery warranty was not fully available from the sources I could verify, so those points are included only where clearly supported.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-042"
+}

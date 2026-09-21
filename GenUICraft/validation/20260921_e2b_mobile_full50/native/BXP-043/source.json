@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-043",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Home solar energy",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Explain a typical 3 kW grid-connected residential rooftop-solar installation in Bengaluru. Cover roof area, expected generation, cost components, current subsidy eligibility, maintenance and a payback example with explicit assumptions. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-043",
+  "response_text": "## Typical 3 kW setup\nA 3 kW grid-connected residential rooftop-solar system in Bengaluru usually fits on about 180–250 sq ft of usable roof, depending on panel efficiency, tilt, spacing, and rooftop obstructions. A practical annual generation estimate is about 3,600–4,500 kWh, or roughly 300–375 kWh per month, which is in line with Bengaluru-specific installer estimates and standard rooftop-solar output assumptions for this size. [10][11]\n\n## Cost components\nA common installed price for a 3 kW on-grid home system in Bengaluru is about ₹2.0–₹2.4 lakh before subsidy, with a net cost after subsidy often around ₹1.2–₹1.6 lakh. The main cost buckets are modules, inverter, mounting structure, wiring and protections, installation labour, design/approvals, and net-metering/bidirectional meter charges. Bengaluru installers also commonly quote a few thousand rupees for BESCOM processing and meter-related work.\n\n## Subsidy eligibility\nFor residential rooftop systems under PM Surya Ghar, the central subsidy is up to ₹78,000 for a 3 kW or larger system, with ₹30,000 for the first kW, ₹60,000 for 2 kW, and the maximum cap reached at 3 kW. Current guidance says the system must be residential, grid-connected, and installed by an MNRE-registered/approved vendor; off-grid systems do not qualify for this central subsidy. [2][8][9]\n\n## Maintenance\nMaintenance is light but not zero. Typical tasks are periodic panel cleaning, visual checks for shade, loose wiring, inverter alerts, and ensuring the net meter is functioning correctly. In Bengaluru’s dusty conditions, cleaning every 2–4 weeks is often sensible, while inverter performance and generation should be checked monthly; warranties on quality systems commonly cover many years, but routine cleaning and inspection remain the owner’s responsibility.[12]\n\n## Payback example\nAssume: gross system cost ₹2,20,000, central subsidy ₹78,000, so net upfront cost ₹1,42,000; annual generation 4,000 kWh; and avoided electricity cost of ₹6.50/kWh because much of the solar output offsets higher domestic tariff energy. That gives annual gross savings of about ₹26,000, and if you subtract ₹3,000 per year for maintenance, net annual benefit is roughly ₹23,000. On those assumptions, simple payback is about 6.2 years; if your tariff is higher or self-consumption is stronger, payback can move closer to 4–5 years.[21][31]\n\n## Practical note\nBESCOM residential rooftop solar supports net metering for systems up to 10 kW, which is important because exporting surplus daytime generation improves economics. Actual payback depends mainly on roof shade, household daytime usage, final vendor quote, and the exact approved tariff and net-metering treatment at the time of installation.[24]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-043"
+}

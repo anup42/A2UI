@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-039",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Small-business compliance",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Explain the current FSSAI registration or licensing process for a small home bakery in Karnataka. Include eligibility categories, documents, official application steps, published fees and common mistakes. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-039",
+  "response_text": "### Eligibility for a small home bakery\nA home bakery in Karnataka generally falls under **FSSAI Basic Registration** if its annual turnover is **up to ₹12 lakh**; FSSAI states that registration is meant for petty food businesses and small or cottage-scale industry with turnover up to this limit.[12][14] For turnover above ₹12 lakh, a **State License** is required instead of registration.[1]\n\n### Documents usually required\nFor a small home bakery applying for Basic Registration, the commonly required documents are:[5][11]\n- **Photo ID proof** of the owner, such as Aadhaar, PAN, Passport, or Voter ID.\n- **Address proof** of the applicant, such as an electricity bill, rent agreement, or other official address document.\n- **Passport-size photograph** of the applicant.\n- **Proof of business premises**, such as utility bills, property documents, or an NOC from the landlord if the kitchen is rented.\n- **Business details and product list**, especially for bakery items and other foods made at home.[3][8]\n\n### Official application steps\nThe official application is made on the **FoSCoS** portal, which is FSSAI’s licensing and registration system.[9] The standard process is:\n- Create an account on the FoSCoS portal and log in.\n- Select **Apply for License/Registration** and choose **Registration (Form A)** for a petty food business.[6]\n- Enter business details, premises address, and food activity information.\n- Upload the required documents in the prescribed format.\n- Pay the fee online and submit the application.\n- Track the application using the reference or UARN number, and download the certificate once approved.\n\n### Published fees\nFSSAI regulations require registration with a fee under the prescribed schedule, and the FoSCoS guidance reflects the standard registration fee structure for petty food businesses.[13] The commonly published fee is **₹100 per year**, with multiple-year options also used on the portal.[4] For a home bakery applying as a small business, this is the usual Basic Registration fee referenced by registration guides and the official fee schedule framework.\n\n### Common mistakes that cause delay or rejection\n- **Choosing the wrong category**, such as applying for registration when turnover is above ₹12 lakh and a State License is needed.\n- **Missing or unclear documents**, especially address proof or landlord NOC for a rented home kitchen.\n- **Incorrect form selection**, since petty businesses must file **Form A**, not the licensing form used for larger units.\n- **Mismatch in business details**, such as inconsistent name, address, or activity description across documents and the portal form.\n- **Not preparing product and premises details properly**, which can slow scrutiny or lead to queries.\n\nIf you want, I can also turn this into a **Karnataka home-bakery checklist** you can use before applying.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-039"
+}

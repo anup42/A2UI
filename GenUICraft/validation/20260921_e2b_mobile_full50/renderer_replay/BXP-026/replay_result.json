@@ -1,0 +1,14 @@
+{
+  "id": "BXP-026",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-026/output.express",
+  "sourceExpressSha256": "88acf65c725ca3c58a6156c188655f81f6dd37fb0070487f592fe68451d29fd1",
+  "status": "replay_failure",
+  "message": "GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [.",
+  "replayElapsedMs": 81
+}

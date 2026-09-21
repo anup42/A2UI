@@ -1,0 +1,496 @@
+{
+  "summary": {
+    "case_count": 50,
+    "all_string_eq_array": true,
+    "all_embedded_eq_old_adapter": true,
+    "tokenizer_vocab_size": 262144,
+    "token_counts": {
+      "method": "1 + SentencePiece.encode(rendered_prompt after literal <bos>); metadata start_token id=2. Raw SentencePiece does not emit control id=2 from literal <bos>.",
+      "min": 3031,
+      "median": 3536.0,
+      "max": 3759,
+      "max_case": "BXP-032"
+    },
+    "selected": {
+      "BXP-001": {
+        "id": "BXP-001",
+        "string_eq_array": true,
+        "embedded_eq_old_adapter": true,
+        "rendered_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+        "chars": 11514,
+        "utf8_bytes": 11518,
+        "native_expected_tokens": 3174
+      },
+      "BXP-003": {
+        "id": "BXP-003",
+        "string_eq_array": true,
+        "embedded_eq_old_adapter": true,
+        "rendered_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+        "chars": 12061,
+        "utf8_bytes": 12063,
+        "native_expected_tokens": 3394
+      },
+      "BXP-009": {
+        "id": "BXP-009",
+        "string_eq_array": true,
+        "embedded_eq_old_adapter": true,
+        "rendered_sha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+        "chars": 12323,
+        "utf8_bytes": 12323,
+        "native_expected_tokens": 3307
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "BXP-001",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+      "chars": 11514,
+      "utf8_bytes": 11518,
+      "native_expected_tokens": 3174
+    },
+    {
+      "id": "BXP-002",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "d8ce97fc3365a2fb2439760db49142b81be5c064e1ce0b9548863b4f6127ccde",
+      "chars": 11332,
+      "utf8_bytes": 11332,
+      "native_expected_tokens": 3112
+    },
+    {
+      "id": "BXP-003",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+      "chars": 12061,
+      "utf8_bytes": 12063,
+      "native_expected_tokens": 3394
+    },
+    {
+      "id": "BXP-004",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "dadbcb9430c73961b4a1b5d20c7c9f1314d613926ee65c9211b9bd4cf704075e",
+      "chars": 12234,
+      "utf8_bytes": 12240,
+      "native_expected_tokens": 3327
+    },
+    {
+      "id": "BXP-005",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "baf89861dfe3cf7a31040f2b8eabcc9c996c64977914968c3227893b79de4e35",
+      "chars": 12381,
+      "utf8_bytes": 12381,
+      "native_expected_tokens": 3381
+    },
+    {
+      "id": "BXP-006",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "29ec1cfded68cbd0b42d416b6ea0f2e118ec5315b927c72d746ca08509f86655",
+      "chars": 13146,
+      "utf8_bytes": 13180,
+      "native_expected_tokens": 3564
+    },
+    {
+      "id": "BXP-007",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "415ad0f8d75a8a719b9432b3fc5d15a23592fc1408c6c753ec4c0e84e50a21ec",
+      "chars": 11890,
+      "utf8_bytes": 11900,
+      "native_expected_tokens": 3276
+    },
+    {
+      "id": "BXP-008",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "edac8f85e9eb4167770d8ab649f415541b6c643e23703dcfd562381ee3e0394b",
+      "chars": 11902,
+      "utf8_bytes": 11936,
+      "native_expected_tokens": 3329
+    },
+    {
+      "id": "BXP-009",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+      "chars": 12323,
+      "utf8_bytes": 12323,
+      "native_expected_tokens": 3307
+    },
+    {
+      "id": "BXP-010",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "4ff5b054bc9a55c04fc870be5137fadbd9174990952d7a9833ad49bffbec3964",
+      "chars": 11901,
+      "utf8_bytes": 11919,
+      "native_expected_tokens": 3288
+    },
+    {
+      "id": "BXP-011",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "aefa04156da508086f9754cabce019045f9b0733bec472c69b10eac48f77bd94",
+      "chars": 11954,
+      "utf8_bytes": 11966,
+      "native_expected_tokens": 3353
+    },
+    {
+      "id": "BXP-012",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "05b89c9168130cb73c9ddc502dcb6fa084e30bdfd78a22f92ab7ceccbc44a630",
+      "chars": 12572,
+      "utf8_bytes": 12572,
+      "native_expected_tokens": 3361
+    },
+    {
+      "id": "BXP-013",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "1999963d05906cd2f068ab07d1d17d201f2094f413c25a075916cbc9d835b574",
+      "chars": 13629,
+      "utf8_bytes": 13655,
+      "native_expected_tokens": 3689
+    },
+    {
+      "id": "BXP-014",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "ad12ad79a6317e4a04108ed110bcacfa520db019bc7e7f435b7d60fe940e4acf",
+      "chars": 11577,
+      "utf8_bytes": 11577,
+      "native_expected_tokens": 3212
+    },
+    {
+      "id": "BXP-015",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "7bd801e57ff40d93b7555c68d0fca7ee1f7fca5fd0c6e0ae4cd0a0f00b555345",
+      "chars": 11520,
+      "utf8_bytes": 11526,
+      "native_expected_tokens": 3180
+    },
+    {
+      "id": "BXP-016",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "f6005d315b25a4f9d16639869fb8eb285fe33bf4b617bab6917b0c119e1fe350",
+      "chars": 11625,
+      "utf8_bytes": 11629,
+      "native_expected_tokens": 3200
+    },
+    {
+      "id": "BXP-017",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "aa8f6c7ec7c3788de194e14304ad5e09410ca055876f0864e8db2bf0af89b2a9",
+      "chars": 11333,
+      "utf8_bytes": 11341,
+      "native_expected_tokens": 3089
+    },
+    {
+      "id": "BXP-018",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "711a5a4253ac73be6f512e5b4ecbbb405a04cdb9efc583444f53f6d6491a9060",
+      "chars": 11894,
+      "utf8_bytes": 11938,
+      "native_expected_tokens": 3298
+    },
+    {
+      "id": "BXP-019",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "231a0801169a60be4b7920199e7b63957d4fcf4d3e21b05ed1f221e2c8200a6a",
+      "chars": 12094,
+      "utf8_bytes": 12108,
+      "native_expected_tokens": 3355
+    },
+    {
+      "id": "BXP-020",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "b66eceb4a5a136a6eae171cc2f887fda7a286b50c8a6556598aace29e6552868",
+      "chars": 11684,
+      "utf8_bytes": 11686,
+      "native_expected_tokens": 3195
+    },
+    {
+      "id": "BXP-021",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "8ab0e578a7507688e70b5c6e723d9a63fd0db10b22a7edf52bc432c298b1b607",
+      "chars": 12377,
+      "utf8_bytes": 12381,
+      "native_expected_tokens": 3283
+    },
+    {
+      "id": "BXP-022",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "73d4d1a8911e1a1a5e7c26b6fa6e5edaafe4ce724c835c4cec79d0db79aaf691",
+      "chars": 12207,
+      "utf8_bytes": 12211,
+      "native_expected_tokens": 3305
+    },
+    {
+      "id": "BXP-023",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "f86b049cb76890ce544ff9a28d93bfc4bd7f0e3ddbb13cfc421aa80f316d6329",
+      "chars": 12313,
+      "utf8_bytes": 12317,
+      "native_expected_tokens": 3320
+    },
+    {
+      "id": "BXP-024",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "df741b8651e435ba7585efbeee47b6daf5454a7ee170044a8f340b9f09dbf6a1",
+      "chars": 13750,
+      "utf8_bytes": 13754,
+      "native_expected_tokens": 3616
+    },
+    {
+      "id": "BXP-025",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "b420a706c1d03c2ffb3dc8b6dbb11789834f28a2ca3475fc6c8aab72b958e8ac",
+      "chars": 12168,
+      "utf8_bytes": 12180,
+      "native_expected_tokens": 3314
+    },
+    {
+      "id": "BXP-026",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "b5cda71fd596a491023338b330bba6d1c0f3809607b1dfd74a861041ad50372a",
+      "chars": 13716,
+      "utf8_bytes": 13716,
+      "native_expected_tokens": 3578
+    },
+    {
+      "id": "BXP-027",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "77ddc8637a8cb4cfdc7ea41bfa3339af7125f8eaaa7a66bd4848d4d39529cb77",
+      "chars": 13601,
+      "utf8_bytes": 13601,
+      "native_expected_tokens": 3545
+    },
+    {
+      "id": "BXP-028",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "82d06ff657dbb53361c90121de8d8d64c1441f911ef7af72f2d01b1d878d659e",
+      "chars": 14512,
+      "utf8_bytes": 14514,
+      "native_expected_tokens": 3727
+    },
+    {
+      "id": "BXP-029",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "5391965317d968044ba96da9ed3c5bcc2cec699511a57dcf21da1e9ad2a91806",
+      "chars": 13887,
+      "utf8_bytes": 13915,
+      "native_expected_tokens": 3721
+    },
+    {
+      "id": "BXP-030",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "57a03a1b51358ae89b10c6df0bf814f1868f617d12c13e2c0fd7e57d60007196",
+      "chars": 14137,
+      "utf8_bytes": 14149,
+      "native_expected_tokens": 3726
+    },
+    {
+      "id": "BXP-031",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "e35090fbdc718645d9cce3837a1f5a6913418ed0b939f84407c44b6bc923ffc1",
+      "chars": 14296,
+      "utf8_bytes": 14324,
+      "native_expected_tokens": 3719
+    },
+    {
+      "id": "BXP-032",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "e82c952ae4f220354968ebd95ebb38440655e175ace18b2865031b3d8e2f6673",
+      "chars": 14077,
+      "utf8_bytes": 14077,
+      "native_expected_tokens": 3759
+    },
+    {
+      "id": "BXP-033",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "9bf4cb0720125fe4607a1e948cb14d9df0692e2c1b990bda6040df2621a57ada",
+      "chars": 13271,
+      "utf8_bytes": 13271,
+      "native_expected_tokens": 3487
+    },
+    {
+      "id": "BXP-034",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "d724a7df56ad448a15412f3fc70a248ad73e867dd4a14ae174e6571dfa03d522",
+      "chars": 12723,
+      "utf8_bytes": 12739,
+      "native_expected_tokens": 3527
+    },
+    {
+      "id": "BXP-035",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "c55a2af333af847a50b1bad566cf40d6d0d72d7301f777be89c76a1d582b1979",
+      "chars": 13002,
+      "utf8_bytes": 13006,
+      "native_expected_tokens": 3600
+    },
+    {
+      "id": "BXP-036",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "84b51de271e165b6955cd4ed2d49cd9fdb0f0e8d7df90aabfbfa52a2b30f2e70",
+      "chars": 13944,
+      "utf8_bytes": 13946,
+      "native_expected_tokens": 3602
+    },
+    {
+      "id": "BXP-037",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "f2f6cefb7204786117db902e81b0e34c9dd7910c97deea100095e2ca25c441f7",
+      "chars": 13976,
+      "utf8_bytes": 13980,
+      "native_expected_tokens": 3636
+    },
+    {
+      "id": "BXP-038",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "5e2ce528e66eda343ff86734689525fe857ed2b4f4de35f1355a911e1e8ce789",
+      "chars": 11072,
+      "utf8_bytes": 11074,
+      "native_expected_tokens": 3031
+    },
+    {
+      "id": "BXP-039",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "8e8051975e49219187bada7b7dd09c901c498e5ccf0e2c36790f5dfb9a8c28bc",
+      "chars": 13785,
+      "utf8_bytes": 13795,
+      "native_expected_tokens": 3615
+    },
+    {
+      "id": "BXP-040",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "a94f373888bf693c412990434e7cc6edd9ffd0d51b524be81dd4a198666c6de5",
+      "chars": 13956,
+      "utf8_bytes": 13960,
+      "native_expected_tokens": 3648
+    },
+    {
+      "id": "BXP-041",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "71681e811591d0fbfaa806959d7a6216b4afe54c1a2f4f9d5b465dd1ab5651bd",
+      "chars": 13277,
+      "utf8_bytes": 13283,
+      "native_expected_tokens": 3567
+    },
+    {
+      "id": "BXP-042",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "d5f6c4ed171325353a4d2e94a05fb865085e58e79e94e336be84ab8a8d513502",
+      "chars": 13404,
+      "utf8_bytes": 13426,
+      "native_expected_tokens": 3592
+    },
+    {
+      "id": "BXP-043",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "a5bf96a8a1b222129d04c40c0516e2db0deeb82846809f384a6f2a8ae6dbfc9b",
+      "chars": 13663,
+      "utf8_bytes": 13709,
+      "native_expected_tokens": 3664
+    },
+    {
+      "id": "BXP-044",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "c937d3940ed4c26eb0851a119dfa1d03ed81b5507a41f0a9c4a8285221cb3312",
+      "chars": 13501,
+      "utf8_bytes": 13509,
+      "native_expected_tokens": 3572
+    },
+    {
+      "id": "BXP-045",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "da578682f27821e086af2f4adf62de6ee8622b22fb336504a036ff44ba75dc27",
+      "chars": 14658,
+      "utf8_bytes": 14664,
+      "native_expected_tokens": 3712
+    },
+    {
+      "id": "BXP-046",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "207fba6867213c6d4b52caaee02c53fc0219cccec44646604ae6df8afb5783fd",
+      "chars": 14239,
+      "utf8_bytes": 14239,
+      "native_expected_tokens": 3678
+    },
+    {
+      "id": "BXP-047",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "8c37b46b5e27e627224655f762a5efbb6c6de7ef0802c19597c1fa48e551b234",
+      "chars": 13881,
+      "utf8_bytes": 13891,
+      "native_expected_tokens": 3704
+    },
+    {
+      "id": "BXP-048",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "e6f65d01f724d357336c06a819160bf6e6ca9b98fa116df65ba2c758ea28a74a",
+      "chars": 13829,
+      "utf8_bytes": 13845,
+      "native_expected_tokens": 3635
+    },
+    {
+      "id": "BXP-049",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "afc2872e0356d4451793a36ce01703673bfb1b8e176cf8587d2d7dc3df423a6b",
+      "chars": 14461,
+      "utf8_bytes": 14463,
+      "native_expected_tokens": 3746
+    },
+    {
+      "id": "BXP-050",
+      "string_eq_array": true,
+      "embedded_eq_old_adapter": true,
+      "rendered_sha256": "1a43dbbed1b1dae0ace85ddcbe122be09924ec83ae560d747d82406bb14cb9df",
+      "chars": 14169,
+      "utf8_bytes": 14195,
+      "native_expected_tokens": 3718
+    }
+  ]
+}

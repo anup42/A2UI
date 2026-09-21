@@ -1,0 +1,14 @@
+{
+  "id": "BXP-002",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-002/output.express",
+  "sourceExpressSha256": "796d54a36472700b051c16fbec0274b28f5b34f5879f26122f4c60aba24b31e9",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: Unknown property '铺' for A2UI Express component 'Column'.",
+  "replayElapsedMs": 163
+}

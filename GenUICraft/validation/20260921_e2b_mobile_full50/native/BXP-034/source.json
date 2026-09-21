@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-034",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Nutrition",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Explain practical vegetarian protein sources commonly available in India. Include a table of eight foods with serving sizes and approximate protein, a sample day of meals, and the factors that change an adult's protein needs. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-034",
+  "response_text": "## Practical protein sources\nCommon, easy-to-find vegetarian protein foods in India include dals and legumes, soy foods, dairy, nuts, and seeds. For healthy adults, ICMR-NIN recommends about 0.83 g protein per kg body weight per day, which is roughly 54 g/day for a 65 kg man and 46 g/day for a 55 kg woman. [21][22][25]\n\n| Food | Typical serving | Approx. protein |\n|---|---:|---:|\n| Soy chunks, dry | 30 g | 15–16 g [3] |\n| Paneer | 100 g | 18 g [1][17] |\n| Tofu | 100 g | 8–10 g |\n| Cooked rajma | 1 cup | 12–15 g[6] |\n| Cooked chole | 1 cup | 14–15 g |\n| Cooked moong dal | 1 cup | 8–11 g[4] |\n| Roasted chana | 30 g | 6–7 g [2][16] |\n| Dahi/curd | 200 g | 7–8 g[18] |\n\n## Sample day\nA practical high-protein vegetarian day could look like this: breakfast of besan chilla with curd; lunch of rajma chawal with salad; an afternoon snack of roasted chana or sattu; and dinner of paneer bhurji or tofu with roti and vegetables. This kind of meal pattern spreads protein across the day and uses foods commonly available in Indian kitchens.[11]\n\n## What changes needs\nAdult protein needs rise or fall mainly with body weight, physical activity, age, pregnancy, breastfeeding, and illness or recovery. ICMR-NIN’s baseline recommendation is for healthy adults, so people who are very active, older adults, pregnant or lactating, or recovering from illness often need more than the sedentary reference amount.[26][31]\n\n## Practical tips\nIf you rely on vegetarian foods, it helps to combine cereals with pulses, and to include soy or dairy when suitable, because these make it easier to reach daily targets without very large portions. If current food composition data vary by brand or recipe, the exact protein per serving may differ slightly, so use these numbers as approximate planning values. [23]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-034"
+}

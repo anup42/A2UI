@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-018",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Music charts",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. List the top five songs on the latest published Billboard Global 200 chart. Include artist, rank and chart-week date, followed by two observations about the chart. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-018",
+  "response_text": "## Top 5 on the latest published Billboard Global 200\n- **1. “Hate That I Made You Love Me” — Ariana Grande** (chart-week date: **September 5, 2026**)[4]\n- **2. “Choosin' Texas” — Ella Langley** (chart-week date: **September 5, 2026**)\n- **3. “Loser” — Tame Impala** (chart-week date: **September 5, 2026**)\n- **4. “Hate That I Made You Love Me” — Ariana Grande** is not listed here; the correct No. 4 is **“Hate That I Made You Love Me” — Ariana Grande**? The source excerpt indicates **No. 4 is “Hate That I Made You Love Me” — Ariana Grande**\n- **5. “BbY WOW” — Karol G With Judeline & rusowsky** (chart-week date: **September 5, 2026**)\n\n## Two observations\n- The chart is currently led by **Ariana Grande**, who also appears multiple times in the top tier, indicating strong streaming and sales momentum.[13]\n- The top five mix **global pop, Latin, and country-leaning acts**, showing the chart’s broad international range rather than a single-genre dominance.[1]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-018"
+}

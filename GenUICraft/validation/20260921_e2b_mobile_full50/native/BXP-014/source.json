@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-014",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Foreign exchange",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Find the latest publicly quoted USD/INR, EUR/INR and GBP/INR exchange rates. Show the quote timestamps and explain briefly how reference rates differ from rates a traveler receives. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-014",
+  "response_text": "## Latest quoted rates\n- USD/INR: 95.5614, quoted as of 28-Aug-2026 14:23:47 IST. [18]\n- EUR/INR: 111.2956, quoted as of 28-Aug-2026 14:23:47 IST.\n- GBP/INR: 129.8867, quoted as of 28-Aug-2026 14:23:47 IST.\n\n## Reference rates vs traveler rates\nReference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive a worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference-style rates, and Reuters notes its market quote data can be delayed, which also distinguishes it from the final retail rate a traveler pays. [12][3]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-014"
+}

@@ -1,0 +1,12 @@
+<a2ui>
+$/={aqi_data:[{observation_time:"8:3 AM IST",aqi_scale:"AQ-IN 197",pollution_category:"Poor",main_pollutant:"PM2.5"}],outdoor_guidance:"For the Poor category, air pollution can cause breathing discomfort, so children, older adults and people with respiratory issues should limit outdoor activities and wear a mask if they must go out"}
+=Column(children=[a,f],铺="铺")
+a=Card(children=[b,e])
+b=Column(children=[c,d,e],Gap="sma")
+c=Text("Delhi AQI","h1")
+d=Text(aqi_data.observation_time,variant="body")
+Text(aqi_data.scale, "AQI-IN 197")
+Text(aqi_data.category, "Poor")
+Text(aqi_data.pollutant, "PM2.5")
+Text(aqi_data.outdoor_guidance,variant="body")
+</a2ui>

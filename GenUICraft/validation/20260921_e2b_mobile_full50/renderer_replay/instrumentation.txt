@@ -1,0 +1,218 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.GenUiSdkBixby50Test:
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: stream=BXP-001 renderer_replay replay_failure (1/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-002 renderer_replay replay_failure (2/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-003 renderer_replay replay_failure (3/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-004 renderer_replay replay_failure (4/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-005 renderer_replay replay_failure (5/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-006 renderer_replay replay_failure (6/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-007 renderer_replay replay_failure (7/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-008 renderer_replay replay_failure (8/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-009 renderer_replay replay_failure (9/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-010 renderer_replay replay_failure (10/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-011 renderer_replay replay_failure (11/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-012 renderer_replay replay_failure (12/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-013 renderer_replay replay_failure (13/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-014 renderer_replay replay_failure (14/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-015 renderer_replay replay_failure (15/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-016 renderer_replay replay_failure (16/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-017 renderer_replay replay_failure (17/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-018 renderer_replay replay_failure (18/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-019 renderer_replay replay_failure (19/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-020 renderer_replay replay_failure (20/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-021 renderer_replay replay_failure (21/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-022 renderer_replay replay_failure (22/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-023 renderer_replay replay_failure (23/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-024 renderer_replay replay_failure (24/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-025 renderer_replay replay_failure (25/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-026 renderer_replay replay_failure (26/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-027 renderer_replay replay_failure (27/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-028 renderer_replay replay_failure (28/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-029 renderer_replay replay_failure (29/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-030 renderer_replay replay_failure (30/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-031 renderer_replay replay_failure (31/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-032 renderer_replay replay_failure (32/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-033 renderer_replay replay_failure (33/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-034 renderer_replay replay_failure (34/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-035 renderer_replay replay_failure (35/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-036 renderer_replay replay_failure (36/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-037 renderer_replay replay_failure (37/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-038 renderer_replay replay_failure (38/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-039 renderer_replay replay_failure (39/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-040 renderer_replay replay_failure (40/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-041 renderer_replay replay_failure (41/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-042 renderer_replay replay_failure (42/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-043 renderer_replay replay_failure (43/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-044 renderer_replay replay_failure (44/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-045 renderer_replay replay_failure (45/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-046 renderer_replay replay_failure (46/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-047 renderer_replay replay_failure (47/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-048 renderer_replay replay_failure (48/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-049 renderer_replay replay_failure (49/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: stream=BXP-050 renderer_replay replay_failure (50/50); live model calls=0
+
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.GenUiSdkBixby50Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: 50/50 replay checks failed; no inference performed; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/mobile_gpu_mtp_full50_render_20260921
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:470)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-359c353ba9963675d7d5f220c109e41df848fea9:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-359c353ba9963675d7d5f220c109e41df848fea9:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:177)
+
+INSTRUMENTATION_STATUS: stream=
+Error in replaySavedBixbyCorpus(com.samsung.genuicraft.GenUiSdkBixby50Test):
+java.lang.AssertionError: 50/50 replay checks failed; no inference performed; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/mobile_gpu_mtp_full50_render_20260921
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:470)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-359c353ba9963675d7d5f220c109e41df848fea9:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-359c353ba9963675d7d5f220c109e41df848fea9:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:177)
+
+INSTRUMENTATION_STATUS: test=replaySavedBixbyCorpus
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 7.177
+There was 1 failure:
+1) replaySavedBixbyCorpus(com.samsung.genuicraft.GenUiSdkBixby50Test)
+java.lang.AssertionError: 50/50 replay checks failed; no inference performed; artifacts: /storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_benchmark/mobile_gpu_mtp_full50_render_20260921
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test$replaySavedBixbyCorpus$1.invokeSuspend(GenUiSdkBixby50Test.kt:470)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(dex-id-359c353ba9963675d7d5f220c109e41df848fea9:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(dex-id-359c353ba9963675d7d5f220c109e41df848fea9:1)
+	at com.samsung.genuicraft.GenUiSdkBixby50Test.replaySavedBixbyCorpus(GenUiSdkBixby50Test.kt:177)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,44 @@
+<a2ui>
+$/={planting_season:[{city:"Bengaluru",planting:"cooler part of dry season"},{city:"balcony",planting:"January to March or after heavy rains"}]}
+$/={_container_size:[{type:"compact",pot:"12-2-5L",target:"20-5 L"},{type:"larger",pot:"25-40 L",target:"smaller pots reduce yield and can cause fruiting problems"}]}
+$/={_sunlight:[{requirement:"at least 6 hours direct sun daily",best_location:"south or west-facing balcony",caution:"avoid letting taller plants shade tomato"}],_watering:[{method:"regularly and evenly",goal:"soil stays moist not soggy",note:"container tomatoes dry out faster than ground plants"},{method:"check daily",condition:"in hot weather",action:"make pot has good drainage"}],_problems:[{type:"Blossom drop or poor fruit set",cause:"undersized pots, heat, or inconsistent watering"},{type:"Blossom-rot",cause:"irregular moisture and calcium uptake problems, especially in small containers"}]}
+=Column(children![a,f,k,o,u],Gap="md")
+~
+= कार्ड(a~f)
+{
+  "title":"planting season",
+  "subtitle":"{city_planting_data}"
+}
+@
+=Card(children=[ae])
+{
+  "title":"Container size",
+  "subtitle":"{container_container_size}"
+}
+@
+=Card(children=[af])
+{
+  "title":"Sunlight",
+  "subtitle":"{_sunlight_sunlight}"
+}
+@
+=Card(children=[ak])
+{
+  "title":"Watering",
+  "subtitle":"{_watering}"
+}
+@
+=Card(children=[al])
+{
+  "title":"Two common problems",
+  "subtitle":"{_problems}"
+}
+@
+=Column(children,/"sm")
+{
+  "title":"Planting season",
+  "subtitle":"{_season_data}"
+}
+}
+<a2ui>
+</a2ui>

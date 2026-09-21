@@ -1,0 +1,14 @@
+{
+  "id": "BXP-010",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-010/output.express",
+  "sourceExpressSha256": "42874a1fbe413f19c4c08df010cd875c870c82cea3b02f89eefed62d22b17c39",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: children must be an array.",
+  "replayElapsedMs": 159
+}

@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-020",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Space missions",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Describe the next publicly scheduled ISRO launch. Include mission name, planned date, launch vehicle, payload purpose and any official schedule uncertainty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-020",
+  "response_text": "## Next publicly scheduled ISRO launch\n\n- **Mission name:** **Cartosat-3B**[2][10]\n- **Planned date:** **December 10, 2026**\n- **Launch vehicle:** **PSLV-XL**\n- **Payload purpose:** **Earth observation satellite**\n- **Schedule uncertainty:** The public schedule is presented as a launch listing rather than an official fixed ISRO mission page, so the date should be treated as **provisional** until ISRO confirms it on its own launch list or another official update.\n\nISRO’s official launch missions page currently shows the latest completed launch as **GSLV-F17/EOS-05** on September 4, 2026, and does not yet list a later upcoming mission in the visible entries, which is why the next launch date is being inferred from third-party schedule trackers.[1][5]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-020"
+}

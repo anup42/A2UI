@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-027",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Cybersecurity",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Create a phishing-awareness guide for office employees using authoritative security sources. Include warning signs, a harmless example email, verification steps and what to do after clicking a suspicious link. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-027",
+  "response_text": "## Phishing warning signs\n- Urgent language, threats, or pressure to act immediately are common phishing cues [1].\n- Check the sender address carefully; attackers often imitate trusted domains with small changes [2].\n- Be wary of generic greetings, poor grammar, odd formatting, unexpected attachments, and links that do not match their visible text[3].\n- Treat requests for passwords, financial details, or unusual payments as high-risk, especially if they arrive by email or text with a link to a login page[4].\n\n## Harmless example email\n**Subject:** Expense policy update for review\n\nHello team,\n\nPlease review the updated expense policy attached to this message. If you have questions, contact the Finance Helpdesk using the phone number listed on the company intranet.\n\nThank you,\nFinance Operations\n\nThis example is harmless because it avoids pressure, does not ask for credentials, and points employees to a trusted internal contact channel rather than a message link[12].\n\n## How to verify\n- Pause before clicking and inspect the sender, reply-to address, and destination URL for mismatches.\n- If a message claims to be from a real company or internal team, contact that organization or team through a known-good channel, not by replying to the suspicious message.\n- For payment, account, or password requests, verify using a second channel such as a phone call, secure chat, or direct login through the official website.\n- If the message is unexpected, treat it as suspicious even if the logo and wording look professional.\n\n## After clicking a suspicious link\n- Stop interacting with the page immediately and do not enter any information [13].\n- Open the service yourself by typing the official address or using a saved bookmark, then change the password if credentials were entered[18].\n- Enable or confirm multi-factor authentication where available, and review recent account activity for unauthorized access.\n- If you downloaded a file, disconnect if needed, run a security scan, and report the incident to your IT or security team right away[10].\n- Report suspicious messages promptly; NCSC advises forwarding suspicious email and not clicking links in it, and CISA recommends reporting phishing so defenders can act quickly [8].\n\n## Office habits that help\n- Use layered defenses: filtering, multi-factor authentication, and clear reporting channels reduce damage when a phish gets through[16].\n- Train staff to report mistakes without fear; organizations are more resilient when employees can flag suspicious mail early.\n- For finance, HR, and IT teams, require a second-person verification step for sensitive requests, since these roles are often targeted.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-027"
+}

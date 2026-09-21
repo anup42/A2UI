@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-003",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Rail travel",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare three daytime train services from Bengaluru to Mysuru by departure station, typical departure time, journey duration and seating class. Flag any timetable uncertainty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-003",
+  "response_text": "Here is a concise comparison of three **daytime** Bengaluru-to-Mysuru train services, using the most consistent timetable entries across the supplied sources.\n\n| Train service | Departure station | Typical departure time | Journey duration | Seating class |\n|---|---|---:|---:|---|\n| **Shatabdi Express (12007)** | KSR Bengaluru (SBC) | **10:35–10:45** | **About 2 h 15 m to 2 h 25 m** | **CC, EC** |\n| **Rajya Rani Express (20660)** | KSR Bengaluru (SBC) | **11:30** | **About 2 h 30 m** | **CC, 2S, GN** |\n| **Wodeyar Express (12614)** | KSR Bengaluru (SBC) | **15:15** | **About 2 h 30 m** | **CC, 2S, GN** |\n\nA few timetable notes:\n- **Shatabdi Express** has a small timing discrepancy across sources: one source lists 10:45, while another lists 10:35.[3][11]\n- **Shatabdi Express** also shows slight variation in duration, from about 2 h 15 m to 2 h 25 m.\n- **Rajya Rani Express** is consistently shown at 11:30 with a 2 h 30 m journey.[10]\n- **Wodeyar Express** is consistently shown at 15:15 with a 2 h 30 m journey.\n\nIf you want, I can also provide the same comparison with **arrival times** and **days of operation** included.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-003"
+}

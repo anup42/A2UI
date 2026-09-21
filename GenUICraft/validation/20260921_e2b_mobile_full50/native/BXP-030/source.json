@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-030",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Retirement savings",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare EPF, PPF and NPS under current Indian rules. Cover eligibility, contribution rules, lock-in, withdrawals and tax-treatment differences in a table, followed by three illustrative saver situations. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-030",
+  "response_text": "## EPF vs PPF vs NPS\n\n| Feature | **EPF** | **PPF** | **NPS** |\n|---|---|---|---|\n| **Eligibility** | Salaried employees in EPF-covered establishments; mandatory for many formal-sector workers. | Any resident individual can open an account. | Indian citizens aged 18–70; both salaried and self-employed can join. |\n| **Contribution rules** | Employee contributes **12% of basic pay + dearness allowance**; employer also contributes. | **₹500 minimum** per year; **₹1.5 lakh maximum** per financial year. | **₹1,000 minimum** per year for Tier I; no upper limit on contribution. |\n| **Lock-in / tenure** | Linked to employment; full withdrawal is generally at retirement or after qualifying exit. | **15 years** initial lock-in; extendable in 5-year blocks. | Locked until **age 60** for normal exit. |\n| **Withdrawals** | Partial withdrawals allowed for specified needs; full withdrawal is tax-favoured after **5 years of continuous service**. | Partial withdrawal allowed from the **7th year**; premature closure only after **5 completed years** and for specified reasons. | Partial withdrawal allowed after **3 years**, generally up to **25% of own contributions** for specified purposes. |\n| **Tax treatment** | Contributions may qualify for deduction under Section 80C; interest and eligible withdrawals are generally tax-free, but interest on employee contribution above **₹2.5 lakh/year** can be taxable. | Contributions qualify under Section 80C; interest and maturity are generally **fully tax-free**. | Employee contribution can get Section 80C benefit, plus an extra **₹50,000** under Section 80CCD(1B); at exit, a lump sum portion is tax-free, while annuity income is taxable. |\n\nEPF is the most employment-linked and usually the least flexible, but it offers strong tax efficiency for salaried workers.[1][8][10] PPF is the simplest low-risk option for residents seeking guaranteed, tax-free long-term savings, but it has a fixed annual cap and a long lock-in.[9] NPS is the most flexible for retirement accumulation because of its higher contribution ceiling and market-linked growth, but its exit is partly taxable because annuity income is taxed as regular income.[2]\n\n## Three illustrative saver situations\n\n- **A salaried employee with stable income and long service horizon:** EPF is usually the core choice because contributions are automatic, employer money is added, and withdrawals after 5 years of service are generally tax-free.\n- **A resident freelancer or homemaker wanting safe, disciplined saving:** PPF fits well because it is open to resident individuals, allows small yearly contributions, and offers fully tax-free maturity under the current rules.\n- **A higher-income saver aiming to build a larger retirement corpus:** NPS is often the better fit because there is no practical upper contribution limit, it allows extra deduction over Section 80C, and it supports long-term market-linked growth with partial liquidity after 3 years.\n\nCurrent rules cited here reflect the latest available sources; if your exact EPF tax treatment depends on contribution thresholds or employer structure, that should be checked against the latest income-tax and EPFO guidance before investing.[7]",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-030"
+}

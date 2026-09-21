@@ -1,0 +1,43 @@
+{
+  "source_commit_before_report": "79bcec38bb632dacab97de5ebeb262d039e183c3",
+  "model_host_path": "C:\\Users\\anupk\\Downloads\\asset_238\\gemma4_e2b_a2ui_mobile.litertlm",
+  "model_size_bytes": 2588147712,
+  "model_sha256_host_and_device_verified": "4675f37353e41c786a3e94f03ba4f64ad366a2e4e5d188bb92f5bef3922a75fe",
+  "requests_sha256": "0dd5c774eca49b84b4ef2b6a3b9da53ea8d9573cb99b9515e0b3b4d79e37ec4a",
+  "native_results_sha256": "1ec734727052da4a9181d3618d30827ab0145ab8eb5cea6544049042203d125c",
+  "frozen_bixby50_sha256": "27bdc9ad4c7d3735d3c5f7c26fa37be2472e7aafd7c99afa31910a22b5bfdb4d",
+  "android_replay_corpus_sha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "app_apk_sha256": "27a998660b4cf51504186d5ea2b3740dfdcf93d49265a413d7ac43c2f9f7e529",
+  "test_apk_sha256": "30fb3945a3ec5f50868d14176af987bc09561ae447b3d35fb6599be131970db1",
+  "device": {
+    "serial": "R3GL203AKSF",
+    "model": "SM-F776U",
+    "product": "b8qsqw",
+    "soc": "SM8850",
+    "android_sdk": 37
+  },
+  "battery": {
+    "start_percent": 100,
+    "end_percent": 90,
+    "usb_powered": true,
+    "start_temperature_c": 33.5,
+    "end_temperature_c": 36.5,
+    "power_or_thermal_settings_changed": false
+  },
+  "runtime": {
+    "litert_lm_android": "0.16.1",
+    "genuicraft_aar": "0.2.0"
+  },
+  "generation": {
+    "temperature": 0.0,
+    "top_k": 1,
+    "top_p": 1.0,
+    "seed": 42,
+    "enable_thinking": false,
+    "max_input_tokens": 4096,
+    "max_new_tokens": 2048,
+    "engine_context_tokens": 6144,
+    "case_timeout_seconds": 300,
+    "mtp_enabled": true
+  }
+}

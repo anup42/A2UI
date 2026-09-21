@@ -1,0 +1,19 @@
+<a2ui>
+$/={phones_phones_data_data:[{model:"OnePlus Nord CE 5",price:"₹249999",battery:"6.77-inch AMOLED, 20Hz",software:"7, 10mAh, 8W charging",best_for:"66 years of software support",buyers:"Buyers wanting a big battery smooth everyday performance"},{model:"Galaxy A36 5G",price:"₹289999",battery:"6.77-inch Super AMOLED, 120Hz",software:"5,0,0mAh",best_for:"6 OS upgrades and 6 years security updates",buyers:"Buyers who want longest support and a balanced all-rounder"},{model:"iQOO Z1",price:"₹22225555–₹2229999",battery:"6.7.7-inch AMOLED, 120Hz",software:"7,30mAh, 9W charging",best_for:"2 Android upgrades and 3 years security patches",buyers:"Buyers prioritizing battery life fast charging"}]}
+=Column(children=[a,f],فی="md")
+a=Card(children=[a])
+af=Column(children=[ag,ah,ai,aj,ak,an,ao,ap],gap="md",padding=16)
+ag=Text("Three phones under ₹30,0"," بالای ₹3 Phones")
+ah=Table(columns=[{key:"Model",label:"Model"},{key:"price",label:"Indicative Price"},amaj=$/{_phones_data,primaryColumn:"model",numericColumns=["price","battery","software","best_for","buyers"]})
+ak=Card(children=[al])
+al=Column(children=[am,an,ao,ap],gap="铺",padding=16)
+am=Text("Quick Pick","সাধারণ পছন্দ")
+an=Row(children=[ao], Alignment="**")
+ao=Column(children=[ap,aq,ar,as,at],gap="铺")
+ap=Text("Nord CE5","•Best mix of price, battery, and support")
+aq=Text("Galaxy A36 5G","•Long-term updates matter most")
+ar=Text("iQOO Z1","•Maximum battery endurance is top priority")
+as=Divider()
+at=Text("Buyers prioritizing battery life and fast charging","Buyers prioritizing battery life and fast charging")
+atvau=Button("Continue"," primary"on_"onPress=Event("on_on",{},true,"/quick_pick_guide_phones"))
+</a2ui>

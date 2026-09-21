@@ -1,0 +1,14 @@
+{
+  "id": "BXP-008",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-008/output.express",
+  "sourceExpressSha256": "a7202c92952f815f6fecc4e5042a069ca24355955bfbe93ceb8d3b0d795b663a",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: Unknown property 'Gap' for A2UI Express component 'Column'.",
+  "replayElapsedMs": 164
+}

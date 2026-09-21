@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-021",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Archaeology",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Summarize one significant archaeological discovery announced in India within the past 12 months. Explain the location, dating evidence, discovery and why it matters, distinguishing findings from speculation. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-021",
+  "response_text": "## Rakhigarhi burial discovery\n\nIn June 2026, the Archaeological Survey of India reported the recovery of **eight skeletons** from a mature Harappan burial at **Rakhigarhi** in Haryana, one of the largest known Indus Valley Civilization sites.[2] The remains came from **Mound No. 7**, and officials said **five skeletons had been retrieved so far** from the burial area.\n\n## Dating evidence\n\nThe dating is based on the site’s **Harappan archaeological context**, with the burials identified as **Harappan-era** rather than by a published lab date in the news report. That means the age is grounded in stratigraphy and associated material culture, while finer dating and biological conclusions still depend on ongoing scientific testing.[10]\n\n## Why it matters\n\nThis find is important because human burials from the Indus Civilization are relatively rare, so the skeletons can help researchers study **health, ancestry, burial practice, and population movement** in one of South Asia’s key Bronze Age cultures. The remains were transferred for **advanced scientific investigation**, including DNA-oriented research, which may clarify relationships among ancient populations.\n\n## What is established vs. speculative\n\nThe **established finding** is the recovery of Harappan burials and associated pottery offerings. Any broader claims about exact ancestry, migration, or social organization remain **provisional** until laboratory results are published.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-021"
+}

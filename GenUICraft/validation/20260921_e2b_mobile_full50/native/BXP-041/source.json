@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-041",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "International travel rules",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare current tourist-entry requirements for Indian ordinary-passport holders visiting Thailand, Vietnam and Sri Lanka. Include visa route, permitted stay, published fees, passport requirements and the date the rules were checked. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-041",
+  "response_text": "## Current entry rules for Indian ordinary passports\n\n| Country | Visa route | Permitted stay | Published fee | Passport requirement | Rules checked |\n|---|---|---:|---:|---|---|\n| Thailand | Visa exemption for Indian ordinary passport holders for tourism; Thai embassy note says longer stays can use e-visa if needed [21][22] | Up to 30 days from 15 September 2026 under the revised exemption scheme | Visa exemption: no fee published; e-visa fee not confirmed in the official snippets I could verify | Thai embassy advisory lists a passport valid on arrival and standard immigration conditions[24] | Checked against Thai embassy notices dated 26 July 2026 and 15 September 2026 rule notice |\n| Vietnam | E-visa is the standard route; India is not on Vietnam’s visa-exemption list [11][17] | Up to 90 days for the official e-visa | USD 25 single-entry or USD 50 multiple-entry | Passport scan required for the application; source notes at least 6 months validity and 2 blank pages[20] | Checked against sources published 30 March 2026 and 8 July 2026 |\n| Sri Lanka | ETA is required for short visits; free ETA scheme applies to selected nationalities, but the checked sources do not show India in that free list [12][32] | Standard tourist ETA is 30 days[37] | ETA fee for SAARC countries is listed as USD 20 online or USD 25 on arrival in the old fee schedule, but current India-specific published fee was not clearly verified from official sources | Tourist ETA is applied online using passport bio-page details; the application guidance requires the passport details exactly as in the travel document [4] | Checked against Sri Lankan immigration pages and ETA guidance, including 25 May 2026 free-ETA notice and ETA guidance pages |\n\n## Notes\n- Thailand’s official notices in the search results show a changed regime in 2026, so the stay period depends on the effective date; the most recent embassy notice in the results says the new 30-day exemption starts from 15 September 2026.\n- Vietnam remains the simplest of the three to state: Indian ordinary passport holders need a visa, and the official e-visa route is the normal path.\n- Sri Lanka’s official pages confirm ETA use and a 30-day tourist period, but the available official snippets here do not clearly state a current India-specific fee, so I cannot confirm that figure with confidence.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-041"
+}

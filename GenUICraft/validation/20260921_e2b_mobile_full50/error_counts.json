@@ -1,0 +1,21 @@
+{
+  "scorer": {
+    "unterminated expression": 9,
+    "invalid statement": 1,
+    "envelope count/incomplete": 33,
+    "children type": 2,
+    "unknown property": 1,
+    "unbalanced delimiter": 3,
+    "empty/invalid children": 1
+  },
+  "aar_compiler": {
+    "unclosed expression": 9,
+    "unknown property": 2,
+    "incomplete/trailing envelope": 30,
+    "invalid gap enum": 1,
+    "children type": 1,
+    "unbalanced delimiter": 4,
+    "unsupported prefix": 2,
+    "empty/invalid children": 1
+  }
+}

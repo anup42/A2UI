@@ -1,0 +1,57 @@
+{
+  "express_parse_ok": false,
+  "native_syntax_valid": false,
+  "native_catalog_valid": false,
+  "raw_standard_a2ui_valid": false,
+  "raw_standard_a2ui_error": null,
+  "raw_canonical_semantic_valid": false,
+  "repaired_syntax_valid": false,
+  "repaired_catalog_valid": false,
+  "repaired_standard_a2ui_valid": false,
+  "repaired_standard_a2ui_error": null,
+  "repaired_canonical_semantic_valid": false,
+  "repair_applied": false,
+  "schema_valid_strict": false,
+  "schema_error": "raw:ValueError:Unknown named property 'Gap' for Column",
+  "standard_a2ui_valid": false,
+  "standard_a2ui_error": null,
+  "canonical_semantic_valid": false,
+  "semantic_hash": null,
+  "markdown_fence_leakage": false,
+  "top_level_keys_ok": false,
+  "json_parse_ok": false,
+  "json_parse_error": "active_format_is_a2ui_express",
+  "output_chars": 865,
+  "generation_reward_v5_4": 0.0,
+  "render_artifact_quality_v5_4": 0.0,
+  "metric_identity_v5_4": {
+    "metric_version": "5.4.0",
+    "metric_name": "GenUI Representation Quality",
+    "metric_fingerprint": "f4a5355d3147b759aa864e0d10cc111d604b01732882d182d0c512056294f05b",
+    "reward_pipeline_fingerprint": "786e9c2aa91689a84a433c34ed9e5462d7068b9588d46c857e1dc8bcab5f21c1",
+    "source_hash": "748ed17b5517a99d9a3149fb9cc3a5b268d148571bfa412bd9627a89fc129eb4",
+    "raw_candidate_hash": "a7202c92952f815f6fecc4e5042a069ca24355955bfbe93ceb8d3b0d795b663a",
+    "canonical_candidate_hash": null,
+    "expected_contract_hash": "868455b84a8589e1d1f7ffd1c471a8b11d445ded685a2edb20acecc6b6a0f496",
+    "computed_registry_hash": "056f2a68ce8f312c1bda9e17c62ff9f5253fa82105d95d7dc5bff5c045b731b9",
+    "reference_map_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  "genui_metric_version": "5.4.0",
+  "root_reachable_fraction_v5_4": 0.0,
+  "fully_root_reachable_v5_4": false,
+  "cap_v5_4": 0.0,
+  "active_caps_v5_4": [
+    {
+      "kind": "integrity",
+      "name": "parse_failure",
+      "cap": 0.0
+    }
+  ],
+  "binding_caps_v5_4": [],
+  "graph_evidence_v5_4": {},
+  "fidelity_atomics_v5_4": {},
+  "scoring_errors_v5_4": [
+    "raw:ValueError:Unknown named property 'Gap' for Column",
+    "strict_schema.non_object"
+  ]
+}

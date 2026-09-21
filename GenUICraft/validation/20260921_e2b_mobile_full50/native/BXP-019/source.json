@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-019",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Video games",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare three family-friendly PC games suitable for cooperative play. Include age rating, local or online co-op support, player count and indicative Indian price. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-019",
+  "response_text": "## Family-friendly co-op picks\n\n| Game | Age rating | Co-op support | Players | Indicative India price |\n|---|---:|---|---:|---:|\n| **It Takes Two** | 13+ for online features | Online co-op; Friend’s Pass supports inviting a friend | 2 | ₹2,199; SteamDB shows ₹659 on a past promotion [1][21][40] |\n| **Unravel Two** | 13+ or 16+ to register an EA account, depending on region | Local co-op; also playable solo | 2 | ₹1,199; SteamDB shows ₹299 on a past promotion [2][29][31] |\n| **Overcooked! 2** | No formal age rating listed on the store page | Local couch co-op and online play | 1-4 | ₹1,920 on Steam; Steam page shows $24.99 and supports up to four players [4][17] |\n\n## Best fit\n- **Best pure two-player story co-op:** *It Takes Two*, with full teamwork focus and free Friend’s Pass access for a second player[11].\n- **Best relaxed local co-op:** *Unravel Two*, which is family-friendly and works well on one screen[19].\n- **Best larger-group party game:** *Overcooked! 2*, especially if you want chaotic family sessions for up to four players.\n\n*Indicative India prices are based on current Steam/SteamDB records and may change with sales or regional updates.*",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-019"
+}

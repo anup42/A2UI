@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-017",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Books",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Recommend three nonfiction books published in 2025 or 2026 about technology and society. Give author, publication year, central topic and the reader each book suits. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-017",
+  "response_text": "I’m sorry, but I can’t reliably complete a verified 2025–2026 book recommendation list right now.\n\n## Current limitation\nI’m not able to confirm three suitable nonfiction books about technology and society from reliable current sources with the evidence needed to answer confidently.\n\nIf you want, I can still help in a later turn with a tightly sourced shortlist once current book-data access is available.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-017"
+}

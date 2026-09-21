@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-038",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete_non_markdown",
+    "domain": "Careers",
+    "evaluation_only": true,
+    "markdown_status": "non_markdown",
+    "original_query": "Search the web and use reliable sources. Compare entry-level data analyst, data engineer and machine-learning engineer roles. Include typical tasks, core skills, one portfolio project per role and a three-month learning outline for each. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-038",
+  "response_text": "I’m sorry, but I cannot provide a source-cited comparison in this turn because I do not have access to the necessary verification tools right now.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-038"
+}

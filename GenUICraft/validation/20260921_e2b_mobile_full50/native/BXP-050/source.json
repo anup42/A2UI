@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-050",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Ocean and monsoon science",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Explain how El Nino, La Nina and the Indian Ocean Dipole influence the Indian monsoon. Include a comparison table, historical examples and why these signals cannot predict rainfall for one city with certainty. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-050",
+  "response_text": "## How these climate signals affect the Indian monsoon\n\n- **El Niño** is the warm phase of ENSO in the tropical Pacific, and it usually **suppresses the Indian summer monsoon** by weakening large-scale circulation and moisture transport toward India.[4][10]\n- **La Niña** is the cool phase of ENSO, and it usually **strengthens the monsoon** by supporting stronger monsoon circulation and moisture supply, which raises the chance of above-normal rainfall.\n- The **Indian Ocean Dipole (IOD)** measures the west–east sea-surface temperature difference in the Indian Ocean; a **positive IOD** generally favors **more rain over India**, while a **negative IOD** tends to reduce monsoon rainfall.\n- The key point is that **ENSO and IOD interact**: a positive IOD can partly or sometimes strongly **offset El Niño’s drying effect**, while a negative IOD can **reinforce** it.[8]\n\n## Comparison table\n\n| Signal | Typical ocean pattern | Usual effect on Indian monsoon | Why it matters |\n|---|---|---|---|\n| El Niño | Warmer central/eastern Pacific | Below-normal rainfall, more dry spells, higher heat risk | Weakens moisture flow and monsoon circulation |\n| La Niña | Cooler central/eastern Pacific | Above-normal rainfall more often | Strengthens circulation and moisture transport |\n| Positive IOD | West Indian Ocean warmer than east | Often supports stronger monsoon rain | Adds moisture and can counter El Niño |\n| Negative IOD | East Indian Ocean warmer than west | Often weakens monsoon rain | Reduces convection near India and can worsen El Niño’s impact |\n\n## Historical examples\n\n- **1997**: A strong El Niño occurred, but a **positive IOD helped reduce its drying impact**, so India did not experience the full expected monsoon failure.[5][6]\n- **2002 and 2009**: These are widely cited **El Niño drought years** for India, showing the typical negative ENSO–monsoon link.\n- **2019**: Research shows the monsoon was shaped by the **combined influence of a strong positive IOD and an El Niño Modoki event**, illustrating that multiple signals can act together rather than one signal deciding the outcome alone.[2]\n\n## Why these signals cannot predict rainfall for one city with certainty\n\n- These climate signals describe **large-scale tendencies**, not a city-level guarantee.\n- India’s rainfall also depends on **monsoon trough position, monsoon depressions, local topography, coastal circulation, and short-lived systems**, which can make nearby places receive very different rainfall in the same season.[9]\n- Even during the same ENSO or IOD phase, rainfall can show a **spatially uneven pattern** across India, including regional wet–dry contrasts.\n- The relationship is also **not perfectly stable**: studies note that the ENSO–monsoon connection can weaken or vary over time, especially when IOD conditions co-occur.[15]\n- So these indicators can help estimate whether a season is *more likely* to be wet or dry, but they **cannot forecast rainfall for one city with certainty**.\n\n## Bottom line\n\n- **El Niño usually means weaker monsoon, La Niña usually means stronger monsoon, and the IOD can amplify or offset both.**\n- **Seasonal climate signals are useful for risk assessment, but not for exact city-level rainfall prediction.**",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-050"
+}

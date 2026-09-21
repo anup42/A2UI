@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-031",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Property due diligence",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Create a pre-purchase document checklist for an apartment in Karnataka. Explain RERA registration, sanctioned plans, title documents, occupancy certificate and encumbrance certificate, including where each can be verified. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-031",
+  "response_text": "## Pre-purchase document checklist for an apartment in Karnataka\n\n- **RERA registration certificate** — Confirms the project is registered under Karnataka RERA, which is required for qualifying apartment projects; verify it on the **Karnataka RERA portal** using the project name or registration number.[1][3][4][9]\n- **Sanctioned building plan** — Confirms the building layout, floors, and units were approved by the competent authority; verify it with the **BBMP, BDA, or other local planning authority** and cross-check the same plan details against RERA records.[13]\n- **Title documents / title chain** — Establishes who owns the land and whether the seller has a valid right to transfer it; verify the **mother deed, prior sale deeds, partition deeds, and related title records** at the **Sub-Registrar’s office** or through Karnataka’s registration record system, and have an independent lawyer review the chain.[2][5][10][14][15]\n- **Occupancy Certificate (OC)** — Confirms the building has been certified fit for occupation and generally matches approved norms; verify it with the **BBMP or the issuing municipal/planning authority** before taking possession.[7]\n- **Encumbrance Certificate (EC)** — Shows registered transactions and helps identify mortgages, charges, attachments, or other encumbrances on the property; verify it at the **Sub-Registrar’s office** or through Karnataka’s online registration services, and ensure the period covered is sufficiently long.\n\n## What each document should tell you\n\n- **RERA registration** should match the developer name, project name, location, phase, and registration number shown in the brochure and agreement; if the project is not listed on the Karnataka RERA portal, that is a major warning sign.\n- **Sanctioned plan** should match the actual apartment layout, number of floors, and unit configuration being sold; deviations between the approved plan and marketing material should be treated as a red flag.\n- **Title chain** should be continuous and unbroken, showing clear ownership from the root document to the present seller; missing links, unregistered transfers, or mismatched names require legal clarification.\n- **OC** should exist for ready-to-move flats; possession without it can indicate the building has not been fully regularised for occupation.\n- **EC** should be checked for undisclosed loans, attachments, or other registered claims; any active charge should be resolved before purchase.\n\n## Where to verify each item\n\n- **Karnataka RERA portal** — RERA registration details, promoter/project status, and related project disclosures.\n- **BBMP / BDA / local planning authority** — Sanctioned building plan and, where applicable, Occupancy Certificate and other municipal approvals.[12]\n- **Sub-Registrar’s office / Karnataka registration records** — Title deeds, sale deed chain, and Encumbrance Certificate.\n- **Independent property lawyer** — Final legal review of title chain, approvals, and any inconsistencies before payment.\n\n## Minimal buy-only-if checklist\n\n- RERA registration is valid and matches the project.\n- Sanctioned plan matches what is being sold.\n- Title chain is clear and complete.\n- OC is available for a ready apartment.\n- EC shows no unresolved encumbrance.\n\nCurrent official portal data can change, so verify the latest records directly before paying any booking amount.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-031"
+}

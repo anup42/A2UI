@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-023",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Pet care",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Summarize routine preventive care for a healthy adult indoor cat in India. Cover veterinary checkups, vaccination discussions, parasite prevention, nutrition and dental care using veterinary sources. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-023",
+  "response_text": "## Veterinary checkups\n- Schedule a **wellness exam at least once a year**; the vet should review weight, body condition, skin/coat, heart/lungs, teeth, and any behavior or litter-box changes. Indoor cats still need routine preventive care because problems can be missed early.[10]\n\n## Vaccinations\n- Discuss whether your cat’s **FVRCP** and **rabies** vaccines are current; these are core protections for cats in India.[1]\n- For adult low-risk cats, FVRCP boosters are often given **every 1–3 years depending on the vaccine and vet advice**, while rabies timing should follow local rules and the product label.[12]\n- Ask your vet about **FeLV** only if your cat has exposure risk, such as outdoor access or contact with other cats of unknown status.[14]\n\n## Parasite prevention\n- Use a **vet-directed deworming and flea-prevention plan**; indoor cats can still pick up parasites through shoes, litter, shared spaces, or prey exposure.[13][15]\n- Many adult cats are dewormed **about four times per year**; your veterinarian may adjust this based on lifestyle and local risk.\n\n## Nutrition and dental care\n- Feed a **complete, balanced cat food** with fresh water; milk is not a routine substitute for water.\n- Support dental health with **regular tooth brushing** and annual mouth checks during wellness visits; your vet may recommend professional cleaning if plaque or tartar builds up.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-023"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "BXP-005",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-005/output.express",
+  "sourceExpressSha256": "44bfeb341e818942286f1a066322d1c4dc071474cf9f1fa4ce5d69561e7c71ad",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: Stack.gap must be one of none, sm, md, lg, xl.",
+  "replayElapsedMs": 151
+}

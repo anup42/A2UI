@@ -1,0 +1,27 @@
+<a2ui>
+$/={game_data_rows:[{game:"It Takes",age:"3+",coop:"Online co-op; Friend’s Pass supports inviting a friend",players:"2",price:"₹2,99; SteamDB shows ₹699 on a past promotion [1][21][40]",image:"[21]"},{game:"Unravel Two",age:"13+",coop:"Local co-op; also playable solo",players:"2",price:"₹1,199; SteamDB shows ₹299 on a past promotion [2][293][3]",image:"[293]},{game:"Overcooked! 2",age:"No formal age rating listed on the store page",coop:"Local co-op and online play",players:"1-4",price:"₹1,920 on Steam shows $24.999 and supports up to four [447]",image:"[477]}]}
+$/={best_fit_rows:[{fit:"Best pure two-player co-op",game:"It Takes",details:"with full teamwork focus and free Friend’s Pass access for a second player[11]",image:"[11]"},{fit:"Best relaxed local co-op",game:"Unravel Two",details:"which is family-friendly and works well on one screen[9]",image:"[99]"},{fit:"Best larger group party game",game:"Overcooked! 2",details:"especially if you want chaotic family sessions for up to four players[477]",image:"[4777]"}]}
+}
+=Column(children=[a,f],فی="મd")
+a=Card(children=[b,e],"md")
+b=Text("Family-friendly co-op picks","sage1")
+e=Table(columns=[{key:"game",label:"Game"},$/={game_rows:[{game:"It Takes",age:"3+",coop:"Online co-op; Friend’s Pass supports inviting a friend",players:"2",price:"₹2,99; SteamDB shows ₹6999 on a past promotion [1][2111]",image:"[21]"},{game:"Unravel Two",age:"3+",coop:"Local co-op; also playable solo",players:"2",price:"₹1,1999; SteamDB shows ₹299 on a past promotion [2229333]",image:"[23]"},{game:"Overcooked! 2",age:"No formal age rating listed on the store page",coop:"Local co-op and online play",players:"1-4",price:"₹1,920 on Steam shows $4.99 and supports up to four [4477]",image:"[4777]"}]}
+f= कार्ड(children=[g,j])
+g=Card(children=[h,k])
+h=Row(children=[i,j],"铺")
+i=Text("Best fit","sage")
+j=Column(children=[k,l],"sg")
+k=Text("Best pure two-player co-coop","sm")
+l=Text("It Takes, with full teamwork focus and free Friend’s Pass access for a second player[111]","sm")
+m=Row(n,o,align=" попере",paddingVertical=16)
+n=Text("Best relaxed local co-coop","sage")
+o")
+p=Column(q,r,铺=16)
+s=Card(t,[u])
+u=Text("Best larger group party game","sage")
+v=x=Text("Overcooked! 2","sm")
+w=x=y=z=z=a="sm")
+aa=aab=ac=ad=ae=af=ag="sm")
+ah=ai=aj=ak=al="sm")
+al=am=an=ao=ap=aq=aq=aq=af=ag=ag=ag="sm")
+agaj=ak=al=am=ao=aq=aq=af=af=af=af=af=af=af=af=af=af=afafaf=af=af=af=af=af=af=afafaf=af=af=afaf=afafaf=af=af=afaf=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af=af

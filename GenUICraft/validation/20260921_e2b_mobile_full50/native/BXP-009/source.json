@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-009",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Accommodation",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare three Jaipur neighborhoods for a first-time visitor staying in a mid-range hotel. Cover access to sights, transport, atmosphere and the main drawback of each. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-009",
+  "response_text": "## Civil Lines\n- **Access to sights:** Good for reaching central Jaipur and many major sights by taxi or auto, with a practical location near the city center.[3]\n- **Transport:** Strong road access and usually easier ride-hailing connectivity than outer areas.\n- **Atmosphere:** Quieter, more residential, and typically less hectic than the old-city core.\n- **Main drawback:** Not the most walkable or characterful area if you want bazaars and heritage streets right outside the hotel.\n\n## C-Scheme / central Jaipur\n- **Access to sights:** One of the best all-around bases for a first visit because it sits close to core attractions and city amenities.[6]\n- **Transport:** Easy to move around by cab, auto, and local roads, making day planning straightforward.\n- **Atmosphere:** Busy, urban, and convenient, with a more modern city feel.\n- **Main drawback:** Less historic atmosphere than staying nearer the old city, so it can feel more generic.\n\n## Vaishali Nagar\n- **Access to sights:** Useful for outer-west Jaipur and still workable for major attractions by car, but farther from the heritage core.[4]\n- **Transport:** Well connected by road, though trips to older sights usually take longer.\n- **Atmosphere:** Residential, popular, and generally comfortable for mid-range hotels.\n- **Main drawback:** Distance from Amber, the old city, and central monuments makes sightseeing less efficient.",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-009"
+}

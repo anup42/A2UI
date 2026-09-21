@@ -1,0 +1,258 @@
+{
+  "format": "litertlm",
+  "path": "C:\\Users\\anupk\\Downloads\\asset_238\\gemma4_e2b_a2ui_mobile.litertlm",
+  "file_size": 2588147712,
+  "header": {
+    "magic": "LITERTLM",
+    "version": {
+      "major": 1,
+      "minor": 5,
+      "patch": 0
+    },
+    "header_end_offset": 1872,
+    "header_sha256": "a13b50ee5dfb59e69896ba93769a43a1ba9853416eb9d8b8ab50f9c820f9ce4a",
+    "system_metadata": {
+      "entries": [
+        {
+          "key": "author",
+          "type": "StringValue",
+          "value": "The ODML Authors"
+        },
+        {
+          "key": "uuid",
+          "type": "StringValue",
+          "value": "2fa073f5-2d5e-44ff-8bb9-64d926dc40e2"
+        },
+        {
+          "key": "creation_timestamp",
+          "type": "StringValue",
+          "value": "2026-04-28T22:06:55.560103+00:00"
+        }
+      ]
+    }
+  },
+  "sections": [
+    {
+      "data_type": 5,
+      "data_type_name": "LlmMetadataProto",
+      "begin_offset": 16384,
+      "end_offset": 28576,
+      "size": 12192,
+      "items": [],
+      "index": 0,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 4,
+      "data_type_name": "SP_Tokenizer",
+      "begin_offset": 32768,
+      "end_offset": 4721781,
+      "size": 4689013,
+      "items": [],
+      "index": 1,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 4734976,
+      "end_offset": 108546696,
+      "size": 103811720,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_embedder"
+        }
+      ],
+      "index": 2,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 108560384,
+      "end_offset": 1393078776,
+      "size": 1284518392,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_per_layer_embedder"
+        }
+      ],
+      "index": 3,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1393082368,
+      "end_offset": 1487134648,
+      "size": 94052280,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_audio_encoder_hw"
+        },
+        {
+          "key": "backend_constraint",
+          "type": "StringValue",
+          "value": "cpu"
+        }
+      ],
+      "index": 4,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1487142912,
+      "end_offset": 1496584156,
+      "size": 9441244,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_audio_adapter"
+        },
+        {
+          "key": "backend_constraint",
+          "type": "StringValue",
+          "value": "cpu"
+        }
+      ],
+      "index": 5,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1496596480,
+      "end_offset": 1496603252,
+      "size": 6772,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_end_of_audio"
+        }
+      ],
+      "index": 6,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1496612864,
+      "end_offset": 1720750800,
+      "size": 224137936,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_vision_encoder"
+        },
+        {
+          "key": "prefer_activation_type",
+          "type": "StringValue",
+          "value": "fp16"
+        }
+      ],
+      "index": 7,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1720762368,
+      "end_offset": 1725505296,
+      "size": 4742928,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_vision_adapter"
+        },
+        {
+          "key": "backend_constraint",
+          "type": "StringValue",
+          "value": "cpu"
+        }
+      ],
+      "index": 8,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1725513728,
+      "end_offset": 1725520500,
+      "size": 6772,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_end_of_vision"
+        }
+      ],
+      "index": 9,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 1725530112,
+      "end_offset": 2543805296,
+      "size": 818275184,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_prefill_decode"
+        },
+        {
+          "key": "prefer_activation_type",
+          "type": "StringValue",
+          "value": "fp16"
+        }
+      ],
+      "index": 10,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    },
+    {
+      "data_type": 3,
+      "data_type_name": "TFLiteModel",
+      "begin_offset": 2543812608,
+      "end_offset": 2588138320,
+      "size": 44325712,
+      "items": [
+        {
+          "key": "model_type",
+          "type": "StringValue",
+          "value": "tf_lite_mtp_drafter"
+        }
+      ],
+      "index": 11,
+      "alignment_ok": true,
+      "ordered_after_previous": true
+    }
+  ],
+  "graphs": [],
+  "weights": {
+    "section_count": 0,
+    "hashed": false
+  }
+}

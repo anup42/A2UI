@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-015",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Cricket",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Summarize India's latest completed men's international cricket match. Include match date, opponent, format, team scores, result and two standout performances. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-015",
+  "response_text": "## Latest completed India men’s international match\n- **Date:** July 2026, at Galle International Stadium, Galle[13]\n- **Opponent:** Sri Lanka\n- **Format:** **Test match**\n- **India scores:** **462** and **193/48.5**\n- **Sri Lanka scores:** **284** and **206**\n- **Result:** **India won by 165 runs**\n\n## Standout performances\n- **India’s first-innings 462** set the match in control and created a large lead that Sri Lanka could not overcome.\n- **India’s all-round bowling effort** restricted Sri Lanka to 284 in the first innings and 206 in the chase, sealing the win by a substantial margin.\n\n",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-015"
+}

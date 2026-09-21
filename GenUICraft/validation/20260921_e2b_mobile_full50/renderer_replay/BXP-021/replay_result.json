@@ -1,0 +1,14 @@
+{
+  "id": "BXP-021",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-021/output.express",
+  "sourceExpressSha256": "0bbfb2f360eabbbcdd50035a8beb9c8cc08055b44442db44d0605cde2360e38c",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: children must contain non-empty component references.",
+  "replayElapsedMs": 81
+}

@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-002",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Air quality",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Find the latest reported Delhi AQI. Give the observation time, reporting scale, pollution category and main pollutant, then briefly explain the outdoor-activity guidance for that category. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 100-500 tokens; aim for 150-220 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-002",
+  "response_text": "### Delhi AQI\n- **Observation time:** 8:30 AM IST\n- **Reported AQI scale:** **AQI-IN 197**\n- **Pollution category:** **Poor**\n- **Main pollutant:** **PM2.5**[5][7]\n\n### Outdoor-activity guidance\nFor the **Poor** category, air pollution can cause breathing discomfort, so **children, older adults, and people with respiratory issues should limit outdoor activities** and **wear a mask if they must go out**. \n",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-002"
+}

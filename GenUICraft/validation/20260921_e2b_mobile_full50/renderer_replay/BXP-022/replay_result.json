@@ -1,0 +1,14 @@
+{
+  "id": "BXP-022",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-022/output.express",
+  "sourceExpressSha256": "6fb5312684d4c924fc694803ec1b9cdc47bc8e3fb5eee6178145dee94b112449",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+  "replayElapsedMs": 82
+}

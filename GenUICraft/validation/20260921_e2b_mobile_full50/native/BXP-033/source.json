@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-033",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "Public health",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Compare dengue and chikungunya using current WHO or Indian public-health guidance. Cover transmission, common symptoms, warning signs requiring medical attention and prevention, while explaining why symptoms alone cannot establish a diagnosis. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-033",
+  "response_text": "## Transmission\nBoth dengue and chikungunya are spread mainly by **Aedes aegypti** and **Aedes albopictus** mosquitoes, which bite mostly during the day. WHO notes that preventing mosquito bites and eliminating breeding sites are the main ways to reduce transmission for both infections [3][1].\n\n## Common symptoms\n**Dengue** often causes high fever, severe headache, pain behind the eyes, muscle and joint pain, nausea, vomiting, rash, and swollen glands[20].\n\n**Chikungunya** usually begins with abrupt fever and **severe joint pain**; other common symptoms include muscle pain, headache, nausea, fatigue, joint swelling, and rash[16].\n\n## Key differences\nThe biggest clinical clue is that **dengue** tends to feature more prominent headache, eye pain, vomiting, and potential bleeding, while **chikungunya** is more strongly associated with intense, sometimes prolonged joint pain and swelling. WHO also notes that chikungunya joint pain can last weeks, months, or even longer in some patients.\n\n## Warning signs needing care\nFor **dengue**, urgent medical attention is needed if there is severe abdominal pain, persistent vomiting, bleeding from gums or nose, blood in vomit or stool, lethargy or restlessness, difficulty breathing, fluid accumulation, or signs of shock [18][6]. WHO and Indian guidance emphasize that these warning signs can appear as the fever starts to settle and should not be ignored[9].\n\nFor **chikungunya**, patients should seek medical care if they have severe joint pain that limits movement, dehydration, confusion, or worsening weakness; while severe complications are less common than in dengue, vulnerable people may still need evaluation[5].\n\n## Prevention\nPrevention is the same for both diseases: use mosquito repellent containing DEET, IR3535, or icaridin; wear long sleeves and long pants; use window and door screens; sleep under bed nets if needed; and remove standing water around homes[11]. Public-health guidance in India also stresses daytime bite prevention and source reduction of mosquito breeding sites[19].\n\n## Why symptoms are not enough\nSymptoms overlap heavily between dengue, chikungunya, Zika, malaria, and other febrile illnesses. WHO says dengue cannot be clinically differentiated from these infections during the febrile phase, so laboratory testing is needed for confirmation [30][24].",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-033"
+}

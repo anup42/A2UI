@@ -1,0 +1,138 @@
+09-21 13:56:18.602 14623 14639 W OfficialMobileNative: GPU sampler dependency failed name=c++_shared
+09-21 13:56:18.606 14623 14639 I OfficialMobileNative: run_label=mobile_gpu_mtp_full50_20260921
+09-21 13:56:18.607 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"engine_start","completed":0,"total":50}
+09-21 13:56:18.723 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2703, num_inputs=35, num_outputs=32, num_ops=2068
+09-21 13:56:18.723 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-21 13:56:18.723 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-21 13:56:18.723 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2887, num_inputs=35, num_outputs=32, num_ops=2243
+09-21 13:56:18.813 14623 14639 I tflite  : Replacing 2068 out of 2068 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+09-21 13:56:21.520 14623 14639 I tflite  : Replacing 1107 out of 1107 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 1 (prefill_1024).
+09-21 13:56:22.811 14623 14639 I tflite  : Replacing 1107 out of 1107 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 2 (prefill_128).
+09-21 13:56:23.499 14623 14639 I tflite  : Replacing 2243 out of 2243 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 3 (verify).
+09-21 13:56:24.548 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+09-21 13:56:24.551 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-21 13:56:24.551 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-21 13:56:24.552 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+09-21 13:56:24.607 14623 14639 I litert  : [magic_number_utils.cc:109]   signature=mtp_drafter, subgraph_index=0, num_tensors=275, num_inputs=8, num_outputs=2, num_ops=198
+09-21 13:56:24.610 14623 14639 I tflite  : Replacing 198 out of 198 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (main).
+09-21 13:56:25.527 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"engine_ready","completed":0,"total":50}
+09-21 13:56:25.529 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":0,"total":50,"id":"BXP-001"}
+09-21 13:56:32.192 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":1,"total":50,"id":"BXP-001"}
+09-21 13:56:32.193 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":1,"total":50,"id":"BXP-002"}
+09-21 13:56:38.171 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":2,"total":50,"id":"BXP-002"}
+09-21 13:56:38.172 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":2,"total":50,"id":"BXP-003"}
+09-21 13:57:58.760 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":3,"total":50,"id":"BXP-003"}
+09-21 13:57:58.762 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":3,"total":50,"id":"BXP-004"}
+09-21 13:59:25.945 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":4,"total":50,"id":"BXP-004"}
+09-21 13:59:25.946 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":4,"total":50,"id":"BXP-005"}
+09-21 14:00:13.715 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":5,"total":50,"id":"BXP-005"}
+09-21 14:00:13.717 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":5,"total":50,"id":"BXP-006"}
+09-21 14:01:48.635 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":6,"total":50,"id":"BXP-006"}
+09-21 14:01:48.637 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":6,"total":50,"id":"BXP-007"}
+09-21 14:02:28.954 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":7,"total":50,"id":"BXP-007"}
+09-21 14:02:28.956 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":7,"total":50,"id":"BXP-008"}
+09-21 14:02:46.392 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":8,"total":50,"id":"BXP-008"}
+09-21 14:02:46.394 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":8,"total":50,"id":"BXP-009"}
+09-21 14:04:08.765 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":9,"total":50,"id":"BXP-009"}
+09-21 14:04:08.768 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":9,"total":50,"id":"BXP-010"}
+09-21 14:04:34.071 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":10,"total":50,"id":"BXP-010"}
+09-21 14:04:34.074 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":10,"total":50,"id":"BXP-011"}
+09-21 14:05:13.263 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":11,"total":50,"id":"BXP-011"}
+09-21 14:05:13.264 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":11,"total":50,"id":"BXP-012"}
+09-21 14:05:37.094 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":12,"total":50,"id":"BXP-012"}
+09-21 14:05:37.096 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":12,"total":50,"id":"BXP-013"}
+09-21 14:07:05.863 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":13,"total":50,"id":"BXP-013"}
+09-21 14:07:05.865 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":13,"total":50,"id":"BXP-014"}
+09-21 14:07:36.681 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":14,"total":50,"id":"BXP-014"}
+09-21 14:07:36.683 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":14,"total":50,"id":"BXP-015"}
+09-21 14:08:01.331 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":15,"total":50,"id":"BXP-015"}
+09-21 14:08:01.333 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":15,"total":50,"id":"BXP-016"}
+09-21 14:09:46.823 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":16,"total":50,"id":"BXP-016"}
+09-21 14:09:46.826 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":16,"total":50,"id":"BXP-017"}
+09-21 14:10:01.817 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":17,"total":50,"id":"BXP-017"}
+09-21 14:10:01.819 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":17,"total":50,"id":"BXP-018"}
+09-21 14:11:50.375 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":18,"total":50,"id":"BXP-018"}
+09-21 14:11:50.378 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":18,"total":50,"id":"BXP-019"}
+09-21 14:13:41.682 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":19,"total":50,"id":"BXP-019"}
+09-21 14:13:41.684 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":19,"total":50,"id":"BXP-020"}
+09-21 14:14:16.695 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":20,"total":50,"id":"BXP-020"}
+09-21 14:14:16.697 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":20,"total":50,"id":"BXP-021"}
+09-21 14:14:55.373 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":21,"total":50,"id":"BXP-021"}
+09-21 14:14:55.375 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":21,"total":50,"id":"BXP-022"}
+09-21 14:07:05.863 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":13,"total":50,"id":"BXP-013"}
+09-21 14:07:05.865 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":13,"total":50,"id":"BXP-014"}
+09-21 14:07:36.681 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":14,"total":50,"id":"BXP-014"}
+09-21 14:07:36.683 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":14,"total":50,"id":"BXP-015"}
+09-21 14:08:01.331 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":15,"total":50,"id":"BXP-015"}
+09-21 14:08:01.333 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":15,"total":50,"id":"BXP-016"}
+09-21 14:09:46.823 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":16,"total":50,"id":"BXP-016"}
+09-21 14:09:46.826 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":16,"total":50,"id":"BXP-017"}
+09-21 14:10:01.817 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":17,"total":50,"id":"BXP-017"}
+09-21 14:10:01.819 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":17,"total":50,"id":"BXP-018"}
+09-21 14:11:50.375 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":18,"total":50,"id":"BXP-018"}
+09-21 14:11:50.378 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":18,"total":50,"id":"BXP-019"}
+09-21 14:13:41.682 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":19,"total":50,"id":"BXP-019"}
+09-21 14:13:41.684 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":19,"total":50,"id":"BXP-020"}
+09-21 14:14:16.695 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":20,"total":50,"id":"BXP-020"}
+09-21 14:14:16.697 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":20,"total":50,"id":"BXP-021"}
+09-21 14:14:55.373 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":21,"total":50,"id":"BXP-021"}
+09-21 14:14:55.375 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":21,"total":50,"id":"BXP-022"}
+09-21 14:15:34.778 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":22,"total":50,"id":"BXP-022"}
+09-21 14:15:34.780 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":22,"total":50,"id":"BXP-023"}
+09-21 14:17:26.342 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":23,"total":50,"id":"BXP-023"}
+09-21 14:17:26.344 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":23,"total":50,"id":"BXP-024"}
+09-21 14:19:31.362 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":24,"total":50,"id":"BXP-024"}
+09-21 14:19:31.364 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":24,"total":50,"id":"BXP-025"}
+09-21 14:20:00.480 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":25,"total":50,"id":"BXP-025"}
+09-21 14:20:00.482 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":25,"total":50,"id":"BXP-026"}
+09-21 14:21:42.165 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":26,"total":50,"id":"BXP-026"}
+09-21 14:21:42.167 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":26,"total":50,"id":"BXP-027"}
+09-21 14:23:28.848 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":27,"total":50,"id":"BXP-027"}
+09-21 14:23:28.851 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":27,"total":50,"id":"BXP-028"}
+09-21 14:25:37.616 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":28,"total":50,"id":"BXP-028"}
+09-21 14:25:37.617 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":28,"total":50,"id":"BXP-029"}
+09-21 14:27:34.117 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":29,"total":50,"id":"BXP-029"}
+09-21 14:27:34.119 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":29,"total":50,"id":"BXP-030"}
+09-21 14:28:16.358 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":30,"total":50,"id":"BXP-030"}
+09-21 14:28:16.360 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":30,"total":50,"id":"BXP-031"}
+09-21 14:30:23.745 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":31,"total":50,"id":"BXP-031"}
+09-21 14:30:23.747 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":31,"total":50,"id":"BXP-032"}
+09-21 14:32:12.580 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":32,"total":50,"id":"BXP-032"}
+09-21 14:32:12.585 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":32,"total":50,"id":"BXP-033"}
+09-21 14:34:49.802 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":33,"total":50,"id":"BXP-033"}
+09-21 14:34:49.804 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":33,"total":50,"id":"BXP-034"}
+09-21 14:36:31.019 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":34,"total":50,"id":"BXP-034"}
+09-21 14:36:31.021 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":34,"total":50,"id":"BXP-035"}
+09-21 14:38:51.930 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":35,"total":50,"id":"BXP-035"}
+09-21 14:38:51.931 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":35,"total":50,"id":"BXP-036"}
+09-21 14:41:12.177 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":36,"total":50,"id":"BXP-036"}
+09-21 14:41:12.178 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":36,"total":50,"id":"BXP-037"}
+09-21 14:43:06.843 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":37,"total":50,"id":"BXP-037"}
+09-21 14:43:06.846 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":37,"total":50,"id":"BXP-038"}
+09-21 14:43:16.712 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":38,"total":50,"id":"BXP-038"}
+09-21 14:43:16.714 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":38,"total":50,"id":"BXP-039"}
+09-21 14:45:06.134 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":39,"total":50,"id":"BXP-039"}
+09-21 14:45:06.136 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":39,"total":50,"id":"BXP-040"}
+09-21 14:46:16.785 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":40,"total":50,"id":"BXP-040"}
+09-21 14:46:16.788 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":40,"total":50,"id":"BXP-041"}
+09-21 14:47:31.768 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":41,"total":50,"id":"BXP-041"}
+09-21 14:47:31.770 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":41,"total":50,"id":"BXP-042"}
+09-21 14:49:19.181 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":42,"total":50,"id":"BXP-042"}
+09-21 14:49:19.183 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":42,"total":50,"id":"BXP-043"}
+09-21 14:51:27.061 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":43,"total":50,"id":"BXP-043"}
+09-21 14:51:27.063 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":43,"total":50,"id":"BXP-044"}
+09-21 14:53:27.154 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":44,"total":50,"id":"BXP-044"}
+09-21 14:53:27.156 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":44,"total":50,"id":"BXP-045"}
+09-21 14:55:44.075 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":45,"total":50,"id":"BXP-045"}
+09-21 14:55:44.077 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":45,"total":50,"id":"BXP-046"}
+09-21 14:57:52.991 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":46,"total":50,"id":"BXP-046"}
+09-21 14:57:52.993 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":46,"total":50,"id":"BXP-047"}
+09-21 14:58:48.855 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":47,"total":50,"id":"BXP-047"}
+09-21 14:58:48.857 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":47,"total":50,"id":"BXP-048"}
+09-21 15:00:44.419 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":48,"total":50,"id":"BXP-048"}
+09-21 15:00:44.421 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":48,"total":50,"id":"BXP-049"}
+09-21 15:02:17.543 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":49,"total":50,"id":"BXP-049"}
+09-21 15:02:17.544 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":49,"total":50,"id":"BXP-050"}
+09-21 15:04:56.318 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":50,"total":50,"id":"BXP-050"}
+09-21 15:04:56.319 14623 14639 I OfficialMobileNative: a2ui_native_event={"phase":"finished","completed":50,"total":50}
+09-21 15:04:56.321 14623 14639 I native  : I0000 00:00:1789983296.321003   14639 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.685175

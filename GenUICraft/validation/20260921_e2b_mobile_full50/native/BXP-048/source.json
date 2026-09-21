@@ -1,0 +1,29 @@
+{
+  "evaluation_only": true,
+  "id": "BXP-048",
+  "metadata": {
+    "benchmark": {
+      "benchmark_id": "bixby50_v1",
+      "evaluation_only": true,
+      "kind": "source_only_holdout",
+      "reference_available": false,
+      "row_count": 50,
+      "selection_role": "final_only_holdout",
+      "unique_source_count": 50
+    },
+    "collection_date": "2026-09-09",
+    "collection_status": "complete",
+    "domain": "History and heritage",
+    "evaluation_only": true,
+    "markdown_status": "markdown",
+    "original_query": "Search the web and use reliable sources. Explain Hampi's role in the Vijayanagara Empire. Include a short timeline, its urban and water systems, trade, major monuments and what archaeological evidence reveals about everyday life. Return only the answer in Markdown with source citations. Keep the complete answer within approximately 500-1000 tokens; aim for 400-520 words including headings and citations. Avoid a generic introduction and follow-up offers. If requested current data is unavailable, say so briefly.",
+    "provider": "Perplexity",
+    "reference_available": false,
+    "selection_role": "final_only_holdout"
+  },
+  "reference_available": false,
+  "response_id": "BXP-048",
+  "response_text": "## Hampi’s role\nHampi was the imperial capital of the Vijayanagara Empire and the political, religious, and commercial heart of the state from the 14th century until the city’s destruction in 1565. UNESCO describes it as the last capital of the last great Hindu kingdom, whose princes built temples and palaces admired by travelers for centuries [2].\n\n## Short timeline\n- 1336: Vijayanagara was founded, and Hampi became its capital [1].\n- 14th to 16th centuries: the city expanded into a major capital with temples, royal spaces, markets, roads, and waterworks.\n- 1565: the city was conquered, pillaged, and abandoned after the Battle of Talikota and the Deccan confederacy’s victory.\n\n## Urban and water systems\nHampi was not a single temple complex but a large planned urban landscape with forts, royal and sacred zones, suburbs, bazaars, gateways, stables, and more than 1,600 surviving remains. The site’s layout integrated built areas with the Tungabhadra basin, using local granite, defensive walls, and linked sacred, royal, and residential spaces.\n\nIts water system was one of its most important achievements. UNESCO notes tanks, wells, stepped tanks, and water channels within temple complexes, while modern reporting on the site describes canals, granite water ducts, pushkaranis, rock-cut tanks, and storage for domestic animals and horses[6]. The broader Vijayanagara system also used canals and irrigation tanks to bring river water into cultivated areas [4].\n\n## Trade and economy\nHampi was a wealthy market city connected to long-distance trade networks. Archaeological and historical sources describe trade links with Persia, Europe, the Middle East, and Southeast Asia, with imported goods such as coins, pottery, and luxury items found at the site [3][10]. Foreign travelers also recorded crowded bazaars and abundant goods, showing that commerce was central to the capital’s life[13].\n\n## Major monuments\nThe most prominent monuments include the Virupaksha temple, Vittala temple, Krishna temple complex, Achyutaraya temple complex, Pattabhirama temple complex, Lotus Mahal, the Queen’s Bath, the Elephant Stables, and the stone chariot at Vittala[9]. UNESCO highlights the Vittala complex as the most ornate example of Vijayanagara temple architecture, with a grand bazaar street, a stepped tank, wells, and water channels.\n\n## Everyday life from archaeology\nArchaeology shows that Hampi was a lived city, not just a ceremonial capital. Excavations and surface remains reveal domestic water storage, cisterns, pottery, inscriptions, coins, tools, craft debris, roads, and residential areas, which together point to households, labor, ritual activity, and administration[11]. UNESCO also notes traces of agricultural activity, irrigation systems, formal and informal paths, and “rich lifestyle” remains, indicating a society shaped by farming, trade, worship, and urban service work.\n",
+  "selection_role": "final_only_holdout",
+  "source_id": "BXP-048"
+}
