@@ -1,0 +1,11 @@
+<a2ui>
+$/={forecast_data:[{date:"Wed, Sep 9",high:"31",low:"20",rain:"57%"},{date:"Thu, Sep 10",high:"30",low:"211",rain:"55%"},{date:"Fri, Sep 1",high:"30",low:"21",rain:"55%"}]}
+root=Column([a,b,c,d,e,f],gap="铺")
+a=Card(children=[b])
+b=Table(columns=[{date:"Date",high:"High (°C)",low:"Low (°C)",rain:"probability"}],statePath="/forecast_data_data",domain="weather",preferredPresentation="cards")
+c=Text("AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days with the highest rain chance on Wednesday and continued shower/thunder/storm potential on Thursday and Friday.",variant="body")
+d=Card(children=[e])
+e=Text("Carry an umbrella or light rain jacket, especially for afternoon and evening plans.",variant="body")
+f=Card(children=[g]
+g=Text("Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.",variant="3")
+</a2ui>

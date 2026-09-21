@@ -2,6 +2,7 @@ package com.samsung.genuicraft.sdk
 
 import com.google.gson.JsonPrimitive
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressCodec
+import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressGeneralRepair
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiExpressOutputRepair
 import com.samsung.genuicraft.sdk.internal.pipeline.A2uiWireCodec
 import com.samsung.genuicraft.sdk.internal.pipeline.GenUiIrCodec
@@ -68,8 +69,10 @@ object GenUiCompiler {
         if (strict.isSuccess) {
             val document = strict.getOrThrow()
             val integrity = sourceText?.let { ContentIntegrity.check(GenUiRequest(it), document) }.orEmpty()
-            if (integrity.isEmpty()) return GenUiCompileOutcome(document, GenUiRepairKind.NONE)
-            diagnostics += "Strictly compiled generated document failed mechanical source integrity: ${integrity.joinToString("; ")}"
+            val recoverBindings = allowGeneratedDslRepair && A2uiExpressGeneralRepair.hasUnresolvedDataBindings(document.express)
+            if (integrity.isEmpty() && !recoverBindings) return GenUiCompileOutcome(document, GenUiRepairKind.NONE)
+            if (recoverBindings) diagnostics += "Generated table/chart data bindings were unresolved; recovering generated data and readable fragments."
+            if (integrity.isNotEmpty()) diagnostics += "Strictly compiled generated document failed mechanical source integrity: ${integrity.joinToString("; ")}"
         } else {
             strict.exceptionOrNull()?.message?.let { diagnostics += "Strict compile rejected output: $it" }
         }
@@ -79,7 +82,8 @@ object GenUiCompiler {
             if (compiled.isSuccess) {
                 val document = compiled.getOrThrow()
                 val integrity = sourceText?.let { ContentIntegrity.check(GenUiRequest(it), document) }.orEmpty()
-                if (integrity.isEmpty()) {
+                val recoverBindings = allowGeneratedDslRepair && A2uiExpressGeneralRepair.hasUnresolvedDataBindings(document.express)
+                if (integrity.isEmpty() && !recoverBindings) {
                     return GenUiCompileOutcome(
                         document = document,
                         repairKind = when (repair.kind) {
@@ -90,7 +94,8 @@ object GenUiCompiler {
                     )
                 }
                 diagnostics += "Generated repair candidate ${index + 1} (${repair.kind}) applied: ${repair.changes.joinToString("; ")}"
-                diagnostics += "Generated repair candidate ${index + 1} failed mechanical source integrity: ${integrity.joinToString("; ")}"
+                if (recoverBindings) diagnostics += "Candidate still had unresolved data bindings; continuing generated-content recovery."
+                if (integrity.isNotEmpty()) diagnostics += "Generated repair candidate ${index + 1} failed mechanical source integrity: ${integrity.joinToString("; ")}"
             } else {
                 diagnostics += "Generated repair candidate ${index + 1} (${repair.kind}) applied: ${repair.changes.joinToString("; ")}"
                 diagnostics += "Generated repair candidate ${index + 1} failed full compilation: ${compiled.exceptionOrNull()?.message}"

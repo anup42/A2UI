@@ -351,14 +351,16 @@ class GenUiCompilerTest {
             }
             append("</a2ui>")
         }
-        val failure = assertThrows(IllegalArgumentException::class.java) {
-            GenUiCompiler.compileWithRepair(
-                input = tooDeep,
-                allowSourceTextFallback = false,
-                allowGeneratedDslRepair = true,
-            )
-        }
+        val failure = assertThrows(IllegalArgumentException::class.java) { GenUiCompiler.compile(tooDeep) }
         assertTrue(failure.message.orEmpty().contains("depth", ignoreCase = true))
+        val flattened = GenUiCompiler.compileWithRepair(
+            input = tooDeep,
+            allowSourceTextFallback = false,
+            allowGeneratedDslRepair = true,
+        )
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, flattened.repairKind)
+        assertTrue(flattened.document.express.contains("End"))
+        assertEquals(flattened.document, GenUiCompiler.compile(flattened.document.express))
     }
 
     @Test
@@ -376,7 +378,7 @@ class GenUiCompilerTest {
         assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, outcome.repairKind)
         assertTrue(outcome.document.express.contains("Preserved answer"))
         assertTrue(outcome.document.express.contains("Second generated fact"))
-        assertTrue(outcome.diagnostics.any { it.contains("string literal") })
+        assertTrue(outcome.diagnostics.any { it.contains("damaged assignment(s) with complete literal values") })
         assertThrows(IllegalArgumentException::class.java) {
             GenUiCompiler.compileWithRepair(
                 input = "<a2ui>\n$/{$/}",

@@ -273,9 +273,16 @@ Recovery rejects generated input above 120,000 characters, source text above
 reference nesting above 64 levels before recursive work can become unbounded.
 
 Broader generated-output salvage is available only through an explicit diagnostic
-option. It can retain independently valid component calls, literalize valid
-generated state, and repair selected catalog/graph defects. It never imports the
-source response, but renderability alone does not prove that the answer is complete:
+option. Recovery combines generated state and independently valid components in
+one document, retaining every recoverable row instead of stopping at the first
+valid text component. It also retains complete fields/items from damaged state
+assignments without completing truncated strings. Readable fragments from broken
+components appear separately under **Additional recovered text**. Dangling table
+bindings trigger data recovery rather than producing empty table shells.
+It never imports the source response or corrects model-produced facts; rendering
+alone does not prove that the answer is complete. Strict limits still apply to
+compiled documents; recovery may flatten an over-deep broken graph into a valid,
+bounded document containing its recoverable content.
 
 ```kotlin
 val diagnostic = GenUiCompiler.compileWithRepair(
@@ -288,11 +295,14 @@ val diagnostic = GenUiCompiler.compileWithRepair(
 
 With `sourceText`, a generated candidate is returned only if it passes mechanical
 source integrity. Omit `sourceText` to inspect the syntactic/render ceiling and treat
-`GENERATED_DSL_REPAIR` as untrusted partial output. The captured E2B Bixby50 run
-recovered and device-rendered 48/50 this way, but 0/48 passed source integrity. The
-48 candidates comprise one complete-graph normalization, 21 component-call
+`GENERATED_DSL_REPAIR` as untrusted partial output. Before combined state/component
+recovery, the captured E2B Bixby50 run recovered and device-rendered 48/50, but 0/48
+passed source integrity. Those historical 48 candidates comprise one complete-graph
+normalization, 21 component-call
 salvages, 16 generated-state literalizations, and 10 last-resort generated-literal
 salvages; see the [repair-only report](validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/REPORT.md).
+The [combined-recovery validation](validation/20260922_recovery/REPORT.md) documents
+the subsequent train/weather row-retention fix and device evidence.
 
 `GenUiView` is an Android View wrapper with scrolling. `GenUiContent` is a composable for host-controlled layout. Local actions (`setState`, `pushState`, `removeState`, `validateForm`) execute in the renderer. External URL actions return `GenUiAction(name = "openUrl", parameters = mapOf("url" to url))`; successful `emitEvent` actions return the supplied event name and remaining parameters. A renderer-only application does not need provider credentials or model weights.
 

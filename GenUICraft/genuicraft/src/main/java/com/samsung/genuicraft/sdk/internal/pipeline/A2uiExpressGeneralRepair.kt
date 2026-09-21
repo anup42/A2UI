@@ -33,15 +33,36 @@ internal object A2uiExpressGeneralRepair {
 
     fun candidates(input: String): List<Candidate> {
         val values = linkedMapOf<String, Candidate>()
+        var complete: Candidate? = null
         normalizedCompleteDocument(input)?.let { (document, normalizationChanges) ->
             repairDecodedGraph(document, normalizationChanges)?.let { candidate ->
-                values.putIfAbsent(candidate.express, candidate)
+                if (!hasUnresolvedDataBindings(candidate.express)) complete = candidate
             }
         }
-        salvageComponentCalls(input)?.let { candidate -> values.putIfAbsent(candidate.express, candidate) }
-        salvageGeneratedState(input)?.let { candidate -> values.putIfAbsent(candidate.express, candidate) }
-        salvageVisibleStringLiterals(input)?.let { candidate -> values.putIfAbsent(candidate.express, candidate) }
+        // A pruned graph can leave data in unreachable state. Prefer the combined recovery when
+        // state was generated; retain the original layout for complete literal-only graphs.
+        complete?.takeIf { A2uiExpressCodec.decode(it.express).getAsJsonObject("state").size() == 0 }
+            ?.let { values.putIfAbsent(it.express, it) }
+        // These are complementary sources of generated content, not competing candidates. Returning
+        // the first valid leaf used to discard every state row and the other damaged components.
+        salvageGeneratedContent(input)?.let { candidate -> values.putIfAbsent(candidate.express, candidate) }
+        complete?.let { values.putIfAbsent(it.express, it) }
         return values.values.toList()
+    }
+
+    fun hasUnresolvedDataBindings(express: String): Boolean {
+        val graph = runCatching { A2uiExpressCodec.decode(express) }.getOrNull() ?: return false
+        val state = graph.getAsJsonObject("state")
+        return graph.getAsJsonObject("elements").entrySet().any { (_, raw) ->
+            val element = raw.asJsonObject
+            val props = element.getAsJsonObject("props")
+            element.get("type")?.asString in setOf("Table", "Chart") && props.get("rows")?.isJsonArray != true &&
+                listOf("statePath", "rowsPath", "dataPath").any { key ->
+                    props.get(key)?.takeIf { it.isJsonPrimitive }?.asString?.let { path ->
+                        stateAtPath(state, path)?.isJsonArray != true
+                    } == true
+                }
+        }
     }
 
     private fun normalizedCompleteDocument(input: String): Pair<String, List<String>>? {
@@ -65,7 +86,7 @@ internal object A2uiExpressGeneralRepair {
         value = value.replace(Regex("</a2ui(?=</a2ui>\\s*$)"), "").also {
             if (it != value) changes += "Removed malformed duplicate closing-tag prefix."
         }
-        val close = value.indexOf(CLOSE)
+        val close = closingTagOutsideStrings(value)
         value = when {
             close >= 0 -> {
                 val end = close + CLOSE.length
@@ -143,79 +164,119 @@ internal object A2uiExpressGeneralRepair {
         return Candidate(canonical, changes.distinct() + "Recovered a complete generated DSL graph without source fallback.")
     }
 
-    private fun salvageComponentCalls(input: String): Candidate? {
+    private fun salvageGeneratedContent(input: String): Candidate? {
         val body = repairBody(input) ?: return null
+        if (body.lineSequence().take(MAX_LINES + 1).count() > MAX_LINES) return null
+        val statements = recoveryStatements(body)
+        val recovered = GeneratedStateRecovery.recover(statements)
         val accepted = mutableListOf<JsonObject>()
         val canonicalSeen = linkedSetOf<String>()
-        var rejected = 0
-        var lineCount = 0
-        var balancedCalls = 0
-        body.lineSequence().forEach { rawLine ->
-            if (++lineCount > MAX_LINES) return null
-            var line = rawLine.trim().removeSuffix(CLOSE).trim()
+        val remaining = mutableListOf<String>()
+        val changes = mutableListOf<String>()
+        graphFromGeneratedState(recovered.state)?.let(accepted::add)
+        var recoveredCalls = 0
+        var damagedCalls = 0
+        statements.forEach { statement ->
+            var line = statement.trim()
+            if (line.startsWith('$')) {
+                // Exact strings not captured by partial state parsing are still eligible below.
+                remaining += line
+                return@forEach
+            }
             line = line.replace(Regex("^[*@]+(?=[A-Za-z_])"), "")
-            val call = extractBalancedCall(line) ?: return@forEach
-            if (++balancedCalls > MAX_CALLS) return null
-            val changes = mutableListOf<String>()
-            val normalized = normalizeSyntax(call, changes)
-            val graph = runCatching { A2uiExpressCodec.decode("$OPEN\nroot=$normalized\n$CLOSE") }.getOrNull()
-            if (graph == null || !A2uiCanonicalGraph.validate(graph).isValid || !hasVisibleContent(graph)) {
-                rejected += 1
+            val call = extractBalancedCall(line)
+            val normalized = call?.let { normalizeSyntax(it, changes) }
+            val graph = normalized?.let {
+                runCatching { A2uiExpressCodec.decode("$OPEN\nroot=$it\n$CLOSE") }.getOrNull()
+            }
+            graph?.getAsJsonObject("elements")?.entrySet()?.forEach { (_, raw) ->
+                val element = raw.asJsonObject
+                val props = element.getAsJsonObject("props")
+                if (element.get("type")?.asString in setOf("Table", "Chart") && props.get("rows")?.isJsonArray == true) {
+                    listOf("statePath", "rowsPath", "dataPath").forEach(props::remove)
+                }
+            }
+            // State has already been materialized in full above. Keeping an isolated bound table
+            // here would either duplicate its rows or leave an empty table with a dangling path.
+            if (graph == null || recoveredCalls >= MAX_CALLS || hasStateBindings(graph) ||
+                !A2uiCanonicalGraph.validate(graph).isValid || !hasVisibleContent(graph)) {
+                remaining += line
+                damagedCalls += 1
                 return@forEach
             }
             val canonical = runCatching { A2uiExpressCodec.encode(graph) }.getOrNull() ?: run {
-                rejected += 1
+                remaining += line
+                damagedCalls += 1
                 return@forEach
             }
-            if (canonicalSeen.add(canonical)) accepted += graph
+            if (canonicalSeen.add(canonical)) {
+                accepted += graph
+                recoveredCalls += 1
+            }
         }
-        if (accepted.isEmpty()) return null
+        val represented = linkedSetOf<String>()
+        collectLiterals(recovered.state, represented)
+        accepted.forEach { collectLiterals(it.getAsJsonObject("elements"), represented) }
+        val loose = salvageVisibleStringLiterals("$OPEN\n${remaining.joinToString("\n")}\n$CLOSE", represented)
+        loose?.let { candidate ->
+            accepted += A2uiExpressCodec.decode(candidate.express)
+            changes += candidate.changes
+        }
+        // Broken root syntax without a recognizable assignment can still contain useful literals.
+        if (accepted.isEmpty()) return salvageVisibleStringLiterals(input)
         val merged = mergeRecoveredGraphs(accepted) ?: return null
         val canonical = runCatching { A2uiExpressCodec.encode(merged) }.getOrNull() ?: return null
         return Candidate(
             canonical,
-            listOf(
-                "Salvaged ${accepted.size} independently valid, self-contained generated component call(s).",
-                "Rejected $rejected balanced component call(s) that still failed strict decoding or canonical validation.",
-                "Rebuilt only the generated component graph; source text was not used.",
+            changes.distinct() + listOf(
+                "Recovered ${recovered.assignments} generated state assignment(s), including ${recovered.partialAssignments} damaged assignment(s) with complete literal values.",
+                "Materialized all ${recovered.state.size()} recovered state field(s), preserving row order, repeated rows, and generated values.",
+                "Combined $recoveredCalls valid generated component call(s) with recovered state; inspected $damagedCalls damaged or state-bound call(s) for additional readable fragments.",
+                "Best-effort generated-output recovery; unresolved structure is not a complete or source-verified answer. Source text was not used.",
             ),
         )
     }
 
-    private fun salvageGeneratedState(input: String): Candidate? {
-        val body = repairBody(input) ?: return null
-        val state = JsonObject()
-        var acceptedAssignments = 0
-        var lineCount = 0
-        body.lineSequence().forEach { rawLine ->
-            if (++lineCount > MAX_LINES) return null
-            var line = rawLine.trim().removeSuffix(CLOSE).trim()
-            if (!line.startsWith("$")) return@forEach
-            line = when {
-                line.startsWith("$/{") -> "$/=" + line.removePrefix("$/")
-                Regex("^\\$/[A-Za-z0-9_/]+:").containsMatchIn(line) -> line.replaceFirst(":", "=")
-                else -> line
+    /** Resynchronize at the next assignment even when the previous expression was truncated. */
+    private fun recoveryStatements(body: String): List<String> {
+        val starts = Regex("(?m)^[\\t ]*(?:\\$(?:/[^\\s=:{]*)?[\\t ]*(?:=|:|(?=\\{))|[*@]*[A-Za-z_][A-Za-z0-9_]*[\\t ]*=)")
+            .findAll(body).map { it.range.first }.toList()
+        return starts.mapIndexed { index, start -> body.substring(start, starts.getOrNull(index + 1) ?: body.length).trim() }
+    }
+
+    private fun hasStateBindings(graph: JsonObject): Boolean {
+        fun bound(value: JsonElement): Boolean = when {
+            value.isJsonObject -> value.asJsonObject.entrySet().any { (key, child) ->
+                key in setOf("statePath", "rowsPath", "dataPath", "repeat", "visible") || bound(child)
             }
-            if (!line.contains('=')) return@forEach
-            val candidate = "$OPEN\n$line\nroot=Text(\"state parser sentinel\")\n$CLOSE"
-            val parsed = runCatching { A2uiExpressCodec.decode(candidate) }.getOrNull() ?: return@forEach
-            val parsedState = parsed.getAsJsonObject("state") ?: return@forEach
-            if (parsedState.size() == 0) return@forEach
-            parsedState.entrySet().forEach { (key, value) -> if (!state.has(key)) state.add(key, value.deepCopy()) }
-            acceptedAssignments += 1
+            value.isJsonArray -> value.asJsonArray.any(::bound)
+            value.isJsonPrimitive && value.asJsonPrimitive.isString -> value.asString.startsWith("$/")
+            else -> false
         }
-        if (state.size() == 0) return null
-        val graph = graphFromGeneratedState(state) ?: return null
-        if (!A2uiCanonicalGraph.validate(graph).isValid || !hasVisibleContent(graph)) return null
-        val canonical = runCatching { A2uiExpressCodec.encode(graph) }.getOrNull() ?: return null
-        return Candidate(
-            canonical,
-            listOf(
-                "Recovered $acceptedAssignments syntactically valid generated state assignment(s).",
-                "Literalized ${state.size()} generated state field(s) into deterministic A2UI components.",
-                "Only generated DSL state was used; source text was not used.",
-            ),
-        )
+        return bound(graph.getAsJsonObject("elements"))
+    }
+
+    private fun stateAtPath(state: JsonElement, path: String): JsonElement? {
+        var value: JsonElement = state
+        val pointer = path.removePrefix("$")
+        if (!pointer.startsWith('/')) return null
+        for (part in pointer.removePrefix("/").split('/')) {
+            val key = part.replace("~1", "/").replace("~0", "~")
+            value = when {
+                value.isJsonObject -> value.asJsonObject.get(key)
+                value.isJsonArray -> key.toIntOrNull()?.takeIf { it in 0 until value.asJsonArray.size() }?.let { value.asJsonArray.get(it) }
+                else -> null
+            } ?: return null
+        }
+        return value
+    }
+
+    private fun collectLiterals(value: JsonElement, output: MutableSet<String>) {
+        when {
+            value.isJsonObject -> value.asJsonObject.entrySet().forEach { collectLiterals(it.value, output) }
+            value.isJsonArray -> value.asJsonArray.forEach { collectLiterals(it, output) }
+            value.isJsonPrimitive -> output += value.asString
+        }
     }
 
     private fun graphFromGeneratedState(state: JsonObject): JsonObject? {
@@ -245,12 +306,17 @@ internal object A2uiExpressGeneralRepair {
     }
 
     /** Last-resort generated-output salvage for a program whose graph and state grammar are lost. */
-    private fun salvageVisibleStringLiterals(input: String): Candidate? {
+    private fun salvageVisibleStringLiterals(input: String, represented: Set<String> = emptySet()): Candidate? {
         val body = repairBody(input) ?: return null
         val values = linkedSetOf<String>()
         var retainedCharacters = 0
         var ignored = 0
-        stringRanges(body).forEach { range ->
+        // A broken quote in one assignment must not swallow every later assignment's strings.
+        val ranges = Regex("[^\\r\\n]+").findAll(body).flatMap { line ->
+            val offset = line.range.first
+            stringRanges(line.value).map { (it.first + offset)..(it.last + offset) }
+        }
+        ranges.forEach { range ->
             if (values.size >= MAX_LITERAL_ITEMS || retainedCharacters >= MAX_LITERAL_CHARS) {
                 ignored += 1
                 return@forEach
@@ -265,12 +331,20 @@ internal object A2uiExpressGeneralRepair {
                 ignored += 1 // Quoted object key, not a visible value.
                 return@forEach
             }
+            val prefix = body.substring(0, range.first).takeLast(96)
+            if (Regex(
+                    "\\b(?:gap|align|alignment|justify|variant|tone|domain|preferredPresentation|presentation|statePath|rowsPath|dataPath|icon|fit|direction|width|height|flex)\\s*=\\s*$|\\bkey\\s*:\\s*$",
+                    RegexOption.IGNORE_CASE,
+                ).containsMatchIn(prefix)) {
+                ignored += 1 // Layout/binding metadata remains metadata even when its value is corrupt.
+                return@forEach
+            }
             val decoded = runCatching { com.google.gson.JsonParser.parseString(body.substring(range)).asString }.getOrNull()
             if (decoded == null) {
                 ignored += 1
                 return@forEach
             }
-            if (!isUsefulVisibleLiteral(decoded) || retainedCharacters + decoded.length > MAX_LITERAL_CHARS) {
+            if (decoded in represented || !isUsefulVisibleLiteral(decoded) || retainedCharacters + decoded.length > MAX_LITERAL_CHARS) {
                 ignored += 1
                 return@forEach
             }
@@ -281,12 +355,17 @@ internal object A2uiExpressGeneralRepair {
             addProperty("root", "root")
             add("state", JsonObject())
             add("elements", JsonObject().apply {
-                add("root", JsonObject().apply {
+                add(if (represented.isEmpty()) "root" else "fragments", JsonObject().apply {
                     addProperty("type", "List")
                     add("props", JsonObject().apply {
                         add("items", JsonArray().apply { values.forEach(::add) })
                     })
                     add("children", JsonArray())
+                })
+                if (represented.isNotEmpty()) add("root", JsonObject().apply {
+                    addProperty("type", "Card")
+                    add("props", JsonObject().apply { addProperty("title", "Additional recovered text") })
+                    add("children", JsonArray().apply { add("fragments") })
                 })
             })
         }
@@ -295,7 +374,7 @@ internal object A2uiExpressGeneralRepair {
         return Candidate(
             canonical,
             listOf(
-                "Salvaged ${values.size} complete generated string literal value(s) after graph/state recovery failed.",
+                "Salvaged ${values.size} additional complete generated string literal value(s) from damaged structure.",
                 "Ignored $ignored key, style, corrupt, duplicate, or over-budget string literal(s).",
                 "Rebuilt a generated-literal List; source text was not used.",
             ),
@@ -305,7 +384,8 @@ internal object A2uiExpressGeneralRepair {
     private fun isUsefulVisibleLiteral(value: String): Boolean {
         val normalized = value.trim()
         if (normalized.length !in 2..MAX_LITERAL_LENGTH) return false
-        if (normalized.startsWith(':') || '=' in normalized || '{' in normalized || '}' in normalized) return false
+        if (normalized.startsWith(':') || normalized.startsWith(',') || '=' in normalized || '{' in normalized || '}' in normalized) return false
+        if (normalized.startsWith('/') || normalized.startsWith("$/")) return false
         if ('_' in normalized && normalized.none(Char::isWhitespace)) return false
         if (componentCallPattern.containsMatchIn(normalized)) return false
         if (normalized.lowercase() in setOf(
@@ -445,7 +525,12 @@ internal object A2uiExpressGeneralRepair {
             val props = element.getAsJsonObject("props") ?: JsonObject()
             when (type) {
                 "Text" -> props.get("text")?.asString?.isNotBlank() == true
-                "Table" -> props.getAsJsonArray("columns")?.size()?.let { it > 0 } == true
+                "Table" -> props.get("rows")?.takeIf { it.isJsonArray }?.asJsonArray?.size()?.let { it > 0 } == true ||
+                    listOf("statePath", "rowsPath", "dataPath").any { key ->
+                        props.get(key)?.takeIf { it.isJsonPrimitive }?.asString?.let { path ->
+                            stateAtPath(graph.getAsJsonObject("state"), path)?.takeIf { it.isJsonArray }?.asJsonArray?.size()?.let { it > 0 }
+                        } == true
+                    }
                 "List", "Checklist" -> props.getAsJsonArray("items")?.size()?.let { it > 0 } == true
                 "Card" -> listOf("title", "subtitle").any { props.get(it)?.asString?.isNotBlank() == true }
                 "Image", "Video", "AudioPlayer", "Button", "Alert", "EmailPreview", "Chart", "CodeBlock", "ConsoleLog", "Formula" -> props.size() > 0
@@ -465,8 +550,15 @@ internal object A2uiExpressGeneralRepair {
         val open = value.indexOf(OPEN)
         if (open < 0) return null
         val start = open + OPEN.length
-        val close = value.indexOf(CLOSE, start).let { if (it < 0) value.length else it }
+        val close = closingTagOutsideStrings(value, start).let { if (it < 0) value.length else it }
         return value.substring(start, close)
+    }
+
+    private fun closingTagOutsideStrings(value: String, start: Int = 0): Int {
+        val ranges = stringRanges(value)
+        var index = value.indexOf(CLOSE, start)
+        while (index >= 0 && ranges.any { index in it }) index = value.indexOf(CLOSE, index + CLOSE.length)
+        return index
     }
 
     private fun extractBalancedCall(line: String): String? {

@@ -587,7 +587,12 @@ class GenUiSdkDemoActivity : ComponentActivity() {
                                                     is GenUiConversionResult.Success -> {
                                                         document = result.document
                                                         editorVisible = false
-                                                        status = "Ready · ${result.elapsedMs} ms · ${result.attempts} attempt(s)"
+                                                        val stateLabel = if (result.repairKind == GenUiRepairKind.GENERATED_DSL_REPAIR) {
+                                                            "Recovered"
+                                                        } else {
+                                                            "Ready"
+                                                        }
+                                                        status = "$stateLabel · ${result.elapsedMs} ms · ${result.attempts} attempt(s)"
                                                         generationTrace = generationTrace.copy(
                                                             phase = SdkGenerationPhase.COMPLETE,
                                                             finalIr = result.document.express,

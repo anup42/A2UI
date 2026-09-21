@@ -1,0 +1,35 @@
+{
+  "date": "2026-09-22",
+  "sdkVersion": "0.3.0",
+  "deviceSerial": "R3GL203AKSF",
+  "deviceModel": "SM-F776U",
+  "androidVersion": 17,
+  "deviceRunId": "1790020006810_a98b05a4",
+  "sdkTests": 350,
+  "sdkFailures": 0,
+  "deviceReplayPassed": true,
+  "liveInferenceRuns": 0,
+  "sourceFallbacks": 0,
+  "apkSha256": "b770c5b14b1bd6207af6e4ac562a6f9f8a385c38916adde2da86d57c1cb92e84",
+  "aarSha256": "6866b8bd89f55bacedf38448328110616d024bf9aaf24e2b8f4e4f2d7095393b",
+  "cases": [
+    {
+      "id": "BXP-003",
+      "rawSha256": "c2a35a2577e2eb329eb3c3d4d0c1409c9e462253f718214699f3f350d92d3dd9",
+      "repairedSha256": "3b41530e182419606d0a36c36336ef7797bfc89f424528cc70c1e9873e5b2862",
+      "jvmDeviceRepairByteIdentical": true,
+      "rows": 3,
+      "textComponents": 3,
+      "additionalFragments": 16
+    },
+    {
+      "id": "BXP-001",
+      "rawSha256": "9f1c75d8fa32efed9b35cc1271e4636fbfa84d7a4d26a9bb74d9a560fb9494fe",
+      "repairedSha256": "72b607f084de6a997e3d0f4f440acf4e4ea450e221a7dfb12ad124a63795f28d",
+      "jvmDeviceRepairByteIdentical": true,
+      "rows": 3,
+      "textComponents": 3,
+      "additionalFragments": 4
+    }
+  ]
+}
