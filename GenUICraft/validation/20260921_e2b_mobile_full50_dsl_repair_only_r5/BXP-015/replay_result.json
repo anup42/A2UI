@@ -1,0 +1,45 @@
+{
+  "id": "BXP-015",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-015/output.express",
+  "sourceExpressSha256": "74b6649f6c0fc71bd80edbf9150daf790f9ded7b2d10bf7acda01c925ade0343",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Salvaged 3 independently valid, self-contained generated component call(s).",
+    "Rejected 6 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 3 independently valid, self-contained generated component call(s).; Rejected 6 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[13]]; Missing or changed numeric facts (including signs/units): [2026, 462, 193/48.5, 284, 206, 165]; Added or duplicated numeric facts: [4622, 06]; Missing source wording: [completed, india, international, match, date, july, 2026, at, galle, stadium, opponent, sri, lanka, format, test, scores, 462, and, 193, 48, 5, 284, 206, result, won]; Added or duplicated visible wording: [4622, 06]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[13]]; Missing or changed numeric facts (including signs/units): [2026, 462, 193/48.5, 284, 206, 165]; Added or duplicated numeric facts: [2, 93/4.5, 26, 65]; Missing source wording: [latest, completed, india, men, s, international, match, 2026, at, sri, lanka, 462, and, 193, 48, 284, 206, by, 165, standout, performances, first, innings, set, the]; Added or duplicated visible wording: [details, key, value, location, 2, 93, 4, 26, 65]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 14 complete generated string literal value(s) after graph/state recovery failed.; Ignored 23 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[13]]; Missing or changed numeric facts (including signs/units): [2026, 462, 193/48.5, 284, 206, 165]; Added or duplicated numeric facts: [2, 93/4.5, 26, 65]; Missing source wording: [completed, india, s, match, 2026, at, sri, lanka, 462, and, 193, 48, 284, 206, by, 165, standout, performances, first, innings, set, the, in, control, created]; Added or duplicated visible wording: [2, 93, 4, 26, 65]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "e152c385cd98e06cb3d1f38a1c68e2f2460114e3704cc8faf941a6485d0285e3",
+  "recoveredJsonSha256": "1e48125196e4b8fc3c9d27e263bdbd1b78d895d7d52a71897ad67fce72668892",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 3
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 3
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1781
+}

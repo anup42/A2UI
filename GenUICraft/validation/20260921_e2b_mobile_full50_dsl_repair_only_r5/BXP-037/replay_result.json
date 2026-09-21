@@ -1,0 +1,45 @@
+{
+  "id": "BXP-037",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-037/output.express",
+  "sourceExpressSha256": "162f966e70ea8d21641792a1e0307379672b5338b599218ac3e9f99977bc9a35",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Salvaged 25 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 13 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 25 complete generated string literal value(s) after graph/state recovery failed.; Ignored 13 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [3], [4], [5], [7], [13], [8], [11]]; Missing or changed numeric facts (including signs/units): [10, 11]; Added or duplicated numeric facts: [1]; Missing source wording: [quick, factor, cbse, cisce, ib, and, a, syllabus, with, indian, broader, more, strong, depth, school, inquiry, myp, dp, global, assessment, exam, components, projects, subject, especially]; Added or duplicated visible wording: [neet, learning, also, you, text, 1, deeper]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "5b314efde3ae414fb9448488b4d1a62d0b3a30f2d0e38b4ce0321899c122c09e",
+  "recoveredJsonSha256": "8166a4af18767d273a633bbf242718a956363bd8708f9a4f90ed8820b636cd01",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 3157
+}

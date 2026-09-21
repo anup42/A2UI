@@ -52,6 +52,7 @@ class GenUiTrainedConverter internal constructor(
                     when (compiled.repairKind) {
                         GenUiRepairKind.NONE -> add("Trained E2B output passed strict compilation and mechanical source-integrity checks.")
                         GenUiRepairKind.STRUCTURAL -> add("Trained E2B output passed bounded syntax repair and mechanical source-integrity checks.")
+                        GenUiRepairKind.GENERATED_DSL_REPAIR -> add("Trained E2B output passed generated-output DSL repair and mechanical source-integrity checks.")
                         GenUiRepairKind.SOURCE_TEXT_FALLBACK -> add("Trained E2B output was rejected; built deterministic typed A2UI from exact source blocks.")
                     }
                     addAll(compiled.diagnostics)

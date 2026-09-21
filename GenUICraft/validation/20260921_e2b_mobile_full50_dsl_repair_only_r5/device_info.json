@@ -1,0 +1,13 @@
+{
+  "serial": "R3GL203AKSF",
+  "manufacturer": "samsung",
+  "model": "SM-F776U",
+  "product": "b8qsqw",
+  "androidRelease": "17",
+  "apiLevel": 37,
+  "buildFingerprint": "samsung/b8qsqw/b8q:17/CP2A.260330.023/F776USQU0AZE3_OYN0AZE3:userdebug/test-keys",
+  "physicalSize": "Physical size: 1080x2520",
+  "density": "Physical density: 480",
+  "fontScale": "1.0",
+  "testedAt": "2026-09-21T19:51:16.1651104+05:30"
+}

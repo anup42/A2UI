@@ -1,0 +1,45 @@
+{
+  "id": "BXP-017",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-017/output.express",
+  "sourceExpressSha256": "1a6d82eabe4625bd61cf9ffb4bbc357c4ef87de3a74afb028c1417af5be2fc9e",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Salvaged 3 independently valid, self-contained generated component call(s).",
+    "Rejected 5 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 3 independently valid, self-contained generated component call(s).; Rejected 5 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing or changed numeric facts (including signs/units): [2025, 2026]; Missing source wording: [i, can, a, 2025, 2026, book, current, three, with, if, you, want, still, help, in, later, turn, tightly, sourced, shortlist, once, data, access, is, available]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 3 complete generated string literal value(s) after graph/state recovery failed.; Ignored 9 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing or changed numeric facts (including signs/units): [2025, 2026]; Missing source wording: [i, can, a, 2025, 2026, book, current, three, with, if, you, want, still, help, in, later, turn, tightly, sourced, shortlist, once, data, access, is, available]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "5a3c9808e2c3e68f75e1ae05b520304176095c677c90dd62308b176603d97102",
+  "recoveredJsonSha256": "8bed6b3d5fc2561fca3b96f92df1caf1d9128ee726b3f918ccb4a5d3dccb1c22",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 3
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 3
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1814
+}

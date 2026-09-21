@@ -1,0 +1,45 @@
+{
+  "id": "BXP-038",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-038/output.express",
+  "sourceExpressSha256": "67a0782d01e91dc1ef4fdd5b9163d2a14ed06d95a9c3f2b210aa158b340e2480",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+    "Salvaged 5 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 4 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 5 complete generated string literal value(s) after graph/state recovery failed.; Ignored 4 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing source wording: [i, m, sorry, but, cannot, provide, a, cited, in, this, turn, because, do, not, have, access, to, the, necessary, verification, tools, right, now]; Added or duplicated visible wording: [ready, no, noverificationtoolsavailable]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "6cd21d8f8b285c5b875d6595a7b84aca16db425481844a7638f1b9e70891ebcd",
+  "recoveredJsonSha256": "cbe458fe9a6b44e9f9a7c692efd7f46bd522a0191f82cf8c617b8e229a18791e",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1825
+}

@@ -1,0 +1,16 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k,l,m],"md")
+a=Text("Transmission","sg")
+b=Text("Both dengue and chikungunya are spread mainly by aedes aegypti and aedes albopictus mosquitoes, which bite mostly during the day. WHO notes that preventing mosquito bites and eliminating breeding sites are the main ways to reduce transmission for both infections [11].","body")
+c=Text("Common symptoms","sg")
+d=Text("Dengue","label")
+e=Text("high fever, severe headache, pain behind eyes, muscle and joint pain, nausea, vomiting, rash, and swollen glands[2000]","body")
+f=Text("Chikungunya","label")
+g=Text("abrupt fever and severe joint pain; other common symptoms include muscle pain, headache, nausea, fatigue, joint, swelling, and rash[16]","body")
+h=Text("Key Differences","sg")
+i=Text("The biggest clinical clue is that dengueueue tends to feature more prominent headache, eye, pain, vomiting and potential bleeding, while chikungunya is more strongly associated with intense, prolonged prolonged joint pain and swelling. WHO also notes that chikungunya joint pain can last weeks, months, or even some patients.","body")
+j=Text("Warning Signs Needing Care","sg")
+k=Text("For dengue urgent medical attention is needed if is severe abdominal pain, persistent vomiting from gums or nose, blood in vomit or stool, lethargy or restlessness, difficulty breathing fluid accumulation, or signs of shock[186]","body")
+l=Text("For chikungunya, patients should seek medical care if they have severe joint pain that limits movement, dehydration, confusion, or worsening weakness; severe complications are less common than in dengue vulnerable people may need evaluation[5]","body")
+m=Text("Prevention is same for both diseases: use mosquito repellent containing DEET355, wear long sleeves and door screens, sleep under bed nets if needed, remove standing water around homes; public-health guidance in India also stresses daytime bite prevention source reduction mosquito breeding sites[19]","body")
+</a2ui>

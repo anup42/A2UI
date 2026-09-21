@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["device","problem","fit"],rows=[["Air purifier","Dust,smokePM2.5pollenairparticle","Homes near traffic,constructionseasonalsmokeallergyallergyrelief"],["Humidifier","Airtoo dryirritateskinthroatbreathingcomfort","Dry roomsheavilyairconditionedspaceswinterconditions"],["Dehumidifier","Excessmoisturewallscondensationmustysmouldriskclothesnotdry","Monsooncoastalgroundfloorpoorlyventilatedrooms"]],title="Device comparison",domain="generic",preferredPresentation="cards")
+</a2ui>

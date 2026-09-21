@@ -1,0 +1,22 @@
+{
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "runId": "mobile_gpu_mtp_dsl_repair_table_coverage_20260921",
+  "cases": [
+    "BXP-008",
+    "BXP-012",
+    "BXP-018",
+    "BXP-022",
+    "BXP-030",
+    "BXP-036",
+    "BXP-049"
+  ],
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "maxVerticalSwipes": 8,
+  "maxHorizontalSwipesPerTable": 8,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "hierarchyPolicy": "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
+  "columnCheck": "Visible text header or representative cell; content descriptions are excluded."
+}

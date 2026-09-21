@@ -1,0 +1,76 @@
+{
+  "id": "BXP-034",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-034/output.express",
+  "sourceExpressSha256": "ed3206ccb684e2791c19dc60432c8de5a5b3fab21268422dc19db9c9277f62f8",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 1 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[21], [22], [25], [17], [16], [18], [11], [26], [31], [23]]; Missing or changed numeric facts (including signs/units): [0.83, 54, 65kg, 46, 55kg, 30, 15, 100, 12, 14, 11, 200]; Added or duplicated numeric facts: [5, 00, 1000, 122, 4, 111, 3, 2000]; Missing source wording: [practical, protein, sources, common, easy, to, find, vegetarian, foods, in, india, include, dals, and, legumes, soy, dairy, nuts, seeds, for, healthy, adults, icmr, nin, recommends]; Added or duplicated visible wording: [rows, 5, 00, 1000, 122, 4, 111, 3, 2000]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 27 complete generated string literal value(s) after graph/state recovery failed.; Ignored 837 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[21], [22], [25], [17], [16], [18], [11], [26], [31], [23]]; Missing or changed numeric facts (including signs/units): [54, 65kg, 55kg, 30, 15, 100, 1, 12, 14, 11, 200]; Added or duplicated numeric facts: [5, 00, 1000, 122, 4, 111, 3, 2000, 6kg, 555kg]; Missing source wording: [practical, protein, to, vegetarian, foods, in, and, for, healthy, adults, icmr, nin, per, body, weight, day, is, 54, a, 65, 46, 55, food, typical, serving]; Added or duplicated visible wording: [5, 00, 1000, 122, 4, 111, 3, 6, 2000, reach, daily, targets, without, large, portions, icmrnin, and46, a555]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "19ae3962f210ce69c1a865873ae7b8356cf3dfaa97b6d8c4c8ce57a0b42796ec",
+  "recoveredJsonSha256": "4ec75ad174a93438d8c1e94be51f51852c7242cf3225eebccadfffac3ef02292",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "food",
+        "serving",
+        "protein"
+      ],
+      "observedHeaders": [
+        "food",
+        "serving",
+        "protein"
+      ],
+      "observedRepresentativeCells": [
+        "Soy chunks, dry",
+        "30 g",
+        "5–16 g [3]"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 29
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 29
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 29
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 29
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4208
+}

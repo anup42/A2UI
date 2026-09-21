@@ -1,5 +1,17 @@
 # GenUICraft validation — 18 September 2026
 
+The **21 September generated-DSL repair-only evaluation** is documented in
+[its complete Bixby50 report](validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/REPORT.md).
+With source fallback disabled, explicit broad salvage compiled and rendered **48/50**
+captured outputs on the connected Samsung SM-F776U, with zero fatal renderer errors
+and zero model calls. Only one retained a complete generated graph; 21 used surviving
+component calls, 16 used generated state, and 10 used complete generated string
+literals after all graph/state recovery failed. BXP-009 and BXP-039 had no usable
+generated candidate. All **48/48** repaired candidates failed
+the separate source-integrity gate, so this is a renderability ceiling rather than a
+production correctness result. The trained converter and default repair policy remain
+on bounded repair and source-integrity enforcement.
+
 The **21 September safe-output recovery** is documented in
 [its complete Bixby50 report](validation/20260921_e2b_mobile_full50_recovered/REPORT.md).
 The supplied E2B run remains 0/50 strict-valid, and conservative syntax repair

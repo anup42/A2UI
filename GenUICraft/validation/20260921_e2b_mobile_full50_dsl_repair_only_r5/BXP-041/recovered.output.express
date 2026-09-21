@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("Current entry rules for Indian passports"," Hungary")
+b=Text("Thailand’s official notices show a changed regime in 6, so stay period depends on the effective date; the most recent embassy notice says the new 3-day exemption starts from 19 6.","body")
+c=Text("Vietnam remains the simplest to state: Indian ordinary passport holders need a visa, and the official e-visa route is the normal path.","body")
+d=Text("Sri Lanka’s official pages confirm ETA and a 0-day tourist period, but available snippets do not clearly state a current India-specific fee, so I cannot confirm figure with confidence.","body")
+</a2ui>

@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h],"md")
+a=Text("Chair-to-stand","h1")
+b=Text("Wall-pushup","h2")
+c=Text("Glute bridge","3")
+d=Text("Standing calf","4")
+e=Text("Side step heel-toetoe\nsinglelegstand","6")
+f=Text("Too hard","h2")
+g=Text("Too easy","h3")
+h=Text("If sore","h4")
+</a2ui>

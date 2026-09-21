@@ -1,0 +1,21 @@
+{
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "runId": "mobile_gpu_mtp_full50_dsl_repair_only_20260921_r5",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "total": 50,
+  "rendered": 48,
+  "failed": 2,
+  "repairRejected": 2,
+  "renderFailures": 0,
+  "renderedWithCoverageIssues": 7,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "repairCounts": {
+    "GENERATED_DSL_REPAIR": 48
+  },
+  "sourceIntegrityAccepted": 0,
+  "sourceIntegrityRejected": 48,
+  "sourceIntegrityNotEvaluated": 2,
+  "sourceTextFallbacks": 0
+}

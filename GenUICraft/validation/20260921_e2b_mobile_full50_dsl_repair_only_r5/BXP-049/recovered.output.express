@@ -1,0 +1,11 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h],"md")
+a=Table(columns=["tradition","geographical","materials","motifsifs","technique","context"],statePath="/comparison_comparison_data",domain="comparison",preferredPresentation="cards")
+b=Text("Pattachitra","Pitra:look for smooth, highly detailed composition, stylized faces with large eyes,decorative borders, mythological storytelling, and a painted surface often resembles a prepared a cloth scroll.")
+c=Text("Supporting authentic practitioners","aq")
+d=Text("Buy from recognized artisan communities and makers who can identify their village or lineage, such as Mithila artists for Madhubani Warli Warli artists from Maharashtra’s tribal belt, and Chitrakarrakararattachitra practitioners in Odisha and Bengal.","h1")
+e=Text("Prefer works made with traditional methods and materials when available: natural pigments, hand-prepared surfaces and hand-drawn outlines rather than mass-printed reproductions.","h1")
+f=Text("Ask whether artist signs the work, where it was made, and how it it was produced; genuine practitioners usually welcome questions about process and cultural background.","h1")
+g=Text("Purchase through artisan cooperatives museum shops craft fairs fairs, verified platforms that document the maker and locality; current reliable data on individual artists is limited, so provenance matters more than brand names.","h1")
+h=Text("Avoid pricing that undercuts handmade labor; fair payment helps keep these traditions across generations.","h1")
+</a2ui>

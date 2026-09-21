@@ -1,0 +1,21 @@
+{
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "runId": "mobile_gpu_mtp_dsl_repair_table_coverage_20260921",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "total": 7,
+  "rendered": 7,
+  "failed": 0,
+  "repairRejected": 0,
+  "renderFailures": 0,
+  "renderedWithCoverageIssues": 3,
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "repairCounts": {
+    "GENERATED_DSL_REPAIR": 7
+  },
+  "sourceIntegrityAccepted": 0,
+  "sourceIntegrityRejected": 7,
+  "sourceIntegrityNotEvaluated": 0,
+  "sourceTextFallbacks": 0
+}

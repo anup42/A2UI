@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["service","departure","departure_time","duration","class"],rows=[["Shatabdi Express (120007)","KSR Bengaluru (BC)","10:35–10:45","2 h15 m to 2h225 m","CC, EC"],["Rajya Rani Express (20066)","KSR Bengaluru (BC)","11:30","2h30 m","CC, 2 S GN"],["Wodeyar Express (2126)","KSR Bengaluru (BC)","15:55","2h30 m","CC, 2 S GN"]],title="Train comparison",domain="generic",preferredPresentation="cards")
+</a2ui>

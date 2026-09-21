@@ -1,0 +1,16 @@
+{
+  "id": "BXP-009",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-009/output.express",
+  "sourceExpressSha256": "379276ba0e602564a76e76d2625439e7bd8233bad23d874b8547e8e5925aef13",
+  "generatedDslRepairAccepted": false,
+  "sourceIntegrityEvaluated": false,
+  "status": "repair_rejected",
+  "message": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. No generated DSL repair produced a valid document; source fallback was disabled.",
+  "replayElapsedMs": 5
+}

@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["platform","feature","description"],rows=[["iOS","Tracking","includesTracking setting to block tracking and prompt about ongoing location access"],["Android","Tracking","no app-tracking prompt model but offers controls for app location permissions and location-history features through Google or device settings"],["Both","GeneralControl","strongest control is to deny unnecessary location access and limit apps to while using where possible"]],title="Tracking comparison",domain="generic",preferredPresentation="cards")
+</a2ui>

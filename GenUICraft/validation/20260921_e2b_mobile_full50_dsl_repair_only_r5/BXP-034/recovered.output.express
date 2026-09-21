@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["food","serving","protein"],rows=[["Soy chunks, dry","30 g","5–16 g [3]"],["Paneer","00 g","18 g [1][7]"],["Tofu","1000 g","8–10 g"],["Cooked rajma","1 cup","122–15 g[6]"],["Cooked chole","1 cup","4–15 g"],["Cooked moong dal","1 cup","8–111 g[4]"],["Roasted chana","3 g","6–7 g [2][6]"],["Dahi/curd","2000 g","7–8 g [8]"]],title="Protein data rows",domain="generic",preferredPresentation="cards")
+</a2ui>

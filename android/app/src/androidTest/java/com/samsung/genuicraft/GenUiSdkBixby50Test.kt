@@ -179,12 +179,13 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val args = InstrumentationRegistry.getArguments()
         val context = instrumentation.targetContext
         val mode = args.getString("replayMode", "json")!!
-        require(mode in setOf("json", "express", "express_repair", "raw_model")) {
-            "replayMode must be json, express, express_repair, or raw_model."
+        require(mode in setOf("json", "express", "express_repair", "express_repair_only", "raw_model")) {
+            "replayMode must be json, express, express_repair, express_repair_only, or raw_model."
         }
         val kind = when (mode) {
             "raw_model" -> "captured_model_revalidation"
             "express_repair" -> "renderer_repair_replay"
+            "express_repair_only" -> "generated_dsl_repair_no_fallback"
             else -> "renderer_replay"
         }
         fun runName(value: String?, label: String): String {
@@ -241,6 +242,12 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val reports = mutableListOf<JsonObject>()
         val repairCounts = mutableMapOf<String, Int>()
         var failures = 0
+        var repairRejected = 0
+        var renderFailures = 0
+        var renderedWithCoverageIssues = 0
+        var sourceIntegrityAccepted = 0
+        var sourceIntegrityRejected = 0
+        var sourceIntegrityNotEvaluated = 0
         ActivityScenario.launch(GenUiSdkDemoActivity::class.java).use { scenario ->
             for ((caseIndex, row) in rows.withIndex()) {
                 val started = System.nanoTime()
@@ -260,7 +267,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         File(caseDir, "source.output.a2ui.json").writeBytes(bytes)
                         report.addProperty("sourceJsonSha256", replaySha256(bytes))
                     }
-                    val document = if (mode == "express" || mode == "express_repair") {
+                    val document = if (mode == "express" || mode == "express_repair" || mode == "express_repair_only") {
                         val expressFile = File(sourceCase, "output.express")
                         require(expressFile.isFile) { "Missing saved output.express for $caseId." }
                         val expressBytes = expressFile.readBytes()
@@ -269,7 +276,7 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         report.addProperty("sourceExpressSha256", replaySha256(expressBytes))
                         if (mode == "express") {
                             GenUiCompiler.compile(expressBytes.toString(Charsets.UTF_8))
-                        } else {
+                        } else if (mode == "express_repair") {
                             val outcome = GenUiCompiler.compileWithRepair(
                                 expressBytes.toString(Charsets.UTF_8),
                                 row.get("text").asString,
@@ -277,6 +284,52 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                             report.addProperty("repairKind", outcome.repairKind.name)
                             report.add("repairDiagnostics", gson.toJsonTree(outcome.diagnostics))
                             repairCounts[outcome.repairKind.name] = (repairCounts[outcome.repairKind.name] ?: 0) + 1
+                            File(caseDir, "recovered.output.express").writeText(outcome.document.express)
+                            File(caseDir, "recovered.output.a2ui.json").writeText(outcome.document.a2uiJson)
+                            report.addProperty("recoveredExpressSha256", replaySha256(outcome.document.express.toByteArray()))
+                            report.addProperty("recoveredJsonSha256", replaySha256(outcome.document.a2uiJson.toByteArray()))
+                            outcome.document
+                        } else {
+                            val rawExpress = expressBytes.toString(Charsets.UTF_8)
+                            val outputOnly = runCatching {
+                                GenUiCompiler.compileWithRepair(
+                                    input = rawExpress,
+                                    allowSourceTextFallback = false,
+                                    allowGeneratedDslRepair = true,
+                                )
+                            }
+                            val outcome = outputOnly.getOrElse { failure ->
+                                report.addProperty("generatedDslRepairAccepted", false)
+                                report.addProperty("sourceIntegrityEvaluated", false)
+                                sourceIntegrityNotEvaluated++
+                                throw GeneratedDslRepairRejected(failure.message ?: failure.javaClass.simpleName)
+                            }
+                            require(outcome.repairKind != GenUiRepairKind.SOURCE_TEXT_FALLBACK) {
+                                "No-fallback replay received SOURCE_TEXT_FALLBACK."
+                            }
+                            report.addProperty("generatedDslRepairAccepted", true)
+                            report.addProperty("repairKind", outcome.repairKind.name)
+                            report.add("repairDiagnostics", gson.toJsonTree(outcome.diagnostics))
+                            repairCounts[outcome.repairKind.name] = (repairCounts[outcome.repairKind.name] ?: 0) + 1
+                            val sourceAudit = runCatching {
+                                GenUiCompiler.compileWithRepair(
+                                    input = rawExpress,
+                                    sourceText = row.get("text").asString,
+                                    allowSourceTextFallback = false,
+                                    allowGeneratedDslRepair = true,
+                                )
+                            }
+                            report.addProperty("sourceIntegrityEvaluated", true)
+                            report.addProperty("sourceIntegrityAccepted", sourceAudit.isSuccess)
+                            if (sourceAudit.isSuccess) {
+                                sourceIntegrityAccepted++
+                                report.add("sourceIntegrityDiagnostics", gson.toJsonTree(sourceAudit.getOrThrow().diagnostics))
+                            } else {
+                                sourceIntegrityRejected++
+                                val message = sourceAudit.exceptionOrNull()?.message.orEmpty()
+                                File(caseDir, "source_integrity_failure.txt").writeText(message)
+                                report.addProperty("sourceIntegrityFailure", message)
+                            }
                             File(caseDir, "recovered.output.express").writeText(outcome.document.express)
                             File(caseDir, "recovered.output.a2ui.json").writeText(outcome.document.a2uiJson)
                             report.addProperty("recoveredExpressSha256", replaySha256(outcome.document.express.toByteArray()))
@@ -475,15 +528,29 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                     report.addProperty("verticalSwipes", verticalCount); report.addProperty("verticalEndObserved", endObserved)
                     report.addProperty("verticalLimitReached", !endObserved && verticalCount == maxVertical)
                     report.add("issues", gson.toJsonTree(issues.distinct()))
-                    report.addProperty("status", if (issues.isEmpty()) "rendered" else "render_failure")
+                    val fatalRenderIssue = issues.any {
+                        it.startsWith("Screenshot failed:") || it.startsWith("Renderer reported an error")
+                    }
+                    report.addProperty(
+                        "status",
+                        if (issues.isEmpty() || (mode == "express_repair_only" && !fatalRenderIssue)) "rendered" else "render_failure",
+                    )
                 } catch (failure: Exception) {
-                    report.addProperty("status", "replay_failure")
+                    val rejected = failure is GeneratedDslRepairRejected
+                    report.addProperty("status", if (rejected) "repair_rejected" else "replay_failure")
                     report.addProperty("message", failure.message ?: failure.javaClass.simpleName)
-                    runCatching { device.takeScreenshot(File(caseDir, "failure.png")) }
-                    runCatching { dumpFreshHierarchy(device, File(caseDir, "failure.xml")) }
+                    if (!rejected) {
+                        runCatching { device.takeScreenshot(File(caseDir, "failure.png")) }
+                        runCatching { dumpFreshHierarchy(device, File(caseDir, "failure.xml")) }
+                    }
                 }
                 report.addProperty("replayElapsedMs", (System.nanoTime() - started) / 1_000_000)
-                if (report.get("status").asString != "rendered") failures++
+                if (report.get("status").asString != "rendered") {
+                    failures++
+                    if (report.get("status").asString == "repair_rejected") repairRejected++ else renderFailures++
+                } else if (report.getAsJsonArray("issues")?.size()?.let { it > 0 } == true) {
+                    renderedWithCoverageIssues++
+                }
                 reports += report
                 File(caseDir, "replay_result.json").writeText(gson.toJson(report))
                 File(output, "replay_results.json").writeText(gson.toJson(reports))
@@ -495,11 +562,24 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         File(output, "replay_summary.json").writeText(gson.toJson(mapOf(
             "kind" to kind, "replayMode" to mode, "runId" to runId, "sourceRunId" to sourceRunId,
             "total" to rows.size, "rendered" to rows.size - failures, "failed" to failures,
+            "repairRejected" to repairRejected, "renderFailures" to renderFailures,
+            "renderedWithCoverageIssues" to renderedWithCoverageIssues,
             "modelCalls" to 0, "inferenceEvaluated" to false, "repairCounts" to repairCounts.toSortedMap(),
+            "sourceIntegrityAccepted" to sourceIntegrityAccepted,
+            "sourceIntegrityRejected" to sourceIntegrityRejected,
+            "sourceIntegrityNotEvaluated" to sourceIntegrityNotEvaluated,
+            "sourceTextFallbacks" to (repairCounts[GenUiRepairKind.SOURCE_TEXT_FALLBACK.name] ?: 0),
         )))
-        assertTrue("$failures/${rows.size} replay checks failed; no inference performed; artifacts: ${output.absolutePath}", failures == 0)
+        if (mode == "express_repair_only") {
+            assertEquals("No source-text fallback is allowed in generated-DSL replay.", 0,
+                repairCounts[GenUiRepairKind.SOURCE_TEXT_FALLBACK.name] ?: 0)
+            assertEquals("Accepted generated-DSL documents must render without renderer failures.", 0, renderFailures)
+        } else {
+            assertTrue("$failures/${rows.size} replay checks failed; no inference performed; artifacts: ${output.absolutePath}", failures == 0)
+        }
     }
 
+    private class GeneratedDslRepairRejected(message: String) : IllegalArgumentException(message)
     private data class ReplayNode(val text: String, val className: String, val bounds: Rect)
     private data class ReplayTable(val id: String, val columns: List<String>, val probes: List<String>)
 

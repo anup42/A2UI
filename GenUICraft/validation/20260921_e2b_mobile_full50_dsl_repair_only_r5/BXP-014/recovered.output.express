@@ -1,0 +1,10 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g],"md")
+a=Text("Latest Rates","sg1")
+b=Text("Reference Rates","h2")
+c=Text("Reference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference style rates and Reuters notes its market quote data can be delayed which also distinguishes it from the final retail rate traveler pays.[12][3]","body")
+d=Text("Rates are quoted as of","h3")
+e=Text("Reference rates vs Traveler Rates","h1")
+f=Text("Reference rates are benchmark or indicative market rates used for pricing and valuation, while travelers usually receive worse rate because providers add a spread, fees, and sometimes cash handling or card conversion charges. ECB and NSE publish reference style rates and Reuters notes its market quote data can be delayed which also distinguishes it from the final retail traveler pays.[12][3]","body")
+g=Text("Traveler Rates","h1")
+</a2ui>

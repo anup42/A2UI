@@ -1,0 +1,72 @@
+{
+  "id": "BXP-003",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-003/output.express",
+  "sourceExpressSha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 1 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[3], [11], [10]]; Missing or changed numeric facts (including signs/units): [12007, 10:35, 10:45, 2, 15, 25, 20660, 11:30, 30, 12614, 15:15]; Added or duplicated numeric facts: [120007, 225, 20066, 2126, 15:55]; Missing source wording: [here, is, a, concise, comparison, of, three, daytime, bengaluru, to, mysuru, train, services, using, the, most, consistent, timetable, entries, across, supplied, sources, departure, station, typical]; Added or duplicated visible wording: [departuretime, 120007, bc, h15, 2h225, 20066, 2h30, s, 2126, 55]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 23 complete generated string literal value(s) after graph/state recovery failed.; Ignored 21 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[3], [11], [10]]; Missing or changed numeric facts (including signs/units): [12007, 10:45, 2, 15, 25, 20660, 11:30, 30, 12614, 15:15]; Added or duplicated numeric facts: [120007, 225, 20066, 2126, 15:55, 0:45, 11, 2:15, 2:25, 111, 1:30, 2:30, 10, 1:155, 2:300]; Missing source wording: [a, comparison, of, bengaluru, the, timetable, departure, station, typical, time, journey, duration, seating, class, 12007, ksr, sbc, about, 2, h, 15, m, 25, cc, 20660]; Added or duplicated visible wording: [120007, bc, 10, h15, 2h225, 20066, 2h30, s, 2126, 55, daytime, tomysuru, services, source, 0, 111, 1, 155, 300, 130]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "4f6e1929f4a1f078b07ea6347f232c27f4fa9436e16e745a2281f4894b0bf174",
+  "recoveredJsonSha256": "f84c08bc5d4bd35373f01f12406b4634991a0e338f6a63a988f87fe6b26d69e7",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "service",
+        "departure",
+        "departure_time",
+        "duration",
+        "class"
+      ],
+      "observedHeaders": [
+        "service",
+        "departure",
+        "departure_time",
+        "duration",
+        "class"
+      ],
+      "observedRepresentativeCells": [
+        "Shatabdi Express (120007)",
+        "KSR Bengaluru (BC)",
+        "10:35–10:45",
+        "2 h15 m to 2h225 m",
+        "CC, EC"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1873
+}

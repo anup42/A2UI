@@ -1,0 +1,6 @@
+<a2ui>
+root=Column([a,b,c],"md")
+a=Text("Latest India Men's International Match","✈️")
+b=Text("India’s first-innings 4622 set the match in control and created a large lead that Sri Lanka could not overcome.","h3")
+c=Text("India’s all-round bowling effort restricted Sri Lanka to 284 in the first innings and 06 in the chase, sealing the win by a substantial margin.","h3")
+</a2ui>

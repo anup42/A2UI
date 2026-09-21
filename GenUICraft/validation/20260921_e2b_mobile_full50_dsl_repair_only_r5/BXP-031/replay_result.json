@@ -1,0 +1,76 @@
+{
+  "id": "BXP-031",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-031/output.express",
+  "sourceExpressSha256": "550fafd211f3c54a9bc9ccdcc85ee110a627bfa5c6facfc243a30b41781c4886",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 1 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [3], [4], [9], [13], [2], [5], [10], [14], [15]]; Missing source wording: [pre, purchase, document, checklist, for, an, apartment, in, karnataka, rera, registration, certificate, the, project, is, registered, which, verify, it, on, portal, name, or, number, sanctioned]; Added or duplicated visible wording: [checklists, description, verificationsources, era, authority, with, mp, planning, sub, registrar, s, office, system, bb, online, services]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 16 complete generated string literal value(s) after graph/state recovery failed.; Ignored 2 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[1], [3], [4], [9], [13], [2], [5], [10], [14], [15]]; Missing source wording: [pre, purchase, document, checklist, for, an, apartment, in, karnataka, rera, registration, certificate, the, project, is, registered, which, verify, it, on, portal, name, or, number, sanctioned]; Added or duplicated visible wording: [era, authority, with, mp, planning, sub, registrar, s, office, system, bb, online, services, mz]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "fe4989a6b178ddc1e16ba9bfa1e2f83963985300a16a2b9d371f9af982583935",
+  "recoveredJsonSha256": "dd7b688236ce4e1aa9f62c9234966c0e4b751402c9bd126dcc22f45c0718404b",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "title",
+        "description",
+        "verification_sources"
+      ],
+      "observedHeaders": [
+        "title",
+        "description",
+        "verification_sources"
+      ],
+      "observedRepresentativeCells": [
+        "ERA registration",
+        "Confirms project is registered under Karnataka RERA, required for qualifying apartment projects; verify on Karnataka RERA portal using project name or registration number.",
+        "Karnataka RERA portal"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 11
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 4083
+}

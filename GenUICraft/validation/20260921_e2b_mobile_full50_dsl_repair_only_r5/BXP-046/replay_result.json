@@ -1,0 +1,45 @@
+{
+  "id": "BXP-046",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-046/output.express",
+  "sourceExpressSha256": "207931f7f04f1695ddd7dc98c94a35f49865af4ef6d58354c5e2cceb019bc865",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Salvaged 6 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 3 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 6 complete generated string literal value(s) after graph/state recovery failed.; Ignored 3 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2], [14], [3], [10], [13], [6], [7], [8], [12], [1]]; Missing source wording: [mechanism, gene, therapy, by, a, or, it, cut, the, specific, dna, crispr, editing, uses, site, where, repair, nhej, while, hdr, can, in, is, be, but]; Added or duplicated visible wording: [bynhe, whilehdr, adenoassociated, av, andiviralex, also, approvedvsexperimentaltext]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "4db3ed948094f958f863a0a7f19b4c5314a7bc6fe0c3d58944424a54d248c7b1",
+  "recoveredJsonSha256": "e1fc15094f017786b1f9b0c68764dc01f141c33f0cfe4e54f63c88670f6b3ae0",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1898
+}

@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["rank","artist","chart","date"],rows=[["1","Ariana Grande","5","September 5, 20 26"],["2","Ella Langley","2","September 5, 2026"],["3","Tame Impala","3","September 5, 20 26"],["4","Ariana Grande","4","September 5, 20 26"],["5","Karol G With Jud Judeline & rusowsky","5","September 5, 2026"]],title="Chart data",domain="generic",preferredPresentation="cards")
+</a2ui>

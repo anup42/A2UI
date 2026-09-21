@@ -1,0 +1,45 @@
+{
+  "id": "BXP-021",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-021/output.express",
+  "sourceExpressSha256": "0bbfb2f360eabbbcdd50035a8beb9c8cc08055b44442db44d0605cde2360e38c",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: children must contain non-empty component references.",
+    "Salvaged 11 independently valid, self-contained generated component call(s).",
+    "Rejected 7 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: children must contain non-empty component references. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 11 independently valid, self-contained generated component call(s).; Rejected 7 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2]]; Missing source wording: [discovery, the, mature, offerings]; Added or duplicated visible wording: [of, age, view, more, details, source]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 14 complete generated string literal value(s) after graph/state recovery failed.; Ignored 10 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[2]]; Added or duplicated numeric facts: [1]; Missing source wording: [discovery, the, mature, offerings]; Added or duplicated visible wording: [ম, খmd, ન1, of, age, view, more, details, source, tiny]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "5da3c8bcc9502d6ca9b3a1b0ede3f7911d877bce22bc37c5faffb9b32fd0887d",
+  "recoveredJsonSha256": "a965fe4b61b4c46756d78bab620378ddb6ba9d04af7d8f109b895bc0c72bc3c3",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 8
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1887
+}

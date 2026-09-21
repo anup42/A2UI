@@ -1,0 +1,45 @@
+{
+  "id": "BXP-014",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-014/output.express",
+  "sourceExpressSha256": "b632c8ec9e758db8c6253bf38269c25af1a1ef8eb18d4b4dce8d861a8b635144",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Salvaged 7 independently valid, self-contained generated component call(s).",
+    "Rejected 9 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 7 independently valid, self-contained generated component call(s).; Rejected 9 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[18]]; Missing or changed numeric facts (including signs/units): [95.5614, 28, -2026, 14:23:47, 111.2956, 129.8867]; Missing source wording: [quoted, usd, inr, 95, 5614, as, of, 28, aug, 2026, 14, 23, 47, ist, eur, 111, 2956, gbp, 129, 8867, a]; Added or duplicated visible wording: [rates, reference, are, benchmark, or, indicative, market, used, for, pricing, and, valuation, while, travelers, usually, receive, worse, rate, because, providers, add, spread, fees, sometimes, cash]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[18], [12], [3]]; Missing or changed numeric facts (including signs/units): [95.5614, 28, -2026, 14:23:47, 111.2956, 129.8867]; Added or duplicated numeric facts: [9.5564, 4:347, 111.295, 0264:3:477, 2.88787, 2, 264:3:477]; Missing source wording: [latest, quoted, rates, 95, 5614, as, of, 28, aug, 2026, 14, 23, 47, 2956, 129, 8867, reference, vs, traveler, are, benchmark, or, indicative, market, used]; Added or duplicated visible wording: [currency, date, 9, 5564, 4, 347, 295, aug0264, 3, 477, 2, 88787, aug264]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 19 complete generated string literal value(s) after graph/state recovery failed.; Ignored 13 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[18]]; Missing or changed numeric facts (including signs/units): [95.5614, 28, -2026, 14:23:47, 111.2956, 129.8867]; Added or duplicated numeric facts: [9.5564, 4:347, 111.295, 0264:3:477, 2.88787, 2, 264:3:477]; Missing source wording: [quoted, 95, 5614, as, of, 28, aug, 2026, 14, 23, 47, 2956, 129, 8867, a]; Added or duplicated visible wording: [9, 5564, 4, 347, 295, aug0264, 3, 477, 2, 88787, aug264, rates, reference, are, benchmark, or, indicative, market, used, for, pricing, and, valuation, while, travelers]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "77337f96d0a27da3f8fccd5abea2124c625133a3207f2e04ad90837e59e08123",
+  "recoveredJsonSha256": "eece35afd78a20ced1b6b101d756b320c7a70fd0616f0199785653e83e2d6112",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 7
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1819
+}

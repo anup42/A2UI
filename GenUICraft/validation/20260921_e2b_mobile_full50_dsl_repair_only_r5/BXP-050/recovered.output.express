@@ -1,0 +1,7 @@
+<a2ui>
+root=Column([a,b,c,d],"md")
+a=Text("How these climate signals affect Indian monsoon","sg1")
+b=Text("El Niño is the warm phase of ENSO in the tropical Pacific and it usually suppresses the Indian summer monsoon by weakening large-scale circulation and moisture transport toward India.[1110]","body")
+c=Text("La Niña is the cool phase of ENSO and it usually strengthens the monsoon by supporting stronger monsoon circulation and moisture supply, raises the chance of above-normal rainfall.","body")
+d=Text("The Indian Ocean Dipole","2")
+</a2ui>

@@ -1,0 +1,45 @@
+{
+  "id": "BXP-047",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-047/output.express",
+  "sourceExpressSha256": "c623533de0f2ec454f269605f061d6ac4690c409a25a0eae81dcd847e20a27c3",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Salvaged 21 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 4 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 21 complete generated string literal value(s) after graph/state recovery failed.; Ignored 4 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[18], [26]]; Missing or changed numeric facts (including signs/units): [2000, 6000, 30%, 2025, 1000, 3000, 160, 500]; Added or duplicated numeric facts: [200, 60000, 3%, 205, 10000, 300, 600, 5000]; Missing source wording: [battery, comparison, chemistry, energy, density, cycle, life, safety, cost, maturity, lfp, lower, than, nmc, are, and, long, 000, with, some, higher, strong, thermal, risk, 30]; Added or duplicated visible wording: [cite, 00, 0000, 3, 205, 600, 5000, 8000, durability, description]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "dcbfee878344ce38c9a286fca8fd127ec81394c6e69674f98d66c428ba3b6f61",
+  "recoveredJsonSha256": "1da9a73e0dd8ac467d7ae3251975f3d59902c7d9e9884c3687f8b80a9e41aad6",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 26
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 20
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 2894
+}

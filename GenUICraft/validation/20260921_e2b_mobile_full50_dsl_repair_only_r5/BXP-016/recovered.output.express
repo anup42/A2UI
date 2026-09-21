@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["Title","Platform","Release","Description"],rows=[["Bandar","ZEE5","28 August 2026","A tense drama centered on accusation, accountability and justice, led by Bobby Deol [3]"],["Gandhari","Netflix","3 September 020","An emotionally charged action-thriller about a mother's relentless fight to protect her child [21]"],["Before Colours","ZEE5","28 August 2020","A newly added Hindi film on ZEE5’s latest releases list, available from 28 August 2020 [2]"]],title="Films",domain="generic",preferredPresentation="cards")
+</a2ui>

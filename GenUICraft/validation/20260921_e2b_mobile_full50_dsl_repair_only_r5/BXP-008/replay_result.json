@@ -1,0 +1,76 @@
+{
+  "id": "BXP-008",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-008/output.express",
+  "sourceExpressSha256": "a7202c92952f815f6fecc4e5042a069ca24355955bfbe93ceb8d3b0d795b663a",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unknown property 'Gap' for A2UI Express component 'Column'.",
+    "Canonicalized property 'Gap' to 'gap'.",
+    "Normalized a hybrid Table columns object whose first key exactly repeated its first label.",
+    "Normalized invalid gap value 'sma' to 'md'.",
+    "Normalized invalid gap value '铺' to 'md'.",
+    "Removed repeated or cyclic child 'f' from 'b'.",
+    "Removed repeated or cyclic child 'c' from 'a'.",
+    "Removed repeated or cyclic child 'f' from 'root'.",
+    "Recovered a complete generated DSL graph without source fallback."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unknown property 'Gap' for A2UI Express component 'Column'. Generated repair candidate 1 (GENERATED_DSL) applied: Canonicalized property 'Gap' to 'gap'.; Normalized a hybrid Table columns object whose first key exactly repeated its first label.; Normalized invalid gap value 'sma' to 'md'.; Normalized invalid gap value '铺' to 'md'.; Removed repeated or cyclic child 'f' from 'b'.; Removed repeated or cyclic child 'c' from 'a'.; Removed repeated or cyclic child 'f' from 'root'.; Recovered a complete generated DSL graph without source fallback. Generated repair candidate 1 failed mechanical source integrity: Conversion must use literal source content.; Missing citation markers: [[2], [4], [5]]; Missing or changed numeric facts (including signs/units): [₹1, 200, 6:30, 11:30, 2:00, 8:00, 12:00, 2:30, 7:00, 12:30, 4:00, 9:30, 6:00, 3:00]; Missing source wording: [breakfast, basavanagudi, gandhi, bazaar, south, indian, classics, widely, known, for, its, crisp, dosas, 1, 200, 6, 30am, 11, 2, 00pm, 8, on, mon, thu, closed]; Added or duplicated visible wording: [opening, hours]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 6 independently valid, self-contained generated component call(s).; Rejected 4 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Conversion must use literal source content.; Missing citation markers: [[2], [4], [5]]; Missing or changed numeric facts (including signs/units): [₹1, 200, 6:30, 11:30, 2:00, 8:00, 12:00, 2:30, 7:00, 12:30, 4:00, 9:30, 6:00, 3:00]; Missing source wording: [breakfast, basavanagudi, gandhi, bazaar, south, indian, classics, widely, known, for, its, crisp, dosas, 1, 200, 6, 30am, 11, 2, 00pm, 8, on, mon, thu, closed]; Added or duplicated visible wording: [opening, hours]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 13 complete generated string literal value(s) after graph/state recovery failed.; Ignored 8 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[2], [4], [5]]; Missing or changed numeric facts (including signs/units): [₹1, 200, 6:30, 11:30, 2:00, 8:00, 12:00, 2:30, 7:00, 12:30, 4:00, 9:30, 6:00, 3:00]; Added or duplicated numeric facts: [1]; Missing source wording: [breakfast, basavanagudi, gandhi, bazaar, south, indian, classics, widely, known, for, its, crisp, dosas, 1, 200, 6, 30am, 11, 2, 00pm, 8, on, mon, thu, closed]; Added or duplicated visible wording: [restaurants, بالای1, sma]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "03de7a0b8163cfc41d72273cfea29b4338466607eebb1ac072620fe6b4cd18c4",
+  "recoveredJsonSha256": "6bcf1a943c3d0b162d7ff4ccc5ee866efccc9fb0b4251c2500e4be23486081bc",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "d",
+      "columns": [
+        "Restaurant",
+        "Neighborhood",
+        "Signature dish",
+        "Approx. cost per person",
+        "Opening hours",
+        "Opening hours"
+      ],
+      "observedHeaders": [
+        "Restaurant"
+      ],
+      "observedRepresentativeCells": [],
+      "missingColumns": [
+        "Neighborhood",
+        "Signature dish",
+        "Approx. cost per person",
+        "Opening hours",
+        "Opening hours"
+      ],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 5
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 5
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [
+    "Unobserved table columns (d): [Neighborhood, Signature dish, Approx. cost per person, Opening hours, Opening hours]"
+  ],
+  "status": "rendered",
+  "replayElapsedMs": 1839
+}

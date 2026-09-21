@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Text(" data data: $/rate_data")
+</a2ui>

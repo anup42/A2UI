@@ -1,0 +1,14 @@
+<a2ui>
+$/={match_details:[{key:"Date",value:"July 2 206",location:"Galle International Stadium, Galle"},{key:"Opponent",value:"Sri Lanka"},{key:"Format",value:"Test match"},{key:"India scores",value:"462 and 93/4.5"},{key:"Sri Lanka scores",value:"284 and 26"},{key:"Result",value:"India won by 65 runs"}]}
+=Column(children=[a,b],Gap="মা")
+a=Card(children=[a])
+atitle=Text("Latest India Men's International Match","✈️")
+atitle=Table(rows=$/matchdetails,columns=[{key:"Date","},{key:"Opponent",{value:"Sri Lanka"}},{key:"Format",{value:"Test match"}},{key:"India scores",{value:"462 and 93/4.5"}},{key:"Sri Lanka scores",{value:"284 and 266"}},{key:"Result",{value:"India won 655 runs"}}],domain="match",preferredPresentation="cards")
+ab=Card(children=[ac])
+ac=Column(children=[ad,ae],Gap="sma")
+ad=AdTitle("Standout Performances","🏆")
+ae=Text("India’s first-innings 4622 set the match in control and created a large lead that Sri Lanka could not overcome.",variant="h3")
+af=Column(ag,gap="sma")
+ag=ak
+ak=Text("India’s all-round bowling effort restricted Sri Lanka to 284 in the first innings and 06 in the chase, sealing the win by a substantial margin.",variant="h3")
+</a2ui>

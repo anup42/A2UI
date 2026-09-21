@@ -1,0 +1,45 @@
+{
+  "id": "BXP-027",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-027/output.express",
+  "sourceExpressSha256": "35026adea696a1de8a6b65d3b766db118b0f222e063ec2dc4a06ba7d6a4f908f",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Salvaged 9 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 0 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 9 complete generated string literal value(s) after graph/state recovery failed.; Ignored 0 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [2], [3], [4], [12], [13], [18], [10], [8], [16]]; Missing source wording: [phishing, warning, signs, urgent, language, threats, or, pressure, to, act, immediately, are, common, cues, check, the, sender, address, carefully, attackers, often, imitate, trusted, domains, with]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "1dbec8824c074980caa9fb64176f801057590c3b3bb4bddee2fe5d87edfa90f2",
+  "recoveredJsonSha256": "23ebd90cd5c88c01257d580303e51a5ac37767852871b1f68eba16064a9e8325",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 17
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1888
+}

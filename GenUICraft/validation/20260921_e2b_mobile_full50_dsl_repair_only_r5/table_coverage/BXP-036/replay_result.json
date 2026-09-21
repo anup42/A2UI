@@ -1,0 +1,121 @@
+{
+  "id": "BXP-036",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-036/output.express",
+  "sourceExpressSha256": "f5d4f40c7cd19a70f8c2a6ab6755929d33009e8971ec1802632d5421b812e598",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 4 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 4 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [6], [13]]; Missing or changed numeric facts (including signs/units): [10]; Added or duplicated numeric facts: [0]; Missing source wording: [everyday, stress, vs, burnout, work, is, a, response, to, pressure, that, may, still, feel, manageable, while, occupational, syndrome, develops, after, chronic, workplace, has, not, been]; Added or duplicated visible wording: [feature, description, tip, 0, support, day6, day7, reducing, overload, improving, schedule, priorities, adding, easier, breaks]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "f0fba961f769efbb577c04835ba3df81b37bec7536dcfc4cbe9c689c1ef6c551",
+  "recoveredJsonSha256": "abda5df34ea88965889caf09e34f8fc07d8b5986a2ba2f2358c0788d43e04e6e",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "feature",
+        "description"
+      ],
+      "observedHeaders": [
+        "feature"
+      ],
+      "observedRepresentativeCells": [
+        "depletion",
+        "or exhaustion"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    },
+    {
+      "id": "b",
+      "columns": [
+        "day",
+        "tip"
+      ],
+      "observedHeaders": [
+        "day"
+      ],
+      "observedRepresentativeCells": [
+        "Day 1",
+        "Write down the top 3 work stressors and 1 thing you can pause or delegate this week"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    },
+    {
+      "id": "c",
+      "columns": [
+        "tip",
+        "description"
+      ],
+      "observedHeaders": [],
+      "observedRepresentativeCells": [
+        "Reducing overload",
+        "reducing overload"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    },
+    {
+      "id": "d",
+      "columns": [
+        "tip",
+        "description"
+      ],
+      "observedHeaders": [],
+      "observedRepresentativeCells": [
+        "Professional support",
+        "may help if symptoms last more than a short period, interfere with daily life, or start affecting sleep, mood, or physical health. It is especially important to seek help if you feel hopeless, cannot function at work, are relying on alcohol or drugs to cope, or think the problem might be depression or another mental health. NHS guidance says to speak with GP or contact talking therapies if burnout is affecting daily life mental health."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 8
+    },
+    {
+      "name": "vertical_4",
+      "screenshot": true,
+      "visibleTextNodes": 8
+    }
+  ],
+  "verticalSwipes": 4,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 8228
+}

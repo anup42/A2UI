@@ -37,6 +37,8 @@ enum class GenUiRepairKind {
     NONE,
     /** Only bounded syntax normalization was needed; visible values and graph structure were not rewritten. */
     STRUCTURAL,
+    /** General model-output-only DSL salvage; source text is never imported into this document. */
+    GENERATED_DSL_REPAIR,
     /** The generated program was rejected and a source-bound document was rebuilt from source text. */
     SOURCE_TEXT_FALLBACK,
 }

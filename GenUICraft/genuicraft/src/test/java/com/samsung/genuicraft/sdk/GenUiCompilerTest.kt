@@ -291,4 +291,98 @@ class GenUiCompilerTest {
             assertTrue(row.get("id").asString, ContentIntegrity.check(GenUiRequest(source), outcome.document).isEmpty())
         }
     }
+
+    @Test
+    fun generatedDslSalvageIsExplicitAndCanRunWithoutSourceFallback() {
+        val raw = "Here is your UI: <a2ui>\nroot=Text(\"Hello\")\n</a2ui>"
+        assertThrows(IllegalArgumentException::class.java) { GenUiCompiler.compileWithRepair(raw) }
+
+        val outputOnly = GenUiCompiler.compileWithRepair(
+            input = raw,
+            allowSourceTextFallback = false,
+            allowGeneratedDslRepair = true,
+        )
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, outputOnly.repairKind)
+        assertTrue(outputOnly.document.express.contains("Hello"))
+
+        val sourceBound = GenUiCompiler.compileWithRepair(
+            input = raw,
+            sourceText = "Hello",
+            allowSourceTextFallback = false,
+            allowGeneratedDslRepair = true,
+        )
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, sourceBound.repairKind)
+        assertTrue(ContentIntegrity.check(GenUiRequest("Hello"), sourceBound.document).isEmpty())
+
+        val integrityFailure = assertThrows(IllegalArgumentException::class.java) {
+            GenUiCompiler.compileWithRepair(
+                input = raw,
+                sourceText = "Hello and world",
+                allowSourceTextFallback = false,
+                allowGeneratedDslRepair = true,
+            )
+        }
+        assertTrue(integrityFailure.message.orEmpty().contains("source fallback was disabled"))
+    }
+
+    @Test
+    fun generatedDslSalvageNormalizesNarrowHybridColumnsAndStillHonorsLimits() {
+        val malformed = """
+            <a2ui>
+            root=Column(children=[table],Gap="铺")
+            table=Table(columns=[{Name:"Name","Value"}],rows=[["A","1"]])
+            </a2ui>
+        """.trimIndent()
+        val recovered = GenUiCompiler.compileWithRepair(
+            input = malformed,
+            allowSourceTextFallback = false,
+            allowGeneratedDslRepair = true,
+        )
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, recovered.repairKind)
+        assertTrue(recovered.document.express.contains("columns=[\"Name\",\"Value\"]"))
+        assertTrue(recovered.diagnostics.any { it.contains("hybrid Table columns") })
+
+        val tooDeep = buildString {
+            appendLine("<a2ui>")
+            repeat(65) { index ->
+                val id = if (index == 0) "root" else "n$index"
+                if (index == 64) appendLine("$id=Text(\"End\")")
+                else appendLine("$id=Column([n${index + 1}])")
+            }
+            append("</a2ui>")
+        }
+        val failure = assertThrows(IllegalArgumentException::class.java) {
+            GenUiCompiler.compileWithRepair(
+                input = tooDeep,
+                allowSourceTextFallback = false,
+                allowGeneratedDslRepair = true,
+            )
+        }
+        assertTrue(failure.message.orEmpty().contains("depth", ignoreCase = true))
+    }
+
+    @Test
+    fun generatedDslSalvageCanRetainCompleteVisibleLiteralsFromOtherwiseBrokenState() {
+        val malformed = """
+            <a2ui>
+            $/={heading:"Preserved answer",detail:"Second generated fact",broken:[
+        """.trimIndent()
+        val outcome = GenUiCompiler.compileWithRepair(
+            input = malformed,
+            allowSourceTextFallback = false,
+            allowGeneratedDslRepair = true,
+        )
+
+        assertEquals(GenUiRepairKind.GENERATED_DSL_REPAIR, outcome.repairKind)
+        assertTrue(outcome.document.express.contains("Preserved answer"))
+        assertTrue(outcome.document.express.contains("Second generated fact"))
+        assertTrue(outcome.diagnostics.any { it.contains("string literal") })
+        assertThrows(IllegalArgumentException::class.java) {
+            GenUiCompiler.compileWithRepair(
+                input = "<a2ui>\n$/{$/}",
+                allowSourceTextFallback = false,
+                allowGeneratedDslRepair = true,
+            )
+        }
+    }
 }

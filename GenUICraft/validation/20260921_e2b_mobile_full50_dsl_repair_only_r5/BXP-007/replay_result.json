@@ -1,0 +1,45 @@
+{
+  "id": "BXP-007",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-007/output.express",
+  "sourceExpressSha256": "deaee6f9e032bc307c1c440e5ce76303a65cc389ea4cba543ef1d449e8da8778",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Salvaged 11 independently valid, self-contained generated component call(s).",
+    "Rejected 9 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 11 independently valid, self-contained generated component call(s).; Rejected 9 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[6], [2], [1]]; Missing or changed numeric facts (including signs/units): [5:00, 11:00, 30, 45, 10:00, 6:00, 1.5, 2, 24, 20]; Added or duplicated numeric facts: [0:0:00]; Missing source wording: [suggested, one, day, mysuru, sights, sight, opening, hours, usual, visit, duration, published, adult, entry, fee, lookout, point, 5, 00, am, 11, pm, 30, 45, min]; Added or duplicated visible wording: [0, 00am, wrapup, more, details]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing or changed numeric facts (including signs/units): [11:00, 30, 10:00, 6:00, 24, 1]; Added or duplicated numeric facts: [1:1:00, 1:00, 6:000, 305]; Missing source wording: [suggested, one, day, mysuru, opening, usual, visit, published, adult, entry, chamundi, hill, lookout, view, point, 00, am, 11, pm, 30, in, the, reliable, railway, museum]; Added or duplicated visible wording: [00am, 1, 00pm, 000pm, 305]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 16 complete generated string literal value(s) after graph/state recovery failed.; Ignored 34 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing or changed numeric facts (including signs/units): [11:00, 30, 10:00, 6:00, 24, 1]; Added or duplicated numeric facts: [1:1:00, 1:00, 6:000, 305]; Missing source wording: [suggested, one, day, mysuru, sights, opening, usual, visit, published, adult, entry, chamundi, hill, lookout, view, point, 00, am, 11, pm, 30, in, the, reliable, railway]; Added or duplicated visible wording: [00am, 1, 00pm, 000pm, 305]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "5b1cfd59423555ef1a50943d4ad742949e6be516abbfd300eaf43b00964241b5",
+  "recoveredJsonSha256": "83317ccecf672421509d93e7fe7d26a9720af5840b7f18f608425b8f35fd7cce",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 6
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 9
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1841
+}

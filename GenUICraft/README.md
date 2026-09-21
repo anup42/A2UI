@@ -202,6 +202,7 @@ val outcome = GenUiCompiler.compileWithRepair(rawModelOutput, perplexityResponse
 when (outcome.repairKind) {
     GenUiRepairKind.NONE -> Unit
     GenUiRepairKind.STRUCTURAL -> log(outcome.diagnostics)
+    GenUiRepairKind.GENERATED_DSL_REPAIR -> log("Generated-output salvage; verify source integrity")
     GenUiRepairKind.SOURCE_TEXT_FALLBACK -> log("Model output rejected; exact source fallback used")
 }
 genUiView.render(outcome.document)
@@ -216,6 +217,28 @@ through source bindings, then passes the normal compiler and content-integrity g
 Recovery rejects generated input above 120,000 characters, source text above
 100,000 characters, more than 1,024 elements/statements, and expression or
 reference nesting above 64 levels before recursive work can become unbounded.
+
+Broader generated-output salvage is available only through an explicit diagnostic
+option. It can retain independently valid component calls, literalize valid
+generated state, and repair selected catalog/graph defects. It never imports the
+source response, but renderability alone does not prove that the answer is complete:
+
+```kotlin
+val diagnostic = GenUiCompiler.compileWithRepair(
+    input = rawModelOutput,
+    sourceText = perplexityResponse,        // Enables the separate integrity gate.
+    allowSourceTextFallback = false,        // Never substitute a source-built document.
+    allowGeneratedDslRepair = true,
+)
+```
+
+With `sourceText`, a generated candidate is returned only if it passes mechanical
+source integrity. Omit `sourceText` to inspect the syntactic/render ceiling and treat
+`GENERATED_DSL_REPAIR` as untrusted partial output. The captured E2B Bixby50 run
+recovered and device-rendered 48/50 this way, but 0/48 passed source integrity. The
+48 candidates comprise one complete-graph normalization, 21 component-call
+salvages, 16 generated-state literalizations, and 10 last-resort generated-literal
+salvages; see the [repair-only report](validation/20260921_e2b_mobile_full50_dsl_repair_only_r5/REPORT.md).
 
 `GenUiView` is an Android View wrapper with scrolling. `GenUiContent` is a composable for host-controlled layout. Local actions (`setState`, `pushState`, `removeState`, `validateForm`) execute in the renderer. External URL actions return `GenUiAction(name = "openUrl", parameters = mapOf("url" to url))`; successful `emitEvent` actions return the supplied event name and remaining parameters. A renderer-only application does not need provider credentials or model weights.
 
@@ -242,7 +265,7 @@ Instrumentation class: `com.samsung.genuicraft.GenUiSdkBixby50Test`. Arguments: 
 
 The test app's `-PgenUiSdkOnlyNative=true` build flag omits its legacy JNI files. Use this flag to verify the native runtime supplied by the SDK publication and its declared dependencies. Prompt studies may set `recordInputs=true` to save each effective input and `corpusPath` for a synthetic JSONL fixture. The experimental `inputScaffold=true` argument appends a test-provider scaffold to custom prompts; it is separate from the accepted v10 SDK behavior. Omit experimental scaffold arguments for production acceptance. The study's candidate-build metadata must not be interpreted as a production API or default.
 
-For an independent renderer check, run `GenUiSdkBixby50Test#replaySavedBixbyCorpus` with `sourceRunId=<completed-run>` and a new `runId`. Omit `cases` to replay all 50. The default `replayMode=json` compiles saved JSON without changing its bytes. `replayMode=express` strictly compiles captured Express. `replayMode=express_repair` runs the explicit repair/fallback API and records its classification, diagnostics and recovered hashes. `replayMode=raw_model` revalidates captured successful Gemma output through the current converter. All replay modes report **zero live model calls**, save screenshots and accessibility hierarchies, and check table columns while scrolling. Repair/fallback replay is renderer evidence, not additional inference success or an improved model-quality score. Bounded viewport capture cannot prove that every pixel or row is correct.
+For an independent renderer check, run `GenUiSdkBixby50Test#replaySavedBixbyCorpus` with `sourceRunId=<completed-run>` and a new `runId`. Omit `cases` to replay all 50. The default `replayMode=json` compiles saved JSON without changing its bytes. `replayMode=express` strictly compiles captured Express. `replayMode=express_repair` runs the explicit repair/fallback API and records its classification, diagnostics and recovered hashes. `replayMode=express_repair_only` enables generated-DSL salvage, disables source fallback, separately audits source integrity, and renders only recovered generated candidates. `replayMode=raw_model` revalidates captured successful Gemma output through the current converter. All replay modes report **zero live model calls**, save screenshots and accessibility hierarchies, and check table columns while scrolling. Repair replay is renderer evidence, not additional inference success or an improved model-quality score. Bounded viewport capture cannot prove that every pixel or row is correct.
 
 `tools/probe_gauss.py` is a host prompt-development helper. Its results are explicitly separate from Android AAR acceptance results.
 

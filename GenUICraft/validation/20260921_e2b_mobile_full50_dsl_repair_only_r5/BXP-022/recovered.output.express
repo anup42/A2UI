@@ -1,0 +1,8 @@
+<a2ui>
+root=Column([a,b,c,d,e],"md")
+a=Table(columns=["city","planting"],rows=[["Bengaluru","cooler part of dry season"],["balcony","January to March or after heavy rains"]],title="Planting season",domain="generic",preferredPresentation="cards")
+b=Table(columns=["type","pot","target"],rows=[["compact","12-2-5L","20-5 L"],["larger","25-40 L","smaller pots reduce yield and can cause fruiting problems"]],title=" container size",domain="generic",preferredPresentation="cards")
+c=Table(columns=["requirement","best_location","caution"],rows=[["at least 6 hours direct sun daily","south or west-facing balcony","avoid letting taller plants shade tomato"]],title=" sunlight",domain="generic",preferredPresentation="cards")
+d=Table(columns=["method","goal","note","condition","action"],rows=[["regularly and evenly","soil stays moist not soggy","container tomatoes dry out faster than ground plants","",""],["check daily","","","in hot weather","make pot has good drainage"]],title=" watering",domain="generic",preferredPresentation="cards")
+e=Table(columns=["type","cause"],rows=[["Blossom drop or poor fruit set","undersized pots, heat, or inconsistent watering"],["Blossom-rot","irregular moisture and calcium uptake problems, especially in small containers"]],title=" problems",domain="generic",preferredPresentation="cards")
+</a2ui>

@@ -1,0 +1,5 @@
+<a2ui>
+root=Column([a,b],"md")
+a=Text("Baggage","ન")
+b=Text("Economy standard: 15 cm total size. Additional personal item up to 3 kg.")
+</a2ui>

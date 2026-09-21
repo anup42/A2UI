@@ -1,0 +1,45 @@
+{
+  "id": "BXP-004",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-004/output.express",
+  "sourceExpressSha256": "85db57c9393a81899b9a13ffbdd284e62be7be9ac72ab72972ea91918381abf5",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Salvaged 2 independently valid, self-contained generated component call(s).",
+    "Rejected 2 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 2 independently valid, self-contained generated component call(s).; Rejected 2 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing or changed numeric facts (including signs/units): [7kg, 55, 35, 25cm, 115cm, 15kg, 158cm, 32kg, ₹600, ₹1000]; Added or duplicated numeric facts: [15cm]; Missing source wording: [cabin, baggage, economy, standard, one, bag, up, to, 7, kg, with, maximum, size, 55, 35, 25, cm, total, 115, including, handles, and, wheels, additional, is]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 2 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing or changed numeric facts (including signs/units): [7kg, 55, 35, 25cm, 115cm, 158cm, ₹600, ₹1000]; Added or duplicated numeric facts: [15kg, 5, 3, 5cm, 15cm, 1, 1558cm]; Missing source wording: [cabin, baggage, economy, standard, one, bag, up, to, 7, kg, with, maximum, size, 55, 35, 25, 115, including, handles, and, wheels, additional, is, allowed, such]; Added or duplicated visible wording: [details, type, maxsize, safety, 15, 5, 3, e, g, 1558]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 19 complete generated string literal value(s) after graph/state recovery failed.; Ignored 8 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[2], [11], [5], [6], [13], [3], [4], [7], [1], [9]]; Missing or changed numeric facts (including signs/units): [7kg, 55, 35, 25cm, 115cm, ₹600, ₹1000]; Added or duplicated numeric facts: [5, 3, 5cm, 15cm, 1, 3kg, 1558cm, 5kg, 1588cm]; Missing source wording: [cabin, baggage, one, 7, with, maximum, size, 55, 35, 25, 115, including, handles, and, wheels, additional, is, allowed, such, as, a, or, it, the, checked]; Added or duplicated visible wording: [economy, 15, kg, 5, 3, cm, total, personal, item, e, g, 1558, linear, dimensions, l, w, h, safety, single, not, exceed, 1588, type, max, details]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "97c3fbd3bf76705b071d35a0f57b0d14eb4c9c6fef18db07490ffefabf4ba118",
+  "recoveredJsonSha256": "80619721abbc704dce811ed3c5307c0a9f08fc3258fa9d0d83284359e76483e9",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 2
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 2
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1771
+}

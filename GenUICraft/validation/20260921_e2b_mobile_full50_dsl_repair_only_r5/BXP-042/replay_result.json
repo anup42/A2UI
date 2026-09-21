@@ -1,0 +1,45 @@
+{
+  "id": "BXP-042",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-042/output.express",
+  "sourceExpressSha256": "6dda739a6a6bae6a9c99e5944a4f65ea693eadb4035d2e48d4750cc164e23847",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Salvaged 1 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 3 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 1 complete generated string literal value(s) after graph/state recovery failed.; Ignored 3 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [13], [4], [17]]; Missing or changed numeric facts (including signs/units): [₹12.49, 275, 489km, 312km, 8, 1.60, 315km, ₹14.10, 332, 449km, 2026, -₹15]; Missing source wording: [tata, nexon, ev, indicative, starting, price, 12, 49, lakh, ex, showroom, the, model, is, listed, with, a, claimed, range, of, 275, 489, km, on, autocar]; Added or duplicated visible wording: [tataor]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "d2d07f2634e0480545285460e6d871ec14a1cbfcdd3662b01e42983426e53cce",
+  "recoveredJsonSha256": "978ae21285700bed5d73e9dffab4c0b586092d0a3195d7b44bfd54cc1f628498",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 2
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 2
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1828
+}

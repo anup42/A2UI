@@ -1,0 +1,45 @@
+{
+  "id": "BXP-041",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-041/output.express",
+  "sourceExpressSha256": "2c66b68414d4eaa4febb3691dac19afd881cf0d9c7865135ad1910032f4a9ea4",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Salvaged 4 independently valid, self-contained generated component call(s).",
+    "Rejected 7 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 4 independently valid, self-contained generated component call(s).; Rejected 7 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[21], [22], [24], [11], [17], [20], [12], [32], [37], [4]]; Missing or changed numeric facts (including signs/units): [30, 15, 2026, 26, 90, 25, 50, 2, 8, 20]; Added or duplicated numeric facts: [6, 3, 19, 0]; Missing source wording: [current, entry, rules, for, indian, ordinary, country, visa, route, permitted, stay, published, fee, passport, requirement, checked, thailand, exemption, holders, tourism, thai, embassy, note, says, longer]; Added or duplicated visible wording: [6, 3, 19, 0]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[21], [22], [24], [11], [17], [20], [12], [32], [37], [4]]; Missing or changed numeric facts (including signs/units): [30, 15, 2026, 90, 25, 50]; Added or duplicated numeric facts: [5, 26, 1926, 9, 0, 3]; Missing source wording: [current, entry, for, indian, ordinary, passports, visa, route, permitted, stay, published, fee, passport, requirement, checked, thailand, exemption, holders, thai, embassy, says, use, e, to, 30]; Added or duplicated visible wording: [permittedstay, 5, 26, 1926, 9, 0, 3]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 36 complete generated string literal value(s) after graph/state recovery failed.; Ignored 7 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[21], [22], [24], [11], [17], [20], [12], [32], [37], [4]]; Missing or changed numeric facts (including signs/units): [30, 15, 2026, 90, 25, 50]; Added or duplicated numeric facts: [5, 26, 6, 1926, 9, 0, 3, 8, 20, 2, 19]; Missing source wording: [ordinary, passport, requirement, 30, 15, 2026, the, advisory, lists, a, valid, on, conditions, 90, 25, 50, scan, application, source, notes, at, least, months, validity, blank]; Added or duplicated visible wording: [visa, exemption, for, indian, holders, tourism, thai, embassy, note, longer, stays, e, up, to, days, from, 5, 26, under, revised, scheme, no, fee, not, confirmed]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "321f99559f541b3469fd2bf3e6f32306331aa7c823361211f917d19e835617f1",
+  "recoveredJsonSha256": "3f38267a867eedb9f1b16870c1ff9d3fa2f0a5065650eb2c78d7a8a046923e04",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 4
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 4
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1888
+}

@@ -1,0 +1,45 @@
+{
+  "id": "BXP-020",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-020/output.express",
+  "sourceExpressSha256": "60e8a2c0d3dd8548e645b22fcf6c0339e5eed9b56837357a317ef447c4480c19",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [.",
+    "Salvaged 14 independently valid, self-contained generated component call(s).",
+    "Rejected 12 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 14 independently valid, self-contained generated component call(s).; Rejected 12 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[2], [10], [1], [5]]; Missing or changed numeric facts (including signs/units): [2026, 17, -05]; Added or duplicated numeric facts: [1, -5, 4, 20206]; Missing source wording: [cartosat, 3b, 2026, satellite, fixed, f17, 05, third, party]; Added or duplicated visible wording: [cartos, 3atb, f1, eos, 5, september, 4, 20206, thirdparty, gsl]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 18 complete generated string literal value(s) after graph/state recovery failed.; Ignored 15 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[2], [10], [1], [5]]; Missing or changed numeric facts (including signs/units): [2026, 17, -05]; Added or duplicated numeric facts: [1, -5, 4, 20206]; Missing source wording: [cartosat, 3b, 2026, satellite, fixed, f17, 05, third, party]; Added or duplicated visible wording: [label, cartos, 3atb, chip, f1, eos, 5, september, 4, 20206, thirdparty, gsl]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "c7de5d643082ef15ecb6e1ea9d7c1eed44f46ad4137df01d567d2d266ce553a2",
+  "recoveredJsonSha256": "77226afbf7794ae8083ea03f046feebbe634420aa6d3528a86ec9bdfa7017f25",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 14
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1864
+}

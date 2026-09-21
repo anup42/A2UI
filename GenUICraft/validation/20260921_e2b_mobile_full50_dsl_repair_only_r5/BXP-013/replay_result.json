@@ -1,0 +1,45 @@
+{
+  "id": "BXP-013",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-013/output.express",
+  "sourceExpressSha256": "9fec98836bf9c56b162480c44d091a72aa3c2080c74e31ea96358fee1f440ad9",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 1 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 1 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [6], [9], [17]]; Missing or changed numeric facts (including signs/units): [6.25%, ₹3, 1, 2, 15, 18, 19, 2026, 22, 2023, 1%]; Missing source wording: [one, year, fd, rates, for, regular, adult, retail, customers, sbi, hdfc, bank, and, icici, are, all, showing, a, rate, of, 6, 25, the, relevant, deposit]; Added or duplicated visible wording: [data, ratedata]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 3 complete generated string literal value(s) after graph/state recovery failed.; Ignored 21 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[1], [6], [9], [17]]; Missing or changed numeric facts (including signs/units): [6.25%, ₹3, 1, 2, 15, 18, 19, 2026, 22, 2023, 1%]; Missing source wording: [one, year, fd, rates, for, regular, adult, retail, customers, sbi, hdfc, bank, and, icici, are, all, showing, a, rate, of, 6, 25, the, relevant, deposit]; Added or duplicated visible wording: [hdfcbank]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "eaeb2cba47c442e169dce52ec350c6932f511da4c5761a47f6ed67ac8d06e0cf",
+  "recoveredJsonSha256": "058df192674946830d32b1c9cac3148b6e7944c74b41f7340ba42e4c62961f83",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 1
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 1
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1745
+}

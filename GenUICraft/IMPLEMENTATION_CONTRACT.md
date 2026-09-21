@@ -15,7 +15,7 @@ The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test th
 `GenUiRequest(text: String, query: String? = null, sources: List<GenUiSource> = emptyList())`
 `GenUiSource(id: String, url: String, title: String? = null)`
 `GenUiDocument(express: String, a2uiJson: String, profile: String = "genuicraft_express_v1", schemaVersion: String = "v0.9")`
-`GenUiCompileOutcome(document: GenUiDocument, repairKind: GenUiRepairKind, diagnostics: List<String>)`; successful conversions also expose `GenUiConversionResult.Success.repairKind` so hosts can distinguish unchanged, structurally normalized and source-fallback output without parsing warning text.
+`GenUiCompileOutcome(document: GenUiDocument, repairKind: GenUiRepairKind, diagnostics: List<String>)`; successful conversions also expose `GenUiConversionResult.Success.repairKind` so hosts can distinguish unchanged, structurally normalized, explicitly generated-DSL-salvaged and source-fallback output without parsing warning text.
 `GenUiAction(name: String, parameters: Map<String, String> = emptyMap())`
 `GenUiPrompt(system: String, user: String, maxOutputTokens: Int = 8192, temperature: Double = 0.0)`
 `GenUiModelOutput(text: String, runtime: String, outputTokens: Int? = null)`
@@ -27,7 +27,7 @@ The independent project lives under A2UI/GenUICraft. Do not build Bixby. Test th
 
 ## Compiler and renderer (renderer agent owns)
 
-`object GenUiCompiler { fun compile(input: String): GenUiDocument; fun compileWithRepair(input: String, sourceText: String? = null): GenUiCompileOutcome }`. `compile` remains strict. The opt-in recovery API allows bounded syntax-only normalization and, when exact source text is supplied, a separately classified deterministic source-block fallback. Both paths re-enter strict compilation; fallback also passes mechanical content integrity. It never reports fallback as repaired model output.
+`object GenUiCompiler { fun compile(input: String): GenUiDocument; fun compileWithRepair(input: String, sourceText: String? = null, allowSourceTextFallback: Boolean = true, allowGeneratedDslRepair: Boolean = false): GenUiCompileOutcome }`. `compile` remains strict. The default recovery policy allows bounded syntax-only normalization and, when exact source text is supplied, a separately classified deterministic source-block fallback. `allowGeneratedDslRepair=true` explicitly enables broader model-output-only salvage; it is classified as `GENERATED_DSL_REPAIR`, and supplied source text still gates acceptance. `allowSourceTextFallback=false` guarantees that no source-built document is returned. Every accepted path re-enters strict compilation, and fallback passes mechanical content integrity. Fallback is never reported as repaired model output.
 `@Composable fun GenUiContent(document: GenUiDocument, modifier: Modifier = Modifier, onAction: (GenUiAction) -> Unit = {})`
 `class GenUiView(context: Context, attrs: AttributeSet? = null) : FrameLayout` with `fun render(document: GenUiDocument)`, `fun render(input: String)`, `fun clear()`, and `var onAction: (GenUiAction) -> Unit`.
 All external actions (especially openUrl) are host callbacks. State-local renderer actions remain local. Native rendering requires no provider or model initialization.

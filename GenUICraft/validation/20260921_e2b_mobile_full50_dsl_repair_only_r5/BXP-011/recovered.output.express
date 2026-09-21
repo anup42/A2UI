@@ -1,0 +1,9 @@
+<a2ui>
+root=Column([a,b,c,d,e,f],"md")
+a=Text("Three phones under ₹30,0"," بالای ₹3 Phones")
+b=Text("Quick Pick","সাধারণ পছন্দ")
+c=Text("Nord CE5","•Best mix of price, battery, and support")
+d=Text("Galaxy A36 5G","•Long-term updates matter most")
+e=Text("iQOO Z1","•Maximum battery endurance is top priority")
+f=Text("Buyers prioritizing battery life and fast charging","Buyers prioritizing battery life and fast charging")
+</a2ui>

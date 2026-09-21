@@ -1,0 +1,45 @@
+{
+  "id": "BXP-026",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-026/output.express",
+  "sourceExpressSha256": "88acf65c725ca3c58a6156c188655f81f6dd37fb0070487f592fe68451d29fd1",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [.",
+    "Salvaged 5 complete generated string literal value(s) after graph/state recovery failed.",
+    "Ignored 5 key, style, corrupt, duplicate, or over-budget string literal(s).",
+    "Rebuilt a generated-literal List; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI input contains prose or an unsupported prefix; expected <a2ui>, {, or [. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 5 complete generated string literal value(s) after graph/state recovery failed.; Ignored 5 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[9], [40], [19], [15], [1], [14], [35], [36], [10], [29]]; Missing source wording: [table, data, freshness, cost, limitations, retrieval, augmented, generation, best, for, fresh, content, because, it, can, pull, in, updated, documents, at, query, time, and, does, not]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "e0bbdede0f4ad3e8b320f669218e7d2ef5326c97a134891601fcb7da8ee0c824",
+  "recoveredJsonSha256": "81da575f213851157df0dab63f0b70bedc0629c516ff446596b93bb224c8c29f",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 10
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1834
+}

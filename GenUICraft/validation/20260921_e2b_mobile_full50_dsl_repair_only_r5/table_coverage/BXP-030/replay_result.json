@@ -1,0 +1,100 @@
+{
+  "id": "BXP-030",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-030/output.express",
+  "sourceExpressSha256": "b8d95775001a6eaf82556fc385b4cc587b7556e9de2e68578f9e0b130fa0ad16",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 2 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 2 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [8], [10], [9], [2], [7]]; Missing or changed numeric facts (including signs/units): [70, 12%, ₹500, ₹1000, 60, 80, 1]; Added or duplicated numeric facts: [-70, 2%, ₹50, ₹10000, 6, 8]; Missing source wording: [epf, vs, ppf, nps, salaried, in, for, formal, workers, and, contribution, 12, of, 500, 000, on, lock, linked, employment, is, retirement, exit, 60, allowed, tax]; Added or duplicated visible wording: [comparison, table, n, ep, 2, 0000, 6, 8c, 50000, b, scenario, recommendation, latest, epfo, guidance, before, investing, check]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "9798cccfa3e331e181ba60eb05c62a19ba89f79e196ef5c2d72d172170bcfd0a",
+  "recoveredJsonSha256": "10a5e77e5db589e3c01f2277d801b6f6d50f4a81f10b08b73053bdaa785f0db8",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "Feature",
+        "EPF",
+        "PPF",
+        "NPS",
+        "N"
+      ],
+      "observedHeaders": [
+        "EPF",
+        "PPF",
+        "NPS",
+        "N"
+      ],
+      "observedRepresentativeCells": [
+        "Eligibility",
+        "Salaried employees in EP-covered establishments; mandatory for many-sector workers.",
+        "Any resident individual can open an account.",
+        "Indian citizens aged 18-70; both salaried and self-employed can join.",
+        "Partial withdrawal after 3 years, generally up to 25% of own contributions for specified purposes."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    },
+    {
+      "id": "b",
+      "columns": [
+        "Scenario",
+        "Recommendation"
+      ],
+      "observedHeaders": [],
+      "observedRepresentativeCells": [
+        "A salaried employee with stable income and long service horizon",
+        "EPF is the core choice because contributions are automatic, employer money is added, and withdrawals after 5 years are generally tax-free."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 16
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 18
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 8
+    },
+    {
+      "name": "vertical_3",
+      "screenshot": true,
+      "visibleTextNodes": 6
+    },
+    {
+      "name": "vertical_4",
+      "screenshot": true,
+      "visibleTextNodes": 6
+    }
+  ],
+  "verticalSwipes": 4,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 8073
+}

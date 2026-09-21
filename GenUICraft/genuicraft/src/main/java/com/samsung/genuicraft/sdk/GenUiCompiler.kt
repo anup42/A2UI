@@ -41,14 +41,21 @@ object GenUiCompiler {
      * Opt-in recovery for generated Express output.
      *
      * Strict compilation remains the default API. This method first tries the exact input, then
-     * bounded syntax normalization that never rewrites visible values or graph structure. When those
-     * paths fail and [sourceText] is supplied, a deterministic source-bound A2UI document is
-     * produced from typed source blocks and checked by the SDK's content-integrity gate. The
-     * returned [GenUiRepairKind] keeps that fallback distinct from a repaired model program.
+     * bounded syntax normalization. Set [allowGeneratedDslRepair] only for explicit model-output
+     * salvage experiments; these broader repairs can recover renderable structure without proving
+     * source fidelity. When [sourceText] is supplied, every generated candidate must pass the SDK's
+     * content-integrity gate. If all generated candidates fail and [allowSourceTextFallback] is true,
+     * a deterministic source-bound A2UI document is produced from typed source blocks. The returned
+     * [GenUiRepairKind] keeps DSL salvage and source fallback distinct.
      */
     @JvmStatic
     @JvmOverloads
-    fun compileWithRepair(input: String, sourceText: String? = null): GenUiCompileOutcome {
+    fun compileWithRepair(
+        input: String,
+        sourceText: String? = null,
+        allowSourceTextFallback: Boolean = true,
+        allowGeneratedDslRepair: Boolean = false,
+    ): GenUiCompileOutcome {
         require(input.length <= 120_000) { "Generated input exceeds the 120,000-character recovery limit." }
         require(sourceText == null || sourceText.length <= 100_000) {
             "Source text exceeds the 100,000-character recovery limit."
@@ -67,29 +74,40 @@ object GenUiCompiler {
             strict.exceptionOrNull()?.message?.let { diagnostics += "Strict compile rejected output: $it" }
         }
 
-        val structural = A2uiExpressOutputRepair.repair(input)
-        if (structural != null) {
-            val compiled = runCatching { compile(structural.express) }
+        A2uiExpressOutputRepair.repairs(input, allowGeneratedDslRepair).forEachIndexed { index, repair ->
+            val compiled = runCatching { compile(repair.express) }
             if (compiled.isSuccess) {
                 val document = compiled.getOrThrow()
                 val integrity = sourceText?.let { ContentIntegrity.check(GenUiRequest(it), document) }.orEmpty()
                 if (integrity.isEmpty()) {
                     return GenUiCompileOutcome(
                         document = document,
-                        repairKind = GenUiRepairKind.STRUCTURAL,
-                        diagnostics = diagnostics + structural.changes,
+                        repairKind = when (repair.kind) {
+                            A2uiExpressOutputRepair.Kind.STRUCTURAL -> GenUiRepairKind.STRUCTURAL
+                            A2uiExpressOutputRepair.Kind.GENERATED_DSL -> GenUiRepairKind.GENERATED_DSL_REPAIR
+                        },
+                        diagnostics = diagnostics + repair.changes,
                     )
                 }
-                diagnostics += structural.changes
-                diagnostics += "Generated document failed mechanical source integrity: ${integrity.joinToString("; ")}"
+                diagnostics += "Generated repair candidate ${index + 1} (${repair.kind}) applied: ${repair.changes.joinToString("; ")}"
+                diagnostics += "Generated repair candidate ${index + 1} failed mechanical source integrity: ${integrity.joinToString("; ")}"
             } else {
-                diagnostics += structural.changes
-                diagnostics += "Normalized candidate failed full compilation: ${compiled.exceptionOrNull()?.message}"
+                diagnostics += "Generated repair candidate ${index + 1} (${repair.kind}) applied: ${repair.changes.joinToString("; ")}"
+                diagnostics += "Generated repair candidate ${index + 1} failed full compilation: ${compiled.exceptionOrNull()?.message}"
             }
         }
 
+        require(allowSourceTextFallback) {
+            val reason = if (sourceText == null) {
+                "No generated DSL repair produced a valid document; source fallback was disabled."
+            } else {
+                "No source-faithful generated DSL repair produced a valid document; source fallback was disabled."
+            }
+            (diagnostics + reason)
+                .joinToString(" ")
+        }
         require(sourceText != null) {
-            (diagnostics + "No bounded structural repair produced a valid document.").joinToString(" ")
+            (diagnostics + "No generated DSL repair produced a valid document.").joinToString(" ")
         }
         val fallback = SourceTextFallback.compile(sourceText)
         val fallbackIssues = ContentIntegrity.check(GenUiRequest(sourceText), fallback)

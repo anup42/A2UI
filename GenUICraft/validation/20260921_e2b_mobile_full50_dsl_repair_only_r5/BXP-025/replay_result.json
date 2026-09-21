@@ -1,0 +1,106 @@
+{
+  "id": "BXP-025",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-025/output.express",
+  "sourceExpressSha256": "5a2df353b0ee566a8863006e29b0bf6422d5bccf2256ae9b761d00a94373f5dd",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression.",
+    "Recovered 1 syntactically valid generated state assignment(s).",
+    "Literalized 2 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unclosed A2UI Express expression. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 2 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1]]; Missing or changed numeric facts (including signs/units): [7, 10, 101]; Added or duplicated numeric facts: [1]; Missing source wording: [7, day, plan, 10, min, practice, and, beginner, lesson, is, dialogue, note, audio, free, hindipod101, tools, this, built, around, friendly, access]; Added or duplicated visible wording: [source, content, benefit, hindi1, hindi101]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 22 complete generated string literal value(s) after graph/state recovery failed.; Ignored 19 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[1]]; Missing or changed numeric facts (including signs/units): [7, 10, 2, 3, 4, 5, 6, 101]; Missing source wording: [7, day, hindi, plan, 10, min, 1, practice, and, beginner, lesson, 2, 3, is, dialogue, 4, note, 5, audio, 6, free, resources, hindipod101, tools, this]; Added or duplicated visible wording: [hindi1, content, hindi101, benefit]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "8ae8fd5928c869469251031d6a7a178a0f878a853db3dcf911aae6ea95aa0a30",
+  "recoveredJsonSha256": "62c0552ece8cc5bb0630ba3addca38eeb8054a7f5a0ec837a2d21a9675bff22f",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "day",
+        "speaking",
+        "listening"
+      ],
+      "observedHeaders": [
+        "day",
+        "speaking",
+        "listening"
+      ],
+      "observedRepresentativeCells": [
+        "1",
+        "Practice greetings and introduce yourself aloud.",
+        "Listen to a short beginner greeting lesson."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    },
+    {
+      "id": "b",
+      "columns": [
+        "source",
+        "content",
+        "benefit"
+      ],
+      "observedHeaders": [
+        "source",
+        "content",
+        "benefit"
+      ],
+      "observedRepresentativeCells": [
+        "Hindi1",
+        "free lessons and beginner pathways including absolute-beginner and 1 level content, plus audio/video lessons speaking practice.",
+        "Hindi101’s free account also includes weekly free lessons word-of-the-day content, and audio/dialogue tools for listening practice."
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "table_1_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "table_1_reset",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "table_2_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "table_2_reset",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 24
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 7084
+}

@@ -1,0 +1,45 @@
+{
+  "id": "BXP-002",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-002/output.express",
+  "sourceExpressSha256": "796d54a36472700b051c16fbec0274b28f5b34f5879f26122f4c60aba24b31e9",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unknown property '铺' for A2UI Express component 'Column'.",
+    "Salvaged 1 independently valid, self-contained generated component call(s).",
+    "Rejected 8 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unknown property '铺' for A2UI Express component 'Column'. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 1 independently valid, self-contained generated component call(s).; Rejected 8 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [8:30, 197, 2.5]; Missing source wording: [aqi, observation, time, 8, 30, am, ist, reported, scale, in, 197, pollution, category, poor, main, pollutant, pm2, 5, outdoor, activity, guidance, for, the, air, can]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Recovered 1 syntactically valid generated state assignment(s).; Literalized 2 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [8:30]; Added or duplicated numeric facts: [8:3]; Missing source wording: [delhi, aqi, observation, time, 30, reported, scale, pollution, category, main, pollutant, activity]; Added or duplicated visible wording: [data, observationtime, aqiscale, pollutioncategory, mainpollutant, 3, aq]; Visible source wording order or multiplicity changed. Generated repair candidate 3 (GENERATED_DSL) applied: Salvaged 8 complete generated string literal value(s) after graph/state recovery failed.; Ignored 4 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 3 failed mechanical source integrity: Missing citation markers: [[5], [7]]; Missing or changed numeric facts (including signs/units): [8:30]; Added or duplicated numeric facts: [8:3, 197]; Missing source wording: [aqi, observation, time, 30, reported, scale, pollution, category, main, pollutant, outdoor, activity, guidance]; Added or duplicated visible wording: [3, aq, in, 197, sma]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "c7f05f5db31f6f0619aab144f244ed9fe3041c15412d38afd34983fd9135f171",
+  "recoveredJsonSha256": "293e3e7eeb3489bfa0f79a240495fe40f04c7b60389b42a32086e31fedce763c",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 1
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 1
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1671
+}

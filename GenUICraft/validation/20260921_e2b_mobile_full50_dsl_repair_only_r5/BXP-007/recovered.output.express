@@ -1,0 +1,14 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g,h,i,j,k],"md")
+a=Text("Sensible Visit Order","Chamundi_Sights_Day")
+b=Text("1. Chamundi Hill Lookout View Point early in the morning for the clearest views and cooler weather.","h1")
+c=Text("2. Mysuru Railway Museum next, since it opens at 0:0:00am and fits a mid-morning visit well.","h1")
+d=Text("3. Chikka Gadiyara last for a short city-centre stop and easy wrapup.","h1")
+e=Text("If you want more landmark-heavy day, Mysuru Railway Museum is the strongest stop, while Chamundi Hill gives the best panoramic experience from the options above.","h1")
+f=Text("Mysuru Railway Museum","m1")
+g=Text("Chamundi Hill","2")
+h=Text("Chikka Gadiyara","3")
+i=Button("View More Details","borderless")
+j=Text("•","s")
+k=Text("•","t")
+</a2ui>

@@ -1,0 +1,5 @@
+<a2ui>
+root=Column([a,b],"md")
+a=Text("The two main driving routes to Madikeri are the Mysuruuru–Hunsur–Kushalnagar route and the Hassan–Kushalnagar route. The Mysuru route is the most commonly recommended and generally the most convenient for first-time travelers while the Hassan route is usually a good alternative when you want to avoid the Mysuru corridor.[2][4][11]","Route Comparison")
+b=Text("Which route feels different in practice","h1")
+</a2ui>

@@ -1,0 +1,10 @@
+<a2ui>
+root=Column([a,b,c,d,e,f,g],"md")
+a=Text("Family-friendly co-op picks","sage1")
+b=Text("Best fit","sage")
+c=Text("Best pure two-player co-coop","sm")
+d=Text("It Takes, with full teamwork focus and free Friend’s Pass access for a second player[111]","sm")
+e=Text("Best relaxed local co-coop","sage")
+f=Text("Best larger group party game","sage")
+g=Text("Overcooked! 2","sm")
+</a2ui>

@@ -1,0 +1,4 @@
+<a2ui>
+root=Column([a],"md")
+a=Table(columns=["type","details"],rows=[["Drop-off at a certified recycler or collection centre","Bengaluruardi options listed in the search results include RecycleKaro’s Bengaluru facility, Saahas, Croma stores, and other listed recyclers/collection points that accept batteries.[9]"],["Scheduled home pickup","RecycleKaro and EcoFly both describe pickup services, and Zolopik also offers pickup for battery/e-waste collection in Bengaluru Bengaluru.[7110]"],["Manufacturer or brand take-back","Some brands and authorised partners offer battery/e-waste return programs, including brand-linked collection or pickup arrangements.[5]"]],title="Collection options",domain="generic",preferredPresentation="cards")
+</a2ui>

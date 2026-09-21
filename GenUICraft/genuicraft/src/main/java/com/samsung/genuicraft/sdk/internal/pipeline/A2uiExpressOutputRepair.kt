@@ -6,18 +6,31 @@ package com.samsung.genuicraft.sdk.internal.pipeline
  * normal codec and canonical graph validator accept the result.
  */
 internal object A2uiExpressOutputRepair {
-    data class Repair(val express: String, val changes: List<String>)
+    enum class Kind { STRUCTURAL, GENERATED_DSL }
 
-    fun repair(input: String): Repair? {
+    data class Repair(val express: String, val changes: List<String>, val kind: Kind = Kind.STRUCTURAL)
+
+    fun repair(input: String): Repair? = repairs(input).firstOrNull()
+
+    fun repairs(input: String, includeGeneratedDslRepair: Boolean = false): List<Repair> {
+        val accepted = linkedMapOf<String, Repair>()
         val candidates = candidates(input)
         for ((candidate, initialChanges) in candidates) {
             val graph = runCatching { A2uiExpressCodec.decode(candidate) }.getOrNull() ?: continue
             val validation = A2uiCanonicalGraph.validate(graph)
             if (!validation.isValid) continue
             val canonical = runCatching { A2uiExpressCodec.encode(graph) }.getOrNull() ?: continue
-            return Repair(canonical, initialChanges.distinct())
+            accepted.putIfAbsent(canonical, Repair(canonical, initialChanges.distinct()))
         }
-        return null
+        if (includeGeneratedDslRepair) {
+            A2uiExpressGeneralRepair.candidates(input).forEach { candidate ->
+                accepted.putIfAbsent(
+                    candidate.express,
+                    Repair(candidate.express, candidate.changes.distinct(), Kind.GENERATED_DSL),
+                )
+            }
+        }
+        return accepted.values.toList()
     }
 
     private fun candidates(input: String): List<Pair<String, List<String>>> {

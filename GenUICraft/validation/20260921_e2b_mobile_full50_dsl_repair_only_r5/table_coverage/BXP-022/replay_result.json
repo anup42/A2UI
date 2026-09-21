@@ -1,0 +1,195 @@
+{
+  "id": "BXP-022",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-022/output.express",
+  "sourceExpressSha256": "6fb5312684d4c924fc694803ec1b9cdc47bc8e3fb5eee6178145dee94b112449",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter.",
+    "Recovered 3 syntactically valid generated state assignment(s).",
+    "Literalized 5 generated state field(s) into deterministic A2UI components.",
+    "Only generated DSL state was used; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Unbalanced A2UI Express delimiter. Generated repair candidate 1 (GENERATED_DSL) applied: Recovered 3 syntactically valid generated state assignment(s).; Literalized 5 generated state field(s) into deterministic A2UI components.; Only generated DSL state was used; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[5], [1], [3], [4], [6], [9], [10]]; Missing or changed numeric facts (including signs/units): [25, 40]; Added or duplicated numeric facts: [-2, -5, -40]; Missing source wording: [best, in, tomatoes, can, be, planted, through, much, of, the, year, but, they, do, when, started, rather, than, peak, rain, or, extreme, heat, for, containers]; Added or duplicated visible wording: [planting, city, type, 2, 5l, 5, cause, requirement, bestlocation, caution, method, goal, note, condition, action]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "5991375d9b3b0a977a7357d1ac8f5c07b62118192ff49fc0172aebeaccf41c28",
+  "recoveredJsonSha256": "13f45508cc6244e94ef787d4745906376d10ac74ff15afbe6b815554d91cb0a0",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [
+    {
+      "id": "a",
+      "columns": [
+        "city",
+        "planting"
+      ],
+      "observedHeaders": [
+        "planting"
+      ],
+      "observedRepresentativeCells": [
+        "Bengaluru",
+        "cooler part of dry season"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": false
+    },
+    {
+      "id": "b",
+      "columns": [
+        "type",
+        "pot",
+        "target"
+      ],
+      "observedHeaders": [
+        "type",
+        "pot",
+        "target"
+      ],
+      "observedRepresentativeCells": [
+        "compact",
+        "12-2-5L",
+        "20-5 L"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    },
+    {
+      "id": "c",
+      "columns": [
+        "requirement",
+        "best_location",
+        "caution"
+      ],
+      "observedHeaders": [
+        "requirement",
+        "best_location",
+        "caution"
+      ],
+      "observedRepresentativeCells": [
+        "at least 6 hours direct sun daily",
+        "south or west-facing balcony",
+        "avoid letting taller plants shade tomato"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    },
+    {
+      "id": "d",
+      "columns": [
+        "method",
+        "goal",
+        "note",
+        "condition",
+        "action"
+      ],
+      "observedHeaders": [
+        "method",
+        "goal",
+        "note",
+        "condition",
+        "action"
+      ],
+      "observedRepresentativeCells": [
+        "regularly and evenly",
+        "soil stays moist not soggy",
+        "container tomatoes dry out faster than ground plants",
+        "in hot weather",
+        "make pot has good drainage"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    },
+    {
+      "id": "e",
+      "columns": [
+        "type",
+        "cause"
+      ],
+      "observedHeaders": [
+        "type",
+        "cause"
+      ],
+      "observedRepresentativeCells": [
+        "Blossom drop or poor fruit set",
+        "undersized pots, heat, or inconsistent watering"
+      ],
+      "missingColumns": [],
+      "horizontalScrollObserved": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_2_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 31
+    },
+    {
+      "name": "table_2_reset",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_3_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_3_reset",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_4_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 32
+    },
+    {
+      "name": "table_4_horizontal_2",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_4_reset",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "table_5_horizontal_1",
+      "screenshot": true,
+      "visibleTextNodes": 31
+    },
+    {
+      "name": "table_5_reset",
+      "screenshot": true,
+      "visibleTextNodes": 34
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 31
+    },
+    {
+      "name": "vertical_2",
+      "screenshot": true,
+      "visibleTextNodes": 31
+    }
+  ],
+  "verticalSwipes": 2,
+  "verticalEndObserved": true,
+  "verticalLimitReached": false,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 14883
+}

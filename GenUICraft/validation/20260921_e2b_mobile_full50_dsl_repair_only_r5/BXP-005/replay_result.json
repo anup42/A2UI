@@ -1,0 +1,45 @@
+{
+  "id": "BXP-005",
+  "kind": "generated_dsl_repair_no_fallback",
+  "replayMode": "express_repair_only",
+  "sourceRunId": "mobile_gpu_mtp_full50_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_full50_render_source_20260921/BXP-005/output.express",
+  "sourceExpressSha256": "44bfeb341e818942286f1a066322d1c4dc071474cf9f1fa4ce5d69561e7c71ad",
+  "generatedDslRepairAccepted": true,
+  "repairKind": "GENERATED_DSL_REPAIR",
+  "repairDiagnostics": [
+    "Strict compile rejected output: Invalid GenUI Express: Stack.gap must be one of none, sm, md, lg, xl.",
+    "Salvaged 18 independently valid, self-contained generated component call(s).",
+    "Rejected 17 balanced component call(s) that still failed strict decoding or canonical validation.",
+    "Rebuilt only the generated component graph; source text was not used."
+  ],
+  "sourceIntegrityEvaluated": true,
+  "sourceIntegrityAccepted": false,
+  "sourceIntegrityFailure": "Strict compile rejected output: Invalid GenUI Express: Stack.gap must be one of none, sm, md, lg, xl. Generated repair candidate 1 (GENERATED_DSL) applied: Salvaged 18 independently valid, self-contained generated component call(s).; Rejected 17 balanced component call(s) that still failed strict decoding or canonical validation.; Rebuilt only the generated component graph; source text was not used. Generated repair candidate 1 failed mechanical source integrity: Missing citation markers: [[1], [5], [2], [3]]; Missing or changed numeric facts (including signs/units): [5:00, 11:55]; Added or duplicated numeric facts: [5:0:0, 11:555]; Missing source wording: [00, the, road, up, 55, nadaprabhu, silk, jaya]; Added or duplicated visible wording: [0, 555, nadabhu, jayaaya, continue]; Visible source wording order or multiplicity changed. Generated repair candidate 2 (GENERATED_DSL) applied: Salvaged 19 complete generated string literal value(s) after graph/state recovery failed.; Ignored 31 key, style, corrupt, duplicate, or over-budget string literal(s).; Rebuilt a generated-literal List; source text was not used. Generated repair candidate 2 failed mechanical source integrity: Missing citation markers: [[1], [5], [2], [3]]; Missing or changed numeric facts (including signs/units): [5:00, 11:55]; Added or duplicated numeric facts: [5:0:0, 11:555]; Missing source wording: [00, the, road, up, 55, nadaprabhu, silk, jaya]; Added or duplicated visible wording: [0, 555, nadabhu, jayaaya, попере, continue]; Visible source wording order or multiplicity changed. No source-faithful generated DSL repair produced a valid document; source fallback was disabled.",
+  "recoveredExpressSha256": "05770a493bfde3096f1a825968262e635ab0e5ab89036ba8f147374b6c702e02",
+  "recoveredJsonSha256": "881a3168392395c0cb057ab6b71dbe5f27af474632f9980a459dc6f6fab15245",
+  "renderFontScale": 1.0,
+  "renderDark": false,
+  "tables": [],
+  "captures": [
+    {
+      "name": "initial",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    },
+    {
+      "name": "vertical_1",
+      "screenshot": true,
+      "visibleTextNodes": 12
+    }
+  ],
+  "verticalSwipes": 1,
+  "verticalEndObserved": false,
+  "verticalLimitReached": true,
+  "issues": [],
+  "status": "rendered",
+  "replayElapsedMs": 1983
+}
