@@ -75,6 +75,14 @@ data class GenUiModelOutput(
 interface GenUiProvider : AutoCloseable {
     val id: String
     suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput
+    /**
+     * Reports cumulative raw output, potentially on a native/provider worker thread. The observer
+     * must return promptly and dispatch UI work to main. Providers without streaming support report
+     * one final snapshot. Repair/compilation never modifies these snapshots.
+     */
+    suspend fun generate(prompt: GenUiPrompt, onPartialText: (String) -> Unit): GenUiModelOutput {
+        return generate(prompt).also { onPartialText(it.text) }
+    }
     suspend fun closeAndAwait() {
         close()
     }

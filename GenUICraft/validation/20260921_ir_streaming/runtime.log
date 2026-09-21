@@ -1,0 +1,2 @@
+09-21 23:10:19.150  3704  3965 I GenUICraftRuntime: Gemma4 backend=GPU; MTP=true; MTPRequested=true; modelSupportsMtp=true; thinking=false; metrics=true
+09-21 23:10:25.765  3704  3965 I native  : I0000 00:00:1790012425.765251    3965 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.558642

@@ -28,6 +28,7 @@ import com.samsung.genuicraft.pipeline.PipelineMediaSanitizer
 import com.samsung.genuicraft.pipeline.PipelinePromptBuilder
 import com.samsung.genuicraft.pipeline.ResponseFactCoverage
 import com.samsung.genuicraft.pipeline.TrainedStage3Bridge
+import com.samsung.genuicraft.sdk.GenUiRepairKind
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -53,7 +54,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         val llmRuntimeBackend: String? = null,
         val stage3StreamText: String? = null,
         val streamMetricsAreEstimated: Boolean = false,
-        val stage3StreamComplete: Boolean = false
+        val stage3StreamComplete: Boolean = false,
+        val stage3WasRepaired: Boolean? = null,
     )
 
     data class PipelineResult(
@@ -71,7 +73,8 @@ class GenUiStagePipeline(private val appContext: Context) {
         val warnings: List<String>,
         val renderResult: GenUiNativeRenderer.RenderResult,
         val stage3OutputTokensPerSecond: Double? = null,
-        val stage3RuntimeBackend: String? = null
+        val stage3RuntimeBackend: String? = null,
+        val stage3WasRepaired: Boolean? = null,
     )
 
     private data class Stage3RepairDiagnostics(
@@ -2366,14 +2369,70 @@ class GenUiStagePipeline(private val appContext: Context) {
             stage2Response = stage2Response,
         )
         val stage3StartedAtMs = System.currentTimeMillis()
+        var lastRawStreamUpdateAtMs = 0L
         val conversion = TrainedStage3Bridge.convert(
             context = appContext,
             modelPath = modelPath,
             sourceResponse = stage2Response,
             queryText = normalizedQuery,
+            onPartialText = { rawText ->
+                val nowMs = android.os.SystemClock.elapsedRealtime()
+                if (
+                    lastRawStreamUpdateAtMs == 0L ||
+                    nowMs - lastRawStreamUpdateAtMs >= TRAINED_STREAM_UPDATE_MIN_INTERVAL_MS
+                ) {
+                    lastRawStreamUpdateAtMs = nowMs
+                    postStreamUpdate(
+                        onStageUpdate,
+                        InferenceBackend.StreamUpdate(
+                            text = rawText,
+                            outputTokens = null,
+                            outputTokensPerSecond = null,
+                            runtimeBackend = null,
+                            metricsAreEstimated = false,
+                            complete = false,
+                        ),
+                    )
+                }
+            },
         )
         stageDurationsMs[Stage.STAGE3] =
             (System.currentTimeMillis() - stage3StartedAtMs).coerceAtLeast(0L)
+
+        val finalRawText: String
+        val finalInputTokens: Int?
+        val finalOutputTokens: Int?
+        val finalOutputTokensPerSecond: Double?
+        val finalRuntimeBackend: String?
+        when (conversion) {
+            is TrainedStage3Bridge.Result.Success -> {
+                finalRawText = conversion.rawGeneratedText
+                finalInputTokens = conversion.inputTokens
+                finalOutputTokens = conversion.outputTokens
+                finalOutputTokensPerSecond = conversion.outputTokensPerSecond
+                finalRuntimeBackend = conversion.runtimeBackend
+            }
+
+            is TrainedStage3Bridge.Result.Failure -> {
+                finalRawText = conversion.rawGeneratedText.orEmpty()
+                finalInputTokens = conversion.inputTokens
+                finalOutputTokens = conversion.outputTokens
+                finalOutputTokensPerSecond = conversion.outputTokensPerSecond
+                finalRuntimeBackend = conversion.runtimeBackend
+            }
+        }
+        postUpdate(
+            callback = onStageUpdate,
+            stage = Stage.STAGE3,
+            message = "Raw IR generation complete",
+            stage2Response = stage2Response,
+            llmInputTokens = finalInputTokens,
+            llmOutputTokens = finalOutputTokens,
+            llmOutputTokensPerSecond = finalOutputTokensPerSecond,
+            llmRuntimeBackend = finalRuntimeBackend,
+            stage3StreamText = finalRawText,
+            stage3StreamComplete = true,
+        )
 
         if (conversion is TrainedStage3Bridge.Result.Failure) {
             val rawOutput = conversion.rawGeneratedText.orEmpty()
@@ -2407,6 +2466,9 @@ class GenUiStagePipeline(private val appContext: Context) {
         }
 
         conversion as TrainedStage3Bridge.Result.Success
+        val stage3WasRepaired =
+            conversion.repairKind == GenUiRepairKind.STRUCTURAL ||
+                conversion.repairKind == GenUiRepairKind.GENERATED_DSL_REPAIR
         conversion.warnings.forEach(::addWarningOnce)
         addWarningOnce("Trained SDK repair result: ${conversion.repairKind.name}")
         conversion.renderedPromptSha256?.let {
@@ -2447,6 +2509,7 @@ class GenUiStagePipeline(private val appContext: Context) {
             llmOutputTokens = conversion.outputTokens,
             llmOutputTokensPerSecond = conversion.outputTokensPerSecond,
             llmRuntimeBackend = conversion.runtimeBackend,
+            stage3WasRepaired = stage3WasRepaired,
         )
 
         postUpdate(onStageUpdate, Stage.STAGE4, "Rendering trained model output")
@@ -2488,6 +2551,7 @@ class GenUiStagePipeline(private val appContext: Context) {
                 renderResult = renderResult,
                 stage3OutputTokensPerSecond = conversion.outputTokensPerSecond,
                 stage3RuntimeBackend = conversion.runtimeBackend,
+                stage3WasRepaired = stage3WasRepaired,
             )
         )
     }
@@ -2899,7 +2963,11 @@ class GenUiStagePipeline(private val appContext: Context) {
         llmInputTokens: Int? = null,
         llmOutputTokens: Int? = null,
         llmOutputTokensPerSecond: Double? = null,
-        llmRuntimeBackend: String? = null
+        llmRuntimeBackend: String? = null,
+        stage3StreamText: String? = null,
+        streamMetricsAreEstimated: Boolean = false,
+        stage3StreamComplete: Boolean = false,
+        stage3WasRepaired: Boolean? = null,
     ) {
         withContext(Dispatchers.Main) {
             callback(
@@ -2913,7 +2981,11 @@ class GenUiStagePipeline(private val appContext: Context) {
                     llmInputTokens = llmInputTokens,
                     llmOutputTokens = llmOutputTokens,
                     llmOutputTokensPerSecond = llmOutputTokensPerSecond,
-                    llmRuntimeBackend = llmRuntimeBackend
+                    llmRuntimeBackend = llmRuntimeBackend,
+                    stage3StreamText = stage3StreamText,
+                    streamMetricsAreEstimated = streamMetricsAreEstimated,
+                    stage3StreamComplete = stage3StreamComplete,
+                    stage3WasRepaired = stage3WasRepaired,
                 )
             )
         }
@@ -3237,6 +3309,7 @@ class GenUiStagePipeline(private val appContext: Context) {
         const val GEMMA_STAGE3_MAX_OUTPUT_TOKENS = 4096
         const val ON_DEVICE_STAGE3_MAX_OUTPUT_TOKENS = 3072
         const val ON_DEVICE_STAGE3_REPAIR_ATTEMPTS = 2
+        const val TRAINED_STREAM_UPDATE_MIN_INTERVAL_MS = 75L
         const val REPAIR_SOURCE_CONTEXT_MAX_CHARS = 6000
         const val LOCAL_SERVER_STAGE2_MAX_OUTPUT_TOKENS = 2048
         const val LOCAL_SERVER_STAGE3_MAX_OUTPUT_TOKENS = 15000

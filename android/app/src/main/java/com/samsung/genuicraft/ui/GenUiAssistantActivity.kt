@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +37,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Card
@@ -72,6 +75,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -89,6 +93,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -127,6 +134,7 @@ private data class StarterPrompt(
 )
 
 private const val FLIGHT_STARTER_DAYS_AHEAD = 15L
+private const val ASSISTANT_IR_DEBUG_ITEM_INDEX = 2
 private val FLIGHT_STARTER_DATE_FORMATTER =
     DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
 
@@ -159,6 +167,10 @@ private object GenUiAssistantSessionCache {
     var errorText: String? = null
     var stage2Text: String? = null
     var stage3Json: String? = null
+    var rawStage3Text: String = ""
+    var stage3StreamComplete: Boolean = false
+    var stage3WasRepaired: Boolean? = null
+    var finalIrFailed: Boolean = false
     var currentQuery: String? = null
     var usedFallback: Boolean = false
     var warnings: List<String> = emptyList()
@@ -237,6 +249,16 @@ private fun GenUiAssistantScreen(
     var errorText by rememberSaveable { mutableStateOf<String?>(GenUiAssistantSessionCache.errorText) }
     var stage2Text by remember { mutableStateOf<String?>(GenUiAssistantSessionCache.stage2Text) }
     var stage3Json by remember { mutableStateOf<String?>(GenUiAssistantSessionCache.stage3Json) }
+    var rawStage3Text by remember { mutableStateOf(GenUiAssistantSessionCache.rawStage3Text) }
+    var stage3StreamComplete by rememberSaveable {
+        mutableStateOf(GenUiAssistantSessionCache.stage3StreamComplete)
+    }
+    var stage3WasRepaired by rememberSaveable {
+        mutableStateOf(GenUiAssistantSessionCache.stage3WasRepaired)
+    }
+    var finalIrFailed by rememberSaveable {
+        mutableStateOf(GenUiAssistantSessionCache.finalIrFailed)
+    }
     var currentQuery by rememberSaveable { mutableStateOf<String?>(GenUiAssistantSessionCache.currentQuery) }
     var usedFallback by rememberSaveable { mutableStateOf(GenUiAssistantSessionCache.usedFallback) }
     var warnings by remember { mutableStateOf(ArrayList(GenUiAssistantSessionCache.warnings)) }
@@ -250,6 +272,7 @@ private fun GenUiAssistantScreen(
             addAll(GenUiAssistantSessionCache.logs)
         }
     }
+    val contentListState = rememberLazyListState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val historyItems = remember { mutableStateListOf<GenUiAssistantHistoryItem>() }
     LaunchedEffect(Unit) {
@@ -273,6 +296,10 @@ private fun GenUiAssistantScreen(
         errorText,
         stage2Text,
         stage3Json,
+        rawStage3Text,
+        stage3StreamComplete,
+        stage3WasRepaired,
+        finalIrFailed,
         currentQuery,
         usedFallback,
         warnings,
@@ -287,6 +314,10 @@ private fun GenUiAssistantScreen(
         GenUiAssistantSessionCache.errorText = errorText
         GenUiAssistantSessionCache.stage2Text = stage2Text
         GenUiAssistantSessionCache.stage3Json = stage3Json
+        GenUiAssistantSessionCache.rawStage3Text = rawStage3Text
+        GenUiAssistantSessionCache.stage3StreamComplete = stage3StreamComplete
+        GenUiAssistantSessionCache.stage3WasRepaired = stage3WasRepaired
+        GenUiAssistantSessionCache.finalIrFailed = finalIrFailed
         GenUiAssistantSessionCache.currentQuery = currentQuery
         GenUiAssistantSessionCache.usedFallback = usedFallback
         GenUiAssistantSessionCache.warnings = warnings.toList()
@@ -321,10 +352,7 @@ private fun GenUiAssistantScreen(
         }
     }
 
-    fun formatLogCardContent(title: String, content: String): String {
-        if (!title.equals("GenUI JSON", ignoreCase = true)) {
-            return content
-        }
+    fun formatIrForDebug(content: String): String {
         val trimmed = content.trim()
         if (trimmed.isBlank()) {
             return content
@@ -350,7 +378,7 @@ private fun GenUiAssistantScreen(
         append: Boolean = false
     ) {
         if (content.isBlank()) return
-        val normalizedContent = if (append) content else formatLogCardContent(title, content)
+        val normalizedContent = content
         val index = logs.indexOfFirst { it.title == title }
         if (index < 0) {
             val newItem = AssistantLogItem(title = title, content = normalizedContent, monospace = monospace)
@@ -470,6 +498,10 @@ private fun GenUiAssistantScreen(
         errorText = null
         stage2Text = null
         stage3Json = null
+        rawStage3Text = ""
+        stage3StreamComplete = false
+        stage3WasRepaired = null
+        finalIrFailed = false
         currentQuery = null
         usedFallback = false
         warnings = arrayListOf()
@@ -488,6 +520,10 @@ private fun GenUiAssistantScreen(
         errorText = null
         stage2Text = item.responseText
         stage3Json = item.genUiJson
+        rawStage3Text = ""
+        stage3StreamComplete = true
+        stage3WasRepaired = null
+        finalIrFailed = false
         usedFallback = item.usedFallback
         warnings = ArrayList(item.warnings.map(::sanitizeUiLogText))
         stage3InputTokens = item.stage3InputTokens
@@ -496,11 +532,6 @@ private fun GenUiAssistantScreen(
         upsertLogCard(
             title = "Response",
             content = item.responseText
-        )
-        upsertLogCard(
-            title = "GenUI JSON",
-            content = item.genUiJson,
-            monospace = true
         )
         if (item.stage3InputTokens != null || item.stage3OutputTokens != null) {
             upsertLogCard(
@@ -608,6 +639,7 @@ private fun GenUiAssistantScreen(
         errorText != null ||
         stage2Text != null ||
         stage3Json != null ||
+        rawStage3Text.isNotBlank() ||
         currentQuery != null ||
         displayRenderResult != null ||
         logs.isNotEmpty() ||
@@ -618,6 +650,14 @@ private fun GenUiAssistantScreen(
         currentQuery == null &&
         logs.isEmpty() &&
         errorText == null
+    LaunchedEffect(debugMode, rawStage3Text.isNotBlank(), isRunning) {
+        if (debugMode && rawStage3Text.isNotBlank() && isRunning) {
+            snapshotFlow { contentListState.layoutInfo.totalItemsCount }
+                .filter { it > ASSISTANT_IR_DEBUG_ITEM_INDEX }
+                .first()
+            contentListState.scrollToItem(ASSISTANT_IR_DEBUG_ITEM_INDEX)
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -866,6 +906,10 @@ private fun GenUiAssistantScreen(
                                     errorText = null
                                     stage2Text = null
                                     stage3Json = null
+                                    rawStage3Text = ""
+                                    stage3StreamComplete = false
+                                    stage3WasRepaired = null
+                                    finalIrFailed = false
                                     renderResult = null
                                     warnings = arrayListOf()
                                     usedFallback = false
@@ -888,14 +932,28 @@ private fun GenUiAssistantScreen(
                                                 if (activeRunToken != runToken) {
                                                     return@stageUpdate
                                                 }
-                                                currentStatus = sanitizeUiLogText(update.message)
-                                                updateSteps(update)
-                                                appendDebugLogLine(update.message)
-                                                update.debugLog?.let(::appendDebugLogLine)
-                                                PipelineRunNotifier.showRunning(
-                                                    context.applicationContext,
-                                                    status = currentStatus
-                                                )
+                                                val isStreamEvent = update.stage3StreamText != null
+                                                if (!isStreamEvent) {
+                                                    currentStatus = sanitizeUiLogText(update.message)
+                                                    updateSteps(update)
+                                                    appendDebugLogLine(update.message)
+                                                    update.debugLog?.let(::appendDebugLogLine)
+                                                    PipelineRunNotifier.showRunning(
+                                                        context.applicationContext,
+                                                        status = currentStatus
+                                                    )
+                                                }
+
+                                                if (update.stage3StreamText != null) {
+                                                    rawStage3Text = mergeCumulativeRawIr(
+                                                        current = rawStage3Text,
+                                                        incoming = update.stage3StreamText,
+                                                    )
+                                                    stage3StreamComplete = update.stage3StreamComplete
+                                                }
+                                                if (update.stage3WasRepaired != null) {
+                                                    stage3WasRepaired = update.stage3WasRepaired
+                                                }
 
                                                 if (!update.stage2Response.isNullOrBlank()) {
                                                     stage2Text = update.stage2Response
@@ -906,11 +964,6 @@ private fun GenUiAssistantScreen(
                                                 }
                                                 if (!update.stage3Json.isNullOrBlank()) {
                                                     stage3Json = update.stage3Json
-                                                    upsertLogCard(
-                                                        title = "GenUI JSON",
-                                                        content = update.stage3Json,
-                                                        monospace = true
-                                                    )
                                                 }
                                                 if (update.stage == GenUiStagePipeline.Stage.STAGE3 &&
                                                     (update.llmInputTokens != null || update.llmOutputTokens != null)
@@ -943,6 +996,12 @@ private fun GenUiAssistantScreen(
                                                     val result = outcome.result
                                                     stage2Text = result.stage2Response
                                                     stage3Json = result.stage3Json
+                                                    if (rawStage3Text.isNotBlank()) {
+                                                        stage3StreamComplete = true
+                                                    }
+                                                    stage3WasRepaired = result.stage3WasRepaired
+                                                        ?: stage3WasRepaired
+                                                    finalIrFailed = false
                                                     stage3InputTokens = result.stage3InputTokens
                                                     stage3OutputTokens = result.stage3OutputTokens
                                                     renderResult = result.renderResult
@@ -951,11 +1010,6 @@ private fun GenUiAssistantScreen(
                                                     upsertLogCard(
                                                         title = "Response",
                                                         content = result.stage2Response
-                                                    )
-                                                    upsertLogCard(
-                                                        title = "GenUI JSON",
-                                                        content = result.stage3Json,
-                                                        monospace = true
                                                     )
                                                     if (result.stage3InputTokens != null || result.stage3OutputTokens != null) {
                                                         upsertLogCard(
@@ -1006,6 +1060,10 @@ private fun GenUiAssistantScreen(
 
                                                 is GenUiStagePipeline.Outcome.Failure -> {
                                                     errorText = sanitizeUiLogText(outcome.message)
+                                                    if (rawStage3Text.isNotBlank()) {
+                                                        stage3StreamComplete = true
+                                                    }
+                                                    finalIrFailed = true
                                                     appendDebugLogLine("Pipeline failed: ${outcome.message}")
                                                     if (!outcome.stage2Response.isNullOrBlank()) {
                                                         stage2Text = outcome.stage2Response
@@ -1016,11 +1074,6 @@ private fun GenUiAssistantScreen(
                                                     }
                                                     if (!outcome.stage3Json.isNullOrBlank()) {
                                                         stage3Json = outcome.stage3Json
-                                                        upsertLogCard(
-                                                            title = "GenUI JSON",
-                                                            content = outcome.stage3Json,
-                                                            monospace = true
-                                                        )
                                                     }
                                                     steps.indices.forEach { i ->
                                                         val step = steps[i]
@@ -1088,6 +1141,7 @@ private fun GenUiAssistantScreen(
             modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             LazyColumn(
+                state = contentListState,
                 modifier = backgroundModifier
                     .fillMaxSize()
                     .padding(innerPadding)
@@ -1121,6 +1175,40 @@ private fun GenUiAssistantScreen(
                             statusText = currentStatus,
                             running = isRunning
                         )
+                    }
+
+                    if (rawStage3Text.isNotBlank() || !stage3Json.isNullOrBlank()) {
+                        item {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                if (rawStage3Text.isNotBlank()) {
+                                    StageCard(
+                                        title = if (isRunning && !stage3StreamComplete) {
+                                            "Live IR generation"
+                                        } else {
+                                            "Raw model IR"
+                                        },
+                                        content = rawStage3Text +
+                                            if (isRunning && !stage3StreamComplete) "\u258C" else "",
+                                        monospace = true,
+                                        tone = GenUiCardTone.Neutral,
+                                        maxContentHeight = 280.dp,
+                                        autoFollowTail = isRunning && !stage3StreamComplete,
+                                    )
+                                }
+                                stage3Json?.takeIf { it.isNotBlank() }?.let { finalIr ->
+                                    StageCard(
+                                        title = resolveIrDebugFinalLabel(
+                                            stage3WasRepaired = stage3WasRepaired,
+                                            failed = finalIrFailed,
+                                        ),
+                                        content = formatIrForDebug(finalIr),
+                                        monospace = true,
+                                        tone = GenUiCardTone.Neutral,
+                                        maxContentHeight = 280.dp,
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     if (errorText != null) {
@@ -1709,7 +1797,9 @@ private fun StageCard(
     title: String,
     content: String,
     monospace: Boolean = false,
-    tone: GenUiCardTone = GenUiCardTone.Neutral
+    tone: GenUiCardTone = GenUiCardTone.Neutral,
+    maxContentHeight: androidx.compose.ui.unit.Dp? = null,
+    autoFollowTail: Boolean = false,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -1729,6 +1819,25 @@ private fun StageCard(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface
             )
+            val contentScrollState = rememberScrollState()
+            LaunchedEffect(autoFollowTail, contentScrollState) {
+                if (autoFollowTail) {
+                    snapshotFlow { contentScrollState.maxValue }
+                        .collectLatest { maxValue ->
+                            if (maxValue > 0) {
+                                contentScrollState.scrollTo(maxValue)
+                            }
+                        }
+                }
+            }
+            val contentModifier = if (maxContentHeight != null) {
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = maxContentHeight)
+                    .verticalScroll(contentScrollState)
+            } else {
+                Modifier.fillMaxWidth()
+            }
             Text(
                 text = content,
                 style = if (monospace) {
@@ -1737,7 +1846,7 @@ private fun StageCard(
                     MaterialTheme.typography.bodySmall
                 },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth()
+                modifier = contentModifier
             )
         }
     }

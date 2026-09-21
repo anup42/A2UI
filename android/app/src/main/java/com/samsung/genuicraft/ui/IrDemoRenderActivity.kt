@@ -6,8 +6,11 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -47,11 +50,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.samsung.genuicraft.security.SafeContentPolicy
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
+
+private const val IR_DEBUG_PRESENTATION_ITEM_INDEX = 1
 
 private sealed interface IrDemoRenderUiState {
     data class Loading(val message: String) : IrDemoRenderUiState
@@ -66,6 +71,14 @@ private data class IrDemoGenerationDebugState(
     val outputTokensPerSecond: Double? = null,
     val metricsAreEstimated: Boolean = true,
     val complete: Boolean = false,
+    val stage3WasRepaired: Boolean? = null,
+)
+
+internal data class IrDemoDebugSnapshot(
+    val rawModelIr: String,
+    val streamComplete: Boolean,
+    val finalIr: String?,
+    val finalIrLabel: String?,
 )
 
 private object IrDemoRenderSessionCache {
@@ -107,6 +120,22 @@ class IrDemoRenderActivity : AppCompatActivity() {
 
     internal fun failureMessageForTest(): String? =
         (uiState as? IrDemoRenderUiState.Failure)?.message
+
+    /** Lets device tests observe the real stream without triggering another model invocation. */
+    internal fun debugIrSnapshotForTest(): IrDemoDebugSnapshot {
+        val finalIr = generatedIrJson?.takeIf { it.isNotBlank() }
+        return IrDemoDebugSnapshot(
+            rawModelIr = generationDebugState.streamText,
+            streamComplete = generationDebugState.complete,
+            finalIr = finalIr,
+            finalIrLabel = finalIr?.let {
+                resolveIrDebugFinalLabel(
+                    stage3WasRepaired = generationDebugState.stage3WasRepaired,
+                    failed = uiState is IrDemoRenderUiState.Failure,
+                )
+            },
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,6 +214,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
                     outputTokensPerSecond = it.stage3OutputTokensPerSecond,
                     metricsAreEstimated = false,
                     complete = true,
+                    stage3WasRepaired = it.stage3WasRepaired,
                 )
             }
             ensureIrGenerationTimingLog(
@@ -249,7 +279,10 @@ class IrDemoRenderActivity : AppCompatActivity() {
             return
         }
         generationDebugState = generationDebugState.copy(
-            streamText = update.stage3StreamText ?: generationDebugState.streamText,
+            streamText = mergeCumulativeRawIr(
+                current = generationDebugState.streamText,
+                incoming = update.stage3StreamText,
+            ),
             runtimeBackend = update.llmRuntimeBackend ?: generationDebugState.runtimeBackend,
             outputTokens = update.llmOutputTokens ?: generationDebugState.outputTokens,
             outputTokensPerSecond = update.llmOutputTokensPerSecond
@@ -264,6 +297,8 @@ class IrDemoRenderActivity : AppCompatActivity() {
                 !update.stage3Json.isNullOrBlank() -> true
                 else -> generationDebugState.complete
             },
+            stage3WasRepaired = update.stage3WasRepaired
+                ?: generationDebugState.stage3WasRepaired,
         )
     }
 
@@ -304,7 +339,7 @@ class IrDemoRenderActivity : AppCompatActivity() {
         val savedIr = record.genUiJson?.trim().orEmpty()
         generatedIrJson = savedIr.takeIf { it.isNotBlank() }
         pipelineLogs = emptyList()
-        generationDebugState = IrDemoGenerationDebugState()
+        generationDebugState = IrDemoGenerationDebugState(complete = true)
         if (payload.isNullOrBlank() || savedIr.isBlank()) {
             uiState = IrDemoRenderUiState.Failure("Saved Demo item is missing GenUI IR.")
             persistSessionCache()
@@ -392,6 +427,8 @@ class IrDemoRenderActivity : AppCompatActivity() {
                         outputTokensPerSecond = outcome.result.stage3OutputTokensPerSecond
                             ?: generationDebugState.outputTokensPerSecond,
                         complete = true,
+                        stage3WasRepaired = outcome.result.stage3WasRepaired
+                            ?: generationDebugState.stage3WasRepaired,
                     )
                     ensureIrGenerationTimingLog(
                         stageDurationsMs = outcome.result.stageDurationsMs,
@@ -511,29 +548,25 @@ private fun IrDemoRenderScreen(
             modifier = Modifier.fillMaxSize()
         ) { backgroundModifier ->
             val hasGeneratedJson = !generatedIrJson.isNullOrBlank()
-            val shouldAutoScroll =
-                when {
-                    debugMode -> {
-                        uiState is IrDemoRenderUiState.Loading ||
-                            uiState is IrDemoRenderUiState.Success ||
-                            hasGeneratedJson
-                    }
-
-                    else -> {
-                        uiState is IrDemoRenderUiState.Success || hasGeneratedJson
-                    }
+            val hasRawStream = generationDebugState.streamText.isNotBlank()
+            LaunchedEffect(debugMode, hasRawStream, uiState is IrDemoRenderUiState.Loading) {
+                if (debugMode && hasRawStream && uiState is IrDemoRenderUiState.Loading) {
+                    snapshotFlow { contentListState.layoutInfo.totalItemsCount }
+                        .filter { it > IR_DEBUG_PRESENTATION_ITEM_INDEX }
+                        .first()
+                    contentListState.scrollToItem(IR_DEBUG_PRESENTATION_ITEM_INDEX)
                 }
-            LaunchedEffect(debugMode, shouldAutoScroll, logs.size, generatedIrJson, uiState::class) {
-                if (!shouldAutoScroll) {
-                    return@LaunchedEffect
-                }
-                repeat(3) {
+            }
+            val shouldRevealRenderedResult = !debugMode &&
+                (uiState is IrDemoRenderUiState.Success || hasGeneratedJson)
+            LaunchedEffect(debugMode, shouldRevealRenderedResult, uiState::class) {
+                if (shouldRevealRenderedResult) {
                     snapshotFlow { contentListState.layoutInfo.totalItemsCount }
                         .filter { it > 0 }
                         .first()
-                    val lastIndex = (contentListState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
-                    contentListState.scrollToItem(lastIndex)
-                    delay(32)
+                    contentListState.scrollToItem(
+                        (contentListState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
+                    )
                 }
             }
             if (debugMode) {
@@ -567,25 +600,35 @@ private fun IrDemoRenderScreen(
                         }
                     }
 
-                    if (logs.isNotEmpty()) {
-                        item { IrDemoLogCard(logs = logs) }
-                    }
-                    if (generationDebugState.hasMetrics()) {
+                    if (hasRawStream || hasGeneratedJson) {
                         item {
-                            IrDemoGenerationStatsCard(state = generationDebugState)
-                        }
-                    }
-                    if (generationDebugState.streamText.isNotBlank()) {
-                        item {
-                            IrDemoDebugCard(
-                                title = if (generationDebugState.complete) {
-                                    "IR generation stream"
-                                } else {
-                                    "Live IR generation"
-                                },
-                                content = generationDebugState.streamText + if (generationDebugState.complete) "" else "\u258C",
-                                monospace = true
-                            )
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                if (hasRawStream) {
+                                    IrDemoDebugCard(
+                                        title = if (generationDebugState.complete) {
+                                            "Raw model IR"
+                                        } else {
+                                            "Live IR generation"
+                                        },
+                                        content = generationDebugState.streamText +
+                                            if (generationDebugState.complete) "" else "\u258C",
+                                        monospace = true,
+                                        maxContentHeight = 280.dp,
+                                        autoFollowTail = !generationDebugState.complete,
+                                    )
+                                }
+                                generatedIrJson?.takeIf { it.isNotBlank() }?.let { finalIr ->
+                                    IrDemoDebugCard(
+                                        title = resolveIrDebugFinalLabel(
+                                            stage3WasRepaired = generationDebugState.stage3WasRepaired,
+                                            failed = uiState is IrDemoRenderUiState.Failure,
+                                        ),
+                                        content = formatIrDemoJsonForDebug(finalIr),
+                                        monospace = true,
+                                        maxContentHeight = 280.dp,
+                                    )
+                                }
+                            }
                         }
                     }
                     item {
@@ -595,14 +638,13 @@ private fun IrDemoRenderScreen(
                             monospace = false
                         )
                     }
-                    if (!generatedIrJson.isNullOrBlank()) {
+                    if (generationDebugState.hasMetrics()) {
                         item {
-                            IrDemoDebugCard(
-                                title = "Generated IR JSON",
-                                content = formatIrDemoJsonForDebug(generatedIrJson),
-                                monospace = true
-                            )
+                            IrDemoGenerationStatsCard(state = generationDebugState)
                         }
+                    }
+                    if (logs.isNotEmpty()) {
+                        item { IrDemoLogCard(logs = logs) }
                     }
 
                     when (uiState) {
@@ -776,7 +818,9 @@ private fun IrDemoGenerationDebugState.hasMetrics(): Boolean {
 private fun IrDemoDebugCard(
     title: String,
     content: String,
-    monospace: Boolean
+    monospace: Boolean,
+    maxContentHeight: androidx.compose.ui.unit.Dp? = null,
+    autoFollowTail: Boolean = false,
 ) {
     if (content.isBlank()) {
         return
@@ -799,13 +843,32 @@ private fun IrDemoDebugCard(
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface
             )
+            val contentScrollState = rememberScrollState()
+            LaunchedEffect(autoFollowTail, contentScrollState) {
+                if (autoFollowTail) {
+                    snapshotFlow { contentScrollState.maxValue }
+                        .collectLatest { maxValue ->
+                            if (maxValue > 0) {
+                                contentScrollState.scrollTo(maxValue)
+                            }
+                        }
+                }
+            }
+            val contentModifier = if (maxContentHeight != null) {
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = maxContentHeight)
+                    .verticalScroll(contentScrollState)
+            } else {
+                Modifier.fillMaxWidth()
+            }
             Text(
                 text = content,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = if (monospace) FontFamily.Monospace else FontFamily.Default
                 ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth()
+                modifier = contentModifier
             )
         }
     }
@@ -884,6 +947,25 @@ private fun formatIrDemoJsonForDebug(value: String): String {
     return runCatching {
         IrDemoDebugJsonGson.toJson(JsonParser.parseString(value))
     }.getOrDefault(value)
+}
+
+internal fun mergeCumulativeRawIr(current: String, incoming: String?): String {
+    return when {
+        incoming == null -> current
+        incoming.isNotEmpty() -> incoming
+        else -> current
+    }
+}
+
+internal fun resolveIrDebugFinalLabel(
+    stage3WasRepaired: Boolean?,
+    failed: Boolean,
+): String {
+    return when {
+        failed -> "IR candidate (run failed)"
+        stage3WasRepaired == true -> "Repaired IR"
+        else -> "Validated IR"
+    }
 }
 
 private fun formatIrDemoDuration(durationMs: Long): String {

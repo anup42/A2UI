@@ -1,0 +1,23 @@
+[
+  {
+    "name": "com.samsung.genuicraft.pipeline.TrainedStage3BridgeTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "time": "0.732"
+  },
+  {
+    "name": "com.samsung.genuicraft.sdk.provider.Gemma4ProviderTest",
+    "tests": "15",
+    "failures": "0",
+    "errors": "0",
+    "time": "0.432"
+  },
+  {
+    "name": "com.samsung.genuicraft.sdk.provider.Gemma4StreamingTest",
+    "tests": "4",
+    "failures": "0",
+    "errors": "0",
+    "time": "0.021"
+  }
+]

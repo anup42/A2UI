@@ -1,0 +1,347 @@
+{
+  "fixtureId": "BXP-001",
+  "modelId": "gemma4_e2b_a2ui_mobile",
+  "modelPath": "/storage/emulated/0/Android/data/com.samsung.genuicraft/files/sdk_models/gemma4_e2b_a2ui_mobile.litertlm",
+  "gpuSelected": true,
+  "mtpSelected": true,
+  "startedAtEpochMs": 1790012416426,
+  "debugEnabledAtEpochMs": 1790012417762,
+  "completedAtEpochMs": 1790012426953,
+  "rawSnapshotsBeforeCompletion": [
+    {
+      "observedAtEpochMs": 1790012421095,
+      "chars": 6,
+      "utf8Bytes": 6,
+      "sha256": "d10c284e2496c731e38b19ab4f838a0b952a985a0794981367a64cb40ddc0145"
+    },
+    {
+      "observedAtEpochMs": 1790012421148,
+      "chars": 11,
+      "utf8Bytes": 11,
+      "sha256": "1c2be33b6c48e63de72f7d53826802a5aa9797236a0ca09d1bd072e4ff2b4e09"
+    },
+    {
+      "observedAtEpochMs": 1790012421325,
+      "chars": 27,
+      "utf8Bytes": 27,
+      "sha256": "09891d6dfd0b48daa59b693c86ec6f1804f0181edf491837bc4967236101dad5"
+    },
+    {
+      "observedAtEpochMs": 1790012421427,
+      "chars": 41,
+      "utf8Bytes": 41,
+      "sha256": "6c69a691b7b524902b1650664cdcea841dbca57e0b3d7a1b9881507929a9b658"
+    },
+    {
+      "observedAtEpochMs": 1790012421528,
+      "chars": 49,
+      "utf8Bytes": 49,
+      "sha256": "2935856cde3acb2ff2e69cb89c40ca677a2c87e4879961030205be1b4b90266f"
+    },
+    {
+      "observedAtEpochMs": 1790012421628,
+      "chars": 55,
+      "utf8Bytes": 55,
+      "sha256": "939230b43c5a63136331eeddc2173be1c170c654a4730c4837197c9757e5e055"
+    },
+    {
+      "observedAtEpochMs": 1790012421729,
+      "chars": 71,
+      "utf8Bytes": 71,
+      "sha256": "62a46e1f897915a96378922aa1b7285d075c1461f50e2e8e71447f3e66477d75"
+    },
+    {
+      "observedAtEpochMs": 1790012421830,
+      "chars": 86,
+      "utf8Bytes": 86,
+      "sha256": "a8f88e960ee7646017d2e6546ccb5b3fe53c21d1e1775d5a62ba802efec61797"
+    },
+    {
+      "observedAtEpochMs": 1790012421932,
+      "chars": 94,
+      "utf8Bytes": 94,
+      "sha256": "33397939813dbe906753722a8f5d35ce138e4fca1abfcfed34bff7529a6c8981"
+    },
+    {
+      "observedAtEpochMs": 1790012421984,
+      "chars": 111,
+      "utf8Bytes": 111,
+      "sha256": "f1dbf86cfd43dcbadb6a6bfe09098d5535535f68e6219810590e5357b6087a4e"
+    },
+    {
+      "observedAtEpochMs": 1790012422102,
+      "chars": 123,
+      "utf8Bytes": 123,
+      "sha256": "c5a744b5e5bb4355ece75a3a502293fa4038d4f15d9cf74f0653fcc1e1918eb3"
+    },
+    {
+      "observedAtEpochMs": 1790012422204,
+      "chars": 143,
+      "utf8Bytes": 143,
+      "sha256": "0fa581905434fd0b41b57c32cd41766d534a79888228a81546b6ba3b45aee839"
+    },
+    {
+      "observedAtEpochMs": 1790012422305,
+      "chars": 154,
+      "utf8Bytes": 154,
+      "sha256": "c8036465c961d2dc859f01bcf0d638219b6eca4d410a0d0ef3b9b6b5346f0a74"
+    },
+    {
+      "observedAtEpochMs": 1790012422406,
+      "chars": 164,
+      "utf8Bytes": 164,
+      "sha256": "2163b5e389ac09b06ef2fc31a8fe254bc63eb0d31714964c407f24c8793e2b2b"
+    },
+    {
+      "observedAtEpochMs": 1790012422466,
+      "chars": 176,
+      "utf8Bytes": 176,
+      "sha256": "34c7a77e32b3fb98f3fe066636bc38225062e2508bb25994cc40d5edd8ca8db9"
+    },
+    {
+      "observedAtEpochMs": 1790012422567,
+      "chars": 184,
+      "utf8Bytes": 184,
+      "sha256": "a8524deb5c5ed5dc09e5e305962c134ad665dbc89a894a9c91c9e42b3a8622cd"
+    },
+    {
+      "observedAtEpochMs": 1790012422668,
+      "chars": 196,
+      "utf8Bytes": 196,
+      "sha256": "b387710c2e1ebca99fb6271712b30c86073c943659895f65cca997f819be5afa"
+    },
+    {
+      "observedAtEpochMs": 1790012422724,
+      "chars": 201,
+      "utf8Bytes": 201,
+      "sha256": "1f94dc0a40e2d7be013a1e1e553d53f0cab44e2e81f7e189ad1b69534009a1e2"
+    },
+    {
+      "observedAtEpochMs": 1790012422825,
+      "chars": 204,
+      "utf8Bytes": 204,
+      "sha256": "7516135b6d947304bb7b19daf0402b58c4fe8f6175983e1a8a52d675edfbaaad"
+    },
+    {
+      "observedAtEpochMs": 1790012422892,
+      "chars": 209,
+      "utf8Bytes": 209,
+      "sha256": "47ccf746e716e118dffee960a0127c0d2c5f81bb15a1ca4fefb1392ef15b16a9"
+    },
+    {
+      "observedAtEpochMs": 1790012422993,
+      "chars": 214,
+      "utf8Bytes": 216,
+      "sha256": "adf643825a601eddb510a23dd1f63decca10b11df640e2c33a2205122e4575e0"
+    },
+    {
+      "observedAtEpochMs": 1790012423044,
+      "chars": 221,
+      "utf8Bytes": 223,
+      "sha256": "14c596c8dfaea6ce14a1f4d6eb328e55c4c16993dff63290d23bbbf11691a1c4"
+    },
+    {
+      "observedAtEpochMs": 1790012423148,
+      "chars": 233,
+      "utf8Bytes": 235,
+      "sha256": "b3994cff093c6cfe70d3a36c5bef4d02657eb352f34ed59d48493814b649b6a8"
+    },
+    {
+      "observedAtEpochMs": 1790012423249,
+      "chars": 243,
+      "utf8Bytes": 245,
+      "sha256": "549a8dc10eaf7f0674f85b0abecc11bf00c89eb25a35c8f3001c6639bba34102"
+    },
+    {
+      "observedAtEpochMs": 1790012423317,
+      "chars": 251,
+      "utf8Bytes": 253,
+      "sha256": "d961ffd42ea355e86a9e430c6d0cf4334c7ff6386a2d6e83c024eee54733bf2a"
+    },
+    {
+      "observedAtEpochMs": 1790012423418,
+      "chars": 254,
+      "utf8Bytes": 256,
+      "sha256": "c03bb042d3a8aa142cb43d596b8a20239dd975a5c1c6f55f2726322da34e20f0"
+    },
+    {
+      "observedAtEpochMs": 1790012423470,
+      "chars": 266,
+      "utf8Bytes": 268,
+      "sha256": "90063caaa536d9055b6bbf8440b472e22ac76d71cde695aa3366206878ed9502"
+    },
+    {
+      "observedAtEpochMs": 1790012423571,
+      "chars": 279,
+      "utf8Bytes": 282,
+      "sha256": "d22761c79fa38462ff92806feae656fed82d7e9e3e4c63cee97ab4b6e84755b5"
+    },
+    {
+      "observedAtEpochMs": 1790012423672,
+      "chars": 294,
+      "utf8Bytes": 298,
+      "sha256": "26474ef851f29c123d022fb2acda15aec524965d5c6fcf5122cd62dc01d25853"
+    },
+    {
+      "observedAtEpochMs": 1790012423774,
+      "chars": 315,
+      "utf8Bytes": 319,
+      "sha256": "d5b744c52f59c6b697a518a77913b4f42acc46b21143524cd79912c4913db2bf"
+    },
+    {
+      "observedAtEpochMs": 1790012423840,
+      "chars": 331,
+      "utf8Bytes": 335,
+      "sha256": "5df77022424ca3409db99a7fa7c2c6db3dadf72e404bde88d43a1921f445defd"
+    },
+    {
+      "observedAtEpochMs": 1790012423942,
+      "chars": 357,
+      "utf8Bytes": 361,
+      "sha256": "54f6fee460d42669484f62e068d1ab7a6c4dbf1cacd84453fd76f027a2f6870e"
+    },
+    {
+      "observedAtEpochMs": 1790012424007,
+      "chars": 389,
+      "utf8Bytes": 393,
+      "sha256": "e8b5f8b0590ee4a7d382c4461133c06ab0656598234e5ed2a379b2f109bdfaf8"
+    },
+    {
+      "observedAtEpochMs": 1790012424108,
+      "chars": 400,
+      "utf8Bytes": 404,
+      "sha256": "ea7abfcfd405aafc7ec37def3c31a55c7e9c185bd02b107e3f79b0519e180bb3"
+    },
+    {
+      "observedAtEpochMs": 1790012424169,
+      "chars": 420,
+      "utf8Bytes": 426,
+      "sha256": "fa76d47c195e6fcac650b1ee8c1fcd61e32ca6b9f69a4fb045e249d482fe3065"
+    },
+    {
+      "observedAtEpochMs": 1790012424270,
+      "chars": 462,
+      "utf8Bytes": 468,
+      "sha256": "61da267de7f647d6473ba76de69ec1e077947c102cca21e0bf7356a2ec7ba0a4"
+    },
+    {
+      "observedAtEpochMs": 1790012424339,
+      "chars": 514,
+      "utf8Bytes": 520,
+      "sha256": "bbfe0c2c372bdb5743001a72d80d06966756a86799f0560cda2793c006a58702"
+    },
+    {
+      "observedAtEpochMs": 1790012424440,
+      "chars": 565,
+      "utf8Bytes": 571,
+      "sha256": "c326cde8c03e5c52ee3918de8d6e9943a479a9c2f6c87a436b1b18002a6fc762"
+    },
+    {
+      "observedAtEpochMs": 1790012424506,
+      "chars": 608,
+      "utf8Bytes": 614,
+      "sha256": "1f9892ba893ddc177933dbbafad5a2c88dcd9e3439f92a800281f20afe36a171"
+    },
+    {
+      "observedAtEpochMs": 1790012424607,
+      "chars": 629,
+      "utf8Bytes": 635,
+      "sha256": "ad0575bc48a3de0141493785102686158bfbcf94bb8c8360ada18c9fec254f42"
+    },
+    {
+      "observedAtEpochMs": 1790012424708,
+      "chars": 637,
+      "utf8Bytes": 643,
+      "sha256": "754799552d4fcaf2dd66b4573dab2bdc20429f9b71c48056ffe8501cfe0a9724"
+    },
+    {
+      "observedAtEpochMs": 1790012424763,
+      "chars": 656,
+      "utf8Bytes": 662,
+      "sha256": "b8beeaa623e79ced37f586226a02aef29497722e914b405a3cf5b42c22e886cb"
+    },
+    {
+      "observedAtEpochMs": 1790012424864,
+      "chars": 672,
+      "utf8Bytes": 678,
+      "sha256": "970d1ece853325b7b52ba7217007b50786a899eeef49962bff225f0d4bbe9982"
+    },
+    {
+      "observedAtEpochMs": 1790012424966,
+      "chars": 717,
+      "utf8Bytes": 723,
+      "sha256": "7128b4b295b4cc67c2b643139ecc4c694794c5639f77f41d6288924c9eaa3e07"
+    },
+    {
+      "observedAtEpochMs": 1790012425023,
+      "chars": 752,
+      "utf8Bytes": 758,
+      "sha256": "1c293e61dba08d0b0a396ee9be581aa8718957b1aba4e79722b2903614f2b838"
+    },
+    {
+      "observedAtEpochMs": 1790012425124,
+      "chars": 769,
+      "utf8Bytes": 775,
+      "sha256": "13abc4b2ed03acd576d2943ea9482a8bf670c0424b8269d214e0eef16b9ed9ab"
+    },
+    {
+      "observedAtEpochMs": 1790012425187,
+      "chars": 786,
+      "utf8Bytes": 792,
+      "sha256": "96d00c3ca8bf074a5b06ca85b6b8334f6b5f0531b1c94d892da9ab6a0482a923"
+    },
+    {
+      "observedAtEpochMs": 1790012425288,
+      "chars": 794,
+      "utf8Bytes": 800,
+      "sha256": "1a2511353d4c220fe4426c9c6aa46d1dca3109de0aedf8e4f9de0a130428c988"
+    },
+    {
+      "observedAtEpochMs": 1790012425389,
+      "chars": 838,
+      "utf8Bytes": 844,
+      "sha256": "8f6ca86dc59d35b11121e870499d00238fac444655991035b4ea4c52f297ff5b"
+    },
+    {
+      "observedAtEpochMs": 1790012425448,
+      "chars": 866,
+      "utf8Bytes": 872,
+      "sha256": "265e3418277cad5442c6c7beab05f2842d74374d328a8b1eedc8c21994b1f9b9"
+    },
+    {
+      "observedAtEpochMs": 1790012425549,
+      "chars": 903,
+      "utf8Bytes": 909,
+      "sha256": "f4fabe2b915bd29d12b29a2a46cddd45de9a50f1486a6fea4880045e54b292f4"
+    },
+    {
+      "observedAtEpochMs": 1790012425614,
+      "chars": 916,
+      "utf8Bytes": 922,
+      "sha256": "788b5ed923f7c70b05ecdd409ebbaec2c3cb2196fb8e7bfcdc1b46b67cc1ec3b"
+    },
+    {
+      "observedAtEpochMs": 1790012425715,
+      "chars": 923,
+      "utf8Bytes": 929,
+      "sha256": "9f1c75d8fa32efed9b35cc1271e4636fbfa84d7a4d26a9bb74d9a560fb9494fe"
+    }
+  ],
+  "rawSnapshotCount": 53,
+  "rawPreservedAfterRepair": true,
+  "rawChars": 923,
+  "rawUtf8Bytes": 929,
+  "rawSha256": "9f1c75d8fa32efed9b35cc1271e4636fbfa84d7a4d26a9bb74d9a560fb9494fe",
+  "finalLabel": "Repaired IR",
+  "repairApplied": true,
+  "finalChars": 657,
+  "finalUtf8Bytes": 661,
+  "finalSha256": "5e41b150ed7f710c138aea87b1b67d488788728e379751b4a4f847645a74a3a3",
+  "rawModelIr": "<a2ui>\n$/={forecast_data:[{date:\"Wed, Sep 9\",high:\"31\",low:\"20\",rain:\"57%\"},{date:\"Thu, Sep 10\",high:\"30\",low:\"211\",rain:\"55%\"},{date:\"Fri, Sep 1\",high:\"30\",low:\"21\",rain:\"55%\"}]}\nroot=Column([a,b,c,d,e,f],gap=\"铺\")\na=Card(children=[b])\nb=Table(columns=[{date:\"Date\",high:\"High (°C)\",low:\"Low (°C)\",rain:\"probability\"}],statePath=\"/forecast_data_data\",domain=\"weather\",preferredPresentation=\"cards\")\nc=Text(\"AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days with the highest rain chance on Wednesday and continued shower/thunder/storm potential on Thursday and Friday.\",variant=\"body\")\nd=Card(children=[e])\ne=Text(\"Carry an umbrella or light rain jacket, especially for afternoon and evening plans.\",variant=\"body\")\nf=Card(children=[g]\ng=Text(\"Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.\",variant=\"3\")\n</a2ui>",
+  "finalIr": "<a2ui>\nroot=Column([a,b,c,d],\"md\")\na=Table(columns=[{date:\"Date\",high:\"High (°C)\",low:\"Low (°C)\",rain:\"probability\"}],statePath=\"/forecast_data_data\",domain=\"weather\",preferredPresentation=\"cards\")\nb=Text(\"AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days with the highest rain chance on Wednesday and continued shower/thunder/storm potential on Thursday and Friday.\",\"body\")\nc=Text(\"Carry an umbrella or light rain jacket, especially for afternoon and evening plans.\",\"body\")\nd=Text(\"Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.\",\"3\")\n</a2ui>",
+  "runtime": "LiteRT-LM/Gemma4/GPU+MTP",
+  "outputTokens": 288,
+  "outputTokensPerSecond": 57.663464674472664,
+  "liveScreenshot": "live_raw_ir.png",
+  "finalScreenshot": "final_repaired_ir.png"
+}

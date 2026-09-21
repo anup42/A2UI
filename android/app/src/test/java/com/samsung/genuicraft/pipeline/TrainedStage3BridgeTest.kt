@@ -137,6 +137,59 @@ class TrainedStage3BridgeTest {
     }
 
     @Test
+    fun cumulativeRawSnapshotsArriveBeforeFinalConversion() = runBlocking {
+        val program = firstConformanceProgram()
+        val rawOutput = "\n$program\n"
+        val firstSnapshot = rawOutput.take(rawOutput.length / 2)
+        val document = GenUiCompiler.compile(program)
+        val snapshots = mutableListOf<String>()
+        val events = mutableListOf<String>()
+        val provider = object : GenUiProvider {
+            override val id = "streaming-trained"
+
+            override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+                error("The bridge must use the streaming provider overload")
+
+            override suspend fun generate(
+                prompt: GenUiPrompt,
+                onPartialText: (String) -> Unit,
+            ): GenUiModelOutput {
+                onPartialText(firstSnapshot)
+                onPartialText(rawOutput)
+                events += "provider-return"
+                return GenUiModelOutput(rawOutput, "test/GPU")
+            }
+        }
+
+        val result = TrainedStage3Bridge.runWithProvider(
+            provider = provider,
+            request = GenUiRequest("Hello"),
+            onPartialText = { text ->
+                snapshots += text
+                events += "partial-${snapshots.size}"
+            },
+        ) { captured, _ ->
+            captured.generate(GenUiPrompt("system", "user"))
+            events += "conversion"
+            GenUiConversionResult.Success(
+                document = document,
+                provider = captured.id,
+                elapsedMs = 2,
+                attempts = 1,
+            )
+        }
+
+        assertEquals(listOf(firstSnapshot, rawOutput), snapshots)
+        assertEquals(
+            listOf("partial-1", "partial-2", "provider-return", "conversion"),
+            events,
+        )
+        assertTrue(result is TrainedStage3Bridge.Result.Success)
+        result as TrainedStage3Bridge.Result.Success
+        assertEquals(rawOutput, result.rawGeneratedText)
+    }
+
+    @Test
     fun sourceFallbackIsRejectedAndRawGeneratedOutputIsRetained() = runBlocking {
         val program = firstConformanceProgram()
         val document = GenUiCompiler.compile(program)
@@ -170,11 +223,20 @@ class TrainedStage3BridgeTest {
     @Test
     fun cancellationPropagatesAfterProviderCleanup() = runBlocking {
         val closed = AtomicBoolean(false)
+        val snapshots = mutableListOf<String>()
         val provider = object : GenUiProvider {
             override val id = "cancel-trained"
 
             override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+                error("The bridge must use the streaming provider overload")
+
+            override suspend fun generate(
+                prompt: GenUiPrompt,
+                onPartialText: (String) -> Unit,
+            ): GenUiModelOutput {
+                onPartialText("raw before cancellation")
                 throw CancellationException("host stopped")
+            }
 
             override suspend fun closeAndAwait() {
                 closed.set(true)
@@ -182,7 +244,11 @@ class TrainedStage3BridgeTest {
         }
 
         try {
-            TrainedStage3Bridge.runWithProvider(provider, GenUiRequest("Hello")) { captured, _ ->
+            TrainedStage3Bridge.runWithProvider(
+                provider = provider,
+                request = GenUiRequest("Hello"),
+                onPartialText = { text -> snapshots += text },
+            ) { captured, _ ->
                 captured.generate(GenUiPrompt("system", "user"))
                 error("unreachable")
             }
@@ -190,7 +256,114 @@ class TrainedStage3BridgeTest {
         } catch (_: CancellationException) {
             // Expected.
         }
+        assertEquals(listOf("raw before cancellation"), snapshots)
         assertTrue(closed.get())
+    }
+
+    @Test
+    fun providerErrorReturnsFailureWithLatestRawSnapshot() = runBlocking {
+        val closed = AtomicBoolean(false)
+        val provider = object : GenUiProvider {
+            override val id = "failed-trained"
+
+            override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+                error("The bridge must use the streaming provider overload")
+
+            override suspend fun generate(
+                prompt: GenUiPrompt,
+                onPartialText: (String) -> Unit,
+            ): GenUiModelOutput {
+                onPartialText("raw prefix before native failure")
+                error("native decode failed")
+            }
+
+            override suspend fun closeAndAwait() {
+                closed.set(true)
+            }
+        }
+
+        val result = TrainedStage3Bridge.runWithProvider(
+            provider,
+            GenUiRequest("Hello"),
+        ) { captured, _ ->
+            captured.generate(GenUiPrompt("system", "user"))
+            error("unreachable")
+        }
+
+        assertTrue(result is TrainedStage3Bridge.Result.Failure)
+        result as TrainedStage3Bridge.Result.Failure
+        assertEquals("native decode failed", result.message)
+        assertEquals("raw prefix before native failure", result.rawGeneratedText)
+        assertTrue(closed.get())
+    }
+
+    @Test
+    fun conversionFailureKeepsExactUntrimmedProviderOutput() = runBlocking {
+        val exactRawOutput = "\n  invalid raw output  \n"
+        val provider = object : GenUiProvider {
+            override val id = "compile-failed-trained"
+
+            override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+                error("The bridge must use the streaming provider overload")
+
+            override suspend fun generate(
+                prompt: GenUiPrompt,
+                onPartialText: (String) -> Unit,
+            ): GenUiModelOutput {
+                onPartialText(exactRawOutput)
+                return GenUiModelOutput(exactRawOutput, "test/GPU")
+            }
+        }
+
+        val result = TrainedStage3Bridge.runWithProvider(
+            provider,
+            GenUiRequest("Hello"),
+        ) { captured, _ ->
+            captured.generate(GenUiPrompt("system", "user"))
+            GenUiConversionResult.Failure(
+                message = "strict compilation failed",
+                provider = captured.id,
+                elapsedMs = 4,
+                attempts = 1,
+                rawOutput = exactRawOutput.trim(),
+            )
+        }
+
+        assertTrue(result is TrainedStage3Bridge.Result.Failure)
+        result as TrainedStage3Bridge.Result.Failure
+        assertEquals(exactRawOutput, result.rawGeneratedText)
+    }
+
+    @Test
+    fun streamObserverErrorReturnsFailureWithoutLosingRawSnapshot() = runBlocking {
+        val provider = object : GenUiProvider {
+            override val id = "observer-failed-trained"
+
+            override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput =
+                error("The bridge must use the streaming provider overload")
+
+            override suspend fun generate(
+                prompt: GenUiPrompt,
+                onPartialText: (String) -> Unit,
+            ): GenUiModelOutput {
+                onPartialText("raw before observer failure")
+                error("unreachable")
+            }
+        }
+
+        val result = TrainedStage3Bridge.runWithProvider(
+            provider = provider,
+            request = GenUiRequest("Hello"),
+            onPartialText = { error("host observer failed") },
+        ) { captured, _ ->
+            captured.generate(GenUiPrompt("system", "user"))
+            error("unreachable")
+        }
+
+        assertTrue(result is TrainedStage3Bridge.Result.Failure)
+        result as TrainedStage3Bridge.Result.Failure
+        assertEquals("host observer failed", result.message)
+        assertEquals("raw before observer failure", result.rawGeneratedText)
     }
 
     private fun firstConformanceProgram(): String {

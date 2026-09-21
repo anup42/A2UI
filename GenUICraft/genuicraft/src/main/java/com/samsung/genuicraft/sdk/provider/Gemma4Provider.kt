@@ -48,7 +48,17 @@ class Gemma4Provider private constructor(
     private val generationMutex = Mutex()
     private val closed = AtomicBoolean(false)
 
-    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput {
+    override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput = generateInternal(prompt, null)
+
+    override suspend fun generate(
+        prompt: GenUiPrompt,
+        onPartialText: (String) -> Unit,
+    ): GenUiModelOutput = generateInternal(prompt, onPartialText)
+
+    private suspend fun generateInternal(
+        prompt: GenUiPrompt,
+        onPartialText: ((String) -> Unit)?,
+    ): GenUiModelOutput {
         check(!closed.get()) { "Gemma 4 provider has been closed." }
         generationMutex.lock()
         try {
@@ -58,7 +68,8 @@ class Gemma4Provider private constructor(
                 config = validatedConfig,
             )
             val generation = try {
-                runtime.generate(prompt, maxOutputTokens)
+                if (onPartialText == null) runtime.generate(prompt, maxOutputTokens)
+                else runtime.generate(prompt, maxOutputTokens, onPartialText)
             } catch (cancelled: CancellationException) {
                 runtime.cancelActive()
                 throw cancelled

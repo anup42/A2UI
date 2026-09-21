@@ -38,6 +38,11 @@ internal fun interface Gemma4RuntimeFactory {
 
 internal interface Gemma4Runtime : AutoCloseable {
     suspend fun generate(prompt: GenUiPrompt, maxOutputTokens: Int): Gemma4RuntimeOutput
+    suspend fun generate(
+        prompt: GenUiPrompt,
+        maxOutputTokens: Int,
+        onPartialText: (String) -> Unit,
+    ): Gemma4RuntimeOutput = generate(prompt, maxOutputTokens).also { onPartialText(it.text) }
     fun cancelActive()
     suspend fun awaitClosed()
     override fun close()
@@ -68,6 +73,18 @@ internal class LiteRtGemma4Runtime(
     override suspend fun generate(
         prompt: GenUiPrompt,
         maxOutputTokens: Int,
+    ): Gemma4RuntimeOutput = generateInternal(prompt, maxOutputTokens, null)
+
+    override suspend fun generate(
+        prompt: GenUiPrompt,
+        maxOutputTokens: Int,
+        onPartialText: (String) -> Unit,
+    ): Gemma4RuntimeOutput = generateInternal(prompt, maxOutputTokens, onPartialText)
+
+    private suspend fun generateInternal(
+        prompt: GenUiPrompt,
+        maxOutputTokens: Int,
+        onPartialText: ((String) -> Unit)?,
     ): Gemma4RuntimeOutput = submitCancellable { requestCancelled ->
         check(!closed.get()) { "Gemma 4 runtime has been closed." }
         val state = engineState ?: initializeEngine().also { engineState = it }
@@ -128,10 +145,20 @@ internal class LiteRtGemma4Runtime(
                 }
                 promptSha256(rendered)
             }
-            val response = conversation.sendMessage(prompt.user)
+            val responseText = if (onPartialText == null) {
+                conversation.sendMessage(prompt.user).textContent().trim()
+            } else {
+                awaitGemma4Stream(
+                    start = { callback -> conversation.sendMessageAsync(prompt.user, callback) },
+                    cancel = { conversation.cancelProcess() },
+                    onPartialText = onPartialText,
+                    isCancelled = { requestCancelled.get() || closed.get() },
+                )
+            }
+            throwIfRequestStopped(requestCancelled)
             val metrics = if (config.enableMetrics) readGemma4GenerationMetrics(conversation) else null
             Gemma4RuntimeOutput(
-                text = response.textContent().trim(),
+                text = responseText,
                 runtimeIdentity = state.runtimeIdentity,
                 outputTokens = metrics?.outputTokens ?: conversation.outputTokenCount(),
                 metrics = metrics,

@@ -28,6 +28,37 @@ class Gemma4ProviderTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
+    @Test fun `stream observer receives raw output before provider completes`() = runBlocking {
+        val partialSent = CompletableDeferred<Unit>()
+        val finish = CompletableDeferred<Unit>()
+        val runtime = object : Gemma4Runtime {
+            override suspend fun generate(prompt: GenUiPrompt, maxOutputTokens: Int): Gemma4RuntimeOutput =
+                error("Must use streaming overload")
+            override suspend fun generate(prompt: GenUiPrompt, maxOutputTokens: Int, onPartialText: (String) -> Unit): Gemma4RuntimeOutput {
+                onPartialText("<a2ui>")
+                partialSent.complete(Unit)
+                finish.await()
+                val raw = "<a2ui>\nroot=Text(\"Ready\")\n</a2ui>"
+                onPartialText(raw)
+                return Gemma4RuntimeOutput(raw, "GPU+MTP", 20)
+            }
+            override fun cancelActive() = Unit
+            override suspend fun awaitClosed() = Unit
+            override fun close() = Unit
+        }
+        provider(runtime).use { provider ->
+            val snapshots = mutableListOf<String>()
+            val generation = async { provider.generate(GenUiPrompt("system", "user", maxOutputTokens = 64), snapshots::add) }
+            partialSent.await()
+            assertFalse(generation.isCompleted)
+            assertEquals(listOf("<a2ui>"), snapshots)
+            finish.complete(Unit)
+            val result = generation.await()
+            assertEquals(result.text, snapshots.last())
+            assertEquals("GPU+MTP", result.runtime)
+        }
+    }
+
     @Test fun `fewshot history counts toward context preflight`() = runBlocking {
         val runtime = RecordingRuntime()
         provider(runtime, maxContextTokens = 1024, maxOutputTokens = 128).use { provider ->

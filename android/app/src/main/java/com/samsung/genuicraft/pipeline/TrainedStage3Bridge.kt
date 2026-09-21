@@ -50,6 +50,9 @@ internal object TrainedStage3Bridge {
             val message: String,
             val rawGeneratedText: String?,
             val prompt: GenUiPrompt?,
+            val inputTokens: Int?,
+            val outputTokens: Int?,
+            val outputTokensPerSecond: Double?,
             val runtimeBackend: String?,
             val renderedPromptSha256: String?,
             val elapsedMs: Long? = null,
@@ -90,6 +93,7 @@ internal object TrainedStage3Bridge {
         modelPath: String,
         sourceResponse: String,
         queryText: String,
+        onPartialText: ((String) -> Unit)? = null,
     ): Result {
         val config = runCatching {
             configFor(
@@ -102,6 +106,9 @@ internal object TrainedStage3Bridge {
                 message = error.message ?: error.javaClass.simpleName,
                 rawGeneratedText = null,
                 prompt = null,
+                inputTokens = null,
+                outputTokens = null,
+                outputTokensPerSecond = null,
                 runtimeBackend = null,
                 renderedPromptSha256 = null,
             )
@@ -116,6 +123,7 @@ internal object TrainedStage3Bridge {
             runWithProvider(
                 provider = Gemma4Provider(config),
                 request = GenUiRequest(text = sourceResponse, query = queryText),
+                onPartialText = onPartialText,
             ) { provider, request ->
                 GenUiTrainedConverter(
                     context = context,
@@ -132,6 +140,9 @@ internal object TrainedStage3Bridge {
                 message = failure.message ?: failure.javaClass.simpleName,
                 rawGeneratedText = null,
                 prompt = null,
+                inputTokens = null,
+                outputTokens = null,
+                outputTokensPerSecond = null,
                 runtimeBackend = null,
                 renderedPromptSha256 = null,
             )
@@ -141,12 +152,18 @@ internal object TrainedStage3Bridge {
     internal suspend fun runWithProvider(
         provider: GenUiProvider,
         request: GenUiRequest,
+        onPartialText: ((String) -> Unit)? = null,
         convert: suspend (GenUiProvider, GenUiRequest) -> GenUiConversionResult,
     ): Result {
-        val capture = CapturingProvider(provider)
+        val capture = CapturingProvider(provider, onPartialText)
         val result = try {
             val conversion = convert(capture, request)
-            adapt(conversion, capture.lastPrompt, capture.lastOutput)
+            adapt(
+                conversion = conversion,
+                prompt = capture.lastPrompt,
+                output = capture.lastOutput,
+                partialText = capture.lastPartialText,
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -154,6 +171,7 @@ internal object TrainedStage3Bridge {
                 message = failure.message ?: failure.javaClass.simpleName,
                 prompt = capture.lastPrompt,
                 output = capture.lastOutput,
+                rawGeneratedText = capture.lastPartialText,
             )
         } finally {
             // Native cleanup must finish even when the host cancels the Activity coroutine.
@@ -169,10 +187,13 @@ internal object TrainedStage3Bridge {
         conversion: GenUiConversionResult,
         prompt: GenUiPrompt?,
         output: GenUiModelOutput?,
+        partialText: String?,
     ): Result = when (conversion) {
         is GenUiConversionResult.Failure -> failure(
             message = conversion.message,
-            rawGeneratedText = conversion.rawOutput,
+            // The converter's failure payload is normalized for diagnostics. Prefer the native
+            // provider capture so the raw stream and terminal snapshot remain byte-for-byte equal.
+            rawGeneratedText = output?.text ?: partialText ?: conversion.rawOutput,
             prompt = prompt,
             output = output,
             elapsedMs = conversion.elapsedMs,
@@ -198,7 +219,7 @@ internal object TrainedStage3Bridge {
                     canonicalGraph = decoded.canonicalGraph,
                     express = conversion.document.express,
                     wireJson = conversion.document.a2uiJson,
-                    rawGeneratedText = output?.text.orEmpty(),
+                    rawGeneratedText = output?.text ?: partialText.orEmpty(),
                     prompt = prompt,
                     inputTokens = metrics?.inputTokens,
                     outputTokens = metrics?.outputTokens ?: output?.outputTokens,
@@ -219,17 +240,24 @@ internal object TrainedStage3Bridge {
         output: GenUiModelOutput?,
         rawGeneratedText: String? = null,
         elapsedMs: Long? = null,
-    ): Result.Failure = Result.Failure(
-        message = message,
-        rawGeneratedText = rawGeneratedText ?: output?.text,
-        prompt = prompt,
-        runtimeBackend = output?.runtime,
-        renderedPromptSha256 = output?.renderedPromptSha256,
-        elapsedMs = elapsedMs,
-    )
+    ): Result.Failure {
+        val metrics = output?.metrics
+        return Result.Failure(
+            message = message,
+            rawGeneratedText = output?.text ?: rawGeneratedText,
+            prompt = prompt,
+            inputTokens = metrics?.inputTokens,
+            outputTokens = metrics?.outputTokens ?: output?.outputTokens,
+            outputTokensPerSecond = metrics?.decodeTokensPerSecond,
+            runtimeBackend = output?.runtime,
+            renderedPromptSha256 = output?.renderedPromptSha256,
+            elapsedMs = elapsedMs,
+        )
+    }
 
     private class CapturingProvider(
         private val delegate: GenUiProvider,
+        private val onPartialText: ((String) -> Unit)?,
     ) : GenUiProvider {
         override val id: String
             get() = delegate.id
@@ -238,10 +266,41 @@ internal object TrainedStage3Bridge {
             private set
         var lastOutput: GenUiModelOutput? = null
             private set
+        @Volatile
+        var lastPartialText: String? = null
+            private set
 
         override suspend fun generate(prompt: GenUiPrompt): GenUiModelOutput {
+            return generateCaptured(prompt) { text ->
+                onPartialText?.invoke(text)
+            }
+        }
+
+        override suspend fun generate(
+            prompt: GenUiPrompt,
+            onPartialText: (String) -> Unit,
+        ): GenUiModelOutput {
+            return generateCaptured(prompt) { text ->
+                this.onPartialText?.invoke(text)
+                onPartialText(text)
+            }
+        }
+
+        private suspend fun generateCaptured(
+            prompt: GenUiPrompt,
+            forwardPartialText: (String) -> Unit,
+        ): GenUiModelOutput {
             lastPrompt = prompt
-            return delegate.generate(prompt).also { lastOutput = it }
+            return delegate.generate(prompt) { text ->
+                // Store first so cancellation or observer errors cannot erase the diagnostic prefix.
+                lastPartialText = text
+                forwardPartialText(text)
+            }.also { output ->
+                lastOutput = output
+                if (lastPartialText == null) {
+                    lastPartialText = output.text
+                }
+            }
         }
 
         override fun close() = delegate.close()

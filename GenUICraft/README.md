@@ -183,6 +183,18 @@ select this diagnostic policy with
 `GenUiTrainedConverter(context, provider, allowSourceTextFallback = false, allowGeneratedDslRepair = true, requireSourceIntegrity = false)`.
 Source-integrity enforcement remains enabled by default for other SDK callers.
 
+With **Debug** enabled, the trained route displays cumulative native output in
+**Live IR generation**, retains it as **Raw model IR**, and then displays the
+separate **Repaired IR** after compilation (or **Validated IR** when no repair
+was needed). Raw output is never replaced by the repaired program. The live
+pane follows newly generated text; both versions remain available afterward.
+
+SDK hosts can observe Gemma generation with
+`provider.generate(prompt, onPartialText = { cumulativeRawText -> ... })`.
+Native Gemma callbacks run on a worker thread and must return promptly; dispatch
+UI updates to the main thread. Gemma uses native streaming chunks. Providers without a
+streaming implementation emit one final snapshot through this overload.
+
 Open **GenUICraft SDK · Bixby50 → Settings → MTP drafter** to enable or disable
 speculative decoding. It defaults to on, persists across app restarts, and applies
 to both Gemma profiles. Changing it recreates the GPU engine on the next conversion.
