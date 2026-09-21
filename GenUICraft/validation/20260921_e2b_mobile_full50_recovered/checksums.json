@@ -777,9 +777,24 @@
       "sha256": "7d5b9017c789202d96965d4b9d5877b37ee7bfcf1d8835607025f1be04c34b2c"
     },
     {
+      "path": "repair_failure_analysis.csv",
+      "bytes": 42359,
+      "sha256": "ab1ea0a4172c732a2fe3b07829effbe76a63724258af90ced28bcbdec44ef043"
+    },
+    {
+      "path": "repair_failure_analysis.json",
+      "bytes": 101955,
+      "sha256": "0987fb343237c224c026abe412b0643b10760423a0d7ec6dd47e4ac8414ed4b4"
+    },
+    {
+      "path": "REPAIR_FAILURE_ANALYSIS.md",
+      "bytes": 25897,
+      "sha256": "285bd43f9b2d8d04c793377866a6c03df127dcb647d706dc82ef4e47a0a05b20"
+    },
+    {
       "path": "REPORT.md",
-      "bytes": 11052,
-      "sha256": "0c14983b174204c480b32633d3f5bbf81bc69fbfbb51cd6b2172d48ce1070490"
+      "bytes": 11665,
+      "sha256": "fa1b7618013b9aa013878d6bf2bd0bca1c28c5ae152e4c327d410e20632e6abd"
     },
     {
       "path": "scoring/aggregate_metrics.json",

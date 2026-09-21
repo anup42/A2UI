@@ -47,6 +47,10 @@ mutate values. Those operations can make malformed syntax parse by deleting or
 changing visible information. In this corpus, even the closest aggressive
 salvage candidate still failed source integrity, so it remains rejected.
 
+## Detailed repair-failure analysis
+
+All 50 model programs remained invalid after bounded output-only repair and were replaced by source-text fallback documents. The replacements had no recorded compile, integrity, table, scroll, or renderer failure. BXP-027 retained one scoring-only semantic presentation gap: its email example used generic Text/List nodes (`missing_special_role=email`, cap 0.78). The complete category and per-case explanation is in [REPAIR_FAILURE_ANALYSIS.md](REPAIR_FAILURE_ANALYSIS.md), with exact messages in [CSV](repair_failure_analysis.csv) and [JSON](repair_failure_analysis.json).
+
 ## Recovered-corpus score
 
 The v5.4 evaluator scored the deterministic fallback corpus separately:
