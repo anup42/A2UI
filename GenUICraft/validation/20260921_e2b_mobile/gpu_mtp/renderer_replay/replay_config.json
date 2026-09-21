@@ -1,0 +1,16 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_render_source_20260921",
+  "runId": "mobile_gpu_mtp_render_20260921",
+  "cases": [
+    "BXP-003"
+  ],
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "maxVerticalSwipes": 6,
+  "maxHorizontalSwipesPerTable": 8,
+  "corpusSha256": "fc46aa381957bed206f9e0f53e28edbb21b5096ca093985ad184fda73faaea0a",
+  "hierarchyPolicy": "Clear UiAutomation cache on API 34+, refresh nodes, then dump.",
+  "columnCheck": "Visible text header or representative cell; content descriptions are excluded."
+}

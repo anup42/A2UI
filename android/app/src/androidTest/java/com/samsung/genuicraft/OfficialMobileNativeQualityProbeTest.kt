@@ -31,8 +31,8 @@ import org.junit.runner.RunWith
 /**
  * Runs a hash-bound batch of already-formatted evaluation prompts through one
  * GPU engine. Every case uses a fresh Conversation. Before decoding, the
- * runtime-rendered preface and final user message must byte-for-byte match the
- * checkpoint tokenizer's already-evaluated prompt. The expected completion is
+ * runtime-rendered complete conversation must byte-for-byte match the
+ * independently formatted expected prompt. The expected completion is
  * never staged on the device.
  *
  * Required instrumentation arguments: modelPath, requestPath, label.
@@ -53,6 +53,9 @@ class OfficialMobileNativeQualityProbeTest {
         val modelFile = requiredFile(arguments.getString("modelPath"), "modelPath")
         val requestFile = requiredFile(arguments.getString("requestPath"), "requestPath")
         val label = sanitizeLabel(arguments.getString("label").orEmpty())
+        // The bound training evaluator remains target-only by default. A separate
+        // small probe may explicitly enable MTP when the package has a drafter.
+        val mtpEnabled = arguments.getString("mtp")?.toBooleanStrictOrNull() ?: false
         val caseTimeoutSeconds = arguments.getString("caseTimeoutSeconds")?.toLongOrNull()
             ?: error("Pass -e caseTimeoutSeconds <positive integer>")
         require(caseTimeoutSeconds > 0) { "caseTimeoutSeconds must be positive" }
@@ -87,7 +90,7 @@ class OfficialMobileNativeQualityProbeTest {
             .put("request_path", requestFile.canonicalPath)
             .put("request_count", requests.size)
             .put("requested_backend", "GPU")
-            .put("mtp_enabled", false)
+            .put("mtp_enabled", mtpEnabled)
             .put("engine_instance_count", 1)
             .put("fresh_conversation_per_case", true)
             .put("raw_session", false)
@@ -111,7 +114,7 @@ class OfficialMobileNativeQualityProbeTest {
             .put("success", false)
         manifestFile.writeText(manifest.toString(2) + "\n")
 
-        ExperimentalFlags.enableSpeculativeDecoding = false
+        ExperimentalFlags.enableSpeculativeDecoding = mtpEnabled
         ExperimentalFlags.enableBenchmark = true
         loadGpuSamplerDependencies()
         var engine: Engine? = null
@@ -173,6 +176,9 @@ class OfficialMobileNativeQualityProbeTest {
                     val started = SystemClock.elapsedRealtime()
                     val raw = StringBuilder()
                     var outputTokenCount = 0
+                    var inputTokenCount: Int? = null
+                    var decodeTokensPerSecond: Double? = null
+                    var prefillTokensPerSecond: Double? = null
                     var renderedPromptSha256 = ""
                     var closingBoundary: Int? = null
                     engine.createConversation(
@@ -190,9 +196,12 @@ class OfficialMobileNativeQualityProbeTest {
                             thinkingConfig = ThinkingConfig(enableThinking = thinkingEnabled),
                         )
                     ).use { conversation ->
-                        val renderedPrompt =
-                            conversation.renderPrefaceIntoString() +
-                                conversation.renderMessageIntoString(finalMessage, templateContext)
+                        // Before the first send, LiteRT 0.16.1 renders the complete
+                        // history with the final message. Concatenating the preface
+                        // duplicates that history. Native inserts BOS separately.
+                        val renderedMessage = conversation.renderMessageIntoString(finalMessage, templateContext)
+                        val renderedPrompt = if (renderedMessage.startsWith("<bos>")) renderedMessage
+                            else "<bos>" + renderedMessage
                         renderedPromptSha256 = sha256(renderedPrompt)
                         assertEquals(
                             "LiteRT conversation template differs from checkpoint prompt for $id",
@@ -249,7 +258,15 @@ class OfficialMobileNativeQualityProbeTest {
                             error("Native generation exceeded case timeout for $id")
                         }
                         asyncFailure.get()?.let { throw it }
-                        outputTokenCount = conversation.getBenchmarkInfo().lastDecodeTokenCount
+                        val benchmark = conversation.getBenchmarkInfo()
+                        outputTokenCount = benchmark.lastDecodeTokenCount
+                        fun counter(getter: String): Double? = runCatching {
+                            (benchmark.javaClass.getMethod(getter).invoke(benchmark) as Number)
+                                .toDouble().takeIf { it.isFinite() && it >= 0.0 }
+                        }.getOrNull()
+                        inputTokenCount = counter("getLastPrefillTokenCount")?.toInt()
+                        decodeTokensPerSecond = counter("getLastDecodeTokensPerSecond")
+                        prefillTokensPerSecond = counter("getLastPrefillTokensPerSecond")
                     }
                     val stopReason = when {
                         closingBoundary != null -> "closing_sentinel"
@@ -266,6 +283,9 @@ class OfficialMobileNativeQualityProbeTest {
                         .put("raw_generated_text", raw.toString())
                         .put("generation_elapsed_ms", SystemClock.elapsedRealtime() - started)
                         .put("native_output_token_count", outputTokenCount)
+                        .put("native_input_token_count", inputTokenCount ?: JSONObject.NULL)
+                        .put("native_decode_tokens_per_second", decodeTokensPerSecond ?: JSONObject.NULL)
+                        .put("native_prefill_tokens_per_second", prefillTokensPerSecond ?: JSONObject.NULL)
                         .put("native_stop_observed", closingBoundary != null || outputTokenCount < outputLimit)
                         .put("decode_limit_reached", outputTokenCount >= outputLimit)
                         .put("stop_reason", stopReason)
@@ -276,7 +296,7 @@ class OfficialMobileNativeQualityProbeTest {
                         )
                         .put("sampler", samplerJson())
                         .put("requested_backend", "GPU")
-                        .put("mtp_enabled", false)
+                        .put("mtp_enabled", mtpEnabled)
                         .put("raw_session", false)
                         .put("conversation_template_applied", true)
                         .put("native_input_token_ids_available", false)

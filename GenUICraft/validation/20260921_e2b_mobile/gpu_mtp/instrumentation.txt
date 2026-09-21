@@ -1,0 +1,33 @@
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.OfficialMobileNativeQualityProbeTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.samsung.genuicraft.OfficialMobileNativeQualityProbeTest:
+INSTRUMENTATION_STATUS: test=evaluatesBoundPromptsWithOneGpuEngine
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: a2ui_native_event={"phase":"engine_start","completed":0,"total":1}
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: a2ui_native_event={"phase":"engine_ready","completed":0,"total":1}
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: a2ui_native_event={"phase":"case_start","completed":0,"total":1,"id":"BXP-003"}
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: a2ui_native_event={"phase":"case_done","completed":1,"total":1,"id":"BXP-003"}
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: a2ui_native_event={"phase":"finished","completed":1,"total":1}
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.samsung.genuicraft.OfficialMobileNativeQualityProbeTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=evaluatesBoundPromptsWithOneGpuEngine
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 80.315
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,22 @@
+09-21 13:35:26.401 12898 12911 W OfficialMobileNative: GPU sampler dependency failed name=c++_shared
+09-21 13:35:26.410 12898 12911 I OfficialMobileNative: run_label=mobile_gpu_mtp_1case_20260921
+09-21 13:35:26.411 12898 12911 I OfficialMobileNative: a2ui_native_event={"phase":"engine_start","completed":0,"total":1}
+09-21 13:35:26.674 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=decode, subgraph_index=0, num_tensors=2703, num_inputs=35, num_outputs=32, num_ops=2068
+09-21 13:35:26.674 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=prefill_1024, subgraph_index=1, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-21 13:35:26.674 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=prefill_128, subgraph_index=2, num_tensors=1454, num_inputs=35, num_outputs=30, num_ops=1107
+09-21 13:35:26.674 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=verify, subgraph_index=3, num_tensors=2887, num_inputs=35, num_outputs=32, num_ops=2243
+09-21 13:35:26.805 12898 12911 I tflite  : Replacing 2068 out of 2068 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (decode).
+09-21 13:35:31.128 12898 12911 I tflite  : Replacing 1107 out of 1107 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 1 (prefill_1024).
+09-21 13:35:33.696 12898 12911 I tflite  : Replacing 1107 out of 1107 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 2 (prefill_128).
+09-21 13:35:35.048 12898 12911 I tflite  : Replacing 2243 out of 2243 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 3 (verify).
+09-21 13:35:37.128 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=embedder, subgraph_index=0, num_tensors=16, num_inputs=1, num_outputs=1, num_ops=8
+09-21 13:35:37.133 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=eoa, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-21 13:35:37.134 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=eoi, subgraph_index=0, num_tensors=1, num_inputs=0, num_outputs=1, num_ops=0
+09-21 13:35:37.135 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=per_layer_embedder, subgraph_index=0, num_tensors=83, num_inputs=1, num_outputs=1, num_ops=42
+09-21 13:35:37.254 12898 12911 I litert  : [magic_number_utils.cc:109]   signature=mtp_drafter, subgraph_index=0, num_tensors=275, num_inputs=8, num_outputs=2, num_ops=198
+09-21 13:35:37.263 12898 12911 I tflite  : Replacing 198 out of 198 node(s) with delegate (LITERT_CL) node, yielding 1 partitions for subgraph 0 (main).
+09-21 13:35:39.065 12898 12911 I OfficialMobileNative: a2ui_native_event={"phase":"engine_ready","completed":0,"total":1}
+09-21 13:35:39.068 12898 12911 I OfficialMobileNative: a2ui_native_event={"phase":"case_start","completed":0,"total":1,"id":"BXP-003"}
+09-21 13:36:46.086 12898 12911 I OfficialMobileNative: a2ui_native_event={"phase":"case_done","completed":1,"total":1,"id":"BXP-003"}
+09-21 13:36:46.087 12898 12911 I OfficialMobileNative: a2ui_native_event={"phase":"finished","completed":1,"total":1}
+09-21 13:36:46.088 12898 12911 I native  : I0000 00:00:1789978006.088645   12911 llm_litert_mtp_drafter.cc:172] MTP Drafter - Success rate: 0.76

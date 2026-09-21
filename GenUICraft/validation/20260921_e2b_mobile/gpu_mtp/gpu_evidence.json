@@ -1,0 +1,123 @@
+{
+  "gpu_delegations": [
+    {
+      "delegated_nodes": 2068,
+      "total_nodes": 2068,
+      "partitions": 1,
+      "subgraph_index": 0,
+      "subgraph_name": "decode"
+    },
+    {
+      "delegated_nodes": 1107,
+      "total_nodes": 1107,
+      "partitions": 1,
+      "subgraph_index": 1,
+      "subgraph_name": "prefill_1024"
+    },
+    {
+      "delegated_nodes": 1107,
+      "total_nodes": 1107,
+      "partitions": 1,
+      "subgraph_index": 2,
+      "subgraph_name": "prefill_128"
+    },
+    {
+      "delegated_nodes": 2243,
+      "total_nodes": 2243,
+      "partitions": 1,
+      "subgraph_index": 3,
+      "subgraph_name": "verify"
+    },
+    {
+      "delegated_nodes": 198,
+      "total_nodes": 198,
+      "partitions": 1,
+      "subgraph_index": 0,
+      "subgraph_name": "main"
+    }
+  ],
+  "gpu_delegation_count": 5,
+  "all_gpu_subgraphs_fully_delegated": true,
+  "signatures": [
+    {
+      "name": "decode",
+      "subgraph_index": 0,
+      "tensor_count": 2703,
+      "input_count": 35,
+      "output_count": 32,
+      "operator_count": 2068
+    },
+    {
+      "name": "prefill_1024",
+      "subgraph_index": 1,
+      "tensor_count": 1454,
+      "input_count": 35,
+      "output_count": 30,
+      "operator_count": 1107
+    },
+    {
+      "name": "prefill_128",
+      "subgraph_index": 2,
+      "tensor_count": 1454,
+      "input_count": 35,
+      "output_count": 30,
+      "operator_count": 1107
+    },
+    {
+      "name": "verify",
+      "subgraph_index": 3,
+      "tensor_count": 2887,
+      "input_count": 35,
+      "output_count": 32,
+      "operator_count": 2243
+    },
+    {
+      "name": "embedder",
+      "subgraph_index": 0,
+      "tensor_count": 16,
+      "input_count": 1,
+      "output_count": 1,
+      "operator_count": 8
+    },
+    {
+      "name": "eoa",
+      "subgraph_index": 0,
+      "tensor_count": 1,
+      "input_count": 0,
+      "output_count": 1,
+      "operator_count": 0
+    },
+    {
+      "name": "eoi",
+      "subgraph_index": 0,
+      "tensor_count": 1,
+      "input_count": 0,
+      "output_count": 1,
+      "operator_count": 0
+    },
+    {
+      "name": "per_layer_embedder",
+      "subgraph_index": 0,
+      "tensor_count": 83,
+      "input_count": 1,
+      "output_count": 1,
+      "operator_count": 42
+    },
+    {
+      "name": "mtp_drafter",
+      "subgraph_index": 0,
+      "tensor_count": 275,
+      "input_count": 8,
+      "output_count": 2,
+      "operator_count": 198
+    }
+  ],
+  "mtp_success_rates": [
+    0.76
+  ],
+  "last_mtp_success_rate": 0.76,
+  "label": "mobile_gpu_mtp_1case_20260921",
+  "probe_pid": 12898,
+  "log_scope": "Exact run-label PID only",
+  "original_log_sha256": "507e532f0dafb674864c731ea98cac4d7572deab14698c98d445c7586bac5a0d"
+}

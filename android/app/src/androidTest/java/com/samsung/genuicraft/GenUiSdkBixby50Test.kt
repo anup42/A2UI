@@ -179,8 +179,8 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
         val args = InstrumentationRegistry.getArguments()
         val context = instrumentation.targetContext
         val mode = args.getString("replayMode", "json")!!
-        require(mode in setOf("json", "raw_model")) { "replayMode must be json or raw_model." }
-        val kind = if (mode == "json") "renderer_replay" else "captured_model_revalidation"
+        require(mode in setOf("json", "express", "raw_model")) { "replayMode must be json, express, or raw_model." }
+        val kind = if (mode == "raw_model") "captured_model_revalidation" else "renderer_replay"
         fun runName(value: String?, label: String): String {
             require(value != null && Regex("[A-Za-z0-9_-]{1,100}").matches(value)) {
                 "$label must contain only letters, digits, underscores or hyphens (1..100 characters)."
@@ -253,7 +253,15 @@ root=Table(columns=["Reading","Temperature (°C)","Pressure (kPa)","Observation 
                         File(caseDir, "source.output.a2ui.json").writeBytes(bytes)
                         report.addProperty("sourceJsonSha256", replaySha256(bytes))
                     }
-                    val document = if (mode == "json") {
+                    val document = if (mode == "express") {
+                        val expressFile = File(sourceCase, "output.express")
+                        require(expressFile.isFile) { "Missing saved output.express for $caseId." }
+                        val expressBytes = expressFile.readBytes()
+                        File(caseDir, "source.output.express").writeBytes(expressBytes)
+                        report.addProperty("sourceArtifact", "${sourceRunId}/${caseId}/output.express")
+                        report.addProperty("sourceExpressSha256", replaySha256(expressBytes))
+                        GenUiCompiler.compile(expressBytes.toString(Charsets.UTF_8))
+                    } else if (mode == "json") {
                         require(originalJsonFile.isFile) { "Missing saved output.a2ui.json for $caseId." }
                         report.addProperty("sourceArtifact", "${sourceRunId}/${caseId}/output.a2ui.json")
                         GenUiCompiler.compile(requireNotNull(originalJsonBytes).toString(Charsets.UTF_8))

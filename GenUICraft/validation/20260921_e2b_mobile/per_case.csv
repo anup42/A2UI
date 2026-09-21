@@ -1,0 +1,5 @@
+mode,id,input_tokens,output_tokens,decode_tokens_per_second,prefill_tokens_per_second,generation_elapsed_ms,stop_reason,strict_valid,v5_4_reward,renderer_replay_status,renderer_replay_error
+gpu,BXP-001,3174,213,41.166099849510445,1462.0391706945873,7368,eos_or_native_stop,False,0.0,replay_failure,Invalid GenUI Express: Unclosed A2UI Express expression.
+gpu,BXP-003,3394,2048,18.546979689333604,2168.479152014298,112015,max_new_tokens,False,0.0,replay_failure,GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.
+gpu,BXP-009,3307,840,14.901862454283881,969.5720542095657,59815,eos_or_native_stop,False,0.0,replay_failure,GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.
+gpu_mtp,BXP-003,3394,2051,31.323516717542795,2258.4152015553486,67015,max_new_tokens,False,0.0,replay_failure,GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.

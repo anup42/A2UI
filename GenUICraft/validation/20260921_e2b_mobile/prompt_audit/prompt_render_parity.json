@@ -1,0 +1,35 @@
+{
+  "BXP-001": {
+    "char_length": 11514,
+    "utf8_length": 11518,
+    "embedded_string_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+    "embedded_array_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+    "old_adapter_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+    "embedded_string_equals_array": true,
+    "embedded_equals_old_adapter": true,
+    "prefix_repr": "'<bos><|turn>system\\n# A2UI Express v1 generated model contract\\n\\n<!-- Generated fr'",
+    "suffix_repr": "'nditions are more likely to stay drier and slightly cooler.<turn|>\\n<|turn>model\\n'"
+  },
+  "BXP-003": {
+    "char_length": 12061,
+    "utf8_length": 12063,
+    "embedded_string_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+    "embedded_array_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+    "old_adapter_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+    "embedded_string_equals_array": true,
+    "embedded_equals_old_adapter": true,
+    "prefix_repr": "'<bos><|turn>system\\n# A2UI Express v1 generated model contract\\n\\n<!-- Generated fr'",
+    "suffix_repr": "' with **arrival times** and **days of operation** included.<turn|>\\n<|turn>model\\n'"
+  },
+  "BXP-009": {
+    "char_length": 12323,
+    "utf8_length": 12323,
+    "embedded_string_sha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+    "embedded_array_sha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+    "old_adapter_sha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+    "embedded_string_equals_array": true,
+    "embedded_equals_old_adapter": true,
+    "prefix_repr": "'<bos><|turn>system\\n# A2UI Express v1 generated model contract\\n\\n<!-- Generated fr'",
+    "suffix_repr": "'ty, and central monuments makes sightseeing less efficient.<turn|>\\n<|turn>model\\n'"
+  }
+}

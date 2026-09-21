@@ -1,0 +1,237 @@
+{
+  "algorithm": "SHA-256",
+  "files": {
+    "environment.json": {
+      "size_bytes": 2757,
+      "sha256": "2c195100a368e5697b2d0e35fb178d9dd34ce92573935efb220e4eb590e61cc7"
+    },
+    "gpu/BXP-001/metrics.json": {
+      "size_bytes": 2244,
+      "sha256": "0e7c0baa7605175b86340d82c943c3e221666afdc76e042f760f26ca5c726c86"
+    },
+    "gpu/BXP-001/output.express": {
+      "size_bytes": 823,
+      "sha256": "43941d1ade9e27ff64e69c01fb83a4a9112c8f03a72d7ab0e260bf6a3448d599"
+    },
+    "gpu/BXP-001/source.json": {
+      "size_bytes": 1914,
+      "sha256": "89fbba6725abfa221a5554767cb023c0de11d93e7a5332fd79a3caec5d6ffad0"
+    },
+    "gpu/BXP-003/metrics.json": {
+      "size_bytes": 2287,
+      "sha256": "810eacf82e49e4eca84aef0f61ce897fd9e1d3a2a29a42be1ef0f32b5ff199e7"
+    },
+    "gpu/BXP-003/output.express": {
+      "size_bytes": 2317,
+      "sha256": "e23115df8517d531f7367876af3ae519db494c2fb856453197e8a1bd4d58fb09"
+    },
+    "gpu/BXP-003/source.json": {
+      "size_bytes": 2469,
+      "sha256": "f656635b9b938232a154fecc2cdca7b385638af906818fe18901cee3ff3f8bdd"
+    },
+    "gpu/BXP-009/metrics.json": {
+      "size_bytes": 2287,
+      "sha256": "e5ec27bb43aec2e4103fd6de08036c4c241a5970ec796050d524feebdfaef430"
+    },
+    "gpu/BXP-009/output.express": {
+      "size_bytes": 3675,
+      "sha256": "95611881c4137ff76834af88d8f5ca84ee1605323ed424eb226ca5c14dd805c7"
+    },
+    "gpu/BXP-009/source.json": {
+      "size_bytes": 2724,
+      "sha256": "931c9843484467c636572849c0ceacf73eadbd0ab907b75581d07267b15ed94b"
+    },
+    "gpu/gpu_evidence.json": {
+      "size_bytes": 2479,
+      "sha256": "c49abd1b2491beb3047b2530b7abc7765850c35a4f1bbd8980b7811b828b131c"
+    },
+    "gpu/gpu_evidence.txt": {
+      "size_bytes": 3381,
+      "sha256": "2fcaa5bcabf2009fe942946fea29f9b5e1bc19230fd3eded43b918149d0e23bb"
+    },
+    "gpu/instrumentation.txt": {
+      "size_bytes": 2028,
+      "sha256": "570ed6d535e34abc739a892ae9befdecb0994aec456c35baf0b8797471d9c1cd"
+    },
+    "gpu/native_results.jsonl": {
+      "size_bytes": 9998,
+      "sha256": "eb8ba7caec539910112a2aa8c238346919528c1862a86d511ddd5de1349ca6ea"
+    },
+    "gpu/native_results.manifest.json": {
+      "size_bytes": 1315,
+      "sha256": "7920ba4d4d2cd1e5bd0a481d96c188c22b645ef1712874ffe54469bdd60306f0"
+    },
+    "gpu/renderer_replay/BXP-001/failure.png": {
+      "size_bytes": 194813,
+      "sha256": "12eb3bdc00ad39b3ee734f5e91a67db8973ffdb31719a9f01f7de1f9107ba8f1"
+    },
+    "gpu/renderer_replay/BXP-001/failure.xml": {
+      "size_bytes": 42808,
+      "sha256": "f8cda59734da39302c6740b628c83347cbc2307603a05db3e716a28b69f809d5"
+    },
+    "gpu/renderer_replay/BXP-001/replay_result.json": {
+      "size_bytes": 514,
+      "sha256": "0149eb260541878394c348ab392d4821f44f25ef2e5d2b1d87b90611bf1b2255"
+    },
+    "gpu/renderer_replay/BXP-001/source.output.express": {
+      "size_bytes": 823,
+      "sha256": "43941d1ade9e27ff64e69c01fb83a4a9112c8f03a72d7ab0e260bf6a3448d599"
+    },
+    "gpu/renderer_replay/BXP-003/failure.png": {
+      "size_bytes": 194813,
+      "sha256": "12eb3bdc00ad39b3ee734f5e91a67db8973ffdb31719a9f01f7de1f9107ba8f1"
+    },
+    "gpu/renderer_replay/BXP-003/failure.xml": {
+      "size_bytes": 42808,
+      "sha256": "f8cda59734da39302c6740b628c83347cbc2307603a05db3e716a28b69f809d5"
+    },
+    "gpu/renderer_replay/BXP-003/replay_result.json": {
+      "size_bytes": 564,
+      "sha256": "4f8a791ee36a9016c010e59074ee0690adec70a359e54c1ea41b68be65b59650"
+    },
+    "gpu/renderer_replay/BXP-003/source.output.express": {
+      "size_bytes": 2317,
+      "sha256": "e23115df8517d531f7367876af3ae519db494c2fb856453197e8a1bd4d58fb09"
+    },
+    "gpu/renderer_replay/BXP-009/failure.png": {
+      "size_bytes": 194813,
+      "sha256": "12eb3bdc00ad39b3ee734f5e91a67db8973ffdb31719a9f01f7de1f9107ba8f1"
+    },
+    "gpu/renderer_replay/BXP-009/failure.xml": {
+      "size_bytes": 42808,
+      "sha256": "f8cda59734da39302c6740b628c83347cbc2307603a05db3e716a28b69f809d5"
+    },
+    "gpu/renderer_replay/BXP-009/replay_result.json": {
+      "size_bytes": 564,
+      "sha256": "b5ac8b950d727e90bc83ddc23c93cb97f0b573c187513ccf6daca9155deda1b4"
+    },
+    "gpu/renderer_replay/BXP-009/source.output.express": {
+      "size_bytes": 3675,
+      "sha256": "95611881c4137ff76834af88d8f5ca84ee1605323ed424eb226ca5c14dd805c7"
+    },
+    "gpu/renderer_replay/replay_config.json": {
+      "size_bytes": 599,
+      "sha256": "9654b0c7ec4404c5aa94350f2d234dd23b02be335818929494f73a73b74007a3"
+    },
+    "gpu/renderer_replay/replay_results.json": {
+      "size_bytes": 1734,
+      "sha256": "67d2ec2f407234ce891a5456f7b5a108254e42e8794f2be1876fa59e3ae7f32f"
+    },
+    "gpu/renderer_replay/replay_summary.json": {
+      "size_bytes": 249,
+      "sha256": "9a597dc61f09856e568f993bd4567685a7d58661675a79242fe3ea7710d67283"
+    },
+    "gpu/requests.jsonl": {
+      "size_bytes": 74769,
+      "sha256": "568d6e93e9639a1161b10fd9dcae754ff0f95002eeb5d02a157fbeb3ab449a7f"
+    },
+    "gpu/scored_results.json": {
+      "size_bytes": 11411,
+      "sha256": "891f90fdbdc4f88b8312ee0aad6ecbac339bafd1e4b9dc7755996e428d844fa3"
+    },
+    "gpu_mtp/BXP-003/metrics.json": {
+      "size_bytes": 2287,
+      "sha256": "264ec0d8eb47902408a7a09c44fa9c9d0af907b409bfdc183b8f417e02473d71"
+    },
+    "gpu_mtp/BXP-003/output.express": {
+      "size_bytes": 3121,
+      "sha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8"
+    },
+    "gpu_mtp/BXP-003/source.json": {
+      "size_bytes": 2469,
+      "sha256": "f656635b9b938232a154fecc2cdca7b385638af906818fe18901cee3ff3f8bdd"
+    },
+    "gpu_mtp/gpu_evidence.json": {
+      "size_bytes": 2834,
+      "sha256": "e73e103d6b769e7a47fed9d7d795244f82e3a84e235bd9c19df227aa5f8c8ae5"
+    },
+    "gpu_mtp/gpu_evidence.txt": {
+      "size_bytes": 3316,
+      "sha256": "b85af4027e7e8963b7184de16c2f130964f2ba66cf546a62fe5615ef71090704"
+    },
+    "gpu_mtp/instrumentation.txt": {
+      "size_bytes": 1482,
+      "sha256": "68f4776337870dcb051e51510975746e6502ce7daf390dc231a026bc85c2823d"
+    },
+    "gpu_mtp/native_results.jsonl": {
+      "size_bytes": 4225,
+      "sha256": "ce7ce8719d6b986f39b88854e534c95dfcdbe502dd54de9a2f5d49ff59c6cff0"
+    },
+    "gpu_mtp/native_results.manifest.json": {
+      "size_bytes": 1322,
+      "sha256": "0f4d268c8b0e4ed7c7596dc2d2df2815646297044b1cea1ee5363690d7121137"
+    },
+    "gpu_mtp/renderer_replay/BXP-003/failure.png": {
+      "size_bytes": 195196,
+      "sha256": "12a96b98a6eb2f695d4f85a45fa2b2ff9aa3d5272d63987710f108185ec10d17"
+    },
+    "gpu_mtp/renderer_replay/BXP-003/failure.xml": {
+      "size_bytes": 42808,
+      "sha256": "ea5675cd069a1d23033f204a53bf4e6d6886e3f8ab8214451231028344881c59"
+    },
+    "gpu_mtp/renderer_replay/BXP-003/replay_result.json": {
+      "size_bytes": 573,
+      "sha256": "45fcf1bcc19a4df26e7cbc6ba22f3f4cbcc761b399a499b1492b9d18d516db1e"
+    },
+    "gpu_mtp/renderer_replay/BXP-003/source.output.express": {
+      "size_bytes": 3121,
+      "sha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8"
+    },
+    "gpu_mtp/renderer_replay/replay_config.json": {
+      "size_bytes": 577,
+      "sha256": "7b6e1226534a2e5ec807a7ea5e87a4b4b088065b9a416d7fab5ca6fdc0109801"
+    },
+    "gpu_mtp/renderer_replay/replay_results.json": {
+      "size_bytes": 605,
+      "sha256": "86a30b45532b4e69ee3f57dadb513502ad3235e71a192b2ce88dd03da8938a2e"
+    },
+    "gpu_mtp/renderer_replay/replay_summary.json": {
+      "size_bytes": 257,
+      "sha256": "326e48bea45d8e7c198e705c239354b08a415a5422c2e65f60fe596b29ea19ef"
+    },
+    "gpu_mtp/requests.jsonl": {
+      "size_bytes": 25115,
+      "sha256": "f67e59b4c0ddf035e7c7489fa295904b230326c5b1e66a6d55f13968019007c5"
+    },
+    "gpu_mtp/scored_results.json": {
+      "size_bytes": 3819,
+      "sha256": "4dd1bb9214a9a6af08928d3c973a2e91da9a5b61c123a7b4945f582b51c32090"
+    },
+    "per_case.csv": {
+      "size_bytes": 1008,
+      "sha256": "70658bb8af1166c019d3c8838f1b7d5d5223ccb727ba7181a29afe17134ac8b9"
+    },
+    "prompt_audit/all50_prompt_parity.json": {
+      "size_bytes": 15680,
+      "sha256": "c934bc5550e565d944a3b2f6c443ffc24e2a3b3df715966bd14651eda721d17b"
+    },
+    "prompt_audit/embedded_prompt_template.json": {
+      "size_bytes": 12519,
+      "sha256": "cb17500a670d35b0ebf7fb6d6f004bc12c6508cdda12155b97e05d574ecdc499"
+    },
+    "prompt_audit/model_audit.json": {
+      "size_bytes": 9780,
+      "sha256": "b3a0c82668303c3192d323c98bb357eabe87c62bbc281b1ef5b950c2e9f9606f"
+    },
+    "prompt_audit/package_inspection.json": {
+      "size_bytes": 6309,
+      "sha256": "29c7b152ae4b37591b41ef37d408a287ab773e8d5122e8f3889a3ef8c328bfb6"
+    },
+    "prompt_audit/prompt_render_parity.json": {
+      "size_bytes": 1992,
+      "sha256": "eb89bb8fe18da14d1a91c2a5d5f1637541bd8c1ab40d22748b70b2cd4e5c6c44"
+    },
+    "prompt_audit/shared_prompt.json": {
+      "size_bytes": 12049,
+      "sha256": "96803a39869fb21f9f58a0f0adccab6f7746a32f124dc9da83d7df62a9f7ccb8"
+    },
+    "REPORT.md": {
+      "size_bytes": 9530,
+      "sha256": "f9d6d0ec767eb02ea2be625c56831dd60535f9136e38b09eed70f28e3a31d5cd"
+    },
+    "summary.json": {
+      "size_bytes": 3113,
+      "sha256": "e6d68b5c69f17fded8353efdb3c3c3d9c4f3bf9ba2ae6dcbce276af763f42b6e"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "BXP-001",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_render_source_20260921/BXP-001/output.express",
+  "sourceExpressSha256": "43941d1ade9e27ff64e69c01fb83a4a9112c8f03a72d7ab0e260bf6a3448d599",
+  "status": "replay_failure",
+  "message": "Invalid GenUI Express: Unclosed A2UI Express expression.",
+  "replayElapsedMs": 1207
+}

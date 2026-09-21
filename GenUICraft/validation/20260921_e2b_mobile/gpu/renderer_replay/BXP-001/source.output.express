@@ -1,0 +1,6 @@
+<a2ui>
+root=Column(3d,margin=16)
+=Table(columns=[{Date:"Date",High:"High (°C)",Low:"Low (°C)",Rain:"probability"}],statePath="/forecast_data",domain="weather",preferredPresentation="cards")
+Column(children=[Row(children=[Text("AccuWeather’s Bengaluru forecast shows cloudy or sunny-interval conditions through the next three days with the highest rain chance on Wednesday and continued shower/thunderstorm potential on Thursday and Friday.","h3")),Row(children=[Text("Carry an umbrella or light rain jacket, especially for afternoon and evening plans.","h3")],Row)],gap=" mica")
+Column(children=[Row(children=[Text("Plan outdoor activities earlier in the day, when conditions are likely to stay drier and slightly cooler.","h33")),Row(children=[Text("See forecast for more details.","h33")],gap="sma)],margin=6)
+</a2ui>

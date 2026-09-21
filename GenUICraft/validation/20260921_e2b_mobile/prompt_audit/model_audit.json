@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "scope": "read-only package/prompt audit; no inference, build, adb, or Git action",
+  "artifact": {
+    "path": "C:\\Users\\anupk\\Downloads\\asset_238\\gemma4_e2b_a2ui_mobile.litertlm",
+    "size_bytes": 2588147712,
+    "sha256": {
+      "value": "4675f37353e41c786a3e94f03ba4f64ad366a2e4e5d188bb92f5bef3922a75fe",
+      "evidence": "locally recomputed 2026-09-21"
+    },
+    "format_version": "1.5.0",
+    "header_sha256": "a13b50ee5dfb59e69896ba93769a43a1ba9853416eb9d8b8ab50f9c820f9ce4a",
+    "header_metadata": {
+      "entries": [
+        {
+          "key": "author",
+          "type": "StringValue",
+          "value": "The ODML Authors"
+        },
+        {
+          "key": "uuid",
+          "type": "StringValue",
+          "value": "2fa073f5-2d5e-44ff-8bb9-64d926dc40e2"
+        },
+        {
+          "key": "creation_timestamp",
+          "type": "StringValue",
+          "value": "2026-04-28T22:06:55.560103+00:00"
+        }
+      ]
+    },
+    "section_count": 12,
+    "section_types": [
+      "LlmMetadataProto",
+      "SP_Tokenizer",
+      "tf_lite_embedder",
+      "tf_lite_per_layer_embedder",
+      "tf_lite_audio_encoder_hw",
+      "tf_lite_audio_adapter",
+      "tf_lite_end_of_audio",
+      "tf_lite_vision_encoder",
+      "tf_lite_vision_adapter",
+      "tf_lite_end_of_vision",
+      "tf_lite_prefill_decode",
+      "tf_lite_mtp_drafter"
+    ],
+    "selected_section_hashes": {
+      "LlmMetadataProto": {
+        "size_bytes": 12192,
+        "sha256": "00603838ac80fadd374ff3d7b6108cfa765bf1a76adfb9df95b3387d0d7e386f"
+      },
+      "SP_Tokenizer": {
+        "size_bytes": 4689013,
+        "sha256": "e594c8a90eb08d8bda498ff4747977dc827ae0c3c56b5c0d41a605a22d02ef03"
+      },
+      "tf_lite_prefill_decode": {
+        "size_bytes": 818275184,
+        "sha256": "5d167358bb4e7dc5b35f3221cdb16493c6cac41c2cb0bbe50a57ec1fd2fcb13f"
+      },
+      "tf_lite_mtp_drafter": {
+        "size_bytes": 44325712,
+        "sha256": "9942d6ef5ae348148ef34f2c164b8a16bd56e48bf99c9b930d43392b65d3f5a2"
+      }
+    }
+  },
+  "package_metadata_verified": {
+    "start_token": {
+      "id": 2,
+      "piece": "<bos>"
+    },
+    "stop_tokens": [
+      {
+        "id": 1,
+        "piece": "<eos>"
+      },
+      {
+        "id": 50,
+        "piece": "<|tool_response>"
+      },
+      {
+        "id": 106,
+        "piece": "<turn|>"
+      }
+    ],
+    "tokenizer_vocab_size": 262144,
+    "embedded_template": {
+      "path": "prompt_audit/embedded_prompt_template.json",
+      "utf8_bytes": 11995,
+      "sha256": "02b3091acf53c0b722e3db0c7a1b4980363edcc2d85549dafa339ff5dbfff629",
+      "content_support": "string and typed sequence text/image/audio parts",
+      "thinking_channel": {
+        "channel_name": "thought",
+        "start": "<|channel>thought\n",
+        "end": "<channel|>"
+      },
+      "json_field": "template"
+    },
+    "mtp_drafter": {
+      "present": true,
+      "size_bytes": 44325712,
+      "sha256": "9942d6ef5ae348148ef34f2c164b8a16bd56e48bf99c9b930d43392b65d3f5a2"
+    }
+  },
+  "current_workflow_contract_reconstructed": {
+    "evidence_class": "current checkout workflow; not an embedded training manifest",
+    "shared_prompt": {
+      "version": "a2ui_express_shared_prompt_v1",
+      "target_format": "a2ui_express_v1",
+      "serialization_order": "root-first",
+      "source_path": "dataset/prompts/genui_gen_mobile_a2ui_express_v1.md",
+      "source_text_sha256": "f354f2e6e65cd18fa72984f5e3eff7c60b99ccec660c2710c970a7d8eab60b13",
+      "system_prompt_sha256": "123de4de3558a7e70c30e6df147278b08d73630e6af47f25e2e1b7c09d082d39",
+      "scaffold_sha256": "12069fdeb556058a67a439f87a36abcb1c67f54753df5cff5cd2bbff1809a512",
+      "contract_sha256": "005ef700eee29a4429c895ac6c86580003c43d0ad35e67cbb92a9d4cf0e8c1d2"
+    },
+    "system_prompt_derivation": "read source_path, replace {response_text} with [RESPONSE_TEXT_IS_PROVIDED_IN_THE_USER_MESSAGE], then strip outer whitespace",
+    "messages_before_case": [
+      {
+        "role": "system",
+        "content": "<system text identified by system_prompt_sha256 and shared_prompt.json>"
+      },
+      {
+        "role": "user",
+        "content": "Create A2UI Express v1 GenUI IR for this response:\n\nA small travel checklist with a title and two items."
+      },
+      {
+        "role": "assistant",
+        "content": "<a2ui>\nroot=Column([a,b])\na=Text(\"Travel Checklist\",\"h1\")\nb=List([c,d])\nc=Text(\"Passport\")\nd=Text(\"Charger\")\n</a2ui>"
+      }
+    ],
+    "task_prefix": "Create A2UI Express v1 GenUI IR for this response:\n\n",
+    "case_user_message": "task_prefix + response_text.strip()",
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "limits": {
+      "model_max_context_tokens": 8192,
+      "max_input_tokens": 4096,
+      "max_new_tokens": 2048,
+      "native_engine_allocation_tokens": 6144
+    },
+    "sampler_for_native_quality": {
+      "top_k": 1,
+      "top_p": 1.0,
+      "temperature": 0.0,
+      "seed": 42
+    },
+    "generation_stop": {
+      "training_evaluator_stop_strings": [
+        "</a2ui>"
+      ],
+      "package_stop_token_ids": [
+        1,
+        50,
+        106
+      ]
+    },
+    "mtp": {
+      "training": false,
+      "inference": false,
+      "official_section_preserved_but_unused": true
+    }
+  },
+  "offline_compatibility": {
+    "method": "Render current shared contract plus each Bixby50 response with embedded package Jinja under enable_thinking=false, once with string contents and once with Android-style [{type:text,text:...}], and compare with GenUiTrainedConverter simple adapter bytes.",
+    "case_count": 50,
+    "all_string_equal_typed_array": true,
+    "all_embedded_equal_old_adapter": true,
+    "expected_prompt_token_counts": {
+      "method": "1 + SentencePiece.encode(rendered_prompt after literal <bos>); metadata start_token id=2. Raw SentencePiece does not emit control id=2 from literal <bos>.",
+      "min": 3031,
+      "median": 3536.0,
+      "max": 3759,
+      "max_case": "BXP-032"
+    },
+    "selected_cases": {
+      "BXP-001": {
+        "id": "BXP-001",
+        "string_eq_array": true,
+        "embedded_eq_old_adapter": true,
+        "rendered_sha256": "ff0804511f69c3abbf9e38701afd1992230c86d94cace7896e21ed37b241b9d8",
+        "chars": 11514,
+        "utf8_bytes": 11518,
+        "native_expected_tokens": 3174
+      },
+      "BXP-003": {
+        "id": "BXP-003",
+        "string_eq_array": true,
+        "embedded_eq_old_adapter": true,
+        "rendered_sha256": "2b2bd3cd0bcccfe1e1f94b34d02f9c245b111ba08d2d1794ad78705ff923871c",
+        "chars": 12061,
+        "utf8_bytes": 12063,
+        "native_expected_tokens": 3394
+      },
+      "BXP-009": {
+        "id": "BXP-009",
+        "string_eq_array": true,
+        "embedded_eq_old_adapter": true,
+        "rendered_sha256": "dc42eb175ff61657e9da2345b1588ce4c15a6cc2b20e9bbf65d54eb9f4ce8798",
+        "chars": 12323,
+        "utf8_bytes": 12323,
+        "native_expected_tokens": 3307
+      }
+    },
+    "artifacts": [
+      "prompt_audit/all50_prompt_parity.json",
+      "prompt_audit/prompt_render_parity.json"
+    ]
+  },
+  "reuse_assessment": {
+    "GenUiTrainedConverter": "Text-only serialization is byte-faithful for all 50 under thinking=false, but unchanged reuse mislabels this artifact as trained_e2b_v10_w4, pins the old model identity, and unnecessarily overrides the richer embedded template. Use embedded template for the new profile.",
+    "GenUiTrainedBixby50Test": "Case subset selection and deterministic no-MTP settings are reusable, but unchanged harness defaults/profile/provenance are v10-W4-specific.",
+    "OfficialMobileNativeQualityProbeTest": "Preferred when supplied external requests are built from this shared contract and independently rendered by the embedded template; require full-history runtime render equality before generation.",
+    "primary_benchmark": "BXP-001,BXP-003,BXP-009; MTP disabled. Any MTP-on run is exploratory and must be labeled outside the faithful current-workflow benchmark."
+  },
+  "provenance_limits": [
+    "The package has no embedded current-run shared-prompt snapshot, prepared manifest, training config, checkpoint receipt, or source commit binding.",
+    "The LiteRT header timestamp/UUID and preserved official sections do not prove when or how the target weights were trained/exported.",
+    "Current-contract reconstruction and byte-parity show the appropriate checkout/runtime contract, but do not prove this exact supplied artifact was trained with that contract without its external run directory/sidecars.",
+    "Drafter presence does not prove task-specific training, acceptance, quality, or speed; current workflow says it is official preserved bytes and runtime-disabled."
+  ],
+  "source_evidence": [
+    "training/src/ir_training/data/shared_prompt.py:20-58,133-139",
+    "training/src/ir_training/data/chat_templates.py:36-91",
+    "training/src/ir_training/pipeline/golden_training.py:350-359",
+    "training/scripts/run_official_mobile_pipeline.py:28-35",
+    "training/src/ir_training/pipeline/official_mobile.py:134-175,182-224,230-242,319-330",
+    "training/configs/models/gemma4_e2b_mobile_seed_ir_qat_sft.yaml:8-31,32-58",
+    "GenUICraft/genuicraft/src/main/java/com/samsung/genuicraft/sdk/GenUiTrainedConverter.kt:59-61,71-108,110-141",
+    "android/app/src/androidTest/java/com/samsung/genuicraft/GenUiTrainedBixby50Test.kt:39-50,62-85,110-124",
+    "android/app/src/androidTest/java/com/samsung/genuicraft/OfficialMobileNativeQualityProbeTest.kt:56-72,117-135,148-210"
+  ]
+}

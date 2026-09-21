@@ -1,0 +1,11 @@
+{
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "runId": "mobile_gpu_mtp_render_20260921",
+  "sourceRunId": "mobile_gpu_mtp_render_source_20260921",
+  "total": 1,
+  "rendered": 0,
+  "failed": 1,
+  "modelCalls": 0,
+  "inferenceEvaluated": false
+}

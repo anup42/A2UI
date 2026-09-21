@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "evaluation_date": "2026-09-21",
+  "unique_cases": 3,
+  "native_calls": 4,
+  "full_bixby50_run": false,
+  "raw_output_repairs": 0,
+  "prompt_tuning_runs": 0,
+  "modes": {
+    "gpu": {
+      "count": 3,
+      "strict_valid": 0,
+      "rendered": 0,
+      "decode_median_tokens_per_second": 18.546979689333604,
+      "decode_min_tokens_per_second": 14.901862454283881,
+      "decode_max_tokens_per_second": 41.166099849510445,
+      "decode_token_weighted_tokens_per_second": 18.032713535645687
+    },
+    "gpu_mtp": {
+      "count": 1,
+      "strict_valid": 0,
+      "rendered": 0,
+      "decode_median_tokens_per_second": 31.323516717542795,
+      "decode_min_tokens_per_second": 31.323516717542795,
+      "decode_max_tokens_per_second": 31.323516717542795,
+      "decode_token_weighted_tokens_per_second": 31.323516717542795
+    }
+  },
+  "per_case": [
+    {
+      "mode": "gpu",
+      "id": "BXP-001",
+      "input_tokens": 3174,
+      "output_tokens": 213,
+      "decode_tokens_per_second": 41.166099849510445,
+      "prefill_tokens_per_second": 1462.0391706945873,
+      "generation_elapsed_ms": 7368,
+      "stop_reason": "eos_or_native_stop",
+      "strict_valid": false,
+      "v5_4_reward": 0.0,
+      "renderer_replay_status": "replay_failure",
+      "renderer_replay_error": "Invalid GenUI Express: Unclosed A2UI Express expression."
+    },
+    {
+      "mode": "gpu",
+      "id": "BXP-003",
+      "input_tokens": 3394,
+      "output_tokens": 2048,
+      "decode_tokens_per_second": 18.546979689333604,
+      "prefill_tokens_per_second": 2168.479152014298,
+      "generation_elapsed_ms": 112015,
+      "stop_reason": "max_new_tokens",
+      "strict_valid": false,
+      "v5_4_reward": 0.0,
+      "renderer_replay_status": "replay_failure",
+      "renderer_replay_error": "GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed."
+    },
+    {
+      "mode": "gpu",
+      "id": "BXP-009",
+      "input_tokens": 3307,
+      "output_tokens": 840,
+      "decode_tokens_per_second": 14.901862454283881,
+      "prefill_tokens_per_second": 969.5720542095657,
+      "generation_elapsed_ms": 59815,
+      "stop_reason": "eos_or_native_stop",
+      "strict_valid": false,
+      "v5_4_reward": 0.0,
+      "renderer_replay_status": "replay_failure",
+      "renderer_replay_error": "GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed."
+    },
+    {
+      "mode": "gpu_mtp",
+      "id": "BXP-003",
+      "input_tokens": 3394,
+      "output_tokens": 2051,
+      "decode_tokens_per_second": 31.323516717542795,
+      "prefill_tokens_per_second": 2258.4152015553486,
+      "generation_elapsed_ms": 67015,
+      "stop_reason": "max_new_tokens",
+      "strict_valid": false,
+      "v5_4_reward": 0.0,
+      "renderer_replay_status": "replay_failure",
+      "renderer_replay_error": "GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed."
+    }
+  ]
+}

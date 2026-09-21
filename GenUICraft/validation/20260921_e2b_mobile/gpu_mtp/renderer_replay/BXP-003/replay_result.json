@@ -1,0 +1,14 @@
+{
+  "id": "BXP-003",
+  "kind": "renderer_replay",
+  "replayMode": "express",
+  "sourceRunId": "mobile_gpu_mtp_render_source_20260921",
+  "modelCalls": 0,
+  "inferenceEvaluated": false,
+  "capturedProviderCalls": 0,
+  "sourceArtifact": "mobile_gpu_mtp_render_source_20260921/BXP-003/output.express",
+  "sourceExpressSha256": "d2cd4b3c4c663a082b3794e65fd6b75954feb36b8a067b25a820655cd5ed52a8",
+  "status": "replay_failure",
+  "message": "GenUI Express input must end exactly with </a2ui>; trailing prose or an incomplete document is not allowed.",
+  "replayElapsedMs": 1198
+}
