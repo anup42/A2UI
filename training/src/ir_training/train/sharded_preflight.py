@@ -10,7 +10,6 @@ from __future__ import annotations
 import copy
 import math
 import os
-import re
 from dataclasses import replace
 from typing import Any
 
@@ -21,6 +20,11 @@ from ir_training.train.sharded_contract import (
     build_deepspeed_config,
     deepspeed_config_sha256,
 )
+from ir_training.train.sharded_diagnostics import (
+    ShardedProbeDiagnostics,
+    memory_gate_checks,
+)
+from ir_training.train.sharded_partition_diagnostics import summarize_zero_partitions
 from ir_training.train.tensor_checks import tensor_all_finite, tensor_finite_and_nonzero
 
 PROBE_KIND = "disposable_full_parameter_zero2_trainer_v1"
@@ -194,27 +198,15 @@ def validate_sharded_probe(probe: dict, *, accumulation_steps: int, world_size: 
             or not finite(optimizer.get("learning_rate")) or optimizer["learning_rate"] <= 0):
         raise FullParameterScopeError("Incomplete sharded AdamW evidence")
     memory = probe.get("memory") or {}
-    if (memory.get("cuda_local_rank_only") is not True
-            or memory.get("nccl_collectives_certified") is not True
-            or not isinstance(memory.get("device"), str)
-            or re.fullmatch(r"cuda:[0-9]+", memory["device"]) is None
-            or (local_rank is not None and memory["device"] != f"cuda:{local_rank}")):
-        raise FullParameterScopeError("Missing rank-local sharded CUDA memory evidence")
-    keys = ("baseline_allocated_bytes", "baseline_reserved_bytes", "peak_allocated_bytes",
-            "peak_reserved_bytes", "device_total_bytes", "device_free_bytes_min")
-    if any(type(memory.get(key)) is not int or memory[key] < 0 for key in keys):
-        raise FullParameterScopeError("Invalid sharded memory counters")
-    allocated, reserved = memory["peak_allocated_bytes"], memory["peak_reserved_bytes"]
-    total, free = memory["device_total_bytes"], memory["device_free_bytes_min"]
-    fraction = memory.get("peak_reserved_fraction")
-    if (total <= 0 or allocated < memory["baseline_allocated_bytes"]
-            or reserved < memory["baseline_reserved_bytes"] or reserved < allocated
-            or memory["baseline_reserved_bytes"] < memory["baseline_allocated_bytes"]
-            or reserved > total or free > total or not finite(fraction)
-            or memory.get("max_reserved_fraction") != 0.90
-            or not math.isclose(fraction, reserved / total, rel_tol=1e-12, abs_tol=1e-12)
-            or reserved / total >= 0.90 or free / total <= 0.10):
-        raise FullParameterScopeError("Sharded CUDA memory/headroom gate failed")
+    checks = memory_gate_checks(memory, local_rank)
+    failures = [key for key, passed in checks.items() if not passed]
+    if failures:
+        raise FullParameterScopeError(
+            "Sharded CUDA memory/headroom gate failed: " + ", ".join(failures)
+            + f"; peak_reserved_bytes={memory.get('peak_reserved_bytes')}, "
+            f"total_bytes={memory.get('device_total_bytes')}, "
+            f"sampled_min_free_bytes={memory.get('device_free_bytes_min')}"
+        )
     selection = probe.get("selection") or {}
     if (not positive(selection.get("longest_sequence_length"))
             or selection.get("repeated_real_prepared_row") is not True):
@@ -252,17 +244,29 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
     torch.cuda.reset_peak_memory_stats(device)
     baseline_allocated = torch.cuda.memory_allocated(device)
     baseline_reserved = torch.cuda.memory_reserved(device)
-    total = torch.cuda.get_device_properties(device).total_memory
-    minimum_free = total
+    local_rank = int(os.environ["LOCAL_RANK"])
+    diagnostics = ShardedProbeDiagnostics(
+        args.output_dir, device=device, rank=int(os.environ.get("RANK", str(local_rank))),
+        local_rank=local_rank, world_size=world, accumulation_steps=accumulation,
+        config=ds_config, sequence_length=len(longest_row["input_ids"]),
+    )
+    diagnostics.identity.update(baseline_allocated_bytes=int(baseline_allocated),
+                                baseline_reserved_bytes=int(baseline_reserved))
     microsteps = completed_steps = 0
     optimizer_evidence: dict = {}
     coverage: dict = {}
 
-    def sample_memory():
-        nonlocal minimum_free
-        torch.cuda.synchronize(device)
-        free, _ = torch.cuda.mem_get_info(device)
-        minimum_free = min(minimum_free, free)
+    def sample_memory(phase):
+        diagnostics.sample(phase, microsteps=microsteps, optimizer_steps=completed_steps)
+
+    def sample_partitions(zero, phase, *, include_gradients=False):
+        try:
+            evidence = summarize_zero_partitions(zero, parameters, include_gradients=include_gradients)
+            diagnostics.partition_snapshots.append({
+                "phase": phase, "optimizer_steps": completed_steps, "partitions": evidence,
+            })
+        except Exception as exc:  # noqa: BLE001 - optional metadata must not replace mandatory audits
+            diagnostics.events.append({"phase": phase, "partition_diagnostic_error": repr(exc)})
 
     class ProbeTrainer(checked_trainer_cls):
         def training_step(self, engine, inputs, *step_args, **step_kwargs):
@@ -272,6 +276,11 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
                 raise FullParameterScopeError("Sharded preflight requires the actual NCCL process group")
             zero = engine.optimizer
             if not getattr(self, "_a2ui_zero_probe_installed", False):
+                # DeepSpeed is initialized lazily by Trainer.train(), not by
+                # Trainer.__init__. Sample surviving startup peaks before any
+                # backward; DeepSpeed may reset counters inside initialization.
+                sample_partitions(zero, "engine_ready")
+                sample_memory("engine_ready")
                 # Accelerate performs engine.step INSIDE backward, before the
                 # HF on_pre_optimizer_step callback. Inspect at the actual ZeRO
                 # step boundary, not after gradients have already been cleared.
@@ -281,10 +290,14 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
                     nonlocal completed_steps, optimizer_evidence, coverage
                     if microsteps + 1 != (completed_steps + 1) * accumulation:
                         raise FullParameterScopeError("ZeRO optimizer updated before a full accumulation window")
+                    sample_partitions(zero, "before_gradient_validation", include_gradients=True)
+                    sample_memory("before_gradient_validation")
                     coverage = _collective_gradient_audit(parameters, world)
+                    diagnostics.nccl_collectives_certified = True
                     audit_adamw_state(zero, require_state=completed_steps > 0)
-                    sample_memory()
+                    sample_memory("after_pre_step_validation")
                     result = original_step(*args, **kwargs)
+                    sample_memory("after_optimizer_step_before_validation")
                     if getattr(zero, "overflow", False):
                         raise FullParameterScopeError("ZeRO optimizer skipped a non-finite update")
                     optimizer_evidence = audit_adamw_state(zero, require_state=True)
@@ -292,7 +305,8 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
                         if not tensor_all_finite(parameter):
                             raise FullParameterScopeError(f"Non-finite updated parameter: {name}")
                     completed_steps += 1
-                    sample_memory()
+                    sample_partitions(zero, "after_post_step_validation")
+                    sample_memory("after_post_step_validation")
                     log(f"Sharded Trainer probe rank={dist.get_rank()}: update {completed_steps}/{STEPS}; disposable")
                     return result
 
@@ -302,7 +316,7 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
             if not tensor_all_finite(loss):
                 raise FullParameterScopeError("Sharded preflight produced non-finite loss")
             microsteps += 1
-            sample_memory()
+            sample_memory("microstep_return")
             return loss
 
         def save_model(self, *args, **kwargs):
@@ -311,34 +325,44 @@ def run_sharded_trainer_preflight(checked_trainer_cls: Any, trainer_kwargs: dict
         def _save_checkpoint(self, *args, **kwargs):
             raise FullParameterScopeError("Disposable sharded preflight cannot save a checkpoint")
 
-    trainer = ProbeTrainer(**{**trainer_kwargs, "args": probe_args, "eval_dataset": None,
-                             "callbacks": [], "train_dataset": _RepeatedLongestRow(
-                                 longest_row, STEPS * accumulation * world)})
-    trainer.train()
-    if completed_steps != STEPS or microsteps != STEPS * accumulation or trainer.state.global_step != STEPS:
-        raise FullParameterScopeError("Sharded probe did not complete both full accumulation windows")
-    sample_memory()
-    peak_reserved = torch.cuda.max_memory_reserved(device)
-    optimizer_evidence["learning_rate"] = float(args.learning_rate)
-    report = {
-        "schema_version": 3, "probe": PROBE_KIND, "passed": True,
-        "disposable_worker_required": True, "model_must_not_be_reused": True,
-        "checkpoint_writes": 0, "disposable_optimizer_steps": completed_steps,
-        "optimizer": optimizer_evidence,
-        "scope": {"unique_parameter_count": len(parameters), "trainable_numel": sum(p.numel() for _, p in parameters),
-                  "all_trainable_fp32": True, "all_gradients_finite": True, "all_parameters_finite_after_step": True},
-        "sharded_probe": {"backend": "sharded", "zero_stage": 2, "world_size": world,
-                          "gradient_accumulation_steps": accumulation, "microsteps": microsteps,
-                          "optimizer_steps": completed_steps, "nccl_collectives_certified": True,
-                          "model_parameters_replicated": True, "gradient_coverage": coverage,
-                          "config": ds_config, "config_sha256": deepspeed_config_sha256(ds_config)},
-        "memory": {"device": str(device), "cuda_local_rank_only": True, "nccl_collectives_certified": True,
-                   "baseline_allocated_bytes": baseline_allocated, "baseline_reserved_bytes": baseline_reserved,
-                   "peak_allocated_bytes": torch.cuda.max_memory_allocated(device), "peak_reserved_bytes": peak_reserved,
-                   "device_total_bytes": total, "device_free_bytes_min": minimum_free,
-                   "peak_reserved_fraction": peak_reserved / total, "max_reserved_fraction": 0.90},
-        "selection": {"longest_sequence_length": len(longest_row["input_ids"]), "repeated_real_prepared_row": True},
-    }
-    validate_sharded_probe(report, accumulation_steps=accumulation, world_size=world,
-                           local_rank=int(os.environ["LOCAL_RANK"]))
-    return report
+    try:
+        sample_memory("before_trainer")
+        with diagnostics.capture_deepspeed_setup_events():
+            trainer = ProbeTrainer(**{**trainer_kwargs, "args": probe_args, "eval_dataset": None,
+                                     "callbacks": [], "train_dataset": _RepeatedLongestRow(
+                                         longest_row, STEPS * accumulation * world)})
+            sample_memory("after_trainer_construction")
+            trainer.train()
+        sample_memory("after_trainer_run")
+        if completed_steps != STEPS or microsteps != STEPS * accumulation or trainer.state.global_step != STEPS:
+            raise FullParameterScopeError("Sharded probe did not complete both full accumulation windows")
+        optimizer_evidence["learning_rate"] = float(args.learning_rate)
+        report = {
+            "schema_version": 3, "probe": PROBE_KIND, "passed": True,
+            "disposable_worker_required": True, "model_must_not_be_reused": True,
+            "checkpoint_writes": 0, "disposable_optimizer_steps": completed_steps,
+            "optimizer": optimizer_evidence,
+            "scope": {"unique_parameter_count": len(parameters), "trainable_numel": sum(p.numel() for _, p in parameters),
+                      "all_trainable_fp32": True, "all_gradients_finite": True, "all_parameters_finite_after_step": True},
+            "sharded_probe": {"backend": "sharded", "zero_stage": 2, "world_size": world,
+                              "gradient_accumulation_steps": accumulation, "microsteps": microsteps,
+                              "optimizer_steps": completed_steps, "nccl_collectives_certified": True,
+                              "model_parameters_replicated": True, "gradient_coverage": coverage,
+                              "config": ds_config, "config_sha256": deepspeed_config_sha256(ds_config)},
+            "memory": diagnostics.memory_report(baseline_allocated, baseline_reserved),
+            "selection": {"longest_sequence_length": len(longest_row["input_ids"]), "repeated_real_prepared_row": True},
+        }
+        # These files cannot satisfy write/require_optimizer_preflight. Each
+        # rank flushes its full diagnostic before any rank may reject the gate.
+        diagnostics.publish("pending_validation", memory=report["memory"], emit=True)
+        dist.barrier()
+        validate_sharded_probe(report, accumulation_steps=accumulation, world_size=world,
+                               local_rank=local_rank)
+        diagnostics.publish("validated", memory=report["memory"])
+        return report
+    except Exception as exc:
+        diagnostics.record_failure(
+            exc, baseline_allocated=baseline_allocated, baseline_reserved=baseline_reserved,
+            microsteps=microsteps, optimizer_steps=completed_steps,
+        )
+        raise

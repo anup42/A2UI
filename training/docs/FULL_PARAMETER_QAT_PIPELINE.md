@@ -274,6 +274,74 @@ ZeRO configuration, accumulation count, AdamW state, and memory headroom. The
 Golden32 selector, final-only Golden35/Bixby50 evaluations, downstream stage order, export
 route, H100 counts, effective batch, and checkpoint provenance remain the same.
 
+### Diagnosing rank-local ZeRO-2 memory failures
+
+The disposable sharded probe writes a separate diagnostic file on **every
+rank**, including ranks that later fail the memory gate:
+
+```text
+<output>/fit/training/sharded_preflight_diagnostics_rank<RANK>.json
+<output>/logs/preflight_launch.log
+```
+
+These are incremental, atomically replaced diagnostic records, **not** passing
+`full_optimizer_preflight_rank<RANK>.json` receipts. Each worker flushes its
+complete final counters and prints a `Sharded preflight memory:` line, then
+joins a final distributed barrier before any worker calls the fail-closed
+validator. This applies to ranks that reach final validation: an earlier rank
+failure can leave peers waiting until launcher teardown. A catchable failure
+also writes an error record; an abrupt process kill or a broken CUDA context
+can leave only the last available sample. An early failure never claims that
+NCCL was certified before a gradient-coverage collective succeeds. A diagnostic
+write failure also stops the probe rather than silently continuing without
+the requested evidence. The original validation inputs are retained separately
+from any later exception-time memory sample.
+
+The report includes baseline, current and observed peak allocated/reserved
+bytes, device total and sampled minimum free bytes, reserved/free fractions,
+GPU/rank identity, and **each named gate predicate**. The limits are unchanged:
+reserved fraction must be strictly **below 0.90**, and sampled free fraction
+strictly **above 0.10**. Context length, microbatch 1, accumulation, and effective
+batch 32 are not changed by diagnostics. DDP and retained-scale LoRA do not use
+this recorder.
+
+Samples separate Trainer construction, live ZeRO engine initialization,
+microbatch returns, pre-update gradient/master validation, the actual optimizer
+step, and post-update moment/parameter validation. Partition snapshots record
+group sizes and padding, local FP32 master and AdamW moment element/byte counts,
+local gradient-fragment ownership, flat parameter views and communication
+bucket buffers. They read tensor metadata, not tensor values or full gradient
+copies. Logical view bytes can alias; the deduplicated storage summary covers
+only known reported categories, not total GPU usage. Missing optional metadata
+is marked unavailable and does not replace the mandatory gradient/state audits.
+
+Interpret rank differences with these caveats:
+
+- Pinned DeepSpeed selects CPU versus GPU parameter flattening using each
+  rank's available memory. The diagnostic temporarily captures its setup INFO
+  events and restores the logger afterward. Compare actual branch events rather
+  than assuming the same startup path. Core flat partitions are near-equal;
+  a different number of locally owned parameter *names* does not itself imply
+  different allocated master/moment bytes. See the
+  [DeepSpeed 0.19.7 partition implementation](https://github.com/deepspeedai/DeepSpeed/blob/v0.19.7/deepspeed/runtime/zero/stage_1_and_2.py).
+- DeepSpeed's `empty_cache()` helper also resets peak counters; some memory
+  logging paths reset them too. The recorder retains the maximum of peaks
+  **observed at all sampling points** and reports decreases, but cannot recover
+  transients reset between samples. It never resets counters itself. See
+  [DeepSpeed memory helpers](https://github.com/deepspeedai/DeepSpeed/blob/v0.19.7/deepspeed/runtime/utils.py).
+- Free memory is discrete, device-wide sampling, not a continuous per-process
+  minimum. The non-PyTorch estimate is contemporaneous driver-used memory minus
+  current PyTorch reserved memory. It can include other processes, CUDA/NCCL
+  allocations and sampling races; it is **not** an attribution to NCCL. Do not
+  subtract peaks and free minima measured at different times.
+
+For the reported four-GPU odd-rank failures, successful rank 0/2 counters alone
+cannot establish the cause. Rerun the **same requested configuration** in a
+fresh output directory and collect all four diagnostic files plus the preflight
+log. Compare phase peaks, local partition/moment bytes and external estimates
+before deciding whether the asymmetry is partition-related, a measurement
+effect, or real rank-local memory pressure. Do not lower the gate or bypass it.
+
 The previous single-backward raw-DDP probe did not reproduce Trainer's
 `no_sync()` accumulation. At the first accumulated backward, `no_sync` left a
 standalone FP32 gradient set in addition to the DDP buckets: about 18.74 GiB for
